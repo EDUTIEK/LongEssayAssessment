@@ -1,0 +1,12 @@
+{
+  "require": {
+    "php": ">=7.4 <8.1"
+  },
+  "autoload": {
+    "psr-4" : { "ILIAS\\Plugin\\LongEssayTask\\" : "./classes" },
+    "classmap": ["./classes"],
+    "exclude-from-classmap": []
+  },
+  "require-dev": {
+  }
+}

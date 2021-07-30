@@ -1,0 +1,43 @@
+//
+// Copyright (c) 2021 ILIAS open source, Extended GPL, see docs/LICENSE */
+//
+// @author Fred Neumann <fred.neumann@fau.de>
+// @version $Id$
+//
+
+<!-- language file start -->
+obj_xlet#:#Langtext-Aufgabe
+objs_xlet#:#Langtext-Aufgaben
+obj_xlet_duplicate#:#Kopieren
+objs_xlet_duplicate#:#Kopiere Langtext-Aufgabe
+obj_xamo_select#:#Wähle Langtext-Aufgabe
+xlet_add#:#Langtext-Aufgabe hinzufügen
+xlet_new#:#Neue Langtext-Aufgabe
+xlet_read#:#Lesezugriff auf Langtext-Aufgabe
+xlet_write#:#Langtext-Aufgabe bearbeiten
+xlet_delete#:#Langtext-Aufgabe löschen
+xlet_visible#:#Langtext-Aufgabe ist sichtbar
+xlet_edit_permission#:#Zugriffsrecht bearbeiten
+crs_create_xlet#:#Erstelle Langtext-Aufgabe
+grp_create_xlet#:#Erstelle Langtext-Aufgabe
+fold_create_xlet#:#Erstelle Langtext-Aufgabe
+root_create_xlet#:#Erstelle Langtext-Aufgabe
+cat_create_xlet#:#Erstelle Langtext-Aufgabe
+title#:#Titel
+description#:#Beschreibung
+status#:#Status
+online#:#Online
+offline#:#Offline
+save#:#Speichern
+properties#:#Eigenschaften
+content#:#Inhalt
+copy#:#Kopieren
+edit#:#Bearbeiten
+export#:#Export
+configuration#:#Konfiguration
+update_languages#:#Sprachen aktualisieren
+generate_db_update#:#DB-Update generieren
+eskript_url#:#HTTP-Adresse zu eSkript
+eskript_url_info#:#Bitte geben Sie die URL zu eSkript ein. Z.B.: http://www.ilias_installation.de/eskript/
+eskript_key#:#ILIAS-Token
+eskript_key_info#:#Bitte tragen Sie dieses ILIAS-Token in der Datei eskript/inc.var.php ein.

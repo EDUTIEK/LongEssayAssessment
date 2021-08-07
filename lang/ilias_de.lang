@@ -41,3 +41,5 @@ eskript_url#:#HTTP-Adresse zu eSkript
 eskript_url_info#:#Bitte geben Sie die URL zu eSkript ein. Z.B.: http://www.ilias_installation.de/eskript/
 eskript_key#:#ILIAS-Token
 eskript_key_info#:#Bitte tragen Sie dieses ILIAS-Token in der Datei eskript/inc.var.php ein.
+task_definition#:#Aufgabenstellung
+orga_settings#:#Organisation

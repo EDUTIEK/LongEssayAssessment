@@ -4,11 +4,12 @@
 require_once(__DIR__ . "/class.ilLongEssayTaskPlugin.php");
 
 /**
- *
+ * Plugin GUI Class
+ * This is the entry point for the ILIAS controller
+ * It delegates
  *
  * @ilCtrl_isCalledBy ilObjLongEssayTaskGUI: ilRepositoryGUI, ilAdministrationGUI, ilObjPluginDispatchGUI
  * @ilCtrl_Calls ilObjLongEssayTaskGUI: ilPermissionGUI, ilInfoScreenGUI, ilObjectCopyGUI, ilCommonActionDispatcherGUI, ilExportGUI
- * @ilCtrl_Calls ilObjLongEssayTaskGUI:
  */
 class ilObjLongEssayTaskGUI extends ilObjectPluginGUI
 {
@@ -18,11 +19,20 @@ class ilObjLongEssayTaskGUI extends ilObjectPluginGUI
 	/** @var ilLongEssayTaskPlugin */
 	public $plugin;
 
+    /**
+     * Definition of the plugin specific sub tabs
+     * @var array tab_id => [ ['id' => string, 'txt' => string, 'url' => string, ... ]
+     * @see setTabs()
+     */
+	protected $subtabs = [];
+
 	/**
 	 * Initialisation
 	 */
 	protected function afterConstructor()
 	{
+	    $this->plugin = ilLongEssayTaskPlugin::getInstance();
+
         // Description is not shown by ilObjectPluginGUI
         if (isset($this->object))
         {
@@ -31,8 +41,8 @@ class ilObjLongEssayTaskGUI extends ilObjectPluginGUI
             if (!$this->object->isOnline())
             {
                 array_push($alerts, array(
-                        'property' => $this->object->plugin->txt('status'),
-                        'value' => $this->object->plugin->txt('offline'))
+                        'property' => $this->plugin->txt('status'),
+                        'value' => $this->plugin->txt('offline'))
                 );
             }
             $this->tpl->setAlertProperties($alerts);
@@ -48,7 +58,26 @@ class ilObjLongEssayTaskGUI extends ilObjectPluginGUI
 	}
 
 
-	/**
+    /**
+     * Ger the repository object
+     * @return ilObjLongEssayTask
+     */
+	public function getObject()
+    {
+        return $this->object;
+    }
+
+    /**
+     * Get the plugin object
+     * @return ilLongEssayTaskPlugin
+     */
+    public function getPlugin()
+    {
+        return $this->plugin;
+    }
+
+
+    /**
 	 * Handles all commands of this class, centralizes permission checks
 	 */
 	function performCommand($cmd)
@@ -56,14 +85,14 @@ class ilObjLongEssayTaskGUI extends ilObjectPluginGUI
         $next_class = $this->ctrl->getNextClass();
         if (!empty($next_class)) {
 
-//            switch ($next_class) {
-//                case 'ilLongEssayTaskrecordgui':
-//                    $this->checkPermission('read');
-//                    $this->tabs->activateTab("content");
-//                    require_once(__DIR__ . '/record/class.ilLongEssayTaskRecordGUI.php');
-//                    $this->ctrl->forwardCommand(new ilLongEssayTaskRecordGUI($this));
-//                    break;
-//            }
+            switch ($next_class) {
+                case 'ilias\plugin\longessaytask\task\orgasettingsgui':
+                    if ($this->object->canEditOrgaSettings()) {
+                        $this->activateTab('task', 'orgaSettings');
+                        $this->ctrl->forwardCommand(new \ILIAS\Plugin\LongEssayTask\Task\OrgaSettingsGUI($this));
+                    }
+                    break;
+            }
 
         }
         else {
@@ -103,121 +132,80 @@ class ilObjLongEssayTaskGUI extends ilObjectPluginGUI
 		return "defaultCommand";
 	}
 
+    /**
+     * Apply the default command
+     */
+    protected function defaultCommand()
+    {
+        $this->ctrl->redirectByClass('ilInfoScreenGUI');
+    }
 
-	/**
-	 * Set tabs
+    /**
+	 * Set tabs (called already by ilObjPluginGUI before performCommand is called)
+     * This defines the available sub tabs for each tab, based on the permissions
+     * A Tab is added to the GUI with the URL of the first available sub tab
+     * The actual sub tabs are added to the GUI in self::activateTab() when the current tab is known
 	 */
 	function setTabs()
 	{
-		// tab for the "show content" command
-		if ($this->access->checkAccess("read", "", $this->object->getRefId()))
-		{
-//			$this->tabs->addTab("content", $this->txt("content"), $this->ctrl->getLinkTarget($this, "showContent"));
-		}
+        $this->subtabs = [];
 
-		// standard info screen tab
-		$this->addInfoTab();
+        // available sub tabs for the "task definition" tab
+        if ($this->object->canEditOrgaSettings()) {
+            $this->subtabs['task'][] = [
+                'id' => 'OrgaSettings',
+                'txt' => $this->plugin->txt('orga_settings'),
+                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessaytask\task\orgasettingsgui')
+            ];
+        }
 
-		// a "properties" tab
-		if ($this->access->checkAccess("write", "", $this->object->getRefId()))
-		{
-			$this->tabs->addTab("properties", $this->txt("properties"), $this->ctrl->getLinkTarget($this, "editProperties"));
- 		}
+        // "task definition" tab
+        if (!empty($this->subtabs['task'])) {
+            $this->tabs->addTab('TaskDefinition', $this->plugin->txt('task_definition'), $this->subtabs['task'][0]['url']);
+        }
 
-		// standard export tab
+
+
+
+        // standard info screen tab
+        $this->addInfoTab();
+
+        // standard export tab
 		// $this->addExportTab();
 
 		// standard permission tab
 		$this->addPermissionTab();
-		$this->activateTab();
-	}
 
-	/**
-	 * Edit Properties. This commands uses the form class to display an input form.
-	 */
-	protected function editProperties()
-	{
-		$this->tabs->activateTab("properties");
-		$form = $this->initPropertiesForm();
-		$this->tpl->setContent($form->getHTML());
-	}
 
-	/**
-	 * @return ilPropertyFormGUI
-	 */
-	protected function initPropertiesForm() {
-		$form = new ilPropertyFormGUI();
-		$form->setTitle($this->lng->txt("settings"));
-
-		$title = new ilTextInputGUI($this->plugin->txt("title"), "title");
-		$title->setRequired(true);
-		$title->setValue($this->object->getTitle());
-		$form->addItem($title);
-
-		$description = new ilTextInputGUI($this->plugin->txt("description"), "description");
-		$description->setValue($this->object->getDescription());
-		$form->addItem($description);
-
-        // items will already have the param values
-		$online = new ilCheckboxInputGUI($this->lng->txt('online'), 'online');
-		$online->setChecked($this->object->isOnline());
-		$form->addItem($online);
-
-		$form->setFormAction($this->ctrl->getFormAction($this, "saveProperties"));
-		$form->addCommandButton("saveProperties", $this->lng->txt("update"));
-
-		return $form;
-	}
-
-	/**
-	 * Save the Object Properties
-	 */
-	protected function saveProperties()
-    {
-		$form = $this->initPropertiesForm();
-		$form->setValuesByPost();
-		if ($form->checkInput()) {
-
-            $this->object->setTitle($form->getInput('title'));
-            $this->object->setDescription($form->getInput('description'));
-            $this->object->setOnline($form->getInput('online'));
-			$this->object->update();
-
-			ilUtil::sendSuccess($this->lng->txt("settings_saved"), true);
-			$this->ctrl->redirect($this, "editProperties");
-		}
-		$this->tpl->setContent($form->getHTML());
-	}
-
-    /**
-     * Apply the default command
-     */
-	protected function defaultCommand()
-    {
-        if ($this->checkPermissionBool('write')) {
-            $this->ctrl->redirect($this,'editProperties');
-        }
-        else {
-            $this->ctrl->redirectByClass('ilInfoScreenGUI');
+        // activate tab for sme external GUIs
+        $next_class = $this->ctrl->getCmdClass();
+        switch($next_class) {
+            case 'ilexportgui':
+                $this->tabs->activateTab("export");
+                break;
         }
 	}
 
 
+
 	/**
-	 * We need this method if we can't access the tabs otherwise...
+	 * Activate a tab, add it's sub tabs and activate a sub tab
+     *
+     * @param string    $a_tab_id
+     * @param string    $a_subtab_id
 	 */
-	private function activateTab() {
-		$next_class = $this->ctrl->getCmdClass();
+	protected function activateTab ($a_tab_id, $a_subtab_id = '') {
 
-		switch($next_class) {
-			case 'ilexportgui':
-				$this->tabs->activateTab("export");
-				break;
-		}
+        $this->tabs->activateTab($a_tab_id);
 
-		return;
+        if (!empty($this->subtabs[$a_tab_id])) {
+            foreach($this->subtabs[$a_tab_id] as $subtab) {
+                $this->tabs->addSubTab($subtab['id'], $subtab['txt'], $subtab['url']);
+            }
+        }
+
+        if (!empty($a_subtab_id)) {
+            $this->tabs->activateSubTab($a_subtab_id);
+        }
 	}
-
-
-
 }

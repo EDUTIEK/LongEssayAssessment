@@ -2,7 +2,7 @@
 /* Copyright (c) 2021 ILIAS open source, Extended GPL, see docs/LICENSE */
 
 use ILIAS\DI\Container;
-use ILIAS\Plugin\LongEssayTask\Models\ObjectSettings;
+use ILIAS\Plugin\LongEssayTask\Data\ObjectSettings;
 
 /**
  * Repository object
@@ -11,13 +11,10 @@ use ILIAS\Plugin\LongEssayTask\Models\ObjectSettings;
 class ilObjLongEssayTask extends ilObjectPlugin
 {
     /** @var Container */
-    public $dic;
+    protected $dic;
 
     /** @var ilAccess */
-    public $access;
-
-    /** @var ilLongEssayTaskPlugin */
-    public $plugin;
+    protected $access;
 
     /** @var ObjectSettings */
     protected $objectSettings;
@@ -111,4 +108,31 @@ class ilObjLongEssayTask extends ilObjectPlugin
 	{
 		return (bool) $this->objectSettings->isOnline();
 	}
+
+    /**
+     * Get the plugin object
+     * @return object
+     */
+	public function getPlugin()
+    {
+        return $this->plugin;
+    }
+
+    /**
+     *
+     */
+    public function canEditOrgaSettings()
+    {
+        return $this->access->checkAccess('write', '', $this->getRefId());
+    }
+
+
+    /**
+     *
+     */
+    public function canEditContentSettings()
+    {
+        return $this->access->checkAccess('write', '', $this->getRefId());
+    }
+
 }

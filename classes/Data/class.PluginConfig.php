@@ -1,7 +1,7 @@
 <?php
 /* Copyright (c) 2021 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-namespace ILIAS\Plugin\LongEssayTask\Models;
+namespace ILIAS\Plugin\LongEssayTask\Data;
 
 /**
  * Plugin Configuration

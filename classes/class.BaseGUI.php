@@ -10,32 +10,42 @@ namespace ILIAS\Plugin\LongEssayTask;
 abstract class BaseGUI
 {
 	/** @var \ILIAS\DI\Container */
-	public $dic;
+	protected $dic;
 
 	/** @var \ilCtrl */
-	public $ctrl;
+    protected $ctrl;
 
 	/** @var  \ilTabsGUI */
-	public $tabs;
+    protected $tabs;
 
 	/** @var \ilGlobalTemplateInterface */
-	public $tpl;
+    protected $tpl;
 
 	/** @var \ilLanguage */
-	public $lng;
+    protected $lng;
 
 	/** @var \ilToolbarGUI */
 	protected $toolbar;
 
     /** @var \ilObjLongEssayTaskGUI */
-    public $objectGUI;
+    protected $objectGUI;
 
     /** @var  \ilObjLongEssayTask */
-    public $object;
+    protected $object;
 
     /** @var  \ilLongEssayTaskPlugin */
-    public $plugin;
+    protected $plugin;
 
+    /** @var \ILIAS\UI\Factory  */
+    protected $uiFactory;
+
+    /** @var \ILIAS\UI\Renderer  */
+    protected $renderer;
+
+    /** @var \Psr\Http\Message\RequestInterface|\Psr\Http\Message\ServerRequestInterface  */
+    protected $request;
+
+    protected $refinery;
 
     /**
 	 * Constructor
@@ -52,13 +62,15 @@ abstract class BaseGUI
         $this->toolbar = $this->dic->toolbar();
         $this->lng = $this->dic->language();
         $this->tpl = $this->dic->ui()->mainTemplate();
+        $this->uiFactory = $this->dic->ui()->factory();
+        $this->renderer = $this->dic->ui()->renderer();
+        $this->request = $this->dic->http()->request();
+        $this->refinery = $this->dic->refinery();
 
         // Plugin dependencies
         $this->objectGUI = $objectGUI;
         $this->object = $this->objectGUI->getObject();
 		$this->plugin = $this->objectGUI->getPlugin();
-
-
 	}
 
 	/**

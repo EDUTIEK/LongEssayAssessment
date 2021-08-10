@@ -28,7 +28,6 @@ class OrgaSettingsGUI extends BaseGUI
         switch ($cmd)
         {
             case "editSettings":
-            case "saveSettings":
                 $this->$cmd();
                 break;
 
@@ -38,60 +37,42 @@ class OrgaSettingsGUI extends BaseGUI
     }
 
     /**
-     * Edit Properties. This commands uses the form class to display an input form.
+     * Edit and save the settings
      */
     protected function editSettings()
     {
-        $form = $this->initPropertiesForm();
-        $this->tpl->setContent($form->getHTML());
-    }
+        $factory = $this->uiFactory->input()->field();
+        $fields = [];
 
-    /**
-     * @return ilPropertyFormGUI
-     */
-    protected function initPropertiesForm() {
-        $form = new ilPropertyFormGUI();
-        $form->setTitle($this->lng->txt("settings"));
+        $fields['title'] = $factory->text($this->plugin->txt("title"))
+            ->withRequired(true)
+            ->withValue($this->object->getTitle());
 
-        $title = new ilTextInputGUI($this->plugin->txt("title"), "title");
-        $title->setRequired(true);
-        $title->setValue($this->object->getTitle());
-        $form->addItem($title);
+        $fields['description'] = $factory->textarea($this->plugin->txt("title"))
+            ->withValue($this->object->getDescription());
 
-        $description = new ilTextInputGUI($this->plugin->txt("description"), "description");
-        $description->setValue($this->object->getDescription());
-        $form->addItem($description);
+        $fields['online'] = $factory->checkbox($this->lng->txt('online'))
+            ->withValue($this->object->isOnline());
 
-        // items will already have the param values
-        $online = new ilCheckboxInputGUI($this->lng->txt('online'), 'online');
-        $online->setChecked($this->object->isOnline());
-        $form->addItem($online);
+        $form = $this->uiFactory->input()->container()->form()->standard($this->ctrl->getFormAction($this), $fields);
 
-        $form->setFormAction($this->ctrl->getFormAction($this, "saveSettings"));
-        $form->addCommandButton("saveSettings", $this->lng->txt("update"));
+        // apply inputs
+        if ($this->request->getMethod() == "POST") {
+            $form = $form->withRequest($this->request);
+            $data = $form->getData();
+        }
 
-        return $form;
-    }
-
-    /**
-     * Save the Object Properties
-     */
-    protected function saveSettings()
-    {
-        $form = $this->initPropertiesForm();
-        $form->setValuesByPost();
-        if ($form->checkInput()) {
-
-            $this->object->setTitle($form->getInput('title'));
-            $this->object->setDescription($form->getInput('description'));
-            $this->object->setOnline($form->getInput('online'));
+        // inputs are ok => save data
+        if (isset($data)) {
+            $this->object->setTitle($data['title']);
+            $this->object->setDescription($data['description']);
+            $this->object->setOnline($data['online']);
             $this->object->update();
 
             ilUtil::sendSuccess($this->lng->txt("settings_saved"), true);
             $this->ctrl->redirect($this, "editSettings");
         }
-        $this->tpl->setContent($form->getHTML());
+
+        $this->tpl->setContent($this->renderer->render($form));
     }
-
-
 }

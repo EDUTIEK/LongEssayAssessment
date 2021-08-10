@@ -84,7 +84,6 @@ class ilObjLongEssayTaskGUI extends ilObjectPluginGUI
 	{
         $next_class = $this->ctrl->getNextClass();
         if (!empty($next_class)) {
-
             switch ($next_class) {
                 case 'ilias\plugin\longessaytask\task\orgasettingsgui':
                     if ($this->object->canEditOrgaSettings()) {
@@ -93,23 +92,18 @@ class ilObjLongEssayTaskGUI extends ilObjectPluginGUI
                     }
                     break;
             }
-
         }
         else {
             switch ($cmd)
             {
-                // list all commands that need write permission here
-                case "editProperties":
-                case "updateProperties":
-                case "saveProperties":
+                case 'jumpToOrgaSettings':
                     $this->checkPermission("write");
                     $this->$cmd();
                     break;
 
                 // list all commands that need read permission here
-                case "showContent":
+                case "defaultCommand":
                 default:
-                    $this->checkPermission("read");
                     $this->$cmd();
                     break;
             }
@@ -121,7 +115,7 @@ class ilObjLongEssayTaskGUI extends ilObjectPluginGUI
 	 */
 	function getAfterCreationCmd()
 	{
-		return "editProperties";
+		return "jumpToOrgaSettings";
 	}
 
 	/**
@@ -129,16 +123,26 @@ class ilObjLongEssayTaskGUI extends ilObjectPluginGUI
 	 */
 	function getStandardCmd()
 	{
-		return "defaultCommand";
+		return "standardCommand";
 	}
 
     /**
-     * Apply the default command
+     * Apply the standard command
      */
-    protected function defaultCommand()
+    protected function standardCommand()
     {
+        // TODO: check permissions and decide which gui can be shown
         $this->ctrl->redirectByClass('ilInfoScreenGUI');
     }
+
+    /**
+     * Jump to the editing of organisational settings
+     */
+    protected function jumpToOrgaSettings()
+    {
+        $this->ctrl->redirectByClass('ilias\plugin\longessaytask\task\orgasettingsgui');
+    }
+
 
     /**
 	 * Set tabs (called already by ilObjPluginGUI before performCommand is called)
@@ -165,8 +169,6 @@ class ilObjLongEssayTaskGUI extends ilObjectPluginGUI
         }
 
 
-
-
         // standard info screen tab
         $this->addInfoTab();
 
@@ -176,8 +178,7 @@ class ilObjLongEssayTaskGUI extends ilObjectPluginGUI
 		// standard permission tab
 		$this->addPermissionTab();
 
-
-        // activate tab for sme external GUIs
+        // activate tab for some external GUIs
         $next_class = $this->ctrl->getCmdClass();
         switch($next_class) {
             case 'ilexportgui':
@@ -189,7 +190,7 @@ class ilObjLongEssayTaskGUI extends ilObjectPluginGUI
 
 
 	/**
-	 * Activate a tab, add it's sub tabs and activate a sub tab
+	 * Activate a tab, add its sub tabs and activate a sub tab
      *
      * @param string    $a_tab_id
      * @param string    $a_subtab_id

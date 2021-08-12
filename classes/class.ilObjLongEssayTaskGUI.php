@@ -102,7 +102,7 @@ class ilObjLongEssayTaskGUI extends ilObjectPluginGUI
                     break;
 
                 // list all commands that need read permission here
-                case "defaultCommand":
+                case "standardCommand":
                 default:
                     $this->$cmd();
                     break;

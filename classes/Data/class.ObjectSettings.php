@@ -9,6 +9,8 @@ namespace ILIAS\Plugin\LongEssayTask\Data;
  */
 class ObjectSettings extends \ActiveRecord
 {
+    use ActiveData;
+
     const PARTICIPATION_TYPE_FIXED = 'fixed';
     const PARTICIPATION_TYPE_INSTANT = 'instant';
 
@@ -31,7 +33,7 @@ class ObjectSettings extends \ActiveRecord
      * @con_fieldtype        integer
      * @con_length           4
      */
-    public $obj_id = 0;
+    protected $obj_id = 0;
 
 
     /**
@@ -41,7 +43,7 @@ class ObjectSettings extends \ActiveRecord
      * @con_fieldtype        integer
      * @con_length           4
      */
-    public $online = 0;
+    protected $online = 0;
 
 
     /**
@@ -51,17 +53,7 @@ class ObjectSettings extends \ActiveRecord
      * @con_fieldtype        text
      * @con_length           10
      */
-    public $participation_type = self::PARTICIPATION_TYPE_INSTANT;
-
-
-    /**
-     * @return string
-     * @description Return the Name of your Database Table
-     */
-    public static function returnDbTableName()
-    {
-        return 'xlet_object_settings';
-    }
+    protected $participation_type = self::PARTICIPATION_TYPE_INSTANT;
 
 
     /**

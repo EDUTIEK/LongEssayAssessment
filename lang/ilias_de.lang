@@ -43,3 +43,20 @@ eskript_key#:#ILIAS-Token
 eskript_key_info#:#Bitte tragen Sie dieses ILIAS-Token in der Datei eskript/inc.var.php ein.
 task_definition#:#Aufgabenstellung
 orga_settings#:#Organisation
+object_settings#:#Objekt-Einstellungen
+participation_type#:#Teilnahme
+participation_type_fixed#:#Vorgegeben
+participation_type_fixed_info#:#Die Möglichkeit zur Teilnahme wird vorab über eine Liste festgelegt.
+participation_type_instant#:#Selbständig
+participation_type_instant_info#:#Für die Teilnahme genügt das Leserecht.
+task_settings#:#Aufgaben-Einstellungen
+task_description#:#Aufgaben-Beschreibung
+task_description_info#:#Die Beschreibung wird schon vor dem Bearbeitungszeitraum angezeigt
+task_instructions#:#Aufgabenstellung
+task_instructions_info#:#Die Aufgabenstellung erst mit Start der Bearbeitung angezeigt.
+writing_start#:#Bearbeitungs-Start
+writing_end#:#Bearbeitungs-Start
+correction_start#:#Korrektur-Start
+correction_end#:#Korrektur-Ende
+review_start#:#Einsichtnahme-Start
+review_end#:#Einsichtnahme-Ende

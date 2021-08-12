@@ -159,7 +159,7 @@ class ilLongEssayTaskConfigGUI extends ilPluginConfigGUI
      */
 	protected function generateDBUpdate()
     {
-        $arBuilder = new arBuilder(new \ILIAS\Plugin\LongEssayTask\Data\ObjectSettings());
+        $arBuilder = new arBuilder(new \ILIAS\Plugin\LongEssayTask\Data\TaskSettings());
         $arBuilder->generateDBUpdateForInstallation();
     }
 

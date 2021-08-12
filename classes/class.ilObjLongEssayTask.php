@@ -100,7 +100,25 @@ class ilObjLongEssayTask extends ilObjectPlugin
 		$this->objectSettings->setOnline($a_val);
 	}
 
-	/**
+    /**
+     * Set the Participation Type
+     * @param string $a_type
+     */
+	public function setParticipationType($a_type)
+    {
+        $this->objectSettings->setParticipationType($a_type);
+    }
+
+    /**
+     * Get the Participation Type
+     * @return string
+     */
+    public function getParticipationType()
+    {
+        return $this->objectSettings->getParticipationType();
+    }
+
+    /**
 	 * Get online
 	 * @return bool
 	 */

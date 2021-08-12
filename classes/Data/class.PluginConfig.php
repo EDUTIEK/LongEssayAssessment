@@ -9,6 +9,7 @@ namespace ILIAS\Plugin\LongEssayTask\Data;
  */
 class PluginConfig extends \ActiveRecord
 {
+    use ActiveData;
 
     /**
      * @var bool

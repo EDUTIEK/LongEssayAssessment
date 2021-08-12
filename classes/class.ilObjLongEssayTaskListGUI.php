@@ -35,7 +35,7 @@ class ilObjLongEssayTaskListGUI extends ilObjectPluginListGUI
 		(
 			array(
 				"permission" => "read",
-				"cmd" => "defaultCommand",
+				"cmd" => "standardCommand",
 				"default" => true),
 			array(
 				"permission" => "write",

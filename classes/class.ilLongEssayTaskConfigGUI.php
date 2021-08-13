@@ -69,6 +69,7 @@ class ilLongEssayTaskConfigGUI extends ilPluginConfigGUI
                     case "saveConfig":
                     case "updateLanguages":
                     case "generateDBUpdate":
+                    case 'reloadControlStructure':
                         $this->$cmd();
                         break;
                 }
@@ -85,6 +86,11 @@ class ilLongEssayTaskConfigGUI extends ilPluginConfigGUI
         $button = ilLinkButton::getInstance();
         $button->setUrl($this->ctrl->getLinkTarget($this, 'updateLanguages'));
         $button->setCaption($this->plugin->txt('update_languages'), false);
+        $this->toolbar->addButtonInstance($button);
+
+        $button = ilLinkButton::getInstance();
+        $button->setUrl($this->ctrl->getLinkTarget($this, 'reloadControlStructure'));
+        $button->setCaption($this->plugin->txt('reload_control_structure'), false);
         $this->toolbar->addButtonInstance($button);
 
         $button = ilLinkButton::getInstance();
@@ -159,10 +165,20 @@ class ilLongEssayTaskConfigGUI extends ilPluginConfigGUI
      */
 	protected function generateDBUpdate()
     {
-        $arBuilder = new arBuilder(new \ILIAS\Plugin\LongEssayTask\Data\TaskSettings());
+        $arBuilder = new arBuilder(new \ILIAS\Plugin\LongEssayTask\Data\EditorSettings());
         $arBuilder->generateDBUpdateForInstallation();
     }
 
 
+    /**
+     * Reload the plugin control structure
+     */
+    protected function reloadControlStructure() {
 
+        ilGlobalCache::flushAll();
+        $this->plugin->reloadControlStructure();
+        ilGlobalCache::flushAll();
+
+        $this->ctrl->redirect($this, 'configure');
+    }
 }

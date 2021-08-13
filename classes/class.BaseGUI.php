@@ -93,4 +93,15 @@ abstract class BaseGUI
                 $this->tpl->setContent('unknown command: ' . $cmd);
 		}
 	}
+
+    /**
+     * Raise a permission error
+     * This may be needed if wrong ids for editing records are given
+     */
+	public function raisePermissionError()
+    {
+	   \ilUtil::sendFailure($this->lng->txt('permission_denied'), true);
+	   $this->ctrl->clearParameters($this->objectGUI);
+	   $this->ctrl->redirect($this->objectGUI);
+    }
 }

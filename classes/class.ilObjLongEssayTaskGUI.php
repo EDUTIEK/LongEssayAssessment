@@ -87,10 +87,30 @@ class ilObjLongEssayTaskGUI extends ilObjectPluginGUI
             switch ($next_class) {
                 case 'ilias\plugin\longessaytask\task\orgasettingsgui':
                     if ($this->object->canEditOrgaSettings()) {
-                        $this->activateTab('task', 'orgaSettings');
+                        $this->activateTab('tab_task', 'tab_orga_settings');
                         $this->ctrl->forwardCommand(new \ILIAS\Plugin\LongEssayTask\Task\OrgaSettingsGUI($this));
                     }
                     break;
+                case 'ilias\plugin\longessaytask\task\contentsettingsgui':
+                    if ($this->object->canEditContentSettings()) {
+                        $this->activateTab('tab_task', 'tab_content_settings');
+                        $this->ctrl->forwardCommand(new \ILIAS\Plugin\LongEssayTask\Task\ContentSettingsGUI($this));
+                    }
+                    break;
+                case 'ilias\plugin\longessaytask\task\resourcesadmingui':
+                    if ($this->object->canEditContentSettings()) {
+                        $this->activateTab('tab_task', 'tab_resources');
+                        $this->ctrl->forwardCommand(new \ILIAS\Plugin\LongEssayTask\Task\ResourcesAdminGUI($this));
+                    }
+                    break;
+                case 'ilias\plugin\longessaytask\task\editorsettingsgui':
+                    if ($this->object->canEditTechnicalSettings()) {
+                        $this->activateTab('tab_task', 'tab_technical_settings');
+                        $this->ctrl->forwardCommand(new \ILIAS\Plugin\LongEssayTask\Task\EditorSettingsGUI($this));
+                    }
+                    break;
+                default:
+                    ilUtil::sendFailure('Unsupported cmdClass: ' . $next_class);
             }
         }
         else {
@@ -103,9 +123,11 @@ class ilObjLongEssayTaskGUI extends ilObjectPluginGUI
 
                 // list all commands that need read permission here
                 case "standardCommand":
-                default:
                     $this->$cmd();
                     break;
+
+                default:
+                    ilUtil::sendFailure('Unsupported cmd: ' . $next_class);
             }
         }
 	}
@@ -156,16 +178,37 @@ class ilObjLongEssayTaskGUI extends ilObjectPluginGUI
 
         // available sub tabs for the "task definition" tab
         if ($this->object->canEditOrgaSettings()) {
-            $this->subtabs['task'][] = [
-                'id' => 'OrgaSettings',
-                'txt' => $this->plugin->txt('orga_settings'),
+            $this->subtabs['tab_task'][] = [
+                'id' => 'tab_orga_settings',
+                'txt' => $this->plugin->txt('tab_orga_settings'),
                 'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessaytask\task\orgasettingsgui')
+            ];
+        }
+        if ($this->object->canEditContentSettings()) {
+            $this->subtabs['tab_task'][] = [
+                'id' => 'tab_content_settings',
+                'txt' => $this->plugin->txt('tab_content_settings'),
+                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessaytask\task\contentsettingsgui')
+            ];
+        }
+        if ($this->object->canEditContentSettings()) {
+            $this->subtabs['tab_task'][] = [
+                'id' => 'tab_resources',
+                'txt' => $this->plugin->txt('tab_resources'),
+                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessaytask\task\resourcesadmingui')
+            ];
+        }
+        if ($this->object->canEditTechnicalSettings()) {
+            $this->subtabs['tab_task'][] = [
+                'id' => 'tab_technical_settings',
+                'txt' => $this->plugin->txt('tab_technical_settings'),
+                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessaytask\task\editorsettingsgui')
             ];
         }
 
         // "task definition" tab
-        if (!empty($this->subtabs['task'])) {
-            $this->tabs->addTab('TaskDefinition', $this->plugin->txt('task_definition'), $this->subtabs['task'][0]['url']);
+        if (!empty($this->subtabs['tab_task'])) {
+            $this->tabs->addTab('tab_task', $this->plugin->txt('tab_task'), $this->subtabs['task'][0]['url']);
         }
 
 

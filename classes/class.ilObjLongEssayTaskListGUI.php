@@ -39,7 +39,7 @@ class ilObjLongEssayTaskListGUI extends ilObjectPluginListGUI
 				"default" => true),
 			array(
 				"permission" => "write",
-				"cmd" => "editProperties",
+				"cmd" => "jumpToOrgaSettings",
 				"txt" => $this->txt("edit"),
 				"default" => false)
 		);

@@ -62,7 +62,7 @@ class ilLongEssayTaskPlugin extends ilRepositoryObjectPlugin
      */
     public function allowCopy()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -118,5 +118,26 @@ class ilLongEssayTaskPlugin extends ilRepositoryObjectPlugin
             return $a_var;
         }
         return $txt;
+    }
+
+
+    public function reloadControlStructure() {
+        // load control structure
+        $structure_reader = new ilCtrlStructureReader();
+        $structure_reader->readStructure(
+            true,
+            "./" . $this->getDirectory(),
+            $this->getPrefix(),
+            $this->getDirectory()
+        );
+
+        // add config gui to the ctrl calls
+        $this->dic->ctrl()->insertCtrlCalls(
+            "ilobjcomponentsettingsgui",
+            ilPlugin::getConfigureClassName(["name" => $this->getPluginName()]),
+            $this->getPrefix()
+        );
+
+        $this->readEventListening();
     }
 }

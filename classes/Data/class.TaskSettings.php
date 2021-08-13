@@ -5,17 +5,10 @@ namespace ILIAS\Plugin\LongEssayTask\Data;
 
 
 /**
- * Plugin Configuration
  * @author Fred Neumann <fred.neumann@ilias.de>
  */
-class TaskSettings extends \ActiveRecord
+class TaskSettings extends ActivePluginRecord
 {
-    use ActiveData;
-
-    /**
-     * @var bool
-     */
-    protected $ar_safe_read = false;
     /**
      * @var string
      */
@@ -37,8 +30,6 @@ class TaskSettings extends \ActiveRecord
 
 
     /**
-     * The task_id currently corresponds to the obj_id of the ILIAS object
-     *
      * @var string
      * @con_has_field        true
      * @con_is_notnull       false
@@ -47,14 +38,21 @@ class TaskSettings extends \ActiveRecord
     protected $description = null;
 
     /**
-     * The task_id currently corresponds to the obj_id of the ILIAS object
-     *
      * @var string
      * @con_has_field        true
      * @con_is_notnull       false
      * @con_fieldtype        clob
      */
     protected $instructions = null;
+
+    /**
+     * @var string
+     * @con_has_field        true
+     * @con_is_notnull       false
+     * @con_fieldtype        clob
+     */
+    protected $solution = null;
+
 
 
     /**
@@ -156,6 +154,22 @@ class TaskSettings extends \ActiveRecord
     public function setInstructions(?string $instructions): void
     {
         $this->instructions = $instructions;
+    }
+
+    /**
+     * @return ?string
+     */
+    public function getSolution(): ?string
+    {
+        return $this->solution;
+    }
+
+    /**
+     * @param ?string $solution
+     */
+    public function setSolution(?string $solution): void
+    {
+        $this->solution = $solution;
     }
 
     /**

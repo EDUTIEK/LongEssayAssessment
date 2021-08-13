@@ -7,14 +7,8 @@ namespace ILIAS\Plugin\LongEssayTask\Data;
  * Plugin Configuration
  * @author Fred Neumann <fred.neumann@ilias.de>
  */
-class PluginConfig extends \ActiveRecord
+class PluginConfig extends ActivePluginRecord
 {
-    use ActiveData;
-
-    /**
-     * @var bool
-     */
-    protected $ar_safe_read = false;
     /**
      * @var string
      */

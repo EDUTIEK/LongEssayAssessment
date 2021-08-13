@@ -12,6 +12,18 @@
 ?>
 <#2>
 <?php
+require_once('Services/Migration/DBUpdate_3560/classes/class.ilDBUpdateNewObjectType.php');
+$type_id = ilDBUpdateNewObjectType::addNewType('xlet', 'Long Essay Task');
+$ops_id = ilDBUpdateNewObjectType::addCustomRBACOperation('maintain_task', 'Maintain Task Definition', 'object', 3200);
+ilDBUpdateNewObjectType::addRBACOperation($type_id, $ops_id);
+$ops_id = ilDBUpdateNewObjectType::addCustomRBACOperation('maintain_writers', 'Maintain Writers', 'object', 3210);
+ilDBUpdateNewObjectType::addRBACOperation($type_id, $ops_id);
+$ops_id = ilDBUpdateNewObjectType::addCustomRBACOperation('maintain_correctors', 'Maintain Correctors', 'object', 3220);
+ilDBUpdateNewObjectType::addRBACOperation($type_id, $ops_id);
+?>
+
+<#3>
+<?php
 $fields = array(
     'id' => array(
         'notnull' => '1',
@@ -36,7 +48,7 @@ if (! $ilDB->tableExists('xlet_plugin_config')) {
     $ilDB->addPrimaryKey('xlet_plugin_config', array( 'id' ));
 }
 ?>
-<#3>
+<#4>
 <?php
 $fields = array(
     'obj_id' => array(
@@ -63,7 +75,7 @@ if (! $ilDB->tableExists('xlet_object_settings')) {
     $ilDB->createTable('xlet_object_settings', $fields);
     $ilDB->addPrimaryKey('xlet_object_settings', array( 'obj_id' ));}
 ?>
-<#4>
+<#5>
 <?php
 $fields = array(
     'task_id' => array(
@@ -109,5 +121,44 @@ $fields = array(
 if (! $ilDB->tableExists('xlet_task_settings')) {
     $ilDB->createTable('xlet_task_settings', $fields);
     $ilDB->addPrimaryKey('xlet_task_settings', array( 'task_id' ));
+}
+?>
+<#6>
+<?php
+$fields = array(
+    'task_id' => array(
+        'notnull' => '1',
+        'type' => 'integer',
+        'length' => '4',
+
+    ),
+    'headline_scheme' => array(
+        'notnull' => '1',
+        'type' => 'text',
+        'length' => '50',
+
+    ),
+    'formatting_options' => array(
+        'notnull' => '1',
+        'type' => 'text',
+        'length' => '250',
+
+    ),
+    'notice_boards' => array(
+        'notnull' => '1',
+        'type' => 'integer',
+        'length' => '4',
+
+    ),
+    'copy_allowed' => array(
+        'notnull' => '1',
+        'type' => 'integer',
+        'length' => '4',
+    ),
+
+);
+if (! $ilDB->tableExists('xlet_editor_settings')) {
+    $ilDB->createTable('xlet_editor_settings', $fields);
+    $ilDB->addPrimaryKey('xlet_editor_settings', array( 'task_id' ));
 }
 ?>

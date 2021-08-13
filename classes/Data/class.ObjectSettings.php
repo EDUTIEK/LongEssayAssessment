@@ -4,20 +4,13 @@
 namespace ILIAS\Plugin\LongEssayTask\Data;
 
 /**
- * Plugin Configuration
  * @author Fred Neumann <fred.neumann@ilias.de>
  */
-class ObjectSettings extends \ActiveRecord
+class ObjectSettings extends ActivePluginRecord
 {
-    use ActiveData;
-
     const PARTICIPATION_TYPE_FIXED = 'fixed';
     const PARTICIPATION_TYPE_INSTANT = 'instant';
 
-    /**
-     * @var bool
-     */
-    protected $ar_safe_read = false;
     /**
      * @var string
      */

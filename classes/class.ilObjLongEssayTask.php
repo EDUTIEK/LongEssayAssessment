@@ -137,20 +137,52 @@ class ilObjLongEssayTask extends ilObjectPlugin
     }
 
     /**
-     *
+     * Check if the current user can edit the organisational settings (online, dates)
      */
     public function canEditOrgaSettings()
     {
         return $this->access->checkAccess('write', '', $this->getRefId());
     }
 
-
     /**
-     *
+     *Check if the user can edit additional material
      */
-    public function canEditContentSettings()
+    public function canEditTechnicalSettings()
     {
         return $this->access->checkAccess('write', '', $this->getRefId());
     }
+
+    /**
+     *Check if the user can edit the content settings
+     */
+    public function canEditContentSettings()
+    {
+        return $this->access->checkAccess('maintain_task', '', $this->getRefId());
+    }
+
+    /**
+     *Check if the user can edit the grades
+     */
+    public function canEditGrades()
+    {
+        return $this->access->checkAccess('maintain_task', '', $this->getRefId());
+    }
+
+    /**
+     *Check if the user can edit the criteria
+     */
+    public function canEditCriteria()
+    {
+        return $this->access->checkAccess('maintain_task', '', $this->getRefId());
+    }
+
+    /**
+     *Check if the user can edit additional material
+     */
+    public function canEditMaterial()
+    {
+        return $this->access->checkAccess('maintain_task', '', $this->getRefId());
+    }
+
 
 }

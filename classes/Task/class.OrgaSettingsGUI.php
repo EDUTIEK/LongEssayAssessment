@@ -6,28 +6,16 @@ namespace ILIAS\Plugin\LongEssayTask\Task;
 use ILIAS\Plugin\LongEssayTask\BaseGUI;
 use ILIAS\Plugin\LongEssayTask\Data\ObjectSettings;
 use ILIAS\Plugin\LongEssayTask\Data\TaskSettings;
-use ILIAS\UI\Component\Input\Field\DateTime;
-use \ilPropertyFormGUI;
-use \ilTextInputGUI;
-use \ilCheckboxInputGUI;
 use \ilUtil;
-use function Sabre\Event\Loop\instance;
 
 /**
- * Class OrgaSettingsGUI
+ * Organisational Settings
  *
  * @package ILIAS\Plugin\LongEssayTask\Task
  * @ilCtrl_isCalledBy ILIAS\Plugin\LongEssayTask\Task\OrgaSettingsGUI: ilObjLongEssayTaskGUI
  */
 class OrgaSettingsGUI extends BaseGUI
 {
-    public function __construct($objectGUI)
-    {
-        parent::__construct($objectGUI);
-
-
-    }
-
     /**
      * Execute a command
      * This should be overridden in the child classes
@@ -83,12 +71,6 @@ class OrgaSettingsGUI extends BaseGUI
 
         // Task
         $fields = [];
-//        $fields['task_description'] = $factory->textarea($this->plugin->txt("task_description"))
-//            ->withValue((string) $taskSettings->getDescription());
-//
-//        $fields['task_instructions'] = $factory->textarea($this->plugin->txt("task_instructions"))
-//            ->withValue((string) $taskSettings->getInstructions());
-
         $fields['writing_start'] = $factory->dateTime($this->plugin->txt("writing_start"))
             ->withUseTime(true)
             ->withValue((string) $taskSettings->getWritingStart());
@@ -130,9 +112,6 @@ class OrgaSettingsGUI extends BaseGUI
             $this->object->setOnline($data['object']['online']);
             $this->object->setParticipationType($data['object']['participation_type']);
             $this->object->update();
-
-//            $taskSettings->setDescription($data['task_description']);
-//            $taskSettings->setInstructions(($data['task_instructions']));
 
             $date = $data['task']['writing_start'];
             $taskSettings->setWritingStart($date instanceof \DateTimeInterface ? $date->format('Y-m-d H:i:s') : null);

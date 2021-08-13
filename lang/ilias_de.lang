@@ -23,6 +23,9 @@ grp_create_xlet#:#Erstelle Langtext-Aufgabe
 fold_create_xlet#:#Erstelle Langtext-Aufgabe
 root_create_xlet#:#Erstelle Langtext-Aufgabe
 cat_create_xlet#:#Erstelle Langtext-Aufgabe
+maintain_task#:#Aufgabenstellung verwalten
+maintain_writers#:#Durchführung verwalten
+maintain_correctors#:#Korrektur verwalten
 title#:#Titel
 description#:#Beschreibung
 status#:#Status
@@ -36,13 +39,17 @@ edit#:#Bearbeiten
 export#:#Export
 configuration#:#Konfiguration
 update_languages#:#Sprachen aktualisieren
+reload_control_structure#:#Kontrollstruktur aktualisieren
 generate_db_update#:#DB-Update generieren
 eskript_url#:#HTTP-Adresse zu eSkript
 eskript_url_info#:#Bitte geben Sie die URL zu eSkript ein. Z.B.: http://www.ilias_installation.de/eskript/
 eskript_key#:#ILIAS-Token
 eskript_key_info#:#Bitte tragen Sie dieses ILIAS-Token in der Datei eskript/inc.var.php ein.
-task_definition#:#Aufgabenstellung
-orga_settings#:#Organisation
+tab_task#:#Aufgabenerstellung
+tab_orga_settings#:#Organisation
+tab_content_settings#:#Inhalt
+tab_resources#:#Material
+tab_technical_settings#:#Technik
 object_settings#:#Objekt-Einstellungen
 participation_type#:#Teilnahme
 participation_type_fixed#:#Vorgegeben
@@ -50,13 +57,35 @@ participation_type_fixed_info#:#Die Möglichkeit zur Teilnahme wird vorab über 
 participation_type_instant#:#Selbständig
 participation_type_instant_info#:#Für die Teilnahme genügt das Leserecht.
 task_settings#:#Aufgaben-Einstellungen
-task_description#:#Aufgaben-Beschreibung
-task_description_info#:#Die Beschreibung wird schon vor dem Bearbeitungszeitraum angezeigt
-task_instructions#:#Aufgabenstellung
-task_instructions_info#:#Die Aufgabenstellung erst mit Start der Bearbeitung angezeigt.
 writing_start#:#Bearbeitungs-Start
 writing_end#:#Bearbeitungs-Start
 correction_start#:#Korrektur-Start
 correction_end#:#Korrektur-Ende
 review_start#:#Einsichtnahme-Start
 review_end#:#Einsichtnahme-Ende
+task_description#:#Vorab-Beschreibung
+task_description_info#:#Die Vorab-Beschreibung wird schon vor dem Bearbeitungszeitraum angezeigt.
+task_instructions#:#Aufgabe
+task_instructions_info#:#Die Aufgabenstellung erst mit Start der Bearbeitung angezeigt.
+task_solution#:#Musterlösung
+task_solution_info#:#Die Musterlösung wird erst nach dem Bearbeitungszeitraum angezeigt.
+editor_settings#:#Einstellungen für den Editor
+headline_scheme#:#Überschriften-Schema
+headline_scheme_none#:#Keine Überschriften
+headline_scheme_numeric#:#Numeriert (1.1.1)
+headline_scheme_roman_upper#:#Römisch groß (I. A. 1.)
+headline_scheme_roman_lower#:#Römisch klein (1. a. i.)
+formatting_options#:#Text-Formatierung
+formatting_options_none#:#Aus
+formatting_options_none_info#:#Keine Formatatierungs-Optionen
+formatting_options_minimal#:#Minimal
+formatting_options_minimal_info#:#Fett, kursiv,  unterstrichen
+formatting_options_medium#:#Mittel
+formatting_options_medium_info#:#Fett, kursiv,  unterstrichen, Aufzählungen, Einrückung
+formatting_options_full#:#Hoch
+formatting_options_full_info#:#Fett, kursiv,  unterstrichen, Aufzählungen, Einrückung, Überschriften, Links
+notice_boards#:#Notizbretter
+notice_boards_info#:#Anzahl der zur Verfügung gestellten Notitzbretter
+copy_allowed#:#Freies Kopieren erlauben
+copy_allowed_info#:#Texte können auch von anderen Webseiten kopiert werden. Das Kopieren im Text und von den Notizbrettern ist immer erlaubt.
+add_resource#:#Material hinzufügen

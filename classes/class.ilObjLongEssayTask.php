@@ -137,6 +137,23 @@ class ilObjLongEssayTask extends ilObjectPlugin
     }
 
     /**
+     * Check if the current user can view the
+     */
+    public function canViewWriterScreen()
+    {
+        return $this->access->checkAccess('read', '', $this->getRefId());
+    }
+
+    /**
+     * Check if the current user can view the
+     */
+    public function canViewCorrectorScreen()
+    {
+        return $this->access->checkAccess('read', '', $this->getRefId());
+    }
+
+
+    /**
      * Check if the current user can edit the organisational settings (online, dates)
      */
     public function canEditOrgaSettings()
@@ -184,5 +201,17 @@ class ilObjLongEssayTask extends ilObjectPlugin
         return $this->access->checkAccess('maintain_task', '', $this->getRefId());
     }
 
+    /**
+     *Check if the user can maintain the writers
+     */
+    public function canMaintainWriters() {
+        return $this->access->checkAccess('maintain_writers', '', $this->getRefId());
+    }
 
+    /**
+     *Check if the user can maintain the writers
+     */
+    public function canMaintainCorrectors() {
+        return $this->access->checkAccess('maintain_correctors', '', $this->getRefId());
+    }
 }

@@ -13,9 +13,9 @@ use \ilUtil;
  * Resources Administration
  *
  * @package ILIAS\Plugin\LongEssayTask\Task
- * @ilCtrl_isCalledBy ILIAS\Plugin\LongEssayTask\Task\ResourcesAdminGUI: ilObjLongEssayTaskGUI
+ * @ilCtrl_isCalledBy ILIAS\Plugin\LongEssayTask\Task\CriteriaAdminGUI: ilObjLongEssayTaskGUI
  */
-class ResourcesAdminGUI extends BaseGUI
+class CriteriaAdminGUI extends BaseGUI
 {
     /**
      * Execute a command
@@ -44,30 +44,20 @@ class ResourcesAdminGUI extends BaseGUI
     {
         return [
             [
-                'headline' => 'Informationen zur Klausur',
-                'subheadline' => 'Hier finden Sie wichtige Informationen zum Ablauf der Klausur',
+                'headline' => 'Bewertungskriterium Eins',
+                'subheadline' => 'Hier wird bewertet, dass ...',
                 'important' => [
-                    'Verfügbar' => 'vorab',
-                     $this->renderer->render($this->uiFactory->link()->standard('Informationen.pdf','#'))
+                    'Max. Punkte' => 2
                 ],
             ],
             [
-                'headline' => 'BGB',
-                'subheadline' => 'Online-Ausgabe des Bürgerlichen Gesetzbuchs',
-                'type' => 'url',
+                'headline' => 'Bewertungskriterium Zwei',
+                'subheadline' => 'Hier wird bewertet, dass ...',
                 'important' => [
-                    'Verfügbar' => 'vorab',
-                    $this->renderer->render($this->uiFactory->link()->standard('https://www.gesetze-im-internet.de/bgb/','https://www.gesetze-im-internet.de/bgb/'))
+                    'Max. Punkte' => 3
                 ],
             ],
-            [
-                'headline' => 'Vertragsentwurf',
-                'subheadline' => 'Der zu begutachtende Vertragsentwurf',
-                'important' => [
-                    'Verfügbar' => 'nach Start',
-                     $this->renderer->render($this->uiFactory->link()->standard('Vertrag.pdf','#'))
-                ],
-            ],
+
 
         ];
     }
@@ -80,12 +70,12 @@ class ResourcesAdminGUI extends BaseGUI
         $this->toolbar->setFormAction($this->ctrl->getFormAction($this));
         $button = \ilLinkButton::getInstance();
         $button->setUrl($this->ctrl->getLinkTarget($this, 'editItem'));
-        $button->setCaption($this->plugin->txt('add_resource'), false);
+        $button->setCaption('Kriterium hinzufügen', false);
         $this->toolbar->addButtonInstance($button);
 
 
         $ptable = $this->uiFactory->table()->presentation(
-            'Materialien zur Aufgabe',
+            'Bewertungskriterien',
             [],
             function (
                 PresentationRow $row,
@@ -125,19 +115,18 @@ class ResourcesAdminGUI extends BaseGUI
             if ($record->getTaskId() != $this->object->getId()) {
                 $this->raisePermissionError();
             }
-            $section_title = $this->plugin->txt('Material bearbeiten');
+            $section_title = $this->plugin->txt('Kriterium bearbeiten');
         }
         else {
             $record = new ActiveRecordDummy();
             $record->setTaskId($this->object->getId());
-            $section_title = $this->plugin->txt('Material hinzufügen');
+            $section_title = $this->plugin->txt('Kriterium hinzufügen');
         }
 
         $factory = $this->uiFactory->input()->field();
 
         $sections = [];
 
-        // Object
         $fields = [];
         $fields['title'] = $factory->text($this->lng->txt("title"))
             ->withRequired(true)
@@ -146,34 +135,8 @@ class ResourcesAdminGUI extends BaseGUI
         $fields['description'] = $factory->textarea($this->lng->txt("description"))
             ->withValue($record->getStringDummy());
 
-
-        $group1 = $this->uiFactory ->input()->field()->group(
-            [
-                "file" => $this->uiFactory->input()->field()->file(new \ilUIDemoFileUploadHandlerGUI(), "Datei hochladen")
-                ->withAcceptedMimeTypes(['application/pdf']),
-            ],
-            "Datei"
-        );
-        $group2 = $this->uiFactory->input()->field()->group(
-            [
-                "url" =>  $this->uiFactory->input()->field()->text('Url')
-            ],
-            "Weblink"
-        );
-
-        $fields['type'] = $this->uiFactory->input()->field()->switchableGroup(
-            [
-                "1" => $group1,
-                "2" => $group2,
-            ],
-            "Typ"
-        );
-
-        $fields['availability'] = $factory->radio("Verfügbarkeit")
-            ->withRequired(true)
-            ->withOption("before", "Vorab")
-            ->withOption("writing", "Nach Start der Bearbeitung")
-            ->withOption("review", "Zur Einsichtnahme");
+        $fields['points'] = $factory->numeric('Max. Punkte', "Maximal vergebbare Punkte für dieses Kriterium.")
+            ->withValue($record->getStringDummy());
 
 
         $sections['form'] = $factory->section($fields, $section_title);

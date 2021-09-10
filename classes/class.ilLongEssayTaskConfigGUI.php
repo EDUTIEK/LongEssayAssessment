@@ -93,10 +93,10 @@ class ilLongEssayTaskConfigGUI extends ilPluginConfigGUI
         $button->setCaption($this->plugin->txt('reload_control_structure'), false);
         $this->toolbar->addButtonInstance($button);
 
-        $button = ilLinkButton::getInstance();
-        $button->setUrl($this->ctrl->getLinkTarget($this, 'generateDBUpdate'));
-        $button->setCaption($this->plugin->txt('generate_db_update'), false);
-        $this->toolbar->addButtonInstance($button);
+//        $button = ilLinkButton::getInstance();
+//        $button->setUrl($this->ctrl->getLinkTarget($this, 'generateDBUpdate'));
+//        $button->setCaption($this->plugin->txt('generate_db_update'), false);
+//        $this->toolbar->addButtonInstance($button);
     }
 
     /**
@@ -179,6 +179,6 @@ class ilLongEssayTaskConfigGUI extends ilPluginConfigGUI
         $this->plugin->reloadControlStructure();
         ilGlobalCache::flushAll();
 
-        $this->ctrl->redirect($this, 'configure');
+//        $this->ctrl->redirect($this, 'configure');
     }
 }

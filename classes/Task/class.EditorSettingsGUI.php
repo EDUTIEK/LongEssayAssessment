@@ -66,11 +66,11 @@ class EditorSettingsGUI extends BaseGUI
                 $this->plugin->txt('formatting_options_minimal_info'))
             ->withOption( EditorSettings::FORMATTING_OPTIONS_MEDIUM, $this->plugin->txt('formatting_options_medium'),
                 $this->plugin->txt('formatting_options_medium_info'))
-            ->withOption( EditorSettings::FORMATTING_OPTIONS_FULL, $this->plugin->txt(''),
+            ->withOption( EditorSettings::FORMATTING_OPTIONS_FULL, $this->plugin->txt('formatting_options_full'),
                 $this->plugin->txt('formatting_options_full_info'))
             ->withValue($editorSettings->getFormattingOptions());
 
-        $fields['notice_boards'] = $factory->select($this->plugin->txt('headline_scheme'),
+        $fields['notice_boards'] = $factory->select($this->plugin->txt('notice_boards'),
             [
                 '0' => '0',
                 '1' => '1',

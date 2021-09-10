@@ -4,7 +4,7 @@
 namespace ILIAS\Plugin\LongEssayTask;
 
 /**
- * Base class for GUI classes (excxept the plugin guis required by ILIAS)
+ * Base class for service classes
  * @author Fred Neumann <fred.neumann@ilias.de>
  */
 abstract class BaseService

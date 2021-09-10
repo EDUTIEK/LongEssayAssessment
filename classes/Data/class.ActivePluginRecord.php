@@ -36,7 +36,7 @@ abstract class ActivePluginRecord extends \ActiveRecord
     }
 
     /**
-     * Overridden to declare the specific return type
+     * Overridden to declare the specific return type for type hints in PHPStorm
      * @param       $primary_key
      * @param array $add_constructor_args
      * @return \ActiveRecord | static

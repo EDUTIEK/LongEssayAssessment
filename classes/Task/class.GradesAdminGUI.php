@@ -13,9 +13,9 @@ use \ilUtil;
  * Resources Administration
  *
  * @package ILIAS\Plugin\LongEssayTask\Task
- * @ilCtrl_isCalledBy ILIAS\Plugin\LongEssayTask\Task\ResourcesAdminGUI: ilObjLongEssayTaskGUI
+ * @ilCtrl_isCalledBy ILIAS\Plugin\LongEssayTask\Task\GradesAdminGUI: ilObjLongEssayTaskGUI
  */
-class ResourcesAdminGUI extends BaseGUI
+class GradesAdminGUI extends BaseGUI
 {
     /**
      * Execute a command
@@ -44,28 +44,27 @@ class ResourcesAdminGUI extends BaseGUI
     {
         return [
             [
-                'headline' => 'Informationen zur Klausur',
-                'subheadline' => 'Hier finden Sie wichtige Informationen zum Ablauf der Klausur',
+                'headline' => 'Mit Prädikat bestanden',
+                'subheadline' => '',
                 'important' => [
-                    'Verfügbar' => 'vorab',
-                     $this->renderer->render($this->uiFactory->link()->standard('Informationen.pdf','#'))
+                    'Min. Punkte' => 12,
+                    'Bestanden'
                 ],
             ],
             [
-                'headline' => 'BGB',
-                'subheadline' => 'Online-Ausgabe des Bürgerlichen Gesetzbuchs',
-                'type' => 'url',
+                'headline' => 'Bestanden',
+                'subheadline' => '',
                 'important' => [
-                    'Verfügbar' => 'vorab',
-                    $this->renderer->render($this->uiFactory->link()->standard('https://www.gesetze-im-internet.de/bgb/','https://www.gesetze-im-internet.de/bgb/'))
+                    'Min. Punkte' => 90,
+                    'Bestanden'
                 ],
             ],
             [
-                'headline' => 'Vertragsentwurf',
-                'subheadline' => 'Der zu begutachtende Vertragsentwurf',
+                'headline' => 'Nicht bestanden',
+                'subheadline' => '',
                 'important' => [
-                    'Verfügbar' => 'nach Start',
-                     $this->renderer->render($this->uiFactory->link()->standard('Vertrag.pdf','#'))
+                    'Min. Punkte' => 0,
+                    'Nicht bestanden'
                 ],
             ],
 
@@ -80,12 +79,12 @@ class ResourcesAdminGUI extends BaseGUI
         $this->toolbar->setFormAction($this->ctrl->getFormAction($this));
         $button = \ilLinkButton::getInstance();
         $button->setUrl($this->ctrl->getLinkTarget($this, 'editItem'));
-        $button->setCaption($this->plugin->txt('add_resource'), false);
+        $button->setCaption('Notenstufe hinzufügen', false);
         $this->toolbar->addButtonInstance($button);
 
 
         $ptable = $this->uiFactory->table()->presentation(
-            'Materialien zur Aufgabe',
+            'Notenstufen',
             [],
             function (
                 PresentationRow $row,
@@ -125,19 +124,18 @@ class ResourcesAdminGUI extends BaseGUI
             if ($record->getTaskId() != $this->object->getId()) {
                 $this->raisePermissionError();
             }
-            $section_title = $this->plugin->txt('Material bearbeiten');
+            $section_title = $this->plugin->txt('Notenstufe bearbeiten');
         }
         else {
             $record = new ActiveRecordDummy();
             $record->setTaskId($this->object->getId());
-            $section_title = $this->plugin->txt('Material hinzufügen');
+            $section_title = $this->plugin->txt('Notenstufe hinzufügen');
         }
 
         $factory = $this->uiFactory->input()->field();
 
         $sections = [];
 
-        // Object
         $fields = [];
         $fields['title'] = $factory->text($this->lng->txt("title"))
             ->withRequired(true)
@@ -146,34 +144,11 @@ class ResourcesAdminGUI extends BaseGUI
         $fields['description'] = $factory->textarea($this->lng->txt("description"))
             ->withValue($record->getStringDummy());
 
+        $fields['points'] = $factory->numeric('Min. Punkte', "Minimal benötigte Punkte zum Erreichen dieser Stufe.")
+            ->withValue($record->getStringDummy());
 
-        $group1 = $this->uiFactory ->input()->field()->group(
-            [
-                "file" => $this->uiFactory->input()->field()->file(new \ilUIDemoFileUploadHandlerGUI(), "Datei hochladen")
-                ->withAcceptedMimeTypes(['application/pdf']),
-            ],
-            "Datei"
-        );
-        $group2 = $this->uiFactory->input()->field()->group(
-            [
-                "url" =>  $this->uiFactory->input()->field()->text('Url')
-            ],
-            "Weblink"
-        );
-
-        $fields['type'] = $this->uiFactory->input()->field()->switchableGroup(
-            [
-                "1" => $group1,
-                "2" => $group2,
-            ],
-            "Typ"
-        );
-
-        $fields['availability'] = $factory->radio("Verfügbarkeit")
-            ->withRequired(true)
-            ->withOption("before", "Vorab")
-            ->withOption("writing", "Nach Start der Bearbeitung")
-            ->withOption("review", "Zur Einsichtnahme");
+        $fields['lp_passed'] = $factory->checkbox($this->plugin->txt('lp_passed'), $this->plugin->txt('lp_passed_info'))
+            ->withValue($record->getBoolDummy());
 
 
         $sections['form'] = $factory->section($fields, $section_title);

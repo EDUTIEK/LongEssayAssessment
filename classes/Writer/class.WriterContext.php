@@ -12,7 +12,7 @@ class WriterContext implements Context
      */
     public function getFrontendUrl(): string
     {
-        return  ILIAS_HTTP_PATH . "/Customizing/global/plugins/Services/Repository/RepositoryObject/LongEssayTask/vendor/edutiek/node_modules/long-essay-writer/index.html";
+        return  ILIAS_HTTP_PATH . "/Customizing/global/plugins/Services/Repository/RepositoryObject/LongEssayTask/vendor/edutiek/long-essay-writer/index.html";
     }
 
     /**

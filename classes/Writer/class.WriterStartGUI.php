@@ -3,6 +3,7 @@
 
 namespace ILIAS\Plugin\LongEssayTask\Writer;
 
+use Edutiek\LongEssayService\Writer\Service;
 use ILIAS\Plugin\LongEssayTask\BaseGUI;
 use ILIAS\UI\Factory;
 use \ilUtil;
@@ -26,6 +27,7 @@ class WriterStartGUI extends BaseGUI
         switch ($cmd)
         {
             case 'showStartPage':
+            case 'startWriter':
                 $this->$cmd();
                 break;
 
@@ -43,8 +45,14 @@ class WriterStartGUI extends BaseGUI
         $this->toolbar->setFormAction($this->ctrl->getFormAction($this));
         $button = \ilLinkButton::getInstance();
         $button->setUrl('./Customizing/global/plugins/Services/Repository/RepositoryObject/LongEssayTask/lib/editor/index.html');
-        $button->setCaption('Bearbeitung starten', false);
+        $button->setCaption('Bearbeitung starten (Mocklup)', false);
         $button->setPrimary(true);
+        $this->toolbar->addButtonInstance($button);
+
+        $button = \ilLinkButton::getInstance();
+        $button->setUrl($this->ctrl->getLinkTarget($this, 'startWriter'));
+        $button->setCaption('Bearbeitung starten (Service)', false);
+        $button->setPrimary(false);
         $this->toolbar->addButtonInstance($button);
 
 
@@ -97,5 +105,16 @@ class WriterStartGUI extends BaseGUI
             $this->renderer->render($modal)
         );
 
+     }
+
+
+    /**
+     * Start the Writer Web app
+     */
+     protected function startWriter()
+     {
+         $context = new WriterContext();
+         $service = new Service($context);
+         $service->openFrontend();
      }
 }

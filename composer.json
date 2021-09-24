@@ -1,6 +1,13 @@
 {
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/fneumann/LongEssayService.git"
+    }
+  ],
   "require": {
-    "php": ">=7.4 <8.1"
+    "php": ">=7.4 <8.1",
+    "edutiek/long-essay-service": "dev-main"
   },
   "autoload": {
     "psr-4" : { "ILIAS\\Plugin\\LongEssayTask\\" : "./classes" },

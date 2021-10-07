@@ -1,0 +1,7 @@
+{
+  "name": "long-essay-task",
+  "version": "1.0.0",
+  "dependencies": {
+    "long-essay-writer": "fneumann/LongEssayWriter"
+  }
+}

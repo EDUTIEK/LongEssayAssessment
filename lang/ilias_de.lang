@@ -41,6 +41,10 @@ configuration#:#Konfiguration
 update_languages#:#Sprachen aktualisieren
 reload_control_structure#:#Kontrollstruktur aktualisieren
 generate_db_update#:#DB-Update generieren
+writer_url#:#(optional) Adresse zur Writer Web App
+writer_url_info#:#Die Writer Web App ist im Plugin integriert. Wenn Sie zur Entwicklung eine separate verwenden, tragen Sie deren Adresse hier ein.
+corrector_url#:#(optional) Adresse zur Corrector Web App
+corrector_info#:#Die Corrector Web App ist im Plugin integriert. Wenn Sie zur Entwicklung eine separate verwenden, tragen Sie deren Adresse hier ein.
 eskript_url#:#HTTP-Adresse zu eSkript
 eskript_url_info#:#Bitte geben Sie die URL zu eSkript ein. Z.B.: http://www.ilias_installation.de/eskript/
 eskript_key#:#ILIAS-Token

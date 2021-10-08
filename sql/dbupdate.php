@@ -41,6 +41,16 @@ $fields = array(
         'length' => '250',
 
     ),
+    'writer_url' => array(
+        'type' => 'text',
+        'length' => '250',
+
+    ),
+    'corrector_url' => array(
+        'type' => 'text',
+        'length' => '250',
+
+    ),
 
 );
 if (! $ilDB->tableExists('xlet_plugin_config')) {

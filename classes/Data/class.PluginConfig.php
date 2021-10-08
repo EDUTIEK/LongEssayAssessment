@@ -34,6 +34,26 @@ class PluginConfig extends ActivePluginRecord
      * @con_fieldtype        text
      * @con_length           250
      */
+    public $writer_url = '';
+
+
+    /**
+     * @var string
+     * @con_has_field        true
+     * @con_is_notnull       false
+     * @con_fieldtype        text
+     * @con_length           250
+     */
+    public $corrector_url = '';
+
+
+    /**
+     * @var string
+     * @con_has_field        true
+     * @con_is_notnull       false
+     * @con_fieldtype        text
+     * @con_length           250
+     */
     public $eskript_url = '';
 
     /**
@@ -94,5 +114,37 @@ class PluginConfig extends ActivePluginRecord
     public function setEskriptKey(string $eskript_key): void
     {
         $this->eskript_key = $eskript_key;
+    }
+
+    /**
+     * @return string
+     */
+    public function getWriterUrl(): string
+    {
+        return $this->writer_url;
+    }
+
+    /**
+     * @param string $writer_url
+     */
+    public function setWriterUrl(string $writer_url): void
+    {
+        $this->writer_url = $writer_url;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCorrectorUrl(): string
+    {
+        return $this->corrector_url;
+    }
+
+    /**
+     * @param string $corrector_url
+     */
+    public function setCorrectorUrl(string $corrector_url): void
+    {
+        $this->corrector_url = $corrector_url;
     }
 }

@@ -115,6 +115,8 @@ class ilLongEssayTaskConfigGUI extends ilPluginConfigGUI
     {
         $form = $this->initConfigForm();
         if ($form->checkInput()) {
+            $this->config->setWriterUrl((string) $form->getInput('writer_url'));
+            $this->config->setCorrectorUrl((string) $form->getInput('corrector_url'));
             $this->config->setEskriptUrl((string) $form->getInput('eskript_url'));
             $this->config->setEskriptKey((string) $form->getInput('eskript_key'));
             $this->config->save();
@@ -135,6 +137,16 @@ class ilLongEssayTaskConfigGUI extends ilPluginConfigGUI
 
         $form->setFormAction($this->ctrl->getFormAction($this));
         $form->setTitle($this->plugin->txt('configuration'));
+
+        $writer_url = new ilTextInputGUI($this->plugin->txt('writer_url'), 'writer_url');
+        $writer_url->setInfo($this->plugin->txt('writer_url_info'));
+        $writer_url->setValue($this->config->getWriterUrl());
+        $form->addItem($writer_url);
+
+        $corrector_url = new ilTextInputGUI($this->plugin->txt('corrector_url'), 'corrector_url');
+        $corrector_url->setInfo($this->plugin->txt('corrector_url_info'));
+        $corrector_url->setValue($this->config->getCorrectorUrl());
+        $form->addItem($corrector_url);
 
         $eskript_url = new ilTextInputGUI($this->plugin->txt('eskript_url'), 'eskript_url');
         $eskript_url->setInfo($this->plugin->txt('eskript_url_info'));

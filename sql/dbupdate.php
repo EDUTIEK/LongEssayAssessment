@@ -172,3 +172,47 @@ if (! $ilDB->tableExists('xlet_editor_settings')) {
     $ilDB->addPrimaryKey('xlet_editor_settings', array( 'task_id' ));
 }
 ?>
+<#7>
+<?php
+$fields = array(
+	'task_id' => array(
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+
+	),
+	'required_correctors' => array(
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+
+	),
+	'mutual_visibility' => array(
+		'notnull' => '1',
+		'type' => 'text',
+		'length' => '50',
+
+	),
+	'multi_color_highlight' => array(
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+
+	),
+	'max_points' => array(
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+
+	),
+
+);
+if (! $ilDB->tableExists('xlet_correction_setting')) {
+	$ilDB->createTable('xlet_correction_setting', $fields);
+	$ilDB->addPrimaryKey('xlet_correction_setting', array( 'task_id' ));
+
+	if (! $ilDB->sequenceExists('xlet_correction_setting')) {
+		$ilDB->createSequence('xlet_correction_setting');
+	}
+
+}

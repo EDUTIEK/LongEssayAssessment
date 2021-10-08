@@ -5,7 +5,7 @@ namespace ILIAS\Plugin\LongEssayTask\Data;
 
 
 /**
- * @author Fred Neumann <fred.neumann@ilias.de>
+ * @author Fabian Wolf <wolf@ilias.de>
  */
 class CorrectionSetting extends ActivePluginRecord
 {

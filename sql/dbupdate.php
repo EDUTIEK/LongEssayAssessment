@@ -216,3 +216,50 @@ if (! $ilDB->tableExists('xlet_correction_setting')) {
 	}
 
 }
+?>
+<#8>
+<?php
+$fields = array(
+	'id' => array(
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+
+	),
+	'task_id' => array(
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+
+	),
+	'title' => array(
+		'notnull' => '1',
+		'type' => 'text',
+		'length' => '255',
+
+	),
+	'message' => array(
+		'notnull' => '1',
+		'type' => 'clob',
+
+	),
+	'shown_from' => array(
+		'type' => 'timestamp',
+
+	),
+	'shown_until' => array(
+		'type' => 'timestamp',
+
+	),
+
+);
+if (! $ilDB->tableExists('xlet_alert')) {
+	$ilDB->createTable('xlet_alert', $fields);
+	$ilDB->addPrimaryKey('xlet_alert', array( 'id' ));
+
+	if (! $ilDB->sequenceExists('xlet_alert')) {
+		$ilDB->createSequence('xlet_alert');
+	}
+
+}
+?>

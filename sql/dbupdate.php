@@ -256,10 +256,55 @@ $fields = array(
 if (! $ilDB->tableExists('xlet_alert')) {
 	$ilDB->createTable('xlet_alert', $fields);
 	$ilDB->addPrimaryKey('xlet_alert', array( 'id' ));
-
+	$ilDB->addIndex("xlet_alert", array("task_id"), "idx1");
 	if (! $ilDB->sequenceExists('xlet_alert')) {
 		$ilDB->createSequence('xlet_alert');
 	}
 
 }
 ?>
+<#9>
+<?php
+$fields = array(
+	'id' => array(
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+
+	),
+	'user_id' => array(
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+
+	),
+	'task_id' => array(
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+
+	),
+	'pseudonyme' => array(
+		'notnull' => '1',
+		'type' => 'text',
+		'length' => '255',
+
+	),
+	'editor_font_size' => array(
+		'type' => 'integer',
+		'length' => '4',
+
+	),
+
+);
+if (! $ilDB->tableExists('xlet_participant')) {
+	$ilDB->createTable('xlet_participant', $fields);
+	$ilDB->addPrimaryKey('xlet_participant', array( 'id' ));
+	$ilDB->addIndex("xlet_participant", array("user_id"), "idx1");
+	$ilDB->addIndex("xlet_participant", array("task_id"), "idx2");
+
+	if (! $ilDB->sequenceExists('xlet_participant')) {
+		$ilDB->createSequence('xlet_participant');
+	}
+
+}

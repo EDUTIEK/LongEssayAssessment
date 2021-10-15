@@ -284,7 +284,7 @@ $fields = array(
 		'length' => '4',
 
 	),
-	'pseudonyme' => array(
+	'pseudonym' => array(
 		'notnull' => '1',
 		'type' => 'text',
 		'length' => '255',

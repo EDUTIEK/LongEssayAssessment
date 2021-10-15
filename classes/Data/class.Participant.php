@@ -61,7 +61,7 @@ class Participant extends ActivePluginRecord
 	 * @con_fieldtype        text
 	 * @con_length           255
 	 */
-	protected ?string $pseudonyme = null;
+	protected ?string $pseudonym = null;
 
 	/**
 	 * @var integer
@@ -111,18 +111,18 @@ class Participant extends ActivePluginRecord
 	/**
 	 * @return string
 	 */
-	public function getPseudonyme(): ?string
+	public function getPseudonym(): ?string
 	{
-		return $this->pseudonyme;
+		return $this->pseudonym;
 	}
 
 	/**
-	 * @param string $pseudonyme
+	 * @param string $pseudonym
 	 * @return Participant
 	 */
-	public function setPseudonyme(?string $pseudonyme): Participant
+	public function setPseudonym(?string $pseudonym): Participant
 	{
-		$this->pseudonyme = $pseudonyme;
+		$this->pseudonym = $pseudonym;
 		return $this;
 	}
 

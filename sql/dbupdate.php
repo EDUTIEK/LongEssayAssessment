@@ -308,3 +308,39 @@ if (! $ilDB->tableExists('xlet_participant')) {
 	}
 
 }
+?>
+<#10>
+<?php
+$fields = array(
+	'id' => array(
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+
+	),
+	'user_id' => array(
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+
+	),
+	'task_id' => array(
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+
+	),
+
+);
+if (! $ilDB->tableExists('xlet_corrector')) {
+	$ilDB->createTable('xlet_corrector', $fields);
+	$ilDB->addPrimaryKey('xlet_corrector', array( 'id' ));
+	$ilDB->addIndex("xlet_corrector", array("user_id"), "idx1");
+	$ilDB->addIndex("xlet_corrector", array("task_id"), "idx2");
+
+	if (! $ilDB->sequenceExists('xlet_corrector')) {
+		$ilDB->createSequence('xlet_corrector');
+	}
+
+}
+?>

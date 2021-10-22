@@ -344,3 +344,79 @@ if (! $ilDB->tableExists('xlet_corrector')) {
 
 }
 ?>
+<#11>
+<?php
+$fields = array(
+	'id' => array(
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+
+	),
+	'uuid' => array(
+		'notnull' => '1',
+		'type' => 'text',
+		'length' => '50',
+
+	),
+	'participant_id' => array(
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+
+	),
+	'written_text' => array(
+		'type' => 'clob',
+
+	),
+	'raw_text_hash' => array(
+		'notnull' => '1',
+		'type' => 'text',
+		'length' => '50',
+
+	),
+	'edit_started' => array(
+		'type' => 'timestamp',
+
+	),
+	'edit_ended' => array(
+		'type' => 'timestamp',
+
+	),
+	'processed_text' => array(
+		'type' => 'clob',
+
+	),
+	'is_authorized' => array(
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+
+	),
+	'pdf_version' => array(
+		'type' => 'integer',
+		'length' => '4',
+
+	),
+	'final_points' => array(
+		'type' => 'integer',
+		'length' => '4',
+
+	),
+	'final_grade_level' => array(
+		'type' => 'text',
+		'length' => '255',
+
+	),
+
+);
+if (! $ilDB->tableExists('xlet_essay')) {
+	$ilDB->createTable('xlet_essay', $fields);
+	$ilDB->addPrimaryKey('xlet_essay', array( 'id' ));
+	$ilDB->addIndex("xlet_essay", array("uuid"), "idx1");
+
+	if (! $ilDB->sequenceExists('xlet_essay')) {
+		$ilDB->createSequence('xlet_essay');
+	}
+
+}

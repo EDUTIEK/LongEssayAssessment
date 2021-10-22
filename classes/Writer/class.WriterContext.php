@@ -12,7 +12,7 @@ class WriterContext implements Context
 
     public function __construct()
     {
-        $this->$this->plugin = \ilLongEssayTaskPlugin::getInstance();
+        $this->plugin = \ilLongEssayTaskPlugin::getInstance();
     }
 
 
@@ -40,7 +40,7 @@ class WriterContext implements Context
     public function getBackendUrl(): string
     {
         return  ILIAS_HTTP_PATH
-            . "/Customizing/global/plugins/Services/Repository/RepositoryObject/LongEssayTask/service.php";
+            . "/Customizing/global/plugins/Services/Repository/RepositoryObject/LongEssayTask/writer_service.php";
     }
 
 

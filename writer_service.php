@@ -2,11 +2,6 @@
 
 /* Copyright (c) 1998-2019 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-/**
- * News feed script.
- *
- * @author Alex Killing <alex.killing@gmx.de>
- */
 include_once "Services/Context/classes/class.ilContext.php";
 ilContext::init(ilContext::CONTEXT_REST);
 

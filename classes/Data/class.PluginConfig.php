@@ -121,7 +121,7 @@ class PluginConfig extends ActivePluginRecord
      */
     public function getWriterUrl(): string
     {
-        return $this->writer_url;
+        return (string) $this->writer_url;
     }
 
     /**
@@ -137,7 +137,7 @@ class PluginConfig extends ActivePluginRecord
      */
     public function getCorrectorUrl(): string
     {
-        return $this->corrector_url;
+        return (string) $this->corrector_url;
     }
 
     /**

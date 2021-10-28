@@ -43,10 +43,9 @@ class WriterAdminGUI extends BaseGUI
         $this->toolbar->setFormAction($this->ctrl->getFormAction($this));
         $button = \ilLinkButton::getInstance();
         $button->setUrl('');
-        $button->setCaption('Benachrichtigung senden', false);
-        $button->setPrimary(true);
+        $button->setCaption('Teilnehmer hinzufügen', false);
+        $button->setPrimary(false);
         $this->toolbar->addButtonInstance($button);
-
 
 
         $actions = array(

@@ -418,5 +418,11 @@ if (! $ilDB->tableExists('xlet_essay')) {
 	if (! $ilDB->sequenceExists('xlet_essay')) {
 		$ilDB->createSequence('xlet_essay');
 	}
-
 }
+?>
+<#12>
+<?php
+if (! $ilDB->tableColumnExists('xlet_task_settings', 'solution')) {
+    $ilDB->addTableColumn('xlet_task_settings', 'solution', ['type' => 'clob']);
+}
+?>

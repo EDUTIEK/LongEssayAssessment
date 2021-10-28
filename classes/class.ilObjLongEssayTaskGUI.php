@@ -139,6 +139,12 @@ class ilObjLongEssayTaskGUI extends ilObjectPluginGUI
                         $this->ctrl->forwardCommand(new \ILIAS\Plugin\LongEssayTask\WriterAdmin\WriterAdminGUI($this));
                     }
                     break;
+                case 'ilias\plugin\longessaytask\writeradmin\writeradminloggui':
+                    if ($this->object->canMaintainWriters()) {
+                        $this->activateTab('tab_writer_admin', 'tab_writer_admin_log');
+                        $this->ctrl->forwardCommand(new \ILIAS\Plugin\LongEssayTask\WriterAdmin\WriterAdminLogGUI($this));
+                    }
+                    break;
                 case 'ilias\plugin\longessaytask\correctoradmin\correctoradmingui':
                     if ($this->object->canMaintainCorrectors()) {
                         $this->activateTab('tab_corrector_admin', 'tab_corrector_admin');
@@ -264,7 +270,7 @@ class ilObjLongEssayTaskGUI extends ilObjectPluginGUI
             $tabs[] = [
                 'id' => 'tab_writer_admin_log',
                 'txt' => $this->plugin->txt('tab_writer_admin_log'),
-                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessaytask\writerAdmin\writeradmingui')
+                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessaytask\writerAdmin\writeradminloggui')
             ];
         }
         if (!empty($tabs)) {

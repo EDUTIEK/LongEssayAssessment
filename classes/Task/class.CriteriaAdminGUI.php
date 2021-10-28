@@ -135,8 +135,8 @@ class CriteriaAdminGUI extends BaseGUI
         $fields['description'] = $factory->textarea($this->lng->txt("description"))
             ->withValue($record->getStringDummy());
 
-        $fields['points'] = $factory->numeric('Max. Punkte', "Maximal vergebbare Punkte für dieses Kriterium.")
-            ->withValue($record->getStringDummy());
+        $fields['points'] = $factory->text('Max. Punkte', "Maximal vergebbare Punkte für dieses Kriterium.")
+            ->withValue($record->getStringDummy('0'));
 
 
         $sections['form'] = $factory->section($fields, $section_title);

@@ -54,7 +54,7 @@ tab_orga_settings#:#Organisation
 tab_content_settings#:#Inhalt
 tab_resources#:#Material
 tab_technical_settings#:#Technik
-tab_criteria#:#Bewertungskiterien
+tab_criteria#:#Bewertungskriterien
 tab_grades#:#Notenstufen
 tab_writer#:#Meine Klausur
 tab_writer_start#:#Meine Aufgabe
@@ -72,15 +72,16 @@ participation_type_instant#:#Selbständig
 participation_type_instant_info#:#Für die Teilnahme genügt das Leserecht.
 task_settings#:#Aufgaben-Organisation
 writing_start#:#Bearbeitungs-Start
-writing_end#:#Bearbeitungs-Start
+writing_end#:#Bearbeitungs-Ende
 correction_start#:#Korrektur-Start
 correction_end#:#Korrektur-Ende
 review_start#:#Einsichtnahme-Start
 review_end#:#Einsichtnahme-Ende
+task_definition#:#Aufgaben-Beschreibung
 task_description#:#Vorab-Beschreibung
 task_description_info#:#Die Vorab-Beschreibung wird schon vor dem Bearbeitungszeitraum angezeigt.
 task_instructions#:#Aufgabe
-task_instructions_info#:#Die Aufgabenstellung erst mit Start der Bearbeitung angezeigt.
+task_instructions_info#:#Die Aufgabenstellung wird erst mit Start der Bearbeitung angezeigt.
 task_solution#:#Musterlösung
 task_solution_info#:#Die Musterlösung wird erst nach dem Bearbeitungszeitraum angezeigt.
 editor_settings#:#Einstellungen für den Editor

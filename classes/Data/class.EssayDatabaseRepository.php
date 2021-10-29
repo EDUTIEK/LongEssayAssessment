@@ -2,6 +2,9 @@
 
 namespace ILIAS\Plugin\LongEssayTask\Data;
 
+/**
+ * @author Fabian Wolf <wolf@ilias.de>
+ */
 class EssayDatabaseRepository implements EssayRepository
 {
 

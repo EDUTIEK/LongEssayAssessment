@@ -7,7 +7,7 @@ namespace ILIAS\Plugin\LongEssayTask\Data;
 /**
  * @author Fabian Wolf <wolf@ilias.de>
  */
-class CorrectionSetting extends ActivePluginRecord
+class CorrectionSettings extends ActivePluginRecord
 {
 
     /**
@@ -91,9 +91,9 @@ class CorrectionSetting extends ActivePluginRecord
 
 	/**
 	 * @param int $task_id
-	 * @return CorrectionSetting
+	 * @return CorrectionSettings
 	 */
-	public function setTaskId(int $task_id): CorrectionSetting
+	public function setTaskId(int $task_id): CorrectionSettings
 	{
 		$this->task_id = $task_id;
 		return $this;
@@ -109,9 +109,9 @@ class CorrectionSetting extends ActivePluginRecord
 
 	/**
 	 * @param int $required_correctors
-	 * @return CorrectionSetting
+	 * @return CorrectionSettings
 	 */
-	public function setRequiredCorrectors(int $required_correctors): CorrectionSetting
+	public function setRequiredCorrectors(int $required_correctors): CorrectionSettings
 	{
 		$this->required_correctors = $required_correctors;
 		return $this;
@@ -127,9 +127,9 @@ class CorrectionSetting extends ActivePluginRecord
 
 	/**
 	 * @param string $mutual_visibility
-	 * @return CorrectionSetting
+	 * @return CorrectionSettings
 	 */
-	public function setMutualVisibility(string $mutual_visibility): CorrectionSetting
+	public function setMutualVisibility(string $mutual_visibility): CorrectionSettings
 	{
 		$this->mutual_visibility = $mutual_visibility;
 		return $this;
@@ -145,9 +145,9 @@ class CorrectionSetting extends ActivePluginRecord
 
 	/**
 	 * @param int $multi_color_highlight
-	 * @return CorrectionSetting
+	 * @return CorrectionSettings
 	 */
-	public function setMultiColorHighlight(int $multi_color_highlight): CorrectionSetting
+	public function setMultiColorHighlight(int $multi_color_highlight): CorrectionSettings
 	{
 		$this->multi_color_highlight = $multi_color_highlight;
 		return $this;
@@ -163,9 +163,9 @@ class CorrectionSetting extends ActivePluginRecord
 
 	/**
 	 * @param int $max_points
-	 * @return CorrectionSetting
+	 * @return CorrectionSettings
 	 */
-	public function setMaxPoints(int $max_points): CorrectionSetting
+	public function setMaxPoints(int $max_points): CorrectionSettings
 	{
 		$this->max_points = $max_points;
 		return $this;

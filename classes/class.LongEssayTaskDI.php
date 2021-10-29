@@ -4,6 +4,8 @@ namespace ILIAS\Plugin\LongEssayTask;
 
 use ILIAS\Plugin\LongEssayTask\Data\AlertDatabaseRepository;
 use ILIAS\Plugin\LongEssayTask\Data\AlertRepository;
+use ILIAS\Plugin\LongEssayTask\Data\CorrectionSettingsDatabaseRepository;
+use ILIAS\Plugin\LongEssayTask\Data\CorrectionSettingsRepository;
 use ILIAS\Plugin\LongEssayTask\Data\EssayRepository;
 use ILIAS\Plugin\LongEssayTask\Data\EssayDatabaseRepository;
 
@@ -14,6 +16,7 @@ class LongEssayTaskDI
 {
 	protected EssayRepository $essay;
 	protected AlertRepository $alert;
+	protected CorrectionSettingsRepository $correction_settings;
 
 	public function getEssayRepo(): EssayRepository
 	{
@@ -33,5 +36,15 @@ class LongEssayTaskDI
 		}
 
 		return $this->alert;
+	}
+
+	public function getCorrectionSettingsRepo(): CorrectionSettingsRepository
+	{
+		if ($this->correction_settings === null)
+		{
+			$this->correction_settings = new CorrectionSettingsDatabaseRepository();
+		}
+
+		return $this->correction_settings;
 	}
 }

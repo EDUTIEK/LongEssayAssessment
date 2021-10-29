@@ -45,13 +45,15 @@ class CorrectorStartGUI extends BaseGUI
         $button->setUrl('./Customizing/global/plugins/Services/Repository/RepositoryObject/LongEssayTask/lib/corrector/index.html');
         $button->setCaption('Korrektur starten', false);
         $button->setPrimary(true);
+        $button->setTarget('_blank');   // as long as the corrector has no return address
         $this->toolbar->addButtonInstance($button);
 
 
         $actions = array(
             "Alle" => "all",
-            "Bestanden" => "",
-            "Nicht Bestanden" => "",
+            "Offen" => "",
+            "Vorläufig" => "",
+            "Korrigiert" => "",
             "Große Abweichung" => "",
         );
 
@@ -59,41 +61,41 @@ class CorrectorStartGUI extends BaseGUI
         $view_control = $this->uiFactory->viewControl()->mode($actions, $aria_label)->withActive("Alle");
 
         $result = $this->uiFactory->item()->group("", [
-            $this->uiFactory->item()->standard("´Korrekturstatus")
+            $this->uiFactory->item()->standard("Korrekturstatus")
                 ->withDescription("")
                 ->withProperties(array(
-                    "Bewertete Abgaben" => "1",
+                    "Bewertete Abgaben:" => "1",
                     "Offene Abgaben:" => "1",
-                    "Durchschnittsnote" => "10"))
+                    "Durchschnittsnote:" => "10"))
         ]);
 
 
 
-        $item1 = $this->uiFactory->item()->standard($this->uiFactory->link()->standard("Fred Neumann (fred.neumann)",'./Customizing/global/plugins/Services/Repository/RepositoryObject/LongEssayTask/lib/corrector/index.html'))
+        $item1 = $this->uiFactory->item()->standard($this->uiFactory->link()->standard("Abgabe 1 (anonymisiert)",'./Customizing/global/plugins/Services/Repository/RepositoryObject/LongEssayTask/lib/corrector/index.html'))
             ->withLeadIcon($this->uiFactory->symbol()->icon()->standard('adve', 'user', 'medium'))
             ->withProperties(array(
-                "Abgabe-Status" => "abgegeben",
-                "Korrektur-Status" => "vorläufig",
+                "Abgabe-Status:" => "abgegeben",
+                "Korrektur-Status:" => "vorläufig",
                 "Punkte:" => 10,
-                "Notenstufe" => "bestanden",
-                "Zweitkorrektor: Volker Reuschenback (volker.reuschenbach)"
+                "Notenstufe:" => "bestanden",
+                "Zweitkorrektor:" =>  "Volker Reuschenback (volker.reuschenbach)"
             ))
             ->withActions(
                 $this->uiFactory->dropdown()->standard([
-                    $this->uiFactory->button()->shy('Korrektur beearbeiten', '#'),
+                    $this->uiFactory->button()->shy('Korrektur bearbeiten', '#'),
                     $this->uiFactory->button()->shy('Korrektur finalisieren', '#')
                 ]));
 
-        $item2 = $this->uiFactory->item()->standard($this->uiFactory->link()->standard("Matthias Kunkel (matthias.kunkel)", ''))
+        $item2 = $this->uiFactory->item()->standard($this->uiFactory->link()->standard("Abgabe 2 (anonymisiert)", ''))
             ->withLeadIcon($this->uiFactory->symbol()->icon()->standard('adve', 'editor', 'medium'))
             ->withProperties(array(
-                "Abgabe-Status" => "abgegeben",
-                "Korrektur-Status" => "noch nicht begonnen",
-                "Erstkorrektor Armin Laschet (armin.laschet)"
+                "Abgabe-Status:" => "abgegeben",
+                "Korrektur-Status:" => "offen",
+                "Erstkorrektor:" => "Armin Laschet (armin.laschet)"
             ))
             ->withActions(
                 $this->uiFactory->dropdown()->standard([
-                    $this->uiFactory->button()->shy('Korrektur beearbeiten', '#'),
+                    $this->uiFactory->button()->shy('Korrektur bearbeiten', '#'),
                 ]));
 
         $resources = $this->uiFactory->item()->group("Zugeteilte Abgaben", array(

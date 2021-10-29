@@ -70,7 +70,7 @@ class CorrectorAdminGUI extends BaseGUI
             ->withActions(
                 $this->uiFactory->dropdown()->standard([
                     $this->uiFactory->button()->shy('Korrektur einsehen', '#'),
-                    $this->uiFactory->button()->shy('Korrektorenzuweung ändern', '#'),
+                    $this->uiFactory->button()->shy('Korrektorenzuweisung ändern', '#'),
                     $this->uiFactory->button()->shy('Stichentscheid', '#'),
 
                 ]));

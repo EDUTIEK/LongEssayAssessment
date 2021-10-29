@@ -45,15 +45,17 @@ class WriterStartGUI extends BaseGUI
         $this->toolbar->setFormAction($this->ctrl->getFormAction($this));
         $button = \ilLinkButton::getInstance();
         $button->setUrl('./Customizing/global/plugins/Services/Repository/RepositoryObject/LongEssayTask/lib/editor/index.html');
-        $button->setCaption('Bearbeitung starten (Mocklup)', false);
+        $button->setCaption('Bearbeitung starten', false);
         $button->setPrimary(true);
+        $button->setTarget('_blank'); // as long as the writer has no return address
         $this->toolbar->addButtonInstance($button);
 
-        $button = \ilLinkButton::getInstance();
-        $button->setUrl($this->ctrl->getLinkTarget($this, 'startWriter'));
-        $button->setCaption('Bearbeitung starten (Service)', false);
-        $button->setPrimary(false);
-        $this->toolbar->addButtonInstance($button);
+//        $button = \ilLinkButton::getInstance();
+//        $button->setUrl($this->ctrl->getLinkTarget($this, 'startWriter'));
+//        $button->setCaption('Bearbeitung starten (Service)', false);
+//        $button->setPrimary(false);
+//        $button->setTarget('_blank'); // as long as the writer has no return address
+//        $this->toolbar->addButtonInstance($button);
 
 
         $description = $this->uiFactory->item()->group("Aufgabe", [$this->uiFactory->item()->standard("Beschreibung")

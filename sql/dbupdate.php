@@ -207,12 +207,12 @@ $fields = array(
 	),
 
 );
-if (! $ilDB->tableExists('xlet_correction_setting')) {
-	$ilDB->createTable('xlet_correction_setting', $fields);
-	$ilDB->addPrimaryKey('xlet_correction_setting', array( 'task_id' ));
+if (! $ilDB->tableExists('xlet_corr_setting')) {
+	$ilDB->createTable('xlet_corr_setting', $fields);
+	$ilDB->addPrimaryKey('xlet_corr_setting', array( 'task_id' ));
 
-	if (! $ilDB->sequenceExists('xlet_correction_setting')) {
-		$ilDB->createSequence('xlet_correction_setting');
+	if (! $ilDB->sequenceExists('xlet_corr_setting')) {
+		$ilDB->createSequence('xlet_corr_setting');
 	}
 
 }
@@ -256,7 +256,7 @@ $fields = array(
 if (! $ilDB->tableExists('xlet_alert')) {
 	$ilDB->createTable('xlet_alert', $fields);
 	$ilDB->addPrimaryKey('xlet_alert', array( 'id' ));
-	$ilDB->addIndex("xlet_alert", array("task_id"), "idx1");
+	$ilDB->addIndex("xlet_alert", array("task_id"), "i1");
 	if (! $ilDB->sequenceExists('xlet_alert')) {
 		$ilDB->createSequence('xlet_alert');
 	}
@@ -300,8 +300,8 @@ $fields = array(
 if (! $ilDB->tableExists('xlet_participant')) {
 	$ilDB->createTable('xlet_participant', $fields);
 	$ilDB->addPrimaryKey('xlet_participant', array( 'id' ));
-	$ilDB->addIndex("xlet_participant", array("user_id"), "idx1");
-	$ilDB->addIndex("xlet_participant", array("task_id"), "idx2");
+	$ilDB->addIndex("xlet_participant", array("user_id"), "i1");
+	$ilDB->addIndex("xlet_participant", array("task_id"), "i2");
 
 	if (! $ilDB->sequenceExists('xlet_participant')) {
 		$ilDB->createSequence('xlet_participant');
@@ -335,8 +335,8 @@ $fields = array(
 if (! $ilDB->tableExists('xlet_corrector')) {
 	$ilDB->createTable('xlet_corrector', $fields);
 	$ilDB->addPrimaryKey('xlet_corrector', array( 'id' ));
-	$ilDB->addIndex("xlet_corrector", array("user_id"), "idx1");
-	$ilDB->addIndex("xlet_corrector", array("task_id"), "idx2");
+	$ilDB->addIndex("xlet_corrector", array("user_id"), "i1");
+	$ilDB->addIndex("xlet_corrector", array("task_id"), "i2");
 
 	if (! $ilDB->sequenceExists('xlet_corrector')) {
 		$ilDB->createSequence('xlet_corrector');
@@ -413,10 +413,16 @@ $fields = array(
 if (! $ilDB->tableExists('xlet_essay')) {
 	$ilDB->createTable('xlet_essay', $fields);
 	$ilDB->addPrimaryKey('xlet_essay', array( 'id' ));
-	$ilDB->addIndex("xlet_essay", array("uuid"), "idx1");
+	$ilDB->addIndex("xlet_essay", array("uuid"), "i1");
 
 	if (! $ilDB->sequenceExists('xlet_essay')) {
 		$ilDB->createSequence('xlet_essay');
 	}
-
 }
+?>
+<#12>
+<?php
+if (! $ilDB->tableColumnExists('xlet_task_settings', 'solution')) {
+    $ilDB->addTableColumn('xlet_task_settings', 'solution', ['type' => 'clob']);
+}
+?>

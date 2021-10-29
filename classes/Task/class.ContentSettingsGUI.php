@@ -36,6 +36,7 @@ class ContentSettingsGUI extends BaseGUI
 
     /**
      * Edit and save the settings
+     * Use classic Property form for richtext editing
      */
     protected function editSettings()
     {
@@ -47,7 +48,7 @@ class ContentSettingsGUI extends BaseGUI
         $item->setInfo($this->plugin->txt("task_description_info"));
         $item->setUseRte(true);
         $item->setRteTagSet('standard');
-        $item->setValue($taskSettings->getDescription());
+        $item->setValue($taskSettings->getInstructions());
         $form->addItem($item);
 
         $item = new \ilTextAreaInputGUI($this->plugin->txt("task_instructions"), 'task_instructions');

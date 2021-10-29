@@ -13,7 +13,7 @@ class CorrectionSettings extends ActivePluginRecord
     /**
      * @var string
      */
-    protected $connector_container_name = 'xlet_correction_setting';
+    protected $connector_container_name = 'xlet_corr_setting';
 
 
     /**

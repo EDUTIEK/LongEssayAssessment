@@ -144,7 +144,7 @@ class GradesAdminGUI extends BaseGUI
         $fields['description'] = $factory->textarea($this->lng->txt("description"))
             ->withValue($record->getStringDummy());
 
-        $fields['points'] = $factory->numeric('Min. Punkte', "Minimal benötigte Punkte zum Erreichen dieser Stufe.")
+        $fields['points'] = $factory->text('Min. Punkte', "Minimal benötigte Punkte zum Erreichen dieser Stufe.")
             ->withValue($record->getStringDummy());
 
         $fields['lp_passed'] = $factory->checkbox($this->plugin->txt('lp_passed'), $this->plugin->txt('lp_passed_info'))

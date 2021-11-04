@@ -43,7 +43,7 @@ class CorrectorStartGUI extends BaseGUI
         $this->toolbar->setFormAction($this->ctrl->getFormAction($this));
         $button = \ilLinkButton::getInstance();
         $button->setUrl('./Customizing/global/plugins/Services/Repository/RepositoryObject/LongEssayTask/lib/corrector/index.html');
-        $button->setCaption('Korrektur starten', false);
+        $button->setCaption('Korrektur starten (Mockup)', false);
         $button->setPrimary(true);
         $button->setTarget('_blank');   // as long as the corrector has no return address
         $this->toolbar->addButtonInstance($button);

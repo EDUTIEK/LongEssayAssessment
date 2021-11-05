@@ -558,3 +558,54 @@ if (! $ilDB->tableExists('xlet_editor_history')) {
 
 }
 ?>
+<#16>
+<?php
+$fields = array(
+	'id' => array(
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+
+	),
+	'essay_id' => array(
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+
+	),
+	'corrector_id' => array(
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+
+	),
+	'summary_text' => array(
+		'type' => 'clob',
+
+	),
+	'points' => array(
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+
+	),
+	'grade_level' => array(
+		'notnull' => '1',
+		'type' => 'text',
+		'length' => '255',
+
+	),
+
+);
+if (! $ilDB->tableExists('xlet_corrector_summary')) {
+	$ilDB->createTable('xlet_corrector_summary', $fields);
+	$ilDB->addPrimaryKey('xlet_corrector_summary', array( 'id' ));
+	$ilDB->addIndex("xlet_corrector_summary", array("essay_id"), "i1");
+	$ilDB->addIndex("xlet_corrector_summary", array("essay_id", "corrector_id"), "i2");
+
+	if (! $ilDB->sequenceExists('xlet_corrector_summary')) {
+		$ilDB->createSequence('xlet_corrector_summary');
+	}
+
+}
+?>

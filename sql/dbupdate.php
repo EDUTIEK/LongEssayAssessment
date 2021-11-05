@@ -609,3 +609,59 @@ if (! $ilDB->tableExists('xlet_corrector_summary')) {
 
 }
 ?>
+<#17>
+<?php
+$fields = array(
+	'id' => array(
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+
+	),
+	'essay_id' => array(
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+
+	),
+	'comment' => array(
+		'type' => 'clob',
+
+	),
+	'start_position' => array(
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+
+	),
+	'end_position' => array(
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+
+	),
+	'points' => array(
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+
+	),
+	'rating' => array(
+		'notnull' => '1',
+		'type' => 'text',
+		'length' => '16',
+
+	),
+
+);
+if (! $ilDB->tableExists('xlet_corrector_comment')) {
+	$ilDB->createTable('xlet_corrector_comment', $fields);
+	$ilDB->addPrimaryKey('xlet_corrector_comment', array( 'id' ));
+	$ilDB->addIndex("xlet_corrector_comment", array("essay_id"), "i1");
+
+	if (! $ilDB->sequenceExists('xlet_corrector_comment')) {
+		$ilDB->createSequence('xlet_corrector_comment');
+	}
+
+}
+?>

@@ -665,3 +665,53 @@ if (! $ilDB->tableExists('xlet_corrector_comment')) {
 
 }
 ?>
+<#18>
+<?php
+$fields = array(
+	'id' => array(
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+
+	),
+	'user_id' => array(
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+
+	),
+	'essay_id' => array(
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+
+	),
+	'token' => array(
+		'notnull' => '1',
+		'type' => 'text',
+		'length' => '50',
+
+	),
+	'ip' => array(
+		'notnull' => '1',
+		'type' => 'text',
+		'length' => '15',
+
+	),
+	'valid_until' => array(
+		'type' => 'timestamp',
+
+	),
+
+);
+if (! $ilDB->tableExists('xlet_access_token')) {
+	$ilDB->createTable('xlet_access_token', $fields);
+	$ilDB->addPrimaryKey('xlet_access_token', array( 'id' ));
+	$ilDB->addIndex("xlet_access_token", array("user_id", "essay_id"), "i1");
+
+	if (! $ilDB->sequenceExists('xlet_access_token')) {
+		$ilDB->createSequence('xlet_access_token');
+	}
+
+}
+?>

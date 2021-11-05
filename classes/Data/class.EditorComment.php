@@ -50,22 +50,22 @@ class EditorComment extends ActivePluginRecord
 	protected ?string $comment = null;
 
 	/**
-	 * @var bool
+	 * @var int
 	 * @con_has_field        true
 	 * @con_is_notnull       true
 	 * @con_fieldtype        integer
 	 * @con_length           4
 	 */
-	protected $start_position = 0;
+	protected int $start_position = 0;
 
 	/**
-	 * @var bool
+	 * @var int
 	 * @con_has_field        true
 	 * @con_is_notnull       true
 	 * @con_fieldtype        integer
 	 * @con_length           4
 	 */
-	protected $end_position = 0;
+	protected int $end_position = 0;
 
 	/**
 	 * @return int
@@ -122,36 +122,36 @@ class EditorComment extends ActivePluginRecord
 	}
 
 	/**
-	 * @return bool
+	 * @return int
 	 */
-	public function isStartPosition()
+	public function getStartPosition(): int
 	{
 		return $this->start_position;
 	}
 
 	/**
-	 * @param bool $start_position
+	 * @param int $start_position
 	 * @return EditorComment
 	 */
-	public function setStartPosition($start_position)
+	public function setStartPosition(int $start_position): EditorComment
 	{
 		$this->start_position = $start_position;
 		return $this;
 	}
 
 	/**
-	 * @return bool
+	 * @return int
 	 */
-	public function isEndPosition()
+	public function getEndPosition(): int
 	{
 		return $this->end_position;
 	}
 
 	/**
-	 * @param bool $end_position
+	 * @param int $end_position
 	 * @return EditorComment
 	 */
-	public function setEndPosition($end_position)
+	public function setEndPosition(int $end_position): EditorComment
 	{
 		$this->end_position = $end_position;
 		return $this;

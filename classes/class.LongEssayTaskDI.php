@@ -8,6 +8,8 @@ use ILIAS\Plugin\LongEssayTask\Data\CorrectionSettingsDatabaseRepository;
 use ILIAS\Plugin\LongEssayTask\Data\CorrectionSettingsRepository;
 use ILIAS\Plugin\LongEssayTask\Data\EditorCommentDatabaseRepository;
 use ILIAS\Plugin\LongEssayTask\Data\EditorCommentRepository;
+use ILIAS\Plugin\LongEssayTask\Data\EditorHistoryDatabaseRepository;
+use ILIAS\Plugin\LongEssayTask\Data\EditorHistoryRepository;
 use ILIAS\Plugin\LongEssayTask\Data\EditorNoticeDatabaseRepository;
 use ILIAS\Plugin\LongEssayTask\Data\EditorNoticeRepository;
 use ILIAS\Plugin\LongEssayTask\Data\EssayRepository;
@@ -23,6 +25,7 @@ class LongEssayTaskDI
 	protected CorrectionSettingsRepository $correction_settings;
 	protected EditorNoticeRepository $editor_notice;
 	protected EditorCommentRepository $editor_comment;
+	protected EditorHistoryRepository $editor_history;
 
 	public function getEssayRepo(): EssayRepository
 	{
@@ -72,5 +75,15 @@ class LongEssayTaskDI
 		}
 
 		return $this->editor_comment;
+	}
+
+	public function getEditorHistoryRepo(): EditorHistoryRepository
+	{
+		if ($this->editor_history === null)
+		{
+			$this->editor_history = new EditorHistoryDatabaseRepository();
+		}
+
+		return $this->editor_history;
 	}
 }

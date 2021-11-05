@@ -506,3 +506,55 @@ if (! $ilDB->tableExists('xlet_editor_comment')) {
 
 }
 ?>
+<#15>
+<?php
+$fields = array(
+	'id' => array(
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+
+	),
+	'essay_id' => array(
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+
+	),
+	'timestamp' => array(
+		'type' => 'timestamp',
+
+	),
+	'content' => array(
+		'type' => 'clob',
+
+	),
+	'is_delta' => array(
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+
+	),
+	'hash_before' => array(
+		'type' => 'text',
+		'length' => '50',
+
+	),
+	'hash_after' => array(
+		'type' => 'text',
+		'length' => '50',
+
+	),
+
+);
+if (! $ilDB->tableExists('xlet_editor_history')) {
+	$ilDB->createTable('xlet_editor_history', $fields);
+	$ilDB->addPrimaryKey('xlet_editor_history', array( 'id' ));
+	$ilDB->addIndex("xlet_editor_history", array("essay_id"), "i1");
+
+	if (! $ilDB->sequenceExists('xlet_editor_history')) {
+		$ilDB->createSequence('xlet_editor_history');
+	}
+
+}
+?>

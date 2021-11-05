@@ -461,3 +461,47 @@ if (! $ilDB->tableExists('xlet_editor_notice')) {
 
 }
 ?>
+<#14>
+<?php
+$fields = array(
+	'id' => array(
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+
+	),
+	'task_id' => array(
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+
+	),
+	'comment' => array(
+		'type' => 'clob',
+
+	),
+	'start_position' => array(
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+
+	),
+	'end_position' => array(
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+
+	),
+
+);
+if (! $ilDB->tableExists('xlet_editor_comment')) {
+	$ilDB->createTable('xlet_editor_comment', $fields);
+	$ilDB->addPrimaryKey('xlet_editor_comment', array( 'id' ));
+	$ilDB->addIndex("xlet_editor_comment", array("task_id"), "i1");
+
+	if (! $ilDB->sequenceExists('xlet_editor_comment')) {
+		$ilDB->createSequence('xlet_editor_comment');
+	}
+
+}
+?>

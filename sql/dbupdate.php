@@ -426,3 +426,38 @@ if (! $ilDB->tableColumnExists('xlet_task_settings', 'solution')) {
     $ilDB->addTableColumn('xlet_task_settings', 'solution', ['type' => 'clob']);
 }
 ?>
+<#13>
+<?php
+$fields = array(
+	'id' => array(
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+
+	),
+	'task_id' => array(
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+
+	),
+	'notice_text' => array(
+		'type' => 'clob',
+
+	),
+	'created' => array(
+		'type' => 'timestamp',
+
+	),
+
+);
+if (! $ilDB->tableExists('xlet_editor_notice')) {
+	$ilDB->createTable('xlet_editor_notice', $fields);
+	$ilDB->addPrimaryKey('xlet_editor_notice', array( 'id' ));
+
+	if (! $ilDB->sequenceExists('xlet_editor_notice')) {
+		$ilDB->createSequence('xlet_editor_notice');
+	}
+
+}
+?>

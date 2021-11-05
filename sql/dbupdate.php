@@ -715,3 +715,13 @@ if (! $ilDB->tableExists('xlet_access_token')) {
 
 }
 ?>
+<#19>
+<?php
+if (! $ilDB->tableColumnExists('xlet_corrector_comment', 'corrector_id')) {
+	$ilDB->addTableColumn('xlet_corrector_comment', 'corrector_id', array(
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+	));
+}
+?>

@@ -44,6 +44,19 @@ class CorrectorComment extends ActivePluginRecord
 	protected int $essay_id;
 
 	/**
+	 * The Corrector Id
+	 *
+	 * @var integer
+	 * @con_has_field        true
+	 * @con_is_primary       false
+	 * @con_sequence         false
+	 * @con_is_notnull       true
+	 * @con_fieldtype        integer
+	 * @con_length           4
+	 */
+	protected int $corrector_id;
+
+	/**
 	 * Comment (richtext)
 	 *
 	 * @var null|string
@@ -212,6 +225,24 @@ class CorrectorComment extends ActivePluginRecord
 	public function setRating(string $rating): CorrectorComment
 	{
 		$this->rating = $rating;
+		return $this;
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getCorrectorId(): int
+	{
+		return $this->corrector_id;
+	}
+
+	/**
+	 * @param int $corrector_id
+	 * @return CorrectorComment
+	 */
+	public function setCorrectorId(int $corrector_id): CorrectorComment
+	{
+		$this->corrector_id = $corrector_id;
 		return $this;
 	}
 }

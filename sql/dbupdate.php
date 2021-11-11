@@ -426,3 +426,302 @@ if (! $ilDB->tableColumnExists('xlet_task_settings', 'solution')) {
     $ilDB->addTableColumn('xlet_task_settings', 'solution', ['type' => 'clob']);
 }
 ?>
+<#13>
+<?php
+$fields = array(
+	'id' => array(
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+
+	),
+	'task_id' => array(
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+
+	),
+	'notice_text' => array(
+		'type' => 'clob',
+
+	),
+	'created' => array(
+		'type' => 'timestamp',
+
+	),
+
+);
+if (! $ilDB->tableExists('xlet_editor_notice')) {
+	$ilDB->createTable('xlet_editor_notice', $fields);
+	$ilDB->addPrimaryKey('xlet_editor_notice', array( 'id' ));
+	$ilDB->addIndex("xlet_editor_notice", array("task_id"), "i1");
+
+	if (! $ilDB->sequenceExists('xlet_editor_notice')) {
+		$ilDB->createSequence('xlet_editor_notice');
+	}
+
+}
+?>
+<#14>
+<?php
+$fields = array(
+	'id' => array(
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+
+	),
+	'task_id' => array(
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+
+	),
+	'comment' => array(
+		'type' => 'clob',
+
+	),
+	'start_position' => array(
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+
+	),
+	'end_position' => array(
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+
+	),
+
+);
+if (! $ilDB->tableExists('xlet_editor_comment')) {
+	$ilDB->createTable('xlet_editor_comment', $fields);
+	$ilDB->addPrimaryKey('xlet_editor_comment', array( 'id' ));
+	$ilDB->addIndex("xlet_editor_comment", array("task_id"), "i1");
+
+	if (! $ilDB->sequenceExists('xlet_editor_comment')) {
+		$ilDB->createSequence('xlet_editor_comment');
+	}
+
+}
+?>
+<#15>
+<?php
+$fields = array(
+	'id' => array(
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+
+	),
+	'essay_id' => array(
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+
+	),
+	'timestamp' => array(
+		'type' => 'timestamp',
+
+	),
+	'content' => array(
+		'type' => 'clob',
+
+	),
+	'is_delta' => array(
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+
+	),
+	'hash_before' => array(
+		'type' => 'text',
+		'length' => '50',
+
+	),
+	'hash_after' => array(
+		'type' => 'text',
+		'length' => '50',
+
+	),
+
+);
+if (! $ilDB->tableExists('xlet_editor_history')) {
+	$ilDB->createTable('xlet_editor_history', $fields);
+	$ilDB->addPrimaryKey('xlet_editor_history', array( 'id' ));
+	$ilDB->addIndex("xlet_editor_history", array("essay_id"), "i1");
+
+	if (! $ilDB->sequenceExists('xlet_editor_history')) {
+		$ilDB->createSequence('xlet_editor_history');
+	}
+
+}
+?>
+<#16>
+<?php
+$fields = array(
+	'id' => array(
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+
+	),
+	'essay_id' => array(
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+
+	),
+	'corrector_id' => array(
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+
+	),
+	'summary_text' => array(
+		'type' => 'clob',
+
+	),
+	'points' => array(
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+
+	),
+	'grade_level' => array(
+		'notnull' => '1',
+		'type' => 'text',
+		'length' => '255',
+
+	),
+
+);
+if (! $ilDB->tableExists('xlet_corrector_summary')) {
+	$ilDB->createTable('xlet_corrector_summary', $fields);
+	$ilDB->addPrimaryKey('xlet_corrector_summary', array( 'id' ));
+	$ilDB->addIndex("xlet_corrector_summary", array("essay_id"), "i1");
+	$ilDB->addIndex("xlet_corrector_summary", array("essay_id", "corrector_id"), "i2");
+
+	if (! $ilDB->sequenceExists('xlet_corrector_summary')) {
+		$ilDB->createSequence('xlet_corrector_summary');
+	}
+
+}
+?>
+<#17>
+<?php
+$fields = array(
+	'id' => array(
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+
+	),
+	'essay_id' => array(
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+
+	),
+	'comment' => array(
+		'type' => 'clob',
+
+	),
+	'start_position' => array(
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+
+	),
+	'end_position' => array(
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+
+	),
+	'points' => array(
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+
+	),
+	'rating' => array(
+		'notnull' => '1',
+		'type' => 'text',
+		'length' => '16',
+
+	),
+
+);
+if (! $ilDB->tableExists('xlet_corrector_comment')) {
+	$ilDB->createTable('xlet_corrector_comment', $fields);
+	$ilDB->addPrimaryKey('xlet_corrector_comment', array( 'id' ));
+	$ilDB->addIndex("xlet_corrector_comment", array("essay_id"), "i1");
+
+	if (! $ilDB->sequenceExists('xlet_corrector_comment')) {
+		$ilDB->createSequence('xlet_corrector_comment');
+	}
+
+}
+?>
+<#18>
+<?php
+$fields = array(
+	'id' => array(
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+
+	),
+	'user_id' => array(
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+
+	),
+	'essay_id' => array(
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+
+	),
+	'token' => array(
+		'notnull' => '1',
+		'type' => 'text',
+		'length' => '50',
+
+	),
+	'ip' => array(
+		'notnull' => '1',
+		'type' => 'text',
+		'length' => '15',
+
+	),
+	'valid_until' => array(
+		'type' => 'timestamp',
+
+	),
+
+);
+if (! $ilDB->tableExists('xlet_access_token')) {
+	$ilDB->createTable('xlet_access_token', $fields);
+	$ilDB->addPrimaryKey('xlet_access_token', array( 'id' ));
+	$ilDB->addIndex("xlet_access_token", array("user_id", "essay_id"), "i1");
+
+	if (! $ilDB->sequenceExists('xlet_access_token')) {
+		$ilDB->createSequence('xlet_access_token');
+	}
+
+}
+?>
+<#19>
+<?php
+if (! $ilDB->tableColumnExists('xlet_corrector_comment', 'corrector_id')) {
+	$ilDB->addTableColumn('xlet_corrector_comment', 'corrector_id', array(
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+	));
+}
+?>

@@ -6,15 +6,15 @@ namespace ILIAS\Plugin\LongEssayTask\Data;
 /**
  * @author Fabian Wolf <wolf@ilias.de>
  */
-class EditorComment extends ActivePluginRecord
+class WriterComment extends ActivePluginRecord
 {
     /**
      * @var string
      */
-    protected $connector_container_name = 'xlet_editor_comment';
+    protected $connector_container_name = 'xlet_writer_comment';
 
 	/**
-	 * Editor notice id
+	 * Writer comment id
 	 *
 	 * @var integer
 	 * @con_has_field        true
@@ -77,9 +77,9 @@ class EditorComment extends ActivePluginRecord
 
 	/**
 	 * @param int $id
-	 * @return EditorComment
+	 * @return WriterComment
 	 */
-	public function setId(int $id): EditorComment
+	public function setId(int $id): WriterComment
 	{
 		$this->id = $id;
 		return $this;
@@ -95,9 +95,9 @@ class EditorComment extends ActivePluginRecord
 
 	/**
 	 * @param int $task_id
-	 * @return EditorComment
+	 * @return WriterComment
 	 */
-	public function setTaskId(int $task_id): EditorComment
+	public function setTaskId(int $task_id): WriterComment
 	{
 		$this->task_id = $task_id;
 		return $this;
@@ -113,9 +113,9 @@ class EditorComment extends ActivePluginRecord
 
 	/**
 	 * @param string|null $comment
-	 * @return EditorComment
+	 * @return WriterComment
 	 */
-	public function setComment(?string $comment): EditorComment
+	public function setComment(?string $comment): WriterComment
 	{
 		$this->comment = $comment;
 		return $this;
@@ -131,9 +131,9 @@ class EditorComment extends ActivePluginRecord
 
 	/**
 	 * @param int $start_position
-	 * @return EditorComment
+	 * @return WriterComment
 	 */
-	public function setStartPosition(int $start_position): EditorComment
+	public function setStartPosition(int $start_position): WriterComment
 	{
 		$this->start_position = $start_position;
 		return $this;
@@ -149,9 +149,9 @@ class EditorComment extends ActivePluginRecord
 
 	/**
 	 * @param int $end_position
-	 * @return EditorComment
+	 * @return WriterComment
 	 */
-	public function setEndPosition(int $end_position): EditorComment
+	public function setEndPosition(int $end_position): WriterComment
 	{
 		$this->end_position = $end_position;
 		return $this;

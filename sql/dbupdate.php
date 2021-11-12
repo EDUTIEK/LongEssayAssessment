@@ -495,13 +495,13 @@ $fields = array(
 	),
 
 );
-if (! $ilDB->tableExists('xlet_editor_comment')) {
-	$ilDB->createTable('xlet_editor_comment', $fields);
-	$ilDB->addPrimaryKey('xlet_editor_comment', array( 'id' ));
-	$ilDB->addIndex("xlet_editor_comment", array("task_id"), "i1");
+if (! $ilDB->tableExists('xlet_writer_comment')) {
+	$ilDB->createTable('xlet_writer_comment', $fields);
+	$ilDB->addPrimaryKey('xlet_writer_comment', array( 'id' ));
+	$ilDB->addIndex("xlet_writer_comment", array("task_id"), "i1");
 
-	if (! $ilDB->sequenceExists('xlet_editor_comment')) {
-		$ilDB->createSequence('xlet_editor_comment');
+	if (! $ilDB->sequenceExists('xlet_writer_comment')) {
+		$ilDB->createSequence('xlet_writer_comment');
 	}
 
 }

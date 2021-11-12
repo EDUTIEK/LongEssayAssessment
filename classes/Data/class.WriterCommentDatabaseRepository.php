@@ -5,17 +5,17 @@ namespace ILIAS\Plugin\LongEssayTask\Data;
 /**
  * @author Fabian Wolf <wolf@ilias.de>
  */
-class EditorCommentDatabaseRepository implements EditorCommentRepository
+class WriterCommentDatabaseRepository implements WriterCommentRepository
 {
 
-	public function createEditorComment(EditorComment $a_comment)
+	public function createEditorComment(WriterComment $a_comment)
 	{
 		$a_comment->create();
 	}
 
-	public function getEditorCommentById(int $a_id): ?EditorComment
+	public function getEditorCommentById(int $a_id): ?WriterComment
 	{
-		$comment =  EditorComment::findOrGetInstance($a_id);
+		$comment =  WriterComment::findOrGetInstance($a_id);
 		if ($comment != null) {
 			return $comment;
 		}
@@ -27,7 +27,7 @@ class EditorCommentDatabaseRepository implements EditorCommentRepository
 		return ( $this->getEditorCommentById($a_id) != null );
 	}
 
-	public function updateEditorComment(EditorComment $a_comment)
+	public function updateEditorComment(WriterComment $a_comment)
 	{
 		$a_comment->update();
 	}

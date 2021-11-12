@@ -70,7 +70,19 @@ class ilLongEssayTaskPlugin extends ilRepositoryObjectPlugin
      */
     protected function uninstallCustom()
     {
-        $this->dic->database()->dropTable('xlet_plugin_config');
+		$tables = ["xlet_access_token", "xlet_alert", "xlet_corr_setting", "xlet_corrector", "xlet_corrector_ass",
+			"xlet_corrector_comment", "xlet_corrector_summary", "xlet_crit_points", "xlet_editor_comment",
+			"xlet_editor_history", "xlet_editor_notice", "xlet_editor_settings", "xlet_essay", "xlet_grade_level",
+			"xlet_object_settings", "xlet_participant", "xlet_plugin_config", "xlet_rating_crit", "xlet_task_settings",
+			"xlet_time_extension"];
+
+		foreach($tables as $table){
+			if ($this->dic->database()->tableExists($table)){
+				$this->dic->database()->dropTable($table);
+			}
+		}
+
+		//TODO RBAC?
     }
 
     /**

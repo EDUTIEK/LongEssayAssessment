@@ -725,3 +725,28 @@ if (! $ilDB->tableColumnExists('xlet_corrector_comment', 'corrector_id')) {
 	));
 }
 ?>
+<#20>
+<?php
+if ($ilDB->indexExistsByFields('xlet_access_token', array("user_id", "essay_id"))) {
+    $ilDB->dropIndexByFields('xlet_access_token', array("user_id", "essay_id"));
+}
+if ($ilDB->tableColumnExists('xlet_access_token', 'essay_id')) {
+    $ilDB->dropTableColumn('xlet_access_token', 'essay_id');
+}
+if (!$ilDB->tableColumnExists('xlet_access_token','task_id')) {
+    $ilDB->addTableColumn('xlet_access_token','task_id', [
+        'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+    ]);
+}
+if (!$ilDB->indexExistsByFields('xlet_access_token', array('user_id'))) {
+    $ilDB->addIndex("xlet_access_token", array("user_id"), "i1");
+}
+if (!$ilDB->indexExistsByFields('xlet_access_token', array('task_id'))) {
+    $ilDB->addIndex("xlet_access_token", array("task_id"), "i2");
+}
+if (!$ilDB->indexExistsByFields('xlet_access_token', array('valid_until'))) {
+    $ilDB->addIndex("xlet_access_token", array("valid_until"), "i3");
+}
+?>

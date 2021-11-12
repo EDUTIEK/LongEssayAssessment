@@ -725,3 +725,44 @@ if (! $ilDB->tableColumnExists('xlet_corrector_comment', 'corrector_id')) {
 	));
 }
 ?>
+<#20>
+<?php
+$fields = array(
+	'id' => array(
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+
+	),
+	'participant_id' => array(
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+
+	),
+	'corrector_id' => array(
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+
+	),
+	'position' => array(
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+
+	),
+
+);
+if (! $ilDB->tableExists('xlet_corrector_ass')) {
+	$ilDB->createTable('xlet_corrector_ass', $fields);
+	$ilDB->addPrimaryKey('xlet_corrector_ass', array( 'id' ));
+	$ilDB->addIndex("xlet_corrector_ass", array("participant_id", "corrector_id"), "i1");
+	$ilDB->addIndex("xlet_corrector_ass", array("corrector_id"), "i2");
+
+	if (! $ilDB->sequenceExists('xlet_corrector_ass')) {
+		$ilDB->createSequence('xlet_corrector_ass');
+	}
+
+}
+?>

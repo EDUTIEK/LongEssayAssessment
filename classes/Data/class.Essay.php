@@ -42,7 +42,7 @@ class Essay extends ActivePluginRecord
 	protected string $uuid;
 
 	/**
-	 * The participant id
+	 * The writer id
 	 *
 	 * @var integer
 	 * @con_has_field        true
@@ -52,7 +52,7 @@ class Essay extends ActivePluginRecord
 	 * @con_fieldtype        integer
 	 * @con_length           4
 	 */
-	protected int $participant_id;
+	protected int $writer_id;
 
 
 
@@ -183,18 +183,18 @@ class Essay extends ActivePluginRecord
 	/**
 	 * @return int
 	 */
-	public function getParticipantId(): int
+	public function getWriterId(): int
 	{
-		return $this->participant_id;
+		return $this->writer_id;
 	}
 
 	/**
-	 * @param int $participant_id
+	 * @param int $writer_id
 	 * @return Essay
 	 */
-	public function setParticipantId(int $participant_id): Essay
+	public function setWriterId(int $writer_id): Essay
 	{
-		$this->participant_id = $participant_id;
+		$this->writer_id = $writer_id;
 		return $this;
 	}
 

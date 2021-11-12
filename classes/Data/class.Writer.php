@@ -7,13 +7,13 @@ namespace ILIAS\Plugin\LongEssayTask\Data;
 /**
  * @author Fabian Wolf <wolf@ilias.de>
  */
-class Participant extends ActivePluginRecord
+class Writer extends ActivePluginRecord
 {
 
     /**
      * @var string
      */
-    protected $connector_container_name = 'xlet_participant';
+    protected $connector_container_name = 'xlet_writer';
 
 	/**
 	 * alert id
@@ -82,9 +82,9 @@ class Participant extends ActivePluginRecord
 
 	/**
 	 * @param int $user_id
-	 * @return Participant
+	 * @return Writer
 	 */
-	public function setUserId(int $user_id): Participant
+	public function setUserId(int $user_id): Writer
 	{
 		$this->user_id = $user_id;
 		return $this;
@@ -100,9 +100,9 @@ class Participant extends ActivePluginRecord
 
 	/**
 	 * @param int $task_id
-	 * @return Participant
+	 * @return Writer
 	 */
-	public function setTaskId(int $task_id): Participant
+	public function setTaskId(int $task_id): Writer
 	{
 		$this->task_id = $task_id;
 		return $this;
@@ -118,9 +118,9 @@ class Participant extends ActivePluginRecord
 
 	/**
 	 * @param string $pseudonym
-	 * @return Participant
+	 * @return Writer
 	 */
-	public function setPseudonym(?string $pseudonym): Participant
+	public function setPseudonym(?string $pseudonym): Writer
 	{
 		$this->pseudonym = $pseudonym;
 		return $this;
@@ -136,9 +136,9 @@ class Participant extends ActivePluginRecord
 
 	/**
 	 * @param int $editor_font_size
-	 * @return Participant
+	 * @return Writer
 	 */
-	public function setEditorFontSize(int $editor_font_size): Participant
+	public function setEditorFontSize(int $editor_font_size): Writer
 	{
 		$this->editor_font_size = $editor_font_size;
 		return $this;

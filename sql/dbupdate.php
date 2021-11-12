@@ -297,14 +297,14 @@ $fields = array(
 	),
 
 );
-if (! $ilDB->tableExists('xlet_participant')) {
-	$ilDB->createTable('xlet_participant', $fields);
-	$ilDB->addPrimaryKey('xlet_participant', array( 'id' ));
-	$ilDB->addIndex("xlet_participant", array("user_id"), "i1");
-	$ilDB->addIndex("xlet_participant", array("task_id"), "i2");
+if (! $ilDB->tableExists('xlet_writer')) {
+	$ilDB->createTable('xlet_writer', $fields);
+	$ilDB->addPrimaryKey('xlet_writer', array( 'id' ));
+	$ilDB->addIndex("xlet_writer", array("user_id"), "i1");
+	$ilDB->addIndex("xlet_writer", array("task_id"), "i2");
 
-	if (! $ilDB->sequenceExists('xlet_participant')) {
-		$ilDB->createSequence('xlet_participant');
+	if (! $ilDB->sequenceExists('xlet_writer')) {
+		$ilDB->createSequence('xlet_writer');
 	}
 
 }
@@ -359,7 +359,7 @@ $fields = array(
 		'length' => '50',
 
 	),
-	'participant_id' => array(
+	'writer_id' => array(
 		'notnull' => '1',
 		'type' => 'integer',
 		'length' => '4',
@@ -759,7 +759,7 @@ $fields = array(
 		'length' => '4',
 
 	),
-	'participant_id' => array(
+	'writer_id' => array(
 		'notnull' => '1',
 		'type' => 'integer',
 		'length' => '4',
@@ -782,7 +782,7 @@ $fields = array(
 if (! $ilDB->tableExists('xlet_corrector_ass')) {
 	$ilDB->createTable('xlet_corrector_ass', $fields);
 	$ilDB->addPrimaryKey('xlet_corrector_ass', array( 'id' ));
-	$ilDB->addIndex("xlet_corrector_ass", array("participant_id", "corrector_id"), "i1");
+	$ilDB->addIndex("xlet_corrector_ass", array("writer_id", "corrector_id"), "i1");
 	$ilDB->addIndex("xlet_corrector_ass", array("corrector_id"), "i2");
 
 	if (! $ilDB->sequenceExists('xlet_corrector_ass')) {

@@ -30,7 +30,7 @@ class CorrectorAssignment extends ActivePluginRecord
 	protected int $id;
 
 	/**
-	 * The participant id
+	 * The writer id
 	 *
 	 * @var integer
 	 * @con_has_field        true
@@ -40,7 +40,7 @@ class CorrectorAssignment extends ActivePluginRecord
 	 * @con_fieldtype        integer
 	 * @con_length           4
 	 */
-	protected int $participant_id;
+	protected int $writer_id;
 
 	/**
 	 * The Corrector Id
@@ -85,18 +85,18 @@ class CorrectorAssignment extends ActivePluginRecord
 	/**
 	 * @return int
 	 */
-	public function getParticipantId(): int
+	public function getWriterId(): int
 	{
-		return $this->participant_id;
+		return $this->writer_id;
 	}
 
 	/**
-	 * @param int $participant_id
+	 * @param int $writer_id
 	 * @return CorrectorAssignment
 	 */
-	public function setParticipantId(int $participant_id): CorrectorAssignment
+	public function setWriterId(int $writer_id): CorrectorAssignment
 	{
-		$this->participant_id = $participant_id;
+		$this->writer_id = $writer_id;
 		return $this;
 	}
 

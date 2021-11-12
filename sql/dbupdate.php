@@ -766,3 +766,44 @@ if (! $ilDB->tableExists('xlet_corrector_ass')) {
 
 }
 ?>
+<#21>
+<?php
+$fields = array(
+	'id' => array(
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+
+	),
+	'writer_id' => array(
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+
+	),
+	'task_id' => array(
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+
+	),
+	'minutes' => array(
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+
+	),
+
+);
+if (! $ilDB->tableExists('xlet_time_extension')) {
+	$ilDB->createTable('xlet_time_extension', $fields);
+	$ilDB->addPrimaryKey('xlet_time_extension', array( 'id' ));
+	$ilDB->addIndex("xlet_time_extension", array("writer_id", "task_id"), "i1");
+	$ilDB->addIndex("xlet_time_extension", array("task_id"), "i2");
+
+	if (! $ilDB->sequenceExists('xlet_time_extension')) {
+		$ilDB->createSequence('xlet_time_extension');
+	}
+
+}
+?>

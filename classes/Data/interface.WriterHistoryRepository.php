@@ -2,17 +2,17 @@
 
 namespace ILIAS\Plugin\LongEssayTask\Data;
 
-interface EditorHistoryRepository
+interface WriterHistoryRepository
 {
 	// Create operations
-	public function createEditorHistory(EditorHistory $a_history);
+	public function createEditorHistory(WriterHistory $a_history);
 
 	// Read operations
-	public function getEditorHistoryById(int $a_id): ?EditorHistory;
+	public function getEditorHistoryById(int $a_id): ?WriterHistory;
 	public function ifEditorHistoryExistsById(int $a_id): bool;
 
 	// Update operations
-	public function updateEditorHistory(EditorHistory $a_history);
+	public function updateEditorHistory(WriterHistory $a_history);
 
 	// Delete operations
 	public function deleteEditorHistory(int $a_id);

@@ -6,15 +6,15 @@ namespace ILIAS\Plugin\LongEssayTask\Data;
 /**
  * @author Fabian Wolf <wolf@ilias.de>
  */
-class EditorHistory extends ActivePluginRecord
+class WriterHistory extends ActivePluginRecord
 {
     /**
      * @var string
      */
-    protected $connector_container_name = 'xlet_editor_history';
+    protected $connector_container_name = 'xlet_writer_history';
 
 	/**
-	 * Editor history id
+	 * Writer history id
 	 *
 	 * @var integer
 	 * @con_has_field        true
@@ -106,9 +106,9 @@ class EditorHistory extends ActivePluginRecord
 
 	/**
 	 * @param int $id
-	 * @return EditorHistory
+	 * @return WriterHistory
 	 */
-	public function setId(int $id): EditorHistory
+	public function setId(int $id): WriterHistory
 	{
 		$this->id = $id;
 		return $this;
@@ -124,9 +124,9 @@ class EditorHistory extends ActivePluginRecord
 
 	/**
 	 * @param int $essay_id
-	 * @return EditorHistory
+	 * @return WriterHistory
 	 */
-	public function setEssayId(int $essay_id): EditorHistory
+	public function setEssayId(int $essay_id): WriterHistory
 	{
 		$this->essay_id = $essay_id;
 		return $this;
@@ -142,9 +142,9 @@ class EditorHistory extends ActivePluginRecord
 
 	/**
 	 * @param string|null $timestamp
-	 * @return EditorHistory
+	 * @return WriterHistory
 	 */
-	public function setTimestamp(?string $timestamp): EditorHistory
+	public function setTimestamp(?string $timestamp): WriterHistory
 	{
 		$this->timestamp = $timestamp;
 		return $this;
@@ -160,9 +160,9 @@ class EditorHistory extends ActivePluginRecord
 
 	/**
 	 * @param string|null $content
-	 * @return EditorHistory
+	 * @return WriterHistory
 	 */
-	public function setContent(?string $content): EditorHistory
+	public function setContent(?string $content): WriterHistory
 	{
 		$this->content = $content;
 		return $this;
@@ -178,9 +178,9 @@ class EditorHistory extends ActivePluginRecord
 
 	/**
 	 * @param bool $is_delta
-	 * @return EditorHistory
+	 * @return WriterHistory
 	 */
-	public function setIsDelta(bool $is_delta): EditorHistory
+	public function setIsDelta(bool $is_delta): WriterHistory
 	{
 		$this->is_delta = $is_delta;
 		return $this;
@@ -196,9 +196,9 @@ class EditorHistory extends ActivePluginRecord
 
 	/**
 	 * @param string $hash_before
-	 * @return EditorHistory
+	 * @return WriterHistory
 	 */
-	public function setHashBefore(string $hash_before): EditorHistory
+	public function setHashBefore(string $hash_before): WriterHistory
 	{
 		$this->hash_before = $hash_before;
 		return $this;
@@ -214,9 +214,9 @@ class EditorHistory extends ActivePluginRecord
 
 	/**
 	 * @param string $hash_after
-	 * @return EditorHistory
+	 * @return WriterHistory
 	 */
-	public function setHashAfter(string $hash_after): EditorHistory
+	public function setHashAfter(string $hash_after): WriterHistory
 	{
 		$this->hash_after = $hash_after;
 		return $this;

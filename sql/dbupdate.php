@@ -547,13 +547,13 @@ $fields = array(
 	),
 
 );
-if (! $ilDB->tableExists('xlet_editor_history')) {
-	$ilDB->createTable('xlet_editor_history', $fields);
-	$ilDB->addPrimaryKey('xlet_editor_history', array( 'id' ));
-	$ilDB->addIndex("xlet_editor_history", array("essay_id"), "i1");
+if (! $ilDB->tableExists('xlet_writer_history')) {
+	$ilDB->createTable('xlet_writer_history', $fields);
+	$ilDB->addPrimaryKey('xlet_writer_history', array( 'id' ));
+	$ilDB->addIndex("xlet_writer_history", array("essay_id"), "i1");
 
-	if (! $ilDB->sequenceExists('xlet_editor_history')) {
-		$ilDB->createSequence('xlet_editor_history');
+	if (! $ilDB->sequenceExists('xlet_writer_history')) {
+		$ilDB->createSequence('xlet_writer_history');
 	}
 
 }

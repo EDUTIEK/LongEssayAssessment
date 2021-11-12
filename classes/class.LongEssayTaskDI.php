@@ -8,8 +8,8 @@ use ILIAS\Plugin\LongEssayTask\Data\CorrectionSettingsDatabaseRepository;
 use ILIAS\Plugin\LongEssayTask\Data\CorrectionSettingsRepository;
 use ILIAS\Plugin\LongEssayTask\Data\WriterCommentDatabaseRepository;
 use ILIAS\Plugin\LongEssayTask\Data\WriterCommentRepository;
-use ILIAS\Plugin\LongEssayTask\Data\EditorHistoryDatabaseRepository;
-use ILIAS\Plugin\LongEssayTask\Data\EditorHistoryRepository;
+use ILIAS\Plugin\LongEssayTask\Data\WriterHistoryDatabaseRepository;
+use ILIAS\Plugin\LongEssayTask\Data\WriterHistoryRepository;
 use ILIAS\Plugin\LongEssayTask\Data\WriterNoticeDatabaseRepository;
 use ILIAS\Plugin\LongEssayTask\Data\WriterNoticeRepository;
 use ILIAS\Plugin\LongEssayTask\Data\EssayRepository;
@@ -25,7 +25,7 @@ class LongEssayTaskDI
 	protected CorrectionSettingsRepository $correction_settings;
 	protected WriterNoticeRepository $writer_notice;
 	protected WriterCommentRepository $writer_comment;
-	protected EditorHistoryRepository $editor_history;
+	protected WriterHistoryRepository $writer_history;
 
 	public function getEssayRepo(): EssayRepository
 	{
@@ -77,13 +77,13 @@ class LongEssayTaskDI
 		return $this->writer_comment;
 	}
 
-	public function getEditorHistoryRepo(): EditorHistoryRepository
+	public function getWriterHistoryRepo(): WriterHistoryRepository
 	{
-		if ($this->editor_history === null)
+		if ($this->writer_history === null)
 		{
-			$this->editor_history = new EditorHistoryDatabaseRepository();
+			$this->writer_history = new WriterHistoryDatabaseRepository();
 		}
 
-		return $this->editor_history;
+		return $this->writer_history;
 	}
 }

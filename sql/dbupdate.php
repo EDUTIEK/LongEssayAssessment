@@ -847,3 +847,47 @@ if (! $ilDB->tableExists('xlet_grade_level')) {
 
 }
 ?>
+<#23>
+<?php
+$fields = array(
+	'id' => array(
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+
+	),
+	'object_id' => array(
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+
+	),
+	'title' => array(
+		'notnull' => '1',
+		'type' => 'text',
+		'length' => '255',
+
+	),
+	'description' => array(
+		'type' => 'clob',
+
+	),
+	'points' => array(
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+
+	),
+
+);
+if (! $ilDB->tableExists('xlet_rating_crit')) {
+	$ilDB->createTable('xlet_rating_crit', $fields);
+	$ilDB->addPrimaryKey('xlet_rating_crit', array( 'id' ));
+	$ilDB->addIndex("xlet_rating_crit", array("object_id"), "i1");
+
+	if (! $ilDB->sequenceExists('xlet_rating_crit')) {
+		$ilDB->createSequence('xlet_rating_crit');
+	}
+
+}
+?>

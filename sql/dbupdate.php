@@ -807,3 +807,43 @@ if (! $ilDB->tableExists('xlet_time_extension')) {
 
 }
 ?>
+<#22>
+<?php
+$fields = array(
+	'id' => array(
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+
+	),
+	'object_id' => array(
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+
+	),
+	'min_points' => array(
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+
+	),
+	'grade' => array(
+		'notnull' => '1',
+		'type' => 'text',
+		'length' => '255',
+
+	),
+
+);
+if (! $ilDB->tableExists('xlet_grade_level')) {
+	$ilDB->createTable('xlet_grade_level', $fields);
+	$ilDB->addPrimaryKey('xlet_grade_level', array( 'id' ));
+	$ilDB->addIndex("xlet_grade_level", array("object_id"), "i1");
+
+	if (! $ilDB->sequenceExists('xlet_grade_level')) {
+		$ilDB->createSequence('xlet_grade_level');
+	}
+
+}
+?>

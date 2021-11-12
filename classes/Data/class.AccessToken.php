@@ -68,7 +68,7 @@ class AccessToken extends ActivePluginRecord
 	 * @con_has_field        true
 	 * @con_is_notnull       true
 	 * @con_fieldtype        text
-	 * @con_length           15
+	 * @con_length           50
 	 */
 	protected string $ip = "";
 

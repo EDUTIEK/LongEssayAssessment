@@ -695,7 +695,7 @@ $fields = array(
 	'ip' => array(
 		'notnull' => '1',
 		'type' => 'text',
-		'length' => '15',
+		'length' => '50',
 
 	),
 	'valid_until' => array(

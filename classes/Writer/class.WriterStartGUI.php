@@ -115,8 +115,10 @@ class WriterStartGUI extends BaseGUI
      */
      protected function startWriter()
      {
+         global $DIC;
+
          $context = new WriterContext();
-         $service = new Service($context);
+         $service = new Service($context->init((string) $DIC->user()->getId(), (string) $this->object->getId()));
          $service->openFrontend();
      }
 }

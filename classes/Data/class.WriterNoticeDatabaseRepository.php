@@ -5,17 +5,17 @@ namespace ILIAS\Plugin\LongEssayTask\Data;
 /**
  * @author Fabian Wolf <wolf@ilias.de>
  */
-class EditorNoticeDatabaseRepository implements EditorNoticeRepository
+class WriterNoticeDatabaseRepository implements WriterNoticeRepository
 {
 
-	public function createEditorNotice(EditorNotice $a_notice)
+	public function createEditorNotice(WriterNotice $a_notice)
 	{
 		$a_notice->create();
 	}
 
-	public function getEditorNoticeById(int $a_id): ?EditorNotice
+	public function getEditorNoticeById(int $a_id): ?WriterNotice
 	{
-		$notice =  EditorNotice::findOrGetInstance($a_id);
+		$notice =  WriterNotice::findOrGetInstance($a_id);
 		if ($notice != null) {
 			return $notice;
 		}
@@ -27,7 +27,7 @@ class EditorNoticeDatabaseRepository implements EditorNoticeRepository
 		return ( $this->getEditorNoticeById($a_id) != null );
 	}
 
-	public function updateEditorNotice(EditorNotice $a_notice)
+	public function updateEditorNotice(WriterNotice $a_notice)
 	{
 		$a_notice->update();
 	}

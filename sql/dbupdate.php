@@ -451,13 +451,13 @@ $fields = array(
 	),
 
 );
-if (! $ilDB->tableExists('xlet_editor_notice')) {
-	$ilDB->createTable('xlet_editor_notice', $fields);
-	$ilDB->addPrimaryKey('xlet_editor_notice', array( 'id' ));
-	$ilDB->addIndex("xlet_editor_notice", array("task_id"), "i1");
+if (! $ilDB->tableExists('xlet_writer_notice')) {
+	$ilDB->createTable('xlet_writer_notice', $fields);
+	$ilDB->addPrimaryKey('xlet_writer_notice', array( 'id' ));
+	$ilDB->addIndex("xlet_writer_notice", array("task_id"), "i1");
 
-	if (! $ilDB->sequenceExists('xlet_editor_notice')) {
-		$ilDB->createSequence('xlet_editor_notice');
+	if (! $ilDB->sequenceExists('xlet_writer_notice')) {
+		$ilDB->createSequence('xlet_writer_notice');
 	}
 
 }

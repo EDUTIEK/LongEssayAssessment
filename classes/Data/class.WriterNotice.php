@@ -6,15 +6,15 @@ namespace ILIAS\Plugin\LongEssayTask\Data;
 /**
  * @author Fabian Wolf <wolf@ilias.de>
  */
-class EditorNotice extends ActivePluginRecord
+class WriterNotice extends ActivePluginRecord
 {
     /**
      * @var string
      */
-    protected $connector_container_name = 'xlet_editor_notice';
+    protected $connector_container_name = 'xlet_writer_notice';
 
 	/**
-	 * Editor notice id
+	 * Writer notice id
 	 *
 	 * @var integer
 	 * @con_has_field        true
@@ -69,9 +69,9 @@ class EditorNotice extends ActivePluginRecord
 
 	/**
 	 * @param int $id
-	 * @return EditorNotice
+	 * @return WriterNotice
 	 */
-	public function setId(int $id): EditorNotice
+	public function setId(int $id): WriterNotice
 	{
 		$this->id = $id;
 		return $this;
@@ -87,9 +87,9 @@ class EditorNotice extends ActivePluginRecord
 
 	/**
 	 * @param int $task_id
-	 * @return EditorNotice
+	 * @return WriterNotice
 	 */
-	public function setTaskId(int $task_id): EditorNotice
+	public function setTaskId(int $task_id): WriterNotice
 	{
 		$this->task_id = $task_id;
 		return $this;
@@ -105,9 +105,9 @@ class EditorNotice extends ActivePluginRecord
 
 	/**
 	 * @param string|null $notice_text
-	 * @return EditorNotice
+	 * @return WriterNotice
 	 */
-	public function setNoticeText(?string $notice_text): EditorNotice
+	public function setNoticeText(?string $notice_text): WriterNotice
 	{
 		$this->notice_text = $notice_text;
 		return $this;
@@ -123,9 +123,9 @@ class EditorNotice extends ActivePluginRecord
 
 	/**
 	 * @param string|null $created
-	 * @return EditorNotice
+	 * @return WriterNotice
 	 */
-	public function setCreated(?string $created): EditorNotice
+	public function setCreated(?string $created): WriterNotice
 	{
 		$this->created = $created;
 		return $this;

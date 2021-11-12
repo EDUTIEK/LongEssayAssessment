@@ -891,3 +891,44 @@ if (! $ilDB->tableExists('xlet_rating_crit')) {
 
 }
 ?>
+<#24>
+<?php
+$fields = array(
+	'id' => array(
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+
+	),
+	'rating_id' => array(
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+
+	),
+	'corr_comment_id' => array(
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+
+	),
+	'points' => array(
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+
+	),
+
+);
+if (! $ilDB->tableExists('xlet_crit_points')) {
+	$ilDB->createTable('xlet_crit_points', $fields);
+	$ilDB->addPrimaryKey('xlet_crit_points', array( 'id' ));
+	$ilDB->addIndex("xlet_crit_points", array("rating_id", "corr_comment_id"), "i1");
+	$ilDB->addIndex("xlet_crit_points", array("corr_comment_id"), "i2");
+
+	if (! $ilDB->sequenceExists('xlet_crit_points')) {
+		$ilDB->createSequence('xlet_crit_points');
+	}
+
+}
+?>

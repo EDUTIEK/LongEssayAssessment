@@ -5,6 +5,10 @@ namespace ILIAS\Plugin\LongEssayTask\Data;
 
 
 /**
+ * CorrectorAssignment
+ *
+ * Index (writer_id, corrector_id), corrector_id
+ *
  * @author Fabian Wolf <wolf@ilias.de>
  */
 class CorrectorAssignment extends ActivePluginRecord

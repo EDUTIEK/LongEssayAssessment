@@ -3,6 +3,7 @@
 namespace ILIAS\Plugin\LongEssayTask;
 
 
+use ILIAS\Plugin\LongEssayTask\Data\CorrectorDatabaseRepository;
 use ILIAS\Plugin\LongEssayTask\Data\CorrectorRepository;
 use ILIAS\Plugin\LongEssayTask\Data\EssayDatabaseRepository;
 use ILIAS\Plugin\LongEssayTask\Data\EssayRepository;
@@ -19,7 +20,7 @@ class LongEssayTaskDI
     protected TaskRepository $task;
 	protected EssayRepository $essay;
 	protected WriterRepository $writer;
-	protected CorrectorRepository $correcotr;
+	protected CorrectorRepository $corrector;
 
     public function getObjectRepo(): ObjectRepository
     {
@@ -63,12 +64,12 @@ class LongEssayTaskDI
 
     public function getCorrectorRepo(): CorrectorRepository
     {
-        if ($this->correcotr === null)
+        if ($this->corrector === null)
         {
-            //$this->essay = new CorrecotrDatabaseRepository();
+            $this->corrector = new CorrectorDatabaseRepository();
         }
 
-        return $this->correcotr;
+        return $this->corrector;
     }
 
 }

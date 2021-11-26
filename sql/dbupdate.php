@@ -335,7 +335,7 @@ $fields = array(
 if (! $ilDB->tableExists('xlet_corrector')) {
 	$ilDB->createTable('xlet_corrector', $fields);
 	$ilDB->addPrimaryKey('xlet_corrector', array( 'id' ));
-	$ilDB->addIndex("xlet_corrector", array("user_id"), "i1");
+	$ilDB->addIndex("xlet_corrector", array("user_id", "task_id"), "i1");
 	$ilDB->addIndex("xlet_corrector", array("task_id"), "i2");
 
 	if (! $ilDB->sequenceExists('xlet_corrector')) {
@@ -783,7 +783,7 @@ if (! $ilDB->tableExists('xlet_corrector_ass')) {
 	$ilDB->createTable('xlet_corrector_ass', $fields);
 	$ilDB->addPrimaryKey('xlet_corrector_ass', array( 'id' ));
 	$ilDB->addIndex("xlet_corrector_ass", array("writer_id", "corrector_id"), "i1");
-	$ilDB->addIndex("xlet_corrector_ass", array("corrector_id"), "i2");
+	$ilDB->addIndex("xlet_corrector_ass", array("corrector_id", "writer_id"), "i2");
 
 	if (! $ilDB->sequenceExists('xlet_corrector_ass')) {
 		$ilDB->createSequence('xlet_corrector_ass');

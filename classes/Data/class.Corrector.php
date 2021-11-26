@@ -5,6 +5,9 @@ namespace ILIAS\Plugin\LongEssayTask\Data;
 
 
 /**
+ * Corrector
+ * Indexes: user_id
+ *
  * @author Fabian Wolf <wolf@ilias.de>
  */
 class Corrector extends ActivePluginRecord

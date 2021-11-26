@@ -9,21 +9,6 @@ use ILIAS\DI\Exceptions\Exception;
  */
 class CorrectorDatabaseRepository implements CorrectorRepository
 {
-
-	public function updateEssay(Essay $a_essay)
-	{
-		$a_essay->update();
-	}
-
-	public function deleteEssay(int $a_id)
-	{
-		$essay = $this->getEssayById($a_id);
-
-		if ( $essay != null ){
-			$essay->delete();
-		}
-	}
-
     public function createCorrector(Corrector $a_corrector)
     {
         $a_corrector->create();

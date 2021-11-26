@@ -2,30 +2,44 @@
 
 namespace ILIAS\Plugin\LongEssayTask;
 
-use ILIAS\Plugin\LongEssayTask\Data\AlertDatabaseRepository;
-use ILIAS\Plugin\LongEssayTask\Data\AlertRepository;
-use ILIAS\Plugin\LongEssayTask\Data\CorrectionSettingsDatabaseRepository;
-use ILIAS\Plugin\LongEssayTask\Data\CorrectionSettingsRepository;
-use ILIAS\Plugin\LongEssayTask\Data\WriterCommentDatabaseRepository;
-use ILIAS\Plugin\LongEssayTask\Data\WriterCommentRepository;
-use ILIAS\Plugin\LongEssayTask\Data\WriterHistoryDatabaseRepository;
-use ILIAS\Plugin\LongEssayTask\Data\WriterHistoryRepository;
-use ILIAS\Plugin\LongEssayTask\Data\WriterNoticeDatabaseRepository;
-use ILIAS\Plugin\LongEssayTask\Data\WriterNoticeRepository;
-use ILIAS\Plugin\LongEssayTask\Data\EssayRepository;
+
+use ILIAS\Plugin\LongEssayTask\Data\CorrectorRepository;
 use ILIAS\Plugin\LongEssayTask\Data\EssayDatabaseRepository;
+use ILIAS\Plugin\LongEssayTask\Data\EssayRepository;
+use ILIAS\Plugin\LongEssayTask\Data\ObjectRepository;
+use ILIAS\Plugin\LongEssayTask\Data\TaskRepository;
+use ILIAS\Plugin\LongEssayTask\Data\WriterRepository;
 
 /**
  * @author Fabian Wolf <wolf@ilias.de>
  */
 class LongEssayTaskDI
 {
+    protected ObjectRepository $object;
+    protected TaskRepository $task;
 	protected EssayRepository $essay;
-	protected AlertRepository $alert;
-	protected CorrectionSettingsRepository $correction_settings;
-	protected WriterNoticeRepository $writer_notice;
-	protected WriterCommentRepository $writer_comment;
-	protected WriterHistoryRepository $writer_history;
+	protected WriterRepository $writer;
+	protected CorrectorRepository $correcotr;
+
+    public function getObjectRepo(): ObjectRepository
+    {
+        if ($this->object === null)
+        {
+            //$this->essay = new ObjectDatabaseRepository();
+        }
+
+        return $this->object;
+    }
+
+    public function getTaskRepo(): TaskRepository
+    {
+        if ($this->task === null)
+        {
+            //$this->essay = new TaskDatabaseRepository();
+        }
+
+        return $this->task;
+    }
 
 	public function getEssayRepo(): EssayRepository
 	{
@@ -37,53 +51,24 @@ class LongEssayTaskDI
 		return $this->essay;
 	}
 
-	public function getAlertRepo(): AlertRepository
-	{
-		if ($this->alert === null)
-		{
-			$this->alert = new AlertDatabaseRepository();
-		}
+    public function getWriterRepo(): WriterRepository
+    {
+        if ($this->writer === null)
+        {
+            //$this->essay = new WriterDatabaseRepository();
+        }
 
-		return $this->alert;
-	}
+        return $this->writer;
+    }
 
-	public function getCorrectionSettingsRepo(): CorrectionSettingsRepository
-	{
-		if ($this->correction_settings === null)
-		{
-			$this->correction_settings = new CorrectionSettingsDatabaseRepository();
-		}
+    public function getCorrectorRepo(): CorrectorRepository
+    {
+        if ($this->correcotr === null)
+        {
+            //$this->essay = new CorrecotrDatabaseRepository();
+        }
 
-		return $this->correction_settings;
-	}
+        return $this->correcotr;
+    }
 
-	public function getWriterNoticeRepo(): WriterNoticeRepository
-	{
-		if ($this->writer_notice === null)
-		{
-			$this->writer_notice = new WriterNoticeDatabaseRepository();
-		}
-
-		return $this->writer_notice;
-	}
-
-	public function getWriterCommentRepo(): WriterCommentRepository
-	{
-		if ($this->writer_comment === null)
-		{
-			$this->writer_comment = new WriterCommentDatabaseRepository();
-		}
-
-		return $this->writer_comment;
-	}
-
-	public function getWriterHistoryRepo(): WriterHistoryRepository
-	{
-		if ($this->writer_history === null)
-		{
-			$this->writer_history = new WriterHistoryDatabaseRepository();
-		}
-
-		return $this->writer_history;
-	}
 }

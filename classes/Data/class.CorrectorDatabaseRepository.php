@@ -2,6 +2,8 @@
 
 namespace ILIAS\Plugin\LongEssayTask\Data;
 
+use ILIAS\DI\Exceptions\Exception;
+
 /**
  * @author Fabian Wolf <wolf@ilias.de>
  */
@@ -55,7 +57,7 @@ class CorrectorDatabaseRepository implements CorrectorRepository
         return null;
     }
 
-    public function ifUserExistsInTask(int $a_user_id, int $a_task_id): bool
+    public function ifUserExistsInTaskAsCorrector(int $a_user_id, int $a_task_id): bool
     {
         return $this->getCorrectorByUserId($a_user_id, $a_task_id) != null;
     }
@@ -105,12 +107,31 @@ class CorrectorDatabaseRepository implements CorrectorRepository
         $a_corrector_assignment->update();
     }
 
+    /**
+     * Also deletes all assignments of this corrector
+     *
+     * @param int $a_id
+     * @throws \ilDatabaseException
+     */
     public function deleteCorrector(int $a_id)
     {
+        global $DIC;
+
         $corrector = $this->getCorrectorById($a_id);
 
         if ( $corrector != null ){
-            $corrector->delete();
+            $DIC->database()->beginTransaction();
+            try {
+                $this->deleteCorrectorAssignmentByCorrector($corrector->getId());
+                // TODO: AccessToken, CorrectorComment
+                $corrector->delete();
+            }catch (\ilDatabaseException $e)
+            {
+                $DIC->database()->rollback();
+                throw $e;
+            }
+
+            $DIC->database()->commit();
         }
     }
 

@@ -5,6 +5,10 @@ namespace ILIAS\Plugin\LongEssayTask\Data;
 
 
 /**
+ * TimeExtension
+ *
+ * Indexes: (writer_id, task_id), task_id
+ *
  * @author Fabian Wolf <wolf@ilias.de>
  */
 class TimeExtension extends ActivePluginRecord

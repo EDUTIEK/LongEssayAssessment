@@ -5,6 +5,9 @@ namespace ILIAS\Plugin\LongEssayTask\Data;
 
 
 /**
+ * Writer
+ *
+ * Indexes: (user_id, task_id), task_id
  * @author Fabian Wolf <wolf@ilias.de>
  */
 class Writer extends ActivePluginRecord
@@ -71,6 +74,24 @@ class Writer extends ActivePluginRecord
 	 * @con_length           4
 	 */
 	protected int $editor_font_size = 0;
+
+    /**
+     * @return int
+     */
+    public function getId(): int
+    {
+        return $this->id;
+    }
+
+    /**
+     * @param int $id
+     * @return Writer
+     */
+    public function setId(int $id): Writer
+    {
+        $this->id = $id;
+        return $this;
+    }
 
 	/**
 	 * @return int

@@ -9,6 +9,7 @@ use ILIAS\Plugin\LongEssayTask\Data\EssayDatabaseRepository;
 use ILIAS\Plugin\LongEssayTask\Data\EssayRepository;
 use ILIAS\Plugin\LongEssayTask\Data\ObjectRepository;
 use ILIAS\Plugin\LongEssayTask\Data\TaskRepository;
+use ILIAS\Plugin\LongEssayTask\Data\WriterDatabaseRepository;
 use ILIAS\Plugin\LongEssayTask\Data\WriterRepository;
 
 /**
@@ -56,7 +57,7 @@ class LongEssayTaskDI
     {
         if ($this->writer === null)
         {
-            //$this->essay = new WriterDatabaseRepository();
+            $this->writer = new WriterDatabaseRepository();
         }
 
         return $this->writer;

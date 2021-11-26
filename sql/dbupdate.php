@@ -300,7 +300,7 @@ $fields = array(
 if (! $ilDB->tableExists('xlet_writer')) {
 	$ilDB->createTable('xlet_writer', $fields);
 	$ilDB->addPrimaryKey('xlet_writer', array( 'id' ));
-	$ilDB->addIndex("xlet_writer", array("user_id"), "i1");
+	$ilDB->addIndex("xlet_writer", array("user_id", "task_id"), "i1");
 	$ilDB->addIndex("xlet_writer", array("task_id"), "i2");
 
 	if (! $ilDB->sequenceExists('xlet_writer')) {

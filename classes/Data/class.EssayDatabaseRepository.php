@@ -96,6 +96,16 @@ class EssayDatabaseRepository implements EssayRepository
         // TODO: Implement updateCriterionPoints() method.
     }
 
+    public function deleteEssayByTaskId(int $a_task_task_id)
+    {
+        // TODO: Implement deleteEssayByTaskId() method.
+    }
+
+    public function deleteEssayByWriterId(int $a_user_id)
+    {
+        // TODO: Implement deleteEssayByWriterId() method.
+    }
+
     public function deleteWriterHistory(int $a_id)
     {
         // TODO: Implement deleteWriterHistory() method.
@@ -106,9 +116,19 @@ class EssayDatabaseRepository implements EssayRepository
         // TODO: Implement deleteCorrectorSummary() method.
     }
 
+    public function deleteCorrectorSummaryByCorrectorId(int $a_user_id)
+    {
+        // TODO: Implement deleteCorrectorSummaryByCorrectorId() method.
+    }
+
     public function deleteCorrectorComment(int $a_id)
     {
         // TODO: Implement deleteCorrectorComment() method.
+    }
+
+    public function deleteCorrectorCommentByCorrectorId(int $a_user_id)
+    {
+        // TODO: Implement deleteCorrectorCommentByCorrectorId() method.
     }
 
     public function deleteCriterionPoints(int $a_id)
@@ -116,14 +136,19 @@ class EssayDatabaseRepository implements EssayRepository
         // TODO: Implement deleteCriterionPoints() method.
     }
 
+    public function deleteCriterionPointsByRatingId(int $a_rating_id)
+    {
+        // TODO: Implement deleteCriterionPointsByRatingId() method.
+    }
+
     public function deleteAccessToken(int $a_id)
     {
         // TODO: Implement deleteAccessToken() method.
     }
 
-    public function deleteEssayByTaskId(int $a_id)
+    public function deleteAccessTokenByCorrectorId(int $a_id)
     {
-        // TODO: Implement deleteEssayByTaskId() method.
+        // TODO: Implement deleteAccessTokenByCorrectorId() method.
     }
 }
 

@@ -38,10 +38,15 @@ interface EssayRepository
 
 	// Delete operations
 	public function deleteEssay(int $a_id);
-    public function deleteEssayByTaskId(int $a_id);
+    public function deleteEssayByTaskId(int $a_task_task_id);
+    public function deleteEssayByWriterId(int $a_user_id);
     public function deleteWriterHistory(int $a_id);
     public function deleteCorrectorSummary(int $a_id);
+    public function deleteCorrectorSummaryByCorrectorId(int $a_user_id);
     public function deleteCorrectorComment(int $a_id);
+    public function deleteCorrectorCommentByCorrectorId(int $a_user_id);
     public function deleteCriterionPoints(int $a_id);
+    public function deleteCriterionPointsByRatingId(int $a_rating_id);
     public function deleteAccessToken(int $a_id);
+    public function deleteAccessTokenByCorrectorId(int $a_id);
 }

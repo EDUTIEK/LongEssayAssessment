@@ -108,67 +108,77 @@ class ObjectDatabaseRepository implements ObjectRepository
     public function deleteObject(int $a_id)
     {
         global $DIC;
-        $DIC->
-        $object = $this->getObjectSettingsById($a_id);
+        $db = $DIC->database();
 
-        if ( $object != null ){
-            $DIC->database()->beginTransaction();
-            try {
-                $this->deleteGradeLevelByObjectId($object->getObjId());
-                $this->deleteRatingCriterionByObjectId($object->getObjId());
-                $di = LongEssayTaskDI::getInstance();
+        $db->beginTransaction();
+        try {
+            $db->manipulate("DELETE FROM xlet_object_settings".
+                " WHERE obj_id = ". $db->quote($a_id, "integer"));
 
-                $corrector_repo = $di->getCorrectorRepo();
-                $corrector_repo->deleteCorrectorByTask($object->getObjId());
+            $db->manipulate("DELETE FROM xlet_plugin_config".
+                " WHERE id = ". $db->quote($a_id, "integer"));
 
-                $writer_repo = $di->getWriterRepo();
-                $writer_repo->deleteWriterByTaskId($object->getObjId());
+            $this->deleteGradeLevelByObjectId($a_id);
+            $this->deleteRatingCriterionByObjectId($a_id);
 
-                $task_repo = $di->getTaskRepo();
-                $task_repo->deleteTaskByObjectId($object->getObjId());
+            $di = LongEssayTaskDI::getInstance();
 
-                $object->delete();
-            }catch (Exception $e)
-            {
-                $DIC->database()->rollback();
-                throw $e;
-            }
+            $corrector_repo = $di->getCorrectorRepo();
+            $corrector_repo->deleteCorrectorByTask($a_id);
 
-            $DIC->database()->commit();
+            $writer_repo = $di->getWriterRepo();
+            $writer_repo->deleteWriterByTaskId($a_id);
+
+            $task_repo = $di->getTaskRepo();
+            $task_repo->deleteTaskByObjectId($a_id);
+        }catch (Exception $e)
+        {
+            $db->rollback();
+            throw $e;
         }
+
+        $db->commit();
+
     }
 
     public function deleteGradeLevel(int $a_id)
     {
-        $grade_level = $this->getGradeLevelById($a_id);
+        global $DIC;
+        $db = $DIC->database();
 
-        if ( $grade_level != null ){
-            $grade_level->delete();
-        }
+        $db->manipulate("DELETE FROM xlet_grade_level".
+            " WHERE object_id = ". $db->quote($a_id, "integer"));
     }
 
     public function deleteRatingCriterion(int $a_id)
     {
-        $rating_criterion = $this->getRatingCriterionById($a_id);
+        global $DIC;
+        $db = $DIC->database();
 
-        if ( $rating_criterion != null ){
-            //TODO: Criterion Points
+        $db->manipulate("DELETE FROM xlet_rating_crit".
+            " WHERE object_id = ". $db->quote($a_id, "integer"));
 
-            $rating_criterion->delete();
-        }
+        $di = LongEssayTaskDI::getInstance();
+
+        $essay_repo = $di->getEssayRepo();
+        $essay_repo->deleteCriterionPointsByRatingId($a_id);
     }
 
     public function deleteGradeLevelByObjectId(int $a_object_id)
     {
         global $DIC;
-        $DIC->database()->manipulate("DELETE FROM xlet_grade_level".
-            " WHERE object_id = ". $DIC->database()->quote($a_object_id, "integer"));
+        $db = $DIC->database();
+
+        $db->manipulate("DELETE FROM xlet_grade_level".
+            " WHERE object_id = ". $db->quote($a_object_id, "integer"));
     }
 
     public function deleteRatingCriterionByObjectId(int $a_object_id)
     {
         global $DIC;
-        $DIC->database()->manipulate("DELETE FROM xlet_rating_crit".
-            " WHERE object_id = ". $DIC->database()->quote($a_object_id, "integer"));
+        $db = $DIC->database();
+
+        $db->manipulate("DELETE FROM xlet_rating_crit".
+            " WHERE object_id = ". $db->quote($a_object_id, "integer"));
     }
 }

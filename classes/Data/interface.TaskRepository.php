@@ -44,7 +44,11 @@ interface TaskRepository
 
 	// Delete operations
 	public function deleteTask(int $a_id);
+    public function deleteTaskByObjectId(int $a_object_id);
     //public function deleteLogEntry(int $a_id);
+    //public function deleteLogEntryByTaskId(int $a_task_id);
     public function deleteAlert(int $a_id);
+    public function deleteAlertByTaskId(int $a_task_id);
     public function deleteWriterNotice(int $a_id);
+    public function deleteWriterNoticeByTaskId(int $a_task_id);
 }

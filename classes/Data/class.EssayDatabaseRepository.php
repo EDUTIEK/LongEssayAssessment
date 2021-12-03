@@ -120,5 +120,10 @@ class EssayDatabaseRepository implements EssayRepository
     {
         // TODO: Implement deleteAccessToken() method.
     }
+
+    public function deleteEssayByTaskId(int $a_id)
+    {
+        // TODO: Implement deleteEssayByTaskId() method.
+    }
 }
 

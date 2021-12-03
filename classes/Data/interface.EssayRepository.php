@@ -38,6 +38,7 @@ interface EssayRepository
 
 	// Delete operations
 	public function deleteEssay(int $a_id);
+    public function deleteEssayByTaskId(int $a_id);
     public function deleteWriterHistory(int $a_id);
     public function deleteCorrectorSummary(int $a_id);
     public function deleteCorrectorComment(int $a_id);

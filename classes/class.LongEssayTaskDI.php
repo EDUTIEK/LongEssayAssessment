@@ -7,7 +7,9 @@ use ILIAS\Plugin\LongEssayTask\Data\CorrectorDatabaseRepository;
 use ILIAS\Plugin\LongEssayTask\Data\CorrectorRepository;
 use ILIAS\Plugin\LongEssayTask\Data\EssayDatabaseRepository;
 use ILIAS\Plugin\LongEssayTask\Data\EssayRepository;
+use ILIAS\Plugin\LongEssayTask\Data\ObjectDatabaseRepository;
 use ILIAS\Plugin\LongEssayTask\Data\ObjectRepository;
+use ILIAS\Plugin\LongEssayTask\Data\TaskDatabaseRepository;
 use ILIAS\Plugin\LongEssayTask\Data\TaskRepository;
 use ILIAS\Plugin\LongEssayTask\Data\WriterDatabaseRepository;
 use ILIAS\Plugin\LongEssayTask\Data\WriterRepository;
@@ -52,7 +54,7 @@ class LongEssayTaskDI
     {
         if ($this->task === null)
         {
-            //$this->essay = new TaskDatabaseRepository();
+            $this->task = new TaskDatabaseRepository();
         }
 
         return $this->task;

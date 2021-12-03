@@ -124,7 +124,9 @@ class ObjectDatabaseRepository implements ObjectRepository
                 $writer_repo = $di->getWriterRepo();
                 $writer_repo->deleteWriterByTaskId($object->getObjId());
 
-                // TODO: Task
+                $task_repo = $di->getTaskRepo();
+                $task_repo->deleteTaskByObjectId($object->getObjId());
+
                 $object->delete();
             }catch (Exception $e)
             {

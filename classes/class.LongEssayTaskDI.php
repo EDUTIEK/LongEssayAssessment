@@ -17,6 +17,21 @@ use ILIAS\Plugin\LongEssayTask\Data\WriterRepository;
  */
 class LongEssayTaskDI
 {
+    protected static LongEssayTaskDI $instance;
+
+    public static function getInstance(): LongEssayTaskDI
+    {
+
+        if ( self::$instance === null )
+        {
+            self::$instance = new self();
+        }
+
+        return self::$instance;
+    }
+
+    protected function __construct(){}
+
     protected ObjectRepository $object;
     protected TaskRepository $task;
 	protected EssayRepository $essay;
@@ -27,7 +42,7 @@ class LongEssayTaskDI
     {
         if ($this->object === null)
         {
-            //$this->essay = new ObjectDatabaseRepository();
+            $this->object = new ObjectDatabaseRepository();
         }
 
         return $this->object;

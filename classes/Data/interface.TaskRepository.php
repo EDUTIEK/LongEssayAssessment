@@ -26,7 +26,7 @@ interface TaskRepository
     public function getEditorSettingsById(int $a_id): ?EditorSettings;
     public function getCorrectionSettingsById(int $a_id): ?CorrectionSettings;
     public function getTaskSettingsById(int $a_id): ?TaskSettings;
-	public function ifTaskById(int $a_id): bool;
+	public function ifTaskExistsById(int $a_id): bool;
     //public function getLogEntryById(int $a_id): ?LogEntry;
     //public function ifLogEntryExistsById(int $a_id): bool;
     public function getAlertById(int $a_id): ?Alert;

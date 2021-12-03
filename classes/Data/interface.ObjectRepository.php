@@ -21,12 +21,14 @@ interface ObjectRepository
 	// Read operations
 	public function getObjectSettingsById(int $a_id): ?ObjectSettings;
     public function getPluginConfigById(int $a_id): ?PluginConfig;
-	public function ifTaskById(int $a_id): bool;
+	public function ifObjectExistsById(int $a_id): bool;
     public function getGradeLevelById(int $a_id): ?GradeLevel;
     public function ifGradeLevelExistsById(int $a_id): bool;
     public function getRatingCriterionById(int $a_id): ?RatingCriterion;
     public function ifRatingCriterionExistsById(int $a_id): bool;
 
+    public function getGradeLevelByObjectId(int $a_object_id): array;
+    public function getRatingCriterionByObjectId(int $a_object_id): array;
 
 	// Update operations
 	public function updateObjectSettings(ObjectSettings $a_object_settings);
@@ -38,4 +40,6 @@ interface ObjectRepository
 	public function deleteObject(int $a_id);
     public function deleteGradeLevel(int $a_id);
     public function deleteRatingCriterion(int $a_id);
+    public function deleteGradeLevelByObjectId(int $a_object_id);
+    public function deleteRatingCriterionByObjectId(int $a_object_id);
 }

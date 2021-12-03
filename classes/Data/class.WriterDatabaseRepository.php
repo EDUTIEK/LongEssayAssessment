@@ -2,6 +2,7 @@
 
 namespace ILIAS\Plugin\LongEssayTask\Data;
 
+use ILIAS\DI\Exceptions\Exception;
 use ILIAS\Plugin\LongEssayTask\LongEssayTaskDI;
 
 /**
@@ -82,7 +83,7 @@ class WriterDatabaseRepository implements WriterRepository
     }
 
     /**
-     * @throws \ilDatabaseException
+     * @throws \ilDatabaseException|Exception
      */
     public function deleteWriter(int $a_id)
     {
@@ -96,7 +97,7 @@ class WriterDatabaseRepository implements WriterRepository
                 $this->deleteTimeExtensionByWriterId($writer->getId());
                 // TODO: Essay, CorrectorAssignment
                 $writer->delete();
-            }catch (\ilDatabaseException $e)
+            }catch (Exception $e)
             {
                 $DIC->database()->rollback();
                 throw $e;
@@ -111,6 +112,10 @@ class WriterDatabaseRepository implements WriterRepository
         global $DIC;
         $DIC->database()->manipulate("DELETE FROM xlet_writer".
             " WHERE task_id = ". $DIC->database()->quote($a_task_id, "integer"));
+
+        $DIC->database()->manipulate("DELETE xlet_time_extension FROM xlet_time_extension AS te"
+            . " LEFT JOIN xlet_writer AS writer ON (te.writer_id = writer.id)"
+            . " WHERE writer.task_id = ".$DIC->database()->quote($a_task_id, "integer"));
     }
 
     public function deleteTimeExtension(int $a_writer_id, int $a_task_id)

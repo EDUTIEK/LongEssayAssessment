@@ -96,6 +96,7 @@ class CorrectorDatabaseRepository implements CorrectorRepository
      * Also deletes all assignments of this corrector
      *
      * @param int $a_id
+     * @throws Exception
      * @throws \ilDatabaseException
      */
     public function deleteCorrector(int $a_id)
@@ -110,7 +111,7 @@ class CorrectorDatabaseRepository implements CorrectorRepository
                 $this->deleteCorrectorAssignmentByCorrector($corrector->getId());
                 // TODO: AccessToken, CorrectorComment
                 $corrector->delete();
-            }catch (\ilDatabaseException $e)
+            }catch (Exception $e)
             {
                 $DIC->database()->rollback();
                 throw $e;
@@ -155,5 +156,9 @@ class CorrectorDatabaseRepository implements CorrectorRepository
         global $DIC;
         $DIC->database()->manipulate("DELETE FROM xlet_corrector".
             " WHERE task_id = ". $DIC->database()->quote($a_task_id, "integer"));
+
+        $DIC->database()->manipulate("DELETE xlet_corrector_ass FROM xlet_corrector_ass AS ass"
+            . " LEFT JOIN xlet_corrector AS corrector ON (ass.corrector_id = corrector.id)"
+            . " WHERE corrector.task_id = ".$DIC->database()->quote($a_task_id, "integer"));
     }
 }

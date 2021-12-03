@@ -2,6 +2,8 @@
 
 namespace ILIAS\Plugin\LongEssayTask\Data;
 
+use ILIAS\DI\Exceptions\Exception;
+
 /**
  * @author Fabian Wolf <wolf@ilias.de>
  */
@@ -12,6 +14,31 @@ class EssayDatabaseRepository implements EssayRepository
 	{
 		$a_essay->create();
 	}
+
+    public function createWriterHistory(WriterHistory $a_writer_history)
+    {
+        $a_writer_history->create();
+    }
+
+    public function createCorrectorSummary(CorrectorSummary $a_corrector_summary)
+    {
+        $a_corrector_summary->create();
+    }
+
+    public function createCorrectorComment(CorrectorComment $a_corrector_comment)
+    {
+        $a_corrector_comment->create();
+    }
+
+    public function createCriterionPoints(CriterionPoints $a_criterion_points)
+    {
+        $a_criterion_points->create();
+    }
+
+    public function createAccessToken(AccessToken $a_access_token)
+    {
+        $a_access_token->create();
+    }
 
 	public function getEssayById(int $a_id): ?Essay
 	{
@@ -42,113 +69,175 @@ class EssayDatabaseRepository implements EssayRepository
 		$a_essay->update();
 	}
 
-	public function deleteEssay(int $a_id)
-	{
-		$essay = $this->getEssayById($a_id);
-
-		if ( $essay != null ){
-			$essay->delete();
-		}
-	}
-
-    public function createWriterHistory(WriterHistory $a_writer_history)
-    {
-        // TODO: Implement createWriterHistory() method.
-    }
-
-    public function createCorrectorSummary(CorrectorSummary $a_corrector_summary)
-    {
-        // TODO: Implement createCorrectorSummary() method.
-    }
-
-    public function createCorrectorComment(CorrectorComment $a_corrector_comment)
-    {
-        // TODO: Implement createCorrectorComment() method.
-    }
-
-    public function createCriterionPoints(CriterionPoints $a_criterion_points)
-    {
-        // TODO: Implement createCriterionPoints() method.
-    }
-
-    public function createAccessToken(AccessToken $a_access_token)
-    {
-        // TODO: Implement createAccessToken() method.
-    }
-
     public function updateWriterHistory(WriterHistory $a_writer_history)
     {
-        // TODO: Implement updateWriterHistory() method.
+        $a_writer_history->update();
     }
 
     public function updateCorrectorSummary(CorrectorSummary $a_corrector_summary)
     {
-        // TODO: Implement updateCorrectorSummary() method.
+        $a_corrector_summary->update();
     }
 
     public function updateCorrectorComment(CorrectorComment $a_corrector_comment)
     {
-        // TODO: Implement updateCorrectorComment() method.
+        $a_corrector_comment->update();
     }
 
     public function updateCriterionPoints(CriterionPoints $a_criterion_points)
     {
-        // TODO: Implement updateCriterionPoints() method.
+        $a_criterion_points->update();
     }
 
-    public function deleteEssayByTaskId(int $a_task_task_id)
+    public function deleteEssay(int $a_id)
     {
-        // TODO: Implement deleteEssayByTaskId() method.
+        global $DIC;
+        $db = $DIC->database();
+
+        $db->beginTransaction();
+        try {
+
+            $db->manipulate("DELETE FROM xlet_essay".
+                " WHERE id = ". $db->quote($a_id, "integer"));
+
+            $db->manipulate("DELETE FROM xlet_access_token".
+                " WHERE essay_id = ". $db->quote($a_id, "integer"));
+            $db->manipulate("DELETE FROM xlet_corrector_summary".
+                " WHERE essay_id = ". $db->quote($a_id, "integer"));
+            $db->manipulate("DELETE FROM xlet_corrector_comment".
+                " WHERE essay_id = ". $db->quote($a_id, "integer"));
+
+            $db->manipulate("DELETE xlet_crit_points FROM xlet_crit_points AS cp"
+                . " LEFT JOIN xlet_corrector_comment AS cc ON (cp.corr_comment_id = cc.id)"
+                . " WHERE cc.essay_id = ".$db->quote($a_id, "integer"));
+
+            $db->manipulate("DELETE FROM xlet_writer_history".
+                " WHERE essay_id = ". $db->quote($a_id, "integer"));
+
+        }catch (Exception $e)
+        {
+            $db->rollback();
+            throw $e;
+        }
+
+        $db->commit();
+    }
+
+    public function deleteEssayByTaskId(int $a_task_id)
+    {
+        global $DIC;
+        $db = $DIC->database();
+
+        $db->manipulate("DELETE FROM xlet_essay".
+            " WHERE task_id = ". $db->quote($a_task_id, "integer"));
     }
 
     public function deleteEssayByWriterId(int $a_user_id)
     {
-        // TODO: Implement deleteEssayByWriterId() method.
+        global $DIC;
+        $db = $DIC->database();
+
+        $db->manipulate("DELETE FROM xlet_essay".
+            " WHERE writer_id = ". $db->quote($a_user_id, "integer"));
     }
 
     public function deleteWriterHistory(int $a_id)
     {
-        // TODO: Implement deleteWriterHistory() method.
+        global $DIC;
+        $db = $DIC->database();
+
+        $db->manipulate("DELETE FROM xlet_writer_history".
+            " WHERE id = ". $db->quote($a_id, "integer"));
     }
 
     public function deleteCorrectorSummary(int $a_id)
     {
-        // TODO: Implement deleteCorrectorSummary() method.
+        global $DIC;
+        $db = $DIC->database();
+
+        $db->manipulate("DELETE FROM xlet_corrector_summary".
+            " WHERE id = ". $db->quote($a_id, "integer"));
     }
 
     public function deleteCorrectorSummaryByCorrectorId(int $a_user_id)
     {
-        // TODO: Implement deleteCorrectorSummaryByCorrectorId() method.
+        global $DIC;
+        $db = $DIC->database();
+
+        $db->manipulate("DELETE FROM xlet_corrector_summary".
+            " WHERE corrector_id = ". $db->quote($a_user_id, "integer"));
     }
 
     public function deleteCorrectorComment(int $a_id)
     {
-        // TODO: Implement deleteCorrectorComment() method.
+        global $DIC;
+        $db = $DIC->database();
+
+        $db->manipulate("DELETE FROM xlet_corrector_comment".
+            " WHERE id = ". $db->quote($a_id, "integer"));
+
+        $db->manipulate("DELETE FROM xlet_crit_points".
+            " WHERE corr_comment_id = ". $db->quote($a_id, "integer"));
     }
 
     public function deleteCorrectorCommentByCorrectorId(int $a_user_id)
     {
-        // TODO: Implement deleteCorrectorCommentByCorrectorId() method.
+        global $DIC;
+        $db = $DIC->database();
+
+        $db->manipulate("DELETE FROM xlet_corrector_comment".
+            " WHERE corrector_id = ". $db->quote($a_user_id, "integer"));
+
+        $db->manipulate("DELETE xlet_crit_points FROM xlet_crit_points AS cp"
+            . " LEFT JOIN xlet_corrector_comment AS cc ON (cp.corr_comment_id = cc.id)"
+            . " WHERE cc.corrector_id = ".$db->quote($a_user_id, "integer"));
     }
 
     public function deleteCriterionPoints(int $a_id)
     {
-        // TODO: Implement deleteCriterionPoints() method.
+        global $DIC;
+        $db = $DIC->database();
+
+        $db->manipulate("DELETE FROM xlet_crit_points".
+            " WHERE id = ". $db->quote($a_id, "integer"));
     }
 
     public function deleteCriterionPointsByRatingId(int $a_rating_id)
     {
-        // TODO: Implement deleteCriterionPointsByRatingId() method.
+        global $DIC;
+        $db = $DIC->database();
+
+        $db->manipulate("DELETE FROM xlet_crit_points".
+            " WHERE rating_id = ". $db->quote($a_rating_id, "integer"));
     }
 
     public function deleteAccessToken(int $a_id)
     {
-        // TODO: Implement deleteAccessToken() method.
+        global $DIC;
+        $db = $DIC->database();
+
+        $db->manipulate("DELETE FROM xlet_access_token".
+            " WHERE id = ". $db->quote($a_id, "integer"));
     }
 
-    public function deleteAccessTokenByCorrectorId(int $a_id)
+    public function deleteAccessTokenByCorrectorId(int $a_corrector_id)
     {
-        // TODO: Implement deleteAccessTokenByCorrectorId() method.
+        global $DIC;
+        $db = $DIC->database();
+
+        $db->manipulate("DELETE xlet_access_token FROM xlet_access_token AS access_token"
+            . " LEFT JOIN xlet_corrector AS corrector ON (access_token.user_id = corrector.user_id)"
+            . " WHERE corrector.id = ".$db->quote($a_corrector_id, "integer"));
+    }
+
+    public function deleteAccessTokenByWriterId(int $a_writer_id)
+    {
+        global $DIC;
+        $db = $DIC->database();
+
+        $db->manipulate("DELETE xlet_access_token FROM xlet_access_token AS access_token"
+            . " LEFT JOIN xlet_writer AS writer ON (access_token.user_id = writer.user_id)"
+            . " WHERE writer.id = ".$db->quote($a_writer_id, "integer"));
     }
 }
 

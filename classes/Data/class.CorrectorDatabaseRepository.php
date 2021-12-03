@@ -175,7 +175,7 @@ class CorrectorDatabaseRepository implements CorrectorRepository
             " WHERE task_id = ". $db->quote($a_task_id, "integer"));
 
         $db->manipulate("DELETE xlet_corrector_ass FROM xlet_corrector_ass AS ass"
-            . " LEFT JOIN xlet_corrector AS corrector ON (ass.corrector_id = corrector.id)"
+            . " LEFT JOIN xlet_corrector AS corrector ON (ass.corrector_id = corrector.user_id)"
             . " WHERE corrector.task_id = ".$db->quote($a_task_id, "integer"));
     }
 }

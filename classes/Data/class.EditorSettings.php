@@ -9,10 +9,10 @@ namespace ILIAS\Plugin\LongEssayTask\Data;
  */
 class EditorSettings extends ActivePluginRecord
 {
-    const HEADLINE_SCHEME_NONE  = 'none';
-    const HEADLINE_SCHEME_NUMERIC  = 'numeric';
-    const HEADLINE_SCHEME_ROMAN_UPPER  = 'roman_upper';
-    const HEADLINE_SCHEME_ROMAN_LOWER  = 'roman_lower';
+    const HEADLINE_SCHEME_NONE = 'none';
+    const HEADLINE_SCHEME_NUMERIC = 'numeric';
+    const HEADLINE_SCHEME_ROMAN_UPPER = 'roman_upper';
+    const HEADLINE_SCHEME_ROMAN_LOWER = 'roman_lower';
 
     const FORMATTING_OPTIONS_NONE = 'none';
     const FORMATTING_OPTIONS_MINIMAL = 'minimal';
@@ -83,7 +83,7 @@ class EditorSettings extends ActivePluginRecord
      */
     public function getHeadlineScheme(): string
     {
-        return (string) $this->headline_scheme;
+        return (string)$this->headline_scheme;
     }
 
     /**
@@ -91,7 +91,7 @@ class EditorSettings extends ActivePluginRecord
      */
     public function setHeadlineScheme(?string $headline_scheme): void
     {
-        $this->headline_scheme = (string) $headline_scheme;
+        $this->headline_scheme = (string)$headline_scheme;
     }
 
     /**
@@ -99,7 +99,7 @@ class EditorSettings extends ActivePluginRecord
      */
     public function getFormattingOptions(): string
     {
-        return (string) $this->formatting_options;
+        return (string)$this->formatting_options;
     }
 
     /**
@@ -107,7 +107,7 @@ class EditorSettings extends ActivePluginRecord
      */
     public function setFormattingOptions(?string $formatting_options): void
     {
-        $this->formatting_options = (string) $formatting_options;
+        $this->formatting_options = (string)$formatting_options;
     }
 
     /**
@@ -115,7 +115,7 @@ class EditorSettings extends ActivePluginRecord
      */
     public function getNoticeBoards(): int
     {
-        return (int) $this->notice_boards;
+        return (int)$this->notice_boards;
     }
 
     /**
@@ -131,7 +131,7 @@ class EditorSettings extends ActivePluginRecord
      */
     public function isCopyAllowed(): bool
     {
-        return (bool) $this->copy_allowed;
+        return (bool)$this->copy_allowed;
     }
 
     /**
@@ -139,8 +139,24 @@ class EditorSettings extends ActivePluginRecord
      */
     public function setCopyAllowed(?bool $copy_allowed): void
     {
-        $this->copy_allowed = (bool) $copy_allowed;
+        $this->copy_allowed = (bool)$copy_allowed;
     }
 
+    /**
+     * @return int
+     */
+    public function getTaskId(): int
+    {
+        return $this->task_id;
+    }
 
+    /**
+     * @param int $task_id
+     * @return EditorSettings
+     */
+    public function setTaskId(int $task_id): EditorSettings
+    {
+        $this->task_id = $task_id;
+        return $this;
+    }
 }

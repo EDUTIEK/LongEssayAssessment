@@ -5,6 +5,9 @@ namespace ILIAS\Plugin\LongEssayTask\Data;
 use ILIAS\DI\Exceptions\Exception;
 use ILIAS\Plugin\LongEssayTask\LongEssayTaskDI;
 
+/**
+ * @author Fabian Wolf <wolf@ilias.de>
+ */
 class ObjectDatabaseRepository implements ObjectRepository
 {
 
@@ -24,15 +27,6 @@ class ObjectDatabaseRepository implements ObjectRepository
         $a_rating_criterion->create();
     }
 
-    public function getObjectSettingsById(int $a_id): ?ObjectSettings
-    {
-        $object = ObjectSettings::findOrGetInstance($a_id);
-        if ($object != null) {
-            return $object;
-        }
-        return null;
-    }
-
     public function getPluginConfigById(int $a_id): ?PluginConfig
     {
         $plugin = PluginConfig::findOrGetInstance($a_id);
@@ -47,11 +41,11 @@ class ObjectDatabaseRepository implements ObjectRepository
         return $this->getObjectSettingsById($a_id) != null;
     }
 
-    public function getGradeLevelById(int $a_id): ?GradeLevel
+    public function getObjectSettingsById(int $a_id): ?ObjectSettings
     {
-        $grade_level = GradeLevel::findOrGetInstance($a_id);
-        if ($grade_level != null) {
-            return $grade_level;
+        $object = ObjectSettings::findOrGetInstance($a_id);
+        if ($object != null) {
+            return $object;
         }
         return null;
     }
@@ -61,9 +55,23 @@ class ObjectDatabaseRepository implements ObjectRepository
         return $this->getGradeLevelById($a_id) != null;
     }
 
+    public function getGradeLevelById(int $a_id): ?GradeLevel
+    {
+        $grade_level = GradeLevel::findOrGetInstance($a_id);
+        if ($grade_level != null) {
+            return $grade_level;
+        }
+        return null;
+    }
+
     public function getGradeLevelByObjectId(int $a_object_id): array
     {
         return GradeLevel::where(['object_id' => $a_object_id])->get();
+    }
+
+    public function ifRatingCriterionExistsById(int $a_id): bool
+    {
+        return $this->getRatingCriterionById($a_id) != null;
     }
 
     public function getRatingCriterionById(int $a_id): ?RatingCriterion
@@ -73,11 +81,6 @@ class ObjectDatabaseRepository implements ObjectRepository
             return $rating_criterion;
         }
         return null;
-    }
-
-    public function ifRatingCriterionExistsById(int $a_id): bool
-    {
-        return $this->getRatingCriterionById($a_id) != null;
     }
 
     public function getRatingCriterionByObjectId(int $a_object_id): array
@@ -112,11 +115,11 @@ class ObjectDatabaseRepository implements ObjectRepository
 
         $db->beginTransaction();
         try {
-            $db->manipulate("DELETE FROM xlet_object_settings".
-                " WHERE obj_id = ". $db->quote($a_id, "integer"));
+            $db->manipulate("DELETE FROM xlet_object_settings" .
+                " WHERE obj_id = " . $db->quote($a_id, "integer"));
 
-            $db->manipulate("DELETE FROM xlet_plugin_config".
-                " WHERE id = ". $db->quote($a_id, "integer"));
+            $db->manipulate("DELETE FROM xlet_plugin_config" .
+                " WHERE id = " . $db->quote($a_id, "integer"));
 
             $this->deleteGradeLevelByObjectId($a_id);
             $this->deleteRatingCriterionByObjectId($a_id);
@@ -131,8 +134,7 @@ class ObjectDatabaseRepository implements ObjectRepository
 
             $task_repo = $di->getTaskRepo();
             $task_repo->deleteTaskByObjectId($a_id);
-        }catch (Exception $e)
-        {
+        } catch (Exception $e) {
             $db->rollback();
             throw $e;
         }
@@ -141,36 +143,13 @@ class ObjectDatabaseRepository implements ObjectRepository
 
     }
 
-    public function deleteGradeLevel(int $a_id)
-    {
-        global $DIC;
-        $db = $DIC->database();
-
-        $db->manipulate("DELETE FROM xlet_grade_level".
-            " WHERE object_id = ". $db->quote($a_id, "integer"));
-    }
-
-    public function deleteRatingCriterion(int $a_id)
-    {
-        global $DIC;
-        $db = $DIC->database();
-
-        $db->manipulate("DELETE FROM xlet_rating_crit".
-            " WHERE object_id = ". $db->quote($a_id, "integer"));
-
-        $di = LongEssayTaskDI::getInstance();
-
-        $essay_repo = $di->getEssayRepo();
-        $essay_repo->deleteCriterionPointsByRatingId($a_id);
-    }
-
     public function deleteGradeLevelByObjectId(int $a_object_id)
     {
         global $DIC;
         $db = $DIC->database();
 
-        $db->manipulate("DELETE FROM xlet_grade_level".
-            " WHERE object_id = ". $db->quote($a_object_id, "integer"));
+        $db->manipulate("DELETE FROM xlet_grade_level" .
+            " WHERE object_id = " . $db->quote($a_object_id, "integer"));
     }
 
     public function deleteRatingCriterionByObjectId(int $a_object_id)
@@ -178,7 +157,30 @@ class ObjectDatabaseRepository implements ObjectRepository
         global $DIC;
         $db = $DIC->database();
 
-        $db->manipulate("DELETE FROM xlet_rating_crit".
-            " WHERE object_id = ". $db->quote($a_object_id, "integer"));
+        $db->manipulate("DELETE FROM xlet_rating_crit" .
+            " WHERE object_id = " . $db->quote($a_object_id, "integer"));
+    }
+
+    public function deleteGradeLevel(int $a_id)
+    {
+        global $DIC;
+        $db = $DIC->database();
+
+        $db->manipulate("DELETE FROM xlet_grade_level" .
+            " WHERE object_id = " . $db->quote($a_id, "integer"));
+    }
+
+    public function deleteRatingCriterion(int $a_id)
+    {
+        global $DIC;
+        $db = $DIC->database();
+
+        $db->manipulate("DELETE FROM xlet_rating_crit" .
+            " WHERE object_id = " . $db->quote($a_id, "integer"));
+
+        $di = LongEssayTaskDI::getInstance();
+
+        $essay_repo = $di->getEssayRepo();
+        $essay_repo->deleteCriterionPointsByRatingId($a_id);
     }
 }

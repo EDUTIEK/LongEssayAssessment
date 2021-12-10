@@ -2,6 +2,7 @@
 
 namespace ILIAS\Plugin\LongEssayTask\Data;
 
+use ilDatabaseException;
 use ILIAS\DI\Exceptions\Exception;
 use ILIAS\Plugin\LongEssayTask\LongEssayTaskDI;
 
@@ -34,6 +35,11 @@ class CorrectorDatabaseRepository implements CorrectorRepository
         return Corrector::where(['task_id' => $a_task_id])->get();
     }
 
+    public function ifUserExistsInTaskAsCorrector(int $a_user_id, int $a_task_id): bool
+    {
+        return $this->getCorrectorByUserId($a_user_id, $a_task_id) != null;
+    }
+
     public function getCorrectorByUserId(int $a_user_id, int $a_task_id): ?Corrector
     {
         $correctors = Corrector::where(['user_id' => $a_user_id, 'task_id' => $a_task_id])->get();
@@ -43,27 +49,11 @@ class CorrectorDatabaseRepository implements CorrectorRepository
         return null;
     }
 
-    public function ifUserExistsInTaskAsCorrector(int $a_user_id, int $a_task_id): bool
-    {
-        return $this->getCorrectorByUserId($a_user_id, $a_task_id) != null;
-    }
-
     public function getCorrectorAssignmentById(int $a_id): ?CorrectorAssignment
     {
         $assignment = CorrectorAssignment::findOrGetInstance($a_id);
         if ($assignment != null) {
             return $assignment;
-        }
-        return null;
-    }
-
-    public function getCorrectorAssignmentByPartIds(int $a_writer_id, int $a_corrector_id): ?CorrectorAssignment
-    {
-        $assignments = CorrectorAssignment
-            ::where(['writer_id' => $a_writer_id, 'corrector_id' => $a_corrector_id])->get();
-
-        if (count($assignments) > 0) {
-            return $assignments[1];
         }
         return null;
     }
@@ -83,9 +73,20 @@ class CorrectorDatabaseRepository implements CorrectorRepository
         return $this->getCorrectorAssignmentByPartIds($a_writer_id, $a_corrector_id) != null;
     }
 
+    public function getCorrectorAssignmentByPartIds(int $a_writer_id, int $a_corrector_id): ?CorrectorAssignment
+    {
+        $assignments = CorrectorAssignment
+            ::where(['writer_id' => $a_writer_id, 'corrector_id' => $a_corrector_id])->get();
+
+        if (count($assignments) > 0) {
+            return $assignments[1];
+        }
+        return null;
+    }
+
     public function updateCorrector(Corrector $a_corrector)
     {
-       $a_corrector->update();
+        $a_corrector->update();
     }
 
     public function updateCorrectorAssignment(CorrectorAssignment $a_corrector_assignment)
@@ -98,7 +99,7 @@ class CorrectorDatabaseRepository implements CorrectorRepository
      *
      * @param int $a_id
      * @throws Exception
-     * @throws \ilDatabaseException
+     * @throws ilDatabaseException
      */
     public function deleteCorrector(int $a_id)
     {
@@ -107,8 +108,8 @@ class CorrectorDatabaseRepository implements CorrectorRepository
 
         $db->beginTransaction();
         try {
-            $db->manipulate("DELETE FROM xlet_corrector".
-                " WHERE id = ". $db->quote($a_id, "integer"));
+            $db->manipulate("DELETE FROM xlet_corrector" .
+                " WHERE id = " . $db->quote($a_id, "integer"));
 
             $this->deleteCorrectorAssignmentByCorrector($a_id);
             $di = LongEssayTaskDI::getInstance();
@@ -118,8 +119,7 @@ class CorrectorDatabaseRepository implements CorrectorRepository
             $essay_repo->deleteCorrectorCommentByCorrectorId($a_id);
             $essay_repo->deleteCorrectorSummaryByCorrectorId($a_id);
 
-        }catch (Exception $e)
-        {
+        } catch (Exception $e) {
             $db->rollback();
             throw $e;
         }
@@ -128,13 +128,22 @@ class CorrectorDatabaseRepository implements CorrectorRepository
 
     }
 
+    public function deleteCorrectorAssignmentByCorrector(int $a_corrector_id)
+    {
+        global $DIC;
+        $db = $DIC->database();
+
+        $db->manipulate("DELETE FROM xlet_corrector_ass" .
+            " WHERE corrector_id = " . $db->quote($a_corrector_id, "integer"));
+    }
+
     public function deleteCorrectorAssignment(int $a_writer_id, int $a_corrector_id)
     {
         global $DIC;
         $db = $DIC->database();
-        
-        $db->manipulate("DELETE FROM xlet_corrector_ass".
-            " WHERE writer_id = ". $db->quote($a_writer_id, "integer") .
+
+        $db->manipulate("DELETE FROM xlet_corrector_ass" .
+            " WHERE writer_id = " . $db->quote($a_writer_id, "integer") .
             " AND corrector_id = " . $db->quote($a_corrector_id, "integer"));
     }
 
@@ -142,19 +151,10 @@ class CorrectorDatabaseRepository implements CorrectorRepository
     {
         global $DIC;
         $db = $DIC->database();
-        
+
         $db->manipulate("DELETE xlet_corrector_ass FROM xlet_corrector_ass AS ass"
             . " LEFT JOIN xlet_corrector AS corrector ON (ass.corrector_id = corrector.id)"
-            . " WHERE corrector.task_id = ".$db->quote($a_task_id, "integer"));
-    }
-
-    public function deleteCorrectorAssignmentByCorrector(int $a_corrector_id)
-    {
-        global $DIC;
-        $db = $DIC->database();
-        
-        $db->manipulate("DELETE FROM xlet_corrector_ass".
-            " WHERE corrector_id = " . $db->quote($a_corrector_id, "integer"));
+            . " WHERE corrector.task_id = " . $db->quote($a_task_id, "integer"));
     }
 
     public function deleteCorrectorAssignmentByWriter(int $a_writer_id)
@@ -162,8 +162,8 @@ class CorrectorDatabaseRepository implements CorrectorRepository
         global $DIC;
         $db = $DIC->database();
 
-        $db->manipulate("DELETE FROM xlet_corrector_ass".
-            " WHERE writer_id = ". $db->quote($a_writer_id, "integer"));
+        $db->manipulate("DELETE FROM xlet_corrector_ass" .
+            " WHERE writer_id = " . $db->quote($a_writer_id, "integer"));
     }
 
     public function deleteCorrectorByTask(int $a_task_id)
@@ -171,11 +171,11 @@ class CorrectorDatabaseRepository implements CorrectorRepository
         global $DIC;
         $db = $DIC->database();
 
-        $db->manipulate("DELETE FROM xlet_corrector".
-            " WHERE task_id = ". $db->quote($a_task_id, "integer"));
+        $db->manipulate("DELETE FROM xlet_corrector" .
+            " WHERE task_id = " . $db->quote($a_task_id, "integer"));
 
         $db->manipulate("DELETE xlet_corrector_ass FROM xlet_corrector_ass AS ass"
             . " LEFT JOIN xlet_corrector AS corrector ON (ass.corrector_id = corrector.user_id)"
-            . " WHERE corrector.task_id = ".$db->quote($a_task_id, "integer"));
+            . " WHERE corrector.task_id = " . $db->quote($a_task_id, "integer"));
     }
 }

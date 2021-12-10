@@ -48,7 +48,6 @@ class ObjectSettings extends ActivePluginRecord
      */
     protected $participation_type = self::PARTICIPATION_TYPE_INSTANT;
 
-
     /**
      * @return int
      */
@@ -59,26 +58,30 @@ class ObjectSettings extends ActivePluginRecord
 
     /**
      * @param int $obj_id
+     * @return ObjectSettings
      */
-    public function setObjId(int $obj_id): void
+    public function setObjId(int $obj_id): ObjectSettings
     {
         $this->obj_id = $obj_id;
+        return $this;
     }
 
     /**
      * @return bool
      */
-    public function isOnline(): bool
+    public function isOnline()
     {
         return $this->online;
     }
 
     /**
      * @param bool $online
+     * @return ObjectSettings
      */
-    public function setOnline(bool $online): void
+    public function setOnline($online)
     {
         $this->online = $online;
+        return $this;
     }
 
     /**
@@ -91,9 +94,11 @@ class ObjectSettings extends ActivePluginRecord
 
     /**
      * @param string $participation_type
+     * @return ObjectSettings
      */
-    public function setParticipationType(string $participation_type): void
+    public function setParticipationType(string $participation_type): ObjectSettings
     {
         $this->participation_type = $participation_type;
+        return $this;
     }
 }

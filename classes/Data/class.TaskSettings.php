@@ -54,7 +54,6 @@ class TaskSettings extends ActivePluginRecord
     protected $solution = null;
 
 
-
     /**
      * @var string
      * @con_has_field        true
@@ -107,7 +106,6 @@ class TaskSettings extends ActivePluginRecord
      */
     protected $review_end = null;
 
-
     /**
      * @return int
      */
@@ -118,14 +116,16 @@ class TaskSettings extends ActivePluginRecord
 
     /**
      * @param int $task_id
+     * @return TaskSettings
      */
-    public function setTaskId(int $task_id): void
+    public function setTaskId(int $task_id): TaskSettings
     {
         $this->task_id = $task_id;
+        return $this;
     }
 
     /**
-     * @return ?string
+     * @return string
      */
     public function getDescription(): ?string
     {
@@ -133,15 +133,17 @@ class TaskSettings extends ActivePluginRecord
     }
 
     /**
-     * @param ?string $description
+     * @param string $description
+     * @return TaskSettings
      */
-    public function setDescription(?string $description): void
+    public function setDescription(?string $description): TaskSettings
     {
         $this->description = $description;
+        return $this;
     }
 
     /**
-     * @return ?string
+     * @return string
      */
     public function getInstructions(): ?string
     {
@@ -149,15 +151,17 @@ class TaskSettings extends ActivePluginRecord
     }
 
     /**
-     * @param ?string $instructions
+     * @param string $instructions
+     * @return TaskSettings
      */
-    public function setInstructions(?string $instructions): void
+    public function setInstructions(?string $instructions): TaskSettings
     {
         $this->instructions = $instructions;
+        return $this;
     }
 
     /**
-     * @return ?string
+     * @return string
      */
     public function getSolution(): ?string
     {
@@ -165,15 +169,17 @@ class TaskSettings extends ActivePluginRecord
     }
 
     /**
-     * @param ?string $solution
+     * @param string $solution
+     * @return TaskSettings
      */
-    public function setSolution(?string $solution): void
+    public function setSolution(?string $solution): TaskSettings
     {
         $this->solution = $solution;
+        return $this;
     }
 
     /**
-     * @return ?string
+     * @return string
      */
     public function getWritingStart(): ?string
     {
@@ -181,15 +187,17 @@ class TaskSettings extends ActivePluginRecord
     }
 
     /**
-     * @param ?string $writing_start
+     * @param string $writing_start
+     * @return TaskSettings
      */
-    public function setWritingStart(?string $writing_start): void
+    public function setWritingStart(?string $writing_start): TaskSettings
     {
         $this->writing_start = $writing_start;
+        return $this;
     }
 
     /**
-     * @return ?string
+     * @return string
      */
     public function getWritingEnd(): ?string
     {
@@ -197,15 +205,17 @@ class TaskSettings extends ActivePluginRecord
     }
 
     /**
-     * @param ?string $writing_end
+     * @param string $writing_end
+     * @return TaskSettings
      */
-    public function setWritingEnd(?string $writing_end): void
+    public function setWritingEnd(?string $writing_end): TaskSettings
     {
         $this->writing_end = $writing_end;
+        return $this;
     }
 
     /**
-     * @return ?string
+     * @return string
      */
     public function getCorrectionStart(): ?string
     {
@@ -213,15 +223,17 @@ class TaskSettings extends ActivePluginRecord
     }
 
     /**
-     * @param ?string $correction_start
+     * @param string $correction_start
+     * @return TaskSettings
      */
-    public function setCorrectionStart(?string $correction_start): void
+    public function setCorrectionStart(?string $correction_start): TaskSettings
     {
         $this->correction_start = $correction_start;
+        return $this;
     }
 
     /**
-     * @return ?string
+     * @return string
      */
     public function getCorrectionEnd(): ?string
     {
@@ -229,15 +241,17 @@ class TaskSettings extends ActivePluginRecord
     }
 
     /**
-     * @param ?string $correction_end
+     * @param string $correction_end
+     * @return TaskSettings
      */
-    public function setCorrectionEnd(?string $correction_end): void
+    public function setCorrectionEnd(?string $correction_end): TaskSettings
     {
         $this->correction_end = $correction_end;
+        return $this;
     }
 
     /**
-     * @return ?string
+     * @return string
      */
     public function getReviewStart(): ?string
     {
@@ -245,15 +259,17 @@ class TaskSettings extends ActivePluginRecord
     }
 
     /**
-     * @param ?string $review_start
+     * @param string $review_start
+     * @return TaskSettings
      */
-    public function setReviewStart(?string $review_start): void
+    public function setReviewStart(?string $review_start): TaskSettings
     {
         $this->review_start = $review_start;
+        return $this;
     }
 
     /**
-     * @return ?string
+     * @return string
      */
     public function getReviewEnd(): ?string
     {
@@ -261,10 +277,12 @@ class TaskSettings extends ActivePluginRecord
     }
 
     /**
-     * @param ?string $review_end
+     * @param string $review_end
+     * @return TaskSettings
      */
-    public function setReviewEnd(?string $review_end): void
+    public function setReviewEnd(?string $review_end): TaskSettings
     {
         $this->review_end = $review_end;
+        return $this;
     }
 }

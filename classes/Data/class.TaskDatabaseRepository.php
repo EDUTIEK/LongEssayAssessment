@@ -2,9 +2,13 @@
 
 namespace ILIAS\Plugin\LongEssayTask\Data;
 
+use ilDatabaseException;
 use ILIAS\DI\Exceptions\Exception;
 use ILIAS\Plugin\LongEssayTask\LongEssayTaskDI;
 
+/**
+ * @author Fabian Wolf <wolf@ilias.de>
+ */
 class TaskDatabaseRepository implements TaskRepository
 {
 
@@ -43,6 +47,11 @@ class TaskDatabaseRepository implements TaskRepository
         return null;
     }
 
+    public function ifTaskExistsById(int $a_id): bool
+    {
+        return $this->getTaskSettingsById($a_id) != null;
+    }
+
     public function getTaskSettingsById(int $a_id): ?TaskSettings
     {
         $task_settings = TaskSettings::findOrGetInstance($a_id);
@@ -52,9 +61,9 @@ class TaskDatabaseRepository implements TaskRepository
         return null;
     }
 
-    public function ifTaskExistsById(int $a_id): bool
+    public function ifAlertExistsById(int $a_id): bool
     {
-        return $this->getTaskSettingsById($a_id) != null;
+        return $this->getAlertById($a_id) != null;
     }
 
     public function getAlertById(int $a_id): ?Alert
@@ -66,9 +75,9 @@ class TaskDatabaseRepository implements TaskRepository
         return null;
     }
 
-    public function ifAlertExistsById(int $a_id): bool
+    public function ifWriterNoticeExistsById(int $a_id): bool
     {
-        return $this->getAlertById($a_id) != null;
+        return $this->getWriterNoticeById($a_id) != null;
     }
 
     public function getWriterNoticeById(int $a_id): ?WriterNotice
@@ -78,11 +87,6 @@ class TaskDatabaseRepository implements TaskRepository
             return $writer_notice;
         }
         return null;
-    }
-
-    public function ifWriterNoticeExistsById(int $a_id): bool
-    {
-        return $this->getWriterNoticeById($a_id) != null;
     }
 
     public function updateEditorSettings(EditorSettings $a_editor_settings)
@@ -110,6 +114,13 @@ class TaskDatabaseRepository implements TaskRepository
         $a_writer_notice->update();
     }
 
+    /**
+     * Deletes TaskSettings, EditorSettings, CorrectionSettings, Alerts, WriterNotices and Essay related datasets by Task ID
+     *
+     * @param int $a_id
+     * @throws Exception
+     * @throws ilDatabaseException
+     */
     public function deleteTask(int $a_id)
     {
         global $DIC;
@@ -117,12 +128,12 @@ class TaskDatabaseRepository implements TaskRepository
 
         $db->beginTransaction();
         try {
-            $db->manipulate("DELETE FROM xlet_task_settings".
-                " WHERE task_id = ". $db->quote($a_id, "integer"));
-            $db->manipulate("DELETE FROM xlet_editor_settings".
-                " WHERE task_id = ". $db->quote($a_id, "integer"));
-            $db->manipulate("DELETE FROM xlet_corr_setting".
-                " WHERE task_id = ". $db->quote($a_id, "integer"));
+            $db->manipulate("DELETE FROM xlet_task_settings" .
+                " WHERE task_id = " . $db->quote($a_id, "integer"));
+            $db->manipulate("DELETE FROM xlet_editor_settings" .
+                " WHERE task_id = " . $db->quote($a_id, "integer"));
+            $db->manipulate("DELETE FROM xlet_corr_setting" .
+                " WHERE task_id = " . $db->quote($a_id, "integer"));
 
             $this->deleteAlertByTaskId($a_id);
             $this->deleteWriterNoticeByTaskId($a_id);
@@ -132,8 +143,7 @@ class TaskDatabaseRepository implements TaskRepository
             $essay_repo = $di->getEssayRepo();
             $essay_repo->deleteEssayByTaskId($a_id);
 
-        }catch (Exception $e)
-        {
+        } catch (Exception $e) {
             $db->rollback();
             throw $e;
         }
@@ -141,47 +151,13 @@ class TaskDatabaseRepository implements TaskRepository
         $db->commit();
     }
 
-    public function deleteAlert(int $a_id)
-    {
-        global $DIC;
-        $db = $DIC->database();
-
-        $db->manipulate("DELETE FROM xlet_alert".
-            " WHERE id = ". $db->quote($a_id, "integer"));
-    }
-
-    public function deleteWriterNotice(int $a_id)
-    {
-        global $DIC;
-        $db = $DIC->database();
-
-        $db->manipulate("DELETE FROM xlet_writer_notice".
-            " WHERE id = ". $db->quote($a_id, "integer"));
-    }
-
-    public function deleteTaskByObjectId(int $a_object_id)
-    {
-        global $DIC;
-        $db = $DIC->database();
-        
-        $db->manipulate("DELETE FROM xlet_task_settings".
-            " WHERE task_id = ". $db->quote($a_object_id, "integer"));
-        $db->manipulate("DELETE FROM xlet_editor_settings".
-            " WHERE task_id = ". $db->quote($a_object_id, "integer"));
-        $db->manipulate("DELETE FROM xlet_corr_setting".
-            " WHERE task_id = ". $db->quote($a_object_id, "integer"));
-
-        $this->deleteAlertByTaskId($a_object_id);
-        $this->deleteWriterNoticeByTaskId($a_object_id);
-    }
-
     public function deleteAlertByTaskId(int $a_task_id)
     {
         global $DIC;
         $db = $DIC->database();
 
-        $db->manipulate("DELETE FROM xlet_alert".
-            " WHERE task_id = ". $DIC->database()->quote($a_task_id, "integer"));
+        $db->manipulate("DELETE FROM xlet_alert" .
+            " WHERE task_id = " . $DIC->database()->quote($a_task_id, "integer"));
     }
 
     public function deleteWriterNoticeByTaskId(int $a_task_id)
@@ -189,7 +165,46 @@ class TaskDatabaseRepository implements TaskRepository
         global $DIC;
         $db = $DIC->database();
 
-        $db->manipulate("DELETE FROM xlet_writer_notice".
-            " WHERE task_id = ". $DIC->database()->quote($a_task_id, "integer"));
+        $db->manipulate("DELETE FROM xlet_writer_notice" .
+            " WHERE task_id = " . $DIC->database()->quote($a_task_id, "integer"));
+    }
+
+    public function deleteAlert(int $a_id)
+    {
+        global $DIC;
+        $db = $DIC->database();
+
+        $db->manipulate("DELETE FROM xlet_alert" .
+            " WHERE id = " . $db->quote($a_id, "integer"));
+    }
+
+    public function deleteWriterNotice(int $a_id)
+    {
+        global $DIC;
+        $db = $DIC->database();
+
+        $db->manipulate("DELETE FROM xlet_writer_notice" .
+            " WHERE id = " . $db->quote($a_id, "integer"));
+    }
+
+    /**
+     * Deletes TaskSettings, EditorSettings, CorrectionSettings, Alerts and WriterNotices by Object ID
+     *
+     * @param int $a_object_id
+     */
+    public function deleteTaskByObjectId(int $a_object_id)
+    {
+        global $DIC;
+        $db = $DIC->database();
+
+        $db->manipulate("DELETE FROM xlet_task_settings" .
+            " WHERE task_id = " . $db->quote($a_object_id, "integer"));
+        $db->manipulate("DELETE FROM xlet_editor_settings" .
+            " WHERE task_id = " . $db->quote($a_object_id, "integer"));
+        $db->manipulate("DELETE FROM xlet_corr_setting" .
+            " WHERE task_id = " . $db->quote($a_object_id, "integer"));
+
+        $this->deleteAlertByTaskId($a_object_id);
+        $this->deleteWriterNoticeByTaskId($a_object_id);
     }
 }

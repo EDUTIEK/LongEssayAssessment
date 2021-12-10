@@ -2,14 +2,17 @@
 
 
 namespace ILIAS\Plugin\LongEssayTask\Data;
+
+use ActiveRecord;
 use arConnector;
+use ilLongEssayTaskPlugin;
 
 /**
  * Base class for the active records in the plugin
  *
  * @package ILIAS\Plugin\LongEssayTask\Data
  */
-abstract class ActivePluginRecord extends \ActiveRecord
+abstract class ActivePluginRecord extends ActiveRecord
 {
     const REPOSITORY_CLASS = 'ilObjLongEssayTaskAccess';
 
@@ -19,7 +22,7 @@ abstract class ActivePluginRecord extends \ActiveRecord
     protected $ar_safe_read = false;
 
     /**
-     * @var \ilLongEssayTaskPlugin
+     * @var ilLongEssayTaskPlugin
      */
     protected $plugin;
 
@@ -34,18 +37,18 @@ abstract class ActivePluginRecord extends \ActiveRecord
     {
         parent::__construct($primary_key, $connector);
 
-        $this->plugin = \ilLongEssayTaskPlugin::getInstance();
+        $this->plugin = ilLongEssayTaskPlugin::getInstance();
     }
 
     /**
      * Overridden to declare the specific return type for type hints in PHPStorm
      * @param       $primary_key
      * @param array $add_constructor_args
-     * @return \ActiveRecord | static
+     * @return ActiveRecord | static
      */
     public static function findOrGetInstance($primary_key, array $add_constructor_args = array())
     {
-        return parent::findOrGetInstance($primary_key,  $add_constructor_args);
+        return parent::findOrGetInstance($primary_key, $add_constructor_args);
     }
 
 }

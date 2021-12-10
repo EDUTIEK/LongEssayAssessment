@@ -10,13 +10,6 @@ namespace ILIAS\Plugin\LongEssayTask\Data;
 class PluginConfig extends ActivePluginRecord
 {
     /**
-     * @var string
-     */
-    protected $connector_container_name = 'xlet_plugin_config';
-
-
-
-    /**
      * @var integer
      * @con_has_field        true
      * @con_is_primary       true
@@ -25,8 +18,6 @@ class PluginConfig extends ActivePluginRecord
      * @con_length           4
      */
     public $id;
-
-
     /**
      * @var string
      * @con_has_field        true
@@ -35,8 +26,6 @@ class PluginConfig extends ActivePluginRecord
      * @con_length           250
      */
     public $writer_url = '';
-
-
     /**
      * @var string
      * @con_has_field        true
@@ -45,8 +34,6 @@ class PluginConfig extends ActivePluginRecord
      * @con_length           250
      */
     public $corrector_url = '';
-
-
     /**
      * @var string
      * @con_has_field        true
@@ -55,7 +42,6 @@ class PluginConfig extends ActivePluginRecord
      * @con_length           250
      */
     public $eskript_url = '';
-
     /**
      * @var string
      * @con_has_field        true
@@ -64,24 +50,63 @@ class PluginConfig extends ActivePluginRecord
      * @con_length           250
      */
     public $eskript_key = '';
-
+    /**
+     * @var string
+     */
+    protected $connector_container_name = 'xlet_plugin_config';
 
     /**
-     * Read the configuration values
+     * @return int
      */
-    public function read()
+    public function getId(): int
     {
-        $this->id = 1;
-        parent::read();
+        return $this->id;
     }
 
     /**
-     * Write the configuration values
+     * @param int $id
+     * @return PluginConfig
      */
-    public function save()
+    public function setId(int $id): PluginConfig
     {
-        $this->id = 1;
-        parent::save();
+        $this->id = $id;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getWriterUrl(): string
+    {
+        return $this->writer_url;
+    }
+
+    /**
+     * @param string $writer_url
+     * @return PluginConfig
+     */
+    public function setWriterUrl(string $writer_url): PluginConfig
+    {
+        $this->writer_url = $writer_url;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCorrectorUrl(): string
+    {
+        return $this->corrector_url;
+    }
+
+    /**
+     * @param string $corrector_url
+     * @return PluginConfig
+     */
+    public function setCorrectorUrl(string $corrector_url): PluginConfig
+    {
+        $this->corrector_url = $corrector_url;
+        return $this;
     }
 
     /**
@@ -94,10 +119,12 @@ class PluginConfig extends ActivePluginRecord
 
     /**
      * @param string $eskript_url
+     * @return PluginConfig
      */
-    public function setEskriptUrl(string $eskript_url): void
+    public function setEskriptUrl(string $eskript_url): PluginConfig
     {
         $this->eskript_url = $eskript_url;
+        return $this;
     }
 
     /**
@@ -110,41 +137,11 @@ class PluginConfig extends ActivePluginRecord
 
     /**
      * @param string $eskript_key
+     * @return PluginConfig
      */
-    public function setEskriptKey(string $eskript_key): void
+    public function setEskriptKey(string $eskript_key): PluginConfig
     {
         $this->eskript_key = $eskript_key;
-    }
-
-    /**
-     * @return string
-     */
-    public function getWriterUrl(): string
-    {
-        return (string) $this->writer_url;
-    }
-
-    /**
-     * @param string $writer_url
-     */
-    public function setWriterUrl(string $writer_url): void
-    {
-        $this->writer_url = $writer_url;
-    }
-
-    /**
-     * @return string
-     */
-    public function getCorrectorUrl(): string
-    {
-        return (string) $this->corrector_url;
-    }
-
-    /**
-     * @param string $corrector_url
-     */
-    public function setCorrectorUrl(string $corrector_url): void
-    {
-        $this->corrector_url = $corrector_url;
+        return $this;
     }
 }

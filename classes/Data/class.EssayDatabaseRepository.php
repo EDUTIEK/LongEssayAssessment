@@ -10,10 +10,10 @@ use ILIAS\DI\Exceptions\Exception;
 class EssayDatabaseRepository implements EssayRepository
 {
 
-	public function createEssay(Essay $a_essay)
-	{
-		$a_essay->create();
-	}
+    public function createEssay(Essay $a_essay)
+    {
+        $a_essay->create();
+    }
 
     public function createWriterHistory(WriterHistory $a_writer_history)
     {
@@ -40,34 +40,34 @@ class EssayDatabaseRepository implements EssayRepository
         $a_access_token->create();
     }
 
-	public function getEssayById(int $a_id): ?Essay
-	{
-		$essay = Essay::findOrGetInstance($a_id);
-		if ($essay != null) {
-			return $essay;
-		}
-		return null;
-	}
+    public function getEssayByUUID(string $a_uuid): ?Essay
+    {
+        $essay = Essay::where(array('uuid' => $a_uuid))->get();
 
-	public function getEssayByUUID(string $a_uuid): ?Essay
-	{
-		$essay = Essay::where(array('uuid' => $a_uuid))->get();
+        if (count($essay) > 0) {
+            return $essay[0];
+        }
+        return null;
+    }
 
-		if (count($essay) > 0) {
-			return $essay[0];
-		}
-		return null;
-	}
+    public function ifEssayExistsById(int $a_id): bool
+    {
+        return ($this->getEssayById($a_id) != null);
+    }
 
-	public function ifEssayExistsById(int $a_id): bool
-	{
-		return ( $this->getEssayById($a_id) != null );
-	}
+    public function getEssayById(int $a_id): ?Essay
+    {
+        $essay = Essay::findOrGetInstance($a_id);
+        if ($essay != null) {
+            return $essay;
+        }
+        return null;
+    }
 
-	public function updateEssay(Essay $a_essay)
-	{
-		$a_essay->update();
-	}
+    public function updateEssay(Essay $a_essay)
+    {
+        $a_essay->update();
+    }
 
     public function updateWriterHistory(WriterHistory $a_writer_history)
     {
@@ -97,25 +97,24 @@ class EssayDatabaseRepository implements EssayRepository
         $db->beginTransaction();
         try {
 
-            $db->manipulate("DELETE FROM xlet_essay".
-                " WHERE id = ". $db->quote($a_id, "integer"));
+            $db->manipulate("DELETE FROM xlet_essay" .
+                " WHERE id = " . $db->quote($a_id, "integer"));
 
-            $db->manipulate("DELETE FROM xlet_access_token".
-                " WHERE essay_id = ". $db->quote($a_id, "integer"));
-            $db->manipulate("DELETE FROM xlet_corrector_summary".
-                " WHERE essay_id = ". $db->quote($a_id, "integer"));
-            $db->manipulate("DELETE FROM xlet_corrector_comment".
-                " WHERE essay_id = ". $db->quote($a_id, "integer"));
+            $db->manipulate("DELETE FROM xlet_access_token" .
+                " WHERE essay_id = " . $db->quote($a_id, "integer"));
+            $db->manipulate("DELETE FROM xlet_corrector_summary" .
+                " WHERE essay_id = " . $db->quote($a_id, "integer"));
+            $db->manipulate("DELETE FROM xlet_corrector_comment" .
+                " WHERE essay_id = " . $db->quote($a_id, "integer"));
 
             $db->manipulate("DELETE xlet_crit_points FROM xlet_crit_points AS cp"
                 . " LEFT JOIN xlet_corrector_comment AS cc ON (cp.corr_comment_id = cc.id)"
-                . " WHERE cc.essay_id = ".$db->quote($a_id, "integer"));
+                . " WHERE cc.essay_id = " . $db->quote($a_id, "integer"));
 
-            $db->manipulate("DELETE FROM xlet_writer_history".
-                " WHERE essay_id = ". $db->quote($a_id, "integer"));
+            $db->manipulate("DELETE FROM xlet_writer_history" .
+                " WHERE essay_id = " . $db->quote($a_id, "integer"));
 
-        }catch (Exception $e)
-        {
+        } catch (Exception $e) {
             $db->rollback();
             throw $e;
         }
@@ -128,8 +127,8 @@ class EssayDatabaseRepository implements EssayRepository
         global $DIC;
         $db = $DIC->database();
 
-        $db->manipulate("DELETE FROM xlet_essay".
-            " WHERE task_id = ". $db->quote($a_task_id, "integer"));
+        $db->manipulate("DELETE FROM xlet_essay" .
+            " WHERE task_id = " . $db->quote($a_task_id, "integer"));
     }
 
     public function deleteEssayByWriterId(int $a_user_id)
@@ -137,8 +136,8 @@ class EssayDatabaseRepository implements EssayRepository
         global $DIC;
         $db = $DIC->database();
 
-        $db->manipulate("DELETE FROM xlet_essay".
-            " WHERE writer_id = ". $db->quote($a_user_id, "integer"));
+        $db->manipulate("DELETE FROM xlet_essay" .
+            " WHERE writer_id = " . $db->quote($a_user_id, "integer"));
     }
 
     public function deleteWriterHistory(int $a_id)
@@ -146,8 +145,8 @@ class EssayDatabaseRepository implements EssayRepository
         global $DIC;
         $db = $DIC->database();
 
-        $db->manipulate("DELETE FROM xlet_writer_history".
-            " WHERE id = ". $db->quote($a_id, "integer"));
+        $db->manipulate("DELETE FROM xlet_writer_history" .
+            " WHERE id = " . $db->quote($a_id, "integer"));
     }
 
     public function deleteCorrectorSummary(int $a_id)
@@ -155,8 +154,8 @@ class EssayDatabaseRepository implements EssayRepository
         global $DIC;
         $db = $DIC->database();
 
-        $db->manipulate("DELETE FROM xlet_corrector_summary".
-            " WHERE id = ". $db->quote($a_id, "integer"));
+        $db->manipulate("DELETE FROM xlet_corrector_summary" .
+            " WHERE id = " . $db->quote($a_id, "integer"));
     }
 
     public function deleteCorrectorSummaryByCorrectorId(int $a_user_id)
@@ -164,8 +163,8 @@ class EssayDatabaseRepository implements EssayRepository
         global $DIC;
         $db = $DIC->database();
 
-        $db->manipulate("DELETE FROM xlet_corrector_summary".
-            " WHERE corrector_id = ". $db->quote($a_user_id, "integer"));
+        $db->manipulate("DELETE FROM xlet_corrector_summary" .
+            " WHERE corrector_id = " . $db->quote($a_user_id, "integer"));
     }
 
     public function deleteCorrectorComment(int $a_id)
@@ -173,11 +172,11 @@ class EssayDatabaseRepository implements EssayRepository
         global $DIC;
         $db = $DIC->database();
 
-        $db->manipulate("DELETE FROM xlet_corrector_comment".
-            " WHERE id = ". $db->quote($a_id, "integer"));
+        $db->manipulate("DELETE FROM xlet_corrector_comment" .
+            " WHERE id = " . $db->quote($a_id, "integer"));
 
-        $db->manipulate("DELETE FROM xlet_crit_points".
-            " WHERE corr_comment_id = ". $db->quote($a_id, "integer"));
+        $db->manipulate("DELETE FROM xlet_crit_points" .
+            " WHERE corr_comment_id = " . $db->quote($a_id, "integer"));
     }
 
     public function deleteCorrectorCommentByCorrectorId(int $a_user_id)
@@ -185,12 +184,12 @@ class EssayDatabaseRepository implements EssayRepository
         global $DIC;
         $db = $DIC->database();
 
-        $db->manipulate("DELETE FROM xlet_corrector_comment".
-            " WHERE corrector_id = ". $db->quote($a_user_id, "integer"));
+        $db->manipulate("DELETE FROM xlet_corrector_comment" .
+            " WHERE corrector_id = " . $db->quote($a_user_id, "integer"));
 
         $db->manipulate("DELETE xlet_crit_points FROM xlet_crit_points AS cp"
             . " LEFT JOIN xlet_corrector_comment AS cc ON (cp.corr_comment_id = cc.id)"
-            . " WHERE cc.corrector_id = ".$db->quote($a_user_id, "integer"));
+            . " WHERE cc.corrector_id = " . $db->quote($a_user_id, "integer"));
     }
 
     public function deleteCriterionPoints(int $a_id)
@@ -198,8 +197,8 @@ class EssayDatabaseRepository implements EssayRepository
         global $DIC;
         $db = $DIC->database();
 
-        $db->manipulate("DELETE FROM xlet_crit_points".
-            " WHERE id = ". $db->quote($a_id, "integer"));
+        $db->manipulate("DELETE FROM xlet_crit_points" .
+            " WHERE id = " . $db->quote($a_id, "integer"));
     }
 
     public function deleteCriterionPointsByRatingId(int $a_rating_id)
@@ -207,8 +206,8 @@ class EssayDatabaseRepository implements EssayRepository
         global $DIC;
         $db = $DIC->database();
 
-        $db->manipulate("DELETE FROM xlet_crit_points".
-            " WHERE rating_id = ". $db->quote($a_rating_id, "integer"));
+        $db->manipulate("DELETE FROM xlet_crit_points" .
+            " WHERE rating_id = " . $db->quote($a_rating_id, "integer"));
     }
 
     public function deleteAccessToken(int $a_id)
@@ -216,8 +215,8 @@ class EssayDatabaseRepository implements EssayRepository
         global $DIC;
         $db = $DIC->database();
 
-        $db->manipulate("DELETE FROM xlet_access_token".
-            " WHERE id = ". $db->quote($a_id, "integer"));
+        $db->manipulate("DELETE FROM xlet_access_token" .
+            " WHERE id = " . $db->quote($a_id, "integer"));
     }
 
     public function deleteAccessTokenByCorrectorId(int $a_corrector_id)
@@ -227,7 +226,7 @@ class EssayDatabaseRepository implements EssayRepository
 
         $db->manipulate("DELETE xlet_access_token FROM xlet_access_token AS access_token"
             . " LEFT JOIN xlet_corrector AS corrector ON (access_token.user_id = corrector.user_id)"
-            . " WHERE corrector.id = ".$db->quote($a_corrector_id, "integer"));
+            . " WHERE corrector.id = " . $db->quote($a_corrector_id, "integer"));
     }
 
     public function deleteAccessTokenByWriterId(int $a_writer_id)
@@ -237,7 +236,7 @@ class EssayDatabaseRepository implements EssayRepository
 
         $db->manipulate("DELETE xlet_access_token FROM xlet_access_token AS access_token"
             . " LEFT JOIN xlet_writer AS writer ON (access_token.user_id = writer.user_id)"
-            . " WHERE writer.id = ".$db->quote($a_writer_id, "integer"));
+            . " WHERE writer.id = " . $db->quote($a_writer_id, "integer"));
     }
 }
 

@@ -17,351 +17,368 @@ class Essay extends ActivePluginRecord
      */
     protected $connector_container_name = 'xlet_essay';
 
-	/**
-	 * Essay id
-	 *
-	 * @var integer
-	 * @con_has_field        true
-	 * @con_is_primary       true
-	 * @con_sequence         true
-	 * @con_is_notnull       true
-	 * @con_fieldtype        integer
-	 * @con_length           4
-	 */
-	protected int $id;
+    /**
+     * Essay id
+     *
+     * @var integer
+     * @con_has_field        true
+     * @con_is_primary       true
+     * @con_sequence         true
+     * @con_is_notnull       true
+     * @con_fieldtype        integer
+     * @con_length           4
+     */
+    protected $id;
 
-	/**
-	 * UUID
-	 *
-	 * @var string
-	 * @con_has_field        true
-	 * @con_is_notnull       true
-	 * @con_fieldtype        text
-	 * @con_length           50
-	 */
-	protected string $uuid;
+    /**
+     * UUID
+     *
+     * @var string
+     * @con_has_field        true
+     * @con_is_notnull       true
+     * @con_fieldtype        text
+     * @con_length           50
+     */
+    protected $uuid;
 
-	/**
-	 * The writer id
-	 *
-	 * @var integer
-	 * @con_has_field        true
-	 * @con_is_primary       false
-	 * @con_sequence         false
-	 * @con_is_notnull       true
-	 * @con_fieldtype        integer
-	 * @con_length           4
-	 */
-	protected int $writer_id;
-
-
-
-	/**
-	 * Written Text (richtext)
-	 *
-	 * @var null|string
-	 * @con_has_field        true
-	 * @con_is_notnull       false
-	 * @con_fieldtype        clob
-	 */
-	protected ?string $written_text = null;
-
-	/**
-	 * Rawtext Hash (sha1)
-	 *
-	 * @var null|string
-	 * @con_has_field        true
-	 * @con_is_notnull       true
-	 * @con_fieldtype        text
-	 * @con_length           50
-	 */
-	protected ?string $raw_text_hash = null;
+    /**
+     * The writer id
+     *
+     * @var integer
+     * @con_has_field        true
+     * @con_is_primary       false
+     * @con_sequence         false
+     * @con_is_notnull       true
+     * @con_fieldtype        integer
+     * @con_length           4
+     */
+    protected $writer_id;
 
 
-	/**
-	 * Edit Started (datetime)
-	 *
-	 * @var string|null
-	 * @con_has_field        true
-	 * @con_is_notnull       false
-	 * @con_fieldtype        timestamp
-	 */
-	protected ?string $edit_started = null;
+    /**
+     * Written Text (richtext)
+     *
+     * @var null|string
+     * @con_has_field        true
+     * @con_is_notnull       false
+     * @con_fieldtype        clob
+     */
+    protected $written_text = null;
+
+    /**
+     * Rawtext Hash (sha1)
+     *
+     * @var null|string
+     * @con_has_field        true
+     * @con_is_notnull       true
+     * @con_fieldtype        text
+     * @con_length           50
+     */
+    protected $raw_text_hash = null;
 
 
-	/**
-	 * Edit Ended (datetime)
-	 *
-	 * @var string|null
-	 * @con_has_field        true
-	 * @con_is_notnull       false
-	 * @con_fieldtype        timestamp
-	 */
-	protected ?string $edit_ended = null;
+    /**
+     * Edit Started (datetime)
+     *
+     * @var string|null
+     * @con_has_field        true
+     * @con_is_notnull       false
+     * @con_fieldtype        timestamp
+     */
+    protected $edit_started = null;
 
 
-	/**
-	 * Processed Text (html)
-	 *
-	 * @var null|string
-	 * @con_has_field        true
-	 * @con_is_notnull       false
-	 * @con_fieldtype        clob
-	 */
-	protected ?string $processed_text = null;
+    /**
+     * Edit Ended (datetime)
+     *
+     * @var string|null
+     * @con_has_field        true
+     * @con_is_notnull       false
+     * @con_fieldtype        timestamp
+     */
+    protected $edit_ended = null;
 
 
-	/**
-	 * Is Authorized (bool)
-	 *
-	 * @var bool
-	 * @con_has_field        true
-	 * @con_is_notnull       true
-	 * @con_fieldtype        integer
-	 * @con_length           4
-	 */
-	protected $is_authorized = 0;
+    /**
+     * Processed Text (html)
+     *
+     * @var null|string
+     * @con_has_field        true
+     * @con_is_notnull       false
+     * @con_fieldtype        clob
+     */
+    protected $processed_text = null;
 
 
-	/**
-	 * PDF version as il file id
-	 *
-	 * @var integer
-	 * @con_has_field        true
-	 * @con_is_primary       false
-	 * @con_sequence         false
-	 * @con_is_notnull       false
-	 * @con_fieldtype        integer
-	 * @con_length           4
-	 */
-	protected int $pdf_version;
+    /**
+     * Is Authorized (bool)
+     *
+     * @var bool
+     * @con_has_field        true
+     * @con_is_notnull       true
+     * @con_fieldtype        integer
+     * @con_length           4
+     */
+    protected $is_authorized = 0;
 
 
-	/**
-	 * Final Points (integer)
-	 *
-	 * @var integer
-	 * @con_has_field        true
-	 * @con_is_primary       false
-	 * @con_sequence         false
-	 * @con_is_notnull       false
-	 * @con_fieldtype        integer
-	 * @con_length           4
-	 */
-	protected int $final_points;
+    /**
+     * PDF version as il file id
+     *
+     * @var integer
+     * @con_has_field        true
+     * @con_is_primary       false
+     * @con_sequence         false
+     * @con_is_notnull       false
+     * @con_fieldtype        integer
+     * @con_length           4
+     */
+    protected $pdf_version;
 
 
-	/**
-	 * Final Grade Level (text)
-	 *
-	 * @var null|string
-	 * @con_has_field        true
-	 * @con_is_notnull       false
-	 * @con_fieldtype        text
-	 * @con_length           255
-	 */
-	protected ?string $final_grade_level = null;
+    /**
+     * Final Points (integer)
+     *
+     * @var integer
+     * @con_has_field        true
+     * @con_is_primary       false
+     * @con_sequence         false
+     * @con_is_notnull       false
+     * @con_fieldtype        integer
+     * @con_length           4
+     */
+    protected $final_points;
 
-	/**
-	 * @return string
-	 */
-	public function getUuid(): string
-	{
-		return $this->uuid;
-	}
 
-	/**
-	 * @param string $uuid
-	 * @return Essay
-	 */
-	public function setUuid(string $uuid): Essay
-	{
-		$this->uuid = $uuid;
-		return $this;
-	}
+    /**
+     * Final Grade Level (text)
+     *
+     * @var null|string
+     * @con_has_field        true
+     * @con_is_notnull       false
+     * @con_fieldtype        text
+     * @con_length           255
+     */
+    protected $final_grade_level = null;
 
-	/**
-	 * @return int
-	 */
-	public function getWriterId(): int
-	{
-		return $this->writer_id;
-	}
+    /**
+     * @return string
+     */
+    public function getUuid(): string
+    {
+        return $this->uuid;
+    }
 
-	/**
-	 * @param int $writer_id
-	 * @return Essay
-	 */
-	public function setWriterId(int $writer_id): Essay
-	{
-		$this->writer_id = $writer_id;
-		return $this;
-	}
+    /**
+     * @param string $uuid
+     * @return Essay
+     */
+    public function setUuid(string $uuid): Essay
+    {
+        $this->uuid = $uuid;
+        return $this;
+    }
 
-	/**
-	 * @return string|null
-	 */
-	public function getWrittenText(): ?string
-	{
-		return $this->written_text;
-	}
+    /**
+     * @return int
+     */
+    public function getWriterId(): int
+    {
+        return $this->writer_id;
+    }
 
-	/**
-	 * @param string|null $written_text
-	 * @return Essay
-	 */
-	public function setWrittenText(?string $written_text): Essay
-	{
-		$this->written_text = $written_text;
-		return $this;
-	}
+    /**
+     * @param int $writer_id
+     * @return Essay
+     */
+    public function setWriterId(int $writer_id): Essay
+    {
+        $this->writer_id = $writer_id;
+        return $this;
+    }
 
-	/**
-	 * @return string|null
-	 */
-	public function getRawTextHash(): ?string
-	{
-		return $this->raw_text_hash;
-	}
+    /**
+     * @return string|null
+     */
+    public function getWrittenText(): ?string
+    {
+        return $this->written_text;
+    }
 
-	/**
-	 * @param string|null $raw_text_hash
-	 * @return Essay
-	 */
-	public function setRawTextHash(?string $raw_text_hash): Essay
-	{
-		$this->raw_text_hash = $raw_text_hash;
-		return $this;
-	}
+    /**
+     * @param string|null $written_text
+     * @return Essay
+     */
+    public function setWrittenText(?string $written_text): Essay
+    {
+        $this->written_text = $written_text;
+        return $this;
+    }
 
-	/**
-	 * @return string|null
-	 */
-	public function getEditStarted(): ?string
-	{
-		return $this->edit_started;
-	}
+    /**
+     * @return string|null
+     */
+    public function getRawTextHash(): ?string
+    {
+        return $this->raw_text_hash;
+    }
 
-	/**
-	 * @param string|null $edit_started
-	 * @return Essay
-	 */
-	public function setEditStarted(?string $edit_started): Essay
-	{
-		$this->edit_started = $edit_started;
-		return $this;
-	}
+    /**
+     * @param string|null $raw_text_hash
+     * @return Essay
+     */
+    public function setRawTextHash(?string $raw_text_hash): Essay
+    {
+        $this->raw_text_hash = $raw_text_hash;
+        return $this;
+    }
 
-	/**
-	 * @return string|null
-	 */
-	public function getEditEnded(): ?string
-	{
-		return $this->edit_ended;
-	}
+    /**
+     * @return string|null
+     */
+    public function getEditStarted(): ?string
+    {
+        return $this->edit_started;
+    }
 
-	/**
-	 * @param string|null $edit_ended
-	 * @return Essay
-	 */
-	public function setEditEnded(?string $edit_ended): Essay
-	{
-		$this->edit_ended = $edit_ended;
-		return $this;
-	}
+    /**
+     * @param string|null $edit_started
+     * @return Essay
+     */
+    public function setEditStarted(?string $edit_started): Essay
+    {
+        $this->edit_started = $edit_started;
+        return $this;
+    }
 
-	/**
-	 * @return string|null
-	 */
-	public function getProcessedText(): ?string
-	{
-		return $this->processed_text;
-	}
+    /**
+     * @return string|null
+     */
+    public function getEditEnded(): ?string
+    {
+        return $this->edit_ended;
+    }
 
-	/**
-	 * @param string|null $processed_text
-	 * @return Essay
-	 */
-	public function setProcessedText(?string $processed_text): Essay
-	{
-		$this->processed_text = $processed_text;
-		return $this;
-	}
+    /**
+     * @param string|null $edit_ended
+     * @return Essay
+     */
+    public function setEditEnded(?string $edit_ended): Essay
+    {
+        $this->edit_ended = $edit_ended;
+        return $this;
+    }
 
-	/**
-	 * @return bool
-	 */
-	public function isIsAuthorized()
-	{
-		return $this->is_authorized;
-	}
+    /**
+     * @return string|null
+     */
+    public function getProcessedText(): ?string
+    {
+        return $this->processed_text;
+    }
 
-	/**
-	 * @param bool $is_authorized
-	 * @return Essay
-	 */
-	public function setIsAuthorized($is_authorized)
-	{
-		$this->is_authorized = $is_authorized;
-		return $this;
-	}
+    /**
+     * @param string|null $processed_text
+     * @return Essay
+     */
+    public function setProcessedText(?string $processed_text): Essay
+    {
+        $this->processed_text = $processed_text;
+        return $this;
+    }
 
-	/**
-	 * @return int
-	 */
-	public function getPdfVersion(): int
-	{
-		return $this->pdf_version;
-	}
+    /**
+     * @return bool
+     */
+    public function isIsAuthorized()
+    {
+        return $this->is_authorized;
+    }
 
-	/**
-	 * @param int $pdf_version
-	 * @return Essay
-	 */
-	public function setPdfVersion(int $pdf_version): Essay
-	{
-		$this->pdf_version = $pdf_version;
-		return $this;
-	}
+    /**
+     * @param bool $is_authorized
+     * @return Essay
+     */
+    public function setIsAuthorized($is_authorized)
+    {
+        $this->is_authorized = $is_authorized;
+        return $this;
+    }
 
-	/**
-	 * @return int
-	 */
-	public function getFinalPoints(): int
-	{
-		return $this->final_points;
-	}
+    /**
+     * @return int
+     */
+    public function getPdfVersion(): int
+    {
+        return $this->pdf_version;
+    }
 
-	/**
-	 * @param int $final_points
-	 * @return Essay
-	 */
-	public function setFinalPoints(int $final_points): Essay
-	{
-		$this->final_points = $final_points;
-		return $this;
-	}
+    /**
+     * @param int $pdf_version
+     * @return Essay
+     */
+    public function setPdfVersion(int $pdf_version): Essay
+    {
+        $this->pdf_version = $pdf_version;
+        return $this;
+    }
 
-	/**
-	 * @return string|null
-	 */
-	public function getFinalGradeLevel(): ?string
-	{
-		return $this->final_grade_level;
-	}
+    /**
+     * @return int
+     */
+    public function getFinalPoints(): int
+    {
+        return $this->final_points;
+    }
 
-	/**
-	 * @param string|null $final_grade_level
-	 * @return Essay
-	 */
-	public function setFinalGradeLevel(?string $final_grade_level): Essay
-	{
-		$this->final_grade_level = $final_grade_level;
-		return $this;
-	}
+    /**
+     * @param int $final_points
+     * @return Essay
+     */
+    public function setFinalPoints(int $final_points): Essay
+    {
+        $this->final_points = $final_points;
+        return $this;
+    }
 
-	public function generateUUID4(): string
-	{
-		return (new UUID())->uuid4AsString();
-	}
+    /**
+     * @return string|null
+     */
+    public function getFinalGradeLevel(): ?string
+    {
+        return $this->final_grade_level;
+    }
+
+    /**
+     * @param string|null $final_grade_level
+     * @return Essay
+     */
+    public function setFinalGradeLevel(?string $final_grade_level): Essay
+    {
+        $this->final_grade_level = $final_grade_level;
+        return $this;
+    }
+
+    public function generateUUID4(): string
+    {
+        return (new UUID())->uuid4AsString();
+    }
+
+    /**
+     * @return int
+     */
+    public function getId(): int
+    {
+        return $this->id;
+    }
+
+    /**
+     * @param int $id
+     * @return Essay
+     */
+    public function setId(int $id): Essay
+    {
+        $this->id = $id;
+        return $this;
+    }
 }

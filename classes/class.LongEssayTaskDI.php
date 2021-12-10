@@ -19,75 +19,85 @@ use ILIAS\Plugin\LongEssayTask\Data\WriterRepository;
  */
 class LongEssayTaskDI
 {
-    protected static LongEssayTaskDI $instance;
+    protected static $instance;
+    protected $object;
+    protected $task;
+    protected $essay;
+    protected $writer;
+    protected $corrector;
+
+
+    protected function __construct()
+    {
+    }
 
     public static function getInstance(): LongEssayTaskDI
     {
 
-        if ( self::$instance === null )
-        {
+        if (self::$instance === null) {
             self::$instance = new self();
         }
 
         return self::$instance;
     }
 
-    protected function __construct(){}
-
-    protected ObjectRepository $object;
-    protected TaskRepository $task;
-	protected EssayRepository $essay;
-	protected WriterRepository $writer;
-	protected CorrectorRepository $corrector;
-
+    /**
+     * @return ObjectRepository
+     */
     public function getObjectRepo(): ObjectRepository
     {
-        if ($this->object === null)
-        {
+        if ($this->object === null) {
             $this->object = new ObjectDatabaseRepository();
         }
 
         return $this->object;
     }
 
+    /**
+     * @return TaskRepository
+     */
     public function getTaskRepo(): TaskRepository
     {
-        if ($this->task === null)
-        {
+        if ($this->task === null) {
             $this->task = new TaskDatabaseRepository();
         }
 
         return $this->task;
     }
 
-	public function getEssayRepo(): EssayRepository
-	{
-		if ($this->essay === null)
-		{
-			$this->essay = new EssayDatabaseRepository();
-		}
+    /**
+     * @return EssayRepository
+     */
+    public function getEssayRepo(): EssayRepository
+    {
+        if ($this->essay === null) {
+            $this->essay = new EssayDatabaseRepository();
+        }
 
-		return $this->essay;
-	}
+        return $this->essay;
+    }
 
+    /**
+     * @return WriterRepository
+     */
     public function getWriterRepo(): WriterRepository
     {
-        if ($this->writer === null)
-        {
+        if ($this->writer === null) {
             $this->writer = new WriterDatabaseRepository();
         }
 
         return $this->writer;
     }
 
+    /**
+     * @return CorrectorRepository
+     */
     public function getCorrectorRepo(): CorrectorRepository
     {
-        if ($this->corrector === null)
-        {
+        if ($this->corrector === null) {
             $this->corrector = new CorrectorDatabaseRepository();
         }
 
         return $this->corrector;
     }
-
 }

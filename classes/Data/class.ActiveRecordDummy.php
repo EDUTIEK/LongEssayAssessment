@@ -79,7 +79,8 @@ class ActiveRecordDummy extends ActivePluginRecord
     /**
      * Dummy save
      */
-    public function save() {
+    public function save()
+    {
         // do nothing
     }
 
@@ -87,31 +88,35 @@ class ActiveRecordDummy extends ActivePluginRecord
      * @param string $value
      * @return string
      */
-    public function getStringDummy($value = ''): string {
-        return (string) $value;
+    public function getStringDummy($value = ''): string
+    {
+        return (string)$value;
     }
 
     /**
      * @param bool $value
      * @return bool
      */
-    public function getBoolDummy($value = false): bool {
-        return (bool) $value;
+    public function getBoolDummy($value = false): bool
+    {
+        return (bool)$value;
     }
 
     /**
      * @param int $value
      * @return int
      */
-    public function getIntegerDummy($value = 0): int {
-        return (int) $value;
+    public function getIntegerDummy($value = 0): int
+    {
+        return (int)$value;
     }
 
 
     /**
      * @param mixed $value
      */
-    public function setMixedDummy($value):void {
+    public function setMixedDummy($value): void
+    {
         // do nothing
     }
 }

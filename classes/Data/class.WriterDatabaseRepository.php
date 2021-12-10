@@ -2,6 +2,7 @@
 
 namespace ILIAS\Plugin\LongEssayTask\Data;
 
+use ilDatabaseException;
 use ILIAS\DI\Exceptions\Exception;
 use ILIAS\Plugin\LongEssayTask\LongEssayTaskDI;
 
@@ -30,15 +31,6 @@ class WriterDatabaseRepository implements WriterRepository
         return null;
     }
 
-    public function getWriterByUserId(int $a_user_id, int $a_task_id): ?Writer
-    {
-        $writer = Writer::where(['user_id' => $a_user_id, 'task_id' => $a_task_id])->get();
-        if (count($writer) > 0) {
-            return $writer[1];
-        }
-        return null;
-    }
-
     public function getWritersByTaskId(int $a_task_id): array
     {
         return Writer::where(['task_id' => $a_task_id])->get();
@@ -47,6 +39,15 @@ class WriterDatabaseRepository implements WriterRepository
     public function ifUserExistsInTasksAsWriter(int $a_user_id, int $a_task_id): bool
     {
         return $this->getWriterByUserId($a_user_id, $a_task_id) != null;
+    }
+
+    public function getWriterByUserId(int $a_user_id, int $a_task_id): ?Writer
+    {
+        $writer = Writer::where(['user_id' => $a_user_id, 'task_id' => $a_task_id])->get();
+        if (count($writer) > 0) {
+            return $writer[1];
+        }
+        return null;
     }
 
     public function getTimeExtensionById(int $a_id): ?TimeExtension
@@ -83,7 +84,9 @@ class WriterDatabaseRepository implements WriterRepository
     }
 
     /**
-     * @throws \ilDatabaseException|Exception
+     * Deletes Writer, TimeExtension, CorrectorAssignment and Essay related datasets by WriterId
+     *
+     * @throws ilDatabaseException|Exception
      */
     public function deleteWriter(int $a_id)
     {
@@ -92,8 +95,8 @@ class WriterDatabaseRepository implements WriterRepository
 
         $db->beginTransaction();
         try {
-            $db->manipulate("DELETE FROM xlet_writer".
-                " WHERE id = ". $db->quote($a_id, "integer"));
+            $db->manipulate("DELETE FROM xlet_writer" .
+                " WHERE id = " . $db->quote($a_id, "integer"));
 
             $this->deleteTimeExtensionByWriterId($a_id);
 
@@ -104,8 +107,7 @@ class WriterDatabaseRepository implements WriterRepository
 
             $essay_repo = $di->getEssayRepo();
             $essay_repo->deleteEssayByWriterId($a_id);
-        }catch (Exception $e)
-        {
+        } catch (Exception $e) {
             $db->rollback();
             throw $e;
         }
@@ -113,17 +115,31 @@ class WriterDatabaseRepository implements WriterRepository
         $db->commit();
     }
 
+    public function deleteTimeExtensionByWriterId(int $a_writer_id)
+    {
+        global $DIC;
+        $db = $DIC->database();
+
+        $db->manipulate("DELETE FROM xlet_time_extension" .
+            " WHERE writer_id = " . $db->quote($a_writer_id, "integer"));
+    }
+
+    /**
+     * Deletes Writer and TimeExtension by Task Id
+     *
+     * @param int $a_task_id
+     */
     public function deleteWriterByTaskId(int $a_task_id)
     {
         global $DIC;
         $db = $DIC->database();
 
-        $db->manipulate("DELETE FROM xlet_writer".
-            " WHERE task_id = ". $db->quote($a_task_id, "integer"));
+        $db->manipulate("DELETE FROM xlet_writer" .
+            " WHERE task_id = " . $db->quote($a_task_id, "integer"));
 
         $db->manipulate("DELETE xlet_time_extension FROM xlet_time_extension AS te"
             . " LEFT JOIN xlet_writer AS writer ON (te.writer_id = writer.id)"
-            . " WHERE writer.task_id = ".$db->quote($a_task_id, "integer"));
+            . " WHERE writer.task_id = " . $db->quote($a_task_id, "integer"));
     }
 
     public function deleteTimeExtension(int $a_writer_id, int $a_task_id)
@@ -131,8 +147,8 @@ class WriterDatabaseRepository implements WriterRepository
         global $DIC;
         $db = $DIC->database();
 
-        $db->manipulate("DELETE FROM xlet_time_extension".
-            " WHERE writer_id = ". $db->quote($a_writer_id, "integer") .
+        $db->manipulate("DELETE FROM xlet_time_extension" .
+            " WHERE writer_id = " . $db->quote($a_writer_id, "integer") .
             " AND task_id = " . $db->quote($a_task_id, "integer"));
     }
 
@@ -141,16 +157,7 @@ class WriterDatabaseRepository implements WriterRepository
         global $DIC;
         $db = $DIC->database();
 
-        $db->manipulate("DELETE FROM xlet_time_extension".
-            " WHERE task_id = ". $db->quote($a_task_id, "integer"));
-    }
-
-    public function deleteTimeExtensionByWriterId(int $a_writer_id)
-    {
-        global $DIC;
-        $db = $DIC->database();
-
-        $db->manipulate("DELETE FROM xlet_time_extension".
-            " WHERE writer_id = ". $db->quote($a_writer_id, "integer"));
+        $db->manipulate("DELETE FROM xlet_time_extension" .
+            " WHERE task_id = " . $db->quote($a_task_id, "integer"));
     }
 }

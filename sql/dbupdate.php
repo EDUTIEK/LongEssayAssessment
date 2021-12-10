@@ -970,7 +970,14 @@ if (!$ilDB->tableColumnExists('xlet_essay','task_id')) {
         'type' => 'integer',
         'length' => '4',
     ]);
-    $ilDB->addIndex("xlet_essay", array("task_id"), "i2");
+    $ilDB->addIndex("xlet_essay", array("task_id"), "i3");
 }
 
+?>
+<#27>
+<?php
+
+if ($ilDB->tableColumnExists('xlet_access_token','task_id')) {
+    $ilDB->renameTableColumn('xlet_access_token', 'task_id', 'essay_id');
+}
 ?>

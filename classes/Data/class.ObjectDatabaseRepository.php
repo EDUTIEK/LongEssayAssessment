@@ -2,7 +2,7 @@
 
 namespace ILIAS\Plugin\LongEssayTask\Data;
 
-use ILIAS\DI\Exceptions\Exception;
+use Exception;
 use ILIAS\Plugin\LongEssayTask\LongEssayTaskDI;
 
 /**
@@ -10,7 +10,6 @@ use ILIAS\Plugin\LongEssayTask\LongEssayTaskDI;
  */
 class ObjectDatabaseRepository implements ObjectRepository
 {
-
     public function createObject(ObjectSettings $a_object_settings, PluginConfig $a_plugin_config)
     {
         $a_object_settings->create();
@@ -113,34 +112,25 @@ class ObjectDatabaseRepository implements ObjectRepository
         global $DIC;
         $db = $DIC->database();
 
-        $db->beginTransaction();
-        try {
-            $db->manipulate("DELETE FROM xlet_object_settings" .
-                " WHERE obj_id = " . $db->quote($a_id, "integer"));
+        $db->manipulate("DELETE FROM xlet_object_settings" .
+            " WHERE obj_id = " . $db->quote($a_id, "integer"));
 
-            $db->manipulate("DELETE FROM xlet_plugin_config" .
-                " WHERE id = " . $db->quote($a_id, "integer"));
+        $db->manipulate("DELETE FROM xlet_plugin_config" .
+            " WHERE id = " . $db->quote($a_id, "integer"));
 
-            $this->deleteGradeLevelByObjectId($a_id);
-            $this->deleteRatingCriterionByObjectId($a_id);
+        $this->deleteGradeLevelByObjectId($a_id);
+        $this->deleteRatingCriterionByObjectId($a_id);
 
-            $di = LongEssayTaskDI::getInstance();
+        $di = LongEssayTaskDI::getInstance();
 
-            $corrector_repo = $di->getCorrectorRepo();
-            $corrector_repo->deleteCorrectorByTask($a_id);
+        $corrector_repo = $di->getCorrectorRepo();
+        $corrector_repo->deleteCorrectorByTask($a_id);
 
-            $writer_repo = $di->getWriterRepo();
-            $writer_repo->deleteWriterByTaskId($a_id);
+        $writer_repo = $di->getWriterRepo();
+        $writer_repo->deleteWriterByTaskId($a_id);
 
-            $task_repo = $di->getTaskRepo();
-            $task_repo->deleteTaskByObjectId($a_id);
-        } catch (Exception $e) {
-            $db->rollback();
-            throw $e;
-        }
-
-        $db->commit();
-
+        $task_repo = $di->getTaskRepo();
+        $task_repo->deleteTaskByObjectId($a_id);
     }
 
     public function deleteGradeLevelByObjectId(int $a_object_id)

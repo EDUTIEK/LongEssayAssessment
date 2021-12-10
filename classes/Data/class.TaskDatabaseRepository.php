@@ -2,8 +2,8 @@
 
 namespace ILIAS\Plugin\LongEssayTask\Data;
 
+use Exception;
 use ilDatabaseException;
-use ILIAS\DI\Exceptions\Exception;
 use ILIAS\Plugin\LongEssayTask\LongEssayTaskDI;
 
 /**
@@ -126,29 +126,21 @@ class TaskDatabaseRepository implements TaskRepository
         global $DIC;
         $db = $DIC->database();
 
-        $db->beginTransaction();
-        try {
-            $db->manipulate("DELETE FROM xlet_task_settings" .
-                " WHERE task_id = " . $db->quote($a_id, "integer"));
-            $db->manipulate("DELETE FROM xlet_editor_settings" .
-                " WHERE task_id = " . $db->quote($a_id, "integer"));
-            $db->manipulate("DELETE FROM xlet_corr_setting" .
-                " WHERE task_id = " . $db->quote($a_id, "integer"));
+        $db->manipulate("DELETE FROM xlet_task_settings" .
+            " WHERE task_id = " . $db->quote($a_id, "integer"));
+        $db->manipulate("DELETE FROM xlet_editor_settings" .
+            " WHERE task_id = " . $db->quote($a_id, "integer"));
+        $db->manipulate("DELETE FROM xlet_corr_setting" .
+            " WHERE task_id = " . $db->quote($a_id, "integer"));
 
-            $this->deleteAlertByTaskId($a_id);
-            $this->deleteWriterNoticeByTaskId($a_id);
+        $this->deleteAlertByTaskId($a_id);
+        $this->deleteWriterNoticeByTaskId($a_id);
 
-            $di = LongEssayTaskDI::getInstance();
+        $di = LongEssayTaskDI::getInstance();
 
-            $essay_repo = $di->getEssayRepo();
-            $essay_repo->deleteEssayByTaskId($a_id);
+        $essay_repo = $di->getEssayRepo();
+        $essay_repo->deleteEssayByTaskId($a_id);
 
-        } catch (Exception $e) {
-            $db->rollback();
-            throw $e;
-        }
-
-        $db->commit();
     }
 
     public function deleteAlertByTaskId(int $a_task_id)

@@ -3,7 +3,7 @@
 namespace ILIAS\Plugin\LongEssayTask\Data;
 
 use ilDatabaseException;
-use ILIAS\DI\Exceptions\Exception;
+use Exception;
 use ILIAS\Plugin\LongEssayTask\LongEssayTaskDI;
 
 /**
@@ -93,26 +93,19 @@ class WriterDatabaseRepository implements WriterRepository
         global $DIC;
         $db = $DIC->database();
 
-        $db->beginTransaction();
-        try {
-            $db->manipulate("DELETE FROM xlet_writer" .
-                " WHERE id = " . $db->quote($a_id, "integer"));
+        $db->manipulate("DELETE FROM xlet_writer" .
+            " WHERE id = " . $db->quote($a_id, "integer"));
 
-            $this->deleteTimeExtensionByWriterId($a_id);
+        $this->deleteTimeExtensionByWriterId($a_id);
 
-            $di = LongEssayTaskDI::getInstance();
+        $di = LongEssayTaskDI::getInstance();
 
-            $corrector_repo = $di->getCorrectorRepo();
-            $corrector_repo->deleteCorrectorAssignmentByWriter($a_id);
+        $corrector_repo = $di->getCorrectorRepo();
+        $corrector_repo->deleteCorrectorAssignmentByWriter($a_id);
 
-            $essay_repo = $di->getEssayRepo();
-            $essay_repo->deleteEssayByWriterId($a_id);
-        } catch (Exception $e) {
-            $db->rollback();
-            throw $e;
-        }
+        $essay_repo = $di->getEssayRepo();
+        $essay_repo->deleteEssayByWriterId($a_id);
 
-        $db->commit();
     }
 
     public function deleteTimeExtensionByWriterId(int $a_writer_id)

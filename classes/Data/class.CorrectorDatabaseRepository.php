@@ -3,7 +3,7 @@
 namespace ILIAS\Plugin\LongEssayTask\Data;
 
 use ilDatabaseException;
-use ILIAS\DI\Exceptions\Exception;
+use Exception;
 use ILIAS\Plugin\LongEssayTask\LongEssayTaskDI;
 
 /**
@@ -106,26 +106,16 @@ class CorrectorDatabaseRepository implements CorrectorRepository
         global $DIC;
         $db = $DIC->database();
 
-        $db->beginTransaction();
-        try {
-            $db->manipulate("DELETE FROM xlet_corrector" .
-                " WHERE id = " . $db->quote($a_id, "integer"));
+        $db->manipulate("DELETE FROM xlet_corrector" .
+            " WHERE id = " . $db->quote($a_id, "integer"));
 
-            $this->deleteCorrectorAssignmentByCorrector($a_id);
-            $di = LongEssayTaskDI::getInstance();
+        $this->deleteCorrectorAssignmentByCorrector($a_id);
+        $di = LongEssayTaskDI::getInstance();
 
-            $essay_repo = $di->getEssayRepo();
-            $essay_repo->deleteAccessTokenByCorrectorId($a_id);
-            $essay_repo->deleteCorrectorCommentByCorrectorId($a_id);
-            $essay_repo->deleteCorrectorSummaryByCorrectorId($a_id);
-
-        } catch (Exception $e) {
-            $db->rollback();
-            throw $e;
-        }
-
-        $db->commit();
-
+        $essay_repo = $di->getEssayRepo();
+        $essay_repo->deleteAccessTokenByCorrectorId($a_id);
+        $essay_repo->deleteCorrectorCommentByCorrectorId($a_id);
+        $essay_repo->deleteCorrectorSummaryByCorrectorId($a_id);
     }
 
     public function deleteCorrectorAssignmentByCorrector(int $a_corrector_id)

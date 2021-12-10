@@ -2,7 +2,7 @@
 
 namespace ILIAS\Plugin\LongEssayTask\Data;
 
-use ILIAS\DI\Exceptions\Exception;
+use Exception;
 
 /**
  * @author Fabian Wolf <wolf@ilias.de>
@@ -94,32 +94,22 @@ class EssayDatabaseRepository implements EssayRepository
         global $DIC;
         $db = $DIC->database();
 
-        $db->beginTransaction();
-        try {
+        $db->manipulate("DELETE FROM xlet_essay" .
+            " WHERE id = " . $db->quote($a_id, "integer"));
 
-            $db->manipulate("DELETE FROM xlet_essay" .
-                " WHERE id = " . $db->quote($a_id, "integer"));
+        $db->manipulate("DELETE FROM xlet_access_token" .
+            " WHERE essay_id = " . $db->quote($a_id, "integer"));
+        $db->manipulate("DELETE FROM xlet_corrector_summary" .
+            " WHERE essay_id = " . $db->quote($a_id, "integer"));
+        $db->manipulate("DELETE FROM xlet_corrector_comment" .
+            " WHERE essay_id = " . $db->quote($a_id, "integer"));
 
-            $db->manipulate("DELETE FROM xlet_access_token" .
-                " WHERE essay_id = " . $db->quote($a_id, "integer"));
-            $db->manipulate("DELETE FROM xlet_corrector_summary" .
-                " WHERE essay_id = " . $db->quote($a_id, "integer"));
-            $db->manipulate("DELETE FROM xlet_corrector_comment" .
-                " WHERE essay_id = " . $db->quote($a_id, "integer"));
+        $db->manipulate("DELETE xlet_crit_points FROM xlet_crit_points AS cp"
+            . " LEFT JOIN xlet_corrector_comment AS cc ON (cp.corr_comment_id = cc.id)"
+            . " WHERE cc.essay_id = " . $db->quote($a_id, "integer"));
 
-            $db->manipulate("DELETE xlet_crit_points FROM xlet_crit_points AS cp"
-                . " LEFT JOIN xlet_corrector_comment AS cc ON (cp.corr_comment_id = cc.id)"
-                . " WHERE cc.essay_id = " . $db->quote($a_id, "integer"));
-
-            $db->manipulate("DELETE FROM xlet_writer_history" .
-                " WHERE essay_id = " . $db->quote($a_id, "integer"));
-
-        } catch (Exception $e) {
-            $db->rollback();
-            throw $e;
-        }
-
-        $db->commit();
+        $db->manipulate("DELETE FROM xlet_writer_history" .
+            " WHERE essay_id = " . $db->quote($a_id, "integer"));
     }
 
     public function deleteEssayByTaskId(int $a_task_id)

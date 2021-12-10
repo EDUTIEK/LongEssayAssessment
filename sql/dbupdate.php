@@ -957,3 +957,20 @@ if (! $ilDB->tableExists('xlet_crit_points')) {
 
 }
 ?>
+<#26>
+<?php
+if(!$ilDB->indexExistsByFields("xlet_essay", array("writer_id")))
+{
+    $ilDB->addIndex("xlet_essay", array("writer_id"), "i2");
+}
+
+if (!$ilDB->tableColumnExists('xlet_essay','task_id')) {
+    $ilDB->addTableColumn('xlet_essay','task_id', [
+        'notnull' => '1',
+        'type' => 'integer',
+        'length' => '4',
+    ]);
+    $ilDB->addIndex("xlet_essay", array("task_id"), "i2");
+}
+
+?>

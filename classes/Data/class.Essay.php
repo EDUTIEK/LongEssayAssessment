@@ -11,7 +11,6 @@ use ILIAS\Data\UUID\Factory as UUID;
 class Essay extends ActivePluginRecord
 {
 
-// TODO: Essay mit identifier oder nur UUID?
     /**
      * @var string
      */
@@ -54,6 +53,18 @@ class Essay extends ActivePluginRecord
      */
     protected $writer_id;
 
+    /**
+     * The task id
+     *
+     * @var integer
+     * @con_has_field        true
+     * @con_is_primary       false
+     * @con_sequence         false
+     * @con_is_notnull       true
+     * @con_fieldtype        integer
+     * @con_length           4
+     */
+    protected $task_id;
 
     /**
      * Written Text (richtext)
@@ -176,6 +187,24 @@ class Essay extends ActivePluginRecord
     public function setUuid(string $uuid): Essay
     {
         $this->uuid = $uuid;
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getTaskId(): int
+    {
+        return $this->task_id;
+    }
+
+    /**
+     * @param int $task_id
+     * @return Essay
+     */
+    public function setTaskId(int $task_id): Essay
+    {
+        $this->task_id = $task_id;
         return $this;
     }
 

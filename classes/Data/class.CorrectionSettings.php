@@ -40,7 +40,7 @@ class CorrectionSettings extends ActivePluginRecord
      * @con_fieldtype        integer
      * @con_length           4
      */
-    protected $required_correctors;
+    protected $required_correctors = 0;
 
     /**
      * mutual visibility
@@ -53,7 +53,7 @@ class CorrectionSettings extends ActivePluginRecord
      * @con_fieldtype        text
      * @con_length           50
      */
-    protected $mutual_visibility;
+    protected $mutual_visibility = "";
 
     /**
      * multi color highlight
@@ -66,7 +66,7 @@ class CorrectionSettings extends ActivePluginRecord
      * @con_fieldtype        integer
      * @con_length           4
      */
-    protected $multi_color_highlight;
+    protected $multi_color_highlight = 1;
 
     /**
      * max points
@@ -79,7 +79,7 @@ class CorrectionSettings extends ActivePluginRecord
      * @con_fieldtype        integer
      * @con_length           4
      */
-    protected $max_points;
+    protected $max_points = 0;
 
     /**
      * @return int

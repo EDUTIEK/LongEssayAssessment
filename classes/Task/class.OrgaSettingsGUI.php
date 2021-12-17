@@ -6,6 +6,7 @@ namespace ILIAS\Plugin\LongEssayTask\Task;
 use ILIAS\Plugin\LongEssayTask\BaseGUI;
 use ILIAS\Plugin\LongEssayTask\Data\ObjectSettings;
 use ILIAS\Plugin\LongEssayTask\Data\TaskSettings;
+use ILIAS\Plugin\LongEssayTask\LongEssayTaskDI;
 use \ilUtil;
 
 /**
@@ -40,8 +41,73 @@ class OrgaSettingsGUI extends BaseGUI
      */
     protected function editSettings()
     {
-        $taskSettings = TaskSettings::findOrGetInstance($this->object->getId());
+        $di = LongEssayTaskDI::getInstance();
+        $task_repo = $di->getTaskRepo();
+        $taskSettings = $task_repo->getTaskSettingsById($this->object->getId());
 
+        $form = $this->buildTaskSettings($taskSettings);
+
+        // apply inputs
+        if ($this->request->getMethod() == "POST") {
+            $form = $form->withRequest($this->request);
+            $data = $form->getData();
+            $result = $form->getInputGroup()->getContent();
+
+            if ($result->isOK()) {
+                $this->updateTaskSettings($data, $taskSettings);
+
+                ilUtil::sendSuccess($this->lng->txt("settings_saved"), true);
+                $this->ctrl->redirect($this, "editSettings");
+            }elseif (!$result->isOK()) {
+                // TODO: Add or search lang var
+                ilUtil::sendFailure($this->lng->txt("validation_error"), true);
+            }
+        }
+        $this->tpl->setContent($this->renderer->render($form));
+    }
+
+    /**
+     * Update TaskSettings
+     *
+     * @param array $a_data
+     * @param TaskSettings $a_task_settings
+     * @return void
+     */
+    protected function updateTaskSettings(array $a_data, TaskSettings $a_task_settings)
+    {
+        $di = LongEssayTaskDI::getInstance();
+        $task_repo = $di->getTaskRepo();
+
+        $this->object->setTitle($a_data['object']['title']);
+        $this->object->setDescription($a_data['object']['description']);
+        $this->object->setOnline($a_data['object']['online']);
+        $this->object->setParticipationType($a_data['object']['participation_type']);
+        $this->object->update();
+
+        $date = $a_data['task']['writing_start'];
+        $a_task_settings->setWritingStart($date instanceof \DateTimeInterface ? $date->format('Y-m-d H:i:s') : null);
+        $date = $a_data['task']['writing_end'];
+        $a_task_settings->setWritingEnd($date instanceof \DateTimeInterface ? $date->format('Y-m-d H:i:s') : null);
+        $date = $a_data['task']['correction_start'];
+        $a_task_settings->setCorrectionStart($date instanceof \DateTimeInterface ? $date->format('Y-m-d H:i:s') : null);
+        $date = $a_data['task']['correction_end'];
+        $a_task_settings->setCorrectionEnd($date instanceof \DateTimeInterface ? $date->format('Y-m-d H:i:s') : null);
+        $date = $a_data['task']['review_start'];
+        $a_task_settings->setReviewStart($date instanceof \DateTimeInterface ? $date->format('Y-m-d H:i:s') : null);
+        $date = $a_data['task']['review_end'];
+        $a_task_settings->setReviewEnd($date instanceof \DateTimeInterface ? $date->format('Y-m-d H:i:s') : null);
+
+        $task_repo->updateTaskSettings($a_task_settings);
+    }
+
+    /**
+     * Build TaskSettings Form
+     *
+     * @param TaskSettings $taskSettings
+     * @return \ILIAS\UI\Component\Input\Container\Form\Standard
+     */
+    protected function buildTaskSettings(TaskSettings $taskSettings): \ILIAS\UI\Component\Input\Container\Form\Standard
+    {
         $factory = $this->uiFactory->input()->field();
 
         $sections = [];
@@ -71,6 +137,7 @@ class OrgaSettingsGUI extends BaseGUI
 
         // Task
         $fields = [];
+
         $fields['writing_start'] = $factory->dateTime($this->plugin->txt("writing_start"))
             ->withUseTime(true)
             ->withValue((string) $taskSettings->getWritingStart());
@@ -96,41 +163,6 @@ class OrgaSettingsGUI extends BaseGUI
             ->withValue((string) $taskSettings->getReviewEnd());
 
         $sections['task'] = $factory->section($fields, $this->plugin->txt('task_settings'));
-
-        $form = $this->uiFactory->input()->container()->form()->standard($this->ctrl->getFormAction($this), $sections);
-
-        // apply inputs
-        if ($this->request->getMethod() == "POST") {
-            $form = $form->withRequest($this->request);
-            $data = $form->getData();
-        }
-
-        // inputs are ok => save data
-        if (isset($data)) {
-            $this->object->setTitle($data['object']['title']);
-            $this->object->setDescription($data['object']['description']);
-            $this->object->setOnline($data['object']['online']);
-            $this->object->setParticipationType($data['object']['participation_type']);
-            $this->object->update();
-
-            $date = $data['task']['writing_start'];
-            $taskSettings->setWritingStart($date instanceof \DateTimeInterface ? $date->format('Y-m-d H:i:s') : null);
-            $date = $data['task']['writing_end'];
-            $taskSettings->setWritingEnd($date instanceof \DateTimeInterface ? $date->format('Y-m-d H:i:s') : null);
-            $date = $data['task']['correction_start'];
-            $taskSettings->setCorrectionStart($date instanceof \DateTimeInterface ? $date->format('Y-m-d H:i:s') : null);
-            $date = $data['task']['correction_end'];
-            $taskSettings->setCorrectionEnd($date instanceof \DateTimeInterface ? $date->format('Y-m-d H:i:s') : null);
-            $date = $data['task']['review_start'];
-            $taskSettings->setReviewStart($date instanceof \DateTimeInterface ? $date->format('Y-m-d H:i:s') : null);
-            $date = $data['task']['review_end'];
-            $taskSettings->setReviewEnd($date instanceof \DateTimeInterface ? $date->format('Y-m-d H:i:s') : null);
-            $taskSettings->save();
-
-            ilUtil::sendSuccess($this->lng->txt("settings_saved"), true);
-            $this->ctrl->redirect($this, "editSettings");
-        }
-
-        $this->tpl->setContent($this->renderer->render($form));
+        return $this->uiFactory->input()->container()->form()->standard($this->ctrl->getFormAction($this), $sections);
     }
 }

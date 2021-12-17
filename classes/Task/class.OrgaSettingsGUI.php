@@ -58,7 +58,7 @@ class OrgaSettingsGUI extends BaseGUI
 
                 ilUtil::sendSuccess($this->lng->txt("settings_saved"), true);
                 $this->ctrl->redirect($this, "editSettings");
-            }elseif (!$result->isOK()) {
+            }else{
                 // TODO: Add or search lang var
                 ilUtil::sendFailure($this->lng->txt("validation_error"), true);
             }

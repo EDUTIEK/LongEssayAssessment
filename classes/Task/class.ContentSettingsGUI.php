@@ -4,7 +4,9 @@
 namespace ILIAS\Plugin\LongEssayTask\Task;
 
 use ILIAS\Plugin\LongEssayTask\BaseGUI;
+use ILIAS\Plugin\LongEssayTask\Data\ObjectSettings;
 use ILIAS\Plugin\LongEssayTask\Data\TaskSettings;
+use ILIAS\Plugin\LongEssayTask\LongEssayTaskDI;
 use \ilUtil;
 
 /**
@@ -40,8 +42,58 @@ class ContentSettingsGUI extends BaseGUI
      */
     protected function editSettings()
     {
-        $taskSettings = TaskSettings::findOrGetInstance($this->object->getId());
+        $di = LongEssayTaskDI::getInstance();
+        $task_repo = $di->getTaskRepo();
+        $taskSettings = $task_repo->getTaskSettingsById($this->object->getId());
 
+        $form = $this->buildTaskSettings($taskSettings);
+
+        // save posted form inputs
+        if ($this->request->getMethod() == "POST") {
+
+            if ($form->checkInput()) {
+                $form->setValuesByPost();
+
+                $this->updateContentSettings($_POST, $taskSettings);
+
+                ilUtil::sendSuccess($this->lng->txt("settings_saved"), true);
+                $this->ctrl->redirect($this, "editSettings");
+            }else{
+                // TODO: Add or search lang var
+                ilUtil::sendFailure($this->lng->txt("validation_error"), true);
+            }
+        }
+
+        $this->tpl->setContent($form->getHTML());
+    }
+
+    /**
+     * Update ContentSettings
+     *
+     * @param array $a_data
+     * @param TaskSettings $a_task_settings
+     * @return void
+     */
+    protected function updateContentSettings(array $a_data, TaskSettings $a_task_settings)
+    {
+        $di = LongEssayTaskDI::getInstance();
+        $task_repo = $di->getTaskRepo();
+
+        $a_task_settings->setDescription($a_data["task_description"]);
+        $a_task_settings->setInstructions($a_data["task_instructions"]);
+        $a_task_settings->setSolution($a_data["task_solution"]);
+
+        $task_repo->updateTaskSettings($a_task_settings);
+    }
+
+    /**
+     * Build TaskSettings Form
+     *
+     * @param TaskSettings $taskSettings
+     * @return \ilPropertyFormGUI
+     */
+    protected function buildTaskSettings(TaskSettings $taskSettings): \ilPropertyFormGUI
+    {
         $form = new \ilPropertyFormGUI();
 
         $item = new \ilTextAreaInputGUI($this->plugin->txt("task_description"), 'task_description');
@@ -69,30 +121,6 @@ class ContentSettingsGUI extends BaseGUI
         $form->setFormAction($this->ctrl->getFormAction($this));
         $form->setTitle($this->plugin->txt('task_definition'));
         $form->addCommandButton('editSettings', $this->lng->txt('save'));
-
-        // save posted form inputs
-        if ($this->request->getMethod() == "POST") {
-
-            if ($form->checkInput()) {
-                $form->setValuesByPost();
-
-                /** @var \ilTextAreaInputGUI $item */
-                $item = $form->getItemByPostVar('task_description');
-                $taskSettings->setDescription($item->getValue());
-
-                $item = $form->getItemByPostVar('task_instructions');
-                $taskSettings->setInstructions($item->getValue());
-
-                $item = $form->getItemByPostVar('task_solution');
-                $taskSettings->setSolution($item->getValue());
-
-                $taskSettings->save();
-
-                ilUtil::sendSuccess($this->lng->txt("settings_saved"), true);
-                $this->ctrl->redirect($this, "editSettings");
-            }
-        }
-
-        $this->tpl->setContent($form->getHTML());
+        return $form;
     }
 }

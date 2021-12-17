@@ -981,3 +981,64 @@ if ($ilDB->tableColumnExists('xlet_access_token','task_id')) {
     $ilDB->renameTableColumn('xlet_access_token', 'task_id', 'essay_id');
 }
 ?>
+<#28>
+<?php
+$fields = array(
+    'id' => array(
+        'notnull' => '1',
+        'type' => 'integer',
+        'length' => '4',
+
+    ),
+    'task_id' => array(
+        'notnull' => '1',
+        'type' => 'integer',
+        'length' => '4',
+
+    ),
+    'title' => array(
+        'notnull' => '1',
+        'type' => 'text',
+        'length' => '255',
+
+    ),
+    'description' => array(
+        'type' => 'clob',
+
+    ),
+    'file_id' => array(
+        'type' => 'integer',
+        'length' => '4',
+
+    ),
+    'url' => array(
+        'notnull' => '1',
+        'type' => 'text',
+        'length' => '4000',
+
+    ),
+    'type' => array(
+        'notnull' => '1',
+        'type' => 'text',
+        'length' => '10',
+
+    ),
+    'availability' => array(
+        'notnull' => '1',
+        'type' => 'text',
+        'length' => '10',
+
+    ),
+
+);
+if (! $ilDB->tableExists('xlet_resource')) {
+    $ilDB->createTable('xlet_resource', $fields);
+    $ilDB->addPrimaryKey('xlet_resource', array( 'task_id' ));
+    $ilDB->addIndex("xlet_resource", array("task_id"), "i1");
+
+    if (! $ilDB->sequenceExists('xlet_resource')) {
+        $ilDB->createSequence('xlet_resource');
+    }
+
+}
+?>

@@ -115,7 +115,7 @@ class TaskDatabaseRepository implements TaskRepository
     }
 
     /**
-     * Deletes TaskSettings, EditorSettings, CorrectionSettings, Alerts, WriterNotices and Essay related datasets by Task ID
+     * Deletes TaskSettings, EditorSettings, CorrectionSettings, Resources, Alerts, WriterNotices and Essay related datasets by Task ID
      *
      * @param int $a_id
      * @throws Exception
@@ -135,6 +135,7 @@ class TaskDatabaseRepository implements TaskRepository
 
         $this->deleteAlertByTaskId($a_id);
         $this->deleteWriterNoticeByTaskId($a_id);
+        $this->deleteResourceByTaskId($a_id);
 
         $di = LongEssayTaskDI::getInstance();
 
@@ -198,5 +199,52 @@ class TaskDatabaseRepository implements TaskRepository
 
         $this->deleteAlertByTaskId($a_object_id);
         $this->deleteWriterNoticeByTaskId($a_object_id);
+    }
+
+    public function createResource(Resource $a_resource)
+    {
+        $a_resource->create();
+    }
+
+    public function getResourceById(int $a_id): ?Resource
+    {
+        $resource = Resource::findOrGetInstance($a_id);
+        if ($resource != null) {
+            return $resource;
+        }
+        return null;
+    }
+
+    public function getResourceByTaskId(int $a_task_id): array
+    {
+        return Resource::where(['task_id' => $a_task_id])->get();
+    }
+
+    public function ifResourceExistsById(int $a_id): bool
+    {
+        return $this->getResourceById($a_id) != null;
+    }
+
+    public function updateResource(Resource $a_resource)
+    {
+        $a_resource->update();
+    }
+
+    public function deleteResource(int $a_id)
+    {
+        global $DIC;
+        $db = $DIC->database();
+
+        $db->manipulate("DELETE FROM xlet_resource" .
+            " WHERE id = " . $db->quote($a_id, "integer"));
+    }
+
+    public function deleteResourceByTaskId(int $a_task_id)
+    {
+        global $DIC;
+        $db = $DIC->database();
+
+        $db->manipulate("DELETE FROM xlet_resource" .
+            " WHERE task_id = " . $DIC->database()->quote($a_task_id, "integer"));
     }
 }

@@ -1,29 +1,33 @@
 <?php
 
-
 namespace ILIAS\Plugin\LongEssayTask\Writer;
+
+use Edutiek\LongEssayService\Base\BaseContext;
 use Edutiek\LongEssayService\Data\ApiToken;
+use Edutiek\LongEssayService\Exceptions\ContextException;
 use Edutiek\LongEssayService\Writer\Context;
 use Edutiek\LongEssayService\Writer\Service;
+use ilContext;
 use ILIAS\DI\Container;
 use ILIAS\Plugin\LongEssayTask\Data\AccessToken;
-use ILIAS\Plugin\LongEssayTask\Data\Essay;
 use ILIAS\Plugin\LongEssayTask\LongEssayTaskDI;
+use \ilObjUser;
+use \ilObject;
+use \ilObjLongEssayTask;
 
 class WriterContext implements Context
 {
     /** @var \ilLongEssayTaskPlugin */
     protected $plugin;
 
-    protected $user_id;
-    protected $ref_id;
-    protected $task_id;
-
     /** @var LongEssayTaskDI */
     protected $di;
 
-    /** @var Essay */
-    protected $essay;
+    /** @var ilObjLongEssayTask */
+    protected $object;
+
+    /** @var ilObjUser */
+    protected $user;
 
     /**
      * @inheritDoc
@@ -31,34 +35,42 @@ class WriterContext implements Context
     function __construct()
     {
         $this->plugin = \ilLongEssayTaskPlugin::getInstance();
+        $this->di = LongEssayTaskDI::getInstance();
     }
 
     /**
      * @inheritDoc
      * here: use string versions of the user id and ref_id of the repository object
      */
-    public function init(string $user_key, string $environment_key): bool
+    public function init(string $user_key, string $environment_key): void
     {
-        /** @var Container */
-        global $DIC;
+        $user_id = (int) $user_key;
+        $ref_id = (int) $environment_key;
 
-
-        // fix for missing ilUser in REST calls
-        if (!$DIC->offsetExists('ilUser')) {
-            $ilUser = new \ilObjUser(ANONYMOUS_USER_ID);
-            $DIC['ilUser'] = function ($c) use($ilUser) {
-                return $ilUser;
-            };
+        if (!ilObject::_exists($user_id, false, 'usr')) {
+            throw new ContextException('User does not exist', ContextException::USER_NOT_VALID);
+        }
+        if (!ilObject::_exists($ref_id, true, 'xlet')) {
+            throw new ContextException('Object does not exist', ContextException::ENVIRONMENT_NOT_VALID);
+        }
+        if (ilObject::_isInTrash($ref_id)) {
+            throw new ContextException('Object is deleted', ContextException::ENVIRONMENT_NOT_VALID);
         }
 
-        $this->user_id = (int) $user_key;
-        $this->ref_id = (int) $environment_key;
-        $this->di = LongEssayTaskDI::getInstance();
+        $this->user = new ilObjUser($user_id);
 
-        $task_id = \ilObject::_lookupObjectId($this->ref_id);
-        $this->essay = $this->di->getEssayRepo()->getEssayByWriterIdAndTaskId($this->user_id, $task_id);
+        if (ilContext::getType() == ilContext::CONTEXT_REST) {
+            \ilLongEssayTaskRestInit::initRestUser($this->user);
+        }
 
-        return isset($this->essay);
+        $this->object = new ilObjLongEssayTask($ref_id);
+
+        if (!$this->object->isOnline()) {
+            throw new ContextException('Object is offline', ContextException::ENVIRONMENT_NOT_VALID);
+        }
+        if (!$this->object->canViewWriterScreen()) {
+            throw new ContextException('Writer not permitted', ContextException::PERMISSION_DENIED);
+        }
     }
 
     /**
@@ -87,7 +99,8 @@ class WriterContext implements Context
     public function getBackendUrl(): string
     {
         return  ILIAS_HTTP_PATH
-            . "/Customizing/global/plugins/Services/Repository/RepositoryObject/LongEssayTask/writer_service.php";
+            . "/Customizing/global/plugins/Services/Repository/RepositoryObject/LongEssayTask/writer_service.php"
+            . "?client_id=" . CLIENT_ID;
     }
 
     /**
@@ -97,7 +110,7 @@ class WriterContext implements Context
      */
     public function getReturnUrl(): string
     {
-        return \ilLink::_getStaticLink($this->ref_id);
+        return \ilLink::_getStaticLink($this->object->getRefId());
     }
 
     /**
@@ -106,7 +119,7 @@ class WriterContext implements Context
      */
     public function getUserKey(): string
     {
-        return (string) $this->user_id;
+        return (string) $this->user->getId();
     }
 
     /**
@@ -115,7 +128,7 @@ class WriterContext implements Context
      */
     public function getEnvironmentKey(): string
     {
-        return (string) $this->ref_id;
+        return (string) $this->object->getRefId();
     }
 
     /**
@@ -132,7 +145,7 @@ class WriterContext implements Context
     public function getApiToken(): ?ApiToken
     {
         $repo = $this->di->getEssayRepo();
-        $token = $repo->getAccessTokenByUserIdAndEssayId($this->user_id, $this->essay->getId());
+        $token = $repo->getAccessTokenByUserIdAndTaskId($this->user->getId(), $this->object->getId());
         if (isset($token)) {
             try {
                 $valid = new \ilDateTime($token->getValidUntil(), IL_CAL_DATETIME);
@@ -152,15 +165,15 @@ class WriterContext implements Context
     {
         // delete an existing token
         $repo = $this->di->getEssayRepo();
-        $token = $repo->getAccessTokenByUserIdAndEssayId($this->user_id, $this->essay->getId());
+        $token = $repo->getAccessTokenByUserIdAndTaskId($this->user->getId(), $this->object->getId());
         if (isset($token)) {
             $repo->deleteAccessToken($token->getId());
         }
 
         // save the new token
         $token = new AccessToken();
-        $token->setUserId($this->user_id);
-        $token->setEssayId($this->essay->getId());
+        $token->setUserId($this->user->getId());
+        $token->setTaskId($this->object->getId());
         try {
             $valid = new \ilDateTime($api_token->getExpires(), IL_CAL_UNIX);
         }

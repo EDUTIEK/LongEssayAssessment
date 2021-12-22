@@ -72,9 +72,9 @@ class EssayDatabaseRepository implements EssayRepository
         return null;
     }
 
-    public function getAccessTokenByUserIdAndEssayId(int $a_user_id, int $a_essay_id): ?AccessToken
+    public function getAccessTokenByUserIdAndTaskId(int $a_user_id, int $a_task_id): ?AccessToken
     {
-        foreach(AccessToken::where(['user_id' => $a_user_id, 'essay_id'=> $a_essay_id])->get() as $token) {
+        foreach(AccessToken::where(['user_id' => $a_user_id, 'task_id'=> $a_task_id])->orderBy('id')->get() as $token) {
             return  $token;
         }
         return null;

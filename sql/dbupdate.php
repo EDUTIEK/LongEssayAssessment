@@ -1042,3 +1042,9 @@ if (! $ilDB->tableExists('xlet_resource')) {
 
 }
 ?>
+<#29>
+<?php
+if ($ilDB->tableColumnExists('xlet_access_token','essay_id')) {
+    $ilDB->renameTableColumn('xlet_access_token', 'essay_id', 'task_id');
+}
+?>

@@ -37,7 +37,7 @@ interface EssayRepository
 
     public function ifEssayExistsById(int $a_id): bool;
 
-    public function getAccessTokenByUserIdAndEssayId(int $a_user_id, int $a_essay_id): ?AccessToken;
+    public function getAccessTokenByUserIdAndTaskId(int $a_user_id, int $a_task_id): ?AccessToken;
 
     // Update operations
     public function updateEssay(Essay $a_essay);

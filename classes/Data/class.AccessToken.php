@@ -42,7 +42,7 @@ class AccessToken extends ActivePluginRecord
     protected $user_id = 0;
 
     /**
-     * The Essay Id
+     * The Task id
      *
      * @var integer
      * @con_has_field        true
@@ -52,7 +52,7 @@ class AccessToken extends ActivePluginRecord
      * @con_fieldtype        integer
      * @con_length           4
      */
-    protected $essay_id = 0;
+    protected $task_id = 0;
 
     /**
      * @var string
@@ -121,18 +121,18 @@ class AccessToken extends ActivePluginRecord
     /**
      * @return int
      */
-    public function getEssayId(): int
+    public function getTaskId(): int
     {
-        return $this->essay_id;
+        return $this->task_id;
     }
 
     /**
-     * @param int $essay_id
+     * @param int $task_id
      * @return AccessToken
      */
-    public function setEssayId(int $essay_id): AccessToken
+    public function setTaskId(int $task_id): AccessToken
     {
-        $this->essay_id = $essay_id;
+        $this->task_id = $task_id;
         return $this;
     }
 

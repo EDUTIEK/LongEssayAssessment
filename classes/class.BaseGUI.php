@@ -3,13 +3,19 @@
 
 namespace ILIAS\Plugin\LongEssayTask;
 
+use ILIAS\DI\Container;
+use ILIAS\UI\Factory;
+use ILIAS\UI\Renderer;
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ServerRequestInterface;
+
 /**
- * Base class for GUI classes (excxept the plugin guis required by ILIAS)
+ * Base class for GUI classes (except the plugin guis required by ILIAS)
  * @author Fred Neumann <fred.neumann@ilias.de>
  */
 abstract class BaseGUI
 {
-	/** @var \ILIAS\DI\Container */
+	/** @var Container */
 	protected $dic;
 
 	/** @var \ilCtrl */
@@ -36,13 +42,13 @@ abstract class BaseGUI
     /** @var  \ilLongEssayTaskPlugin */
     protected $plugin;
 
-    /** @var \ILIAS\UI\Factory  */
+    /** @var Factory  */
     protected $uiFactory;
 
-    /** @var \ILIAS\UI\Renderer  */
+    /** @var Renderer  */
     protected $renderer;
 
-    /** @var \Psr\Http\Message\RequestInterface|\Psr\Http\Message\ServerRequestInterface  */
+    /** @var RequestInterface|ServerRequestInterface  */
     protected $request;
 
     protected $refinery;
@@ -51,7 +57,7 @@ abstract class BaseGUI
 	 * Constructor
 	 * @param \ilObjLongEssayTaskGUI  $objectGUI
 	 */
-	public function __construct($objectGUI)
+	public function __construct(\ilObjLongEssayTaskGUI $objectGUI)
 	{
 		global $DIC;
 

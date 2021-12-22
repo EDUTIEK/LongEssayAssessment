@@ -5,6 +5,8 @@ namespace ILIAS\Plugin\LongEssayTask\Writer;
 
 use Edutiek\LongEssayService\Writer\Service;
 use ILIAS\Plugin\LongEssayTask\BaseGUI;
+use ILIAS\Plugin\LongEssayTask\Data\Essay;
+use ILIAS\Plugin\LongEssayTask\LongEssayTaskDI;
 use ILIAS\UI\Factory;
 use \ilUtil;
 
@@ -115,10 +117,24 @@ class WriterStartGUI extends BaseGUI
      */
      protected function startWriter()
      {
-         global $DIC;
+        global $DIC;
+
+         $di = LongEssayTaskDI::getInstance();
+
+         // ensure that an essay record exists
+         $essay = $di->getEssayRepo()->getEssayByWriterIdAndTaskId((string) $DIC->user()->getId(), (string) $this->object->getId());
+         if (!isset($essay)) {
+             $essay = new Essay();
+             $essay->setWriterId((string) $DIC->user()->getId());
+             $essay->setTaskId((string) $this->object->getId());
+             $essay->setUuid($essay->generateUUID4());
+             $essay->setRawTextHash('');
+             $di->getEssayRepo()->createEssay($essay);
+         }
 
          $context = new WriterContext();
-         $service = new Service($context->init((string) $DIC->user()->getId(), (string) $this->object->getId()));
+         $context->init((string) $DIC->user()->getId(), (string) $this->object->getRefId());
+         $service = new Service($context);
          $service->openFrontend();
      }
 }

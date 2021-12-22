@@ -64,6 +64,22 @@ class EssayDatabaseRepository implements EssayRepository
         return null;
     }
 
+    public function getEssayByWriterIdAndTaskId(int $a_writer_id, int $a_task_id): ?Essay
+    {
+        foreach(Essay::where(['writer_id' => $a_writer_id, 'task_id'=> $a_task_id])->get() as $essay) {
+            return  $essay;
+        }
+        return null;
+    }
+
+    public function getAccessTokenByUserIdAndEssayId(int $a_user_id, int $a_essay_id): ?AccessToken
+    {
+        foreach(AccessToken::where(['user_id' => $a_user_id, 'essay_id'=> $a_essay_id])->get() as $token) {
+            return  $token;
+        }
+        return null;
+    }
+
     public function updateEssay(Essay $a_essay)
     {
         $a_essay->update();

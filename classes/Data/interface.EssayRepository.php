@@ -33,7 +33,11 @@ interface EssayRepository
 
     public function getEssayByUUID(string $a_uuid): ?Essay;
 
+    public function getEssayByWriterIdAndTaskId(int $a_writer_id, int $a_task_id): ?Essay;
+
     public function ifEssayExistsById(int $a_id): bool;
+
+    public function getAccessTokenByUserIdAndEssayId(int $a_user_id, int $a_essay_id): ?AccessToken;
 
     // Update operations
     public function updateEssay(Essay $a_essay);

@@ -5,6 +5,7 @@ namespace ILIAS\Plugin\LongEssayTask\Writer;
 use Edutiek\LongEssayService\Data\ApiToken;
 use Edutiek\LongEssayService\Writer\Context;
 use Edutiek\LongEssayService\Writer\Service;
+use ILIAS\DI\Container;
 use ILIAS\Plugin\LongEssayTask\Data\AccessToken;
 use ILIAS\Plugin\LongEssayTask\Data\Essay;
 use ILIAS\Plugin\LongEssayTask\LongEssayTaskDI;
@@ -38,6 +39,18 @@ class WriterContext implements Context
      */
     public function init(string $user_key, string $environment_key): bool
     {
+        /** @var Container */
+        global $DIC;
+
+
+        // fix for missing ilUser in REST calls
+        if (!$DIC->offsetExists('ilUser')) {
+            $ilUser = new \ilObjUser(ANONYMOUS_USER_ID);
+            $DIC['ilUser'] = function ($c) use($ilUser) {
+                return $ilUser;
+            };
+        }
+
         $this->user_id = (int) $user_key;
         $this->ref_id = (int) $environment_key;
         $this->di = LongEssayTaskDI::getInstance();

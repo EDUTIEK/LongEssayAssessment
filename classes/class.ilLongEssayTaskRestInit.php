@@ -2,6 +2,7 @@
 
 /**
  * Extended ILIAS initialisation for REST calls
+ * An initialized user is needed for access handling
  */
 class ilLongEssayTaskRestInit extends ilInitialisation
 {
@@ -21,7 +22,6 @@ class ilLongEssayTaskRestInit extends ilInitialisation
             };
         }
 
-        self::initAccessHandling();;
+        self::initAccessHandling();
     }
-
 }

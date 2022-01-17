@@ -58,7 +58,7 @@ class WriterAdminGUI extends BaseGUI
         $aria_label = "change_the_currently_displayed_mode";
         $view_control = $this->uiFactory->viewControl()->mode($actions, $aria_label)->withActive("Alle");
 
-        $item1 = $this->uiFactory->item()->standard($this->uiFactory->link()->standard("Fred Neumann (fred.neumann)",''))
+        $item1 = $this->uiFactory->item()->standard($this->uiFactory->link()->standard("Theo Teststudent (theo.teststudent)",''))
             ->withLeadIcon($this->uiFactory->symbol()->icon()->standard('usr', 'user', 'medium'))
             ->withProperties(array(
                 "Abgabe-Status" => "noch nicht abgegeben",
@@ -75,7 +75,7 @@ class WriterAdminGUI extends BaseGUI
 
                 ]));
 
-        $item2 = $this->uiFactory->item()->standard($this->uiFactory->link()->standard("Matthias Kunkel (matthias.kunkel)", ''))
+        $item2 = $this->uiFactory->item()->standard($this->uiFactory->link()->standard("Thekla Teststudentin (thekla.teststudentin)", ''))
             ->withLeadIcon($this->uiFactory->symbol()->icon()->standard('usr', 'editor', 'medium'))
             ->withProperties(array(
                 "Abgabe-Status" => "abgegeben",

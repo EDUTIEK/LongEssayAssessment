@@ -59,11 +59,11 @@ class CorrectorAdminGUI extends BaseGUI
         $aria_label = "change_the_currently_displayed_mode";
         $view_control = $this->uiFactory->viewControl()->mode($actions, $aria_label)->withActive("Alle");
 
-        $item1 = $this->uiFactory->item()->standard($this->uiFactory->link()->standard("Fred Neumann (fred.neumann)",''))
+        $item1 = $this->uiFactory->item()->standard($this->uiFactory->link()->standard("Theo Teststudent (theo.teststudent)",''))
             ->withLeadIcon($this->uiFactory->symbol()->icon()->standard('adve', 'user', 'medium'))
             ->withProperties(array(
                 "Erstkorrektor" => "Volker Reuschenbach",
-                "Zweitkorrektor" => "Armin Laschet",
+                "Zweitkorrektor" => "Matthias Kunkel",
                 "Status" => "Stichentscheid gefordert",
 
             ))
@@ -75,10 +75,10 @@ class CorrectorAdminGUI extends BaseGUI
 
                 ]));
 
-        $item2 = $this->uiFactory->item()->standard($this->uiFactory->link()->standard("Matthias Kunkel (matthias.kunkel)", ''))
+        $item2 = $this->uiFactory->item()->standard($this->uiFactory->link()->standard("Thekla Teststudentin (thekla.teststudentin)", ''))
             ->withLeadIcon($this->uiFactory->symbol()->icon()->standard('adve', 'editor', 'medium'))
             ->withProperties(array(
-                "Erstkorrektor" => "Armin Laschet",
+                "Erstkorrektor" => "Matthias Kunkel",
                 "Zweitkorrektor" => "Volker Reuschenbach",
                 "Status" => "noch nicht korrigiert",
 

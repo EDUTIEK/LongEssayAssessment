@@ -230,6 +230,55 @@ class ilObjLongEssayTaskGUI extends ilObjectPluginGUI
 	{
         $this->subtabs = [];
 
+        // Task Definition Tab
+        $tabs = [];
+        if ($this->object->canEditOrgaSettings()) {
+            $tabs[] = [
+                'id' => 'tab_orga_settings',
+                'txt' => $this->plugin->txt('tab_orga_settings'),
+                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessaytask\task\orgasettingsgui')
+            ];
+        }
+        if ($this->object->canEditContentSettings()) {
+            $tabs[] = [
+                'id' => 'tab_content_settings',
+                'txt' => $this->plugin->txt('tab_content_settings'),
+                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessaytask\task\contentsettingsgui')
+            ];
+        }
+        if ($this->object->canEditContentSettings()) {
+            $tabs[] = [
+                'id' => 'tab_resources',
+                'txt' => $this->plugin->txt('tab_resources'),
+                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessaytask\task\resourcesadmingui')
+            ];
+        }
+        if ($this->object->canEditTechnicalSettings()) {
+            $tabs[] = [
+                'id' => 'tab_technical_settings',
+                'txt' => $this->plugin->txt('tab_technical_settings'),
+                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessaytask\task\editorsettingsgui')
+            ];
+        }
+        if ($this->object->canEditContentSettings()) {
+            $tabs[] = [
+                'id' => 'tab_criteria',
+                'txt' => $this->plugin->txt('tab_criteria'),
+                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessaytask\task\criteriaadmingui')
+            ];
+        }
+        if ($this->object->canEditContentSettings()) {
+            $tabs[] = [
+                'id' => 'tab_grades',
+                'txt' => $this->plugin->txt('tab_grades'),
+                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessaytask\task\gradesadmingui')
+            ];
+        }
+        if (!empty($tabs)) {
+            $this->tabs->addTab('tab_task', $this->plugin->txt('tab_task'), $tabs[0]['url']);
+            $this->subtabs['tab_task'] = $tabs;
+        }
+
         // Writer Tab
         $tabs = [];
         if ($this->object->canViewWriterScreen()) {
@@ -298,54 +347,6 @@ class ilObjLongEssayTaskGUI extends ilObjectPluginGUI
         }
 
 
-        // Task Definition Tab
-        $tabs = [];
-        if ($this->object->canEditOrgaSettings()) {
-            $tabs[] = [
-                'id' => 'tab_orga_settings',
-                'txt' => $this->plugin->txt('tab_orga_settings'),
-                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessaytask\task\orgasettingsgui')
-            ];
-        }
-        if ($this->object->canEditContentSettings()) {
-            $tabs[] = [
-                'id' => 'tab_content_settings',
-                'txt' => $this->plugin->txt('tab_content_settings'),
-                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessaytask\task\contentsettingsgui')
-            ];
-        }
-        if ($this->object->canEditContentSettings()) {
-            $tabs[] = [
-                'id' => 'tab_resources',
-                'txt' => $this->plugin->txt('tab_resources'),
-                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessaytask\task\resourcesadmingui')
-            ];
-        }
-        if ($this->object->canEditTechnicalSettings()) {
-            $tabs[] = [
-                'id' => 'tab_technical_settings',
-                'txt' => $this->plugin->txt('tab_technical_settings'),
-                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessaytask\task\editorsettingsgui')
-            ];
-        }
-        if ($this->object->canEditContentSettings()) {
-            $tabs[] = [
-                'id' => 'tab_criteria',
-                'txt' => $this->plugin->txt('tab_criteria'),
-                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessaytask\task\criteriaadmingui')
-            ];
-        }
-        if ($this->object->canEditContentSettings()) {
-            $tabs[] = [
-                'id' => 'tab_grades',
-                'txt' => $this->plugin->txt('tab_grades'),
-                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessaytask\task\gradesadmingui')
-            ];
-        }
-        if (!empty($tabs)) {
-            $this->tabs->addTab('tab_task', $this->plugin->txt('tab_task'), $tabs[0]['url']);
-            $this->subtabs['tab_task'] = $tabs;
-        }
 
         // standard info screen tab
         // $this->addInfoTab();

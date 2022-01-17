@@ -92,7 +92,7 @@ class WriterStartGUI extends BaseGUI
             $this->uiFactory->item()->standard("Bestanden")
                 ->withDescription("")
                 ->withProperties(array(
-                "Einsichtnahme" => "01.09.2021 09:00 - 10:00 Uhr"))
+                "Einsichtnahme" => "02.02.2022 09:00 - 10:00 Uhr"))
                 ->withActions($this->uiFactory->dropdown()->standard([
                     $this->uiFactory->button()->shy('Bewertung einsehen', '')
                     ->withOnClick($modal->getShowSignal()),

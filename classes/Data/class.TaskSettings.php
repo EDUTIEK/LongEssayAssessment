@@ -59,6 +59,7 @@ class TaskSettings extends ActivePluginRecord
      * @con_has_field        true
      * @con_is_notnull       false
      * @con_fieldtype        timestamp
+     * Format IL_CAL_DATETIME in default timezone of the installation
      */
     protected $writing_start = null;
 
@@ -68,6 +69,7 @@ class TaskSettings extends ActivePluginRecord
      * @con_has_field        true
      * @con_is_notnull       false
      * @con_fieldtype        timestamp
+     * Format IL_CAL_DATETIME in default timezone of the installation
      */
     protected $writing_end = null;
 
@@ -76,6 +78,7 @@ class TaskSettings extends ActivePluginRecord
      * @con_has_field        true
      * @con_is_notnull       false
      * @con_fieldtype        timestamp
+     * Format IL_CAL_DATETIME in default timezone of the installation
      */
     protected $correction_start = null;
 
@@ -85,6 +88,7 @@ class TaskSettings extends ActivePluginRecord
      * @con_has_field        true
      * @con_is_notnull       false
      * @con_fieldtype        timestamp
+     * Format IL_CAL_DATETIME in default timezone of the installation
      */
     protected $correction_end = null;
 
@@ -94,6 +98,7 @@ class TaskSettings extends ActivePluginRecord
      * @con_has_field        true
      * @con_is_notnull       false
      * @con_fieldtype        timestamp
+     * Format IL_CAL_DATETIME in default timezone of the installation
      */
     protected $review_start = null;
 
@@ -103,6 +108,7 @@ class TaskSettings extends ActivePluginRecord
      * @con_has_field        true
      * @con_is_notnull       false
      * @con_fieldtype        timestamp
+     * Format IL_CAL_DATETIME in default timezone of the installation
      */
     protected $review_end = null;
 

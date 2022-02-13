@@ -56,7 +56,6 @@ class WriterStartGUI extends BaseGUI
         $button->setUrl($this->ctrl->getLinkTarget($this, 'startWriter'));
         $button->setCaption('Bearbeitung starten (Service)', false);
         $button->setPrimary(false);
-        $button->setTarget('_blank'); // as long as the writer has no return address
         $this->toolbar->addButtonInstance($button);
 
 

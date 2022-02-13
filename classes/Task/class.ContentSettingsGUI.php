@@ -100,14 +100,14 @@ class ContentSettingsGUI extends BaseGUI
         $item->setInfo($this->plugin->txt("task_description_info"));
         $item->setUseRte(true);
         $item->setRteTagSet('standard');
-        $item->setValue($taskSettings->getInstructions());
+        $item->setValue($taskSettings->getDescription());
         $form->addItem($item);
 
         $item = new \ilTextAreaInputGUI($this->plugin->txt("task_instructions"), 'task_instructions');
         $item->setInfo($this->plugin->txt("task_instructions_info"));
         $item->setUseRte(true);
         $item->setRteTagSet('standard');
-        $item->setValue($taskSettings->getDescription());
+        $item->setValue($taskSettings->getInstructions());
         $form->addItem($item);
 
         $item = new \ilTextAreaInputGUI($this->plugin->txt("task_solution"), 'task_solution');

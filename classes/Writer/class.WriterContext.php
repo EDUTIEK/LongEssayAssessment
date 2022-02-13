@@ -4,6 +4,7 @@ namespace ILIAS\Plugin\LongEssayTask\Writer;
 
 use Edutiek\LongEssayService\Base\BaseContext;
 use Edutiek\LongEssayService\Data\ApiToken;
+use Edutiek\LongEssayService\Data\WritingTask;
 use Edutiek\LongEssayService\Exceptions\ContextException;
 use Edutiek\LongEssayService\Writer\Context;
 use Edutiek\LongEssayService\Writer\Service;
@@ -184,5 +185,25 @@ class WriterContext implements Context
         $token->setIp($api_token->getIpAddress());
         $token->setValidUntil($valid->get(IL_CAL_DATETIME));
         $repo->createAccessToken($token);
+    }
+
+    /**
+     * Get the Task that should be done in the editor
+     * The instructions of this task will be shown to the student when the writer is opened
+     * The writing end will limit the time for writing
+     */
+    public function getWritingTask(): WritingTask
+    {
+        $repo = $this->di->getTaskRepo();
+        $task = $repo->getTaskSettingsById($this->object->getId());
+
+        $writing_end = null;
+        if (!empty($task->getWritingEnd())) {
+            $writing_end = (new \ilDateTime($task->getWritingEnd(), IL_CAL_DATETIME))->get(IL_CAL_UNIX);
+        }
+
+        // todo: get time extension of the user and add it
+
+        return new writingTask($task->getInstructions(), $writing_end);
     }
 }

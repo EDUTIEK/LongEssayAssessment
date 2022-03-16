@@ -70,6 +70,7 @@ class ilLongEssayTaskPlugin extends ilRepositoryObjectPlugin
      */
     protected function uninstallCustom()
     {
+        global $DIC;
 		$tables = ["xlet_access_token", "xlet_alert", "xlet_corr_setting", "xlet_corrector", "xlet_corrector_ass",
 			"xlet_corrector_comment", "xlet_corrector_summary", "xlet_crit_points", "xlet_editor_comment",
 			"xlet_editor_history", "xlet_editor_notice", "xlet_editor_settings", "xlet_essay", "xlet_grade_level",
@@ -82,7 +83,6 @@ class ilLongEssayTaskPlugin extends ilRepositoryObjectPlugin
 				$this->dic->database()->dropTable($table);
 			}
 		}
-
 		//TODO RBAC?
     }
 

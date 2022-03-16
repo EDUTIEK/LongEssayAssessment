@@ -29,6 +29,11 @@ class TaskDatabaseRepository implements TaskRepository
         $a_writer_notice->create();
     }
 
+    public function createResource(Resource $a_resource)
+    {
+        $a_resource->create();
+    }
+
     public function getEditorSettingsById(int $a_id): ?EditorSettings
     {
         $editor_settings = EditorSettings::findOrGetInstance($a_id);
@@ -201,11 +206,6 @@ class TaskDatabaseRepository implements TaskRepository
         $this->deleteWriterNoticeByTaskId($a_object_id);
     }
 
-    public function createResource(Resource $a_resource)
-    {
-        $a_resource->create();
-    }
-
     public function getResourceById(int $a_id): ?Resource
     {
         $resource = Resource::findOrGetInstance($a_id);
@@ -247,4 +247,21 @@ class TaskDatabaseRepository implements TaskRepository
         $db->manipulate("DELETE FROM xlet_resource" .
             " WHERE task_id = " . $DIC->database()->quote($a_task_id, "integer"));
     }
+
+    public function getResourceByFileId(string $a_file_id): ?Resource
+    {
+        $resource =Resource::where(['file_id' => $a_file_id])->get();
+
+        if (count($resource) > 0) {
+            return $resource[0];
+        }
+        return null;
+    }
+
+    public function ifResourceExistsByFileId(string $a_file_id): bool
+    {
+        return $this->getResourceByFileId($a_file_id) != null;
+    }
+
+
 }

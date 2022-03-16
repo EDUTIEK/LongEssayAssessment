@@ -69,15 +69,15 @@ class Resource extends ActivePluginRecord
     /**
      * The file_id
      *
-     * @var integer
+     * @var string
      * @con_has_field        true
      * @con_is_primary       false
      * @con_sequence         false
      * @con_is_notnull       false
-     * @con_fieldtype        integer
-     * @con_length           4
+     * @con_fieldtype        text
+     * @con_length           50
      */
-    protected $file_id = 0;
+    protected $file_id = "";
 
     /**
      * @var string
@@ -179,18 +179,18 @@ class Resource extends ActivePluginRecord
     }
 
     /**
-     * @return int
+     * @return string
      */
-    public function getFileId(): int
+    public function getFileId(): string
     {
         return $this->file_id;
     }
 
     /**
-     * @param int $file_id
+     * @param string $file_id
      * @return Resource
      */
-    public function setFileId(int $file_id): Resource
+    public function setFileId(string $file_id): Resource
     {
         $this->file_id = $file_id;
         return $this;

@@ -1048,3 +1048,14 @@ if ($ilDB->tableColumnExists('xlet_access_token','essay_id')) {
     $ilDB->renameTableColumn('xlet_access_token', 'essay_id', 'task_id');
 }
 ?>
+<#30>
+<?php
+if (!$ilDB->tableColumnExists('xlet_resource','file_id')) {
+    $ilDB->modifyTableColumn('xlet_resource','file_id', [
+        'notnull' => '0',
+        'type' => 'text',
+        'length' => '50',
+    ]);
+    $ilDB->addIndex("xlet_resource", array("file_id"), "i2");
+}
+?>

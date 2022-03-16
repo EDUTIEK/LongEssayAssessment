@@ -93,10 +93,10 @@ class ilLongEssayTaskConfigGUI extends ilPluginConfigGUI
         $button->setCaption($this->plugin->txt('reload_control_structure'), false);
         $this->toolbar->addButtonInstance($button);
 
-//        $button = ilLinkButton::getInstance();
-//        $button->setUrl($this->ctrl->getLinkTarget($this, 'generateDBUpdate'));
-//        $button->setCaption($this->plugin->txt('generate_db_update'), false);
-//        $this->toolbar->addButtonInstance($button);
+        $button = ilLinkButton::getInstance();
+        $button->setUrl($this->ctrl->getLinkTarget($this, 'generateDBUpdate'));
+        $button->setCaption($this->plugin->txt('generate_db_update'), false);
+        $this->toolbar->addButtonInstance($button);
     }
 
     /**
@@ -177,7 +177,7 @@ class ilLongEssayTaskConfigGUI extends ilPluginConfigGUI
      */
 	protected function generateDBUpdate()
     {
-        $arBuilder = new arBuilder(new \ILIAS\Plugin\LongEssayTask\Data\EditorSettings());
+        $arBuilder = new arBuilder(new \ILIAS\Plugin\LongEssayTask\Data\Resource());
         $arBuilder->generateDBUpdateForInstallation();
     }
 

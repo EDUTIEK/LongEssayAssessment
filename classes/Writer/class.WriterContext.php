@@ -204,6 +204,6 @@ class WriterContext implements Context
 
         // todo: get time extension of the user and add it
 
-        return new writingTask($task->getInstructions(), $writing_end);
+        return new writingTask($this->object->getTitle(), $task->getInstructions(), $this->user->getFullname(), $writing_end);
     }
 }

@@ -3,13 +3,10 @@
 
 namespace ILIAS\Plugin\LongEssayTask\Task;
 
-use ILIAS\HTTP\Response\Sender\ResponseSendingException;
 use ILIAS\Plugin\LongEssayTask\BaseGUI;
-use ILIAS\Plugin\LongEssayTask\Data\ActiveRecordDummy;
 use ILIAS\Plugin\LongEssayTask\Data\Resource;
 use ILIAS\Plugin\LongEssayTask\LongEssayTaskDI;
-use ILIAS\UI\Component\Table\PresentationRow;
-use ILIAS\UI\Factory;
+
 use \ilUtil;
 
 /**
@@ -41,78 +38,6 @@ class ResourcesAdminGUI extends BaseGUI
     }
 
     /**
-     * Get the Table Data
-     */
-    protected function getItemData()
-    {
-        $di = LongEssayTaskDI::getInstance();
-        $task_repo = $di->getTaskRepo();
-
-        $item_data = [];
-        $resources = $task_repo->getResourceByTaskId($this->object->getId());
-
-        /**
-         * @var Resource $resource
-         */
-        foreach ($resources as $resource)
-        {
-            $label = "";
-            $action = "";
-
-            switch($resource->getType())
-            {
-                case Resource::RESOURCE_TYPE_URL:
-                    // TODO: Use ilFile
-                    $label = "File.file";
-                    $action = "#";
-                    break;
-                case Resource::RESOURCE_TYPE_FILE:
-                    $label = $action = $resource->getUrl();
-                    break;
-            }
-            //TODO: Lang var Verfügbar und availability
-            $item_data[] = [
-                'headline' => $resource->getTitle(),
-                'subheadline' => $resource->getDescription(),
-                'important' => [
-                    'Verfügbar' => $resource->getAvailability(),
-                    $this->renderer->render($this->uiFactory->link()->standard($label,$action))
-                ]
-            ];
-        }
-
-
-        return array_merge([
-            [
-                'headline' => 'Informationen zur Klausur',
-                'subheadline' => 'Hier finden Sie wichtige Informationen zum Ablauf der Klausur',
-                'important' => [
-                    'Verfügbar' => 'vorab',
-                     $this->renderer->render($this->uiFactory->link()->standard('Informationen.pdf','#'))
-                ],
-            ],
-            [
-                'headline' => 'BGB',
-                'subheadline' => 'Online-Ausgabe des Bürgerlichen Gesetzbuchs',
-                'type' => 'url',
-                'important' => [
-                    'Verfügbar' => 'vorab',
-                    $this->renderer->render($this->uiFactory->link()->standard('https://www.gesetze-im-internet.de/bgb/','https://www.gesetze-im-internet.de/bgb/'))
-                ],
-            ],
-            [
-                'headline' => 'Vertragsentwurf',
-                'subheadline' => 'Der zu begutachtende Vertragsentwurf',
-                'important' => [
-                    'Verfügbar' => 'nach Start',
-                     $this->renderer->render($this->uiFactory->link()->standard('Vertrag.pdf','#'))
-                ],
-            ],
-
-        ], $item_data);
-    }
-
-    /**
      * Show the items
      */
     protected function showItems()
@@ -123,34 +48,14 @@ class ResourcesAdminGUI extends BaseGUI
         $button->setCaption($this->plugin->txt('add_resource'), false);
         $this->toolbar->addButtonInstance($button);
 
-        // TODO: Lang Var tittle Beschreibung
-        $ptable = $this->uiFactory->table()->presentation(
-            'Materialien zur Aufgabe',
-            [],
-            function (
-                PresentationRow $row,
-                array $record,
-                Factory $ui_factory,
-                $environment) {
-                return $row
-                    ->withHeadline($record['headline'])
-                    //->withSubheadline($record['subheadline'])
-                    ->withImportantFields($record['important'])
-                    ->withContent($ui_factory->listing()->descriptive(['Beschreibung' => $record['subheadline']]))
-                    ->withFurtherFieldsHeadline('')
-                    ->withFurtherFields($record['important'])
-                    ->withAction(
-                        $ui_factory->dropdown()->standard([
-                            $ui_factory->button()->shy($this->lng->txt('edit'), '#'),
-                            $ui_factory->button()->shy($this->lng->txt('delete'), '#')
-                            ])
-                            ->withLabel($this->lng->txt("actions"))
-                    )
-                    ;
-            }
-        );
+        $di = LongEssayTaskDI::getInstance();
+        $task_repo = $di->getTaskRepo();
+        $resources = $task_repo->getResourceByTaskId($this->object->getId());
 
-        $this->tpl->setContent($this->renderer->render($ptable->withData($this->getItemData())));
+        $list = new ResourceListGUI($this->uiFactory, $this->renderer, $this->lng);
+        $list->setItems($resources);
+
+        $this->tpl->setContent($list->render());
     }
 
 

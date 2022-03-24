@@ -52,9 +52,9 @@ class EditorSettingsGUI extends BaseGUI
             [
                 EditorSettings::HEADLINE_SCHEME_NONE => $this->plugin->txt('headline_scheme_none'),
                 EditorSettings::HEADLINE_SCHEME_NUMERIC => $this->plugin->txt('headline_scheme_numeric'),
-                EditorSettings::HEADLINE_SCHEME_ROMAN_UPPER => $this->plugin->txt('headline_scheme_roman_upper'),
-                EditorSettings::HEADLINE_SCHEME_ROMAN_LOWER => $this->plugin->txt('headline_scheme_roman_lower')
+                EditorSettings::HEADLINE_SCHEME_EDUTIEK => $this->plugin->txt('headline_scheme_edutiek'),
             ])
+            ->withDisabled(true) // remove in pilot
             ->withRequired(true)
             ->withValue($editorSettings->getHeadlineScheme());
 
@@ -79,10 +79,12 @@ class EditorSettingsGUI extends BaseGUI
                 '4' => '4',
                 '5' => '5'
             ])
+            ->withDisabled(true) // remove in pilot
             ->withRequired(true)
             ->withValue((string) $editorSettings->getNoticeBoards());
 
         $fields['copy_allowed'] = $factory->checkbox($this->plugin->txt('copy_allowed'), $this->plugin->txt('copy_allowed_info'))
+            ->withDisabled(true)    // remove in pilot
             ->withValue($editorSettings->isCopyAllowed());
 
         $sections['editor'] = $factory->section($fields, $this->plugin->txt('editor_settings'));

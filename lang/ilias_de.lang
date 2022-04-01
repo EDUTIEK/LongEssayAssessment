@@ -87,9 +87,8 @@ task_solution_info#:#Die Musterlösung wird erst nach dem Bearbeitungszeitraum a
 editor_settings#:#Einstellungen für den Editor
 headline_scheme#:#Überschriften-Schema
 headline_scheme_none#:#Keine Überschriften
-headline_scheme_numeric#:#Numeriert (1.1.1)
-headline_scheme_roman_upper#:#Römisch groß (I. A. 1.)
-headline_scheme_roman_lower#:#Römisch klein (1. a. i.)
+headline_scheme_numeric#:#Numeriert: 1 ‧ 1.1 ‧ 1.1.1
+headline_scheme_edutiek#:#Gutachten: A. ‧ I. ‧ 1 ‧ a. ‧ aa. ‧ (1)
 formatting_options#:#Text-Formatierung
 formatting_options_none#:#Aus
 formatting_options_none_info#:#Keine Formatatierungs-Optionen

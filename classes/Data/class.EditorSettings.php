@@ -11,8 +11,7 @@ class EditorSettings extends ActivePluginRecord
 {
     const HEADLINE_SCHEME_NONE = 'none';
     const HEADLINE_SCHEME_NUMERIC = 'numeric';
-    const HEADLINE_SCHEME_ROMAN_UPPER = 'roman_upper';
-    const HEADLINE_SCHEME_ROMAN_LOWER = 'roman_lower';
+    const HEADLINE_SCHEME_EDUTIEK = 'edutiek';
 
     const FORMATTING_OPTIONS_NONE = 'none';
     const FORMATTING_OPTIONS_MINIMAL = 'minimal';
@@ -47,7 +46,7 @@ class EditorSettings extends ActivePluginRecord
      * @con_fieldtype        text
      * @con_length           50
      */
-    protected $headline_scheme = self::HEADLINE_SCHEME_NUMERIC;
+    protected $headline_scheme = self::HEADLINE_SCHEME_NONE;
 
 
     /**

@@ -4,6 +4,7 @@ namespace ILIAS\Plugin\LongEssayTask\Writer;
 
 use Edutiek\LongEssayService\Base\BaseContext;
 use Edutiek\LongEssayService\Data\ApiToken;
+use Edutiek\LongEssayService\Data\WritingStep;
 use Edutiek\LongEssayService\Data\WritingTask;
 use Edutiek\LongEssayService\Exceptions\ContextException;
 use Edutiek\LongEssayService\Writer\Context;
@@ -11,6 +12,7 @@ use Edutiek\LongEssayService\Writer\Service;
 use ilContext;
 use ILIAS\DI\Container;
 use ILIAS\Plugin\LongEssayTask\Data\AccessToken;
+use ILIAS\Plugin\LongEssayTask\Data\WriterHistory;
 use ILIAS\Plugin\LongEssayTask\LongEssayTaskDI;
 use \ilObjUser;
 use \ilObject;
@@ -199,11 +201,85 @@ class WriterContext implements Context
 
         $writing_end = null;
         if (!empty($task->getWritingEnd())) {
-            $writing_end = (new \ilDateTime($task->getWritingEnd(), IL_CAL_DATETIME))->get(IL_CAL_UNIX);
+            $writing_end = $this->plugin->dbTimeToUnix($task->getWritingEnd());
         }
 
         // todo: get time extension of the user and add it
 
         return new writingTask($this->object->getTitle(), $task->getInstructions(), $this->user->getFullname(), $writing_end);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getWrittenText(): string
+    {
+       $repo = $this->di->getEssayRepo();
+       $essay = $repo->getEssayByWriterIdAndTaskId($this->user->getId(), $this->object->getId());
+       return (string) $essay->getWrittenText();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getWrittenHash(): string
+    {
+        $repo = $this->di->getEssayRepo();
+        $essay = $repo->getEssayByWriterIdAndTaskId($this->user->getId(), $this->object->getId());
+        return (string) $essay->getRawTextHash();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setWrittenText(string $text, string $hash): void
+    {
+        $repo = $this->di->getEssayRepo();
+        $essay = $repo->getEssayByWriterIdAndTaskId($this->user->getId(), $this->object->getId());
+        $essay->setWrittenText($text);
+        $essay->setRawTextHash($hash);
+        $repo->updateEssay($essay);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getWritingSteps(?int $maximum): array
+    {
+        $repo = $this->di->getEssayRepo();
+        $essay = $repo->getEssayByWriterIdAndTaskId($this->user->getId(), $this->object->getId());
+        $entries = $repo->getWriterHistoryStepsByEssayId($essay->getId(), $maximum);
+
+        $steps = [];
+        foreach ($entries as $entry) {
+            $steps[] = new WritingStep(
+                (int) ($this->plugin->dbTimeToUnix($entry->getTimestamp())),
+                (string) $entry->getContent(),
+                (bool) $entry->isIsDelta(),
+                (string) $entry->getHashBefore(),
+                (string) $entry->getHashAfter()
+            );
+        }
+        return $steps;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function addWritingSteps(array $steps)
+    {
+        $repo = $this->di->getEssayRepo();
+        $essay = $repo->getEssayByWriterIdAndTaskId($this->user->getId(), $this->object->getId());
+
+        foreach ($steps as $step) {
+            $entry = new WriterHistory();
+            $entry->setEssayId($essay->getId());
+            $entry->setContent($step->getContent());
+            $entry->setIsDelta($step->isDelta());
+            $entry->setTimestamp($this->plugin->unixTimeToDb($step->getTimestamp()));
+            $entry->setHashBefore($step->getHashBefore());
+            $entry->setHashAfter($step->getHashAfter());
+            $repo->createWriterHistory($entry);
+        }
     }
 }

@@ -133,6 +133,39 @@ class ilLongEssayTaskPlugin extends ilRepositoryObjectPlugin
         return $txt;
     }
 
+    /**
+     * Convert a string timestamp stored in the database to a unix timestamp
+     * Respect the time zone if ILIAS
+     * @param ?string $db_timestamp
+     * @return ?int
+     */
+    public function dbTimeToUnix(?string $db_timestamp): ?int
+    {
+        try {
+            $datetime = new \ilDateTime($db_timestamp, IL_CAL_DATETIME);
+            return $datetime->get(IL_CAL_UNIX);
+        }
+        catch (Throwable $throwable) {
+            return null;
+        }
+    }
+
+    /**
+     * Convert a unix timestamp to a string timestamp stored in the database
+     * Respect the time zone of ILIAS
+     * @param ?int $unix_timestamp
+     * @return ?string
+     */
+    public function unixTimeToDb(?int $unix_timestamp): ?string {
+        try {
+            $datetime = new \ilDateTime($unix_timestamp, IL_CAL_UNIX);
+            return $datetime->get(IL_CAL_DATETIME);
+        }
+        catch (Throwable $throwable) {
+            return null;
+        }
+    }
+
 
     public function reloadControlStructure() {
         // load control structure

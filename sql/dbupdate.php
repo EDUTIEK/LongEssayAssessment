@@ -1048,3 +1048,12 @@ if ($ilDB->tableColumnExists('xlet_access_token','essay_id')) {
     $ilDB->renameTableColumn('xlet_access_token', 'essay_id', 'task_id');
 }
 ?>
+<#30>
+<?php
+if ($ilDB->indexExistsByFields('xlet_writer_history', ['hash_before'])) {
+    $ilDB->addIndex('xlet_writer_history', ['hash_before'], 'i2');
+}
+if ($ilDB->indexExistsByFields('xlet_writer_history', ['hash_after'])) {
+    $ilDB->addIndex('xlet_writer_history', ['hash_after'], 'i3');
+}
+?>

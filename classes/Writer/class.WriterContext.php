@@ -282,4 +282,14 @@ class WriterContext implements Context
             $repo->createWriterHistory($entry);
         }
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function hasWritingStepByHashAfter(string $hash_after): bool
+    {
+        $repo = $this->di->getEssayRepo();
+        $essay = $repo->getEssayByWriterIdAndTaskId($this->user->getId(), $this->object->getId());
+        return $repo->ifWriterHistoryExistByEssayIdAndHashAfter($essay->getId(), $hash_after);
+    }
 }

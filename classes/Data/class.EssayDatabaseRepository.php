@@ -89,6 +89,11 @@ class EssayDatabaseRepository implements EssayRepository
         }
     }
 
+    public function ifWriterHistoryExistByEssayIdAndHashAfter(int $essay_id, string $hash_after): bool
+    {
+        return WriterHistory::where(['essay_id' => $essay_id, 'hash_after' => $hash_after])->hasSets();
+    }
+
     public function getAccessTokenByUserIdAndTaskId(int $a_user_id, int $a_task_id): ?AccessToken
     {
         foreach(AccessToken::where(['user_id' => $a_user_id, 'task_id'=> $a_task_id])->orderBy('id')->get() as $token) {

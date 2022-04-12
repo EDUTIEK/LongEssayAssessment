@@ -42,6 +42,8 @@ interface EssayRepository
     /** @return WriterHistory[] */
     public function getWriterHistoryStepsByEssayId(int $essay_id, ?int $limit = null): array;
 
+    public function ifWriterHistoryExistByEssayIdAndHashAfter(int $essay_id, string $hash_after): bool;
+
     // Update operations
     public function updateEssay(Essay $a_essay);
 

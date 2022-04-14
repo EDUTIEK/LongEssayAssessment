@@ -135,7 +135,7 @@ class ilLongEssayTaskPlugin extends ilRepositoryObjectPlugin
 
     /**
      * Convert a string timestamp stored in the database to a unix timestamp
-     * Respect the time zone if ILIAS
+     * Respect the time zone of ILIAS
      * @param ?string $db_timestamp
      * @return ?int
      */
@@ -165,6 +165,35 @@ class ilLongEssayTaskPlugin extends ilRepositoryObjectPlugin
             return null;
         }
     }
+
+    /**
+     * Format a time period from timestamp strings with fallback for missing values
+     */
+    public function formatPeriod(?string $start, ?string $end): string
+    {
+        try {
+            if(empty($start) && empty($end)) {
+                return $this->txt('not_specified');
+            }
+            elseif (empty($end)) {
+                return
+                    $this->txt('period_from') . ' '
+                    .\ilDatePresentation::formatDate(new \ilDateTime($start, IL_CAL_DATETIME));
+            }
+            elseif (empty($start)) {
+                return
+                    \ilDatePresentation::formatDate(new \ilDateTime($end, IL_CAL_DATETIME))
+                    . ' ' . $this->txt('period_until');
+            }
+            else {
+                return \ilDatePresentation::formatPeriod(new \ilDateTime($start, IL_CAL_DATETIME), new \ilDateTime($end, IL_CAL_DATETIME));
+            }
+        }
+        catch (Throwable $e) {
+            return $this->txt('not_specified');
+        }
+    }
+
 
 
     public function reloadControlStructure() {

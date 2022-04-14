@@ -51,7 +51,11 @@ abstract class BaseGUI
     /** @var RequestInterface|ServerRequestInterface  */
     protected $request;
 
+    /** @var \ILIAS\Refinery\Factory  */
     protected $refinery;
+
+    /** @var LongEssayTaskDI */
+    protected $localDI;
 
     /**
 	 * Constructor
@@ -77,6 +81,7 @@ abstract class BaseGUI
         $this->objectGUI = $objectGUI;
         $this->object = $this->objectGUI->getObject();
 		$this->plugin = $this->objectGUI->getPlugin();
+        $this->localDI = LongEssayTaskDI::getInstance();
 	}
 
 	/**

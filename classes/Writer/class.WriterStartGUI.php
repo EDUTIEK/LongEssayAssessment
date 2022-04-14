@@ -6,6 +6,7 @@ namespace ILIAS\Plugin\LongEssayTask\Writer;
 use Edutiek\LongEssayService\Writer\Service;
 use ILIAS\Plugin\LongEssayTask\BaseGUI;
 use ILIAS\Plugin\LongEssayTask\Data\Essay;
+use ILIAS\Plugin\LongEssayTask\Data\TaskSettings;
 use ILIAS\Plugin\LongEssayTask\LongEssayTaskDI;
 use ILIAS\UI\Factory;
 use \ilUtil;
@@ -18,6 +19,12 @@ use \ilUtil;
  */
 class WriterStartGUI extends BaseGUI
 {
+    /** @var TaskSettings */
+    protected $task;
+
+    /** @var Essay */
+    protected $essay;
+
     /**
      * Execute a command
      * This should be overridden in the child classes
@@ -25,6 +32,12 @@ class WriterStartGUI extends BaseGUI
      */
     public function executeCommand()
     {
+        $taskRepo = $this->localDI->getTaskRepo();
+        $essayRepo = $this->localDI->getEssayRepo();
+
+        $this->task = $taskRepo->getTaskSettingsById($this->object->getId());
+        $this->essay = $essayRepo->getEssayByWriterIdAndTaskId($this->dic->user()->getId(), $this->object->getId());
+
         $cmd = $this->ctrl->getCmd('showStartPage');
         switch ($cmd)
         {
@@ -46,18 +59,20 @@ class WriterStartGUI extends BaseGUI
     {
         $button = \ilLinkButton::getInstance();
         $button->setUrl($this->ctrl->getLinkTarget($this, 'startWriter'));
-        $button->setCaption('Bearbeitung starten', false);
+        $button->setCaption($this->plugin->txt('start_writing'), false);
         $button->setPrimary(true);
         $this->toolbar->addButtonInstance($button);
 
+        $description = $this->uiFactory->item()->group($this->plugin->txt('task_instructions'),
+            [$this->uiFactory->item()->standard($this->lng->txt('description'))
+                ->withDescription($this->task->getInstructions())
+                ->withProperties(array(
+                    $this->plugin->txt('writing_period') => $this->plugin->formatPeriod(
+                        $this->task->getWritingStart(), $this->task->getWritingEnd()
+                    )
+                ))]);
 
-        $description = $this->uiFactory->item()->group("Aufgabe", [$this->uiFactory->item()->standard("Beschreibung")
-            ->withDescription("Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?")
-            ->withProperties(array(
-                "Bearbeitung" => "Heute 09:00 - 18:00 Uhr",
-                ))])
-        ;
-
+        // ressources
         $item1 = $this->uiFactory->item()->standard($this->uiFactory->link()->standard("Informationen zur Prüfung",''))
             ->withLeadIcon($this->uiFactory->symbol()->icon()->standard('file', 'File', 'medium'))
             ->withProperties(array(
@@ -75,19 +90,22 @@ class WriterStartGUI extends BaseGUI
             $item2
         ));
 
-        $page = $this->uiFactory->modal()->lightboxTextPage('Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?', 'Bewertung');
-        $modal = $this->uiFactory->modal()->lightbox($page);
+        $submission_page = $this->uiFactory->modal()->lightboxTextPage((string) $this->essay->getWrittenText(), $this->plugin->txt('submission'));
+        $submission_modal = $this->uiFactory->modal()->lightbox($submission_page);
 
-
-        $result = $this->uiFactory->item()->group("Ergebnis", [
-            $this->uiFactory->item()->standard("Bestanden")
+        // todo respect review period
+        // todo: insert real result
+        $result = $this->uiFactory->item()->group($this->plugin->txt('result'), [
+            $this->uiFactory->item()->standard($this->plugin->txt('not_specified'))
                 ->withDescription("")
                 ->withProperties(array(
-                "Einsichtnahme" => "02.02.2022 09:00 - 10:00 Uhr"))
+                $this->plugin->txt('review_period') => $this->plugin->formatPeriod(
+                    $this->task->getReviewStart(), $this->task->getReviewEnd()
+                )))
                 ->withActions($this->uiFactory->dropdown()->standard([
-                    $this->uiFactory->button()->shy('Bewertung einsehen', '')
-                    ->withOnClick($modal->getShowSignal()),
-                    $this->uiFactory->button()->shy('Bewertung herunterladen', '')
+                    $this->uiFactory->button()->shy($this->plugin->txt('view_submission'), '')
+                    ->withOnClick($submission_modal->getShowSignal()),
+                    //$this->uiFactory->button()->shy('Bewertung herunterladen', '')
                     ]))
             ]);
 
@@ -95,9 +113,9 @@ class WriterStartGUI extends BaseGUI
 
         $this->tpl->setContent(
             $this->renderer->render($description) .
-            $this->renderer->render($resources) .
+            // $this->renderer->render($resources) .
             $this->renderer->render($result) .
-            $this->renderer->render($modal)
+            $this->renderer->render($submission_modal)
         );
 
      }

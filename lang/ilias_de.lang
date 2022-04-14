@@ -83,7 +83,7 @@ task_description_info#:#Die Vorab-Beschreibung wird schon vor dem Bearbeitungsze
 task_instructions#:#Aufgabe
 task_instructions_info#:#Die Aufgabenstellung wird erst mit Start der Bearbeitung angezeigt.
 task_solution#:#Musterlösung
-task_solution_info#:#Die Musterlösung wird erst nach dem Bearbeitungszeitraum angezeigt.
+task_solution_info#:#Die Musterlösung wird erst ab dem Zeitpunkt der Einsichtnahme angezeigt.
 editor_settings#:#Einstellungen für den Editor
 headline_scheme#:#Überschriften-Schema
 headline_scheme_none#:#Keine Überschriften
@@ -105,3 +105,14 @@ copy_allowed_info#:#Texte können auch von anderen Webseiten kopiert werden. Das
 add_resource#:#Material hinzufügen
 lp_passed#:#Bestanden
 lp_passed_info#:#Für Lernfortschritt und Vorbedingungen gilt diese Notenstufe als bestanden.
+start_writing#:#Bearbeitung starten
+writing_period#:#Bearbeitung
+not_specified#:#nicht festgelegt
+period_from#:#von
+period_until#:#bis
+correction_period#:#Korrektur
+review_period#:#Einsichtnahme
+result#:#Ergebnis
+submission#:#Abgabe
+view_submission#:#Abgabe einsehen
+download_submission#:#Abgabe herunterladen

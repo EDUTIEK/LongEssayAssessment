@@ -246,13 +246,13 @@ class ilObjLongEssayTaskGUI extends ilObjectPluginGUI
                 'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessaytask\task\contentsettingsgui')
             ];
         }
-        if ($this->object->canEditContentSettings()) {
-            $tabs[] = [
-                'id' => 'tab_resources',
-                'txt' => $this->plugin->txt('tab_resources'),
-                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessaytask\task\resourcesadmingui')
-            ];
-        }
+//        if ($this->object->canEditContentSettings()) {
+//            $tabs[] = [
+//                'id' => 'tab_resources',
+//                'txt' => $this->plugin->txt('tab_resources'),
+//                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessaytask\task\resourcesadmingui')
+//            ];
+//        }
         if ($this->object->canEditTechnicalSettings()) {
             $tabs[] = [
                 'id' => 'tab_technical_settings',
@@ -260,20 +260,20 @@ class ilObjLongEssayTaskGUI extends ilObjectPluginGUI
                 'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessaytask\task\editorsettingsgui')
             ];
         }
-        if ($this->object->canEditContentSettings()) {
-            $tabs[] = [
-                'id' => 'tab_criteria',
-                'txt' => $this->plugin->txt('tab_criteria'),
-                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessaytask\task\criteriaadmingui')
-            ];
-        }
-        if ($this->object->canEditContentSettings()) {
-            $tabs[] = [
-                'id' => 'tab_grades',
-                'txt' => $this->plugin->txt('tab_grades'),
-                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessaytask\task\gradesadmingui')
-            ];
-        }
+//        if ($this->object->canEditContentSettings()) {
+//            $tabs[] = [
+//                'id' => 'tab_criteria',
+//                'txt' => $this->plugin->txt('tab_criteria'),
+//                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessaytask\task\criteriaadmingui')
+//            ];
+//        }
+//        if ($this->object->canEditContentSettings()) {
+//            $tabs[] = [
+//                'id' => 'tab_grades',
+//                'txt' => $this->plugin->txt('tab_grades'),
+//                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessaytask\task\gradesadmingui')
+//            ];
+//        }
         if (!empty($tabs)) {
             $this->tabs->addTab('tab_task', $this->plugin->txt('tab_task'), $tabs[0]['url']);
             $this->subtabs['tab_task'] = $tabs;
@@ -296,13 +296,13 @@ class ilObjLongEssayTaskGUI extends ilObjectPluginGUI
 
         // Corrector Tab
         $tabs = [];
-        if ($this->object->canViewCorrectorScreen()) {
-            $tabs[] = [
-                'id' => 'tab_corrector_start',
-                'txt' => $this->plugin->txt('tab_corrector_start'),
-                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessaytask\corrector\correctorstartgui')
-            ];
-        }
+//        if ($this->object->canViewCorrectorScreen()) {
+//            $tabs[] = [
+//                'id' => 'tab_corrector_start',
+//                'txt' => $this->plugin->txt('tab_corrector_start'),
+//                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessaytask\corrector\correctorstartgui')
+//            ];
+//        }
         if (!empty($tabs)) {
             $this->tabs->addTab('tab_corrector', $this->plugin->txt('tab_corrector'), $tabs[0]['url']);
             $this->subtabs['tab_corrector'] = $tabs;
@@ -310,18 +310,18 @@ class ilObjLongEssayTaskGUI extends ilObjectPluginGUI
 
         // Writer Admin Tab
         $tabs = [];
-        if ($this->object->canMaintainWriters()) {
-            $tabs[] = [
-                'id' => 'tab_writer_admin',
-                'txt' => $this->plugin->txt('tab_writer_admin'),
-                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessaytask\writerAdmin\writeradmingui')
-            ];
-            $tabs[] = [
-                'id' => 'tab_writer_admin_log',
-                'txt' => $this->plugin->txt('tab_writer_admin_log'),
-                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessaytask\writerAdmin\writeradminloggui')
-            ];
-        }
+//        if ($this->object->canMaintainWriters()) {
+//            $tabs[] = [
+//                'id' => 'tab_writer_admin',
+//                'txt' => $this->plugin->txt('tab_writer_admin'),
+//                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessaytask\writerAdmin\writeradmingui')
+//            ];
+//            $tabs[] = [
+//                'id' => 'tab_writer_admin_log',
+//                'txt' => $this->plugin->txt('tab_writer_admin_log'),
+//                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessaytask\writerAdmin\writeradminloggui')
+//            ];
+//        }
         if (!empty($tabs)) {
             $this->tabs->addTab('tab_writer_admin', $this->plugin->txt('tab_writer_admin'), $tabs[0]['url']);
             $this->subtabs['tab_writer_admin'] = $tabs;
@@ -329,18 +329,18 @@ class ilObjLongEssayTaskGUI extends ilObjectPluginGUI
 
         // Corrector Admin Tab
         $tabs = [];
-        if ($this->object->canMaintainCorrectors()) {
-            $tabs[] = [
-                'id' => 'tab_corrector_admin',
-                'txt' => $this->plugin->txt('tab_corrector_admin'),
-                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessaytask\correctorAdmin\correctoradmingui')
-            ];
-            $tabs[] = [
-                'id' => 'tab_corrector_export',
-                'txt' => $this->plugin->txt('tab_corrector_export'),
-                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessaytask\correctorAdmin\correctoradmingui')
-            ];
-        }
+//        if ($this->object->canMaintainCorrectors()) {
+//            $tabs[] = [
+//                'id' => 'tab_corrector_admin',
+//                'txt' => $this->plugin->txt('tab_corrector_admin'),
+//                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessaytask\correctorAdmin\correctoradmingui')
+//            ];
+//            $tabs[] = [
+//                'id' => 'tab_corrector_export',
+//                'txt' => $this->plugin->txt('tab_corrector_export'),
+//                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessaytask\correctorAdmin\correctoradmingui')
+//            ];
+//        }
         if (!empty($tabs)) {
             $this->tabs->addTab('tab_corrector_admin', $this->plugin->txt('tab_corrector_admin'), $tabs[0]['url']);
             $this->subtabs['tab_corrector_admin'] = $tabs;

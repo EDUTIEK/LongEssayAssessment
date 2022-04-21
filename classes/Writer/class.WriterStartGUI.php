@@ -43,6 +43,7 @@ class WriterStartGUI extends BaseGUI
         {
             case 'showStartPage':
             case 'startWriter':
+            case 'processText':
                 $this->$cmd();
                 break;
 
@@ -50,7 +51,6 @@ class WriterStartGUI extends BaseGUI
                 $this->tpl->setContent('unknown command: ' . $cmd);
         }
     }
-
 
     /**
      * Show the items
@@ -62,6 +62,12 @@ class WriterStartGUI extends BaseGUI
         $button->setCaption($this->plugin->txt('start_writing'), false);
         $button->setPrimary(true);
         $this->toolbar->addButtonInstance($button);
+
+        $button = \ilLinkButton::getInstance();
+        $button->setUrl($this->ctrl->getLinkTarget($this, 'processText'));
+        $button->setCaption($this->plugin->txt('process_text'), false);
+        $this->toolbar->addButtonInstance($button);
+
 
         $description = $this->uiFactory->item()->group($this->plugin->txt('task_instructions'),
             [$this->uiFactory->item()->standard($this->lng->txt('description'))
@@ -90,7 +96,7 @@ class WriterStartGUI extends BaseGUI
             $item2
         ));
 
-        $submission_page = $this->uiFactory->modal()->lightboxTextPage((string) $this->essay->getWrittenText(), $this->plugin->txt('submission'));
+        $submission_page = $this->uiFactory->modal()->lightboxTextPage((string) $this->essay->getProcessedText(), $this->plugin->txt('submission'));
         $submission_modal = $this->uiFactory->modal()->lightbox($submission_page);
 
         // todo respect review period
@@ -145,5 +151,17 @@ class WriterStartGUI extends BaseGUI
          $context->init((string) $DIC->user()->getId(), (string) $this->object->getRefId());
          $service = new Service($context);
          $service->openFrontend();
+     }
+
+     protected function processText()
+     {
+         global $DIC;
+
+         $context = new WriterContext();
+         $context->init((string) $DIC->user()->getId(), (string) $this->object->getRefId());
+         $service = new Service($context);
+         $service->processWrittenText();
+
+         $this->ctrl->redirect($this);
      }
 }

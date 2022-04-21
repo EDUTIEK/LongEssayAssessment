@@ -290,4 +290,15 @@ class WriterContext implements Context
         $essay = $repo->getEssayByWriterIdAndTaskId($this->user->getId(), $this->object->getId());
         return $repo->ifWriterHistoryExistByEssayIdAndHashAfter($essay->getId(), $hash_after);
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function setProcessedText(string $text): void
+    {
+        $repo = $this->di->getEssayRepo();
+        $essay = $repo->getEssayByWriterIdAndTaskId($this->user->getId(), $this->object->getId());
+        $essay->setProcessedText($text);
+        $repo->updateEssay($essay);
+    }
 }

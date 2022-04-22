@@ -141,6 +141,10 @@ class ilLongEssayTaskPlugin extends ilRepositoryObjectPlugin
      */
     public function dbTimeToUnix(?string $db_timestamp): ?int
     {
+        if (empty($db_timestamp)) {
+            return null;
+        }
+
         try {
             $datetime = new \ilDateTime($db_timestamp, IL_CAL_DATETIME);
             return $datetime->get(IL_CAL_UNIX);
@@ -157,6 +161,11 @@ class ilLongEssayTaskPlugin extends ilRepositoryObjectPlugin
      * @return ?string
      */
     public function unixTimeToDb(?int $unix_timestamp): ?string {
+
+        if (empty($unix_timestamp)) {
+            return null;
+        }
+
         try {
             $datetime = new \ilDateTime($unix_timestamp, IL_CAL_UNIX);
             return $datetime->get(IL_CAL_DATETIME);

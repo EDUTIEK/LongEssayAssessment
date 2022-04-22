@@ -3,6 +3,7 @@
 
 namespace ILIAS\Plugin\LongEssayTask\Writer;
 
+use Edutiek\LongEssayService\Exceptions\ContextException;
 use Edutiek\LongEssayService\Writer\Service;
 use ILIAS\Plugin\LongEssayTask\BaseGUI;
 use ILIAS\Plugin\LongEssayTask\Data\Essay;
@@ -37,6 +38,11 @@ class WriterStartGUI extends BaseGUI
 
         $this->task = $taskRepo->getTaskSettingsById($this->object->getId());
         $this->essay = $essayRepo->getEssayByWriterIdAndTaskId($this->dic->user()->getId(), $this->object->getId());
+        if (!isset($this->essay)) {
+            $this->essay = new Essay();
+            $this->essay->setWriterId($this->dic->user()->getId());
+            $this->essay->setTaskId($this->object->getId());
+        }
 
         $cmd = $this->ctrl->getCmd('showStartPage');
         switch ($cmd)
@@ -44,6 +50,7 @@ class WriterStartGUI extends BaseGUI
             case 'showStartPage':
             case 'startWriter':
             case 'processText':
+            case 'downloadWriterPdf':
                 $this->$cmd();
                 break;
 
@@ -57,6 +64,11 @@ class WriterStartGUI extends BaseGUI
      */
     protected function showStartPage()
     {
+        $contents = [];
+        $modals = [];
+
+        // Toolbar
+
         $button = \ilLinkButton::getInstance();
         $button->setUrl($this->ctrl->getLinkTarget($this, 'startWriter'));
         $button->setCaption($this->plugin->txt('start_writing'), false);
@@ -68,8 +80,9 @@ class WriterStartGUI extends BaseGUI
         $button->setCaption($this->plugin->txt('process_text'), false);
         $this->toolbar->addButtonInstance($button);
 
+        // Instructions
 
-        $description = $this->uiFactory->item()->group($this->plugin->txt('task_instructions'),
+        $contents[] = $this->uiFactory->item()->group($this->plugin->txt('task_instructions'),
             [$this->uiFactory->item()->standard($this->lng->txt('description'))
                 ->withDescription($this->task->getInstructions())
                 ->withProperties(array(
@@ -78,7 +91,8 @@ class WriterStartGUI extends BaseGUI
                     )
                 ))]);
 
-        // ressources
+        // Resources
+
         $item1 = $this->uiFactory->item()->standard($this->uiFactory->link()->standard("Informationen zur Prüfung",''))
             ->withLeadIcon($this->uiFactory->symbol()->icon()->standard('file', 'File', 'medium'))
             ->withProperties(array(
@@ -91,39 +105,52 @@ class WriterStartGUI extends BaseGUI
                 "Webseite" => "https://www.gesetze-im-internet.de/bgb/",
                 "Verfügbar" => "vorab"));
 
-        $resources = $this->uiFactory->item()->group("Material", array(
-            $item1,
-            $item2
-        ));
+//        $contents[] = $this->uiFactory->item()->group("Material", array(
+//            $item1,
+//            $item2
+//        ));
 
-        $submission_page = $this->uiFactory->modal()->lightboxTextPage((string) $this->essay->getProcessedText(), $this->plugin->txt('submission'));
-        $submission_modal = $this->uiFactory->modal()->lightbox($submission_page);
+        // Result
+
+        $result_actions = [];
 
         // todo respect review period
-        // todo: insert real result
-        $result = $this->uiFactory->item()->group($this->plugin->txt('result'), [
-            $this->uiFactory->item()->standard($this->plugin->txt('not_specified'))
-                ->withDescription("")
-                ->withProperties(array(
+        if (true) {
+            $submission_page = $this->uiFactory->modal()->lightboxTextPage((string) $this->essay->getProcessedText(), $this->plugin->txt('submission'));
+            $submission_modal = $this->uiFactory->modal()->lightbox($submission_page);
+            $modals[$submission_modal->getShowSignal()->getId()] = $submission_modal;
+
+            $result_actions[] = $this->uiFactory->button()->shy($this->plugin->txt('view_submission'), '')
+                ->withOnClick($submission_modal->getShowSignal());
+
+            $result_actions[] = $this->uiFactory->button()->shy($this->plugin->txt('download_submission'),
+            $this->ctrl->getLinkTarget($this, 'downloadWriterPdf'));
+
+        }
+
+        $result_item = $this->uiFactory->item()->standard($this->plugin->txt('not_specified'))
+            ->withDescription("")
+            ->withProperties(array(
                 $this->plugin->txt('review_period') => $this->plugin->formatPeriod(
                     $this->task->getReviewStart(), $this->task->getReviewEnd()
-                )))
-                ->withActions($this->uiFactory->dropdown()->standard([
-                    $this->uiFactory->button()->shy($this->plugin->txt('view_submission'), '')
-                    ->withOnClick($submission_modal->getShowSignal()),
-                    //$this->uiFactory->button()->shy('Bewertung herunterladen', '')
-                    ]))
-            ]);
+                )));
+        if (!empty($result_actions)) {
+            $result_item = $result_item->withActions($this->uiFactory->dropdown()->standard($result_actions));
+        }
+        $contents[] = $this->uiFactory->item()->group($this->plugin->txt('result'), [$result_item]);
 
 
+        // Output to the page
 
-        $this->tpl->setContent(
-            $this->renderer->render($description) .
-            // $this->renderer->render($resources) .
-            $this->renderer->render($result) .
-            $this->renderer->render($submission_modal)
-        );
+        $html = '';
+        foreach ($contents as $content) {
+            $html .= $this->renderer->render($content);
+        }
+        foreach ($modals as $id => $modal) {
+            $this->tpl->addLightbox($this->renderer->render($modal), $id);
+        }
 
+        $this->tpl->setContent($html);
      }
 
 
@@ -132,15 +159,13 @@ class WriterStartGUI extends BaseGUI
      */
      protected function startWriter()
      {
-        global $DIC;
-
          $di = LongEssayTaskDI::getInstance();
 
          // ensure that an essay record exists
-         $essay = $di->getEssayRepo()->getEssayByWriterIdAndTaskId((string) $DIC->user()->getId(), (string) $this->object->getId());
+         $essay = $di->getEssayRepo()->getEssayByWriterIdAndTaskId((string) $this->dic->user()->getId(), (string) $this->object->getId());
          if (!isset($essay)) {
              $essay = new Essay();
-             $essay->setWriterId((string) $DIC->user()->getId());
+             $essay->setWriterId((string) $this->dic->user()->getId());
              $essay->setTaskId((string) $this->object->getId());
              $essay->setUuid($essay->generateUUID4());
              $essay->setRawTextHash('');
@@ -148,20 +173,37 @@ class WriterStartGUI extends BaseGUI
          }
 
          $context = new WriterContext();
-         $context->init((string) $DIC->user()->getId(), (string) $this->object->getRefId());
+         $context->init((string) $this->dic->user()->getId(), (string) $this->object->getRefId());
          $service = new Service($context);
          $service->openFrontend();
      }
 
+    /**
+     * Process the written text
+     * (just to test the html processing - will be done automatically when written text is saved)
+     * @throws ContextException
+     */
      protected function processText()
      {
-         global $DIC;
-
          $context = new WriterContext();
-         $context->init((string) $DIC->user()->getId(), (string) $this->object->getRefId());
+         $context->init((string) $this->dic->user()->getId(), (string) $this->object->getRefId());
          $service = new Service($context);
          $service->processWrittenText();
 
          $this->ctrl->redirect($this);
+     }
+
+    /**
+     * Download a generated pdf from the processed written text
+     */
+     protected function downloadWriterPdf()
+     {
+         $context = new WriterContext();
+         $context->init((string) $this->dic->user()->getId(), (string) $this->object->getRefId());
+         $service = new Service($context);
+
+         $filename = 'task' . $this->object->getId() . '_user' . $this->dic->user()->getId(). '.pdf';
+
+         ilUtil::deliverData($service->getProcessedTextAsPdf(), $filename, 'application/pdf');
      }
 }

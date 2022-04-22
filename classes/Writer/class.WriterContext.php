@@ -9,9 +9,10 @@ use Edutiek\LongEssayService\Data\WritingTask;
 use Edutiek\LongEssayService\Exceptions\ContextException;
 use Edutiek\LongEssayService\Writer\Context;
 use Edutiek\LongEssayService\Writer\Service;
+use Edutiek\LongEssayService\Data\WrittenEssay;
 use ilContext;
-use ILIAS\DI\Container;
 use ILIAS\Plugin\LongEssayTask\Data\AccessToken;
+use ILIAS\Plugin\LongEssayTask\Data\Essay;
 use ILIAS\Plugin\LongEssayTask\Data\WriterHistory;
 use ILIAS\Plugin\LongEssayTask\LongEssayTaskDI;
 use \ilObjUser;
@@ -75,6 +76,32 @@ class WriterContext implements Context
             throw new ContextException('Writer not permitted', ContextException::PERMISSION_DENIED);
         }
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function getSystemName(): string
+    {
+        global $DIC;
+        return (string) $DIC->clientIni()->readVariable('client', 'name');
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getLanguage(): string
+    {
+        return $this->user->getLanguage();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getTimezone(): string
+    {
+        return (string) $this->user->getTimeZone();
+    }
+
 
     /**
      * @inheritDoc
@@ -197,46 +224,70 @@ class WriterContext implements Context
         $repo = $this->di->getTaskRepo();
         $task = $repo->getTaskSettingsById($this->object->getId());
 
-        $writing_end = null;
-        if (!empty($task->getWritingEnd())) {
-            $writing_end = $this->plugin->dbTimeToUnix($task->getWritingEnd());
+        // todo: get time extension of the user and add it
+        return new writingTask(
+            $this->object->getTitle(),
+            $task->getInstructions(),
+            $this->user->getFullname(),
+            $this->plugin->dbTimeToUnix($task->getWritingEnd()));
+    }
+
+
+    /**
+     * @inheritDoc
+     */
+    public function getWrittenEssay(): WrittenEssay
+    {
+        $repo = $this->di->getEssayRepo();
+        $essay = $repo->getEssayByWriterIdAndTaskId($this->user->getId(), $this->object->getId());
+
+        if (isset($essay)) {
+            return new WrittenEssay(
+                $essay->getWrittenText(),
+                $essay->getRawTextHash(),
+                $essay->getProcessedText(),
+                $this->plugin->dbTimeToUnix($essay->getEditStarted()),
+                $this->plugin->dbTimeToUnix($essay->getEditEnded()),
+                (bool) $essay->isIsAuthorized()
+            );
+        }
+        else {
+            return new WrittenEssay(
+                null,
+                null,
+                null,
+                null,
+                null,
+                false
+            );
+        }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setWrittenEssay(WrittenEssay $written_essay): void
+    {
+        $repo = $this->di->getEssayRepo();
+        $essay = $repo->getEssayByWriterIdAndTaskId($this->user->getId(), $this->object->getId());
+
+        if (!isset($essay)) {
+            $essay = new Essay();
+            $essay->setWriterId((string) $this->user->getId());
+            $essay->setTaskId((string) $this->object->getId());
+            $essay->setUuid($essay->generateUUID4());
+            $essay->setRawTextHash('');
+            $repo->createEssay($essay);
         }
 
-        // todo: get time extension of the user and add it
-
-        return new writingTask($this->object->getTitle(), $task->getInstructions(), $this->user->getFullname(), $writing_end);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getWrittenText(): string
-    {
-       $repo = $this->di->getEssayRepo();
-       $essay = $repo->getEssayByWriterIdAndTaskId($this->user->getId(), $this->object->getId());
-       return (string) $essay->getWrittenText();
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getWrittenHash(): string
-    {
-        $repo = $this->di->getEssayRepo();
-        $essay = $repo->getEssayByWriterIdAndTaskId($this->user->getId(), $this->object->getId());
-        return (string) $essay->getRawTextHash();
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function setWrittenText(string $text, string $hash): void
-    {
-        $repo = $this->di->getEssayRepo();
-        $essay = $repo->getEssayByWriterIdAndTaskId($this->user->getId(), $this->object->getId());
-        $essay->setWrittenText($text);
-        $essay->setRawTextHash($hash);
-        $repo->updateEssay($essay);
+        $repo->updateEssay($essay
+            ->setWrittenText($written_essay->getWrittenText())
+            ->setRawTextHash($written_essay->getWrittenHash())
+            ->setProcessedText($written_essay->getProcessedText())
+            ->setEditStarted($this->plugin->unixTimeToDb($written_essay->getEditStarted()))
+            ->setEditEnded($this->plugin->unixTimeToDb($written_essay->getEditEnded()))
+            ->setIsAuthorized($written_essay->isAuthorized())
+        );
     }
 
     /**
@@ -291,14 +342,4 @@ class WriterContext implements Context
         return $repo->ifWriterHistoryExistByEssayIdAndHashAfter($essay->getId(), $hash_after);
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function setProcessedText(string $text): void
-    {
-        $repo = $this->di->getEssayRepo();
-        $essay = $repo->getEssayByWriterIdAndTaskId($this->user->getId(), $this->object->getId());
-        $essay->setProcessedText($text);
-        $repo->updateEssay($essay);
-    }
 }

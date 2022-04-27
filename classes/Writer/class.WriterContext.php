@@ -4,6 +4,7 @@ namespace ILIAS\Plugin\LongEssayTask\Writer;
 
 use Edutiek\LongEssayService\Base\BaseContext;
 use Edutiek\LongEssayService\Data\ApiToken;
+use Edutiek\LongEssayService\Data\WritingSettings;
 use Edutiek\LongEssayService\Data\WritingStep;
 use Edutiek\LongEssayService\Data\WritingTask;
 use Edutiek\LongEssayService\Exceptions\ContextException;
@@ -217,6 +218,23 @@ class WriterContext implements Context
     }
 
     /**
+     * @inheritDoc
+     */
+    public function getWritingSettings(): WritingSettings
+    {
+        $repo = $this->di->getTaskRepo();
+        $settings = $repo->getEditorSettingsById($this->object->getId());
+
+        return new WritingSettings(
+          $settings->getHeadlineScheme(),
+          $settings->getFormattingOptions(),
+          $settings->getNoticeBoards(),
+          $settings->isCopyAllowed()
+        );
+    }
+
+
+    /**
      *  @inheritDoc
      */
     public function getWritingTask(): WritingTask
@@ -225,7 +243,7 @@ class WriterContext implements Context
         $task = $repo->getTaskSettingsById($this->object->getId());
 
         // todo: get time extension of the user and add it
-        return new writingTask(
+        return new WritingTask(
             $this->object->getTitle(),
             $task->getInstructions(),
             $this->user->getFullname(),
@@ -341,5 +359,4 @@ class WriterContext implements Context
         $essay = $repo->getEssayByWriterIdAndTaskId($this->user->getId(), $this->object->getId());
         return $repo->ifWriterHistoryExistByEssayIdAndHashAfter($essay->getId(), $hash_after);
     }
-
 }

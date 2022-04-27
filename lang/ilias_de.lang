@@ -86,7 +86,7 @@ task_solution#:#Musterlösung
 task_solution_info#:#Die Musterlösung wird erst ab dem Zeitpunkt der Einsichtnahme angezeigt.
 editor_settings#:#Einstellungen für den Editor
 headline_scheme#:#Überschriften-Schema
-headline_scheme_none#:#Keine Überschriften
+headline_scheme_none#:#Ohne Numerierung
 headline_scheme_numeric#:#Numeriert: 1 ‧ 1.1 ‧ 1.1.1
 headline_scheme_edutiek#:#Gutachten: A. ‧ I. ‧ 1 ‧ a. ‧ aa. ‧ (1)
 formatting_options#:#Text-Formatierung
@@ -95,9 +95,9 @@ formatting_options_none_info#:#Keine Formatatierungs-Optionen
 formatting_options_minimal#:#Minimal
 formatting_options_minimal_info#:#Fett, kursiv,  unterstrichen
 formatting_options_medium#:#Mittel
-formatting_options_medium_info#:#Fett, kursiv,  unterstrichen, Aufzählungen, Einrückung
+formatting_options_medium_info#:#Fett, kursiv,  unterstrichen, Aufzählungen
 formatting_options_full#:#Hoch
-formatting_options_full_info#:#Fett, kursiv,  unterstrichen, Aufzählungen, Einrückung, Überschriften, Links
+formatting_options_full_info#:#Fett, kursiv,  unterstrichen, Aufzählungen, Überschriften
 notice_boards#:#Notizbretter
 notice_boards_info#:#Anzahl der zur Verfügung gestellten Notitzbretter
 copy_allowed#:#Freies Kopieren erlauben

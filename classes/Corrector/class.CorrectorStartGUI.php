@@ -4,6 +4,7 @@
 namespace ILIAS\Plugin\LongEssayTask\Corrector;
 
 use ILIAS\Plugin\LongEssayTask\BaseGUI;
+use ILIAS\Plugin\LongEssayTask\LongEssayTaskDI;
 use ILIAS\UI\Factory;
 use \ilUtil;
 
@@ -40,13 +41,13 @@ class CorrectorStartGUI extends BaseGUI
      */
     protected function showStartPage()
     {
-        $this->toolbar->setFormAction($this->ctrl->getFormAction($this));
-        $button = \ilLinkButton::getInstance();
-        $button->setUrl('./Customizing/global/plugins/Services/Repository/RepositoryObject/LongEssayTask/lib/corrector/index.html');
-        $button->setCaption('Korrektur starten', false);
-        $button->setPrimary(true);
-        $button->setTarget('_blank');   // as long as the corrector has no return address
-        $this->toolbar->addButtonInstance($button);
+//        $this->toolbar->setFormAction($this->ctrl->getFormAction($this));
+//        $button = \ilLinkButton::getInstance();
+//        $button->setUrl('./Customizing/global/plugins/Services/Repository/RepositoryObject/LongEssayTask/lib/corrector/index.html');
+//        $button->setCaption('Korrektur starten', false);
+//        $button->setPrimary(true);
+//        $button->setTarget('_blank');   // as long as the corrector has no return address
+//        $this->toolbar->addButtonInstance($button);
 
 
         $actions = array(
@@ -57,17 +58,17 @@ class CorrectorStartGUI extends BaseGUI
             "Große Abweichung" => "",
         );
 
-        $aria_label = "change_the_currently_displayed_mode";
-        $view_control = $this->uiFactory->viewControl()->mode($actions, $aria_label)->withActive("Alle");
-
-        $result = $this->uiFactory->item()->group("", [
-            $this->uiFactory->item()->standard("Korrekturstatus")
-                ->withDescription("")
-                ->withProperties(array(
-                    "Bewertete Abgaben:" => "1",
-                    "Offene Abgaben:" => "1",
-                    "Durchschnittsnote:" => "10"))
-        ]);
+//        $aria_label = "change_the_currently_displayed_mode";
+//        $view_control = $this->uiFactory->viewControl()->mode($actions, $aria_label)->withActive("Alle");
+//
+//        $result = $this->uiFactory->item()->group("", [
+//            $this->uiFactory->item()->standard("Korrekturstatus")
+//                ->withDescription("")
+//                ->withProperties(array(
+//                    "Bewertete Abgaben:" => "1",
+//                    "Offene Abgaben:" => "1",
+//                    "Durchschnittsnote:" => "10"))
+//        ]);
 
 
 
@@ -98,18 +99,44 @@ class CorrectorStartGUI extends BaseGUI
                     $this->uiFactory->button()->shy('Korrektur bearbeiten', '#'),
                 ]));
 
-        $resources = $this->uiFactory->item()->group("Zugeteilte Abgaben", array(
+        $essays = $this->uiFactory->item()->group("Zugeteilte Abgaben", array(
             $item1,
             $item2
         ));
 
         $this->tpl->setContent(
 
-            $this->renderer->render($result) . '<br>'.
-            $this->renderer->render($view_control) . '<br><br>' .
-            $this->renderer->render($resources)
+//            $this->renderer->render($result) . '<br>'.
+//            $this->renderer->render($view_control) . '<br><br>' .
+            $this->renderer->render($essays)
 
         );
 
      }
+
+
+    /**
+     * Start the Writer Web app
+     */
+    protected function startCorrector()
+    {
+        $di = LongEssayTaskDI::getInstance();
+
+        // ensure that an essay record exists
+        $essay = $di->getEssayRepo()->getEssayByWriterIdAndTaskId((string) $this->dic->user()->getId(), (string) $this->object->getId());
+        if (!isset($essay)) {
+            $essay = new Essay();
+            $essay->setWriterId((string) $this->dic->user()->getId());
+            $essay->setTaskId((string) $this->object->getId());
+            $essay->setUuid($essay->generateUUID4());
+            $essay->setRawTextHash('');
+            $di->getEssayRepo()->createEssay($essay);
+        }
+
+        $context = new WriterContext();
+        $context->init((string) $this->dic->user()->getId(), (string) $this->object->getRefId());
+        $service = new Service($context);
+        $service->openFrontend();
+    }
+
 }

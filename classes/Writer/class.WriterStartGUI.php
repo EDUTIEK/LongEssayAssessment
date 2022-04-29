@@ -75,10 +75,10 @@ class WriterStartGUI extends BaseGUI
         $button->setPrimary(true);
         $this->toolbar->addButtonInstance($button);
 
-        $button = \ilLinkButton::getInstance();
-        $button->setUrl($this->ctrl->getLinkTarget($this, 'processText'));
-        $button->setCaption($this->plugin->txt('process_text'), false);
-        $this->toolbar->addButtonInstance($button);
+//        $button = \ilLinkButton::getInstance();
+//        $button->setUrl($this->ctrl->getLinkTarget($this, 'processText'));
+//        $button->setCaption($this->plugin->txt('process_text'), false);
+//        $this->toolbar->addButtonInstance($button);
 
         // Instructions
 

@@ -31,15 +31,19 @@ class ResourceListGUI
     protected $lng;
 
     /**
+     * @param object $target_class
      * @param Factory $uiFactory
      * @param Renderer $renderer
      * @param \ilLanguage $lng
      */
-    public function __construct(Factory $uiFactory, Renderer $renderer, \ilLanguage $lng)
+    public function __construct(object $target_class, Factory $uiFactory, Renderer $renderer, \ilLanguage $lng)
     {
+        global $DIC;
         $this->uiFactory = $uiFactory;
         $this->renderer = $renderer;
         $this->lng = $lng;
+        $this->ctrl = $DIC->ctrl();
+        $this->target_class = $target_class;
     }
 
     /**
@@ -122,8 +126,11 @@ class ResourceListGUI
             {
                 case Resource::RESOURCE_TYPE_URL:
                     // TODO: Use ilFile
+
                     $label = "File.file";
-                    $action = "#";
+                    $this->ctrl->setParameterByClass($this->target_class, "resource_id", $resource->getId());
+                    $action = $this->ctrl->getFormAction($this->target_class, "downloadResourceFile");
+
                     break;
                 case Resource::RESOURCE_TYPE_FILE:
                     $label = $action = $resource->getUrl();

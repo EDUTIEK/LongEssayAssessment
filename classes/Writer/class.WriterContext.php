@@ -2,10 +2,9 @@
 
 namespace ILIAS\Plugin\LongEssayTask\Writer;
 
-use Edutiek\LongEssayService\Base\BaseContext;
+
 use Edutiek\LongEssayService\Data\ApiToken;
-use Edutiek\LongEssayService\Data\WritingTask;
-use Edutiek\LongEssayService\Exceptions\ContextException;
+
 use Edutiek\LongEssayService\Writer\Context;
 use Edutiek\LongEssayService\Writer\Service;
 use ilContext;
@@ -16,7 +15,7 @@ use \ilObjUser;
 use \ilObject;
 use \ilObjLongEssayTask;
 
-class WriterContext implements Context
+class WriterContext
 {
     /** @var \ilLongEssayTaskPlugin */
     protected $plugin;
@@ -43,7 +42,7 @@ class WriterContext implements Context
      * @inheritDoc
      * here: use string versions of the user id and ref_id of the repository object
      */
-    public function init(string $user_key, string $environment_key): void
+    public function init(string $user_key, string $environment_key)
     {
         $user_id = (int) $user_key;
         $ref_id = (int) $environment_key;

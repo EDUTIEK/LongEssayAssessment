@@ -6,8 +6,8 @@ namespace ILIAS\Plugin\LongEssayTask\Task;
 use ILIAS\Plugin\LongEssayTask\BaseGUI;
 use ILIAS\Plugin\LongEssayTask\Data\Resource;
 use ILIAS\Plugin\LongEssayTask\LongEssayTaskDI;
-
-use \ilUtil;
+use ilUtil;
+use ResourceUploadHandlerGUI;
 
 /**
  * Resources Administration
@@ -24,16 +24,22 @@ class ResourcesAdminGUI extends BaseGUI
      */
     public function executeCommand()
     {
-        $cmd = $this->ctrl->getCmd('showItems');
-        switch ($cmd)
-        {
-            case 'showItems':
-            case "editItem":
-                $this->$cmd();
-                break;
-
+        $next_class = $this->ctrl->getNextClass();
+        switch ($next_class) {
             default:
-                $this->tpl->setContent('unknown command: ' . $cmd);
+                $cmd = $this->ctrl->getCmd('showItems');
+
+                switch ($cmd) {
+                    case 'showItems':
+                    case "editItem":
+                    case "downloadResourceFile":
+                        $this->$cmd();
+                        break;
+
+                    default:
+                        $this->tpl->setContent('unknown command: ' . $cmd);
+                }
+                break;
         }
     }
 
@@ -52,57 +58,14 @@ class ResourcesAdminGUI extends BaseGUI
         $task_repo = $di->getTaskRepo();
         $resources = $task_repo->getResourceByTaskId($this->object->getId());
 
-        $list = new ResourceListGUI($this->uiFactory, $this->renderer, $this->lng);
+        $list = new ResourceListGUI($this, $this->uiFactory, $this->renderer, $this->lng);
         $list->setItems($resources);
 
         $this->tpl->setContent($list->render());
     }
 
 
-    /**
-     * Edit and save the settings
-     */
-    protected function editItem()
-    {
-//        $di = LongEssayTaskDI::getInstance();
-//        $task_repo = $di->getTaskRepo();
-//
-//        if(($resource_id = $this->getResourceId())!= null)
-//        {
-//            $resource = $task_repo->getResourceById($resource_id);
-//
-//            if ($resource->getTaskId() != $this->object->getId()) {
-//                $this->raisePermissionError();
-//            }
-//
-//        }else{
-//            $resource = new Resource();
-//        }
-        $resource_admin = new ResourceAdmin($this->object->getId());
-        $resource = $resource_admin->getResource($this->getResourceId());
 
-        $form = $this->buildResourceForm($resource);
-
-        // apply inputs
-        if ($this->request->getMethod() == "POST") {
-            $form = $form->withRequest($this->request);
-            $data = $form->getData();
-            $result = $form->getInputGroup()->getContent();
-            $this->ctrl->setParameter($this, 'resource_id', $resource->getId());
-
-            if ($result->isOK()) {
-
-
-                ilUtil::sendSuccess($this->lng->txt("settings_saved"), true);
-                $this->ctrl->redirect($this, "editItem");
-            }else{
-                // TODO: lang var
-                ilUtil::sendFailure($this->lng->txt("validation_failure"), true);
-            }
-        }
-
-        $this->tpl->setContent($this->renderer->render($form));
-    }
 
     /**
      * Build Resource Form
@@ -117,55 +80,45 @@ class ResourcesAdminGUI extends BaseGUI
         else {
             $section_title = $this->plugin->txt('Material hinzufügen');
         }
-
         $factory = $this->uiFactory->input()->field();
 
-        $sections = [];
-
-        // Object
-        $fields = [];
-        $fields['title'] = $factory->text($this->lng->txt("title"))
+        $title = $factory->text($this->lng->txt("title"))
             ->withRequired(true)
             ->withValue($a_resource->getTitle());
 
-        $fields['description'] = $factory->textarea($this->lng->txt("description"))
+        $description = $factory->textarea($this->lng->txt("description"))
             ->withValue((string) $a_resource->getDescription());
 
+        $resource_file = $factory->file(new ResourceUploadHandlerGUI(), "Datei hochladen")
+            ->withAcceptedMimeTypes(['application/pdf'])
+            ->withByline("Test!");
 
-        $group1 = $this->uiFactory ->input()->field()->group(
-            [
-                "file" => $this->uiFactory->input()->field()->file(new \ilUIDemoFileUploadHandlerGUI(), "Datei hochladen")
-                    ->withAcceptedMimeTypes(['application/pdf']),
-            ],
-            "Datei"
-        );
-        $group2 = $this->uiFactory->input()->field()->group(
-            [
-                "url" =>  $this->uiFactory->input()->field()->text('Url')
-                    ->withValue($a_resource->getUrl())
-            ],
-            "Weblink"
-        );
+        $url = $factory->text('Url')
+            ->withValue($a_resource->getUrl());
 
-        $fields['type'] = $this->uiFactory->input()->field()->switchableGroup(
-            [
-                Resource::RESOURCE_TYPE_FILE => $group1,
-                Resource::RESOURCE_TYPE_URL => $group2,
-            ],
-            "Typ"
-        )->withValue($a_resource->getType());
-
-        $fields['availability'] = $factory->radio("Verfügbarkeit")
+        $availability = $factory->radio("Verfügbarkeit")
             ->withRequired(true)
             //->withValue($a_resource->getAvailability())
             ->withOption(Resource::RESOURCE_AVAILABILITY_BEFORE, "Vorab")
             ->withOption(Resource::RESOURCE_AVAILABILITY_DURING, "Nach Start der Bearbeitung")
             ->withOption(Resource::RESOURCE_AVAILABILITY_AFTER, "Zur Einsichtnahme");
 
-
+        $sections = [];
+        // Object
+        $fields = [];
+        $fields['title'] = $title;
+        $fields['description'] = $description;
+        $group1 = $factory->group(["resource_file" => $resource_file,], "Datei");
+        $group2 = $factory->group(["url" => $url, ],"Weblink");
+        $fields['type'] = $factory->switchableGroup([
+            Resource::RESOURCE_TYPE_FILE => $group1,
+            Resource::RESOURCE_TYPE_URL => $group2,
+        ], "Typ")->withValue($a_resource->getType());
+        $fields['availability'] = $availability;
         $sections['form'] = $factory->section($fields, $section_title);
+        $action = $this->ctrl->getFormAction($this, "editItem");
 
-        return $this->uiFactory->input()->container()->form()->standard($this->ctrl->getFormAction($this), $sections);
+        return $this->uiFactory->input()->container()->form()->standard($action, $sections);
     }
 
     /**
@@ -178,25 +131,59 @@ class ResourcesAdminGUI extends BaseGUI
         global $DIC;
         $resource_admin = new ResourceAdmin($this->object->getId());
 
-        switch ($a_data["type"])
+        switch ($a_data["type"][0])
         {
             case Resource::RESOURCE_TYPE_FILE:
-                $upload_result = $DIC->upload()->getResults()['my_uploaded_file'];
+
                 $resource_admin->saveFileResource(
                     $a_data["title"],
                     $a_data["description"],
                     $a_data["availability"],
-                    $upload_result,
-                    $DIC->user()->getId());
+                    (string)$a_data["type"][1]["resource_file"][0]);
                 break;
             case Resource::RESOURCE_TYPE_URL:
                 $resource_admin->saveURLResource(
                     $a_data["title"],
                     $a_data["description"],
                     $a_data["availability"],
-                    $a_data["url"]);
+                    $a_data["type"][1]["url"]);
                 break;
         }
+    }
+
+    /**
+     * Edit and save the settings
+     */
+    protected function editItem()
+    {
+        $resource_admin = new ResourceAdmin($this->object->getId());
+        $resource_id = $this->getResourceId();
+        $resource = $resource_admin->getResource($resource_id);
+
+        if ($resource_id != null && $resource->getTaskId() != $this->object->getId()) {
+            $this->raisePermissionError();
+        }
+
+        $form = $this->buildResourceForm($resource);
+
+        // apply inputs
+        if ($this->request->getMethod() == "POST") {
+            $form = $form->withRequest($this->request);
+            $data = $form->getData();
+
+            $result = $form->getInputGroup()->getContent();
+
+            if ($result->isOK()) {
+                $this->updateResource($data["form"], $resource);
+                ilUtil::sendSuccess($this->lng->txt("settings_saved"), true);
+                $this->ctrl->redirect($this, "showItems");
+            }else{
+                $this->ctrl->setParameter($this, 'resource_id', $resource->getId());
+                ilUtil::sendFailure($this->lng->txt("validation_failure"), false);
+            }
+        }
+
+        $this->tpl->setContent($this->renderer->render($form));
     }
 
     /**
@@ -204,6 +191,7 @@ class ResourcesAdminGUI extends BaseGUI
      */
     protected function getResourceId(): ?int
     {
+        //TODO: Check if resource id is in this task...
         if (isset($_GET["resouce_id"]))
         {
             return (int) $_GET["resouce_id"];
@@ -211,12 +199,23 @@ class ResourcesAdminGUI extends BaseGUI
         return null;
     }
 
-    protected function downloadResource(): void
-    {
+    protected function downloadResourceFile() {
         global $DIC;
-        $response = $DIC->http()->response();
+        $identifier = "";
 
-        $response->withBody();
+        if($resource_id = $this->getResourceId() !== null) {
+            $resource_admin = new ResourceAdmin($this->object->getId());
+            $resource = $resource_admin->getResource($resource_id);
+            if($resource->getType() == Resource::RESOURCE_TYPE_FILE && is_string($resource->getFileId()))
+            {
+                $identifier =  $resource->getFileId();
+            }
+        }
+
+        $resource = $DIC->resourceStorage()->manage()->find($identifier);
+
+        if ($resource !== null) {
+            $DIC->resourceStorage()->consume()->download($resource)->run();
+        }
     }
-
 }

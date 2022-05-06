@@ -95,10 +95,10 @@ class ilObjLongEssayTask extends ilObjectPlugin
 	 */
     protected function doDelete()
 	{
-        $di = LongEssayTaskDI::getInstance();
-        $object_repo = $di->getObjectRepo();
+        //$di = LongEssayTaskDI::getInstance();
+        //$object_repo = $di->getObjectRepo();
 
-        $object_repo->deleteObject($this->getId());
+        //$object_repo->deleteObject($this->getId());
 	}
 
 	/**

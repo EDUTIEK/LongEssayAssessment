@@ -39,7 +39,7 @@ class Resource extends ActivePluginRecord
      *
      * @var integer
      * @con_has_field        true
-     * @con_is_primary       true
+     * @con_is_primary       false
      * @con_sequence         false
      * @con_is_notnull       true
      * @con_fieldtype        integer

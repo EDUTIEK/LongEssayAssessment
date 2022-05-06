@@ -30,11 +30,8 @@ class ResourceAdmin
      * @param int $a_user_id
      * @return int
      */
-    public function saveFileResource(string $a_title, string $a_description, string $a_availability, UploadResult $a_upload, int $a_user_id = 6): int
+    public function saveFileResource(string $a_title, string $a_description, string $a_availability, string $identification): int
     {
-        global $DIC;
-        $stakeholder = new ResourceResourceStakeholder($a_user_id);
-        $identification = (string) $DIC->resourceStorage()->manage()->upload($a_upload, $stakeholder);
 
         $resource = new Resource();
         $resource->setType(Resource::RESOURCE_TYPE_FILE);
@@ -47,7 +44,6 @@ class ResourceAdmin
         $let_dic = LongEssayTaskDI::getInstance();
         $task_repo = $let_dic->getTaskRepo();
         $task_repo->createResource($resource);
-
         return $resource->getId();
     }
 
@@ -61,7 +57,7 @@ class ResourceAdmin
     public function saveURLResource(string $a_title, string $a_description, string $a_availability, string $a_url): int
     {
         $resource = new Resource();
-        $resource->setType(Resource::RESOURCE_TYPE_FILE);
+        $resource->setType(Resource::RESOURCE_TYPE_URL);
         $resource->setTitle($a_title);
         $resource->setDescription($a_description);
         $resource->setAvailability($this->validateAvailability($a_availability));
@@ -128,29 +124,23 @@ class ResourceAdmin
 
     /**
      * @param int $a_id
-     * @return array
+     * @return Resource
      */
-    public function getResource(int $a_id = 0): array
+    public function getResource(?int $a_id = 0): Resource
     {
+        if($a_id == null)
+        {
+            $resource = new Resource();
+            $resource->setTaskId($this->getTaskId());
+            return $resource;
+        }
+
         $let_dic = LongEssayTaskDI::getInstance();
         $task_repo = $let_dic->getTaskRepo();
         $resource = $task_repo->getResourceById($a_id);
 
-        if($resource == null)
-        {
-            $resource = new Resource();
-        }
 
-        return [
-          "id" => $resource->getId(),
-            "title" => $resource->getTitle(),
-            "description" => $resource->getDescription(),
-            "type" => $resource->getType(),
-            "availability" => $resource->getAvailability(),
-            "url" => $resource->getUrl(),
-            "file" => $resource->getType() == Resource::RESOURCE_TYPE_FILE ?
-                new ResourceIdentification($resource->getFileId()): null
-        ];
+        return $resource;
     }
 
 

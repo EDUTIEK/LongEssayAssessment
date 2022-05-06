@@ -51,18 +51,10 @@ class ResourceListGUI
      */
     public function render()
     {
-//        $this->toolbar->setFormAction($this->ctrl->getFormAction($this));
-//        $button = \ilLinkButton::getInstance();
-//        $button->setUrl($this->ctrl->getLinkTarget($this, 'editItem'));
-//        $button->setCaption($this->plugin->txt('add_resource'), false);
-//        $this->toolbar->addButtonInstance($button);
         $data = $this->getItemData();
 
-
-
-        // TODO: Lang Var tittle Beschreibung
         $ptable = $this->uiFactory->table()->presentation(
-            'Materialien zur Aufgabe',
+            $this->lng->txt('task_resources'),
             [],
             function (
                 PresentationRow $row,
@@ -73,23 +65,20 @@ class ResourceListGUI
                     ->withHeadline($record['headline'])
                     //->withSubheadline($record['subheadline'])
                     ->withImportantFields($record['important'])
-                    ->withContent($ui_factory->listing()->descriptive(['Beschreibung' => $record['subheadline']]))
+                    ->withContent($ui_factory->listing()->descriptive([$this->lng->txt('description') => $record['subheadline']]))
                     ->withFurtherFieldsHeadline('')
                     ->withFurtherFields($record['important'])
                     ->withAction(
                         $ui_factory->dropdown()->standard([
-                            $ui_factory->button()->shy($this->lng->txt('edit'), '#'),
-                            $ui_factory->button()->shy($this->lng->txt('delete'), '#')
+                            $ui_factory->button()->shy($this->lng->txt('edit'), $record["edit_action"]),
+                            $ui_factory->button()->shy($this->lng->txt('delete'), $record["delete_action"])
                         ])
                             ->withLabel($this->lng->txt("actions"))
-                    )
-                    ;
+                    );
             }
         );
 
         return $this->renderer->render($ptable->withData($this->getItemData()));
-
-        //$this->tpl->setContent($this->renderer->render($ptable->withData($this->getItemData())));
     }
 
     /**
@@ -121,19 +110,26 @@ class ResourceListGUI
         {
             $label = "";
             $action = "";
+			$this->ctrl->setParameter($this->target_class, "resource_id", (string) $resource->getId());
+			$edit_action = $this->ctrl->getFormAction($this->target_class, "editItem");
+			$this->ctrl->setParameter($this->target_class, "resource_id", (string) $resource->getId());
+			$delete_action = $this->ctrl->getFormAction($this->target_class, "deleteItem");
 
             switch($resource->getType())
             {
-                case Resource::RESOURCE_TYPE_URL:
-                    // TODO: Use ilFile
-
-                    $label = "File.file";
-                    $this->ctrl->setParameterByClass($this->target_class, "resource_id", $resource->getId());
+                case Resource::RESOURCE_TYPE_FILE:
+                    $label = $this->lng->txt("download");
+                    $this->ctrl->setParameter($this->target_class, "resource_id", (string) $resource->getId());
                     $action = $this->ctrl->getFormAction($this->target_class, "downloadResourceFile");
 
                     break;
-                case Resource::RESOURCE_TYPE_FILE:
+                case Resource::RESOURCE_TYPE_URL:
                     $label = $action = $resource->getUrl();
+
+					if (strlen($label) >= 20) {
+						$label = substr($label, 0, 17) . "...";
+					}
+
                     break;
             }
             //TODO: Lang var Verfügbar und availability
@@ -141,40 +137,15 @@ class ResourceListGUI
                 'headline' => $resource->getTitle(),
                 'subheadline' => $resource->getDescription(),
                 'important' => [
-                    'Verfügbar' => $resource->getAvailability(),
+                    $this->lng->txt('available') => $resource->getAvailability(),
                     $this->renderer->render($this->uiFactory->link()->standard($label,$action))
-                ]
+                ],
+				'edit_action' => $edit_action,
+				'delete_action' => $delete_action,
             ];
         }
 
-        return array_merge([
-            [
-                'headline' => 'Informationen zur Klausur',
-                'subheadline' => 'Hier finden Sie wichtige Informationen zum Ablauf der Klausur',
-                'important' => [
-                    'Verfügbar' => 'vorab',
-                    $this->renderer->render($this->uiFactory->link()->standard('Informationen.pdf','#'))
-                ],
-            ],
-            [
-                'headline' => 'BGB',
-                'subheadline' => 'Online-Ausgabe des Bürgerlichen Gesetzbuchs',
-                'type' => 'url',
-                'important' => [
-                    'Verfügbar' => 'vorab',
-                    $this->renderer->render($this->uiFactory->link()->standard('https://www.gesetze-im-internet.de/bgb/','https://www.gesetze-im-internet.de/bgb/'))
-                ],
-            ],
-            [
-                'headline' => 'Vertragsentwurf',
-                'subheadline' => 'Der zu begutachtende Vertragsentwurf',
-                'important' => [
-                    'Verfügbar' => 'nach Start',
-                    $this->renderer->render($this->uiFactory->link()->standard('Vertrag.pdf','#'))
-                ],
-            ],
-
-        ], $item_data);
+        return $item_data;
     }
 
 

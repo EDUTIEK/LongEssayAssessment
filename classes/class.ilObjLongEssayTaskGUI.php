@@ -246,13 +246,13 @@ class ilObjLongEssayTaskGUI extends ilObjectPluginGUI
                 'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessaytask\task\contentsettingsgui')
             ];
         }
-//        if ($this->object->canEditContentSettings()) {
-//            $tabs[] = [
-//                'id' => 'tab_resources',
-//                'txt' => $this->plugin->txt('tab_resources'),
-//                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessaytask\task\resourcesadmingui')
-//            ];
-//        }
+        if ($this->object->canEditContentSettings()) {
+            $tabs[] = [
+                'id' => 'tab_resources',
+                'txt' => $this->plugin->txt('tab_resources'),
+                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessaytask\task\resourcesadmingui')
+            ];
+        }
         if ($this->object->canEditTechnicalSettings()) {
             $tabs[] = [
                 'id' => 'tab_technical_settings',

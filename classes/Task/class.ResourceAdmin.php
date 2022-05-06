@@ -128,7 +128,7 @@ class ResourceAdmin
      */
     public function getResource(?int $a_id = 0): Resource
     {
-        if($a_id == null)
+        if($a_id === null)
         {
             $resource = new Resource();
             $resource->setTaskId($this->getTaskId());
@@ -142,6 +142,29 @@ class ResourceAdmin
 
         return $resource;
     }
+
+	public function deleteResource(?int $a_id = 0): bool
+	{
+		global $DIC;
+		$let_dic = LongEssayTaskDI::getInstance();
+		$task_repo = $let_dic->getTaskRepo();
+		$resource = $task_repo->getResourceById($a_id);
+		if ($resource !== null)
+		{
+			$task_repo->deleteResource($a_id);
+
+			if($resource->getType() === Resource::RESOURCE_TYPE_FILE){
+				$file_id = $resource->getFileId();
+				$file = $DIC->resourceStorage()->manage()->find($file_id);
+				if ($file !== null) {
+					$DIC->resourceStorage()->manage()->remove($file);
+				}
+			}
+			return true;
+		}
+
+		return false;
+	}
 
 
     /**

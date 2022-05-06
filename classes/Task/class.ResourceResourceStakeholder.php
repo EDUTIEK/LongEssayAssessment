@@ -2,6 +2,7 @@
 
 namespace ILIAS\Plugin\LongEssayTask\Task;
 
+use ILIAS\Plugin\LongEssayTask\LongEssayTaskDI;
 use ILIAS\ResourceStorage\Identification\ResourceIdentification;
 
 class ResourceResourceStakeholder extends \ILIAS\ResourceStorage\Stakeholder\AbstractResourceStakeholder
@@ -34,9 +35,20 @@ class ResourceResourceStakeholder extends \ILIAS\ResourceStorage\Stakeholder\Abs
 
     public function resourceHasBeenDeleted(ResourceIdentification $identification): bool
     {
-        //TODO: Check Repository whether Task or Resource is in DB
+		$let_dic = LongEssayTaskDI::getInstance();
+		$task_repo = $let_dic->getTaskRepo();
+		$resource = $task_repo->getResourceById((string) $identification);
 
-        return parent::resourceHasBeenDeleted($identification);
+		if($resource === null){
+			return true;
+		}
+		$task = $task_repo->getTaskSettingsById($resource->getTaskId());
+
+		if($task === null){
+			return true;
+		}
+
+        return false;
     }
 
 }

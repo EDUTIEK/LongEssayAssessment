@@ -33,6 +33,7 @@ class ResourcesAdminGUI extends BaseGUI
                     case 'showItems':
                     case "editItem":
                     case "downloadResourceFile":
+					case "deleteItem":
                         $this->$cmd();
                         break;
 
@@ -186,15 +187,37 @@ class ResourcesAdminGUI extends BaseGUI
         $this->tpl->setContent($this->renderer->render($form));
     }
 
+	/**
+	 * Delete Resource items
+	 * @return void
+	 */
+	protected function deleteItem(){
+		$identifier = "";
+		if(($resource_id = $this->getResourceId()) !== null) {
+			$resource_admin = new ResourceAdmin($this->object->getId());
+			$resource = $resource_admin->getResource($resource_id);
+
+			if($resource->getTaskId() == $this->object->getId()){
+				$resource_admin->deleteResource($resource_id);
+				ilUtil::sendSuccess($this->lng->txt("resource_deleted"), true);
+			}else {
+				ilUtil::sendFailure($this->lng->txt("permission_denied"), true);
+			}
+		}else{
+			// TODO: Error no resource ID in GET
+		}
+		$this->ctrl->redirect($this, "showItems");
+	}
+
     /**
      * @return ?int
      */
     protected function getResourceId(): ?int
     {
         //TODO: Check if resource id is in this task...
-        if (isset($_GET["resouce_id"]))
+        if (isset($_GET["resource_id"]))
         {
-            return (int) $_GET["resouce_id"];
+            return (int) $_GET["resource_id"];
         }
         return null;
     }
@@ -202,20 +225,28 @@ class ResourcesAdminGUI extends BaseGUI
     protected function downloadResourceFile() {
         global $DIC;
         $identifier = "";
+        if(($resource_id = $this->getResourceId()) !== null) {
+			$resource_admin = new ResourceAdmin($this->object->getId());
+			$resource = $resource_admin->getResource($resource_id);
 
-        if($resource_id = $this->getResourceId() !== null) {
-            $resource_admin = new ResourceAdmin($this->object->getId());
-            $resource = $resource_admin->getResource($resource_id);
-            if($resource->getType() == Resource::RESOURCE_TYPE_FILE && is_string($resource->getFileId()))
-            {
-                $identifier =  $resource->getFileId();
-            }
-        }
+			if ($resource->getType() == Resource::RESOURCE_TYPE_FILE && is_string($resource->getFileId())) {
+				$identifier = $resource->getFileId();
+			}
+
+			if ($resource->getTaskId() != $this->object->getId()) {
+				ilUtil::sendFailure($this->lng->txt("permission_denied"), true);
+				$this->ctrl->redirect($this, "showItems");
+			}
+		}else{
+			// TODO: Error no resource ID in GET
+		}
 
         $resource = $DIC->resourceStorage()->manage()->find($identifier);
 
         if ($resource !== null) {
             $DIC->resourceStorage()->consume()->download($resource)->run();
-        }
+        }else{
+			// TODO: Error resource not in Storage
+		}
     }
 }

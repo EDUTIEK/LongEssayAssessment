@@ -77,7 +77,7 @@ class Essay extends ActivePluginRecord
     protected $written_text = null;
 
     /**
-     * Rawtext Hash (sha1)
+     * Rawtext Hash
      *
      * @var null|string
      * @con_has_field        true

@@ -84,7 +84,7 @@ class WriterHistory extends ActivePluginRecord
     protected $hash_before;
 
     /**
-     * hash before
+     * hash after
      *
      * @var string
      * @con_has_field        true

@@ -133,6 +133,77 @@ class ilLongEssayTaskPlugin extends ilRepositoryObjectPlugin
         return $txt;
     }
 
+    /**
+     * Convert a string timestamp stored in the database to a unix timestamp
+     * Respect the time zone of ILIAS
+     * @param ?string $db_timestamp
+     * @return ?int
+     */
+    public function dbTimeToUnix(?string $db_timestamp): ?int
+    {
+        if (empty($db_timestamp)) {
+            return null;
+        }
+
+        try {
+            $datetime = new \ilDateTime($db_timestamp, IL_CAL_DATETIME);
+            return $datetime->get(IL_CAL_UNIX);
+        }
+        catch (Throwable $throwable) {
+            return null;
+        }
+    }
+
+    /**
+     * Convert a unix timestamp to a string timestamp stored in the database
+     * Respect the time zone of ILIAS
+     * @param ?int $unix_timestamp
+     * @return ?string
+     */
+    public function unixTimeToDb(?int $unix_timestamp): ?string {
+
+        if (empty($unix_timestamp)) {
+            return null;
+        }
+
+        try {
+            $datetime = new \ilDateTime($unix_timestamp, IL_CAL_UNIX);
+            return $datetime->get(IL_CAL_DATETIME);
+        }
+        catch (Throwable $throwable) {
+            return null;
+        }
+    }
+
+    /**
+     * Format a time period from timestamp strings with fallback for missing values
+     */
+    public function formatPeriod(?string $start, ?string $end): string
+    {
+        try {
+            if(empty($start) && empty($end)) {
+                return $this->txt('not_specified');
+            }
+            elseif (empty($end)) {
+                return
+                    $this->txt('period_from') . ' '
+                    .\ilDatePresentation::formatDate(new \ilDateTime($start, IL_CAL_DATETIME));
+            }
+            elseif (empty($start)) {
+                return
+                    \ilDatePresentation::formatDate(new \ilDateTime($end, IL_CAL_DATETIME))
+                    . ' ' . $this->txt('period_until');
+            }
+            else {
+                return \ilDatePresentation::formatPeriod(new \ilDateTime($start, IL_CAL_DATETIME), new \ilDateTime($end, IL_CAL_DATETIME));
+            }
+        }
+        catch (Throwable $e) {
+            return $this->txt('not_specified');
+        }
+    }
+
+
 
     public function reloadControlStructure() {
         // load control structure

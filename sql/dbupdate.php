@@ -1049,6 +1049,15 @@ if ($ilDB->tableColumnExists('xlet_access_token','essay_id')) {
 ?>
 <#30>
 <?php
+if ($ilDB->indexExistsByFields('xlet_writer_history', ['hash_before'])) {
+    $ilDB->addIndex('xlet_writer_history', ['hash_before'], 'i2');
+}
+if ($ilDB->indexExistsByFields('xlet_writer_history', ['hash_after'])) {
+    $ilDB->addIndex('xlet_writer_history', ['hash_after'], 'i3');
+}
+?>
+<#31>
+<?php
 if ($ilDB->tableColumnExists('xlet_resource','file_id')) {
     $ilDB->modifyTableColumn('xlet_resource','file_id', [
         'notnull' => '0',
@@ -1058,7 +1067,7 @@ if ($ilDB->tableColumnExists('xlet_resource','file_id')) {
     $ilDB->addIndex("xlet_resource", array("file_id"), "i2");
 }
 ?>
-<#31>
+<#32>
 <?php
 $ilDB->dropPrimaryKey("xlet_resource");
 $ilDB->addPrimaryKey("xlet_resource", array("id"));

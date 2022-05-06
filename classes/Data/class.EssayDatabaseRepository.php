@@ -72,6 +72,28 @@ class EssayDatabaseRepository implements EssayRepository
         return null;
     }
 
+    public function getWriterHistoryStepsByEssayId(int $essay_id, ?int $limit = null): array
+    {
+        if ($limit > 0) {
+            return array_reverse(
+                WriterHistory::where(['essay_id' => $essay_id])
+                ->orderBy('id', 'DESC')
+                ->limit(0, $limit)
+                ->get()
+            );
+        }
+        else {
+            return WriterHistory::where(['essay_id' => $essay_id])
+                ->orderBy('id', 'ASC')
+                ->get();
+        }
+    }
+
+    public function ifWriterHistoryExistByEssayIdAndHashAfter(int $essay_id, string $hash_after): bool
+    {
+        return WriterHistory::where(['essay_id' => $essay_id, 'hash_after' => $hash_after])->hasSets();
+    }
+
     public function getAccessTokenByUserIdAndTaskId(int $a_user_id, int $a_task_id): ?AccessToken
     {
         foreach(AccessToken::where(['user_id' => $a_user_id, 'task_id'=> $a_task_id])->orderBy('id')->get() as $token) {

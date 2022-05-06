@@ -262,7 +262,7 @@ class WriterContext extends ServiceContext implements Context
 
         // todo: comment out dummy return
         if ($key == "GG") {
-            \ilUtil::deliverFile(__DIR__ . '/../../lib/GG.pdf', 'GG.pdf','application/pdf');
+            \ilUtil::deliverFile(__DIR__ . '/../../lib/GG.pdf', 'GG.pdf','application/pdf', true);
         }
     }
 }

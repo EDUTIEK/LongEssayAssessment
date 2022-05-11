@@ -37,7 +37,7 @@ interface EssayRepository
 
     public function ifEssayExistsById(int $a_id): bool;
 
-    public function getAccessTokenByUserIdAndTaskId(int $a_user_id, int $a_task_id): ?AccessToken;
+    public function getAccessTokenByUserIdAndTaskId(int $a_user_id, int $a_task_id, string $a_purpose): ?AccessToken;
 
     /** @return WriterHistory[] */
     public function getWriterHistoryStepsByEssayId(int $essay_id, ?int $limit = null): array;

@@ -1072,3 +1072,15 @@ if ($ilDB->tableColumnExists('xlet_resource','file_id')) {
 $ilDB->dropPrimaryKey("xlet_resource");
 $ilDB->addPrimaryKey("xlet_resource", array("id"));
 ?>
+<#33>
+<?php
+if (!$ilDB->tableColumnExists('xlet_access_token','purpose')) {
+    $ilDB->addTableColumn('xlet_access_token', 'purpose', [
+        'notnull' => '1',
+        'type' => 'text',
+        'length' => '10',
+        'default' => 'data'
+    ]);
+}
+
+?>

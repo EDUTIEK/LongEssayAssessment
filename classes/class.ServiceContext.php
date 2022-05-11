@@ -114,29 +114,22 @@ abstract class ServiceContext implements BaseContext
         return (string) $this->object->getRefId();
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function getDefaultTokenLifetime(): int
-    {
-       return 3600;
-    }
 
     /**
      * @inheritDoc
      */
-    public function getApiToken(): ?ApiToken
+    public function getApiToken(string $purpose): ?ApiToken
     {
         $repo = $this->di->getEssayRepo();
-        $token = $repo->getAccessTokenByUserIdAndTaskId($this->user->getId(), $this->object->getId());
+        $token = $repo->getAccessTokenByUserIdAndTaskId($this->user->getId(), $this->object->getId(), $purpose);
         if (isset($token)) {
             try {
-                $valid = new \ilDateTime($token->getValidUntil(), IL_CAL_DATETIME);
+                $expires = (new \ilDateTime($token->getValidUntil(), IL_CAL_DATETIME))->get(IL_CAL_UNIX);
             }
             catch (\ilDateTimeException $e) {
-                $valid = 0;
+                $expires = 0;
             }
-            return new ApiToken($token->getToken(), $token->getIp(), $valid->get(IL_CAL_UNIX));
+            return new ApiToken($token->getToken(), $token->getIp(), (int) $expires);
         }
         return null;
     }
@@ -144,11 +137,11 @@ abstract class ServiceContext implements BaseContext
     /**
      * @inheritDoc
      */
-    public function setApiToken(ApiToken $api_token)
+    public function setApiToken(ApiToken $api_token, string $purpose)
     {
         // delete an existing token
         $repo = $this->di->getEssayRepo();
-        $token = $repo->getAccessTokenByUserIdAndTaskId($this->user->getId(), $this->object->getId());
+        $token = $repo->getAccessTokenByUserIdAndTaskId($this->user->getId(), $this->object->getId(), $purpose);
         if (isset($token)) {
             $repo->deleteAccessToken($token->getId());
         }
@@ -157,15 +150,21 @@ abstract class ServiceContext implements BaseContext
         $token = new AccessToken();
         $token->setUserId($this->user->getId());
         $token->setTaskId($this->object->getId());
-        try {
-            $valid = new \ilDateTime($api_token->getExpires(), IL_CAL_UNIX);
+        $token->setPurpose($purpose);
+        if ($api_token->getExpires()) {
+            try {
+                $valid = (new \ilDateTime($api_token->getExpires(), IL_CAL_UNIX))->get(IL_CAL_DATETIME);
+            }
+            catch (\ilDateTimeException $e) {
+                $valid = null;
+            }
         }
-        catch (\ilDateTimeException $e) {
-            $valid = '';
+        else {
+            $valid = null;
         }
         $token->setToken($api_token->getValue());
         $token->setIp($api_token->getIpAddress());
-        $token->setValidUntil($valid->get(IL_CAL_DATETIME));
+        $token->setValidUntil($valid);
         $repo->createAccessToken($token);
     }
 

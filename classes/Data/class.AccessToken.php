@@ -9,6 +9,11 @@ namespace ILIAS\Plugin\LongEssayTask\Data;
  */
 class AccessToken extends ActivePluginRecord
 {
+    /**
+     * The token ist
+     */
+    public const PURPOSE_DATA = 'data';
+    public const PURPOSE_FILE = 'file';
 
     /**
      * @var string
@@ -53,6 +58,15 @@ class AccessToken extends ActivePluginRecord
      * @con_length           4
      */
     protected $task_id = 0;
+
+    /**
+     * @var string
+     * @con_has_field        true
+     * @con_is_notnull       true
+     * @con_fieldtype        text
+     * @con_length           10
+     */
+    protected $purpose = "";
 
     /**
      * @var string
@@ -133,6 +147,30 @@ class AccessToken extends ActivePluginRecord
     public function setTaskId(int $task_id): AccessToken
     {
         $this->task_id = $task_id;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPurpose(): string
+    {
+        return $this->purpose;
+    }
+
+    /**
+     * @param string $purpose
+     * @return AccessToken
+     */
+    public function setPurpose(string $purpose): AccessToken
+    {
+        switch ($purpose) {
+            case self::PURPOSE_DATA:
+            case self::PURPOSE_FILE:
+                $this->purpose = $purpose;
+            break;
+        }
+
         return $this;
     }
 

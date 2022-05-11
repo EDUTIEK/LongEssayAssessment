@@ -35,8 +35,10 @@ interface TaskRepository
     public function ifTaskExistsById(int $a_id): bool;
 
     public function getResourceById(int $a_id): ?Resource;
+    public function getResourceByFileId(string $a_file_id): ?Resource;
     public function getResourceByTaskId(int $a_task_id): array;
     public function ifResourceExistsById(int $a_id): bool;
+    public function ifResourceExistsByFileId(string $a_file_id): bool;
 
     //public function ifLogEntryExistsById(int $a_id): bool;
 

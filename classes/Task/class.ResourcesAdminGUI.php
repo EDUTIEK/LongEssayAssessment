@@ -4,10 +4,10 @@
 namespace ILIAS\Plugin\LongEssayTask\Task;
 
 use ILIAS\Plugin\LongEssayTask\BaseGUI;
-use ILIAS\Plugin\LongEssayTask\Data\ActiveRecordDummy;
-use ILIAS\UI\Component\Table\PresentationRow;
-use ILIAS\UI\Factory;
-use \ilUtil;
+use ILIAS\Plugin\LongEssayTask\Data\Resource;
+use ILIAS\Plugin\LongEssayTask\LongEssayTaskDI;
+use ilUtil;
+use ResourceUploadHandlerGUI;
 
 /**
  * Resources Administration
@@ -24,52 +24,24 @@ class ResourcesAdminGUI extends BaseGUI
      */
     public function executeCommand()
     {
-        $cmd = $this->ctrl->getCmd('showItems');
-        switch ($cmd)
-        {
-            case 'showItems':
-            case "editItem":
-                $this->$cmd();
-                break;
-
+        $next_class = $this->ctrl->getNextClass();
+        switch ($next_class) {
             default:
-                $this->tpl->setContent('unknown command: ' . $cmd);
+                $cmd = $this->ctrl->getCmd('showItems');
+
+                switch ($cmd) {
+                    case 'showItems':
+                    case "editItem":
+                    case "downloadResourceFile":
+					case "deleteItem":
+                        $this->$cmd();
+                        break;
+
+                    default:
+                        $this->tpl->setContent('unknown command: ' . $cmd);
+                }
+                break;
         }
-    }
-
-    /**
-     * Get the Table Data
-     */
-    protected function getItemData()
-    {
-        return [
-            [
-                'headline' => 'Informationen zur Klausur',
-                'subheadline' => 'Hier finden Sie wichtige Informationen zum Ablauf der Klausur',
-                'important' => [
-                    'Verfügbar' => 'vorab',
-                     $this->renderer->render($this->uiFactory->link()->standard('Informationen.pdf','#'))
-                ],
-            ],
-            [
-                'headline' => 'BGB',
-                'subheadline' => 'Online-Ausgabe des Bürgerlichen Gesetzbuchs',
-                'type' => 'url',
-                'important' => [
-                    'Verfügbar' => 'vorab',
-                    $this->renderer->render($this->uiFactory->link()->standard('https://www.gesetze-im-internet.de/bgb/','https://www.gesetze-im-internet.de/bgb/'))
-                ],
-            ],
-            [
-                'headline' => 'Vertragsentwurf',
-                'subheadline' => 'Der zu begutachtende Vertragsentwurf',
-                'important' => [
-                    'Verfügbar' => 'nach Start',
-                     $this->renderer->render($this->uiFactory->link()->standard('Vertrag.pdf','#'))
-                ],
-            ],
-
-        ];
     }
 
     /**
@@ -83,120 +55,198 @@ class ResourcesAdminGUI extends BaseGUI
         $button->setCaption($this->plugin->txt('add_resource'), false);
         $this->toolbar->addButtonInstance($button);
 
+        $di = LongEssayTaskDI::getInstance();
+        $task_repo = $di->getTaskRepo();
+        $resources = $task_repo->getResourceByTaskId($this->object->getId());
 
-        $ptable = $this->uiFactory->table()->presentation(
-            'Materialien zur Aufgabe',
-            [],
-            function (
-                PresentationRow $row,
-                array $record,
-                Factory $ui_factory,
-                $environment) {
-                return $row
-                    ->withHeadline($record['headline'])
-                    //->withSubheadline($record['subheadline'])
-                    ->withImportantFields($record['important'])
-                    ->withContent($ui_factory->listing()->descriptive(['Beschreibung' => $record['subheadline']]))
-                    ->withFurtherFieldsHeadline('')
-                    ->withFurtherFields($record['important'])
-                    ->withAction(
-                        $ui_factory->dropdown()->standard([
-                            $ui_factory->button()->shy($this->lng->txt('edit'), '#'),
-                            $ui_factory->button()->shy($this->lng->txt('delete'), '#')
-                            ])
-                            ->withLabel($this->lng->txt("actions"))
-                    )
-                    ;
-            }
-        );
+        $list = new ResourceListGUI($this, $this->uiFactory, $this->renderer, $this->lng);
+        $list->setItems($resources);
 
-        $this->tpl->setContent($this->renderer->render($ptable->withData($this->getItemData())));
+        $this->tpl->setContent($list->render());
     }
 
+
+
+
+    /**
+     * Build Resource Form
+     * @param Resource $a_resource
+     * @return \ILIAS\UI\Component\Input\Container\Form\Standard
+     */
+    protected function buildResourceForm(Resource $a_resource): \ILIAS\UI\Component\Input\Container\Form\Standard
+    {
+        if ($this->getResourceId() != null) {
+            $section_title = $this->plugin->txt('Material bearbeiten');
+        }
+        else {
+            $section_title = $this->plugin->txt('Material hinzufügen');
+        }
+        $factory = $this->uiFactory->input()->field();
+
+        $title = $factory->text($this->lng->txt("title"))
+            ->withRequired(true)
+            ->withValue($a_resource->getTitle());
+
+        $description = $factory->textarea($this->lng->txt("description"))
+            ->withValue((string) $a_resource->getDescription());
+
+        $resource_file = $factory->file(new ResourceUploadHandlerGUI(), "Datei hochladen")
+            ->withAcceptedMimeTypes(['application/pdf'])
+            ->withByline("Test!");
+
+        $url = $factory->text('Url')
+            ->withValue($a_resource->getUrl());
+
+        $availability = $factory->radio("Verfügbarkeit")
+            ->withRequired(true)
+            //->withValue($a_resource->getAvailability())
+            ->withOption(Resource::RESOURCE_AVAILABILITY_BEFORE, "Vorab")
+            ->withOption(Resource::RESOURCE_AVAILABILITY_DURING, "Nach Start der Bearbeitung")
+            ->withOption(Resource::RESOURCE_AVAILABILITY_AFTER, "Zur Einsichtnahme");
+
+        $sections = [];
+        // Object
+        $fields = [];
+        $fields['title'] = $title;
+        $fields['description'] = $description;
+        $group1 = $factory->group(["resource_file" => $resource_file,], "Datei");
+        $group2 = $factory->group(["url" => $url, ],"Weblink");
+        $fields['type'] = $factory->switchableGroup([
+            Resource::RESOURCE_TYPE_FILE => $group1,
+            Resource::RESOURCE_TYPE_URL => $group2,
+        ], "Typ")->withValue($a_resource->getType());
+        $fields['availability'] = $availability;
+        $sections['form'] = $factory->section($fields, $section_title);
+        $action = $this->ctrl->getFormAction($this, "editItem");
+
+        return $this->uiFactory->input()->container()->form()->standard($action, $sections);
+    }
+
+    /**
+     * @param array $a_data
+     * @param Resource $a_resource
+     * @return void
+     */
+    protected function updateResource(array $a_data, Resource $a_resource)
+    {
+        global $DIC;
+        $resource_admin = new ResourceAdmin($this->object->getId());
+
+        switch ($a_data["type"][0])
+        {
+            case Resource::RESOURCE_TYPE_FILE:
+
+                $resource_admin->saveFileResource(
+                    $a_data["title"],
+                    $a_data["description"],
+                    $a_data["availability"],
+                    (string)$a_data["type"][1]["resource_file"][0]);
+                break;
+            case Resource::RESOURCE_TYPE_URL:
+                $resource_admin->saveURLResource(
+                    $a_data["title"],
+                    $a_data["description"],
+                    $a_data["availability"],
+                    $a_data["type"][1]["url"]);
+                break;
+        }
+    }
 
     /**
      * Edit and save the settings
      */
     protected function editItem()
     {
-        $params = $this->request->getQueryParams();
-        if (!empty($params['id'])) {
-            $record = ActiveRecordDummy::findOrGetInstance($params['id']);
-            if ($record->getTaskId() != $this->object->getId()) {
-                $this->raisePermissionError();
-            }
-            $section_title = $this->plugin->txt('Material bearbeiten');
-        }
-        else {
-            $record = new ActiveRecordDummy();
-            $record->setTaskId($this->object->getId());
-            $section_title = $this->plugin->txt('Material hinzufügen');
+        $resource_admin = new ResourceAdmin($this->object->getId());
+        $resource_id = $this->getResourceId();
+        $resource = $resource_admin->getResource($resource_id);
+
+        if ($resource_id != null && $resource->getTaskId() != $this->object->getId()) {
+            $this->raisePermissionError();
         }
 
-        $factory = $this->uiFactory->input()->field();
-
-        $sections = [];
-
-        // Object
-        $fields = [];
-        $fields['title'] = $factory->text($this->lng->txt("title"))
-            ->withRequired(true)
-            ->withValue($record->getStringDummy());
-
-        $fields['description'] = $factory->textarea($this->lng->txt("description"))
-            ->withValue($record->getStringDummy());
-
-
-        $group1 = $this->uiFactory ->input()->field()->group(
-            [
-                "file" => $this->uiFactory->input()->field()->file(new \ilUIDemoFileUploadHandlerGUI(), "Datei hochladen")
-                ->withAcceptedMimeTypes(['application/pdf']),
-            ],
-            "Datei"
-        );
-        $group2 = $this->uiFactory->input()->field()->group(
-            [
-                "url" =>  $this->uiFactory->input()->field()->text('Url')
-            ],
-            "Weblink"
-        );
-
-        $fields['type'] = $this->uiFactory->input()->field()->switchableGroup(
-            [
-                "1" => $group1,
-                "2" => $group2,
-            ],
-            "Typ"
-        );
-
-        $fields['availability'] = $factory->radio("Verfügbarkeit")
-            ->withRequired(true)
-            ->withOption("before", "Vorab")
-            ->withOption("writing", "Nach Start der Bearbeitung")
-            ->withOption("review", "Zur Einsichtnahme");
-
-
-        $sections['form'] = $factory->section($fields, $section_title);
-
-        $form = $this->uiFactory->input()->container()->form()->standard($this->ctrl->getFormAction($this), $sections);
+        $form = $this->buildResourceForm($resource);
 
         // apply inputs
         if ($this->request->getMethod() == "POST") {
             $form = $form->withRequest($this->request);
             $data = $form->getData();
-        }
 
-        // inputs are ok => save data
-        if (isset($data)) {
-            $record->setMixedDummy($data['form']['title']);
-            $record->save();
+            $result = $form->getInputGroup()->getContent();
 
-            ilUtil::sendSuccess($this->lng->txt("settings_saved"), true);
-
-            $this->ctrl->setParameter($this, 'id', $record->getId());
-            $this->ctrl->redirect($this, "editItem");
+            if ($result->isOK()) {
+                $this->updateResource($data["form"], $resource);
+                ilUtil::sendSuccess($this->lng->txt("settings_saved"), true);
+                $this->ctrl->redirect($this, "showItems");
+            }else{
+                $this->ctrl->setParameter($this, 'resource_id', $resource->getId());
+                ilUtil::sendFailure($this->lng->txt("validation_failure"), false);
+            }
         }
 
         $this->tpl->setContent($this->renderer->render($form));
+    }
+
+	/**
+	 * Delete Resource items
+	 * @return void
+	 */
+	protected function deleteItem(){
+		$identifier = "";
+		if(($resource_id = $this->getResourceId()) !== null) {
+			$resource_admin = new ResourceAdmin($this->object->getId());
+			$resource = $resource_admin->getResource($resource_id);
+
+			if($resource->getTaskId() == $this->object->getId()){
+				$resource_admin->deleteResource($resource_id);
+				ilUtil::sendSuccess($this->lng->txt("resource_deleted"), true);
+			}else {
+				ilUtil::sendFailure($this->lng->txt("permission_denied"), true);
+			}
+		}else{
+			// TODO: Error no resource ID in GET
+		}
+		$this->ctrl->redirect($this, "showItems");
+	}
+
+    /**
+     * @return ?int
+     */
+    protected function getResourceId(): ?int
+    {
+        //TODO: Check if resource id is in this task...
+        if (isset($_GET["resource_id"]))
+        {
+            return (int) $_GET["resource_id"];
+        }
+        return null;
+    }
+
+    protected function downloadResourceFile() {
+        global $DIC;
+        $identifier = "";
+        if(($resource_id = $this->getResourceId()) !== null) {
+			$resource_admin = new ResourceAdmin($this->object->getId());
+			$resource = $resource_admin->getResource($resource_id);
+
+			if ($resource->getType() == Resource::RESOURCE_TYPE_FILE && is_string($resource->getFileId())) {
+				$identifier = $resource->getFileId();
+			}
+
+			if ($resource->getTaskId() != $this->object->getId()) {
+				ilUtil::sendFailure($this->lng->txt("permission_denied"), true);
+				$this->ctrl->redirect($this, "showItems");
+			}
+		}else{
+			// TODO: Error no resource ID in GET
+		}
+
+        $resource = $DIC->resourceStorage()->manage()->find($identifier);
+
+        if ($resource !== null) {
+            $DIC->resourceStorage()->consume()->download($resource)->run();
+        }else{
+			// TODO: Error resource not in Storage
+		}
     }
 }

@@ -2,6 +2,7 @@
 
 namespace ILIAS\Plugin\LongEssayTask\Writer;
 
+use Edutiek\LongEssayService\Data\ApiToken;
 use Edutiek\LongEssayService\Data\WritingResource;
 use Edutiek\LongEssayService\Data\WritingSettings;
 use Edutiek\LongEssayService\Data\WritingStep;

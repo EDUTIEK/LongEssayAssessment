@@ -14,6 +14,7 @@ use ILIAS\Plugin\LongEssayTask\Data\Essay;
 use ILIAS\Plugin\LongEssayTask\Data\Resource;
 use ILIAS\Plugin\LongEssayTask\Data\WriterHistory;
 use ILIAS\Plugin\LongEssayTask\ServiceContext;
+use ILIAS\Plugin\LongEssayTask\Task\ResourceAdmin;
 
 class WriterContext extends ServiceContext implements Context
 {
@@ -217,7 +218,7 @@ class WriterContext extends ServiceContext implements Context
 
                 if ($resource->getType() == Resource::RESOURCE_TYPE_FILE) {
                     $source = 'xxx';    // todo provide the real file name
-                    $mimetype = 'yyy';  // todo: provide the real mime type
+                    $mimetype = 'xxyx';  // todo: provide the real mime type
                     $size = 10;         // todo: provide the real size
                 }
                 else {
@@ -252,12 +253,26 @@ class WriterContext extends ServiceContext implements Context
      */
     public function sendFileResource(string $key): void
     {
+		global $DIC;
+
         $repo = $this->di->getTaskRepo();
 
         /** @var Resource $resource */
         foreach ($repo->getResourceByTaskId($this->object->getId()) as $resource) {
             if ($resource->getId() == (int) $key && $resource->getType() == Resource::RESOURCE_TYPE_FILE) {
-                // todo: deliver real resource
+//				// TODO: Comment in, when resource_dev merged
+//				$identifier = "";
+//
+//				if ($resource->getType() == Resource::RESOURCE_TYPE_FILE && is_string($resource->getFileId())) {
+//					$identifier = $resource->getFileId();
+//				}
+//
+//				$resource_file = $DIC->resourceStorage()->manage()->find($identifier);
+//				if ($resource_file !== null) {
+//					$DIC->resourceStorage()->consume()->download($resource_file)->run();
+//				}else{
+//					// TODO: Error resource not in Storage
+//				}
             }
         }
 

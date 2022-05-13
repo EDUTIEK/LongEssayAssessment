@@ -7,8 +7,10 @@ use Edutiek\LongEssayService\Exceptions\ContextException;
 use Edutiek\LongEssayService\Writer\Service;
 use ILIAS\Plugin\LongEssayTask\BaseGUI;
 use ILIAS\Plugin\LongEssayTask\Data\Essay;
+use ILIAS\Plugin\LongEssayTask\Data\Resource;
 use ILIAS\Plugin\LongEssayTask\Data\TaskSettings;
 use ILIAS\Plugin\LongEssayTask\LongEssayTaskDI;
+use ILIAS\Plugin\LongEssayTask\Task\ResourceAdmin;
 use ILIAS\UI\Factory;
 use \ilUtil;
 
@@ -51,6 +53,7 @@ class WriterStartGUI extends BaseGUI
             case 'startWriter':
             case 'processText':
             case 'downloadWriterPdf':
+			case 'downloadResourceFile':
                 $this->$cmd();
                 break;
 
@@ -64,6 +67,7 @@ class WriterStartGUI extends BaseGUI
      */
     protected function showStartPage()
     {
+		global $DIC;
         $contents = [];
         $modals = [];
 
@@ -93,22 +97,41 @@ class WriterStartGUI extends BaseGUI
 
         // Resources
 
-        $item1 = $this->uiFactory->item()->standard($this->uiFactory->link()->standard("Informationen zur Prüfung",''))
-            ->withLeadIcon($this->uiFactory->symbol()->icon()->standard('file', 'File', 'medium'))
-            ->withProperties(array(
-                "Filename" => "Informationen.pdf",
-                "Verfügbar" => "vorab"));
+		$repo = LongEssayTaskDI::getInstance()->getTaskRepo();
 
-        $item2 = $this->uiFactory->item()->standard($this->uiFactory->link()->standard("Bürgerliches Gesetzbuch", ''))
-            ->withLeadIcon($this->uiFactory->symbol()->icon()->standard('webr', 'Link', 'medium'))
-            ->withProperties(array(
-                "Webseite" => "https://www.gesetze-im-internet.de/bgb/",
-                "Verfügbar" => "vorab"));
+		$writing_resources = [];
 
-//        $contents[] = $this->uiFactory->item()->group("Material", array(
-//            $item1,
-//            $item2
-//        ));
+		/** @var Resource $resource */
+		foreach ($repo->getResourceByTaskId($this->object->getId()) as $resource) {
+			if ($resource->getAvailability() == Resource::RESOURCE_AVAILABILITY_BEFORE) {
+
+				if ($resource->getType() == Resource::RESOURCE_TYPE_FILE) {
+					$resource_file = $DIC->resourceStorage()->manage()->find($resource->getFileId());
+					$revision = $DIC->resourceStorage()->manage()->getCurrentRevision($resource_file);
+
+					$this->ctrl->setParameter($this, "resource_id", $resource->getId());
+
+					$item = $this->uiFactory->item()->standard(
+						$this->uiFactory->link()->standard(
+							$resource->getTitle(),
+							$this->ctrl->getLinkTarget($this, "downloadResourceFile"))
+					)
+						->withLeadIcon($this->uiFactory->symbol()->icon()->standard('file', 'File', 'medium'))
+						->withProperties(array(
+							"Filename" => $revision->getInformation()->getTitle(),
+							"Verfügbar" => $resource->getAvailability()));
+				}
+				else {
+					$item = $this->uiFactory->item()->standard($this->uiFactory->link()->standard($resource->getTitle(), $resource->getUrl()))
+						->withLeadIcon($this->uiFactory->symbol()->icon()->standard('webr', 'Link', 'medium'))
+						->withProperties(array(
+							"Webseite" => $resource->getUrl(),
+							"Verfügbar" => $resource->getAvailability()));
+				}
+				$writing_resources[] = $item;
+			}
+		}
+		$contents[] = $this->uiFactory->item()->group("Material", $writing_resources);
 
         // Result
 
@@ -206,4 +229,46 @@ class WriterStartGUI extends BaseGUI
 
          ilUtil::deliverData($service->getProcessedTextAsPdf(), $filename, 'application/pdf');
      }
+
+	/**
+	 * @return ?int
+	 */
+	protected function getResourceId(): ?int
+	{
+		if (isset($_GET["resource_id"]) && is_numeric($_GET["resource_id"]))
+		{
+			return (int) $_GET["resource_id"];
+		}
+		return null;
+	}
+
+
+	protected function downloadResourceFile()
+	{
+		global $DIC;
+		$identifier = "";
+		if (($resource_id = $this->getResourceId()) !== null) {
+			$resource_admin = new ResourceAdmin($this->object->getId());
+			$resource = $resource_admin->getResource($resource_id);
+
+			if ($resource->getType() == Resource::RESOURCE_TYPE_FILE && is_string($resource->getFileId())) {
+				$identifier = $resource->getFileId();
+			}
+
+			if ($resource->getTaskId() != $this->object->getId()) {
+				ilUtil::sendFailure($this->lng->txt("permission_denied"), true);
+				$this->ctrl->redirect($this, "showItems");
+			}
+		} else {
+			// TODO: Error no resource ID in GET
+		}
+
+		$resource = $DIC->resourceStorage()->manage()->find($identifier);
+
+		if ($resource !== null) {
+			$DIC->resourceStorage()->consume()->download($resource)->run();
+		} else {
+			// TODO: Error resource not in Storage
+		}
+	}
 }

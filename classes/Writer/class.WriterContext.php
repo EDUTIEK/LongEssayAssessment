@@ -10,6 +10,7 @@ use Edutiek\LongEssayService\Data\WritingTask;
 use Edutiek\LongEssayService\Writer\Context;
 use Edutiek\LongEssayService\Writer\Service;
 use Edutiek\LongEssayService\Data\WrittenEssay;
+use ILIAS\DI\Exceptions\Exception;
 use ILIAS\Plugin\LongEssayTask\Data\Essay;
 use ILIAS\Plugin\LongEssayTask\Data\Resource;
 use ILIAS\Plugin\LongEssayTask\Data\WriterHistory;
@@ -207,8 +208,9 @@ class WriterContext extends ServiceContext implements Context
      */
     public function getWritingResources(): array
     {
-        $repo = $this->di->getTaskRepo();
+		global $DIC;
 
+        $repo = $this->di->getTaskRepo();
         $writing_resources = [];
 
         /** @var Resource $resource */
@@ -217,9 +219,16 @@ class WriterContext extends ServiceContext implements Context
                 $resource->getAvailability() == Resource::RESOURCE_AVAILABILITY_DURING) {
 
                 if ($resource->getType() == Resource::RESOURCE_TYPE_FILE) {
-                    $source = 'xxx';    // todo provide the real file name
-                    $mimetype = 'xxyx';  // todo: provide the real mime type
-                    $size = 10;         // todo: provide the real size
+					$resource_file = $DIC->resourceStorage()->manage()->find($resource->getFileId());
+					$revision = $DIC->resourceStorage()->manage()->getCurrentRevision($resource_file);
+
+					if($revision === null){
+						continue;
+					}
+
+					$source = $revision->getInformation()->getTitle();
+                    $mimetype = $revision->getInformation()->getMimeType();
+                    $size = $revision->getInformation()->getSize();
                 }
                 else {
                     $mimetype = null;
@@ -227,7 +236,7 @@ class WriterContext extends ServiceContext implements Context
                     $source = $resource->getUrl();
                 }
 
-                $writingResources[] = new WritingResource(
+				$writing_resources[] = new WritingResource(
                     (string) $resource->getId(),
                     $resource->getTitle(),
                     $resource->getType(),
@@ -237,13 +246,6 @@ class WriterContext extends ServiceContext implements Context
                 );
             }
         }
-
-        // todo: comment out dummy return
-        $writing_resources = [
-            new WritingResource('ilias', 'Ilias Home Page', 'url', 'https://www.ilias.de'),
-            new WritingResource('edutiek', 'EDUTIEK Home Page', 'url', 'https://www.edutiek.de'),
-            new WritingResource('GG', 'Grundgesetz', 'file', 'GG.pdf', 'application/pdf', 212997)
-        ];
 
         return $writing_resources;
     }
@@ -260,25 +262,22 @@ class WriterContext extends ServiceContext implements Context
         /** @var Resource $resource */
         foreach ($repo->getResourceByTaskId($this->object->getId()) as $resource) {
             if ($resource->getId() == (int) $key && $resource->getType() == Resource::RESOURCE_TYPE_FILE) {
-//				// TODO: Comment in, when resource_dev merged
-//				$identifier = "";
-//
-//				if ($resource->getType() == Resource::RESOURCE_TYPE_FILE && is_string($resource->getFileId())) {
-//					$identifier = $resource->getFileId();
-//				}
-//
-//				$resource_file = $DIC->resourceStorage()->manage()->find($identifier);
-//				if ($resource_file !== null) {
-//					$DIC->resourceStorage()->consume()->download($resource_file)->run();
-//				}else{
-//					// TODO: Error resource not in Storage
-//				}
-            }
-        }
+				$identifier = "";
 
-        // todo: comment out dummy return
-        if ($key == "GG") {
-            \ilUtil::deliverFile(__DIR__ . '/../../lib/GG.pdf', 'GG.pdf','application/pdf', true);
+				if ($resource->getType() == Resource::RESOURCE_TYPE_FILE && is_string($resource->getFileId())) {
+					$identifier = $resource->getFileId();
+				}else {
+					throw new Exception("No FIle!");
+				}
+
+				$resource_file = $DIC->resourceStorage()->manage()->find($identifier);
+				if ($resource_file !== null) {
+					$DIC->resourceStorage()->consume()->inline($resource_file)->run();
+				}else{
+					// TODO: Error resource not in Storage
+					throw new Exception("Panik!");
+				}
+            }
         }
     }
 }

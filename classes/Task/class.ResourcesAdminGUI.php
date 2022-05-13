@@ -214,12 +214,11 @@ class ResourcesAdminGUI extends BaseGUI
      */
     protected function getResourceId(): ?int
     {
-        //TODO: Check if resource id is in this task...
-        if (isset($_GET["resource_id"]))
-        {
-            return (int) $_GET["resource_id"];
-        }
-        return null;
+		if (isset($_GET["resource_id"]) && is_numeric($_GET["resource_id"]))
+		{
+			return (int) $_GET["resource_id"];
+		}
+		return null;
     }
 
     protected function downloadResourceFile() {
@@ -241,7 +240,7 @@ class ResourcesAdminGUI extends BaseGUI
 			// TODO: Error no resource ID in GET
 		}
 
-        $resource = $DIC->resourceStorage()->manage()->find($identifier);
+		$resource = $DIC->resourceStorage()->manage()->find($identifier);
 
         if ($resource !== null) {
             $DIC->resourceStorage()->consume()->download($resource)->run();

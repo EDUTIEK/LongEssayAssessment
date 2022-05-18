@@ -264,10 +264,10 @@ class WriterContext extends ServiceContext implements Context
             if ($resource->getId() == (int) $key && $resource->getType() == Resource::RESOURCE_TYPE_FILE) {
 				$identifier = "";
 
-				if ($resource->getType() == Resource::RESOURCE_TYPE_FILE && is_string($resource->getFileId())) {
+				if (is_string($resource->getFileId())) {
 					$identifier = $resource->getFileId();
 				}else {
-					throw new Exception("No FIle!");
+					// TODO: ERROR Broken Resource
 				}
 
 				$resource_file = $DIC->resourceStorage()->manage()->find($identifier);
@@ -275,7 +275,6 @@ class WriterContext extends ServiceContext implements Context
 					$DIC->resourceStorage()->consume()->inline($resource_file)->run();
 				}else{
 					// TODO: Error resource not in Storage
-					throw new Exception("Panik!");
 				}
             }
         }

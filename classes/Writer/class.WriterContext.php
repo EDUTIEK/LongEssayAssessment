@@ -71,13 +71,12 @@ class WriterContext extends ServiceContext implements Context
      */
     public function getWritingSettings(): WritingSettings
     {
-        $settings = $this->di->getTaskRepo()->getEditorSettingsById($this->task->getTaskId());
-
+        $repoSettings = $this->di->getTaskRepo()->getEditorSettingsById($this->task->getTaskId());
         return new WritingSettings(
-          $settings->getHeadlineScheme(),
-          $settings->getFormattingOptions(),
-          $settings->getNoticeBoards(),
-          $settings->isCopyAllowed()
+            $repoSettings->getHeadlineScheme(),
+            $repoSettings->getFormattingOptions(),
+            $repoSettings->getNoticeBoards(),
+            $repoSettings->isCopyAllowed()
         );
     }
 
@@ -101,29 +100,29 @@ class WriterContext extends ServiceContext implements Context
      */
     public function getWrittenEssay(): WrittenEssay
     {
-        $essay = $this->getRepoEssay();
+        $repoEssay = $this->getRepoEssay();
         return new WrittenEssay(
-            $essay->getWrittenText(),
-            $essay->getRawTextHash(),
-            $essay->getProcessedText(),
-            $this->plugin->dbTimeToUnix($essay->getEditStarted()),
-            $this->plugin->dbTimeToUnix($essay->getEditEnded()),
-            (bool) $essay->isIsAuthorized()
+            $repoEssay->getWrittenText(),
+            $repoEssay->getRawTextHash(),
+            $repoEssay->getProcessedText(),
+            $this->plugin->dbTimeToUnix($repoEssay->getEditStarted()),
+            $this->plugin->dbTimeToUnix($repoEssay->getEditEnded()),
+            (bool) $repoEssay->isIsAuthorized()
         );
     }
 
     /**
      * @inheritDoc
      */
-    public function setWrittenEssay(WrittenEssay $written_essay): void
+    public function setWrittenEssay(WrittenEssay $writtenEssay): void
     {
         $this->di->getEssayRepo()->updateEssay($this->getRepoEssay()
-            ->setWrittenText($written_essay->getWrittenText())
-            ->setRawTextHash($written_essay->getWrittenHash())
-            ->setProcessedText($written_essay->getProcessedText())
-            ->setEditStarted($this->plugin->unixTimeToDb($written_essay->getEditStarted()))
-            ->setEditEnded($this->plugin->unixTimeToDb($written_essay->getEditEnded()))
-            ->setIsAuthorized($written_essay->isAuthorized())
+            ->setWrittenText($writtenEssay->getWrittenText())
+            ->setRawTextHash($writtenEssay->getWrittenHash())
+            ->setProcessedText($writtenEssay->getProcessedText())
+            ->setEditStarted($this->plugin->unixTimeToDb($writtenEssay->getEditStarted()))
+            ->setEditEnded($this->plugin->unixTimeToDb($writtenEssay->getEditEnded()))
+            ->setIsAuthorized($writtenEssay->isAuthorized())
         );
     }
 
@@ -141,9 +140,9 @@ class WriterContext extends ServiceContext implements Context
             $steps[] = new WritingStep(
                 (int) ($this->plugin->dbTimeToUnix($entry->getTimestamp())),
                 (string) $entry->getContent(),
-                (bool) $entry->isIsDelta(),
-                (string) $entry->getHashBefore(),
-                (string) $entry->getHashAfter()
+                $entry->isIsDelta(),
+                $entry->getHashBefore(),
+                $entry->getHashAfter()
             );
         }
         return $steps;

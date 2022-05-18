@@ -35,7 +35,8 @@ interface ObjectRepository
 
     public function ifRatingCriterionExistsById(int $a_id): bool;
 
-    public function getGradeLevelByObjectId(int $a_object_id): array;
+    /** @return GradeLevel[] */
+    public function getGradeLevelsByObjectId(int $a_object_id): array;
 
     public function getRatingCriterionByObjectId(int $a_object_id): array;
 

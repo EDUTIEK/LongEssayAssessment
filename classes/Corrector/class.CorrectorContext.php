@@ -10,6 +10,7 @@ use Edutiek\LongEssayService\Data\CorrectionSummary;
 use Edutiek\LongEssayService\Data\CorrectionTask;
 use Edutiek\LongEssayService\Data\Corrector;
 use Edutiek\LongEssayService\Data\WrittenEssay;
+use ILIAS\Plugin\LongEssayTask\Data\CorrectorSummary;
 use ILIAS\Plugin\LongEssayTask\Data\Resource;
 use ILIAS\Plugin\LongEssayTask\Data\Writer;
 use ILIAS\Plugin\LongEssayTask\ServiceContext;
@@ -97,13 +98,17 @@ class CorrectorContext extends ServiceContext implements Context
      */
     public function getGradeLevels(): array
     {
-        // TODO: get the configured grade levels
+        $objectRepo = $this->di->getObjectRepo();
 
-        // fake grade levels
-        return [
-            new CorrectionGradeLevel('key1', "bestanden", 5),
-            new CorrectionGradeLevel('key2', 'nicht bestanden', 0)
-        ];
+        $levels = [];
+        foreach ($objectRepo->getGradeLevelsByObjectId($this->object->getId()) as $repoLevel) {
+            $levels[] = new CorrectionGradeLevel(
+                (string) $repoLevel->getId(),
+                $repoLevel->getGrade(),
+                $repoLevel->getMinPoints()
+            );
+        }
+        return $levels;
     }
 
     /**
@@ -113,17 +118,16 @@ class CorrectorContext extends ServiceContext implements Context
      */
     public function getCorrectionItems(): array
     {
+        $correctorRepo = $this->di->getCorrectorRepo();
+        $writerRepo = $this->di->getWriterRepo();
+
         $items = [];
-
-        $corep = $this->di->getCorrectorRepo();
-        $wirep = $this->di->getWriterRepo();
-
-        if (!empty($corrector = $corep->getCorrectorByUserId($this->user->getId(), $this->task->getTaskId()))) {
-            foreach ($corep->getAssignmentsByCorrectorId($corrector->getId()) as $assignment) {
-                if (!empty($writer = $wirep->getWriterById($assignment->getWriterId()))) {
+        if (!empty($repoCorrector = $correctorRepo->getCorrectorByUserId($this->user->getId(), $this->task->getTaskId()))) {
+            foreach ($correctorRepo->getAssignmentsByCorrectorId($repoCorrector->getId()) as $repoAssignment) {
+                if (!empty($repoWriter = $writerRepo->getWriterById($repoAssignment->getWriterId()))) {
                     $items[] = new CorrectionItem(
-                        (string) $writer->getId(),
-                        $writer->getPseudonym()
+                        (string) $repoWriter->getId(),
+                        $repoWriter->getPseudonym()
                     );
                 }
             }
@@ -138,20 +142,19 @@ class CorrectorContext extends ServiceContext implements Context
      */
     public function getCurrentItem(): ?CorrectionItem
     {
-        $corep = $this->di->getCorrectorRepo();
-        $wirep = $this->di->getWriterRepo();
+        $correctorRepo = $this->di->getCorrectorRepo();
+        $writerRepo = $this->di->getWriterRepo();
 
         if (isset($this->selected_writer_id)) {
-            if (!empty($corrector = $corep->getCorrectorByUserId($this->user->getId(), $this->task->getTaskId())) &&
-                !empty($writer = $wirep->getWriterById((int) $this->selected_writer_id)))
+            if (!empty($repoCorrector = $correctorRepo->getCorrectorByUserId($this->user->getId(), $this->task->getTaskId())) &&
+                !empty($repoWriter = $writerRepo->getWriterById((int) $this->selected_writer_id)))
             {
-                foreach ($corep->getAssignmentsByWriterId($this->selected_writer_id) as $assignment) {
-                    if ($assignment->getCorrectorId() == $corrector->getId()) {
+                foreach ($correctorRepo->getAssignmentsByWriterId((int) $this->selected_writer_id) as $assignment) {
+                    if ($assignment->getCorrectorId() == $repoCorrector->getId()) {
                         return new CorrectionItem(
-                            (string) $writer->getId(),
-                            $writer->getPseudonym()
+                            (string) $repoWriter->getId(),
+                            $repoWriter->getPseudonym()
                         );
-
                     }
                 }
             }
@@ -165,15 +168,15 @@ class CorrectorContext extends ServiceContext implements Context
      */
     public function getEssayOfItem(string $item_key): ?WrittenEssay
     {
-        if (!empty($essay = $this->di->getEssayRepo()->getEssayByWriterIdAndTaskId(
+        if (!empty($repoEssay = $this->di->getEssayRepo()->getEssayByWriterIdAndTaskId(
                 (int) $item_key, $this->task->getTaskId()))) {
             return new WrittenEssay(
-                $essay->getWrittenText(),
-                $essay->getRawTextHash(),
-                $essay->getProcessedText(),
-                $this->plugin->dbTimeToUnix($essay->getEditStarted()),
-                $this->plugin->dbTimeToUnix($essay->getEditEnded()),
-                (bool) $essay->isIsAuthorized()
+                $repoEssay->getWrittenText(),
+                $repoEssay->getRawTextHash(),
+                $repoEssay->getProcessedText(),
+                $this->plugin->dbTimeToUnix($repoEssay->getEditStarted()),
+                $this->plugin->dbTimeToUnix($repoEssay->getEditEnded()),
+                (bool) $repoEssay->isIsAuthorized()
             );
         }
         return null;
@@ -187,8 +190,17 @@ class CorrectorContext extends ServiceContext implements Context
      */
     public function getCorrectorsOfItem(string $item_key): array
     {
-        // TODO: Implement getCorrectorsOfItem() method.
-        return [];
+       $correctorRepo = $this->di->getCorrectorRepo();
+       $correctors = [];
+       foreach ($correctorRepo->getAssignmentsByWriterId((int) $item_key) as $assignment) {
+            if (!empty($repoCorrector = $correctorRepo->getCorrectorById($assignment->getCorrectorId()))) {
+                $correctors[] = new Corrector(
+                    (string) $repoCorrector->getId(),
+                    \ilObjUser::_lookupFullname($repoCorrector->getUserId())
+                );
+            }
+        }
+        return $correctors;
     }
 
     /**
@@ -198,7 +210,18 @@ class CorrectorContext extends ServiceContext implements Context
      */
     public function getCorrectionSummary(string $item_key, string $corrector_key): ?CorrectionSummary
     {
-        // TODO: Implement getCorrectionSummary() method.
+        $essayRepo = $this->di->getEssayRepo();
+        if (!empty($repoEssay = $essayRepo->getEssayByWriterIdAndTaskId((int) $item_key, $this->task->getTaskId()))) {
+            if (!empty($repoSummary = $essayRepo->getCorrectorSummaryByEssayIdAndCorrectorId(
+                $repoEssay->getId(), (int) $item_key)
+            )) {
+                return new CorrectionSummary(
+                    $repoSummary->getSummaryText(),
+                    $repoSummary->getPoints(),
+                    $repoSummary->getGradeLevelId() ? (string) $repoSummary->getGradeLevelId() : null
+                );
+            }
+        }
         return null;
     }
 
@@ -209,6 +232,19 @@ class CorrectorContext extends ServiceContext implements Context
      */
     public function setCorrectionSummary(string $item_key, string $corrector_key, CorrectionSummary $summary) : void
     {
-        // TODO: Implement setCorrectionSummary() method.
+        $essayRepo = $this->di->getEssayRepo();
+        if (!empty($repoEssay = $essayRepo->getEssayByWriterIdAndTaskId((int) $item_key, $this->task->getTaskId()))) {
+            $repoSummary = $essayRepo->getCorrectorSummaryByEssayIdAndCorrectorId($repoEssay->getId(), (int) $item_key);
+            if (!isset($repoSummary)) {
+                $repoSummary = new CorrectorSummary();
+                $repoSummary->setEssayId($repoEssay->getId());
+                $repoSummary->setCorrectorId((int) $item_key);
+                $essayRepo->createCorrectorSummary($repoSummary);
+            }
+            $repoSummary->setSummaryText($summary->getText());
+            $repoSummary->setPoints($summary->getPoints());
+            $repoSummary->setGradeLevelId($summary->getGradeKey() ? (int) $summary->getGradeKey() : null);
+            $essayRepo->updateCorrectorSummary($repoSummary);
+        }
     }
 }

@@ -63,7 +63,7 @@ class ObjectDatabaseRepository implements ObjectRepository
         return null;
     }
 
-    public function getGradeLevelByObjectId(int $a_object_id): array
+    public function getGradeLevelsByObjectId(int $a_object_id): array
     {
         return GradeLevel::where(['object_id' => $a_object_id])->get();
     }

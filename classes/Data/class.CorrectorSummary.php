@@ -65,7 +65,7 @@ class CorrectorSummary extends ActivePluginRecord
     /**
      * @var int
      * @con_has_field        true
-     * @con_is_notnull       true
+     * @con_is_notnull       false
      * @con_fieldtype        integer
      * @con_length           4
      */
@@ -73,15 +73,17 @@ class CorrectorSummary extends ActivePluginRecord
 
 
     /**
-     * Grade Level
+     * Id of the grade level
      *
-     * @var string
+     * @var integer
      * @con_has_field        true
-     * @con_is_notnull       true
-     * @con_fieldtype        text
-     * @con_length           255
+     * @con_is_primary       false
+     * @con_sequence         false
+     * @con_is_notnull       false
+     * @con_fieldtype        integer
+     * @con_length           4
      */
-    protected $grade_level = null;
+    protected $grade_level_id = null;
 
     /**
      * @return int
@@ -158,7 +160,7 @@ class CorrectorSummary extends ActivePluginRecord
     /**
      * @return int
      */
-    public function getPoints(): int
+    public function getPoints(): ?int
     {
         return $this->points;
     }
@@ -167,27 +169,27 @@ class CorrectorSummary extends ActivePluginRecord
      * @param int $points
      * @return CorrectorSummary
      */
-    public function setPoints(int $points): CorrectorSummary
+    public function setPoints(?int $points): CorrectorSummary
     {
         $this->points = $points;
         return $this;
     }
 
     /**
-     * @return string
+     * @return ?int
      */
-    public function getGradeLevel(): ?string
+    public function getGradeLevelId(): ?int
     {
-        return $this->grade_level;
+        return $this->grade_level_id;
     }
 
     /**
-     * @param string $grade_level
+     * @param ?int $grade_level_id
      * @return CorrectorSummary
      */
-    public function setGradeLevel(?string $grade_level): CorrectorSummary
+    public function setGradeLevelId(?int $grade_level_id): CorrectorSummary
     {
-        $this->grade_level = $grade_level;
+        $this->grade_level_id = $grade_level_id;
         return $this;
     }
 }

@@ -94,6 +94,14 @@ class EssayDatabaseRepository implements EssayRepository
         return WriterHistory::where(['essay_id' => $essay_id, 'hash_after' => $hash_after])->hasSets();
     }
 
+    public function getCorrectorSummaryByEssayIdAndCorrectorId(int $essay_id, int $corrector_id): ?CorrectorSummary
+    {
+        foreach(CorrectorSummary::where(['essay_id' => $essay_id, 'corrector_id' => $corrector_id])->get() as $summary) {
+            return $summary;
+        }
+        return null;
+    }
+
     public function getAccessTokenByUserIdAndTaskId(int $a_user_id, int $a_task_id, string $a_purpose): ?AccessToken
     {
         foreach(AccessToken::where(['user_id' => $a_user_id, 'task_id'=> $a_task_id, 'purpose' => $a_purpose])->orderBy('id')->get() as $token) {

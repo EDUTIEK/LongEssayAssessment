@@ -1082,5 +1082,24 @@ if (!$ilDB->tableColumnExists('xlet_access_token','purpose')) {
         'default' => 'data'
     ]);
 }
-
+?>
+<#34>
+<?php
+if (!$ilDB->tableColumnExists('xlet_corrector_summary','grade_level_id')) {
+    $ilDB->addTableColumn('xlet_corrector_summary', 'grade_level_id', [
+        'notnull' => '0',
+        'type' => 'integer',
+        'length' => '4'
+    ]);
+    $ilDB->dropTableColumn('xlet_corrector_summary', 'grade_level');
+}
+?>
+<#35>
+<?php
+    $ilDB->modifyTableColumn('xlet_corrector_summary','points', [
+        'notnull' => '0',
+        'type' => 'integer',
+        'length' => '4',
+        'default' => null
+    ]);
 ?>

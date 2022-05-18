@@ -2,6 +2,8 @@
 
 namespace ILIAS\Plugin\LongEssayTask\Data;
 
+use Edutiek\LongEssayService\Data\CorrectionSummary;
+
 /**
  * Manages ActiveDirectoryClasses:
  *  Essay
@@ -43,6 +45,8 @@ interface EssayRepository
     public function getWriterHistoryStepsByEssayId(int $essay_id, ?int $limit = null): array;
 
     public function ifWriterHistoryExistByEssayIdAndHashAfter(int $essay_id, string $hash_after): bool;
+
+    public function getCorrectorSummaryByEssayIdAndCorrectorId(int $essay_id, int $corrector_id): ?CorrectorSummary;
 
     // Update operations
     public function updateEssay(Essay $a_essay);

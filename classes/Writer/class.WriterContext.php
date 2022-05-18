@@ -2,23 +2,29 @@
 
 namespace ILIAS\Plugin\LongEssayTask\Writer;
 
-use Edutiek\LongEssayService\Data\ApiToken;
-use Edutiek\LongEssayService\Data\WritingResource;
 use Edutiek\LongEssayService\Data\WritingSettings;
 use Edutiek\LongEssayService\Data\WritingStep;
 use Edutiek\LongEssayService\Data\WritingTask;
 use Edutiek\LongEssayService\Writer\Context;
 use Edutiek\LongEssayService\Writer\Service;
 use Edutiek\LongEssayService\Data\WrittenEssay;
-use ILIAS\DI\Exceptions\Exception;
 use ILIAS\Plugin\LongEssayTask\Data\Essay;
 use ILIAS\Plugin\LongEssayTask\Data\Resource;
 use ILIAS\Plugin\LongEssayTask\Data\WriterHistory;
 use ILIAS\Plugin\LongEssayTask\ServiceContext;
-use ILIAS\Plugin\LongEssayTask\Task\ResourceAdmin;
 
 class WriterContext extends ServiceContext implements Context
 {
+    /**
+     * List the availabilities for which resources should be provided in the app
+     * @see Resource
+     */
+    const RESOURCES_AVAILABILITIES = [
+        Resource::RESOURCE_AVAILABILITY_BEFORE,
+        Resource::RESOURCE_AVAILABILITY_DURING
+    ];
+
+
     /**
      * @inheritDoc
      * here: support a separate url from the plugin config (for development purposes)
@@ -201,82 +207,5 @@ class WriterContext extends ServiceContext implements Context
         $repo = $this->di->getEssayRepo();
         $essay = $repo->getEssayByWriterIdAndTaskId($this->user->getId(), $this->object->getId());
         return $repo->ifWriterHistoryExistByEssayIdAndHashAfter($essay->getId(), $hash_after);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getWritingResources(): array
-    {
-		global $DIC;
-
-        $repo = $this->di->getTaskRepo();
-        $writing_resources = [];
-
-        /** @var Resource $resource */
-        foreach ($repo->getResourceByTaskId($this->object->getId()) as $resource) {
-            if ($resource->getAvailability() == Resource::RESOURCE_AVAILABILITY_BEFORE ||
-                $resource->getAvailability() == Resource::RESOURCE_AVAILABILITY_DURING) {
-
-                if ($resource->getType() == Resource::RESOURCE_TYPE_FILE) {
-					$resource_file = $DIC->resourceStorage()->manage()->find($resource->getFileId());
-					$revision = $DIC->resourceStorage()->manage()->getCurrentRevision($resource_file);
-
-					if($revision === null){
-						continue;
-					}
-
-					$source = $revision->getInformation()->getTitle();
-                    $mimetype = $revision->getInformation()->getMimeType();
-                    $size = $revision->getInformation()->getSize();
-                }
-                else {
-                    $mimetype = null;
-                    $size = null;
-                    $source = $resource->getUrl();
-                }
-
-				$writing_resources[] = new WritingResource(
-                    (string) $resource->getId(),
-                    $resource->getTitle(),
-                    $resource->getType(),
-                    $source,
-                    $mimetype,
-                    $size
-                );
-            }
-        }
-
-        return $writing_resources;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function sendFileResource(string $key): void
-    {
-		global $DIC;
-
-        $repo = $this->di->getTaskRepo();
-
-        /** @var Resource $resource */
-        foreach ($repo->getResourceByTaskId($this->object->getId()) as $resource) {
-            if ($resource->getId() == (int) $key && $resource->getType() == Resource::RESOURCE_TYPE_FILE) {
-				$identifier = "";
-
-				if (is_string($resource->getFileId())) {
-					$identifier = $resource->getFileId();
-				}else {
-					// TODO: ERROR Broken Resource
-				}
-
-				$resource_file = $DIC->resourceStorage()->manage()->find($identifier);
-				if ($resource_file !== null) {
-					$DIC->resourceStorage()->consume()->inline($resource_file)->run();
-				}else{
-					// TODO: Error resource not in Storage
-				}
-            }
-        }
     }
 }

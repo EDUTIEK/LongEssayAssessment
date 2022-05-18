@@ -11,6 +11,7 @@ use Edutiek\LongEssayService\Data\CorrectionTask;
 use Edutiek\LongEssayService\Data\Corrector;
 use Edutiek\LongEssayService\Data\WrittenEssay;
 use ILIAS\Plugin\LongEssayTask\Data\Resource;
+use ILIAS\Plugin\LongEssayTask\Data\Writer;
 use ILIAS\Plugin\LongEssayTask\ServiceContext;
 
 class CorrectorContext extends ServiceContext implements Context
@@ -25,6 +26,20 @@ class CorrectorContext extends ServiceContext implements Context
         Resource::RESOURCE_AVAILABILITY_AFTER
     ];
 
+    /**
+     * id of the selected writer
+     * @var ?int
+     */
+    protected $selected_writer_id;
+
+    /**
+     * Select id of the writer for being corrected
+     * The corrector app will load the correction item of this writer
+     * @see Writer::getId()
+     */
+    public function selectedWriterId(int $id) : void {
+        $this->selected_writer_id = $id;
+    }
 
     /**
      * @inheritDoc
@@ -71,13 +86,10 @@ class CorrectorContext extends ServiceContext implements Context
      */
     public function getCorrectionTask(): CorrectionTask
     {
-        $repo = $this->di->getTaskRepo();
-        $task = $repo->getTaskSettingsById($this->object->getId());
-
         return new CorrectionTask(
             $this->object->getTitle(),
-            $task->getInstructions(),
-            $this->plugin->dbTimeToUnix($task->getCorrectionEnd()));
+            $this->task->getInstructions(),
+            $this->plugin->dbTimeToUnix($this->task->getCorrectionEnd()));
     }
 
     /**
@@ -86,6 +98,8 @@ class CorrectorContext extends ServiceContext implements Context
     public function getGradeLevels(): array
     {
         // TODO: get the configured grade levels
+
+        // fake grade levels
         return [
             new CorrectionGradeLevel('key1', "bestanden", 5),
             new CorrectionGradeLevel('key2', 'nicht bestanden', 0)
@@ -94,48 +108,106 @@ class CorrectorContext extends ServiceContext implements Context
 
     /**
      * @inheritDoc
+     * here:    the item keys are strings of the writer ids
+     *          the item titles are the pseudonymous writer names
      */
     public function getCorrectionItems(): array
     {
-        // TODO: Implement getCorrectionItems() method.
+        $items = [];
+
+        $corep = $this->di->getCorrectorRepo();
+        $wirep = $this->di->getWriterRepo();
+
+        if (!empty($corrector = $corep->getCorrectorByUserId($this->user->getId(), $this->task->getTaskId()))) {
+            foreach ($corep->getAssignmentsByCorrectorId($corrector->getId()) as $assignment) {
+                if (!empty($writer = $wirep->getWriterById($assignment->getWriterId()))) {
+                    $items[] = new CorrectionItem(
+                        (string) $writer->getId(),
+                        $writer->getPseudonym()
+                    );
+                }
+            }
+        }
+        return $items;
     }
 
     /**
      * @inheritDoc
+     * here:    the item key is a string of the writer id
+     *          the item title is the pseudonymous writer name
      */
     public function getCurrentItem(): ?CorrectionItem
     {
-        // TODO: Implement getCurrentItem() method.
-    }
+        $corep = $this->di->getCorrectorRepo();
+        $wirep = $this->di->getWriterRepo();
+
+        if (isset($this->selected_writer_id)) {
+            if (!empty($corrector = $corep->getCorrectorByUserId($this->user->getId(), $this->task->getTaskId())) &&
+                !empty($writer = $wirep->getWriterById((int) $this->selected_writer_id)))
+            {
+                foreach ($corep->getAssignmentsByWriterId($this->selected_writer_id) as $assignment) {
+                    if ($assignment->getCorrectorId() == $corrector->getId()) {
+                        return new CorrectionItem(
+                            (string) $writer->getId(),
+                            $writer->getPseudonym()
+                        );
+
+                    }
+                }
+            }
+        }
+        return null;
+     }
 
     /**
      * @inheritDoc
+     * here:    the item key is a string of the writer id
      */
-    public function getEssayOfItem(string $item_key): WrittenEssay
+    public function getEssayOfItem(string $item_key): ?WrittenEssay
     {
-        // TODO: Implement getEssayOfItem() method.
+        if (!empty($essay = $this->di->getEssayRepo()->getEssayByWriterIdAndTaskId(
+                (int) $item_key, $this->task->getTaskId()))) {
+            return new WrittenEssay(
+                $essay->getWrittenText(),
+                $essay->getRawTextHash(),
+                $essay->getProcessedText(),
+                $this->plugin->dbTimeToUnix($essay->getEditStarted()),
+                $this->plugin->dbTimeToUnix($essay->getEditEnded()),
+                (bool) $essay->isIsAuthorized()
+            );
+        }
+        return null;
     }
 
     /**
      * @inheritDoc
+     * here:    the item key is a string of the writer id
+     *          the corrector keys are strings of the corrector ids
+     *          the corrector titles are the usernames of the correctors
      */
     public function getCorrectorsOfItem(string $item_key): array
     {
         // TODO: Implement getCorrectorsOfItem() method.
+        return [];
     }
 
     /**
      * @inheritDoc
+     * here:    the item key is a string of the writer id
+     *          the corrector key is a string of the corrector id
      */
-    public function getCorrectionSummary(string $item_key, string $corrector_key): CorrectionSummary
+    public function getCorrectionSummary(string $item_key, string $corrector_key): ?CorrectionSummary
     {
         // TODO: Implement getCorrectionSummary() method.
+        return null;
     }
 
     /**
      * @inheritDoc
+     * here:    the item key is a string of the writer id
+     *          the corrector key is a string of the corrector id
      */
-    public function setCorrectionSummary(string $item_key, string $corrector_key, CorrectionSummary $summary)
+    public function setCorrectionSummary(string $item_key, string $corrector_key, CorrectionSummary $summary) : void
     {
         // TODO: Implement setCorrectionSummary() method.
     }

@@ -25,9 +25,6 @@ class WriterStartGUI extends BaseGUI
     /** @var TaskSettings */
     protected $task;
 
-    /** @var Essay */
-    protected $essay;
-
     /**
      * Execute a command
      * This should be overridden in the child classes
@@ -36,15 +33,7 @@ class WriterStartGUI extends BaseGUI
     public function executeCommand()
     {
         $taskRepo = $this->localDI->getTaskRepo();
-        $essayRepo = $this->localDI->getEssayRepo();
-
         $this->task = $taskRepo->getTaskSettingsById($this->object->getId());
-        $this->essay = $essayRepo->getEssayByWriterIdAndTaskId($this->dic->user()->getId(), $this->object->getId());
-        if (!isset($this->essay)) {
-            $this->essay = new Essay();
-            $this->essay->setWriterId($this->dic->user()->getId());
-            $this->essay->setTaskId($this->object->getId());
-        }
 
         $cmd = $this->ctrl->getCmd('showStartPage');
         switch ($cmd)
@@ -139,16 +128,26 @@ class WriterStartGUI extends BaseGUI
 
         // todo respect review period
         if (true) {
-            $submission_page = $this->uiFactory->modal()->lightboxTextPage((string) $this->essay->getProcessedText(), $this->plugin->txt('submission'));
-            $submission_modal = $this->uiFactory->modal()->lightbox($submission_page);
-            $modals[$submission_modal->getShowSignal()->getId()] = $submission_modal;
 
-            $result_actions[] = $this->uiFactory->button()->shy($this->plugin->txt('view_submission'), '')
-                ->withOnClick($submission_modal->getShowSignal());
+            if (!empty($writer = $this->localDI->getWriterRepo()->getWriterByUserId(
+                $this->dic->user()->getId(), $this->task->getTaskId())))
+            {
+                if (!empty($essay = $this->localDI->getEssayRepo()->getEssayByWriterIdAndTaskId(
+                    $writer->getId(), $this->task->getTaskId()
+                )))
+                {
+                    $submission_page = $this->uiFactory->modal()->lightboxTextPage(
+                        (string) $essay->getProcessedText(), $this->plugin->txt('submission'));
+                    $submission_modal = $this->uiFactory->modal()->lightbox($submission_page);
+                    $modals[$submission_modal->getShowSignal()->getId()] = $submission_modal;
 
-            $result_actions[] = $this->uiFactory->button()->shy($this->plugin->txt('download_submission'),
-            $this->ctrl->getLinkTarget($this, 'downloadWriterPdf'));
+                    $result_actions[] = $this->uiFactory->button()->shy($this->plugin->txt('view_submission'), '')
+                        ->withOnClick($submission_modal->getShowSignal());
 
+                    $result_actions[] = $this->uiFactory->button()->shy($this->plugin->txt('download_submission'),
+                        $this->ctrl->getLinkTarget($this, 'downloadWriterPdf'));
+                }
+            }
         }
 
         $result_item = $this->uiFactory->item()->standard($this->plugin->txt('not_specified'))
@@ -182,19 +181,6 @@ class WriterStartGUI extends BaseGUI
      */
      protected function startWriter()
      {
-         $di = LongEssayTaskDI::getInstance();
-
-         // ensure that an essay record exists
-         $essay = $di->getEssayRepo()->getEssayByWriterIdAndTaskId((string) $this->dic->user()->getId(), (string) $this->object->getId());
-         if (!isset($essay)) {
-             $essay = new Essay();
-             $essay->setWriterId((string) $this->dic->user()->getId());
-             $essay->setTaskId((string) $this->object->getId());
-             $essay->setUuid($essay->generateUUID4());
-             $essay->setRawTextHash('');
-             $di->getEssayRepo()->createEssay($essay);
-         }
-
          $context = new WriterContext();
          $context->init((string) $this->dic->user()->getId(), (string) $this->object->getRefId());
          $service = new Service($context);
@@ -212,7 +198,6 @@ class WriterStartGUI extends BaseGUI
          $context->init((string) $this->dic->user()->getId(), (string) $this->object->getRefId());
          $service = new Service($context);
          $service->processWrittenText();
-
          $this->ctrl->redirect($this);
      }
 
@@ -226,7 +211,6 @@ class WriterStartGUI extends BaseGUI
          $service = new Service($context);
 
          $filename = 'task' . $this->object->getId() . '_user' . $this->dic->user()->getId(). '.pdf';
-
          ilUtil::deliverData($service->getProcessedTextAsPdf(), $filename, 'application/pdf');
      }
 

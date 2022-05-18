@@ -8,6 +8,7 @@ use Edutiek\LongEssayService\Data\EnvResource;
 use Edutiek\LongEssayService\Exceptions\ContextException;
 use ILIAS\Plugin\LongEssayTask\Data\AccessToken;
 use ILIAS\Plugin\LongEssayTask\Data\Resource;
+use ILIAS\Plugin\LongEssayTask\Data\TaskSettings;
 use ilContext;
 use \ilObjUser;
 use \ilObject;
@@ -35,6 +36,9 @@ abstract class ServiceContext implements BaseContext
 
     /** @var ilObjUser */
     protected $user;
+
+    /** @var TaskSettings */
+    protected $task;
 
     /**
      * @inheritDoc
@@ -78,6 +82,8 @@ abstract class ServiceContext implements BaseContext
         if (!$this->object->canViewWriterScreen()) {
             throw new ContextException('Writer not permitted', ContextException::PERMISSION_DENIED);
         }
+
+       $this->task = $this->di->getTaskRepo()->getTaskSettingsById($this->object->getId());
     }
 
     /**

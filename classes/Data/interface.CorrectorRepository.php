@@ -29,8 +29,10 @@ interface CorrectorRepository
 
     public function getCorrectorAssignmentByPartIds(int $a_writer_id, int $a_corrector_id): ?CorrectorAssignment;
 
+    /** @return CorrectorAssignment[] */
     public function getAssignmentsByWriterId(int $a_writer_id): array;
 
+    /** @return CorrectorAssignment[] */
     public function getAssignmentsByCorrectorId(int $a_corrector_id): array;
 
     public function ifCorrectorIsAssigned(int $a_writer_id, int $a_corrector_id): bool;

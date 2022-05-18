@@ -2,8 +2,6 @@
 
 namespace ILIAS\Plugin\LongEssayTask\Writer;
 
-use Edutiek\LongEssayService\Data\ApiToken;
-use Edutiek\LongEssayService\Data\WritingResource;
 use Edutiek\LongEssayService\Data\WritingSettings;
 use Edutiek\LongEssayService\Data\WritingStep;
 use Edutiek\LongEssayService\Data\WritingTask;
@@ -17,6 +15,16 @@ use ILIAS\Plugin\LongEssayTask\ServiceContext;
 
 class WriterContext extends ServiceContext implements Context
 {
+    /**
+     * List the availabilities for which resources should be provided in the app
+     * @see Resource
+     */
+    const RESOURCES_AVAILABILITIES = [
+        Resource::RESOURCE_AVAILABILITY_BEFORE,
+        Resource::RESOURCE_AVAILABILITY_DURING
+    ];
+
+
     /**
      * @inheritDoc
      * here: support a separate url from the plugin config (for development purposes)
@@ -199,71 +207,5 @@ class WriterContext extends ServiceContext implements Context
         $repo = $this->di->getEssayRepo();
         $essay = $repo->getEssayByWriterIdAndTaskId($this->user->getId(), $this->object->getId());
         return $repo->ifWriterHistoryExistByEssayIdAndHashAfter($essay->getId(), $hash_after);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getWritingResources(): array
-    {
-        $repo = $this->di->getTaskRepo();
-
-        $writing_resources = [];
-
-        /** @var Resource $resource */
-        foreach ($repo->getResourceByTaskId($this->object->getId()) as $resource) {
-            if ($resource->getAvailability() == Resource::RESOURCE_AVAILABILITY_BEFORE ||
-                $resource->getAvailability() == Resource::RESOURCE_AVAILABILITY_DURING) {
-
-                if ($resource->getType() == Resource::RESOURCE_TYPE_FILE) {
-                    $source = 'xxx';    // todo provide the real file name
-                    $mimetype = 'yyy';  // todo: provide the real mime type
-                    $size = 10;         // todo: provide the real size
-                }
-                else {
-                    $mimetype = null;
-                    $size = null;
-                    $source = $resource->getUrl();
-                }
-
-                $writingResources[] = new WritingResource(
-                    (string) $resource->getId(),
-                    $resource->getTitle(),
-                    $resource->getType(),
-                    $source,
-                    $mimetype,
-                    $size
-                );
-            }
-        }
-
-        // todo: comment out dummy return
-        $writing_resources = [
-            new WritingResource('ilias', 'Ilias Home Page', 'url', 'https://www.ilias.de'),
-            new WritingResource('edutiek', 'EDUTIEK Home Page', 'url', 'https://www.edutiek.de'),
-            new WritingResource('GG', 'Grundgesetz', 'file', 'GG.pdf', 'application/pdf', 212997)
-        ];
-
-        return $writing_resources;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function sendFileResource(string $key): void
-    {
-        $repo = $this->di->getTaskRepo();
-
-        /** @var Resource $resource */
-        foreach ($repo->getResourceByTaskId($this->object->getId()) as $resource) {
-            if ($resource->getId() == (int) $key && $resource->getType() == Resource::RESOURCE_TYPE_FILE) {
-                // todo: deliver real resource
-            }
-        }
-
-        // todo: comment out dummy return
-        if ($key == "GG") {
-            \ilUtil::deliverFile(__DIR__ . '/../../lib/GG.pdf', 'GG.pdf','application/pdf', true);
-        }
     }
 }

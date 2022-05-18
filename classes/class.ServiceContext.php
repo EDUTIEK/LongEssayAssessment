@@ -4,16 +4,26 @@ namespace ILIAS\Plugin\LongEssayTask;
 
 use Edutiek\LongEssayService\Base\BaseContext;
 use Edutiek\LongEssayService\Data\ApiToken;
-use Edutiek\LongEssayService\Data\WritingTask;
+use Edutiek\LongEssayService\Data\EnvResource;
 use Edutiek\LongEssayService\Exceptions\ContextException;
-use ilContext;
 use ILIAS\Plugin\LongEssayTask\Data\AccessToken;
+use ILIAS\Plugin\LongEssayTask\Data\Resource;
+use ilContext;
 use \ilObjUser;
 use \ilObject;
 use \ilObjLongEssayTask;
 
 abstract class ServiceContext implements BaseContext
 {
+    /**
+     * List the availabilities for which resources should be provided in the app
+     * @see Resource
+     */
+    const RESOURCES_AVAILABILITIES = [
+        // override this for writer and corrector context
+    ];
+
+
     /** @var \ilLongEssayTaskPlugin */
     protected $plugin;
 
@@ -168,19 +178,73 @@ abstract class ServiceContext implements BaseContext
         $repo->createAccessToken($token);
     }
 
+
     /**
-     *  @inheritDoc
+     * Get the resources that should be available in the app
+     * @return EnvResource[]
      */
-    public function getWritingTask(): WritingTask
+    public function getResources(): array {
+        $repo = $this->di->getTaskRepo();
+
+        $env_resources = [];
+
+        /** @var Resource $resource */
+        foreach ($repo->getResourceByTaskId($this->object->getId()) as $resource) {
+
+            // late static binding - use constant definition in the extended class
+            if (in_array($resource->getAvailability(), static::RESOURCES_AVAILABILITIES)) {
+
+                if ($resource->getType() == Resource::RESOURCE_TYPE_FILE) {
+                    $source = 'xxx';    // todo provide the real file name
+                    $mimetype = 'yyy';  // todo: provide the real mime type
+                    $size = 10;         // todo: provide the real size
+                }
+                else {
+                    $mimetype = null;
+                    $size = null;
+                    $source = $resource->getUrl();
+                }
+
+                $env_resources[] = new EnvResource(
+                    (string) $resource->getId(),
+                    $resource->getTitle(),
+                    $resource->getType(),
+                    $source,
+                    $mimetype,
+                    $size
+                );
+            }
+        }
+
+        // todo: comment out dummy return
+        $env_resources = [
+            new EnvResource('ilias', 'Ilias Home Page', 'url', 'https://www.ilias.de'),
+            new EnvResource('edutiek', 'EDUTIEK Home Page', 'url', 'https://www.edutiek.de'),
+            new EnvResource('GG', 'Grundgesetz', 'file', 'GG.pdf', 'application/pdf', 212997)
+        ];
+
+        return $env_resources;
+    }
+
+
+    /**
+     * @inheritDoc
+     */
+    public function sendFileResource(string $key): void
     {
         $repo = $this->di->getTaskRepo();
-        $task = $repo->getTaskSettingsById($this->object->getId());
 
-        // todo: get time extension of the user and add it
-        return new WritingTask(
-            $this->object->getTitle(),
-            $task->getInstructions(),
-            $this->user->getFullname(),
-            $this->plugin->dbTimeToUnix($task->getWritingEnd()));
+        /** @var Resource $resource */
+        foreach ($repo->getResourceByTaskId($this->object->getId()) as $resource) {
+            if ($resource->getId() == (int) $key && $resource->getType() == Resource::RESOURCE_TYPE_FILE) {
+                // todo: deliver real resource
+            }
+        }
+
+        // todo: comment out dummy return
+        if ($key == "GG") {
+            \ilUtil::deliverFile(__DIR__ . '/../lib/GG.pdf', 'GG.pdf','application/pdf', true);
+        }
     }
+
 }

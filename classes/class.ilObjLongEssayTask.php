@@ -2,6 +2,7 @@
 /* Copyright (c) 2021 ILIAS open source, Extended GPL, see docs/LICENSE */
 
 use ILIAS\DI\Container;
+use ILIAS\Plugin\LongEssayTask\CorrectorAdmin\CorrectorAdminService;
 use ILIAS\Plugin\LongEssayTask\Data\CorrectionSettings;
 use ILIAS\Plugin\LongEssayTask\Data\EditorSettings;
 use ILIAS\Plugin\LongEssayTask\Data\ObjectSettings;
@@ -285,5 +286,12 @@ class ilObjLongEssayTask extends ilObjectPlugin
      */
     public function canMaintainCorrectors() {
         return $this->access->checkAccess('maintain_correctors', '', $this->getRefId());
+    }
+
+    /**
+     * Get the service for maintaining correctors
+     */
+    public function getCorrectorAdminService() : CorrectorAdminService {
+        return new CorrectorAdminService($this);
     }
 }

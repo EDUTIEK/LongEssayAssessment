@@ -3,7 +3,10 @@
 
 namespace ILIAS\Plugin\LongEssayTask\Corrector;
 
+use Edutiek\LongEssayService\Corrector\Service;
 use ILIAS\Plugin\LongEssayTask\BaseGUI;
+use ILIAS\Plugin\LongEssayTask\CorrectorAdmin\CorrectorAdminService;
+use ILIAS\Plugin\LongEssayTask\Data\CorrectionSettings;
 use ILIAS\Plugin\LongEssayTask\LongEssayTaskDI;
 use ILIAS\UI\Factory;
 use \ilUtil;
@@ -16,6 +19,21 @@ use \ilUtil;
  */
 class CorrectorStartGUI extends BaseGUI
 {
+    /** @var CorrectorAdminService */
+    protected $service;
+
+    /** @var CorrectionSettings  */
+    protected $settings;
+
+
+    public function __construct(\ilObjLongEssayTaskGUI $objectGUI)
+    {
+        parent::__construct($objectGUI);
+        $this->service = $this->object->getCorrectorAdminService();
+        $this->settings = $this->service->getSettings();
+    }
+
+
     /**
      * Execute a command
      * This should be overridden in the child classes
@@ -27,6 +45,8 @@ class CorrectorStartGUI extends BaseGUI
         switch ($cmd)
         {
             case 'showStartPage':
+            case 'startCorrector':
+            case 'finalizeCorrection':
                 $this->$cmd();
                 break;
 
@@ -41,22 +61,73 @@ class CorrectorStartGUI extends BaseGUI
      */
     protected function showStartPage()
     {
-//        $this->toolbar->setFormAction($this->ctrl->getFormAction($this));
-//        $button = \ilLinkButton::getInstance();
-//        $button->setUrl('./Customizing/global/plugins/Services/Repository/RepositoryObject/LongEssayTask/lib/corrector/index.html');
-//        $button->setCaption('Korrektur starten', false);
-//        $button->setPrimary(true);
-//        $button->setTarget('_blank');   // as long as the corrector has no return address
-//        $this->toolbar->addButtonInstance($button);
+        // todo: this should be done in the corrector admin GUI
+        $this->service->addUserAsCorrector($this->dic->user()->getId());
+        $this->service->assignMissingCorrectors();
+
+        $corrector = $this->localDI->getCorrectorRepo()->getCorrectorByUserId($this->dic->user()->getId(), $this->settings->getTaskId());
+        foreach ($this->localDI->getCorrectorRepo()->getAssignmentsByCorrectorId($corrector->getId()) as $assignment) {
+            $writer = $this->localDI->getWriterRepo()->getWriterById($assignment->getWriterId());
+
+            $properties = [];
+            if ($essay = $this->localDI->getEssayRepo()->getEssayByWriterIdAndTaskId($assignment->getWriterId(), $this->settings->getTaskId())) {
+                $properties = [
+                    "Abgabe-Status:" => $essay->isIsAuthorized() ? 'abgegeben' : 'nicht abgegeben',
+                    "Korrektur-Status:" => "vorläufig",
+                    "Punkte" => $essay->getFinalPoints(),
+                    "Notenstufe" => $essay->getFinalGradeLevel()
+                ];
+            }
+            foreach ($this->localDI->getCorrectorRepo()->getAssignmentsByWriterId($assignment->getWriterId()) as $otherAssignment) {
+                if ($otherAssignment->getCorrectorId() != $corrector->getId()) {
+                    switch ($otherAssignment->getPosition()) {
+                        case 0:
+                            $label = "Erstkorrektor/in";
+                            break;
+                        case 1:
+                            $label = "Zweitkorrektor/in";
+                            break;
+                        default:
+                            $label = "Weiterer Korrektor/innen";
+                            break;
+                    }
+                    $otherCorrector = $this->localDI->getCorrectorRepo()->getCorrectorById($otherAssignment->getCorrectorId());
+                    $properties[$label] = \ilObjUser::_lookupFullname($otherCorrector->getUserId())
+                        . ' ('. \ilObjUser::_lookupLogin($otherCorrector->getUserId()) . ')';
+
+                }
+            }
 
 
-        $actions = array(
-            "Alle" => "all",
-            "Offen" => "",
-            "Vorläufig" => "",
-            "Korrigiert" => "",
-            "Große Abweichung" => "",
-        );
+            $this->ctrl->setParameter($this, 'writer_id', $assignment->getWriterId());
+            $items[] = $this->uiFactory->item()->standard($this->uiFactory->link()->standard($writer->getPseudonym(),$this->ctrl->getLinkTarget($this, 'startCorrector')))
+                ->withLeadIcon($this->uiFactory->symbol()->icon()->standard('adve', 'user', 'medium'))
+                ->withProperties($properties)
+                ->withActions(
+                    $this->uiFactory->dropdown()->standard([
+                        $this->uiFactory->button()->shy('Korrektur bearbeiten', $this->ctrl->getLinkTarget($this, 'startCorrector')),
+                        $this->uiFactory->button()->shy('Korrektur finalisieren',  $this->ctrl->getLinkTarget($this, 'finalizeCorrection'))
+                    ]));
+
+        }
+
+        if (!empty($items)) {
+            $this->ctrl->clearParameters($this);
+            $this->toolbar->setFormAction($this->ctrl->getFormAction($this));
+            $button = \ilLinkButton::getInstance();
+            $button->setUrl($this->ctrl->getLinkTarget($this, "startCorrector"));
+            $button->setCaption('Korrektur starten', false);
+            $button->setPrimary(true);
+            $this->toolbar->addButtonInstance($button);
+        }
+
+//        $actions = array(
+//            "Alle" => "all",
+//            "Offen" => "",
+//            "Vorläufig" => "",
+//            "Korrigiert" => "",
+//            "Große Abweichung" => "",
+//        );
 
 //        $aria_label = "change_the_currently_displayed_mode";
 //        $view_control = $this->uiFactory->viewControl()->mode($actions, $aria_label)->withActive("Alle");
@@ -70,48 +141,13 @@ class CorrectorStartGUI extends BaseGUI
 //                    "Durchschnittsnote:" => "10"))
 //        ]);
 
-
-
-        $item1 = $this->uiFactory->item()->standard($this->uiFactory->link()->standard("Abgabe 1 (anonymisiert)",'./Customizing/global/plugins/Services/Repository/RepositoryObject/LongEssayTask/lib/corrector/index.html'))
-            ->withLeadIcon($this->uiFactory->symbol()->icon()->standard('adve', 'user', 'medium'))
-            ->withProperties(array(
-                "Abgabe-Status:" => "abgegeben",
-                "Korrektur-Status:" => "vorläufig",
-                "Punkte:" => 10,
-                "Notenstufe:" => "bestanden",
-                "Zweitkorrektor:" =>  "Volker Reuschenback (volker.reuschenbach)"
-            ))
-            ->withActions(
-                $this->uiFactory->dropdown()->standard([
-                    $this->uiFactory->button()->shy('Korrektur bearbeiten', '#'),
-                    $this->uiFactory->button()->shy('Korrektur finalisieren', '#')
-                ]));
-
-        $item2 = $this->uiFactory->item()->standard($this->uiFactory->link()->standard("Abgabe 2 (anonymisiert)", ''))
-            ->withLeadIcon($this->uiFactory->symbol()->icon()->standard('adve', 'editor', 'medium'))
-            ->withProperties(array(
-                "Abgabe-Status:" => "abgegeben",
-                "Korrektur-Status:" => "offen",
-                "Erstkorrektor:" => "Matthias Munkel (matthias.kunkel)"
-            ))
-            ->withActions(
-                $this->uiFactory->dropdown()->standard([
-                    $this->uiFactory->button()->shy('Korrektur bearbeiten', '#'),
-                ]));
-
-        $essays = $this->uiFactory->item()->group("Zugeteilte Abgaben", array(
-            $item1,
-            $item2
-        ));
-
+        $essays = $this->uiFactory->item()->group("Zugeteilte Abgaben", $items);
         $this->tpl->setContent(
-
 //            $this->renderer->render($result) . '<br>'.
 //            $this->renderer->render($view_control) . '<br><br>' .
             $this->renderer->render($essays)
 
         );
-
      }
 
 
@@ -120,23 +156,20 @@ class CorrectorStartGUI extends BaseGUI
      */
     protected function startCorrector()
     {
-        $di = LongEssayTaskDI::getInstance();
-
-        // ensure that an essay record exists
-        $essay = $di->getEssayRepo()->getEssayByWriterIdAndTaskId((string) $this->dic->user()->getId(), (string) $this->object->getId());
-        if (!isset($essay)) {
-            $essay = new Essay();
-            $essay->setWriterId((string) $this->dic->user()->getId());
-            $essay->setTaskId((string) $this->object->getId());
-            $essay->setUuid($essay->generateUUID4());
-            $essay->setRawTextHash('');
-            $di->getEssayRepo()->createEssay($essay);
-        }
-
-        $context = new WriterContext();
+        $context = new CorrectorContext();
         $context->init((string) $this->dic->user()->getId(), (string) $this->object->getRefId());
+
+        $params = $this->request->getQueryParams();
+        if (!empty($params['writer_id'])) {
+            $context->selectWriterId((int) $params['writer_id']);
+        }
         $service = new Service($context);
         $service->openFrontend();
+    }
+
+    protected function finalizeCorrection()
+    {
+
     }
 
 }

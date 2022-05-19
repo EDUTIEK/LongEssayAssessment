@@ -13,7 +13,7 @@ class CorrectorDatabaseRepository implements CorrectorRepository
 {
     public function createCorrector(Corrector $a_corrector)
     {
-        $a_corrector->create();
+        $a_corrector->save();
     }
 
     public function createCorrectorAssignment(CorrectorAssignment $a_corrector_assignment)
@@ -43,8 +43,8 @@ class CorrectorDatabaseRepository implements CorrectorRepository
     public function getCorrectorByUserId(int $a_user_id, int $a_task_id): ?Corrector
     {
         $correctors = Corrector::where(['user_id' => $a_user_id, 'task_id' => $a_task_id])->get();
-        if (count($correctors) > 0) {
-            return $correctors[1];
+        foreach ($correctors as $corrector) {
+            return $corrector;
         }
         return null;
     }

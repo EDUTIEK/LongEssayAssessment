@@ -355,7 +355,7 @@ class Essay extends ActivePluginRecord
     /**
      * @return int
      */
-    public function getFinalPoints(): int
+    public function getFinalPoints(): ?int
     {
         return $this->final_points;
     }

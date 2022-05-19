@@ -19,6 +19,7 @@ interface CorrectorRepository
     // Read operations
     public function getCorrectorById(int $a_id): ?Corrector;
 
+    /** @return Corrector[] */
     public function getCorrectorsByTaskId(int $a_task_id): array;
 
     public function getCorrectorByUserId(int $a_user_id, int $a_task_id): ?Corrector;

@@ -21,6 +21,9 @@ abstract class BaseService
     /** @var  \ilLongEssayTaskPlugin */
     public $plugin;
 
+    /** @var LongEssayTaskDI */
+    protected $localDI;
+
 
     /**
 	 * Constructor
@@ -38,5 +41,6 @@ abstract class BaseService
         // Plugin dependencies
         $this->object = $object;
 		$this->plugin = $this->object->getPlugin();
+        $this->localDI = LongEssayTaskDI::getInstance();
 	}
 }

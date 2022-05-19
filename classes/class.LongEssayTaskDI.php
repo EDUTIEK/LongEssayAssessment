@@ -3,6 +3,7 @@
 namespace ILIAS\Plugin\LongEssayTask;
 
 
+use ILIAS\Plugin\LongEssayTask\CorrectorAdmin\CorrectorAdminService;
 use ILIAS\Plugin\LongEssayTask\Data\CorrectorDatabaseRepository;
 use ILIAS\Plugin\LongEssayTask\Data\CorrectorRepository;
 use ILIAS\Plugin\LongEssayTask\Data\EssayDatabaseRepository;

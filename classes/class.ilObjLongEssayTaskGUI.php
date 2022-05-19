@@ -296,13 +296,13 @@ class ilObjLongEssayTaskGUI extends ilObjectPluginGUI
 
         // Corrector Tab
         $tabs = [];
-//        if ($this->object->canViewCorrectorScreen()) {
-//            $tabs[] = [
-//                'id' => 'tab_corrector_start',
-//                'txt' => $this->plugin->txt('tab_corrector_start'),
-//                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessaytask\corrector\correctorstartgui')
-//            ];
-//        }
+        if ($this->object->canViewCorrectorScreen()) {
+            $tabs[] = [
+                'id' => 'tab_corrector_start',
+                'txt' => $this->plugin->txt('tab_corrector_start'),
+                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessaytask\corrector\correctorstartgui')
+            ];
+        }
         if (!empty($tabs)) {
             $this->tabs->addTab('tab_corrector', $this->plugin->txt('tab_corrector'), $tabs[0]['url']);
             $this->subtabs['tab_corrector'] = $tabs;

@@ -14,8 +14,6 @@ use ilLongEssayTaskPlugin;
  */
 abstract class ActivePluginRecord extends ActiveRecord
 {
-    const REPOSITORY_CLASS = 'ilObjLongEssayTaskAccess';
-
     /**
      * @var bool
      */

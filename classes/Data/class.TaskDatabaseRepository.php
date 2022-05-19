@@ -52,6 +52,8 @@ class TaskDatabaseRepository implements TaskRepository
         return null;
     }
 
+
+
     public function ifTaskExistsById(int $a_id): bool
     {
         return $this->getTaskSettingsById($a_id) != null;

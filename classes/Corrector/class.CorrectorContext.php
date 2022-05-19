@@ -38,7 +38,7 @@ class CorrectorContext extends ServiceContext implements Context
      * The corrector app will load the correction item of this writer
      * @see Writer::getId()
      */
-    public function selectedWriterId(int $id) : void {
+    public function selectWriterId(int $id) : void {
         $this->selected_writer_id = $id;
     }
 

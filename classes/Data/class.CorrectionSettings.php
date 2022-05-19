@@ -40,7 +40,7 @@ class CorrectionSettings extends ActivePluginRecord
      * @con_fieldtype        integer
      * @con_length           4
      */
-    protected $required_correctors = 0;
+    protected $required_correctors = 2;
 
     /**
      * mutual visibility

@@ -22,8 +22,14 @@ class ilObjLongEssayTask extends ilObjectPlugin
     /** @var ilAccess */
     protected $access;
 
+    /** @var ilObjUser */
+    protected $user;
+
     /** @var ObjectSettings */
     protected $objectSettings;
+
+    /** @var LongEssayTaskDI */
+    protected $localDI;
 
     /**
 	 * Constructor
@@ -36,6 +42,8 @@ class ilObjLongEssayTask extends ilObjectPlugin
 	    global $DIC;
 	    $this->dic = $DIC;
         $this->access = $DIC->access();
+        $this->user = $DIC->user();
+        $this->localDI = LongEssayTaskDI::getInstance();
 
 		parent::__construct($a_ref_id);
 	}
@@ -123,7 +131,7 @@ class ilObjLongEssayTask extends ilObjectPlugin
         $new_editor_settings = clone $task_repo->getEditorSettingsById($this->getId());
         $new_correction_settings = clone $task_repo->getCorrectionSettingsById($this->getId());
 
-        $old_grade_level = $object_repo->getGradeLevelByObjectId($this->getId());
+        $old_grade_level = $object_repo->getGradeLevelsByObjectId($this->getId());
         $new_grade_level = [];
         foreach($old_grade_level as $grade_level)
         {
@@ -215,6 +223,7 @@ class ilObjLongEssayTask extends ilObjectPlugin
     public function canViewWriterScreen()
     {
         return $this->access->checkAccess('read', '', $this->getRefId());
+//            && !$this->localDI->getCorrectorRepo()->ifUserExistsInTaskAsCorrector($this->user->getId(), $this->getId());
     }
 
     /**
@@ -223,6 +232,7 @@ class ilObjLongEssayTask extends ilObjectPlugin
     public function canViewCorrectorScreen()
     {
         return $this->access->checkAccess('read', '', $this->getRefId());
+//            && $this->localDI->getCorrectorRepo()->ifUserExistsInTaskAsCorrector($this->user->getId(), $this->getId());
     }
 
 

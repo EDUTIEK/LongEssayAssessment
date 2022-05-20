@@ -6,6 +6,7 @@ use Edutiek\LongEssayService\Corrector\Context;
 use Edutiek\LongEssayService\Corrector\Service;
 use Edutiek\LongEssayService\Data\CorrectionGradeLevel;
 use Edutiek\LongEssayService\Data\CorrectionItem;
+use Edutiek\LongEssayService\Data\CorrectionSettings;
 use Edutiek\LongEssayService\Data\CorrectionSummary;
 use Edutiek\LongEssayService\Data\CorrectionTask;
 use Edutiek\LongEssayService\Data\Corrector;
@@ -74,12 +75,12 @@ class CorrectorContext extends ServiceContext implements Context
 
     /**
      * @inheritDoc
-     * here: just get the link to the repo object, the tab will be shown depending on the user permissions
+     * here: get the link to the repo object
      * The ILIAS session still has to exist, otherwise the user has to log in again
      */
     public function getReturnUrl(): string
     {
-        return \ilLink::_getStaticLink($this->object->getRefId());
+        return \ilLink::_getStaticLink($this->object->getRefId(), '', true, 'corrector');
     }
 
     /**
@@ -91,6 +92,21 @@ class CorrectorContext extends ServiceContext implements Context
             $this->object->getTitle(),
             $this->task->getInstructions(),
             $this->plugin->dbTimeToUnix($this->task->getCorrectionEnd()));
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getCorrectionSettings(): CorrectionSettings
+    {
+        if (!empty($repoSettings = $this->di->getTaskRepo()->getCorrectionSettingsById($this->task->getTaskId()))) {
+            return new CorrectionSettings(
+                (bool) $repoSettings->getMutualVisibility(),
+                (bool) $repoSettings->getMultiColorHighlight(),
+                (int) $repoSettings->getMaxPoints()
+            );
+        }
+        return new CorrectionSettings(false, false, 0);
     }
 
     /**
@@ -133,6 +149,22 @@ class CorrectorContext extends ServiceContext implements Context
             }
         }
         return $items;
+    }
+
+    /**
+     * @inheritDoc
+     * here:    the corrector key is a string of the corrector id
+     */
+    public function getCurrentCorrector(): ?Corrector
+    {
+        $correctorRepo = $this->di->getCorrectorRepo();
+        if (!empty($repoCorrector = $correctorRepo->getCorrectorByUserId($this->user->getId(), $this->task->getTaskId()))) {
+            return new Corrector(
+                (string) $repoCorrector->getId(),
+                $this->user->getFullname()
+            );
+        }
+        return null;
     }
 
     /**

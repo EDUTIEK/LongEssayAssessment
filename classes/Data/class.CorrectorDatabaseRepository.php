@@ -166,4 +166,9 @@ class CorrectorDatabaseRepository implements CorrectorRepository
             . " LEFT JOIN xlet_corrector AS corrector ON (ass.corrector_id = corrector.user_id)"
             . " WHERE corrector.task_id = " . $db->quote($a_task_id, "integer"));
     }
+
+	public function getAssignmentsByTaskId(int $a_task_id): array
+	{
+		return CorrectorAssignment::leftjoin("xlet_corrector", 'corrector_id', 'id')->where(['task_id' => $a_task_id])->get();
+	}
 }

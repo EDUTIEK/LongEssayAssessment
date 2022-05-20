@@ -36,6 +36,9 @@ interface CorrectorRepository
     /** @return CorrectorAssignment[] */
     public function getAssignmentsByCorrectorId(int $a_corrector_id): array;
 
+	/** @return CorrectorAssignment[] */
+	public function getAssignmentsByTaskId(int $a_task_id): array;
+
     public function ifCorrectorIsAssigned(int $a_writer_id, int $a_corrector_id): bool;
 
     // Update operations

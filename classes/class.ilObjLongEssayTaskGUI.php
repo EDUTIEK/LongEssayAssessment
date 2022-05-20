@@ -362,18 +362,18 @@ class ilObjLongEssayTaskGUI extends ilObjectPluginGUI
 
         // Corrector Admin Tab
         $tabs = [];
-//        if ($this->object->canMaintainCorrectors()) {
-//            $tabs[] = [
-//                'id' => 'tab_corrector_admin',
-//                'txt' => $this->plugin->txt('tab_corrector_admin'),
-//                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessaytask\correctorAdmin\correctoradmingui')
-//            ];
-//            $tabs[] = [
-//                'id' => 'tab_corrector_export',
-//                'txt' => $this->plugin->txt('tab_corrector_export'),
-//                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessaytask\correctorAdmin\correctoradmingui')
-//            ];
-//        }
+        if ($this->object->canMaintainCorrectors()) {
+            $tabs[] = [
+                'id' => 'tab_corrector_admin',
+                'txt' => $this->plugin->txt('tab_corrector_admin'),
+                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessaytask\correctorAdmin\correctoradmingui')
+            ];
+            $tabs[] = [
+                'id' => 'tab_corrector_export',
+                'txt' => $this->plugin->txt('tab_corrector_export'),
+                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessaytask\correctorAdmin\correctoradmingui')
+            ];
+        }
         if (!empty($tabs)) {
             $this->tabs->addTab('tab_corrector_admin', $this->plugin->txt('tab_corrector_admin'), $tabs[0]['url']);
             $this->subtabs['tab_corrector_admin'] = $tabs;

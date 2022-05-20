@@ -120,3 +120,10 @@ task_resources#:#Materialien zur Aufgabe
 available#:#Verfügbar
 participant#:#Teilnehmer/in
 points#:#Punkte
+assign_writers#:#Korrektoren zuweisen
+assigned_writers#:#Korrektoren wurden erfolgreich zugewiesen.
+first_corrector#:#Erstkorrektor
+second_corrector#:#Zweitkorrektor
+view_correction#:#Korrektur einsehen
+change_corrector#:#Korrektorenzuweisung ändern
+correctable_exams#:#Zu korrigierende Abgaben

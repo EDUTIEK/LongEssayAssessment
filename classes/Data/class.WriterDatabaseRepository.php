@@ -43,9 +43,8 @@ class WriterDatabaseRepository implements WriterRepository
 
     public function getWriterByUserId(int $a_user_id, int $a_task_id): ?Writer
     {
-        $writer = Writer::where(['user_id' => $a_user_id, 'task_id' => $a_task_id])->get();
-        if (count($writer) > 0) {
-            return $writer[1];
+        foreach(Writer::where(['user_id' => $a_user_id, 'task_id' => $a_task_id])->get() as $writer) {
+            return $writer;
         }
         return null;
     }
@@ -61,9 +60,8 @@ class WriterDatabaseRepository implements WriterRepository
 
     public function getTimeExtensionByWriterId(int $a_writer_id, int $a_task_id): ?TimeExtension
     {
-        $extension = TimeExtension::where(['writer_id' => $a_writer_id, 'task_id' => $a_task_id])->get();
-        if (count($extension) > 0) {
-            return $extension[1];
+        foreach(TimeExtension::where(['writer_id' => $a_writer_id, 'task_id' => $a_task_id])->get() as $extension) {
+            return $extension;
         }
         return null;
     }

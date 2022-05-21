@@ -75,11 +75,9 @@ class CorrectorDatabaseRepository implements CorrectorRepository
 
     public function getCorrectorAssignmentByPartIds(int $a_writer_id, int $a_corrector_id): ?CorrectorAssignment
     {
-        $assignments = CorrectorAssignment
-            ::where(['writer_id' => $a_writer_id, 'corrector_id' => $a_corrector_id])->get();
-
-        if (count($assignments) > 0) {
-            return $assignments[1];
+       foreach(CorrectorAssignment::where(['writer_id' => $a_writer_id, 'corrector_id' => $a_corrector_id])->get()
+            as $assignment) {
+           return $assignment;
         }
         return null;
     }

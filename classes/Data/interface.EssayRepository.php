@@ -83,6 +83,8 @@ interface EssayRepository
 
     public function deleteAccessToken(int $a_id);
 
+    public function deleteAccessTokenByUserIdAndTaskId(int $a_user_id, int $task_id, string $purpose);
+
     public function deleteAccessTokenByCorrectorId(int $a_corrector_id);
 
     public function deleteAccessTokenByWriterId(int $a_writer_id);

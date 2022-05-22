@@ -104,7 +104,8 @@ class EssayDatabaseRepository implements EssayRepository
 
     public function getAccessTokenByUserIdAndTaskId(int $a_user_id, int $a_task_id, string $a_purpose): ?AccessToken
     {
-        foreach(AccessToken::where(['user_id' => $a_user_id, 'task_id'=> $a_task_id, 'purpose' => $a_purpose])->orderBy('id')->get() as $token) {
+        foreach(AccessToken::where(['user_id' => $a_user_id, 'task_id'=> $a_task_id, 'purpose' => $a_purpose])
+                    ->orderBy('id', "DESC")->get() as $token) {
             return  $token;
         }
         return null;
@@ -253,6 +254,17 @@ class EssayDatabaseRepository implements EssayRepository
 
         $db->manipulate("DELETE FROM xlet_access_token" .
             " WHERE id = " . $db->quote($a_id, "integer"));
+    }
+
+    public function deleteAccessTokenByUserIdAndTaskId(int $a_user_id, int $a_task_id, string $a_purpose)
+    {
+        global $DIC;
+        $db = $DIC->database();
+
+        $db->manipulate("DELETE FROM xlet_access_token" .
+            " WHERE user_id = " . $db->quote($a_user_id, "integer") .
+            " AND task_id = " . $db->quote($a_task_id, "integer") .
+            " AND purpose = " . $db->quote($a_purpose, "text"));
     }
 
     public function deleteAccessTokenByCorrectorId(int $a_corrector_id)

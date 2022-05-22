@@ -157,10 +157,7 @@ abstract class ServiceContext implements BaseContext
     {
         // delete an existing token
         $repo = $this->di->getEssayRepo();
-        $token = $repo->getAccessTokenByUserIdAndTaskId($this->user->getId(), $this->object->getId(), $purpose);
-        if (isset($token)) {
-            $repo->deleteAccessToken($token->getId());
-        }
+        $repo->deleteAccessTokenByUserIdAndTaskId($this->user->getId(), $this->task->getTaskId(), $purpose);
 
         // save the new token
         $token = new AccessToken();

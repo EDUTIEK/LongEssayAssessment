@@ -245,7 +245,7 @@ class CorrectorContext extends ServiceContext implements Context
         $essayRepo = $this->di->getEssayRepo();
         if (!empty($repoEssay = $essayRepo->getEssayByWriterIdAndTaskId((int) $item_key, $this->task->getTaskId()))) {
             if (!empty($repoSummary = $essayRepo->getCorrectorSummaryByEssayIdAndCorrectorId(
-                $repoEssay->getId(), (int) $item_key)
+                $repoEssay->getId(), (int) $corrector_key)
             )) {
                 return new CorrectionSummary(
                     $repoSummary->getSummaryText(),
@@ -266,11 +266,11 @@ class CorrectorContext extends ServiceContext implements Context
     {
         $essayRepo = $this->di->getEssayRepo();
         if (!empty($repoEssay = $essayRepo->getEssayByWriterIdAndTaskId((int) $item_key, $this->task->getTaskId()))) {
-            $repoSummary = $essayRepo->getCorrectorSummaryByEssayIdAndCorrectorId($repoEssay->getId(), (int) $item_key);
+            $repoSummary = $essayRepo->getCorrectorSummaryByEssayIdAndCorrectorId($repoEssay->getId(), (int) $corrector_key);
             if (!isset($repoSummary)) {
                 $repoSummary = new CorrectorSummary();
                 $repoSummary->setEssayId($repoEssay->getId());
-                $repoSummary->setCorrectorId((int) $item_key);
+                $repoSummary->setCorrectorId((int) $corrector_key);
                 $essayRepo->createCorrectorSummary($repoSummary);
             }
             $repoSummary->setSummaryText($summary->getText());

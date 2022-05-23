@@ -65,7 +65,7 @@ class ObjectDatabaseRepository implements ObjectRepository
 
     public function getGradeLevelsByObjectId(int $a_object_id): array
     {
-        return GradeLevel::where(['object_id' => $a_object_id])->get();
+        return GradeLevel::where(['object_id' => $a_object_id])->orderBy('min_points', 'DESC')->get();
     }
 
     public function ifRatingCriterionExistsById(int $a_id): bool

@@ -26,7 +26,40 @@ class ilObjLongEssayTaskGUI extends ilObjectPluginGUI
      */
 	protected $subtabs = [];
 
-	/**
+
+    /**
+     * Goto redirection
+     * Enhanced for direct return to writer or corrector start screens
+     * @see \ILIAS\Plugin\LongEssayTask\Corrector\CorrectorContext::getReturnUrl
+     */
+    public static function _goto($a_target)
+    {
+        global $DIC;
+
+        $t = explode("_", $a_target[0]);
+        $ref_id = (int) $t[0];
+
+        if ($DIC->access()->checkAccess("read", "", $ref_id)) {
+            if (isset($t[1])) {
+                if ($t[1] == 'writer') {
+                    $class_name = 'ilias\plugin\longessaytask\writer\writerstartgui';
+                }
+                if ($t[1] == 'corrector') {
+                    $class_name = 'ilias\plugin\longessaytask\corrector\correctorstartgui';
+                }
+                if (isset($class_name)) {
+                    $DIC->ctrl()->initBaseClass("ilObjPluginDispatchGUI");
+                    $DIC->ctrl()->getCallStructure(strtolower("ilObjPluginDispatchGUI"));
+                    $DIC->ctrl()->setParameterByClass("ilobjlongessaytaskgui", "ref_id", $ref_id);
+                    $DIC->ctrl()->redirectByClass(array("ilobjplugindispatchgui", "ilobjlongessaytaskgui", $class_name), "");
+                }
+            }
+        }
+        parent::_goto($a_target);
+    }
+
+
+    /**
 	 * Initialisation
 	 */
 	protected function afterConstructor()

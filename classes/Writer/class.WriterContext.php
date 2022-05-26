@@ -62,7 +62,7 @@ class WriterContext extends ServiceContext implements Context
      */
     public function getReturnUrl(): string
     {
-        return \ilLink::_getStaticLink($this->object->getRefId());
+        return \ilLink::_getStaticLink($this->object->getRefId(), 'xlet', true, '_writer');
     }
 
 

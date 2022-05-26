@@ -77,7 +77,7 @@ class WriterStartGUI extends BaseGUI
 
         $contents[] = $this->uiFactory->item()->group($this->plugin->txt('task_instructions'),
             [$this->uiFactory->item()->standard($this->lng->txt('description'))
-                ->withDescription($this->task->getInstructions() !== null ? $this->task->getInstructions() : "")
+                ->withDescription($this->task->getInstructions() !== null ? $this->task->getDescription() : "")
                 ->withProperties(array(
                     $this->plugin->txt('writing_period') => $this->plugin->formatPeriod(
                         $this->task->getWritingStart(), $this->task->getWritingEnd()

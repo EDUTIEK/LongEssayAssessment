@@ -80,7 +80,7 @@ class CorrectorContext extends ServiceContext implements Context
      */
     public function getReturnUrl(): string
     {
-        return \ilLink::_getStaticLink($this->object->getRefId(), '', true, 'corrector');
+        return \ilLink::_getStaticLink($this->object->getRefId(), 'xlet', true, '_corrector');
     }
 
     /**

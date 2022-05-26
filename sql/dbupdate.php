@@ -1103,3 +1103,15 @@ if (!$ilDB->tableColumnExists('xlet_corrector_summary','grade_level_id')) {
         'default' => null
     ]);
 ?>
+<#36>
+<?php
+if (!$ilDB->tableColumnExists('xlet_essay','final_grade_level_id')) {
+    $ilDB->addTableColumn('xlet_essay', 'final_grade_level_id', [
+        'notnull' => '0',
+        'type' => 'integer',
+        'length' => '4'
+    ]);
+    $ilDB->dropTableColumn('xlet_essay', 'final_grade_level');
+}
+?>
+

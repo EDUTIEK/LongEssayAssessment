@@ -136,7 +136,7 @@ class Essay extends ActivePluginRecord
     /**
      * PDF version as il file id
      *
-     * @var integer
+     * @var null|integer
      * @con_has_field        true
      * @con_is_primary       false
      * @con_sequence         false
@@ -150,7 +150,7 @@ class Essay extends ActivePluginRecord
     /**
      * Final Points (integer)
      *
-     * @var integer
+     * @var null|integer
      * @con_has_field        true
      * @con_is_primary       false
      * @con_sequence         false
@@ -164,13 +164,13 @@ class Essay extends ActivePluginRecord
     /**
      * Final Grade Level (text)
      *
-     * @var null|string
+     * @var null|integer
      * @con_has_field        true
      * @con_is_notnull       false
-     * @con_fieldtype        text
-     * @con_length           255
+     * @con_fieldtype        integer
+     * @con_length           4
      */
-    protected $final_grade_level = null;
+    protected $final_grade_level_id = null;
 
     /**
      * @return string
@@ -371,20 +371,20 @@ class Essay extends ActivePluginRecord
     }
 
     /**
-     * @return string|null
+     * @return int|null
      */
-    public function getFinalGradeLevel(): ?string
+    public function getFinalGradeLevelId(): ?int
     {
-        return $this->final_grade_level;
+        return $this->final_grade_level_id;
     }
 
     /**
-     * @param string|null $final_grade_level
+     * @param int|null $final_grade_level_id
      * @return Essay
      */
-    public function setFinalGradeLevel(?string $final_grade_level): Essay
+    public function setFinalGradeLevelId(?int $final_grade_level_id): Essay
     {
-        $this->final_grade_level = $final_grade_level;
+        $this->final_grade_level_id = $final_grade_level_id;
         return $this;
     }
 

@@ -59,14 +59,25 @@ class WriterStartGUI extends BaseGUI
 		global $DIC;
         $contents = [];
         $modals = [];
+        $essay = null;
+
+        if (!empty($writer = $this->localDI->getWriterRepo()->getWriterByUserId(
+            $this->dic->user()->getId(), $this->task->getTaskId()))) {
+            $essay = $this->localDI->getEssayRepo()->getEssayByWriterIdAndTaskId(
+                $writer->getId(), $this->task->getTaskId()
+            );
+        }
+
 
         // Toolbar
 
-        $button = \ilLinkButton::getInstance();
-        $button->setUrl($this->ctrl->getLinkTarget($this, 'startWriter'));
-        $button->setCaption($this->plugin->txt('start_writing'), false);
-        $button->setPrimary(true);
-        $this->toolbar->addButtonInstance($button);
+        if ($this->object->canWrite()) {
+            $button = \ilLinkButton::getInstance();
+            $button->setUrl($this->ctrl->getLinkTarget($this, 'startWriter'));
+            $button->setCaption($this->plugin->txt('start_writing'), false);
+            $button->setPrimary(true);
+            $this->toolbar->addButtonInstance($button);
+        }
 
 //        $button = \ilLinkButton::getInstance();
 //        $button->setUrl($this->ctrl->getLinkTarget($this, 'processText'));
@@ -77,9 +88,9 @@ class WriterStartGUI extends BaseGUI
 
         $contents[] = $this->uiFactory->item()->group($this->plugin->txt('task_instructions'),
             [$this->uiFactory->item()->standard($this->lng->txt('description'))
-                ->withDescription($this->task->getInstructions() !== null ? $this->task->getDescription() : "")
+                ->withDescription($this->task->getDescription() !== null ? $this->task->getDescription() : "")
                 ->withProperties(array(
-                    $this->plugin->txt('writing_period') => $this->plugin->formatPeriod(
+                    $this->plugin->txt('writing_period') => $this->data->formatPeriod(
                         $this->task->getWritingStart(), $this->task->getWritingEnd()
                     )
                 ))]);
@@ -127,33 +138,26 @@ class WriterStartGUI extends BaseGUI
         $result_actions = [];
 
         // todo respect review period
-        if (true) {
+        if ($this->object->canReview() && isset($essay)) {
 
-            if (!empty($writer = $this->localDI->getWriterRepo()->getWriterByUserId(
-                $this->dic->user()->getId(), $this->task->getTaskId())))
-            {
-                if (!empty($essay = $this->localDI->getEssayRepo()->getEssayByWriterIdAndTaskId(
-                    $writer->getId(), $this->task->getTaskId()
-                )))
-                {
-                    $submission_page = $this->uiFactory->modal()->lightboxTextPage(
-                        (string) $essay->getProcessedText(), $this->plugin->txt('submission'));
-                    $submission_modal = $this->uiFactory->modal()->lightbox($submission_page);
-                    $modals[$submission_modal->getShowSignal()->getId()] = $submission_modal;
+            $submission_page = $this->uiFactory->modal()->lightboxTextPage(
+                (string) $essay->getProcessedText(), $this->plugin->txt('submission'));
+            $submission_modal = $this->uiFactory->modal()->lightbox($submission_page);
+            $modals[$submission_modal->getShowSignal()->getId()] = $submission_modal;
 
-                    $result_actions[] = $this->uiFactory->button()->shy($this->plugin->txt('view_submission'), '')
-                        ->withOnClick($submission_modal->getShowSignal());
+            $result_actions[] = $this->uiFactory->button()->shy($this->plugin->txt('view_submission'), '')
+                ->withOnClick($submission_modal->getShowSignal());
 
-                    $result_actions[] = $this->uiFactory->button()->shy($this->plugin->txt('download_submission'),
-                        $this->ctrl->getLinkTarget($this, 'downloadWriterPdf'));
-                }
-            }
+            $result_actions[] = $this->uiFactory->button()->shy($this->plugin->txt('download_submission'),
+                $this->ctrl->getLinkTarget($this, 'downloadWriterPdf'));
+
+
         }
 
-        $result_item = $this->uiFactory->item()->standard($this->plugin->txt('not_specified'))
+        $result_item = $this->uiFactory->item()->standard($this->data->formatFinalResult($essay))
             ->withDescription("")
             ->withProperties(array(
-                $this->plugin->txt('review_period') => $this->plugin->formatPeriod(
+                $this->plugin->txt('review_period') => $this->data->formatPeriod(
                     $this->task->getReviewStart(), $this->task->getReviewEnd()
                 )));
         if (!empty($result_actions)) {

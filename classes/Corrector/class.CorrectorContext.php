@@ -91,7 +91,7 @@ class CorrectorContext extends ServiceContext implements Context
         return new CorrectionTask(
             $this->object->getTitle(),
             $this->task->getInstructions(),
-            $this->plugin->dbTimeToUnix($this->task->getCorrectionEnd()));
+            $this->data->dbTimeToUnix($this->task->getCorrectionEnd()));
     }
 
     /**
@@ -206,8 +206,8 @@ class CorrectorContext extends ServiceContext implements Context
                 $repoEssay->getWrittenText(),
                 $repoEssay->getRawTextHash(),
                 $repoEssay->getProcessedText(),
-                $this->plugin->dbTimeToUnix($repoEssay->getEditStarted()),
-                $this->plugin->dbTimeToUnix($repoEssay->getEditEnded()),
+                $this->data->dbTimeToUnix($repoEssay->getEditStarted()),
+                $this->data->dbTimeToUnix($repoEssay->getEditEnded()),
                 (bool) $repoEssay->isIsAuthorized()
             );
         }

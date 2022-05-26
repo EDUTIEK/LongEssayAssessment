@@ -91,7 +91,7 @@ class WriterContext extends ServiceContext implements Context
             $this->object->getTitle(),
             $this->task->getInstructions(),
             $this->user->getFullname(),
-            $this->plugin->dbTimeToUnix($this->task->getWritingEnd()));
+            $this->data->dbTimeToUnix($this->task->getWritingEnd()));
     }
 
 
@@ -105,8 +105,8 @@ class WriterContext extends ServiceContext implements Context
             $repoEssay->getWrittenText(),
             $repoEssay->getRawTextHash(),
             $repoEssay->getProcessedText(),
-            $this->plugin->dbTimeToUnix($repoEssay->getEditStarted()),
-            $this->plugin->dbTimeToUnix($repoEssay->getEditEnded()),
+            $this->data->dbTimeToUnix($repoEssay->getEditStarted()),
+            $this->data->dbTimeToUnix($repoEssay->getEditEnded()),
             (bool) $repoEssay->isIsAuthorized()
         );
     }
@@ -120,8 +120,8 @@ class WriterContext extends ServiceContext implements Context
             ->setWrittenText($writtenEssay->getWrittenText())
             ->setRawTextHash($writtenEssay->getWrittenHash())
             ->setProcessedText($writtenEssay->getProcessedText())
-            ->setEditStarted($this->plugin->unixTimeToDb($writtenEssay->getEditStarted()))
-            ->setEditEnded($this->plugin->unixTimeToDb($writtenEssay->getEditEnded()))
+            ->setEditStarted($this->data->unixTimeToDb($writtenEssay->getEditStarted()))
+            ->setEditEnded($this->data->unixTimeToDb($writtenEssay->getEditEnded()))
             ->setIsAuthorized($writtenEssay->isAuthorized())
         );
     }
@@ -138,7 +138,7 @@ class WriterContext extends ServiceContext implements Context
         $steps = [];
         foreach ($entries as $entry) {
             $steps[] = new WritingStep(
-                (int) ($this->plugin->dbTimeToUnix($entry->getTimestamp())),
+                (int) ($this->data->dbTimeToUnix($entry->getTimestamp())),
                 (string) $entry->getContent(),
                 $entry->isIsDelta(),
                 $entry->getHashBefore(),
@@ -158,7 +158,7 @@ class WriterContext extends ServiceContext implements Context
             $entry->setEssayId($this->getRepoEssay()->getId())
                 ->setContent($step->getContent())
                 ->setIsDelta($step->isDelta())
-                ->setTimestamp($this->plugin->unixTimeToDb($step->getTimestamp()))
+                ->setTimestamp($this->data->unixTimeToDb($step->getTimestamp()))
                 ->setHashBefore($step->getHashBefore())
                 ->setHashAfter($step->getHashAfter());
             $this->di->getEssayRepo()->createWriterHistory($entry);

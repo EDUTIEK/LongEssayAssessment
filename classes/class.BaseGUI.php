@@ -4,6 +4,7 @@
 namespace ILIAS\Plugin\LongEssayTask;
 
 use ILIAS\DI\Container;
+use ILIAS\Plugin\LongEssayTask\Data\DataService;
 use ILIAS\UI\Factory;
 use ILIAS\UI\Renderer;
 use Psr\Http\Message\RequestInterface;
@@ -57,6 +58,9 @@ abstract class BaseGUI
     /** @var LongEssayTaskDI */
     protected $localDI;
 
+    /** @var DataService */
+    protected $data;
+
     /**
 	 * Constructor
 	 * @param \ilObjLongEssayTaskGUI  $objectGUI
@@ -82,6 +86,7 @@ abstract class BaseGUI
         $this->object = $this->objectGUI->getObject();
 		$this->plugin = $this->objectGUI->getPlugin();
         $this->localDI = LongEssayTaskDI::getInstance();
+        $this->data = $this->object->getDataService();
 	}
 
 	/**

@@ -4,6 +4,7 @@
 use ILIAS\DI\Container;
 use ILIAS\Plugin\LongEssayTask\CorrectorAdmin\CorrectorAdminService;
 use ILIAS\Plugin\LongEssayTask\Data\CorrectionSettings;
+use ILIAS\Plugin\LongEssayTask\Data\DataService;
 use ILIAS\Plugin\LongEssayTask\Data\EditorSettings;
 use ILIAS\Plugin\LongEssayTask\Data\ObjectSettings;
 use ILIAS\Plugin\LongEssayTask\Data\PluginConfig;
@@ -28,8 +29,17 @@ class ilObjLongEssayTask extends ilObjectPlugin
     /** @var ObjectSettings */
     protected $objectSettings;
 
+    /** @var TaskSettings */
+    protected $taskSettings;
+
     /** @var LongEssayTaskDI */
     protected $localDI;
+
+    /** @var ilLongEssayTaskPlugin */
+    protected $plugin;
+
+    /** @var DataService  */
+    protected $data;
 
     /**
 	 * Constructor
@@ -44,8 +54,11 @@ class ilObjLongEssayTask extends ilObjectPlugin
         $this->access = $DIC->access();
         $this->user = $DIC->user();
         $this->localDI = LongEssayTaskDI::getInstance();
+        $this->plugin = ilLongEssayTaskPlugin::getInstance();
 
 		parent::__construct($a_ref_id);
+
+        $this->data = new DataService($this);
 	}
 
 
@@ -75,6 +88,7 @@ class ilObjLongEssayTask extends ilObjectPlugin
         $object_repo->createObject($new_obj_settings, $new_plugin_settings);
         $task_repo->createTask($new_task_settings, $new_editor_settings, $new_correction_settings);
         $this->objectSettings = $new_obj_settings;
+        $this->taskSettings = $new_task_settings;
 	}
 
 	/**
@@ -82,10 +96,8 @@ class ilObjLongEssayTask extends ilObjectPlugin
 	 */
     protected function doRead()
 	{
-        $di = LongEssayTaskDI::getInstance();
-        $object_repo = $di->getObjectRepo();
-
-        $this->objectSettings = $object_repo->getObjectSettingsById($this->getId());
+        $this->objectSettings = $this->localDI->getObjectRepo()->getObjectSettingsById($this->getId());
+        $this->taskSettings = $this->localDI->getTaskRepo()->getTaskSettingsById($this->getId());
 	}
 
 	/**
@@ -93,10 +105,7 @@ class ilObjLongEssayTask extends ilObjectPlugin
 	 */
     protected function doUpdate()
 	{
-        $di = LongEssayTaskDI::getInstance();
-        $object_repo = $di->getObjectRepo();
-
-        $object_repo->updateObjectSettings($this->objectSettings);
+        $this->localDI->getObjectRepo()->updateObjectSettings($this->objectSettings);
 	}
 
 	/**
@@ -299,9 +308,67 @@ class ilObjLongEssayTask extends ilObjectPlugin
     }
 
     /**
+     * Check if the user can write the essay
+     */
+    public function canWrite() : bool
+    {
+        if (!$this->canViewWriterScreen()) {
+            return false;
+        }
+
+        // todo: respect time extension
+        if (!$this->data->isInRange(time(),
+            $this->data->dbTimeToUnix($this->taskSettings->getWritingStart()),
+            $this->data->dbTimeToUnix($this->taskSettings->getWritingEnd()))) {
+            return false;
+        }
+
+        // check if not authorized
+        if (!empty($writer = $this->localDI->getWriterRepo()->getWriterByUserId(
+            $this->dic->user()->getId(), $this->taskSettings->getTaskId()))) {
+            if (!empty($essay = $this->localDI->getEssayRepo()->getEssayByWriterIdAndTaskId(
+                $writer->getId(), $this->taskSettings->getTaskId()
+            ))) {
+                if ($essay->isIsAuthorized()) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Check if the user can review the essay
+     */
+    public function canReview() : bool
+    {
+        if (!$this->canViewWriterScreen()) {
+            return false;
+        }
+
+        if (!$this->data->isInRange(time(),
+            $this->data->dbTimeToUnix($this->taskSettings->getReviewStart()),
+            $this->data->dbTimeToUnix($this->taskSettings->getReviewEnd()))) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Get the service for handling object data
+     */
+    public function getDataService() : DataService
+    {
+        return $this->data;
+    }
+
+    /**
      * Get the service for maintaining correctors
      */
-    public function getCorrectorAdminService() : CorrectorAdminService {
+    public function getCorrectorAdminService() : CorrectorAdminService
+    {
         return new CorrectorAdminService($this);
     }
 }

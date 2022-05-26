@@ -7,6 +7,7 @@ use Edutiek\LongEssayService\Data\ApiToken;
 use Edutiek\LongEssayService\Data\EnvResource;
 use Edutiek\LongEssayService\Exceptions\ContextException;
 use ILIAS\Plugin\LongEssayTask\Data\AccessToken;
+use ILIAS\Plugin\LongEssayTask\Data\DataService;
 use ILIAS\Plugin\LongEssayTask\Data\Resource;
 use ILIAS\Plugin\LongEssayTask\Data\TaskSettings;
 use ilContext;
@@ -39,6 +40,9 @@ abstract class ServiceContext implements BaseContext
 
     /** @var TaskSettings */
     protected $task;
+
+    /** @var DataService */
+    protected $data;
 
     /**
      * @inheritDoc
@@ -84,6 +88,7 @@ abstract class ServiceContext implements BaseContext
         }
 
        $this->task = $this->di->getTaskRepo()->getTaskSettingsById($this->object->getId());
+       $this->data = $this->object->getDataService();
     }
 
     /**

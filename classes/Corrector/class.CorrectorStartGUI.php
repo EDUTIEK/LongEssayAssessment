@@ -65,58 +65,46 @@ class CorrectorStartGUI extends BaseGUI
         $this->service->addUserAsCorrector($this->dic->user()->getId());
         $this->service->assignMissingCorrectors();
 
+        $canCorrect = $this->object->canCorrect();
+        $readyItems = 0;
+
         $corrector = $this->localDI->getCorrectorRepo()->getCorrectorByUserId($this->dic->user()->getId(), $this->settings->getTaskId());
         foreach ($this->localDI->getCorrectorRepo()->getAssignmentsByCorrectorId($corrector->getId()) as $assignment) {
             $writer = $this->localDI->getWriterRepo()->getWriterById($assignment->getWriterId());
+            $essay = $this->localDI->getEssayRepo()->getEssayByWriterIdAndTaskId($assignment->getWriterId(), $this->settings->getTaskId());
+            $summary = $this->localDI->getEssayRepo()->getCorrectorSummaryByEssayIdAndCorrectorId(
+                isset($essay) ? $essay->getId() : 0, $corrector->getId());
 
-            $properties = [];
-            if ($essay = $this->localDI->getEssayRepo()->getEssayByWriterIdAndTaskId($assignment->getWriterId(), $this->settings->getTaskId())) {
-                $properties = [
-                    "Abgabe-Status:" => empty($essay->getWritingAuthorized()) ? 'nicht abgegeben' : 'abgegeben',
-                    "Korrektur-Status:" => "vorläufig",
-                    "Punkte" => $essay->getFinalPoints(),
-                    "Notenstufe" => $essay->getFinalGradeLevel()
-                ];
-            }
+            $properties = [
+                $this->plugin->txt('writing_status') => $this->data->formatWritingStatus($essay),
+                $this->plugin->txt('correction_status') => $this->data->formatCorrectionStatus($essay),
+                $this->plugin->txt('own_grading') => $this->data->formatCorrectionResult($summary),
+                $this->plugin->txt('result') => $this->data->formatFinalResult($essay)
+            ];
             foreach ($this->localDI->getCorrectorRepo()->getAssignmentsByWriterId($assignment->getWriterId()) as $otherAssignment) {
                 if ($otherAssignment->getCorrectorId() != $corrector->getId()) {
-                    switch ($otherAssignment->getPosition()) {
-                        case 0:
-                            $label = "Erstkorrektor/in";
-                            break;
-                        case 1:
-                            $label = "Zweitkorrektor/in";
-                            break;
-                        default:
-                            $label = "Weiterer Korrektor/innen";
-                            break;
-                    }
-                    $otherCorrector = $this->localDI->getCorrectorRepo()->getCorrectorById($otherAssignment->getCorrectorId());
-                    $properties[$label] = \ilObjUser::_lookupFullname($otherCorrector->getUserId())
-                        . ' ('. \ilObjUser::_lookupLogin($otherCorrector->getUserId()) . ')';
-
+                    $properties[$this->data->formatCorrectorPosition($otherAssignment)] = $this->data->formatCorrectorAssignment($otherAssignment);
                 }
             }
 
+            $title = $writer->getPseudonym();
+            if ($canCorrect && $this->service->isCorrectionPossible($essay, $summary)) {
+                $readyItems++;
+                $this->ctrl->setParameter($this, 'writer_id', $assignment->getWriterId());
+                $title = $this->uiFactory->link()->standard($title, $this->ctrl->getLinkTarget($this, 'startCorrector'));
+            }
 
-            $this->ctrl->setParameter($this, 'writer_id', $assignment->getWriterId());
-            $items[] = $this->uiFactory->item()->standard($this->uiFactory->link()->standard($writer->getPseudonym(),$this->ctrl->getLinkTarget($this, 'startCorrector')))
+            $items[] = $this->uiFactory->item()->standard($title)
                 ->withLeadIcon($this->uiFactory->symbol()->icon()->standard('adve', 'user', 'medium'))
-                ->withProperties($properties)
-                ->withActions(
-                    $this->uiFactory->dropdown()->standard([
-                        $this->uiFactory->button()->shy('Korrektur bearbeiten', $this->ctrl->getLinkTarget($this, 'startCorrector')),
-                        $this->uiFactory->button()->shy('Korrektur finalisieren',  $this->ctrl->getLinkTarget($this, 'finalizeCorrection'))
-                    ]));
-
+                ->withProperties($properties);
         }
 
-        if (!empty($items)) {
+        if ($canCorrect && $readyItems > 0) {
             $this->ctrl->clearParameters($this);
-            $this->toolbar->setFormAction($this->ctrl->getFormAction($this));
+            //$this->toolbar->setFormAction($this->ctrl->getFormAction($this));
             $button = \ilLinkButton::getInstance();
             $button->setUrl($this->ctrl->getLinkTarget($this, "startCorrector"));
-            $button->setCaption('Korrektur starten', false);
+            $button->setCaption($this->plugin->txt('start_correction'), false);
             $button->setPrimary(true);
             $this->toolbar->addButtonInstance($button);
         }
@@ -141,7 +129,7 @@ class CorrectorStartGUI extends BaseGUI
 //                    "Durchschnittsnote:" => "10"))
 //        ]);
 
-        $essays = $this->uiFactory->item()->group("Zugeteilte Abgaben", $items);
+        $essays = $this->uiFactory->item()->group($this->plugin->txt('assigned_writings'), $items);
         $this->tpl->setContent(
 //            $this->renderer->render($result) . '<br>'.
 //            $this->renderer->render($view_control) . '<br><br>' .

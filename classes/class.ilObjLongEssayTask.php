@@ -229,7 +229,7 @@ class ilObjLongEssayTask extends ilObjectPlugin
     /**
      * Check if the current user can view the
      */
-    public function canViewWriterScreen()
+    public function canViewWriterScreen() : bool
     {
         return $this->access->checkAccess('read', '', $this->getRefId());
 //            && !$this->localDI->getCorrectorRepo()->ifUserExistsInTaskAsCorrector($this->user->getId(), $this->getId());
@@ -238,17 +238,17 @@ class ilObjLongEssayTask extends ilObjectPlugin
     /**
      * Check if the current user can view the
      */
-    public function canViewCorrectorScreen()
+    public function canViewCorrectorScreen() : bool
     {
-        return $this->access->checkAccess('read', '', $this->getRefId());
-//            && $this->localDI->getCorrectorRepo()->ifUserExistsInTaskAsCorrector($this->user->getId(), $this->getId());
+        return $this->access->checkAccess('read', '', $this->getRefId())
+            && $this->localDI->getCorrectorRepo()->ifUserExistsInTaskAsCorrector($this->user->getId(), $this->getId());
     }
 
 
     /**
      * Check if the current user can edit the organisational settings (online, dates)
      */
-    public function canEditOrgaSettings()
+    public function canEditOrgaSettings() : bool
     {
         return $this->access->checkAccess('write', '', $this->getRefId());
     }
@@ -256,7 +256,7 @@ class ilObjLongEssayTask extends ilObjectPlugin
     /**
      *Check if the user can edit additional material
      */
-    public function canEditTechnicalSettings()
+    public function canEditTechnicalSettings() : bool
     {
         return $this->access->checkAccess('write', '', $this->getRefId());
     }
@@ -264,7 +264,7 @@ class ilObjLongEssayTask extends ilObjectPlugin
     /**
      *Check if the user can edit the content settings
      */
-    public function canEditContentSettings()
+    public function canEditContentSettings() : bool
     {
         return $this->access->checkAccess('maintain_task', '', $this->getRefId());
     }
@@ -272,7 +272,7 @@ class ilObjLongEssayTask extends ilObjectPlugin
     /**
      *Check if the user can edit the grades
      */
-    public function canEditGrades()
+    public function canEditGrades() : bool
     {
         return $this->access->checkAccess('maintain_task', '', $this->getRefId());
     }
@@ -280,7 +280,7 @@ class ilObjLongEssayTask extends ilObjectPlugin
     /**
      *Check if the user can edit the criteria
      */
-    public function canEditCriteria()
+    public function canEditCriteria() : bool
     {
         return $this->access->checkAccess('maintain_task', '', $this->getRefId());
     }
@@ -288,7 +288,7 @@ class ilObjLongEssayTask extends ilObjectPlugin
     /**
      *Check if the user can edit additional material
      */
-    public function canEditMaterial()
+    public function canEditMaterial() : bool
     {
         return $this->access->checkAccess('maintain_task', '', $this->getRefId());
     }
@@ -296,14 +296,16 @@ class ilObjLongEssayTask extends ilObjectPlugin
     /**
      *Check if the user can maintain the writers
      */
-    public function canMaintainWriters() {
+    public function canMaintainWriters() : bool
+    {
         return $this->access->checkAccess('maintain_writers', '', $this->getRefId());
     }
 
     /**
      *Check if the user can maintain the writers
      */
-    public function canMaintainCorrectors() {
+    public function canMaintainCorrectors() : bool
+    {
         return $this->access->checkAccess('maintain_correctors', '', $this->getRefId());
     }
 
@@ -333,6 +335,24 @@ class ilObjLongEssayTask extends ilObjectPlugin
                     return false;
                 }
             }
+        }
+
+        return true;
+    }
+
+    /**
+     * Check if the user can write the essay
+     */
+    public function canCorrect() : bool
+    {
+        if (!$this->canViewCorrectorScreen()) {
+            return false;
+        }
+
+        if (!$this->data->isInRange(time(),
+            $this->data->dbTimeToUnix($this->taskSettings->getCorrectionStart()),
+            $this->data->dbTimeToUnix($this->taskSettings->getCorrectionEnd()))) {
+            return false;
         }
 
         return true;

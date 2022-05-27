@@ -127,3 +127,21 @@ second_corrector#:#Zweitkorrektor
 view_correction#:#Korrektur einsehen
 change_corrector#:#Korrektorenzuweisung ändern
 correctable_exams#:#Zu korrigierende Abgaben
+writing_status#:#Abgabe
+writing_status_not_written#:#nicht teilgenommen
+writing_status_not_authorized#:#nicht abgegeben
+writing_status_authorized#:#autorisiert
+correction_status#:#Korrektur
+correction_status_not_possible#:#nicht möglich
+correction_status_open#:#offen
+correction_status_stitch_needed#:#Stichentscheid notwendig
+correction_status_finished#:#abgeschlossen
+own_grading#:#Eigene Wertung
+grading_not_started#:#nicht begonnen
+grading_open#:#offen
+assignment_pos_first#:#Erstkorrektor/in
+assignment_pos_second#:#Zweitkorrektor/in
+assignment_pos_other#:#Mitkorrektor/in
+assignment_pos_empty#:#nicht ausgewählt
+start_correction#:#Korrektur starten
+assigned_writings#:#Zugeteilte Abgaben

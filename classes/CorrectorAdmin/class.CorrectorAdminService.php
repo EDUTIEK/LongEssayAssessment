@@ -8,6 +8,8 @@ use ILIAS\Plugin\LongEssayTask\Data\CorrectionSettings;
 use ILIAS\Plugin\LongEssayTask\Data\Corrector;
 use ILIAS\Plugin\LongEssayTask\Data\CorrectorAssignment;
 use ILIAS\Plugin\LongEssayTask\Data\CorrectorRepository;
+use ILIAS\Plugin\LongEssayTask\Data\CorrectorSummary;
+use ILIAS\Plugin\LongEssayTask\Data\Essay;
 use ILIAS\Plugin\LongEssayTask\Data\WriterRepository;
 
 /**
@@ -164,4 +166,58 @@ class CorrectorAdminService extends BaseService
         }
         return $assigned;
     }
+
+    /**
+     * Check if the correction of an essay is possible
+     */
+    public function isCorrectionPossible(?Essay $essay, ?CorrectorSummary $summary) : bool
+    {
+        if (empty($essay) || empty($essay->getWritingAuthorized())) {
+            return false;
+        }
+        if (empty($summary) || !empty($summary->getCorrectionAuthorized())) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Check if the correction for an essay needs a stitch decision
+     */
+    public function isStitchDecisionNeeded(?Essay $essay) : bool
+    {
+        if (empty($essay) || empty($essay->getWritingAuthorized())) {
+            // essay is not authorized
+            return false;
+        }
+
+        $numCorrected = 0;
+        $minPoints = null;
+        $maxPoints = null;
+        foreach ($this->correctorRepo->getAssignmentsByWriterId($essay->getWriterId()) as $assignment) {
+            $summary = $this->localDI->getEssayRepo()->getCorrectorSummaryByEssayIdAndCorrectorId(
+                $essay->getId(), $assignment->getCorrectorId());
+            if (empty($summary) || empty($summary->getCorrectionAuthorized())) {
+                // one correction is not authorized
+                return false;
+            }
+            $numCorrected++;
+            $minPoints = (isset($minPoints) ? min($minPoints, $summary->getPoints()) : $summary->getPoints());
+            $maxPoints = (isset($maxPoints) ? max($maxPoints, $summary->getPoints()) : $summary->getPoints());
+        }
+
+        if ($numCorrected < $this->settings->getRequiredCorrectors()) {
+            // not enough correctors => not yet ready
+            return false;
+        }
+
+        if (abs($maxPoints - $minPoints) <= $this->settings->getMaxAutoDistance()) {
+            // distance is within limit
+            return false;
+        }
+
+        return true;
+    }
+
+
 }

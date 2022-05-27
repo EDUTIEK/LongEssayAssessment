@@ -3,6 +3,7 @@
 
 namespace ILIAS\Plugin\LongEssayTask\Data;
 
+use Edutiek\LongEssayService\Data\CorrectionSummary;
 use ILIAS\Plugin\LongEssayTask\BaseService;
 use Throwable;
 
@@ -116,6 +117,41 @@ class DataService extends BaseService
     }
 
     /**
+     * Format the writing status of an essay
+     */
+    public function formatWritingStatus(?Essay $essay) : string
+    {
+        if (empty($essay) || empty($essay->getEditStarted())) {
+            return $this->plugin->txt('writing_status_not_written');
+        }
+        elseif (empty($essay->getWritingAuthorized())) {
+            return $this->plugin->txt('writing_status_not_authorized');
+        }
+        else {
+            return $this->plugin->txt('writing_status_authorized');
+        }
+    }
+
+    /**
+     * Format the correction status of an essay
+     */
+    public function formatCorrectionStatus(?Essay $essay) : string
+    {
+        if (empty($essay) || empty($essay->getWritingAuthorized())) {
+            return $this->plugin->txt('correction_status_not_possible');
+        }
+        elseif (!empty($essay->getCorrectionFinalized())) {
+            return $this->plugin->txt('correction_status_finished');
+        }
+        elseif ($this->object->getCorrectorAdminService()->isStitchDecisionNeeded($essay)) {
+            return $this->plugin->txt('correction_status_stitch_needed');
+        }
+        else {
+            return $this->plugin->txt('correction_status_open');
+        }
+    }
+
+    /**
      * Format the final result stored for an essay
      */
     public function formatFinalResult(?Essay $essay) : string
@@ -133,4 +169,61 @@ class DataService extends BaseService
 
         return $text;
     }
+
+    /**
+     * Format the result from a single correction
+     */
+    public function formatCorrectionResult(?CorrectorSummary $summary) : string
+    {
+        if (empty($summary) || empty($summary->getLastChange())) {
+            return $this->plugin->txt('grading_not_started');
+        }
+
+        if (empty($summary->getCorrectionAuthorized())) {
+            $text = $this->plugin->txt('grading_open');
+        }
+        else {
+            $level = $this->localDI->getObjectRepo()->getGradeLevelById($summary->getGradeLevelId());
+            $text = $level->getGrade();
+        }
+
+        if (!empty($summary->getPoints())) {
+            $text .= ' (' . $summary->getPoints() . ' ' . $this->plugin->txt('points') . ')';
+        }
+
+        return $text;
+    }
+
+    /**
+     * Format the position of a corrector
+     */
+    public function formatCorrectorPosition(CorrectorAssignment $assignment) : string
+    {
+        switch ($assignment->getPosition()) {
+            case 0:
+                return $this->plugin->txt('assignment_pos_first');
+
+            case 1:
+                return $this->plugin->txt('assignment_pos_second');
+
+            default:
+                return $this->plugin->txt('assignment_pos_other');
+        }
+    }
+
+    /**
+     * Format the name of a corrector
+     */
+    public function formatCorrectorAssignment (CorrectorAssignment $assignment) : string
+    {
+        $corrector = $this->localDI->getCorrectorRepo()->getCorrectorById($assignment->getCorrectorId());
+
+        if (empty($corrector)) {
+            return $this->plugin->txt('assignment_pos_empty');
+        }
+
+        return \ilObjUser::_lookupFullname($corrector->getUserId())
+            . ' ('. \ilObjUser::_lookupLogin($corrector->getUserId()) . ')';
+    }
+
 }

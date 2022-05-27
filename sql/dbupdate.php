@@ -1151,4 +1151,27 @@ if (!$ilDB->tableColumnExists('xlet_essay','correction_finalized_by')) {
         'type' => 'float'
     ]);
 ?>
+<#40>
+<?php
+if (!$ilDB->tableColumnExists('xlet_corrector_summary','last_change')) {
+    $ilDB->addTableColumn('xlet_essay', 'last_change', [
+        'type' => 'timestamp',
+    ]);
+}
+?>
+<#41>
+<?php
+if (!$ilDB->tableColumnExists('xlet_corrector_summary','correction_authorized')) {
+    $ilDB->addTableColumn('xlet_essay', 'correction_authorized', [
+        'type' => 'timestamp',
+    ]);
+}
+if (!$ilDB->tableColumnExists('xlet_corrector_summary','correction_authorized_by')) {
+    $ilDB->addTableColumn('xlet_essay', 'correction_authorized_by', [
+        'notnull' => '0',
+        'type' => 'integer',
+        'length' => '4'
+    ]);
+}
+?>
 

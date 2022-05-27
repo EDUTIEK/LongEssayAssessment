@@ -86,6 +86,41 @@ class CorrectorSummary extends ActivePluginRecord
     protected $grade_level_id = null;
 
     /**
+     * Last change at the correction
+     *
+     * @var string|null
+     * @con_has_field        true
+     * @con_is_notnull       false
+     * @con_fieldtype        timestamp
+     */
+    protected $last_change = null;
+
+
+    /**
+     * Correction authorized (datetime)
+     *
+     * @var string|null
+     * @con_has_field        true
+     * @con_is_notnull       false
+     * @con_fieldtype        timestamp
+     */
+    protected $correction_authorized = null;
+
+
+    /**
+     * ILIAS user id of the user that has finalized the correction
+     * (this may be the corrector or an admin)
+     *
+     * @var integer
+     * @con_has_field        true
+     * @con_is_notnull       false
+     * @con_fieldtype        integer
+     * @con_length           4
+     */
+    protected $correction_authorized_by = null;
+
+
+    /**
      * @return int
      */
     public function getId(): int
@@ -190,6 +225,60 @@ class CorrectorSummary extends ActivePluginRecord
     public function setGradeLevelId(?int $grade_level_id): CorrectorSummary
     {
         $this->grade_level_id = $grade_level_id;
+        return $this;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getLastChange(): ?string
+    {
+        return $this->last_change;
+    }
+
+    /**
+     * @param string|null $last_change
+     * @return CorrectorSummary
+     */
+    public function setLastChange(?string $last_change): CorrectorSummary
+    {
+        $this->last_change = $last_change;
+        return $this;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getCorrectionAuthorized(): ?string
+    {
+        return $this->correction_authorized;
+    }
+
+    /**
+     * @param string|null $correction_authorized
+     * @return CorrectorSummary
+     */
+    public function setCorrectionAuthorized(?string $correction_authorized): CorrectorSummary
+    {
+        $this->correction_authorized = $correction_authorized;
+        return $this;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getCorrectionAuthorizedBy(): ?int
+    {
+        return $this->correction_authorized_by;
+    }
+
+    /**
+     * @param int|null $correction_authorized_by
+     * @return CorrectorSummary
+     */
+    public function setCorrectionAuthorizedBy(?int $correction_authorized_by): CorrectorSummary
+    {
+        $this->correction_authorized_by = $correction_authorized_by;
         return $this;
     }
 }

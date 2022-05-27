@@ -107,7 +107,7 @@ class WriterContext extends ServiceContext implements Context
             $repoEssay->getProcessedText(),
             $this->data->dbTimeToUnix($repoEssay->getEditStarted()),
             $this->data->dbTimeToUnix($repoEssay->getEditEnded()),
-            (bool) $repoEssay->isIsAuthorized()
+            !empty($repoEssay->getWritingAuthorized())
         );
     }
 
@@ -116,14 +116,27 @@ class WriterContext extends ServiceContext implements Context
      */
     public function setWrittenEssay(WrittenEssay $writtenEssay): void
     {
-        $this->di->getEssayRepo()->updateEssay($this->getRepoEssay()
+        $essay = $this->getRepoEssay()
             ->setWrittenText($writtenEssay->getWrittenText())
             ->setRawTextHash($writtenEssay->getWrittenHash())
             ->setProcessedText($writtenEssay->getProcessedText())
             ->setEditStarted($this->data->unixTimeToDb($writtenEssay->getEditStarted()))
-            ->setEditEnded($this->data->unixTimeToDb($writtenEssay->getEditEnded()))
-            ->setIsAuthorized($writtenEssay->isAuthorized())
-        );
+            ->setEditEnded($this->data->unixTimeToDb($writtenEssay->getEditEnded()));
+
+        if ($writtenEssay->isAuthorized()) {
+                if (empty($essay->getWritingAuthorized())) {
+                    $essay->setWritingAuthorized($this->data->unixTimeToDb(time()));
+                }
+                if (empty($essay->getWritingAuthorizedBy())) {
+                    $essay->setWritingAuthorizedBy($this->user->getId());
+                }
+        }
+        else {
+            $essay->setWritingAuthorized(null);
+            $essay->setWritingAuthorizedBy(null);
+        }
+
+        $this->di->getEssayRepo()->updateEssay($essay);
     }
 
     /**

@@ -103,7 +103,7 @@ class CorrectorAdminService extends BaseService
 
             // get only writers with authorized essays
             $essay = $this->localDI->getEssayRepo()->getEssayByWriterIdAndTaskId($writer->getId(), $this->settings->getTaskId());
-            if (!isset($essay) || !$essay->isIsAuthorized()) {
+            if (!isset($essay) || empty($essay->getWritingAuthorized())) {
                 return 0;
             }
 

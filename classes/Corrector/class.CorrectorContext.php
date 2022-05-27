@@ -208,7 +208,7 @@ class CorrectorContext extends ServiceContext implements Context
                 $repoEssay->getProcessedText(),
                 $this->data->dbTimeToUnix($repoEssay->getEditStarted()),
                 $this->data->dbTimeToUnix($repoEssay->getEditEnded()),
-                (bool) $repoEssay->isIsAuthorized()
+                !empty($repoEssay->getWritingAuthorized())
             );
         }
         return null;

@@ -72,7 +72,7 @@ class CorrectorStartGUI extends BaseGUI
             $properties = [];
             if ($essay = $this->localDI->getEssayRepo()->getEssayByWriterIdAndTaskId($assignment->getWriterId(), $this->settings->getTaskId())) {
                 $properties = [
-                    "Abgabe-Status:" => $essay->isIsAuthorized() ? 'abgegeben' : 'nicht abgegeben',
+                    "Abgabe-Status:" => empty($essay->getWritingAuthorized()) ? 'nicht abgegeben' : 'abgegeben',
                     "Korrektur-Status:" => "vorläufig",
                     "Punkte" => $essay->getFinalPoints(),
                     "Notenstufe" => $essay->getFinalGradeLevel()

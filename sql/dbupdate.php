@@ -1114,4 +1114,41 @@ if (!$ilDB->tableColumnExists('xlet_essay','final_grade_level_id')) {
     $ilDB->dropTableColumn('xlet_essay', 'final_grade_level');
 }
 ?>
+<#37>
+<?php
+if (!$ilDB->tableColumnExists('xlet_essay','writing_authorized')) {
+    $ilDB->addTableColumn('xlet_essay', 'writing_authorized', [
+        'type' => 'timestamp',
+    ]);
+    $ilDB->dropTableColumn('xlet_essay', 'is_authorized');
+}
+if (!$ilDB->tableColumnExists('xlet_essay','writing_authorized_by')) {
+    $ilDB->addTableColumn('xlet_essay', 'writing_authorized_by', [
+        'notnull' => '0',
+        'type' => 'integer',
+        'length' => '4'
+    ]);
+}
+?>
+<#38>
+<?php
+if (!$ilDB->tableColumnExists('xlet_essay','correction_finalized')) {
+    $ilDB->addTableColumn('xlet_essay', 'correction_finalized', [
+        'type' => 'timestamp',
+    ]);
+}
+if (!$ilDB->tableColumnExists('xlet_essay','correction_finalized_by')) {
+    $ilDB->addTableColumn('xlet_essay', 'correction_finalized_by', [
+        'notnull' => '0',
+        'type' => 'integer',
+        'length' => '4'
+    ]);
+}
+?>
+<#39>
+<?php
+    $ilDB->modifyTableColumn('xlet_essay', 'final_points', [
+        'type' => 'float'
+    ]);
+?>
 

@@ -122,15 +122,27 @@ class Essay extends ActivePluginRecord
 
 
     /**
-     * Is Authorized (bool)
+     * Writing authorized (datetime)
      *
-     * @var bool
+     * @var string|null
      * @con_has_field        true
-     * @con_is_notnull       true
+     * @con_is_notnull       false
+     * @con_fieldtype        timestamp
+     */
+    protected $writing_authorized = null;
+
+
+    /**
+     * ILIAS user id of the user that has authorized the written text
+     * (this may be the writer or an admin)
+     *
+     * @var integer
+     * @con_has_field        true
+     * @con_is_notnull       false
      * @con_fieldtype        integer
      * @con_length           4
      */
-    protected $is_authorized = 0;
+    protected $writing_authorized_by = null;
 
 
     /**
@@ -146,23 +158,46 @@ class Essay extends ActivePluginRecord
      */
     protected $pdf_version;
 
+    /**
+     * Correction finalized (datetime)
+     *
+     * @var string|null
+     * @con_has_field        true
+     * @con_is_notnull       false
+     * @con_fieldtype        timestamp
+     */
+    protected $correction_finalized = null;
+
 
     /**
-     * Final Points (integer)
+     * ILIAS user id of the user that has finalized the correction
+     * (this may be a corrector or an admin)
      *
-     * @var null|integer
+     * @var integer
+     * @con_has_field        true
+     * @con_is_notnull       false
+     * @con_fieldtype        integer
+     * @con_length           4
+     */
+    protected $correction_finalized_by = null;
+
+
+    /**
+     * Final Points (float)
+     *
+     * @var null|float
      * @con_has_field        true
      * @con_is_primary       false
      * @con_sequence         false
      * @con_is_notnull       false
-     * @con_fieldtype        integer
+     * @con_fieldtype        float
      * @con_length           4
      */
     protected $final_points;
 
 
     /**
-     * Final Grade Level (text)
+     * Final Grade Level (id)
      *
      * @var null|integer
      * @con_has_field        true
@@ -317,21 +352,35 @@ class Essay extends ActivePluginRecord
     }
 
     /**
-     * @return bool
+     * @return string|null
      */
-    public function isIsAuthorized()
+    public function getWritingAuthorized(): ?string
     {
-        return $this->is_authorized;
+        return $this->writing_authorized;
     }
 
     /**
-     * @param bool $is_authorized
-     * @return Essay
+     * @param string|null $writing_authorized
      */
-    public function setIsAuthorized($is_authorized)
+    public function setWritingAuthorized(?string $writing_authorized): void
     {
-        $this->is_authorized = $is_authorized;
-        return $this;
+        $this->writing_authorized = $writing_authorized;
+    }
+
+    /**
+     * @return int
+     */
+    public function getWritingAuthorizedBy(): ?int
+    {
+        return $this->writing_authorized_by;
+    }
+
+    /**
+     * @param int $writing_authorized_by
+     */
+    public function setWritingAuthorizedBy(?int $writing_authorized_by): void
+    {
+        $this->writing_authorized_by = $writing_authorized_by;
     }
 
     /**
@@ -353,18 +402,51 @@ class Essay extends ActivePluginRecord
     }
 
     /**
+     * @return string|null
+     */
+    public function getCorrectionFinalized(): ?string
+    {
+        return $this->correction_finalized;
+    }
+
+    /**
+     * @param string|null $correction_finalized
+     */
+    public function setCorrectionFinalized(?string $correction_finalized): void
+    {
+        $this->correction_finalized = $correction_finalized;
+    }
+
+    /**
      * @return int
      */
-    public function getFinalPoints(): ?int
+    public function getCorrectionFinalizedBy(): ?int
+    {
+        return $this->correction_finalized_by;
+    }
+
+    /**
+     * @param int $correction_finalized_by
+     */
+    public function setCorrectionFinalizedBy(?int $correction_finalized_by): void
+    {
+        $this->correction_finalized_by = $correction_finalized_by;
+    }
+
+
+    /**
+     * @return ?float
+     */
+    public function getFinalPoints(): ?float
     {
         return $this->final_points;
     }
 
     /**
-     * @param int $final_points
+     * @param float $final_points
      * @return Essay
      */
-    public function setFinalPoints(int $final_points): Essay
+    public function setFinalPoints(float $final_points): Essay
     {
         $this->final_points = $final_points;
         return $this;

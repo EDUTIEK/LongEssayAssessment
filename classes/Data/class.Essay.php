@@ -362,9 +362,10 @@ class Essay extends ActivePluginRecord
     /**
      * @param string|null $writing_authorized
      */
-    public function setWritingAuthorized(?string $writing_authorized): void
+    public function setWritingAuthorized(?string $writing_authorized): Essay
     {
         $this->writing_authorized = $writing_authorized;
+        return $this;
     }
 
     /**
@@ -378,9 +379,10 @@ class Essay extends ActivePluginRecord
     /**
      * @param int $writing_authorized_by
      */
-    public function setWritingAuthorizedBy(?int $writing_authorized_by): void
+    public function setWritingAuthorizedBy(?int $writing_authorized_by): Essay
     {
         $this->writing_authorized_by = $writing_authorized_by;
+        return $this;
     }
 
     /**
@@ -412,9 +414,10 @@ class Essay extends ActivePluginRecord
     /**
      * @param string|null $correction_finalized
      */
-    public function setCorrectionFinalized(?string $correction_finalized): void
+    public function setCorrectionFinalized(?string $correction_finalized): Essay
     {
         $this->correction_finalized = $correction_finalized;
+        return $this;
     }
 
     /**
@@ -428,9 +431,10 @@ class Essay extends ActivePluginRecord
     /**
      * @param int $correction_finalized_by
      */
-    public function setCorrectionFinalizedBy(?int $correction_finalized_by): void
+    public function setCorrectionFinalizedBy(?int $correction_finalized_by): Essay
     {
         $this->correction_finalized_by = $correction_finalized_by;
+        return $this;
     }
 
 

@@ -1174,4 +1174,14 @@ if (!$ilDB->tableColumnExists('xlet_corrector_summary','correction_authorized_by
     ]);
 }
 ?>
-
+<#42>
+<?php
+if (!$ilDB->tableColumnExists('xlet_corr_setting','max_auto_distance')) {
+    $ilDB->addTableColumn('xlet_corr_setting', 'max_auto_distance', [
+        'notnull' => '1',
+        'type' => 'integer',
+        'length' => '4',
+        'default' => 0
+    ]);
+}
+?>

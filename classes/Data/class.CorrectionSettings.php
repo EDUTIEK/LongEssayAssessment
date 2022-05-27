@@ -81,6 +81,21 @@ class CorrectionSettings extends ActivePluginRecord
      */
     protected $max_points = 0;
 
+
+    /**
+     * max distance of points for automated finalisation
+     *
+     * @var integer
+     * @con_has_field        true
+     * @con_is_primary       false
+     * @con_sequence         false
+     * @con_is_notnull       true
+     * @con_fieldtype        integer
+     * @con_length           4
+     */
+    protected $max_auto_distance = 0;
+
+
     /**
      * @return int
      */
@@ -168,6 +183,24 @@ class CorrectionSettings extends ActivePluginRecord
     public function setMaxPoints(int $max_points): CorrectionSettings
     {
         $this->max_points = $max_points;
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getMaxAutoDistance(): int
+    {
+        return $this->max_auto_distance;
+    }
+
+    /**
+     * @param int $max_auto_distance
+     * @return CorrectionSettings
+     */
+    public function setMaxAutoDistance(int $max_auto_distance): CorrectionSettings
+    {
+        $this->max_auto_distance = $max_auto_distance;
         return $this;
     }
 

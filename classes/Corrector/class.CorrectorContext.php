@@ -103,10 +103,11 @@ class CorrectorContext extends ServiceContext implements Context
             return new CorrectionSettings(
                 (bool) $repoSettings->getMutualVisibility(),
                 (bool) $repoSettings->getMultiColorHighlight(),
-                (int) $repoSettings->getMaxPoints()
+                (int) $repoSettings->getMaxPoints(),
+                (int) $repoSettings->getMaxAutoDistance()
             );
         }
-        return new CorrectionSettings(false, false, 0);
+        return new CorrectionSettings(false, false, 0, 0);
     }
 
     /**
@@ -250,7 +251,9 @@ class CorrectorContext extends ServiceContext implements Context
                 return new CorrectionSummary(
                     $repoSummary->getSummaryText(),
                     $repoSummary->getPoints(),
-                    $repoSummary->getGradeLevelId() ? (string) $repoSummary->getGradeLevelId() : null
+                    $repoSummary->getGradeLevelId() ? (string) $repoSummary->getGradeLevelId() : null,
+                    $this->data->dbTimeToUnix($repoSummary->getLastChange()),
+                    !empty($repoSummary->getCorrectionAuthorized())
                 );
             }
         }
@@ -276,6 +279,20 @@ class CorrectorContext extends ServiceContext implements Context
             $repoSummary->setSummaryText($summary->getText());
             $repoSummary->setPoints($summary->getPoints());
             $repoSummary->setGradeLevelId($summary->getGradeKey() ? (int) $summary->getGradeKey() : null);
+
+            if ($summary->isAuthorized()) {
+                if (empty($repoSummary->getCorrectionAuthorized())) {
+                    $repoSummary->setCorrectionAuthorized($this->data->unixTimeToDb(time()));
+                }
+                if (empty($repoSummary->getCorrectionAuthorizedBy())) {
+                    $repoSummary->setCorrectionAuthorizedBy($this->user->getId());
+                }
+            }
+            else {
+                $repoSummary->setCorrectionAuthorized(null);
+                $repoSummary->setCorrectionAuthorizedBy(null);
+            }
+
             $essayRepo->updateCorrectorSummary($repoSummary);
         }
     }

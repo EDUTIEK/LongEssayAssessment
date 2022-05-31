@@ -157,7 +157,7 @@ class ObjectDatabaseRepository implements ObjectRepository
         $db = $DIC->database();
 
         $db->manipulate("DELETE FROM xlet_grade_level" .
-            " WHERE object_id = " . $db->quote($a_id, "integer"));
+            " WHERE id = " . $db->quote($a_id, "integer"));
     }
 
     public function deleteRatingCriterion(int $a_id)
@@ -166,7 +166,7 @@ class ObjectDatabaseRepository implements ObjectRepository
         $db = $DIC->database();
 
         $db->manipulate("DELETE FROM xlet_rating_crit" .
-            " WHERE object_id = " . $db->quote($a_id, "integer"));
+            " WHERE id = " . $db->quote($a_id, "integer"));
 
         $di = LongEssayTaskDI::getInstance();
 

@@ -4,7 +4,8 @@
 namespace ILIAS\Plugin\LongEssayTask\Task;
 
 use ILIAS\Plugin\LongEssayTask\BaseGUI;
-use ILIAS\Plugin\LongEssayTask\Data\ActiveRecordDummy;
+use ILIAS\Plugin\LongEssayTask\Data\GradeLevel;
+use ILIAS\Plugin\LongEssayTask\LongEssayTaskDI;
 use ILIAS\UI\Component\Table\PresentationRow;
 use ILIAS\UI\Factory;
 use \ilUtil;
@@ -27,8 +28,10 @@ class GradesAdminGUI extends BaseGUI
         $cmd = $this->ctrl->getCmd('showItems');
         switch ($cmd)
         {
+			case 'updateItem':
             case 'showItems':
             case "editItem":
+			case 'deleteItem':
                 $this->$cmd();
                 break;
 
@@ -42,33 +45,23 @@ class GradesAdminGUI extends BaseGUI
      */
     protected function getItemData()
     {
-        return [
-            [
-                'headline' => 'Mit Prädikat bestanden',
-                'subheadline' => '',
-                'important' => [
-                    'Min. Punkte' => 12,
-                    'Bestanden'
-                ],
-            ],
-            [
-                'headline' => 'Bestanden',
-                'subheadline' => '',
-                'important' => [
-                    'Min. Punkte' => 90,
-                    'Bestanden'
-                ],
-            ],
-            [
-                'headline' => 'Nicht bestanden',
-                'subheadline' => '',
-                'important' => [
-                    'Min. Punkte' => 0,
-                    'Nicht bestanden'
-                ],
-            ],
+		$obj_repo  = LongEssayTaskDI::getInstance()->getObjectRepo();
+		$records = $obj_repo->getGradeLevelsByObjectId($this->object->getId());
+		$item_data = [];
 
-        ];
+		foreach($records as $record){
+			$item_data[] = [
+				'id' => $record->getId(),
+				'headline' => $record->getGrade(),
+				'subheadline' => '',
+				'important' => [
+					$this->lng->txt('min_points') => $record->getMinPoints(),
+					$record->getGrade()
+				],
+			];
+		}
+
+        return $item_data;
     }
 
     /**
@@ -79,29 +72,35 @@ class GradesAdminGUI extends BaseGUI
         $this->toolbar->setFormAction($this->ctrl->getFormAction($this));
         $button = \ilLinkButton::getInstance();
         $button->setUrl($this->ctrl->getLinkTarget($this, 'editItem'));
-        $button->setCaption('Notenstufe hinzufügen', false);
+        $button->setCaption($this->lng->txt("add_grade_level"), false);
         $this->toolbar->addButtonInstance($button);
 
 
         $ptable = $this->uiFactory->table()->presentation(
-            'Notenstufen',
+            $this->lng->txt('grade_levels'),
             [],
             function (
                 PresentationRow $row,
                 array $record,
                 Factory $ui_factory,
                 $environment) {
+
+				$this->setGradeLevelId($record["id"]);
+				$edit_link = $this->ctrl->getLinkTarget($this, "editItem");
+				$this->setGradeLevelId($record["id"]);
+				$delete_link = $this->ctrl->getLinkTarget($this, "deleteItem");
+
                 return $row
                     ->withHeadline($record['headline'])
                     //->withSubheadline($record['subheadline'])
                     ->withImportantFields($record['important'])
-                    ->withContent($ui_factory->listing()->descriptive(['Beschreibung' => $record['subheadline']]))
+                    ->withContent($ui_factory->listing()->descriptive([$this->lng->txt("description")=> $record['subheadline']]))
                     ->withFurtherFieldsHeadline('')
                     ->withFurtherFields($record['important'])
                     ->withAction(
                         $ui_factory->dropdown()->standard([
-                            $ui_factory->button()->shy($this->lng->txt('edit'), '#'),
-                            $ui_factory->button()->shy($this->lng->txt('delete'), '#')
+                            $ui_factory->button()->shy($this->lng->txt('edit'), $edit_link),
+                            $ui_factory->button()->shy($this->lng->txt('delete'), $delete_link)
                             ])
                             ->withLabel($this->lng->txt("actions"))
                     )
@@ -112,66 +111,144 @@ class GradesAdminGUI extends BaseGUI
         $this->tpl->setContent($this->renderer->render($ptable->withData($this->getItemData())));
     }
 
+	protected function buildEditForm($data):\ILIAS\UI\Component\Input\Container\Form\Standard{
+		if($id = $this->getGradeLevelId()){
+			$section_title = $this->plugin->txt('edit_grade_level');
+			$this->setGradeLevelId($id);
+		}
+		else {
+			$section_title = $this->plugin->txt('add_grade_level');
+		}
+
+		$factory = $this->uiFactory->input()->field();
+
+		$sections = [];
+
+		$fields = [];
+		$fields['grade'] = $factory->text($this->lng->txt("grade"))
+			->withRequired(true)
+			->withValue($data["grade"]);
+
+		$fields['points'] =$factory->numeric($this->lng->txt('min_points'), $this->lng->txt("min_points_caption"))
+			->withRequired(true)
+			->withValue($data["points"]);
+
+		$sections['form'] = $factory->section($fields, $section_title);
+
+
+		return $this->uiFactory->input()->container()->form()->standard($this->ctrl->getFormAction($this,"updateItem"), $sections);
+	}
+
+	protected function updateItem(){
+		$form = $this->buildEditForm([
+			"grade" => "",
+			"points" => 0
+		]);
+
+		if ($this->request->getMethod() == "POST") {
+			$form = $form->withRequest($this->request);
+			$data = $form->getData();
+
+			if($id = $this->getGradeLevelId()){
+				$record = $this->getGradeLevel($id);
+			}else {
+				$record = new GradeLevel();
+				$record->setObjectId($this->object->getId());
+			}
+
+			// inputs are ok => save data
+			if (isset($data)) {
+				$record->setGrade($data["form"]["grade"]);
+				$record->setMinPoints($data["form"]["points"]);
+				$obj_repo  = LongEssayTaskDI::getInstance()->getObjectRepo();
+
+				if($id !== null){
+					$obj_repo->updateGradeLevel($record);
+				}else {
+					$obj_repo->createGradeLevel($record);
+				}
+				ilUtil::sendSuccess($this->lng->txt("settings_saved"), true);
+				$this->ctrl->redirect($this, "showItems");
+			}else {
+				ilUtil::sendFailure($this->lng->txt("validation_error"), false);
+				$this->editItem($form);
+			}
+		}
+	}
+
 
     /**
      * Edit and save the settings
      */
-    protected function editItem()
+    protected function editItem($form = null)
     {
-        $params = $this->request->getQueryParams();
-        if (!empty($params['id'])) {
-            $record = ActiveRecordDummy::findOrGetInstance($params['id']);
-            if ($record->getTaskId() != $this->object->getId()) {
-                $this->raisePermissionError();
-            }
-            $section_title = $this->plugin->txt('Notenstufe bearbeiten');
-        }
-        else {
-            $record = new ActiveRecordDummy();
-            $record->setTaskId($this->object->getId());
-            $section_title = $this->plugin->txt('Notenstufe hinzufügen');
-        }
-
-        $factory = $this->uiFactory->input()->field();
-
-        $sections = [];
-
-        $fields = [];
-        $fields['title'] = $factory->text($this->lng->txt("title"))
-            ->withRequired(true)
-            ->withValue($record->getStringDummy());
-
-        $fields['description'] = $factory->textarea($this->lng->txt("description"))
-            ->withValue($record->getStringDummy());
-
-        $fields['points'] = $factory->text('Min. Punkte', "Minimal benötigte Punkte zum Erreichen dieser Stufe.")
-            ->withValue($record->getStringDummy());
-
-        $fields['lp_passed'] = $factory->checkbox($this->plugin->txt('lp_passed'), $this->plugin->txt('lp_passed_info'))
-            ->withValue($record->getBoolDummy());
-
-
-        $sections['form'] = $factory->section($fields, $section_title);
-
-        $form = $this->uiFactory->input()->container()->form()->standard($this->ctrl->getFormAction($this), $sections);
-
-        // apply inputs
-        if ($this->request->getMethod() == "POST") {
-            $form = $form->withRequest($this->request);
-            $data = $form->getData();
-        }
-
-        // inputs are ok => save data
-        if (isset($data)) {
-            $record->setMixedDummy($data['form']['title']);
-            $record->save();
-
-            ilUtil::sendSuccess($this->lng->txt("settings_saved"), true);
-
-            $this->ctrl->setParameter($this, 'id', $record->getId());
-            $this->ctrl->redirect($this, "editItem");
-        }
+		if($form === null){
+			if ($id = $this->getGradeLevelId())
+			{
+				$record = $this->getGradeLevel($id);
+				$form = $this->buildEditForm([
+					"grade" => $record->getGrade(),
+					"points" => $record->getMinPoints()
+				]);
+			}else {
+				$form = $this->buildEditForm([
+					"grade" => "",
+					"points" => 0
+				]);
+			}
+		}
 
         $this->tpl->setContent($this->renderer->render($form));
     }
+
+	protected function deleteItem(){
+		// TODO: Zwischenfrage hinzufügen!
+		if(($id = $this->getGradeLevelId()) !== null){
+			$this->getGradeLevel($id, true);//Permission check
+			$obj_repo  = LongEssayTaskDI::getInstance()->getObjectRepo();
+			$obj_repo->deleteGradeLevel($id);
+			ilUtil::sendSuccess($this->lng->txt("delete_grade_level_successful"), true);
+		}else{
+			ilUtil::sendFailure($this->lng->txt("delete_grade_level_failure"), true);
+		}
+		$this->ctrl->redirect($this, "showItems");
+	}
+
+	protected function checkRecordInObject(?GradeLevel $record, bool $throw_permission_error = true): bool
+	{
+		if($record !== null && $this->object->getId() === $record->getObjectId()){
+			return true;
+		}
+
+		if($throw_permission_error) {
+			$this->raisePermissionError();
+		}
+		return false;
+	}
+
+	protected function getGradeLevel(int $id, bool $throw_permission_error = true): ?GradeLevel
+	{
+		$obj_repo  = LongEssayTaskDI::getInstance()->getObjectRepo();
+		$record = $obj_repo->getGradeLevelById($id);
+		if($throw_permission_error){
+			$this->checkRecordInObject($record, true);
+		}
+		return $record;
+	}
+
+	protected function setGradeLevelId(int $id)
+	{
+		$this->ctrl->setParameter($this, "grade_level", $id);
+	}
+
+	protected function getGradeLevelId(): ?int
+	{
+		if (isset($_GET["grade_level"]))
+		{
+			return (int) $_GET["grade_level"];
+		}
+		else{
+			return null;
+		}
+	}
 }

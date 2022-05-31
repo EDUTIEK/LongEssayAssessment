@@ -145,3 +145,10 @@ assignment_pos_other#:#Mitkorrektor/in
 assignment_pos_empty#:#nicht ausgewählt
 start_correction#:#Korrektur starten
 assigned_writings#:#Zugeteilte Abgaben
+min_points#:#Min. Punkte
+min_points_caption#:#Minimal benötigte Punkte zum Erreichen dieser Stufe.
+add_grade_level#:#Notenstufe hinzufügen
+grade_levels#:#Notenstufen
+edit_grade_level#:#Notenstufe bearbeiten
+delete_grade_level_successful#:#Notenstufe erfolgreich gelöscht.
+delete_grade_level_failure#:#Notenstufe konnte nicht gelsöcht werden.

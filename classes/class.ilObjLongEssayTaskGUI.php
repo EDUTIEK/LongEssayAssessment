@@ -300,13 +300,13 @@ class ilObjLongEssayTaskGUI extends ilObjectPluginGUI
 //                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessaytask\task\criteriaadmingui')
 //            ];
 //        }
-//        if ($this->object->canEditContentSettings()) {
-//            $tabs[] = [
-//                'id' => 'tab_grades',
-//                'txt' => $this->plugin->txt('tab_grades'),
-//                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessaytask\task\gradesadmingui')
-//            ];
-//        }
+        if ($this->object->canEditContentSettings()) {
+            $tabs[] = [
+                'id' => 'tab_grades',
+                'txt' => $this->plugin->txt('tab_grades'),
+                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessaytask\task\gradesadmingui')
+            ];
+        }
         if (!empty($tabs)) {
             $this->tabs->addTab('tab_task', $this->plugin->txt('tab_task'), $tabs[0]['url']);
             $this->subtabs['tab_task'] = $tabs;

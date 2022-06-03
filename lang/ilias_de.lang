@@ -172,3 +172,4 @@ assign_writer_success#:#Teilnehmer erfolgreich hinzugefügt.
 remove_writer_success#:#Teilnehmer erfolgreich entfernt.
 missing_writer_id#:#Teilnehmernummer fehlt.
 missing_writer#:#Teilnehmer konnte nicht gefunden werden.
+grade_level#:#Notenstufe

@@ -55,7 +55,7 @@ class GradesAdminGUI extends BaseGUI
 				'headline' => $record->getGrade(),
 				'subheadline' => '',
 				'important' => [
-					$this->lng->txt('min_points') => $record->getMinPoints(),
+					$this->plugin->txt('min_points') => $record->getMinPoints(),
 					$record->getGrade()
 				],
 			];
@@ -72,12 +72,12 @@ class GradesAdminGUI extends BaseGUI
         $this->toolbar->setFormAction($this->ctrl->getFormAction($this));
         $button = \ilLinkButton::getInstance();
         $button->setUrl($this->ctrl->getLinkTarget($this, 'editItem'));
-        $button->setCaption($this->lng->txt("add_grade_level"), false);
+        $button->setCaption($this->plugin->txt("add_grade_level"), false);
         $this->toolbar->addButtonInstance($button);
 
 
         $ptable = $this->uiFactory->table()->presentation(
-            $this->lng->txt('grade_levels'),
+            $this->plugin->txt('grade_levels'),
             [],
             function (
                 PresentationRow $row,
@@ -125,11 +125,11 @@ class GradesAdminGUI extends BaseGUI
 		$sections = [];
 
 		$fields = [];
-		$fields['grade'] = $factory->text($this->lng->txt("grade"))
+		$fields['grade'] = $factory->text($this->plugin->txt("grade_level"))
 			->withRequired(true)
 			->withValue($data["grade"]);
 
-		$fields['points'] =$factory->numeric($this->lng->txt('min_points'), $this->lng->txt("min_points_caption"))
+		$fields['points'] =$factory->numeric($this->plugin->txt('min_points'), $this->plugin->txt("min_points_caption"))
 			->withRequired(true)
 			->withValue($data["points"]);
 
@@ -207,9 +207,9 @@ class GradesAdminGUI extends BaseGUI
 			$this->getGradeLevel($id, true);//Permission check
 			$obj_repo  = LongEssayTaskDI::getInstance()->getObjectRepo();
 			$obj_repo->deleteGradeLevel($id);
-			ilUtil::sendSuccess($this->lng->txt("delete_grade_level_successful"), true);
+			ilUtil::sendSuccess($this->plugin->txt("delete_grade_level_successful"), true);
 		}else{
-			ilUtil::sendFailure($this->lng->txt("delete_grade_level_failure"), true);
+			ilUtil::sendFailure($this->plugin->txt("delete_grade_level_failure"), true);
 		}
 		$this->ctrl->redirect($this, "showItems");
 	}

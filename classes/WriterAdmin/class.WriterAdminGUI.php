@@ -89,7 +89,6 @@ class WriterAdminGUI extends BaseGUI
 		$list_gui->setExtensions($writer_repo->getTimeExtensionsByTaskId($this->object->getId()));
 		$list_gui->setEssays($essay_repo->getEssaysByTaskId($this->object->getId()));
 		$list_gui->setHistory($essay_repo->getLastWriterHistoryPerUserByTaskId($this->object->getId()));
-		$list_gui->loadUserData();
 
         $this->tpl->setContent($list_gui->getContent());
      }

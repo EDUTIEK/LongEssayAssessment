@@ -7,13 +7,8 @@ use ILIAS\Plugin\LongEssayTask\Data\TimeExtension;
 use ILIAS\Plugin\LongEssayTask\Data\Writer;
 use ILIAS\Plugin\LongEssayTask\Data\WriterHistory;
 
-class WriterAdminListGUI
+class WriterAdminListGUI extends WriterListGUI
 {
-	/**
-	 * @var Writer[]
-	 */
-	private $writers = [];
-
 	/**
 	 * @var TimeExtension[]
 	 */
@@ -24,36 +19,15 @@ class WriterAdminListGUI
 	 */
 	private $history = [];
 
-	private $user_ids = [];
-
-	/**
-	 * @var array
-	 */
-	private $user_data = [];
-
 	/**
 	 * @var Essay[]
 	 */
 	private $essays = [];
 
-	private \ILIAS\UI\Factory $uiFactory;
-	private \ilCtrl $ctrl;
-	private \ilLongEssayTaskPlugin $plugin;
-	private \ILIAS\UI\Renderer $renderer;
-	private object $parent;
-
-	public function __construct(object $parent, \ilLongEssayTaskPlugin $plugin)
+	public function getContent() :string
 	{
-		global $DIC;
-		$this->parent = $parent;
-		$this->uiFactory = $DIC->ui()->factory();
-		$this->ctrl = $DIC->ctrl();
-		$this->plugin = $plugin;
-		$this->renderer = $DIC->ui()->renderer();
-	}
+		$this->loadUserData();
 
-	public function getContent()
-	{
 		$actions = array(
 			"Alle" => "all",
 			"Teilgenommen" => "",
@@ -139,13 +113,6 @@ class WriterAdminListGUI
 		return $this->ctrl->getFormAction($this->parent, "deleteWriter");
 	}
 
-	private function getUsername($user_id){
-		if(isset($this->user_data[$user_id])){
-			return $this->user_data[$user_id];
-		}
-		return ' - ';
-	}
-
 	/**
 	 * @param Writer $writer
 	 * @return void
@@ -196,31 +163,11 @@ class WriterAdminListGUI
 			if(isset($this->history[$essay->getId()])){
 				$history = $this->history[$essay->getId()];
 				return \ilDatePresentation::formatDate(
-					new \ilDateTime($history->getTimestamp(),IL_CAL_UNIX));;
+					new \ilDateTime($history->getTimestamp(),IL_CAL_UNIX));
 			}
 		}
 
 		return $this->plugin->txt("writing_no_last_save");
-	}
-
-	/**
-	 * @return Writer[]
-	 */
-	public function getWriters(): array
-	{
-		return $this->writers;
-	}
-
-	/**
-	 * @param Writer[] $writers
-	 */
-	public function setWriters(array $writers): void
-	{
-		$this->writers = $writers;
-
-		foreach($writers as $writer){
-			$this->user_ids[] = $writer->getUserId();
-		}
 	}
 
 	/**
@@ -279,42 +226,36 @@ class WriterAdminListGUI
 		}
 	}
 
-	public function loadUserData()
-	{
-		$back = $this->ctrl->getLinkTarget($this->parent);
-		$this->user_data = \ilUserUtil::getNamePresentation(array_unique($this->user_ids), true, true, $back, true);
-	}
-
-	private function dummy_writers(){
-		$item1 = $this->uiFactory->item()->standard($this->uiFactory->link()->standard("Theo Teststudent (theo.teststudent)",''))
-			->withLeadIcon($this->uiFactory->symbol()->icon()->standard('usr', 'user', 'medium'))
-			->withProperties(array(
-				"Abgabe-Status" => "noch nicht abgegeben",
-				"Zeitverlängerung" => "10 min",
-				"Letzte Speicherung" => "Heute, 13:50",
-
-			))
-			->withActions(
-				$this->uiFactory->dropdown()->standard([
-					$this->uiFactory->button()->shy('Bearbeitung einsehen', '#'),
-					$this->uiFactory->button()->shy('Abgabe autorisieren', '#'),
-					$this->uiFactory->button()->shy('Zeit verlängern', '#'),
-					$this->uiFactory->button()->shy('Von Bearbeitung ausschließen', '#'),
-
-				]));
-
-		$item2 = $this->uiFactory->item()->standard($this->uiFactory->link()->standard("Thekla Teststudentin (thekla.teststudentin)", ''))
-			->withLeadIcon($this->uiFactory->symbol()->icon()->standard('usr', 'editor', 'medium'))
-			->withProperties(array(
-				"Abgabe-Status" => "abgegeben",
-				"Zeitverlängerung" => "keine",
-				"Letzte Speicherung" => "Heute, 12:45",
-
-			))
-			->withActions(
-				$this->uiFactory->dropdown()->standard([
-					$this->uiFactory->button()->shy('Bearbeitung einsehen', '#'),
-				]));
-		return [$item1, $item2];
-	}
+//	private function dummy_writers(){
+//		$item1 = $this->uiFactory->item()->standard($this->uiFactory->link()->standard("Theo Teststudent (theo.teststudent)",''))
+//			->withLeadIcon($this->uiFactory->symbol()->icon()->standard('usr', 'user', 'medium'))
+//			->withProperties(array(
+//				"Abgabe-Status" => "noch nicht abgegeben",
+//				"Zeitverlängerung" => "10 min",
+//				"Letzte Speicherung" => "Heute, 13:50",
+//
+//			))
+//			->withActions(
+//				$this->uiFactory->dropdown()->standard([
+//					$this->uiFactory->button()->shy('Bearbeitung einsehen', '#'),
+//					$this->uiFactory->button()->shy('Abgabe autorisieren', '#'),
+//					$this->uiFactory->button()->shy('Zeit verlängern', '#'),
+//					$this->uiFactory->button()->shy('Von Bearbeitung ausschließen', '#'),
+//
+//				]));
+//
+//		$item2 = $this->uiFactory->item()->standard($this->uiFactory->link()->standard("Thekla Teststudentin (thekla.teststudentin)", ''))
+//			->withLeadIcon($this->uiFactory->symbol()->icon()->standard('usr', 'editor', 'medium'))
+//			->withProperties(array(
+//				"Abgabe-Status" => "abgegeben",
+//				"Zeitverlängerung" => "keine",
+//				"Letzte Speicherung" => "Heute, 12:45",
+//
+//			))
+//			->withActions(
+//				$this->uiFactory->dropdown()->standard([
+//					$this->uiFactory->button()->shy('Bearbeitung einsehen', '#'),
+//				]));
+//		return [$item1, $item2];
+//	}
 }

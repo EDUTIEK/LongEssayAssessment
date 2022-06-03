@@ -9,13 +9,8 @@ use ILIAS\Plugin\LongEssayTask\Data\TimeExtension;
 use ILIAS\Plugin\LongEssayTask\Data\Writer;
 use ILIAS\Plugin\LongEssayTask\Data\WriterHistory;
 
-class CorrectorAdminListGUI
+class CorrectorAdminListGUI extends WriterListGUI
 {
-	/**
-	 * @var Writer[]
-	 */
-	private $writers = [];
-
 	/**
 	 * @var TimeExtension[]
 	 */
@@ -25,13 +20,6 @@ class CorrectorAdminListGUI
 	 * @var WriterHistory[]
 	 */
 	private $history = [];
-
-	private $user_ids = [];
-
-	/**
-	 * @var array
-	 */
-	private $user_data = [];
 
 	/**
 	 * @var Essay[]
@@ -48,24 +36,10 @@ class CorrectorAdminListGUI
 	 */
 	private $assignments = [];
 
-	private \ILIAS\UI\Factory $uiFactory;
-	private \ilCtrl $ctrl;
-	private \ilLongEssayTaskPlugin $plugin;
-	private \ILIAS\UI\Renderer $renderer;
-	private object $parent;
-
-	public function __construct(object $parent, \ilLongEssayTaskPlugin $plugin)
+	public function getContent():string
 	{
-		global $DIC;
-		$this->parent = $parent;
-		$this->uiFactory = $DIC->ui()->factory();
-		$this->ctrl = $DIC->ctrl();
-		$this->plugin = $plugin;
-		$this->renderer = $DIC->ui()->renderer();
-	}
+		$this->loadUserData();
 
-	public function getContent()
-	{
 		$actions = array(
 			"Alle" => "all",
 			"Korrigiert" => "",
@@ -127,15 +101,6 @@ class CorrectorAdminListGUI
 		return $this->ctrl->getLinkTarget($this->parent, "review");
 	}
 
-
-	private function getUsername($user_id)
-	{
-		if (isset($this->user_data[$user_id])) {
-			return $this->user_data[$user_id];
-		}
-		return ' - ';
-	}
-
 	private function essayStatus(Writer $writer)
 	{
 		if (isset($this->essays[$writer->getId()])) {
@@ -167,7 +132,6 @@ class CorrectorAdminListGUI
 
 		return $this->plugin->txt("writing_not_started");
 	}
-
 
 	/**
 	 * @return Corrector[]
@@ -208,26 +172,6 @@ class CorrectorAdminListGUI
 	}
 
 	/**
-	 * @return Writer[]
-	 */
-	public function getWriters(): array
-	{
-		return $this->writers;
-	}
-
-	/**
-	 * @param Writer[] $writers
-	 */
-	public function setWriters(array $writers): void
-	{
-		$this->writers = $writers;
-
-		foreach ($writers as $writer) {
-			$this->user_ids[] = $writer->getUserId();
-		}
-	}
-
-	/**
 	 * @return Essay[]
 	 */
 	public function getEssays(): array
@@ -245,11 +189,5 @@ class CorrectorAdminListGUI
 			$this->user_ids[] = $essay->getCorrectionFinalizedBy();
 			$this->user_ids[] = $essay->getWritingAuthorizedBy();
 		}
-	}
-
-	public function loadUserData()
-	{
-		$back = $this->ctrl->getLinkTarget($this->parent);
-		$this->user_data = \ilUserUtil::getNamePresentation(array_unique($this->user_ids), true, true, $back, true);
 	}
 }

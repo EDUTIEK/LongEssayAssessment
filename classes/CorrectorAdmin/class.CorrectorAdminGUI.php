@@ -74,7 +74,6 @@ class CorrectorAdminGUI extends BaseGUI
 		$list_gui->setCorrectors($corrector_repo->getCorrectorsByTaskId($this->object->getId()));
 		$list_gui->setEssays($essay_repo->getEssaysByTaskId($this->object->getId()));
 		$list_gui->setAssignments($corrector_repo->getAssignmentsByTaskId($this->object->getId()));
-		$list_gui->loadUserData();
 
         $this->tpl->setContent($list_gui->getContent());
 	}

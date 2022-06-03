@@ -3,6 +3,7 @@
 namespace ILIAS\Plugin\LongEssayTask\Data;
 
 use Exception;
+use const Grpc\WRITE_BUFFER_HINT;
 
 /**
  * @author Fabian Wolf <wolf@ilias.de>
@@ -63,6 +64,11 @@ class EssayDatabaseRepository implements EssayRepository
         }
         return null;
     }
+
+	public function getEssaysByTaskId(int $a_task_id):array
+	{
+		return  Essay::where(['task_id'=> $a_task_id])->get();
+	}
 
     public function getEssayByWriterIdAndTaskId(int $a_writer_id, int $a_task_id): ?Essay
     {
@@ -286,5 +292,26 @@ class EssayDatabaseRepository implements EssayRepository
             . " LEFT JOIN xlet_writer AS writer ON (access_token.user_id = writer.user_id)"
             . " WHERE writer.id = " . $db->quote($a_writer_id, "integer"));
     }
+
+	public function getLastWriterHistoryPerUserByTaskId(int $a_task_id): array
+	{
+		global $DIC;
+		$db = $DIC->database();
+		$res = $db->queryf("SELECT wh.id as id, wh.essay_id as essay_Id, max(wh.timestamp) as maxc 
+                     FROM xlet_writer_history AS wh
+                     LEFT JOIN xlet_essay AS e ON (wh.essay_id = e.id) 
+                     WHERE e.task_id = %s group by essay_id", ['integer'], [$a_task_id]);
+
+		$ids = [];
+		while ($row = $DIC->database()->fetchAssoc($res)) {
+			$ids[] = $row["id"];
+		}
+
+		if (count($ids) <= 0) {
+			return [];
+		}
+
+		return WriterHistory::where(["id" => $ids], "IN")->get();
+	}
 }
 

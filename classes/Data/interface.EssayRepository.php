@@ -37,12 +37,16 @@ interface EssayRepository
 
     public function getEssayByWriterIdAndTaskId(int $a_writer_id, int $a_task_id): ?Essay;
 
+	public function getEssaysByTaskId(int $a_task_id): array;
+
     public function ifEssayExistsById(int $a_id): bool;
 
     public function getAccessTokenByUserIdAndTaskId(int $a_user_id, int $a_task_id, string $a_purpose): ?AccessToken;
 
     /** @return WriterHistory[] */
     public function getWriterHistoryStepsByEssayId(int $essay_id, ?int $limit = null): array;
+
+	public function getLastWriterHistoryPerUserByTaskId(int $a_task_id): array;
 
     public function ifWriterHistoryExistByEssayIdAndHashAfter(int $essay_id, string $hash_after): bool;
 

@@ -3,8 +3,10 @@
 
 namespace ILIAS\Plugin\LongEssayTask\WriterAdmin;
 
+use ILIAS\DI\Exceptions\Exception;
 use ILIAS\Plugin\LongEssayTask\BaseGUI;
-use ILIAS\UI\Factory;
+use ILIAS\Plugin\LongEssayTask\Data\Writer;
+use ILIAS\Plugin\LongEssayTask\LongEssayTaskDI;
 use \ilUtil;
 
 /**
@@ -12,6 +14,7 @@ use \ilUtil;
  *
  * @package ILIAS\Plugin\LongEssayTask\WriterAdmin
  * @ilCtrl_isCalledBy ILIAS\Plugin\LongEssayTask\WriterAdmin\WriterAdminGUI: ilObjLongEssayTaskGUI
+ * @ilCtrl_Calls ILIAS\Plugin\LongEssayTask\WriterAdmin\WriterAdminGUI: ilRepositorySearchGUI
  */
 class WriterAdminGUI extends BaseGUI
 {
@@ -22,18 +25,53 @@ class WriterAdminGUI extends BaseGUI
      */
     public function executeCommand()
     {
-        $cmd = $this->ctrl->getCmd('showStartPage');
-        switch ($cmd)
-        {
-            case 'showStartPage':
-                $this->$cmd();
-                break;
+		$next_class = $this->ctrl->getNextClass();
 
-            default:
-                $this->tpl->setContent('unknown command: ' . $cmd);
-        }
+		switch ($next_class) {
+			case 'ilrepositorysearchgui':
+				$rep_search = new \ilRepositorySearchGUI();
+				$rep_search->addUserAccessFilterCallable([$this, 'filterUserIdsByLETMembership']);
+				$rep_search->setCallback($this, "assignWriters");
+				$this->ctrl->setReturn($this, 'showStartPage');
+				$ret = $this->ctrl->forwardCommand($rep_search);
+				break;
+			default:
+				$cmd = $this->ctrl->getCmd('showStartPage');
+				switch ($cmd)
+				{
+					case 'showStartPage':
+					case 'addWriter':
+					case 'deleteWriter':
+						$this->$cmd();
+						break;
+
+					default:
+						$this->tpl->setContent('unknown command: ' . $cmd);
+				}
+		}
     }
 
+
+	private function showToolbar(){
+
+		\ilRepositorySearchGUI::fillAutoCompleteToolbar(
+			$this,
+			$this->toolbar,
+			array()
+		);
+
+		// spacer
+		$this->toolbar->addSeparator();
+
+		// search button
+		$this->toolbar->addButton(
+			$this->plugin->txt("search_participants"),
+			$this->ctrl->getLinkTargetByClass(
+				'ilRepositorySearchGUI',
+				'start'
+			)
+		);
+	}
 
     /**
      * Show the items
@@ -41,64 +79,78 @@ class WriterAdminGUI extends BaseGUI
     protected function showStartPage()
     {
         $this->toolbar->setFormAction($this->ctrl->getFormAction($this));
-        $button = \ilLinkButton::getInstance();
-        $button->setUrl('');
-        $button->setCaption('Teilnehmer hinzufügen', false);
-        $button->setPrimary(false);
-        $this->toolbar->addButtonInstance($button);
+		$this->showToolbar();
 
+		$writer_repo = LongEssayTaskDI::getInstance()->getWriterRepo();
+		$essay_repo = LongEssayTaskDI::getInstance()->getEssayRepo();
 
-        $actions = array(
-            "Alle" => "all",
-            "Teilgenommen" => "",
-            "Nicht Teilgenommen" => "",
-            "Mit Zeitverlängerung" => "",
-        );
+		$list_gui = new WriterAdminListGUI($this, $this->plugin);
+		$list_gui->setWriters($writer_repo->getWritersByTaskId($this->object->getId()));
+		$list_gui->setExtensions($writer_repo->getTimeExtensionsByTaskId($this->object->getId()));
+		$list_gui->setEssays($essay_repo->getEssaysByTaskId($this->object->getId()));
+		$list_gui->setHistory($essay_repo->getLastWriterHistoryPerUserByTaskId($this->object->getId()));
+		$list_gui->loadUserData();
 
-        $aria_label = "change_the_currently_displayed_mode";
-        $view_control = $this->uiFactory->viewControl()->mode($actions, $aria_label)->withActive("Alle");
-
-        $item1 = $this->uiFactory->item()->standard($this->uiFactory->link()->standard("Theo Teststudent (theo.teststudent)",''))
-            ->withLeadIcon($this->uiFactory->symbol()->icon()->standard('usr', 'user', 'medium'))
-            ->withProperties(array(
-                "Abgabe-Status" => "noch nicht abgegeben",
-                "Zeitverlängerung" => "10 min",
-                "Letzte Speicherung" => "Heute, 13:50",
-
-            ))
-            ->withActions(
-                $this->uiFactory->dropdown()->standard([
-                    $this->uiFactory->button()->shy('Bearbeitung einsehen', '#'),
-                    $this->uiFactory->button()->shy('Abgabe autorisieren', '#'),
-                    $this->uiFactory->button()->shy('Zeit verlängern', '#'),
-                    $this->uiFactory->button()->shy('Von Bearbeitung ausschließen', '#'),
-
-                ]));
-
-        $item2 = $this->uiFactory->item()->standard($this->uiFactory->link()->standard("Thekla Teststudentin (thekla.teststudentin)", ''))
-            ->withLeadIcon($this->uiFactory->symbol()->icon()->standard('usr', 'editor', 'medium'))
-            ->withProperties(array(
-                "Abgabe-Status" => "abgegeben",
-                "Zeitverlängerung" => "keine",
-                "Letzte Speicherung" => "Heute, 12:45",
-
-            ))
-            ->withActions(
-                $this->uiFactory->dropdown()->standard([
-                    $this->uiFactory->button()->shy('Bearbeitung einsehen', '#'),
-                ]));
-
-        $resources = $this->uiFactory->item()->group("Teilnehmer", array(
-            $item1,
-            $item2
-        ));
-
-        $this->tpl->setContent(
-
-            $this->renderer->render($view_control) . '<br><br>' .
-            $this->renderer->render($resources)
-
-        );
-
+        $this->tpl->setContent($list_gui->getContent());
      }
+
+	 private function deleteWriter(){
+		if(($id = $this->getWriterId()) === null)
+		{
+			ilUtil::sendFailure($this->plugin->txt("missing_writer_id"), true);
+			$this->ctrl->redirect($this, "showStartPage");
+		}
+		$writer_repo = LongEssayTaskDI::getInstance()->getWriterRepo();
+		$writer = $writer_repo->getWriterById($id);
+
+		if($writer === null || $writer->getTaskId() !== $this->object->getId()){
+			ilUtil::sendFailure($this->plugin->txt("missing_writer"), true);
+			$this->ctrl->redirect($this, "showStartPage");
+		}
+
+		$writer_repo->deleteWriter($writer->getId());
+		ilUtil::sendSuccess($this->plugin->txt("remove_writer_success"), true);
+		$this->ctrl->redirect($this, "showStartPage");
+	 }
+
+	 public function assignWriters(array $a_usr_ids, $a_type = null)
+	 {
+		 foreach($a_usr_ids as $id){
+			 $writer_repo = LongEssayTaskDI::getInstance()->getWriterRepo();
+
+			 $writer = new Writer();
+			 $writer->setTaskId($this->object->getId())
+				 ->setUserId((int)$id)
+				 ->setPseudonym("participant ".$id);
+
+			 $writer_repo->createWriter($writer);
+		 }
+
+		 ilUtil::sendSuccess($this->plugin->txt("assign_writer_success"), true);
+		 $this->ctrl->redirect($this,"showStartPage");
+	 }
+
+	private function getWriterId(): ?int
+	{
+		$query = $this->request->getQueryParams();
+		if(isset($query["writer_id"])) {
+			return (int) $query["writer_id"];
+		}
+		return null;
+	}
+
+	public function filterUserIdsByLETMembership($a_user_ids)
+	{
+		$user_ids = [];
+		$writer_repo = LongEssayTaskDI::getInstance()->getWriterRepo();
+		$writers = array_map(fn ($row) => $row->getUserId(), $writer_repo->getWritersByTaskId($this->object->getId()));
+
+		foreach ($a_user_ids as $user_id){
+			if(!in_array((int)$user_id, $writers)){
+				$user_ids[] = $user_id;
+			}
+		}
+
+		return $user_ids;
+	}
 }

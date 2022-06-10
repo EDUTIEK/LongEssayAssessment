@@ -31,7 +31,7 @@ class TimeExtension extends ActivePluginRecord
      * @con_fieldtype        integer
      * @con_length           4
      */
-    protected $id;
+    protected $id = null;
 
     /**
      * The writer id
@@ -71,7 +71,7 @@ class TimeExtension extends ActivePluginRecord
     /**
      * @return int
      */
-    public function getId(): int
+    public function getId(): ?int
     {
         return $this->id;
     }

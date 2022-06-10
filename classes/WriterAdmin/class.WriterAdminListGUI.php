@@ -118,7 +118,8 @@ class WriterAdminListGUI extends WriterListGUI
 	}
 
 	private function getExtensionAction(Writer $writer){
-		return "#";
+		$this->ctrl->setParameter($this->parent,"writer_id", $writer->getId());
+		return $this->ctrl->getFormAction($this->parent, "editExtension");
 	}
 
 	private function getExclusionAction(Writer $writer){

@@ -176,3 +176,6 @@ grade_level#:#Notenstufe
 no_writer_set#:#Kein Teilnehmer angegeben.
 exclude_participant_confirmation#:#Wollen Sie den folgenden Teilnehmer wirklich von der Bearbeitung ausschließen?
 exclude#:#Ausschließen
+edit_time_extension#:#Zeitverlängerung bearbeiten
+add_time_extension#:#Zeitverlängerung hinzufügen
+time_extension_caption#:#Verlängerung des Bearbeitungs-Endes in Minuten

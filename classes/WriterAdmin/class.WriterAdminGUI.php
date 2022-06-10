@@ -5,6 +5,8 @@ namespace ILIAS\Plugin\LongEssayTask\WriterAdmin;
 
 use ILIAS\DI\Exceptions\Exception;
 use ILIAS\Plugin\LongEssayTask\BaseGUI;
+use ILIAS\Plugin\LongEssayTask\Data\GradeLevel;
+use ILIAS\Plugin\LongEssayTask\Data\TimeExtension;
 use ILIAS\Plugin\LongEssayTask\Data\Writer;
 use ILIAS\Plugin\LongEssayTask\LongEssayTaskDI;
 use \ilUtil;
@@ -42,6 +44,8 @@ class WriterAdminGUI extends BaseGUI
 					case 'showStartPage':
 					case 'addWriter':
 					case 'deleteWriter':
+					case 'editExtension':
+					case 'updateExtension':
 						$this->$cmd();
 						break;
 
@@ -156,5 +160,101 @@ class WriterAdminGUI extends BaseGUI
 		}
 
 		return $user_ids;
+	}
+
+
+	protected function buildExtensionForm($data):\ILIAS\UI\Component\Input\Container\Form\Standard{
+		if($id = $this->getWriterId()){
+			$section_title = $this->plugin->txt('edit_time_extension');
+		}
+		else {
+			$section_title = $this->plugin->txt('add_time_extension');
+		}
+
+		$factory = $this->uiFactory->input()->field();
+
+		$sections = [];
+
+		$fields = [];
+
+		$fields['extension'] =$factory->numeric($this->lng->txt('minutes'), $this->plugin->txt("time_extension_caption"))
+			->withRequired(true)
+			->withValue($data["extension"]);
+
+		$sections['form'] = $factory->section($fields, $section_title);
+		$this->ctrl->saveParameter($this, "writer_id");
+		return $this->uiFactory->input()->container()->form()->standard($this->ctrl->getFormAction($this,"updateExtension"), $sections);
+	}
+
+	/**
+	 * Edit and save the settings
+	 */
+	protected function editExtension($form = null)
+	{
+		if($form === null){
+
+
+			if ($id = $this->getWriterId())
+			{
+				$record = $this->getExtension($id);
+				$form = $this->buildExtensionForm([
+					"extension" => $record->getMinutes()
+				]);
+			}else {
+				// TODO: ERROR
+			}
+		}
+
+		$this->tpl->setContent($this->renderer->render($form));
+	}
+
+
+	protected function updateExtension(){
+		$form = $this->buildExtensionForm([
+			"extension" => 0
+		]);
+
+		if ($this->request->getMethod() == "POST") {
+			$form = $form->withRequest($this->request);
+			$data = $form->getData();
+
+			if($id = $this->getWriterId()){
+				$record = $this->getExtension($id);
+			}else {
+				//TODO: ERROR
+			}
+
+			// inputs are ok => save data
+			if (isset($data)) {
+				$record->setMinutes($data["form"]["extension"]);
+				$obj_repo  = LongEssayTaskDI::getInstance()->getWriterRepo();
+
+				if($record->getMinutes() === 0){
+					$obj_repo->deleteTimeExtension($record->getWriterId(), $record->getTaskId());
+				}elseif($record->getId() !== 0){
+					$obj_repo->updateTimeExtension($record);
+				}else {
+					$obj_repo->createTimeExtension($record);
+				}
+
+				ilUtil::sendSuccess($this->lng->txt("settings_saved"), true);
+				$this->ctrl->redirect($this, "showStartPage");
+			}else {
+				ilUtil::sendFailure($this->lng->txt("validation_error"), false);
+				$this->editExtension($form);
+			}
+		}
+	}
+
+	protected function getExtension(int $writer_id): ?TimeExtension
+	{
+		$writer_repo  = LongEssayTaskDI::getInstance()->getWriterRepo();
+		$record = $writer_repo->getTimeExtensionByWriterId($writer_id, $this->object->getId());
+
+		if(!$record){
+			return (new TimeExtension())->setWriterId($writer_id)->setTaskId($this->object->getId());
+		}
+
+		return $record;
 	}
 }

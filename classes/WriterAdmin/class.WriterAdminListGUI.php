@@ -39,6 +39,8 @@ class WriterAdminListGUI extends WriterListGUI
 		$view_control = $this->uiFactory->viewControl()->mode($actions, $aria_label)->withActive("Alle");
 
 		$items = [];
+		$modals = [];
+
 		foreach($this->getWriters() as $writer)
 		{
 			$actions = [];
@@ -51,7 +53,17 @@ class WriterAdminListGUI extends WriterListGUI
 			if($this->canGetExtension($writer)) {
 				$actions[] = $this->uiFactory->button()->shy($this->plugin->txt('extent_time'), $this->getExtensionAction($writer));
 			}
-			$actions[] = $this->uiFactory->button()->shy($this->plugin->txt("exclude_participant"), $this->getExclusionAction($writer));
+
+			$exclusion_modal = $this->uiFactory->modal()->interruptive(
+				$this->plugin->txt("exclude_participant"),
+				$this->plugin->txt("exclude_participant_confirmation"),
+				$this->getExclusionAction($writer)
+			)->withActionButtonLabel("remove");
+
+			$actions[] = $this->uiFactory->button()->shy($this->plugin->txt("exclude_participant"), '')
+				->withOnClick($exclusion_modal->getShowSignal());
+
+			$modals[] = $exclusion_modal;
 
 			$items[] = $this->uiFactory->item()->standard($this->getUsername($writer->getUserId()))
 				->withLeadIcon($this->uiFactory->symbol()->icon()->standard('usr', 'user', 'medium'))
@@ -65,11 +77,12 @@ class WriterAdminListGUI extends WriterListGUI
 					$this->uiFactory->dropdown()->standard($actions));
 		}
 
-		$resources = $this->uiFactory->item()->group($this->plugin->txt("participants"), $items);
+		$resources = array_merge([$this->uiFactory->item()->group($this->plugin->txt("participants"), $items)], $modals);
 
 		return $this->renderer->render($view_control) . '<br><br>' .
 			$this->renderer->render($resources);
 	}
+
 	private function canGetSight(Writer $writer){
 		if(isset($this->essays[$writer->getId()])) {
 			$essay = $this->essays[$writer->getId()];

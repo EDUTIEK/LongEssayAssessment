@@ -173,3 +173,6 @@ remove_writer_success#:#Teilnehmer erfolgreich entfernt.
 missing_writer_id#:#Teilnehmernummer fehlt.
 missing_writer#:#Teilnehmer konnte nicht gefunden werden.
 grade_level#:#Notenstufe
+no_writer_set#:#Kein Teilnehmer angegeben.
+exclude_participant_confirmation#:#Wollen Sie den folgenden Teilnehmer wirklich von der Bearbeitung ausschließen?
+exclude#:#Ausschließen

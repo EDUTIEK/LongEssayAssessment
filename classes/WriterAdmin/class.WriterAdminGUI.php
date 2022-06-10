@@ -93,7 +93,7 @@ class WriterAdminGUI extends BaseGUI
         $this->tpl->setContent($list_gui->getContent());
      }
 
-	 private function deleteWriter(){
+	private function deleteWriter(){
 		if(($id = $this->getWriterId()) === null)
 		{
 			ilUtil::sendFailure($this->plugin->txt("missing_writer_id"), true);
@@ -110,24 +110,29 @@ class WriterAdminGUI extends BaseGUI
 		$writer_repo->deleteWriter($writer->getId());
 		ilUtil::sendSuccess($this->plugin->txt("remove_writer_success"), true);
 		$this->ctrl->redirect($this, "showStartPage");
-	 }
+	}
 
-	 public function assignWriters(array $a_usr_ids, $a_type = null)
-	 {
-		 foreach($a_usr_ids as $id){
-			 $writer_repo = LongEssayTaskDI::getInstance()->getWriterRepo();
+	public function assignWriters(array $a_usr_ids, $a_type = null)
+	{
+		if (count($a_usr_ids) <= 0) {
+			ilUtil::sendFailure($this->plugin->txt("no_writer_set"), true);
+			$this->ctrl->redirect($this,"showStartPage");
+		}
 
-			 $writer = new Writer();
-			 $writer->setTaskId($this->object->getId())
-				 ->setUserId((int)$id)
-				 ->setPseudonym("participant ".$id);
+		foreach($a_usr_ids as $id){
+			$writer_repo = LongEssayTaskDI::getInstance()->getWriterRepo();
 
-			 $writer_repo->createWriter($writer);
-		 }
+			$writer = new Writer();
+			$writer->setTaskId($this->object->getId())
+			 ->setUserId((int)$id)
+			 ->setPseudonym("participant ".$id);
 
-		 ilUtil::sendSuccess($this->plugin->txt("assign_writer_success"), true);
-		 $this->ctrl->redirect($this,"showStartPage");
-	 }
+			$writer_repo->createWriter($writer);
+		}
+
+		ilUtil::sendSuccess($this->plugin->txt("assign_writer_success"), true);
+		$this->ctrl->redirect($this,"showStartPage");
+	}
 
 	private function getWriterId(): ?int
 	{

@@ -354,11 +354,11 @@ class ilObjLongEssayTaskGUI extends ilObjectPluginGUI
                 'txt' => $this->plugin->txt('tab_writer_admin'),
                 'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessaytask\writerAdmin\writeradmingui')
             ];
-//            $tabs[] = [
-//                'id' => 'tab_writer_admin_log',
-//                'txt' => $this->plugin->txt('tab_writer_admin_log'),
-//                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessaytask\writerAdmin\writeradminloggui')
-//            ];
+            $tabs[] = [
+                'id' => 'tab_writer_admin_log',
+                'txt' => $this->plugin->txt('tab_writer_admin_log'),
+                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessaytask\writerAdmin\writeradminloggui')
+            ];
         }
         if (!empty($tabs)) {
             $this->tabs->addTab('tab_writer_admin', $this->plugin->txt('tab_writer_admin'), $tabs[0]['url']);

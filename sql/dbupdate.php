@@ -1185,3 +1185,45 @@ if (!$ilDB->tableColumnExists('xlet_corr_setting','max_auto_distance')) {
     ]);
 }
 ?>
+<#43>
+<?php
+$fields = array(
+	'id' => array(
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+
+	),
+	'task_id' => array(
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+
+	),
+	'timestamp' => array(
+		'type' => 'timestamp',
+
+	),
+	'category' => array(
+		'notnull' => '1',
+		'type' => 'text',
+		'length' => '255',
+
+	),
+	'entry' => array(
+		'type' => 'clob',
+
+	),
+
+);
+if (! $ilDB->tableExists('xlet_log_entry')) {
+	$ilDB->createTable('xlet_log_entry', $fields);
+	$ilDB->addPrimaryKey('xlet_log_entry', array( 'id' ));
+	$ilDB->addIndex("xlet_log_entry", array("task_id"), "i1");
+
+	if (! $ilDB->sequenceExists('xlet_log_entry')) {
+		$ilDB->createSequence('xlet_log_entry');
+	}
+
+}
+?>

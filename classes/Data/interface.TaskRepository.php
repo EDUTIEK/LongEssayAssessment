@@ -20,7 +20,7 @@ interface TaskRepository
                                CorrectionSettings $a_correction_settings);
 
     public function createResource(Resource $a_resource);
-    // public function createLogEntry(LogEntry $a_log_entry);  TODO: create LogEntry
+    public function createLogEntry(LogEntry $a_log_entry);
     public function createAlert(Alert $a_alert);
 
     public function createWriterNotice(WriterNotice $a_writer_notice);
@@ -40,16 +40,13 @@ interface TaskRepository
     public function ifResourceExistsById(int $a_id): bool;
     public function ifResourceExistsByFileId(string $a_file_id): bool;
 
-    //public function ifLogEntryExistsById(int $a_id): bool;
+    public function ifLogEntryExistsById(int $a_id): bool;
+    public function getLogEntryById(int $a_id): ?LogEntry;
 
-    //public function getLogEntryById(int $a_id): ?LogEntry;
-    //public function ifLogEntryExistsById(int $a_id): bool;
     public function getAlertById(int $a_id): ?Alert;
-
     public function ifAlertExistsById(int $a_id): bool;
 
     public function getWriterNoticeById(int $a_id): ?WriterNotice;
-
     public function ifWriterNoticeExistsById(int $a_id): bool;
 
     // Update operations
@@ -61,7 +58,7 @@ interface TaskRepository
 
     public function updateResource(Resource $a_resource);
 
-    //public function updateLogEntry(LogEntry $a_log_entry);
+    public function updateLogEntry(LogEntry $a_log_entry);
     public function updateAlert(Alert $a_alert);
 
     public function updateWriterNotice(WriterNotice $a_writer_notice);
@@ -74,8 +71,8 @@ interface TaskRepository
     public function deleteResource(int $a_id);
     public function deleteResourceByTaskId(int $a_task_id);
 
-    //public function deleteLogEntry(int $a_id);
-    //public function deleteLogEntryByTaskId(int $a_task_id);
+    public function deleteLogEntry(int $a_id);
+    public function deleteLogEntryByTaskId(int $a_task_id);
     public function deleteAlert(int $a_id);
 
     public function deleteAlertByTaskId(int $a_task_id);

@@ -143,6 +143,7 @@ class TaskDatabaseRepository implements TaskRepository
         $this->deleteAlertByTaskId($a_id);
         $this->deleteWriterNoticeByTaskId($a_id);
         $this->deleteResourceByTaskId($a_id);
+		$this->deleteLogEntryByTaskId($a_id);
 
         $di = LongEssayTaskDI::getInstance();
 
@@ -206,6 +207,7 @@ class TaskDatabaseRepository implements TaskRepository
 
         $this->deleteAlertByTaskId($a_object_id);
         $this->deleteWriterNoticeByTaskId($a_object_id);
+		$this->deleteLogEntryByTaskId($a_object_id);
     }
 
     public function getResourceById(int $a_id): ?Resource
@@ -266,4 +268,45 @@ class TaskDatabaseRepository implements TaskRepository
     }
 
 
+	public function createLogEntry(LogEntry $a_log_entry)
+	{
+		$a_log_entry->create();
+	}
+
+	public function ifLogEntryExistsById(int $a_id): bool
+	{
+		return $this->getLogEntryById($a_id) != null;
+	}
+
+	public function getLogEntryById(int $a_id): ?LogEntry
+	{
+		$log_entry = LogEntry::findOrGetInstance($a_id);
+		if ($log_entry != null) {
+			return $log_entry;
+		}
+		return null;
+	}
+
+	public function updateLogEntry(LogEntry $a_log_entry)
+	{
+		$a_log_entry->update();
+	}
+
+	public function deleteLogEntry(int $a_id)
+	{
+		global $DIC;
+		$db = $DIC->database();
+
+		$db->manipulate("DELETE FROM xlet_log_entry" .
+			" WHERE id = " . $db->quote($a_id, "integer"));
+	}
+
+	public function deleteLogEntryByTaskId(int $a_task_id)
+	{
+		global $DIC;
+		$db = $DIC->database();
+
+		$db->manipulate("DELETE FROM xlet_log_entry" .
+			" WHERE task_id = " . $DIC->database()->quote($a_task_id, "integer"));
+	}
 }

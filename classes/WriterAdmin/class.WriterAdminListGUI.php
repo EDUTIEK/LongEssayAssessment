@@ -27,12 +27,12 @@ class WriterAdminListGUI extends WriterListGUI
 	public function getContent() :string
 	{
 		$this->loadUserData();
-
+		$link = $this->ctrl->getLinkTarget($this->parent, $this->parent_cmd);
 		$actions = array(
-			"Alle" => "all",
-			"Teilgenommen" => "",
-			"Nicht Teilgenommen" => "",
-			"Mit Zeitverlängerung" => "",
+			"Alle" => $link,
+			"Teilgenommen" => $link . "&filter=attended",
+			"Nicht Teilgenommen" => $link . "&filter=not_attended",
+			"Mit Zeitverlängerung" => $link . "&filter=with_extension",
 		);
 
 		$aria_label = "change_the_currently_displayed_mode";
@@ -90,9 +90,7 @@ class WriterAdminListGUI extends WriterListGUI
 					$this->plugin->txt("writing_time_extension") => $this->extensionString($writer),
 					$this->plugin->txt("writing_last_save") => $this->lastSave($writer),
 
-				))
-				->withActions(
-					$this->uiFactory->dropdown()->standard($actions));
+				))->withActions($this->uiFactory->dropdown()->standard($actions));
 		}
 
 		$resources = array_merge([$this->uiFactory->item()->group($this->plugin->txt("participants"), $items)], $modals);
@@ -202,6 +200,13 @@ class WriterAdminListGUI extends WriterListGUI
 
 		return $this->plugin->txt("writing_no_last_save");
 	}
+
+
+	public function getFilteredWriters(){
+		global $DIC;
+
+	}
+
 
 	/**
 	 * @return TimeExtension[]

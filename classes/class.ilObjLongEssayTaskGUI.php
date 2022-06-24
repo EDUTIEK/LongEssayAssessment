@@ -180,7 +180,12 @@ class ilObjLongEssayTaskGUI extends ilObjectPluginGUI
                     break;
                 case 'ilias\plugin\longessaytask\correctoradmin\correctoradmingui':
                     if ($this->object->canMaintainCorrectors()) {
-                        $this->activateTab('tab_corrector_admin', 'tab_corrector_admin');
+						$cmd = $this->ctrl->getCmd('showStartPage');
+						$active_sub = 'tab_corrector_admin';
+						if(in_array($cmd, ["showCorrectors", "start", "performSearch"])){
+							$active_sub = 'tab_corrector_list';
+						}
+                        $this->activateTab('tab_corrector_admin', $active_sub);
                         $this->ctrl->forwardCommand(new \ILIAS\Plugin\LongEssayTask\CorrectorAdmin\CorrectorAdminGUI($this));
                     }
                     break;
@@ -368,6 +373,11 @@ class ilObjLongEssayTaskGUI extends ilObjectPluginGUI
                 'txt' => $this->plugin->txt('tab_corrector_admin'),
                 'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessaytask\correctorAdmin\correctoradmingui')
             ];
+			$tabs[] = [
+				'id' => 'tab_corrector_list',
+				'txt' => $this->plugin->txt('tab_corrector_list'),
+				'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessaytask\correctorAdmin\correctoradmingui', "showCorrectors")
+			];
             $tabs[] = [
                 'id' => 'tab_corrector_export',
                 'txt' => $this->plugin->txt('tab_corrector_export'),

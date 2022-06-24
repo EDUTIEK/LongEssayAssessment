@@ -89,7 +89,7 @@ class WriterAdminGUI extends BaseGUI
 		$writer_repo = LongEssayTaskDI::getInstance()->getWriterRepo();
 		$essay_repo = LongEssayTaskDI::getInstance()->getEssayRepo();
 
-		$list_gui = new WriterAdminListGUI($this, $this->plugin);
+		$list_gui = new WriterAdminListGUI($this, "showStartPage", $this->plugin);
 		$list_gui->setWriters($writer_repo->getWritersByTaskId($this->object->getId()));
 		$list_gui->setExtensions($writer_repo->getTimeExtensionsByTaskId($this->object->getId()));
 		$list_gui->setEssays($essay_repo->getEssaysByTaskId($this->object->getId()));

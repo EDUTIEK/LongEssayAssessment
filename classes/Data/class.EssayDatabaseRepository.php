@@ -157,7 +157,7 @@ class EssayDatabaseRepository implements EssayRepository
         $db->manipulate("DELETE FROM xlet_corrector_comment" .
             " WHERE essay_id = " . $db->quote($a_id, "integer"));
 
-        $db->manipulate("DELETE xlet_crit_points FROM xlet_crit_points AS cp"
+        $db->manipulate("DELETE cp FROM xlet_crit_points AS cp"
             . " LEFT JOIN xlet_corrector_comment AS cc ON (cp.corr_comment_id = cc.id)"
             . " WHERE cc.essay_id = " . $db->quote($a_id, "integer"));
 
@@ -230,7 +230,7 @@ class EssayDatabaseRepository implements EssayRepository
         $db->manipulate("DELETE FROM xlet_corrector_comment" .
             " WHERE corrector_id = " . $db->quote($a_user_id, "integer"));
 
-        $db->manipulate("DELETE xlet_crit_points FROM xlet_crit_points AS cp"
+        $db->manipulate("DELETE cp FROM xlet_crit_points AS cp"
             . " LEFT JOIN xlet_corrector_comment AS cc ON (cp.corr_comment_id = cc.id)"
             . " WHERE cc.corrector_id = " . $db->quote($a_user_id, "integer"));
     }
@@ -278,7 +278,7 @@ class EssayDatabaseRepository implements EssayRepository
         global $DIC;
         $db = $DIC->database();
 
-        $db->manipulate("DELETE xlet_access_token FROM xlet_access_token AS access_token"
+        $db->manipulate("DELETE access_token FROM xlet_access_token AS access_token"
             . " LEFT JOIN xlet_corrector AS corrector ON (access_token.user_id = corrector.user_id)"
             . " WHERE corrector.id = " . $db->quote($a_corrector_id, "integer"));
     }
@@ -288,7 +288,7 @@ class EssayDatabaseRepository implements EssayRepository
         global $DIC;
         $db = $DIC->database();
 
-        $db->manipulate("DELETE xlet_access_token FROM xlet_access_token AS access_token"
+        $db->manipulate("DELETE access_token FROM xlet_access_token AS access_token"
             . " LEFT JOIN xlet_writer AS writer ON (access_token.user_id = writer.user_id)"
             . " WHERE writer.id = " . $db->quote($a_writer_id, "integer"));
     }

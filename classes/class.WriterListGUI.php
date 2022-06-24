@@ -25,11 +25,13 @@ abstract class WriterListGUI
 	protected \ilLongEssayTaskPlugin $plugin;
 	protected \ILIAS\UI\Renderer $renderer;
 	protected object $parent;
+	protected string $parent_cmd;
 
-	public function __construct(object $parent, \ilLongEssayTaskPlugin $plugin)
+	public function __construct(object $parent, string $parent_cmd, \ilLongEssayTaskPlugin $plugin)
 	{
 		global $DIC;
 		$this->parent = $parent;
+		$this->parent_cmd = $parent_cmd;
 		$this->uiFactory = $DIC->ui()->factory();
 		$this->ctrl = $DIC->ctrl();
 		$this->plugin = $plugin;

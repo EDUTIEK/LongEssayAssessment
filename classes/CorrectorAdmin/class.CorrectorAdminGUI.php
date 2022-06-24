@@ -4,9 +4,11 @@
 namespace ILIAS\Plugin\LongEssayTask\CorrectorAdmin;
 
 use ILIAS\Plugin\LongEssayTask\BaseGUI;
+use ILIAS\Plugin\LongEssayTask\Data\Corrector;
 use ILIAS\Plugin\LongEssayTask\Data\Writer;
 use ILIAS\Plugin\LongEssayTask\LongEssayTaskDI;
 use ILIAS\Plugin\LongEssayTask\WriterAdmin\CorrectorAdminListGUI;
+use ILIAS\Plugin\LongEssayTask\WriterAdmin\CorrectorListGUI;
 use ILIAS\UI\Factory;
 use \ilUtil;
 
@@ -15,6 +17,7 @@ use \ilUtil;
  *
  * @package ILIAS\Plugin\LongEssayTask\CorrectorAdmin
  * @ilCtrl_isCalledBy ILIAS\Plugin\LongEssayTask\CorrectorAdmin\CorrectorAdminGUI: ilObjLongEssayTaskGUI
+ * @ilCtrl_Calls ILIAS\Plugin\LongEssayTask\CorrectorAdmin\CorrectorAdminGUI: ilRepositorySearchGUI
  */
 class CorrectorAdminGUI extends BaseGUI
 {
@@ -35,18 +38,32 @@ class CorrectorAdminGUI extends BaseGUI
      */
     public function executeCommand()
     {
-        $cmd = $this->ctrl->getCmd('showStartPage');
-        switch ($cmd)
-        {
-            case 'showStartPage':
-			case 'assignWriters':
-			case 'changeCorrector':
-                $this->$cmd();
-                break;
+		$next_class = $this->ctrl->getNextClass();
 
-            default:
-                $this->tpl->setContent('unknown command: ' . $cmd);
-        }
+		switch ($next_class) {
+			case 'ilrepositorysearchgui':
+				$rep_search = new \ilRepositorySearchGUI();
+				$rep_search->addUserAccessFilterCallable([$this, 'filterUserIdsByLETMembership']);
+				$rep_search->setCallback($this, "assignCorrectors");
+				$this->ctrl->setReturn($this, 'showStartPage');
+				$ret = $this->ctrl->forwardCommand($rep_search);
+				break;
+			default:
+				$cmd = $this->ctrl->getCmd('showStartPage');
+				switch ($cmd)
+				{
+					case 'showStartPage':
+					case 'showCorrectors':
+					case 'assignWriters':
+					case 'changeCorrector':
+					case 'removeCorrector':
+						$this->$cmd();
+						break;
+
+					default:
+						$this->tpl->setContent('unknown command: ' . $cmd);
+				}
+		}
     }
 
 
@@ -69,14 +86,130 @@ class CorrectorAdminGUI extends BaseGUI
 		$corrector_repo = $di->getCorrectorRepo();
 		$essay_repo = $di->getEssayRepo();
 
-		$list_gui = new CorrectorAdminListGUI($this, $this->plugin);
+		$essays = $essay_repo->getEssaysByTaskId($this->object->getId());
+		$stitches = [];
+		foreach ($essays as $essay){
+			if($this->service->isStitchDecisionNeeded($essay)){
+				$stitches[] = $essay->getId();
+			}
+		}
+
+		$list_gui = new CorrectorAdminListGUI($this, "showStartPage", $this->plugin);
 		$list_gui->setWriters($writers_repo->getWritersByTaskId($this->object->getId()));
 		$list_gui->setCorrectors($corrector_repo->getCorrectorsByTaskId($this->object->getId()));
-		$list_gui->setEssays($essay_repo->getEssaysByTaskId($this->object->getId()));
+		$list_gui->setEssays($essays);
 		$list_gui->setAssignments($corrector_repo->getAssignmentsByTaskId($this->object->getId()));
+		$list_gui->setCorrectionStatusStitches($stitches);
 
         $this->tpl->setContent($list_gui->getContent());
 	}
+
+	protected function showCorrectors(){
+		$this->toolbar->setFormAction($this->ctrl->getFormAction($this));
+		$this->showCorrectorToolbar();
+
+		$di = LongEssayTaskDI::getInstance();
+		$writers_repo = $di->getWriterRepo();
+		$corrector_repo = $di->getCorrectorRepo();
+
+		$list_gui = new CorrectorListGUI($this, "showCorrectors", $this->plugin);
+		$list_gui->setWriters($writers_repo->getWritersByTaskId($this->object->getId()));
+		$list_gui->setCorrectors($corrector_repo->getCorrectorsByTaskId($this->object->getId()));
+		$list_gui->setAssignments($corrector_repo->getAssignmentsByTaskId($this->object->getId()));
+
+		$this->tpl->setContent($list_gui->getContent());
+	}
+
+	private function showCorrectorToolbar(){
+
+		\ilRepositorySearchGUI::fillAutoCompleteToolbar(
+			$this,
+			$this->toolbar,
+			array()
+		);
+
+		// spacer
+		$this->toolbar->addSeparator();
+
+		// search button
+		$this->toolbar->addButton(
+			$this->plugin->txt("search_correctors"),
+			$this->ctrl->getLinkTargetByClass(
+				'ilRepositorySearchGUI',
+				'start'
+			)
+		);
+
+		$assign_writers_action = $this->ctrl->getLinkTarget($this, "assignWriters");
+
+		$button = \ilLinkButton::getInstance();
+		$button->setUrl($assign_writers_action);
+		$button->setCaption($this->plugin->txt("assign_writers"), false);
+		$button->setPrimary(false);
+		$this->toolbar->addButtonInstance($button);
+	}
+
+	public function assignCorrectors(array $a_usr_ids, $a_type = null)
+	{
+		if (count($a_usr_ids) <= 0) {
+			ilUtil::sendFailure($this->plugin->txt("missing_corrector_id"), true);
+			$this->ctrl->redirect($this,"showCorrectors");
+		}
+
+		foreach($a_usr_ids as $id){
+			$corrector_repo = LongEssayTaskDI::getInstance()->getCorrectorRepo();
+
+			$corrector = new Corrector();
+			$corrector->setTaskId($this->object->getId())
+				->setUserId((int)$id);
+
+			$corrector_repo->createCorrector($corrector);
+		}
+
+		ilUtil::sendSuccess($this->plugin->txt("assign_corrector_success"), true);
+		$this->ctrl->redirect($this,"showCorrectors");
+	}
+
+	public function filterUserIdsByLETMembership($a_user_ids)
+	{
+		$user_ids = [];
+		$corrector_repo = LongEssayTaskDI::getInstance()->getCorrectorRepo();
+		$writers = array_map(fn ($row) => $row->getUserId(), $corrector_repo->getCorrectorsByTaskId($this->object->getId()));
+
+		foreach ($a_user_ids as $user_id){
+			if(!in_array((int)$user_id, $writers)){
+				$user_ids[] = $user_id;
+			}
+		}
+
+		return $user_ids;
+	}
+
+	private function removeCorrector(){
+		if(($id = $this->getCorrectorId()) === null)
+		{
+			ilUtil::sendFailure($this->plugin->txt("missing_corrector_id"), true);
+			$this->ctrl->redirect($this, "showCorrectors");
+		}
+		$corrector_repo = LongEssayTaskDI::getInstance()->getCorrectorRepo();
+		$corrector = $corrector_repo->getCorrectorById($id);
+
+		if($corrector === null || $corrector->getTaskId() !== $this->object->getId()){
+			ilUtil::sendFailure($this->plugin->txt("missing_corrector"), true);
+			$this->ctrl->redirect($this, "showCorrectors");
+		}
+		$ass = $corrector_repo->getAssignmentsByCorrectorId($corrector->getId());
+
+		if(count($ass) > 0){
+			ilUtil::sendFailure($this->plugin->txt("remove_writer_pending_assignments"), true);
+			$this->ctrl->redirect($this, "showCorrectors");
+		}
+
+		$corrector_repo->deleteCorrector($corrector->getId());
+		ilUtil::sendSuccess($this->plugin->txt("remove_writer_success"), true);
+		$this->ctrl->redirect($this, "showCorrectors");
+	}
+
 
 	protected function assignWriters(){
 		$this->service->assignMissingCorrectors();
@@ -86,6 +219,15 @@ class CorrectorAdminGUI extends BaseGUI
 
 	protected function changeCorrector(){
 		$this->tpl->setContent("Empty!");
+	}
+
+	private function getCorrectorId(): ?int
+	{
+		$query = $this->request->getQueryParams();
+		if(isset($query["corrector_id"])) {
+			return (int) $query["corrector_id"];
+		}
+		return null;
 	}
 
 }

@@ -36,6 +36,11 @@ class CorrectorAdminListGUI extends WriterListGUI
 	 */
 	private $assignments = [];
 
+	/**
+	 * @var int[]
+	 */
+	private array $correction_status_stitches = [];
+
 	public function getContent():string
 	{
 		$this->loadUserData();
@@ -54,17 +59,27 @@ class CorrectorAdminListGUI extends WriterListGUI
 			$actions = [];
 			$actions[] = $this->uiFactory->button()->shy($this->plugin->txt('view_correction'), $this->getViewCorrectionAction($writer));
 			$actions[] = $this->uiFactory->button()->shy($this->plugin->txt('change_corrector'), $this->getChangeCorrectorAction($writer));
-			$actions[] = $this->uiFactory->button()->shy($this->plugin->txt('change_corrector'), $this->getReviewAction($writer));
+
+			if($this->hasCorrectionStatusStitch($writer)){
+				$actions[] = $this->uiFactory->button()->shy($this->plugin->txt('correction_status_stitch'), $this->getCorrectionStatusStitchAction($writer));
+			}
+
+			$properties = [];
+
+			foreach($this->getAssignmentsByWriter($writer) as $assignment){
+				switch($assignment->getPosition()){
+					case 0: $pos = $this->plugin->txt("first_corrector");break;
+					case 1: $pos = $this->plugin->txt("second_corrector");break;
+					default: $pos = $this->plugin->txt("assignment_pos_other");break;
+				}
+				$properties[$pos] = $this->getAssignedCorrectorName($writer, $assignment->getPosition());
+			}
+			$properties[$this->plugin->txt("status")] = $this->essayStatus($writer);
 
 			$items[] = $this->uiFactory->item()->standard($this->getUsername($writer->getUserId()))
 				->withLeadIcon($this->uiFactory->symbol()->icon()->standard('adve', 'user', 'medium'))
-				->withProperties(array(
-					$this->plugin->txt("first_corrector") => $this->getAssignedCorrectorName($writer, 0),
-					$this->plugin->txt("second_corrector") => $this->getAssignedCorrectorName($writer, 1),
-					$this->plugin->txt("status") => $this->essayStatus($writer),
-				))
-				->withActions(
-					$this->uiFactory->dropdown()->standard($actions));
+				->withProperties($properties)
+				->withActions($this->uiFactory->dropdown()->standard($actions));
 		}
 
 		$resources = $this->uiFactory->item()->group($this->plugin->txt("correctable_exams"), $items);
@@ -85,8 +100,8 @@ class CorrectorAdminListGUI extends WriterListGUI
 
 	private function getViewCorrectionAction(Writer $writer): string
 	{
-		$this->ctrl->setParameter($this->parent, "some_id", "id");
-		return $this->ctrl->getLinkTarget($this->parent, "viewCorrection");
+		$this->ctrl->setParameter($this->parent, "writer_id", $writer->getId());
+		return $this->ctrl->getLinkTargetByClass(["ILIAS\Plugin\LongEssayTask\Corrector\CorrectorStartGUI"], "startCorrector");
 	}
 
 	private function getChangeCorrectorAction(Writer $writer): string
@@ -95,10 +110,19 @@ class CorrectorAdminListGUI extends WriterListGUI
 		return $this->ctrl->getLinkTarget($this->parent, "changeCorrector");
 	}
 
-	private function getReviewAction(Writer $writer): string
+	private function hasCorrectionStatusStitch($writer): bool
 	{
-		$this->ctrl->setParameter($this->parent, "some_id", "id");
-		return $this->ctrl->getLinkTarget($this->parent, "review");
+		if (!isset($this->essays[$writer->getId()])) {
+			return false;
+		}
+		$essay = $this->essays[$writer->getId()];
+		return in_array($essay->getId(), $this->getCorrectionStatusStitches());
+	}
+
+	private function getCorrectionStatusStitchAction(Writer $writer): string
+	{
+		$this->ctrl->setParameter($this->parent, "writer_id", $writer->getId());
+		return $this->ctrl->getLinkTarget($this->parent, "correctionStatusStitchView");
 	}
 
 	private function essayStatus(Writer $writer)
@@ -111,7 +135,9 @@ class CorrectorAdminListGUI extends WriterListGUI
 					$this->getUsername($essay->getWritingAuthorizedBy(), true);
 			}
 
-			// TODO: Calc Stichentscheid gefordert
+			if(in_array($essay->getId(), $this->getCorrectionStatusStitches())){
+				return $this->plugin->txt("correction_status_stitch_needed");
+			}
 
 			if ($essay->getWritingAuthorized() !== null) {
 				$name = $this->plugin->txt("participant");
@@ -163,12 +189,30 @@ class CorrectorAdminListGUI extends WriterListGUI
 	}
 
 	/**
+	 * @param Corrector $corrector
+	 * @return array|CorrectorAssignment[]
+	 */
+	private function getAssignmentsByWriter(Writer $writer): array
+	{
+		if (array_key_exists($writer->getId(), $this->assignments)){
+			return $this->assignments[$writer->getId()];
+		}
+		return [];
+	}
+
+	/**
 	 * @param CorrectorAssignment[] $assignments
 	 */
 	public function setAssignments(array $assignments): void
 	{
 		foreach ($assignments as $assignment) {
-			$assignments[$assignment->getWriterId()][$assignment->getPosition()] = $assignment;
+			if (! isset($this->assignments[$assignment->getWriterId()])){
+				$this->assignments[$assignment->getWriterId()] = [];
+			}
+			$this->assignments[$assignment->getWriterId()][$assignment->getPosition()] = $assignment;
+		}
+		foreach($this->assignments as $key => $val){
+			usort($this->assignments[$key], function($a, $b){return ($a->getPosition() < $b->getPosition())?-1:1;});
 		}
 	}
 
@@ -190,5 +234,21 @@ class CorrectorAdminListGUI extends WriterListGUI
 			$this->user_ids[] = $essay->getCorrectionFinalizedBy();
 			$this->user_ids[] = $essay->getWritingAuthorizedBy();
 		}
+	}
+
+	/**
+	 * @return int[]
+	 */
+	public function getCorrectionStatusStitches(): array
+	{
+		return $this->correction_status_stitches;
+	}
+
+	/**
+	 * @param int[] $correction_status_stitches
+	 */
+	public function setCorrectionStatusStitches(array $correction_status_stitches): void
+	{
+		$this->correction_status_stitches = $correction_status_stitches;
 	}
 }

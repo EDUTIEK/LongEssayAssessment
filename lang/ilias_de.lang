@@ -191,3 +191,11 @@ remove_writer_pending_assignments#:#Korrektor konnte nicht entfernt werden, da e
 remove_writer_success#:#Korrektor wurde erfolgreich entfernt.
 assign_corrector_success#:#Korrektor(en) wurden erfolgreich hinzugefügt.
 correction_status_stitch#:#Stichentscheid
+filter_writer_admin_list_all#:#Alle
+filter_writer_admin_list_attended#:#Teilgenommen
+filter_writer_admin_list_not_attended#:#Nicht Teilgenommen
+filter_writer_admin_list_with_extension#:#Mit Zeitverlängerung
+filter_corrector_admin_list_all#:#Alle
+filter_corrector_admin_list_corrected#:#Korrigiert
+filter_corrector_admin_list_not_corrected#:#Noch nicht korrigiert
+filter_corrector_admin_list_with_stitch#:#Stichentscheid gefordert

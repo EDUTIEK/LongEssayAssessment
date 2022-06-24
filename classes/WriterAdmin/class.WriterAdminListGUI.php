@@ -27,22 +27,16 @@ class WriterAdminListGUI extends WriterListGUI
 	public function getContent() :string
 	{
 		$this->loadUserData();
-		$link = $this->ctrl->getLinkTarget($this->parent, $this->parent_cmd);
-		$actions = array(
-			"Alle" => $link,
-			"Teilgenommen" => $link . "&filter=attended",
-			"Nicht Teilgenommen" => $link . "&filter=not_attended",
-			"Mit Zeitverlängerung" => $link . "&filter=with_extension",
-		);
-
-		$aria_label = "change_the_currently_displayed_mode";
-		$view_control = $this->uiFactory->viewControl()->mode($actions, $aria_label)->withActive("Alle");
 
 		$items = [];
 		$modals = [];
 
 		foreach($this->getWriters() as $writer)
 		{
+			if(!$this->isFiltered($writer)){
+				continue;
+			}
+
 			$actions = [];
 			if($this->canGetSight($writer)) {
 				$sight_modal = $this->uiFactory->modal()->lightbox($this->uiFactory->modal()->lightboxTextPage(
@@ -59,7 +53,7 @@ class WriterAdminListGUI extends WriterListGUI
 					$this->plugin->txt("authorize_writing_confirmation"),
 					$this->getAuthorizeAction($writer)
 				)->withAffectedItems([
-					$this->uiFactory->modal()->interruptiveItem($writer->getUserId(), $this->getUsername($writer->getUserId()))
+					$this->uiFactory->modal()->interruptiveItem($writer->getUserId(), $this->getWriterName($writer))
 				])->withActionButtonLabel("confirm");
 
 				$modals[] = $authorize_modal;
@@ -83,7 +77,7 @@ class WriterAdminListGUI extends WriterListGUI
 
 			$modals[] = $exclusion_modal;
 
-			$items[] = $this->uiFactory->item()->standard($this->getUsername($writer->getUserId()))
+			$items[] = $this->uiFactory->item()->standard($this->getWriterName($writer))
 				->withLeadIcon($this->uiFactory->symbol()->icon()->standard('usr', 'user', 'medium'))
 				->withProperties(array(
 					$this->plugin->txt("essay_status") => $this->essayStatus($writer),
@@ -95,7 +89,7 @@ class WriterAdminListGUI extends WriterListGUI
 
 		$resources = array_merge([$this->uiFactory->item()->group($this->plugin->txt("participants"), $items)], $modals);
 
-		return $this->renderer->render($view_control) . '<br><br>' .
+		return $this->renderer->render($this->filterControl()) . '<br><br>' .
 			$this->renderer->render($resources);
 	}
 
@@ -262,6 +256,62 @@ class WriterAdminListGUI extends WriterListGUI
 			$this->user_ids[] = $essay->getCorrectionFinalizedBy();
 			$this->user_ids[] = $essay->getWritingAuthorizedBy();
 		}
+	}
+
+	public function isFiltered(Writer $writer):bool
+	{
+		$filter = $this->getFilter();
+		$essay = null;
+		$extension = null;
+
+		if(array_key_exists($writer->getId(), $this->essays)){
+			$essay = $this->essays[$writer->getId()];
+		}
+
+		if(array_key_exists($writer->getId(), $this->extensions)){
+			$extensions = $this->extensions[$writer->getId()];
+		}
+
+		switch($filter){
+			case "attended":
+				return $essay !== null && $essay->getEditStarted() !== null;
+			case "not_attended":
+				return $essay === null || $essay->getEditStarted() === null;
+			case "with_extension":
+				return $extension !== null;
+			case "all":
+			default:
+				return true;
+		}
+	}
+
+	public function getFilter():string
+	{
+		global $DIC;
+		$query = $DIC->http()->request()->getQueryParams();
+		if(array_key_exists("filter", $query) && in_array($query["filter"], ["attended", "not_attended", "with_extension", "all"])){
+			return $query["filter"];
+		}
+		return "all";
+	}
+
+	public function filterControl()
+	{
+		$link = $this->ctrl->getLinkTarget($this->parent, $this->parent_cmd);
+		$filter = [
+			"all",
+			"attended",
+			"not_attended",
+			"with_extension"
+		];
+
+		$actions  = [];
+		foreach ($filter as $key){
+			$actions[$this->plugin->txt("filter_writer_admin_list_" . $key)] = $link . "&filter=" . $key;
+		}
+
+		$aria_label = "change_the_currently_displayed_mode";
+		return $this->uiFactory->viewControl()->mode($actions, $aria_label)->withActive($this->plugin->txt("filter_writer_admin_list_" . $this->getFilter()));
 	}
 
 //	private function dummy_writers(){

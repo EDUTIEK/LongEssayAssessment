@@ -78,6 +78,24 @@ abstract class WriterListGUI
 	}
 
 	/**
+	 * Get Writer name
+	 *
+	 * @param Writer $writer
+	 * @return string
+	 */
+	protected function getWriterName(Writer $writer): string
+	{
+		$pseudonym = "";
+
+		if($writer->getPseudonym() != "")
+		{
+			$pseudonym = " (" . $writer->getPseudonym() . ")";
+		}
+
+		return $this->getUsername($writer->getUserId()) . $pseudonym;
+	}
+
+	/**
 	 * Load needed Usernames From DB
 	 * @return void
 	 */

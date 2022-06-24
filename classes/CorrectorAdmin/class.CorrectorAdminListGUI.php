@@ -45,17 +45,13 @@ class CorrectorAdminListGUI extends WriterListGUI
 	{
 		$this->loadUserData();
 
-		$actions = array(
-			"Alle" => "all",
-			"Korrigiert" => "",
-			"Noch nicht korrigiert" => "",
-			"Stichentscheid gefordert" => "",
-		);
-
-		$aria_label = "change_the_currently_displayed_mode";
-		$view_control = $this->uiFactory->viewControl()->mode($actions, $aria_label)->withActive("Alle");
+		$items = [];
 
 		foreach ($this->writers as $writer) {
+			if(!$this->isFiltered($writer)){
+				continue;
+			}
+
 			$actions = [];
 			$actions[] = $this->uiFactory->button()->shy($this->plugin->txt('view_correction'), $this->getViewCorrectionAction($writer));
 			$actions[] = $this->uiFactory->button()->shy($this->plugin->txt('change_corrector'), $this->getChangeCorrectorAction($writer));
@@ -76,7 +72,7 @@ class CorrectorAdminListGUI extends WriterListGUI
 			}
 			$properties[$this->plugin->txt("status")] = $this->essayStatus($writer);
 
-			$items[] = $this->uiFactory->item()->standard($this->getUsername($writer->getUserId()))
+			$items[] = $this->uiFactory->item()->standard($this->getWriterName($writer))
 				->withLeadIcon($this->uiFactory->symbol()->icon()->standard('adve', 'user', 'medium'))
 				->withProperties($properties)
 				->withActions($this->uiFactory->dropdown()->standard($actions));
@@ -84,7 +80,7 @@ class CorrectorAdminListGUI extends WriterListGUI
 
 		$resources = $this->uiFactory->item()->group($this->plugin->txt("correctable_exams"), $items);
 
-		return $this->renderer->render($view_control) . '<br><br>' .
+		return $this->renderer->render($this->filterControl()) . '<br><br>' .
 			$this->renderer->render($resources);
 	}
 
@@ -250,5 +246,61 @@ class CorrectorAdminListGUI extends WriterListGUI
 	public function setCorrectionStatusStitches(array $correction_status_stitches): void
 	{
 		$this->correction_status_stitches = $correction_status_stitches;
+	}
+
+	public function isFiltered(Writer $writer):bool
+	{
+		$filter = $this->getFilter();
+		$essay = null;
+		$stitch = null;
+
+		if(array_key_exists($writer->getId(), $this->essays)){
+			$essay = $this->essays[$writer->getId()];
+		}
+
+		if($essay !== null && array_key_exists($essay->getId(), $this->correction_status_stitches)){
+			$stitch = $this->extensions[$essay->getId()];
+		}
+
+		switch($filter){
+			case "corrected":
+				return $essay !== null && $essay->getCorrectionFinalized() !== null;
+			case "not_corrected":
+				return $essay === null || $essay->getCorrectionFinalized() === null;
+			case "with_stitch":
+				return $stitch !== null;
+			case "all":
+			default:
+				return true;
+		}
+	}
+
+	public function getFilter(){
+		global $DIC;
+		$query = $DIC->http()->request()->getQueryParams();
+		if(array_key_exists("filter", $query) && in_array($query["filter"], ["all", "corrected", "not_corrected", "with_stitch"])){
+			return $query["filter"];
+		}
+		return "all";
+	}
+
+	public function filterControl()
+	{
+
+		$link = $this->ctrl->getLinkTarget($this->parent, $this->parent_cmd);
+		$filter = [
+			"all",
+			"corrected",
+			"not_corrected",
+			"with_stitch"
+		];
+
+		$actions  = [];
+		foreach ($filter as $key){
+			$actions[$this->plugin->txt("filter_corrector_admin_list_" . $key)] = $link . "&filter=" . $key;
+		}
+
+		$aria_label = "change_the_currently_displayed_mode";
+		return $this->uiFactory->viewControl()->mode($actions, $aria_label)->withActive($this->plugin->txt("filter_corrector_admin_list_" . $this->getFilter()));
 	}
 }

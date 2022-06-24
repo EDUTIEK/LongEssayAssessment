@@ -46,6 +46,7 @@ class WriterAdminGUI extends BaseGUI
 					case 'deleteWriter':
 					case 'editExtension':
 					case 'updateExtension':
+					case 'authorizeWriting':
 						$this->$cmd();
 						break;
 
@@ -218,7 +219,7 @@ class WriterAdminGUI extends BaseGUI
 			$form = $form->withRequest($this->request);
 			$data = $form->getData();
 
-			if($id = $this->getWriterId()){
+			if(($id = $this->getWriterId()) !== null ){
 				$record = $this->getExtension($id);
 			}else {
 				//TODO: ERROR
@@ -244,6 +245,31 @@ class WriterAdminGUI extends BaseGUI
 				$this->editExtension($form);
 			}
 		}
+	}
+
+	protected function authorizeWriting(){
+		global $DIC;
+
+		if (($id = $this->getWriterId()) === null){
+			ilUtil::sendSuccess($this->plugin->txt('writing_autorized'), true);
+			$this->ctrl->redirect($this, "showStartPage");
+		}
+
+		$essay_repo = LongEssayTaskDI::getInstance()->getEssayRepo();
+		$essay = $essay_repo->getEssayByWriterIdAndTaskId($id, $this->object->getId());
+
+		if($essay === null){
+			throw new Exception("No Essay found for writer.");
+		}
+
+		$datetime = new \ilDateTime(time(), IL_CAL_UNIX);
+		$essay->setWritingAuthorized($datetime->get(IL_CAL_DATETIME));
+		$essay->setWritingAuthorizedBy($DIC->user()->getId());
+
+		$essay_repo->updateEssay($essay);
+
+		ilUtil::sendSuccess($this->plugin->txt('writing_autorized'), true);
+		$this->ctrl->redirect($this, "showStartPage");
 	}
 
 	protected function getExtension(int $writer_id): ?TimeExtension

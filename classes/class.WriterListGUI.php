@@ -64,9 +64,13 @@ abstract class WriterListGUI
 	 * @param $user_id
 	 * @return mixed|string
 	 */
-	protected function getUsername($user_id){
+	protected function getUsername($user_id, $strip_img = false){
 		if(isset($this->user_data[$user_id])){
-			return $this->user_data[$user_id];
+			if($strip_img){
+				return strip_tags($this->user_data[$user_id], ["a"]);
+			}else{
+				return $this->user_data[$user_id];
+			}
 		}
 		return ' - ';
 	}

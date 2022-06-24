@@ -45,11 +45,27 @@ class WriterAdminListGUI extends WriterListGUI
 		{
 			$actions = [];
 			if($this->canGetSight($writer)) {
-				$actions[] = $this->uiFactory->button()->shy($this->plugin->txt('view_processing'), $this->getSightAction($writer));
+				$sight_modal = $this->uiFactory->modal()->lightbox($this->uiFactory->modal()->lightboxTextPage(
+					(string)$this->essays[$writer->getId()]->getProcessedText(),
+					$this->plugin->txt("submission"),
+				));
+				$modals[] = $sight_modal;
+				$actions[] = $this->uiFactory->button()->shy($this->plugin->txt('view_processing'), '')->withOnClick($sight_modal->getShowSignal());
 			}
+
 			if($this->canGetAuthorized($writer)) {
-				$actions[] = $this->uiFactory->button()->shy($this->plugin->txt('authorize_writing'), $this->getAuthorizeAction($writer));
+				$authorize_modal = $this->uiFactory->modal()->interruptive(
+					$this->plugin->txt("authorize_writing"),
+					$this->plugin->txt("authorize_writing_confirmation"),
+					$this->getAuthorizeAction($writer)
+				)->withAffectedItems([
+					$this->uiFactory->modal()->interruptiveItem($writer->getUserId(), $this->getUsername($writer->getUserId()))
+				])->withActionButtonLabel("confirm");
+
+				$modals[] = $authorize_modal;
+				$actions[] = $this->uiFactory->button()->shy($this->plugin->txt('authorize_writing'), "",)->withOnClick($authorize_modal->getShowSignal());
 			}
+
 			if($this->canGetExtension($writer)) {
 				$actions[] = $this->uiFactory->button()->shy($this->plugin->txt('extent_time'), $this->getExtensionAction($writer));
 			}
@@ -58,7 +74,9 @@ class WriterAdminListGUI extends WriterListGUI
 				$this->plugin->txt("exclude_participant"),
 				$this->plugin->txt("exclude_participant_confirmation"),
 				$this->getExclusionAction($writer)
-			)->withActionButtonLabel("remove");
+			)->withAffectedItems([
+				$this->uiFactory->modal()->interruptiveItem($writer->getUserId(), $this->getUsername($writer->getUserId()))
+				])->withActionButtonLabel("remove");
 
 			$actions[] = $this->uiFactory->button()->shy($this->plugin->txt("exclude_participant"), '')
 				->withOnClick($exclusion_modal->getShowSignal());
@@ -86,26 +104,25 @@ class WriterAdminListGUI extends WriterListGUI
 	private function canGetSight(Writer $writer){
 		if(isset($this->essays[$writer->getId()])) {
 			$essay = $this->essays[$writer->getId()];
-			return $essay->getEditEnded() === null && $essay->getEditStarted() !== null;
+			return /*$essay->getEditEnded() === null &&*/ $essay->getEditStarted() !== null;
 		}
 		return false;
-	}
-
-	private function getSightAction(Writer $writer) {
-		return "#";
 	}
 
 	private function canGetAuthorized(Writer $writer){
 		if(isset($this->essays[$writer->getId()])) {
 			$essay = $this->essays[$writer->getId()];
 
-			return $essay->getEditStarted() !== null && $essay->getWritingAuthorized() === null;
+			return $essay->getEditStarted() !== null
+				/*&& $essay->getEditEnded() !== null*/
+				&& $essay->getWritingAuthorized() === null;
 		}
 		return false;
 	}
 
 	private function getAuthorizeAction(Writer $writer) {
-		return "#";
+		$this->ctrl->setParameter($this->parent,"writer_id", $writer->getId());
+		return $this->ctrl->getFormAction($this->parent, "authorizeWriting");
 	}
 
 	private function canGetExtension(Writer $writer) {
@@ -139,22 +156,24 @@ class WriterAdminListGUI extends WriterListGUI
 		return $this->plugin->txt("writing_none_extension");
 	}
 
-	private function essayStatus(Writer $writer){
+	private function essayStatus(Writer $writer): string
+	{
 		if(isset($this->essays[$writer->getId()])){
 			$essay = $this->essays[$writer->getId()];
 
-			if($essay->getCorrectionFinalized()!== null)
+			if($essay->getCorrectionFinalized() !== null)
 			{
-				return $this->plugin->txt("writing_finalized_from") . $this->getUsername($essay->getWritingAuthorizedBy());
+				return $this->plugin->txt("writing_finalized_from") . " " .
+					$this->getUsername($essay->getWritingAuthorizedBy(), true);
 			}
 
 			if($essay->getWritingAuthorized() !== null){
-				$name = $this->plugin->txt("user");
+				$name = $this->plugin->txt("participant");
 				if($essay->getWritingAuthorizedBy() != $writer->getUserId()){
-					$name = $this->getUsername($essay->getWritingAuthorizedBy());
+					$name = $this->getUsername($essay->getWritingAuthorizedBy(), true);
 				}
 
-				return $this->plugin->txt("writing_authorized_from") . $name;
+				return $this->plugin->txt("writing_authorized_from") . " " . $name;
 			}
 
 			if($essay->getEditEnded() !== null){
@@ -177,7 +196,7 @@ class WriterAdminListGUI extends WriterListGUI
 			if(isset($this->history[$essay->getId()])){
 				$history = $this->history[$essay->getId()];
 				return \ilDatePresentation::formatDate(
-					new \ilDateTime($history->getTimestamp(),IL_CAL_UNIX));
+					new \ilDateTime($history->getTimestamp(), IL_CAL_DATETIME));
 			}
 		}
 

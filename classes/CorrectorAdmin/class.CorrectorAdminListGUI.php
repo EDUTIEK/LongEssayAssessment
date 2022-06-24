@@ -107,18 +107,19 @@ class CorrectorAdminListGUI extends WriterListGUI
 			$essay = $this->essays[$writer->getId()];
 
 			if ($essay->getCorrectionFinalized() !== null) {
-				return $this->plugin->txt("writing_finalized_from") . $this->getUsername($essay->getWritingAuthorizedBy());
+				return $this->plugin->txt("writing_finalized_from") . " " .
+					$this->getUsername($essay->getWritingAuthorizedBy(), true);
 			}
 
-			// TODO: Calc Sichtentscheid gefordert
+			// TODO: Calc Stichentscheid gefordert
 
 			if ($essay->getWritingAuthorized() !== null) {
-				$name = $this->plugin->txt("user");
+				$name = $this->plugin->txt("participant");
 				if ($essay->getWritingAuthorizedBy() != $writer->getUserId()) {
-					$name = $this->getUsername($essay->getWritingAuthorizedBy());
+					$name = $this->getUsername($essay->getWritingAuthorizedBy(), true);
 				}
 
-				return $this->plugin->txt("writing_authorized_from") . $name;
+				return $this->plugin->txt("writing_authorized_from") . " " .$name;
 			}
 
 			if ($essay->getEditEnded() !== null) {

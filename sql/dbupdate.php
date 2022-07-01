@@ -1227,3 +1227,31 @@ if (! $ilDB->tableExists('xlet_log_entry')) {
 
 }
 ?>
+<#44>
+<?php
+if (!$ilDB->tableColumnExists('xlet_log_entry','title')) {
+	$ilDB->addTableColumn('xlet_log_entry', 'title', [
+		'notnull' => '1',
+		'type' => 'text',
+		'length' => '255',
+	]);
+}
+?>
+<#45>
+<?php
+if (!$ilDB->tableColumnExists('xlet_writer_notice','title')) {
+	$ilDB->addTableColumn('xlet_writer_notice', 'title', [
+		'notnull' => '1',
+		'type' => 'text',
+		'length' => '255',
+	]);
+}
+if (!$ilDB->tableColumnExists('xlet_writer_notice','writer_id')) {
+	$ilDB->addTableColumn('xlet_writer_notice', 'writer_id', [
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+	]);
+	$ilDB->addIndex("xlet_writer_notice", array("writer_id"), "i2");
+}
+?>

@@ -151,4 +151,10 @@ class WriterDatabaseRepository implements WriterRepository
         $db->manipulate("DELETE FROM xlet_time_extension" .
             " WHERE task_id = " . $db->quote($a_task_id, "integer"));
     }
+
+
+	public function getWriterByUserIds(array $a_user_ids, int $a_task_id): array
+	{
+		return Writer::where(['task_id' => $a_task_id])->where(array( 'user_id' => $a_user_ids), 'IN')->get();
+	}
 }

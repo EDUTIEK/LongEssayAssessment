@@ -309,4 +309,9 @@ class TaskDatabaseRepository implements TaskRepository
 		$db->manipulate("DELETE FROM xlet_log_entry" .
 			" WHERE task_id = " . $DIC->database()->quote($a_task_id, "integer"));
 	}
+
+	public function getLogEntriesByTaskId(int $a_task_id): array
+	{
+		return LogEntry::where(['task_id' => $a_task_id])->get();
+	}
 }

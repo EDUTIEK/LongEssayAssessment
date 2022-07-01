@@ -58,7 +58,7 @@ class WriterAdminLogListGUI
 		}
 
 		return $this->uiFactory->item()->standard($this->uiFactory->link()->standard($notice->getTitle(),''))
-			->withLeadIcon($this->uiFactory->symbol()->icon()->standard('coms', 'coms', 'medium'))
+			->withLeadIcon($this->uiFactory->symbol()->icon()->standard('coms', 'coms', 'medium')->withIsOutlined(true))
 			->withDescription($notice->getNoticeText())
 			->withProperties(array(
 				$this->plugin->txt("log_type") => $this->plugin->txt("log_type_notice"),
@@ -71,8 +71,13 @@ class WriterAdminLogListGUI
 	private function buildLogEntry(LogEntry $log_entry) {
 
 		switch($log_entry->getCategory()){
+			case LogEntry::CATEGORY_EXCLUSION:
+			case LogEntry::CATEGORY_AUTHORIZE:
+			case LogEntry::CATEGORY_EXTENSION:
+				$icon = $this->uiFactory->symbol()->icon()->standard('pecd', 'notes', 'medium')->withIsOutlined(true);
+				break;
 			default:
-				$icon = $this->uiFactory->symbol()->icon()->standard('nots', 'notes', 'medium');
+				$icon = $this->uiFactory->symbol()->icon()->standard('nots', 'notes', 'medium')->withIsOutlined(true);
 				break;
 		}
 

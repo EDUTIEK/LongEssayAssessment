@@ -5,7 +5,9 @@ namespace ILIAS\Plugin\LongEssayTask\WriterAdmin;
 
 use ILIAS\DI\Exceptions\Exception;
 use ILIAS\Plugin\LongEssayTask\BaseGUI;
+use ILIAS\Plugin\LongEssayTask\Data\Essay;
 use ILIAS\Plugin\LongEssayTask\Data\GradeLevel;
+use ILIAS\Plugin\LongEssayTask\Data\LogEntry;
 use ILIAS\Plugin\LongEssayTask\Data\TimeExtension;
 use ILIAS\Plugin\LongEssayTask\Data\Writer;
 use ILIAS\Plugin\LongEssayTask\LongEssayTaskDI;
@@ -111,6 +113,7 @@ class WriterAdminGUI extends BaseGUI
 			ilUtil::sendFailure($this->plugin->txt("missing_writer"), true);
 			$this->ctrl->redirect($this, "showStartPage");
 		}
+		$this->createExclusionLogEntry($writer);
 
 		$writer_repo->deleteWriter($writer->getId());
 		ilUtil::sendSuccess($this->plugin->txt("remove_writer_success"), true);
@@ -238,6 +241,8 @@ class WriterAdminGUI extends BaseGUI
 					$obj_repo->createTimeExtension($record);
 				}
 
+				$this->createExtensionLogEntry($record);
+
 				ilUtil::sendSuccess($this->lng->txt("settings_saved"), true);
 				$this->ctrl->redirect($this, "showStartPage");
 			}else {
@@ -268,6 +273,8 @@ class WriterAdminGUI extends BaseGUI
 
 		$essay_repo->updateEssay($essay);
 
+		$this->createAuthorizeLogEntry($essay);
+
 		ilUtil::sendSuccess($this->plugin->txt('writing_autorized'), true);
 		$this->ctrl->redirect($this, "showStartPage");
 	}
@@ -282,5 +289,94 @@ class WriterAdminGUI extends BaseGUI
 		}
 
 		return $record;
+	}
+
+	private function createAuthorizeLogEntry(Essay $essay){
+		global $DIC;
+
+		$writer_repo = LongEssayTaskDI::getInstance()->getWriterRepo();
+		$task_repo = LongEssayTaskDI::getInstance()->getTaskRepo();
+		$writer = $writer_repo->getWriterById($essay->getWriterId());
+
+		$lng = $DIC->language();
+		$title = \ilLanguage::_lookupEntry(
+			$lng->getDefaultLanguage(),
+			$this->plugin->getPrefix(),
+			$this->plugin->getPrefix() . "_writing_authorized_log_title"
+		);
+		$description = \ilLanguage::_lookupEntry(
+			$lng->getDefaultLanguage(),
+			$this->plugin->getPrefix(),
+			$this->plugin->getPrefix() . "_writing_authorized_log_description"
+		);
+
+		$log_entry = new LogEntry();
+		$log_entry->setTitle(sprintf($title, "[user=".$writer->getUserId()."]"))
+			->setEntry(sprintf($description, "[user=".$writer->getUserId()."]", "[user=".$essay->getWritingAuthorizedBy()."]"))
+			->setTaskId($this->object->getId())
+			->setTimestamp($essay->getWritingAuthorized())
+			->setCategory(LogEntry::CATEGORY_AUTHORIZE);
+
+		$task_repo->createLogEntry($log_entry);
+	}
+
+	private function createExtensionLogEntry(TimeExtension $time_extension){
+		global $DIC;
+
+		$writer_repo = LongEssayTaskDI::getInstance()->getWriterRepo();
+		$task_repo = LongEssayTaskDI::getInstance()->getTaskRepo();
+		$writer = $writer_repo->getWriterById($time_extension->getWriterId());
+
+		$lng = $DIC->language();
+		$title = \ilLanguage::_lookupEntry(
+			$lng->getDefaultLanguage(),
+			$this->plugin->getPrefix(),
+			$this->plugin->getPrefix() . "_time_extension_log_title"
+		);
+		$description = \ilLanguage::_lookupEntry(
+			$lng->getDefaultLanguage(),
+			$this->plugin->getPrefix(),
+			$this->plugin->getPrefix() . "_time_extension_log_description"
+		);
+
+		$datetime = new \ilDateTime(time(), IL_CAL_UNIX);
+
+		$log_entry = new LogEntry();
+		$log_entry->setTitle(sprintf($title, "[user=".$writer->getUserId()."]"))
+			->setEntry(sprintf($description, "[user=".$writer->getUserId()."]", "[user=".$DIC->user()->getId()."]", $time_extension->getMinutes()))
+			->setTaskId($this->object->getId())
+			->setTimestamp($datetime->get(IL_CAL_DATETIME))
+			->setCategory(LogEntry::CATEGORY_EXTENSION);
+
+		$task_repo->createLogEntry($log_entry);
+	}
+
+	private function createExclusionLogEntry(Writer $writer){
+		global $DIC;
+		$task_repo = LongEssayTaskDI::getInstance()->getTaskRepo();
+
+		$lng = $DIC->language();
+
+		$title = \ilLanguage::_lookupEntry(
+			$lng->getDefaultLanguage(),
+			$this->plugin->getPrefix(),
+			$this->plugin->getPrefix() . "_writer_exclusion_log_title"
+		);
+		$description = \ilLanguage::_lookupEntry(
+			$lng->getDefaultLanguage(),
+			$this->plugin->getPrefix(),
+			$this->plugin->getPrefix() . "_writer_exclusion_log_description"
+		);
+
+		$datetime = new \ilDateTime(time(), IL_CAL_UNIX);
+
+		$log_entry = new LogEntry();
+		$log_entry->setTitle(sprintf($title, "[user=".$writer->getUserId()."]"))
+			->setEntry(sprintf($description, "[user=".$writer->getUserId()."]", "[user=".$DIC->user()->getId()."]"))
+			->setTaskId($this->object->getId())
+			->setTimestamp($datetime->get(IL_CAL_DATETIME))
+			->setCategory(LogEntry::CATEGORY_EXCLUSION);
+
+		$task_repo->createLogEntry($log_entry);
 	}
 }

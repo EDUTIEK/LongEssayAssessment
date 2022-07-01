@@ -8,6 +8,11 @@ namespace ILIAS\Plugin\LongEssayTask\Data;
  */
 class LogEntry extends ActivePluginRecord
 {
+	const CATEGORY_AUTHORIZE = "authorize";
+	const CATEGORY_NOTE = "note";
+	const CATEGORY_EXTENSION = "extension";
+	const CATEGORY_EXCLUSION = "exclusion";
+
     /**
      * @var string
      */

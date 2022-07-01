@@ -6,6 +6,7 @@ namespace ILIAS\Plugin\LongEssayTask\WriterAdmin;
 use ILIAS\Plugin\LongEssayTask\BaseGUI;
 use ILIAS\Plugin\LongEssayTask\Data\LogEntry;
 use ILIAS\Plugin\LongEssayTask\Data\WriterNotice;
+use ILIAS\Plugin\LongEssayTask\LongEssayTaskDI;
 use ILIAS\UI\Factory;
 use \ilUtil;
 
@@ -58,6 +59,7 @@ class WriterAdminLogGUI extends BaseGUI
             ->withOnClick($modal2->getShowSignal());
         $this->toolbar->addComponent($button2);
 
+		$task_repo = LongEssayTaskDI::getInstance()->getTaskRepo();
 
 		$list = new WriterAdminLogListGUI($this, "showStartPage", $this->plugin, $this->object->getId());
 		$list->addLogEntries([
@@ -66,6 +68,9 @@ class WriterAdminLogGUI extends BaseGUI
 				->setTitle("Teilnehmer [user=311] ohne Studentenausweis")
 				->setTimestamp((new \ilDateTime(time()+60, IL_CAL_UNIX))->get(IL_CAL_DATETIME))
 			]);
+
+		$list->addLogEntries($task_repo->getLogEntriesByTaskId($this->object->getId()));
+
 		$list->addWriterNotices([
 			(new WriterNotice())->setWriterId(6)->setTitle("Hinweis zur Angabe")
 				->setNoticeText('In Zeile 3 hat sich ein Fehler eingeschlichen. Es muss "Kauf" statt "Verkauf heißen"')

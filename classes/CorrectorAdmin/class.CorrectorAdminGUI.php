@@ -5,6 +5,8 @@ namespace ILIAS\Plugin\LongEssayTask\CorrectorAdmin;
 
 use ILIAS\Plugin\LongEssayTask\BaseGUI;
 use ILIAS\Plugin\LongEssayTask\Data\Corrector;
+use ILIAS\Plugin\LongEssayTask\Data\CorrectorAssignment;
+use ILIAS\Plugin\LongEssayTask\Data\LogEntry;
 use ILIAS\Plugin\LongEssayTask\Data\Writer;
 use ILIAS\Plugin\LongEssayTask\LongEssayTaskDI;
 use ILIAS\Plugin\LongEssayTask\WriterAdmin\CorrectorAdminListGUI;
@@ -93,8 +95,9 @@ class CorrectorAdminGUI extends BaseGUI
 				$stitches[] = $essay->getId();
 			}
 		}
+		$correction_settings = $di->getTaskRepo()->getCorrectionSettingsById($this->object->getId());
 
-		$list_gui = new CorrectorAdminListGUI($this, "showStartPage", $this->plugin);
+		$list_gui = new CorrectorAdminListGUI($this, "showStartPage", $this->plugin, $correction_settings);
 		$list_gui->setWriters($writers_repo->getWritersByTaskId($this->object->getId()));
 		$list_gui->setCorrectors($corrector_repo->getCorrectorsByTaskId($this->object->getId()));
 		$list_gui->setEssays($essays);
@@ -218,7 +221,31 @@ class CorrectorAdminGUI extends BaseGUI
 	}
 
 	protected function changeCorrector(){
-		$this->tpl->setContent("Empty!");
+		if ($this->request->getMethod() == "POST") {
+			$data = $_POST;
+
+			// inputs are ok => save data
+			if (array_key_exists("corrector", $data) && count($data["corrector"]) > 0 && array_key_exists("writer_id", $_GET)) {
+				$writer_id = $_GET["writer_id"];
+				$corr_repo = LongEssayTaskDI::getInstance()->getCorrectorRepo();
+				$corr_repo->deleteCorrectorAssignmentByWriter($writer_id);
+				$pos = 0;
+				foreach ($data["corrector"] as $corr_id){
+					if($corr_id != "" && $corr_id != "-1"){
+						$assignment = new CorrectorAssignment();
+						$assignment->setWriterId($writer_id);
+						$assignment->setCorrectorId($corr_id);
+						$assignment->setPosition($pos);
+						$corr_repo->createCorrectorAssignment($assignment);
+					}
+					$pos++;
+				}
+				ilUtil::sendSuccess($this->plugin->txt("corrector_assignment_changed"), true);
+			} else {
+				ilUtil::sendFailure($this->lng->txt("validation_error"), true);
+			}
+			$this->ctrl->redirect($this, "showStartPage");
+		}
 	}
 
 	private function getCorrectorId(): ?int

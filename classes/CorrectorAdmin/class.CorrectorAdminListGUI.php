@@ -2,12 +2,14 @@
 
 namespace ILIAS\Plugin\LongEssayTask\WriterAdmin;
 
+use ILIAS\Plugin\LongEssayTask\Data\CorrectionSettings;
 use ILIAS\Plugin\LongEssayTask\Data\Corrector;
 use ILIAS\Plugin\LongEssayTask\Data\CorrectorAssignment;
 use ILIAS\Plugin\LongEssayTask\Data\Essay;
 use ILIAS\Plugin\LongEssayTask\Data\TimeExtension;
 use ILIAS\Plugin\LongEssayTask\Data\Writer;
 use ILIAS\Plugin\LongEssayTask\Data\WriterHistory;
+use ILIAS\Plugin\LongEssayTask\LongEssayTaskDI;
 
 class CorrectorAdminListGUI extends WriterListGUI
 {
@@ -37,24 +39,39 @@ class CorrectorAdminListGUI extends WriterListGUI
 	private $assignments = [];
 
 	/**
+	 * @var CorrectionSettings
+	 */
+	private $correction_settings;
+
+	/**
 	 * @var int[]
 	 */
 	private array $correction_status_stitches = [];
+
+	public function __construct(object $parent, string $parent_cmd, \ilLongEssayTaskPlugin $plugin, CorrectionSettings $correction_settings)
+	{
+		parent::__construct($parent, $parent_cmd, $plugin);
+		$this->correction_settings = $correction_settings;
+	}
+
 
 	public function getContent():string
 	{
 		$this->loadUserData();
 
 		$items = [];
+		$modals = [];
 
 		foreach ($this->writers as $writer) {
 			if(!$this->isFiltered($writer)){
 				continue;
 			}
-
+			$change_corrector_modal = $this->buildFormModalCorrectorAssignment($writer);
+			$modals[] = $change_corrector_modal;
 			$actions = [];
 			$actions[] = $this->uiFactory->button()->shy($this->plugin->txt('view_correction'), $this->getViewCorrectionAction($writer));
-			$actions[] = $this->uiFactory->button()->shy($this->plugin->txt('change_corrector'), $this->getChangeCorrectorAction($writer));
+			$actions[] = $this->uiFactory->button()->shy($this->plugin->txt('change_corrector'), "")
+				->withOnClick($change_corrector_modal->getShowSignal());
 
 			if($this->hasCorrectionStatusStitch($writer)){
 				$actions[] = $this->uiFactory->button()->shy($this->plugin->txt('correction_status_stitch'), $this->getCorrectionStatusStitchAction($writer));
@@ -81,7 +98,7 @@ class CorrectorAdminListGUI extends WriterListGUI
 		$resources = $this->uiFactory->item()->group($this->plugin->txt("correctable_exams"), $items);
 
 		return $this->renderer->render($this->filterControl()) . '<br><br>' .
-			$this->renderer->render($resources);
+			$this->renderer->render(array_merge([$resources], $modals));
 	}
 
 	private function getAssignedCorrectorName(Writer $writer, int $pos): string
@@ -154,6 +171,76 @@ class CorrectorAdminListGUI extends WriterListGUI
 		}
 
 		return $this->plugin->txt("writing_not_started");
+	}
+
+
+	private function buildFormModalCorrectorAssignment(Writer $writer): \ILIAS\UI\Component\Modal\RoundTrip
+	{
+		$form = new \ilPropertyFormGUI();
+		$form->setId(uniqid('form'));
+
+		$options = [-1 => ""];
+
+		foreach($this->correctors as $corrector){
+			$options[$corrector->getId()] = $this->getUsername($corrector->getUserId(), true);
+		}
+
+		if($this->correction_settings->getRequiredCorrectors() > 0){
+			$cc = $this->correction_settings->getRequiredCorrectors();
+		}else{
+			$cc = 3;
+		}
+
+		for($i = 0; $i <  $cc; $i++){
+			switch($i){
+				case 0: $pos = $this->plugin->txt("first_corrector");break;
+				case 1: $pos = $this->plugin->txt("second_corrector");break;
+				default: $pos = $this->plugin->txt("assignment_pos_other");break;
+			}
+			$val = -1;
+			if(
+				array_key_exists($writer->getId(), $this->assignments)
+				&& array_key_exists($i, $this->assignments[$writer->getId()])
+			){
+				$val = $this->assignments[$writer->getId()][$i]->getCorrectorId();
+			}
+
+			$item = new \ilSelectInputGUI($pos, 'corrector[]');
+			$item->setOptions($options);
+			$item->setValue($val);
+			$form->addItem($item);
+		}
+
+		$form->setFormAction($this->getChangeCorrectorAction($writer));
+
+		$item = new \ilHiddenInputGUI('cmd');
+		$item->setValue('submit');
+		$form->addItem($item);
+
+		return $this->buildFormModal($this->plugin->txt("change_corrector"), $form);
+	}
+
+
+	private function buildFormModal(string $title, \ilPropertyFormGUI $form): \ILIAS\UI\Component\Modal\RoundTrip
+	{
+		global $DIC;
+		$factory = $DIC->ui()->factory();
+		$renderer = $DIC->ui()->renderer();
+
+		// Build the form
+		$item = new \ilHiddenInputGUI('cmd');
+		$item->setValue('submit');
+		$form->addItem($item);
+
+		// Build a submit button (action button) for the modal footer
+		$form_id = 'form_' . $form->getId();
+		$submit = $factory->button()->primary('Submit', '#')
+			->withOnLoadCode(function ($id) use ($form_id) {
+				return "$('#{$id}').click(function() { $('#{$form_id}').submit(); return false; });";
+			});
+
+		return $factory->modal()->roundtrip($title, $factory->legacy($form->getHTML()))
+			->withActionButtons([$submit]);
 	}
 
 	/**

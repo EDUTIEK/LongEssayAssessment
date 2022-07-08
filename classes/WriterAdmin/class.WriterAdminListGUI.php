@@ -180,7 +180,8 @@ class WriterAdminListGUI extends WriterListGUI
 		return $this->plugin->txt("writing_not_started");
 	}
 
-	private function lastSave(Writer $writer){
+	private function lastSave(Writer $writer): string
+	{
 
 		if(isset($this->essays[$writer->getId()])){
 			$essay = $this->essays[$writer->getId()];
@@ -193,12 +194,6 @@ class WriterAdminListGUI extends WriterListGUI
 		}
 
 		return $this->plugin->txt("writing_no_last_save");
-	}
-
-
-	public function getFilteredWriters(){
-		global $DIC;
-
 	}
 
 
@@ -269,7 +264,7 @@ class WriterAdminListGUI extends WriterListGUI
 		}
 
 		if(array_key_exists($writer->getId(), $this->extensions)){
-			$extensions = $this->extensions[$writer->getId()];
+			$extension = $this->extensions[$writer->getId()];
 		}
 
 		switch($filter){
@@ -313,37 +308,4 @@ class WriterAdminListGUI extends WriterListGUI
 		$aria_label = "change_the_currently_displayed_mode";
 		return $this->uiFactory->viewControl()->mode($actions, $aria_label)->withActive($this->plugin->txt("filter_writer_admin_list_" . $this->getFilter()));
 	}
-
-//	private function dummy_writers(){
-//		$item1 = $this->uiFactory->item()->standard($this->uiFactory->link()->standard("Theo Teststudent (theo.teststudent)",''))
-//			->withLeadIcon($this->uiFactory->symbol()->icon()->standard('usr', 'user', 'medium'))
-//			->withProperties(array(
-//				"Abgabe-Status" => "noch nicht abgegeben",
-//				"Zeitverlängerung" => "10 min",
-//				"Letzte Speicherung" => "Heute, 13:50",
-//
-//			))
-//			->withActions(
-//				$this->uiFactory->dropdown()->standard([
-//					$this->uiFactory->button()->shy('Bearbeitung einsehen', '#'),
-//					$this->uiFactory->button()->shy('Abgabe autorisieren', '#'),
-//					$this->uiFactory->button()->shy('Zeit verlängern', '#'),
-//					$this->uiFactory->button()->shy('Von Bearbeitung ausschließen', '#'),
-//
-//				]));
-//
-//		$item2 = $this->uiFactory->item()->standard($this->uiFactory->link()->standard("Thekla Teststudentin (thekla.teststudentin)", ''))
-//			->withLeadIcon($this->uiFactory->symbol()->icon()->standard('usr', 'editor', 'medium'))
-//			->withProperties(array(
-//				"Abgabe-Status" => "abgegeben",
-//				"Zeitverlängerung" => "keine",
-//				"Letzte Speicherung" => "Heute, 12:45",
-//
-//			))
-//			->withActions(
-//				$this->uiFactory->dropdown()->standard([
-//					$this->uiFactory->button()->shy('Bearbeitung einsehen', '#'),
-//				]));
-//		return [$item1, $item2];
-//	}
 }

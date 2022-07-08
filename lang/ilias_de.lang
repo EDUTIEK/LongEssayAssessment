@@ -213,7 +213,6 @@ log_type_exclusion#:#Ausschluss
 log_type_extension#:#Zeitverlängerung
 log_type_authorize#:#Authorisierung
 log_type_note#:#Notiz
-
 log_entry_text#:#Notiz
 writer_notice_text#:#Text
 writer_notice_recipient#:#Empfänger
@@ -222,3 +221,4 @@ create_log_entry#:#Notiz hinzufügen
 create_writer_notice#:#Benachrichtigung senden
 writer_notice_send#:#Benachrichtigung wurde gesendet.
 log_entry_created#:#Notiz wurde hinzugefügt.
+corrector_assignment_changed#:#Korrektorenzuweisung wurde gändert.

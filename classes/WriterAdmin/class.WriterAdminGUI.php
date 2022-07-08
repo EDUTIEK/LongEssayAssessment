@@ -181,7 +181,7 @@ class WriterAdminGUI extends BaseGUI
 
 		$fields = [];
 
-		$fields['extension'] =$factory->numeric($this->lng->txt('minutes'), $this->plugin->txt("time_extension_caption"))
+		$fields['extension'] = $factory->numeric($this->lng->txt('minutes'), $this->plugin->txt("time_extension_caption"))
 			->withRequired(true)
 			->withValue($data["extension"]);
 

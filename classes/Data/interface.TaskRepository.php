@@ -48,6 +48,7 @@ interface TaskRepository
     public function ifAlertExistsById(int $a_id): bool;
 
     public function getWriterNoticeById(int $a_id): ?WriterNotice;
+	public function getWriterNoticeByTaskId(int $a_task_id): array;
     public function ifWriterNoticeExistsById(int $a_id): bool;
 
     // Update operations

@@ -299,11 +299,6 @@ class WriterAdminGUI extends BaseGUI
 		$writer = $writer_repo->getWriterById($essay->getWriterId());
 
 		$lng = $DIC->language();
-		$title = \ilLanguage::_lookupEntry(
-			$lng->getDefaultLanguage(),
-			$this->plugin->getPrefix(),
-			$this->plugin->getPrefix() . "_writing_authorized_log_title"
-		);
 		$description = \ilLanguage::_lookupEntry(
 			$lng->getDefaultLanguage(),
 			$this->plugin->getPrefix(),
@@ -311,8 +306,7 @@ class WriterAdminGUI extends BaseGUI
 		);
 
 		$log_entry = new LogEntry();
-		$log_entry->setTitle(sprintf($title, "[user=".$writer->getUserId()."]"))
-			->setEntry(sprintf($description, "[user=".$writer->getUserId()."]", "[user=".$essay->getWritingAuthorizedBy()."]"))
+		$log_entry->setEntry(sprintf($description, "[user=".$writer->getUserId()."]", "[user=".$essay->getWritingAuthorizedBy()."]"))
 			->setTaskId($this->object->getId())
 			->setTimestamp($essay->getWritingAuthorized())
 			->setCategory(LogEntry::CATEGORY_AUTHORIZE);
@@ -328,11 +322,6 @@ class WriterAdminGUI extends BaseGUI
 		$writer = $writer_repo->getWriterById($time_extension->getWriterId());
 
 		$lng = $DIC->language();
-		$title = \ilLanguage::_lookupEntry(
-			$lng->getDefaultLanguage(),
-			$this->plugin->getPrefix(),
-			$this->plugin->getPrefix() . "_time_extension_log_title"
-		);
 		$description = \ilLanguage::_lookupEntry(
 			$lng->getDefaultLanguage(),
 			$this->plugin->getPrefix(),
@@ -342,8 +331,7 @@ class WriterAdminGUI extends BaseGUI
 		$datetime = new \ilDateTime(time(), IL_CAL_UNIX);
 
 		$log_entry = new LogEntry();
-		$log_entry->setTitle(sprintf($title, "[user=".$writer->getUserId()."]"))
-			->setEntry(sprintf($description, "[user=".$writer->getUserId()."]", "[user=".$DIC->user()->getId()."]", $time_extension->getMinutes()))
+		$log_entry->setEntry(sprintf($description, "[user=".$writer->getUserId()."]", "[user=".$DIC->user()->getId()."]", $time_extension->getMinutes()))
 			->setTaskId($this->object->getId())
 			->setTimestamp($datetime->get(IL_CAL_DATETIME))
 			->setCategory(LogEntry::CATEGORY_EXTENSION);
@@ -357,11 +345,6 @@ class WriterAdminGUI extends BaseGUI
 
 		$lng = $DIC->language();
 
-		$title = \ilLanguage::_lookupEntry(
-			$lng->getDefaultLanguage(),
-			$this->plugin->getPrefix(),
-			$this->plugin->getPrefix() . "_writer_exclusion_log_title"
-		);
 		$description = \ilLanguage::_lookupEntry(
 			$lng->getDefaultLanguage(),
 			$this->plugin->getPrefix(),
@@ -371,8 +354,7 @@ class WriterAdminGUI extends BaseGUI
 		$datetime = new \ilDateTime(time(), IL_CAL_UNIX);
 
 		$log_entry = new LogEntry();
-		$log_entry->setTitle(sprintf($title, "[user=".$writer->getUserId()."]"))
-			->setEntry(sprintf($description, "[user=".$writer->getUserId()."]", "[user=".$DIC->user()->getId()."]"))
+		$log_entry->setEntry(sprintf($description, "[user=".$writer->getUserId()."]", "[user=".$DIC->user()->getId()."]"))
 			->setTaskId($this->object->getId())
 			->setTimestamp($datetime->get(IL_CAL_DATETIME))
 			->setCategory(LogEntry::CATEGORY_EXCLUSION);

@@ -207,12 +207,18 @@ log_type_notice#:#Benachrichtigung
 log_entry_entered#:#Eingetragen
 log_entries#:#Protokolleinträge
 writing_authorized_log_description#:#Die Abgabe von %s wurde von %s nachträglich autorisiert.
-writing_authorized_log_title#:#Abgabe von %s autorisiert.
 time_extension_log_description#:#Die Zeitverlängerung von %s wurde von %s auf %s Minuten geändert.
-time_extension_log_title#:#Zeitverlängerung von %s geändert.
 writer_exclusion_log_description#:#Der Teilnehmer %s wurde von %s ausgeschlossen.
-writer_exclusion_log_title#:#Teilnehmer %s wurde ausgeschlossen.
 log_type_exclusion#:#Ausschluss
 log_type_extension#:#Zeitverlängerung
 log_type_authorize#:#Authorisierung
-log_type_note#:#Notitz
+log_type_note#:#Notiz
+
+log_entry_text#:#Notiz
+writer_notice_text#:#Text
+writer_notice_recipient#:#Empfänger
+writer_notice_recipient_all#:#Alle
+create_log_entry#:#Notiz hinzufügen
+create_writer_notice#:#Benachrichtigung senden
+writer_notice_send#:#Benachrichtigung wurde gesendet.
+log_entry_created#:#Notiz wurde hinzugefügt.

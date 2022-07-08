@@ -67,16 +67,6 @@ class LogEntry extends ActivePluginRecord
 
 
 	/**
-	 * @var string
-	 * @con_has_field        true
-	 * @con_is_notnull       true
-	 * @con_fieldtype        text
-	 * @con_length           255
-	 */
-	protected string $title = "";
-
-
-	/**
      * Entry Text (richtext)
      *
      * @var null|string
@@ -173,24 +163,6 @@ class LogEntry extends ActivePluginRecord
 	public function setEntry(?string $entry): LogEntry
 	{
 		$this->entry = $entry;
-		return $this;
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getTitle(): string
-	{
-		return $this->title;
-	}
-
-	/**
-	 * @param string $title
-	 * @return LogEntry
-	 */
-	public function setTitle(string $title): LogEntry
-	{
-		$this->title = $title;
 		return $this;
 	}
 }

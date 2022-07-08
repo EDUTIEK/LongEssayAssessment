@@ -50,16 +50,15 @@ class WriterAdminLogListGUI
 		if($notice->getWriterId() !== null){
 			$id = -1;
 			if(array_key_exists($notice->getWriterId(), $this->writer)){
-				$id = $this->writer[$notice->getWriterId()];
+				$id = $this->writer[$notice->getWriterId()]->getUserId();
 			}
 			$recipient = $this->getUsername($id);
 		}else{
 			$recipient = $this->plugin->txt("notice_recipient_all");
 		}
 
-		return $this->uiFactory->item()->standard($this->uiFactory->link()->standard($notice->getTitle(),''))
+		return $this->uiFactory->item()->standard(nl2br($notice->getNoticeText()))
 			->withLeadIcon($this->uiFactory->symbol()->icon()->standard('coms', 'coms', 'medium')->withIsOutlined(true))
-			->withDescription($notice->getNoticeText())
 			->withProperties(array(
 				$this->plugin->txt("log_type") => $this->plugin->txt("log_type_notice"),
 				$this->plugin->txt("notice_send") => $this->getFormattedTime($notice->getCreated()),
@@ -81,9 +80,8 @@ class WriterAdminLogListGUI
 				break;
 		}
 
-		return $this->uiFactory->item()->standard($this->uiFactory->link()->standard($this->replaceUserIDs($log_entry->getTitle()), ''))
+		return $this->uiFactory->item()->standard(nl2br($this->replaceUserIDs($log_entry->getEntry())))
 			->withLeadIcon($icon)
-			->withDescription($this->replaceUserIDs($log_entry->getEntry()))
 			->withProperties(array(
 				$this->plugin->txt("log_type") => $this->plugin->txt("log_type_" . $log_entry->getCategory()),
 				$this->plugin->txt("log_entry_entered") => $this->getFormattedTime($log_entry->getTimestamp()),
@@ -120,7 +118,7 @@ class WriterAdminLogListGUI
 	public function addLogEntries(array $log_entries) {
 		foreach ($log_entries as $log_entry){
 			$this->entries[$log_entry->getTimestamp()] = $log_entry;
-			$this->user_ids= array_merge($this->user_ids, $this->parseUserIDs($log_entry->getTitle()), $this->parseUserIDs($log_entry->getEntry()));
+			$this->user_ids= array_merge($this->user_ids, $this->parseUserIDs($log_entry->getEntry()));
 		}
 	}
 
@@ -139,8 +137,9 @@ class WriterAdminLogListGUI
 
 		$writer_repo = LongEssayTaskDI::getInstance()->getWriterRepo();
 		$user_ids = [];
-		foreach ($writer_repo->getWriterByUserIds($writer_ids, $this->task_id) as $writer){
-			$this->writer[$writer->getUserId()] = $writer;
+
+		foreach ($writer_repo->getWritersByTaskId($this->task_id, $writer_ids) as $writer){
+			$this->writer[$writer->getId()] = $writer;
 			$user_ids[] = $writer->getUserId();
 		}
 
@@ -156,11 +155,16 @@ class WriterAdminLogListGUI
 	}
 
 	/**
-	 * @param string $text
+	 * @param ?string $text
 	 * @return int[]
 	 */
-	private function parseUserIDs(string $text): array
+	private function parseUserIDs(?string $text): array
 	{
+		if($text === "" || $text === null)
+		{
+			return [];
+		}
+
 		$output_array = [];
 
 		preg_match_all('/\[user=(\d+)\]/', $text, $output_array);
@@ -169,10 +173,15 @@ class WriterAdminLogListGUI
 	}
 
 	/**
-	 * @param string $text
+	 * @param ?string $text
 	 * @return array|string|string[]|null
 	 */
-	private function replaceUserIDs(string $text){
+	private function replaceUserIDs(?string $text){
+		if($text === "" || $text === null)
+		{
+			return "";
+		}
+
 		return preg_replace_callback(
 			'/\[user=(\d+)\]/',
 			function ($matches) {

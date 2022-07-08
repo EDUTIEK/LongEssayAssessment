@@ -87,6 +87,11 @@ class TaskDatabaseRepository implements TaskRepository
         return $this->getWriterNoticeById($a_id) != null;
     }
 
+	public function getWriterNoticeByTaskId(int $a_task_id): array
+	{
+		return WriterNotice::where(['task_id' => $a_task_id])->get();
+	}
+
     public function getWriterNoticeById(int $a_id): ?WriterNotice
     {
         $writer_notice = WriterNotice::findOrGetInstance($a_id);

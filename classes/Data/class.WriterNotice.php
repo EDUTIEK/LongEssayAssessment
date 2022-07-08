@@ -53,15 +53,6 @@ class WriterNotice extends ActivePluginRecord
 	 */
 	protected $writer_id;
 
-	/**
-	 * @var string
-	 * @con_has_field        true
-	 * @con_is_notnull       true
-	 * @con_fieldtype        text
-	 * @con_length           255
-	 */
-	protected string $title = "";
-
     /**
      * Notice Text (richtext)
      *
@@ -155,36 +146,18 @@ class WriterNotice extends ActivePluginRecord
     }
 
 	/**
-	 * @return string
-	 */
-	public function getTitle(): string
-	{
-		return $this->title;
-	}
-
-	/**
-	 * @param string $title
-	 * @return WriterNotice
-	 */
-	public function setTitle(string $title): WriterNotice
-	{
-		$this->title = $title;
-		return $this;
-	}
-
-	/**
 	 * @return int
 	 */
-	public function getWriterId(): int
+	public function getWriterId(): ?int
 	{
 		return $this->writer_id;
 	}
 
 	/**
-	 * @param int $writer_id
+	 * @param ?int $writer_id
 	 * @return WriterNotice
 	 */
-	public function setWriterId(int $writer_id): WriterNotice
+	public function setWriterId(?int $writer_id): WriterNotice
 	{
 		$this->writer_id = $writer_id;
 		return $this;

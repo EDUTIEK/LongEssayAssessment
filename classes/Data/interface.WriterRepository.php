@@ -24,7 +24,7 @@ interface WriterRepository
 	public function getWriterByUserIds(array $a_user_ids, int $a_task_id): array;
 
     /** @return Writer[] */
-    public function getWritersByTaskId(int $a_task_id): array;
+    public function getWritersByTaskId(int $a_task_id, ?array $a_user_ids = null): array;
 
     public function ifUserExistsInTasksAsWriter(int $a_user_id, int $a_task_id): bool;
 

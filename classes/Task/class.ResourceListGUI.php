@@ -35,8 +35,9 @@ class ResourceListGUI
      * @param Factory $uiFactory
      * @param Renderer $renderer
      * @param \ilLanguage $lng
+	 * @param \ilPlugin $plugin
      */
-    public function __construct(object $target_class, Factory $uiFactory, Renderer $renderer, \ilLanguage $lng)
+    public function __construct(object $target_class, Factory $uiFactory, Renderer $renderer, \ilLanguage $lng, \ilPlugin $plugin)
     {
         global $DIC;
         $this->uiFactory = $uiFactory;
@@ -44,6 +45,7 @@ class ResourceListGUI
         $this->lng = $lng;
         $this->ctrl = $DIC->ctrl();
         $this->target_class = $target_class;
+		$this->plugin = $plugin;
     }
 
     /**
@@ -54,7 +56,7 @@ class ResourceListGUI
         $data = $this->getItemData();
 
         $ptable = $this->uiFactory->table()->presentation(
-            $this->lng->txt('task_resources'),
+            $this->plugin->txt('task_resources'),
             [],
             function (
                 PresentationRow $row,

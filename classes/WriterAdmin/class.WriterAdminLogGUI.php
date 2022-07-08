@@ -18,99 +18,151 @@ use \ilUtil;
  */
 class WriterAdminLogGUI extends BaseGUI
 {
-    /**
-     * Execute a command
-     * This should be overridden in the child classes
-     * note: permissions are already checked in the object gui
-     */
-    public function executeCommand()
-    {
-        $cmd = $this->ctrl->getCmd('showStartPage');
-        switch ($cmd)
-        {
-            case 'showStartPage':
-                $this->$cmd();
-                break;
+	/**
+	 * Execute a command
+	 * This should be overridden in the child classes
+	 * note: permissions are already checked in the object gui
+	 */
+	public function executeCommand()
+	{
+		$cmd = $this->ctrl->getCmd('showStartPage');
+		switch ($cmd) {
+			case 'showStartPage':
+			case 'createWriterNotice':
+			case 'createLogEntry':
+				$this->$cmd();
+				break;
 
-            default:
-                $this->tpl->setContent('unknown command: ' . $cmd);
-        }
-    }
+			default:
+				$this->tpl->setContent('unknown command: ' . $cmd);
+		}
+	}
 
 
-    /**
-     * Show the items
-     */
-    protected function showStartPage()
-    {
-        $modal1 = $this->uiFactory->modal()->roundtrip('Notiz hinzufügen', [
-            $this->uiFactory->input()->field()->text('Titel')->withRequired(true),
-            $this->uiFactory->input()->field()->textarea('Text')->withRequired(true)
-        ])->withActionButtons([$this->uiFactory->button()->primary('Hinzufügen','#')]);
-        $button1 = $this->uiFactory->button()->standard('Notiz hinzufügen', '#')
-            ->withOnClick($modal1->getShowSignal());
-        $this->toolbar->addComponent($button1);
+	/**
+	 * Show the items
+	 */
+	protected function showStartPage()
+	{
+		$modal_log_entry = $this->buildFormModalLogEntry();
+		$button_log_entry = $this->uiFactory->button()->standard($this->plugin->txt("create_log_entry"), '#')
+			->withOnClick($modal_log_entry->getShowSignal());
+		$this->toolbar->addComponent($button_log_entry);
 
-        $modal2 = $this->uiFactory->modal()->roundtrip('Benachrichtigung senden', [
-            $this->uiFactory->input()->field()->text('Titel')->withRequired(true),
-            $this->uiFactory->input()->field()->textarea('Text')->withRequired(true)
-        ])->withActionButtons([$this->uiFactory->button()->primary('Sende','#')]);
-        $button2 = $this->uiFactory->button()->standard('Benachrichtigung senden', '#')
-            ->withOnClick($modal2->getShowSignal());
-        $this->toolbar->addComponent($button2);
+		$modal_writer_notice = $this->buildFormModalWriterNotice();
+		$button_writer_notice = $this->uiFactory->button()->standard($this->plugin->txt("create_writer_notice"), '#')
+			->withOnClick($modal_writer_notice->getShowSignal());
+		$this->toolbar->addComponent($button_writer_notice);
 
 		$task_repo = LongEssayTaskDI::getInstance()->getTaskRepo();
 
 		$list = new WriterAdminLogListGUI($this, "showStartPage", $this->plugin, $this->object->getId());
-		$list->addLogEntries([
-			(new LogEntry())->setCategory("notice")
-				->setEntry("[user=6] hat Personalausweis vorgelegt.")
-				->setTitle("Teilnehmer [user=311] ohne Studentenausweis")
-				->setTimestamp((new \ilDateTime(time()+60, IL_CAL_UNIX))->get(IL_CAL_DATETIME))
-			]);
-
 		$list->addLogEntries($task_repo->getLogEntriesByTaskId($this->object->getId()));
+		$list->addWriterNotices($task_repo->getWriterNoticeByTaskId($this->object->getId()));
 
-		$list->addWriterNotices([
-			(new WriterNotice())->setWriterId(6)->setTitle("Hinweis zur Angabe")
-				->setNoticeText('In Zeile 3 hat sich ein Fehler eingeschlichen. Es muss "Kauf" statt "Verkauf heißen"')
-				->setCreated((new \ilDateTime(time(), IL_CAL_UNIX))->get(IL_CAL_DATETIME))
-		]);
+		$this->tpl->setContent($this->renderer->render([$modal_log_entry, $modal_writer_notice]) . $list->getContent());
+	}
 
-        $this->tpl->setContent($this->renderer->render([$modal1, $modal2]) . $list->getContent());
+	private function createWriterNotice()
+	{
+		if ($this->request->getMethod() == "POST") {
+			$data = $_POST;
 
-     }
+			// inputs are ok => save data
+			if (array_key_exists("text", $data) && array_key_exists("recipient", $data) && strlen($data["text"]) > 0 ) {
+				$writer_notice = new WriterNotice();
+				$writer_notice->setTaskId($this->object->getId());
+				$writer_notice->setCreated((new \ilDateTime(time(), IL_CAL_UNIX))->get(IL_CAL_DATETIME));
+				$writer_notice->setNoticeText($data['text']);
 
-	 private function createWriterNotice(){
+				if($data['recipient'] != -1) {
+					$writer_notice->setWriterId((int) $data['recipient']);
+				}
+				$task_repo = LongEssayTaskDI::getInstance()->getTaskRepo();
+				$task_repo->createWriterNotice($writer_notice);
 
-	 }
+				ilUtil::sendSuccess($this->plugin->txt("writer_notice_send"), true);
+			} else {
+				ilUtil::sendFailure($this->lng->txt("validation_error"), true);
+			}
+			$this->ctrl->redirect($this, "showStartPage");
+		}
+	}
 
-	 private function createLogEntry(){
+	private function createLogEntry()
+	{
 
-	 }
+		if ($this->request->getMethod() == "POST") {
+			$data = $_POST;
 
-	private function buildFormModalLogEntry()
+			// inputs are ok => save data
+			if (array_key_exists("entry", $data) && strlen($data["entry"]) > 0 ) {
+				$log_entry = new LogEntry();
+				$log_entry->setTaskId($this->object->getId());
+				$log_entry->setTimestamp((new \ilDateTime(time(), IL_CAL_UNIX))->get(IL_CAL_DATETIME));
+				$log_entry->setEntry($data['entry']);
+				$log_entry->setCategory(LogEntry::CATEGORY_NOTE);
+
+				$task_repo = LongEssayTaskDI::getInstance()->getTaskRepo();
+				$task_repo->createLogEntry($log_entry);
+
+				ilUtil::sendSuccess($this->plugin->txt("log_entry_created"), true);
+			} else {
+				ilUtil::sendFailure($this->lng->txt("validation_error"), true);
+			}
+			$this->ctrl->redirect($this, "showStartPage");
+		}
+	}
+
+	private function buildFormModalWriterNotice(): \ILIAS\UI\Component\Modal\RoundTrip
 	{
 		$form = new \ilPropertyFormGUI();
 		$form->setId(uniqid('form'));
-		$item = new \ilTextInputGUI('Firstname', 'firstname');
+
+		$options = array_replace(
+			["-1" => $this->plugin->txt("writer_notice_recipient_all")],
+			$this->getWriterNameOptions()
+		);
+
+		$item = new \ilSelectInputGUI($this->plugin->txt("writer_notice_recipient"), 'recipient');
+		$item->setOptions($options);
 		$item->setRequired(true);
 		$form->addItem($item);
-		$item = new \ilTextAreaInputGUI('Lastname', 'lastname');
+
+		$item = new \ilTextAreaInputGUI($this->plugin->txt("writer_notice_text"), 'text');
 		$item->setRequired(true);
 		$form->addItem($item);
-		$form->addItem(new \ilCountrySelectInputGUI('Country', 'country'));
-		$form->setFormAction("#");
+
+		$form->setFormAction($this->ctrl->getFormAction($this, "createWriterNotice"));
 
 		$item = new \ilHiddenInputGUI('cmd');
 		$item->setValue('submit');
 		$form->addItem($item);
 
-		return $this->buildFormModal($form);
+		return $this->buildFormModal($this->plugin->txt("create_writer_notice"), $form);
+	}
+
+	private function buildFormModalLogEntry(): \ILIAS\UI\Component\Modal\RoundTrip
+	{
+
+		$form = new \ilPropertyFormGUI();
+		$form->setId(uniqid('form'));
+
+		$item = new \ilTextAreaInputGUI($this->plugin->txt("log_entry_text"), 'entry');
+		$item->setRequired(true);
+		$form->addItem($item);
+
+		$form->setFormAction($this->ctrl->getFormAction($this, "createLogEntry"));
+
+		$item = new \ilHiddenInputGUI('cmd');
+		$item->setValue('submit');
+		$form->addItem($item);
+
+		return $this->buildFormModal($this->plugin->txt("create_log_entry"), $form);
 	}
 
 
-	private function buildFormModal(\ilPropertyFormGUI $form)
+	private function buildFormModal(string $title, \ilPropertyFormGUI $form): \ILIAS\UI\Component\Modal\RoundTrip
 	{
 		global $DIC;
 		$factory = $DIC->ui()->factory();
@@ -128,29 +180,28 @@ class WriterAdminLogGUI extends BaseGUI
 				return "$('#{$id}').click(function() { $('#{$form_id}').submit(); return false; });";
 			});
 
-		// Check if the form was submitted, if validation fails, show it again in a modal
-		$out = '';
-		$valid = true;
-		if (isset($_POST['cmd']) && $_POST['cmd'] == 'submit') {
-			if ($form->checkInput()) {
-				$panel = $factory->panel()->standard('Form validation successful', $factory->legacy(print_r($_POST, true)));
-				$out = $renderer->render($panel);
-			} else {
-				$form->setValuesByPost();
-				$valid = false;
-			}
-		}
-
-		$modal = $factory->modal()->roundtrip('User Details', $factory->legacy($form->getHTML()))
+		return $factory->modal()->roundtrip($title, $factory->legacy($form->getHTML()))
 			->withActionButtons([$submit]);
-
-		// The modal triggers its show signal on load if validation failed
-		if (!$valid) {
-			$modal = $modal->withOnLoad($modal->getShowSignal());
-		}
-		$button1 = $factory->button()->standard('Show Form', '#')
-			->withOnClick($modal->getShowSignal());
-
-		return $renderer->render([$button1, $modal]) . $out;
 	}
+
+	private function getWriterNameOptions(): array
+	{
+		$writer_repo = LongEssayTaskDI::getInstance()->getWriterRepo();
+		$writers = [];
+		foreach($writer_repo->getWritersByTaskId($this->object->getId()) as $writer){
+			$writers[$writer->getUserId()] = $writer;
+		}
+
+		$user_ids = array_map(function ($x) {
+			return $x->getUserId();
+		}, $writers);
+		$out = [];
+
+		foreach (\ilUserUtil::getNamePresentation(array_unique($user_ids), false, false, "", true) as $usr_id => $user){
+			$out[(string)$writers[$usr_id]->getId()] = $user;
+		}
+
+		return $out;
+	}
+
 }

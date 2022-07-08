@@ -59,7 +59,7 @@ class ResourcesAdminGUI extends BaseGUI
         $task_repo = $di->getTaskRepo();
         $resources = $task_repo->getResourceByTaskId($this->object->getId());
 
-        $list = new ResourceListGUI($this, $this->uiFactory, $this->renderer, $this->lng);
+        $list = new ResourceListGUI($this, $this->uiFactory, $this->renderer, $this->lng, $this->plugin);
         $list->setItems($resources);
 
         $this->tpl->setContent($list->render());

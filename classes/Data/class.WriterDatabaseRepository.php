@@ -31,9 +31,15 @@ class WriterDatabaseRepository implements WriterRepository
         return null;
     }
 
-    public function getWritersByTaskId(int $a_task_id): array
+    public function getWritersByTaskId(int $a_task_id, ?array $a_writer_ids = null): array
     {
-        return Writer::where(['task_id' => $a_task_id])->get();
+		$ar_list = Writer::where(['task_id' => $a_task_id]);
+
+		if($a_writer_ids !== null && count($a_writer_ids) > 0){
+			$ar_list = $ar_list->where(array( 'id' => $a_writer_ids), 'IN');
+		}
+
+        return $ar_list->get();
     }
 
     public function ifUserExistsInTasksAsWriter(int $a_user_id, int $a_task_id): bool
@@ -155,6 +161,10 @@ class WriterDatabaseRepository implements WriterRepository
 
 	public function getWriterByUserIds(array $a_user_ids, int $a_task_id): array
 	{
+		if(count($a_user_ids) == 0){
+			return [];
+		}
+
 		return Writer::where(['task_id' => $a_task_id])->where(array( 'user_id' => $a_user_ids), 'IN')->get();
 	}
 }

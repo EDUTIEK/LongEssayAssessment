@@ -319,4 +319,9 @@ class TaskDatabaseRepository implements TaskRepository
 	{
 		return LogEntry::where(['task_id' => $a_task_id])->get();
 	}
+
+	public function getAlertsByTaskId(int $a_task_id): array
+	{
+		return Alert::where(['task_id' => $a_task_id])->get();
+	}
 }

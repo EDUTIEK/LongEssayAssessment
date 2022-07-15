@@ -200,10 +200,8 @@ filter_corrector_admin_list_corrected#:#Korrigiert
 filter_corrector_admin_list_not_corrected#:#Noch nicht korrigiert
 filter_corrector_admin_list_with_stitch#:#Stichentscheid gefordert
 log_type#:#Typ
-notice_send#:#Gesendet
-notice_recipient#:#Empfänger
-notice_recipient_all#:#Alle
-log_type_notice#:#Benachrichtigung
+alert_send#:#Gesendet
+log_type_alert#:#Benachrichtigung
 log_entry_entered#:#Eingetragen
 log_entries#:#Protokolleinträge
 writing_authorized_log_description#:#Die Abgabe von %s wurde von %s nachträglich autorisiert.
@@ -214,11 +212,11 @@ log_type_extension#:#Zeitverlängerung
 log_type_authorize#:#Authorisierung
 log_type_note#:#Notiz
 log_entry_text#:#Notiz
-writer_notice_text#:#Text
-writer_notice_recipient#:#Empfänger
-writer_notice_recipient_all#:#Alle
+alert_text#:#Text
+alert_recipient#:#Empfänger
+alert_recipient_all#:#Alle
 create_log_entry#:#Notiz hinzufügen
-create_writer_notice#:#Benachrichtigung senden
-writer_notice_send#:#Benachrichtigung wurde gesendet.
+create_alert#:#Benachrichtigung senden
+alert_created#:#Benachrichtigung wurde gesendet.
 log_entry_created#:#Notiz wurde hinzugefügt.
 corrector_assignment_changed#:#Korrektorenzuweisung wurde gändert.

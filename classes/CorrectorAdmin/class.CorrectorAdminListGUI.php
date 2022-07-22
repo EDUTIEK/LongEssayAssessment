@@ -104,8 +104,7 @@ class CorrectorAdminListGUI extends WriterListGUI
 
 	private function getAssignedCorrectorName(Writer $writer, int $pos): string
 	{
-		if (isset($this->assignments[$writer->getId()][$pos])) {
-			$assignment = $this->assignments[$writer->getId()][$pos];
+		if(($assignment = $this->getAssignmentByWriterPosition($writer, $pos)) !== null){
 			$corrector = $this->correctors[$assignment->getCorrectorId()];
 			return $this->getUsername($corrector->getUserId());
 		}
@@ -199,11 +198,8 @@ class CorrectorAdminListGUI extends WriterListGUI
 				default: $pos = $this->plugin->txt("assignment_pos_other");break;
 			}
 			$val = -1;
-			if(
-				array_key_exists($writer->getId(), $this->assignments)
-				&& array_key_exists($i, $this->assignments[$writer->getId()])
-			){
-				$val = $this->assignments[$writer->getId()][$i]->getCorrectorId();
+			if(($ass = $this->getAssignmentByWriterPosition($writer, $i)) !== null){
+				$val = $ass->getCorrectorId();
 			}
 
 			$item = new \ilSelectInputGUI($pos, 'corrector[]');
@@ -285,6 +281,23 @@ class CorrectorAdminListGUI extends WriterListGUI
 	}
 
 	/**
+	 * @param Writer $writer
+	 * @param int $position
+	 * @return CorrectorAssignment|null
+	 */
+	private function getAssignmentByWriterPosition(Writer $writer, int $position): ?CorrectorAssignment
+	{
+		if(array_key_exists($writer->getId(), $this->assignments)) {
+			foreach($this->assignments[$writer->getId()] as $assignment){
+				if($assignment->getPosition() === $position){
+					return $assignment;
+				}
+			}
+		}
+		return null;
+	}
+
+	/**
 	 * @param CorrectorAssignment[] $assignments
 	 */
 	public function setAssignments(array $assignments): void
@@ -296,8 +309,9 @@ class CorrectorAdminListGUI extends WriterListGUI
 			$this->assignments[$assignment->getWriterId()][$assignment->getPosition()] = $assignment;
 		}
 		foreach($this->assignments as $key => $val){
-			usort($this->assignments[$key], function($a, $b){return ($a->getPosition() < $b->getPosition())?-1:1;});
+			usort($this->assignments[$key], function($a, $b){return $a->getPosition() - $b->getPosition();});
 		}
+
 	}
 
 	/**

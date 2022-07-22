@@ -169,6 +169,6 @@ class CorrectorDatabaseRepository implements CorrectorRepository
 
 	public function getAssignmentsByTaskId(int $a_task_id): array
 	{
-		return CorrectorAssignment::leftjoin("xlet_corrector", 'corrector_id', 'id')->where(['task_id' => $a_task_id])->get();
+		return CorrectorAssignment::leftjoin("xlet_corrector", 'corrector_id', 'id', [])->where(['task_id' => $a_task_id])->get();
 	}
 }

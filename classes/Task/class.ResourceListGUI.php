@@ -139,7 +139,7 @@ class ResourceListGUI
                 'headline' => $resource->getTitle(),
                 'subheadline' => $resource->getDescription(),
                 'important' => [
-                    $this->lng->txt('available') => $resource->getAvailability(),
+                    $this->plugin->txt('resource_available') => $this->plugin->txt('resource_availability_'.$resource->getAvailability()),
                     $this->renderer->render($this->uiFactory->link()->standard($label,$action))
                 ],
 				'edit_action' => $edit_action,

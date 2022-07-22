@@ -58,6 +58,7 @@ class CorrectorAdminListGUI extends WriterListGUI
 	public function getContent():string
 	{
 		$this->loadUserData();
+		$this->sortWriter();
 
 		$items = [];
 		$modals = [];

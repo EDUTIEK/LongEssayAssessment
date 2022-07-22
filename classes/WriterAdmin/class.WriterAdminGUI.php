@@ -45,10 +45,11 @@ class WriterAdminGUI extends BaseGUI
 				{
 					case 'showStartPage':
 					case 'addWriter':
-					case 'deleteWriter':
+					case 'excludeWriter':
 					case 'editExtension':
 					case 'updateExtension':
 					case 'authorizeWriting':
+					case 'repealExclusion':
 						$this->$cmd();
 						break;
 
@@ -100,7 +101,8 @@ class WriterAdminGUI extends BaseGUI
         $this->tpl->setContent($list_gui->getContent());
      }
 
-	private function deleteWriter(){
+	private function excludeWriter(){
+		global $DIC;
 		if(($id = $this->getWriterId()) === null)
 		{
 			ilUtil::sendFailure($this->plugin->txt("missing_writer_id"), true);
@@ -113,10 +115,52 @@ class WriterAdminGUI extends BaseGUI
 			ilUtil::sendFailure($this->plugin->txt("missing_writer"), true);
 			$this->ctrl->redirect($this, "showStartPage");
 		}
-		$this->createExclusionLogEntry($writer);
+		$essay_repo = LongEssayTaskDI::getInstance()->getEssayRepo();
+		$essay = $essay_repo->getEssayByWriterIdAndTaskId($writer->getId(), $this->object->getId());
 
-		$writer_repo->deleteWriter($writer->getId());
-		ilUtil::sendSuccess($this->plugin->txt("remove_writer_success"), true);
+		if($essay !== null && $essay->getEditStarted() !== null){
+			$datetime = new \ilDateTime(time(), IL_CAL_UNIX);
+			$essay->setWritingExcluded($datetime->get(IL_CAL_DATETIME));
+			$essay->setWritingExcludedBy($DIC->user()->getId());
+			$essay_repo->updateEssay($essay);
+			$this->createExclusionLogEntry($writer);
+		}else{
+			// Writer hasn't started yet and is causally deleted
+			$writer_repo->deleteWriter($writer->getId());
+		}
+
+		ilUtil::sendSuccess($this->plugin->txt("exclude_writer_success"), true);
+		$this->ctrl->redirect($this, "showStartPage");
+	}
+
+	private function repealExclusion(){
+		global $DIC;
+		if(($id = $this->getWriterId()) === null)
+		{
+			ilUtil::sendFailure($this->plugin->txt("missing_writer_id"), true);
+			$this->ctrl->redirect($this, "showStartPage");
+		}
+		$writer_repo = LongEssayTaskDI::getInstance()->getWriterRepo();
+		$writer = $writer_repo->getWriterById($id);
+		$essay_repo = LongEssayTaskDI::getInstance()->getEssayRepo();
+		$essay = $essay_repo->getEssayByWriterIdAndTaskId($writer->getId(), $this->object->getId());
+
+		if($writer === null || $writer->getTaskId() !== $this->object->getId() || $essay === null){
+			ilUtil::sendFailure($this->plugin->txt("missing_essay"), true);
+			$this->ctrl->redirect($this, "showStartPage");
+		}
+
+		if($essay->getWritingExcluded() === null){
+			ilUtil::sendFailure($this->plugin->txt("essay_not_excluded"), true);
+			$this->ctrl->redirect($this, "showStartPage");
+		}
+
+		$essay->setWritingExcluded(null);
+		$essay->setWritingExcludedBy(null);
+		$essay_repo->updateEssay($essay);
+		$this->createExclusionRepealLogEntry($writer);
+
+		ilUtil::sendSuccess($this->plugin->txt("exclude_writer_repeal_success"), true);
 		$this->ctrl->redirect($this, "showStartPage");
 	}
 
@@ -353,6 +397,29 @@ class WriterAdminGUI extends BaseGUI
 			$lng->getDefaultLanguage(),
 			$this->plugin->getPrefix(),
 			$this->plugin->getPrefix() . "_writer_exclusion_log_description"
+		);
+
+		$datetime = new \ilDateTime(time(), IL_CAL_UNIX);
+
+		$log_entry = new LogEntry();
+		$log_entry->setEntry(sprintf($description, "[user=".$writer->getUserId()."]", "[user=".$DIC->user()->getId()."]"))
+			->setTaskId($this->object->getId())
+			->setTimestamp($datetime->get(IL_CAL_DATETIME))
+			->setCategory(LogEntry::CATEGORY_EXCLUSION);
+
+		$task_repo->createLogEntry($log_entry);
+	}
+
+	private function createExclusionRepealLogEntry(Writer $writer){
+		global $DIC;
+		$task_repo = LongEssayTaskDI::getInstance()->getTaskRepo();
+
+		$lng = $DIC->language();
+
+		$description = \ilLanguage::_lookupEntry(
+			$lng->getDefaultLanguage(),
+			$this->plugin->getPrefix(),
+			$this->plugin->getPrefix() . "_writer_exclusion_repeal_log_description"
 		);
 
 		$datetime = new \ilDateTime(time(), IL_CAL_UNIX);

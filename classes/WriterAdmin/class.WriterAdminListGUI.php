@@ -65,18 +65,33 @@ class WriterAdminListGUI extends WriterListGUI
 				$actions[] = $this->uiFactory->button()->shy($this->plugin->txt('extent_time'), $this->getExtensionAction($writer));
 			}
 
-			$exclusion_modal = $this->uiFactory->modal()->interruptive(
-				$this->plugin->txt("exclude_participant"),
-				$this->plugin->txt("exclude_participant_confirmation"),
-				$this->getExclusionAction($writer)
-			)->withAffectedItems([
-				$this->uiFactory->modal()->interruptiveItem($writer->getUserId(), $this->getUsername($writer->getUserId()))
+			if($this->canGetRepealed($writer)){
+				$repeal_modal = $this->uiFactory->modal()->interruptive(
+					$this->plugin->txt("repeal_exclude_participant"),
+					$this->plugin->txt("repeal_exclude_participant_confirmation"),
+					$this->getRepealExclusionAction($writer)
+				)->withAffectedItems([
+					$this->uiFactory->modal()->interruptiveItem($writer->getUserId(), $this->getUsername($writer->getUserId()))
+				]);
+
+				$actions[] = $this->uiFactory->button()->shy($this->plugin->txt("repeal_exclude_participant"), '')
+					->withOnClick($repeal_modal->getShowSignal());
+
+				$modals[] = $repeal_modal;
+			}else{
+				$exclusion_modal = $this->uiFactory->modal()->interruptive(
+					$this->plugin->txt("exclude_participant"),
+					$this->plugin->txt("exclude_participant_confirmation"),
+					$this->getExclusionAction($writer)
+				)->withAffectedItems([
+					$this->uiFactory->modal()->interruptiveItem($writer->getUserId(), $this->getUsername($writer->getUserId()))
 				])->withActionButtonLabel("remove");
 
-			$actions[] = $this->uiFactory->button()->shy($this->plugin->txt("exclude_participant"), '')
-				->withOnClick($exclusion_modal->getShowSignal());
+				$actions[] = $this->uiFactory->button()->shy($this->plugin->txt("exclude_participant"), '')
+					->withOnClick($exclusion_modal->getShowSignal());
 
-			$modals[] = $exclusion_modal;
+				$modals[] = $exclusion_modal;
+			}
 
 			$items[] = $this->uiFactory->item()->standard($this->getWriterName($writer) . $this->getWriterAnchor($writer))
 				->withLeadIcon($this->uiFactory->symbol()->icon()->standard('usr', 'user', 'medium'))
@@ -132,9 +147,23 @@ class WriterAdminListGUI extends WriterListGUI
 		return $this->ctrl->getFormAction($this->parent, "editExtension");
 	}
 
+	private function canGetRepealed(Writer $writer){
+		if(isset($this->essays[$writer->getId()])) {
+			$essay = $this->essays[$writer->getId()];
+
+			return $essay->getWritingExcluded() !== null;
+		}
+		return false;
+	}
+
+	private function getRepealExclusionAction(Writer $writer){
+		$this->ctrl->setParameter($this->parent,"writer_id", $writer->getId());
+		return $this->ctrl->getFormAction($this->parent, "repealExclusion");
+	}
+
 	private function getExclusionAction(Writer $writer){
 		$this->ctrl->setParameter($this->parent,"writer_id", $writer->getId());
-		return $this->ctrl->getFormAction($this->parent, "deleteWriter");
+		return $this->ctrl->getFormAction($this->parent, "excludeWriter");
 	}
 
 	/**
@@ -153,6 +182,12 @@ class WriterAdminListGUI extends WriterListGUI
 	{
 		if(isset($this->essays[$writer->getId()])){
 			$essay = $this->essays[$writer->getId()];
+
+			if($essay->getWritingExcluded() !== null)
+			{
+				return $this->plugin->txt("writing_excluded_from") . " " .
+					$this->getUsername($essay->getWritingExcludedBy(), true);
+			}
 
 			if($essay->getCorrectionFinalized() !== null)
 			{
@@ -251,6 +286,7 @@ class WriterAdminListGUI extends WriterListGUI
 			$this->essays[$essay->getWriterId()] = $essay;
 			$this->user_ids[] = $essay->getCorrectionFinalizedBy();
 			$this->user_ids[] = $essay->getWritingAuthorizedBy();
+			$this->user_ids[] = $essay->getWritingExcludedBy();
 		}
 	}
 

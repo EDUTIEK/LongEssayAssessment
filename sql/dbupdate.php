@@ -1289,3 +1289,18 @@ if ($ilDB->tableColumnExists('xlet_alert','title')) {
 }
 
 ?>
+<#48>
+<?php
+if (!$ilDB->tableColumnExists('xlet_essay','writing_excluded')) {
+	$ilDB->addTableColumn('xlet_essay', 'writing_excluded', [
+		'type' => 'timestamp',
+	]);
+}
+if (!$ilDB->tableColumnExists('xlet_essay','writing_excluded_by')) {
+	$ilDB->addTableColumn('xlet_essay', 'writing_excluded_by', [
+		'notnull' => '0',
+		'type' => 'integer',
+		'length' => '4'
+	]);
+}
+?>

@@ -144,6 +144,27 @@ class Essay extends ActivePluginRecord
      */
     protected $writing_authorized_by = null;
 
+	/**
+	 * Writing excluded (datetime)
+	 *
+	 * @var string|null
+	 * @con_has_field        true
+	 * @con_is_notnull       false
+	 * @con_fieldtype        timestamp
+	 */
+	protected $writing_excluded = null;
+
+
+	/**
+	 * ILIAS user id of the user that has excluded the written text
+	 *
+	 * @var integer
+	 * @con_has_field        true
+	 * @con_is_notnull       false
+	 * @con_fieldtype        integer
+	 * @con_length           4
+	 */
+	protected $writing_excluded_by = null;
 
     /**
      * PDF version as il file id
@@ -478,6 +499,43 @@ class Essay extends ActivePluginRecord
     {
         return (new UUID())->uuid4AsString();
     }
+
+	/**
+	 * @return string|null
+	 */
+	public function getWritingExcluded(): ?string
+	{
+		return $this->writing_excluded;
+	}
+
+	/**
+	 * @param string|null $writing_excluded
+	 * @return Essay
+	 */
+	public function setWritingExcluded(?string $writing_excluded): Essay
+	{
+		$this->writing_excluded = $writing_excluded;
+		return $this;
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getWritingExcludedBy(): ?int
+	{
+		return $this->writing_excluded_by;
+	}
+
+	/**
+	 * @param int $writing_excluded_by
+	 * @return Essay
+	 */
+	public function setWritingExcludedBy(?int $writing_excluded_by): Essay
+	{
+		$this->writing_excluded_by = $writing_excluded_by;
+		return $this;
+	}
+
 
     /**
      * @return int

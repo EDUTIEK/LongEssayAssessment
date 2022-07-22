@@ -89,7 +89,7 @@ class CorrectorAdminListGUI extends WriterListGUI
 			}
 			$properties[$this->plugin->txt("status")] = $this->essayStatus($writer);
 
-			$items[] = $this->uiFactory->item()->standard($this->getWriterName($writer))
+			$items[] = $this->uiFactory->item()->standard($this->getWriterName($writer). $this->getWriterAnchor($writer))
 				->withLeadIcon($this->uiFactory->symbol()->icon()->standard('adve', 'user', 'medium'))
 				->withProperties($properties)
 				->withActions($this->uiFactory->dropdown()->standard($actions));

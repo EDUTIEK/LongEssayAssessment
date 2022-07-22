@@ -138,8 +138,12 @@ class WriterAdminGUI extends BaseGUI
 			$writer_repo->createWriter($writer);
 		}
 
+		if(count($a_usr_ids) == 1){
+			$anchor =  "user_" . $a_usr_ids[0];
+		}
+
 		ilUtil::sendSuccess($this->plugin->txt("assign_writer_success"), true);
-		$this->ctrl->redirect($this,"showStartPage");
+		$this->ctrl->redirect($this,"showStartPage", $anchor ?? "");
 	}
 
 	private function getWriterId(): ?int
@@ -244,7 +248,7 @@ class WriterAdminGUI extends BaseGUI
 				$this->createExtensionLogEntry($record);
 
 				ilUtil::sendSuccess($this->lng->txt("settings_saved"), true);
-				$this->ctrl->redirect($this, "showStartPage");
+				$this->ctrl->redirect($this, "showStartPage", "writer_" . $id);
 			}else {
 				ilUtil::sendFailure($this->lng->txt("validation_error"), false);
 				$this->editExtension($form);
@@ -276,7 +280,7 @@ class WriterAdminGUI extends BaseGUI
 		$this->createAuthorizeLogEntry($essay);
 
 		ilUtil::sendSuccess($this->plugin->txt('writing_autorized'), true);
-		$this->ctrl->redirect($this, "showStartPage");
+		$this->ctrl->redirect($this, "showStartPage", "writer_" . $id);
 	}
 
 	protected function getExtension(int $writer_id): ?TimeExtension

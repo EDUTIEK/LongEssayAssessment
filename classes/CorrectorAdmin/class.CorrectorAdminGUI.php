@@ -241,10 +241,11 @@ class CorrectorAdminGUI extends BaseGUI
 					$pos++;
 				}
 				ilUtil::sendSuccess($this->plugin->txt("corrector_assignment_changed"), true);
+				$anchor = "writer_" . $writer_id;
 			} else {
 				ilUtil::sendFailure($this->lng->txt("validation_error"), true);
 			}
-			$this->ctrl->redirect($this, "showStartPage");
+			$this->ctrl->redirect($this, "showStartPage", $anchor ?? "");
 		}
 	}
 

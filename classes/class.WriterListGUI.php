@@ -104,4 +104,15 @@ abstract class WriterListGUI
 		$back = $this->ctrl->getLinkTarget($this->parent);
 		$this->user_data = \ilUserUtil::getNamePresentation(array_unique($this->user_ids), true, true, $back, true);
 	}
+
+	/**
+	 * @param Writer $writer
+	 * @return string
+	 */
+	protected function getWriterAnchor(Writer $writer): string
+	{
+		$user_id = $writer->getUserId();
+		$writer_id = $writer->getId();
+		return "<blankanchor id='writer_$writer_id'><blankanchor id='user_$user_id'>";
+	}
 }

@@ -10,6 +10,9 @@ use ILIAS\Plugin\LongEssayTask\LongEssayTaskDI;
 
 class WriterAdminLogListGUI
 {
+	const MODE_ATTR = "mode";
+	const PAGE_ATTR = "page";
+	const PAGE_SIZE = 10;
 	/**
 	 * @var mixed[]
 	 */
@@ -97,9 +100,18 @@ class WriterAdminLogListGUI
 		} catch (\ilDateTimeException $e) {
 		}
 
+
+
 		$items = [];
+		$count = 0;
+		$start = $this->getActualPage() * self::PAGE_SIZE;
+		$end = ($this->getActualPage() * self::PAGE_SIZE) + self::PAGE_SIZE;
 
 		foreach($this->entries as $key => $entry){
+			$count ++;
+			if($count <= $start || $count > $end){
+				continue;
+			}
 			if($entry instanceof Alert){
 				$items[] = $this->buildAlert($entry);
 			}elseif ($entry instanceof LogEntry){
@@ -109,7 +121,54 @@ class WriterAdminLogListGUI
 
 		$resources = $this->uiFactory->item()->group($this->plugin->txt("log_entries"), $items);
 
-		return $this->renderer->render([$resources]);
+		return $this->renderer->render(array_merge(
+			[$this->buildModeControl(), $this->uiFactory->legacy("</br></br>")],
+			$this->surroundWithPagination($resources)
+			));
+	}
+
+	private function surroundWithPagination($component){
+
+		if (count($this->entries) > self::PAGE_SIZE){
+			$uis = [];
+			$pagination = $this->uiFactory->viewControl()->pagination()
+				->withTargetURL($this->ctrl->getLinkTarget($this->parent, $this->parent_cmd), self::PAGE_ATTR)
+				->withTotalEntries(count($this->entries))
+				->withPageSize(self::PAGE_SIZE)
+				->withCurrentPage($this->getActualPage());
+
+			$uis[] = $pagination;
+			if(is_array($component)){
+				foreach ($component as $subcomp){
+					$uis[] = $subcomp;
+				}
+			}else{
+				$uis[] = $component;
+			}
+
+			$uis[] = $pagination;
+			return $uis;
+		}
+		return [$component];
+	}
+
+	private function buildModeControl()
+	{
+		$target = $this->ctrl->getLinkTarget($this->parent, $this->parent_cmd);
+		$param = self::MODE_ATTR;
+
+		$active = $this->getActualMode();
+
+		$modes = ["all", "alert", "note", "exclusion", "extension", "authorize"];
+		$actions = [];
+
+		foreach($modes as $mode)
+		{
+			$actions[$this->plugin->txt("log_type_" . $mode)] = "$target&$param=$mode";
+		}
+
+		$aria_label = "change_the_currently_displayed_mode";
+		return $this->uiFactory->viewControl()->mode($actions, $aria_label)->withActive($this->plugin->txt("log_type_" . $active));
 	}
 
 	/**
@@ -118,6 +177,10 @@ class WriterAdminLogListGUI
 	 */
 	public function addLogEntries(array $log_entries) {
 		foreach ($log_entries as $log_entry){
+			if(!in_array($this->getActualMode(), ["all", $log_entry->getCategory()])){
+				continue;
+			}
+
 			$this->entries[$log_entry->getTimestamp()] = $log_entry;
 			$this->user_ids= array_merge($this->user_ids, $this->parseUserIDs($log_entry->getEntry()));
 		}
@@ -128,6 +191,10 @@ class WriterAdminLogListGUI
 	 * @return void
 	 */
 	public function addAlerts(array $alerts) {
+		if(!in_array($this->getActualMode(), ["all", "alert"])){
+			return;
+		}
+
 		$writer_ids = [];
 
 		foreach ($alerts as $alert) {
@@ -232,4 +299,13 @@ class WriterAdminLogListGUI
 			return " - ";
 		}
 	}
+
+	private function getActualPage(){
+		return $_GET[self::PAGE_ATTR] ?? 0;
+	}
+
+	private function getActualMode(){
+		return $_GET[self::MODE_ATTR] ?? "all";
+	}
+
 }

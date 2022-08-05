@@ -37,6 +37,7 @@ interface EssayRepository
 
     public function getEssayByWriterIdAndTaskId(int $a_writer_id, int $a_task_id): ?Essay;
 
+    /** @return Essay[] */
 	public function getEssaysByTaskId(int $a_task_id): array;
 
     public function ifEssayExistsById(int $a_id): bool;

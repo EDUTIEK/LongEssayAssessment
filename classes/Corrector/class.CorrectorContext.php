@@ -243,17 +243,19 @@ class CorrectorContext extends ServiceContext implements Context
      */
     public function getCorrectionSummary(string $item_key, string $corrector_key): ?CorrectionSummary
     {
+        $repoCorrector = $this->di->getCorrectorRepo()->getCorrectorById((int) $corrector_key);
         $essayRepo = $this->di->getEssayRepo();
         if (!empty($repoEssay = $essayRepo->getEssayByWriterIdAndTaskId((int) $item_key, $this->task->getTaskId()))) {
             if (!empty($repoSummary = $essayRepo->getCorrectorSummaryByEssayIdAndCorrectorId(
-                $repoEssay->getId(), (int) $corrector_key)
+                $repoEssay->getId(), $repoCorrector->getId())
             )) {
                 return new CorrectionSummary(
                     $repoSummary->getSummaryText(),
                     $repoSummary->getPoints(),
                     $repoSummary->getGradeLevelId() ? (string) $repoSummary->getGradeLevelId() : null,
                     $this->data->dbTimeToUnix($repoSummary->getLastChange()),
-                    !empty($repoSummary->getCorrectionAuthorized())
+                    !empty($repoSummary->getCorrectionAuthorized()),
+                    \ilObjUser::_lookupFullname($repoCorrector->getUserId())
                 );
             }
         }

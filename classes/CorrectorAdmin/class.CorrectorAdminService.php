@@ -3,14 +3,25 @@
 
 namespace ILIAS\Plugin\LongEssayTask\CorrectorAdmin;
 
+use Edutiek\LongEssayService\Corrector\Service;
+use Edutiek\LongEssayService\Data\CorrectionSummary;
+use Edutiek\LongEssayService\Data\DocuItem;
+use Edutiek\LongEssayService\Data\WritingTask;
+use Edutiek\LongEssayService\Data\WrittenEssay;
 use ILIAS\Plugin\LongEssayTask\BaseService;
+use ILIAS\Plugin\LongEssayTask\Corrector\CorrectorContext;
 use ILIAS\Plugin\LongEssayTask\Data\CorrectionSettings;
 use ILIAS\Plugin\LongEssayTask\Data\Corrector;
 use ILIAS\Plugin\LongEssayTask\Data\CorrectorAssignment;
 use ILIAS\Plugin\LongEssayTask\Data\CorrectorRepository;
 use ILIAS\Plugin\LongEssayTask\Data\CorrectorSummary;
+use ILIAS\Plugin\LongEssayTask\Data\DataService;
 use ILIAS\Plugin\LongEssayTask\Data\Essay;
+use ILIAS\Plugin\LongEssayTask\Data\EssayRepository;
+use ILIAS\Plugin\LongEssayTask\Data\TaskRepository;
 use ILIAS\Plugin\LongEssayTask\Data\WriterRepository;
+use ILIAS\Plugin\LongEssayTask\Writer\WriterContext;
+use ILIAS\Data\UUID\Factory as UUID;
 
 /**
  * Service for maintaining correctors (business logic)
@@ -30,6 +41,15 @@ class CorrectorAdminService extends BaseService
     /** @var CorrectorRepository */
     protected $correctorRepo;
 
+    /** @var EssayRepository */
+    protected $essayRepo;
+
+    /** @var TaskRepository */
+    protected $taskRepo;
+
+    /** @var DataService */
+    protected $dataService;
+
     /**
      * @inheritDoc
      */
@@ -42,6 +62,9 @@ class CorrectorAdminService extends BaseService
 
         $this->writerRepo = $this->localDI->getWriterRepo();
         $this->correctorRepo = $this->localDI->getCorrectorRepo();
+        $this->essayRepo = $this->localDI->getEssayRepo();
+        $this->taskRepo = $this->localDI->getTaskRepo();
+        $this->dataService = $this->object->getDataService();
     }
 
     /**
@@ -217,6 +240,73 @@ class CorrectorAdminService extends BaseService
         }
 
         return true;
+    }
+
+    /**
+     * Create an export file for the corrections
+     * @return string   file path of the export
+     */
+    public function createCorrectionsExport() : string
+    {
+        $context = new CorrectorContext();
+        $context->init((string) $this->dic->user()->getId(), (string) $this->object->getRefId());
+        $service = new Service($context);
+
+        $storage = $this->dic->filesystem()->temp();
+        $basedir = ILIAS_DATA_DIR . '/' . CLIENT_ID . '/temp';
+        $tempdir = 'xlet/'. (new UUID)->uuid4AsString();
+        $zipdir = $tempdir . '/' . \ilUtil::getASCIIFilename($this->object->getTitle());
+        $storage->createDir($zipdir);
+
+        $repoTask = $this->taskRepo->getTaskSettingsById($this->object->getId());
+        foreach ($this->essayRepo->getEssaysByTaskId($repoTask->getTaskId()) as $repoEssay) {
+            $repoWriter = $this->writerRepo->getWriterById($repoEssay->getWriterId());
+
+            $writingTask = new WritingTask(
+                $this->object->getTitle(),
+                $repoTask->getInstructions(),
+                \ilObjUser::_lookupFullname($repoWriter->getUserId()),
+                $this->dataService->dbTimeToUnix($repoTask->getWritingEnd())
+            );
+            $writtenEssay = $context->getEssayOfItem((string) $repoWriter->getId());
+
+            $correctionSummaries = [];
+            foreach ($this->correctorRepo->getAssignmentsByWriterId($repoWriter->getId()) as $assignment) {
+                $repoCorrector = $this->correctorRepo->getCorrectorById($assignment->getCorrectorId());
+                $correctionSummaries[] = $context->getCorrectionSummary((string) $repoWriter->getId(), (string) $repoCorrector->getId());
+            }
+
+            $item = new DocuItem(
+                $writingTask,
+                $writtenEssay,
+                $correctionSummaries
+            );
+
+            $filename = \ilUtil::getASCIIFilename(
+                \ilObjUser::_lookupFullname($repoWriter->getUserId()) . ' (' . \ilObjUser::_lookupLogin($repoWriter->getUserId()) . ')') . '.pdf';
+
+            $storage->write($zipdir . '/'. $filename, $service->getCorrectionAsPdf($item));
+        }
+
+        $zipfile = $basedir . '/' . $tempdir . '/' . \ilUtil::getASCIIFilename($this->object->getTitle()) . '.zip';
+        \ilUtil::zip($basedir . '/' . $zipdir, $zipfile);
+
+        $storage->deleteDir($zipdir);
+        return $zipfile;
+
+        // check if that can be used without abolute path
+        // then also the tempdir can be deleted
+        //$delivery = new \ilFileDelivery()
+    }
+
+
+    public function createResultsExport() : string
+    {
+        $context = new CorrectorContext();
+        $context->init((string) $this->dic->user()->getId(), (string) $this->object->getRefId());
+
+
+
     }
 
 

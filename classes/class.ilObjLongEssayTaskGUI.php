@@ -378,11 +378,6 @@ class ilObjLongEssayTaskGUI extends ilObjectPluginGUI
 				'txt' => $this->plugin->txt('tab_corrector_list'),
 				'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessaytask\correctorAdmin\correctoradmingui', "showCorrectors")
 			];
-            $tabs[] = [
-                'id' => 'tab_corrector_export',
-                'txt' => $this->plugin->txt('tab_corrector_export'),
-                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessaytask\correctorAdmin\correctoradmingui')
-            ];
         }
         if (!empty($tabs)) {
             $this->tabs->addTab('tab_corrector_admin', $this->plugin->txt('tab_corrector_admin'), $tabs[0]['url']);

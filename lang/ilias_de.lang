@@ -63,7 +63,6 @@ tab_corrector_start#:#zugeteilte Abgaben
 tab_writer_admin#:#Teilnehmerverwaltung
 tab_writer_admin_log#:#Aufsichtsprotokoll
 tab_corrector_admin#:#Korrektorenverwaltung
-tab_corrector_export#:#Abgaben exportieren
 object_settings#:#Objekt-Einstellungen
 participation_type#:#Teilnahme
 participation_type_fixed#:#Vorgegeben
@@ -222,3 +221,4 @@ create_writer_notice#:#Benachrichtigung senden
 writer_notice_send#:#Benachrichtigung wurde gesendet.
 log_entry_created#:#Notiz wurde hinzugefügt.
 corrector_assignment_changed#:#Korrektorenzuweisung wurde gändert.
+export_corrections#:#Korrekturen exportieren

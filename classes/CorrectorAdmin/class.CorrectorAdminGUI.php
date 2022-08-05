@@ -3,15 +3,16 @@
 
 namespace ILIAS\Plugin\LongEssayTask\CorrectorAdmin;
 
+use Edutiek\LongEssayService\Corrector\Service;
+use Edutiek\LongEssayService\Data\DocuItem;
 use ILIAS\Plugin\LongEssayTask\BaseGUI;
+use ILIAS\Plugin\LongEssayTask\Corrector\CorrectorContext;
 use ILIAS\Plugin\LongEssayTask\Data\Corrector;
 use ILIAS\Plugin\LongEssayTask\Data\CorrectorAssignment;
-use ILIAS\Plugin\LongEssayTask\Data\LogEntry;
-use ILIAS\Plugin\LongEssayTask\Data\Writer;
 use ILIAS\Plugin\LongEssayTask\LongEssayTaskDI;
+use ILIAS\Plugin\LongEssayTask\Writer\WriterContext;
 use ILIAS\Plugin\LongEssayTask\WriterAdmin\CorrectorAdminListGUI;
 use ILIAS\Plugin\LongEssayTask\WriterAdmin\CorrectorListGUI;
-use ILIAS\UI\Factory;
 use \ilUtil;
 
 /**
@@ -59,6 +60,7 @@ class CorrectorAdminGUI extends BaseGUI
 					case 'assignWriters':
 					case 'changeCorrector':
 					case 'removeCorrector':
+                    case 'exportCorrections':
 						$this->$cmd();
 						break;
 
@@ -76,6 +78,7 @@ class CorrectorAdminGUI extends BaseGUI
     {
         $this->toolbar->setFormAction($this->ctrl->getFormAction($this));
 		$assign_writers_action = $this->ctrl->getLinkTarget($this, "assignWriters");
+        $export_corrections_action =  $this->ctrl->getLinkTarget($this, "exportCorrections");
 
         $button = \ilLinkButton::getInstance();
         $button->setUrl($assign_writers_action);
@@ -83,7 +86,13 @@ class CorrectorAdminGUI extends BaseGUI
         $button->setPrimary(true);
         $this->toolbar->addButtonInstance($button);
 
-		$di = LongEssayTaskDI::getInstance();
+        $button = \ilLinkButton::getInstance();
+        $button->setUrl($export_corrections_action);
+        $button->setCaption($this->plugin->txt("export_corrections"), false);
+        $this->toolbar->addButtonInstance($button);
+
+
+        $di = LongEssayTaskDI::getInstance();
 		$writers_repo = $di->getWriterRepo();
 		$corrector_repo = $di->getCorrectorRepo();
 		$essay_repo = $di->getEssayRepo();
@@ -247,6 +256,13 @@ class CorrectorAdminGUI extends BaseGUI
 			$this->ctrl->redirect($this, "showStartPage");
 		}
 	}
+
+
+    protected function exportCorrections()
+    {
+        $filename = \ilUtil::getASCIIFilename('Korrektur ' .$this->object->getTitle()) . '.zip';
+        ilUtil::deliverFile($this->service->createCorrectionsExport(), $filename, 'application/zip', true, true);
+    }
 
 	private function getCorrectorId(): ?int
 	{

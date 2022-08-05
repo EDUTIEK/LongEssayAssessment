@@ -343,7 +343,7 @@ class WriterAdminGUI extends BaseGUI
 
 		$this->createAuthorizeLogEntry($essay);
 
-		ilUtil::sendSuccess($this->plugin->txt('writing_autorized'), true);
+		ilUtil::sendSuccess($this->plugin->txt('writing_authorized'), true);
 		$this->ctrl->redirect($this, "showStartPage", "writer_" . $id);
 	}
 

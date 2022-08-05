@@ -50,14 +50,21 @@ class GradesAdminGUI extends BaseGUI
 		$item_data = [];
 
 		foreach($records as $record){
+
+			$important = [
+				$this->plugin->txt('min_points').":" => $record->getMinPoints(),
+				$this->plugin->txt('passed').":" => $record->isPassed() ? $this->lng->txt('yes') : $this->lng->txt('no')
+			];
+
+			if($record->getCode() !== null && $record->getCode() !== ""){
+				$important[$this->plugin->txt('grade_level_code')] = $record->getCode();
+			}
+
 			$item_data[] = [
 				'id' => $record->getId(),
 				'headline' => $record->getGrade(),
 				'subheadline' => '',
-				'important' => [
-					$this->plugin->txt('min_points') => $record->getMinPoints(),
-					$record->getGrade()
-				],
+				'important' => $important,
 			];
 		}
 
@@ -75,6 +82,20 @@ class GradesAdminGUI extends BaseGUI
         $button->setCaption($this->plugin->txt("add_grade_level"), false);
         $this->toolbar->addButtonInstance($button);
 
+		$can_delete = true;
+		$task_repo = LongEssayTaskDI::getInstance()->getTaskRepo();
+		$settings = $task_repo->getTaskSettingsById($this->object->getId());
+
+		if($settings->getCorrectionStart() !== null) {
+			$correction_start = new \ilDateTime($settings->getCorrectionStart(), IL_CAL_DATETIME);
+
+			$today = new \ilDateTime(time(), IL_CAL_UNIX);
+
+			$can_delete = !\ilDate::_after($today, $correction_start);
+			var_dump($can_delete, $correction_start->get(IL_CAL_DATETIME), $today->get(IL_CAL_DATETIME),\ilDate::_after($today, $correction_start));
+		}
+
+
 
         $ptable = $this->uiFactory->table()->presentation(
             $this->plugin->txt('grade_levels'),
@@ -83,28 +104,40 @@ class GradesAdminGUI extends BaseGUI
                 PresentationRow $row,
                 array $record,
                 Factory $ui_factory,
-                $environment) {
+                $environment) use ($can_delete)  {
 
 				$this->setGradeLevelId($record["id"]);
 				$edit_link = $this->ctrl->getLinkTarget($this, "editItem");
 				$this->setGradeLevelId($record["id"]);
 				$delete_link = $this->ctrl->getLinkTarget($this, "deleteItem");
 
+				$approve_modal = $ui_factory->modal()->interruptive(
+					$this->plugin->txt("delete_grade_level"),
+					$this->plugin->txt("delete_grade_level_confirmation"),
+					$delete_link
+				)->withAffectedItems([
+					$ui_factory->modal()->interruptiveItem($record["id"], $record['headline'])
+				]);
+
+				if($can_delete){
+					$action = $ui_factory->dropdown()->standard([
+						$ui_factory->button()->shy($this->lng->txt('edit'), $edit_link),
+						$ui_factory->button()->shy($this->lng->txt('delete'), '')
+							->withOnClick($approve_modal->getShowSignal())
+					])->withLabel($this->lng->txt("actions"));
+				}else
+				{
+					$action = $ui_factory->button()->standard($this->lng->txt('edit'), $edit_link);
+				}
+
                 return $row
-                    ->withHeadline($record['headline'])
+                    ->withHeadline($record['headline']. $this->renderer->render($approve_modal))
                     //->withSubheadline($record['subheadline'])
                     ->withImportantFields($record['important'])
                     ->withContent($ui_factory->listing()->descriptive([$this->lng->txt("description")=> $record['subheadline']]))
                     ->withFurtherFieldsHeadline('')
                     ->withFurtherFields($record['important'])
-                    ->withAction(
-                        $ui_factory->dropdown()->standard([
-                            $ui_factory->button()->shy($this->lng->txt('edit'), $edit_link),
-                            $ui_factory->button()->shy($this->lng->txt('delete'), $delete_link)
-                            ])
-                            ->withLabel($this->lng->txt("actions"))
-                    )
-                    ;
+                    ->withAction($action);
             }
         );
 
@@ -129,9 +162,17 @@ class GradesAdminGUI extends BaseGUI
 			->withRequired(true)
 			->withValue($data["grade"]);
 
-		$fields['points'] =$factory->numeric($this->plugin->txt('min_points'), $this->plugin->txt("min_points_caption"))
+		$fields['code'] = $factory->text($this->plugin->txt("grade_level_code"), $this->plugin->txt("grade_level_code_caption"))
+			->withRequired(false)
+			->withValue($data["code"]!== null ? $data["code"] : "");
+
+		$fields['points'] = $factory->numeric($this->plugin->txt('min_points'), $this->plugin->txt("min_points_caption"))
 			->withRequired(true)
-			->withValue($data["points"]);
+			->withValue((int)$data["points"]);
+
+		$fields['passed'] =$factory->checkbox($this->plugin->txt('passed'), $this->plugin->txt("passed_caption"))
+			->withRequired(true)
+			->withValue($data["passed"]);
 
 		$sections['form'] = $factory->section($fields, $section_title);
 
@@ -142,7 +183,9 @@ class GradesAdminGUI extends BaseGUI
 	protected function updateItem(){
 		$form = $this->buildEditForm([
 			"grade" => "",
-			"points" => 0
+			"points" => 0,
+			"code" => "",
+			"passed" => false
 		]);
 
 		if ($this->request->getMethod() == "POST") {
@@ -160,6 +203,8 @@ class GradesAdminGUI extends BaseGUI
 			if (isset($data)) {
 				$record->setGrade($data["form"]["grade"]);
 				$record->setMinPoints($data["form"]["points"]);
+				$record->setCode($data["form"]["code"]);
+				$record->setPassed($data["form"]["passed"]);
 				$obj_repo  = LongEssayTaskDI::getInstance()->getObjectRepo();
 
 				if($id !== null){
@@ -188,12 +233,16 @@ class GradesAdminGUI extends BaseGUI
 				$record = $this->getGradeLevel($id);
 				$form = $this->buildEditForm([
 					"grade" => $record->getGrade(),
-					"points" => $record->getMinPoints()
+					"points" => $record->getMinPoints(),
+					"code" => $record->getCode(),
+					"passed" => $record->isPassed()
 				]);
 			}else {
 				$form = $this->buildEditForm([
 					"grade" => "",
-					"points" => 0
+					"points" => 0,
+					"code" => "",
+					"passed" => false
 				]);
 			}
 		}

@@ -59,6 +59,26 @@ class GradeLevel extends ActivePluginRecord
      */
     protected $grade = "";
 
+	/**
+	 * @var string
+	 * @con_has_field        true
+	 * @con_is_notnull       false
+	 * @con_fieldtype        text
+	 * @con_length           255
+	 */
+	protected $code = "";
+
+	/**
+	 * Bestanden flag
+	 *
+	 * @var int
+	 * @con_has_field        true
+	 * @con_is_notnull       true
+	 * @con_fieldtype        integer
+	 * @con_length           1
+	 */
+	protected $passed = 0;
+
     /**
      * @return int
      */
@@ -130,6 +150,44 @@ class GradeLevel extends ActivePluginRecord
         $this->grade = $grade;
         return $this;
     }
+
+	/**
+	 * @return ?string
+	 */
+	public function getCode(): ?string
+	{
+		return $this->code;
+	}
+
+	/**
+	 * @param ?string $code
+	 * @return GradeLevel
+	 */
+	public function setCode(?string $code): GradeLevel
+	{
+		$this->code = $code;
+		return $this;
+	}
+
+	/**
+	 * @return int
+	 */
+	public function isPassed(): bool
+	{
+		return $this->passed == 1;
+	}
+
+	/**
+	 * @param bool $passed
+	 * @return GradeLevel
+	 */
+	public function setPassed(bool $passed): GradeLevel
+	{
+		$this->passed = $passed ? 1 : 0;
+		return $this;
+	}
+
+
 
 
 }

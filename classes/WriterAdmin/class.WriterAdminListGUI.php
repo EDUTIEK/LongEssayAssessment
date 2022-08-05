@@ -92,9 +92,8 @@ class WriterAdminListGUI extends WriterListGUI
 
 				$modals[] = $exclusion_modal;
 			}
-
-			$items[] = $this->uiFactory->item()->standard($this->getWriterName($writer) . $this->getWriterAnchor($writer))
-				->withLeadIcon($this->uiFactory->symbol()->icon()->standard('usr', 'user', 'medium'))
+			$items[] = $this->uiFactory->item()->standard($this->getWriterName($writer, true) . $this->getWriterAnchor($writer))
+				->withLeadIcon($this->getWriterIcon($writer))
 				->withProperties(array(
 					$this->plugin->txt("pseudonym") => $writer->getPseudonym(),
 					$this->plugin->txt("essay_status") => $this->essayStatus($writer),

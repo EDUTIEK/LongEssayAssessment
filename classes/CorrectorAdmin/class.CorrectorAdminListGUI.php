@@ -78,7 +78,10 @@ class CorrectorAdminListGUI extends WriterListGUI
 				$actions[] = $this->uiFactory->button()->shy($this->plugin->txt('correction_status_stitch'), $this->getCorrectionStatusStitchAction($writer));
 			}
 
-			$properties = [$this->plugin->txt("pseudonym") => $writer->getPseudonym()];
+			$properties = [
+				$this->plugin->txt("pseudonym") => $writer->getPseudonym(),
+				$this->plugin->txt("status") => $this->essayStatus($writer)
+			];
 
 			foreach($this->getAssignmentsByWriter($writer) as $assignment){
 				switch($assignment->getPosition()){
@@ -88,10 +91,9 @@ class CorrectorAdminListGUI extends WriterListGUI
 				}
 				$properties[$pos] = $this->getAssignedCorrectorName($writer, $assignment->getPosition());
 			}
-			$properties[$this->plugin->txt("status")] = $this->essayStatus($writer);
 
-			$items[] = $this->uiFactory->item()->standard($this->getWriterName($writer). $this->getWriterAnchor($writer))
-				->withLeadIcon($this->uiFactory->symbol()->icon()->standard('adve', 'user', 'medium'))
+			$items[] = $this->uiFactory->item()->standard($this->getWriterName($writer, true). $this->getWriterAnchor($writer))
+				->withLeadIcon($this->getWriterIcon($writer))
 				->withProperties($properties)
 				->withActions($this->uiFactory->dropdown()->standard($actions));
 		}

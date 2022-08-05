@@ -8,6 +8,8 @@ use ILIAS\Plugin\LongEssayTask\Data\Essay;
 use ILIAS\Plugin\LongEssayTask\Data\TimeExtension;
 use ILIAS\Plugin\LongEssayTask\Data\Writer;
 use ILIAS\Plugin\LongEssayTask\Data\WriterHistory;
+use ILIAS\UI\Component\Symbol\Icon\Icon;
+use function GuzzleHttp\Psr7\str;
 
 abstract class WriterListGUI
 {
@@ -97,6 +99,35 @@ abstract class WriterListGUI
 	protected function getWriterName(Writer $writer, $strip_img = false): string
 	{
 		return $this->getUsername($writer->getUserId(), $strip_img);
+	}
+
+
+	/**
+	 * Get Writer Profile Picture
+	 *
+	 * @param Writer $writer
+	 * @return Icon
+	 * @throws Exception
+	 */
+	protected function getWriterIcon(Writer $writer): Icon
+	{
+		return $this->getUserIcon($writer->getUserId());
+	}
+
+	/**
+	 * Get User Profile Picture
+	 *
+	 * @param int $user_id
+	 * @return Icon
+	 */
+	protected function getUserIcon(int $user_id): Icon
+	{
+		$name = $this->getUsername($user_id, false);
+		preg_match('/src="(.+?)"/', $name, $matches);
+		$src = $matches[1];
+		$label = $this->plugin->txt("icon_label") . " " . strip_tags($name);
+
+		return $this->uiFactory->symbol()->icon()->custom($src, $label, "medium");
 	}
 
 	/**

@@ -239,3 +239,4 @@ resource_availability#:#Verfügbarkeit
 resource_available#:#Verfügbar:
 pseudonym#:#Pseudonym
 icon_label#:#Profilbild von
+exceed_correction_start#:#Die Zeitverlängerung darf Korrektur-Start nicht überschreiten.

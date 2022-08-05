@@ -96,6 +96,7 @@ class WriterAdminListGUI extends WriterListGUI
 			$items[] = $this->uiFactory->item()->standard($this->getWriterName($writer) . $this->getWriterAnchor($writer))
 				->withLeadIcon($this->uiFactory->symbol()->icon()->standard('usr', 'user', 'medium'))
 				->withProperties(array(
+					$this->plugin->txt("pseudonym") => $writer->getPseudonym(),
 					$this->plugin->txt("essay_status") => $this->essayStatus($writer),
 					$this->plugin->txt("writing_time_extension") => $this->extensionString($writer),
 					$this->plugin->txt("writing_last_save") => $this->lastSave($writer),

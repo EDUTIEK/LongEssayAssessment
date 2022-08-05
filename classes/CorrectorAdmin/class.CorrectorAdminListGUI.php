@@ -78,7 +78,7 @@ class CorrectorAdminListGUI extends WriterListGUI
 				$actions[] = $this->uiFactory->button()->shy($this->plugin->txt('correction_status_stitch'), $this->getCorrectionStatusStitchAction($writer));
 			}
 
-			$properties = [];
+			$properties = [$this->plugin->txt("pseudonym") => $writer->getPseudonym()];
 
 			foreach($this->getAssignmentsByWriter($writer) as $assignment){
 				switch($assignment->getPosition()){

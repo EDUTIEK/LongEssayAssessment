@@ -96,14 +96,7 @@ abstract class WriterListGUI
 	 */
 	protected function getWriterName(Writer $writer, $strip_img = false): string
 	{
-		$pseudonym = "";
-
-		if($writer->getPseudonym() != "")
-		{
-			$pseudonym = " (" . $writer->getPseudonym() . ")";
-		}
-
-		return $this->getUsername($writer->getUserId(), $strip_img) . $pseudonym;
+		return $this->getUsername($writer->getUserId(), $strip_img);
 	}
 
 	/**

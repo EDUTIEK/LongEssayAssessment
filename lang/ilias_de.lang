@@ -63,6 +63,7 @@ tab_corrector_start#:#zugeteilte Abgaben
 tab_writer_admin#:#Teilnehmerverwaltung
 tab_writer_admin_log#:#Aufsichtsprotokoll
 tab_corrector_admin#:#Korrektorenverwaltung
+tab_corrector_export#:#Abgaben exportieren
 object_settings#:#Objekt-Einstellungen
 participation_type#:#Teilnahme
 participation_type_fixed#:#Vorgegeben
@@ -168,7 +169,7 @@ writing_time_extension#:#Zeitverlängerung
 essay_status#:#Abgabe-Status
 search_participants#:#Teilnehmer suchen
 assign_writer_success#:#Teilnehmer erfolgreich hinzugefügt.
-remove_writer_success#:#Teilnehmer erfolgreich entfernt.
+exclude_writer_success#:#Teilnehmer erfolgreich ausgeschlossen.
 missing_writer_id#:#Teilnehmernummer fehlt.
 missing_writer#:#Teilnehmer konnte nicht gefunden werden.
 grade_level#:#Notenstufe
@@ -199,10 +200,8 @@ filter_corrector_admin_list_corrected#:#Korrigiert
 filter_corrector_admin_list_not_corrected#:#Noch nicht korrigiert
 filter_corrector_admin_list_with_stitch#:#Stichentscheid gefordert
 log_type#:#Typ
-notice_send#:#Gesendet
-notice_recipient#:#Empfänger
-notice_recipient_all#:#Alle
-log_type_notice#:#Benachrichtigung
+alert_send#:#Gesendet
+log_type_alert#:#Benachrichtigung
 log_entry_entered#:#Eingetragen
 log_entries#:#Protokolleinträge
 writing_authorized_log_description#:#Die Abgabe von %s wurde von %s nachträglich autorisiert.
@@ -212,13 +211,30 @@ log_type_exclusion#:#Ausschluss
 log_type_extension#:#Zeitverlängerung
 log_type_authorize#:#Authorisierung
 log_type_note#:#Notiz
+log_type_all#:#Alle
 log_entry_text#:#Notiz
-writer_notice_text#:#Text
-writer_notice_recipient#:#Empfänger
-writer_notice_recipient_all#:#Alle
+alert_text#:#Text
+alert_recipient#:#Empfänger
+alert_recipient_all#:#Alle
 create_log_entry#:#Notiz hinzufügen
-create_writer_notice#:#Benachrichtigung senden
-writer_notice_send#:#Benachrichtigung wurde gesendet.
+create_alert#:#Benachrichtigung senden
+alert_created#:#Benachrichtigung wurde gesendet.
 log_entry_created#:#Notiz wurde hinzugefügt.
 corrector_assignment_changed#:#Korrektorenzuweisung wurde gändert.
+writing_excluded_from#:#ausgeschlossen von
+repeal_exclude_participant#:#Ausschluss aufheben
+repeal_exclude_participant_confirmation#:#Wollen Sie den Ausschluss des folgenden Teilnehmers wirklich aufheben?
+missing_essay#:#Aufsatz konnte nicht gefunden werden.
+writer_exclusion_repeal_log_description#:#Der ausschluss von Teilnehmer %s wurde von %s aufgehoben.
+essay_not_excluded#:#Der Teilnehmer wurde nicht ausgeschlossen und der Ausschluss kann daher nicht aufgehoben werden.
+exclude_writer_repeal_success#:#Teilnehmerausschluss erfolgreich aufgehoben.
+resource_availability_before#:#Vorab
+resource_availability_during#:#Nach Start der Bearbeitung
+resource_availability_after#:#Zur Einsichtnahme
+resource_file_description#:#Die Datei kann vorab, während der Bearbeitung oder während der Einsichtnahme angesehen oder heruntergeladen werden.
+resource_weblink#:#Weblink
+resource_edit#:#Material bearbeiten
+resource_add#:#Material hinzufügen
+resource_availability#:#Verfügbarkeit
+resource_available#:#Verfügbar:
 export_corrections#:#Korrekturen exportieren

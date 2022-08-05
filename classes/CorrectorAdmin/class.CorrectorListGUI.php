@@ -2,6 +2,7 @@
 
 namespace ILIAS\Plugin\LongEssayTask\WriterAdmin;
 
+use Exception;
 use ILIAS\Plugin\LongEssayTask\Data\Corrector;
 use ILIAS\Plugin\LongEssayTask\Data\CorrectorAssignment;
 use ILIAS\Plugin\LongEssayTask\Data\Essay;
@@ -39,6 +40,8 @@ class CorrectorListGUI extends WriterListGUI
 	public function getContent():string
 	{
 		$this->loadUserData();
+		$this->sortCorrector();
+		$this->sortAssignments();
 
 		$modals = [];
 		$items = [];
@@ -68,7 +71,7 @@ class CorrectorListGUI extends WriterListGUI
 					case 1: $pos = $this->plugin->txt("second_corrector");break;
 					default: $pos = $this->plugin->txt("assignment_pos_other");break;
 				}
-				$writers["&nbsp;&nbsp;" . $this->getUsername($this->writers[$assignment->getWriterId()]->getUserId(), true)] = $pos;
+				$writers["&nbsp;&nbsp;" . $this->getWriterName($this->writers[$assignment->getWriterId()], true)] = $pos;
 			}
 
 			$item = $this->uiFactory->item()->standard($this->getUsername($corrector->getUserId()))
@@ -149,5 +152,57 @@ class CorrectorListGUI extends WriterListGUI
 			return $this->assignments[$corrector->getId()];
 		}
 		return [];
+	}
+
+	/**
+	 * @param callable|null $custom_sort Custom sortation callable. Equal writer will be sorted by name.
+	 * @return void
+	 */
+	protected function sortCorrector(callable $custom_sort = null){
+		$this->sortWriterOrCorrector($this->correctors, $custom_sort);
+	}
+
+	/**
+	 * Sort Assignments primarily by position (lowest position comes first), secondary by name
+	 * @return void
+	 * @throws Exception
+	 */
+	protected function sortAssignments(){
+		if(!$this->user_data_loaded){
+			throw new Exception("sortAssignments was called without loading usernames.");
+		}
+
+		$names = [];
+		foreach ($this->user_data as $usr_id => $name){
+			$names[$usr_id] = strip_tags($name);
+		}
+
+		$by_name = function(CorrectorAssignment $a, CorrectorAssignment$b) use($names) {
+			$rating = $a->getPosition() - $b->getPosition();
+
+			if($rating !== 0){
+				return $rating;
+			}
+
+			if(!array_key_exists($a->getWriterId(), $this->writers)) {
+				return -1;
+			}
+			if (!array_key_exists($b->getWriterId(), $this->writers)){
+				return 1;
+			}
+
+			$writer_a = $this->writers[$a->getWriterId()];
+			$writer_b = $this->writers[$b->getWriterId()];
+
+			$name_a = array_key_exists($writer_a->getUserId(), $names) ? $names[$writer_a->getUserId()] : "ÿ";
+			$name_b = array_key_exists($writer_b->getUserId(), $names) ? $names[$writer_b->getUserId()] : "ÿ";
+
+			return strcasecmp($name_a, $name_b);
+		};
+
+		foreach ($this->assignments as $corrector_id => $assignment)
+		{
+			usort($this->assignments[$corrector_id], $by_name);
+		}
 	}
 }

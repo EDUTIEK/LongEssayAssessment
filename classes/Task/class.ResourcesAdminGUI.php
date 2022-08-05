@@ -76,10 +76,10 @@ class ResourcesAdminGUI extends BaseGUI
     protected function buildResourceForm(Resource $a_resource): \ILIAS\UI\Component\Input\Container\Form\Standard
     {
         if ($this->getResourceId() != null) {
-            $section_title = $this->plugin->txt('Material bearbeiten');
+            $section_title = $this->plugin->txt('resource_edit');
         }
         else {
-            $section_title = $this->plugin->txt('Material hinzufügen');
+            $section_title = $this->plugin->txt('resource_add');
         }
         $factory = $this->uiFactory->input()->field();
 
@@ -90,31 +90,31 @@ class ResourcesAdminGUI extends BaseGUI
         $description = $factory->textarea($this->lng->txt("description"))
             ->withValue((string) $a_resource->getDescription());
 
-        $resource_file = $factory->file(new ResourceUploadHandlerGUI(), "Datei hochladen")
+        $resource_file = $factory->file(new ResourceUploadHandlerGUI(), $this->lng->txt("file"))
             ->withAcceptedMimeTypes(['application/pdf'])
-            ->withByline("Test!");
+            ->withByline($this->plugin->txt("resource_file_description"));
 
-        $url = $factory->text('Url')
+        $url = $factory->text($this->lng->txt('url'))
             ->withValue($a_resource->getUrl());
 
-        $availability = $factory->radio("Verfügbarkeit")
+        $availability = $factory->radio($this->plugin->txt("resource_availability"))
             ->withRequired(true)
             //->withValue($a_resource->getAvailability())
-            ->withOption(Resource::RESOURCE_AVAILABILITY_BEFORE, "Vorab")
-            ->withOption(Resource::RESOURCE_AVAILABILITY_DURING, "Nach Start der Bearbeitung")
-            ->withOption(Resource::RESOURCE_AVAILABILITY_AFTER, "Zur Einsichtnahme");
+            ->withOption(Resource::RESOURCE_AVAILABILITY_BEFORE, $this->plugin->txt("resource_availability_before"))
+            ->withOption(Resource::RESOURCE_AVAILABILITY_DURING, $this->plugin->txt("resource_availability_during"))
+            ->withOption(Resource::RESOURCE_AVAILABILITY_AFTER, $this->plugin->txt("resource_availability_after"));
 
         $sections = [];
         // Object
         $fields = [];
         $fields['title'] = $title;
         $fields['description'] = $description;
-        $group1 = $factory->group(["resource_file" => $resource_file,], "Datei");
-        $group2 = $factory->group(["url" => $url, ],"Weblink");
+        $group1 = $factory->group(["resource_file" => $resource_file,], $this->lng->txt("file"));
+        $group2 = $factory->group(["url" => $url, ],$this->plugin->txt("resource_weblink"));
         $fields['type'] = $factory->switchableGroup([
             Resource::RESOURCE_TYPE_FILE => $group1,
             Resource::RESOURCE_TYPE_URL => $group2,
-        ], "Typ")->withValue($a_resource->getType());
+        ], $this->lng->txt("type"))->withValue($a_resource->getType());
         $fields['availability'] = $availability;
         $sections['form'] = $factory->section($fields, $section_title);
         $action = $this->ctrl->getFormAction($this, "editItem");

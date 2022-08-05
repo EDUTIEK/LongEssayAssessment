@@ -237,23 +237,24 @@ class CorrectorAdminGUI extends BaseGUI
 			if (array_key_exists("corrector", $data) && count($data["corrector"]) > 0 && array_key_exists("writer_id", $_GET)) {
 				$writer_id = $_GET["writer_id"];
 				$corr_repo = LongEssayTaskDI::getInstance()->getCorrectorRepo();
-				$corr_repo->deleteCorrectorAssignmentByWriter($writer_id);
+				$corr_repo->deleteCorrectorAssignmentByWriter(intval($writer_id));
 				$pos = 0;
 				foreach ($data["corrector"] as $corr_id){
-					if($corr_id != "" && $corr_id != "-1"){
+					if($corr_id !== "" && $corr_id !== "-1"){
 						$assignment = new CorrectorAssignment();
-						$assignment->setWriterId($writer_id);
-						$assignment->setCorrectorId($corr_id);
+						$assignment->setWriterId(intval($writer_id));
+						$assignment->setCorrectorId(intval($corr_id));
 						$assignment->setPosition($pos);
 						$corr_repo->createCorrectorAssignment($assignment);
 					}
 					$pos++;
 				}
 				ilUtil::sendSuccess($this->plugin->txt("corrector_assignment_changed"), true);
+				$anchor = "writer_" . $writer_id;
 			} else {
 				ilUtil::sendFailure($this->lng->txt("validation_error"), true);
 			}
-			$this->ctrl->redirect($this, "showStartPage");
+			$this->ctrl->redirect($this, "showStartPage", $anchor ?? "");
 		}
 	}
 

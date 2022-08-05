@@ -43,6 +43,18 @@ class Alert extends ActivePluginRecord
      */
     protected $task_id;
 
+	/**
+	 * Recipient
+	 *
+	 * @var integer
+	 * @con_has_field        true
+	 * @con_is_primary       false
+	 * @con_sequence         false
+	 * @con_is_notnull       false
+	 * @con_fieldtype        integer
+	 * @con_length           4
+	 */
+	protected int $writer_id;
 
     /**
      * title
@@ -198,4 +210,22 @@ class Alert extends ActivePluginRecord
         $this->shown_until = $shown_until;
         return $this;
     }
+
+	/**
+	 * @return int
+	 */
+	public function getWriterId(): int
+	{
+		return $this->writer_id;
+	}
+
+	/**
+	 * @param int $writer_id
+	 * @return Alert
+	 */
+	public function setWriterId(int $writer_id): Alert
+	{
+		$this->writer_id = $writer_id;
+		return $this;
+	}
 }

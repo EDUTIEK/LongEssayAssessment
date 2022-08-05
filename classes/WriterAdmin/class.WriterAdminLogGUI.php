@@ -4,6 +4,7 @@
 namespace ILIAS\Plugin\LongEssayTask\WriterAdmin;
 
 use ILIAS\Plugin\LongEssayTask\BaseGUI;
+use ILIAS\Plugin\LongEssayTask\Data\Alert;
 use ILIAS\Plugin\LongEssayTask\Data\LogEntry;
 use ILIAS\Plugin\LongEssayTask\Data\WriterNotice;
 use ILIAS\Plugin\LongEssayTask\LongEssayTaskDI;
@@ -28,7 +29,7 @@ class WriterAdminLogGUI extends BaseGUI
 		$cmd = $this->ctrl->getCmd('showStartPage');
 		switch ($cmd) {
 			case 'showStartPage':
-			case 'createWriterNotice':
+			case 'createAlert':
 			case 'createLogEntry':
 				$this->$cmd();
 				break;
@@ -50,7 +51,7 @@ class WriterAdminLogGUI extends BaseGUI
 		$this->toolbar->addComponent($button_log_entry);
 
 		$modal_writer_notice = $this->buildFormModalWriterNotice();
-		$button_writer_notice = $this->uiFactory->button()->standard($this->plugin->txt("create_writer_notice"), '#')
+		$button_writer_notice = $this->uiFactory->button()->standard($this->plugin->txt("create_alert"), '#')
 			->withOnClick($modal_writer_notice->getShowSignal());
 		$this->toolbar->addComponent($button_writer_notice);
 
@@ -58,30 +59,30 @@ class WriterAdminLogGUI extends BaseGUI
 
 		$list = new WriterAdminLogListGUI($this, "showStartPage", $this->plugin, $this->object->getId());
 		$list->addLogEntries($task_repo->getLogEntriesByTaskId($this->object->getId()));
-		$list->addWriterNotices($task_repo->getWriterNoticeByTaskId($this->object->getId()));
+		$list->addAlerts($task_repo->getAlertsByTaskId($this->object->getId()));
 
 		$this->tpl->setContent($this->renderer->render([$modal_log_entry, $modal_writer_notice]) . $list->getContent());
 	}
 
-	private function createWriterNotice()
+	private function createAlert()
 	{
 		if ($this->request->getMethod() == "POST") {
 			$data = $_POST;
 
 			// inputs are ok => save data
 			if (array_key_exists("text", $data) && array_key_exists("recipient", $data) && strlen($data["text"]) > 0 ) {
-				$writer_notice = new WriterNotice();
-				$writer_notice->setTaskId($this->object->getId());
-				$writer_notice->setCreated((new \ilDateTime(time(), IL_CAL_UNIX))->get(IL_CAL_DATETIME));
-				$writer_notice->setNoticeText($data['text']);
+				$alert = new Alert();
+				$alert->setTaskId($this->object->getId());
+				$alert->setShownFrom((new \ilDateTime(time(), IL_CAL_UNIX))->get(IL_CAL_DATETIME));
+				$alert->setMessage($data['text']);
 
 				if($data['recipient'] != -1) {
-					$writer_notice->setWriterId((int) $data['recipient']);
+					$alert->setWriterId((int) $data['recipient']);
 				}
 				$task_repo = LongEssayTaskDI::getInstance()->getTaskRepo();
-				$task_repo->createWriterNotice($writer_notice);
+				$task_repo->createAlert($alert);
 
-				ilUtil::sendSuccess($this->plugin->txt("writer_notice_send"), true);
+				ilUtil::sendSuccess($this->plugin->txt("alert_created"), true);
 			} else {
 				ilUtil::sendFailure($this->lng->txt("validation_error"), true);
 			}
@@ -120,26 +121,26 @@ class WriterAdminLogGUI extends BaseGUI
 		$form->setId(uniqid('form'));
 
 		$options = array_replace(
-			["-1" => $this->plugin->txt("writer_notice_recipient_all")],
+			["-1" => $this->plugin->txt("alert_recipient_all")],
 			$this->getWriterNameOptions()
 		);
 
-		$item = new \ilSelectInputGUI($this->plugin->txt("writer_notice_recipient"), 'recipient');
+		$item = new \ilSelectInputGUI($this->plugin->txt("alert_recipient"), 'recipient');
 		$item->setOptions($options);
 		$item->setRequired(true);
 		$form->addItem($item);
 
-		$item = new \ilTextAreaInputGUI($this->plugin->txt("writer_notice_text"), 'text');
+		$item = new \ilTextAreaInputGUI($this->plugin->txt("alert_text"), 'text');
 		$item->setRequired(true);
 		$form->addItem($item);
 
-		$form->setFormAction($this->ctrl->getFormAction($this, "createWriterNotice"));
+		$form->setFormAction($this->ctrl->getFormAction($this, "createAlert"));
 
 		$item = new \ilHiddenInputGUI('cmd');
 		$item->setValue('submit');
 		$form->addItem($item);
 
-		return $this->buildFormModal($this->plugin->txt("create_writer_notice"), $form);
+		return $this->buildFormModal($this->plugin->txt("create_alert"), $form);
 	}
 
 	private function buildFormModalLogEntry(): \ILIAS\UI\Component\Modal\RoundTrip

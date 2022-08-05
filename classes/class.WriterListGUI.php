@@ -2,6 +2,8 @@
 
 namespace ILIAS\Plugin\LongEssayTask\WriterAdmin;
 
+use Exception;
+use ILIAS\Plugin\LongEssayTask\Data\Corrector;
 use ILIAS\Plugin\LongEssayTask\Data\Essay;
 use ILIAS\Plugin\LongEssayTask\Data\TimeExtension;
 use ILIAS\Plugin\LongEssayTask\Data\Writer;
@@ -19,6 +21,11 @@ abstract class WriterListGUI
 	 * @var array
 	 */
 	protected $user_data = [];
+
+	/**
+	 * @var bool
+	 */
+	protected $user_data_loaded = false;
 
 	protected \ILIAS\UI\Factory $uiFactory;
 	protected \ilCtrl $ctrl;
@@ -67,6 +74,10 @@ abstract class WriterListGUI
 	 * @return mixed|string
 	 */
 	protected function getUsername($user_id, $strip_img = false){
+		if(!$this->user_data_loaded){
+			throw new Exception("getUsername was called without loading usernames.");
+		}
+
 		if(isset($this->user_data[$user_id])){
 			if($strip_img){
 				return strip_tags($this->user_data[$user_id], ["a"]);
@@ -83,7 +94,7 @@ abstract class WriterListGUI
 	 * @param Writer $writer
 	 * @return string
 	 */
-	protected function getWriterName(Writer $writer): string
+	protected function getWriterName(Writer $writer, $strip_img = false): string
 	{
 		$pseudonym = "";
 
@@ -92,7 +103,7 @@ abstract class WriterListGUI
 			$pseudonym = " (" . $writer->getPseudonym() . ")";
 		}
 
-		return $this->getUsername($writer->getUserId()) . $pseudonym;
+		return $this->getUsername($writer->getUserId(), $strip_img) . $pseudonym;
 	}
 
 	/**
@@ -103,5 +114,59 @@ abstract class WriterListGUI
 	{
 		$back = $this->ctrl->getLinkTarget($this->parent);
 		$this->user_data = \ilUserUtil::getNamePresentation(array_unique($this->user_ids), true, true, $back, true);
+		$this->user_data_loaded = true;
+	}
+
+	/**
+	 * @param Writer $writer
+	 * @return string
+	 */
+	protected function getWriterAnchor(Writer $writer): string
+	{
+		$user_id = $writer->getUserId();
+		$writer_id = $writer->getId();
+		return "<blankanchor id='writer_$writer_id'><blankanchor id='user_$user_id'>";
+	}
+
+	/**
+	 * @param callable|null $custom_sort Custom sortation callable. Equal writer will be sorted by name.
+	 * @return void
+	 */
+	protected function sortWriter(callable $custom_sort = null){
+		$this->sortWriterOrCorrector($this->writers, $custom_sort);
+	}
+
+
+	/**
+	 * @param callable|null $custom_sort Custom sortation callable. Equal writer will be sorted by name.
+	 * @return void
+	 */
+	protected function sortWriterOrCorrector(array &$target_array, callable $custom_sort = null){
+		if(!$this->user_data_loaded){
+			throw new Exception("sortWriterOrCorrector was called without loading usernames.");
+		}
+
+		$names = [];
+		foreach ($this->user_data as $usr_id => $name){
+			$names[$usr_id] = strip_tags($name);
+		}
+
+		$by_name = function($a, $b) use($names) {
+			$name_a = array_key_exists($a->getUserId(), $names) ? $names[$a->getUserId()] : "ÿ";
+			$name_b = array_key_exists($b->getUserId(), $names) ? $names[$b->getUserId()] : "ÿ";
+
+			return strcasecmp($name_a, $name_b);
+		};
+
+		if($custom_sort !== null){
+			$by_custom = function ($a, $b) use ($custom_sort, $by_name){
+				$rating = $custom_sort($a, $b);
+				return $rating !== 0 ? $rating :  $by_name($a, $b);
+			};
+
+			usort($target_array, $by_custom);
+		}else{
+			usort($target_array, $by_name);
+		}
 	}
 }

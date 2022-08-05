@@ -2,6 +2,7 @@
 
 namespace ILIAS\Plugin\LongEssayTask\WriterAdmin;
 
+use ILIAS\Plugin\LongEssayTask\Data\Alert;
 use ILIAS\Plugin\LongEssayTask\Data\LogEntry;
 use ILIAS\Plugin\LongEssayTask\Data\Writer;
 use ILIAS\Plugin\LongEssayTask\Data\WriterNotice;
@@ -9,6 +10,9 @@ use ILIAS\Plugin\LongEssayTask\LongEssayTaskDI;
 
 class WriterAdminLogListGUI
 {
+	const MODE_ATTR = "mode";
+	const PAGE_ATTR = "page";
+	const PAGE_SIZE = 10;
 	/**
 	 * @var mixed[]
 	 */
@@ -43,26 +47,26 @@ class WriterAdminLogListGUI
 	}
 
 
-	private function buildNotice(WriterNotice $notice)
+	private function buildAlert(Alert $alert)
 	{
 		$recipient = "";
 
-		if($notice->getWriterId() !== null){
+		if($alert->getWriterId() !== null){
 			$id = -1;
-			if(array_key_exists($notice->getWriterId(), $this->writer)){
-				$id = $this->writer[$notice->getWriterId()]->getUserId();
+			if(array_key_exists($alert->getWriterId(), $this->writer)){
+				$id = $this->writer[$alert->getWriterId()]->getUserId();
 			}
 			$recipient = $this->getUsername($id);
 		}else{
-			$recipient = $this->plugin->txt("notice_recipient_all");
+			$recipient = $this->plugin->txt("alert_recipient_all");
 		}
 
-		return $this->uiFactory->item()->standard(nl2br($notice->getNoticeText()))
+		return $this->uiFactory->item()->standard(nl2br($alert->getMessage()))
 			->withLeadIcon($this->uiFactory->symbol()->icon()->standard('coms', 'coms', 'medium')->withIsOutlined(true))
 			->withProperties(array(
-				$this->plugin->txt("log_type") => $this->plugin->txt("log_type_notice"),
-				$this->plugin->txt("notice_send") => $this->getFormattedTime($notice->getCreated()),
-				$this->plugin->txt("notice_recipient") => $recipient
+				$this->plugin->txt("log_type") => $this->plugin->txt("log_type_alert"),
+				$this->plugin->txt("alert_send") => $this->getFormattedTime($alert->getShownFrom()),
+				$this->plugin->txt("alert_recipient") => $recipient
 
 			));
 	}
@@ -73,7 +77,7 @@ class WriterAdminLogListGUI
 			case LogEntry::CATEGORY_EXCLUSION:
 			case LogEntry::CATEGORY_AUTHORIZE:
 			case LogEntry::CATEGORY_EXTENSION:
-				$icon = $this->uiFactory->symbol()->icon()->standard('pecd', 'notes', 'medium')->withIsOutlined(true);
+				$icon = $this->uiFactory->symbol()->icon()->standard('extt', 'notes', 'medium')->withIsOutlined(true);
 				break;
 			default:
 				$icon = $this->uiFactory->symbol()->icon()->standard('nots', 'notes', 'medium')->withIsOutlined(true);
@@ -96,11 +100,20 @@ class WriterAdminLogListGUI
 		} catch (\ilDateTimeException $e) {
 		}
 
+
+
 		$items = [];
+		$count = 0;
+		$start = $this->getActualPage() * self::PAGE_SIZE;
+		$end = ($this->getActualPage() * self::PAGE_SIZE) + self::PAGE_SIZE;
 
 		foreach($this->entries as $key => $entry){
-			if($entry instanceof WriterNotice){
-				$items[] = $this->buildNotice($entry);
+			$count ++;
+			if($count <= $start || $count > $end){
+				continue;
+			}
+			if($entry instanceof Alert){
+				$items[] = $this->buildAlert($entry);
 			}elseif ($entry instanceof LogEntry){
 				$items[] = $this->buildLogEntry($entry);
 			}
@@ -108,7 +121,54 @@ class WriterAdminLogListGUI
 
 		$resources = $this->uiFactory->item()->group($this->plugin->txt("log_entries"), $items);
 
-		return $this->renderer->render([$resources]);
+		return $this->renderer->render(array_merge(
+			[$this->buildModeControl(), $this->uiFactory->legacy("</br></br>")],
+			$this->surroundWithPagination($resources)
+			));
+	}
+
+	private function surroundWithPagination($component){
+
+		if (count($this->entries) > self::PAGE_SIZE){
+			$uis = [];
+			$pagination = $this->uiFactory->viewControl()->pagination()
+				->withTargetURL($this->ctrl->getLinkTarget($this->parent, $this->parent_cmd), self::PAGE_ATTR)
+				->withTotalEntries(count($this->entries))
+				->withPageSize(self::PAGE_SIZE)
+				->withCurrentPage($this->getActualPage());
+
+			$uis[] = $pagination;
+			if(is_array($component)){
+				foreach ($component as $subcomp){
+					$uis[] = $subcomp;
+				}
+			}else{
+				$uis[] = $component;
+			}
+
+			$uis[] = $pagination;
+			return $uis;
+		}
+		return [$component];
+	}
+
+	private function buildModeControl()
+	{
+		$target = $this->ctrl->getLinkTarget($this->parent, $this->parent_cmd);
+		$param = self::MODE_ATTR;
+
+		$active = $this->getActualMode();
+
+		$modes = ["all", "alert", "note", "exclusion", "extension", "authorize"];
+		$actions = [];
+
+		foreach($modes as $mode)
+		{
+			$actions[$this->plugin->txt("log_type_" . $mode)] = "$target&$param=$mode";
+		}
+
+		$aria_label = "change_the_currently_displayed_mode";
+		return $this->uiFactory->viewControl()->mode($actions, $aria_label)->withActive($this->plugin->txt("log_type_" . $active));
 	}
 
 	/**
@@ -117,22 +177,30 @@ class WriterAdminLogListGUI
 	 */
 	public function addLogEntries(array $log_entries) {
 		foreach ($log_entries as $log_entry){
+			if(!in_array($this->getActualMode(), ["all", $log_entry->getCategory()])){
+				continue;
+			}
+
 			$this->entries[$log_entry->getTimestamp()] = $log_entry;
 			$this->user_ids= array_merge($this->user_ids, $this->parseUserIDs($log_entry->getEntry()));
 		}
 	}
 
 	/**
-	 * @param WriterNotice[] $writer_notices
+	 * @param Alert[] $alerts
 	 * @return void
 	 */
-	public function addWriterNotices(array $writer_notices) {
+	public function addAlerts(array $alerts) {
+		if(!in_array($this->getActualMode(), ["all", "alert"])){
+			return;
+		}
+
 		$writer_ids = [];
 
-		foreach ($writer_notices as $writer_notice) {
-			$this->entries[$writer_notice->getCreated()] = $writer_notice;
-			if($writer_notice->getWriterId() !== null)
-				$writer_ids[] = $writer_notice->getWriterId();
+		foreach ($alerts as $alert) {
+			$this->entries[$alert->getShownFrom()] = $alert;
+			if($alert->getWriterId() !== null)
+				$writer_ids[] = $alert->getWriterId();
 		}
 
 		$writer_repo = LongEssayTaskDI::getInstance()->getWriterRepo();
@@ -231,4 +299,13 @@ class WriterAdminLogListGUI
 			return " - ";
 		}
 	}
+
+	private function getActualPage(){
+		return $_GET[self::PAGE_ATTR] ?? 0;
+	}
+
+	private function getActualMode(){
+		return $_GET[self::MODE_ATTR] ?? "all";
+	}
+
 }

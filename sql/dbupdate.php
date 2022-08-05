@@ -1268,3 +1268,39 @@ if ($ilDB->tableColumnExists('xlet_writer_notice','writer_id')) {
 	]);
 }
 ?>
+<#47>
+<?php
+
+if (!$ilDB->tableColumnExists('xlet_alert','writer_id')) {
+	$ilDB->addTableColumn('xlet_alert', 'writer_id', [
+		'notnull' => '0',
+		'type' => 'integer',
+		'length' => '4',
+	]);
+	$ilDB->addIndex("xlet_alert", array("writer_id"), "i2");
+}
+
+if ($ilDB->tableColumnExists('xlet_alert','title')) {
+	$ilDB->modifyTableColumn('xlet_alert', 'title', [
+		'notnull' => '0',
+		'type' => 'text',
+		'length' => '255',
+	]);
+}
+
+?>
+<#48>
+<?php
+if (!$ilDB->tableColumnExists('xlet_essay','writing_excluded')) {
+	$ilDB->addTableColumn('xlet_essay', 'writing_excluded', [
+		'type' => 'timestamp',
+	]);
+}
+if (!$ilDB->tableColumnExists('xlet_essay','writing_excluded_by')) {
+	$ilDB->addTableColumn('xlet_essay', 'writing_excluded_by', [
+		'notnull' => '0',
+		'type' => 'integer',
+		'length' => '4'
+	]);
+}
+?>

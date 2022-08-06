@@ -276,6 +276,26 @@ class WriterAdminGUI extends BaseGUI
 				//TODO: ERROR
 			}
 
+			$task_repo = LongEssayTaskDI::getInstance()->getTaskRepo();
+			$settings = $task_repo->getTaskSettingsById($this->object->getId());
+
+			if(isset($data["form"]["extension"])
+				&& $settings->getCorrectionStart() !== null
+				&& $settings->getWritingEnd() !== null)
+			{
+
+				$correction_start = new \ilDateTime($settings->getCorrectionStart(), IL_CAL_DATETIME);
+				$writing_end = new \ilDateTime($settings->getWritingEnd(), IL_CAL_DATETIME);
+				$extension_date = clone $writing_end;
+				$extension_date->increment(\ilDate::MINUTE, $data["form"]["extension"]);
+
+				if(!\ilDate::_within($extension_date, $writing_end, $correction_start)){
+					ilUtil::sendFailure($this->plugin->txt("exceed_correction_start"), false);
+					$this->editExtension($form);
+					return;
+				}
+			}
+
 			// inputs are ok => save data
 			if (isset($data)) {
 				$record->setMinutes($data["form"]["extension"]);
@@ -323,7 +343,7 @@ class WriterAdminGUI extends BaseGUI
 
 		$this->createAuthorizeLogEntry($essay);
 
-		ilUtil::sendSuccess($this->plugin->txt('writing_autorized'), true);
+		ilUtil::sendSuccess($this->plugin->txt('writing_authorized'), true);
 		$this->ctrl->redirect($this, "showStartPage", "writer_" . $id);
 	}
 

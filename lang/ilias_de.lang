@@ -237,4 +237,14 @@ resource_edit#:#Material bearbeiten
 resource_add#:#Material hinzufügen
 resource_availability#:#Verfügbarkeit
 resource_available#:#Verfügbar:
+pseudonym#:#Pseudonym
+icon_label#:#Profilbild von
+exceed_correction_start#:#Die Zeitverlängerung darf Korrektur-Start nicht überschreiten.
+writing_authorized#:#Die Abgabe von wurde autorisiert.
+grade_level_code#:#Code
+grade_level_code_caption#:#Interner Code zum Abgleich der Notenstufe mit internen Systemen
+passed#:#Bestanden
+passed_caption#:#Mit dieser Notenstufe ist die Abgabe bestanden
+delete_grade_level#:#Notenstufe löschen
+delete_grade_level_confirmation#:#Wollen Sie die folgende Notenstufe wirklich löschen?
 export_corrections#:#Korrekturen exportieren

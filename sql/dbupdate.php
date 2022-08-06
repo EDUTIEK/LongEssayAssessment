@@ -1304,3 +1304,22 @@ if (!$ilDB->tableColumnExists('xlet_essay','writing_excluded_by')) {
 	]);
 }
 ?>
+<#49>
+<?php
+if (!$ilDB->tableColumnExists('xlet_grade_level','code')) {
+	$ilDB->addTableColumn('xlet_grade_level', 'code', [
+        'notnull' => '0',
+        'type' => 'text',
+        'length' => '255',
+	]);
+}
+
+if (!$ilDB->tableColumnExists('xlet_grade_level','passed')) {
+	$ilDB->addTableColumn('xlet_grade_level', 'passed', [
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '1',
+	]);
+}
+
+?>

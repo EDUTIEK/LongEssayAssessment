@@ -1323,3 +1323,24 @@ if (!$ilDB->tableColumnExists('xlet_grade_level','passed')) {
 }
 
 ?>
+<#50>
+<?php
+if (!$ilDB->tableColumnExists('xlet_corrector_summary','last_change')) {
+    $ilDB->addTableColumn('xlet_corrector_summary', 'last_change', [
+        'type' => 'timestamp',
+    ]);
+}
+if (!$ilDB->tableColumnExists('xlet_corrector_summary','correction_authorized')) {
+    $ilDB->addTableColumn('xlet_corrector_summary', 'correction_authorized', [
+        'type' => 'timestamp',
+    ]);
+}
+if (!$ilDB->tableColumnExists('xlet_corrector_summary','correction_authorized_by')) {
+    $ilDB->addTableColumn('xlet_corrector_summary', 'correction_authorized_by', [
+        'notnull' => '0',
+        'type' => 'integer',
+        'length' => 4,
+    ]);
+}
+
+?>

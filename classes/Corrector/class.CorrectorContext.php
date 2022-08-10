@@ -203,7 +203,7 @@ class CorrectorContext extends ServiceContext implements Context
     {
         if (!empty($repoEssay = $this->di->getEssayRepo()->getEssayByWriterIdAndTaskId(
                 (int) $item_key, $this->task->getTaskId()))) {
-            return new WrittenEssay(
+            $writtenEssay = new WrittenEssay(
                 $repoEssay->getWrittenText(),
                 $repoEssay->getRawTextHash(),
                 $repoEssay->getProcessedText(),
@@ -211,6 +211,17 @@ class CorrectorContext extends ServiceContext implements Context
                 $this->data->dbTimeToUnix($repoEssay->getEditEnded()),
                 !empty($repoEssay->getWritingAuthorized())
             );
+
+            if ($repoEssay->getCorrectionFinalized()) {
+                $writtenEssay = $writtenEssay
+                    ->withCorrectionFinalized($this->data->dbTimeToUnix($repoEssay->getCorrectionFinalized()))
+                    ->withCorrectionFinalizedBy(\ilObjUser::_lookupFullname($repoEssay->getCorrectionFinalizedBy()))
+                    ->withFinalPoints($repoEssay->getFinalPoints())
+                    ->withFinalGrade($this->di->getObjectRepo()->ifGradeLevelExistsById((int) $repoEssay->getFinalGradeLevelId()) ?
+                        $this->di->getObjectRepo()->getGradeLevelById((int) $repoEssay->getFinalGradeLevelId())->getGrade() : '');
+            }
+
+            return $writtenEssay;
         }
         return null;
     }
@@ -255,7 +266,9 @@ class CorrectorContext extends ServiceContext implements Context
                     $repoSummary->getGradeLevelId() ? (string) $repoSummary->getGradeLevelId() : null,
                     $this->data->dbTimeToUnix($repoSummary->getLastChange()),
                     !empty($repoSummary->getCorrectionAuthorized()),
-                    \ilObjUser::_lookupFullname($repoCorrector->getUserId())
+                    \ilObjUser::_lookupFullname($repoCorrector->getUserId()),
+                    $this->di->getObjectRepo()->ifGradeLevelExistsById((int) $repoSummary->getGradeLevelId()) ?
+                        $this->di->getObjectRepo()->getGradeLevelById((int) $repoSummary->getGradeLevelId())->getGrade() : ''
                 );
             }
         }

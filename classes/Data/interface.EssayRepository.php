@@ -34,7 +34,7 @@ interface EssayRepository
     public function getEssayById(int $a_id): ?Essay;
 
     public function getEssayByUUID(string $a_uuid): ?Essay;
-
+    
     public function getEssayByWriterIdAndTaskId(int $a_writer_id, int $a_task_id): ?Essay;
 
     /** @return Essay[] */

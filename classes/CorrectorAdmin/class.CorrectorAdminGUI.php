@@ -61,6 +61,7 @@ class CorrectorAdminGUI extends BaseGUI
 					case 'changeCorrector':
 					case 'removeCorrector':
                     case 'exportCorrections':
+                    case 'exportResults':
 						$this->$cmd();
 						break;
 
@@ -79,6 +80,7 @@ class CorrectorAdminGUI extends BaseGUI
         $this->toolbar->setFormAction($this->ctrl->getFormAction($this));
 		$assign_writers_action = $this->ctrl->getLinkTarget($this, "assignWriters");
         $export_corrections_action =  $this->ctrl->getLinkTarget($this, "exportCorrections");
+        $export_results_action =  $this->ctrl->getLinkTarget($this, "exportResults");
 
         $button = \ilLinkButton::getInstance();
         $button->setUrl($assign_writers_action);
@@ -89,6 +91,11 @@ class CorrectorAdminGUI extends BaseGUI
         $button = \ilLinkButton::getInstance();
         $button->setUrl($export_corrections_action);
         $button->setCaption($this->plugin->txt("export_corrections"), false);
+        $this->toolbar->addButtonInstance($button);
+
+        $button = \ilLinkButton::getInstance();
+        $button->setUrl($export_results_action);
+        $button->setCaption($this->plugin->txt("export_results"), false);
         $this->toolbar->addButtonInstance($button);
 
 
@@ -261,11 +268,18 @@ class CorrectorAdminGUI extends BaseGUI
 
     protected function exportCorrections()
     {
-        $filename = \ilUtil::getASCIIFilename('Korrektur ' .$this->object->getTitle()) . '.zip';
+        $filename = \ilUtil::getASCIIFilename($this->plugin->txt('export_corrections_file_prefix') .' ' .$this->object->getTitle()) . '.zip';
         ilUtil::deliverFile($this->service->createCorrectionsExport(), $filename, 'application/zip', true, true);
     }
 
-	private function getCorrectorId(): ?int
+    protected function exportResults()
+    {
+        $filename = \ilUtil::getASCIIFilename($this->plugin->txt('export_results_file_prefix') .' ' . $this->object->getTitle()) . '.csv';
+        ilUtil::deliverFile($this->service->createResultsExport(), $filename, 'text/csv', true, true);
+    }
+
+
+    private function getCorrectorId(): ?int
 	{
 		$query = $this->request->getQueryParams();
 		if(isset($query["corrector_id"])) {

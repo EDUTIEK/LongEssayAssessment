@@ -248,3 +248,6 @@ passed_caption#:#Mit dieser Notenstufe ist die Abgabe bestanden
 delete_grade_level#:#Notenstufe löschen
 delete_grade_level_confirmation#:#Wollen Sie die folgende Notenstufe wirklich löschen?
 export_corrections#:#Korrekturen exportieren
+export_corrections_file_prefix#:#Korrektur
+export_results#:#Ergebnisse exportieren
+export_results_file_prefix#:#Ergebnisse

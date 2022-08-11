@@ -22,6 +22,7 @@ use ILIAS\Plugin\LongEssayTask\Data\TaskRepository;
 use ILIAS\Plugin\LongEssayTask\Data\WriterRepository;
 use ILIAS\Plugin\LongEssayTask\Writer\WriterContext;
 use ILIAS\Data\UUID\Factory as UUID;
+use ilObjUser;
 
 /**
  * Service for maintaining correctors (business logic)
@@ -273,7 +274,9 @@ class CorrectorAdminService extends BaseService
             $correctionSummaries = [];
             foreach ($this->correctorRepo->getAssignmentsByWriterId($repoWriter->getId()) as $assignment) {
                 $repoCorrector = $this->correctorRepo->getCorrectorById($assignment->getCorrectorId());
-                $correctionSummaries[] = $context->getCorrectionSummary((string) $repoWriter->getId(), (string) $repoCorrector->getId());
+                if (!empty($summary = $context->getCorrectionSummary((string) $repoWriter->getId(), (string) $repoCorrector->getId()))) {
+                    $correctionSummaries[] = $summary;
+                }
             }
 
             $item = new DocuItem(
@@ -302,11 +305,71 @@ class CorrectorAdminService extends BaseService
 
     public function createResultsExport() : string
     {
-        $context = new CorrectorContext();
-        $context->init((string) $this->dic->user()->getId(), (string) $this->object->getRefId());
+        $csv = new \ilCSVWriter();
+        $csv->setSeparator(';');
 
+        $csv->addColumn($this->lng->txt('login'));
+        $csv->addColumn($this->lng->txt('firstname'));
+        $csv->addColumn($this->lng->txt('lastname'));
+        $csv->addColumn($this->lng->txt('matriculation'));
+        $csv->addColumn($this->plugin->txt('essay_status'));
+        $csv->addColumn($this->plugin->txt('writing_last_save'));
+        $csv->addColumn($this->plugin->txt('correction_status'));
+        $csv->addColumn($this->plugin->txt('points'));
+        $csv->addColumn($this->plugin->txt('grade_level'));
+        $csv->addColumn($this->plugin->txt('grade_level_code'));
+        $csv->addColumn($this->plugin->txt('passed'));
 
+        $repoTask = $this->taskRepo->getTaskSettingsById($this->object->getId());
+        foreach ($this->essayRepo->getEssaysByTaskId($repoTask->getTaskId()) as $repoEssay) {
+            $repoWriter = $this->writerRepo->getWriterById($repoEssay->getWriterId());
+            $user = new ilObjUser($repoWriter->getUserId());
+            $csv->addRow();
+            $csv->addColumn($user->getLogin());
+            $csv->addColumn($user->getFirstname());
+            $csv->addColumn($user->getLastname());
+            $csv->addColumn($user->getMatriculation());
+            if (!empty($repoEssay->getWritingAuthorized())) {
+                $csv->addColumn($this->plugin->txt('writing_status_authorized'));
+            }
+            elseif (!empty($repoEssay->getEditStarted())) {
+                $csv->addColumn($this->plugin->txt('writing_status_not_authorized'));
+            }
+            else {
+                $csv->addColumn($this->plugin->txt('writing_status_not_written'));
+            }
+            $csv->addColumn($repoEssay->getEditEnded());
+            if (empty($repoEssay->getCorrectionFinalized())) {
+                $csv->addColumn($this->plugin->txt('correction_status_finished'));
+                $csv->addColumn(null);
+                $csv->addColumn(null);
+                $csv->addColumn(null);
+                $csv->addColumn(null);
+            }
+            elseif (empty($repoEssay->getWritingAuthorized())) {
+                $csv->addColumn($this->plugin->txt('correction_status_not_possible'));
+                $csv->addColumn(null);
+                $csv->addColumn(null);
+                $csv->addColumn(null);
+                $csv->addColumn(null);
+            }
+            else {
+                $csv->addColumn($this->plugin->txt('correction_status_open'));
+                $csv->addColumn($repoEssay->getFinalPoints());
+                if (!empty($level = $this->localDI->getObjectRepo()->getGradeLevelById((int) $repoEssay->getFinalGradeLevelId()))) {
+                    $csv->addColumn($level->getGrade());
+                    $csv->addColumn($level->getCode());
+                    $csv->addColumn($level->isPassed());
+                }
+            }
+        }
 
+        $storage = $this->dic->filesystem()->temp();
+        $basedir = ILIAS_DATA_DIR . '/' . CLIENT_ID . '/temp';
+        $file = 'xlet/'. (new UUID)->uuid4AsString() . '.csv';
+        $storage->write($file, $csv->getCSVString());
+
+        return $basedir . '/' . $file;
     }
 
 

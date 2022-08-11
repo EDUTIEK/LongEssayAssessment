@@ -93,10 +93,10 @@ class ilLongEssayTaskConfigGUI extends ilPluginConfigGUI
         $button->setCaption($this->plugin->txt('reload_control_structure'), false);
         $this->toolbar->addButtonInstance($button);
 
-        $button = ilLinkButton::getInstance();
-        $button->setUrl($this->ctrl->getLinkTarget($this, 'generateDBUpdate'));
-        $button->setCaption($this->plugin->txt('generate_db_update'), false);
-        $this->toolbar->addButtonInstance($button);
+//        $button = ilLinkButton::getInstance();
+//        $button->setUrl($this->ctrl->getLinkTarget($this, 'generateDBUpdate'));
+//        $button->setCaption($this->plugin->txt('generate_db_update'), false);
+//        $this->toolbar->addButtonInstance($button);
     }
 
     /**
@@ -148,15 +148,15 @@ class ilLongEssayTaskConfigGUI extends ilPluginConfigGUI
         $corrector_url->setValue($this->config->getCorrectorUrl());
         $form->addItem($corrector_url);
 
-        $eskript_url = new ilTextInputGUI($this->plugin->txt('eskript_url'), 'eskript_url');
-        $eskript_url->setInfo($this->plugin->txt('eskript_url_info'));
-        $eskript_url->setValue($this->config->getEskriptUrl());
-        $form->addItem($eskript_url);
-
-        $eskript_key = new ilTextInputGUI($this->plugin->txt('eskript_key'), 'eskript_key');
-        $eskript_key->setInfo($this->plugin->txt('eskript_key_info'));
-        $eskript_key->setValue($this->config->getEskriptKey());
-        $form->addItem($eskript_key);
+//        $eskript_url = new ilTextInputGUI($this->plugin->txt('eskript_url'), 'eskript_url');
+//        $eskript_url->setInfo($this->plugin->txt('eskript_url_info'));
+//        $eskript_url->setValue($this->config->getEskriptUrl());
+//        $form->addItem($eskript_url);
+//
+//        $eskript_key = new ilTextInputGUI($this->plugin->txt('eskript_key'), 'eskript_key');
+//        $eskript_key->setInfo($this->plugin->txt('eskript_key_info'));
+//        $eskript_key->setValue($this->config->getEskriptKey());
+//        $form->addItem($eskript_key);
 
         $form->addCommandButton('saveConfig', $this->lng->txt('save'));
         return $form;

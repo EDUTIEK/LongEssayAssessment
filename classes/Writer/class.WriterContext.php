@@ -98,8 +98,8 @@ class WriterContext extends ServiceContext implements Context
 
 
         return new WritingTask(
-            $this->object->getTitle(),
-            $this->task->getInstructions(),
+            (string) $this->object->getTitle(),
+            (string) $this->task->getInstructions(),
             $this->user->getFullname(),
             $writing_end
         );

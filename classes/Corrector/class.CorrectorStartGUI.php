@@ -129,13 +129,14 @@ class CorrectorStartGUI extends BaseGUI
 //                    "Durchschnittsnote:" => "10"))
 //        ]);
 
-        $essays = $this->uiFactory->item()->group($this->plugin->txt('assigned_writings'), $items);
-        $this->tpl->setContent(
+        if (!empty($items)) {
+            $essays = $this->uiFactory->item()->group($this->plugin->txt('assigned_writings'), $items);
+            $this->tpl->setContent(
 //            $this->renderer->render($result) . '<br>'.
 //            $this->renderer->render($view_control) . '<br><br>' .
-            $this->renderer->render($essays)
+                $this->renderer->render($essays));
 
-        );
+        }
      }
 
 

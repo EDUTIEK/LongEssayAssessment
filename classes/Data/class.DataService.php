@@ -183,8 +183,9 @@ class DataService extends BaseService
             $text = $this->plugin->txt('grading_open');
         }
         else {
-            $level = $this->localDI->getObjectRepo()->getGradeLevelById($summary->getGradeLevelId());
-            $text = $level->getGrade();
+            if ($level = $this->localDI->getObjectRepo()->getGradeLevelById((int) $summary->getGradeLevelId())) {
+                $text = $level->getGrade();
+            }
         }
 
         if (!empty($summary->getPoints())) {

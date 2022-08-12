@@ -113,7 +113,7 @@ class WriterContext extends ServiceContext implements Context
     {
         $alerts = [];
         foreach ($this->di->getTaskRepo()->getAlertsByTaskId($this->task->getTaskId()) as $repoAlert) {
-            if (empty($repoAlert->getWriterId() || $repoAlert->getWriterId() == $this->getRepoWriter()->getId())) {
+            if (empty($repoAlert->getWriterId()) || $repoAlert->getWriterId() == $this->getRepoWriter()->getId()) {
                 if (empty($repoAlert->getShownFrom()) || $this->data->dbTimeToUnix($repoAlert->getShownFrom()) < time()) {
                     $alerts[] = New Alert(
                         (string) $repoAlert->getId(),

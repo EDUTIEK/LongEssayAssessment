@@ -175,9 +175,9 @@ class DataService extends BaseService
      */
     public function formatCorrectionResult(?CorrectorSummary $summary) : string
     {
-        if (empty($summary) || empty($summary->getLastChange())) {
-            return $this->plugin->txt('grading_not_started');
-        }
+//        if (empty($summary) || empty($summary->getLastChange())) {
+//            return $this->plugin->txt('grading_not_started');
+//        }
 
         if (empty($summary->getCorrectionAuthorized())) {
             $text = $this->plugin->txt('grading_open');

@@ -54,7 +54,7 @@ class Alert extends ActivePluginRecord
 	 * @con_fieldtype        integer
 	 * @con_length           4
 	 */
-	protected int $writer_id;
+	protected ?int $writer_id = null;
 
     /**
      * title
@@ -214,7 +214,7 @@ class Alert extends ActivePluginRecord
 	/**
 	 * @return int
 	 */
-	public function getWriterId(): int
+	public function getWriterId(): ?int
 	{
 		return $this->writer_id;
 	}
@@ -223,7 +223,7 @@ class Alert extends ActivePluginRecord
 	 * @param int $writer_id
 	 * @return Alert
 	 */
-	public function setWriterId(int $writer_id): Alert
+	public function setWriterId(?int $writer_id): Alert
 	{
 		$this->writer_id = $writer_id;
 		return $this;

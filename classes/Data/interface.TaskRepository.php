@@ -45,6 +45,7 @@ interface TaskRepository
 	public function getLogEntriesByTaskId(int $a_task_id): array;
 
     public function getAlertById(int $a_id): ?Alert;
+    /** @return Alert[] */
 	public function getAlertsByTaskId(int $a_task_id): array;
     public function ifAlertExistsById(int $a_id): bool;
 

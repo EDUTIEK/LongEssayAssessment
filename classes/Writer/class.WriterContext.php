@@ -2,6 +2,7 @@
 
 namespace ILIAS\Plugin\LongEssayTask\Writer;
 
+use Edutiek\LongEssayService\Data\Alert;
 use Edutiek\LongEssayService\Data\WritingSettings;
 use Edutiek\LongEssayService\Data\WritingStep;
 use Edutiek\LongEssayService\Data\WritingTask;
@@ -87,13 +88,43 @@ class WriterContext extends ServiceContext implements Context
     public function getWritingTask(): WritingTask
     {
         // todo: get time extension of the user and add it
+        $writing_end = $this->data->dbTimeToUnix($this->task->getWritingEnd());
+
+        if (!empty($timeExtension = $this->di->getWriterRepo()->getTimeExtensionByWriterId(
+            $this->getRepoWriter()->getId(), $this->task->getTaskId()))
+        ) {
+            $writing_end += $timeExtension->getMinutes() * 60;
+        }
+
+
         return new WritingTask(
             $this->object->getTitle(),
             $this->task->getInstructions(),
             $this->user->getFullname(),
-            $this->data->dbTimeToUnix($this->task->getWritingEnd()));
+            $writing_end
+        );
     }
 
+
+    /**
+     * @inheritDoc
+     */
+    public function getAlerts(): array
+    {
+        $alerts = [];
+        foreach ($this->di->getTaskRepo()->getAlertsByTaskId($this->task->getTaskId()) as $repoAlert) {
+            if (empty($repoAlert->getWriterId() || $repoAlert->getWriterId() == $this->getRepoWriter()->getId())) {
+                if (empty($repoAlert->getShownFrom()) || $this->data->dbTimeToUnix($repoAlert->getShownFrom()) < time()) {
+                    $alerts[] = New Alert(
+                        (string) $repoAlert->getId(),
+                        $repoAlert->getMessage(),
+                        $this->data->dbTimeToUnix($repoAlert->getShownFrom())
+                    );
+                }
+            }
+        }
+        return $alerts;
+    }
 
     /**
      * @inheritDoc

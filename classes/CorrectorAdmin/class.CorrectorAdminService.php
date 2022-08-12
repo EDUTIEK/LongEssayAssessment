@@ -199,7 +199,7 @@ class CorrectorAdminService extends BaseService
         if (empty($essay) || empty($essay->getWritingAuthorized())) {
             return false;
         }
-        if (!empty($summary->getCorrectionAuthorized())) {
+        if (!empty($summary) && !empty($summary->getCorrectionAuthorized())) {
             return false;
         }
         return true;

@@ -131,7 +131,9 @@ class WriterStartGUI extends BaseGUI
 				$writing_resources[] = $item;
 			}
 		}
-		$contents[] = $this->uiFactory->item()->group("Material", $writing_resources);
+        if (!empty($writing_resources)) {
+            $contents[] = $this->uiFactory->item()->group("Material", $writing_resources);
+        }
 
         // Result
 

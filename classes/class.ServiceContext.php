@@ -206,6 +206,11 @@ abstract class ServiceContext implements BaseContext
 
                 if ($resource->getType() == Resource::RESOURCE_TYPE_FILE) {
                     $resource_file = $DIC->resourceStorage()->manage()->find($resource->getFileId());
+
+                    if($resource_file === null){
+                        continue;
+                    }
+
                     $revision = $DIC->resourceStorage()->manage()->getCurrentRevision($resource_file);
 
                     if($revision === null){

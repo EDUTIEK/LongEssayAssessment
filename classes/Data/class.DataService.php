@@ -99,13 +99,13 @@ class DataService extends BaseService
             }
             elseif (empty($end)) {
                 return
-                    $this->plugin->txt('period_from') . ' '
-                    .\ilDatePresentation::formatDate(new \ilDateTime($start, IL_CAL_DATETIME));
+                    $this->plugin->txt('period_from') . ' ' .
+                    \ilDatePresentation::formatDate(new \ilDateTime($start, IL_CAL_DATETIME));
             }
             elseif (empty($start)) {
                 return
-                    \ilDatePresentation::formatDate(new \ilDateTime($end, IL_CAL_DATETIME))
-                    . ' ' . $this->plugin->txt('period_until');
+                    $this->plugin->txt('period_until') . ' ' .
+                    \ilDatePresentation::formatDate(new \ilDateTime($end, IL_CAL_DATETIME));
             }
             else {
                 return \ilDatePresentation::formatPeriod(new \ilDateTime($start, IL_CAL_DATETIME), new \ilDateTime($end, IL_CAL_DATETIME));

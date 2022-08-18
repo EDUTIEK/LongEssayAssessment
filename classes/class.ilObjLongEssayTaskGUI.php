@@ -196,7 +196,7 @@ class ilObjLongEssayTaskGUI extends ilObjectPluginGUI
         else {
             switch ($cmd)
             {
-                case 'jumpToOrgaSettings':
+                case 'isAuthorized':
                     $this->checkPermission("write");
                     $this->$cmd();
                     break;
@@ -233,24 +233,30 @@ class ilObjLongEssayTaskGUI extends ilObjectPluginGUI
      */
     protected function standardCommand()
     {
+        if ($this->object->canEditOrgaSettings()) {
+            $this->ctrl->redirectByClass('ilias\plugin\longessaytask\task\orgasettingsgui');
+        }
+        if ($this->object->canEditContentSettings()) {
+            $this->ctrl->redirectByClass('ilias\plugin\longessaytask\task\contentsettingsgui');
+        }
+        if ($this->object->canMaintainWriters()) {
+            $this->ctrl->redirectByClass('ilias\plugin\longessaytask\writerAdmin\writeradmingui');
+        }
+        if ($this->object->canMaintainCorrectors()) {
+            $this->ctrl->redirectByClass('ilias\plugin\longessaytask\correctorAdmin\correctoradmingui');
+        }
         if ($this->object->canViewWriterScreen()) {
             $this->ctrl->redirectByClass('ilias\plugin\longessaytask\writer\writerstartgui');
         }
         if ($this->object->canViewCorrectorScreen()) {
             $this->ctrl->redirectByClass('ilias\plugin\longessaytask\corrector\correctorstartgui');
         }
-        if ($this->object->canEditTechnicalSettings()) {
-            $this->ctrl->redirectByClass('ilias\plugin\longessaytask\task\orgasettingsgui');
-        }
-        if ($this->object->canEditContentSettings()) {
-            $this->ctrl->redirectByClass('ilias\plugin\longessaytask\task\contentsettingsgui');
-        }
 
-        $this->ctrl->redirectByClass('ilInfoScreenGUI');
+        \ilUtil::sendFailure($this->plugin->txt('message_no_admin_writer_corrector'), true);
     }
 
     /**
-     * Jump to the editing of organisational settings
+     * Jump to the editing of organisational settings (used in actions menu)
      */
     protected function jumpToOrgaSettings()
     {

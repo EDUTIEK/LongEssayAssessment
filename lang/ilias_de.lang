@@ -251,3 +251,7 @@ export_corrections#:#Korrekturen exportieren
 export_corrections_file_prefix#:#Korrektur
 export_results#:#Ergebnisse exportieren
 export_results_file_prefix#:#Ergebnisse
+message_no_admin_writer_corrector#:#Sie können auf diese Aufgabe nicht zugreifen, da Sie weder zur Bearbeitung noch zur Korrektur vorgesehen sind.
+message_writing_excluded#:#Sie wurden von der Bearbeitung ausgeschlossen.
+message_writing_authorized#:#Ihre Bearbeitung wurde autorisiert und kann nicht mehr geändert werden.
+continue_writing#:#Bearbeitung fortsetzen

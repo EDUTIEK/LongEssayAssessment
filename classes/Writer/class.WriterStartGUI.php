@@ -61,11 +61,24 @@ class WriterStartGUI extends BaseGUI
         $modals = [];
         $essay = null;
 
+        $extension = 0;
         if (!empty($writer = $this->localDI->getWriterRepo()->getWriterByUserId(
             $this->dic->user()->getId(), $this->task->getTaskId()))) {
-            $essay = $this->localDI->getEssayRepo()->getEssayByWriterIdAndTaskId(
+            if (!empty($essay = $this->localDI->getEssayRepo()->getEssayByWriterIdAndTaskId(
                 $writer->getId(), $this->task->getTaskId()
-            );
+            ))) {
+                if (!empty($essay->getWritingAuthorized())) {
+                    ilUtil::sendInfo($this->plugin->txt('message_writing_authorized'));
+                }
+                if (!empty($essay->getWritingExcluded())) {
+                    ilUtil::sendInfo($this->plugin->txt('message_writing_excluded'));
+                }
+            }
+
+            if (!empty($timeExtension = $this->localDI->getWriterRepo()->getTimeExtensionByWriterId(
+                $writer->getId(), $this->task->getTaskId()))) {
+                $extension = $timeExtension->getMinutes() * 60;
+            }
         }
 
 
@@ -74,7 +87,7 @@ class WriterStartGUI extends BaseGUI
         if ($this->object->canWrite()) {
             $button = \ilLinkButton::getInstance();
             $button->setUrl($this->ctrl->getLinkTarget($this, 'startWriter'));
-            $button->setCaption($this->plugin->txt('start_writing'), false);
+            $button->setCaption($this->plugin->txt(empty($essay) ? 'start_writing' : 'continue_writing'), false);
             $button->setPrimary(true);
             $this->toolbar->addButtonInstance($button);
         }
@@ -86,21 +99,26 @@ class WriterStartGUI extends BaseGUI
 
         // Instructions
 
+        $writing_end = null;
+        if (!empty($this->task->getWritingEnd())) {
+            $writing_end = $this->data->unixTimeToDb(
+                $this->data->dbTimeToUnix($this->task->getWritingEnd()) + $extension);
+        }
+
         $contents[] = $this->uiFactory->item()->group($this->plugin->txt('task_instructions'),
             [$this->uiFactory->item()->standard($this->lng->txt('description'))
                 ->withDescription($this->task->getDescription() !== null ? $this->task->getDescription() : "")
                 ->withProperties(array(
                     $this->plugin->txt('writing_period') => $this->data->formatPeriod(
-                        $this->task->getWritingStart(), $this->task->getWritingEnd()
+                        $this->task->getWritingStart(), $writing_end
                     )
                 ))]);
+
 
         // Resources
 
 		$repo = LongEssayTaskDI::getInstance()->getTaskRepo();
-
 		$writing_resources = [];
-
 		/** @var Resource $resource */
 		foreach ($repo->getResourceByTaskId($this->object->getId()) as $resource) {
 			if ($resource->getAvailability() == Resource::RESOURCE_AVAILABILITY_BEFORE) {
@@ -139,7 +157,6 @@ class WriterStartGUI extends BaseGUI
 
         $result_actions = [];
 
-        // todo respect review period
         if ($this->object->canReview() && isset($essay)) {
 
             $submission_page = $this->uiFactory->modal()->lightboxTextPage(
@@ -187,10 +204,15 @@ class WriterStartGUI extends BaseGUI
      */
      protected function startWriter()
      {
-         $context = new WriterContext();
-         $context->init((string) $this->dic->user()->getId(), (string) $this->object->getRefId());
-         $service = new Service($context);
-         $service->openFrontend();
+         if ($this->object->canWrite()) {
+             $context = new WriterContext();
+             $context->init((string) $this->dic->user()->getId(), (string) $this->object->getRefId());
+             $service = new Service($context);
+             $service->openFrontend();
+         }
+         else {
+             $this->raisePermissionError();
+         }
      }
 
     /**
@@ -212,12 +234,17 @@ class WriterStartGUI extends BaseGUI
      */
      protected function downloadWriterPdf()
      {
-         $context = new WriterContext();
-         $context->init((string) $this->dic->user()->getId(), (string) $this->object->getRefId());
-         $service = new Service($context);
+         if ($this->object->canReview() && isset($essay)) {
+             $context = new WriterContext();
+             $context->init((string) $this->dic->user()->getId(), (string) $this->object->getRefId());
+             $service = new Service($context);
 
-         $filename = 'task' . $this->object->getId() . '_user' . $this->dic->user()->getId(). '.pdf';
-         ilUtil::deliverData($service->getProcessedTextAsPdf(), $filename, 'application/pdf');
+             $filename = 'task' . $this->object->getId() . '_user' . $this->dic->user()->getId(). '.pdf';
+             ilUtil::deliverData($service->getProcessedTextAsPdf(), $filename, 'application/pdf');
+         }
+         else {
+             $this->raisePermissionError();
+         }
      }
 
 	/**

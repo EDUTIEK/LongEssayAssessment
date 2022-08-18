@@ -227,16 +227,19 @@ class ilObjLongEssayTask extends ilObjectPlugin
     }
 
     /**
-     * Check if the current user can view the
+     * Check if the current user can view the writer screen
      */
     public function canViewWriterScreen() : bool
     {
-        return $this->access->checkAccess('read', '', $this->getRefId());
-//            && !$this->localDI->getCorrectorRepo()->ifUserExistsInTaskAsCorrector($this->user->getId(), $this->getId());
+        return
+            $this->access->checkAccess('read', '', $this->getRefId()) &&
+            ( $this->objectSettings->getParticipationType() == ObjectSettings::PARTICIPATION_TYPE_INSTANT
+                || $this->localDI->getWriterRepo()->ifUserExistsInTasksAsWriter($this->user->getId(), $this->getId())
+            );
     }
 
     /**
-     * Check if the current user can view the
+     * Check if the current user can view the corrector screen
      */
     public function canViewCorrectorScreen() : bool
     {
@@ -318,14 +321,8 @@ class ilObjLongEssayTask extends ilObjectPlugin
             return false;
         }
 
-        // todo: respect time extension
-        if (!$this->data->isInRange(time(),
-            $this->data->dbTimeToUnix($this->taskSettings->getWritingStart()),
-            $this->data->dbTimeToUnix($this->taskSettings->getWritingEnd()))) {
-            return false;
-        }
-
-        // check if not authorized
+        // check if not authorized and get time extension
+        $extension = 0;
         if (!empty($writer = $this->localDI->getWriterRepo()->getWriterByUserId(
             $this->dic->user()->getId(), $this->taskSettings->getTaskId()))) {
             if (!empty($essay = $this->localDI->getEssayRepo()->getEssayByWriterIdAndTaskId(
@@ -334,7 +331,20 @@ class ilObjLongEssayTask extends ilObjectPlugin
                 if (!empty($essay->getWritingAuthorized())) {
                     return false;
                 }
+                if (!empty($essay->getWritingExcluded())) {
+                    return false;
+                }
             }
+            if (!empty($timeExtension = $this->localDI->getWriterRepo()->getTimeExtensionByWriterId(
+                $writer->getId(), $this->taskSettings->getTaskId()))) {
+                $extension = $timeExtension->getMinutes() * 60;
+            }
+        }
+
+        if (!$this->data->isInRange(time(),
+            $this->data->dbTimeToUnix($this->taskSettings->getWritingStart()),
+            $this->data->dbTimeToUnix($this->taskSettings->getWritingEnd()) + $extension)) {
+            return false;
         }
 
         return true;

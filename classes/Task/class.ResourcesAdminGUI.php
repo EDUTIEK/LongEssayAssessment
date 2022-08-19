@@ -99,10 +99,10 @@ class ResourcesAdminGUI extends BaseGUI
 
         $availability = $factory->radio($this->plugin->txt("resource_availability"))
             ->withRequired(true)
-            //->withValue($a_resource->getAvailability())
             ->withOption(Resource::RESOURCE_AVAILABILITY_BEFORE, $this->plugin->txt("resource_availability_before"))
             ->withOption(Resource::RESOURCE_AVAILABILITY_DURING, $this->plugin->txt("resource_availability_during"))
-            ->withOption(Resource::RESOURCE_AVAILABILITY_AFTER, $this->plugin->txt("resource_availability_after"));
+            ->withOption(Resource::RESOURCE_AVAILABILITY_AFTER, $this->plugin->txt("resource_availability_after"))
+            ->withValue($a_resource->getAvailability());
 
         $sections = [];
         // Object
@@ -123,13 +123,13 @@ class ResourcesAdminGUI extends BaseGUI
     }
 
     /**
+     * Create a new resource
      * @param array $a_data
      * @param Resource $a_resource
      * @return void
      */
-    protected function updateResource(array $a_data, Resource $a_resource)
+    protected function createResource(array $a_data)
     {
-        global $DIC;
         $resource_admin = new ResourceAdmin($this->object->getId());
 
         switch ($a_data["type"][0])
@@ -153,12 +153,28 @@ class ResourcesAdminGUI extends BaseGUI
     }
 
     /**
+     * Replace an existing resource
+     * @param array $a_data
+     * @param int $resource_id
+     * @return void
+     */
+    protected function replaceResource(array $a_data, int $resource_id)
+    {
+        $resource_admin = new ResourceAdmin($this->object->getId());
+        $resource_admin->deleteResource($resource_id);
+        $this->createResource($a_data);
+    }
+
+    /**
      * Edit and save the settings
      */
     protected function editItem()
     {
         $resource_admin = new ResourceAdmin($this->object->getId());
         $resource_id = $this->getResourceId();
+        if ($resource_id != null) {
+            $this->ctrl->setParameter($this, 'resource_id', $resource_id);
+        }
         $resource = $resource_admin->getResource($resource_id);
 
         if ($resource_id != null && $resource->getTaskId() != $this->object->getId()) {
@@ -175,7 +191,13 @@ class ResourcesAdminGUI extends BaseGUI
             $result = $form->getInputGroup()->getContent();
 
             if ($result->isOK()) {
-                $this->updateResource($data["form"], $resource);
+                if ($resource_id == null) {
+                    $this->createResource($data["form"]);
+                }
+                else {
+                    $this->replaceResource($data["form"], (int) $resource_id);
+                }
+
                 ilUtil::sendSuccess($this->lng->txt("settings_saved"), true);
                 $this->ctrl->redirect($this, "showItems");
             }else{

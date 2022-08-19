@@ -114,7 +114,6 @@ class ResourceAdmin
         if($resource != null && $resource->getType() == Resource::RESOURCE_TYPE_FILE) {
             $stakeholder = new ResourceResourceStakeholder($a_user_id);
             $identification = new ResourceIdentification($resource->getFileId());
-
             $DIC->resourceStorage()->manage()->replaceWithUpload($identification, $a_upload, $stakeholder);
             return true;
         }
@@ -157,7 +156,8 @@ class ResourceAdmin
 				$file_id = $resource->getFileId();
 				$file = $DIC->resourceStorage()->manage()->find($file_id);
 				if ($file !== null) {
-					$DIC->resourceStorage()->manage()->remove($file);
+                    $stakeholder = new ResourceResourceStakeholder($DIC->user()->getId());
+					$DIC->resourceStorage()->manage()->remove($file, $stakeholder);
 				}
 			}
 			return true;

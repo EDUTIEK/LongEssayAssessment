@@ -9,6 +9,7 @@ namespace ILIAS\Plugin\LongEssayTask\Data;
  */
 class CorrectionSettings extends ActivePluginRecord
 {
+    public const ASSIGN_MODE_RANDOM_EQUAL = 'random_equal';
 
     /**
      * @var string
@@ -45,15 +46,15 @@ class CorrectionSettings extends ActivePluginRecord
     /**
      * mutual visibility
      *
-     * @var string
+     * @var integer
      * @con_has_field        true
      * @con_is_primary       false
      * @con_sequence         false
      * @con_is_notnull       true
-     * @con_fieldtype        text
-     * @con_length           50
+     * @con_fieldtype        integer
+     * @con_length           4
      */
-    protected $mutual_visibility = "";
+    protected $mutual_visibility = 1;
 
     /**
      * multi color highlight
@@ -85,15 +86,24 @@ class CorrectionSettings extends ActivePluginRecord
     /**
      * max distance of points for automated finalisation
      *
-     * @var integer
+     * @var float
      * @con_has_field        true
      * @con_is_primary       false
      * @con_sequence         false
      * @con_is_notnull       true
-     * @con_fieldtype        integer
-     * @con_length           4
+     * @con_fieldtype        float
      */
     protected $max_auto_distance = 0;
+
+
+    /**
+     * @var string
+     * @con_has_field        true
+     * @con_is_notnull       true
+     * @con_fieldtype        text
+     * @con_length           50
+     */
+    protected $assign_mode = self::ASSIGN_MODE_RANDOM_EQUAL;
 
 
     /**
@@ -133,18 +143,18 @@ class CorrectionSettings extends ActivePluginRecord
     }
 
     /**
-     * @return string
+     * @return int
      */
-    public function getMutualVisibility(): string
+    public function getMutualVisibility(): int
     {
         return $this->mutual_visibility;
     }
 
     /**
-     * @param string $mutual_visibility
+     * @param int $mutual_visibility
      * @return CorrectionSettings
      */
-    public function setMutualVisibility(string $mutual_visibility): CorrectionSettings
+    public function setMutualVisibility(int $mutual_visibility): CorrectionSettings
     {
         $this->mutual_visibility = $mutual_visibility;
         return $this;
@@ -187,9 +197,9 @@ class CorrectionSettings extends ActivePluginRecord
     }
 
     /**
-     * @return int
+     * @return float
      */
-    public function getMaxAutoDistance(): int
+    public function getMaxAutoDistance(): float
     {
         return $this->max_auto_distance;
     }
@@ -198,9 +208,27 @@ class CorrectionSettings extends ActivePluginRecord
      * @param int $max_auto_distance
      * @return CorrectionSettings
      */
-    public function setMaxAutoDistance(int $max_auto_distance): CorrectionSettings
+    public function setMaxAutoDistance(float $max_auto_distance): CorrectionSettings
     {
         $this->max_auto_distance = $max_auto_distance;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAssignMode(): string
+    {
+        return $this->assign_mode;
+    }
+
+    /**
+     * @param string $assign_mode
+     * @return CorrectionSettings
+     */
+    public function setAssignMode(string $assign_mode): CorrectionSettings
+    {
+        $this->assign_mode = $assign_mode;
         return $this;
     }
 

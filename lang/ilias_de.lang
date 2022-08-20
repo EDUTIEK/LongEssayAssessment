@@ -255,3 +255,14 @@ message_no_admin_writer_corrector#:#Sie können auf diese Aufgabe nicht zugreife
 message_writing_excluded#:#Sie wurden von der Bearbeitung ausgeschlossen.
 message_writing_authorized#:#Ihre Bearbeitung wurde autorisiert und kann nicht mehr geändert werden.
 continue_writing#:#Bearbeitung fortsetzen
+assign_mode#:#Korrektoren-Zuweisung
+assign_mode_random_equal#:#zufällig gleichverteilt
+assign_mode_random_equal_info#:#Die Abgaben werden zufällig auf alle Korrektoren verteilt, so dass alle möglichst gleich viele Abgaben zugeteilt bekommen
+required_correctors#:#Anzahl Korrektoren
+mutual_visibility#:#Gegenseitige Sichtbarkeit
+mutual_visibility_info#:#Korrektoren derselben Abgabe können ihre Korrekturen gegenseitig sehen
+max_points#:#Maximale Punkte
+max_auto_distance#:#Maximaler Punkteunterschied
+max_auto_distance_info#:#Maximaler Unterschied zwischen niedrigster und höchster Punktzahl, bei der eine Durchschnittsnote gebildet werden kann und kein Stichentscheid notwendig ist
+tab_correction_settings#:#Korrektur
+correction_settings#:#Korrektur-Einstellungen

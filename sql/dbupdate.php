@@ -1344,3 +1344,47 @@ if (!$ilDB->tableColumnExists('xlet_corrector_summary','correction_authorized_by
 }
 
 ?>
+<#51>
+<?php
+if ($ilDB->tableColumnExists('xlet_corr_setting','max_auto_distance')) {
+    $ilDB->modifyTableColumn('xlet_corr_setting', 'max_auto_distance', [
+        'notnull' => '1',
+        'type' => 'float',
+        'default' => 0
+    ]);
+}
+?>
+<#52>
+<?php
+if ($ilDB->tableColumnExists('xlet_corr_setting','max_auto_distance')) {
+    $ilDB->modifyTableColumn('xlet_corr_setting', 'max_auto_distance', [
+        'notnull' => '1',
+        'type' => 'float',
+        'default' => 0
+    ]);
+}
+?>
+<#53>
+<?php
+if ($ilDB->tableColumnExists('xlet_corr_setting','mutual_visibility')) {
+    $ilDB->dropTableColumn('xlet_corr_setting', 'mutual_visibility');
+}
+$ilDB->addTableColumn('xlet_corr_setting', 'mutual_visibility', [
+    'notnull' => '1',
+    'type' => 'integer',
+    'length' => 4,
+    'default' => 0
+]);
+?>
+<#54>
+<?php
+if (!$ilDB->tableColumnExists('xlet_corr_setting','assign_mode')) {
+    $ilDB->addTableColumn('xlet_corr_setting', 'assign_mode', [
+        'notnull' => '1',
+        'type' => 'text',
+        'length' => '50',
+        'default' => 'random_equal'
+    ]);
+}
+
+?>

@@ -142,6 +142,12 @@ class ilObjLongEssayTaskGUI extends ilObjectPluginGUI
                         $this->ctrl->forwardCommand(new \ILIAS\Plugin\LongEssayTask\Task\EditorSettingsGUI($this));
                     }
                     break;
+                case 'ilias\plugin\longessaytask\task\correctionsettingsgui':
+                    if ($this->object->canEditTechnicalSettings()) {
+                        $this->activateTab('tab_task', 'tab_correction_settings');
+                        $this->ctrl->forwardCommand(new \ILIAS\Plugin\LongEssayTask\Task\CorrectionSettingsGUI($this));
+                    }
+                    break;
                 case 'ilias\plugin\longessaytask\task\criteriaadmingui':
                     if ($this->object->canEditContentSettings()) {
                         $this->activateTab('tab_task', 'tab_criteria');
@@ -304,6 +310,14 @@ class ilObjLongEssayTaskGUI extends ilObjectPluginGUI
                 'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessaytask\task\editorsettingsgui')
             ];
         }
+        if ($this->object->canEditTechnicalSettings()) {
+            $tabs[] = [
+                'id' => 'tab_correction_settings',
+                'txt' => $this->plugin->txt('tab_correction_settings'),
+                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessaytask\task\correctionsettingsgui')
+            ];
+        }
+
 //        if ($this->object->canEditContentSettings()) {
 //            $tabs[] = [
 //                'id' => 'tab_criteria',

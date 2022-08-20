@@ -49,6 +49,12 @@ class CorrectionSettingsGUI extends BaseGUI
         // Object
         $fields = [];
 
+        $fields['required_correctors'] = $factory->select($this->plugin->txt('required_correctors'), [
+            "1" => "1",
+            "2" => "2"
+        ])->withRequired(true)
+          ->withValue($correctionSettings->getRequiredCorrectors());
+
         $fields['assign_mode'] = $factory->radio($this->plugin->txt('assign_mode'))
             ->withRequired(true)
             ->withOption( CorrectionSettings::ASSIGN_MODE_RANDOM_EQUAL, $this->plugin->txt('assign_mode_random_equal'),
@@ -59,12 +65,15 @@ class CorrectionSettingsGUI extends BaseGUI
             ->withValue((bool) $correctionSettings->getMutualVisibility());
 
         $fields['max_points'] = $factory->numeric($this->plugin->txt('max_points'))
+            ->withAdditionalTransformation($this->refinery->int()->isGreaterThan(0))
+            ->withAdditionalTransformation($this->refinery->to()->int())
             ->withRequired(true)
             ->withValue($correctionSettings->getMaxPoints());
 
-        $fields['max_auto_distance'] = $factory->numeric($this->plugin->txt('max_auto_distance'), $this->plugin->txt('max_auto_distance_info'))
+        $fields['max_auto_distance'] = $factory->text($this->plugin->txt('max_auto_distance'), $this->plugin->txt('max_auto_distance_info'))
+            ->withAdditionalTransformation($this->refinery->kindlyTo()->float())
             ->withRequired(true)
-            ->withValue($correctionSettings->getMaxAutoDistance());
+            ->withValue((string) $correctionSettings->getMaxAutoDistance());
 
 
         $sections['correction'] = $factory->section($fields, $this->plugin->txt('correction_settings'));
@@ -79,10 +88,11 @@ class CorrectionSettingsGUI extends BaseGUI
 
         // inputs are ok => save data
         if (isset($data)) {
-            $correctionSettings->setAssignMode($data['correction']['assign_mode']);
+            $correctionSettings->setRequiredCorrectors((int) $data['correction']['required_correctors']);
+            $correctionSettings->setAssignMode((string) $data['correction']['assign_mode']);
             $correctionSettings->setMutualVisibility((int) $data['correction']['mutual_visibility']);
             $correctionSettings->setMaxPoints((int) $data['correction']['max_points']);
-            $correctionSettings->setMaxAutoDistance((int) $data['correction']['max_auto_distance']);
+            $correctionSettings->setMaxAutoDistance((float) $data['correction']['max_auto_distance']);
             $correctionSettings->save();
 
             ilUtil::sendSuccess($this->lng->txt("settings_saved"), true);

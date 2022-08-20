@@ -167,10 +167,10 @@ class WriterStartGUI extends BaseGUI
             $result_actions[] = $this->uiFactory->button()->shy($this->plugin->txt('view_submission'), '')
                 ->withOnClick($submission_modal->getShowSignal());
 
-            $result_actions[] = $this->uiFactory->button()->shy($this->plugin->txt('download_submission'),
-                $this->ctrl->getLinkTarget($this, 'downloadWriterPdf'));
-
-
+            if ($this->object->canReview()) {
+                $result_actions[] = $this->uiFactory->button()->shy($this->plugin->txt('download_corrected_submission'),
+                    $this->ctrl->getLinkTarget($this, 'downloadWriterPdf'));
+            }
         }
 
         $result_item = $this->uiFactory->item()->standard($this->data->formatFinalResult($essay))
@@ -234,7 +234,7 @@ class WriterStartGUI extends BaseGUI
      */
      protected function downloadWriterPdf()
      {
-         if ($this->object->canReview() && isset($essay)) {
+         if ($this->object->canReview()) {
              $context = new WriterContext();
              $context->init((string) $this->dic->user()->getId(), (string) $this->object->getRefId());
              $service = new Service($context);

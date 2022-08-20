@@ -4,10 +4,8 @@
 namespace ILIAS\Plugin\LongEssayTask\CorrectorAdmin;
 
 use Edutiek\LongEssayService\Corrector\Service;
-use Edutiek\LongEssayService\Data\CorrectionSummary;
 use Edutiek\LongEssayService\Data\DocuItem;
 use Edutiek\LongEssayService\Data\WritingTask;
-use Edutiek\LongEssayService\Data\WrittenEssay;
 use ILIAS\Plugin\LongEssayTask\BaseService;
 use ILIAS\Plugin\LongEssayTask\Corrector\CorrectorContext;
 use ILIAS\Plugin\LongEssayTask\Data\CorrectionSettings;
@@ -20,7 +18,6 @@ use ILIAS\Plugin\LongEssayTask\Data\Essay;
 use ILIAS\Plugin\LongEssayTask\Data\EssayRepository;
 use ILIAS\Plugin\LongEssayTask\Data\TaskRepository;
 use ILIAS\Plugin\LongEssayTask\Data\WriterRepository;
-use ILIAS\Plugin\LongEssayTask\Writer\WriterContext;
 use ILIAS\Data\UUID\Factory as UUID;
 use ilObjUser;
 
@@ -30,9 +27,6 @@ use ilObjUser;
  */
 class CorrectorAdminService extends BaseService
 {
-
-    public const ASSIGN_RANDOM_EQUAL = 'random_equal';
-
     /** @var CorrectionSettings */
     protected $settings;
 
@@ -96,10 +90,10 @@ class CorrectorAdminService extends BaseService
      * Assign correctors to empty corrector positions for the candidates
      * @return int number of new assignments
      */
-    public function assignMissingCorrectors(?string $assignMode = self::ASSIGN_RANDOM_EQUAL) : int
+    public function assignMissingCorrectors() : int
     {
-        switch ($assignMode) {
-            case self::ASSIGN_RANDOM_EQUAL:
+        switch ($this->settings->getAssignMode()) {
+            case CorrectionSettings::ASSIGN_MODE_RANDOM_EQUAL:
             default:
                 return $this->assignByRandomEqualMode();
         }
@@ -130,7 +124,7 @@ class CorrectorAdminService extends BaseService
             // get only writers with authorized essays
             $essay = $this->localDI->getEssayRepo()->getEssayByWriterIdAndTaskId($writer->getId(), $this->settings->getTaskId());
             if (!isset($essay) || empty($essay->getWritingAuthorized())) {
-                return 0;
+                continue;
             }
 
             // init list writers with correctors
@@ -340,7 +334,7 @@ class CorrectorAdminService extends BaseService
             }
             $csv->addColumn($repoEssay->getEditEnded());
             if (empty($repoEssay->getCorrectionFinalized())) {
-                $csv->addColumn($this->plugin->txt('correction_status_finished'));
+                $csv->addColumn($this->plugin->txt('correction_status_open'));
                 $csv->addColumn(null);
                 $csv->addColumn(null);
                 $csv->addColumn(null);
@@ -354,7 +348,7 @@ class CorrectorAdminService extends BaseService
                 $csv->addColumn(null);
             }
             else {
-                $csv->addColumn($this->plugin->txt('correction_status_open'));
+                $csv->addColumn($this->plugin->txt('correction_status_finished'));
                 $csv->addColumn($repoEssay->getFinalPoints());
                 if (!empty($level = $this->localDI->getObjectRepo()->getGradeLevelById((int) $repoEssay->getFinalGradeLevelId()))) {
                     $csv->addColumn($level->getGrade());

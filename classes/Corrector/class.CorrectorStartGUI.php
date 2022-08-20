@@ -61,10 +61,6 @@ class CorrectorStartGUI extends BaseGUI
      */
     protected function showStartPage()
     {
-        // todo: this should be done in the corrector admin GUI
-        $this->service->addUserAsCorrector($this->dic->user()->getId());
-        $this->service->assignMissingCorrectors();
-
         $canCorrect = $this->object->canCorrect();
         $readyItems = 0;
 
@@ -135,7 +131,9 @@ class CorrectorStartGUI extends BaseGUI
 //            $this->renderer->render($result) . '<br>'.
 //            $this->renderer->render($view_control) . '<br><br>' .
                 $this->renderer->render($essays));
-
+        }
+        else {
+            ilUtil::sendInfo($this->plugin->txt('message_no_correction_items'));
         }
      }
 

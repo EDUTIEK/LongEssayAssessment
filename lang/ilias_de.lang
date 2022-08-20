@@ -114,14 +114,16 @@ correction_period#:#Korrektur
 review_period#:#Einsichtnahme
 result#:#Ergebnis
 submission#:#Abgabe
-view_submission#:#Abgabe einsehen
-download_submission#:#Abgabe herunterladen
+view_submission#:#Abgaben
+download_corrected_submission#:#Korrigierte Abgabe herunterladen
 task_resources#:#Materialien zur Aufgabe
 available#:#Verfügbar
 participant#:#Teilnehmer/in
 points#:#Punkte
 assign_writers#:#Korrektoren zuweisen
-assigned_writers#:#Korrektoren wurden erfolgreich zugewiesen.
+0_assigned_correctors#:#Es konnten keine Korrektoren zugewiesen werden.
+1_assigned_corrector#:#Ein Korrektor wurde erfolgreich zugewiesen.
+n_assigned_correctors#:#%s Korrektoren wurden erfolgreich zugewiesen.
 first_corrector#:#Erstkorrektor
 second_corrector#:#Zweitkorrektor
 view_correction#:#Korrektur einsehen
@@ -266,3 +268,4 @@ max_auto_distance#:#Maximaler Punkteunterschied
 max_auto_distance_info#:#Maximaler Unterschied zwischen niedrigster und höchster Punktzahl, bei der eine Durchschnittsnote gebildet werden kann und kein Stichentscheid notwendig ist
 tab_correction_settings#:#Korrektur
 correction_settings#:#Korrektur-Einstellungen
+message_no_correction_items#:#Ihnen sind noch keine Abgaben zur Korrektur zugewiesen.

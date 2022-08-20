@@ -83,9 +83,6 @@ abstract class ServiceContext implements BaseContext
         if (!$this->object->isOnline()) {
             throw new ContextException('Object is offline', ContextException::ENVIRONMENT_NOT_VALID);
         }
-        if (!$this->object->canViewWriterScreen()) {
-            throw new ContextException('Writer not permitted', ContextException::PERMISSION_DENIED);
-        }
 
        $this->task = $this->di->getTaskRepo()->getTaskSettingsById($this->object->getId());
        $this->data = $this->object->getDataService();

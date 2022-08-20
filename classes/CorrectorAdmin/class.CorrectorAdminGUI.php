@@ -231,8 +231,16 @@ class CorrectorAdminGUI extends BaseGUI
 
 
 	protected function assignWriters(){
-		$this->service->assignMissingCorrectors();
-		ilUtil::sendSuccess($this->plugin->txt("assigned_writers"), true);
+		$assigned = $this->service->assignMissingCorrectors();
+        if ($assigned == 0) {
+            ilUtil::sendFailure($this->plugin->txt("0_assigned_correctors"), true);
+        }
+        elseif ($assigned == 1) {
+            ilUtil::sendSuccess($this->plugin->txt("1_assigned_corrector"), true);
+        }
+        else {
+            ilUtil::sendSuccess(sprintf($this->plugin->txt("n_assigned_correctors"), $assigned), true);
+        }
 		$this->ctrl->redirect($this, "showStartPage");
 	}
 

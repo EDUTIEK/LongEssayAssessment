@@ -6,6 +6,7 @@ namespace ILIAS\Plugin\LongEssayTask;
 use ILIAS\Plugin\LongEssayTask\CorrectorAdmin\CorrectorAdminService;
 use ILIAS\Plugin\LongEssayTask\Data\CorrectorDatabaseRepository;
 use ILIAS\Plugin\LongEssayTask\Data\CorrectorRepository;
+use ILIAS\Plugin\LongEssayTask\Data\DataService;
 use ILIAS\Plugin\LongEssayTask\Data\EssayDatabaseRepository;
 use ILIAS\Plugin\LongEssayTask\Data\EssayRepository;
 use ILIAS\Plugin\LongEssayTask\Data\ObjectDatabaseRepository;
@@ -26,7 +27,8 @@ class LongEssayTaskDI
     protected $essay;
     protected $writer;
     protected $corrector;
-
+    protected $dataServices = [];
+    protected $correctorAdminServices = [];
 
     protected function __construct()
     {
@@ -101,4 +103,29 @@ class LongEssayTaskDI
 
         return $this->corrector;
     }
+
+    /**
+     * @param int $task_id
+     * @return DataService
+     */
+    public function getDataService(int $task_id) : DataService
+    {
+        if (!isset($this->dataServices[$task_id])) {
+            $this->dataServices[$task_id] = new DataService($task_id);
+        }
+        return $this->dataServices[$task_id];
+    }
+
+    /**
+     * @param int $task_id
+     * @return CorrectorAdminService
+     */
+    public function getCorrectorAdminService(int $task_id) : CorrectorAdminService
+    {
+        if (!isset($this->correctorAdminServices[$task_id])) {
+            $this->correctorAdminServices[$task_id] = new CorrectorAdminService($task_id);
+        }
+        return $this->correctorAdminServices[$task_id];
+    }
+
 }

@@ -3,12 +3,11 @@
 
 namespace ILIAS\Plugin\LongEssayTask\Data;
 
-use Edutiek\LongEssayService\Data\CorrectionSummary;
 use ILIAS\Plugin\LongEssayTask\BaseService;
 use Throwable;
 
 /**
- * Service for handling data related to the object
+ * Service for handling data related to a task
  * @package ILIAS\Plugin\LongEssayTask\Data
  */
 class DataService extends BaseService
@@ -22,9 +21,9 @@ class DataService extends BaseService
     /**
      * @inheritDoc
      */
-    public function __construct($object)
+    public function __construct(int $task_id)
     {
-        parent::__construct($object);
+        parent::__construct($task_id);
 
         $this->writerRepo = $this->localDI->getWriterRepo();
         $this->correctorRepo = $this->localDI->getCorrectorRepo();
@@ -143,7 +142,7 @@ class DataService extends BaseService
         elseif (!empty($essay->getCorrectionFinalized())) {
             return $this->plugin->txt('correction_status_finished');
         }
-        elseif ($this->object->getCorrectorAdminService()->isStitchDecisionNeeded($essay)) {
+        elseif ($this->localDI->getCorrectorAdminService($this->task_id)->isStitchDecisionNeeded($essay)) {
             return $this->plugin->txt('correction_status_stitch_needed');
         }
         else {
@@ -173,21 +172,25 @@ class DataService extends BaseService
     /**
      * Format the result from a single correction
      */
-    public function formatCorrectionResult(?CorrectorSummary $summary) : string
+    public function formatCorrectionResult(?CorrectorSummary $summary, bool $onlyStatus = false) : string
     {
         if (empty($summary) || empty($summary->getLastChange())) {
             return $this->plugin->txt('grading_not_started');
         }
 
         if (empty($summary->getCorrectionAuthorized())) {
-            $text = $this->plugin->txt('grading_open');
-        }
-        else {
-            if ($level = $this->localDI->getObjectRepo()->getGradeLevelById((int) $summary->getGradeLevelId())) {
-                $text = $level->getGrade();
-            }
+            return  $this->plugin->txt('grading_open');
         }
 
+        $text = $this->plugin->txt('grading_authorized');
+
+        if ($onlyStatus) {
+            return $text;
+        }
+
+        if ($level = $this->localDI->getObjectRepo()->getGradeLevelById((int) $summary->getGradeLevelId())) {
+            $text = $level->getGrade();
+        }
         if (!empty($summary->getPoints())) {
             $text .= ' (' . $summary->getPoints() . ' ' . $this->plugin->txt('points') . ')';
         }
@@ -218,13 +221,21 @@ class DataService extends BaseService
     public function formatCorrectorAssignment (CorrectorAssignment $assignment) : string
     {
         $corrector = $this->localDI->getCorrectorRepo()->getCorrectorById($assignment->getCorrectorId());
+        $writer = $this->localDI->getWriterRepo()->getWriterById($assignment->getWriterId());
+
 
         if (empty($corrector)) {
             return $this->plugin->txt('assignment_pos_empty');
         }
 
+        if (!empty($writer) && !empty($essay = $this->localDI->getEssayRepo()->getEssayByWriterIdAndTaskId($writer->getId(), $writer->getTaskId()))) {
+            $summary = $this->localDI->getEssayRepo()->getCorrectorSummaryByEssayIdAndCorrectorId($essay->getId(), $writer->getId());
+        }
+
         return \ilObjUser::_lookupFullname($corrector->getUserId())
-            . ' ('. \ilObjUser::_lookupLogin($corrector->getUserId()) . ')';
-    }
+            . ' ('. \ilObjUser::_lookupLogin($corrector->getUserId()) . ')'
+            . ' - ' . $this->formatCorrectionResult($summary);
+
+     }
 
 }

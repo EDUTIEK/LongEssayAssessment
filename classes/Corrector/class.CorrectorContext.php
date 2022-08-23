@@ -99,7 +99,7 @@ class CorrectorContext extends ServiceContext implements Context
      */
     public function getCorrectionSettings(): CorrectionSettings
     {
-        if (!empty($repoSettings = $this->di->getTaskRepo()->getCorrectionSettingsById($this->task->getTaskId()))) {
+        if (!empty($repoSettings = $this->localDI->getTaskRepo()->getCorrectionSettingsById($this->task->getTaskId()))) {
             return new CorrectionSettings(
                 (bool) $repoSettings->getMutualVisibility(),
                 (bool) $repoSettings->getMultiColorHighlight(),
@@ -115,7 +115,7 @@ class CorrectorContext extends ServiceContext implements Context
      */
     public function getGradeLevels(): array
     {
-        $objectRepo = $this->di->getObjectRepo();
+        $objectRepo = $this->localDI->getObjectRepo();
 
         $levels = [];
         foreach ($objectRepo->getGradeLevelsByObjectId($this->object->getId()) as $repoLevel) {
@@ -135,8 +135,8 @@ class CorrectorContext extends ServiceContext implements Context
      */
     public function getCorrectionItems(): array
     {
-        $correctorRepo = $this->di->getCorrectorRepo();
-        $writerRepo = $this->di->getWriterRepo();
+        $correctorRepo = $this->localDI->getCorrectorRepo();
+        $writerRepo = $this->localDI->getWriterRepo();
 
         $items = [];
         if (!empty($repoCorrector = $correctorRepo->getCorrectorByUserId($this->user->getId(), $this->task->getTaskId()))) {
@@ -158,7 +158,7 @@ class CorrectorContext extends ServiceContext implements Context
      */
     public function getCurrentCorrector(): ?Corrector
     {
-        $correctorRepo = $this->di->getCorrectorRepo();
+        $correctorRepo = $this->localDI->getCorrectorRepo();
         if (!empty($repoCorrector = $correctorRepo->getCorrectorByUserId($this->user->getId(), $this->task->getTaskId()))) {
             return new Corrector(
                 (string) $repoCorrector->getId(),
@@ -175,8 +175,8 @@ class CorrectorContext extends ServiceContext implements Context
      */
     public function getCurrentItem(): ?CorrectionItem
     {
-        $correctorRepo = $this->di->getCorrectorRepo();
-        $writerRepo = $this->di->getWriterRepo();
+        $correctorRepo = $this->localDI->getCorrectorRepo();
+        $writerRepo = $this->localDI->getWriterRepo();
 
         if (isset($this->selected_writer_id)) {
             if (!empty($repoCorrector = $correctorRepo->getCorrectorByUserId($this->user->getId(), $this->task->getTaskId())) &&
@@ -201,7 +201,7 @@ class CorrectorContext extends ServiceContext implements Context
      */
     public function getEssayOfItem(string $item_key): ?WrittenEssay
     {
-        if (!empty($repoEssay = $this->di->getEssayRepo()->getEssayByWriterIdAndTaskId(
+        if (!empty($repoEssay = $this->localDI->getEssayRepo()->getEssayByWriterIdAndTaskId(
                 (int) $item_key, $this->task->getTaskId()))) {
             $writtenEssay = new WrittenEssay(
                 $repoEssay->getWrittenText(),
@@ -217,8 +217,8 @@ class CorrectorContext extends ServiceContext implements Context
                     ->withCorrectionFinalized($this->data->dbTimeToUnix($repoEssay->getCorrectionFinalized()))
                     ->withCorrectionFinalizedBy(\ilObjUser::_lookupFullname($repoEssay->getCorrectionFinalizedBy()))
                     ->withFinalPoints($repoEssay->getFinalPoints())
-                    ->withFinalGrade($this->di->getObjectRepo()->ifGradeLevelExistsById((int) $repoEssay->getFinalGradeLevelId()) ?
-                        $this->di->getObjectRepo()->getGradeLevelById((int) $repoEssay->getFinalGradeLevelId())->getGrade() : '');
+                    ->withFinalGrade($this->localDI->getObjectRepo()->ifGradeLevelExistsById((int) $repoEssay->getFinalGradeLevelId()) ?
+                        $this->localDI->getObjectRepo()->getGradeLevelById((int) $repoEssay->getFinalGradeLevelId())->getGrade() : '');
             }
 
             return $writtenEssay;
@@ -234,7 +234,7 @@ class CorrectorContext extends ServiceContext implements Context
      */
     public function getCorrectorsOfItem(string $item_key): array
     {
-       $correctorRepo = $this->di->getCorrectorRepo();
+       $correctorRepo = $this->localDI->getCorrectorRepo();
        $correctors = [];
        foreach ($correctorRepo->getAssignmentsByWriterId((int) $item_key) as $assignment) {
             if (!empty($repoCorrector = $correctorRepo->getCorrectorById($assignment->getCorrectorId()))) {
@@ -254,8 +254,8 @@ class CorrectorContext extends ServiceContext implements Context
      */
     public function getCorrectionSummary(string $item_key, string $corrector_key): ?CorrectionSummary
     {
-        $repoCorrector = $this->di->getCorrectorRepo()->getCorrectorById((int) $corrector_key);
-        $essayRepo = $this->di->getEssayRepo();
+        $repoCorrector = $this->localDI->getCorrectorRepo()->getCorrectorById((int) $corrector_key);
+        $essayRepo = $this->localDI->getEssayRepo();
         if (!empty($repoEssay = $essayRepo->getEssayByWriterIdAndTaskId((int) $item_key, $this->task->getTaskId()))) {
             if (!empty($repoSummary = $essayRepo->getCorrectorSummaryByEssayIdAndCorrectorId(
                 $repoEssay->getId(), $repoCorrector->getId())
@@ -267,8 +267,8 @@ class CorrectorContext extends ServiceContext implements Context
                     $this->data->dbTimeToUnix($repoSummary->getLastChange()),
                     !empty($repoSummary->getCorrectionAuthorized()),
                     \ilObjUser::_lookupFullname($repoCorrector->getUserId()),
-                    $this->di->getObjectRepo()->ifGradeLevelExistsById((int) $repoSummary->getGradeLevelId()) ?
-                        $this->di->getObjectRepo()->getGradeLevelById((int) $repoSummary->getGradeLevelId())->getGrade() : ''
+                    $this->localDI->getObjectRepo()->ifGradeLevelExistsById((int) $repoSummary->getGradeLevelId()) ?
+                        $this->localDI->getObjectRepo()->getGradeLevelById((int) $repoSummary->getGradeLevelId())->getGrade() : ''
                 );
             }
         }
@@ -282,7 +282,7 @@ class CorrectorContext extends ServiceContext implements Context
      */
     public function setCorrectionSummary(string $item_key, string $corrector_key, CorrectionSummary $summary) : void
     {
-        $essayRepo = $this->di->getEssayRepo();
+        $essayRepo = $this->localDI->getEssayRepo();
         if (!empty($repoEssay = $essayRepo->getEssayByWriterIdAndTaskId((int) $item_key, $this->task->getTaskId()))) {
             $repoSummary = $essayRepo->getCorrectorSummaryByEssayIdAndCorrectorId($repoEssay->getId(), (int) $corrector_key);
             if (!isset($repoSummary)) {

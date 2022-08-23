@@ -30,7 +30,7 @@ abstract class ServiceContext implements BaseContext
     protected $plugin;
 
     /** @var LongEssayTaskDI */
-    protected $di;
+    protected $localDI;
 
     /** @var ilObjLongEssayTask */
     protected $object;
@@ -50,7 +50,7 @@ abstract class ServiceContext implements BaseContext
     function __construct()
     {
         $this->plugin = \ilLongEssayTaskPlugin::getInstance();
-        $this->di = LongEssayTaskDI::getInstance();
+        $this->localDI = LongEssayTaskDI::getInstance();
     }
 
     /**
@@ -84,8 +84,8 @@ abstract class ServiceContext implements BaseContext
             throw new ContextException('Object is offline', ContextException::ENVIRONMENT_NOT_VALID);
         }
 
-       $this->task = $this->di->getTaskRepo()->getTaskSettingsById($this->object->getId());
-       $this->data = $this->object->getDataService();
+       $this->task = $this->localDI->getTaskRepo()->getTaskSettingsById($this->object->getId());
+       $this->data = $this->localDI->getDataService($this->object->getId());
     }
 
     /**
@@ -138,7 +138,7 @@ abstract class ServiceContext implements BaseContext
      */
     public function getApiToken(string $purpose): ?ApiToken
     {
-        $repo = $this->di->getEssayRepo();
+        $repo = $this->localDI->getEssayRepo();
         $token = $repo->getAccessTokenByUserIdAndTaskId($this->user->getId(), $this->object->getId(), $purpose);
         if (isset($token)) {
             try {
@@ -158,7 +158,7 @@ abstract class ServiceContext implements BaseContext
     public function setApiToken(ApiToken $api_token, string $purpose)
     {
         // delete an existing token
-        $repo = $this->di->getEssayRepo();
+        $repo = $this->localDI->getEssayRepo();
         $repo->deleteAccessTokenByUserIdAndTaskId($this->user->getId(), $this->task->getTaskId(), $purpose);
 
         // save the new token
@@ -192,7 +192,7 @@ abstract class ServiceContext implements BaseContext
         global $DIC;
 
 
-        $repo = $this->di->getTaskRepo();
+        $repo = $this->localDI->getTaskRepo();
         $env_resources = [];
 
         /** @var Resource $resource */
@@ -246,7 +246,7 @@ abstract class ServiceContext implements BaseContext
     {
         global $DIC;
 
-        $repo = $this->di->getTaskRepo();
+        $repo = $this->localDI->getTaskRepo();
 
         /** @var Resource $resource */
         foreach ($repo->getResourceByTaskId($this->object->getId()) as $resource) {

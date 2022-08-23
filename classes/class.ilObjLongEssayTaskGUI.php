@@ -100,15 +100,6 @@ class ilObjLongEssayTaskGUI extends ilObjectPluginGUI
         return $this->object;
     }
 
-    /**
-     * Get the plugin object
-     * @return ilLongEssayTaskPlugin
-     */
-    public function getPlugin()
-    {
-        return $this->plugin;
-    }
-
 
     /**
 	 * Handles all commands of this class, centralizes permission checks
@@ -187,7 +178,7 @@ class ilObjLongEssayTaskGUI extends ilObjectPluginGUI
                 case 'ilias\plugin\longessaytask\correctoradmin\correctoradmingui':
                     if ($this->object->canMaintainCorrectors()) {
 						$cmd = $this->ctrl->getCmd('showStartPage');
-						$active_sub = 'tab_corrector_admin';
+						$active_sub = 'tab_correction_items';
 						if(in_array($cmd, ["showCorrectors", "start", "performSearch"])){
 							$active_sub = 'tab_corrector_list';
 						}
@@ -389,8 +380,8 @@ class ilObjLongEssayTaskGUI extends ilObjectPluginGUI
         $tabs = [];
         if ($this->object->canMaintainCorrectors()) {
             $tabs[] = [
-                'id' => 'tab_corrector_admin',
-                'txt' => $this->plugin->txt('tab_corrector_admin'),
+                'id' => 'tab_correction_items',
+                'txt' => $this->plugin->txt('tab_correction_items'),
                 'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessaytask\correctorAdmin\correctoradmingui')
             ];
 			$tabs[] = [

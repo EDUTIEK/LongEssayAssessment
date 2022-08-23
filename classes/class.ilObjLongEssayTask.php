@@ -58,7 +58,7 @@ class ilObjLongEssayTask extends ilObjectPlugin
 
 		parent::__construct($a_ref_id);
 
-        $this->data = new DataService($this);
+        $this->data = $this->localDI->getDataService($this->getId());
 	}
 
 
@@ -216,15 +216,6 @@ class ilObjLongEssayTask extends ilObjectPlugin
 	{
 		return (bool) $this->objectSettings->isOnline();
 	}
-
-    /**
-     * Get the plugin object
-     * @return object
-     */
-	public function getPlugin()
-    {
-        return $this->plugin;
-    }
 
     /**
      * Check if the current user can view the writer screen
@@ -392,13 +383,5 @@ class ilObjLongEssayTask extends ilObjectPlugin
     public function getDataService() : DataService
     {
         return $this->data;
-    }
-
-    /**
-     * Get the service for maintaining correctors
-     */
-    public function getCorrectorAdminService() : CorrectorAdminService
-    {
-        return new CorrectorAdminService($this);
     }
 }

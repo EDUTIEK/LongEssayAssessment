@@ -24,12 +24,15 @@ abstract class BaseService
     /** @var LongEssayTaskDI */
     protected $localDI;
 
+    /** @var int */
+    protected $task_id;
+
 
     /**
 	 * Constructor
 	 * @param \ilObjLongEssayTask
 	 */
-	public function __construct($object)
+	public function __construct(int $task_id)
 	{
 		global $DIC;
 
@@ -39,8 +42,8 @@ abstract class BaseService
         $this->lng = $this->dic->language();
 
         // Plugin dependencies
-        $this->object = $object;
-		$this->plugin = $this->object->getPlugin();
+        $this->task_id = $task_id;
+		$this->plugin = \ilLongEssayTaskPlugin::getInstance();
         $this->localDI = LongEssayTaskDI::getInstance();
 	}
 }

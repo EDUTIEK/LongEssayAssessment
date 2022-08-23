@@ -48,18 +48,18 @@ class CorrectorAdminService extends BaseService
     /**
      * @inheritDoc
      */
-    public function __construct($object)
+    public function __construct(int $task_id)
     {
-        parent::__construct($object);
+        parent::__construct($task_id);
 
-        $this->settings = $this->localDI->getTaskRepo()->getCorrectionSettingsById($this->object->getId()) ??
-            new CorrectionSettings($this->object->getId());
+        $this->settings = $this->localDI->getTaskRepo()->getCorrectionSettingsById($this->task_id) ??
+            new CorrectionSettings($this->task_id);
 
         $this->writerRepo = $this->localDI->getWriterRepo();
         $this->correctorRepo = $this->localDI->getCorrectorRepo();
         $this->essayRepo = $this->localDI->getEssayRepo();
         $this->taskRepo = $this->localDI->getTaskRepo();
-        $this->dataService = $this->object->getDataService();
+        $this->dataService = $this->localDI->getDataService($this->task_id);
     }
 
     /**
@@ -239,26 +239,27 @@ class CorrectorAdminService extends BaseService
 
     /**
      * Create an export file for the corrections
+     * @param \ilObjLongEssayTask $object
      * @return string   file path of the export
      */
-    public function createCorrectionsExport() : string
+    public function createCorrectionsExport(\ilObjLongEssayTask $object) : string
     {
         $context = new CorrectorContext();
-        $context->init((string) $this->dic->user()->getId(), (string) $this->object->getRefId());
+        $context->init((string) $this->dic->user()->getId(), (string) $object->getRefId());
         $service = new Service($context);
 
         $storage = $this->dic->filesystem()->temp();
         $basedir = ILIAS_DATA_DIR . '/' . CLIENT_ID . '/temp';
         $tempdir = 'xlet/'. (new UUID)->uuid4AsString();
-        $zipdir = $tempdir . '/' . \ilUtil::getASCIIFilename($this->object->getTitle());
+        $zipdir = $tempdir . '/' . \ilUtil::getASCIIFilename($object->getTitle());
         $storage->createDir($zipdir);
 
-        $repoTask = $this->taskRepo->getTaskSettingsById($this->object->getId());
+        $repoTask = $this->taskRepo->getTaskSettingsById($object->getId());
         foreach ($this->essayRepo->getEssaysByTaskId($repoTask->getTaskId()) as $repoEssay) {
             $repoWriter = $this->writerRepo->getWriterById($repoEssay->getWriterId());
 
             $writingTask = new WritingTask(
-                $this->object->getTitle(),
+                $object->getTitle(),
                 $repoTask->getInstructions(),
                 \ilObjUser::_lookupFullname($repoWriter->getUserId()),
                 $this->dataService->dbTimeToUnix($repoTask->getWritingEnd())
@@ -285,7 +286,7 @@ class CorrectorAdminService extends BaseService
             $storage->write($zipdir . '/'. $filename, $service->getCorrectionAsPdf($item));
         }
 
-        $zipfile = $basedir . '/' . $tempdir . '/' . \ilUtil::getASCIIFilename($this->object->getTitle()) . '.zip';
+        $zipfile = $basedir . '/' . $tempdir . '/' . \ilUtil::getASCIIFilename($object->getTitle()) . '.zip';
         \ilUtil::zip($basedir . '/' . $zipdir, $zipfile);
 
         $storage->deleteDir($zipdir);
@@ -314,7 +315,7 @@ class CorrectorAdminService extends BaseService
         $csv->addColumn($this->plugin->txt('grade_level_code'));
         $csv->addColumn($this->plugin->txt('passed'));
 
-        $repoTask = $this->taskRepo->getTaskSettingsById($this->object->getId());
+        $repoTask = $this->taskRepo->getTaskSettingsById($this->task_id);
         foreach ($this->essayRepo->getEssaysByTaskId($repoTask->getTaskId()) as $repoEssay) {
             $repoWriter = $this->writerRepo->getWriterById($repoEssay->getWriterId());
             $user = new ilObjUser($repoWriter->getUserId());

@@ -84,9 +84,9 @@ abstract class BaseGUI
         // Plugin dependencies
         $this->objectGUI = $objectGUI;
         $this->object = $this->objectGUI->getObject();
-		$this->plugin = $this->objectGUI->getPlugin();
+		$this->plugin = \ilLongEssayTaskPlugin::getInstance();
         $this->localDI = LongEssayTaskDI::getInstance();
-        $this->data = $this->object->getDataService();
+        $this->data = $this->localDI->getDataService($this->object->getId());
 	}
 
 	/**

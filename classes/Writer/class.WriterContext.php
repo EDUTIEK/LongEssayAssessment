@@ -72,7 +72,7 @@ class WriterContext extends ServiceContext implements Context
      */
     public function getWritingSettings(): WritingSettings
     {
-        $repoSettings = $this->di->getTaskRepo()->getEditorSettingsById($this->task->getTaskId());
+        $repoSettings = $this->localDI->getTaskRepo()->getEditorSettingsById($this->task->getTaskId());
         return new WritingSettings(
             $repoSettings->getHeadlineScheme(),
             $repoSettings->getFormattingOptions(),
@@ -89,7 +89,7 @@ class WriterContext extends ServiceContext implements Context
     {
         $writing_end = $this->data->dbTimeToUnix($this->task->getWritingEnd());
 
-        if (!empty($timeExtension = $this->di->getWriterRepo()->getTimeExtensionByWriterId(
+        if (!empty($timeExtension = $this->localDI->getWriterRepo()->getTimeExtensionByWriterId(
             $this->getRepoWriter()->getId(), $this->task->getTaskId()))
         ) {
             $writing_end += $timeExtension->getMinutes() * 60;
@@ -111,7 +111,7 @@ class WriterContext extends ServiceContext implements Context
     public function getAlerts(): array
     {
         $alerts = [];
-        foreach ($this->di->getTaskRepo()->getAlertsByTaskId($this->task->getTaskId()) as $repoAlert) {
+        foreach ($this->localDI->getTaskRepo()->getAlertsByTaskId($this->task->getTaskId()) as $repoAlert) {
             if (empty($repoAlert->getWriterId()) || $repoAlert->getWriterId() == $this->getRepoWriter()->getId()) {
                 if (empty($repoAlert->getShownFrom()) || $this->data->dbTimeToUnix($repoAlert->getShownFrom()) < time()) {
                     $alerts[] = New Alert(
@@ -166,7 +166,7 @@ class WriterContext extends ServiceContext implements Context
             $essay->setWritingAuthorizedBy(null);
         }
 
-        $this->di->getEssayRepo()->updateEssay($essay);
+        $this->localDI->getEssayRepo()->updateEssay($essay);
     }
 
     /**
@@ -174,7 +174,7 @@ class WriterContext extends ServiceContext implements Context
      */
     public function getWritingSteps(?int $maximum): array
     {
-        $entries = $this->di->getEssayRepo()->getWriterHistoryStepsByEssayId(
+        $entries = $this->localDI->getEssayRepo()->getWriterHistoryStepsByEssayId(
             $this->getRepoEssay()->getId(),
             $maximum);
 
@@ -204,7 +204,7 @@ class WriterContext extends ServiceContext implements Context
                 ->setTimestamp($this->data->unixTimeToDb($step->getTimestamp()))
                 ->setHashBefore($step->getHashBefore())
                 ->setHashAfter($step->getHashAfter());
-            $this->di->getEssayRepo()->createWriterHistory($entry);
+            $this->localDI->getEssayRepo()->createWriterHistory($entry);
         }
     }
 
@@ -213,7 +213,7 @@ class WriterContext extends ServiceContext implements Context
      */
     public function hasWritingStepByHashAfter(string $hash_after): bool
     {
-        return $this->di->getEssayRepo()->ifWriterHistoryExistByEssayIdAndHashAfter(
+        return $this->localDI->getEssayRepo()->ifWriterHistoryExistByEssayIdAndHashAfter(
             $this->getRepoEssay()->getId(),
             $hash_after);
     }
@@ -224,7 +224,7 @@ class WriterContext extends ServiceContext implements Context
      */
     protected function getRepoEssay() : Essay
     {
-        $repo = $this->di->getEssayRepo();
+        $repo = $this->localDI->getEssayRepo();
         $writer = $this->getRepoWriter();
 
         $essay = $repo->getEssayByWriterIdAndTaskId($writer->getId(), $writer->getTaskId());
@@ -245,7 +245,7 @@ class WriterContext extends ServiceContext implements Context
      */
     protected function getRepoWriter() : Writer
     {
-        $repo = $this->di->getWriterRepo();
+        $repo = $this->localDI->getWriterRepo();
         $writer = $repo->getWriterByUserId($this->user->getId(), $this->task->getTaskId());
         if (!isset($writer)) {
             $writer = new Writer();

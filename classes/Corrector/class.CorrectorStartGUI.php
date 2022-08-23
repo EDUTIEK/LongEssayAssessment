@@ -29,7 +29,7 @@ class CorrectorStartGUI extends BaseGUI
     public function __construct(\ilObjLongEssayTaskGUI $objectGUI)
     {
         parent::__construct($objectGUI);
-        $this->service = $this->object->getCorrectorAdminService();
+        $this->service = $this->localDI->getCorrectorAdminService($this->object->getId());
         $this->settings = $this->service->getSettings();
     }
 

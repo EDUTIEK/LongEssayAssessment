@@ -141,6 +141,7 @@ correction_status_finished#:#abgeschlossen
 own_grading#:#Eigene Wertung
 grading_not_started#:#nicht begonnen
 grading_open#:#offen
+grading_authorized
 assignment_pos_first#:#Erstkorrektor/in
 assignment_pos_second#:#Zweitkorrektor/in
 assignment_pos_other#:#Mitkorrektor/in
@@ -267,5 +268,6 @@ max_points#:#Maximale Punkte
 max_auto_distance#:#Maximaler Punkteunterschied
 max_auto_distance_info#:#Maximaler Unterschied zwischen niedrigster und höchster Punktzahl, bei der eine Durchschnittsnote gebildet werden kann und kein Stichentscheid notwendig ist
 tab_correction_settings#:#Korrektur
+tab_correction_items#:#Abgaben
 correction_settings#:#Korrektur-Einstellungen
 message_no_correction_items#:#Ihnen sind noch keine Abgaben zur Korrektur zugewiesen.

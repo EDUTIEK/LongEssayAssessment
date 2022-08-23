@@ -3,14 +3,10 @@
 
 namespace ILIAS\Plugin\LongEssayTask\CorrectorAdmin;
 
-use Edutiek\LongEssayService\Corrector\Service;
-use Edutiek\LongEssayService\Data\DocuItem;
 use ILIAS\Plugin\LongEssayTask\BaseGUI;
-use ILIAS\Plugin\LongEssayTask\Corrector\CorrectorContext;
 use ILIAS\Plugin\LongEssayTask\Data\Corrector;
 use ILIAS\Plugin\LongEssayTask\Data\CorrectorAssignment;
 use ILIAS\Plugin\LongEssayTask\LongEssayTaskDI;
-use ILIAS\Plugin\LongEssayTask\Writer\WriterContext;
 use ILIAS\Plugin\LongEssayTask\WriterAdmin\CorrectorAdminListGUI;
 use ILIAS\Plugin\LongEssayTask\WriterAdmin\CorrectorListGUI;
 use \ilUtil;
@@ -31,7 +27,7 @@ class CorrectorAdminGUI extends BaseGUI
 	public function __construct(\ilObjLongEssayTaskGUI $objectGUI)
 	{
 		parent::__construct($objectGUI);
-		$this->service = $this->object->getCorrectorAdminService();
+		$this->service = $this->localDI->getCorrectorAdminService($this->object->getId());
 	}
 
     /**
@@ -277,7 +273,7 @@ class CorrectorAdminGUI extends BaseGUI
     protected function exportCorrections()
     {
         $filename = \ilUtil::getASCIIFilename($this->plugin->txt('export_corrections_file_prefix') .' ' .$this->object->getTitle()) . '.zip';
-        ilUtil::deliverFile($this->service->createCorrectionsExport(), $filename, 'application/zip', true, true);
+        ilUtil::deliverFile($this->service->createCorrectionsExport($this->object), $filename, 'application/zip', true, true);
     }
 
     protected function exportResults()

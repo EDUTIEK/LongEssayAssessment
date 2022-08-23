@@ -43,6 +43,9 @@ class CorrectorAdminListGUI extends WriterListGUI
 	 */
 	private $correction_settings;
 
+    /** @var LongEssayTaskDI  */
+    private $localDI;
+
 	/**
 	 * @var int[]
 	 */
@@ -52,6 +55,7 @@ class CorrectorAdminListGUI extends WriterListGUI
 	{
 		parent::__construct($parent, $parent_cmd, $plugin);
 		$this->correction_settings = $correction_settings;
+        $this->localDI = LongEssayTaskDI::getInstance();
 	}
 
 
@@ -108,8 +112,15 @@ class CorrectorAdminListGUI extends WriterListGUI
 	{
 		if(($assignment = $this->getAssignmentByWriterPosition($writer, $pos)) !== null){
 			$corrector = $this->correctors[$assignment->getCorrectorId()];
-			return $this->getUsername($corrector->getUserId());
-		}
+
+            if (!empty($essay = $this->essays[$writer->getId()])) {
+                $summary = $this->localDI->getEssayRepo()->getCorrectorSummaryByEssayIdAndCorrectorId($essay->getId(), $writer->getId());
+            }
+
+            return $this->getUsername($corrector->getUserId())
+                . ' - ' . $this->localDI->getDataService($corrector->getTaskId())->formatCorrectionResult($summary);
+        }
+
 		return " - ";
 	}
 

@@ -78,10 +78,10 @@ class DataService extends BaseService
      */
     public function isInRange(int $test, ?int $start, ?int $end)
     {
-        if (isset($start) && $test < $start) {
+        if (!empty($start) && $test < $start) {
             return false;
         }
-        if (isset($end) && $test > $end) {
+        if (!empty($end) && $test > $end) {
             return false;
         }
         return true;

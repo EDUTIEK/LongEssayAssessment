@@ -135,7 +135,6 @@ class ResourcesAdminGUI extends BaseGUI
         switch ($a_data["type"][0])
         {
             case Resource::RESOURCE_TYPE_FILE:
-
                 $resource_admin->saveFileResource(
                     $a_data["title"],
                     $a_data["description"],
@@ -161,7 +160,21 @@ class ResourcesAdminGUI extends BaseGUI
     protected function replaceResource(array $a_data, int $resource_id)
     {
         $resource_admin = new ResourceAdmin($this->object->getId());
-        $resource_admin->deleteResource($resource_id);
+
+        // check if an uploaded file should be kept
+        $delete_with_file = true;
+        if ($a_data["type"][0] == Resource::RESOURCE_TYPE_FILE
+            && !isset($a_data["type"][1]["resource_file"][0])
+        ) {
+            $task_repo = $this->localDI->getTaskRepo();
+            if (!empty($resource = $task_repo->getResourceById($resource_id))
+            && !empty($resource->getFileId())) {
+                $a_data["type"][1]["resource_file"][0] = $resource->getFileId();
+                $delete_with_file = false;
+            }
+        }
+
+        $resource_admin->deleteResource($resource_id, $delete_with_file);
         $this->createResource($a_data);
     }
 

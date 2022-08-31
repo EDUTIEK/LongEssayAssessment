@@ -37,7 +37,7 @@ class ResourceResourceStakeholder extends \ILIAS\ResourceStorage\Stakeholder\Abs
     {
 		$let_dic = LongEssayTaskDI::getInstance();
 		$task_repo = $let_dic->getTaskRepo();
-		$resource = $task_repo->getResourceById((string) $identification);
+		$resource = $task_repo->getResourceByFileId((string) $identification);
 
 		if($resource === null){
 			return true;

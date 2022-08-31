@@ -142,7 +142,7 @@ class ResourceAdmin
         return $resource;
     }
 
-	public function deleteResource(?int $a_id = 0): bool
+	public function deleteResource(?int $a_id = 0, ?bool $a_with_file = true): bool
 	{
 		global $DIC;
 		$let_dic = LongEssayTaskDI::getInstance();
@@ -152,7 +152,7 @@ class ResourceAdmin
 		{
 			$task_repo->deleteResource($a_id);
 
-			if($resource->getType() === Resource::RESOURCE_TYPE_FILE){
+			if($resource->getType() === Resource::RESOURCE_TYPE_FILE && $a_with_file){
 				$file_id = $resource->getFileId();
 				$file = $DIC->resourceStorage()->manage()->find($file_id);
 				if ($file !== null) {

@@ -6,12 +6,10 @@ namespace ILIAS\Plugin\LongEssayTask\Writer;
 use Edutiek\LongEssayService\Exceptions\ContextException;
 use Edutiek\LongEssayService\Writer\Service;
 use ILIAS\Plugin\LongEssayTask\BaseGUI;
-use ILIAS\Plugin\LongEssayTask\Data\Essay;
 use ILIAS\Plugin\LongEssayTask\Data\Resource;
 use ILIAS\Plugin\LongEssayTask\Data\TaskSettings;
 use ILIAS\Plugin\LongEssayTask\LongEssayTaskDI;
 use ILIAS\Plugin\LongEssayTask\Task\ResourceAdmin;
-use ILIAS\UI\Factory;
 use \ilUtil;
 
 /**

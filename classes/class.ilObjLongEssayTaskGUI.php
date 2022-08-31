@@ -193,7 +193,7 @@ class ilObjLongEssayTaskGUI extends ilObjectPluginGUI
         else {
             switch ($cmd)
             {
-                case 'isAuthorized':
+                case 'jumpToOrgaSettings':
                     $this->checkPermission("write");
                     $this->$cmd();
                     break;
@@ -204,7 +204,7 @@ class ilObjLongEssayTaskGUI extends ilObjectPluginGUI
                     break;
 
                 default:
-                    ilUtil::sendFailure('Unsupported cmd: ' . $next_class);
+                    ilUtil::sendFailure('Unsupported cmd: ' . $cmd);
             }
         }
 	}

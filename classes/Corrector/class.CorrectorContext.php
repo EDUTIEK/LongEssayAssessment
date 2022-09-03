@@ -142,6 +142,12 @@ class CorrectorContext extends ServiceContext implements Context
         if (!empty($repoCorrector = $correctorRepo->getCorrectorByUserId($this->user->getId(), $this->task->getTaskId()))) {
             foreach ($correctorRepo->getAssignmentsByCorrectorId($repoCorrector->getId()) as $repoAssignment) {
                 if (!empty($repoWriter = $writerRepo->getWriterById($repoAssignment->getWriterId()))) {
+                    if (!empty($repoEssay = $this->localDI->getEssayRepo()->getEssayByWriterIdAndTaskId($repoAssignment->getWriterId(), $this->task->getTaskId()))) {
+                        if (!empty($repoEssay->getWritingExcluded())) {
+                            continue;
+                        }
+                    }
+
                     $items[] = new CorrectionItem(
                         (string) $repoWriter->getId(),
                         $repoWriter->getPseudonym()

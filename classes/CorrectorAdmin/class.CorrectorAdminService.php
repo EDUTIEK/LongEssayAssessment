@@ -190,7 +190,7 @@ class CorrectorAdminService extends BaseService
      */
     public function isCorrectionPossible(?Essay $essay, ?CorrectorSummary $summary) : bool
     {
-        if (empty($essay) || empty($essay->getWritingAuthorized())) {
+        if (empty($essay) || empty($essay->getWritingAuthorized() || !empty($essay->getWritingExcluded()))) {
             return false;
         }
         if (!empty($summary) && !empty($summary->getCorrectionAuthorized())) {

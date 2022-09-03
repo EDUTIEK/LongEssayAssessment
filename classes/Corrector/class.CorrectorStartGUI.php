@@ -68,6 +68,11 @@ class CorrectorStartGUI extends BaseGUI
         foreach ($this->localDI->getCorrectorRepo()->getAssignmentsByCorrectorId($corrector->getId()) as $assignment) {
             $writer = $this->localDI->getWriterRepo()->getWriterById($assignment->getWriterId());
             $essay = $this->localDI->getEssayRepo()->getEssayByWriterIdAndTaskId($assignment->getWriterId(), $this->settings->getTaskId());
+
+            if (!empty($essay) && !empty($essay->getWritingExcluded())) {
+                continue;
+            }
+
             $summary = $this->localDI->getEssayRepo()->getCorrectorSummaryByEssayIdAndCorrectorId(
                 isset($essay) ? $essay->getId() : 0, $corrector->getId());
 

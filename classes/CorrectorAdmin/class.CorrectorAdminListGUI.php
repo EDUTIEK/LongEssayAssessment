@@ -114,7 +114,7 @@ class CorrectorAdminListGUI extends WriterListGUI
 			$corrector = $this->correctors[$assignment->getCorrectorId()];
 
             if (!empty($essay = $this->essays[$writer->getId()])) {
-                $summary = $this->localDI->getEssayRepo()->getCorrectorSummaryByEssayIdAndCorrectorId($essay->getId(), $writer->getId());
+                $summary = $this->localDI->getEssayRepo()->getCorrectorSummaryByEssayIdAndCorrectorId($essay->getId(), $assignment->getCorrectorId());
             }
 
             return $this->getUsername($corrector->getUserId())

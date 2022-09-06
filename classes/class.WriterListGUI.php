@@ -87,6 +87,10 @@ abstract class WriterListGUI
 				return $this->user_data[$user_id];
 			}
 		}
+        elseif (!empty($fullname = \ilObjUser::_lookupFullname($user_id))) {
+            return $fullname;
+        }
+
 		return ' - ';
 	}
 

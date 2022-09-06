@@ -74,7 +74,7 @@ class CorrectorStartGUI extends BaseGUI
             }
 
             $summary = $this->localDI->getEssayRepo()->getCorrectorSummaryByEssayIdAndCorrectorId(
-                isset($essay) ? $essay->getId() : 0, $corrector->getId());
+                (isset($essay) ? $essay->getId() : 0), $corrector->getId());
 
             $properties = [
                 $this->plugin->txt('writing_status') => $this->data->formatWritingStatus($essay),
@@ -136,6 +136,11 @@ class CorrectorStartGUI extends BaseGUI
 //            $this->renderer->render($result) . '<br>'.
 //            $this->renderer->render($view_control) . '<br><br>' .
                 $this->renderer->render($essays));
+
+            $taskSettings = $this->localDI->getTaskRepo()->getTaskSettingsById($this->settings->getTaskId());
+            if (!empty($period = $this->data->formatPeriod($taskSettings->getCorrectionStart(), $taskSettings->getCorrectionEnd()))) {
+                ilUtil::sendInfo($this->plugin->txt('correction_period') . ': ' . $period);
+            }
         }
         else {
             ilUtil::sendInfo($this->plugin->txt('message_no_correction_items'));

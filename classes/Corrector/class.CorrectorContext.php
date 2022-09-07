@@ -137,20 +137,35 @@ class CorrectorContext extends ServiceContext implements Context
     {
         $correctorRepo = $this->localDI->getCorrectorRepo();
         $writerRepo = $this->localDI->getWriterRepo();
+        $essayRepo = $this->localDI->getEssayRepo();
 
         $items = [];
         if (!empty($repoCorrector = $correctorRepo->getCorrectorByUserId($this->user->getId(), $this->task->getTaskId()))) {
             foreach ($correctorRepo->getAssignmentsByCorrectorId($repoCorrector->getId()) as $repoAssignment) {
                 if (!empty($repoWriter = $writerRepo->getWriterById($repoAssignment->getWriterId()))) {
-                    if (!empty($repoEssay = $this->localDI->getEssayRepo()->getEssayByWriterIdAndTaskId($repoAssignment->getWriterId(), $this->task->getTaskId()))) {
+                    if (!empty($repoEssay = $essayRepo->getEssayByWriterIdAndTaskId($repoAssignment->getWriterId(), $this->task->getTaskId()))) {
                         if (!empty($repoEssay->getWritingExcluded())) {
                             continue;
                         }
                     }
 
+                    $authorization_allowed = true;
+                    foreach ($correctorRepo->getAssignmentsByWriterId($repoWriter->getId()) as $otherAssignment) {
+                        if ($otherAssignment->getCorrectorId() == $repoAssignment->getCorrectorId()
+                            || $otherAssignment->getPosition() >= $repoAssignment->getPosition()) {
+                            continue;
+                        }
+                        $otherSummary = $essayRepo->getCorrectorSummaryByEssayIdAndCorrectorId($repoEssay->getId(), $otherAssignment->getCorrectorId());
+                        if (empty($otherSummary) || empty($otherSummary->getCorrectionAuthorized())) {
+                            $authorization_allowed = false;
+                        }
+                    }
+
                     $items[] = new CorrectionItem(
                         (string) $repoWriter->getId(),
-                        $repoWriter->getPseudonym()
+                        $repoWriter->getPseudonym(),
+                        true,
+                        $authorization_allowed
                     );
                 }
             }

@@ -155,7 +155,7 @@ class DataService extends BaseService
      */
     public function formatFinalResult(?Essay $essay) : string
     {
-        if (empty($essay) || empty($essay->getFinalGradeLevelId())) {
+        if (empty($essay) || empty($essay->getCorrectionFinalized()) || empty($essay->getFinalGradeLevelId())) {
             return $this->plugin->txt('not_specified');
         }
 

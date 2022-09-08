@@ -96,6 +96,11 @@ class CorrectorAdminListGUI extends WriterListGUI
 				$properties[$pos] = $this->getAssignedCorrectorName($writer, $assignment->getPosition());
 			}
 
+            $essay = $this->essays[$writer->getId()] ?? null;
+            if (!empty($essay)) {
+                $properties[$this->plugin->txt("final_grade")] = $this->localDI->getDataService($writer->getTaskId())->formatFinalResult($essay);
+            }
+
 			$items[] = $this->uiFactory->item()->standard($this->getWriterName($writer, true). $this->getWriterAnchor($writer))
 				->withLeadIcon($this->getWriterIcon($writer))
 				->withProperties($properties)

@@ -303,8 +303,11 @@ class CorrectorContext extends ServiceContext implements Context
      */
     public function setCorrectionSummary(string $item_key, string $corrector_key, CorrectionSummary $summary) : void
     {
+        $service = $this->localDI->getCorrectorAdminService($this->task->getTaskId());
         $essayRepo = $this->localDI->getEssayRepo();
+
         if (!empty($repoEssay = $essayRepo->getEssayByWriterIdAndTaskId((int) $item_key, $this->task->getTaskId()))) {
+
             $repoSummary = $essayRepo->getCorrectorSummaryByEssayIdAndCorrectorId($repoEssay->getId(), (int) $corrector_key);
             if (!isset($repoSummary)) {
                 $repoSummary = new CorrectorSummary();
@@ -324,13 +327,15 @@ class CorrectorContext extends ServiceContext implements Context
                 if (empty($repoSummary->getCorrectionAuthorizedBy())) {
                     $repoSummary->setCorrectionAuthorizedBy($this->user->getId());
                 }
+                $essayRepo->updateCorrectorSummary($repoSummary);
+                $service->tryFinalisation($repoEssay, $this->user->getId());
             }
             else {
                 $repoSummary->setCorrectionAuthorized(null);
                 $repoSummary->setCorrectionAuthorizedBy(null);
+                $essayRepo->updateCorrectorSummary($repoSummary);
             }
 
-            $essayRepo->updateCorrectorSummary($repoSummary);
         }
     }
 }

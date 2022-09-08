@@ -164,7 +164,7 @@ class CorrectorAdminListGUI extends WriterListGUI
 
 			if ($essay->getCorrectionFinalized() !== null) {
 				return $this->plugin->txt("writing_finalized_from") . " " .
-					$this->getUsername($essay->getWritingAuthorizedBy(), true);
+					$this->getUsername($essay->getCorrectionFinalizedBy(), true);
 			}
 
 			if(in_array($essay->getId(), $this->getCorrectionStatusStitches())){

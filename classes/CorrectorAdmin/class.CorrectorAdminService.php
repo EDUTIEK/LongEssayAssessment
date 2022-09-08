@@ -16,6 +16,7 @@ use ILIAS\Plugin\LongEssayTask\Data\CorrectorSummary;
 use ILIAS\Plugin\LongEssayTask\Data\DataService;
 use ILIAS\Plugin\LongEssayTask\Data\Essay;
 use ILIAS\Plugin\LongEssayTask\Data\EssayRepository;
+use ILIAS\Plugin\LongEssayTask\Data\GradeLevel;
 use ILIAS\Plugin\LongEssayTask\Data\TaskRepository;
 use ILIAS\Plugin\LongEssayTask\Data\WriterRepository;
 use ILIAS\Data\UUID\Factory as UUID;
@@ -202,39 +203,143 @@ class CorrectorAdminService extends BaseService
     /**
      * Check if the correction for an essay needs a stitch decision
      */
+    public function haveAllCorrectorsAuthorized(?Essay $essay) : bool
+    {
+        return count($this->getAuthorizedSummaries($essay)) >= $this->settings->getRequiredCorrectors();
+    }
+
+
+    /**
+     * Check if the correction for an essay needs a stitch decision
+     */
     public function isStitchDecisionNeeded(?Essay $essay) : bool
     {
-        if (empty($essay) || empty($essay->getWritingAuthorized())) {
-            // essay is not authorized
+        return $this->isStitchDecisionNeededForSummaries($this->getAuthorizedSummaries($essay));
+    }
+
+    /**
+     * Check if the correction for an essay needs a stitch decision
+     * @param CorrectorSummary[] $summaries
+     */
+    protected function isStitchDecisionNeededForSummaries(array $summaries) : bool
+    {
+        if (count($summaries) < $this->settings->getRequiredCorrectors()) {
+            // not enough correctors authorized => not yet ready
             return false;
         }
-
-        $numCorrected = 0;
         $minPoints = null;
         $maxPoints = null;
-        foreach ($this->correctorRepo->getAssignmentsByWriterId($essay->getWriterId()) as $assignment) {
-            $summary = $this->localDI->getEssayRepo()->getCorrectorSummaryByEssayIdAndCorrectorId(
-                $essay->getId(), $assignment->getCorrectorId());
-            if (empty($summary) || empty($summary->getCorrectionAuthorized())) {
-                // one correction is not authorized
-                return false;
-            }
-            $numCorrected++;
+        foreach ($summaries as $summary) {
             $minPoints = (isset($minPoints) ? min($minPoints, $summary->getPoints()) : $summary->getPoints());
             $maxPoints = (isset($maxPoints) ? max($maxPoints, $summary->getPoints()) : $summary->getPoints());
-        }
-
-        if ($numCorrected < $this->settings->getRequiredCorrectors()) {
-            // not enough correctors => not yet ready
-            return false;
         }
 
         if (abs($maxPoints - $minPoints) <= $this->settings->getMaxAutoDistance()) {
             // distance is within limit
             return false;
         }
-
         return true;
+    }
+
+    /**
+     * Get the average Points of the correction summaries
+     * @param CorrectorSummary[] $summaries
+     */
+    public function getAveragePointsOfSummaries(array $summaries) : ?float
+    {
+        $countOfPoints = 0;
+        $sumOfPoints = null;
+        foreach ($summaries as $summary) {
+            if ($summary->getPoints() !== null) {
+                $countOfPoints++;
+                $sumOfPoints += $summary->getPoints();
+            }
+        }
+        if ($countOfPoints > 0) {
+            return $sumOfPoints / $countOfPoints;
+        }
+        return null;
+    }
+
+    /**
+     * Get all correction summaries saved for an essay
+     * @param Essay|null $essay
+     * @return CorrectorSummary[]
+     */
+    protected function getAuthorizedSummaries(?Essay $essay) : array
+    {
+        if (empty($essay) || empty($essay->getWritingAuthorized())) {
+            // essay is not authorized
+            return [];
+        }
+
+        $summaries = [];
+        foreach ($this->correctorRepo->getAssignmentsByWriterId($essay->getWriterId()) as $assignment) {
+            $summary = $this->localDI->getEssayRepo()->getCorrectorSummaryByEssayIdAndCorrectorId(
+                $essay->getId(), $assignment->getCorrectorId());
+            if (!empty($summary) && !empty($summary->getCorrectionAuthorized())) {
+                $summaries[] = $summary;
+            }
+        }
+        return $summaries;
+    }
+
+
+    /**
+     * Get the resulting grade level for certain points
+     * @param float $points
+     * @return GradeLevel|null
+     */
+    protected function getGradeLevelForPoints(float $points) : ?GradeLevel
+    {
+        $objectRepo = $this->localDI->getObjectRepo();
+
+        $level = null;
+        $last_points = 0;
+        foreach ($objectRepo->getGradeLevelsByObjectId($this->task_id) as $levelCandidate) {
+            if ($levelCandidate->getMinPoints() <= $points
+                && $levelCandidate->getMinPoints() >= $last_points
+            ) {
+                $level = $levelCandidate;
+                $last_points = $level->getMinPoints();
+            }
+        }
+        return $level;
+    }
+
+    /**
+     * Try the finalisation of a correction
+     */
+    public function tryFinalisation(Essay $essay, int $user_id) : bool
+    {
+        $summaries = $this->getAuthorizedSummaries($essay);
+
+        if (count($summaries) < $this->getSettings()->getRequiredCorrectors()) {
+            return false;
+        }
+
+        if (!$this->isStitchDecisionNeededForSummaries($summaries)) {
+            echo "average possible\n";
+            $average= $this->getAveragePointsOfSummaries($summaries);
+            if ($average !== null) {
+                echo "average: $average \n";
+                $essay->setFinalPoints($average);
+                if (!empty($level = $this->getGradeLevelForPoints($average))) {
+                    echo "level: " . $level->getGrade() . "\n";
+                    $essay->setFinalGradeLevelId($level->getId());
+                    $essay->setCorrectionFinalized($this->dataService->unixTimeToDb(time()));
+                    $essay->setCorrectionFinalizedBy($user_id);
+
+                    $essayRepo = $this->localDI->getEssayRepo();
+                    $essayRepo->updateEssay($essay);
+
+                    return true;
+                }
+            }
+        }
+        echo "finit";
+        exit;
+        return false;
     }
 
     /**

@@ -243,11 +243,11 @@ class ilObjLongEssayTaskGUI extends ilObjectPluginGUI
         if ($this->object->canMaintainCorrectors()) {
             $this->ctrl->redirectByClass('ilias\plugin\longessaytask\correctorAdmin\correctoradmingui');
         }
-        if ($this->object->canViewWriterScreen()) {
-            $this->ctrl->redirectByClass('ilias\plugin\longessaytask\writer\writerstartgui');
-        }
         if ($this->object->canViewCorrectorScreen()) {
             $this->ctrl->redirectByClass('ilias\plugin\longessaytask\corrector\correctorstartgui');
+        }
+        if ($this->object->canViewWriterScreen()) {
+            $this->ctrl->redirectByClass('ilias\plugin\longessaytask\writer\writerstartgui');
         }
 
         \ilUtil::sendFailure($this->plugin->txt('message_no_admin_writer_corrector'), true);
@@ -329,6 +329,20 @@ class ilObjLongEssayTaskGUI extends ilObjectPluginGUI
             $this->subtabs['tab_task'] = $tabs;
         }
 
+        // Corrector Tab
+        $tabs = [];
+        if ($this->object->canViewCorrectorScreen()) {
+            $tabs[] = [
+                'id' => 'tab_corrector_start',
+                'txt' => $this->plugin->txt('tab_corrector_start'),
+                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessaytask\corrector\correctorstartgui')
+            ];
+        }
+        if (!empty($tabs)) {
+            $this->tabs->addTab('tab_corrector', $this->plugin->txt('tab_corrector'), $tabs[0]['url']);
+            $this->subtabs['tab_corrector'] = $tabs;
+        }
+
         // Writer Tab
         $tabs = [];
         if ($this->object->canViewWriterScreen()) {
@@ -343,20 +357,6 @@ class ilObjLongEssayTaskGUI extends ilObjectPluginGUI
             $this->subtabs['tab_writer'] = $tabs;
         }
 
-
-        // Corrector Tab
-        $tabs = [];
-        if ($this->object->canViewCorrectorScreen()) {
-            $tabs[] = [
-                'id' => 'tab_corrector_start',
-                'txt' => $this->plugin->txt('tab_corrector_start'),
-                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessaytask\corrector\correctorstartgui')
-            ];
-        }
-        if (!empty($tabs)) {
-            $this->tabs->addTab('tab_corrector', $this->plugin->txt('tab_corrector'), $tabs[0]['url']);
-            $this->subtabs['tab_corrector'] = $tabs;
-        }
 
         // Writer Admin Tab
         $tabs = [];

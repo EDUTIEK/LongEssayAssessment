@@ -51,6 +51,7 @@ class ilObjLongEssayTaskGUI extends ilObjectPluginGUI
                     $DIC->ctrl()->initBaseClass("ilObjPluginDispatchGUI");
                     $DIC->ctrl()->getCallStructure(strtolower("ilObjPluginDispatchGUI"));
                     $DIC->ctrl()->setParameterByClass("ilobjlongessaytaskgui", "ref_id", $ref_id);
+                    $DIC->ctrl()->setParameterByClass($class_name, "returned", '1');
                     $DIC->ctrl()->redirectByClass(array("ilobjplugindispatchgui", "ilobjlongessaytaskgui", $class_name), "");
                 }
             }

@@ -61,6 +61,9 @@ abstract class BaseGUI
     /** @var DataService */
     protected $data;
 
+    /** @var array query params */
+    protected $params;
+
     /**
 	 * Constructor
 	 * @param \ilObjLongEssayTaskGUI  $objectGUI
@@ -87,6 +90,7 @@ abstract class BaseGUI
 		$this->plugin = \ilLongEssayTaskPlugin::getInstance();
         $this->localDI = LongEssayTaskDI::getInstance();
         $this->data = $this->localDI->getDataService($this->object->getId());
+        $this->params = $this->request->getQueryParams();
 	}
 
 	/**

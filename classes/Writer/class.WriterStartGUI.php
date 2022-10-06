@@ -65,11 +65,18 @@ class WriterStartGUI extends BaseGUI
             if (!empty($essay = $this->localDI->getEssayRepo()->getEssayByWriterIdAndTaskId(
                 $writer->getId(), $this->task->getTaskId()
             ))) {
-                if (!empty($essay->getWritingAuthorized())) {
-                    ilUtil::sendInfo($this->plugin->txt('message_writing_authorized'));
-                }
                 if (!empty($essay->getWritingExcluded())) {
                     ilUtil::sendInfo($this->plugin->txt('message_writing_excluded'));
+                }
+                elseif (!empty($essay->getWritingAuthorized())) {
+                    $message = $this->plugin->txt('message_writing_authorized');
+                    $back_link = '';
+                    if (isset($this->params['returned'])) {
+                        $back_url = \ilLink::_getLink($this->dic->repositoryTree()->getParentId($this->object->getRefId()));
+                        $back_text = $this->plugin->txt('message_writing_authorized_link');
+                        $back_link = '<p><a href="'.$back_url.'">'.$back_text.'</a></p>';
+                    }
+                    ilUtil::sendInfo($message. $back_link);
                 }
             }
 
@@ -88,6 +95,10 @@ class WriterStartGUI extends BaseGUI
             $button->setCaption($this->plugin->txt(empty($essay) ? 'start_writing' : 'continue_writing'), false);
             $button->setPrimary(true);
             $this->toolbar->addButtonInstance($button);
+
+            if (isset($this->params['returned'])) {
+                ilUtil::sendInfo($this->plugin->txt('message_writing_returned_interrupted'));
+            }
         }
 
 //        $button = \ilLinkButton::getInstance();

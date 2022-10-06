@@ -256,7 +256,9 @@ export_results#:#Ergebnisse exportieren
 export_results_file_prefix#:#Ergebnisse
 message_no_admin_writer_corrector#:#Sie können auf diese Aufgabe nicht zugreifen, da Sie weder zur Bearbeitung noch zur Korrektur vorgesehen sind.
 message_writing_excluded#:#Sie wurden von der Bearbeitung ausgeschlossen.
-message_writing_authorized#:#Ihre Bearbeitung wurde autorisiert und kann nicht mehr geändert werden.
+message_writing_authorized#:#Die Abgabe Ihrer Klausur war erfolgreich und wurde durch Sie für eine Korrektur autorisiert. Wir wünschen Ihnen im weiteren Fortgang viel Erfolg!
+message_writing_authorized_link#:#» Klausur verlassen
+message_writing_returned_interrupted#:#Sie haben Ihre Bearbeitung unterbrochen. Klicken Sie auf "Bearbeitung fortsetzen", um ihre Klausur weiter zu schreiben oder für die Korrektur zu autorisieren.
 continue_writing#:#Bearbeitung fortsetzen
 assign_mode#:#Korrektoren-Zuweisung
 assign_mode_random_equal#:#zufällig gleichverteilt

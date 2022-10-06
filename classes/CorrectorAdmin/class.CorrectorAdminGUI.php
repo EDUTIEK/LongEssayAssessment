@@ -4,6 +4,7 @@
 namespace ILIAS\Plugin\LongEssayTask\CorrectorAdmin;
 
 use ILIAS\Plugin\LongEssayTask\BaseGUI;
+use ILIAS\Plugin\LongEssayTask\Data\CorrectionSettings;
 use ILIAS\Plugin\LongEssayTask\Data\Corrector;
 use ILIAS\Plugin\LongEssayTask\Data\CorrectorAssignment;
 use ILIAS\Plugin\LongEssayTask\LongEssayTaskDI;
@@ -53,6 +54,7 @@ class CorrectorAdminGUI extends BaseGUI
 				{
 					case 'showStartPage':
 					case 'showCorrectors':
+                    case 'confirmAssignWriters':
 					case 'assignWriters':
 					case 'changeCorrector':
 					case 'removeCorrector':
@@ -74,7 +76,7 @@ class CorrectorAdminGUI extends BaseGUI
     protected function showStartPage()
     {
         $this->toolbar->setFormAction($this->ctrl->getFormAction($this));
-		$assign_writers_action = $this->ctrl->getLinkTarget($this, "assignWriters");
+		$assign_writers_action = $this->ctrl->getLinkTarget($this, "confirmAssignWriters");
         $export_corrections_action =  $this->ctrl->getLinkTarget($this, "exportCorrections");
         $export_results_action =  $this->ctrl->getLinkTarget($this, "exportResults");
 
@@ -225,8 +227,41 @@ class CorrectorAdminGUI extends BaseGUI
 		$this->ctrl->redirect($this, "showCorrectors");
 	}
 
+    protected function confirmAssignWriters() {
 
-	protected function assignWriters(){
+        $missing = $this->service->countMissingCorrectors();
+        if ($missing == 0) {
+            ilUtil::sendInfo($this->plugin->txt('assign_not_needed'), true);
+            $this->ctrl->redirect($this, 'showStartPage');
+        }
+        $available = $this->service->countAvailableCorrectors();
+        if ($available == 0)  {
+            ilUtil::sendInfo($this->plugin->txt('assign_not_available'), true);
+            $this->ctrl->redirect($this, 'showStartPage');
+        }
+
+        $message =
+            sprintf($this->plugin->txt('assign_missing_correctors'), $missing) . '<br />' .
+            sprintf($this->plugin->txt('assign_available_correctors'), $available) . '<br />';
+
+
+        switch ($this->service->getSettings()->getAssignMode()) {
+            case CorrectionSettings::ASSIGN_MODE_RANDOM_EQUAL:
+            default:
+                $message .= $this->plugin->txt('assign_mode_random_equal_info');
+        }
+
+        $gui = new \ilConfirmationGUI();
+        $gui->setFormAction($this->ctrl->getFormAction($this));
+        $gui->setHeaderText($message);
+        $gui->setCancel($this->lng->txt('cancel'),'showStartPage');
+        $gui->setConfirm($this->plugin->txt('assign_writers'),'assignWriters');
+
+        $this->tpl->setContent($gui->getHTML());
+
+    }
+
+	protected function assignWriters() {
 		$assigned = $this->service->assignMissingCorrectors();
         if ($assigned == 0) {
             ilUtil::sendFailure($this->plugin->txt("0_assigned_correctors"), true);

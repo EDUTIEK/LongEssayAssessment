@@ -88,6 +88,35 @@ class CorrectorAdminService extends BaseService
     }
 
     /**
+     * Get the number of available correctors
+     * @return int
+     */
+    public function countAvailableCorrectors() : int
+    {
+        return count($this->correctorRepo->getCorrectorsByTaskId($this->settings->getTaskId()));
+    }
+
+    /**
+     * Get the number of missing correctors
+     * @return int
+     */
+    public function countMissingCorrectors() : int
+    {
+        $required = $this->settings->getRequiredCorrectors();
+        $missing = 0;
+        foreach ($this->writerRepo->getWritersByTaskId($this->settings->getTaskId()) as $writer) {
+            // get only writers with authorized essays
+            $essay = $this->localDI->getEssayRepo()->getEssayByWriterIdAndTaskId($writer->getId(), $this->settings->getTaskId());
+            if (!isset($essay) || (empty($essay->getWritingAuthorized()) && empty($essay->getWritingExcluded()))) {
+                continue;
+            }
+            $assigned = count($this->correctorRepo->getAssignmentsByWriterId($writer->getId()));
+            $missing += max(0, $required - $assigned);
+        }
+        return $missing;
+    }
+
+    /**
      * Assign correctors to empty corrector positions for the candidates
      * @return int number of new assignments
      */
@@ -124,7 +153,7 @@ class CorrectorAdminService extends BaseService
 
             // get only writers with authorized essays
             $essay = $this->localDI->getEssayRepo()->getEssayByWriterIdAndTaskId($writer->getId(), $this->settings->getTaskId());
-            if (!isset($essay) || empty($essay->getWritingAuthorized())) {
+            if (!isset($essay) || (empty($essay->getWritingAuthorized()) && empty($essay->getWritingExcluded()))) {
                 continue;
             }
 

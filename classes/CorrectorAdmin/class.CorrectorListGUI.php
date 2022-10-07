@@ -81,7 +81,9 @@ class CorrectorListGUI extends WriterListGUI
 				$item = $item->withDescription($this->renderer->render($this->uiFactory->listing()->characteristicValue()->text($writers)));
 			}
 			if(count($actions) > 0){
-				$item =  $item->withActions($this->uiFactory->dropdown()->standard($actions));
+				$actions_dropdown = $this->uiFactory->dropdown()->standard($actions)
+					->withLabel($this->plugin->txt("actions"));
+				$item =  $item->withActions($actions_dropdown);
 			}
 
 			$items[] = $item;

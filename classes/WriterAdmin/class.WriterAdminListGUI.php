@@ -92,6 +92,10 @@ class WriterAdminListGUI extends WriterListGUI
 
 				$modals[] = $exclusion_modal;
 			}
+
+			$actions_dropdown = $this->uiFactory->dropdown()->standard($actions)
+				->withLabel($this->plugin->txt("actions"));
+
 			$items[] = $this->uiFactory->item()->standard($this->getWriterName($writer, true) . $this->getWriterAnchor($writer))
 				->withLeadIcon($this->getWriterIcon($writer))
 				->withProperties(array(
@@ -100,7 +104,7 @@ class WriterAdminListGUI extends WriterListGUI
 					$this->plugin->txt("writing_time_extension") => $this->extensionString($writer),
 					$this->plugin->txt("writing_last_save") => $this->lastSave($writer),
 
-				))->withActions($this->uiFactory->dropdown()->standard($actions));
+				))->withActions($actions_dropdown);
 		}
 
 		$resources = array_merge([$this->uiFactory->item()->group($this->plugin->txt("participants"), $items)], $modals);

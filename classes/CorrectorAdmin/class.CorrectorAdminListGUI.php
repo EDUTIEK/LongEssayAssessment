@@ -101,10 +101,13 @@ class CorrectorAdminListGUI extends WriterListGUI
                 $properties[$this->plugin->txt("final_grade")] = $this->localDI->getDataService($writer->getTaskId())->formatFinalResult($essay);
             }
 
+			$actions_dropdown = $this->uiFactory->dropdown()->standard($actions)
+				->withLabel($this->plugin->txt("actions"));
+
 			$items[] = $this->uiFactory->item()->standard($this->getWriterName($writer, true). $this->getWriterAnchor($writer))
 				->withLeadIcon($this->getWriterIcon($writer))
 				->withProperties($properties)
-				->withActions($this->uiFactory->dropdown()->standard($actions));
+				->withActions($actions_dropdown);
 		}
 
 		$resources = $this->uiFactory->item()->group($this->plugin->txt("correctable_exams"), $items);

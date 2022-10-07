@@ -280,3 +280,6 @@ message_no_correction_items#:#Ihnen sind noch keine Abgaben zur Korrektur zugewi
 correction_period#:#Korrektur-Zeitraum
 final_grade#:#Endnote
 actions#:#Aktionen
+delete_writer_data#:#Teilnehmerdaten entfernen
+delete_writer_data_confirmation#:#Sind Sie sicher, dass Sie alle Teilnehmerdaten unwiderruflich entfernen möchten?
+delete_writer_data_success#:#Alle Teilnehmerdaten erfolgreich entfernt.

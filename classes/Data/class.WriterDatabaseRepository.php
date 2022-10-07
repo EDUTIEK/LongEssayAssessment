@@ -134,10 +134,11 @@ class WriterDatabaseRepository implements WriterRepository
         $db->manipulate("DELETE FROM xlet_writer" .
             " WHERE task_id = " . $db->quote($a_task_id, "integer"));
 
-        $db->manipulate("DELETE xlet_time_extension FROM xlet_time_extension AS te"
+        $db->manipulate("DELETE te FROM xlet_time_extension AS te"
             . " LEFT JOIN xlet_writer AS writer ON (te.writer_id = writer.id)"
             . " WHERE writer.task_id = " . $db->quote($a_task_id, "integer"));
-    }
+
+	}
 
     public function deleteTimeExtension(int $a_writer_id, int $a_task_id)
     {

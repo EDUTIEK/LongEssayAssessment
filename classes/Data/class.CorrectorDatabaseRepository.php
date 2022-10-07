@@ -140,7 +140,7 @@ class CorrectorDatabaseRepository implements CorrectorRepository
         global $DIC;
         $db = $DIC->database();
 
-        $db->manipulate("DELETE xlet_corrector_ass FROM xlet_corrector_ass AS ass"
+        $db->manipulate("DELETE ass FROM xlet_corrector_ass AS ass"
             . " LEFT JOIN xlet_corrector AS corrector ON (ass.corrector_id = corrector.id)"
             . " WHERE corrector.task_id = " . $db->quote($a_task_id, "integer"));
     }

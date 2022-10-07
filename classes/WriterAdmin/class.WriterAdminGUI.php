@@ -8,6 +8,7 @@ use ILIAS\Plugin\LongEssayTask\BaseGUI;
 use ILIAS\Plugin\LongEssayTask\Data\Essay;
 use ILIAS\Plugin\LongEssayTask\Data\GradeLevel;
 use ILIAS\Plugin\LongEssayTask\Data\LogEntry;
+use ILIAS\Plugin\LongEssayTask\Data\ObjectSettings;
 use ILIAS\Plugin\LongEssayTask\Data\TimeExtension;
 use ILIAS\Plugin\LongEssayTask\Data\Writer;
 use ILIAS\Plugin\LongEssayTask\LongEssayTaskDI;
@@ -50,6 +51,7 @@ class WriterAdminGUI extends BaseGUI
 					case 'updateExtension':
 					case 'authorizeWriting':
 					case 'repealExclusion':
+					case 'deleteWriterData':
 						$this->$cmd();
 						break;
 
@@ -59,8 +61,12 @@ class WriterAdminGUI extends BaseGUI
 		}
     }
 
-
-	private function showToolbar(){
+    /**
+     * Show the items
+     */
+    protected function showStartPage()
+    {
+        $this->toolbar->setFormAction($this->ctrl->getFormAction($this));
 
 		\ilRepositorySearchGUI::fillAutoCompleteToolbar(
 			$this,
@@ -68,26 +74,20 @@ class WriterAdminGUI extends BaseGUI
 			array()
 		);
 
+		// search button
+		$delete_writer_data_button = $this->uiFactory->button()->standard(
+			$this->plugin->txt("search_participants"),
+			$this->ctrl->getLinkTargetByClass('ilRepositorySearchGUI', 'start')
+		);
+		$this->toolbar->addComponent($delete_writer_data_button);
+
 		// spacer
 		$this->toolbar->addSeparator();
 
-		// search button
-		$this->toolbar->addButton(
-			$this->plugin->txt("search_participants"),
-			$this->ctrl->getLinkTargetByClass(
-				'ilRepositorySearchGUI',
-				'start'
-			)
-		);
-	}
-
-    /**
-     * Show the items
-     */
-    protected function showStartPage()
-    {
-        $this->toolbar->setFormAction($this->ctrl->getFormAction($this));
-		$this->showToolbar();
+		$delete_writer_data_modal = $this->buildDeleteWriterDataModal();
+		$delete_writer_data_button = $this->uiFactory->button()->standard($this->plugin->txt("delete_writer_data"), "#")
+			->withOnClick($delete_writer_data_modal->getShowSignal());
+		$this->toolbar->addComponent($delete_writer_data_button);
 
 		$writer_repo = LongEssayTaskDI::getInstance()->getWriterRepo();
 		$essay_repo = LongEssayTaskDI::getInstance()->getEssayRepo();
@@ -98,7 +98,7 @@ class WriterAdminGUI extends BaseGUI
 		$list_gui->setEssays($essay_repo->getEssaysByTaskId($this->object->getId()));
 		$list_gui->setHistory($essay_repo->getLastWriterHistoryPerUserByTaskId($this->object->getId()));
 
-        $this->tpl->setContent($list_gui->getContent());
+        $this->tpl->setContent($this->renderer->render($delete_writer_data_modal) . $list_gui->getContent());
      }
 
 	private function excludeWriter(){
@@ -347,6 +347,32 @@ class WriterAdminGUI extends BaseGUI
 		$this->ctrl->redirect($this, "showStartPage", "writer_" . $id);
 	}
 
+	protected function deleteWriterData(){
+		$essay_repo = LongEssayTaskDI::getInstance()->getEssayRepo();
+		$writer_repo = LongEssayTaskDI::getInstance()->getWriterRepo();
+		$task_repo = LongEssayTaskDI::getInstance()->getTaskRepo();
+		$corr_repo = LongEssayTaskDI::getInstance()->getCorrectorRepo();
+
+		$essay_repo->deleteEssayByTaskId($this->object->getId());
+		$writer_repo->deleteWriterByTaskId($this->object->getId());
+		$task_repo->deleteLogEntryByTaskId($this->object->getId());
+		$task_repo->deleteAlertByTaskId($this->object->getId());
+		$corr_repo->deleteCorrectorAssignmentByTask($this->object->getId());
+
+
+		/* TODO: Besprechen ob manuell hinzugefügte Teilnehmer bei nicht selbständigem Start erhalten bleiben sollen.
+		$object_repo = LongEssayTaskDI::getInstance()->getObjectRepo();
+		$settings = $object_repo->getObjectSettingsById($this->object->getId());
+
+		// when self participation is active also delete all writer
+		if($settings->getParticipationType() === ObjectSettings::PARTICIPATION_TYPE_INSTANT){
+			$writer_repo->deleteWriterByTaskId($this->object->getId());
+		}*/
+
+		ilUtil::sendSuccess($this->plugin->txt("delete_writer_data_success"), true);
+		$this->ctrl->redirect($this, "showStartPage");
+	}
+
 	protected function getExtension(int $writer_id): ?TimeExtension
 	{
 		$writer_repo  = LongEssayTaskDI::getInstance()->getWriterRepo();
@@ -451,5 +477,14 @@ class WriterAdminGUI extends BaseGUI
 			->setCategory(LogEntry::CATEGORY_EXCLUSION);
 
 		$task_repo->createLogEntry($log_entry);
+	}
+
+	private function buildDeleteWriterDataModal()
+	{
+		return $this->uiFactory->modal()->interruptive(
+			$this->plugin->txt("delete_writer_data"),
+			$this->plugin->txt("delete_writer_data_confirmation"),
+			$this->ctrl->getLinkTarget($this, "deleteWriterData")
+		)->withActionButtonLabel("remove");
 	}
 }

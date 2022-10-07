@@ -6,6 +6,7 @@ namespace ILIAS\Plugin\LongEssayTask\Task;
 use ILIAS\Plugin\LongEssayTask\BaseGUI;
 use ILIAS\Plugin\LongEssayTask\Data\GradeLevel;
 use ILIAS\Plugin\LongEssayTask\LongEssayTaskDI;
+use ILIAS\Plugin\LongEssayTask\UI\Implementation\Numeric;
 use ILIAS\UI\Component\Table\PresentationRow;
 use ILIAS\UI\Factory;
 use \ilUtil;
@@ -92,7 +93,6 @@ class GradesAdminGUI extends BaseGUI
 			$today = new \ilDateTime(time(), IL_CAL_UNIX);
 
 			$can_delete = !\ilDate::_after($today, $correction_start);
-			var_dump($can_delete, $correction_start->get(IL_CAL_DATETIME), $today->get(IL_CAL_DATETIME),\ilDate::_after($today, $correction_start));
 		}
 
 
@@ -154,7 +154,7 @@ class GradesAdminGUI extends BaseGUI
 		}
 
 		$factory = $this->uiFactory->input()->field();
-
+		$custom_factory = LongEssayTaskDI::getInstance()->custom_factory();
 		$sections = [];
 
 		$fields = [];
@@ -166,9 +166,10 @@ class GradesAdminGUI extends BaseGUI
 			->withRequired(false)
 			->withValue($data["code"]!== null ? $data["code"] : "");
 
-		$fields['points'] = $factory->numeric($this->plugin->txt('min_points'), $this->plugin->txt("min_points_caption"))
+		$fields['points'] = $custom_factory->numeric($this->plugin->txt('min_points'), $this->plugin->txt("min_points_caption"))
+			->withStep(0.01)
 			->withRequired(true)
-			->withValue((int)$data["points"]);
+			->withValue((float)$data["points"]);
 
 		$fields['passed'] =$factory->checkbox($this->plugin->txt('passed'), $this->plugin->txt("passed_caption"))
 			->withRequired(true)
@@ -215,7 +216,7 @@ class GradesAdminGUI extends BaseGUI
 				ilUtil::sendSuccess($this->lng->txt("settings_saved"), true);
 				$this->ctrl->redirect($this, "showItems");
 			}else {
-				ilUtil::sendFailure($this->lng->txt("validation_error"), false);
+				// ilUtil::sendFailure($this->lng->txt("validation_error"), false);
 				$this->editItem($form);
 			}
 		}

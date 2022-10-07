@@ -42,13 +42,13 @@ class GradeLevel extends ActivePluginRecord
     protected $object_id;
 
     /**
-     * @var int
+     * @var float
      * @con_has_field        true
      * @con_is_notnull       true
-     * @con_fieldtype        integer
+     * @con_fieldtype        float
      * @con_length           4
      */
-    protected $min_points = 0;
+    protected $min_points = 0.;
 
     /**
      * @var string
@@ -116,18 +116,18 @@ class GradeLevel extends ActivePluginRecord
     }
 
     /**
-     * @return int
+     * @return float
      */
-    public function getMinPoints(): int
+    public function getMinPoints(): float
     {
         return $this->min_points;
     }
 
     /**
-     * @param int $min_points
+     * @param float $min_points
      * @return GradeLevel
      */
-    public function setMinPoints(int $min_points): GradeLevel
+    public function setMinPoints(float $min_points): GradeLevel
     {
         $this->min_points = $min_points;
         return $this;

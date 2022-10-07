@@ -1386,5 +1386,13 @@ if (!$ilDB->tableColumnExists('xlet_corr_setting','assign_mode')) {
         'default' => 'random_equal'
     ]);
 }
-
+?>
+<#55>
+<?php
+if ($ilDB->tableColumnExists('xlet_grade_level','min_points')) {
+	$ilDB->modifyTableColumn('xlet_grade_level', 'min_points', array(
+		'notnull' => '1',
+		'type' => 'float'
+	));
+}
 ?>

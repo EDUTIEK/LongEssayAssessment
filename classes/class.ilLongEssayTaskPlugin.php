@@ -37,6 +37,9 @@ class ilLongEssayTaskPlugin extends ilRepositoryObjectPlugin
     {
         parent::init();
         require_once __DIR__ . '/../vendor/autoload.php';
+
+		$di = \ILIAS\Plugin\LongEssayTask\LongEssayTaskDI::getInstance();
+		$di->init($this);
     }
 
     /**

@@ -1396,3 +1396,12 @@ if ($ilDB->tableColumnExists('xlet_grade_level','min_points')) {
 	));
 }
 ?>
+<#56>
+<?php
+if ($ilDB->tableColumnExists('xlet_corrector_summary','points')) {
+    $ilDB->modifyTableColumn('xlet_corrector_summary', 'points', array(
+        'notnull' => '0',
+        'type' => 'float'
+    ));
+}
+?>

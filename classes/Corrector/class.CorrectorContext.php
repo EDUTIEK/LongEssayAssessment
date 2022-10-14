@@ -283,7 +283,7 @@ class CorrectorContext extends ServiceContext implements Context
             )) {
                 return new CorrectionSummary(
                     $repoSummary->getSummaryText(),
-                    $repoSummary->getPoints(),
+                    (float) $repoSummary->getPoints(),
                     $repoSummary->getGradeLevelId() ? (string) $repoSummary->getGradeLevelId() : null,
                     $this->data->dbTimeToUnix($repoSummary->getLastChange()),
                     !empty($repoSummary->getCorrectionAuthorized()),

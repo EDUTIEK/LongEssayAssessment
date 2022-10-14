@@ -66,7 +66,7 @@ class CorrectorSummary extends ActivePluginRecord
      * @var int
      * @con_has_field        true
      * @con_is_notnull       false
-     * @con_fieldtype        integer
+     * @con_fieldtype        float
      * @con_length           4
      */
     protected $points = 0;
@@ -193,18 +193,18 @@ class CorrectorSummary extends ActivePluginRecord
     }
 
     /**
-     * @return int
+     * @return float
      */
-    public function getPoints(): ?int
+    public function getPoints(): ?float
     {
         return $this->points;
     }
 
     /**
-     * @param int $points
+     * @param float $points
      * @return CorrectorSummary
      */
-    public function setPoints(?int $points): CorrectorSummary
+    public function setPoints(?float $points): CorrectorSummary
     {
         $this->points = $points;
         return $this;

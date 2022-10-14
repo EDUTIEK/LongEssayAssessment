@@ -248,8 +248,9 @@ class CorrectorAdminGUI extends BaseGUI
         switch ($this->service->getSettings()->getAssignMode()) {
             case CorrectionSettings::ASSIGN_MODE_RANDOM_EQUAL:
             default:
-                $message .= $this->plugin->txt('assign_mode_random_equal_info');
+                $message .= $this->plugin->txt('assign_mode_random_equal_info') .  '<br />';
         }
+        $message .= $this->plugin->txt('message_corrector_assignment_changeable');
 
         $gui = new \ilConfirmationGUI();
         $gui->setFormAction($this->ctrl->getFormAction($this));

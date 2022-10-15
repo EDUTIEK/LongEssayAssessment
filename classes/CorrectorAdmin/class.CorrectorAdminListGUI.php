@@ -387,8 +387,8 @@ class CorrectorAdminListGUI extends WriterListGUI
 			$essay = $this->essays[$writer->getId()];
 		}
 
-		if($essay !== null && array_key_exists($essay->getId(), $this->correction_status_stitches)){
-			$stitch = $this->extensions[$essay->getId()];
+		if($essay !== null && in_array($essay->getId(), $this->correction_status_stitches)){
+			$stitch = true;
 		}
 
 		switch($filter){

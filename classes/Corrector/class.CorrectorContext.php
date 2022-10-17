@@ -360,7 +360,9 @@ class CorrectorContext extends ServiceContext implements Context
                 $repoEssay->getProcessedText(),
                 $this->data->dbTimeToUnix($repoEssay->getEditStarted()),
                 $this->data->dbTimeToUnix($repoEssay->getEditEnded()),
-                !empty($repoEssay->getWritingAuthorized())
+                !empty($repoEssay->getWritingAuthorized()),
+                $this->data->dbTimeToUnix($repoEssay->getWritingAuthorized()),
+                !empty($repoEssay->getWritingAuthorized()) ? \ilObjUser::_lookupFullname($repoEssay->getWritingAuthorizedBy()) : null
             );
 
             if ($repoEssay->getCorrectionFinalized()) {

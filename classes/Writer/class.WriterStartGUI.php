@@ -165,32 +165,36 @@ class WriterStartGUI extends BaseGUI
         // Result
 
         $result_actions = [];
-
-        if ($this->object->canReview() && isset($essay)) {
-
+        if (isset($essay)) {
             $submission_page = $this->uiFactory->modal()->lightboxTextPage(
                 (string) $essay->getProcessedText(), $this->plugin->txt('submission'));
             $submission_modal = $this->uiFactory->modal()->lightbox($submission_page);
             $modals[$submission_modal->getShowSignal()->getId()] = $submission_modal;
 
-            $result_actions[] = $this->uiFactory->button()->shy($this->plugin->txt('view_submission'), '')
+            $result_actions[] = $this->uiFactory->button()->standard($this->plugin->txt('view_submission'), '')
                 ->withOnClick($submission_modal->getShowSignal());
 
             if ($this->object->canReview()) {
-                $result_actions[] = $this->uiFactory->button()->shy($this->plugin->txt('download_corrected_submission'),
+                $result_actions[] = $this->uiFactory->button()->standard($this->plugin->txt('download_corrected_submission'),
                     $this->ctrl->getLinkTarget($this, 'downloadWriterPdf'));
             }
         }
 
+        $actions_html = '';
+        foreach ($result_actions as $action) {
+            $actions_html .= $this->renderer->render($action);
+        }
         $result_item = $this->uiFactory->item()->standard($this->data->formatFinalResult($essay))
-            ->withDescription("")
+            ->withDescription($actions_html)
             ->withProperties(array(
                 $this->plugin->txt('review_period') => $this->data->formatPeriod(
                     $this->task->getReviewStart(), $this->task->getReviewEnd()
                 )));
-        if (!empty($result_actions)) {
-            $result_item = $result_item->withActions($this->uiFactory->dropdown()->standard($result_actions));
-        }
+
+//        if (!empty($result_actions)) {
+//            $result_item = $result_item->withActions($this->uiFactory->dropdown()->standard($result_actions));
+//        }
+
         $contents[] = $this->uiFactory->item()->group($this->plugin->txt('result'), [$result_item]);
 
 
@@ -244,12 +248,12 @@ class WriterStartGUI extends BaseGUI
      protected function downloadWriterPdf()
      {
          if ($this->object->canReview()) {
-             $context = new WriterContext();
-             $context->init((string) $this->dic->user()->getId(), (string) $this->object->getRefId());
-             $service = new Service($context);
+             $service = $this->localDI->getCorrectorAdminService($this->object->getId());
+             $repoTask = $this->localDI->getTaskRepo()->getTaskSettingsById($this->object->getId());
+             $repoWriter = $this->localDI->getWriterRepo()->getWriterByUserId($this->dic->user()->getId(), $this->object->getId());
 
              $filename = 'task' . $this->object->getId() . '_user' . $this->dic->user()->getId(). '.pdf';
-             ilUtil::deliverData($service->getProcessedTextAsPdf(), $filename, 'application/pdf');
+             ilUtil::deliverData($service->getCorrectionAsPdf($this->object, $repoTask, $repoWriter), $filename, 'application/pdf');
          }
          else {
              $this->raisePermissionError();

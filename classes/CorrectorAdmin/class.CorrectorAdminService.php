@@ -18,6 +18,8 @@ use ILIAS\Plugin\LongEssayTask\Data\Essay;
 use ILIAS\Plugin\LongEssayTask\Data\EssayRepository;
 use ILIAS\Plugin\LongEssayTask\Data\GradeLevel;
 use ILIAS\Plugin\LongEssayTask\Data\TaskRepository;
+use ILIAS\Plugin\LongEssayTask\Data\TaskSettings;
+use ILIAS\Plugin\LongEssayTask\Data\Writer;
 use ILIAS\Plugin\LongEssayTask\Data\WriterRepository;
 use ILIAS\Data\UUID\Factory as UUID;
 use ilObjUser;
@@ -378,10 +380,6 @@ class CorrectorAdminService extends BaseService
      */
     public function createCorrectionsExport(\ilObjLongEssayTask $object) : string
     {
-        $context = new CorrectorContext();
-        $context->init((string) $this->dic->user()->getId(), (string) $object->getRefId());
-        $service = new Service($context);
-
         $storage = $this->dic->filesystem()->temp();
         $basedir = ILIAS_DATA_DIR . '/' . CLIENT_ID . '/temp';
         $tempdir = 'xlet/'. (new UUID)->uuid4AsString();
@@ -392,32 +390,10 @@ class CorrectorAdminService extends BaseService
         foreach ($this->essayRepo->getEssaysByTaskId($repoTask->getTaskId()) as $repoEssay) {
             $repoWriter = $this->writerRepo->getWriterById($repoEssay->getWriterId());
 
-            $writingTask = new WritingTask(
-                $object->getTitle(),
-                $repoTask->getInstructions(),
-                \ilObjUser::_lookupFullname($repoWriter->getUserId()),
-                $this->dataService->dbTimeToUnix($repoTask->getWritingEnd())
-            );
-            $writtenEssay = $context->getEssayOfItem((string) $repoWriter->getId());
-
-            $correctionSummaries = [];
-            foreach ($this->correctorRepo->getAssignmentsByWriterId($repoWriter->getId()) as $assignment) {
-                $repoCorrector = $this->correctorRepo->getCorrectorById($assignment->getCorrectorId());
-                if (!empty($summary = $context->getCorrectionSummary((string) $repoWriter->getId(), (string) $repoCorrector->getId()))) {
-                    $correctionSummaries[] = $summary;
-                }
-            }
-
-            $item = new DocuItem(
-                $writingTask,
-                $writtenEssay,
-                $correctionSummaries
-            );
-
             $filename = \ilUtil::getASCIIFilename(
                 \ilObjUser::_lookupFullname($repoWriter->getUserId()) . ' (' . \ilObjUser::_lookupLogin($repoWriter->getUserId()) . ')') . '.pdf';
 
-            $storage->write($zipdir . '/'. $filename, $service->getCorrectionAsPdf($item));
+            $storage->write($zipdir . '/'. $filename, $this->getCorrectionAsPdf($object, $repoTask, $repoWriter));
         }
 
         $zipfile = $basedir . '/' . $tempdir . '/' . \ilUtil::getASCIIFilename($object->getTitle()) . '.zip';
@@ -430,6 +406,41 @@ class CorrectorAdminService extends BaseService
         // then also the tempdir can be deleted
         //$delivery = new \ilFileDelivery()
     }
+
+    /**
+     * Get the correction of an essay as PDF string
+     */
+    public function getCorrectionAsPdf(\ilObjLongEssayTask $object, TaskSettings $repoTask, Writer $repoWriter) : string
+    {
+        $context = new CorrectorContext();
+        $context->init((string) $this->dic->user()->getId(), (string) $object->getRefId());
+
+        $writingTask = new WritingTask(
+            $object->getTitle(),
+            $repoTask->getInstructions(),
+            \ilObjUser::_lookupFullname($repoWriter->getUserId()),
+            $this->dataService->dbTimeToUnix($repoTask->getWritingEnd())
+        );
+        $writtenEssay = $context->getEssayOfItem((string) $repoWriter->getId());
+
+        $correctionSummaries = [];
+        foreach ($this->correctorRepo->getAssignmentsByWriterId($repoWriter->getId()) as $assignment) {
+            $repoCorrector = $this->correctorRepo->getCorrectorById($assignment->getCorrectorId());
+            if (!empty($summary = $context->getCorrectionSummary((string) $repoWriter->getId(), (string) $repoCorrector->getId()))) {
+                $correctionSummaries[] = $summary;
+            }
+        }
+
+        $item = new DocuItem(
+            $writingTask,
+            $writtenEssay,
+            $correctionSummaries
+        );
+
+        $service = new Service($context);
+        return $service->getCorrectionAsPdf($item);
+    }
+
 
 
     public function createResultsExport() : string

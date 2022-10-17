@@ -11,6 +11,7 @@ use Edutiek\LongEssayService\Data\CorrectionSummary;
 use Edutiek\LongEssayService\Data\CorrectionTask;
 use Edutiek\LongEssayService\Data\Corrector;
 use Edutiek\LongEssayService\Data\WrittenEssay;
+use Edutiek\LongEssayService\Exceptions\ContextException;
 use ILIAS\Plugin\LongEssayTask\Data\CorrectorSummary;
 use ILIAS\Plugin\LongEssayTask\Data\Resource;
 use ILIAS\Plugin\LongEssayTask\Data\Writer;
@@ -34,6 +35,10 @@ class CorrectorContext extends ServiceContext implements Context
      */
     protected $selected_writer_id;
 
+    protected bool $is_review = false;
+    protected bool $is_stitch_decision = false;
+
+
     /**
      * Select id of the writer for being corrected
      * The corrector app will load the correction item of this writer
@@ -42,6 +47,47 @@ class CorrectorContext extends ServiceContext implements Context
     public function selectWriterId(int $id) : void {
         $this->selected_writer_id = $id;
     }
+
+    /**
+     * @inheritDoc
+     * here: check if user has the permission to review corrections
+     */
+    public function setReview(bool $is_review)
+    {
+        if ($is_review && !$this->object->canMaintainCorrectors()) {
+            throw new ContextException('User cannot review corrections', ContextException::PERMISSION_DENIED);
+        }
+        $this->is_review = $is_review;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function isReview(): bool
+    {
+        return $this->is_review;
+    }
+
+    /**
+     * @inheritDoc
+     * here: check if user has the permission to draw stitch decisions
+     */
+    public function setStitchDecision(bool $is_stitch_decision)
+    {
+        if ($is_stitch_decision && !$this->object->canMaintainCorrectors()) {
+            throw new ContextException('User cannot draw stitch decisions', ContextException::PERMISSION_DENIED);
+        }
+        $this->is_stitch_decision = $is_stitch_decision;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function isStitchDecision(): bool
+    {
+        return $this->is_stitch_decision;
+    }
+
 
     /**
      * @inheritDoc
@@ -80,6 +126,9 @@ class CorrectorContext extends ServiceContext implements Context
      */
     public function getReturnUrl(): string
     {
+        if ($this->isReview() || $this->isStitchDecision()) {
+            return \ilLink::_getStaticLink($this->object->getRefId(), 'xlet', true, '_correctoradmin');
+        }
         return \ilLink::_getStaticLink($this->object->getRefId(), 'xlet', true, '_corrector');
     }
 
@@ -104,10 +153,12 @@ class CorrectorContext extends ServiceContext implements Context
                 (bool) $repoSettings->getMutualVisibility(),
                 (bool) $repoSettings->getMultiColorHighlight(),
                 (int) $repoSettings->getMaxPoints(),
-                (int) $repoSettings->getMaxAutoDistance()
+                (int) $repoSettings->getMaxAutoDistance(),
+                (bool) $this->isReview(),
+                (bool) $this->isStitchDecision()
             );
         }
-        return new CorrectionSettings(false, false, 0, 0);
+        return new CorrectionSettings(false, false, 0, 0, false, false);
     }
 
     /**
@@ -134,6 +185,73 @@ class CorrectorContext extends ServiceContext implements Context
      *          the item titles are the pseudonymous writer names
      */
     public function getCorrectionItems(): array
+    {
+        if ($this->isStitchDecision()) {
+            return $this->getCorrectionItemsForStitchDecision();
+        }
+        elseif ($this->isReview()) {
+            return $this->getCorrectionItemsForReview();
+        }
+        else {
+            return $this->getCorrectionItemsForCorrector();
+        }
+    }
+
+    /**
+     * Get the correction items that need a stitch decision
+     */
+    protected function getCorrectionItemsForReview() : array
+    {
+        $essayRepo = $this->localDI->getEssayRepo();
+        $writerRepo = $this->localDI->getWriterRepo();
+
+        $items = [];
+        $essays = $essayRepo->getEssaysByTaskId($this->object->getId());
+        foreach ($essays as $essay) {
+            if(!empty($essay->getWritingAuthorized())) {
+                $repoWriter = $writerRepo->getWriterById($essay->getWriterId());
+                $items[] = new CorrectionItem(
+                    (string) $essay->getWriterId(),
+                    (string) $repoWriter->getPseudonym(),
+                    false,
+                    false
+                );
+            }
+        }
+        return $items;
+    }
+
+
+    /**
+     * Get the correction items that need a stitch decision
+     */
+    protected function getCorrectionItemsForStitchDecision() : array
+    {
+        $essayRepo = $this->localDI->getEssayRepo();
+        $writerRepo = $this->localDI->getWriterRepo();
+        $adminService = $this->localDI->getCorrectorAdminService($this->object->getId());
+
+        $items = [];
+        $essays = $essayRepo->getEssaysByTaskId($this->object->getId());
+        foreach ($essays as $essay){
+            if($adminService->isStitchDecisionNeeded($essay)) {
+                $repoWriter = $writerRepo->getWriterById($essay->getWriterId());
+                $items[] = new CorrectionItem(
+                    (string) $essay->getWriterId(),
+                    (string) $repoWriter->getPseudonym(),
+                    false,
+                    false
+                );
+            }
+        }
+        return $items;
+    }
+
+
+    /**
+     * Get the correction items for a corrector
+     */
+    protected function getCorrectionItemsForCorrector(): array
     {
         $correctorRepo = $this->localDI->getCorrectorRepo();
         $writerRepo = $this->localDI->getWriterRepo();
@@ -196,10 +314,22 @@ class CorrectorContext extends ServiceContext implements Context
      */
     public function getCurrentItem(): ?CorrectionItem
     {
+        $essayRepo = $this->localDI->getEssayRepo();
         $correctorRepo = $this->localDI->getCorrectorRepo();
         $writerRepo = $this->localDI->getWriterRepo();
 
         if (isset($this->selected_writer_id)) {
+            if ($this->isReview() || $this->isStitchDecision()) {
+                if (!empty($repoEssay = $essayRepo->getEssayByWriterIdAndTaskId($this->selected_writer_id, $this->task->getTaskId()))) {
+                    $repoWriter = $writerRepo->getWriterById($repoEssay->getWriterId());
+                    return new CorrectionItem(
+                        (string) $repoEssay->getWriterId(),
+                        $repoWriter->getPseudonym(),
+                        false,
+                        false
+                    );
+                }
+            }
             if (!empty($repoCorrector = $correctorRepo->getCorrectorByUserId($this->user->getId(), $this->task->getTaskId())) &&
                 !empty($repoWriter = $writerRepo->getWriterById((int) $this->selected_writer_id)))
             {
@@ -337,5 +467,25 @@ class CorrectorContext extends ServiceContext implements Context
             }
 
         }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function saveStitchDecision(string $item_key, int $timestamp, ?float $points, ?string $grade_key) : bool
+    {
+        $essayRepo = $this->localDI->getEssayRepo();
+        $dataService = $this->localDI->getDataService($this->task->getTaskId());
+
+        if (!empty($repoEssay = $essayRepo->getEssayByWriterIdAndTaskId((int) $item_key, $this->task->getTaskId()))
+            && empty($repoEssay->getCorrectionFinalized())) {
+            $repoEssay->setFinalPoints($points);
+            $repoEssay->setFinalGradeLevelId($grade_key ? (int) $grade_key : null);
+            $repoEssay->setCorrectionFinalized($dataService->unixTimeToDb($timestamp));
+            $repoEssay->setCorrectionFinalizedBy($this->user->getId());
+            $essayRepo->updateEssay($repoEssay);
+            return true;
+        }
+        return false;
     }
 }

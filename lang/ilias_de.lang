@@ -284,3 +284,4 @@ delete_writer_data#:#Teilnehmerdaten entfernen
 delete_writer_data_confirmation#:#Sind Sie sicher, dass Sie alle Teilnehmerdaten unwiderruflich entfernen möchten?
 delete_writer_data_success#:#Alle Teilnehmerdaten erfolgreich entfernt.
 message_corrector_assignment_changeable#:#Die Korrektorenzuweisung kann nachträglich für einzelne Abgaben geändert werden.
+do_stich_decision#:#Stichentscheid vornehmen

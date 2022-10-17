@@ -243,7 +243,7 @@ class CorrectorAdminService extends BaseService
      */
     public function isStitchDecisionNeeded(?Essay $essay) : bool
     {
-        return $this->isStitchDecisionNeededForSummaries($this->getAuthorizedSummaries($essay));
+        return empty($essay->getCorrectionFinalized()) && $this->isStitchDecisionNeededForSummaries($this->getAuthorizedSummaries($essay));
     }
 
     /**

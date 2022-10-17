@@ -47,6 +47,9 @@ class ilObjLongEssayTaskGUI extends ilObjectPluginGUI
                 if ($t[1] == 'corrector') {
                     $class_name = 'ilias\plugin\longessaytask\corrector\correctorstartgui';
                 }
+                if ($t[1] == 'correctoradmin') {
+                    $class_name = 'ilias\plugin\longessaytask\correctoradmin\correctoradmingui';
+                }
                 if (isset($class_name)) {
                     $DIC->ctrl()->initBaseClass("ilObjPluginDispatchGUI");
                     $DIC->ctrl()->getCallStructure(strtolower("ilObjPluginDispatchGUI"));

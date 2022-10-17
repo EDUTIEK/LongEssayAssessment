@@ -3,7 +3,9 @@
 
 namespace ILIAS\Plugin\LongEssayTask\CorrectorAdmin;
 
+use Edutiek\LongEssayService\Corrector\Service;
 use ILIAS\Plugin\LongEssayTask\BaseGUI;
+use ILIAS\Plugin\LongEssayTask\Corrector\CorrectorContext;
 use ILIAS\Plugin\LongEssayTask\Data\CorrectionSettings;
 use ILIAS\Plugin\LongEssayTask\Data\Corrector;
 use ILIAS\Plugin\LongEssayTask\Data\CorrectorAssignment;
@@ -60,6 +62,8 @@ class CorrectorAdminGUI extends BaseGUI
 					case 'removeCorrector':
                     case 'exportCorrections':
                     case 'exportResults':
+                    case 'viewCorrections':
+                    case 'stitchDecision':
 						$this->$cmd();
 						break;
 
@@ -75,16 +79,40 @@ class CorrectorAdminGUI extends BaseGUI
      */
     protected function showStartPage()
     {
+        $di = LongEssayTaskDI::getInstance();
+        $writers_repo = $di->getWriterRepo();
+        $corrector_repo = $di->getCorrectorRepo();
+        $essay_repo = $di->getEssayRepo();
+
+        $essays = $essay_repo->getEssaysByTaskId($this->object->getId());
+        $stitches = [];
+        foreach ($essays as $essay){
+            if($this->service->isStitchDecisionNeeded($essay)){
+                $stitches[] = $essay->getId();
+            }
+        }
+        $correction_settings = $di->getTaskRepo()->getCorrectionSettingsById($this->object->getId());
+
+
         $this->toolbar->setFormAction($this->ctrl->getFormAction($this));
 		$assign_writers_action = $this->ctrl->getLinkTarget($this, "confirmAssignWriters");
         $export_corrections_action =  $this->ctrl->getLinkTarget($this, "exportCorrections");
         $export_results_action =  $this->ctrl->getLinkTarget($this, "exportResults");
+        $stitch_decision_action =  $this->ctrl->getLinkTarget($this, "stitchDecision");
 
         $button = \ilLinkButton::getInstance();
         $button->setUrl($assign_writers_action);
         $button->setCaption($this->plugin->txt("assign_writers"), false);
         $button->setPrimary(true);
         $this->toolbar->addButtonInstance($button);
+
+        $button = \ilLinkButton::getInstance();
+        $button->setUrl($stitch_decision_action);
+        $button->setCaption($this->plugin->txt("do_stich_decision"), false);
+        $button->setDisabled(empty($stitches));
+        $this->toolbar->addButtonInstance($button);
+
+        $this->toolbar->addSeparator();
 
         $button = \ilLinkButton::getInstance();
         $button->setUrl($export_corrections_action);
@@ -96,20 +124,6 @@ class CorrectorAdminGUI extends BaseGUI
         $button->setCaption($this->plugin->txt("export_results"), false);
         $this->toolbar->addButtonInstance($button);
 
-
-        $di = LongEssayTaskDI::getInstance();
-		$writers_repo = $di->getWriterRepo();
-		$corrector_repo = $di->getCorrectorRepo();
-		$essay_repo = $di->getEssayRepo();
-
-		$essays = $essay_repo->getEssaysByTaskId($this->object->getId());
-		$stitches = [];
-		foreach ($essays as $essay){
-			if($this->service->isStitchDecisionNeeded($essay)){
-				$stitches[] = $essay->getId();
-			}
-		}
-		$correction_settings = $di->getTaskRepo()->getCorrectionSettingsById($this->object->getId());
 
 		$list_gui = new CorrectorAdminListGUI($this, "showStartPage", $this->plugin, $correction_settings);
 		$list_gui->setWriters($writers_repo->getWritersByTaskId($this->object->getId()));
@@ -276,7 +290,35 @@ class CorrectorAdminGUI extends BaseGUI
 		$this->ctrl->redirect($this, "showStartPage");
 	}
 
-	protected function changeCorrector(){
+    protected function viewCorrections()
+    {
+        $context = new CorrectorContext();
+        $context->init((string) $this->dic->user()->getId(), (string) $this->object->getRefId());
+        $context->setReview(true);
+
+        $params = $this->request->getQueryParams();
+        if (!empty($params['writer_id'])) {
+            $context->selectWriterId((int) $params['writer_id']);
+        }
+        $service = new Service($context);
+        $service->openFrontend();
+    }
+
+    protected function stitchDecision()
+    {
+        $context = new CorrectorContext();
+        $context->init((string) $this->dic->user()->getId(), (string) $this->object->getRefId());
+        $context->setStitchDecision(true);
+
+        $params = $this->request->getQueryParams();
+        if (!empty($params['writer_id'])) {
+            $context->selectWriterId((int) $params['writer_id']);
+        }
+        $service = new Service($context);
+        $service->openFrontend();
+    }
+
+	protected function changeCorrector() {
 		if ($this->request->getMethod() == "POST") {
 			$data = $_POST;
 

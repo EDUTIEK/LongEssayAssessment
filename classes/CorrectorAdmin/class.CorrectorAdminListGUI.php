@@ -135,7 +135,7 @@ class CorrectorAdminListGUI extends WriterListGUI
 	private function getViewCorrectionAction(Writer $writer): string
 	{
 		$this->ctrl->setParameter($this->parent, "writer_id", $writer->getId());
-		return $this->ctrl->getLinkTargetByClass(["ILIAS\Plugin\LongEssayTask\Corrector\CorrectorStartGUI"], "startCorrector");
+		return $this->ctrl->getLinkTargetByClass(["ILIAS\Plugin\LongEssayTask\CorrectorAdmin\CorrectorAdminGUI"], "viewCorrections");
 	}
 
 	private function getChangeCorrectorAction(Writer $writer): string
@@ -156,7 +156,7 @@ class CorrectorAdminListGUI extends WriterListGUI
 	private function getCorrectionStatusStitchAction(Writer $writer): string
 	{
 		$this->ctrl->setParameter($this->parent, "writer_id", $writer->getId());
-		return $this->ctrl->getLinkTarget($this->parent, "correctionStatusStitchView");
+		return $this->ctrl->getLinkTarget($this->parent, "stitchDecision");
 	}
 
 	private function essayStatus(Writer $writer)

@@ -468,10 +468,10 @@ class Essay extends ActivePluginRecord
     }
 
     /**
-     * @param float $final_points
+     * @param ?float $final_points
      * @return Essay
      */
-    public function setFinalPoints(float $final_points): Essay
+    public function setFinalPoints(?float $final_points): Essay
     {
         $this->final_points = $final_points;
         return $this;

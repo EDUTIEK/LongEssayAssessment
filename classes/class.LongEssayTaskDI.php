@@ -16,6 +16,8 @@ use ILIAS\Plugin\LongEssayTask\Data\TaskRepository;
 use ILIAS\Plugin\LongEssayTask\Data\WriterDatabaseRepository;
 use ILIAS\Plugin\LongEssayTask\Data\WriterRepository;
 use ILIAS\Plugin\LongEssayTask\UI\Implementation\Factory;
+use ILIAS\Plugin\LongEssayTask\UI\Implementation\FieldFactory;
+use ILIAS\Plugin\LongEssayTask\UI\Implementation\IconFactory;
 use ILIAS\Plugin\LongEssayTask\UI\PluginLoader;
 use ILIAS\Plugin\LongEssayTask\UI\PluginRendererFactory;
 use ILIAS\Plugin\LongEssayTask\UI\PluginTemplateFactory;
@@ -51,7 +53,7 @@ class LongEssayTaskDI
 
 		$dic["plugin"] = $plugin;
 
-		$dic["custom_renderer_loader"] =  function ($dic ) {
+		$dic["custom_renderer_loader"] =  function (\ILIAS\DI\Container $dic ) {
 			return new PluginLoader($dic["ui.component_renderer_loader"],
 				new PluginRendererFactory(
 					$dic["ui.factory"],
@@ -64,20 +66,24 @@ class LongEssayTaskDI
 			);
 		};
 
-		$dic["custom_renderer"] = function ($dic) {
+		$dic["custom_renderer"] = function (\ILIAS\DI\Container $dic) {
 			return new \ILIAS\UI\Implementation\DefaultRenderer(
 				$dic["custom_renderer_loader"]
 			);
 		};
 
-		$dic["custom_factory"] = function ($dic) {
+		$dic["custom_factory"] = function (\ILIAS\DI\Container $dic) {
 			$data_factory = new \ILIAS\Data\Factory();
 			$refinery = new \ILIAS\Refinery\Factory($data_factory, $dic["lng"]);
 			return new Factory(
-				$dic["ui.signal_generator"],
-				$data_factory,
-				$refinery,
-				$dic["lng"]
+				new FieldFactory($dic["ui.signal_generator"],
+					$data_factory,
+					$refinery,
+					$dic["lng"]),
+				new IconFactory(
+					$dic->ui()->factory()->symbol()->icon(),
+					$dic["plugin"]
+				)
 			);
 		};
 	}

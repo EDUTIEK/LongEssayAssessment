@@ -166,7 +166,7 @@ class GradesAdminGUI extends BaseGUI
 			->withRequired(false)
 			->withValue($data["code"]!== null ? $data["code"] : "");
 
-		$fields['points'] = $custom_factory->numeric($this->plugin->txt('min_points'), $this->plugin->txt("min_points_caption"))
+		$fields['points'] = $custom_factory->field()->numeric($this->plugin->txt('min_points'), $this->plugin->txt("min_points_caption"))
 			->withStep(0.01)
 			->withRequired(true)
 			->withValue((float)$data["points"]);

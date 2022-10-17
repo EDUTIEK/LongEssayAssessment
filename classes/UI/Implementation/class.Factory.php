@@ -6,6 +6,8 @@ namespace ILIAS\Plugin\LongEssayTask\UI\Implementation;
 
 use ILIAS\Data;
 use ILIAS\Plugin\LongEssayTask\UI;
+use ILIAS\Plugin\LongEssayTask\UI\Component\FieldFactory;
+use ILIAS\Plugin\LongEssayTask\UI\Component\IconFactory;
 use ILIAS\UI\Implementation\Component\SignalGeneratorInterface;
 
 /**
@@ -15,50 +17,26 @@ use ILIAS\UI\Implementation\Component\SignalGeneratorInterface;
  */
 class Factory implements UI\Component\Factory
 {
-	/**
-	 * @var    Data\Factory
-	 */
-	protected $data_factory;
+	private FieldFactory $field_factory;
+	private IconFactory $icon_factory;
 
-	/**
-	 * @var SignalGeneratorInterface
-	 */
-	protected $signal_generator;
-
-	/**
-	 * @var \ILIAS\Refinery\Factory
-	 */
-	private $refinery;
-
-	/**
-	 * @var	\ilLanguage
-	 */
-	protected $lng;
-
-	/**
-	 * Factory constructor.
-	 *
-	 * @param SignalGeneratorInterface $signal_generator
-	 * @param Data\Factory $data_factory
-	 * @param \ILIAS\Refinery\Factory $refinery
-	 */
 	public function __construct(
-		SignalGeneratorInterface $signal_generator,
-		Data\Factory $data_factory,
-		\ILIAS\Refinery\Factory $refinery,
-		\ilLanguage $lng
-	) {
-		$this->signal_generator = $signal_generator;
-		$this->data_factory = $data_factory;
-		$this->refinery = $refinery;
-		$this->lng = $lng;
+		FieldFactory $field_factory,
+		IconFactory $icon_factory
+	)
+	{
+		$this->field_factory = $field_factory;
+		$this->icon_factory = $icon_factory;
 	}
 
-	/**
-	 * @inheritdoc
-	 */
-	public function numeric($label, $byline = null) : Numeric
+
+	public function field(): FieldFactory
 	{
-		return new Numeric($this->data_factory, $this->refinery, $label, $byline);
+		return $this->field_factory;
+	}
+
+	public function icon(): IconFactory
+	{
+		return $this->icon_factory;
 	}
 }

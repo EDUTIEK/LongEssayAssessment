@@ -50,6 +50,7 @@ class WriterAdminLogListGUI
 	private function buildAlert(Alert $alert)
 	{
 		$recipient = "";
+		$custom_factory = LongEssayTaskDI::getInstance()->custom_factory();
 
 		if($alert->getWriterId() !== null){
 			$id = -1;
@@ -62,7 +63,7 @@ class WriterAdminLogListGUI
 		}
 
 		return $this->uiFactory->item()->standard(nl2br($alert->getMessage()))
-			->withLeadIcon($this->uiFactory->symbol()->icon()->standard('coms', 'coms', 'medium')->withIsOutlined(true))
+			->withLeadIcon($custom_factory->icon()->appr('alert', 'medium'))
 			->withProperties(array(
 				$this->plugin->txt("log_type") => $this->plugin->txt("log_type_alert"),
 				$this->plugin->txt("alert_send") => $this->getFormattedTime($alert->getShownFrom()),
@@ -72,12 +73,19 @@ class WriterAdminLogListGUI
 	}
 
 	private function buildLogEntry(LogEntry $log_entry) {
-
+		$custom_factory = LongEssayTaskDI::getInstance()->custom_factory();
 		switch($log_entry->getCategory()){
 			case LogEntry::CATEGORY_EXCLUSION:
+				$icon = $custom_factory->icon()->disq('exclusion', 'medium');
+				break;
 			case LogEntry::CATEGORY_AUTHORIZE:
+				$icon = $custom_factory->icon()->appr('authorize', 'medium');
+				break;
 			case LogEntry::CATEGORY_EXTENSION:
-				$icon = $this->uiFactory->symbol()->icon()->standard('extt', 'notes', 'medium')->withIsOutlined(true);
+				$icon = $custom_factory->icon()->time('extension', 'medium');
+				break;
+			case LogEntry::CATEGORY_NOTE:
+				$icon = $custom_factory->icon()->nots('note', 'medium');
 				break;
 			default:
 				$icon = $this->uiFactory->symbol()->icon()->standard('nots', 'notes', 'medium')->withIsOutlined(true);

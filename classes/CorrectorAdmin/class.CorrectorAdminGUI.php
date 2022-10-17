@@ -107,7 +107,7 @@ class CorrectorAdminGUI extends BaseGUI
         $this->toolbar->addButtonInstance($button);
 
         $button = \ilLinkButton::getInstance();
-        $button->setUrl($stitch_decision_action);
+        $button->setUrl(empty($stitches) ? '#' : $stitch_decision_action);
         $button->setCaption($this->plugin->txt("do_stich_decision"), false);
         $button->setDisabled(empty($stitches));
         $this->toolbar->addButtonInstance($button);
@@ -170,15 +170,7 @@ class CorrectorAdminGUI extends BaseGUI
 				'start'
 			)
 		);
-
-		$assign_writers_action = $this->ctrl->getLinkTarget($this, "assignWriters");
-
-		$button = \ilLinkButton::getInstance();
-		$button->setUrl($assign_writers_action);
-		$button->setCaption($this->plugin->txt("assign_writers"), false);
-		$button->setPrimary(false);
-		$this->toolbar->addButtonInstance($button);
-	}
+    }
 
 	public function assignCorrectors(array $a_usr_ids, $a_type = null)
 	{

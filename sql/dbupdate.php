@@ -1405,3 +1405,21 @@ if ($ilDB->tableColumnExists('xlet_corrector_summary','points')) {
     ));
 }
 ?>
+<#57>
+<?php
+if (!$ilDB->tableColumnExists('xlet_plugin_config','primary_color')) {
+    $ilDB->addTableColumn('xlet_plugin_config', 'primary_color', array(
+        'type' => 'text',
+        'length' => '250'
+    ));
+}
+?>
+<#58>
+<?php
+if (!$ilDB->tableColumnExists('xlet_plugin_config','primary_text_color')) {
+    $ilDB->addTableColumn('xlet_plugin_config', 'primary_text_color', array(
+        'type' => 'text',
+        'length' => '250'
+    ));
+}
+?>

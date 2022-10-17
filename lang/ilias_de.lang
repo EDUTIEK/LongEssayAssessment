@@ -285,3 +285,7 @@ delete_writer_data_confirmation#:#Sind Sie sicher, dass Sie alle Teilnehmerdaten
 delete_writer_data_success#:#Alle Teilnehmerdaten erfolgreich entfernt.
 message_corrector_assignment_changeable#:#Die Korrektorenzuweisung kann nachträglich für einzelne Abgaben geändert werden.
 do_stich_decision#:#Stichentscheid vornehmen
+primary_color#:#Primärfarbe (Hintergrund)
+primary_color_info#:#Diese Farbe wird im Writer und Corrector zur Hervorhebung der Buttons primärer Aktionen verwendet.
+primary_text_color#:#Primärfarbe (Text)
+primary_text_color_info#:#Diese Farbe wird im Writer und Corrector zur Hervorhebung der Beschriftung von Buttons primärer Aktionen verwendet.

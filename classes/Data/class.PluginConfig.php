@@ -50,6 +50,26 @@ class PluginConfig extends ActivePluginRecord
      * @con_length           250
      */
     public $eskript_key = '';
+
+    /**
+     * @var string
+     * @con_has_field        true
+     * @con_is_notnull       false
+     * @con_fieldtype        text
+     * @con_length           250
+     */
+    public $primary_color = '';
+
+    /**
+     * @var string
+     * @con_has_field        true
+     * @con_is_notnull       false
+     * @con_fieldtype        text
+     * @con_length           250
+     */
+    public $primary_text_color = '';
+
+
     /**
      * @var string
      */
@@ -78,7 +98,7 @@ class PluginConfig extends ActivePluginRecord
      */
     public function getWriterUrl(): string
     {
-        return $this->writer_url;
+        return (string) $this->writer_url;
     }
 
     /**
@@ -96,7 +116,7 @@ class PluginConfig extends ActivePluginRecord
      */
     public function getCorrectorUrl(): string
     {
-        return $this->corrector_url;
+        return (string) $this->corrector_url;
     }
 
     /**
@@ -114,7 +134,7 @@ class PluginConfig extends ActivePluginRecord
      */
     public function getEskriptUrl(): string
     {
-        return $this->eskript_url;
+        return (string) $this->eskript_url;
     }
 
     /**
@@ -132,7 +152,7 @@ class PluginConfig extends ActivePluginRecord
      */
     public function getEskriptKey(): string
     {
-        return $this->eskript_key;
+        return (string) $this->eskript_key;
     }
 
     /**
@@ -142,6 +162,43 @@ class PluginConfig extends ActivePluginRecord
     public function setEskriptKey(string $eskript_key): PluginConfig
     {
         $this->eskript_key = $eskript_key;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPrimaryColor(): string
+    {
+        return (string) $this->primary_color;
+    }
+
+    /**
+     * @param string $primary_color
+     * @return PluginConfig
+     */
+    public function setPrimaryColor(string $primary_color): PluginConfig
+    {
+        $this->primary_color = $primary_color;
+        return $this;
+    }
+
+
+    /**
+     * @return string
+     */
+    public function getPrimaryTextColor(): string
+    {
+        return (string) $this->primary_text_color;
+    }
+
+    /**
+     * @param string $primary_text_color
+     * @return PluginConfig
+     */
+    public function setPrimaryTextColor(string $primary_text_color): PluginConfig
+    {
+        $this->primary_text_color = $primary_text_color;
         return $this;
     }
 }

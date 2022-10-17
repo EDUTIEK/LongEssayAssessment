@@ -119,6 +119,8 @@ class ilLongEssayTaskConfigGUI extends ilPluginConfigGUI
             $this->config->setCorrectorUrl((string) $form->getInput('corrector_url'));
             $this->config->setEskriptUrl((string) $form->getInput('eskript_url'));
             $this->config->setEskriptKey((string) $form->getInput('eskript_key'));
+            $this->config->setPrimaryColor((string) $form->getInput('primary_color'));
+            $this->config->setPrimaryTextColor((string) $form->getInput('primary_text_color'));
             $this->config->save();
             ilUtil::sendSuccess($this->lng->txt('settings_saved'));
             $this->ctrl->redirect($this, 'configure');
@@ -157,6 +159,17 @@ class ilLongEssayTaskConfigGUI extends ilPluginConfigGUI
 //        $eskript_key->setInfo($this->plugin->txt('eskript_key_info'));
 //        $eskript_key->setValue($this->config->getEskriptKey());
 //        $form->addItem($eskript_key);
+
+        $primary_color = new ilColorPickerInputGUI($this->plugin->txt('primary_color'), 'primary_color');
+        $primary_color->setInfo($this->plugin->txt('primary_color_info'));
+        $primary_color->setValue($this->config->getPrimaryColor());
+        $form->addItem($primary_color);
+
+        $primary_text_color = new ilColorPickerInputGUI($this->plugin->txt('primary_text_color'), 'primary_text_color');
+        $primary_text_color->setInfo($this->plugin->txt('primary_text_color_info'));
+        $primary_text_color->setValue($this->config->getPrimaryTextColor());
+        $form->addItem($primary_text_color);
+
 
         $form->addCommandButton('saveConfig', $this->lng->txt('save'));
         return $form;

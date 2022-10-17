@@ -77,7 +77,9 @@ class WriterContext extends ServiceContext implements Context
             $repoSettings->getHeadlineScheme(),
             $repoSettings->getFormattingOptions(),
             $repoSettings->getNoticeBoards(),
-            $repoSettings->isCopyAllowed()
+            $repoSettings->isCopyAllowed(),
+            $this->plugin->getConfig()->getPrimaryColor(),
+            $this->plugin->getConfig()->getPrimaryTextColor()
         );
     }
 

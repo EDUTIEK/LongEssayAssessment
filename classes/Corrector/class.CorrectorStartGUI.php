@@ -82,9 +82,11 @@ class CorrectorStartGUI extends BaseGUI
                 $this->plugin->txt('own_grading') => $this->data->formatCorrectionResult($summary),
                 $this->plugin->txt('result') => $this->data->formatFinalResult($essay)
             ];
+			//Do not show other results if own correction result is still open.
+			$ownCorrectionIsOpen = $this->data->isCorrectionResultOpen($summary);
             foreach ($this->localDI->getCorrectorRepo()->getAssignmentsByWriterId($assignment->getWriterId()) as $otherAssignment) {
                 if ($otherAssignment->getCorrectorId() != $corrector->getId()) {
-                    $properties[$this->data->formatCorrectorPosition($otherAssignment)] = $this->data->formatCorrectorAssignment($otherAssignment);
+                    $properties[$this->data->formatCorrectorPosition($otherAssignment)] = $this->data->formatCorrectorAssignment($otherAssignment, $ownCorrectionIsOpen);
                 }
             }
 

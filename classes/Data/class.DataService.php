@@ -176,14 +176,33 @@ class DataService extends BaseService
     /**
      * Format the result from a single correction
      */
-    public function formatCorrectionResult(?CorrectorSummary $summary, bool $onlyStatus = false) : string
+    public function formatCorrectionResult(?CorrectorSummary $summary, bool $onlyStatus = false, $onlyAuthorizedGrades = false) : string
     {
         if (empty($summary) || empty($summary->getLastChange())) {
             return $this->plugin->txt('grading_not_started');
         }
 
+		$grade = function ($text) use ($summary) {
+			$grade = null;
+			$points = null;
+
+			if ($level = $this->localDI->getObjectRepo()->getGradeLevelById((int) $summary->getGradeLevelId())) {
+				$grade = $level->getGrade();
+			}
+			if (!empty($summary->getPoints())) {
+				$points = ($grade ? " (": "(") . $summary->getPoints() . ' ' . $this->plugin->txt('points') . ')';
+			}
+			return ($grade||$points) ? "$text - $grade$points" :  $text;
+		};
+
         if (empty($summary->getCorrectionAuthorized())) {
-            return  $this->plugin->txt('grading_open');
+			$text = $this->plugin->txt('grading_open');
+
+			if($onlyStatus || $onlyAuthorizedGrades) {
+				return  $text;
+			}
+
+			return $grade($text);
         }
 
         $text = $this->plugin->txt('grading_authorized');
@@ -192,15 +211,17 @@ class DataService extends BaseService
             return $text;
         }
 
-        if ($level = $this->localDI->getObjectRepo()->getGradeLevelById((int) $summary->getGradeLevelId())) {
-            $text = $level->getGrade();
-        }
-        if (!empty($summary->getPoints())) {
-            $text .= ' (' . $summary->getPoints() . ' ' . $this->plugin->txt('points') . ')';
-        }
-
-        return $text;
+        return $grade($text);
     }
+
+	/**
+	 * Is Correction result open?
+	 * @param CorrectorSummary|null $summary
+	 * @return bool
+	 */
+	public function isCorrectionResultOpen(?CorrectorSummary $summary): bool {
+		return empty($summary) || empty($summary->getLastChange()) || empty($summary->getCorrectionAuthorized());
+	}
 
     /**
      * Format the position of a corrector
@@ -222,7 +243,7 @@ class DataService extends BaseService
     /**
      * Format the name of a corrector
      */
-    public function formatCorrectorAssignment (CorrectorAssignment $assignment) : string
+    public function formatCorrectorAssignment (CorrectorAssignment $assignment, $onlyStatus = false) : string
     {
         $corrector = $this->localDI->getCorrectorRepo()->getCorrectorById($assignment->getCorrectorId());
         $writer = $this->localDI->getWriterRepo()->getWriterById($assignment->getWriterId());
@@ -238,7 +259,7 @@ class DataService extends BaseService
 
         return \ilObjUser::_lookupFullname($corrector->getUserId())
             . ' ('. \ilObjUser::_lookupLogin($corrector->getUserId()) . ')'
-            . ' - ' . $this->formatCorrectionResult($summary);
+            . ' - ' . $this->formatCorrectionResult($summary, $onlyStatus, true);
 
      }
 

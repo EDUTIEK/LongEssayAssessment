@@ -142,7 +142,7 @@ correction_status_finished#:#abgeschlossen
 own_grading#:#Eigene Wertung
 grading_not_started#:#nicht begonnen
 grading_open#:#offen
-grading_authorized
+grading_authorized#:#autorisiert
 assignment_pos_first#:#Erstkorrektor/in
 assignment_pos_second#:#Zweitkorrektor/in
 assignment_pos_other#:#Mitkorrektor/in
@@ -157,7 +157,7 @@ edit_grade_level#:#Notenstufe bearbeiten
 delete_grade_level_successful#:#Notenstufe erfolgreich gelöscht.
 delete_grade_level_failure#:#Notenstufe konnte nicht gelsöcht werden.
 writing_finalized_from#:#finalisiert von
-writing_authorized_from#:#authorisiert von
+writing_authorized_from#:#autorisiert von
 writing_edit_ended#:#abgegeben
 writing_edit_started#:#gestartet
 writing_not_started#:#nicht gestartet

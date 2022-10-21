@@ -154,7 +154,7 @@ class GradesAdminGUI extends BaseGUI
 		}
 
 		$factory = $this->uiFactory->input()->field();
-		$custom_factory = LongEssayTaskDI::getInstance()->custom_factory();
+		$custom_factory = LongEssayTaskDI::getInstance()->getUIFactory();
 		$sections = [];
 
 		$fields = [];

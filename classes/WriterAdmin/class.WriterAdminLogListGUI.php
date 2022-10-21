@@ -50,7 +50,7 @@ class WriterAdminLogListGUI
 	private function buildAlert(Alert $alert)
 	{
 		$recipient = "";
-		$custom_factory = LongEssayTaskDI::getInstance()->custom_factory();
+		$custom_factory = LongEssayTaskDI::getInstance()->getUIFactory();
 
 		if($alert->getWriterId() !== null){
 			$id = -1;
@@ -73,7 +73,7 @@ class WriterAdminLogListGUI
 	}
 
 	private function buildLogEntry(LogEntry $log_entry) {
-		$custom_factory = LongEssayTaskDI::getInstance()->custom_factory();
+		$custom_factory = LongEssayTaskDI::getInstance()->getUIFactory();
 		switch($log_entry->getCategory()){
 			case LogEntry::CATEGORY_EXCLUSION:
 				$icon = $custom_factory->icon()->disq('exclusion', 'medium');
@@ -88,7 +88,7 @@ class WriterAdminLogListGUI
 				$icon = $custom_factory->icon()->nots('note', 'medium');
 				break;
 			default:
-				$icon = $this->uiFactory->symbol()->icon()->standard('nots', 'notes', 'medium')->withIsOutlined(true);
+				$icon = $this->uiFactory->symbol()->icon()->standard('nots', 'notes', 'medium');
 				break;
 		}
 
@@ -107,8 +107,6 @@ class WriterAdminLogListGUI
 			$this->sortEntries();
 		} catch (\ilDateTimeException $e) {
 		}
-
-
 
 		$items = [];
 		$count = 0;

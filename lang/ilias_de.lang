@@ -281,7 +281,7 @@ message_no_correction_items#:#Ihnen sind noch keine Abgaben zur Korrektur zugewi
 correction_period#:#Korrektur-Zeitraum
 final_grade#:#Endnote
 actions#:#Aktionen
-delete_writer_data#:#Teilnehmerdaten entfernen
+delete_writer_data#:#Alle Teilnehmerdaten entfernen
 delete_writer_data_confirmation#:#Sind Sie sicher, dass Sie alle Teilnehmerdaten unwiderruflich entfernen möchten?
 delete_writer_data_success#:#Alle Teilnehmerdaten erfolgreich entfernt.
 message_corrector_assignment_changeable#:#Die Korrektorenzuweisung kann nachträglich für einzelne Abgaben geändert werden.
@@ -291,3 +291,6 @@ primary_color_info#:#Diese Farbe wird im Writer und Corrector zur Hervorhebung d
 primary_text_color#:#Primärfarbe (Text)
 primary_text_color_info#:#Diese Farbe wird im Writer und Corrector zur Hervorhebung der Beschriftung von Buttons primärer Aktionen verwendet.
 via_stitch_decision#:#per Stichentscheid
+remove_writer#:#Teilnehmer entfernen
+remove_writer_confirmation#:#Sind Sie sicher, dass Sie den Teilnehmer unwiderruflich entfernen möchten?
+remove_writer_success#:#Teilnehmer erfolgreich entfernt.

@@ -93,6 +93,18 @@ class WriterAdminListGUI extends WriterListGUI
 				$modals[] = $exclusion_modal;
 			}
 
+			$remove_modal = $this->uiFactory->modal()->interruptive(
+				$this->plugin->txt("remove_writer"),
+				$this->plugin->txt("remove_writer_confirmation"),
+				$this->getRemoveAction($writer)
+			)->withAffectedItems([
+				$this->uiFactory->modal()->interruptiveItem($writer->getUserId(), $this->getUsername($writer->getUserId()))
+			])->withActionButtonLabel("remove");
+
+			$actions[] = $this->uiFactory->button()->shy($this->plugin->txt("remove_writer"), '')
+				->withOnClick($remove_modal->getShowSignal());
+			$modals[] = $remove_modal;
+
 			$actions_dropdown = $this->uiFactory->dropdown()->standard($actions)
 				->withLabel($this->plugin->txt("actions"));
 
@@ -168,6 +180,11 @@ class WriterAdminListGUI extends WriterListGUI
 	private function getExclusionAction(Writer $writer){
 		$this->ctrl->setParameter($this->parent,"writer_id", $writer->getId());
 		return $this->ctrl->getFormAction($this->parent, "excludeWriter");
+	}
+
+	private function getRemoveAction(Writer $writer){
+		$this->ctrl->setParameter($this->parent,"writer_id", $writer->getId());
+		return $this->ctrl->getFormAction($this->parent, "removeWriter");
 	}
 
 	/**

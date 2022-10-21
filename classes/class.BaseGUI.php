@@ -80,7 +80,7 @@ abstract class BaseGUI
         $this->lng = $this->dic->language();
         $this->tpl = $this->dic->ui()->mainTemplate();
         $this->uiFactory = $this->dic->ui()->factory();
-		$this->renderer = LongEssayTaskDI::getInstance()->custom_renderer();
+		$this->renderer = LongEssayTaskDI::getInstance()->getUIRenderer();
         $this->request = $this->dic->http()->request();
         $this->refinery = $this->dic->refinery();
 

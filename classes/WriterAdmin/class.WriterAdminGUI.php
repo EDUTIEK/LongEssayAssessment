@@ -52,6 +52,7 @@ class WriterAdminGUI extends BaseGUI
 					case 'authorizeWriting':
 					case 'repealExclusion':
 					case 'deleteWriterData':
+					case 'removeWriter':
 						$this->$cmd();
 						break;
 
@@ -161,6 +162,32 @@ class WriterAdminGUI extends BaseGUI
 		$this->createExclusionRepealLogEntry($writer);
 
 		ilUtil::sendSuccess($this->plugin->txt("exclude_writer_repeal_success"), true);
+		$this->ctrl->redirect($this, "showStartPage");
+	}
+
+	private function removeWriter(){
+		if(($id = $this->getWriterId()) === null)
+		{
+			ilUtil::sendFailure($this->plugin->txt("missing_writer_id"), true);
+			$this->ctrl->redirect($this, "showStartPage");
+		}
+
+		$essay_repo = LongEssayTaskDI::getInstance()->getEssayRepo();
+		$writer_repo = LongEssayTaskDI::getInstance()->getWriterRepo();
+		$corr_repo = LongEssayTaskDI::getInstance()->getCorrectorRepo();
+
+		$writer = $writer_repo->getWriterById($id);
+
+		if($writer === null || $writer->getTaskId() !== $this->object->getId()){
+			ilUtil::sendFailure($this->plugin->txt("missing_writer"), true);
+			$this->ctrl->redirect($this, "showStartPage");
+		}
+
+		$essay_repo->deleteEssayByWriterId($id);
+		$writer_repo->deleteWriter($id);
+		$corr_repo->deleteCorrectorAssignmentByWriter($id);
+
+		ilUtil::sendSuccess($this->plugin->txt("remove_writer_success"), true);
 		$this->ctrl->redirect($this, "showStartPage");
 	}
 

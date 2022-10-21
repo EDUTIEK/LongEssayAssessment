@@ -30,11 +30,6 @@ use Pimple\Container;
 class LongEssayTaskDI
 {
     protected static $instance;
-    protected $object;
-    protected $task;
-    protected $essay;
-    protected $writer;
-    protected $corrector;
     protected $dataServices = [];
     protected $correctorAdminServices = [];
 
@@ -86,6 +81,26 @@ class LongEssayTaskDI
 				)
 			);
 		};
+
+		$dic["object_repository"] = function () {
+			return new ObjectDatabaseRepository();
+		};
+
+		$dic["task_repository"] = function () {
+			return new TaskDatabaseRepository();
+		};
+
+		$dic["essay_repository"] = function () {
+			return new EssayDatabaseRepository();
+		};
+
+		$dic["writer_repository"] = function () {
+			return new WriterDatabaseRepository();
+		};
+
+		$dic["corrector_repository"] = function () {
+			return new CorrectorDatabaseRepository();
+		};
 	}
 
 
@@ -106,11 +121,7 @@ class LongEssayTaskDI
      */
     public function getObjectRepo(): ObjectRepository
     {
-        if ($this->object === null) {
-            $this->object = new ObjectDatabaseRepository();
-        }
-
-        return $this->object;
+		return $this->container["object_repository"];
     }
 
     /**
@@ -118,11 +129,7 @@ class LongEssayTaskDI
      */
     public function getTaskRepo(): TaskRepository
     {
-        if ($this->task === null) {
-            $this->task = new TaskDatabaseRepository();
-        }
-
-        return $this->task;
+		return $this->container["task_repository"];
     }
 
     /**
@@ -130,11 +137,7 @@ class LongEssayTaskDI
      */
     public function getEssayRepo(): EssayRepository
     {
-        if ($this->essay === null) {
-            $this->essay = new EssayDatabaseRepository();
-        }
-
-        return $this->essay;
+		return $this->container["essay_repository"];
     }
 
     /**
@@ -142,11 +145,7 @@ class LongEssayTaskDI
      */
     public function getWriterRepo(): WriterRepository
     {
-        if ($this->writer === null) {
-            $this->writer = new WriterDatabaseRepository();
-        }
-
-        return $this->writer;
+		return $this->container["writer_repository"];
     }
 
     /**
@@ -154,11 +153,7 @@ class LongEssayTaskDI
      */
     public function getCorrectorRepo(): CorrectorRepository
     {
-        if ($this->corrector === null) {
-            $this->corrector = new CorrectorDatabaseRepository();
-        }
-
-        return $this->corrector;
+		return $this->container["corrector_repository"];
     }
 
     /**
@@ -188,7 +183,7 @@ class LongEssayTaskDI
 	/**
 	 * @return ComponentRenderer
 	 */
-	public function custom_renderer()
+	public function getUIRenderer()
 	{
 		return $this->container["custom_renderer"];
 	}
@@ -196,7 +191,7 @@ class LongEssayTaskDI
 	/**
 	 * @return Factory
 	 */
-	public function custom_factory()
+	public function getUIFactory()
 	{
 		return $this->container["custom_factory"];
 	}

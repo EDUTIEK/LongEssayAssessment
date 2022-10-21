@@ -228,6 +228,18 @@ class Essay extends ActivePluginRecord
      */
     protected $final_grade_level_id = null;
 
+
+    /**
+     * Comment from a stitch decision
+     *
+     * @var null|string
+     * @con_has_field        true
+     * @con_is_notnull       false
+     * @con_fieldtype        clob
+     */
+    protected $stitch_comment = null;
+
+
     /**
      * @return string
      */
@@ -552,6 +564,24 @@ class Essay extends ActivePluginRecord
     public function setId(int $id): Essay
     {
         $this->id = $id;
+        return $this;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getStitchComment(): ?string
+    {
+        return $this->stitch_comment;
+    }
+
+    /**
+     * @param string|null $stitch_comment
+     * @return Essay
+     */
+    public function setStitchComment(?string $stitch_comment): Essay
+    {
+        $this->stitch_comment = $stitch_comment;
         return $this;
     }
 }

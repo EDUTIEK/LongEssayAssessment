@@ -40,6 +40,7 @@ class WriterStartGUI extends BaseGUI
             case 'startWriter':
             case 'processText':
             case 'downloadWriterPdf':
+            case 'downloadCorrectedPdf':
 			case 'downloadResourceFile':
                 $this->$cmd();
                 break;
@@ -174,9 +175,12 @@ class WriterStartGUI extends BaseGUI
             $result_actions[] = $this->uiFactory->button()->standard($this->plugin->txt('view_submission'), '')
                 ->withOnClick($submission_modal->getShowSignal());
 
+            $result_actions[] = $this->uiFactory->button()->standard($this->plugin->txt('download_written_submission'),
+                $this->ctrl->getLinkTarget($this, 'downloadWriterPdf'));
+
             if ($this->object->canReview()) {
                 $result_actions[] = $this->uiFactory->button()->standard($this->plugin->txt('download_corrected_submission'),
-                    $this->ctrl->getLinkTarget($this, 'downloadWriterPdf'));
+                    $this->ctrl->getLinkTarget($this, 'downloadCorrectedPdf'));
             }
         }
 
@@ -246,6 +250,25 @@ class WriterStartGUI extends BaseGUI
      * Download a generated pdf from the processed written text
      */
      protected function downloadWriterPdf()
+     {
+         if ($this->object->canViewWriterScreen()) {
+
+             $context = new WriterContext();
+             $context->init((string) $this->dic->user()->getId(), (string) $this->object->getRefId());
+             $service = new Service($context);
+
+             $filename = 'task' . $this->object->getId() . '_user' . $this->dic->user()->getId(). '.pdf';
+             ilUtil::deliverData($service->getProcessedTextAsPdf(), $filename, 'application/pdf');
+         }
+         else {
+             $this->raisePermissionError();
+         }
+     }
+
+     /**
+          * Download a generated pdf from the processed written text
+          */
+     protected function downloadCorrectedPdf()
      {
          if ($this->object->canReview()) {
              $service = $this->localDI->getCorrectorAdminService($this->object->getId());

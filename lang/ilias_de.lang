@@ -115,6 +115,7 @@ review_period#:#Einsichtnahme
 result#:#Ergebnis
 submission#:#Abgabe
 view_submission#:#Abgabe ansehen
+download_written_submission#:#Geschriebene Abgabe herunterladen
 download_corrected_submission#:#Korrigierte Abgabe herunterladen
 task_resources#:#Materialien zur Aufgabe
 available#:#Verfügbar
@@ -289,3 +290,4 @@ primary_color#:#Primärfarbe (Hintergrund)
 primary_color_info#:#Diese Farbe wird im Writer und Corrector zur Hervorhebung der Buttons primärer Aktionen verwendet.
 primary_text_color#:#Primärfarbe (Text)
 primary_text_color_info#:#Diese Farbe wird im Writer und Corrector zur Hervorhebung der Beschriftung von Buttons primärer Aktionen verwendet.
+via_stitch_decision#:#per Stichentscheid

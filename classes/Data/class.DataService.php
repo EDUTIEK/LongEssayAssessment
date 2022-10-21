@@ -166,6 +166,10 @@ class DataService extends BaseService
             $text .= ' (' . $essay->getFinalPoints() . ' ' . $this->plugin->txt('points') . ')';
         }
 
+        if (!empty($essay->getStitchComment())) {
+            $text .= ' ' . $this->plugin->txt('via_stitch_decision');
+        }
+
         return $text;
     }
 

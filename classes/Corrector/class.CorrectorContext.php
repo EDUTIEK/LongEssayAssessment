@@ -371,7 +371,8 @@ class CorrectorContext extends ServiceContext implements Context
                     ->withCorrectionFinalizedBy(\ilObjUser::_lookupFullname($repoEssay->getCorrectionFinalizedBy()))
                     ->withFinalPoints($repoEssay->getFinalPoints())
                     ->withFinalGrade($this->localDI->getObjectRepo()->ifGradeLevelExistsById((int) $repoEssay->getFinalGradeLevelId()) ?
-                        $this->localDI->getObjectRepo()->getGradeLevelById((int) $repoEssay->getFinalGradeLevelId())->getGrade() : '');
+                        $this->localDI->getObjectRepo()->getGradeLevelById((int) $repoEssay->getFinalGradeLevelId())->getGrade() : '')
+                    ->withStitchComment($repoEssay->getStitchComment());
             }
 
             return $writtenEssay;
@@ -474,7 +475,7 @@ class CorrectorContext extends ServiceContext implements Context
     /**
      * @inheritDoc
      */
-    public function saveStitchDecision(string $item_key, int $timestamp, ?float $points, ?string $grade_key) : bool
+    public function saveStitchDecision(string $item_key, int $timestamp, ?float $points, ?string $grade_key, ?string $stitch_comment) : bool
     {
         $essayRepo = $this->localDI->getEssayRepo();
         $dataService = $this->localDI->getDataService($this->task->getTaskId());
@@ -485,6 +486,7 @@ class CorrectorContext extends ServiceContext implements Context
             $repoEssay->setFinalGradeLevelId($grade_key ? (int) $grade_key : null);
             $repoEssay->setCorrectionFinalized($dataService->unixTimeToDb($timestamp));
             $repoEssay->setCorrectionFinalizedBy($this->user->getId());
+            $repoEssay->setStitchComment($stitch_comment);
             $essayRepo->updateEssay($repoEssay);
             return true;
         }

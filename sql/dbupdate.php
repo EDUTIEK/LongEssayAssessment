@@ -1423,3 +1423,11 @@ if (!$ilDB->tableColumnExists('xlet_plugin_config','primary_text_color')) {
     ));
 }
 ?>
+<#59>
+<?php
+if (!$ilDB->tableColumnExists('xlet_essay','stitch_comment')) {
+    $ilDB->addTableColumn('xlet_essay', 'stitch_comment', array(
+        'type' => 'clob'
+    ));
+}
+?>

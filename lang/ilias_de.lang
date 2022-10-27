@@ -294,3 +294,17 @@ via_stitch_decision#:#per Stichentscheid
 remove_writer#:#Teilnehmer entfernen
 remove_writer_confirmation#:#Sind Sie sicher, dass Sie den Teilnehmer unwiderruflich entfernen möchten?
 remove_writer_success#:#Teilnehmer erfolgreich entfernt.
+export_log#:#Protokoll exportieren
+export_log_file_prefix#:#Log
+log_time#:#Zeit
+log_until#:#Bis
+log_category#:#Kategorie
+log_alert_to#:#An
+log_alert_to_all#:#alle Teilnehmer/innen
+log_title#:#Titel
+log_content#:#Inhalt
+log_cat_authorize#:#Autorisierung
+log_cat_note#:#Notiz
+log_cat_extension#:#Zeitverlängerung
+log_cat_exclusion#:#Ausschluss
+log_cat_alert#:#Benachrichtigung

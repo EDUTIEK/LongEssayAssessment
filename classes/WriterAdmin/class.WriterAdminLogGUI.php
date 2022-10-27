@@ -19,6 +19,15 @@ use \ilUtil;
  */
 class WriterAdminLogGUI extends BaseGUI
 {
+    /** @var WriterAdminService */
+    protected $service;
+
+    public function __construct(\ilObjLongEssayTaskGUI $objectGUI)
+    {
+        parent::__construct($objectGUI);
+        $this->service = $this->localDI->getWriterAdminService($this->object->getId());
+    }
+
 	/**
 	 * Execute a command
 	 * This should be overridden in the child classes
@@ -31,6 +40,7 @@ class WriterAdminLogGUI extends BaseGUI
 			case 'showStartPage':
 			case 'createAlert':
 			case 'createLogEntry':
+            case 'exportLog':
 				$this->$cmd();
 				break;
 
@@ -46,7 +56,7 @@ class WriterAdminLogGUI extends BaseGUI
 	protected function showStartPage()
 	{
 		$modal_log_entry = $this->buildFormModalLogEntry();
-		$button_log_entry = $this->uiFactory->button()->standard($this->plugin->txt("create_log_entry"), '#')
+		$button_log_entry = $this->uiFactory->button()->primary($this->plugin->txt("create_log_entry"), '#')
 			->withOnClick($modal_log_entry->getShowSignal());
 		$this->toolbar->addComponent($button_log_entry);
 
@@ -54,6 +64,11 @@ class WriterAdminLogGUI extends BaseGUI
 		$button_writer_notice = $this->uiFactory->button()->standard($this->plugin->txt("create_alert"), '#')
 			->withOnClick($modal_writer_notice->getShowSignal());
 		$this->toolbar->addComponent($button_writer_notice);
+
+        $this->toolbar->addSeparator();
+        $button_export = $this->uiFactory->button()->standard($this->plugin->txt("export_log"),
+            $this->ctrl->getLinkTarget($this, 'exportLog'));
+        $this->toolbar->addComponent($button_export);
 
 		$task_repo = LongEssayTaskDI::getInstance()->getTaskRepo();
 
@@ -204,5 +219,11 @@ class WriterAdminLogGUI extends BaseGUI
 
 		return $out;
 	}
+
+    private function exportLog()
+    {
+        $filename = \ilUtil::getASCIIFilename($this->plugin->txt('export_log_file_prefix') .' ' . $this->object->getTitle()) . '.csv';
+        ilUtil::deliverFile($this->service->createLogExport(), $filename, 'text/csv', true, true);
+    }
 
 }

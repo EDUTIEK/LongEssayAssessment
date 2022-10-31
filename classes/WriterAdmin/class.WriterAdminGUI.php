@@ -425,9 +425,10 @@ class WriterAdminGUI extends BaseGUI
 			$this->plugin->getPrefix(),
 			$this->plugin->getPrefix() . "_writing_authorized_log_description"
 		);
+		$names = \ilUserUtil::getNamePresentation([$writer->getUserId(), $essay->getWritingAuthorizedBy()], false, false, "", true);
 
 		$log_entry = new LogEntry();
-		$log_entry->setEntry(sprintf($description, "[user=".$writer->getUserId()."]", "[user=".$essay->getWritingAuthorizedBy()."]"))
+		$log_entry->setEntry(sprintf($description, $names[$writer->getUserId()] ?? "unknown", $names[$essay->getWritingAuthorizedBy()] ?? "unknown"))
 			->setTaskId($this->object->getId())
 			->setTimestamp($essay->getWritingAuthorized())
 			->setCategory(LogEntry::CATEGORY_AUTHORIZE);
@@ -450,9 +451,10 @@ class WriterAdminGUI extends BaseGUI
 		);
 
 		$datetime = new \ilDateTime(time(), IL_CAL_UNIX);
+		$names = \ilUserUtil::getNamePresentation([$writer->getUserId(), $DIC->user()->getId()], false, false, "", true);
 
 		$log_entry = new LogEntry();
-		$log_entry->setEntry(sprintf($description, "[user=".$writer->getUserId()."]", "[user=".$DIC->user()->getId()."]", $time_extension->getMinutes()))
+		$log_entry->setEntry(sprintf($description, $names[$writer->getUserId()] ?? "unknown", $names[$DIC->user()->getId()] ?? "unknown", $time_extension->getMinutes()))
 			->setTaskId($this->object->getId())
 			->setTimestamp($datetime->get(IL_CAL_DATETIME))
 			->setCategory(LogEntry::CATEGORY_EXTENSION);
@@ -473,9 +475,10 @@ class WriterAdminGUI extends BaseGUI
 		);
 
 		$datetime = new \ilDateTime(time(), IL_CAL_UNIX);
+		$names = \ilUserUtil::getNamePresentation([$writer->getUserId(), $DIC->user()->getId()], false, false, "", true);
 
 		$log_entry = new LogEntry();
-		$log_entry->setEntry(sprintf($description, "[user=".$writer->getUserId()."]", "[user=".$DIC->user()->getId()."]"))
+		$log_entry->setEntry(sprintf($description, $names[$writer->getUserId()] ?? "unknown", $names[$DIC->user()->getId()] ?? "unknown"))
 			->setTaskId($this->object->getId())
 			->setTimestamp($datetime->get(IL_CAL_DATETIME))
 			->setCategory(LogEntry::CATEGORY_EXCLUSION);
@@ -496,9 +499,10 @@ class WriterAdminGUI extends BaseGUI
 		);
 
 		$datetime = new \ilDateTime(time(), IL_CAL_UNIX);
+		$names = \ilUserUtil::getNamePresentation([$writer->getUserId(), $DIC->user()->getId()], false, false, "", true);
 
 		$log_entry = new LogEntry();
-		$log_entry->setEntry(sprintf($description, "[user=".$writer->getUserId()."]", "[user=".$DIC->user()->getId()."]"))
+		$log_entry->setEntry(sprintf($description, $names[$writer->getUserId()] ?? "unknown", $names[$DIC->user()->getId()] ?? "unknown"))
 			->setTaskId($this->object->getId())
 			->setTimestamp($datetime->get(IL_CAL_DATETIME))
 			->setCategory(LogEntry::CATEGORY_EXCLUSION);

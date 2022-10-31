@@ -144,7 +144,7 @@ class Alert extends ActivePluginRecord
      */
     public function getTitle(): string
     {
-        return $this->title;
+        return (string) $this->title;
     }
 
     /**

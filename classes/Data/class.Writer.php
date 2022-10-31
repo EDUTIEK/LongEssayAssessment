@@ -98,7 +98,7 @@ class Writer extends ActivePluginRecord
      */
     public function getUserId(): int
     {
-        return $this->user_id;
+        return (int) $this->user_id;
     }
 
     /**

@@ -21,6 +21,7 @@ use ILIAS\Plugin\LongEssayTask\UI\Implementation\IconFactory;
 use ILIAS\Plugin\LongEssayTask\UI\PluginLoader;
 use ILIAS\Plugin\LongEssayTask\UI\PluginRendererFactory;
 use ILIAS\Plugin\LongEssayTask\UI\PluginTemplateFactory;
+use ILIAS\Plugin\LongEssayTask\WriterAdmin\WriterAdminService;
 use ILIAS\UI\Implementation\Render\ComponentRenderer;
 use Pimple\Container;
 
@@ -31,6 +32,7 @@ class LongEssayTaskDI
 {
     protected static $instance;
     protected $dataServices = [];
+    protected $writerAdminServices = [];
     protected $correctorAdminServices = [];
 
 	/**
@@ -166,6 +168,19 @@ class LongEssayTaskDI
             $this->dataServices[$task_id] = new DataService($task_id);
         }
         return $this->dataServices[$task_id];
+    }
+
+
+    /**
+     * @param int $task_id
+     * @return WriterAdminService
+     */
+    public function getWriterAdminService(int $task_id) : WriterAdminService
+    {
+        if (!isset($this->writerAdminServices[$task_id])) {
+            $this->writerAdminServices[$task_id] = new WriterAdminService($task_id);
+        }
+        return $this->writerAdminServices[$task_id];
     }
 
     /**

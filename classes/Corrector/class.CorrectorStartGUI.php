@@ -8,6 +8,9 @@ use ILIAS\Plugin\LongEssayTask\BaseGUI;
 use ILIAS\Plugin\LongEssayTask\CorrectorAdmin\CorrectorAdminService;
 use ILIAS\Plugin\LongEssayTask\Data\CorrectionSettings;
 use ILIAS\Plugin\LongEssayTask\LongEssayTaskDI;
+use ILIAS\UI\Component\Button\Shy;
+use ILIAS\UI\Component\Item\Standard;
+use ILIAS\UI\Component\Link\Link;
 use ILIAS\UI\Factory;
 use \ilUtil;
 
@@ -112,32 +115,63 @@ class CorrectorStartGUI extends BaseGUI
             $this->toolbar->addButtonInstance($button);
         }
 
-//        $actions = array(
-//            "Alle" => "all",
-//            "Offen" => "",
-//            "Vorläufig" => "",
-//            "Korrigiert" => "",
-//            "Große Abweichung" => "",
-//        );
+		$base_action = $this->ctrl->getLinkTarget($this);
 
-//        $aria_label = "change_the_currently_displayed_mode";
-//        $view_control = $this->uiFactory->viewControl()->mode($actions, $aria_label)->withActive("Alle");
-//
-//        $result = $this->uiFactory->item()->group("", [
-//            $this->uiFactory->item()->standard("Korrekturstatus")
-//                ->withDescription("")
-//                ->withProperties(array(
-//                    "Bewertete Abgaben:" => "1",
-//                    "Offene Abgaben:" => "1",
-//                    "Durchschnittsnote:" => "10"))
-//        ]);
+		$actions = array(
+			$this->lng->txt("all") => $base_action,
+			$this->plugin->txt('correction_filter_open') => $base_action . "&filter=open",
+			$this->plugin->txt('correction_filter_pre')=> $base_action . "&filter=pre",
+			$this->plugin->txt('correction_filter_corrected') => $base_action . "&filter=corrected",
+			$this->plugin->txt('correction_filter_stitch') => $base_action . "&filter=stitch",
+		);
+		$is_empty = empty($items);
+        $aria_label = "change_the_currently_displayed_mode";
+        $view_control = $this->uiFactory->viewControl()->mode($actions, $aria_label)->withActive($this->lng->txt("all"));
+		$params = $this->request->getQueryParams();
+		if(array_key_exists("filter", $params)){
+			$view_control = $view_control->withActive($this->plugin->txt('correction_filter_'.$params["filter"]));
+			foreach ($items as $key => $item){
+				/**
+				 * @var Standard $item
+				 */
+				$properties = $item->getProperties();
+				switch ($params["filter"]){
+					case "open":
 
-        if (!empty($items)) {
+						if($properties[$this->plugin->txt('correction_status')] != $this->plugin->txt('correction_status_open'))
+							unset($items[$key]);
+						break;
+					case "pre":
+						if($properties[$this->plugin->txt('writing_status')] == $this->plugin->txt('writing_status_authorized'))
+							unset($items[$key]);
+						break;
+					case "corrected":
+						if($properties[$this->plugin->txt('correction_status')] != $this->plugin->txt('correction_status_finished'))
+							unset($items[$key]);
+						break;
+					case "stitch":
+						if($properties[$this->plugin->txt('correction_status')] != $this->plugin->txt('correction_status_stitch_needed'))
+							unset($items[$key]);
+						break;
+				}
+			}
+		}
+
+		// Sort $items array by writer name or pseudonym
+		usort($items, function(Standard $item_a, Standard $item_b){
+			$title_a = ($item_a->getTitle() instanceof Shy ||
+						$item_a->getTitle() instanceof \ILIAS\UI\Component\Link\Standard) ?
+				$item_a->getTitle()->getLabel() : (string)$item_a->getTitle();
+
+			$title_b = ($item_b->getTitle() instanceof Shy ||
+				$item_b->getTitle() instanceof \ILIAS\UI\Component\Link\Standard) ?
+				$item_b->getTitle()->getLabel() : $item_b->getTitle();;
+			return strtolower($title_a) <=> strtolower($title_b);
+		});
+
+        if (!$is_empty) {
             $essays = $this->uiFactory->item()->group($this->plugin->txt('assigned_writings'), $items);
-            $this->tpl->setContent(
-//            $this->renderer->render($result) . '<br>'.
-//            $this->renderer->render($view_control) . '<br><br>' .
-                $this->renderer->render($essays));
+            $this->tpl->setContent($this->renderer->render([$view_control, $this->uiFactory->legacy("<br /></br>"),$essays]));
 
             $taskSettings = $this->localDI->getTaskRepo()->getTaskSettingsById($this->settings->getTaskId());
             if (!empty($period = $this->data->formatPeriod($taskSettings->getCorrectionStart(), $taskSettings->getCorrectionEnd()))) {

@@ -308,3 +308,7 @@ log_cat_note#:#Notiz
 log_cat_extension#:#Zeitverlängerung
 log_cat_exclusion#:#Ausschluss
 log_cat_alert#:#Benachrichtigung
+correction_filter_open#:#Offen
+correction_filter_pre#:#Vorläufig
+correction_filter_corrected#:#Korrigiert
+correction_filter_stitch#:#Große Abweichung

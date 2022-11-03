@@ -415,12 +415,7 @@ class CorrectorAdminService extends BaseService
         $context = new CorrectorContext();
         $context->init((string) $this->dic->user()->getId(), (string) $object->getRefId());
 
-        $writingTask = new WritingTask(
-            $object->getTitle(),
-            $repoTask->getInstructions(),
-            \ilObjUser::_lookupFullname($repoWriter->getUserId()),
-            $this->dataService->dbTimeToUnix($repoTask->getWritingEnd())
-        );
+        $writingTask = $context->getWritingTaskByWriterId($repoWriter->getId());
         $writtenEssay = $context->getEssayOfItem((string) $repoWriter->getId());
 
         $correctionSummaries = [];

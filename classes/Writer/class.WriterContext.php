@@ -89,21 +89,7 @@ class WriterContext extends ServiceContext implements Context
      */
     public function getWritingTask(): WritingTask
     {
-        $writing_end = $this->data->dbTimeToUnix($this->task->getWritingEnd());
-
-        if (!empty($timeExtension = $this->localDI->getWriterRepo()->getTimeExtensionByWriterId(
-            $this->getRepoWriter()->getId(), $this->task->getTaskId()))
-        ) {
-            $writing_end += $timeExtension->getMinutes() * 60;
-        }
-
-
-        return new WritingTask(
-            (string) $this->object->getTitle(),
-            (string) $this->task->getInstructions(),
-            $this->user->getFullname(),
-            $writing_end
-        );
+        return $this->getWritingTaskByWriterId($this->getRepoWriter()->getId());
     }
 
 

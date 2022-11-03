@@ -5,6 +5,7 @@ namespace ILIAS\Plugin\LongEssayTask;
 use Edutiek\LongEssayService\Base\BaseContext;
 use Edutiek\LongEssayService\Data\ApiToken;
 use Edutiek\LongEssayService\Data\EnvResource;
+use Edutiek\LongEssayService\Data\WritingTask;
 use Edutiek\LongEssayService\Exceptions\ContextException;
 use ILIAS\Plugin\LongEssayTask\Data\AccessToken;
 use ILIAS\Plugin\LongEssayTask\Data\DataService;
@@ -267,5 +268,31 @@ abstract class ServiceContext implements BaseContext
                 }
             }
         }
+    }
+
+
+    /**
+     * Get the writing task of a certain writer
+     * (not needed by interface, but public because needed by CorrectorAdminService)
+     */
+    public function getWritingTaskByWriterId(int $writer_id) : WritingTask
+    {
+        $repoWriter = $this->localDI->getWriterRepo()->getWriterById($writer_id);
+        $repoEssay = $this->localDI->getEssayRepo()->getEssayByWriterIdAndTaskId($writer_id, $this->task->getTaskId());
+
+        $writing_end = $this->data->dbTimeToUnix($this->task->getWritingEnd());
+        if (!empty($writing_end)
+            && !empty($timeExtension = $this->localDI->getWriterRepo()->getTimeExtensionByWriterId($writer_id, $this->task->getTaskId()))
+        ) {
+            $writing_end += $timeExtension->getMinutes() * 60;
+        }
+
+       return new WritingTask(
+           (string) $this->object->getTitle(),
+           (string) $this->task->getInstructions(),
+            isset($repoWriter) ? \ilObjUser::_lookupFullname($repoWriter->getUserId()) : '',
+            $writing_end,
+           $this->data->dbTimeToUnix($repoEssay->getWritingExcluded())
+        );
     }
 }

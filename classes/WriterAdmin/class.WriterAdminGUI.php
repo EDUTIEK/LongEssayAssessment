@@ -53,6 +53,7 @@ class WriterAdminGUI extends BaseGUI
 					case 'repealExclusion':
 					case 'deleteWriterData':
 					case 'removeWriter':
+                    case 'exportSteps':
 						$this->$cmd();
 						break;
 
@@ -518,4 +519,23 @@ class WriterAdminGUI extends BaseGUI
 			$this->ctrl->getLinkTarget($this, "deleteWriterData")
 		)->withActionButtonLabel("remove");
 	}
+
+    private function exportSteps()
+    {
+        if (!$this->plugin->hasAdminAccess()) {
+            ilUtil::sendFailure($this->lng->txt("permission_denied"), true);
+            $this->ctrl->redirect($this, "showStartPage");
+        }
+
+        if (empty($repoWriter = $this->localDI->getWriterRepo()->getWriterById((int) $this->getWriterId()))) {
+            ilUtil::sendFailure($this->plugin->txt("missing_writer_id"), true);
+            $this->ctrl->redirect($this, "showStartPage");
+        }
+
+        $service = $this->localDI->getWriterAdminService($this->object->getId());
+
+        $name = \ilUtil::getASCIIFilename($this->object->getTitle() .'_' . \ilObjUser::_lookupFullname($repoWriter->getUserId()));
+        ilUtil::deliverFile($service->createWritingStepsExport($this->object, $repoWriter, $name), $name . '.zip', 'application/zip', true, true);
+
+    }
 }

@@ -2,6 +2,8 @@
 
 namespace ILIAS\Plugin\LongEssayTask\WriterAdmin;
 
+use Edutiek\LongEssayService\Data\WritingStep;
+use Edutiek\LongEssayService\Writer\Service;
 use ILIAS\Data\UUID\Factory as UUID;
 use ILIAS\Plugin\LongEssayTask\BaseService;
 use ILIAS\Plugin\LongEssayTask\Data\Alert;
@@ -9,7 +11,9 @@ use ILIAS\Plugin\LongEssayTask\Data\DataService;
 use ILIAS\Plugin\LongEssayTask\Data\EssayRepository;
 use ILIAS\Plugin\LongEssayTask\Data\LogEntry;
 use ILIAS\Plugin\LongEssayTask\Data\TaskRepository;
+use ILIAS\Plugin\LongEssayTask\Data\Writer;
 use ILIAS\Plugin\LongEssayTask\Data\WriterRepository;
+use ILIAS\Plugin\LongEssayTask\Writer\WriterContext;
 
 class WriterAdminService extends BaseService
 {
@@ -87,5 +91,76 @@ class WriterAdminService extends BaseService
 
         return $basedir . '/' . $file;
     }
+
+
+    /**
+     * Create an export file for the writing steps
+     * @param string $dirname   name of the directory inside the zip file
+     */
+    public function createWritingStepsExport(\ilObjLongEssayTask $object, Writer $repoWriter, string $dirname) : string
+    {
+        $context = new WriterContext();
+        $context->init((string) $repoWriter->getUserId(), (string) $object->getRefId());
+        $service = new Service($context);
+
+        $storage = $this->dic->filesystem()->temp();
+        $basedir = ILIAS_DATA_DIR . '/' . CLIENT_ID . '/temp';
+        $tempdir = 'xlet/'. (new UUID)->uuid4AsString();
+        $zipdir = $tempdir . '/' . $dirname;
+        $storage->createDir($zipdir);
+
+        $repoEssay = $this->essayRepo->getEssayByWriterIdAndTaskId($repoWriter->getId(), $object->getId());
+
+        $before = '';
+        $toc = '';
+        $steps = $this->essayRepo->getWriterHistoryStepsByEssayId($repoEssay->getId());
+        $index = 0;
+        foreach ($steps  as $step) {
+            $filename = 'step' .  sprintf('%09d', $index) . '.html';
+
+            $nav = '<a href="index.html">Index</a> | Step ' . $index . ' ('. $step->getTimestamp() . ')';
+            if ($index > 0) {
+                $nav .= ' | <a href="step' . sprintf('%09d', $index -1) . '.html">Previous</a>';
+            }
+            if ($index < count($steps) - 1) {
+                $nav .= ' | <a href="step' . sprintf('%09d', $index +1) . '.html">Next</a>';
+            }
+
+            $toc .= '<a href="step' . sprintf('%09d', $index) . '.html">Step ' . $index . '</a> '
+                    . ' ('. $step->getTimestamp() . ')';
+            if ($step->isIsDelta()) {
+                $toc .= " - Incremental<br>\n";
+            }
+            else {
+                $toc .= " - Full<br>\n";
+            }
+
+            $writingStep = new WritingStep(
+                $this->dataService->dbTimeToUnix($step->getTimestamp()),
+                $step->getContent(),
+                $step->isIsDelta(),
+                $step->getHashBefore(),
+                $step->getHashAfter()
+            );
+
+            $html = $nav .'<hr>' . $service->getWritingDiffHtml($before, $writingStep);
+            $storage->write($zipdir . '/'. $filename, $html);
+
+            $before = $service->getWritingDiffResult($before, $writingStep);
+            $index++;
+        }
+        $storage->write($zipdir . '/index.html', $toc);
+
+        $zipfile = $basedir . '/' . $tempdir . '/export.zip';
+        \ilUtil::zip($basedir . '/' . $zipdir, $zipfile);
+
+        $storage->deleteDir($zipdir);
+        return $zipfile;
+
+        // check if that can be used without abolute path
+        // then also the tempdir can be deleted
+        //$delivery = new \ilFileDelivery()
+    }
+
 
 }

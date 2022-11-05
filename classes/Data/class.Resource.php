@@ -12,9 +12,9 @@ class Resource extends ActivePluginRecord
     const RESOURCE_TYPE_FILE = 'file';
     const RESOURCE_TYPE_URL = 'url';
 
-    const RESOURCE_AVAILABILITY_BEFORE = 'before';
-    const RESOURCE_AVAILABILITY_DURING = 'during';
-    const RESOURCE_AVAILABILITY_AFTER = 'after';
+    const RESOURCE_AVAILABILITY_BEFORE = 'before';  // before writing
+    const RESOURCE_AVAILABILITY_DURING = 'during';  // after writing start, unlimited
+    const RESOURCE_AVAILABILITY_AFTER = 'after';    // for review period
 
     /**
      * @var string

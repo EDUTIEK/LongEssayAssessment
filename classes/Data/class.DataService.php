@@ -219,9 +219,32 @@ class DataService extends BaseService
 	 * @param CorrectorSummary|null $summary
 	 * @return bool
 	 */
-	public function isCorrectionResultOpen(?CorrectorSummary $summary): bool {
+	public function isCorrectionResultOpen(?CorrectorSummary $summary) : bool
+    {
 		return empty($summary) || empty($summary->getLastChange()) || empty($summary->getCorrectionAuthorized());
 	}
+
+    /**
+     * Check if a resource is already available
+     */
+    public function isResourceAvailable(Resource $resource, TaskSettings $taskSettings) : bool
+    {
+        if ($resource->getAvailability() == Resource::RESOURCE_AVAILABILITY_BEFORE) {
+            return true;
+        }
+
+        if ($resource->getAvailability() == Resource::RESOURCE_AVAILABILITY_DURING
+            && $this->isInRange(time(), $this->dbTimeToUnix($taskSettings->getWritingStart()), null)) {
+            return true;
+        }
+
+        if ($resource->getAvailability() == Resource::RESOURCE_AVAILABILITY_AFTER
+            && $this->isInRange(time(), $this->dbTimeToUnix($taskSettings->getReviewStart()), $this->dbTimeToUnix($taskSettings->getReviewEnd()))) {
+            return true;
+        }
+
+        return false;
+    }
 
     /**
      * Format the position of a corrector

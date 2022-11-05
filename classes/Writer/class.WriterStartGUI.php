@@ -129,9 +129,11 @@ class WriterStartGUI extends BaseGUI
 
 		$repo = LongEssayTaskDI::getInstance()->getTaskRepo();
 		$writing_resources = [];
+        $solution_items = [];
+
 		/** @var Resource $resource */
 		foreach ($repo->getResourceByTaskId($this->object->getId()) as $resource) {
-			if ($resource->getAvailability() == Resource::RESOURCE_AVAILABILITY_BEFORE) {
+			if ($this->data->isResourceAvailable($resource, $this->task)) {
 
 				if ($resource->getType() == Resource::RESOURCE_TYPE_FILE) {
 					$resource_file = $DIC->resourceStorage()->manage()->find($resource->getFileId());
@@ -147,16 +149,23 @@ class WriterStartGUI extends BaseGUI
 						->withLeadIcon($this->uiFactory->symbol()->icon()->standard('file', 'File', 'medium'))
 						->withProperties(array(
 							"Filename" => $revision->getInformation()->getTitle(),
-							"Verfügbar" => $resource->getAvailability()));
+							"Verfügbar" => $this->plugin->txt('resource_availability_' . $resource->getAvailability())));
 				}
 				else {
 					$item = $this->uiFactory->item()->standard($this->uiFactory->link()->standard($resource->getTitle(), $resource->getUrl()))
 						->withLeadIcon($this->uiFactory->symbol()->icon()->standard('webr', 'Link', 'medium'))
 						->withProperties(array(
 							"Webseite" => $resource->getUrl(),
-							"Verfügbar" => $resource->getAvailability()));
+							"Verfügbar" => $this->plugin->txt('resource_availability_' . $resource->getAvailability())));
 				}
-				$writing_resources[] = $item;
+
+                if ($resource->getAvailability() == Resource::RESOURCE_AVAILABILITY_AFTER) {
+                    $solution_items[] = $item;
+                }
+                else {
+                     $writing_resources[] = $item;
+                }
+
 			}
 		}
         if (!empty($writing_resources)) {
@@ -167,13 +176,13 @@ class WriterStartGUI extends BaseGUI
 
         $result_actions = [];
         if (isset($essay)) {
-            $submission_page = $this->uiFactory->modal()->lightboxTextPage(
-                (string) $essay->getProcessedText(), $this->plugin->txt('submission'));
-            $submission_modal = $this->uiFactory->modal()->lightbox($submission_page);
-            $modals[$submission_modal->getShowSignal()->getId()] = $submission_modal;
-
-            $result_actions[] = $this->uiFactory->button()->standard($this->plugin->txt('view_submission'), '')
-                ->withOnClick($submission_modal->getShowSignal());
+//            $submission_page = $this->uiFactory->modal()->lightboxTextPage(
+//                (string) $essay->getProcessedText(), $this->plugin->txt('submission'));
+//            $submission_modal = $this->uiFactory->modal()->lightbox($submission_page);
+//            $modals[$submission_modal->getShowSignal()->getId()] = $submission_modal;
+//
+//            $result_actions[] = $this->uiFactory->button()->standard($this->plugin->txt('view_submission'), '')
+//                ->withOnClick($submission_modal->getShowSignal());
 
             $result_actions[] = $this->uiFactory->button()->standard($this->plugin->txt('download_written_submission'),
                 $this->ctrl->getLinkTarget($this, 'downloadWriterPdf'));
@@ -188,6 +197,7 @@ class WriterStartGUI extends BaseGUI
         foreach ($result_actions as $action) {
             $actions_html .= $this->renderer->render($action);
         }
+
         $result_item = $this->uiFactory->item()->standard($this->data->formatFinalResult($essay))
             ->withDescription($actions_html)
             ->withProperties(array(
@@ -195,11 +205,21 @@ class WriterStartGUI extends BaseGUI
                     $this->task->getReviewStart(), $this->task->getReviewEnd()
                 )));
 
-//        if (!empty($result_actions)) {
-//            $result_item = $result_item->withActions($this->uiFactory->dropdown()->standard($result_actions));
-//        }
 
         $contents[] = $this->uiFactory->item()->group($this->plugin->txt('result'), [$result_item]);
+
+
+        // Solution
+        if ($this->object->canReview()) {
+            if (!empty($this->task->getSolution())) {
+                $solution_item = $this->uiFactory->item()->standard($this->task->getSolution());
+                $solution_items = array_merge([$solution_item], $solution_items);
+            }
+
+            if (!empty($solution_items)) {
+                $contents[] = $this->uiFactory->item()->group($this->plugin->txt('task_solution'), $solution_items);
+            }
+        }
 
 
         // Output to the page

@@ -66,7 +66,7 @@ class CorrectorStartGUI extends BaseGUI
     {
         $canCorrect = $this->object->canCorrect();
         $readyItems = 0;
-
+        $items= [];
         $corrector = $this->localDI->getCorrectorRepo()->getCorrectorByUserId($this->dic->user()->getId(), $this->settings->getTaskId());
         foreach ($this->localDI->getCorrectorRepo()->getAssignmentsByCorrectorId($corrector->getId()) as $assignment) {
             $writer = $this->localDI->getWriterRepo()->getWriterById($assignment->getWriterId());

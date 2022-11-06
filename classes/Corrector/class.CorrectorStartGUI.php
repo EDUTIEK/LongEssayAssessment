@@ -72,7 +72,7 @@ class CorrectorStartGUI extends BaseGUI
             $writer = $this->localDI->getWriterRepo()->getWriterById($assignment->getWriterId());
             $essay = $this->localDI->getEssayRepo()->getEssayByWriterIdAndTaskId($assignment->getWriterId(), $this->settings->getTaskId());
 
-            if (!empty($essay) && !empty($essay->getWritingExcluded())) {
+            if (empty($essay)) {
                 continue;
             }
 

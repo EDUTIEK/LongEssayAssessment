@@ -107,9 +107,9 @@ class CorrectorAdminService extends BaseService
         $required = $this->settings->getRequiredCorrectors();
         $missing = 0;
         foreach ($this->writerRepo->getWritersByTaskId($this->settings->getTaskId()) as $writer) {
-            // get only writers with authorized essays
+            // get only writers with authorized essays without exclusion
             $essay = $this->localDI->getEssayRepo()->getEssayByWriterIdAndTaskId($writer->getId(), $this->settings->getTaskId());
-            if (!isset($essay) || (empty($essay->getWritingAuthorized()) && empty($essay->getWritingExcluded()))) {
+            if (!isset($essay) || (empty($essay->getWritingAuthorized())) || !empty($essay->getWritingExcluded())) {
                 continue;
             }
             $assigned = count($this->correctorRepo->getAssignmentsByWriterId($writer->getId()));
@@ -155,7 +155,7 @@ class CorrectorAdminService extends BaseService
 
             // get only writers with authorized essays
             $essay = $this->localDI->getEssayRepo()->getEssayByWriterIdAndTaskId($writer->getId(), $this->settings->getTaskId());
-            if (!isset($essay) || (empty($essay->getWritingAuthorized()) && empty($essay->getWritingExcluded()))) {
+            if (!isset($essay) || empty($essay->getWritingAuthorized()) || !empty($essay->getWritingExcluded())) {
                 continue;
             }
 

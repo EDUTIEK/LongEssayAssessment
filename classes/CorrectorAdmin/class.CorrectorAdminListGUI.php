@@ -166,8 +166,8 @@ class CorrectorAdminListGUI extends WriterListGUI
 
 			if($essay->getWritingExcluded() !== null)
 			{
-				return $this->plugin->txt("writing_excluded_from") . " " .
-					$this->getUsername($essay->getWritingExcludedBy(), true);
+				return '<strong>' . $this->plugin->txt("writing_excluded_from") . " " .
+					$this->getUsername($essay->getWritingExcludedBy(), true) . '</strong>';
 			}
 
 			if ($essay->getCorrectionFinalized() !== null) {

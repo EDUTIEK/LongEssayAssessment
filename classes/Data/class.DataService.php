@@ -117,18 +117,31 @@ class DataService extends BaseService
 
     /**
      * Format the writing status of an essay
+     * @param Essay|null $essay
+     * @param bool $highlight_specials
+     * @return string
      */
-    public function formatWritingStatus(?Essay $essay) : string
+    public function formatWritingStatus(?Essay $essay, $highlight_correction_specials = true) : string
     {
         if (empty($essay) || empty($essay->getEditStarted())) {
-            return $this->plugin->txt('writing_status_not_written');
+            $status = $this->plugin->txt('writing_status_not_written');
+        }
+        elseif (!empty($essay->getWritingExcluded())) {
+            $status = $this->plugin->txt("writing_excluded_from") . " " .
+                \ilObjUser::_lookupFullname($essay->getWritingExcludedBy());
         }
         elseif (empty($essay->getWritingAuthorized())) {
-            return $this->plugin->txt('writing_status_not_authorized');
+            $status = $this->plugin->txt('writing_status_not_authorized');
         }
         else {
+            // standard case for correction
             return $this->plugin->txt('writing_status_authorized');
         }
+
+        if ($highlight_correction_specials) {
+            $status = '<strong>' . $status . '</strong>';
+        }
+        return $status;
     }
 
     /**

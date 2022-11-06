@@ -23,5 +23,8 @@ class ilLongEssayTaskRestInit extends ilInitialisation
         }
 
         self::initAccessHandling();
+
+        $_GET['lang'] = $user->getPref('language');
+        self::initLanguage();
     }
 }

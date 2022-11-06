@@ -392,6 +392,11 @@ class CorrectorContext extends ServiceContext implements Context
      */
     public function getCorrectorsOfItem(string $item_key): array
     {
+       if (empty($correctionSettings = $this->localDI->getTaskRepo()->getCorrectionSettingsById($this->task->getTaskId()))
+           || $correctionSettings->getMutualVisibility() == 0 ) {
+           return [];
+       }
+
        $correctorRepo = $this->localDI->getCorrectorRepo();
        $correctors = [];
        foreach ($correctorRepo->getAssignmentsByWriterId((int) $item_key) as $assignment) {

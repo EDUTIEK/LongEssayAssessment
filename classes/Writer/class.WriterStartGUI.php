@@ -42,6 +42,8 @@ class WriterStartGUI extends BaseGUI
             case 'downloadWriterPdf':
             case 'downloadCorrectedPdf':
 			case 'downloadResourceFile':
+            case 'viewInstructions':
+            case 'viewSolution':
                 $this->$cmd();
                 break;
 
@@ -102,11 +104,6 @@ class WriterStartGUI extends BaseGUI
             }
         }
 
-//        $button = \ilLinkButton::getInstance();
-//        $button->setUrl($this->ctrl->getLinkTarget($this, 'processText'));
-//        $button->setCaption($this->plugin->txt('process_text'), false);
-//        $this->toolbar->addButtonInstance($button);
-
         // Instructions
 
         $writing_end = null;
@@ -115,9 +112,19 @@ class WriterStartGUI extends BaseGUI
                 $this->data->dbTimeToUnix($this->task->getWritingEnd()) + $extension);
         }
 
+        $inst_parts = [];
+        if (!empty($this->task->getDescription())) {
+            $inst_parts[] = $this->task->getDescription();
+        }
+        if (!empty($this->task->getInstructions())
+            && $this->data->isInRange(time(), $this->data->dbTimeToUnix($this->task->getWritingStart()), null)) {
+            $inst_parts[] = $this->renderer->render($this->uiFactory->button()->standard($this->plugin->txt('view_instructions'),
+                $this->ctrl->getLinkTarget($this, 'viewInstructions')));
+        }
+
         $contents[] = $this->uiFactory->item()->group($this->plugin->txt('task_instructions'),
             [$this->uiFactory->item()->standard($this->lng->txt('description'))
-                ->withDescription($this->task->getDescription() !== null ? $this->task->getDescription() : "")
+                ->withDescription(implode('<br>', $inst_parts))
                 ->withProperties(array(
                     $this->plugin->txt('writing_period') => $this->data->formatPeriod(
                         $this->task->getWritingStart(), $writing_end
@@ -176,13 +183,6 @@ class WriterStartGUI extends BaseGUI
 
         $result_actions = [];
         if (isset($essay)) {
-//            $submission_page = $this->uiFactory->modal()->lightboxTextPage(
-//                (string) $essay->getProcessedText(), $this->plugin->txt('submission'));
-//            $submission_modal = $this->uiFactory->modal()->lightbox($submission_page);
-//            $modals[$submission_modal->getShowSignal()->getId()] = $submission_modal;
-//
-//            $result_actions[] = $this->uiFactory->button()->standard($this->plugin->txt('view_submission'), '')
-//                ->withOnClick($submission_modal->getShowSignal());
 
             $result_actions[] = $this->uiFactory->button()->standard($this->plugin->txt('download_written_submission'),
                 $this->ctrl->getLinkTarget($this, 'downloadWriterPdf'));
@@ -212,7 +212,11 @@ class WriterStartGUI extends BaseGUI
         // Solution
         if ($this->object->canReview()) {
             if (!empty($this->task->getSolution())) {
-                $solution_item = $this->uiFactory->item()->standard($this->task->getSolution());
+
+                $solution_button = $this->renderer->render($this->uiFactory->button()->standard($this->plugin->txt('view_solution'),
+                    $this->ctrl->getLinkTarget($this, 'viewSolution')));
+
+                $solution_item = $this->uiFactory->item()->standard($solution_button);
                 $solution_items = array_merge([$solution_item], $solution_items);
             }
 
@@ -344,4 +348,30 @@ class WriterStartGUI extends BaseGUI
 			// TODO: Error resource not in Storage
 		}
 	}
+
+    protected function viewInstructions()
+    {
+        $this->toolbar->addComponent( $this->uiFactory->button()->standard($this->lng->txt('back'),
+            $this->ctrl->getLinkTarget($this, 'showStartPage')));
+
+        $content = [];
+        if ($this->data->isInRange(time(), $this->data->dbTimeToUnix($this->task->getWritingStart()), null)) {
+            $content[] = $this->uiFactory->panel()->standard($this->plugin->txt('task_instructions'), $this->uiFactory->legacy($this->task->getInstructions()));
+        }
+
+        $this->tpl->setContent($this->renderer->render($content));
+    }
+
+    protected function viewSolution()
+    {
+        $this->toolbar->addComponent( $this->uiFactory->button()->standard($this->lng->txt('back'),
+            $this->ctrl->getLinkTarget($this, 'showStartPage')));
+
+        $content = [];
+        if ($this->object->canReview()) {
+            $content[] = $this->uiFactory->panel()->standard($this->plugin->txt('task_solution'), $this->uiFactory->legacy($this->task->getSolution()));
+        }
+
+        $this->tpl->setContent($this->renderer->render($content));
+    }
 }

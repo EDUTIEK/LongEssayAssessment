@@ -313,3 +313,5 @@ correction_filter_pre#:#Vorläufig
 correction_filter_corrected#:#Korrigiert
 correction_filter_stitch#:#Große Abweichung
 export_steps#:#Bearbeitungsschritte exportieren
+view_instructions#:#Aufgabenstellung ansehen
+view_solution#:#Lösungshinweise ansehen

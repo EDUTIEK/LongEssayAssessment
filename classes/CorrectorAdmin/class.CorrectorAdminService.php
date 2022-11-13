@@ -143,13 +143,17 @@ class CorrectorAdminService extends BaseService
         }
 
         $assigned = 0;
-        $writerCorrectors = [];
-        $correctorWriters = [];
+        $writerCorrectors = [];     // writer_id => [ position => $corrector_id ]
+        $correctorWriters = [];     // corrector_id => [ writer_id => position ]
+        $correctorPosCount = [];    // corrector_id => [ position => count ]
 
         // collect assignment data
         foreach ($this->correctorRepo->getCorrectorsByTaskId($this->settings->getTaskId()) as $corrector) {
             // init list of correctors with writers
             $correctorWriters[$corrector->getId()] = [];
+            for ($position = 0; $position < $required; $position++) {
+                $correctorPosCount[$corrector->getId()][$position] = 0;
+            }
         }
         foreach ($this->writerRepo->getWritersByTaskId($this->settings->getTaskId()) as $writer) {
 
@@ -167,6 +171,8 @@ class CorrectorAdminService extends BaseService
                 $writerCorrectors[$assignment->getWriterId()][$assignment->getPosition()] = $assignment->getCorrectorId();
                 // list the assigned writers for each corrector, give the corrector position per writer
                 $correctorWriters[$assignment->getCorrectorId()][$assignment->getWriterId()] = $assignment->getPosition();
+                // count the assignments per position for a corrector
+                $correctorPosCount[$assignment->getCorrectorId()][$assignment->getPosition()]++;
             }
         }
 
@@ -182,13 +188,13 @@ class CorrectorAdminService extends BaseService
 
                         // corrector has not yet the writer assigned
                         if (!isset($posByWriterId[$writerId])) {
-                            // group the candidates by their number of existing assignments
-                            $candidatesByCount[count($posByWriterId)][] = $correctorId;
+                            // group the candidates by their number of existing assignments for the position
+                            $candidatesByCount[$correctorPosCount[$correctorId][$position]][] = $correctorId;
                         }
                     }
                     if (!empty($candidatesByCount)) {
 
-                        // get the candidate group with the smallest number of assignments
+                        // get the candidate group with the smallest number of assignments for the position
                         ksort($candidatesByCount);
                         reset($candidatesByCount);
                         $candidateIds = current($candidatesByCount);
@@ -210,6 +216,8 @@ class CorrectorAdminService extends BaseService
                         $correctorWriters[$correctorId][$writerId] = $position;
                         // not really needed, this fills the current empty corrector position
                         $writerCorrectors[$writerId][$position] = $correctorId;
+                        // increase the assignments per position for the corrector
+                        $correctorPosCount[$correctorId][$position]++;
                     }
                 }
             }

@@ -108,10 +108,12 @@ lp_passed_info#:#Für Lernfortschritt und Vorbedingungen gilt diese Notenstufe a
 start_writing#:#Bearbeitung starten
 writing_period#:#Bearbeitung
 not_specified#:#nicht festgelegt
+period_only_from#:#ab
+period_only_until#:#bis
 period_from#:#von
 period_until#:#bis
 correction_period#:#Korrektur
-review_period#:#Einsichtnahme
+review_period#:#Einsichtnahme (für autorisierte Abgaben)
 result#:#Ergebnis
 submission#:#Abgabe
 view_submission#:#Abgabe ansehen
@@ -315,3 +317,4 @@ correction_filter_stitch#:#Große Abweichung
 export_steps#:#Bearbeitungsschritte exportieren
 view_instructions#:#Aufgabenstellung ansehen
 view_solution#:#Lösungshinweise ansehen
+message_review_period#:#Die Einsichtnahme findet %s statt.

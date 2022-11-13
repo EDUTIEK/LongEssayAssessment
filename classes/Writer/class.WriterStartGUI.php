@@ -73,13 +73,18 @@ class WriterStartGUI extends BaseGUI
                 }
                 elseif (!empty($essay->getWritingAuthorized())) {
                     $message = $this->plugin->txt('message_writing_authorized');
+                    $review_message = '';
                     $back_link = '';
+                    if (!empty($this->task->getReviewStart()) || !empty($this->task->getReviewEnd())) {
+                        $review_message = '<p>'. sprintf($this->plugin->txt('message_review_period'),
+                                $this->data->formatPeriod($this->task->getReviewStart(), $this->task->getReviewEnd())) . '</p>';
+                    }
                     if (isset($this->params['returned'])) {
                         $back_url = \ilLink::_getLink($this->dic->repositoryTree()->getParentId($this->object->getRefId()));
                         $back_text = $this->plugin->txt('message_writing_authorized_link');
                         $back_link = '<p><a href="'.$back_url.'">'.$back_text.'</a></p>';
                     }
-                    ilUtil::sendInfo($message. $back_link);
+                    ilUtil::sendInfo($message. $review_message. $back_link);
                 }
             }
 

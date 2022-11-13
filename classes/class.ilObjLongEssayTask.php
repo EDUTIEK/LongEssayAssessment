@@ -390,6 +390,19 @@ class ilObjLongEssayTask extends ilObjectPlugin
             return false;
         }
 
+        // check if essay is authorized
+        if (empty($writer = $this->localDI->getWriterRepo()->getWriterByUserId(
+            $this->dic->user()->getId(), $this->taskSettings->getTaskId()))) {
+            return false;
+        }
+        elseif (empty($essay = $this->localDI->getEssayRepo()->getEssayByWriterIdAndTaskId(
+                $writer->getId(), $this->taskSettings->getTaskId()))) {
+            return false;
+        }
+        elseif(empty($essay->getWritingAuthorized())) {
+            return false;
+        }
+
         return true;
     }
 

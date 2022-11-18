@@ -6,10 +6,14 @@ use ILIAS\Plugin\LongEssayTask\CorrectorAdmin\CorrectorAdminService;
 use ILIAS\Plugin\LongEssayTask\Data\CorrectionSettings;
 use ILIAS\Plugin\LongEssayTask\Data\DataService;
 use ILIAS\Plugin\LongEssayTask\Data\EditorSettings;
+use ILIAS\Plugin\LongEssayTask\Data\GradeLevel;
 use ILIAS\Plugin\LongEssayTask\Data\ObjectSettings;
 use ILIAS\Plugin\LongEssayTask\Data\PluginConfig;
+use ILIAS\Plugin\LongEssayTask\Data\RatingCriterion;
+use ILIAS\Plugin\LongEssayTask\Data\Resource;
 use ILIAS\Plugin\LongEssayTask\Data\TaskSettings;
 use ILIAS\Plugin\LongEssayTask\LongEssayTaskDI;
+use ILIAS\Plugin\LongEssayTask\Task\ResourceResourceStakeholder;
 
 /**
  * Repository object
@@ -40,8 +44,9 @@ class ilObjLongEssayTask extends ilObjectPlugin
 
     /** @var DataService  */
     protected $data;
+	private \ILIAS\ResourceStorage\Services $resource;
 
-    /**
+	/**
 	 * Constructor
 	 *
 	 * @access        public
@@ -55,6 +60,7 @@ class ilObjLongEssayTask extends ilObjectPlugin
         $this->user = $DIC->user();
         $this->localDI = LongEssayTaskDI::getInstance();
         $this->plugin = ilLongEssayTaskPlugin::getInstance();
+		$this->resource = $DIC->resourceStorage();
 
 		parent::__construct($a_ref_id);
 
@@ -113,10 +119,21 @@ class ilObjLongEssayTask extends ilObjectPlugin
 	 */
     protected function doDelete()
 	{
-        //$di = LongEssayTaskDI::getInstance();
-        //$object_repo = $di->getObjectRepo();
+		$task_repo = $this->localDI->getTaskRepo();
 
-        //$object_repo->deleteObject($this->getId());
+		$old_resource = $task_repo->getResourceByTaskId($this->getId());
+		foreach($old_resource as $resource){
+			if($resource instanceof Resource &&
+				$resource->getFileId() !== null &&
+				($identifier = $this->resource->manage()->find($resource->getFileId())))
+			{
+				$this->resource->manage()->remove($identifier, new ResourceResourceStakeholder());
+			}
+		}
+
+		$object_repo = $this->localDI->getObjectRepo();
+		$object_repo->deleteObject($this->getId());
+
 	}
 
 	/**
@@ -127,9 +144,8 @@ class ilObjLongEssayTask extends ilObjectPlugin
 	 */
     protected function doCloneObject($new_obj, $a_target_id, $a_copy_id = null)
 	{
-        $di = LongEssayTaskDI::getInstance();
-        $object_repo = $di->getObjectRepo();
-        $task_repo = $di->getTaskRepo();
+        $object_repo = $this->localDI->getObjectRepo();
+        $task_repo = $this->localDI->getTaskRepo();
 
         //Cloning Area
 		$new_obj->objectSettings = clone $this->objectSettings;
@@ -144,22 +160,29 @@ class ilObjLongEssayTask extends ilObjectPlugin
         $new_grade_level = [];
         foreach($old_grade_level as $grade_level)
         {
-            if ($grade_level instanceof \ILIAS\Plugin\LongEssayTask\Data\GradeLevel)
+            if ($grade_level instanceof GradeLevel)
             {
-                $new_grade_level[] = (clone $grade_level)->setId($this->getId());
+                $new_grade_level[] = (clone $grade_level)->setObjectId($new_obj->getId())->setId(0);
             }
         }
 
-        $old_rating_criterion = $object_repo->getRatingCriterionByObjectId($new_obj->getId());
+        $old_rating_criterion = $object_repo->getRatingCriterionByObjectId($this->getId());
         $new_rating_criterion = [];
         foreach($old_rating_criterion as $rating_criterion)
         {
-            if ($rating_criterion instanceof \ILIAS\Plugin\LongEssayTask\Data\RatingCriterion)
+            if ($rating_criterion instanceof RatingCriterion)
             {
-                $new_rating_criterion[] = (clone $rating_criterion)->setId($new_obj->getId());
+                $new_rating_criterion[] = (clone $rating_criterion)->setObjectId($new_obj->getId())->setId(0);
             }
         }
-        //TODO: Add Objects from TaskRepo to clone
+
+		$old_resource = $task_repo->getResourceByTaskId($this->getId());
+		$new_resource = [];
+		foreach($old_resource as $resource){
+			if($resource instanceof Resource){
+				$new_resource[] = (clone $resource)->setTaskId($new_obj->getId())->setId(0);
+			}
+		}
 
         // Creation Area
         $object_repo->updateObjectSettings($new_obj_settings);
@@ -178,6 +201,18 @@ class ilObjLongEssayTask extends ilObjectPlugin
         {
             $object_repo->createRatingCriterion($rating_criterion);
         }
+
+		foreach($new_resource as $resource)
+		{
+			if($resource->getFileId() !== null &&
+				($identifier = $this->resource->manage()->find($resource->getFileId()))
+			) {
+				$new_file_id = $this->resource->manage()->clone($identifier);
+				$resource->setFileId((string) $new_file_id);
+			}
+
+			$task_repo->createResource($resource);
+		}
 	}
 
 	/**

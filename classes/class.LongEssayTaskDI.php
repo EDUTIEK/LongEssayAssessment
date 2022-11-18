@@ -84,24 +84,32 @@ class LongEssayTaskDI
 			);
 		};
 
-		$dic["object_repository"] = function () {
-			return new ObjectDatabaseRepository();
+		$dic["essay_repository"] = function (\ILIAS\DI\Container $dic) {
+			return new EssayDatabaseRepository($dic["ilDB"]);
 		};
 
-		$dic["task_repository"] = function () {
-			return new TaskDatabaseRepository();
+		$dic["corrector_repository"] = function (\ILIAS\DI\Container $dic) {
+			return new CorrectorDatabaseRepository($dic["ilDB"], $dic["essay_repository"]);
 		};
 
-		$dic["essay_repository"] = function () {
-			return new EssayDatabaseRepository();
+		$dic["writer_repository"] = function (\ILIAS\DI\Container $dic) {
+			return new WriterDatabaseRepository($dic["ilDB"], $dic["essay_repository"], $dic["corrector_repository"]);
 		};
 
-		$dic["writer_repository"] = function () {
-			return new WriterDatabaseRepository();
+		$dic["task_repository"] = function (\ILIAS\DI\Container $dic) {
+			return new TaskDatabaseRepository(
+				$dic["ilDB"],
+				$dic["essay_repository"],
+				$dic["corrector_repository"],
+				$dic["writer_repository"]);
 		};
 
-		$dic["corrector_repository"] = function () {
-			return new CorrectorDatabaseRepository();
+		$dic["object_repository"] = function (\ILIAS\DI\Container $dic) {
+			return new ObjectDatabaseRepository(
+				$dic["ilDB"],
+				$dic["essay_repository"],
+				$dic["task_repository"]
+			);
 		};
 	}
 

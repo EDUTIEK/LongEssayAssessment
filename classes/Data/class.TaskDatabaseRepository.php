@@ -3,16 +3,30 @@
 namespace ILIAS\Plugin\LongEssayTask\Data;
 
 use Exception;
-use ilDatabaseException;
-use ILIAS\Plugin\LongEssayTask\LongEssayTaskDI;
 
 /**
  * @author Fabian Wolf <wolf@ilias.de>
  */
 class TaskDatabaseRepository implements TaskRepository
 {
+	private \ilDBInterface $database;
+	private EssayRepository $essay_repo;
+	private CorrectorRepository $corrector_repo;
+	private WriterRepository $writer_repo;
 
-    public function createTask(TaskSettings $a_task_settings, EditorSettings $a_editor_settings, CorrectionSettings $a_correction_settings)
+	public function __construct(\ilDBInterface $database,
+								EssayRepository $essay_repo,
+								CorrectorRepository $corrector_repo,
+								WriterRepository $writer_repo)
+	{
+		$this->database = $database;
+		$this->essay_repo = $essay_repo;
+		$this->corrector_repo = $corrector_repo;
+		$this->writer_repo = $writer_repo;
+	}
+
+
+	public function createTask(TaskSettings $a_task_settings, EditorSettings $a_editor_settings, CorrectionSettings $a_correction_settings)
     {
         $a_task_settings->create();
         $a_editor_settings->create();
@@ -131,66 +145,48 @@ class TaskDatabaseRepository implements TaskRepository
      *
      * @param int $a_id
      * @throws Exception
-     * @throws ilDatabaseException
      */
     public function deleteTask(int $a_id)
     {
-        global $DIC;
-        $db = $DIC->database();
-
-        $db->manipulate("DELETE FROM xlet_task_settings" .
-            " WHERE task_id = " . $db->quote($a_id, "integer"));
-        $db->manipulate("DELETE FROM xlet_editor_settings" .
-            " WHERE task_id = " . $db->quote($a_id, "integer"));
-        $db->manipulate("DELETE FROM xlet_corr_setting" .
-            " WHERE task_id = " . $db->quote($a_id, "integer"));
+        $this->database->manipulate("DELETE FROM xlet_task_settings" .
+            " WHERE task_id = " . $this->database->quote($a_id, "integer"));
+		$this->database->manipulate("DELETE FROM xlet_editor_settings" .
+            " WHERE task_id = " . $this->database->quote($a_id, "integer"));
+		$this->database->manipulate("DELETE FROM xlet_corr_setting" .
+            " WHERE task_id = " . $this->database->quote($a_id, "integer"));
 
         $this->deleteAlertByTaskId($a_id);
         $this->deleteWriterNoticeByTaskId($a_id);
         $this->deleteResourceByTaskId($a_id);
 		$this->deleteLogEntryByTaskId($a_id);
 
-        $di = LongEssayTaskDI::getInstance();
-
-        $essay_repo = $di->getEssayRepo();
-        $essay_repo->deleteEssayByTaskId($a_id);
-
+		$this->essay_repo->deleteEssayByTaskId($a_id);
+		$this->corrector_repo->deleteCorrectorByTask($a_id);
+		$this->writer_repo->deleteWriter($a_id);
     }
 
     public function deleteAlertByTaskId(int $a_task_id)
     {
-        global $DIC;
-        $db = $DIC->database();
-
-        $db->manipulate("DELETE FROM xlet_alert" .
-            " WHERE task_id = " . $DIC->database()->quote($a_task_id, "integer"));
+		$this->database->manipulate("DELETE FROM xlet_alert" .
+            " WHERE task_id = " . $this->database->quote($a_task_id, "integer"));
     }
 
     public function deleteWriterNoticeByTaskId(int $a_task_id)
     {
-        global $DIC;
-        $db = $DIC->database();
-
-        $db->manipulate("DELETE FROM xlet_writer_notice" .
-            " WHERE task_id = " . $DIC->database()->quote($a_task_id, "integer"));
+		$this->database->manipulate("DELETE FROM xlet_writer_notice" .
+            " WHERE task_id = " . $this->database->quote($a_task_id, "integer"));
     }
 
     public function deleteAlert(int $a_id)
     {
-        global $DIC;
-        $db = $DIC->database();
-
-        $db->manipulate("DELETE FROM xlet_alert" .
-            " WHERE id = " . $db->quote($a_id, "integer"));
+		$this->database->manipulate("DELETE FROM xlet_alert" .
+            " WHERE id = " . $this->database->quote($a_id, "integer"));
     }
 
     public function deleteWriterNotice(int $a_id)
     {
-        global $DIC;
-        $db = $DIC->database();
-
-        $db->manipulate("DELETE FROM xlet_writer_notice" .
-            " WHERE id = " . $db->quote($a_id, "integer"));
+		$this->database->manipulate("DELETE FROM xlet_writer_notice" .
+            " WHERE id = " . $this->database->quote($a_id, "integer"));
     }
 
     /**
@@ -200,19 +196,7 @@ class TaskDatabaseRepository implements TaskRepository
      */
     public function deleteTaskByObjectId(int $a_object_id)
     {
-        global $DIC;
-        $db = $DIC->database();
-
-        $db->manipulate("DELETE FROM xlet_task_settings" .
-            " WHERE task_id = " . $db->quote($a_object_id, "integer"));
-        $db->manipulate("DELETE FROM xlet_editor_settings" .
-            " WHERE task_id = " . $db->quote($a_object_id, "integer"));
-        $db->manipulate("DELETE FROM xlet_corr_setting" .
-            " WHERE task_id = " . $db->quote($a_object_id, "integer"));
-
-        $this->deleteAlertByTaskId($a_object_id);
-        $this->deleteWriterNoticeByTaskId($a_object_id);
-		$this->deleteLogEntryByTaskId($a_object_id);
+		$this->deleteTask($a_object_id);
     }
 
     public function getResourceById(int $a_id): ?Resource
@@ -241,20 +225,14 @@ class TaskDatabaseRepository implements TaskRepository
 
     public function deleteResource(int $a_id)
     {
-        global $DIC;
-        $db = $DIC->database();
-
-        $db->manipulate("DELETE FROM xlet_resource" .
-            " WHERE id = " . $db->quote($a_id, "integer"));
+		$this->database->manipulate("DELETE FROM xlet_resource" .
+            " WHERE id = " . $this->database->quote($a_id, "integer"));
     }
 
     public function deleteResourceByTaskId(int $a_task_id)
     {
-        global $DIC;
-        $db = $DIC->database();
-
-        $db->manipulate("DELETE FROM xlet_resource" .
-            " WHERE task_id = " . $DIC->database()->quote($a_task_id, "integer"));
+		$this->database->manipulate("DELETE FROM xlet_resource" .
+            " WHERE task_id = " . $this->database->quote($a_task_id, "integer"));
     }
 
     public function getResourceByFileId(string $a_file_id): ?Resource
@@ -299,20 +277,14 @@ class TaskDatabaseRepository implements TaskRepository
 
 	public function deleteLogEntry(int $a_id)
 	{
-		global $DIC;
-		$db = $DIC->database();
-
-		$db->manipulate("DELETE FROM xlet_log_entry" .
-			" WHERE id = " . $db->quote($a_id, "integer"));
+		$this->database->manipulate("DELETE FROM xlet_log_entry" .
+			" WHERE id = " . $this->database->quote($a_id, "integer"));
 	}
 
 	public function deleteLogEntryByTaskId(int $a_task_id)
 	{
-		global $DIC;
-		$db = $DIC->database();
-
-		$db->manipulate("DELETE FROM xlet_log_entry" .
-			" WHERE task_id = " . $DIC->database()->quote($a_task_id, "integer"));
+		$this->database->manipulate("DELETE FROM xlet_log_entry" .
+			" WHERE task_id = " . $this->database->quote($a_task_id, "integer"));
 	}
 
 	public function getLogEntriesByTaskId(int $a_task_id): array

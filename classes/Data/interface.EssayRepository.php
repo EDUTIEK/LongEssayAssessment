@@ -68,7 +68,7 @@ interface EssayRepository
     // Delete operations
     public function deleteEssay(int $a_id);
 
-    public function deleteEssayByTaskId(int $a_task_id);
+    public function    deleteEssayByTaskId(int $a_task_id);
 
     public function deleteEssayByWriterId(int $a_user_id);
 

@@ -47,6 +47,4 @@ interface WriterRepository
     public function deleteTimeExtension(int $a_writer_id, int $a_task_id);
 
     public function deleteTimeExtensionByWriterId(int $a_writer_id);
-
-    public function deleteTimeExtensionByTaskId(int $a_task_id);
 }

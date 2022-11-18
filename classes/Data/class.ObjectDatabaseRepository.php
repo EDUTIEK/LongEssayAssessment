@@ -2,14 +2,23 @@
 
 namespace ILIAS\Plugin\LongEssayTask\Data;
 
-use Exception;
-use ILIAS\Plugin\LongEssayTask\LongEssayTaskDI;
 
 /**
  * @author Fabian Wolf <wolf@ilias.de>
  */
 class ObjectDatabaseRepository implements ObjectRepository
 {
+	private \ilDBInterface $database;
+	private EssayRepository $essay_repo;
+	private TaskRepository $task_repo;
+
+	public function __construct(\ilDBInterface $database, EssayRepository $essay_repo, TaskRepository $task_repo)
+	{
+		$this->database = $database;
+		$this->essay_repo = $essay_repo;
+		$this->task_repo = $task_repo;
+	}
+
     public function createObject(ObjectSettings $a_object_settings, PluginConfig $a_plugin_config)
     {
         $a_object_settings->create();
@@ -109,68 +118,40 @@ class ObjectDatabaseRepository implements ObjectRepository
 
     public function deleteObject(int $a_id)
     {
-        global $DIC;
-        $db = $DIC->database();
+		$this->database->manipulate("DELETE FROM xlet_object_settings" .
+            " WHERE obj_id = " . $this->database->quote($a_id, "integer"));
 
-        $db->manipulate("DELETE FROM xlet_object_settings" .
-            " WHERE obj_id = " . $db->quote($a_id, "integer"));
-
-        $db->manipulate("DELETE FROM xlet_plugin_config" .
-            " WHERE id = " . $db->quote($a_id, "integer"));
+		$this->database->manipulate("DELETE FROM xlet_plugin_config" .
+            " WHERE id = " . $this->database->quote($a_id, "integer"));
 
         $this->deleteGradeLevelByObjectId($a_id);
         $this->deleteRatingCriterionByObjectId($a_id);
-
-        $di = LongEssayTaskDI::getInstance();
-
-        $corrector_repo = $di->getCorrectorRepo();
-        $corrector_repo->deleteCorrectorByTask($a_id);
-
-        $writer_repo = $di->getWriterRepo();
-        $writer_repo->deleteWriterByTaskId($a_id);
-
-        $task_repo = $di->getTaskRepo();
-        $task_repo->deleteTaskByObjectId($a_id);
+		$this->task_repo->deleteTaskByObjectId($a_id);
     }
 
     public function deleteGradeLevelByObjectId(int $a_object_id)
     {
-        global $DIC;
-        $db = $DIC->database();
-
-        $db->manipulate("DELETE FROM xlet_grade_level" .
-            " WHERE object_id = " . $db->quote($a_object_id, "integer"));
+		$this->database->manipulate("DELETE FROM xlet_grade_level" .
+            " WHERE object_id = " . $this->database->quote($a_object_id, "integer"));
     }
 
     public function deleteRatingCriterionByObjectId(int $a_object_id)
     {
-        global $DIC;
-        $db = $DIC->database();
-
-        $db->manipulate("DELETE FROM xlet_rating_crit" .
-            " WHERE object_id = " . $db->quote($a_object_id, "integer"));
+		$this->database->manipulate("DELETE FROM xlet_rating_crit" .
+            " WHERE object_id = " . $this->database->quote($a_object_id, "integer"));
     }
 
     public function deleteGradeLevel(int $a_id)
     {
-        global $DIC;
-        $db = $DIC->database();
-
-        $db->manipulate("DELETE FROM xlet_grade_level" .
-            " WHERE id = " . $db->quote($a_id, "integer"));
+		$this->database->manipulate("DELETE FROM xlet_grade_level" .
+            " WHERE id = " . $this->database->quote($a_id, "integer"));
     }
 
     public function deleteRatingCriterion(int $a_id)
     {
-        global $DIC;
-        $db = $DIC->database();
+		$this->database->manipulate("DELETE FROM xlet_rating_crit" .
+            " WHERE id = " . $this->database->quote($a_id, "integer"));
 
-        $db->manipulate("DELETE FROM xlet_rating_crit" .
-            " WHERE id = " . $db->quote($a_id, "integer"));
-
-        $di = LongEssayTaskDI::getInstance();
-
-        $essay_repo = $di->getEssayRepo();
-        $essay_repo->deleteCriterionPointsByRatingId($a_id);
+        $this->essay_repo->deleteCriterionPointsByRatingId($a_id);
     }
 }

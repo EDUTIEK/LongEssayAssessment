@@ -1431,3 +1431,44 @@ if (!$ilDB->tableColumnExists('xlet_essay','stitch_comment')) {
     ));
 }
 ?>
+<#60>
+<?php
+if (!$ilDB->tableColumnExists('xlet_task_settings','keep_essay_available')) {
+    $ilDB->addTableColumn('xlet_task_settings', 'keep_essay_available', array(
+        'notnull' => '1',
+        'type' => 'integer',
+        'length' => 4,
+        'default' => 0
+    ));
+}
+if (!$ilDB->tableColumnExists('xlet_task_settings','solution_available_date')) {
+    $ilDB->addTableColumn('xlet_task_settings', 'solution_available_date', array(
+        'type' => 'timestamp'
+    ));
+}
+if (!$ilDB->tableColumnExists('xlet_task_settings','result_available_type')) {
+    $ilDB->addTableColumn('xlet_task_settings', 'result_available_type', array(
+        'notnull' => '1',
+        'type' => 'text',
+        'length' => '10',
+        'default' => 'review'
+    ));
+}
+if (!$ilDB->tableColumnExists('xlet_task_settings','result_available_date')) {
+    $ilDB->addTableColumn('xlet_task_settings', 'result_available_date', array(
+        'type' => 'timestamp'
+    ));
+}
+
+?>
+<#61>
+<?php
+if (!$ilDB->tableColumnExists('xlet_task_settings','solution_available')) {
+    $ilDB->addTableColumn('xlet_task_settings', 'solution_available', array(
+        'notnull' => '1',
+        'type' => 'integer',
+        'length' => 4,
+        'default' => 0
+    ));
+}
+?>

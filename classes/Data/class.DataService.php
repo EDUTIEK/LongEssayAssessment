@@ -15,8 +15,26 @@ class DataService extends BaseService
     /** @var WriterRepository */
     protected $writerRepo;
 
+    /** @var EssayRepository */
+    protected $essayRepo;
+
     /** @var CorrectorRepository */
     protected $correctorRepo;
+
+    /* cached data objects */
+
+    private $ownWriter = null;
+    private $ownWriterLoaded = false;
+
+    private $ownEssay = null;
+    private $ownEssayLoaded = false;
+
+    private $ownCorrector = null;
+    private $ownCorrectorLoaded = false;
+
+    private $ownTimeExtension = null;
+    private $ownTimeExtensionLoaded = false;
+
 
     /**
      * @inheritDoc
@@ -26,7 +44,67 @@ class DataService extends BaseService
         parent::__construct($task_id);
 
         $this->writerRepo = $this->localDI->getWriterRepo();
+        $this->essayRepo = $this->localDI->getEssayRepo();
         $this->correctorRepo = $this->localDI->getCorrectorRepo();
+    }
+
+    /**
+     * Get the writer record of the current user
+     * @return Writer|null
+     */
+    public function getOwnWriter() : ?Writer
+    {
+        if (!$this->ownWriterLoaded) {
+            $this->ownWriter = $this->writerRepo->getWriterByUserId($this->dic->user()->getId(), $this->task_id);
+            $this->ownWriterLoaded = true;
+        }
+        return $this->ownWriter;
+    }
+
+    /**
+     * Get the corrector record of the current user
+     * @return Corrector|null
+     */
+    public function getOwnEssay() : ?Essay
+    {
+        if (!$this->ownEssayLoaded) {
+            if (!empty($writer = $this->getOwnWriter())) {
+                $this->ownEssay = $this->essayRepo->getEssayByWriterIdAndTaskId($writer->getId(), $this->task_id);
+            }
+            $this->ownEssayLoaded = true;
+        }
+        return $this->ownEssay;
+    }
+
+    /**
+     * Get the time extension of the current user in seconds
+     * @return int
+     */
+    public function getOwnTimeExtensionSeconds() : int
+    {
+        if (!$this->ownTimeExtensionLoaded) {
+            if (!empty($writer = $this->getOwnWriter())) {
+                $this->ownTimeExtension = $this->writerRepo->getTimeExtensionByWriterId($writer->getId(), $this->task_id);
+            }
+            $this->ownTimeExtensionLoaded = true;
+        }
+        if (!empty($this->ownTimeExtension)) {
+            return (int) $this->ownTimeExtension->getMinutes() * 60;
+        }
+        return 0;
+    }
+
+    /**
+     * Get the corrector record of the current user
+     * @return Corrector|null
+     */
+    public function getOwnCorrector() : ?Corrector
+    {
+        if (!$this->ownCorrectorLoaded) {
+            $this->ownCorrector = $this-$this->correctorRepo->getCorrectorByUserId($this->dic->user()->getId(), $this->task_id);
+            $this->ownCorrectorLoaded = true;
+        }
+        return $this->ownCorrector;
     }
 
 
@@ -169,6 +247,23 @@ class DataService extends BaseService
     }
 
     /**
+     * Format the availability of the final result
+     * @param TaskSettings $settings
+     * @return string|void
+     */
+    public function formatResultAvailability(TaskSettings $settings) {
+        switch ($settings->getResultAvailableType()) {
+            case TaskSettings::RESULT_AVAILABLE_FINALISED:
+                return $this->plugin->txt('label_available') . ' '. $this->plugin->txt('result_available_finalised');
+            case TaskSettings::RESULT_AVAILABLE_REVIEW:
+                return $this->plugin->txt('label_available') . ' '. $this->plugin->txt('result_available_review');
+            case TaskSettings::RESULT_AVAILABLE_DATE:
+                return $this->plugin->txt('label_available') . ' '. $this->formatPeriod($settings->getResultAvailableDate(), null);
+        }
+    }
+
+
+    /**
      * Format the final result stored for an essay
      */
     public function formatFinalResult(?Essay $essay) : string
@@ -257,7 +352,8 @@ class DataService extends BaseService
         }
 
         if ($resource->getAvailability() == Resource::RESOURCE_AVAILABILITY_AFTER
-            && $this->isInRange(time(), $this->dbTimeToUnix($taskSettings->getReviewStart()), $this->dbTimeToUnix($taskSettings->getReviewEnd()))) {
+            && $taskSettings->isSolutionAvailable()
+            && $this->isInRange(time(), $this->dbTimeToUnix($taskSettings->getSolutionAvailableDate()),null)) {
             return true;
         }
 

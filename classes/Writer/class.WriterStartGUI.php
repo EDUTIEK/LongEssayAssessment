@@ -38,6 +38,7 @@ class WriterStartGUI extends BaseGUI
         {
             case 'showStartPage':
             case 'startWriter':
+            case 'startWritingReview':
             case 'downloadWriterPdf':
             case 'downloadCorrectedPdf':
 			case 'downloadResourceFile':
@@ -56,47 +57,33 @@ class WriterStartGUI extends BaseGUI
      */
     protected function showStartPage()
     {
-		global $DIC;
         $contents = [];
         $modals = [];
-        $essay = null;
 
-        $extension = 0;
-        if (!empty($writer = $this->localDI->getWriterRepo()->getWriterByUserId(
-            $this->dic->user()->getId(), $this->task->getTaskId()))) {
-            if (!empty($essay = $this->localDI->getEssayRepo()->getEssayByWriterIdAndTaskId(
-                $writer->getId(), $this->task->getTaskId()
-            ))) {
-                if (!empty($essay->getWritingExcluded())) {
-                    ilUtil::sendInfo($this->plugin->txt('message_writing_excluded'));
-                }
-                elseif (!empty($essay->getWritingAuthorized())) {
-                    $message = $this->plugin->txt('message_writing_authorized');
-                    $review_message = '';
-                    $back_link = '';
-                    if (!empty($this->task->getReviewStart()) || !empty($this->task->getReviewEnd())) {
-                        $review_message = '<p>'. sprintf($this->plugin->txt('message_review_period'),
-                                $this->data->formatPeriod($this->task->getReviewStart(), $this->task->getReviewEnd())) . '</p>';
-                    }
-
-                    if (isset($this->params['returned'])) {
-                        $back_url = \ilLink::_getLink($this->dic->repositoryTree()->getParentId($this->object->getRefId()));
-                        $back_text = $this->plugin->txt('message_writing_authorized_link');
-                        $back_link = '<p><a href="'.$back_url.'">'.$back_text.'</a></p>';
-                        ilUtil::sendSuccess($message. $review_message. $back_link);
-                    }
-                    else {
-                        ilUtil::sendInfo($message. $review_message. $back_link);
-                    }
-                }
+        if (!empty($essay = $this->data->getOwnEssay())) {
+            if (!empty($essay->getWritingExcluded())) {
+                ilUtil::sendInfo($this->plugin->txt('message_writing_excluded'));
             }
+            elseif (!empty($essay->getWritingAuthorized())) {
+                $message = $this->plugin->txt('message_writing_authorized');
+                $review_message = '';
+                $back_link = '';
+                if (!empty($this->task->getReviewStart()) || !empty($this->task->getReviewEnd())) {
+                    $review_message = '<p>'. sprintf($this->plugin->txt('message_review_period'),
+                            $this->data->formatPeriod($this->task->getReviewStart(), $this->task->getReviewEnd())) . '</p>';
+                }
 
-            if (!empty($timeExtension = $this->localDI->getWriterRepo()->getTimeExtensionByWriterId(
-                $writer->getId(), $this->task->getTaskId()))) {
-                $extension = $timeExtension->getMinutes() * 60;
+                if (isset($this->params['returned'])) {
+                    $back_url = \ilLink::_getLink($this->dic->repositoryTree()->getParentId($this->object->getRefId()));
+                    $back_text = $this->plugin->txt('message_writing_authorized_link');
+                    $back_link = '<p><a href="'.$back_url.'">'.$back_text.'</a></p>';
+                    ilUtil::sendSuccess($message. $review_message. $back_link);
+                }
+                else {
+                    ilUtil::sendInfo($message. $review_message. $back_link);
+                }
             }
         }
-
 
         // Toolbar
 
@@ -111,13 +98,20 @@ class WriterStartGUI extends BaseGUI
                 ilUtil::sendInfo($this->plugin->txt('message_writing_returned_interrupted'));
             }
         }
+        elseif ($this->object->canReviewWrittenEssay()) {
+            $button = \ilLinkButton::getInstance();
+            $button->setUrl($this->ctrl->getLinkTarget($this, 'startWritingReview'));
+            $button->setCaption($this->plugin->txt('review_writing'), false);
+            $this->toolbar->addButtonInstance($button);
+        }
+
 
         // Instructions
 
         $writing_end = null;
         if (!empty($this->task->getWritingEnd())) {
             $writing_end = $this->data->unixTimeToDb(
-                $this->data->dbTimeToUnix($this->task->getWritingEnd()) + $extension);
+                $this->data->dbTimeToUnix($this->task->getWritingEnd()) + $this->data->getOwnTimeExtensionSeconds());
         }
 
         $inst_parts = [];
@@ -151,8 +145,8 @@ class WriterStartGUI extends BaseGUI
 			if ($this->data->isResourceAvailable($resource, $this->task)) {
 
 				if ($resource->getType() == Resource::RESOURCE_TYPE_FILE) {
-					$resource_file = $DIC->resourceStorage()->manage()->find($resource->getFileId());
-					$revision = $DIC->resourceStorage()->manage()->getCurrentRevision($resource_file);
+					$resource_file = $this->dic->resourceStorage()->manage()->find($resource->getFileId());
+					$revision = $this->dic->resourceStorage()->manage()->getCurrentRevision($resource_file);
 
 					$this->ctrl->setParameter($this, "resource_id", $resource->getId());
 
@@ -178,7 +172,7 @@ class WriterStartGUI extends BaseGUI
                     $solution_items[] = $item;
                 }
                 else {
-                     $writing_resources[] = $item;
+                    $writing_resources[] = $item;
                 }
 
 			}
@@ -192,10 +186,11 @@ class WriterStartGUI extends BaseGUI
         $result_actions = [];
         if (isset($essay)) {
 
-            $result_actions[] = $this->uiFactory->button()->standard($this->plugin->txt('download_written_submission'),
-                $this->ctrl->getLinkTarget($this, 'downloadWriterPdf'));
-
-            if ($this->object->canReview()) {
+            if ($this->object->canReviewWrittenEssay()) {
+                $result_actions[] = $this->uiFactory->button()->standard($this->plugin->txt('download_written_submission'),
+                    $this->ctrl->getLinkTarget($this, 'downloadWriterPdf'));
+            }
+            if ($this->object->canReviewCorrectedEssay()) {
                 $result_actions[] = $this->uiFactory->button()->standard($this->plugin->txt('download_corrected_submission'),
                     $this->ctrl->getLinkTarget($this, 'downloadCorrectedPdf'));
             }
@@ -206,7 +201,14 @@ class WriterStartGUI extends BaseGUI
             $actions_html .= $this->renderer->render($action);
         }
 
-        $result_item = $this->uiFactory->item()->standard($this->data->formatFinalResult($essay))
+        if ($this->object->canViewResult()) {
+            $result_text = $this->data->formatFinalResult($essay);
+        }
+        else {
+            $result_text = $this->data->formatResultAvailability($this->task);
+        }
+
+        $result_item = $this->uiFactory->item()->standard($result_text)
             ->withDescription($actions_html)
             ->withProperties(array(
                 $this->plugin->txt('review_period') => $this->data->formatPeriod(
@@ -218,7 +220,7 @@ class WriterStartGUI extends BaseGUI
 
 
         // Solution
-        if ($this->object->canReview()) {
+        if ($this->object->canViewSolution()) {
             if (!empty($this->task->getSolution())) {
 
                 $solution_button = $this->renderer->render($this->uiFactory->button()->standard($this->plugin->txt('view_solution'),
@@ -264,6 +266,22 @@ class WriterStartGUI extends BaseGUI
          }
      }
 
+    /**
+     * Start the Writer Web app for review
+     */
+    protected function startWritingReview()
+    {
+        if ($this->object->canReviewWrittenEssay()) {
+            $context = new WriterContext();
+            $context->init((string) $this->dic->user()->getId(), (string) $this->object->getRefId());
+            $service = new Service($context);
+            $service->openFrontend();
+        }
+        else {
+            $this->raisePermissionError();
+        }
+    }
+
 
     /**
      * Download a generated pdf from the processed written text
@@ -289,7 +307,7 @@ class WriterStartGUI extends BaseGUI
           */
      protected function downloadCorrectedPdf()
      {
-         if ($this->object->canReview()) {
+         if ($this->object->canReviewCorrectedEssay()) {
              $service = $this->localDI->getCorrectorAdminService($this->object->getId());
              $repoTask = $this->localDI->getTaskRepo()->getTaskSettingsById($this->object->getId());
              $repoWriter = $this->localDI->getWriterRepo()->getWriterByUserId($this->dic->user()->getId(), $this->object->getId());
@@ -328,9 +346,12 @@ class WriterStartGUI extends BaseGUI
 			}
 
 			if ($resource->getTaskId() != $this->object->getId()) {
-				ilUtil::sendFailure($this->lng->txt("permission_denied"), true);
-				$this->ctrl->redirect($this, "showItems");
+                $this->raisePermissionError();
 			}
+            if (!$this->data->isResourceAvailable($resource, $this->task)) {
+                $this->raisePermissionError();
+            }
+
 		} else {
 			// TODO: Error no resource ID in GET
 		}
@@ -363,7 +384,7 @@ class WriterStartGUI extends BaseGUI
             $this->ctrl->getLinkTarget($this, 'showStartPage')));
 
         $content = [];
-        if ($this->object->canReview()) {
+        if ($this->object->canViewSolution()) {
             $content[] = $this->uiFactory->panel()->standard($this->plugin->txt('task_solution'), $this->uiFactory->legacy($this->task->getSolution()));
         }
 

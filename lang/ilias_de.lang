@@ -70,20 +70,40 @@ participation_type_fixed#:#Vorgegeben
 participation_type_fixed_info#:#Die Möglichkeit zur Teilnahme wird vorab über eine Liste festgelegt.
 participation_type_instant#:#Selbständig
 participation_type_instant_info#:#Für die Teilnahme genügt das Leserecht.
-task_settings#:#Aufgaben-Organisation
+task_settings#:#Ablauf-Organisation
 writing_start#:#Bearbeitungs-Start
+writing_start_info#:#Ab diesem Zeitpunkt wird die Schaltfläche "Bearbeitung starten" für die Teilnehmenden angezeigt und die Aufgabenstellung sowie das Material, das nach Start der Bearbeitung verfügbar ist, können abgerufen werden. Ohne festgelegten Start ist alles sofort verfügbar.
 writing_end#:#Bearbeitungs-Ende
+writing_end_info#:#Bis zu diesem Zeitpunkt getätigte Eingaben werden akzeptiert, danach ist die Eingabe gesperrt. Bei Verbindungsproblemen können die im Browser zwischengespeicherten Eingaben auch nachträglich gesendet oder autorisiert werden. Ohne festgelegtes Ende kann die Aufgabe beliebig lange bearbeitet werden.
 correction_start#:#Korrektur-Start
+correction_start_info#:#Ab diesem Zeitpunkt wird Korrekturkräften die Schaltfläche "Korrektur starten" angezeigt und sie können die ihnen zugewiesenen und autorisierten Abgaben kommentieren und bewerten. Ohne festgelegten Start ist das für jede Abgabe möglich, sobald sie autorisiert wurde.
 correction_end#:#Korrektur-Ende
+correction_end_info#:#Nach diesem Zeitpunkt wird die Schaltfläche "Korrektur starten" nicht mehr angezeigt und es werden keine Korrektur-Eingaben mehr akzeptiert. Sollten einzelne Korrekturen noch nicht abgeschlossen sein, müssen Sie den Zeitraum für alle verlängern. Ohne festgelegtes Ende werden Korrektur-Eingaben beliebig lange akzeptiert.
 review_start#:#Einsichtnahme-Start
+review_start_info#:#Ab diesem Zeitpunkt können die Teilnehmenden ein PDF mit ihrer korrigierten Abgabe herunterladen, sofern ihre Korrektur finalisiert wurde und das Ergebnis feststeht. Ohne festgelegten Start ist das PDF sofort nach der Finalisierung verfügbar.
 review_end#:#Einsichtnahme-Ende
+review_end_info#:#Bis zu diesem Zeitpunkt können die Teilnehmenden das PDF mit ihrer korrigierten Abgabe herunterladen. Ohne festgelegtes Ende ist das PDF beliebig lange herunterladbar.
+keep_essay_available#:#Abgabe weiter verfügbar
+keep_essay_available_info#:#Teilnehmende können nach Bearbeitungs-Ende ihren eigenen Text nachträglich schreibgeschützt einsehen und als PDF herunterladen. Diesen Schalter können Sie auch setzen, wenn es zur Abgabe Verbindungsprobleme gab und Teilnehmende ihre letzten Änderungen nachträglich noch übertragen oder autorisieren müssen.
+solution_available#:#Lösungshinweise verfügbar
+solution_available_info#:#Die Lösungshinweise und das zugehörige Material sind für die Teilnehmenden auf ihrer Startseite verfügbar.
+solution_available_date#:#Datum
+solution_available_date_info#:#Ab diesem Datum werden die Lösungshinweise angezeigt. Ohne festgelegtes Datum werden sie sofort angezeigt.
+result_available_type#:#Ergebnis (Punkte und Note)
+result_available_type_info#:#Hier stellen Sie ein, wann das Ergebnis (Note und Punkte) den Teilnehmenden auf ihrer Startseite bekannt gegeben werden soll.
+label_available#:#Verfügbar:
+result_available_finalised#:#wenn Korrektur beendet
+result_available_review#:#zur Einsichtnahme
+result_available_after#:#ab festem Datum
+result_available_date#:#Datum
+result_available_date_info#:#Das Ergebnis wird ab diesem Zeitpunkt angezeigt, sofern die Korrektur ihrer Abgabe finalisiert wurde. Bitte beachten Sie, das das Ergebnis bei aktiver Einsichtnahme auch im PDF der korrigierten Abgabe erscheint.
 task_definition#:#Aufgaben-Beschreibung
 task_description#:#Vorab-Beschreibung
 task_description_info#:#Die Vorab-Beschreibung wird schon vor dem Bearbeitungszeitraum angezeigt.
 task_instructions#:#Aufgabe
 task_instructions_info#:#Die Aufgabenstellung wird erst mit Start der Bearbeitung angezeigt.
-task_solution#:#Musterlösung
-task_solution_info#:#Die Musterlösung wird erst ab dem Zeitpunkt der Einsichtnahme angezeigt.
+task_solution#:#Lösungshinweise
+task_solution_info#:#Die Lösungshinweise werden erst ab einem festgelegten Zeitpunkt angezeigt. Zusätzliche Hinweise oder Musterläsungen können als PDF-Upload oder Weblink unter "Material" bereitgestellt werden.
 editor_settings#:#Einstellungen für den Editor
 headline_scheme#:#Überschriften-Schema
 headline_scheme_none#:#Ohne Numerierung
@@ -236,8 +256,8 @@ essay_not_excluded#:#Der Teilnehmer wurde nicht ausgeschlossen und der Ausschlus
 exclude_writer_repeal_success#:#Teilnehmerausschluss erfolgreich aufgehoben.
 resource_availability_before#:#Vorab
 resource_availability_during#:#Nach Start der Bearbeitung
-resource_availability_after#:#Zur Einsichtnahme
-resource_file_description#:#Die Datei kann vorab, während der Bearbeitung oder während der Einsichtnahme angesehen oder heruntergeladen werden.
+resource_availability_after#:#Mit Verfügbarkeit der Lösungshinweise
+resource_file_description#:#Die Datei kann vorab, während der Bearbeitung oder ab Verfügbarkeit der Lösungshinweise angesehen oder heruntergeladen werden.
 resource_weblink#:#Weblink
 resource_edit#:#Material bearbeiten
 resource_add#:#Material hinzufügen
@@ -259,10 +279,11 @@ export_results#:#Ergebnisse exportieren
 export_results_file_prefix#:#Ergebnisse
 message_no_admin_writer_corrector#:#Sie können auf diese Aufgabe nicht zugreifen, da Sie weder zur Bearbeitung noch zur Korrektur vorgesehen sind.
 message_writing_excluded#:#Sie wurden von der Bearbeitung ausgeschlossen.
-message_writing_authorized#:#Die Abgabe Ihrer Klausur war erfolgreich und wurde durch Sie für eine Korrektur autorisiert. Wir wünschen Ihnen im weiteren Fortgang viel Erfolg!
+message_writing_authorized#:#Sie haben Ihre klausur erfolgreich abgegeben und für eine Korrektur autorisiert. Wir wünschen Ihnen im weiteren Fortgang viel Erfolg!
 message_writing_authorized_link#:#» Klausur verlassen
 message_writing_returned_interrupted#:#Sie haben Ihre Bearbeitung unterbrochen. Klicken Sie auf "Bearbeitung fortsetzen", um ihre Klausur weiter zu schreiben oder für die Korrektur zu autorisieren.
 continue_writing#:#Bearbeitung fortsetzen
+review_writing#:#Bearbeitung schreibgeschützt einsehen
 assign_mode#:#Korrektoren-Zuweisung
 assign_mode_random_equal#:#zufällig gleichverteilt
 assign_mode_random_equal_info#:#Die Abgaben werden zufällig auf alle Korrektoren verteilt, so dass alle möglichst gleich viele Abgaben zugeteilt bekommen.

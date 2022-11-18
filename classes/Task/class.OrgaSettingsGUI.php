@@ -75,6 +75,7 @@ class OrgaSettingsGUI extends BaseGUI
      */
     protected function updateTaskSettings(array $a_data, TaskSettings $a_task_settings)
     {
+        // ilUtil::sendInfo('<pre>'.print_r($a_data, true) .'<pre>', true);
         $di = LongEssayTaskDI::getInstance();
         $task_repo = $di->getTaskRepo();
 
@@ -88,10 +89,29 @@ class OrgaSettingsGUI extends BaseGUI
         $a_task_settings->setWritingStart($date instanceof \DateTimeInterface ? $date->format('Y-m-d H:i:s') : null);
         $date = $a_data['task']['writing_end'];
         $a_task_settings->setWritingEnd($date instanceof \DateTimeInterface ? $date->format('Y-m-d H:i:s') : null);
+
+        $a_task_settings->setKeepEssayAvailable((bool) ($a_data['task']['keep_essay_available']));
+
+        $date = null;
+        $a_task_settings->setSolutionAvailable(!empty($a_data['task']['solution_available']));
+        if ($a_task_settings->isSolutionAvailable()) {
+            $date = $a_data['task']['solution_available']['solution_available_date'];
+        }
+        $a_task_settings->setSolutionAvailableDate($date instanceof \DateTimeInterface ? $date->format('Y-m-d H:i:s') : null);
+
         $date = $a_data['task']['correction_start'];
         $a_task_settings->setCorrectionStart($date instanceof \DateTimeInterface ? $date->format('Y-m-d H:i:s') : null);
         $date = $a_data['task']['correction_end'];
         $a_task_settings->setCorrectionEnd($date instanceof \DateTimeInterface ? $date->format('Y-m-d H:i:s') : null);
+
+        $date = null;
+        $a_task_settings->setResultAvailableType((string) ($a_data['task']['result_available_type'][0] ?? TaskSettings::RESULT_AVAILABLE_REVIEW));
+        if ($a_task_settings->getResultAvailableType() == TaskSettings::RESULT_AVAILABLE_DATE) {
+            // note: the type differs from the other dates due to the nesting in the selectable group
+            $date = $a_data['task']['result_available_type'][1]['result_available_date'];
+        }
+        $a_task_settings->setResultAvailableDate($date);
+
         $date = $a_data['task']['review_start'];
         $a_task_settings->setReviewStart($date instanceof \DateTimeInterface ? $date->format('Y-m-d H:i:s') : null);
         $date = $a_data['task']['review_end'];
@@ -138,27 +158,82 @@ class OrgaSettingsGUI extends BaseGUI
         // Task
         $fields = [];
 
-        $fields['writing_start'] = $factory->dateTime($this->plugin->txt("writing_start"))
+        $fields['writing_start'] = $factory->dateTime(
+            $this->plugin->txt("writing_start"),
+            $this->plugin->txt("writing_start_info"))
             ->withUseTime(true)
             ->withValue((string) $taskSettings->getWritingStart());
 
-        $fields['writing_end'] = $factory->dateTime($this->plugin->txt("writing_end"))
+        $fields['writing_end'] = $factory->dateTime(
+            $this->plugin->txt("writing_end"),
+            $this->plugin->txt("writing_end_info"))
             ->withUseTime(true)
             ->withValue((string) $taskSettings->getWritingEnd());
 
-        $fields['correction_start'] = $factory->dateTime($this->plugin->txt("correction_start"))
+        $fields['keep_essay_available'] = $factory->checkbox(
+            $this->plugin->txt('keep_essay_available'),
+            $this->plugin->txt('keep_essay_available_info'))
+            ->withValue($taskSettings->getKeepEssayAvailable());
+
+
+        $fields['solution_available'] = $factory->optionalGroup([
+            'solution_available_date' => $factory->dateTime(
+                $this->plugin->txt("solution_available_date"),
+                $this->plugin->txt("solution_available_date_info"))
+                ->withUseTime(true)
+                ->withValue((string) $taskSettings->getSolutionAvailableDate())
+        ],
+        $this->plugin->txt('solution_available'),
+        $this->plugin->txt('solution_available_info')
+        );
+        // strange but effective
+        if (!$taskSettings->isSolutionAvailable()) {
+            $fields['solution_available'] = $fields['solution_available']->withValue(null);
+        }
+
+        $fields['correction_start'] = $factory->dateTime(
+            $this->plugin->txt("correction_start"),
+            $this->plugin->txt("correction_start_info"))
             ->withUseTime(true)
             ->withValue((string) $taskSettings->getCorrectionStart());
 
-        $fields['correction_end'] = $factory->dateTime($this->plugin->txt("correction_end"))
+        $fields['correction_end'] = $factory->dateTime(
+            $this->plugin->txt("correction_end"),
+            $this->plugin->txt("correction_end_info"))
             ->withUseTime(true)
             ->withValue((string) $taskSettings->getCorrectionEnd());
 
-        $fields['review_start'] = $factory->dateTime($this->plugin->txt("review_start"))
+
+        $fields['result_available_type'] = $factory->switchableGroup([
+                TaskSettings::RESULT_AVAILABLE_FINALISED => $factory->group([],
+                        $this->plugin->txt('result_available_finalised'),
+                    ),
+                TaskSettings::RESULT_AVAILABLE_REVIEW => $factory->group([],
+                        $this->plugin->txt('result_available_review'),
+                    ),
+                TaskSettings::RESULT_AVAILABLE_DATE => $factory->group([
+                    'result_available_date' =>  $factory->dateTime(
+                        $this->plugin->txt("result_available_date"),
+                        $this->plugin->txt('result_available_date_info'))
+                        ->withUseTime(true)
+                        ->withValue((string) $taskSettings->getResultAvailableDate())
+                        ],
+                        $this->plugin->txt('result_available_after')
+                    )
+            ],
+            $this->plugin->txt('result_available_type'),
+            $this->plugin->txt('result_available_type_info'),
+        )->withValue($taskSettings->getResultAvailableType());
+
+        $fields['review_start'] = $factory->dateTime(
+            $this->plugin->txt("review_start"),
+            $this->plugin->txt("review_start_info"))
             ->withUseTime(true)
             ->withValue((string) $taskSettings->getReviewStart());
 
-        $fields['review_end'] = $factory->dateTime($this->plugin->txt("review_end"))
+        $fields['review_end'] = $factory->dateTime(
+            $this->plugin->txt("review_end"),
+            $this->plugin->txt("review_end_info"))
             ->withUseTime(true)
             ->withValue((string) $taskSettings->getReviewEnd());
 

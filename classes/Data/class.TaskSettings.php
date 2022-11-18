@@ -9,6 +9,10 @@ namespace ILIAS\Plugin\LongEssayTask\Data;
  */
 class TaskSettings extends ActivePluginRecord
 {
+    const RESULT_AVAILABLE_FINALISED = 'finalised';
+    const RESULT_AVAILABLE_REVIEW = 'review';
+    const RESULT_AVAILABLE_DATE = 'date';
+
     /**
      * @var string
      */
@@ -111,6 +115,50 @@ class TaskSettings extends ActivePluginRecord
      * Format IL_CAL_DATETIME in default timezone of the installation
      */
     protected $review_end = null;
+
+
+    /**
+     * @var integer
+     * @con_has_field        true
+     * @con_is_notnull       true
+     * @con_fieldtype        integer
+     */
+    protected $keep_essay_available = '0';
+
+    /**
+     * @var integer
+     * @con_has_field        true
+     * @con_is_notnull       true
+     * @con_fieldtype        integer
+     */
+    protected $solution_available = 0;
+
+    /**
+     * @var string
+     * @con_has_field        true
+     * @con_is_notnull       false
+     * @con_fieldtype        timestamp
+     * Format IL_CAL_DATETIME in default timezone of the installation
+     */
+    protected $solution_available_date = null;
+
+
+    /**
+     * @var string
+     * @con_has_field        true
+     * @con_is_notnull       true
+     * @con_fieldtype        text
+     */
+    protected $result_available_type = self::RESULT_AVAILABLE_REVIEW;
+
+    /**
+     * @var string
+     * @con_has_field        true
+     * @con_is_notnull       false
+     * @con_fieldtype        timestamp
+     * Format IL_CAL_DATETIME in default timezone of the installation
+     */
+    protected $result_available_date = null;
 
     /**
      * @return int
@@ -291,4 +339,96 @@ class TaskSettings extends ActivePluginRecord
         $this->review_end = $review_end;
         return $this;
     }
+
+    /**
+     * @return bool
+     */
+    public function getKeepEssayAvailable() : bool
+    {
+        return (bool) $this->keep_essay_available;
+    }
+
+    /**
+     * @param bool $keep_essay_available
+     * @return TaskSettings
+     */
+    public function setKeepEssayAvailable(bool $keep_essay_available): TaskSettings
+    {
+        $this->keep_essay_available = (int) $keep_essay_available;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSolutionAvailableDate(): ?string
+    {
+        return $this->solution_available_date;
+    }
+
+    /**
+     * @param string|null $solution_available_date
+     * @return TaskSettings
+     */
+    public function setSolutionAvailableDate(?string $solution_available_date): TaskSettings
+    {
+        $this->solution_available_date = $solution_available_date;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getResultAvailableType(): string
+    {
+        return $this->result_available_type;
+    }
+
+    /**
+     * @param string $result_available_type
+     * @return TaskSettings
+     */
+    public function setResultAvailableType(string $result_available_type): TaskSettings
+    {
+        $this->result_available_type = $result_available_type;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getResultAvailableDate(): ?string
+    {
+        return $this->result_available_date;
+    }
+
+    /**
+     * @param string|null $result_available_date
+     * @return TaskSettings
+     */
+    public function setResultAvailableDate(?string $result_available_date): TaskSettings
+    {
+        $this->result_available_date = $result_available_date;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isSolutionAvailable() : bool
+    {
+        return (bool) $this->solution_available;
+    }
+
+    /**
+     * @param bool $solution_available
+     * @return TaskSettings
+     */
+    public function setSolutionAvailable(bool $solution_available): TaskSettings
+    {
+        $this->solution_available = (int) $solution_available;
+        return $this;
+    }
+
+
 }

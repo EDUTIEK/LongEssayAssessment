@@ -63,8 +63,6 @@ class ilObjLongEssayTask extends ilObjectPlugin
 		$this->resource = $DIC->resourceStorage();
 
 		parent::__construct($a_ref_id);
-
-        $this->data = $this->localDI->getDataService($this->getId());
 	}
 
 
@@ -102,6 +100,7 @@ class ilObjLongEssayTask extends ilObjectPlugin
 	 */
     protected function doRead()
 	{
+        $this->data = $this->localDI->getDataService($this->getId());
         $this->objectSettings = $this->localDI->getObjectRepo()->getObjectSettingsById($this->getId());
         $this->taskSettings = $this->localDI->getTaskRepo()->getTaskSettingsById($this->getId());
 	}
@@ -363,29 +362,21 @@ class ilObjLongEssayTask extends ilObjectPlugin
             return false;
         }
 
-        // check if not authorized and get time extension
-        $extension = 0;
-        if (!empty($writer = $this->localDI->getWriterRepo()->getWriterByUserId(
-            $this->dic->user()->getId(), $this->taskSettings->getTaskId()))) {
-            if (!empty($essay = $this->localDI->getEssayRepo()->getEssayByWriterIdAndTaskId(
-                $writer->getId(), $this->taskSettings->getTaskId()
-            ))) {
-                if (!empty($essay->getWritingAuthorized())) {
-                    return false;
-                }
-                if (!empty($essay->getWritingExcluded())) {
-                    return false;
-                }
+        // check if not authorized
+        if (!empty($essay = $this->data->getOwnEssay())) {
+            if (!empty($essay->getWritingAuthorized())) {
+                return false;
             }
-            if (!empty($timeExtension = $this->localDI->getWriterRepo()->getTimeExtensionByWriterId(
-                $writer->getId(), $this->taskSettings->getTaskId()))) {
-                $extension = $timeExtension->getMinutes() * 60;
+            if (!empty($essay->getWritingExcluded())) {
+                return false;
             }
         }
 
+        // check if in writing time
         if (!$this->data->isInRange(time(),
             $this->data->dbTimeToUnix($this->taskSettings->getWritingStart()),
-            $this->data->dbTimeToUnix($this->taskSettings->getWritingEnd()) + $extension)) {
+            $this->data->dbTimeToUnix($this->taskSettings->getWritingEnd()) + $this->data->getOwnTimeExtensionSeconds())
+        ) {
             return false;
         }
 
@@ -393,7 +384,89 @@ class ilObjLongEssayTask extends ilObjectPlugin
     }
 
     /**
-     * Check if the user can write the essay
+     *  Check if the user can view the solution
+     */
+    public function canViewSolution() : bool
+    {
+        if (!$this->canViewWriterScreen()) {
+            return false;
+        }
+        if (!$this->taskSettings->isSolutionAvailable()) {
+            return false;
+        }
+        return $this->data->isInRange(time(),
+            $this->data->dbTimeToUnix($this->taskSettings->getSolutionAvailableDate()),
+            null);
+    }
+
+    public function canViewResult() : bool
+    {
+        if (!$this->canViewWriterScreen()) {
+            return false;
+        }
+
+        if (empty($essay = $this->data->getOwnEssay()) || empty($essay->getCorrectionFinalized())) {
+            return false;
+        }
+
+        switch ($this->taskSettings->getResultAvailableType()) {
+            case TaskSettings::RESULT_AVAILABLE_FINALISED:
+                return true;
+            case TaskSettings::RESULT_AVAILABLE_REVIEW:
+                return $this->canReviewCorrectedEssay();
+            case TaskSettings::RESULT_AVAILABLE_DATE:
+                return $this->data->isInRange(time(),
+                    $this->data->dbTimeToUnix($this->taskSettings->getSolutionAvailableDate()),
+                    null);
+        }
+        return false;
+    }
+
+    /**
+     *  Check if the user can review his/her own written essay (authorized or not)
+     */
+    public function canReviewWrittenEssay() : bool
+    {
+        if (!$this->canViewWriterScreen()) {
+            return false;
+        }
+
+        // no review if writing is (still) possible
+        if ($this->canWrite()) {
+            return false;
+        }
+        return ($this->taskSettings->getKeepEssayAvailable()  && !empty($this->data->getOwnEssay()));
+    }
+
+
+    /**
+     * Check if the user can review the correction his/her own essay
+     */
+    public function canReviewCorrectedEssay() : bool
+    {
+        if (!$this->canViewWriterScreen()) {
+            return false;
+        }
+
+        if (!$this->data->isInRange(time(),
+            $this->data->dbTimeToUnix($this->taskSettings->getReviewStart()),
+            $this->data->dbTimeToUnix($this->taskSettings->getReviewEnd()))) {
+            return false;
+        }
+
+        // check if essay is authorized
+        if (empty($essay = $this->data->getOwnEssay())) {
+            return false;
+        }
+        elseif(empty($essay->getWritingAuthorized())) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Check if the user can correct essays
      */
     public function canCorrect() : bool
     {
@@ -408,44 +481,5 @@ class ilObjLongEssayTask extends ilObjectPlugin
         }
 
         return true;
-    }
-
-    /**
-     * Check if the user can review the essay
-     */
-    public function canReview() : bool
-    {
-        if (!$this->canViewWriterScreen()) {
-            return false;
-        }
-
-        if (!$this->data->isInRange(time(),
-            $this->data->dbTimeToUnix($this->taskSettings->getReviewStart()),
-            $this->data->dbTimeToUnix($this->taskSettings->getReviewEnd()))) {
-            return false;
-        }
-
-        // check if essay is authorized
-        if (empty($writer = $this->localDI->getWriterRepo()->getWriterByUserId(
-            $this->dic->user()->getId(), $this->taskSettings->getTaskId()))) {
-            return false;
-        }
-        elseif (empty($essay = $this->localDI->getEssayRepo()->getEssayByWriterIdAndTaskId(
-                $writer->getId(), $this->taskSettings->getTaskId()))) {
-            return false;
-        }
-        elseif(empty($essay->getWritingAuthorized())) {
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
-     * Get the service for handling object data
-     */
-    public function getDataService() : DataService
-    {
-        return $this->data;
     }
 }

@@ -304,4 +304,13 @@ class DataService extends BaseService
 
      }
 
+    /**
+     * Cleanup HTML code from a richtext editor to be securely displayed
+     */
+     public function cleanupRichText(?string $text) : string
+     {
+        // allow only HTML tags that are supported in the writer and corrector app
+        return \ilUtil::secureString((string) $text, true,
+            '<p><div><br><strong><b><em><i><u><ol><ul><li><h1><h2><h3><h4><h5><h6><pre>');
+     }
 }

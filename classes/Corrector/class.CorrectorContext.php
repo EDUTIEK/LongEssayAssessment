@@ -441,6 +441,20 @@ class CorrectorContext extends ServiceContext implements Context
     /**
      * @inheritDoc
      * here:    the item key is a string of the writer id
+     */
+
+    public function setProcessedText(string $item_key, ?string $text) : void
+    {
+        $essayRepo = $this->localDI->getEssayRepo();
+        if (!empty($repoEssay = $essayRepo->getEssayByWriterIdAndTaskId((int)$item_key, $this->task->getTaskId()))) {
+            $repoEssay->setProcessedText($text);
+            $essayRepo->updateEssay($repoEssay);
+        }
+    }
+
+    /**
+     * @inheritDoc
+     * here:    the item key is a string of the writer id
      *          the corrector key is a string of the corrector id
      */
     public function setCorrectionSummary(string $item_key, string $corrector_key, CorrectionSummary $summary) : void

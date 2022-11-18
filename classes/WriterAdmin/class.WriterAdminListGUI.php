@@ -41,7 +41,7 @@ class WriterAdminListGUI extends WriterListGUI
 			$actions = [];
 			if($this->canGetSight($writer)) {
 				$sight_modal = $this->uiFactory->modal()->lightbox($this->uiFactory->modal()->lightboxTextPage(
-					(string)$this->essays[$writer->getId()]->getProcessedText(),
+                    $this->localDI->getDataService($writer->getTaskId())->cleanupRichText($this->essays[$writer->getId()]->getWrittenText()),
 					$this->plugin->txt("submission"),
 				));
 				$modals[] = $sight_modal;

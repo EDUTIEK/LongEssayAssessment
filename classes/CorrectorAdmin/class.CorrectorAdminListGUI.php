@@ -43,8 +43,6 @@ class CorrectorAdminListGUI extends WriterListGUI
 	 */
 	private $correction_settings;
 
-    /** @var LongEssayTaskDI  */
-    private $localDI;
 
 	/**
 	 * @var int[]
@@ -55,7 +53,6 @@ class CorrectorAdminListGUI extends WriterListGUI
 	{
 		parent::__construct($parent, $parent_cmd, $plugin);
 		$this->correction_settings = $correction_settings;
-        $this->localDI = LongEssayTaskDI::getInstance();
 	}
 
 

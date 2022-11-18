@@ -38,7 +38,6 @@ class WriterStartGUI extends BaseGUI
         {
             case 'showStartPage':
             case 'startWriter':
-            case 'processText':
             case 'downloadWriterPdf':
             case 'downloadCorrectedPdf':
 			case 'downloadResourceFile':
@@ -79,12 +78,16 @@ class WriterStartGUI extends BaseGUI
                         $review_message = '<p>'. sprintf($this->plugin->txt('message_review_period'),
                                 $this->data->formatPeriod($this->task->getReviewStart(), $this->task->getReviewEnd())) . '</p>';
                     }
+
                     if (isset($this->params['returned'])) {
                         $back_url = \ilLink::_getLink($this->dic->repositoryTree()->getParentId($this->object->getRefId()));
                         $back_text = $this->plugin->txt('message_writing_authorized_link');
                         $back_link = '<p><a href="'.$back_url.'">'.$back_text.'</a></p>';
+                        ilUtil::sendSuccess($message. $review_message. $back_link);
                     }
-                    ilUtil::sendInfo($message. $review_message. $back_link);
+                    else {
+                        ilUtil::sendInfo($message. $review_message. $back_link);
+                    }
                 }
             }
 
@@ -261,19 +264,6 @@ class WriterStartGUI extends BaseGUI
          }
      }
 
-    /**
-     * Process the written text
-     * (just to test the html processing - will be done automatically when written text is saved)
-     * @throws ContextException
-     */
-     protected function processText()
-     {
-         $context = new WriterContext();
-         $context->init((string) $this->dic->user()->getId(), (string) $this->object->getRefId());
-         $service = new Service($context);
-         $service->processWrittenText();
-         $this->ctrl->redirect($this);
-     }
 
     /**
      * Download a generated pdf from the processed written text

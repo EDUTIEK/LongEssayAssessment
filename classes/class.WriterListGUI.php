@@ -8,6 +8,7 @@ use ILIAS\Plugin\LongEssayTask\Data\Essay;
 use ILIAS\Plugin\LongEssayTask\Data\TimeExtension;
 use ILIAS\Plugin\LongEssayTask\Data\Writer;
 use ILIAS\Plugin\LongEssayTask\Data\WriterHistory;
+use ILIAS\Plugin\LongEssayTask\LongEssayTaskDI;
 use ILIAS\UI\Component\Symbol\Icon\Icon;
 use function GuzzleHttp\Psr7\str;
 
@@ -36,7 +37,11 @@ abstract class WriterListGUI
 	protected object $parent;
 	protected string $parent_cmd;
 
-	public function __construct(object $parent, string $parent_cmd, \ilLongEssayTaskPlugin $plugin)
+    /** @var LongEssayTaskDI  */
+    protected $localDI;
+
+
+    public function __construct(object $parent, string $parent_cmd, \ilLongEssayTaskPlugin $plugin)
 	{
 		global $DIC;
 		$this->parent = $parent;
@@ -45,6 +50,7 @@ abstract class WriterListGUI
 		$this->ctrl = $DIC->ctrl();
 		$this->plugin = $plugin;
 		$this->renderer = $DIC->ui()->renderer();
+        $this->localDI = LongEssayTaskDI::getInstance();
 	}
 
 	abstract public function getContent():string;

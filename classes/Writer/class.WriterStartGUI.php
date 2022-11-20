@@ -98,7 +98,7 @@ class WriterStartGUI extends BaseGUI
                 ilUtil::sendInfo($this->plugin->txt('message_writing_returned_interrupted'));
             }
         }
-        elseif ($this->object->canReviewWrittenEssay()) {
+        elseif ($this->object->canReviewWrittenEssay() && !empty($essay) && empty($essay->getWritingAuthorized())) {
             $button = \ilLinkButton::getInstance();
             $button->setUrl($this->ctrl->getLinkTarget($this, 'startWritingReview'));
             $button->setCaption($this->plugin->txt('review_writing'), false);
@@ -186,7 +186,7 @@ class WriterStartGUI extends BaseGUI
         $result_actions = [];
         if (isset($essay)) {
 
-            if ($this->object->canReviewWrittenEssay()) {
+            if ($this->object->canReviewWrittenEssay() && !empty($essay->getWritingAuthorized())) {
                 $result_actions[] = $this->uiFactory->button()->standard($this->plugin->txt('download_written_submission'),
                     $this->ctrl->getLinkTarget($this, 'downloadWriterPdf'));
             }

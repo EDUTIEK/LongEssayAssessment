@@ -92,7 +92,7 @@ solution_available_date_info#:#Ab diesem Datum werden die Lösungshinweise angez
 result_available_type#:#Ergebnis (Punkte und Note)
 result_available_type_info#:#Hier stellen Sie ein, wann das Ergebnis (Note und Punkte) den Teilnehmenden auf ihrer Startseite bekannt gegeben werden soll.
 label_available#:#Verfügbar:
-result_available_finalised#:#wenn Korrektur beendet
+result_available_finalised#:#wenn Abgabe korrigiert ist
 result_available_review#:#zur Einsichtnahme
 result_available_after#:#ab festem Datum
 result_available_date#:#Datum

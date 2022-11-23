@@ -112,15 +112,19 @@ class WriterAdminListGUI extends WriterListGUI
 			$actions_dropdown = $this->uiFactory->dropdown()->standard($actions)
 				->withLabel($this->plugin->txt("actions"));
 
+
+            $properties = [
+                $this->plugin->txt("pseudonym") => $writer->getPseudonym(),
+                $this->plugin->txt("essay_status") => $this->essayStatus($writer),
+                $this->plugin->txt("writing_time_extension") => $this->extensionString($writer),
+            ];
+            if (!empty($this->lastSave($writer))) {
+                $properties[ $this->plugin->txt("writing_last_save")] = $this->lastSave($writer);
+            }
 			$items[] = $this->uiFactory->item()->standard($this->getWriterName($writer, true) . $this->getWriterAnchor($writer))
 				->withLeadIcon($this->getWriterIcon($writer))
-				->withProperties(array(
-					$this->plugin->txt("pseudonym") => $writer->getPseudonym(),
-					$this->plugin->txt("essay_status") => $this->essayStatus($writer),
-					$this->plugin->txt("writing_time_extension") => $this->extensionString($writer),
-					$this->plugin->txt("writing_last_save") => $this->lastSave($writer),
-
-				))->withActions($actions_dropdown);
+				->withProperties($properties)
+                ->withActions($actions_dropdown);
 		}
 
 		$resources = array_merge([$this->uiFactory->item()->group($this->plugin->txt("participants"), $items)], $modals);
@@ -236,10 +240,6 @@ class WriterAdminListGUI extends WriterListGUI
 				return $this->plugin->txt("writing_authorized_from") . " " . $name;
 			}
 
-			if($essay->getEditEnded() !== null){
-				return $this->plugin->txt("writing_edit_ended");
-			}
-
 			if($essay->getEditStarted() !== null){
 				return $this->plugin->txt("writing_edit_started");
 			}
@@ -253,15 +253,12 @@ class WriterAdminListGUI extends WriterListGUI
 
 		if(isset($this->essays[$writer->getId()])){
 			$essay = $this->essays[$writer->getId()];
-
-			if(isset($this->history[$essay->getId()])){
-				$history = $this->history[$essay->getId()];
-				return \ilDatePresentation::formatDate(
-					new \ilDateTime($history->getTimestamp(), IL_CAL_DATETIME));
-			}
+            if (!empty($essay->getEditEnded())) {
+                return \ilDatePresentation::formatDate(
+                    new \ilDateTime($essay->getEditEnded(), IL_CAL_DATETIME));
+            }
 		}
-
-		return $this->plugin->txt("writing_no_last_save");
+        return '';
 	}
 
 
@@ -285,6 +282,7 @@ class WriterAdminListGUI extends WriterListGUI
 
 	/**
 	 * @return WriterHistory[]
+     * @todo: not used
 	 */
 	public function getHistory(): array
 	{
@@ -293,6 +291,7 @@ class WriterAdminListGUI extends WriterListGUI
 
 	/**
 	 * @param WriterHistory[] $history
+     * @todo: not needed
 	 */
 	public function setHistory(array $history): void
 	{

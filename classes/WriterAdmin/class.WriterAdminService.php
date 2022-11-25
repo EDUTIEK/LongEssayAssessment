@@ -95,10 +95,18 @@ class WriterAdminService extends BaseService
 
     /**
      * Create an export file for the writing steps
+     * @param \ilObjLongEssayTask $object
+     * @param Writer $repoWriter
      * @param string $dirname   name of the directory inside the zip file
+     * @return string path to the zip file or null if the export can't be produced
      */
-    public function createWritingStepsExport(\ilObjLongEssayTask $object, Writer $repoWriter, string $dirname) : string
+    public function createWritingStepsExport(\ilObjLongEssayTask $object, Writer $repoWriter, string $dirname) : ?string
     {
+        $repoEssay = $this->essayRepo->getEssayByWriterIdAndTaskId($repoWriter->getId(), $object->getId());
+        if (empty($repoEssay)) {
+            return null;
+        }
+
         $context = new WriterContext();
         $context->init((string) $repoWriter->getUserId(), (string) $object->getRefId());
         $service = new Service($context);
@@ -108,8 +116,6 @@ class WriterAdminService extends BaseService
         $tempdir = 'xlet/'. (new UUID)->uuid4AsString();
         $zipdir = $tempdir . '/' . $dirname;
         $storage->createDir($zipdir);
-
-        $repoEssay = $this->essayRepo->getEssayByWriterIdAndTaskId($repoWriter->getId(), $object->getId());
 
         $before = '';
         $toc = '';

@@ -64,6 +64,7 @@ class CorrectorAdminGUI extends BaseGUI
                     case 'exportResults':
                     case 'viewCorrections':
                     case 'stitchDecision':
+                    case 'exportSteps':
 						$this->$cmd();
 						break;
 
@@ -352,6 +353,32 @@ class CorrectorAdminGUI extends BaseGUI
         ilUtil::deliverFile($this->service->createResultsExport(), $filename, 'text/csv', true, true);
     }
 
+    private function exportSteps()
+    {
+        if (empty($repoWriter = $this->localDI->getWriterRepo()->getWriterById((int) $this->getWriterId()))) {
+            ilUtil::sendFailure($this->plugin->txt("missing_writer_id"), true);
+            $this->ctrl->redirect($this, "showStartPage");
+        }
+
+        $service = $this->localDI->getWriterAdminService($this->object->getId());
+        $name = \ilUtil::getASCIIFilename($this->object->getTitle() .'_' . \ilObjUser::_lookupFullname($repoWriter->getUserId()));
+        $zipfile = $service->createWritingStepsExport($this->object, $repoWriter, $name);
+        if (empty($zipfile)) {
+            ilUtil::sendFailure($this->plugin->txt("content_not_available"), true);
+            $this->ctrl->redirect($this, "showStartPage");
+        }
+
+        ilUtil::deliverFile($zipfile, $name . '.zip', 'application/zip', true, true);
+    }
+
+    private function getWriterId(): ?int
+    {
+        $query = $this->request->getQueryParams();
+        if(isset($query["writer_id"])) {
+            return (int) $query["writer_id"];
+        }
+        return null;
+    }
 
     private function getCorrectorId(): ?int
 	{

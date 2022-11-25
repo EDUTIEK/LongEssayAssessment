@@ -522,20 +522,19 @@ class WriterAdminGUI extends BaseGUI
 
     private function exportSteps()
     {
-        if (!$this->plugin->hasAdminAccess()) {
-            ilUtil::sendFailure($this->lng->txt("permission_denied"), true);
-            $this->ctrl->redirect($this, "showStartPage");
-        }
-
         if (empty($repoWriter = $this->localDI->getWriterRepo()->getWriterById((int) $this->getWriterId()))) {
             ilUtil::sendFailure($this->plugin->txt("missing_writer_id"), true);
             $this->ctrl->redirect($this, "showStartPage");
         }
 
         $service = $this->localDI->getWriterAdminService($this->object->getId());
-
         $name = \ilUtil::getASCIIFilename($this->object->getTitle() .'_' . \ilObjUser::_lookupFullname($repoWriter->getUserId()));
-        ilUtil::deliverFile($service->createWritingStepsExport($this->object, $repoWriter, $name), $name . '.zip', 'application/zip', true, true);
+        $zipfile = $service->createWritingStepsExport($this->object, $repoWriter, $name);
+        if (empty($zipfile)) {
+            ilUtil::sendFailure($this->plugin->txt("content_not_available"), true);
+            $this->ctrl->redirect($this, "showStartPage");
+        }
 
+        ilUtil::deliverFile($zipfile, $name . '.zip', 'application/zip', true, true);
     }
 }

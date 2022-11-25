@@ -46,10 +46,7 @@ class WriterAdminListGUI extends WriterListGUI
 				));
 				$modals[] = $sight_modal;
 				$actions[] = $this->uiFactory->button()->shy($this->plugin->txt('view_processing'), '')->withOnClick($sight_modal->getShowSignal());
-
-                if ($this->plugin->hasAdminAccess()) {
-                    $actions[] = $this->uiFactory->button()->shy($this->plugin->txt('export_steps'), $this->getExportStepsTarget($writer));
-                }
+                $actions[] = $this->uiFactory->button()->shy($this->plugin->txt('export_steps'), $this->getExportStepsTarget($writer));
             }
 
 			if($this->canGetAuthorized($writer)) {
@@ -140,12 +137,6 @@ class WriterAdminListGUI extends WriterListGUI
 		}
 		return false;
 	}
-
-
-    private function getExportStepsTarget(Writer $writer) {
-        $this->ctrl->setParameter($this->parent,"writer_id", $writer->getId());
-        return $this->ctrl->getLinkTarget($this->parent, "exportSteps");
-    }
 
 
 	private function canGetAuthorized(Writer $writer){

@@ -339,3 +339,4 @@ export_steps#:#Bearbeitungsschritte exportieren
 view_instructions#:#Aufgabenstellung ansehen
 view_solution#:#Lösungshinweise ansehen
 message_review_period#:#Die Einsichtnahme findet %s statt.
+content_not_available#:#Es ist kein Inhalt verfügbar

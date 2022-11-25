@@ -170,8 +170,12 @@ abstract class WriterListGUI
 		$this->sortWriterOrCorrector($this->writers, $custom_sort);
 	}
 
+    protected function getExportStepsTarget(Writer $writer) {
+        $this->ctrl->setParameter($this->parent,"writer_id", $writer->getId());
+        return $this->ctrl->getLinkTarget($this->parent, "exportSteps");
+    }
 
-	/**
+    /**
 	 * @param callable|null $custom_sort Custom sortation callable. Equal writer will be sorted by name.
 	 * @return void
 	 */

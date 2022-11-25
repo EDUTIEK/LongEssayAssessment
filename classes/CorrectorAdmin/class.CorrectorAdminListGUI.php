@@ -79,7 +79,7 @@ class CorrectorAdminListGUI extends WriterListGUI
 				$actions[] = $this->uiFactory->button()->shy($this->plugin->txt('correction_status_stitch'), $this->getCorrectionStatusStitchAction($writer));
 			}
 
-			$properties = [
+            $properties = [
 				$this->plugin->txt("pseudonym") => $writer->getPseudonym(),
 				$this->plugin->txt("status") => $this->essayStatus($writer)
 			];
@@ -95,6 +95,7 @@ class CorrectorAdminListGUI extends WriterListGUI
 
             $essay = $this->essays[$writer->getId()] ?? null;
             if (!empty($essay)) {
+                $actions[] = $this->uiFactory->button()->shy($this->plugin->txt('export_steps'), $this->getExportStepsTarget($writer));
                 $properties[$this->plugin->txt("final_grade")] = $this->localDI->getDataService($writer->getTaskId())->formatFinalResult($essay);
             }
 

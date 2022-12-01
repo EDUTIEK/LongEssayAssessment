@@ -6,6 +6,7 @@ namespace ILIAS\Plugin\LongEssayTask\Task;
 use ILIAS\Plugin\LongEssayTask\BaseGUI;
 use ILIAS\Plugin\LongEssayTask\Data\Resource;
 use ILIAS\Plugin\LongEssayTask\LongEssayTaskDI;
+use ILIAS\Plugin\LongEssayTask\UI\UIService;
 use ilUtil;
 use ResourceUploadHandlerGUI;
 
@@ -17,7 +18,16 @@ use ResourceUploadHandlerGUI;
  */
 class ResourcesAdminGUI extends BaseGUI
 {
-    /**
+	protected UIService $uiService;
+
+	public function __construct(\ilObjLongEssayTaskGUI $objectGUI)
+	{
+		parent::__construct($objectGUI);
+		$this->uiService = $this->localDI->getUIService();
+	}
+
+
+	/**
      * Execute a command
      * This should be overridden in the child classes
      * note: permissions are already checked in the object gui
@@ -92,7 +102,7 @@ class ResourcesAdminGUI extends BaseGUI
 
         $resource_file = $factory->file(new ResourceUploadHandlerGUI(), $this->lng->txt("file"))
             ->withAcceptedMimeTypes(['application/pdf'])
-            ->withByline($this->plugin->txt("resource_file_description"));
+            ->withByline($this->plugin->txt("resource_file_description") . "<br>" . $this->uiService->getMaxFileSizeString());
 
         $url = $factory->text($this->lng->txt('url'))
             ->withValue($a_resource->getUrl());

@@ -21,6 +21,7 @@ use ILIAS\Plugin\LongEssayTask\UI\Implementation\IconFactory;
 use ILIAS\Plugin\LongEssayTask\UI\PluginLoader;
 use ILIAS\Plugin\LongEssayTask\UI\PluginRendererFactory;
 use ILIAS\Plugin\LongEssayTask\UI\PluginTemplateFactory;
+use ILIAS\Plugin\LongEssayTask\UI\UIService;
 use ILIAS\Plugin\LongEssayTask\WriterAdmin\WriterAdminService;
 use ILIAS\UI\Implementation\Render\ComponentRenderer;
 use Pimple\Container;
@@ -110,6 +111,10 @@ class LongEssayTaskDI
 				$dic["essay_repository"],
 				$dic["task_repository"]
 			);
+		};
+
+		$dic["ui_service"] = function (\ILIAS\DI\Container $dic) {
+			return new UIService($dic["lng"]);
 		};
 	}
 
@@ -217,6 +222,14 @@ class LongEssayTaskDI
 	public function getUIFactory()
 	{
 		return $this->container["custom_factory"];
+	}
+
+	/**
+	 * @return UIService
+	 */
+	public function getUIService()
+	{
+		return $this->container["ui_service"];
 	}
 
 }

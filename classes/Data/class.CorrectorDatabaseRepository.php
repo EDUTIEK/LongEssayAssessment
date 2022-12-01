@@ -73,7 +73,7 @@ class CorrectorDatabaseRepository implements CorrectorRepository
 
     public function getAssignmentsByCorrectorId(int $a_corrector_id): array
     {
-        return CorrectorAssignment::where(['corrector_id' => $a_corrector_id])->get();
+        return CorrectorAssignment::where(['corrector_id' => $a_corrector_id])->orderBy("position")->get();
     }
 
     public function ifCorrectorIsAssigned(int $a_writer_id, int $a_corrector_id): bool

@@ -6,23 +6,10 @@ use ILIAS\Plugin\LongEssayTask\Data\CorrectionSettings;
 use ILIAS\Plugin\LongEssayTask\Data\Corrector;
 use ILIAS\Plugin\LongEssayTask\Data\CorrectorAssignment;
 use ILIAS\Plugin\LongEssayTask\Data\Essay;
-use ILIAS\Plugin\LongEssayTask\Data\TimeExtension;
 use ILIAS\Plugin\LongEssayTask\Data\Writer;
-use ILIAS\Plugin\LongEssayTask\Data\WriterHistory;
-use ILIAS\Plugin\LongEssayTask\LongEssayTaskDI;
 
 class CorrectorAdminListGUI extends WriterListGUI
 {
-	/**
-	 * @var TimeExtension[]
-	 */
-	private $extensions = [];
-
-	/**
-	 * @var WriterHistory[]
-	 */
-	private $history = [];
-
 	/**
 	 * @var Essay[]
 	 */

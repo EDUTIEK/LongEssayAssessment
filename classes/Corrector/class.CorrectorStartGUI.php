@@ -7,6 +7,7 @@ use Edutiek\LongEssayService\Corrector\Service;
 use ILIAS\Plugin\LongEssayTask\BaseGUI;
 use ILIAS\Plugin\LongEssayTask\CorrectorAdmin\CorrectorAdminService;
 use ILIAS\Plugin\LongEssayTask\Data\CorrectionSettings;
+use ILIAS\Plugin\LongEssayTask\Data\CorrectorAssignment;
 use ILIAS\Plugin\LongEssayTask\LongEssayTaskDI;
 use ILIAS\UI\Component\Button\Shy;
 use ILIAS\UI\Component\Item\Standard;
@@ -100,9 +101,12 @@ class CorrectorStartGUI extends BaseGUI
                 $title = $this->uiFactory->link()->standard($title, $this->ctrl->getLinkTarget($this, 'startCorrector'));
             }
 
-            $items[] = $this->uiFactory->item()->standard($title)
-                ->withLeadIcon($this->uiFactory->symbol()->icon()->standard('adve', 'user', 'medium'))
-                ->withProperties($properties);
+            $items[] = [
+				"title" => $title,
+				"properties" => $properties,
+				"position" => $assignment->getPosition(),
+				"pseudonym" => $writer->getPseudonym()
+			];
         }
 
         if ($canCorrect && $readyItems > 0) {
@@ -131,10 +135,7 @@ class CorrectorStartGUI extends BaseGUI
 		if(array_key_exists("filter", $params)){
 			$view_control = $view_control->withActive($this->plugin->txt('correction_filter_'.$params["filter"]));
 			foreach ($items as $key => $item){
-				/**
-				 * @var Standard $item
-				 */
-				$properties = $item->getProperties();
+				$properties = $item["properties"];
 				switch ($params["filter"]){
 					case "open":
 
@@ -157,20 +158,17 @@ class CorrectorStartGUI extends BaseGUI
 			}
 		}
 
-		// Sort $items array by writer name or pseudonym
-		usort($items, function(Standard $item_a, Standard $item_b){
-			$title_a = ($item_a->getTitle() instanceof Shy ||
-						$item_a->getTitle() instanceof \ILIAS\UI\Component\Link\Standard) ?
-				$item_a->getTitle()->getLabel() : (string)$item_a->getTitle();
+		$service = $this->localDI->getCorrectorAdminService($this->object->getId());
+		$service->sortCorrectionsArray($items);
 
-			$title_b = ($item_b->getTitle() instanceof Shy ||
-				$item_b->getTitle() instanceof \ILIAS\UI\Component\Link\Standard) ?
-				$item_b->getTitle()->getLabel() : $item_b->getTitle();;
-			return strtolower($title_a) <=> strtolower($title_b);
-		});
+		$object_from_item = function(array $item): \ILIAS\UI\Component\Item\Item {
+			return $this->uiFactory->item()->standard($item["title"])
+				->withLeadIcon($this->uiFactory->symbol()->icon()->standard('adve', 'user', 'medium'))
+				->withProperties($item["properties"]);
+		};
 
         if (!$is_empty) {
-            $essays = $this->uiFactory->item()->group($this->plugin->txt('assigned_writings'), $items);
+            $essays = $this->uiFactory->item()->group($this->plugin->txt('assigned_writings'), array_map($object_from_item, $items));
             $this->tpl->setContent($this->renderer->render([$view_control, $this->uiFactory->legacy("<br /></br>"),$essays]));
 
             $taskSettings = $this->localDI->getTaskRepo()->getTaskSettingsById($this->settings->getTaskId());

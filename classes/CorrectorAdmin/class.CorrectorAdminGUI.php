@@ -183,6 +183,12 @@ class CorrectorAdminGUI extends BaseGUI
 		foreach($a_usr_ids as $id){
 			$corrector_repo = LongEssayTaskDI::getInstance()->getCorrectorRepo();
 
+			$corrector = $corrector_repo->getCorrectorByUserId($id, $this->object->getId());
+
+			if($corrector !== null){
+				continue; //Continue if user already exists. /Don't create again
+			}
+
 			$corrector = new Corrector();
 			$corrector->setTaskId($this->object->getId())
 				->setUserId((int)$id);

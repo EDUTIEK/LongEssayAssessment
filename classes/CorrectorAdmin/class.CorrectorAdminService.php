@@ -515,5 +515,22 @@ class CorrectorAdminService extends BaseService
         return $basedir . '/' . $file;
     }
 
+	/**
+	 * Sorts Assoc Array bei Position and pseudonym
+	 * Prio 1 sort by Position in $items[]["position"]
+	 * Prio 2 sort by Pseudonym Name in $items[]["pseudonym"]
+	 *
+	 * @param array $items
+	 * @return void
+	 */
+	public function sortCorrectionsArray(array &$items){
+		usort($items, function(array $item_a, array $item_b){
+			if($item_a["position"] == $item_b["position"]){
+				return strtolower($item_a["pseudonym"]) <=> strtolower($item_b["pseudonym"]);
+			}
+			return $item_a["position"] <=> $item_b["position"];
+		});
+	}
+
 
 }

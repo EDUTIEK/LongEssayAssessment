@@ -98,7 +98,6 @@ class WriterAdminGUI extends BaseGUI
 		$list_gui->setWriters($writer_repo->getWritersByTaskId($this->object->getId()));
 		$list_gui->setExtensions($writer_repo->getTimeExtensionsByTaskId($this->object->getId()));
 		$list_gui->setEssays($essay_repo->getEssaysByTaskId($this->object->getId()));
-		$list_gui->setHistory($essay_repo->getLastWriterHistoryPerUserByTaskId($this->object->getId()));
 
         $this->tpl->setContent($this->renderer->render($delete_writer_data_modal) . $list_gui->getContent());
      }
@@ -201,6 +200,12 @@ class WriterAdminGUI extends BaseGUI
 
 		foreach($a_usr_ids as $id){
 			$writer_repo = LongEssayTaskDI::getInstance()->getWriterRepo();
+
+			$writer = $writer_repo->getWriterByUserId($id, $this->object->getId());
+
+			if($writer !== null){
+				continue; //Continue if user already exists. /Don't create again
+			}
 
 			$writer = new Writer();
 			$writer->setTaskId($this->object->getId())

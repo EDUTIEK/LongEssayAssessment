@@ -5,7 +5,6 @@ namespace ILIAS\Plugin\LongEssayTask\WriterAdmin;
 use ILIAS\Plugin\LongEssayTask\Data\Essay;
 use ILIAS\Plugin\LongEssayTask\Data\TimeExtension;
 use ILIAS\Plugin\LongEssayTask\Data\Writer;
-use ILIAS\Plugin\LongEssayTask\Data\WriterHistory;
 
 class WriterAdminListGUI extends WriterListGUI
 {
@@ -14,10 +13,6 @@ class WriterAdminListGUI extends WriterListGUI
 	 */
 	private $extensions = [];
 
-	/**
-	 * @var WriterHistory[]
-	 */
-	private $history = [];
 
 	/**
 	 * @var Essay[]
@@ -268,26 +263,6 @@ class WriterAdminListGUI extends WriterListGUI
 	{
 		foreach($extensions as $extension) {
 			$this->extensions[$extension->getWriterId()] = $extension;
-		}
-	}
-
-	/**
-	 * @return WriterHistory[]
-     * @todo: not used
-	 */
-	public function getHistory(): array
-	{
-		return $this->history;
-	}
-
-	/**
-	 * @param WriterHistory[] $history
-     * @todo: not needed
-	 */
-	public function setHistory(array $history): void
-	{
-		foreach($history as $history_item) {
-			$this->history[$history_item->getEssayId()] = $history_item;
 		}
 	}
 

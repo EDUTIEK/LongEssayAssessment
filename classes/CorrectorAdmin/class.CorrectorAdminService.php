@@ -75,10 +75,11 @@ class CorrectorAdminService extends BaseService
     }
 
     /**
-     * Add an ilias user as corrector to the task
-     * @param $user_id
+     * Get or create a writer object for an ILIAS user
+     * @param int $user_id
+     * @return Corrector
      */
-    public function addUserAsCorrector($user_id)
+    public function getOrCreateCorrectorFromUserId(int $user_id) : Corrector
     {
         $corrector = $this->correctorRepo->getCorrectorByUserId($user_id, $this->settings->getTaskId());
         if (!isset($corrector)) {
@@ -87,6 +88,7 @@ class CorrectorAdminService extends BaseService
             $corrector->setTaskId($this->settings->getTaskId());
             $this->correctorRepo->createCorrector($corrector);
         }
+        return $corrector;
     }
 
     /**

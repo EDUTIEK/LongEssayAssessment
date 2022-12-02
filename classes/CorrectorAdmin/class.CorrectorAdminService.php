@@ -360,13 +360,10 @@ class CorrectorAdminService extends BaseService
         }
 
         if (!$this->isStitchDecisionNeededForSummaries($summaries)) {
-            echo "average possible\n";
             $average= $this->getAveragePointsOfSummaries($summaries);
             if ($average !== null) {
-                echo "average: $average \n";
                 $essay->setFinalPoints($average);
                 if (!empty($level = $this->getGradeLevelForPoints($average))) {
-                    echo "level: " . $level->getGrade() . "\n";
                     $essay->setFinalGradeLevelId($level->getId());
                     $essay->setCorrectionFinalized($this->dataService->unixTimeToDb(time()));
                     $essay->setCorrectionFinalizedBy($user_id);
@@ -378,8 +375,6 @@ class CorrectorAdminService extends BaseService
                 }
             }
         }
-        echo "finit";
-        exit;
         return false;
     }
 

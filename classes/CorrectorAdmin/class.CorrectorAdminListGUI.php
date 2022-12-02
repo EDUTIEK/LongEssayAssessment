@@ -173,10 +173,6 @@ class CorrectorAdminListGUI extends WriterListGUI
 				return $this->plugin->txt("writing_authorized_from") . " " .$name;
 			}
 
-			if ($essay->getEditEnded() !== null) {
-				return $this->plugin->txt("writing_edit_ended");
-			}
-
 			if ($essay->getEditStarted() !== null) {
 				return $this->plugin->txt("writing_edit_started");
 			}

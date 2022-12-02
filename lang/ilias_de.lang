@@ -180,10 +180,8 @@ delete_grade_level_successful#:#Notenstufe erfolgreich gelöscht.
 delete_grade_level_failure#:#Notenstufe konnte nicht gelsöcht werden.
 writing_finalized_from#:#finalisiert von
 writing_authorized_from#:#autorisiert von
-writing_edit_ended#:#abgegeben
 writing_edit_started#:#gestartet
 writing_not_started#:#nicht gestartet
-writing_no_last_save#:#nicht gespeichert
 writing_none_extension#:#keine
 participants#:#Teilnehmer
 exclude_participant#:#Von Bearbeitung ausschließen

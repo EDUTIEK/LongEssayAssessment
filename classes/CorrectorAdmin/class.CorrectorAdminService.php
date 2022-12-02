@@ -140,7 +140,7 @@ class CorrectorAdminService extends BaseService
     protected function assignByRandomEqualMode() : int
     {
         $required = $this->settings->getRequiredCorrectors();
-        if ($required <= 1) {
+        if ($required < 1) {
             return 0;
         }
 

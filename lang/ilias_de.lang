@@ -285,7 +285,7 @@ review_writing#:#Bearbeitung schreibgeschützt einsehen
 assign_mode#:#Korrektoren-Zuweisung
 assign_mode_random_equal#:#zufällig gleichverteilt
 assign_mode_random_equal_info#:#Die Abgaben werden zufällig auf alle Korrektoren verteilt, so dass alle möglichst gleich viele Abgaben zugeteilt bekommen.
-assign_not_needed#:#Es müssen keine Korrekturen zugewiesen werden.
+assign_not_needed#:#Es gibt keine autorisierten Abgaben mit fehlenden Korektoren-Zuweisungen!
 assign_not_available#:#Es sind keine Korrektoren verfügbar, die zugewiesen werden könnten!
 assign_missing_correctors#:#Fehlende Zuteilungen: %s
 assign_available_correctors#:#Verfügbare Korrekturkräfte: %s

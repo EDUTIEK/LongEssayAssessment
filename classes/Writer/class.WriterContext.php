@@ -235,15 +235,7 @@ class WriterContext extends ServiceContext implements Context
      */
     protected function getRepoWriter() : Writer
     {
-        $repo = $this->localDI->getWriterRepo();
-        $writer = $repo->getWriterByUserId($this->user->getId(), $this->task->getTaskId());
-        if (!isset($writer)) {
-            $writer = new Writer();
-            $writer->setUserId($this->user->getId())
-                ->setTaskId($this->task->getTaskId())
-                ->setPseudonym($this->plugin->txt('participant') . ' ' . $this->user->getId());
-            $repo->createWriter($writer);
-        }
-        return $writer;
+        return $this->localDI->getWriterAdminService($this->task->getTaskId())
+            ->getOrCreateWriterFromUserId($this->user->getId());
     }
 }

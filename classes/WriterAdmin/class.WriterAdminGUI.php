@@ -198,21 +198,9 @@ class WriterAdminGUI extends BaseGUI
 			$this->ctrl->redirect($this,"showStartPage");
 		}
 
-		foreach($a_usr_ids as $id){
-			$writer_repo = LongEssayTaskDI::getInstance()->getWriterRepo();
-
-			$writer = $writer_repo->getWriterByUserId($id, $this->object->getId());
-
-			if($writer !== null){
-				continue; //Continue if user already exists. /Don't create again
-			}
-
-			$writer = new Writer();
-			$writer->setTaskId($this->object->getId())
-			 ->setUserId((int)$id)
-			 ->setPseudonym("participant ".$id);
-
-			$writer_repo->createWriter($writer);
+		foreach($a_usr_ids as $id) {
+            $this->localDI->getWriterAdminService($this->object->getId())
+                ->getOrCreateWriterFromUserId((int) $id);
 		}
 
 		if(count($a_usr_ids) == 1){

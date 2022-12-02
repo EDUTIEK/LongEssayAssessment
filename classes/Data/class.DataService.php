@@ -268,12 +268,21 @@ class DataService extends BaseService
      */
     public function formatFinalResult(?Essay $essay) : string
     {
-        if (empty($essay) || empty($essay->getCorrectionFinalized()) || empty($essay->getFinalGradeLevelId())) {
-            return $this->plugin->txt('not_specified');
+        if (empty($essay)) {
+            return $this->plugin->txt('result_not_available');
         }
 
-        $level = $this->localDI->getObjectRepo()->getGradeLevelById($essay->getFinalGradeLevelId());
-        $text = $level->getGrade();
+        if (empty($essay->getCorrectionFinalized())) {
+            return $this->plugin->txt('result_not_finalized');
+        }
+
+        if (empty($essay->getFinalGradeLevelId())) {
+            $text =  $this->plugin->txt('result_not_graded');
+        }
+        else {
+            $level = $this->localDI->getObjectRepo()->getGradeLevelById($essay->getFinalGradeLevelId());
+            $text = $level->getGrade();
+        }
 
         if (!empty($essay->getFinalPoints())) {
             $text .= ' (' . $essay->getFinalPoints() . ' ' . $this->plugin->txt('points') . ')';

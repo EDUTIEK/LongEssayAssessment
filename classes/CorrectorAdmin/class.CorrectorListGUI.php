@@ -5,27 +5,9 @@ namespace ILIAS\Plugin\LongEssayTask\WriterAdmin;
 use Exception;
 use ILIAS\Plugin\LongEssayTask\Data\Corrector;
 use ILIAS\Plugin\LongEssayTask\Data\CorrectorAssignment;
-use ILIAS\Plugin\LongEssayTask\Data\Essay;
-use ILIAS\Plugin\LongEssayTask\Data\TimeExtension;
-use ILIAS\Plugin\LongEssayTask\Data\Writer;
-use ILIAS\Plugin\LongEssayTask\Data\WriterHistory;
 
 class CorrectorListGUI extends WriterListGUI
 {
-	/**
-	 * @var TimeExtension[]
-	 */
-	private $extensions = [];
-
-	/**
-	 * @var WriterHistory[]
-	 */
-	private $history = [];
-
-	/**
-	 * @var Essay[]
-	 */
-	private $essays = [];
 
 	/**
 	 * @var Corrector[]

@@ -2,7 +2,6 @@
 
 namespace ILIAS\Plugin\LongEssayTask\WriterAdmin;
 
-use ILIAS\Plugin\LongEssayTask\Data\Essay;
 use ILIAS\Plugin\LongEssayTask\Data\TimeExtension;
 use ILIAS\Plugin\LongEssayTask\Data\Writer;
 
@@ -13,11 +12,6 @@ class WriterAdminListGUI extends WriterListGUI
 	 */
 	private $extensions = [];
 
-
-	/**
-	 * @var Essay[]
-	 */
-	private $essays = [];
 
 	public function getContent() :string
 	{
@@ -211,12 +205,6 @@ class WriterAdminListGUI extends WriterListGUI
 					$this->getUsername($essay->getWritingExcludedBy(), true);
 			}
 
-			if($essay->getCorrectionFinalized() !== null)
-			{
-				return $this->plugin->txt("writing_finalized_from") . " " .
-					$this->getUsername($essay->getWritingAuthorizedBy(), true);
-			}
-
 			if($essay->getWritingAuthorized() !== null){
 				$name = $this->plugin->txt("participant");
 				if($essay->getWritingAuthorizedBy() != $writer->getUserId()){
@@ -263,27 +251,6 @@ class WriterAdminListGUI extends WriterListGUI
 	{
 		foreach($extensions as $extension) {
 			$this->extensions[$extension->getWriterId()] = $extension;
-		}
-	}
-
-	/**
-	 * @return Essay[]
-	 */
-	public function getEssays(): array
-	{
-		return $this->essays;
-	}
-
-	/**
-	 * @param Essay[] $essays
-	 */
-	public function setEssays(array $essays): void
-	{
-		foreach ($essays as $essay){
-			$this->essays[$essay->getWriterId()] = $essay;
-			$this->user_ids[] = $essay->getCorrectionFinalizedBy();
-			$this->user_ids[] = $essay->getWritingAuthorizedBy();
-			$this->user_ids[] = $essay->getWritingExcludedBy();
 		}
 	}
 

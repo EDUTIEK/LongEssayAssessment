@@ -14,7 +14,12 @@ use function GuzzleHttp\Psr7\str;
 
 abstract class WriterListGUI
 {
-	/**
+    /**
+     * @var Essay[]
+     */
+    protected $essays = [];
+
+    /**
 	 * @var Writer[]
 	 */
 	protected $writers = [];
@@ -55,7 +60,29 @@ abstract class WriterListGUI
 
 	abstract public function getContent():string;
 
-	/**
+
+    /**
+     * @return Essay[]
+     */
+    public function getEssays(): array
+    {
+        return $this->essays;
+    }
+
+    /**
+     * @param Essay[] $essays
+     */
+    public function setEssays(array $essays): void
+    {
+        foreach ($essays as $essay){
+            $this->essays[$essay->getWriterId()] = $essay;
+            $this->user_ids[] = $essay->getCorrectionFinalizedBy();
+            $this->user_ids[] = $essay->getWritingAuthorizedBy();
+            $this->user_ids[] = $essay->getWritingExcludedBy();
+        }
+    }
+
+    /**
 	 * @return Writer[]
 	 */
 	public function getWriters(): array

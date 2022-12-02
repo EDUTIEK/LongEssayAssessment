@@ -5,15 +5,10 @@ namespace ILIAS\Plugin\LongEssayTask\WriterAdmin;
 use ILIAS\Plugin\LongEssayTask\Data\CorrectionSettings;
 use ILIAS\Plugin\LongEssayTask\Data\Corrector;
 use ILIAS\Plugin\LongEssayTask\Data\CorrectorAssignment;
-use ILIAS\Plugin\LongEssayTask\Data\Essay;
 use ILIAS\Plugin\LongEssayTask\Data\Writer;
 
 class CorrectorAdminListGUI extends WriterListGUI
 {
-	/**
-	 * @var Essay[]
-	 */
-	private $essays = [];
 
 	/**
 	 * @var Corrector[]
@@ -322,25 +317,6 @@ class CorrectorAdminListGUI extends WriterListGUI
 
 	}
 
-	/**
-	 * @return Essay[]
-	 */
-	public function getEssays(): array
-	{
-		return $this->essays;
-	}
-
-	/**
-	 * @param Essay[] $essays
-	 */
-	public function setEssays(array $essays): void
-	{
-		foreach ($essays as $essay) {
-			$this->essays[$essay->getWriterId()] = $essay;
-			$this->user_ids[] = $essay->getCorrectionFinalizedBy();
-			$this->user_ids[] = $essay->getWritingAuthorizedBy();
-		}
-	}
 
 	/**
 	 * @return int[]

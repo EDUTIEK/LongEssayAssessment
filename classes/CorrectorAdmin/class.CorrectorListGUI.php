@@ -65,12 +65,8 @@ class CorrectorListGUI extends WriterListGUI
 			}
 
 			$writers = [];
-			foreach ($this->getAssignmentsByCorrector($corrector) as $assignment){
-				switch($assignment->getPosition()){
-					case 0: $pos = $this->plugin->txt("first_corrector");break;
-					case 1: $pos = $this->plugin->txt("second_corrector");break;
-					default: $pos = $this->plugin->txt("assignment_pos_other");break;
-				}
+			foreach ($this->getAssignmentsByCorrector($corrector) as $assignment) {
+                $pos = $this->localDI->getDataService($corrector->getTaskId())->formatCorrectorPosition($assignment);
 				$writers["&nbsp;&nbsp;" . $this->getWriterName($this->writers[$assignment->getWriterId()], true)] = $pos;
 			}
 

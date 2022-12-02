@@ -373,7 +373,7 @@ class DataService extends BaseService
                 return $this->plugin->txt('assignment_pos_second');
 
             default:
-                return $this->plugin->txt('assignment_pos_other');
+                return sprintf($this->plugin->txt('assignment_pos_x'), $assignment->getPosition());
         }
     }
 

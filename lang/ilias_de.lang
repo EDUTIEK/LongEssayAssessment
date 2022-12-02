@@ -147,8 +147,6 @@ assign_writers#:#Korrektoren zuweisen
 0_assigned_correctors#:#Es konnten keine Korrektoren zugewiesen werden.
 1_assigned_corrector#:#Ein Korrektor wurde erfolgreich zugewiesen.
 n_assigned_correctors#:#%s Korrektoren wurden erfolgreich zugewiesen.
-first_corrector#:#Erstkorrektor
-second_corrector#:#Zweitkorrektor
 view_correction#:#Korrektur einsehen
 change_corrector#:#Korrektorenzuweisung ändern
 correctable_exams#:#Zu korrigierende Abgaben
@@ -167,6 +165,7 @@ grading_open#:#offen
 grading_authorized#:#autorisiert
 assignment_pos_first#:#Erstkorrektor/in
 assignment_pos_second#:#Zweitkorrektor/in
+assignment_pos_x#:#%s. Korrektor/in
 assignment_pos_other#:#Mitkorrektor/in
 assignment_pos_empty#:#nicht ausgewählt
 start_correction#:#Korrektur starten

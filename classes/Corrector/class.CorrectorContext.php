@@ -198,7 +198,7 @@ class CorrectorContext extends ServiceContext implements Context
     }
 
     /**
-     * Get the correction items that need a stitch decision
+     * Get the correction items that can be reviewed
      */
     protected function getCorrectionItemsForReview() : array
     {
@@ -257,7 +257,7 @@ class CorrectorContext extends ServiceContext implements Context
         $writerRepo = $this->localDI->getWriterRepo();
         $essayRepo = $this->localDI->getEssayRepo();
 
-        $items = [];
+        $sort_list = [];
         if (!empty($repoCorrector = $correctorRepo->getCorrectorByUserId($this->user->getId(), $this->task->getTaskId()))) {
             foreach ($correctorRepo->getAssignmentsByCorrectorId($repoCorrector->getId()) as $repoAssignment) {
                 if (!empty($repoWriter = $writerRepo->getWriterById($repoAssignment->getWriterId()))) {
@@ -278,19 +278,29 @@ class CorrectorContext extends ServiceContext implements Context
                         }
                     }
 
-                    $title = $repoWriter->getPseudonym();
+                    $title = $repoWriter->getPseudonym() . ' (' . $this->data->formatCorrectorPosition($repoAssignment) . ')';
                     if (empty($repoEssay->getWritingAuthorized()) || !empty($repoEssay->getWritingExcluded())) {
                         $title .= ' - ' . $this->data->formatWritingStatus($repoEssay, false);
                     }
 
-                    $items[] = new CorrectionItem(
-                        (string) $repoWriter->getId(),
-                        $title,
-                        true,
-                        $authorization_allowed
-                    );
+                    $sort_list[] = [
+                        'item' => new CorrectionItem(
+                            (string) $repoWriter->getId(),
+                            $title,
+                            true,
+                            $authorization_allowed
+                        ),
+                        'position' => $repoAssignment->getPosition(),
+                        'pseudonym' => $repoWriter->getPseudonym()
+                    ];
                 }
             }
+        }
+        $this->localDI->getCorrectorAdminService($this->task->getTaskId())->sortCorrectionsArray($sort_list);
+
+        $items = [];
+        foreach ($sort_list as $sort_item) {
+            $items[] = $sort_item['item'];
         }
         return $items;
     }

@@ -73,8 +73,8 @@ class CorrectorAdminListGUI extends WriterListGUI
 
 			foreach($this->getAssignmentsByWriter($writer) as $assignment){
 				switch($assignment->getPosition()){
-					case 0: $pos = $this->plugin->txt("first_corrector");break;
-					case 1: $pos = $this->plugin->txt("second_corrector");break;
+					case 0: $pos = $this->plugin->txt("assignment_pos_first");break;
+					case 1: $pos = $this->plugin->txt("assignment_pos_second");break;
 					default: $pos = $this->plugin->txt("assignment_pos_other");break;
 				}
 				$properties[$pos] = $this->getAssignedCorrectorName($writer, $assignment->getPosition());
@@ -201,8 +201,8 @@ class CorrectorAdminListGUI extends WriterListGUI
 
 		for($i = 0; $i <  $cc; $i++){
 			switch($i){
-				case 0: $pos = $this->plugin->txt("first_corrector");break;
-				case 1: $pos = $this->plugin->txt("second_corrector");break;
+				case 0: $pos = $this->plugin->txt("assignment_pos_first");break;
+				case 1: $pos = $this->plugin->txt("assignment_pos_second");break;
 				default: $pos = $this->plugin->txt("assignment_pos_other");break;
 			}
 			$val = -1;

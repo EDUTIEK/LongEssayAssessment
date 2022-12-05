@@ -341,4 +341,6 @@ resource_delete#:#Material erfolgreich gelöscht.
 result_not_available#:#nicht verfügbar
 result_not_finalized#:#nicht festgelegt
 result_not_graded#:#ohne Note
+view_stitch_comment#:#Stichentscheid-Kommentar ansehen
+draw_stitch_decision#:#Stichentscheid vornehmen
 

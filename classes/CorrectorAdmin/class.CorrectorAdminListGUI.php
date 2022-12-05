@@ -54,11 +54,20 @@ class CorrectorAdminListGUI extends WriterListGUI
 			$modals[] = $change_corrector_modal;
 			$actions = [];
 			$actions[] = $this->uiFactory->button()->shy($this->plugin->txt('view_correction'), $this->getViewCorrectionAction($writer));
+            if ($this->hasCorrectionStatusStitchDecided($writer)) {
+                $sight_modal = $this->uiFactory->modal()->lightbox($this->uiFactory->modal()->lightboxTextPage(
+                    $this->localDI->getDataService($writer->getTaskId())->cleanupRichText($this->essays[$writer->getId()]->getStitchComment()),
+                    $this->getWriterName($writer, true). $this->getWriterAnchor($writer),
+                ));
+                $modals[] = $sight_modal;
+                $actions[] = $this->uiFactory->button()->shy($this->plugin->txt('view_stitch_comment'), '')->withOnClick($sight_modal->getShowSignal());
+            }
+
 			$actions[] = $this->uiFactory->button()->shy($this->plugin->txt('change_corrector'), "")
 				->withOnClick($change_corrector_modal->getShowSignal());
 
 			if($this->hasCorrectionStatusStitch($writer)){
-				$actions[] = $this->uiFactory->button()->shy($this->plugin->txt('correction_status_stitch'), $this->getCorrectionStatusStitchAction($writer));
+				$actions[] = $this->uiFactory->button()->shy($this->plugin->txt('draw_stitch_decision'), $this->getCorrectionStatusStitchAction($writer));
 			}
 
             $properties = [
@@ -132,6 +141,12 @@ class CorrectorAdminListGUI extends WriterListGUI
 		$essay = $this->essays[$writer->getId()];
 		return in_array($essay->getId(), $this->getCorrectionStatusStitches());
 	}
+
+    private function hasCorrectionStatusStitchDecided($writer): bool
+    {
+        return isset($this->essays[$writer->getId()])
+            && !empty($this->essays[$writer->getId()]->getStitchComment());
+    }
 
 	private function getCorrectionStatusStitchAction(Writer $writer): string
 	{

@@ -1472,3 +1472,14 @@ if (!$ilDB->tableColumnExists('xlet_task_settings','solution_available')) {
     ));
 }
 ?>
+<#62>
+<?php
+if (!$ilDB->tableColumnExists('xlet_plugin_config','simulate_offline')) {
+    $ilDB->addTableColumn('xlet_plugin_config', 'simulate_offline', array(
+        'notnull' => '1',
+        'type' => 'integer',
+        'length' => 4,
+        'default' => 0
+    ));
+}
+?>

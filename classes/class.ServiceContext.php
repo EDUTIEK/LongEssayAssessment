@@ -75,7 +75,11 @@ abstract class ServiceContext implements BaseContext
 
         $this->user = new ilObjUser($user_id);
 
+        // in REST calls the init() function is called from the long-essay-service
         if (ilContext::getType() == ilContext::CONTEXT_REST) {
+            if ($this->plugin->getConfig()->getSimulateOffline()) {
+                throw new ContextException('Network Problem Simulation', ContextException::SERVICE_UNAVAILABLE);
+            }
             \ilLongEssayTaskRestInit::initRestUser($this->user);
         }
 

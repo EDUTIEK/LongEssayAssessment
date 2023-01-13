@@ -41,9 +41,9 @@ configuration#:#Konfiguration
 update_languages#:#Sprachen aktualisieren
 reload_control_structure#:#Kontrollstruktur aktualisieren
 generate_db_update#:#DB-Update generieren
-writer_url#:#(optional) Adresse zur Writer Web App
+writer_url#:#Adresse zur Writer Web App
 writer_url_info#:#Die Writer Web App ist im Plugin integriert. Wenn Sie zur Entwicklung eine separate verwenden, tragen Sie deren Adresse hier ein.
-corrector_url#:#(optional) Adresse zur Corrector Web App
+corrector_url#:#Adresse zur Corrector Web App
 corrector_url_info#:#Die Corrector Web App ist im Plugin integriert. Wenn Sie zur Entwicklung eine separate verwenden, tragen Sie deren Adresse hier ein.
 eskript_url#:#HTTP-Adresse zu eSkript
 eskript_url_info#:#Bitte geben Sie die URL zu eSkript ein. Z.B.: http://www.ilias_installation.de/eskript/
@@ -343,4 +343,8 @@ result_not_finalized#:#nicht festgelegt
 result_not_graded#:#ohne Note
 view_stitch_comment#:#Stichentscheid-Kommentar ansehen
 draw_stitch_decision#:#Stichentscheid vornehmen
+developer_settings#:#Einstellungen zur Entwicklung
+developer_settings_info#:#Diese Einstellungen werden im Normalbetrieb nicht benötigt.
+simulate_offline#:#Netzwerkunterbrechung simulieren
+simulate_offline_info#:#Anfragen aus den Writer und Corrector Web Apps werden mit dem Status NETWORK_CONNECTION_TIMEOUT_ERROR (599) zurückgewiesen. Damit können Netzwerkprobleme während des Schreibens oder Korrigierens einer Klausur simuliert werden.
 

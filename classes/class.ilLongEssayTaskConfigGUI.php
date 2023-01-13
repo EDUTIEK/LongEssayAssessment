@@ -117,10 +117,9 @@ class ilLongEssayTaskConfigGUI extends ilPluginConfigGUI
         if ($form->checkInput()) {
             $this->config->setWriterUrl((string) $form->getInput('writer_url'));
             $this->config->setCorrectorUrl((string) $form->getInput('corrector_url'));
-            $this->config->setEskriptUrl((string) $form->getInput('eskript_url'));
-            $this->config->setEskriptKey((string) $form->getInput('eskript_key'));
             $this->config->setPrimaryColor((string) $form->getInput('primary_color'));
             $this->config->setPrimaryTextColor((string) $form->getInput('primary_text_color'));
+            $this->config->setSimulateOffline((bool) $form->getInput('simulate_offline'));
             $this->config->save();
             ilUtil::sendSuccess($this->lng->txt('settings_saved'));
             $this->ctrl->redirect($this, 'configure');
@@ -140,26 +139,6 @@ class ilLongEssayTaskConfigGUI extends ilPluginConfigGUI
         $form->setFormAction($this->ctrl->getFormAction($this));
         $form->setTitle($this->plugin->txt('configuration'));
 
-        $writer_url = new ilTextInputGUI($this->plugin->txt('writer_url'), 'writer_url');
-        $writer_url->setInfo($this->plugin->txt('writer_url_info'));
-        $writer_url->setValue($this->config->getWriterUrl());
-        $form->addItem($writer_url);
-
-        $corrector_url = new ilTextInputGUI($this->plugin->txt('corrector_url'), 'corrector_url');
-        $corrector_url->setInfo($this->plugin->txt('corrector_url_info'));
-        $corrector_url->setValue($this->config->getCorrectorUrl());
-        $form->addItem($corrector_url);
-
-//        $eskript_url = new ilTextInputGUI($this->plugin->txt('eskript_url'), 'eskript_url');
-//        $eskript_url->setInfo($this->plugin->txt('eskript_url_info'));
-//        $eskript_url->setValue($this->config->getEskriptUrl());
-//        $form->addItem($eskript_url);
-//
-//        $eskript_key = new ilTextInputGUI($this->plugin->txt('eskript_key'), 'eskript_key');
-//        $eskript_key->setInfo($this->plugin->txt('eskript_key_info'));
-//        $eskript_key->setValue($this->config->getEskriptKey());
-//        $form->addItem($eskript_key);
-
         $primary_color = new ilColorPickerInputGUI($this->plugin->txt('primary_color'), 'primary_color');
         $primary_color->setInfo($this->plugin->txt('primary_color_info'));
         $primary_color->setValue($this->config->getPrimaryColor());
@@ -170,6 +149,25 @@ class ilLongEssayTaskConfigGUI extends ilPluginConfigGUI
         $primary_text_color->setValue($this->config->getPrimaryTextColor());
         $form->addItem($primary_text_color);
 
+        $developer = new ilFormSectionHeaderGUI();
+        $developer->setTitle($this->plugin->txt('developer_settings'));
+        $developer->setInfo($this->plugin->txt('developer_settings_info'));
+        $form->addItem($developer);
+
+        $writer_url = new ilTextInputGUI($this->plugin->txt('writer_url'), 'writer_url');
+        $writer_url->setInfo($this->plugin->txt('writer_url_info'));
+        $writer_url->setValue($this->config->getWriterUrl());
+        $form->addItem($writer_url);
+
+        $corrector_url = new ilTextInputGUI($this->plugin->txt('corrector_url'), 'corrector_url');
+        $corrector_url->setInfo($this->plugin->txt('corrector_url_info'));
+        $corrector_url->setValue($this->config->getCorrectorUrl());
+        $form->addItem($corrector_url);
+
+        $simulate = new ilCheckboxInputGUI($this->plugin->txt('simulate_offline'), 'simulate_offline');
+        $simulate->setInfo($this->plugin->txt('simulate_offline_info'));
+        $simulate->setChecked($this->config->getSimulateOffline());
+        $form->addItem($simulate);
 
         $form->addCommandButton('saveConfig', $this->lng->txt('save'));
         return $form;

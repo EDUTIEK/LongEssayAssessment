@@ -69,6 +69,16 @@ class PluginConfig extends ActivePluginRecord
      */
     public $primary_text_color = '';
 
+    /**
+     * @var integer
+     * @con_has_field        true
+     * @con_is_notnull       true
+     * @con_fieldtype        integer
+     * @con_length           4
+     */
+    public $simulate_offline;
+
+
 
     /**
      * @var string
@@ -200,5 +210,21 @@ class PluginConfig extends ActivePluginRecord
     {
         $this->primary_text_color = $primary_text_color;
         return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getSimulateOffline(): bool
+    {
+        return (bool) $this->simulate_offline;
+    }
+
+    /**
+     * @param int $simulate_offline
+     */
+    public function setSimulateOffline(bool $simulate_offline): void
+    {
+        $this->simulate_offline = (int) $simulate_offline;
     }
 }

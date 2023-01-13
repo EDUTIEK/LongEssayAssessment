@@ -98,11 +98,19 @@ class WriterStartGUI extends BaseGUI
                 ilUtil::sendInfo($this->plugin->txt('message_writing_returned_interrupted'));
             }
         }
-        elseif ($this->object->canReviewWrittenEssay() && !empty($essay) && empty($essay->getWritingAuthorized())) {
-            $button = \ilLinkButton::getInstance();
-            $button->setUrl($this->ctrl->getLinkTarget($this, 'startWritingReview'));
-            $button->setCaption($this->plugin->txt('review_writing'), false);
-            $this->toolbar->addButtonInstance($button);
+        elseif (!empty($essay) && empty($essay->getWritingAuthorized())) {
+
+            if ($this->object->canReviewWrittenEssay()) {
+                $button = \ilLinkButton::getInstance();
+                $button->setUrl($this->ctrl->getLinkTarget($this, 'startWritingReview'));
+                $button->setCaption($this->plugin->txt('review_writing'), false);
+                $this->toolbar->addButtonInstance($button);
+
+                ilUtil::sendFailure($this->plugin->txt('message_writing_to_authorize'));
+            }
+            else {
+                ilUtil::sendFailure($this->plugin->txt('message_writing_not_authorized'));
+            }
         }
 
 

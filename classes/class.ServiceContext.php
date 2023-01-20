@@ -15,6 +15,7 @@ use ilContext;
 use \ilObjUser;
 use \ilObject;
 use \ilObjLongEssayTask;
+use ilSession;
 
 abstract class ServiceContext implements BaseContext
 {
@@ -298,5 +299,32 @@ abstract class ServiceContext implements BaseContext
             $writing_end,
            $this->data->dbTimeToUnix($repoEssay->getWritingExcluded())
         );
+    }
+
+    /**
+     * Extend the session of an authenticated user
+     *
+     * Here:
+     * A user may have parallel active sessions
+     * We cannot determine the session because the service does not provide its session_id
+     * So continue all active sessions, and try to filter them by i if the ip is stored in ilias
+     */
+    public function setAlive() : void
+    {
+        global $DIC;
+
+        $client_ini = $DIC->clientIni();
+        $system_repo = $this->localDI->getSystemRepo();
+
+        if ($client_ini->readVariable("session", "save_ip")) {
+            $session_ids = $system_repo->getActiveSessionIds((int) $this->user->getId(), (string) $_SERVER["REMOTE_ADDR"]);
+        }
+        else {
+            $session_ids = $system_repo->getActiveSessionIds($this->user->getId());
+        }
+
+        foreach ($session_ids as $id) {
+            $system_repo->setSessionExpires($id, ilSession::getExpireValue());
+        }
     }
 }

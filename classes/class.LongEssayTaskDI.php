@@ -11,6 +11,7 @@ use ILIAS\Plugin\LongEssayTask\Data\EssayDatabaseRepository;
 use ILIAS\Plugin\LongEssayTask\Data\EssayRepository;
 use ILIAS\Plugin\LongEssayTask\Data\ObjectDatabaseRepository;
 use ILIAS\Plugin\LongEssayTask\Data\ObjectRepository;
+use ILIAS\Plugin\LongEssayTask\Data\SystemDatabaseRepository;
 use ILIAS\Plugin\LongEssayTask\Data\TaskDatabaseRepository;
 use ILIAS\Plugin\LongEssayTask\Data\TaskRepository;
 use ILIAS\Plugin\LongEssayTask\Data\WriterDatabaseRepository;
@@ -85,7 +86,11 @@ class LongEssayTaskDI
 			);
 		};
 
-		$dic["essay_repository"] = function (\ILIAS\DI\Container $dic) {
+        $dic["system_repository"] = function (\ILIAS\DI\Container $dic) {
+            return new SystemDatabaseRepository($dic["ilDB"]);
+        };
+
+        $dic["essay_repository"] = function (\ILIAS\DI\Container $dic) {
 			return new EssayDatabaseRepository($dic["ilDB"]);
 		};
 
@@ -129,6 +134,14 @@ class LongEssayTaskDI
         }
 
         return self::$instance;
+    }
+
+    /**
+     * @return SystemDatabaseRepository
+     */
+    public function getSystemRepo(): SystemDatabaseRepository
+    {
+        return $this->container["system_repository"];
     }
 
     /**

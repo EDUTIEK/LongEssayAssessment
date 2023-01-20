@@ -19,10 +19,9 @@ class ObjectDatabaseRepository implements ObjectRepository
 		$this->task_repo = $task_repo;
 	}
 
-    public function createObject(ObjectSettings $a_object_settings, PluginConfig $a_plugin_config)
+    public function createObject(ObjectSettings $a_object_settings)
     {
         $a_object_settings->create();
-        $a_plugin_config->create();
     }
 
     public function createGradeLevel(GradeLevel $a_grade_level)

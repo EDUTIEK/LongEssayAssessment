@@ -76,7 +76,7 @@ class PluginConfig extends ActivePluginRecord
      * @con_fieldtype        integer
      * @con_length           4
      */
-    public $simulate_offline;
+    public $simulate_offline = 0;
 
 
 

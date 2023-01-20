@@ -14,7 +14,7 @@ namespace ILIAS\Plugin\LongEssayTask\Data;
 interface ObjectRepository
 {
     // Create operations
-    public function createObject(ObjectSettings $a_object_settings, PluginConfig $a_plugin_config);
+    public function createObject(ObjectSettings $a_object_settings);
 
     public function createGradeLevel(GradeLevel $a_grade_level);
 

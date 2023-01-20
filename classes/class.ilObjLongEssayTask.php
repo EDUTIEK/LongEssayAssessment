@@ -84,12 +84,11 @@ class ilObjLongEssayTask extends ilObjectPlugin
         $task_repo = $di->getTaskRepo();
 
         $new_obj_settings = new ObjectSettings($this->getId());
-        $new_plugin_settings = new PluginConfig($this->getId());
         $new_task_settings = new TaskSettings($this->getId());
         $new_editor_settings = new EditorSettings($this->getId());
         $new_correction_settings = new CorrectionSettings($this->getId());
 
-        $object_repo->createObject($new_obj_settings, $new_plugin_settings);
+        $object_repo->createObject($new_obj_settings);
         $task_repo->createTask($new_task_settings, $new_editor_settings, $new_correction_settings);
         $this->objectSettings = $new_obj_settings;
         $this->taskSettings = $new_task_settings;

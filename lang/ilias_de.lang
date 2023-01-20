@@ -276,7 +276,7 @@ export_results#:#Ergebnisse exportieren
 export_results_file_prefix#:#Ergebnisse
 message_no_admin_writer_corrector#:#Sie können auf diese Aufgabe nicht zugreifen, da Sie weder zur Bearbeitung noch zur Korrektur vorgesehen sind.
 message_writing_excluded#:#Sie wurden von der Bearbeitung ausgeschlossen.
-message_writing_authorized#:#Sie haben Ihre klausur erfolgreich abgegeben und für eine Korrektur autorisiert. Wir wünschen Ihnen im weiteren Fortgang viel Erfolg!
+message_writing_authorized#:#Sie haben Ihre Klausur erfolgreich abgegeben und für eine Korrektur autorisiert. Wir wünschen Ihnen im weiteren Fortgang viel Erfolg!
 message_writing_authorized_link#:#» Klausur verlassen
 message_writing_returned_interrupted#:#Sie haben Ihre Bearbeitung unterbrochen. Klicken Sie auf "Bearbeitung fortsetzen", um ihre Klausur weiter zu schreiben oder für die Korrektur zu autorisieren.
 continue_writing#:#Bearbeitung fortsetzen
@@ -348,5 +348,5 @@ developer_settings_info#:#Diese Einstellungen werden im Normalbetrieb nicht ben�
 simulate_offline#:#Netzwerkunterbrechung simulieren
 simulate_offline_info#:#Anfragen aus den Writer und Corrector Web Apps werden mit dem Status SERVICE_UNAVAILABLE (503) zurückgewiesen. Damit können Netzwerkprobleme während des Schreibens oder Korrigierens einer Klausur simuliert werden.
 message_writing_to_authorize#:#Ihre Bearbeitung ist noch nicht zur Korrektur abgegeben. Klicken Sie auf "Bearbeitung schreibgeschützt einsehen", um sie zu überprüfen und abzugeben.
-message_writing_not_authorized#:#Sie haben Ihre Bearbeitung nicht zur Korrektur abgegeben. Wenden Sie sich an die Prüfungsleitung, wenn sie sie nachträglich abgeben möchten.
+message_writing_not_authorized#:#Sie haben Ihre Bearbeitung nicht zur Korrektur abgegeben. Wenden Sie sich an die Prüfungsleitung, wenn Ihre Bearbeitung doch bewertet werden soll.
 

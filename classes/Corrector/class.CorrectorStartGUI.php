@@ -8,12 +8,18 @@ use ILIAS\Plugin\LongEssayTask\BaseGUI;
 use ILIAS\Plugin\LongEssayTask\CorrectorAdmin\CorrectorAdminService;
 use ILIAS\Plugin\LongEssayTask\Data\CorrectionSettings;
 use ILIAS\Plugin\LongEssayTask\Data\CorrectorAssignment;
+use ILIAS\Plugin\LongEssayTask\Data\CorrectorRepository;
+use ILIAS\Plugin\LongEssayTask\Data\CorrectorSummary;
+use ILIAS\Plugin\LongEssayTask\Data\DataService;
+use ILIAS\Plugin\LongEssayTask\Data\Essay;
 use ILIAS\Plugin\LongEssayTask\LongEssayTaskDI;
 use ILIAS\UI\Component\Button\Shy;
 use ILIAS\UI\Component\Item\Standard;
 use ILIAS\UI\Component\Link\Link;
+use ILIAS\UI\Component\Table\DataRetrieval;
 use ILIAS\UI\Factory;
 use \ilUtil;
+use Sabre\CalDAV\Notifications\Plugin;
 
 /**
  *Start page for correctors
@@ -29,12 +35,20 @@ class CorrectorStartGUI extends BaseGUI
     /** @var CorrectionSettings  */
     protected $settings;
 
+	/** @var CorrectorRepository */
+	protected CorrectorRepository $correctorRepo;
+	private bool $can_correct;
 
-    public function __construct(\ilObjLongEssayTaskGUI $objectGUI)
+	private int $ready_items = 0;
+
+
+	public function __construct(\ilObjLongEssayTaskGUI $objectGUI)
     {
         parent::__construct($objectGUI);
         $this->service = $this->localDI->getCorrectorAdminService($this->object->getId());
         $this->settings = $this->service->getSettings();
+		$this->correctorRepo = $this->localDI->getCorrectorRepo();
+		$this->can_correct =  $this->object->canCorrect();;
     }
 
 
@@ -59,105 +73,145 @@ class CorrectorStartGUI extends BaseGUI
         }
     }
 
+	/**
+	 * Fetches all possible corrections (unfiltered)
+	 * @return array
+	 */
+	protected function getItems(){
+		$corrector = $this->localDI->getCorrectorRepo()->getCorrectorByUserId($this->dic->user()->getId(), $this->settings->getTaskId());
+		foreach ($this->localDI->getCorrectorRepo()->getAssignmentsByCorrectorId($corrector->getId()) as $assignment) {
+			$writer = $this->localDI->getWriterRepo()->getWriterById($assignment->getWriterId());
+			$essay = $this->localDI->getEssayRepo()->getEssayByWriterIdAndTaskId($assignment->getWriterId(), $this->settings->getTaskId());
 
-    /**
-     * Show the items
-     */
-    protected function showStartPage()
-    {
-        $canCorrect = $this->object->canCorrect();
-        $readyItems = 0;
-        $items= [];
-        $corrector = $this->localDI->getCorrectorRepo()->getCorrectorByUserId($this->dic->user()->getId(), $this->settings->getTaskId());
-        foreach ($this->localDI->getCorrectorRepo()->getAssignmentsByCorrectorId($corrector->getId()) as $assignment) {
-            $writer = $this->localDI->getWriterRepo()->getWriterById($assignment->getWriterId());
-            $essay = $this->localDI->getEssayRepo()->getEssayByWriterIdAndTaskId($assignment->getWriterId(), $this->settings->getTaskId());
+			if (empty($essay)) {
+				continue;
+			}
 
-            if (empty($essay)) {
-                continue;
-            }
+			$summary = $this->localDI->getEssayRepo()->getCorrectorSummaryByEssayIdAndCorrectorId(
+				(isset($essay) ? $essay->getId() : 0), $corrector->getId());
 
-            $summary = $this->localDI->getEssayRepo()->getCorrectorSummaryByEssayIdAndCorrectorId(
-                (isset($essay) ? $essay->getId() : 0), $corrector->getId());
-
-            $properties = [
-                $this->plugin->txt('writing_status') => $this->data->formatWritingStatus($essay),
-                $this->plugin->txt('correction_status') => $this->data->formatCorrectionStatus($essay),
-                $this->plugin->txt('own_grading') => $this->data->formatCorrectionResult($summary),
-                $this->plugin->txt('result') => $this->data->formatFinalResult($essay)
-            ];
-            foreach ($this->localDI->getCorrectorRepo()->getAssignmentsByWriterId($assignment->getWriterId()) as $otherAssignment) {
+			$properties = [
+				$this->plugin->txt('writing_status') => $this->data->formatWritingStatus($essay),
+				$this->plugin->txt('correction_status') => $this->data->formatCorrectionStatus($essay),
+				$this->plugin->txt('own_grading') => $this->data->formatCorrectionResult($summary),
+				$this->plugin->txt('result') => $this->data->formatFinalResult($essay)
+			];
+			foreach ($this->localDI->getCorrectorRepo()->getAssignmentsByWriterId($assignment->getWriterId()) as $otherAssignment) {
                 if ($otherAssignment->getCorrectorId() != $corrector->getId()) {
                     $properties[$this->data->formatCorrectorPosition($otherAssignment)] = $this->data->formatCorrectorAssignment($otherAssignment);
                 }
             }
 
-            $title = $writer->getPseudonym();
-            if ($canCorrect && $this->service->isCorrectionPossible($essay, $summary)) {
-                $readyItems++;
-                $this->ctrl->setParameter($this, 'writer_id', $assignment->getWriterId());
-                $title = $this->uiFactory->link()->standard($title, $this->ctrl->getLinkTarget($this, 'startCorrector'));
-            }
+			$title = $writer->getPseudonym();
+			                if ($this->can_correct && $this->service->isCorrectionPossible($essay, $summary)) {
+				$this->ready_items++;
+				$this->ctrl->setParameter($this, 'writer_id', $assignment->getWriterId());
+				$title = $this->uiFactory->link()->standard($title, $this->ctrl->getLinkTarget($this, 'startCorrector'));
+			}
 
-            $items[] = [
+			$items[] = [
 				"title" => $title,
 				"properties" => $properties,
 				"position" => $assignment->getPosition(),
-				"pseudonym" => $writer->getPseudonym()
+				"pseudonym" => $writer->getPseudonym(),
+				"correction_status" => $this->data->ownCorrectionStatus($essay, $summary)
 			];
-        }
+		}
+		return $items;
+	}
 
-        if ($canCorrect && $readyItems > 0) {
+	/**
+	 * Build filter view control
+	 *
+	 * @return array
+	 */
+	protected function filterViewControl(): array
+	{
+		$user_id = $this->dic->user()->getId();
+		$fcorr = $this->data->getCorrectionStatusFilter($user_id);
+		$fpos = $this->data->getCorrectorPositionFilter($user_id);
+
+		$ctrl = $this->ctrl;
+
+		$actions = [
+			DataService::ALL => $this->lng->txt("all"),
+			CorrectorSummary::STATUS_NOT_STARTED => $this->plugin->txt('correction_filter_not_started'),
+			CorrectorSummary::STATUS_STARTED => $this->plugin->txt('correction_filter_started'),
+			CorrectorSummary::STATUS_AUTHORIZED => $this->plugin->txt('correction_filter_authorized'),
+			CorrectorSummary::STATUS_STITCH => $this->plugin->txt('correction_filter_stitch'),
+		];
+
+		$aria_label = "change_the_currently_displayed_mode";
+		$view_control = $this->uiFactory->viewControl()->mode($this->prepareActionList($actions, "fcorr"), $aria_label)
+			->withActive($actions[$fcorr]);
+		$ctrl->setParameter($this, "fcorr", $fcorr);//Reset ctrl saved parameter
+
+		$aria_label2 = "change_the_currently_displayed_mode";
+		$actions2 = [
+			DataService::ALL => $this->lng->txt("all"),
+			"1" => $this->plugin->txt('assignment_pos_first'),
+			"2" => $this->plugin->txt('assignment_pos_second'),
+		];
+		$view_control2 = $this->uiFactory->viewControl()->mode($this->prepareActionList($actions2, "fpos"), $aria_label2)
+			->withActive($actions2[$fpos]);
+		$ctrl->setParameter($this, "fpos", $fpos);//Reset ctrl saved parameter
+
+		return [$view_control, $this->uiFactory->legacy("<br/>"), $view_control2];
+	}
+
+	protected function prepareActionList ($actions, $type) : array{
+		$ret = [];
+		foreach($actions as $key => $value){
+			$this->ctrl->setParameter($this, $type, $key);
+			$action = $this->ctrl->getLinkTarget($this);
+			$ret[$value] = $action;
+		}
+		return $ret;
+	}
+
+	/**
+	 * Save filter params from URL
+	 * @return void
+	 */
+	protected function saveFilterParams(){
+		$user_id = $this->dic->user()->getId();
+		$this->ctrl->saveParameter($this, "fcorr");
+		$this->ctrl->saveParameter($this, "fpos");
+		$fcorr = $this->data->getCorrectionStatusFilter($user_id);
+		$fpos = $this->data->getCorrectorPositionFilter($user_id);
+
+		if(isset($_GET["fpos"]) && $_GET["fpos"] != $fpos){
+			$this->data->saveCorrectorPositionFilter($user_id, $_GET["fpos"]);
+			$fpos = $_GET["fpos"];
+		}
+
+		if(isset($_GET["fcorr"]) && $_GET["fcorr"] != $fcorr){
+			$this->data->saveCorrectionStatusFilter($user_id, $_GET["fcorr"]);
+			$fcorr = $_GET["fcorr"];
+		}
+	}
+
+    /**
+     * Show the items
+     */
+	protected function showStartPage()
+    {
+		$this->saveFilterParams();
+		$items = $this->getItems();
+
+        if ($this->can_correct && $this->ready_items > 0) {
             $this->ctrl->clearParameters($this);
-            //$this->toolbar->setFormAction($this->ctrl->getFormAction($this));
             $button = \ilLinkButton::getInstance();
             $button->setUrl($this->ctrl->getLinkTarget($this, "startCorrector"));
             $button->setCaption($this->plugin->txt('start_correction'), false);
             $button->setPrimary(true);
             $this->toolbar->addButtonInstance($button);
         }
-
-		$base_action = $this->ctrl->getLinkTarget($this);
-
-		$actions = array(
-			$this->lng->txt("all") => $base_action,
-			$this->plugin->txt('correction_filter_open') => $base_action . "&filter=open",
-			$this->plugin->txt('correction_filter_pre')=> $base_action . "&filter=pre",
-			$this->plugin->txt('correction_filter_corrected') => $base_action . "&filter=corrected",
-			$this->plugin->txt('correction_filter_stitch') => $base_action . "&filter=stitch",
-		);
 		$is_empty = empty($items);
-        $aria_label = "change_the_currently_displayed_mode";
-        $view_control = $this->uiFactory->viewControl()->mode($actions, $aria_label)->withActive($this->lng->txt("all"));
-		$params = $this->request->getQueryParams();
-		if(array_key_exists("filter", $params)){
-			$view_control = $view_control->withActive($this->plugin->txt('correction_filter_'.$params["filter"]));
-			foreach ($items as $key => $item){
-				$properties = $item["properties"];
-				switch ($params["filter"]){
-					case "open":
 
-						if($properties[$this->plugin->txt('correction_status')] != $this->plugin->txt('correction_status_open'))
-							unset($items[$key]);
-						break;
-					case "pre":
-						if($properties[$this->plugin->txt('writing_status')] == $this->plugin->txt('writing_status_authorized'))
-							unset($items[$key]);
-						break;
-					case "corrected":
-						if($properties[$this->plugin->txt('correction_status')] != $this->plugin->txt('correction_status_finished'))
-							unset($items[$key]);
-						break;
-					case "stitch":
-						if($properties[$this->plugin->txt('correction_status')] != $this->plugin->txt('correction_status_stitch_needed'))
-							unset($items[$key]);
-						break;
-				}
-			}
-		}
-
-		$service = $this->localDI->getCorrectorAdminService($this->object->getId());
-		$service->sortCorrectionsArray($items);
+		$admin_service = $this->localDI->getCorrectorAdminService($this->object->getId());
+		$admin_service->sortCorrectionsArray($items);
+		$items = $admin_service->filterCorrections($this->dic->user()->getId(), $items);
 
 		$object_from_item = function(array $item): \ILIAS\UI\Component\Item\Item {
 			return $this->uiFactory->item()->standard($item["title"])
@@ -165,9 +219,10 @@ class CorrectorStartGUI extends BaseGUI
 				->withProperties($item["properties"]);
 		};
 
-        if (!$is_empty) {
+		if (!$is_empty) {
+			$view_control = $this->filterViewControl();
             $essays = $this->uiFactory->item()->group($this->plugin->txt('assigned_writings'), array_map($object_from_item, $items));
-            $this->tpl->setContent($this->renderer->render([$view_control, $this->uiFactory->legacy("<br /></br>"),$essays]));
+            $this->tpl->setContent($this->renderer->render(array_merge($view_control,[$this->uiFactory->legacy("<br/></br>"),$essays])));
 
             $taskSettings = $this->localDI->getTaskRepo()->getTaskSettingsById($this->settings->getTaskId());
             if (!empty($period = $this->data->formatPeriod($taskSettings->getCorrectionStart(), $taskSettings->getCorrectionEnd()))) {

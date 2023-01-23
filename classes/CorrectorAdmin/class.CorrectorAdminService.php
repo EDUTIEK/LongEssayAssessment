@@ -7,6 +7,8 @@ use Edutiek\LongEssayService\Corrector\Service;
 use Edutiek\LongEssayService\Data\DocuItem;
 use Edutiek\LongEssayService\Data\WritingTask;
 use ILIAS\Plugin\LongEssayTask\BaseService;
+use ILIAS\Plugin\LongEssayTask\Corrector\CorrectionFilterItem;
+use ILIAS\Plugin\LongEssayTask\Corrector\CorrectionsFilter;
 use ILIAS\Plugin\LongEssayTask\Corrector\CorrectorContext;
 use ILIAS\Plugin\LongEssayTask\Data\CorrectionSettings;
 use ILIAS\Plugin\LongEssayTask\Data\Corrector;
@@ -529,5 +531,21 @@ class CorrectorAdminService extends BaseService
 		});
 	}
 
+	/**
+	 * @param int $user_id
+	 * @param array $array
+	 * @return array
+	 */
+	public function filterCorrections(int $user_id, array $array): array
+	{
+		$position_filter = $this->dataService->getCorrectorPositionFilter($user_id);
+		$status_filter = $this->dataService->getCorrectionStatusFilter($user_id);
+
+		return array_filter($array, function (array $item) use($position_filter, $status_filter){
+			$status_ok = $status_filter == DataService::ALL || $status_filter == $item["correction_status"];
+			$position_ok = $position_filter == DataService::ALL || $position_filter == $item["position"];
+			return $status_ok && $position_ok;
+		});
+	}
 
 }

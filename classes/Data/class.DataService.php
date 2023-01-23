@@ -4,6 +4,8 @@
 namespace ILIAS\Plugin\LongEssayTask\Data;
 
 use ILIAS\Plugin\LongEssayTask\BaseService;
+use ILIAS\Plugin\LongEssayTask\Corrector\CorrectionFilterItem;
+use ilObjUser;
 use Throwable;
 
 /**
@@ -34,6 +36,16 @@ class DataService extends BaseService
 
     private $ownTimeExtension = null;
     private $ownTimeExtensionLoaded = false;
+
+
+	const USER_PREF_STATUS = "xlet_correction_status";
+	const USER_PREF_POSITION = "xlet_correction_position";
+	const ALL = "all";
+	private array $correction_status_cache = [];
+	private array $correction_position_cache = [];
+	public static array $correction_status_list = [CorrectorSummary::STATUS_STARTED, CorrectorSummary::STATUS_NOT_STARTED,
+		CorrectorSummary::STATUS_STITCH, CorrectorSummary::STATUS_AUTHORIZED, self::ALL];
+	public static array $corrector_position_list = [1, 2, self::ALL];
 
 
     /**
@@ -198,52 +210,96 @@ class DataService extends BaseService
         }
     }
 
-    /**
-     * Format the writing status of an essay
-     * @param Essay|null $essay
-     * @param bool $highlight_specials
-     * @return string
-     */
-    public function formatWritingStatus(?Essay $essay, $highlight_correction_specials = true) : string
-    {
-        if (empty($essay) || empty($essay->getEditStarted())) {
-            $status = $this->plugin->txt('writing_status_not_written');
-        }
-        elseif (!empty($essay->getWritingExcluded())) {
-            $status = $this->plugin->txt("writing_excluded_from") . " " .
-                \ilObjUser::_lookupFullname($essay->getWritingExcludedBy());
-        }
-        elseif (empty($essay->getWritingAuthorized())) {
-            $status = $this->plugin->txt('writing_status_not_authorized');
-        }
-        else {
-            // standard case for correction
-            return $this->plugin->txt('writing_status_authorized');
-        }
 
-        if ($highlight_correction_specials) {
-            $status = '<strong>' . $status . '</strong>';
-        }
-        return $status;
+	/**
+	 * writing status of an essay
+	 * @param Essay|null $essay
+	 * @return string
+	 */
+	public function writingStatus(?Essay $essay) : string
+	{
+		if (empty($essay) || empty($essay->getEditStarted())) {
+			return Essay::WRITING_STATUS_NOT_WRITTEN;
+		}
+		elseif (!empty($essay->getWritingExcluded())) {
+			return Essay::WRITING_STATUS_EXCLUDED;
+		}
+		elseif (empty($essay->getWritingAuthorized())) {
+			return Essay::WRITING_STATUS_NOT_AUTHORIZED;
+		}
+		else {
+			// standard case for correction
+			return Essay::WRITING_STATUS_AUTHORIZED;
+		}
+	}
+
+	/**
+	 * Format the writing status of an essay
+	 * @param Essay|null $essay
+	 * @param bool $highlight_correction_specials
+	 * @return string
+	 */
+    public function formatWritingStatus(?Essay $essay, bool $highlight_correction_specials = true) : string
+    {
+		$status = $this->writingStatus($essay);
+
+		switch($status){
+			case Essay::WRITING_STATUS_NOT_WRITTEN:
+				if ($highlight_correction_specials) {
+					return '<strong>' . $this->plugin->txt('writing_status_not_written') . '</strong>';
+				}else{
+					return $this->plugin->txt('writing_status_not_written');
+				}
+			case Essay::WRITING_STATUS_NOT_AUTHORIZED:
+				if ($highlight_correction_specials) {
+					return '<strong>' . $this->plugin->txt('writing_status_not_authorized') . '</strong>';
+				}else{
+					return $this->plugin->txt('writing_status_not_authorized');
+				}
+			case Essay::WRITING_STATUS_EXCLUDED:
+				return $this->plugin->txt('writing_excluded_from') . " " .
+					\ilObjUser::_lookupFullname($essay->getWritingExcludedBy());
+			case Essay::WRITING_STATUS_AUTHORIZED:
+				return $this->plugin->txt('writing_status_authorized');
+		}
+		return "-";
     }
+
+	/**
+	 *  the correction status of an essay
+	 */
+	public function correctionStatus(?Essay $essay) : string
+	{
+		if (empty($essay) || empty($essay->getWritingAuthorized())) {
+			return Essay::CORRECTION_STATUS_NOT_POSSIBLE;
+		}
+		elseif (!empty($essay->getCorrectionFinalized())) {
+			return Essay::CORRECTION_STATUS_FINISHED;
+		}
+		elseif ($this->localDI->getCorrectorAdminService($this->task_id)->isStitchDecisionNeeded($essay)) {
+			return Essay::CORRECTION_STATUS_STITCH_NEEDED;
+		}
+		else {
+			return Essay::CORRECTION_STATUS_OPEN;
+		}
+	}
 
     /**
      * Format the correction status of an essay
      */
     public function formatCorrectionStatus(?Essay $essay) : string
     {
-        if (empty($essay) || empty($essay->getWritingAuthorized())) {
-            return $this->plugin->txt('correction_status_not_possible');
-        }
-        elseif (!empty($essay->getCorrectionFinalized())) {
-            return $this->plugin->txt('correction_status_finished');
-        }
-        elseif ($this->localDI->getCorrectorAdminService($this->task_id)->isStitchDecisionNeeded($essay)) {
-            return $this->plugin->txt('correction_status_stitch_needed');
-        }
-        else {
-            return $this->plugin->txt('correction_status_open');
-        }
+		switch($this->correctionStatus($essay)){
+			case Essay::CORRECTION_STATUS_NOT_POSSIBLE:
+				return $this->plugin->txt('correction_status_not_possible');
+			case Essay::CORRECTION_STATUS_FINISHED:
+				return $this->plugin->txt('correction_status_finished');
+			case Essay::CORRECTION_STATUS_STITCH_NEEDED:
+				return $this->plugin->txt('correction_status_stitch_needed');
+			case Essay::CORRECTION_STATUS_OPEN:
+				return $this->plugin->txt('correction_status_open');
+		}
+		return " - ";
     }
 
     /**
@@ -294,6 +350,28 @@ class DataService extends BaseService
 
         return $text;
     }
+
+	/**
+	 * @param Essay $essay
+	 * @param CorrectorSummary|null $summary
+	 * @return string
+	 */
+	public function ownCorrectionStatus(Essay $essay, ?CorrectorSummary $summary){
+		if (empty($summary) || empty($summary->getLastChange())) {
+			return CorrectorSummary::STATUS_NOT_STARTED;
+		}
+
+		if (empty($summary->getCorrectionAuthorized())) {
+
+			return CorrectorSummary::STATUS_STARTED;
+		}
+
+		if($this->localDI->getCorrectorAdminService($this->task_id)->isStitchDecisionNeeded($essay)){
+			return CorrectorSummary::STATUS_STITCH;
+		}
+
+		return CorrectorSummary::STATUS_AUTHORIZED;
+	}
 
     /**
      * Format the result from a single correction
@@ -418,4 +496,72 @@ class DataService extends BaseService
         return \ilUtil::secureString((string) $text, true,
             '<p><div><br><strong><b><em><i><u><ol><ul><li><h1><h2><h3><h4><h5><h6><pre>');
      }
+
+	/**
+	 * save correction status filter value to user preferences
+	 *
+	 * @param int $user_id
+	 * @param $value
+	 * @return void
+	 */
+	public function saveCorrectionStatusFilter(int $user_id, $value)
+	{
+		if(in_array($value, self::$correction_status_list)){
+			ilObjUser::_writePref($user_id, self::USER_PREF_STATUS . "_" . $this->task_id, $value);
+			$this->correction_status_cache[$user_id] = $value;
+		}
+	}
+
+	/**
+	 * Get correction status filter value from user preferences
+	 *
+	 * @param int $user_id
+	 * @return string
+	 */
+	public function getCorrectionStatusFilter(int $user_id): string
+	{
+		if(isset($this->correction_status_cache[$user_id])){
+			return $this->correction_status_cache[$user_id];
+		}
+		$value = ilObjUser::_lookupPref($user_id, self::USER_PREF_STATUS . "_" . $this->task_id);
+		if(in_array($value, self::$correction_status_list)){
+			$this->correction_status_cache[$user_id] = $value;
+			return $value;
+		}
+		return self::ALL;
+	}
+
+	/**
+	 * save corrector position filter value to user preferences
+	 *
+	 * @param int $user_id
+	 * @param $value
+	 * @return void
+	 */
+	public function saveCorrectorPositionFilter(int $user_id, $value)
+	{
+		if(in_array($value, self::$corrector_position_list)){
+			ilObjUser::_writePref($user_id, self::USER_PREF_POSITION . "_" . $this->task_id, $value);
+			$this->correction_position_cache[$user_id] = $value;
+		}
+	}
+
+	/**
+	 * Get corrector position filter value from user preferences
+	 *
+	 * @param int $user_id
+	 * @return string
+	 */
+	public function getCorrectorPositionFilter(int $user_id): string
+	{
+		if(isset($this->correction_position_cache[$user_id])){
+			return $this->correction_position_cache[$user_id];
+		}
+		$value = ilObjUser::_lookupPref($user_id, self::USER_PREF_POSITION . "_" . $this->task_id);
+		if(in_array($value, self::$corrector_position_list)){
+			$this->correction_position_cache[$user_id] = $value;
+			return $value;
+		}
+		return self::ALL;
+	}
 }

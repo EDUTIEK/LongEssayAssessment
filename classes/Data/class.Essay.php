@@ -10,6 +10,15 @@ use ILIAS\Data\UUID\Factory as UUID;
  */
 class Essay extends ActivePluginRecord
 {
+	const WRITING_STATUS_NOT_WRITTEN = 'writing_status_not_written';
+	const WRITING_STATUS_NOT_AUTHORIZED = 'writing_status_not_authorized';
+	const WRITING_STATUS_EXCLUDED = 'writing_excluded';
+	const WRITING_STATUS_AUTHORIZED = 'writing_status_authorized';
+
+	const CORRECTION_STATUS_NOT_POSSIBLE = 'correction_status_not_possible';
+	const CORRECTION_STATUS_FINISHED = 'correction_status_finished';
+	const CORRECTION_STATUS_STITCH_NEEDED = 'correction_status_stitch_needed';
+	const CORRECTION_STATUS_OPEN = 'correction_status_open';
 
     /**
      * @var string

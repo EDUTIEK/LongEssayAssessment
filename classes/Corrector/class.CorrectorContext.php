@@ -283,6 +283,9 @@ class CorrectorContext extends ServiceContext implements Context
                         $title .= ' - ' . $this->data->formatWritingStatus($repoEssay, false);
                     }
 
+					$summary = $this->localDI->getEssayRepo()->getCorrectorSummaryByEssayIdAndCorrectorId(
+						$repoEssay->getId(), $repoCorrector->getId());
+
                     $sort_list[] = [
                         'item' => new CorrectionItem(
                             (string) $repoWriter->getId(),
@@ -291,12 +294,18 @@ class CorrectorContext extends ServiceContext implements Context
                             $authorization_allowed
                         ),
                         'position' => $repoAssignment->getPosition(),
-                        'pseudonym' => $repoWriter->getPseudonym()
+                        'pseudonym' => $repoWriter->getPseudonym(),
+						'correction_status' => $this->data->ownCorrectionStatus($repoEssay, $summary)
                     ];
                 }
             }
         }
-        $this->localDI->getCorrectorAdminService($this->task->getTaskId())->sortCorrectionsArray($sort_list);
+		$admin_service = $this->localDI->getCorrectorAdminService($this->object->getId());
+		$admin_service->sortCorrectionsArray($sort_list);
+		$filtered_list = $admin_service->filterCorrections($repoCorrector->getUserId(), $sort_list);
+		if(!empty($filtered_list)){ // If no Corrections where found due to filtering use all corrections
+			$sort_list = $filtered_list;
+		}
 
         $items = [];
         foreach ($sort_list as $sort_item) {

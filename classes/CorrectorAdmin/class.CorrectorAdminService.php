@@ -543,7 +543,7 @@ class CorrectorAdminService extends BaseService
 
 		return array_filter($array, function (array $item) use($position_filter, $status_filter){
 			$status_ok = $status_filter == DataService::ALL || $status_filter == $item["correction_status"];
-			$position_ok = $position_filter == DataService::ALL || $position_filter == $item["position"];
+			$position_ok = $position_filter == DataService::ALL || $position_filter == $item["position"] + 1;
 			return $status_ok && $position_ok;
 		});
 	}

@@ -250,6 +250,7 @@ class CorrectorContext extends ServiceContext implements Context
 
     /**
      * Get the correction items for a corrector
+     * @todo: merge with CorrectorStartGUI::getItems() in a CorrectorAdminService function
      */
     protected function getCorrectionItemsForCorrector(): array
     {

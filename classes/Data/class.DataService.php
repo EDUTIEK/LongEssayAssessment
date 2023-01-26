@@ -355,6 +355,7 @@ class DataService extends BaseService
 	 * @param Essay $essay
 	 * @param CorrectorSummary|null $summary
 	 * @return string
+     * @todo: better rename to getCorrectionStatus()
 	 */
 	public function ownCorrectionStatus(Essay $essay, ?CorrectorSummary $summary){
 		if (empty($summary) || empty($summary->getLastChange())) {
@@ -548,7 +549,8 @@ class DataService extends BaseService
 
 	/**
 	 * Get corrector position filter value from user preferences
-	 *
+     * filter positions starts with 1 (first corrector)
+	 * assigned positions start with 0 (first corrector)
 	 * @param int $user_id
 	 * @return string
 	 */

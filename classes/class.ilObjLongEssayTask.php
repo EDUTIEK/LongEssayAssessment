@@ -457,7 +457,7 @@ class ilObjLongEssayTask extends ilObjectPlugin
         if (empty($essay = $this->data->getOwnEssay())) {
             return false;
         }
-        elseif(empty($essay->getWritingAuthorized())) {
+        elseif (empty($essay->getCorrectionFinalized())) {
             return false;
         }
 

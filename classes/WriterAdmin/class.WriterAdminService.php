@@ -8,6 +8,7 @@ use ILIAS\Data\UUID\Factory as UUID;
 use ILIAS\Plugin\LongEssayTask\BaseService;
 use ILIAS\Plugin\LongEssayTask\Data\Alert;
 use ILIAS\Plugin\LongEssayTask\Data\DataService;
+use ILIAS\Plugin\LongEssayTask\Data\Essay;
 use ILIAS\Plugin\LongEssayTask\Data\EssayRepository;
 use ILIAS\Plugin\LongEssayTask\Data\LogEntry;
 use ILIAS\Plugin\LongEssayTask\Data\TaskRepository;
@@ -187,4 +188,82 @@ class WriterAdminService extends BaseService
     }
 
 
+    /**
+     * Get all writers by their writing status
+     * @return Writer[][] (indexed by status and writer id)
+     * @see DataService::writingStatus()
+     */
+    public function getWritersByStatus() {
+
+        $essays = [];
+        foreach ($this->essayRepo->getEssaysByTaskId($this->task_id) as $essay) {
+            $essays[$essay->getWriterId()] = $essay;
+        }
+
+        $writers = [
+            Essay::WRITING_STATUS_EXCLUDED => [],
+            Essay::WRITING_STATUS_NOT_WRITTEN => [],
+            Essay::WRITING_STATUS_NOT_AUTHORIZED => [],
+            Essay::WRITING_STATUS_AUTHORIZED => [],
+        ];
+        foreach($this->writerRepo->getWritersByTaskId($this->task_id) as $writer) {
+            $status = $this->dataService->writingStatus($essays[$writer->getId()] ?? null);
+            $writers[$status][$writer->getId()] = $writer;
+        }
+        return $writers;
+    }
+
+
+    /**
+     * Count the writers that still can authorize their essay
+     *
+     * @return int[]     [not started, writing possible, writing ended]
+     */
+    public function countPotentialAuthorizations() : array
+    {
+        $settings = $this->taskRepo->getTaskSettingsById($this->task_id);
+        $writing_end = $this->dataService->dbTimeToUnix($settings->getWritingEnd());
+
+        $extensions = [];
+        foreach ($this->writerRepo->getTimeExtensionsByTaskId($this->task_id) as $extension) {
+            $extensions[$extension->getWriterId()] = $extension;
+        }
+
+        $writers = $this->getWritersByStatus();
+
+        /** @var Writer[] $open */
+        $open = array_merge($writers[Essay::WRITING_STATUS_NOT_WRITTEN], $writers[Essay::WRITING_STATUS_NOT_AUTHORIZED]);
+
+        $before = 0;
+        $writing = 0;
+        $after = 0;
+
+        foreach($open as $writer) {
+            $writing_over = false;
+            if (isset($writing_end)) {
+                $individual_end = $writing_end;
+                if (!empty($extension = ($extensions[$writer->getId()]) ?? null)) {
+                    $individual_end += 60 * $extension->getMinutes();
+                }
+
+                if ($individual_end <= time()) {
+                    $writing_over = true;
+                }
+            }
+
+            if (isset($writers[Essay::WRITING_STATUS_NOT_WRITTEN][$writer->getId()])) {
+                if (!$writing_over) {
+                    $before++;
+                }
+            }
+            elseif (!$writing_over) {
+                $writing++;
+            }
+            else {
+                $after++;
+            }
+        }
+
+        return [$before, $writing, $after];
+    }
 }

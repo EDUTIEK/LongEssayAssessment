@@ -349,4 +349,7 @@ simulate_offline#:#Netzwerkunterbrechung simulieren
 simulate_offline_info#:#Anfragen aus den Writer und Corrector Web Apps werden mit dem Status SERVICE_UNAVAILABLE (503) zurückgewiesen. Damit können Netzwerkprobleme während des Schreibens oder Korrigierens einer Klausur simuliert werden.
 message_writing_to_authorize#:#Ihre Bearbeitung ist noch nicht zur Korrektur abgegeben. Klicken Sie auf "Bearbeitung schreibgeschützt einsehen", um sie zu überprüfen und abzugeben.
 message_writing_not_authorized#:#Sie haben Ihre Bearbeitung nicht zur Korrektur abgegeben. Wenden Sie sich an die Prüfungsleitung, wenn Ihre Bearbeitung doch bewertet werden soll.
-
+warning_potential_later_assignments#:#Es gibt noch Teilnehmende, die möglicherweise nachträglich zugewiesen werden müssen.
+potential_authorizations_not_started#:#Noch nicht gestartet, aber in Bearbeitungszeit: %s
+potential_authorizations_writing#:#In Bearbeitung und in Bearbeitungszeit: %s
+potential_authorizations_after#:#Nach Bearbeitungszeit, aber noch nicht zur Korrektur abgegeben: %s

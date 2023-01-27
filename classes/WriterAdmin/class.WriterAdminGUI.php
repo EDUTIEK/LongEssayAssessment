@@ -305,13 +305,13 @@ class WriterAdminGUI extends BaseGUI
 				&& $settings->getWritingEnd() !== null)
 			{
 
-				$correction_start = new \ilDateTime($settings->getCorrectionStart(), IL_CAL_DATETIME);
+				$solution_available = new \ilDateTime($settings->getSolutionAvailableDate(), IL_CAL_DATETIME);
 				$writing_end = new \ilDateTime($settings->getWritingEnd(), IL_CAL_DATETIME);
 				$extension_date = clone $writing_end;
 				$extension_date->increment(\ilDate::MINUTE, $data["form"]["extension"]);
 
-				if(!\ilDate::_within($extension_date, $writing_end, $correction_start)){
-					ilUtil::sendFailure($this->plugin->txt("exceed_correction_start"), false);
+				if(!\ilDate::_before($extension_date, $solution_available)){
+					ilUtil::sendFailure($this->plugin->txt("time_exceeds_solution_availability"), false);
 					$this->editExtension($form);
 					return;
 				}

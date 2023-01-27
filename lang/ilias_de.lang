@@ -262,7 +262,7 @@ resource_availability#:#Verfügbarkeit
 resource_available#:#Verfügbar:
 pseudonym#:#Pseudonym
 icon_label#:#Profilbild von
-exceed_correction_start#:#Die Zeitverlängerung darf Korrektur-Start nicht überschreiten.
+time_exceeds_solution_availability#:#Die Lösungshinweise wären in der Bearbeitungszeit verfügbar!
 writing_authorized#:#Die Abgabe von wurde autorisiert.
 grade_level_code#:#Code
 grade_level_code_caption#:#Interner Code zum Abgleich der Notenstufe mit internen Systemen

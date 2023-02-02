@@ -270,6 +270,7 @@ class CorrectorAdminService extends BaseService
             // not enough correctors authorized => not yet ready
             return false;
         }
+
         $minPoints = null;
         $maxPoints = null;
         foreach ($summaries as $summary) {
@@ -277,11 +278,25 @@ class CorrectorAdminService extends BaseService
             $maxPoints = (isset($maxPoints) ? max($maxPoints, $summary->getPoints()) : $summary->getPoints());
         }
 
-        if (abs($maxPoints - $minPoints) <= $this->settings->getMaxAutoDistance()) {
-            // distance is within limit
-            return false;
+        if ($this->settings->getStitchWhenDistance()) {
+            if (abs($maxPoints - $minPoints) > $this->settings->getMaxAutoDistance()) {
+                // distance is within limit
+                return true;
+            }
         }
-        return true;
+
+        if ($this->settings->getStitchWhenDecimals()) {
+            $average = $this->getAveragePointsOfSummaries($summaries);
+            if ($average === null) {
+                // one corrector hasn't stored points (should not happen)
+                return true;
+            }
+            if (floor($average) < $average) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -356,13 +371,12 @@ class CorrectorAdminService extends BaseService
     public function tryFinalisation(Essay $essay, int $user_id) : bool
     {
         $summaries = $this->getAuthorizedSummaries($essay);
-
         if (count($summaries) < $this->getSettings()->getRequiredCorrectors()) {
             return false;
         }
 
         if (!$this->isStitchDecisionNeededForSummaries($summaries)) {
-            $average= $this->getAveragePointsOfSummaries($summaries);
+            $average = $this->getAveragePointsOfSummaries($summaries);
             if ($average !== null) {
                 $essay->setFinalPoints($average);
                 if (!empty($level = $this->getGradeLevelForPoints($average))) {

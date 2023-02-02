@@ -353,3 +353,6 @@ warning_potential_later_assignments#:#Es gibt noch Teilnehmende, die möglicherw
 potential_authorizations_not_started#:#Noch nicht gestartet, aber in Bearbeitungszeit: %s
 potential_authorizations_writing#:#In Bearbeitung und in Bearbeitungszeit: %s
 potential_authorizations_after#:#Nach Bearbeitungszeit, aber noch nicht zur Korrektur abgegeben: %s
+settings_stitch_required#:#Stichentscheid
+stitch_when_distance#:#Bei abweichenden Punkten
+stitch_when_decimals#:#Wenn der Punktedurchschnitt keine ganze Zahl ist

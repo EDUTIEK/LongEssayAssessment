@@ -153,9 +153,9 @@ class CorrectorContext extends ServiceContext implements Context
                 (bool) $repoSettings->getMutualVisibility(),
                 (bool) $repoSettings->getMultiColorHighlight(),
                 (int) $repoSettings->getMaxPoints(),
-                (int) $repoSettings->getMaxAutoDistance(),
-                (bool) $this->isReview(),
-                (bool) $this->isStitchDecision()
+                (float) $repoSettings->getMaxAutoDistance(),
+                (bool) $repoSettings->getStitchWhenDistance(),
+                (bool) $repoSettings->getStitchWhenDecimals()
             );
         }
         return new CorrectionSettings(false, false, 0, 0, false, false);

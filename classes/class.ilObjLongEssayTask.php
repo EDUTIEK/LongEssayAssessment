@@ -371,15 +371,13 @@ class ilObjLongEssayTask extends ilObjectPlugin
             }
         }
 
-        // check if in writing time
-        if (!$this->data->isInRange(time(),
-            $this->data->dbTimeToUnix($this->taskSettings->getWritingStart()),
-            $this->data->dbTimeToUnix($this->taskSettings->getWritingEnd()) + $this->data->getOwnTimeExtensionSeconds())
-        ) {
-            return false;
+        // check time in range
+        $start = $this->data->dbTimeToUnix($this->taskSettings->getWritingStart());
+        $end = $this->data->dbTimeToUnix($this->taskSettings->getWritingEnd());
+        if (!empty($end)) {
+            $end += $this->data->getOwnTimeExtensionSeconds();
         }
-
-        return true;
+        return $this->data->isInRange(time(),$start, $end);
     }
 
     /**

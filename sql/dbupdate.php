@@ -1483,3 +1483,25 @@ if (!$ilDB->tableColumnExists('xlet_plugin_config','simulate_offline')) {
     ));
 }
 ?>
+<#63>
+<?php
+if (!$ilDB->tableColumnExists('xlet_corr_setting','stitch_when_distance')) {
+    $ilDB->addTableColumn('xlet_corr_setting', 'stitch_when_distance', array(
+        'notnull' => '1',
+        'type' => 'integer',
+        'length' => 4,
+        'default' => 1
+    ));
+}
+?>
+<#64>
+<?php
+if (!$ilDB->tableColumnExists('xlet_corr_setting','stitch_when_decimals')) {
+    $ilDB->addTableColumn('xlet_corr_setting', 'stitch_when_decimals', array(
+        'notnull' => '1',
+        'type' => 'integer',
+        'length' => 4,
+        'default' => 0
+    ));
+}
+?>

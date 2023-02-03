@@ -19,11 +19,13 @@ use ILIAS\Plugin\LongEssayTask\Data\DataService;
 use ILIAS\Plugin\LongEssayTask\Data\Essay;
 use ILIAS\Plugin\LongEssayTask\Data\EssayRepository;
 use ILIAS\Plugin\LongEssayTask\Data\GradeLevel;
+use ILIAS\Plugin\LongEssayTask\Data\LogEntry;
 use ILIAS\Plugin\LongEssayTask\Data\TaskRepository;
 use ILIAS\Plugin\LongEssayTask\Data\TaskSettings;
 use ILIAS\Plugin\LongEssayTask\Data\Writer;
 use ILIAS\Plugin\LongEssayTask\Data\WriterRepository;
 use ILIAS\Data\UUID\Factory as UUID;
+use ILIAS\Plugin\LongEssayTask\LongEssayTaskDI;
 use ilObjUser;
 
 /**
@@ -270,6 +272,7 @@ class CorrectorAdminService extends BaseService
             // not enough correctors authorized => not yet ready
             return false;
         }
+
         $minPoints = null;
         $maxPoints = null;
         foreach ($summaries as $summary) {
@@ -277,11 +280,25 @@ class CorrectorAdminService extends BaseService
             $maxPoints = (isset($maxPoints) ? max($maxPoints, $summary->getPoints()) : $summary->getPoints());
         }
 
-        if (abs($maxPoints - $minPoints) <= $this->settings->getMaxAutoDistance()) {
-            // distance is within limit
-            return false;
+        if ($this->settings->getStitchWhenDistance()) {
+            if (abs($maxPoints - $minPoints) > $this->settings->getMaxAutoDistance()) {
+                // distance is within limit
+                return true;
+            }
         }
-        return true;
+
+        if ($this->settings->getStitchWhenDecimals()) {
+            $average = $this->getAveragePointsOfSummaries($summaries);
+            if ($average === null) {
+                // one corrector hasn't stored points (should not happen)
+                return true;
+            }
+            if (floor($average) < $average) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -309,7 +326,7 @@ class CorrectorAdminService extends BaseService
      * @param Essay|null $essay
      * @return CorrectorSummary[]
      */
-    protected function getAuthorizedSummaries(?Essay $essay) : array
+    public function getAuthorizedSummaries(?Essay $essay) : array
     {
         if (empty($essay) || empty($essay->getWritingAuthorized())) {
             // essay is not authorized
@@ -356,13 +373,12 @@ class CorrectorAdminService extends BaseService
     public function tryFinalisation(Essay $essay, int $user_id) : bool
     {
         $summaries = $this->getAuthorizedSummaries($essay);
-
         if (count($summaries) < $this->getSettings()->getRequiredCorrectors()) {
             return false;
         }
 
         if (!$this->isStitchDecisionNeededForSummaries($summaries)) {
-            $average= $this->getAveragePointsOfSummaries($summaries);
+            $average = $this->getAveragePointsOfSummaries($summaries);
             if ($average !== null) {
                 $essay->setFinalPoints($average);
                 if (!empty($level = $this->getGradeLevelForPoints($average))) {
@@ -547,5 +563,87 @@ class CorrectorAdminService extends BaseService
 			return $status_ok && $position_ok;
 		});
 	}
+
+    public function removeAuthorizations(Writer $writer) : bool
+    {
+        global $DIC;
+
+        if (empty($essay = $this->essayRepo->getEssayByWriterIdAndTaskId($writer->getId(), $writer->getTaskId()))) {
+            return false;
+        }
+
+        // remove finalized status
+        if (!empty($essay->getCorrectionFinalized())) {
+            $essay->setCorrectionFinalized(null);
+            $essay->setCorrectionFinalizedBy(null);
+            $this->essayRepo->updateEssay($essay);
+        }
+
+        // remove authorizations
+        foreach ($this->getAuthorizedSummaries($essay) as $summary) {
+            $summary->setCorrectionAuthorized(null);
+            $summary->setCorrectionAuthorizedBy(null);
+            $this->essayRepo->updateCorrectorSummary($summary);
+        }
+
+        // log the actions
+        $description = \ilLanguage::_lookupEntry(
+            $this->lng->getDefaultLanguage(),
+            $this->plugin->getPrefix(),
+            $this->plugin->getPrefix() . "_remove_authorization_log"
+        );
+
+        $datetime = new \ilDateTime(time(), IL_CAL_UNIX);
+        $names = \ilUserUtil::getNamePresentation([$writer->getUserId(), $DIC->user()->getId()], false, false, "", true);
+
+        $log_entry = new LogEntry();
+        $log_entry->setEntry(sprintf($description, $names[$writer->getUserId()] ?? "unknown", $names[$DIC->user()->getId()] ?? "unknown"))
+            ->setTaskId($essay->getTaskId())
+            ->setTimestamp($datetime->get(IL_CAL_DATETIME))
+            ->setCategory(LogEntry::CATEGORY_AUTHORIZE);
+
+        $this->taskRepo->createLogEntry($log_entry);
+
+        return true;
+    }
+
+    public function removeSingleAuthorization(Writer $writer, Corrector $corrector) : bool
+    {
+        if (empty($essay = $this->essayRepo->getEssayByWriterIdAndTaskId($writer->getId(), $writer->getTaskId()))) {
+            return false;
+        }
+        if (empty($summary = $this->localDI->getEssayRepo()->getCorrectorSummaryByEssayIdAndCorrectorId($essay->getId(), $corrector->getId()))) {
+            return false;
+        }
+
+        // don't remove a singe authorization from a finalized correction
+        if (!empty($essay->getCorrectionFinalized())) {
+            return false;
+        }
+
+        $summary->setCorrectionAuthorized(null);
+        $summary->setCorrectionAuthorizedBy(null);
+        $this->essayRepo->updateCorrectorSummary($summary);
+
+        // log the actions
+        $description = \ilLanguage::_lookupEntry(
+            $this->lng->getDefaultLanguage(),
+            $this->plugin->getPrefix(),
+            $this->plugin->getPrefix() . "_remove_own_authorization_log"
+        );
+
+        $datetime = new \ilDateTime(time(), IL_CAL_UNIX);
+        $names = \ilUserUtil::getNamePresentation([$writer->getUserId(), $corrector->getUserId()], false, false, "", true);
+
+        $log_entry = new LogEntry();
+        $log_entry->setEntry(sprintf($description, $names[$writer->getUserId()] ?? "unknown", $names[$corrector->getUserId()] ?? "unknown"))
+            ->setTaskId($essay->getTaskId())
+            ->setTimestamp($datetime->get(IL_CAL_DATETIME))
+            ->setCategory(LogEntry::CATEGORY_AUTHORIZE);
+
+        $this->taskRepo->createLogEntry($log_entry);
+
+        return true;
+    }
 
 }

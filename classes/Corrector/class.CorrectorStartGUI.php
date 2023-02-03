@@ -12,6 +12,7 @@ use ILIAS\Plugin\LongEssayTask\Data\CorrectorRepository;
 use ILIAS\Plugin\LongEssayTask\Data\CorrectorSummary;
 use ILIAS\Plugin\LongEssayTask\Data\DataService;
 use ILIAS\Plugin\LongEssayTask\Data\Essay;
+use ILIAS\Plugin\LongEssayTask\Data\Writer;
 use ILIAS\Plugin\LongEssayTask\LongEssayTaskDI;
 use ILIAS\UI\Component\Button\Shy;
 use ILIAS\UI\Component\Item\Standard;
@@ -64,7 +65,8 @@ class CorrectorStartGUI extends BaseGUI
         {
             case 'showStartPage':
             case 'startCorrector':
-            case 'finalizeCorrection':
+            case 'confirmRemoveAuthorization':
+            case 'removeAuthorization':
                 $this->$cmd();
                 break;
 
@@ -101,9 +103,15 @@ class CorrectorStartGUI extends BaseGUI
                     $properties[$this->data->formatCorrectorPosition($otherAssignment)] = $this->data->formatCorrectorAssignment($otherAssignment);
                 }
             }
+            $actions = [];
+            if (empty($essay->getCorrectionFinalized()) && isset($summary) && !empty($summary->getCorrectionAuthorized())) {
+                $this->ctrl->setParameter($this, 'writer_id', $essay->getWriterId());
+                $actions[] = $this->uiFactory->button()->shy($this->plugin->txt('remove_own_authorization'),
+                    $this->ctrl->getLinkTarget($this, 'confirmRemoveAuthorization'));
+            }
 
-			$title = $writer->getPseudonym();
-			                if ($this->can_correct && $this->service->isCorrectionPossible($essay, $summary)) {
+            $title = $writer->getPseudonym();
+			if ($this->can_correct && $this->service->isCorrectionPossible($essay, $summary)) {
 				$this->ready_items++;
 				$this->ctrl->setParameter($this, 'writer_id', $assignment->getWriterId());
 				$title = $this->uiFactory->link()->standard($title, $this->ctrl->getLinkTarget($this, 'startCorrector'));
@@ -112,6 +120,7 @@ class CorrectorStartGUI extends BaseGUI
 			$items[] = [
 				"title" => $title,
 				"properties" => $properties,
+                "actions" => $actions,
 				"position" => $assignment->getPosition(),
 				"pseudonym" => $writer->getPseudonym(),
 				"correction_status" => $this->data->getOwnCorrectionStatus($essay, $summary)
@@ -229,9 +238,13 @@ class CorrectorStartGUI extends BaseGUI
         }
 
 		$object_from_item = function(array $item): \ILIAS\UI\Component\Item\Item {
-			return $this->uiFactory->item()->standard($item["title"])
+            $object = $this->uiFactory->item()->standard($item["title"])
 				->withLeadIcon($this->uiFactory->symbol()->icon()->standard('adve', 'user', 'medium'))
 				->withProperties($item["properties"]);
+            if (!empty($item['actions'])) {
+                $object = $object->withActions($this->uiFactory->dropdown()->standard($item['actions'])->withLabel($this->plugin->txt("actions")));
+            }
+            return $object;
 		};
 
 		if (!$is_empty_before_filter) {
@@ -264,9 +277,48 @@ class CorrectorStartGUI extends BaseGUI
         $service->openFrontend();
     }
 
-    protected function finalizeCorrection()
-    {
 
+    protected function confirmRemoveAuthorization()
+    {
+        if (empty($writer = $this->getWriterFromRequest())) {
+            $this->ctrl->redirect($this);
+        }
+        $name = \ilObjUser::_lookupFullname($writer->getUserId()) . ' [' . $writer->getPseudonym() . ']';
+
+        $cancel = $this->uiFactory->button()->standard($this->lng->txt('cancel'), $this->ctrl->getLinkTarget($this));
+        $this->ctrl->setParameter($this, 'writer_id', $writer->getId());
+        $ok = $this->uiFactory->button()->standard($this->lng->txt('ok'), $this->ctrl->getLinkTarget($this, 'removeAuthorization'));
+
+        $this->tpl->setContent($this->renderer->render($this->uiFactory->messageBox()->confirmation(
+            sprintf($this->plugin->txt('confirm_remove_own_authorization'), $name))->withButtons([$ok, $cancel])));
     }
 
+
+    protected function removeAuthorization()
+    {
+        if (empty($writer = $this->getWriterFromRequest())) {
+            $this->ctrl->redirect($this);
+        }
+        $corrector = $this->localDI->getCorrectorRepo()->getCorrectorByUserId($this->dic->user()->getId(), $this->settings->getTaskId());
+
+        $name = \ilObjUser::_lookupFullname($writer->getUserId()) . ' [' . $writer->getPseudonym() . ']';
+
+        if ($this->service->removeSingleAuthorization($writer, $corrector)) {
+            ilutil::sendSuccess(sprintf($this->plugin->txt('remove_own_authorization_done'), $name), true);
+        }
+        else {
+            ilutil::sendFailure(sprintf($this->plugin->txt('remove_own_authorization_failed'), $name), true);
+        }
+        $this->ctrl->redirect($this);
+    }
+
+
+    protected function getWriterFromRequest() : ?Writer
+    {
+        $query = $this->request->getQueryParams();
+        if(isset($query["writer_id"])) {
+            return $this->localDI->getWriterRepo()->getWriterById((int) $query["writer_id"]);
+        }
+        return null;
+    }
 }

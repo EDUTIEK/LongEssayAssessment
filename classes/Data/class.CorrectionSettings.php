@@ -106,6 +106,35 @@ class CorrectionSettings extends ActivePluginRecord
     protected $assign_mode = self::ASSIGN_MODE_RANDOM_EQUAL;
 
 
+
+    /**
+     * require a stitch decision when the distance of points is higher than allowed
+     *
+     * @var integer
+     * @con_has_field        true
+     * @con_is_primary       false
+     * @con_sequence         false
+     * @con_is_notnull       true
+     * @con_fieldtype        integer
+     * @con_length           4
+     */
+    protected $stitch_when_distance = 1;
+
+
+    /**
+     * require a stitch decision when the average points are not integer
+     *
+     * @var integer
+     * @con_has_field        true
+     * @con_is_primary       false
+     * @con_sequence         false
+     * @con_is_notnull       true
+     * @con_fieldtype        integer
+     * @con_length           4
+     */
+    protected $stitch_when_decimals = 1;
+
+
     /**
      * @return int
      */
@@ -230,6 +259,38 @@ class CorrectionSettings extends ActivePluginRecord
     {
         $this->assign_mode = $assign_mode;
         return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getStitchWhenDistance(): bool
+    {
+        return (bool) $this->stitch_when_distance;
+    }
+
+    /**
+     * @param int $stitch_when_distance
+     */
+    public function setStitchWhenDistance(bool $stitch_when_distance): void
+    {
+        $this->stitch_when_distance = (int) $stitch_when_distance;
+    }
+
+    /**
+     * @return int
+     */
+    public function getStitchWhenDecimals(): bool
+    {
+        return (bool) $this->stitch_when_decimals;
+    }
+
+    /**
+     * @param int $stitch_when_decimals
+     */
+    public function setStitchWhenDecimals(bool $stitch_when_decimals): void
+    {
+        $this->stitch_when_decimals = (int) $stitch_when_decimals;
     }
 
 }

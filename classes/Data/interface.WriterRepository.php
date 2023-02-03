@@ -32,6 +32,7 @@ interface WriterRepository
 
     public function getTimeExtensionByWriterId(int $a_writer_id, int $a_task_id): ?TimeExtension;
 
+    /** @return TimeExtension[] */
     public function getTimeExtensionsByTaskId(int $a_task_id): array;
 
     // Update operations

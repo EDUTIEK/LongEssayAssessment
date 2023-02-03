@@ -5,6 +5,7 @@ namespace ILIAS\Plugin\LongEssayTask\Task;
 
 use ILIAS\Plugin\LongEssayTask\BaseGUI;
 use ILIAS\Plugin\LongEssayTask\Data\CorrectionSettings;
+use ILIAS\Plugin\LongEssayTask\Data\TaskSettings;
 use ILIAS\Refinery\Custom\Transformation;
 use \ilUtil;
 
@@ -43,6 +44,7 @@ class CorrectionSettingsGUI extends BaseGUI
         $correctionSettings = CorrectionSettings::findOrGetInstance($this->object->getId());
 
         $factory = $this->uiFactory->input()->field();
+        $localFactory = $this->localDI->getUIFactory()->field();
 
         $sections = [];
 
@@ -70,13 +72,27 @@ class CorrectionSettingsGUI extends BaseGUI
             ->withRequired(true)
             ->withValue($correctionSettings->getMaxPoints());
 
-        $fields['max_auto_distance'] = $factory->text($this->plugin->txt('max_auto_distance'), $this->plugin->txt('max_auto_distance_info'))
-            ->withAdditionalTransformation($this->refinery->kindlyTo()->float())
-            ->withRequired(true)
-            ->withValue((string) $correctionSettings->getMaxAutoDistance());
-
-
         $sections['correction'] = $factory->section($fields, $this->plugin->txt('correction_settings'));
+
+        // Stitch decision
+
+        $fields = [];
+        $fields['stitch_when_distance'] = $factory->optionalGroup([
+                "max_auto_distance" => $factory->text($this->plugin->txt('max_auto_distance'), $this->plugin->txt('max_auto_distance_info'))
+                    ->withAdditionalTransformation($this->refinery->kindlyTo()->float())
+                    ->withRequired(true)
+                    ->withValue((string) (empty($correctionSettings->getMaxAutoDistance()) ? '0.0' : $correctionSettings->getMaxAutoDistance()))],
+                $this->plugin->txt('stitch_when_distance')
+        );
+        // strange but effective
+        if (!$correctionSettings->getStitchWhenDistance()) {
+            $fields['stitch_when_distance'] = $fields['stitch_when_distance']->withValue(null);
+        }
+
+        $fields['stitch_when_decimals'] = $factory->checkbox($this->plugin->txt('stitch_when_decimals'))
+            ->withValue((bool) $correctionSettings->getStitchWhenDecimals());
+
+        $sections['stitch'] = $factory->section($fields, $this->plugin->txt('settings_stitch_required'));
 
         $form = $this->uiFactory->input()->container()->form()->standard($this->ctrl->getFormAction($this), $sections);
 
@@ -92,7 +108,14 @@ class CorrectionSettingsGUI extends BaseGUI
             $correctionSettings->setAssignMode((string) $data['correction']['assign_mode']);
             $correctionSettings->setMutualVisibility((int) $data['correction']['mutual_visibility']);
             $correctionSettings->setMaxPoints((int) $data['correction']['max_points']);
-            $correctionSettings->setMaxAutoDistance((float) $data['correction']['max_auto_distance']);
+            if (isset($data['stitch']['stitch_when_distance']) && is_array($data['stitch']['stitch_when_distance'])) {
+                $correctionSettings->setStitchWhenDistance(true);
+                $correctionSettings->setMaxAutoDistance((float) $data['stitch']['stitch_when_distance']['max_auto_distance']);
+            }
+            else {
+                $correctionSettings->setStitchWhenDistance(false);
+            }
+            $correctionSettings->setStitchWhenDecimals(!empty($data['stitch']['stitch_when_decimals']));
             $correctionSettings->save();
 
             ilUtil::sendSuccess($this->lng->txt("settings_saved"), true);

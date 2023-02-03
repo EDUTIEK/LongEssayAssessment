@@ -349,5 +349,22 @@ simulate_offline#:#Netzwerkunterbrechung simulieren
 simulate_offline_info#:#Anfragen aus den Writer und Corrector Web Apps werden mit dem Status SERVICE_UNAVAILABLE (503) zurückgewiesen. Damit können Netzwerkprobleme während des Schreibens oder Korrigierens einer Klausur simuliert werden.
 message_writing_to_authorize#:#Ihre Bearbeitung ist noch nicht zur Korrektur abgegeben. Klicken Sie auf "Bearbeitung schreibgeschützt einsehen", um sie zu überprüfen und abzugeben.
 message_writing_not_authorized#:#Sie haben Ihre Bearbeitung nicht zur Korrektur abgegeben. Wenden Sie sich an die Prüfungsleitung, wenn Ihre Bearbeitung doch bewertet werden soll.
+warning_potential_later_assignments#:#Es gibt noch Teilnehmende, die möglicherweise nachträglich zugewiesen werden müssen.
+potential_authorizations_not_started#:#Noch nicht gestartet, aber in Bearbeitungszeit: %s
+potential_authorizations_writing#:#In Bearbeitung und in Bearbeitungszeit: %s
+potential_authorizations_after#:#Nach Bearbeitungszeit, aber noch nicht zur Korrektur abgegeben: %s
+settings_stitch_required#:#Stichentscheid
+stitch_when_distance#:#Bei abweichenden Punkten
+stitch_when_decimals#:#Wenn der Punktedurchschnitt keine ganze Zahl ist
+remove_authorizations#:#Korrektur-Autorisierungen zurücknehmen
+confirm_remove_authorizations_for#:#Möchten Sie die Autorisierung der Korrektur(en) für %s zurücknehmen? Diese Aktion wird protokolliert.
+remove_authorizations_for_done#:#Die Korrektur-Autorisierungen für %s wurden zurückgenommen.
+remove_authorizations_for_failed#:#Die Korrektur-Autorisierungen für %s konnten nicht zurückgenommen werden.
+remove_authorization_log#:#Die Autorisierung der Korrekturen für %s wurde durch %s zurückgezogen.
+remove_own_authorization#:#Autorisierung zurückziehen
+confirm_remove_own_authorization#:#Möchten Sie Ihre Korrektur-Autorisierung für %s zurücknehmen? Diese Aktion wird protokolliert.
+remove_own_authorization_done#:#Ihre Korrektur-Autorisierung für %s wurde zurückgezogen.
+remove_own_authorization_failed#:#Ihre Korrektur-Autorisierung für %s konnte nicht zurücckgezogen werden.
+remove_own_authorization_log#:#Die Autorisierung der eigenen Korrektur für %s wurde durch %s zurückgezogen.
 own_position#:#Funktion
 own_correction#:#Eigene Korrekturen

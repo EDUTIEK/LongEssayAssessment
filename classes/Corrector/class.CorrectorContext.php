@@ -153,9 +153,9 @@ class CorrectorContext extends ServiceContext implements Context
                 (bool) $repoSettings->getMutualVisibility(),
                 (bool) $repoSettings->getMultiColorHighlight(),
                 (int) $repoSettings->getMaxPoints(),
-                (int) $repoSettings->getMaxAutoDistance(),
-                (bool) $this->isReview(),
-                (bool) $this->isStitchDecision()
+                (float) $repoSettings->getMaxAutoDistance(),
+                (bool) $repoSettings->getStitchWhenDistance(),
+                (bool) $repoSettings->getStitchWhenDecimals()
             );
         }
         return new CorrectionSettings(false, false, 0, 0, false, false);
@@ -184,7 +184,7 @@ class CorrectorContext extends ServiceContext implements Context
      * here:    the item keys are strings of the writer ids
      *          the item titles are the pseudonymous writer names
      */
-    public function getCorrectionItems(): array
+    public function getCorrectionItems(bool $use_filter = false): array
     {
         if ($this->isStitchDecision()) {
             return $this->getCorrectionItemsForStitchDecision();
@@ -193,7 +193,7 @@ class CorrectorContext extends ServiceContext implements Context
             return $this->getCorrectionItemsForReview();
         }
         else {
-            return $this->getCorrectionItemsForCorrector();
+            return $this->getCorrectionItemsForCorrector($use_filter);
         }
     }
 
@@ -250,9 +250,10 @@ class CorrectorContext extends ServiceContext implements Context
 
     /**
      * Get the correction items for a corrector
+     * @param bool $use_filter    apply a user filter
      * @todo: merge with CorrectorStartGUI::getItems() in a CorrectorAdminService function
      */
-    protected function getCorrectionItemsForCorrector(): array
+    protected function getCorrectionItemsForCorrector(bool $use_filter = false): array
     {
         $correctorRepo = $this->localDI->getCorrectorRepo();
         $writerRepo = $this->localDI->getWriterRepo();
@@ -303,10 +304,13 @@ class CorrectorContext extends ServiceContext implements Context
         }
 		$admin_service = $this->localDI->getCorrectorAdminService($this->object->getId());
 		$admin_service->sortCorrectionsArray($sort_list);
-		$filtered_list = $admin_service->filterCorrections($repoCorrector->getUserId(), $sort_list);
-		if(!empty($filtered_list)){ // If no Corrections where found due to filtering use all corrections
-			$sort_list = $filtered_list;
-		}
+
+        if ($use_filter) {
+            $filtered_list = $admin_service->filterCorrections($repoCorrector->getUserId(), $sort_list);
+            if(!empty($filtered_list)){ // If no Corrections where found due to filtering use all corrections
+                $sort_list = $filtered_list;
+            }
+        }
 
         $items = [];
         foreach ($sort_list as $sort_item) {

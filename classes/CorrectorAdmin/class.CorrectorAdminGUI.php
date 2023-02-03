@@ -352,9 +352,9 @@ class CorrectorAdminGUI extends BaseGUI
 		}
 	}
 
-    protected function confirmRemoveAuthorizations() {
+    protected function confirmRemoveAuthorizations()
+    {
         if (empty($writer_id = $this->getWriterId()) || empty($writer = $this->localDI->getWriterRepo()->getWriterById($writer_id))) {
-            ilUtil::sendInfo($writer_id, true);
             $this->ctrl->redirect($this);
         }
         $name = \ilObjUser::_lookupFullname($writer->getUserId()) . ' [' . $writer->getPseudonym() . ']';
@@ -368,7 +368,8 @@ class CorrectorAdminGUI extends BaseGUI
     }
 
 
-    protected function removeAuthorizations() {
+    protected function removeAuthorizations()
+    {
         if (empty($writer_id = $this->getWriterId()) || empty($writer = $this->localDI->getWriterRepo()->getWriterById($writer_id))) {
             $this->ctrl->redirect($this);
         }

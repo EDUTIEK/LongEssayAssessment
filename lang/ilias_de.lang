@@ -361,3 +361,8 @@ confirm_remove_authorizations_for#:#Möchten Sie die Autorisierung der Korrektur
 remove_authorizations_for_done#:#Die Korrektur-Autorisierungen für %s wurden zurückgenommen.
 remove_authorizations_for_failed#:#Die Korrektur-Autorisierungen für %s konnten nicht zurückgenommen werden.
 remove_authorization_log#:#Die Autorisierung der Korrekturen für %s wurde durch %s zurückgezogen.
+remove_own_authorization#:#Autorisierung zurückziehen
+confirm_remove_own_authorization#:#Möchten Sie Ihre Korrektur-Autorisierung für %s zurücknehmen? Diese Aktion wird protokolliert.
+remove_own_authorization_done#:#Ihre Korrektur-Autorisierung für %s wurde zurückgezogen.
+remove_own_authorization_failed#:#Ihre Korrektur-Autorisierung für %s konnte nicht zurücckgezogen werden.
+remove_own_authorization_log#:#Die Autorisierung der eigenen Korrektur für %s wurde durch %s zurückgezogen.

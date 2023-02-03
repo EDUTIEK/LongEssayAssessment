@@ -606,4 +606,44 @@ class CorrectorAdminService extends BaseService
 
         return true;
     }
+
+    public function removeSingleAuthorization(Writer $writer, Corrector $corrector) : bool
+    {
+        if (empty($essay = $this->essayRepo->getEssayByWriterIdAndTaskId($writer->getId(), $writer->getTaskId()))) {
+            return false;
+        }
+        if (empty($summary = $this->localDI->getEssayRepo()->getCorrectorSummaryByEssayIdAndCorrectorId($essay->getId(), $corrector->getId()))) {
+            return false;
+        }
+
+        // don't remove a singe authorization from a finalized correction
+        if (!empty($essay->getCorrectionFinalized())) {
+            return false;
+        }
+
+        $summary->setCorrectionAuthorized(null);
+        $summary->setCorrectionAuthorizedBy(null);
+        $this->essayRepo->updateCorrectorSummary($summary);
+
+        // log the actions
+        $description = \ilLanguage::_lookupEntry(
+            $this->lng->getDefaultLanguage(),
+            $this->plugin->getPrefix(),
+            $this->plugin->getPrefix() . "_remove_own_authorization_log"
+        );
+
+        $datetime = new \ilDateTime(time(), IL_CAL_UNIX);
+        $names = \ilUserUtil::getNamePresentation([$writer->getUserId(), $corrector->getUserId()], false, false, "", true);
+
+        $log_entry = new LogEntry();
+        $log_entry->setEntry(sprintf($description, $names[$writer->getUserId()] ?? "unknown", $names[$corrector->getUserId()] ?? "unknown"))
+            ->setTaskId($essay->getTaskId())
+            ->setTimestamp($datetime->get(IL_CAL_DATETIME))
+            ->setCategory(LogEntry::CATEGORY_AUTHORIZE);
+
+        $this->taskRepo->createLogEntry($log_entry);
+
+        return true;
+    }
+
 }

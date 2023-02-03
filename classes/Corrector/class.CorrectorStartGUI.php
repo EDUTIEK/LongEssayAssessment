@@ -114,7 +114,7 @@ class CorrectorStartGUI extends BaseGUI
 				"properties" => $properties,
 				"position" => $assignment->getPosition(),
 				"pseudonym" => $writer->getPseudonym(),
-				"correction_status" => $this->data->ownCorrectionStatus($essay, $summary)
+				"correction_status" => $this->data->getOwnCorrectionStatus($essay, $summary)
 			];
 		}
 		return $items;
@@ -123,9 +123,9 @@ class CorrectorStartGUI extends BaseGUI
 	/**
 	 * Build filter view control
 	 *
-	 * @return array
+	 * @return void
 	 */
-	protected function filterViewControl(): array
+	protected function filterViewControl()
 	{
 		$user_id = $this->dic->user()->getId();
 		$fcorr = $this->data->getCorrectionStatusFilter($user_id);
@@ -133,30 +133,34 @@ class CorrectorStartGUI extends BaseGUI
 
 		$ctrl = $this->ctrl;
 
-		$actions = [
+		$correction_actions = [
 			DataService::ALL => $this->lng->txt("all"),
-			CorrectorSummary::STATUS_NOT_STARTED => $this->plugin->txt('correction_filter_not_started'),
+			CorrectorSummary::STATUS_DUE => $this->plugin->txt('correction_filter_not_started'),
 			CorrectorSummary::STATUS_STARTED => $this->plugin->txt('correction_filter_started'),
 			CorrectorSummary::STATUS_AUTHORIZED => $this->plugin->txt('correction_filter_authorized'),
 			CorrectorSummary::STATUS_STITCH => $this->plugin->txt('correction_filter_stitch'),
 		];
 
-		$aria_label = "change_the_currently_displayed_mode";
-		$view_control = $this->uiFactory->viewControl()->mode($this->prepareActionList($actions, "fcorr"), $aria_label)
-			->withActive($actions[$fcorr]);
+		$correction_aria_label = "change_the_currently_displayed_mode";
+		$view_control_correction = $this->uiFactory->viewControl()->mode($this->prepareActionList($correction_actions, "fcorr"), $correction_aria_label)
+			->withActive($correction_actions[$fcorr]);
 		$ctrl->setParameter($this, "fcorr", $fcorr);//Reset ctrl saved parameter
 
-		$aria_label2 = "change_the_currently_displayed_mode";
-		$actions2 = [
+		$position_aria_label = "change_the_currently_displayed_mode";
+		$position_actions = [
 			DataService::ALL => $this->lng->txt("all"),
 			"1" => $this->plugin->txt('assignment_pos_first'),
 			"2" => $this->plugin->txt('assignment_pos_second'),
 		];
-		$view_control2 = $this->uiFactory->viewControl()->mode($this->prepareActionList($actions2, "fpos"), $aria_label2)
-			->withActive($actions2[$fpos]);
+		$view_control_position = $this->uiFactory->viewControl()->mode($this->prepareActionList($position_actions, "fpos"), $position_aria_label)
+			->withActive($position_actions[$fpos]);
 		$ctrl->setParameter($this, "fpos", $fpos);//Reset ctrl saved parameter
-
-		return [$view_control, $this->uiFactory->legacy("<br/>"), $view_control2];
+		$this->toolbar->addText($this->plugin->txt("own_correction") . ":");
+		$this->toolbar->addComponent($view_control_correction);
+		$this->toolbar->addSeparator();
+		$this->toolbar->addText($this->plugin->txt("own_position") . ":");
+		$this->toolbar->addComponent($view_control_position);
+		$this->toolbar->addSeparator();
 	}
 
 	protected function prepareActionList ($actions, $type) : array{
@@ -196,22 +200,33 @@ class CorrectorStartGUI extends BaseGUI
      */
 	protected function showStartPage()
     {
+		$toolbar = [];
 		$this->saveFilterParams();
 		$items = $this->getItems();
 
-        if ($this->can_correct && $this->ready_items > 0) {
-            $this->ctrl->clearParameters($this);
-            $button = \ilLinkButton::getInstance();
-            $button->setUrl($this->ctrl->getLinkTarget($this, "startCorrector"));
-            $button->setCaption($this->plugin->txt('start_correction'), false);
-            $button->setPrimary(true);
-            $this->toolbar->addButtonInstance($button);
-        }
-		$is_empty = empty($items);
-
+		$is_empty_before_filter = empty($items);
 		$admin_service = $this->localDI->getCorrectorAdminService($this->object->getId());
 		$admin_service->sortCorrectionsArray($items);
 		$items = $admin_service->filterCorrections($this->dic->user()->getId(), $items);
+		$is_empty_after_filter = empty($items);
+
+		if(!$is_empty_before_filter){
+			$this->filterViewControl();
+		}
+
+        if ($this->can_correct && $this->ready_items > 0) {
+            $this->ctrl->clearParameters($this);
+			$button = $this->uiFactory->button()->primary(
+				$this->plugin->txt('start_correction'),
+				!$is_empty_after_filter ? $this->ctrl->getLinkTarget($this, "startCorrector") : "#"
+			);
+
+			if($is_empty_after_filter){
+				$this->toolbar->addComponent($button->withUnavailableAction());
+			}else{
+				$this->toolbar->addComponent($button);
+			}
+        }
 
 		$object_from_item = function(array $item): \ILIAS\UI\Component\Item\Item {
 			return $this->uiFactory->item()->standard($item["title"])
@@ -219,11 +234,9 @@ class CorrectorStartGUI extends BaseGUI
 				->withProperties($item["properties"]);
 		};
 
-		if (!$is_empty) {
-			$view_control = $this->filterViewControl();
+		if (!$is_empty_before_filter) {
             $essays = $this->uiFactory->item()->group($this->plugin->txt('assigned_writings'), array_map($object_from_item, $items));
-            $this->tpl->setContent($this->renderer->render(array_merge($view_control,[$this->uiFactory->legacy("<br/></br>"),$essays])));
-
+            $this->tpl->setContent($this->renderer->render($essays));
             $taskSettings = $this->localDI->getTaskRepo()->getTaskSettingsById($this->settings->getTaskId());
             if (!empty($period = $this->data->formatPeriod($taskSettings->getCorrectionStart(), $taskSettings->getCorrectionEnd()))) {
                 ilUtil::sendInfo($this->plugin->txt('correction_period') . ': ' . $period);

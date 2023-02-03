@@ -43,7 +43,7 @@ class DataService extends BaseService
 	const ALL = "all";
 	private array $correction_status_cache = [];
 	private array $correction_position_cache = [];
-	public static array $correction_status_list = [CorrectorSummary::STATUS_STARTED, CorrectorSummary::STATUS_NOT_STARTED,
+	public static array $correction_status_list = [CorrectorSummary::STATUS_STARTED, CorrectorSummary::STATUS_DUE,
 		CorrectorSummary::STATUS_STITCH, CorrectorSummary::STATUS_AUTHORIZED, self::ALL];
 	public static array $corrector_position_list = [1, 2, self::ALL];
 
@@ -354,12 +354,49 @@ class DataService extends BaseService
 	/**
 	 * @param Essay $essay
 	 * @param CorrectorSummary|null $summary
+	 * @param bool $without_blocked is needed to lower db calls if its irrelevant that DUE or BLOCKED
 	 * @return string
-     * @todo: better rename to getCorrectionStatus()
+	 * @todo: Pretty costly function when called multiple times in a list, should be optimized by caching or queries
 	 */
-	public function ownCorrectionStatus(Essay $essay, ?CorrectorSummary $summary){
+	public function getOwnCorrectionStatus(Essay $essay, ?CorrectorSummary $summary, bool $without_blocked=false): string
+	{
 		if (empty($summary) || empty($summary->getLastChange())) {
-			return CorrectorSummary::STATUS_NOT_STARTED;
+			if($without_blocked){
+				return CorrectorSummary::STATUS_DUE;
+			}
+
+			$assignments = $this->correctorRepo->getAssignmentsByWriterId($essay->getWriterId());
+			$own_assignment = null;
+			$other_assignments = [];
+
+			foreach($assignments as $assignment){
+				if($assignment->getCorrectorId() == $summary->getCorrectorId()){
+					$own_assignment = $assignment;
+				}else{
+					$other_assignments[] = $assignment;
+				}
+			}
+
+			if(!empty($own_assignment) && $own_assignment->getPosition() > 0){
+				$one_correction_missing = false;
+				// Checks if corrections with a lower position are all already authorized, blocked if they are not
+				foreach($other_assignments as $assignment){
+					if($assignment->getPosition() < $own_assignment->getPosition()){
+						$other_summary = $this->essayRepo->getCorrectorSummaryByEssayIdAndCorrectorId($essay->getId(), $assignment->getCorrectorId());
+						if(!empty($other_summary->getCorrectionAuthorized())){
+							$one_correction_missing = true;
+						}
+					}
+				}
+
+				if($one_correction_missing){
+					return CorrectorSummary::STATUS_BLOCKED;
+				}else{
+					return CorrectorSummary::STATUS_DUE;
+				}
+			}else{
+				return CorrectorSummary::STATUS_DUE;
+			}
 		}
 
 		if (empty($summary->getCorrectionAuthorized())) {

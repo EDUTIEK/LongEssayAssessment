@@ -76,9 +76,9 @@ writing_start_info#:#Ab diesem Zeitpunkt wird die Schaltfläche "Bearbeitung sta
 writing_end#:#Bearbeitungs-Ende
 writing_end_info#:#Bis zu diesem Zeitpunkt getätigte Eingaben werden akzeptiert, danach ist die Eingabe gesperrt. Bei Verbindungsproblemen können die im Browser zwischengespeicherten Eingaben auch nachträglich gesendet oder autorisiert werden. Ohne festgelegtes Ende kann die Aufgabe beliebig lange bearbeitet werden.
 correction_start#:#Korrektur-Start
-correction_start_info#:#Ab diesem Zeitpunkt wird Korrekturkräften die Schaltfläche "Korrektur starten" angezeigt und sie können die ihnen zugewiesenen und autorisierten Abgaben kommentieren und bewerten. Ohne festgelegten Start ist das für jede Abgabe möglich, sobald sie autorisiert wurde.
+correction_start_info#:#Ab diesem Zeitpunkt wird Korrekturkräften die Schaltfläche "Angezeigte Korrekturen starten" angezeigt und sie können die ihnen zugewiesenen und autorisierten Abgaben kommentieren und bewerten. Ohne festgelegten Start ist das für jede Abgabe möglich, sobald sie autorisiert wurde.
 correction_end#:#Korrektur-Ende
-correction_end_info#:#Nach diesem Zeitpunkt wird die Schaltfläche "Korrektur starten" nicht mehr angezeigt und es werden keine Korrektur-Eingaben mehr akzeptiert. Sollten einzelne Korrekturen noch nicht abgeschlossen sein, müssen Sie den Zeitraum für alle verlängern. Ohne festgelegtes Ende werden Korrektur-Eingaben beliebig lange akzeptiert.
+correction_end_info#:#Nach diesem Zeitpunkt wird die Schaltfläche "Angezeigte Korrekturen starten" nicht mehr angezeigt und es werden keine Korrektur-Eingaben mehr akzeptiert. Sollten einzelne Korrekturen noch nicht abgeschlossen sein, müssen Sie den Zeitraum für alle verlängern. Ohne festgelegtes Ende werden Korrektur-Eingaben beliebig lange akzeptiert.
 review_start#:#Einsichtnahme-Start
 review_start_info#:#Ab diesem Zeitpunkt können die Teilnehmenden ein PDF mit ihrer korrigierten Abgabe herunterladen, sofern ihre Korrektur finalisiert wurde und das Ergebnis feststeht. Ohne festgelegten Start ist das PDF sofort nach der Finalisierung verfügbar.
 review_end#:#Einsichtnahme-Ende
@@ -168,7 +168,7 @@ assignment_pos_second#:#Zweitkorrektor/in
 assignment_pos_x#:#%s. Korrektor/in
 assignment_pos_other#:#Mitkorrektor/in
 assignment_pos_empty#:#nicht ausgewählt
-start_correction#:#Korrektur starten
+start_correction#:#Angezeigte Korrekturen starten
 assigned_writings#:#Zugeteilte Abgaben
 min_points#:#Min. Punkte
 min_points_caption#:#Minimal benötigte Punkte zum Erreichen dieser Stufe.
@@ -328,7 +328,7 @@ log_cat_note#:#Notiz
 log_cat_extension#:#Zeitverlängerung
 log_cat_exclusion#:#Ausschluss
 log_cat_alert#:#Benachrichtigung
-correction_filter_not_started#:#selbst nicht begonnen
+correction_filter_not_started#:#fällig
 correction_filter_started#:#selbst begonnen
 correction_filter_authorized#:#selbst autorisiert
 correction_filter_stitch#:#Stichentscheid notwendig
@@ -349,4 +349,5 @@ simulate_offline#:#Netzwerkunterbrechung simulieren
 simulate_offline_info#:#Anfragen aus den Writer und Corrector Web Apps werden mit dem Status SERVICE_UNAVAILABLE (503) zurückgewiesen. Damit können Netzwerkprobleme während des Schreibens oder Korrigierens einer Klausur simuliert werden.
 message_writing_to_authorize#:#Ihre Bearbeitung ist noch nicht zur Korrektur abgegeben. Klicken Sie auf "Bearbeitung schreibgeschützt einsehen", um sie zu überprüfen und abzugeben.
 message_writing_not_authorized#:#Sie haben Ihre Bearbeitung nicht zur Korrektur abgegeben. Wenden Sie sich an die Prüfungsleitung, wenn Ihre Bearbeitung doch bewertet werden soll.
-
+own_position#:#Funktion
+own_correction#:#Eigene Korrekturen

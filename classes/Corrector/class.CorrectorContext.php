@@ -296,7 +296,7 @@ class CorrectorContext extends ServiceContext implements Context
                         ),
                         'position' => $repoAssignment->getPosition(),
                         'pseudonym' => $repoWriter->getPseudonym(),
-						'correction_status' => $this->data->ownCorrectionStatus($repoEssay, $summary)
+						'correction_status' => $this->data->getOwnCorrectionStatus($repoEssay, $summary)
                     ];
                 }
             }

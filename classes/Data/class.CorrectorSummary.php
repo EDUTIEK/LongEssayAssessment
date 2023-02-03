@@ -8,7 +8,8 @@ namespace ILIAS\Plugin\LongEssayTask\Data;
  */
 class CorrectorSummary extends ActivePluginRecord
 {
-	const STATUS_NOT_STARTED = "not_started";
+	const STATUS_BLOCKED= "blocked";
+	const STATUS_DUE = "due";
 	const STATUS_STARTED = "started";
 	const STATUS_AUTHORIZED = "authorized";
 	const STATUS_STITCH = "stitch";

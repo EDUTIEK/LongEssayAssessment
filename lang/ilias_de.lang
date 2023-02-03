@@ -356,3 +356,8 @@ potential_authorizations_after#:#Nach Bearbeitungszeit, aber noch nicht zur Korr
 settings_stitch_required#:#Stichentscheid
 stitch_when_distance#:#Bei abweichenden Punkten
 stitch_when_decimals#:#Wenn der Punktedurchschnitt keine ganze Zahl ist
+remove_authorizations#:#Korrektur-Autorisierungen zurücknehmen
+confirm_remove_authorizations_for#:#Möchten Sie die Autorisierung der Korrektur(en) für %s zurücknehmen? Diese Aktion wird protokolliert.
+remove_authorizations_for_done#:#Die Korrektur-Autorisierungen für %s wurden zurückgenommen.
+remove_authorizations_for_failed#:#Die Korrektur-Autorisierungen für %s konnten nicht zurückgenommen werden.
+remove_authorization_log#:#Die Autorisierung der Korrekturen für %s wurde durch %s zurückgezogen.

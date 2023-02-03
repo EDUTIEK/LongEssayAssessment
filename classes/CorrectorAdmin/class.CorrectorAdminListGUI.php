@@ -86,6 +86,12 @@ class CorrectorAdminListGUI extends WriterListGUI
 
             $essay = $this->essays[$writer->getId()] ?? null;
             if (!empty($essay)) {
+                if (!empty($essay->getCorrectionFinalized())
+                    || !empty($this->localDI->getCorrectorAdminService($essay->getTaskId())->getAuthorizedSummaries($essay))
+                ) {
+                    $actions[] = $this->uiFactory->button()->shy($this->plugin->txt('remove_authorizations'), $this->getRemoveAuthorisationsAction($writer));
+                }
+
                 $actions[] = $this->uiFactory->button()->shy($this->plugin->txt('export_steps'), $this->getExportStepsTarget($writer));
                 $properties[$this->plugin->txt("final_grade")] = $this->localDI->getDataService($writer->getTaskId())->formatFinalResult($essay);
             }
@@ -154,7 +160,13 @@ class CorrectorAdminListGUI extends WriterListGUI
 		return $this->ctrl->getLinkTarget($this->parent, "stitchDecision");
 	}
 
-	private function essayStatus(Writer $writer)
+    private function getRemoveAuthorisationsAction(Writer $writer): string
+    {
+        $this->ctrl->setParameter($this->parent, "writer_id", $writer->getId());
+        return $this->ctrl->getLinkTarget($this->parent, "confirmRemoveAuthorizations");
+    }
+
+    private function essayStatus(Writer $writer)
 	{
 		if (isset($this->essays[$writer->getId()])) {
 			$essay = $this->essays[$writer->getId()];

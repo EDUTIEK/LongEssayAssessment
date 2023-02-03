@@ -19,11 +19,13 @@ use ILIAS\Plugin\LongEssayTask\Data\DataService;
 use ILIAS\Plugin\LongEssayTask\Data\Essay;
 use ILIAS\Plugin\LongEssayTask\Data\EssayRepository;
 use ILIAS\Plugin\LongEssayTask\Data\GradeLevel;
+use ILIAS\Plugin\LongEssayTask\Data\LogEntry;
 use ILIAS\Plugin\LongEssayTask\Data\TaskRepository;
 use ILIAS\Plugin\LongEssayTask\Data\TaskSettings;
 use ILIAS\Plugin\LongEssayTask\Data\Writer;
 use ILIAS\Plugin\LongEssayTask\Data\WriterRepository;
 use ILIAS\Data\UUID\Factory as UUID;
+use ILIAS\Plugin\LongEssayTask\LongEssayTaskDI;
 use ilObjUser;
 
 /**
@@ -324,7 +326,7 @@ class CorrectorAdminService extends BaseService
      * @param Essay|null $essay
      * @return CorrectorSummary[]
      */
-    protected function getAuthorizedSummaries(?Essay $essay) : array
+    public function getAuthorizedSummaries(?Essay $essay) : array
     {
         if (empty($essay) || empty($essay->getWritingAuthorized())) {
             // essay is not authorized
@@ -562,4 +564,46 @@ class CorrectorAdminService extends BaseService
 		});
 	}
 
+    public function removeAuthorizations(Writer $writer) : bool
+    {
+        global $DIC;
+
+        if (empty($essay = $this->essayRepo->getEssayByWriterIdAndTaskId($writer->getId(), $writer->getTaskId()))) {
+            return false;
+        }
+
+        // remove finalized status
+        if (!empty($essay->getCorrectionFinalized())) {
+            $essay->setCorrectionFinalized(null);
+            $essay->setCorrectionFinalizedBy(null);
+            $this->essayRepo->updateEssay($essay);
+        }
+
+        // remove authorizations
+        foreach ($this->getAuthorizedSummaries($essay) as $summary) {
+            $summary->setCorrectionAuthorized(null);
+            $summary->setCorrectionAuthorizedBy(null);
+            $this->essayRepo->updateCorrectorSummary($summary);
+        }
+
+        // log the actions
+        $description = \ilLanguage::_lookupEntry(
+            $this->lng->getDefaultLanguage(),
+            $this->plugin->getPrefix(),
+            $this->plugin->getPrefix() . "_remove_authorization_log"
+        );
+
+        $datetime = new \ilDateTime(time(), IL_CAL_UNIX);
+        $names = \ilUserUtil::getNamePresentation([$writer->getUserId(), $DIC->user()->getId()], false, false, "", true);
+
+        $log_entry = new LogEntry();
+        $log_entry->setEntry(sprintf($description, $names[$writer->getUserId()] ?? "unknown", $names[$DIC->user()->getId()] ?? "unknown"))
+            ->setTaskId($essay->getTaskId())
+            ->setTimestamp($datetime->get(IL_CAL_DATETIME))
+            ->setCategory(LogEntry::CATEGORY_AUTHORIZE);
+
+        $this->taskRepo->createLogEntry($log_entry);
+
+        return true;
+    }
 }

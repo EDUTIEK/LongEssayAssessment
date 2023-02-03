@@ -65,6 +65,8 @@ class CorrectorAdminGUI extends BaseGUI
                     case 'viewCorrections':
                     case 'stitchDecision':
                     case 'exportSteps':
+                    case 'confirmRemoveAuthorizations':
+                    case 'removeAuthorizations':
 						$this->$cmd();
 						break;
 
@@ -349,6 +351,37 @@ class CorrectorAdminGUI extends BaseGUI
 			$this->ctrl->redirect($this, "showStartPage", $anchor ?? "");
 		}
 	}
+
+    protected function confirmRemoveAuthorizations() {
+        if (empty($writer_id = $this->getWriterId()) || empty($writer = $this->localDI->getWriterRepo()->getWriterById($writer_id))) {
+            ilUtil::sendInfo($writer_id, true);
+            $this->ctrl->redirect($this);
+        }
+        $name = \ilObjUser::_lookupFullname($writer->getUserId()) . ' [' . $writer->getPseudonym() . ']';
+
+        $cancel = $this->uiFactory->button()->standard($this->lng->txt('cancel'), $this->ctrl->getLinkTarget($this));
+        $this->ctrl->setParameter($this, 'writer_id', $writer_id);
+        $ok = $this->uiFactory->button()->standard($this->lng->txt('ok'), $this->ctrl->getLinkTarget($this, 'removeAuthorizations'));
+
+        $this->tpl->setContent($this->renderer->render($this->uiFactory->messageBox()->confirmation(
+            sprintf($this->plugin->txt('confirm_remove_authorizations_for'), $name))->withButtons([$ok, $cancel])));
+    }
+
+
+    protected function removeAuthorizations() {
+        if (empty($writer_id = $this->getWriterId()) || empty($writer = $this->localDI->getWriterRepo()->getWriterById($writer_id))) {
+            $this->ctrl->redirect($this);
+        }
+        $name = \ilObjUser::_lookupFullname($writer->getUserId()) . ' [' . $writer->getPseudonym() . ']';
+
+        if ($this->service->removeAuthorizations($writer)) {
+            ilutil::sendSuccess(sprintf($this->plugin->txt('remove_authorizations_for_done'), $name), true);
+        }
+        else {
+            ilutil::sendFailure(sprintf($this->plugin->txt('remove_authorizations_for_failed'), $name), true);
+        }
+        $this->ctrl->redirect($this);
+    }
 
 
     protected function exportCorrections()

@@ -113,7 +113,7 @@ class DataService extends BaseService
     public function getOwnCorrector() : ?Corrector
     {
         if (!$this->ownCorrectorLoaded) {
-            $this->ownCorrector = $this-$this->correctorRepo->getCorrectorByUserId($this->dic->user()->getId(), $this->task_id);
+            $this->ownCorrector = $this->correctorRepo->getCorrectorByUserId($this->dic->user()->getId(), $this->task_id);
             $this->ownCorrectorLoaded = true;
         }
         return $this->ownCorrector;
@@ -369,8 +369,12 @@ class DataService extends BaseService
 			$own_assignment = null;
 			$other_assignments = [];
 
+            if (empty($own_corrector = $this->getOwnCorrector())) {
+                return CorrectorSummary::STATUS_BLOCKED;
+            }
+
 			foreach($assignments as $assignment){
-				if($assignment->getCorrectorId() == $summary->getCorrectorId()){
+				if($assignment->getCorrectorId() == $own_corrector->getId()){
 					$own_assignment = $assignment;
 				}else{
 					$other_assignments[] = $assignment;
@@ -383,7 +387,7 @@ class DataService extends BaseService
 				foreach($other_assignments as $assignment){
 					if($assignment->getPosition() < $own_assignment->getPosition()){
 						$other_summary = $this->essayRepo->getCorrectorSummaryByEssayIdAndCorrectorId($essay->getId(), $assignment->getCorrectorId());
-						if(!empty($other_summary->getCorrectionAuthorized())){
+						if(empty($other_summary) || empty($other_summary->getCorrectionAuthorized())){
 							$one_correction_missing = true;
 						}
 					}

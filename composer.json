@@ -2,7 +2,7 @@
   "repositories": [
     {
       "type": "vcs",
-      "url": "https://github.com/fneumann/LongEssayService"
+      "url": "https://github.com/EDUTIEK/long-essay-assessment-service"
     }
   ],
   "require": {
@@ -10,7 +10,7 @@
     "edutiek/long-essay-service": "dev-main"
   },
   "autoload": {
-    "psr-4" : { "ILIAS\\Plugin\\LongEssayTask\\" : "./classes" },
+    "psr-4" : { "ILIAS\\Plugin\\LongEssayAssessment\\" : "./classes" },
     "classmap": ["./classes"],
     "exclude-from-classmap": []
   },

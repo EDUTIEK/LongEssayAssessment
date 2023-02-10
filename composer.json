@@ -7,7 +7,7 @@
   ],
   "require": {
     "php": "~7.4",
-    "edutiek/long-essay-service": "dev-main"
+    "edutiek/long-essay-assessment-service": "dev-main"
   },
   "autoload": {
     "psr-4" : { "ILIAS\\Plugin\\LongEssayAssessment\\" : "./classes" },

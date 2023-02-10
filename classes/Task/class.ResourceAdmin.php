@@ -1,10 +1,10 @@
 <?php
 
-namespace ILIAS\Plugin\LongEssayTask\Task;
+namespace ILIAS\Plugin\LongEssayAssessment\Task;
 
 use ILIAS\FileUpload\DTO\UploadResult;
-use ILIAS\Plugin\LongEssayTask\Data\Resource;
-use ILIAS\Plugin\LongEssayTask\LongEssayTaskDI;
+use ILIAS\Plugin\LongEssayAssessment\Data\Resource;
+use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
 use ILIAS\ResourceStorage\Identification\ResourceIdentification;
 
 class ResourceAdmin
@@ -41,7 +41,7 @@ class ResourceAdmin
         $resource->setTaskId($this->getTaskId());
         $resource->setFileId($identification);
 
-        $let_dic = LongEssayTaskDI::getInstance();
+        $let_dic = LongEssayAssessmentDI::getInstance();
         $task_repo = $let_dic->getTaskRepo();
         $task_repo->createResource($resource);
         return $resource->getId();
@@ -64,7 +64,7 @@ class ResourceAdmin
         $resource->setTaskId($this->getTaskId());
         $resource->setUrl($this->normalizeUrl($a_url));
 
-        $let_dic = LongEssayTaskDI::getInstance();
+        $let_dic = LongEssayAssessmentDI::getInstance();
         $task_repo = $let_dic->getTaskRepo();
         $task_repo->createResource($resource);
 
@@ -81,7 +81,7 @@ class ResourceAdmin
      */
     public function updateResource(int $a_id, string $a_title, string $a_description, string $a_availability, string $a_url = ""): bool
     {
-        $let_dic = LongEssayTaskDI::getInstance();
+        $let_dic = LongEssayAssessmentDI::getInstance();
         $task_repo = $let_dic->getTaskRepo();
         $resource = $task_repo->getResourceById($a_id);
 
@@ -108,7 +108,7 @@ class ResourceAdmin
     public function updateResourceFile(int $a_id, int $a_user_id, UploadResult $a_upload): bool
     {
         global $DIC;
-        $let_dic = LongEssayTaskDI::getInstance();
+        $let_dic = LongEssayAssessmentDI::getInstance();
         $task_repo = $let_dic->getTaskRepo();
         $resource = $task_repo->getResourceById($a_id);
 
@@ -134,7 +134,7 @@ class ResourceAdmin
             return $resource;
         }
 
-        $let_dic = LongEssayTaskDI::getInstance();
+        $let_dic = LongEssayAssessmentDI::getInstance();
         $task_repo = $let_dic->getTaskRepo();
         $resource = $task_repo->getResourceById($a_id);
 
@@ -145,7 +145,7 @@ class ResourceAdmin
     public function deleteResource(?int $a_id = 0, ?bool $a_with_file = true): bool
     {
         global $DIC;
-        $let_dic = LongEssayTaskDI::getInstance();
+        $let_dic = LongEssayAssessmentDI::getInstance();
         $task_repo = $let_dic->getTaskRepo();
         $resource = $task_repo->getResourceById($a_id);
         if ($resource !== null) {

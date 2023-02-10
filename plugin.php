@@ -2,7 +2,7 @@
 /* Copyright (c) 2021 ILIAS open source, Extended GPL, see docs/LICENSE */
 
 // alphanumerical ID of the plugin; never change this
-$id = 'xlet';
+$id = 'xlas';
  
 // code version; must be changed for all code changes
 $version = '0.0.77';

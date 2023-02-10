@@ -1,20 +1,20 @@
 <?php
 
-namespace ILIAS\Plugin\LongEssayTask\WriterAdmin;
+namespace ILIAS\Plugin\LongEssayAssessment\WriterAdmin;
 
-use Edutiek\LongEssayService\Data\WritingStep;
-use Edutiek\LongEssayService\Writer\Service;
+use Edutiek\LongEssayAssessmentService\Data\WritingStep;
+use Edutiek\LongEssayAssessmentService\Writer\Service;
 use ILIAS\Data\UUID\Factory as UUID;
-use ILIAS\Plugin\LongEssayTask\BaseService;
-use ILIAS\Plugin\LongEssayTask\Data\Alert;
-use ILIAS\Plugin\LongEssayTask\Data\DataService;
-use ILIAS\Plugin\LongEssayTask\Data\Essay;
-use ILIAS\Plugin\LongEssayTask\Data\EssayRepository;
-use ILIAS\Plugin\LongEssayTask\Data\LogEntry;
-use ILIAS\Plugin\LongEssayTask\Data\TaskRepository;
-use ILIAS\Plugin\LongEssayTask\Data\Writer;
-use ILIAS\Plugin\LongEssayTask\Data\WriterRepository;
-use ILIAS\Plugin\LongEssayTask\Writer\WriterContext;
+use ILIAS\Plugin\LongEssayAssessment\BaseService;
+use ILIAS\Plugin\LongEssayAssessment\Data\Alert;
+use ILIAS\Plugin\LongEssayAssessment\Data\DataService;
+use ILIAS\Plugin\LongEssayAssessment\Data\Essay;
+use ILIAS\Plugin\LongEssayAssessment\Data\EssayRepository;
+use ILIAS\Plugin\LongEssayAssessment\Data\LogEntry;
+use ILIAS\Plugin\LongEssayAssessment\Data\TaskRepository;
+use ILIAS\Plugin\LongEssayAssessment\Data\Writer;
+use ILIAS\Plugin\LongEssayAssessment\Data\WriterRepository;
+use ILIAS\Plugin\LongEssayAssessment\Writer\WriterContext;
 
 class WriterAdminService extends BaseService
 {
@@ -105,7 +105,7 @@ class WriterAdminService extends BaseService
 
         $storage = $this->dic->filesystem()->temp();
         $basedir = ILIAS_DATA_DIR . '/' . CLIENT_ID . '/temp';
-        $file = 'xlet/'. (new UUID)->uuid4AsString() . '.csv';
+        $file = 'xlas/'. (new UUID)->uuid4AsString() . '.csv';
         $storage->write($file, $csv->getCSVString());
 
         return $basedir . '/' . $file;
@@ -114,12 +114,12 @@ class WriterAdminService extends BaseService
 
     /**
      * Create an export file for the writing steps
-     * @param \ilObjLongEssayTask $object
+     * @param \ilObjLongEssayAssessment $object
      * @param Writer $repoWriter
      * @param string $dirname   name of the directory inside the zip file
      * @return string path to the zip file or null if the export can't be produced
      */
-    public function createWritingStepsExport(\ilObjLongEssayTask $object, Writer $repoWriter, string $dirname) : ?string
+    public function createWritingStepsExport(\ilObjLongEssayAssessment $object, Writer $repoWriter, string $dirname) : ?string
     {
         $repoEssay = $this->essayRepo->getEssayByWriterIdAndTaskId($repoWriter->getId(), $object->getId());
         if (empty($repoEssay)) {
@@ -132,7 +132,7 @@ class WriterAdminService extends BaseService
 
         $storage = $this->dic->filesystem()->temp();
         $basedir = ILIAS_DATA_DIR . '/' . CLIENT_ID . '/temp';
-        $tempdir = 'xlet/'. (new UUID)->uuid4AsString();
+        $tempdir = 'xlas/'. (new UUID)->uuid4AsString();
         $zipdir = $tempdir . '/' . $dirname;
         $storage->createDir($zipdir);
 

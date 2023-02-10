@@ -1,6 +1,6 @@
 <?php
 
-namespace ILIAS\Plugin\LongEssayTask\Data;
+namespace ILIAS\Plugin\LongEssayAssessment\Data;
 
 use ilDatabaseException;
 use Exception;
@@ -109,7 +109,7 @@ class CorrectorDatabaseRepository implements CorrectorRepository
      */
     public function deleteCorrector(int $a_id)
     {
-		$this->database->manipulate("DELETE FROM xlet_corrector" .
+		$this->database->manipulate("DELETE FROM xlas_corrector" .
             " WHERE id = " . $this->database->quote($a_id, "integer"));
 
         $this->deleteCorrectorAssignmentByCorrector($a_id);
@@ -120,42 +120,42 @@ class CorrectorDatabaseRepository implements CorrectorRepository
 
     public function deleteCorrectorAssignmentByCorrector(int $a_corrector_id)
     {
-		$this->database->manipulate("DELETE FROM xlet_corrector_ass" .
+		$this->database->manipulate("DELETE FROM xlas_corrector_ass" .
             " WHERE corrector_id = " . $this->database->quote($a_corrector_id, "integer"));
     }
 
     public function deleteCorrectorAssignment(int $a_writer_id, int $a_corrector_id)
     {
-		$this->database->manipulate("DELETE FROM xlet_corrector_ass" .
+		$this->database->manipulate("DELETE FROM xlas_corrector_ass" .
             " WHERE writer_id = " . $this->database->quote($a_writer_id, "integer") .
             " AND corrector_id = " . $this->database->quote($a_corrector_id, "integer"));
     }
 
     public function deleteCorrectorAssignmentByTask(int $a_task_id)
     {
-		$this->database->manipulate("DELETE ass FROM xlet_corrector_ass AS ass"
-            . " LEFT JOIN xlet_corrector AS corrector ON (ass.corrector_id = corrector.id)"
+		$this->database->manipulate("DELETE ass FROM xlas_corrector_ass AS ass"
+            . " LEFT JOIN xlas_corrector AS corrector ON (ass.corrector_id = corrector.id)"
             . " WHERE corrector.task_id = " . $this->database->quote($a_task_id, "integer"));
     }
 
     public function deleteCorrectorAssignmentByWriter(int $a_writer_id)
     {
-		$this->database->manipulate("DELETE FROM xlet_corrector_ass" .
+		$this->database->manipulate("DELETE FROM xlas_corrector_ass" .
             " WHERE writer_id = " . $this->database->quote($a_writer_id, "integer"));
     }
 
     public function deleteCorrectorByTask(int $a_task_id)
     {
-		$this->database->manipulate("DELETE FROM xlet_corrector" .
+		$this->database->manipulate("DELETE FROM xlas_corrector" .
             " WHERE task_id = " . $this->database->quote($a_task_id, "integer"));
 
-		$this->database->manipulate("DELETE xlet_corrector_ass FROM xlet_corrector_ass AS ass"
-            . " LEFT JOIN xlet_corrector AS corrector ON (ass.corrector_id = corrector.user_id)"
+		$this->database->manipulate("DELETE xlas_corrector_ass FROM xlas_corrector_ass AS ass"
+            . " LEFT JOIN xlas_corrector AS corrector ON (ass.corrector_id = corrector.user_id)"
             . " WHERE corrector.task_id = " . $this->database->quote($a_task_id, "integer"));
     }
 
 	public function getAssignmentsByTaskId(int $a_task_id): array
 	{
-		return CorrectorAssignment::leftjoin("xlet_corrector", 'corrector_id', 'id', [])->where(['task_id' => $a_task_id])->get();
+		return CorrectorAssignment::leftjoin("xlas_corrector", 'corrector_id', 'id', [])->where(['task_id' => $a_task_id])->get();
 	}
 }

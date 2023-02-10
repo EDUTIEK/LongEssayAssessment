@@ -1,19 +1,19 @@
 <?php
 /* Copyright (c) 2021 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-namespace ILIAS\Plugin\LongEssayTask\Task;
+namespace ILIAS\Plugin\LongEssayAssessment\Task;
 
-use ILIAS\Plugin\LongEssayTask\BaseGUI;
-use ILIAS\Plugin\LongEssayTask\Data\CorrectionSettings;
-use ILIAS\Plugin\LongEssayTask\Data\TaskSettings;
+use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
+use ILIAS\Plugin\LongEssayAssessment\Data\CorrectionSettings;
+use ILIAS\Plugin\LongEssayAssessment\Data\TaskSettings;
 use ILIAS\Refinery\Custom\Transformation;
 use \ilUtil;
 
 /**
  * Settings for the correction
  *
- * @package ILIAS\Plugin\LongEssayTask\Task
- * @ilCtrl_isCalledBy ILIAS\Plugin\LongEssayTask\Task\CorrectionSettingsGUI: ilObjLongEssayTaskGUI
+ * @package ILIAS\Plugin\LongEssayAssessment\Task
+ * @ilCtrl_isCalledBy ILIAS\Plugin\LongEssayAssessment\Task\CorrectionSettingsGUI: ilObjLongEssayAssessmentGUI
  */
 class CorrectionSettingsGUI extends BaseGUI
 {

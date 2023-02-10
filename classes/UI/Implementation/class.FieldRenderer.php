@@ -1,11 +1,11 @@
 <?php
 
-namespace ILIAS\Plugin\LongEssayTask\UI\Implementation;
+namespace ILIAS\Plugin\LongEssayAssessment\UI\Implementation;
 
 use ILIAS\UI\Component\Component;
 use ILIAS\UI\Implementation\Component\Input\Field\Input;
 use ILIAS\UI\Implementation\Render\Template;
-use \ILIAS\Plugin\LongEssayTask\UI\Component as F;
+use \ILIAS\Plugin\LongEssayAssessment\UI\Component as F;
 use ILIAS\UI\Renderer as RendererInterface;
 
 class FieldRenderer extends \ILIAS\UI\Implementation\Component\Input\Field\Renderer

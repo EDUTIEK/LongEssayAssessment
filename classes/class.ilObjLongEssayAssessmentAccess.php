@@ -1,13 +1,13 @@
 <?php
 /* Copyright (c) 2021 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-use \ILIAS\Plugin\LongEssayTask\Data\ObjectSettings;
+use \ILIAS\Plugin\LongEssayAssessment\Data\ObjectSettings;
 
 /**
  * Please do not create instances of large application classes
  * Write small methods within this class to determine the status.
  */
-class ilObjLongEssayTaskAccess extends ilObjectPluginAccess
+class ilObjLongEssayAssessmentAccess extends ilObjectPluginAccess
 {
 	/**
 	 * Checks whether a user may invoke a command or not

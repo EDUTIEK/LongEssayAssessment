@@ -1,8 +1,8 @@
 <?php
 
-namespace ILIAS\Plugin\LongEssayTask\Task;
+namespace ILIAS\Plugin\LongEssayAssessment\Task;
 
-use ILIAS\Plugin\LongEssayTask\LongEssayTaskDI;
+use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
 use ILIAS\ResourceStorage\Identification\ResourceIdentification;
 
 class ResourceResourceStakeholder extends \ILIAS\ResourceStorage\Stakeholder\AbstractResourceStakeholder
@@ -22,7 +22,7 @@ class ResourceResourceStakeholder extends \ILIAS\ResourceStorage\Stakeholder\Abs
      */
     public function getId(): string
     {
-        return "xlet";
+        return "xlas";
     }
 
     /**
@@ -35,7 +35,7 @@ class ResourceResourceStakeholder extends \ILIAS\ResourceStorage\Stakeholder\Abs
 
     public function resourceHasBeenDeleted(ResourceIdentification $identification): bool
     {
-		$let_dic = LongEssayTaskDI::getInstance();
+		$let_dic = LongEssayAssessmentDI::getInstance();
 		$task_repo = $let_dic->getTaskRepo();
 		$resource = $task_repo->getResourceByFileId((string) $identification);
 

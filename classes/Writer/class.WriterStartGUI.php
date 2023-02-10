@@ -1,22 +1,22 @@
 <?php
 /* Copyright (c) 2021 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-namespace ILIAS\Plugin\LongEssayTask\Writer;
+namespace ILIAS\Plugin\LongEssayAssessment\Writer;
 
-use Edutiek\LongEssayService\Exceptions\ContextException;
-use Edutiek\LongEssayService\Writer\Service;
-use ILIAS\Plugin\LongEssayTask\BaseGUI;
-use ILIAS\Plugin\LongEssayTask\Data\Resource;
-use ILIAS\Plugin\LongEssayTask\Data\TaskSettings;
-use ILIAS\Plugin\LongEssayTask\LongEssayTaskDI;
-use ILIAS\Plugin\LongEssayTask\Task\ResourceAdmin;
+use Edutiek\LongEssayAssessmentService\Exceptions\ContextException;
+use Edutiek\LongEssayAssessmentService\Writer\Service;
+use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
+use ILIAS\Plugin\LongEssayAssessment\Data\Resource;
+use ILIAS\Plugin\LongEssayAssessment\Data\TaskSettings;
+use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
+use ILIAS\Plugin\LongEssayAssessment\Task\ResourceAdmin;
 use \ilUtil;
 
 /**
  * Start page for writers
  *
- * @package ILIAS\Plugin\LongEssayTask\Writer
- * @ilCtrl_isCalledBy ILIAS\Plugin\LongEssayTask\Writer\WriterStartGUI: ilObjLongEssayTaskGUI
+ * @package ILIAS\Plugin\LongEssayAssessment\Writer
+ * @ilCtrl_isCalledBy ILIAS\Plugin\LongEssayAssessment\Writer\WriterStartGUI: ilObjLongEssayAssessmentGUI
  */
 class WriterStartGUI extends BaseGUI
 {
@@ -144,7 +144,7 @@ class WriterStartGUI extends BaseGUI
 
         // Resources
 
-		$repo = LongEssayTaskDI::getInstance()->getTaskRepo();
+		$repo = LongEssayAssessmentDI::getInstance()->getTaskRepo();
 		$writing_resources = [];
         $solution_items = [];
 

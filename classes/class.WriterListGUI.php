@@ -1,14 +1,14 @@
 <?php
 
-namespace ILIAS\Plugin\LongEssayTask\WriterAdmin;
+namespace ILIAS\Plugin\LongEssayAssessment\WriterAdmin;
 
 use Exception;
-use ILIAS\Plugin\LongEssayTask\Data\Corrector;
-use ILIAS\Plugin\LongEssayTask\Data\Essay;
-use ILIAS\Plugin\LongEssayTask\Data\TimeExtension;
-use ILIAS\Plugin\LongEssayTask\Data\Writer;
-use ILIAS\Plugin\LongEssayTask\Data\WriterHistory;
-use ILIAS\Plugin\LongEssayTask\LongEssayTaskDI;
+use ILIAS\Plugin\LongEssayAssessment\Data\Corrector;
+use ILIAS\Plugin\LongEssayAssessment\Data\Essay;
+use ILIAS\Plugin\LongEssayAssessment\Data\TimeExtension;
+use ILIAS\Plugin\LongEssayAssessment\Data\Writer;
+use ILIAS\Plugin\LongEssayAssessment\Data\WriterHistory;
+use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
 use ILIAS\UI\Component\Symbol\Icon\Icon;
 use function GuzzleHttp\Psr7\str;
 
@@ -37,16 +37,16 @@ abstract class WriterListGUI
 
 	protected \ILIAS\UI\Factory $uiFactory;
 	protected \ilCtrl $ctrl;
-	protected \ilLongEssayTaskPlugin $plugin;
+	protected \ilLongEssayAssessmentPlugin $plugin;
 	protected \ILIAS\UI\Renderer $renderer;
 	protected object $parent;
 	protected string $parent_cmd;
 
-    /** @var LongEssayTaskDI  */
+    /** @var LongEssayAssessmentDI  */
     protected $localDI;
 
 
-    public function __construct(object $parent, string $parent_cmd, \ilLongEssayTaskPlugin $plugin)
+    public function __construct(object $parent, string $parent_cmd, \ilLongEssayAssessmentPlugin $plugin)
 	{
 		global $DIC;
 		$this->parent = $parent;
@@ -55,7 +55,7 @@ abstract class WriterListGUI
 		$this->ctrl = $DIC->ctrl();
 		$this->plugin = $plugin;
 		$this->renderer = $DIC->ui()->renderer();
-        $this->localDI = LongEssayTaskDI::getInstance();
+        $this->localDI = LongEssayAssessmentDI::getInstance();
 	}
 
 	abstract public function getContent():string;

@@ -1,20 +1,20 @@
 <?php
 
-namespace ILIAS\Plugin\LongEssayTask;
+namespace ILIAS\Plugin\LongEssayAssessment;
 
-use Edutiek\LongEssayService\Base\BaseContext;
-use Edutiek\LongEssayService\Data\ApiToken;
-use Edutiek\LongEssayService\Data\EnvResource;
-use Edutiek\LongEssayService\Data\WritingTask;
-use Edutiek\LongEssayService\Exceptions\ContextException;
-use ILIAS\Plugin\LongEssayTask\Data\AccessToken;
-use ILIAS\Plugin\LongEssayTask\Data\DataService;
-use ILIAS\Plugin\LongEssayTask\Data\Resource;
-use ILIAS\Plugin\LongEssayTask\Data\TaskSettings;
+use Edutiek\LongEssayAssessmentService\Base\BaseContext;
+use Edutiek\LongEssayAssessmentService\Data\ApiToken;
+use Edutiek\LongEssayAssessmentService\Data\EnvResource;
+use Edutiek\LongEssayAssessmentService\Data\WritingTask;
+use Edutiek\LongEssayAssessmentService\Exceptions\ContextException;
+use ILIAS\Plugin\LongEssayAssessment\Data\AccessToken;
+use ILIAS\Plugin\LongEssayAssessment\Data\DataService;
+use ILIAS\Plugin\LongEssayAssessment\Data\Resource;
+use ILIAS\Plugin\LongEssayAssessment\Data\TaskSettings;
 use ilContext;
 use \ilObjUser;
 use \ilObject;
-use \ilObjLongEssayTask;
+use \ilObjLongEssayAssessment;
 use ilSession;
 
 abstract class ServiceContext implements BaseContext
@@ -28,13 +28,13 @@ abstract class ServiceContext implements BaseContext
     ];
 
 
-    /** @var \ilLongEssayTaskPlugin */
+    /** @var \ilLongEssayAssessmentPlugin */
     protected $plugin;
 
-    /** @var LongEssayTaskDI */
+    /** @var LongEssayAssessmentDI */
     protected $localDI;
 
-    /** @var ilObjLongEssayTask */
+    /** @var ilObjLongEssayAssessment */
     protected $object;
 
     /** @var ilObjUser */
@@ -51,8 +51,8 @@ abstract class ServiceContext implements BaseContext
      */
     function __construct()
     {
-        $this->plugin = \ilLongEssayTaskPlugin::getInstance();
-        $this->localDI = LongEssayTaskDI::getInstance();
+        $this->plugin = \ilLongEssayAssessmentPlugin::getInstance();
+        $this->localDI = LongEssayAssessmentDI::getInstance();
     }
 
     /**
@@ -67,7 +67,7 @@ abstract class ServiceContext implements BaseContext
         if (!ilObject::_exists($user_id, false, 'usr')) {
             throw new ContextException('User does not exist', ContextException::USER_NOT_VALID);
         }
-        if (!ilObject::_exists($ref_id, true, 'xlet')) {
+        if (!ilObject::_exists($ref_id, true, 'xlas')) {
             throw new ContextException('Object does not exist', ContextException::ENVIRONMENT_NOT_VALID);
         }
         if (ilObject::_isInTrash($ref_id)) {
@@ -81,10 +81,10 @@ abstract class ServiceContext implements BaseContext
             if ($this->plugin->getConfig()->getSimulateOffline()) {
                 throw new ContextException('Network Problem Simulation', ContextException::SERVICE_UNAVAILABLE);
             }
-            \ilLongEssayTaskRestInit::initRestUser($this->user);
+            \ilLongEssayAssessmentRestInit::initRestUser($this->user);
         }
 
-        $this->object = new ilObjLongEssayTask($ref_id);
+        $this->object = new ilObjLongEssayAssessment($ref_id);
 
         if (!$this->object->isOnline()) {
             throw new ContextException('Object is offline', ContextException::ENVIRONMENT_NOT_VALID);

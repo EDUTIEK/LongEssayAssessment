@@ -1,20 +1,20 @@
 <?php
 
-namespace ILIAS\Plugin\LongEssayTask\UI\Component;
+namespace ILIAS\Plugin\LongEssayAssessment\UI\Component;
 
 use ILIAS\UI\Implementation\Component\Symbol\Icon\Icon;
 
 interface IconFactory
 {
 	/**
-	 * Icon für das Plugin „LongEssayTask“
+	 * Icon für das Plugin „LongEssayAssessment“
 	 *
 	 * @param string $label
 	 * @param string $size
 	 * @param bool $is_disabled
 	 * @return Icon
 	 */
-	public function xlet(string $label, string $size = 'small', bool $is_disabled = false): Icon;
+	public function xlas(string $label, string $size = 'small', bool $is_disabled = false): Icon;
 
 	/**
 	 * Icon für „Autorisierung / Approval“

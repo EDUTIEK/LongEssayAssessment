@@ -1,7 +1,7 @@
 <?php
 /* Copyright (c) 2021 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-namespace ILIAS\Plugin\LongEssayTask\Data;
+namespace ILIAS\Plugin\LongEssayAssessment\Data;
 
 /**
  * Plugin Configuration
@@ -83,7 +83,7 @@ class PluginConfig extends ActivePluginRecord
     /**
      * @var string
      */
-    protected $connector_container_name = 'xlet_plugin_config';
+    protected $connector_container_name = 'xlas_plugin_config';
 
     /**
      * @return int

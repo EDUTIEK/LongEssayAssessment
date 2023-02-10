@@ -1,5 +1,5 @@
 <?php
-namespace ILIAS\Plugin\LongEssayTask\UI\Component;
+namespace ILIAS\Plugin\LongEssayAssessment\UI\Component;
 
 use ILIAS\UI\Component\Input\Field\FilterInput;
 use ILIAS\UI\Component\Input\Field\Input;

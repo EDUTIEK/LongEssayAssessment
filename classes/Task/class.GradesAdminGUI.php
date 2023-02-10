@@ -1,12 +1,12 @@
 <?php
 /* Copyright (c) 2021 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-namespace ILIAS\Plugin\LongEssayTask\Task;
+namespace ILIAS\Plugin\LongEssayAssessment\Task;
 
-use ILIAS\Plugin\LongEssayTask\BaseGUI;
-use ILIAS\Plugin\LongEssayTask\Data\GradeLevel;
-use ILIAS\Plugin\LongEssayTask\LongEssayTaskDI;
-use ILIAS\Plugin\LongEssayTask\UI\Implementation\Numeric;
+use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
+use ILIAS\Plugin\LongEssayAssessment\Data\GradeLevel;
+use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
+use ILIAS\Plugin\LongEssayAssessment\UI\Implementation\Numeric;
 use ILIAS\UI\Component\Table\PresentationRow;
 use ILIAS\UI\Factory;
 use \ilUtil;
@@ -14,8 +14,8 @@ use \ilUtil;
 /**
  * Resources Administration
  *
- * @package ILIAS\Plugin\LongEssayTask\Task
- * @ilCtrl_isCalledBy ILIAS\Plugin\LongEssayTask\Task\GradesAdminGUI: ilObjLongEssayTaskGUI
+ * @package ILIAS\Plugin\LongEssayAssessment\Task
+ * @ilCtrl_isCalledBy ILIAS\Plugin\LongEssayAssessment\Task\GradesAdminGUI: ilObjLongEssayAssessmentGUI
  */
 class GradesAdminGUI extends BaseGUI
 {
@@ -46,7 +46,7 @@ class GradesAdminGUI extends BaseGUI
      */
     protected function getItemData()
     {
-		$obj_repo  = LongEssayTaskDI::getInstance()->getObjectRepo();
+		$obj_repo  = LongEssayAssessmentDI::getInstance()->getObjectRepo();
 		$records = $obj_repo->getGradeLevelsByObjectId($this->object->getId());
 		$item_data = [];
 
@@ -84,7 +84,7 @@ class GradesAdminGUI extends BaseGUI
         $this->toolbar->addButtonInstance($button);
 
 		$can_delete = true;
-		$task_repo = LongEssayTaskDI::getInstance()->getTaskRepo();
+		$task_repo = LongEssayAssessmentDI::getInstance()->getTaskRepo();
 		$settings = $task_repo->getTaskSettingsById($this->object->getId());
 
 		if($settings->getCorrectionStart() !== null) {
@@ -154,7 +154,7 @@ class GradesAdminGUI extends BaseGUI
 		}
 
 		$factory = $this->uiFactory->input()->field();
-		$custom_factory = LongEssayTaskDI::getInstance()->getUIFactory();
+		$custom_factory = LongEssayAssessmentDI::getInstance()->getUIFactory();
 		$sections = [];
 
 		$fields = [];
@@ -206,7 +206,7 @@ class GradesAdminGUI extends BaseGUI
 				$record->setMinPoints($data["form"]["points"]);
 				$record->setCode($data["form"]["code"]);
 				$record->setPassed($data["form"]["passed"]);
-				$obj_repo  = LongEssayTaskDI::getInstance()->getObjectRepo();
+				$obj_repo  = LongEssayAssessmentDI::getInstance()->getObjectRepo();
 
 				if($id !== null){
 					$obj_repo->updateGradeLevel($record);
@@ -255,7 +255,7 @@ class GradesAdminGUI extends BaseGUI
 		// TODO: Zwischenfrage hinzufügen!
 		if(($id = $this->getGradeLevelId()) !== null){
 			$this->getGradeLevel($id, true);//Permission check
-			$obj_repo  = LongEssayTaskDI::getInstance()->getObjectRepo();
+			$obj_repo  = LongEssayAssessmentDI::getInstance()->getObjectRepo();
 			$obj_repo->deleteGradeLevel($id);
 			ilUtil::sendSuccess($this->plugin->txt("delete_grade_level_successful"), true);
 		}else{
@@ -278,7 +278,7 @@ class GradesAdminGUI extends BaseGUI
 
 	protected function getGradeLevel(int $id, bool $throw_permission_error = true): ?GradeLevel
 	{
-		$obj_repo  = LongEssayTaskDI::getInstance()->getObjectRepo();
+		$obj_repo  = LongEssayAssessmentDI::getInstance()->getObjectRepo();
 		$record = $obj_repo->getGradeLevelById($id);
 		if($throw_permission_error){
 			$this->checkRecordInObject($record, true);

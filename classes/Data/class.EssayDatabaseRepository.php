@@ -1,6 +1,6 @@
 <?php
 
-namespace ILIAS\Plugin\LongEssayTask\Data;
+namespace ILIAS\Plugin\LongEssayAssessment\Data;
 
 
 /**
@@ -148,132 +148,132 @@ class EssayDatabaseRepository implements EssayRepository
 
     public function deleteEssay(int $a_id)
     {
-		$this->database->manipulate("DELETE FROM xlet_essay" .
+		$this->database->manipulate("DELETE FROM xlas_essay" .
             " WHERE id = " . $this->database->quote($a_id, "integer"));
 
-		$this->database->manipulate("DELETE FROM xlet_access_token" .
+		$this->database->manipulate("DELETE FROM xlas_access_token" .
             " WHERE essay_id = " . $this->database->quote($a_id, "integer"));
-		$this->database->manipulate("DELETE FROM xlet_corrector_summary" .
+		$this->database->manipulate("DELETE FROM xlas_corrector_summary" .
             " WHERE essay_id = " . $this->database->quote($a_id, "integer"));
-		$this->database->manipulate("DELETE FROM xlet_corrector_comment" .
+		$this->database->manipulate("DELETE FROM xlas_corrector_comment" .
             " WHERE essay_id = " . $this->database->quote($a_id, "integer"));
 
-		$this->database->manipulate("DELETE cp FROM xlet_crit_points AS cp"
-            . " LEFT JOIN xlet_corrector_comment AS cc ON (cp.corr_comment_id = cc.id)"
+		$this->database->manipulate("DELETE cp FROM xlas_crit_points AS cp"
+            . " LEFT JOIN xlas_corrector_comment AS cc ON (cp.corr_comment_id = cc.id)"
             . " WHERE cc.essay_id = " . $this->database->quote($a_id, "integer"));
 
-		$this->database->manipulate("DELETE FROM xlet_writer_history" .
+		$this->database->manipulate("DELETE FROM xlas_writer_history" .
             " WHERE essay_id = " . $this->database->quote($a_id, "integer"));
     }
 
     public function deleteEssayByTaskId(int $a_task_id)
     {
-		$this->database->manipulate("DELETE FROM xlet_essay" .
+		$this->database->manipulate("DELETE FROM xlas_essay" .
             " WHERE task_id = " . $this->database->quote($a_task_id, "integer"));
 
-		$this->database->manipulate("DELETE FROM xlet_access_token" .
+		$this->database->manipulate("DELETE FROM xlas_access_token" .
 			" WHERE task_id = " . $this->database->quote($a_task_id, "integer"));
 
-		$this->database->manipulate("DELETE corrector_summary FROM xlet_corrector_summary AS corrector_summary"
-			. " LEFT JOIN xlet_essay AS essay ON (corrector_summary.essay_id = essay.id)"
+		$this->database->manipulate("DELETE corrector_summary FROM xlas_corrector_summary AS corrector_summary"
+			. " LEFT JOIN xlas_essay AS essay ON (corrector_summary.essay_id = essay.id)"
 			. " WHERE essay.task_id = " . $this->database->quote($a_task_id, "integer"));
 
-		$this->database->manipulate("DELETE corrector_comment FROM xlet_corrector_comment AS corrector_comment"
-			. " LEFT JOIN xlet_essay AS essay ON (corrector_comment.essay_id = essay.id)"
+		$this->database->manipulate("DELETE corrector_comment FROM xlas_corrector_comment AS corrector_comment"
+			. " LEFT JOIN xlas_essay AS essay ON (corrector_comment.essay_id = essay.id)"
 			. " WHERE essay.task_id = " . $this->database->quote($a_task_id, "integer"));
 
-		$this->database->manipulate("DELETE crit_points FROM xlet_crit_points AS crit_points"
-			. " LEFT JOIN xlet_corrector_comment AS corrector_comment ON (crit_points.corr_comment_id = corrector_comment.id)"
-			. " LEFT JOIN xlet_essay AS essay ON (corrector_comment.essay_id = essay.id)"
+		$this->database->manipulate("DELETE crit_points FROM xlas_crit_points AS crit_points"
+			. " LEFT JOIN xlas_corrector_comment AS corrector_comment ON (crit_points.corr_comment_id = corrector_comment.id)"
+			. " LEFT JOIN xlas_essay AS essay ON (corrector_comment.essay_id = essay.id)"
 			. " WHERE essay.task_id = " . $this->database->quote($a_task_id, "integer"));
 
-		$this->database->manipulate("DELETE writer_history FROM xlet_writer_history AS writer_history"
-			. " LEFT JOIN xlet_essay AS essay ON (writer_history.essay_id = essay.id)"
+		$this->database->manipulate("DELETE writer_history FROM xlas_writer_history AS writer_history"
+			. " LEFT JOIN xlas_essay AS essay ON (writer_history.essay_id = essay.id)"
 			. " WHERE essay.task_id = " . $this->database->quote($a_task_id, "integer"));
     }
 
     public function deleteEssayByWriterId(int $a_user_id)
     {
-		$this->database->manipulate("DELETE FROM xlet_essay" .
+		$this->database->manipulate("DELETE FROM xlas_essay" .
             " WHERE writer_id = " . $this->database->quote($a_user_id, "integer"));
 
-		$this->database->manipulate("DELETE corrector_summary FROM xlet_corrector_summary AS corrector_summary"
-			. " LEFT JOIN xlet_essay AS essay ON (corrector_summary.essay_id = essay.id)"
+		$this->database->manipulate("DELETE corrector_summary FROM xlas_corrector_summary AS corrector_summary"
+			. " LEFT JOIN xlas_essay AS essay ON (corrector_summary.essay_id = essay.id)"
 			. " WHERE essay.writer_id = " . $this->database->quote($a_user_id, "integer"));
 
-		$this->database->manipulate("DELETE corrector_comment FROM xlet_corrector_comment AS corrector_comment"
-			. " LEFT JOIN xlet_essay AS essay ON (corrector_comment.essay_id = essay.id)"
+		$this->database->manipulate("DELETE corrector_comment FROM xlas_corrector_comment AS corrector_comment"
+			. " LEFT JOIN xlas_essay AS essay ON (corrector_comment.essay_id = essay.id)"
 			. " WHERE essay.writer_id = " . $this->database->quote($a_user_id, "integer"));
 
-		$this->database->manipulate("DELETE crit_points FROM xlet_crit_points AS crit_points"
-			. " LEFT JOIN xlet_corrector_comment AS corrector_comment ON (crit_points.corr_comment_id = corrector_comment.id)"
-			. " LEFT JOIN xlet_essay AS essay ON (corrector_comment.essay_id = essay.id)"
+		$this->database->manipulate("DELETE crit_points FROM xlas_crit_points AS crit_points"
+			. " LEFT JOIN xlas_corrector_comment AS corrector_comment ON (crit_points.corr_comment_id = corrector_comment.id)"
+			. " LEFT JOIN xlas_essay AS essay ON (corrector_comment.essay_id = essay.id)"
 			. " WHERE essay.writer_id = " . $this->database->quote($a_user_id, "integer"));
 
-		$this->database->manipulate("DELETE writer_history FROM xlet_writer_history AS writer_history"
-			. " LEFT JOIN xlet_essay AS essay ON (writer_history.essay_id = essay.id)"
+		$this->database->manipulate("DELETE writer_history FROM xlas_writer_history AS writer_history"
+			. " LEFT JOIN xlas_essay AS essay ON (writer_history.essay_id = essay.id)"
 			. " WHERE essay.writer_id = " . $this->database->quote($a_user_id, "integer"));
 
     }
 
     public function deleteWriterHistory(int $a_id)
     {
-		$this->database->manipulate("DELETE FROM xlet_writer_history" .
+		$this->database->manipulate("DELETE FROM xlas_writer_history" .
             " WHERE id = " . $this->database->quote($a_id, "integer"));
     }
 
     public function deleteCorrectorSummary(int $a_id)
     {
-		$this->database->manipulate("DELETE FROM xlet_corrector_summary" .
+		$this->database->manipulate("DELETE FROM xlas_corrector_summary" .
             " WHERE id = " . $this->database->quote($a_id, "integer"));
     }
 
     public function deleteCorrectorSummaryByCorrectorId(int $a_user_id)
     {
-		$this->database->manipulate("DELETE FROM xlet_corrector_summary" .
+		$this->database->manipulate("DELETE FROM xlas_corrector_summary" .
             " WHERE corrector_id = " . $this->database->quote($a_user_id, "integer"));
     }
 
     public function deleteCorrectorComment(int $a_id)
     {
-		$this->database->manipulate("DELETE FROM xlet_corrector_comment" .
+		$this->database->manipulate("DELETE FROM xlas_corrector_comment" .
             " WHERE id = " . $this->database->quote($a_id, "integer"));
 
-		$this->database->manipulate("DELETE FROM xlet_crit_points" .
+		$this->database->manipulate("DELETE FROM xlas_crit_points" .
             " WHERE corr_comment_id = " . $this->database->quote($a_id, "integer"));
     }
 
     public function deleteCorrectorCommentByCorrectorId(int $a_user_id)
     {
-		$this->database->manipulate("DELETE FROM xlet_corrector_comment" .
+		$this->database->manipulate("DELETE FROM xlas_corrector_comment" .
             " WHERE corrector_id = " . $this->database->quote($a_user_id, "integer"));
 
-		$this->database->manipulate("DELETE cp FROM xlet_crit_points AS cp"
-            . " LEFT JOIN xlet_corrector_comment AS cc ON (cp.corr_comment_id = cc.id)"
+		$this->database->manipulate("DELETE cp FROM xlas_crit_points AS cp"
+            . " LEFT JOIN xlas_corrector_comment AS cc ON (cp.corr_comment_id = cc.id)"
             . " WHERE cc.corrector_id = " . $this->database->quote($a_user_id, "integer"));
     }
 
     public function deleteCriterionPoints(int $a_id)
     {
-		$this->database->manipulate("DELETE FROM xlet_crit_points" .
+		$this->database->manipulate("DELETE FROM xlas_crit_points" .
             " WHERE id = " . $this->database->quote($a_id, "integer"));
     }
 
     public function deleteCriterionPointsByRatingId(int $a_rating_id)
     {
-		$this->database->manipulate("DELETE FROM xlet_crit_points" .
+		$this->database->manipulate("DELETE FROM xlas_crit_points" .
             " WHERE rating_id = " . $this->database->quote($a_rating_id, "integer"));
     }
 
     public function deleteAccessToken(int $a_id)
     {
-		$this->database->manipulate("DELETE FROM xlet_access_token" .
+		$this->database->manipulate("DELETE FROM xlas_access_token" .
             " WHERE id = " . $this->database->quote($a_id, "integer"));
     }
 
     public function deleteAccessTokenByUserIdAndTaskId(int $a_user_id, int $a_task_id, string $a_purpose)
     {
-		$this->database->manipulate("DELETE FROM xlet_access_token" .
+		$this->database->manipulate("DELETE FROM xlas_access_token" .
             " WHERE user_id = " . $this->database->quote($a_user_id, "integer") .
             " AND task_id = " . $this->database->quote($a_task_id, "integer") .
             " AND purpose = " . $this->database->quote($a_purpose, "text"));
@@ -281,23 +281,23 @@ class EssayDatabaseRepository implements EssayRepository
 
     public function deleteAccessTokenByCorrectorId(int $a_corrector_id)
     {
-		$this->database->manipulate("DELETE access_token FROM xlet_access_token AS access_token"
-            . " LEFT JOIN xlet_corrector AS corrector ON (access_token.user_id = corrector.user_id)"
+		$this->database->manipulate("DELETE access_token FROM xlas_access_token AS access_token"
+            . " LEFT JOIN xlas_corrector AS corrector ON (access_token.user_id = corrector.user_id)"
             . " WHERE corrector.id = " . $this->database->quote($a_corrector_id, "integer"));
     }
 
     public function deleteAccessTokenByWriterId(int $a_writer_id)
     {
-		$this->database->manipulate("DELETE access_token FROM xlet_access_token AS access_token"
-            . " LEFT JOIN xlet_writer AS writer ON (access_token.user_id = writer.user_id)"
+		$this->database->manipulate("DELETE access_token FROM xlas_access_token AS access_token"
+            . " LEFT JOIN xlas_writer AS writer ON (access_token.user_id = writer.user_id)"
             . " WHERE writer.id = " . $this->database->quote($a_writer_id, "integer"));
     }
 
 	public function getLastWriterHistoryPerUserByTaskId(int $a_task_id): array
 	{
 		$res = $this->database->queryf("SELECT wh.id as id, wh.essay_id as essay_Id, max(wh.timestamp) as maxc 
-                     FROM xlet_writer_history AS wh
-                     LEFT JOIN xlet_essay AS e ON (wh.essay_id = e.id) 
+                     FROM xlas_writer_history AS wh
+                     LEFT JOIN xlas_essay AS e ON (wh.essay_id = e.id) 
                      WHERE e.task_id = %s group by essay_id", ['integer'], [$a_task_id]);
 
 		$ids = [];

@@ -13,7 +13,7 @@
 <#2>
 <?php
 require_once('Services/Migration/DBUpdate_3560/classes/class.ilDBUpdateNewObjectType.php');
-$type_id = ilDBUpdateNewObjectType::addNewType('xlet', 'Long Essay Task');
+$type_id = ilDBUpdateNewObjectType::addNewType('xlas', 'Long Essay Task');
 $ops_id = ilDBUpdateNewObjectType::addCustomRBACOperation('maintain_task', 'Maintain Task Definition', 'object', 3200);
 ilDBUpdateNewObjectType::addRBACOperation($type_id, $ops_id);
 $ops_id = ilDBUpdateNewObjectType::addCustomRBACOperation('maintain_writers', 'Maintain Writers', 'object', 3210);
@@ -53,9 +53,9 @@ $fields = array(
     ),
 
 );
-if (! $ilDB->tableExists('xlet_plugin_config')) {
-    $ilDB->createTable('xlet_plugin_config', $fields);
-    $ilDB->addPrimaryKey('xlet_plugin_config', array( 'id' ));
+if (! $ilDB->tableExists('xlas_plugin_config')) {
+    $ilDB->createTable('xlas_plugin_config', $fields);
+    $ilDB->addPrimaryKey('xlas_plugin_config', array( 'id' ));
 }
 ?>
 <#4>
@@ -81,9 +81,9 @@ $fields = array(
     ),
 
 );
-if (! $ilDB->tableExists('xlet_object_settings')) {
-    $ilDB->createTable('xlet_object_settings', $fields);
-    $ilDB->addPrimaryKey('xlet_object_settings', array( 'obj_id' ));}
+if (! $ilDB->tableExists('xlas_object_settings')) {
+    $ilDB->createTable('xlas_object_settings', $fields);
+    $ilDB->addPrimaryKey('xlas_object_settings', array( 'obj_id' ));}
 ?>
 <#5>
 <?php
@@ -128,9 +128,9 @@ $fields = array(
     ),
 
 );
-if (! $ilDB->tableExists('xlet_task_settings')) {
-    $ilDB->createTable('xlet_task_settings', $fields);
-    $ilDB->addPrimaryKey('xlet_task_settings', array( 'task_id' ));
+if (! $ilDB->tableExists('xlas_task_settings')) {
+    $ilDB->createTable('xlas_task_settings', $fields);
+    $ilDB->addPrimaryKey('xlas_task_settings', array( 'task_id' ));
 }
 ?>
 <#6>
@@ -167,9 +167,9 @@ $fields = array(
     ),
 
 );
-if (! $ilDB->tableExists('xlet_editor_settings')) {
-    $ilDB->createTable('xlet_editor_settings', $fields);
-    $ilDB->addPrimaryKey('xlet_editor_settings', array( 'task_id' ));
+if (! $ilDB->tableExists('xlas_editor_settings')) {
+    $ilDB->createTable('xlas_editor_settings', $fields);
+    $ilDB->addPrimaryKey('xlas_editor_settings', array( 'task_id' ));
 }
 ?>
 <#7>
@@ -207,12 +207,12 @@ $fields = array(
 	),
 
 );
-if (! $ilDB->tableExists('xlet_corr_setting')) {
-	$ilDB->createTable('xlet_corr_setting', $fields);
-	$ilDB->addPrimaryKey('xlet_corr_setting', array( 'task_id' ));
+if (! $ilDB->tableExists('xlas_corr_setting')) {
+	$ilDB->createTable('xlas_corr_setting', $fields);
+	$ilDB->addPrimaryKey('xlas_corr_setting', array( 'task_id' ));
 
-	if (! $ilDB->sequenceExists('xlet_corr_setting')) {
-		$ilDB->createSequence('xlet_corr_setting');
+	if (! $ilDB->sequenceExists('xlas_corr_setting')) {
+		$ilDB->createSequence('xlas_corr_setting');
 	}
 
 }
@@ -253,12 +253,12 @@ $fields = array(
 	),
 
 );
-if (! $ilDB->tableExists('xlet_alert')) {
-	$ilDB->createTable('xlet_alert', $fields);
-	$ilDB->addPrimaryKey('xlet_alert', array( 'id' ));
-	$ilDB->addIndex("xlet_alert", array("task_id"), "i1");
-	if (! $ilDB->sequenceExists('xlet_alert')) {
-		$ilDB->createSequence('xlet_alert');
+if (! $ilDB->tableExists('xlas_alert')) {
+	$ilDB->createTable('xlas_alert', $fields);
+	$ilDB->addPrimaryKey('xlas_alert', array( 'id' ));
+	$ilDB->addIndex("xlas_alert", array("task_id"), "i1");
+	if (! $ilDB->sequenceExists('xlas_alert')) {
+		$ilDB->createSequence('xlas_alert');
 	}
 
 }
@@ -297,14 +297,14 @@ $fields = array(
 	),
 
 );
-if (! $ilDB->tableExists('xlet_writer')) {
-	$ilDB->createTable('xlet_writer', $fields);
-	$ilDB->addPrimaryKey('xlet_writer', array( 'id' ));
-	$ilDB->addIndex("xlet_writer", array("user_id", "task_id"), "i1");
-	$ilDB->addIndex("xlet_writer", array("task_id"), "i2");
+if (! $ilDB->tableExists('xlas_writer')) {
+	$ilDB->createTable('xlas_writer', $fields);
+	$ilDB->addPrimaryKey('xlas_writer', array( 'id' ));
+	$ilDB->addIndex("xlas_writer", array("user_id", "task_id"), "i1");
+	$ilDB->addIndex("xlas_writer", array("task_id"), "i2");
 
-	if (! $ilDB->sequenceExists('xlet_writer')) {
-		$ilDB->createSequence('xlet_writer');
+	if (! $ilDB->sequenceExists('xlas_writer')) {
+		$ilDB->createSequence('xlas_writer');
 	}
 
 }
@@ -332,14 +332,14 @@ $fields = array(
 	),
 
 );
-if (! $ilDB->tableExists('xlet_corrector')) {
-	$ilDB->createTable('xlet_corrector', $fields);
-	$ilDB->addPrimaryKey('xlet_corrector', array( 'id' ));
-	$ilDB->addIndex("xlet_corrector", array("user_id", "task_id"), "i1");
-	$ilDB->addIndex("xlet_corrector", array("task_id"), "i2");
+if (! $ilDB->tableExists('xlas_corrector')) {
+	$ilDB->createTable('xlas_corrector', $fields);
+	$ilDB->addPrimaryKey('xlas_corrector', array( 'id' ));
+	$ilDB->addIndex("xlas_corrector", array("user_id", "task_id"), "i1");
+	$ilDB->addIndex("xlas_corrector", array("task_id"), "i2");
 
-	if (! $ilDB->sequenceExists('xlet_corrector')) {
-		$ilDB->createSequence('xlet_corrector');
+	if (! $ilDB->sequenceExists('xlas_corrector')) {
+		$ilDB->createSequence('xlas_corrector');
 	}
 
 }
@@ -410,20 +410,20 @@ $fields = array(
 	),
 
 );
-if (! $ilDB->tableExists('xlet_essay')) {
-	$ilDB->createTable('xlet_essay', $fields);
-	$ilDB->addPrimaryKey('xlet_essay', array( 'id' ));
-	$ilDB->addIndex("xlet_essay", array("uuid"), "i1");
+if (! $ilDB->tableExists('xlas_essay')) {
+	$ilDB->createTable('xlas_essay', $fields);
+	$ilDB->addPrimaryKey('xlas_essay', array( 'id' ));
+	$ilDB->addIndex("xlas_essay", array("uuid"), "i1");
 
-	if (! $ilDB->sequenceExists('xlet_essay')) {
-		$ilDB->createSequence('xlet_essay');
+	if (! $ilDB->sequenceExists('xlas_essay')) {
+		$ilDB->createSequence('xlas_essay');
 	}
 }
 ?>
 <#12>
 <?php
-if (! $ilDB->tableColumnExists('xlet_task_settings', 'solution')) {
-    $ilDB->addTableColumn('xlet_task_settings', 'solution', ['type' => 'clob']);
+if (! $ilDB->tableColumnExists('xlas_task_settings', 'solution')) {
+    $ilDB->addTableColumn('xlas_task_settings', 'solution', ['type' => 'clob']);
 }
 ?>
 <#13>
@@ -451,13 +451,13 @@ $fields = array(
 	),
 
 );
-if (! $ilDB->tableExists('xlet_writer_notice')) {
-	$ilDB->createTable('xlet_writer_notice', $fields);
-	$ilDB->addPrimaryKey('xlet_writer_notice', array( 'id' ));
-	$ilDB->addIndex("xlet_writer_notice", array("task_id"), "i1");
+if (! $ilDB->tableExists('xlas_writer_notice')) {
+	$ilDB->createTable('xlas_writer_notice', $fields);
+	$ilDB->addPrimaryKey('xlas_writer_notice', array( 'id' ));
+	$ilDB->addIndex("xlas_writer_notice", array("task_id"), "i1");
 
-	if (! $ilDB->sequenceExists('xlet_writer_notice')) {
-		$ilDB->createSequence('xlet_writer_notice');
+	if (! $ilDB->sequenceExists('xlas_writer_notice')) {
+		$ilDB->createSequence('xlas_writer_notice');
 	}
 
 }
@@ -495,13 +495,13 @@ $fields = array(
 	),
 
 );
-if (! $ilDB->tableExists('xlet_writer_comment')) {
-	$ilDB->createTable('xlet_writer_comment', $fields);
-	$ilDB->addPrimaryKey('xlet_writer_comment', array( 'id' ));
-	$ilDB->addIndex("xlet_writer_comment", array("task_id"), "i1");
+if (! $ilDB->tableExists('xlas_writer_comment')) {
+	$ilDB->createTable('xlas_writer_comment', $fields);
+	$ilDB->addPrimaryKey('xlas_writer_comment', array( 'id' ));
+	$ilDB->addIndex("xlas_writer_comment", array("task_id"), "i1");
 
-	if (! $ilDB->sequenceExists('xlet_writer_comment')) {
-		$ilDB->createSequence('xlet_writer_comment');
+	if (! $ilDB->sequenceExists('xlas_writer_comment')) {
+		$ilDB->createSequence('xlas_writer_comment');
 	}
 
 }
@@ -547,13 +547,13 @@ $fields = array(
 	),
 
 );
-if (! $ilDB->tableExists('xlet_writer_history')) {
-	$ilDB->createTable('xlet_writer_history', $fields);
-	$ilDB->addPrimaryKey('xlet_writer_history', array( 'id' ));
-	$ilDB->addIndex("xlet_writer_history", array("essay_id"), "i1");
+if (! $ilDB->tableExists('xlas_writer_history')) {
+	$ilDB->createTable('xlas_writer_history', $fields);
+	$ilDB->addPrimaryKey('xlas_writer_history', array( 'id' ));
+	$ilDB->addIndex("xlas_writer_history", array("essay_id"), "i1");
 
-	if (! $ilDB->sequenceExists('xlet_writer_history')) {
-		$ilDB->createSequence('xlet_writer_history');
+	if (! $ilDB->sequenceExists('xlas_writer_history')) {
+		$ilDB->createSequence('xlas_writer_history');
 	}
 
 }
@@ -597,14 +597,14 @@ $fields = array(
 	),
 
 );
-if (! $ilDB->tableExists('xlet_corrector_summary')) {
-	$ilDB->createTable('xlet_corrector_summary', $fields);
-	$ilDB->addPrimaryKey('xlet_corrector_summary', array( 'id' ));
-	$ilDB->addIndex("xlet_corrector_summary", array("essay_id"), "i1");
-	$ilDB->addIndex("xlet_corrector_summary", array("essay_id", "corrector_id"), "i2");
+if (! $ilDB->tableExists('xlas_corrector_summary')) {
+	$ilDB->createTable('xlas_corrector_summary', $fields);
+	$ilDB->addPrimaryKey('xlas_corrector_summary', array( 'id' ));
+	$ilDB->addIndex("xlas_corrector_summary", array("essay_id"), "i1");
+	$ilDB->addIndex("xlas_corrector_summary", array("essay_id", "corrector_id"), "i2");
 
-	if (! $ilDB->sequenceExists('xlet_corrector_summary')) {
-		$ilDB->createSequence('xlet_corrector_summary');
+	if (! $ilDB->sequenceExists('xlas_corrector_summary')) {
+		$ilDB->createSequence('xlas_corrector_summary');
 	}
 
 }
@@ -654,13 +654,13 @@ $fields = array(
 	),
 
 );
-if (! $ilDB->tableExists('xlet_corrector_comment')) {
-	$ilDB->createTable('xlet_corrector_comment', $fields);
-	$ilDB->addPrimaryKey('xlet_corrector_comment', array( 'id' ));
-	$ilDB->addIndex("xlet_corrector_comment", array("essay_id"), "i1");
+if (! $ilDB->tableExists('xlas_corrector_comment')) {
+	$ilDB->createTable('xlas_corrector_comment', $fields);
+	$ilDB->addPrimaryKey('xlas_corrector_comment', array( 'id' ));
+	$ilDB->addIndex("xlas_corrector_comment", array("essay_id"), "i1");
 
-	if (! $ilDB->sequenceExists('xlet_corrector_comment')) {
-		$ilDB->createSequence('xlet_corrector_comment');
+	if (! $ilDB->sequenceExists('xlas_corrector_comment')) {
+		$ilDB->createSequence('xlas_corrector_comment');
 	}
 
 }
@@ -704,21 +704,21 @@ $fields = array(
 	),
 
 );
-if (! $ilDB->tableExists('xlet_access_token')) {
-	$ilDB->createTable('xlet_access_token', $fields);
-	$ilDB->addPrimaryKey('xlet_access_token', array( 'id' ));
-	$ilDB->addIndex("xlet_access_token", array("user_id", "essay_id"), "i1");
+if (! $ilDB->tableExists('xlas_access_token')) {
+	$ilDB->createTable('xlas_access_token', $fields);
+	$ilDB->addPrimaryKey('xlas_access_token', array( 'id' ));
+	$ilDB->addIndex("xlas_access_token", array("user_id", "essay_id"), "i1");
 
-	if (! $ilDB->sequenceExists('xlet_access_token')) {
-		$ilDB->createSequence('xlet_access_token');
+	if (! $ilDB->sequenceExists('xlas_access_token')) {
+		$ilDB->createSequence('xlas_access_token');
 	}
 
 }
 ?>
 <#19>
 <?php
-if (! $ilDB->tableColumnExists('xlet_corrector_comment', 'corrector_id')) {
-	$ilDB->addTableColumn('xlet_corrector_comment', 'corrector_id', array(
+if (! $ilDB->tableColumnExists('xlas_corrector_comment', 'corrector_id')) {
+	$ilDB->addTableColumn('xlas_corrector_comment', 'corrector_id', array(
 		'notnull' => '1',
 		'type' => 'integer',
 		'length' => '4',
@@ -727,27 +727,27 @@ if (! $ilDB->tableColumnExists('xlet_corrector_comment', 'corrector_id')) {
 ?>
 <#20>
 <?php
-if ($ilDB->indexExistsByFields('xlet_access_token', array("user_id", "essay_id"))) {
-    $ilDB->dropIndexByFields('xlet_access_token', array("user_id", "essay_id"));
+if ($ilDB->indexExistsByFields('xlas_access_token', array("user_id", "essay_id"))) {
+    $ilDB->dropIndexByFields('xlas_access_token', array("user_id", "essay_id"));
 }
-if ($ilDB->tableColumnExists('xlet_access_token', 'essay_id')) {
-    $ilDB->dropTableColumn('xlet_access_token', 'essay_id');
+if ($ilDB->tableColumnExists('xlas_access_token', 'essay_id')) {
+    $ilDB->dropTableColumn('xlas_access_token', 'essay_id');
 }
-if (!$ilDB->tableColumnExists('xlet_access_token','task_id')) {
-    $ilDB->addTableColumn('xlet_access_token','task_id', [
+if (!$ilDB->tableColumnExists('xlas_access_token','task_id')) {
+    $ilDB->addTableColumn('xlas_access_token','task_id', [
     'notnull' => '1',
     'type' => 'integer',
     'length' => '4',
     ]);
 }
-if (!$ilDB->indexExistsByFields('xlet_access_token', array('user_id'))) {
-    $ilDB->addIndex("xlet_access_token", array("user_id"), "i1");
+if (!$ilDB->indexExistsByFields('xlas_access_token', array('user_id'))) {
+    $ilDB->addIndex("xlas_access_token", array("user_id"), "i1");
 }
-if (!$ilDB->indexExistsByFields('xlet_access_token', array('task_id'))) {
-    $ilDB->addIndex("xlet_access_token", array("task_id"), "i2");
+if (!$ilDB->indexExistsByFields('xlas_access_token', array('task_id'))) {
+    $ilDB->addIndex("xlas_access_token", array("task_id"), "i2");
 }
-if (!$ilDB->indexExistsByFields('xlet_access_token', array('valid_until'))) {
-    $ilDB->addIndex("xlet_access_token", array("valid_until"), "i3");
+if (!$ilDB->indexExistsByFields('xlas_access_token', array('valid_until'))) {
+    $ilDB->addIndex("xlas_access_token", array("valid_until"), "i3");
 }
 ?>
 <#21>
@@ -779,14 +779,14 @@ $fields = array(
 	),
 
 );
-if (! $ilDB->tableExists('xlet_corrector_ass')) {
-	$ilDB->createTable('xlet_corrector_ass', $fields);
-	$ilDB->addPrimaryKey('xlet_corrector_ass', array( 'id' ));
-	$ilDB->addIndex("xlet_corrector_ass", array("writer_id", "corrector_id"), "i1");
-	$ilDB->addIndex("xlet_corrector_ass", array("corrector_id", "writer_id"), "i2");
+if (! $ilDB->tableExists('xlas_corrector_ass')) {
+	$ilDB->createTable('xlas_corrector_ass', $fields);
+	$ilDB->addPrimaryKey('xlas_corrector_ass', array( 'id' ));
+	$ilDB->addIndex("xlas_corrector_ass", array("writer_id", "corrector_id"), "i1");
+	$ilDB->addIndex("xlas_corrector_ass", array("corrector_id", "writer_id"), "i2");
 
-	if (! $ilDB->sequenceExists('xlet_corrector_ass')) {
-		$ilDB->createSequence('xlet_corrector_ass');
+	if (! $ilDB->sequenceExists('xlas_corrector_ass')) {
+		$ilDB->createSequence('xlas_corrector_ass');
 	}
 
 }
@@ -820,14 +820,14 @@ $fields = array(
 	),
 
 );
-if (! $ilDB->tableExists('xlet_time_extension')) {
-	$ilDB->createTable('xlet_time_extension', $fields);
-	$ilDB->addPrimaryKey('xlet_time_extension', array( 'id' ));
-	$ilDB->addIndex("xlet_time_extension", array("writer_id", "task_id"), "i1");
-	$ilDB->addIndex("xlet_time_extension", array("task_id"), "i2");
+if (! $ilDB->tableExists('xlas_time_extension')) {
+	$ilDB->createTable('xlas_time_extension', $fields);
+	$ilDB->addPrimaryKey('xlas_time_extension', array( 'id' ));
+	$ilDB->addIndex("xlas_time_extension", array("writer_id", "task_id"), "i1");
+	$ilDB->addIndex("xlas_time_extension", array("task_id"), "i2");
 
-	if (! $ilDB->sequenceExists('xlet_time_extension')) {
-		$ilDB->createSequence('xlet_time_extension');
+	if (! $ilDB->sequenceExists('xlas_time_extension')) {
+		$ilDB->createSequence('xlas_time_extension');
 	}
 
 }
@@ -861,13 +861,13 @@ $fields = array(
 	),
 
 );
-if (! $ilDB->tableExists('xlet_grade_level')) {
-	$ilDB->createTable('xlet_grade_level', $fields);
-	$ilDB->addPrimaryKey('xlet_grade_level', array( 'id' ));
-	$ilDB->addIndex("xlet_grade_level", array("object_id"), "i1");
+if (! $ilDB->tableExists('xlas_grade_level')) {
+	$ilDB->createTable('xlas_grade_level', $fields);
+	$ilDB->addPrimaryKey('xlas_grade_level', array( 'id' ));
+	$ilDB->addIndex("xlas_grade_level", array("object_id"), "i1");
 
-	if (! $ilDB->sequenceExists('xlet_grade_level')) {
-		$ilDB->createSequence('xlet_grade_level');
+	if (! $ilDB->sequenceExists('xlas_grade_level')) {
+		$ilDB->createSequence('xlas_grade_level');
 	}
 
 }
@@ -905,13 +905,13 @@ $fields = array(
 	),
 
 );
-if (! $ilDB->tableExists('xlet_rating_crit')) {
-	$ilDB->createTable('xlet_rating_crit', $fields);
-	$ilDB->addPrimaryKey('xlet_rating_crit', array( 'id' ));
-	$ilDB->addIndex("xlet_rating_crit", array("object_id"), "i1");
+if (! $ilDB->tableExists('xlas_rating_crit')) {
+	$ilDB->createTable('xlas_rating_crit', $fields);
+	$ilDB->addPrimaryKey('xlas_rating_crit', array( 'id' ));
+	$ilDB->addIndex("xlas_rating_crit", array("object_id"), "i1");
 
-	if (! $ilDB->sequenceExists('xlet_rating_crit')) {
-		$ilDB->createSequence('xlet_rating_crit');
+	if (! $ilDB->sequenceExists('xlas_rating_crit')) {
+		$ilDB->createSequence('xlas_rating_crit');
 	}
 
 }
@@ -945,40 +945,40 @@ $fields = array(
 	),
 
 );
-if (! $ilDB->tableExists('xlet_crit_points')) {
-	$ilDB->createTable('xlet_crit_points', $fields);
-	$ilDB->addPrimaryKey('xlet_crit_points', array( 'id' ));
-	$ilDB->addIndex("xlet_crit_points", array("rating_id", "corr_comment_id"), "i1");
-	$ilDB->addIndex("xlet_crit_points", array("corr_comment_id"), "i2");
+if (! $ilDB->tableExists('xlas_crit_points')) {
+	$ilDB->createTable('xlas_crit_points', $fields);
+	$ilDB->addPrimaryKey('xlas_crit_points', array( 'id' ));
+	$ilDB->addIndex("xlas_crit_points", array("rating_id", "corr_comment_id"), "i1");
+	$ilDB->addIndex("xlas_crit_points", array("corr_comment_id"), "i2");
 
-	if (! $ilDB->sequenceExists('xlet_crit_points')) {
-		$ilDB->createSequence('xlet_crit_points');
+	if (! $ilDB->sequenceExists('xlas_crit_points')) {
+		$ilDB->createSequence('xlas_crit_points');
 	}
 
 }
 ?>
 <#26>
 <?php
-if(!$ilDB->indexExistsByFields("xlet_essay", array("writer_id")))
+if(!$ilDB->indexExistsByFields("xlas_essay", array("writer_id")))
 {
-    $ilDB->addIndex("xlet_essay", array("writer_id"), "i2");
+    $ilDB->addIndex("xlas_essay", array("writer_id"), "i2");
 }
 
-if (!$ilDB->tableColumnExists('xlet_essay','task_id')) {
-    $ilDB->addTableColumn('xlet_essay','task_id', [
+if (!$ilDB->tableColumnExists('xlas_essay','task_id')) {
+    $ilDB->addTableColumn('xlas_essay','task_id', [
         'notnull' => '1',
         'type' => 'integer',
         'length' => '4',
     ]);
-    $ilDB->addIndex("xlet_essay", array("task_id"), "i3");
+    $ilDB->addIndex("xlas_essay", array("task_id"), "i3");
 }
 
 ?>
 <#27>
 <?php
 
-if ($ilDB->tableColumnExists('xlet_access_token','task_id')) {
-    $ilDB->renameTableColumn('xlet_access_token', 'task_id', 'essay_id');
+if ($ilDB->tableColumnExists('xlas_access_token','task_id')) {
+    $ilDB->renameTableColumn('xlas_access_token', 'task_id', 'essay_id');
 }
 ?>
 <#28>
@@ -1031,51 +1031,51 @@ $fields = array(
     ),
 
 );
-if (! $ilDB->tableExists('xlet_resource')) {
-    $ilDB->createTable('xlet_resource', $fields);
-    $ilDB->addPrimaryKey('xlet_resource', array( 'id' ));
-    $ilDB->addIndex("xlet_resource", array("task_id"), "i1");
+if (! $ilDB->tableExists('xlas_resource')) {
+    $ilDB->createTable('xlas_resource', $fields);
+    $ilDB->addPrimaryKey('xlas_resource', array( 'id' ));
+    $ilDB->addIndex("xlas_resource", array("task_id"), "i1");
 
-    if (! $ilDB->sequenceExists('xlet_resource')) {
-        $ilDB->createSequence('xlet_resource');
+    if (! $ilDB->sequenceExists('xlas_resource')) {
+        $ilDB->createSequence('xlas_resource');
     }
 }
 ?>
 <#29>
 <?php
-if ($ilDB->tableColumnExists('xlet_access_token','essay_id')) {
-    $ilDB->renameTableColumn('xlet_access_token', 'essay_id', 'task_id');
+if ($ilDB->tableColumnExists('xlas_access_token','essay_id')) {
+    $ilDB->renameTableColumn('xlas_access_token', 'essay_id', 'task_id');
 }
 ?>
 <#30>
 <?php
-if ($ilDB->indexExistsByFields('xlet_writer_history', ['hash_before'])) {
-    $ilDB->addIndex('xlet_writer_history', ['hash_before'], 'i2');
+if ($ilDB->indexExistsByFields('xlas_writer_history', ['hash_before'])) {
+    $ilDB->addIndex('xlas_writer_history', ['hash_before'], 'i2');
 }
-if ($ilDB->indexExistsByFields('xlet_writer_history', ['hash_after'])) {
-    $ilDB->addIndex('xlet_writer_history', ['hash_after'], 'i3');
+if ($ilDB->indexExistsByFields('xlas_writer_history', ['hash_after'])) {
+    $ilDB->addIndex('xlas_writer_history', ['hash_after'], 'i3');
 }
 ?>
 <#31>
 <?php
-if ($ilDB->tableColumnExists('xlet_resource','file_id')) {
-    $ilDB->modifyTableColumn('xlet_resource','file_id', [
+if ($ilDB->tableColumnExists('xlas_resource','file_id')) {
+    $ilDB->modifyTableColumn('xlas_resource','file_id', [
         'notnull' => '0',
         'type' => 'text',
         'length' => '50',
     ]);
-    $ilDB->addIndex("xlet_resource", array("file_id"), "i2");
+    $ilDB->addIndex("xlas_resource", array("file_id"), "i2");
 }
 ?>
 <#32>
 <?php
-$ilDB->dropPrimaryKey("xlet_resource");
-$ilDB->addPrimaryKey("xlet_resource", array("id"));
+$ilDB->dropPrimaryKey("xlas_resource");
+$ilDB->addPrimaryKey("xlas_resource", array("id"));
 ?>
 <#33>
 <?php
-if (!$ilDB->tableColumnExists('xlet_access_token','purpose')) {
-    $ilDB->addTableColumn('xlet_access_token', 'purpose', [
+if (!$ilDB->tableColumnExists('xlas_access_token','purpose')) {
+    $ilDB->addTableColumn('xlas_access_token', 'purpose', [
         'notnull' => '1',
         'type' => 'text',
         'length' => '10',
@@ -1085,18 +1085,18 @@ if (!$ilDB->tableColumnExists('xlet_access_token','purpose')) {
 ?>
 <#34>
 <?php
-if (!$ilDB->tableColumnExists('xlet_corrector_summary','grade_level_id')) {
-    $ilDB->addTableColumn('xlet_corrector_summary', 'grade_level_id', [
+if (!$ilDB->tableColumnExists('xlas_corrector_summary','grade_level_id')) {
+    $ilDB->addTableColumn('xlas_corrector_summary', 'grade_level_id', [
         'notnull' => '0',
         'type' => 'integer',
         'length' => '4'
     ]);
-    $ilDB->dropTableColumn('xlet_corrector_summary', 'grade_level');
+    $ilDB->dropTableColumn('xlas_corrector_summary', 'grade_level');
 }
 ?>
 <#35>
 <?php
-    $ilDB->modifyTableColumn('xlet_corrector_summary','points', [
+    $ilDB->modifyTableColumn('xlas_corrector_summary','points', [
         'notnull' => '0',
         'type' => 'integer',
         'length' => '4',
@@ -1105,25 +1105,25 @@ if (!$ilDB->tableColumnExists('xlet_corrector_summary','grade_level_id')) {
 ?>
 <#36>
 <?php
-if (!$ilDB->tableColumnExists('xlet_essay','final_grade_level_id')) {
-    $ilDB->addTableColumn('xlet_essay', 'final_grade_level_id', [
+if (!$ilDB->tableColumnExists('xlas_essay','final_grade_level_id')) {
+    $ilDB->addTableColumn('xlas_essay', 'final_grade_level_id', [
         'notnull' => '0',
         'type' => 'integer',
         'length' => '4'
     ]);
-    $ilDB->dropTableColumn('xlet_essay', 'final_grade_level');
+    $ilDB->dropTableColumn('xlas_essay', 'final_grade_level');
 }
 ?>
 <#37>
 <?php
-if (!$ilDB->tableColumnExists('xlet_essay','writing_authorized')) {
-    $ilDB->addTableColumn('xlet_essay', 'writing_authorized', [
+if (!$ilDB->tableColumnExists('xlas_essay','writing_authorized')) {
+    $ilDB->addTableColumn('xlas_essay', 'writing_authorized', [
         'type' => 'timestamp',
     ]);
-    $ilDB->dropTableColumn('xlet_essay', 'is_authorized');
+    $ilDB->dropTableColumn('xlas_essay', 'is_authorized');
 }
-if (!$ilDB->tableColumnExists('xlet_essay','writing_authorized_by')) {
-    $ilDB->addTableColumn('xlet_essay', 'writing_authorized_by', [
+if (!$ilDB->tableColumnExists('xlas_essay','writing_authorized_by')) {
+    $ilDB->addTableColumn('xlas_essay', 'writing_authorized_by', [
         'notnull' => '0',
         'type' => 'integer',
         'length' => '4'
@@ -1132,13 +1132,13 @@ if (!$ilDB->tableColumnExists('xlet_essay','writing_authorized_by')) {
 ?>
 <#38>
 <?php
-if (!$ilDB->tableColumnExists('xlet_essay','correction_finalized')) {
-    $ilDB->addTableColumn('xlet_essay', 'correction_finalized', [
+if (!$ilDB->tableColumnExists('xlas_essay','correction_finalized')) {
+    $ilDB->addTableColumn('xlas_essay', 'correction_finalized', [
         'type' => 'timestamp',
     ]);
 }
-if (!$ilDB->tableColumnExists('xlet_essay','correction_finalized_by')) {
-    $ilDB->addTableColumn('xlet_essay', 'correction_finalized_by', [
+if (!$ilDB->tableColumnExists('xlas_essay','correction_finalized_by')) {
+    $ilDB->addTableColumn('xlas_essay', 'correction_finalized_by', [
         'notnull' => '0',
         'type' => 'integer',
         'length' => '4'
@@ -1147,27 +1147,27 @@ if (!$ilDB->tableColumnExists('xlet_essay','correction_finalized_by')) {
 ?>
 <#39>
 <?php
-    $ilDB->modifyTableColumn('xlet_essay', 'final_points', [
+    $ilDB->modifyTableColumn('xlas_essay', 'final_points', [
         'type' => 'float'
     ]);
 ?>
 <#40>
 <?php
-if (!$ilDB->tableColumnExists('xlet_corrector_summary','last_change')) {
-    $ilDB->addTableColumn('xlet_essay', 'last_change', [
+if (!$ilDB->tableColumnExists('xlas_corrector_summary','last_change')) {
+    $ilDB->addTableColumn('xlas_essay', 'last_change', [
         'type' => 'timestamp',
     ]);
 }
 ?>
 <#41>
 <?php
-if (!$ilDB->tableColumnExists('xlet_corrector_summary','correction_authorized')) {
-    $ilDB->addTableColumn('xlet_essay', 'correction_authorized', [
+if (!$ilDB->tableColumnExists('xlas_corrector_summary','correction_authorized')) {
+    $ilDB->addTableColumn('xlas_essay', 'correction_authorized', [
         'type' => 'timestamp',
     ]);
 }
-if (!$ilDB->tableColumnExists('xlet_corrector_summary','correction_authorized_by')) {
-    $ilDB->addTableColumn('xlet_essay', 'correction_authorized_by', [
+if (!$ilDB->tableColumnExists('xlas_corrector_summary','correction_authorized_by')) {
+    $ilDB->addTableColumn('xlas_essay', 'correction_authorized_by', [
         'notnull' => '0',
         'type' => 'integer',
         'length' => '4'
@@ -1176,8 +1176,8 @@ if (!$ilDB->tableColumnExists('xlet_corrector_summary','correction_authorized_by
 ?>
 <#42>
 <?php
-if (!$ilDB->tableColumnExists('xlet_corr_setting','max_auto_distance')) {
-    $ilDB->addTableColumn('xlet_corr_setting', 'max_auto_distance', [
+if (!$ilDB->tableColumnExists('xlas_corr_setting','max_auto_distance')) {
+    $ilDB->addTableColumn('xlas_corr_setting', 'max_auto_distance', [
         'notnull' => '1',
         'type' => 'integer',
         'length' => '4',
@@ -1216,13 +1216,13 @@ $fields = array(
 	),
 
 );
-if (! $ilDB->tableExists('xlet_log_entry')) {
-	$ilDB->createTable('xlet_log_entry', $fields);
-	$ilDB->addPrimaryKey('xlet_log_entry', array( 'id' ));
-	$ilDB->addIndex("xlet_log_entry", array("task_id"), "i1");
+if (! $ilDB->tableExists('xlas_log_entry')) {
+	$ilDB->createTable('xlas_log_entry', $fields);
+	$ilDB->addPrimaryKey('xlas_log_entry', array( 'id' ));
+	$ilDB->addIndex("xlas_log_entry", array("task_id"), "i1");
 
-	if (! $ilDB->sequenceExists('xlet_log_entry')) {
-		$ilDB->createSequence('xlet_log_entry');
+	if (! $ilDB->sequenceExists('xlas_log_entry')) {
+		$ilDB->createSequence('xlas_log_entry');
 	}
 
 }
@@ -1230,8 +1230,8 @@ if (! $ilDB->tableExists('xlet_log_entry')) {
 <#44>
 <?php
 //
-//if (!$ilDB->tableColumnExists('xlet_log_entry','title')) {
-//	$ilDB->addTableColumn('xlet_log_entry', 'title', [
+//if (!$ilDB->tableColumnExists('xlas_log_entry','title')) {
+//	$ilDB->addTableColumn('xlas_log_entry', 'title', [
 //		'notnull' => '1',
 //		'type' => 'text',
 //		'length' => '255',
@@ -1241,27 +1241,27 @@ if (! $ilDB->tableExists('xlet_log_entry')) {
 <#45>
 <?php
 //
-//if (!$ilDB->tableColumnExists('xlet_writer_notice','title')) {
-//	$ilDB->addTableColumn('xlet_writer_notice', 'title', [
+//if (!$ilDB->tableColumnExists('xlas_writer_notice','title')) {
+//	$ilDB->addTableColumn('xlas_writer_notice', 'title', [
 //		'notnull' => '1',
 //		'type' => 'text',
 //		'length' => '255',
 //	]);
 //}
-if (!$ilDB->tableColumnExists('xlet_writer_notice','writer_id')) {
-	$ilDB->addTableColumn('xlet_writer_notice', 'writer_id', [
+if (!$ilDB->tableColumnExists('xlas_writer_notice','writer_id')) {
+	$ilDB->addTableColumn('xlas_writer_notice', 'writer_id', [
 		'notnull' => '1',
 		'type' => 'integer',
 		'length' => '4',
 	]);
-	$ilDB->addIndex("xlet_writer_notice", array("writer_id"), "i2");
+	$ilDB->addIndex("xlas_writer_notice", array("writer_id"), "i2");
 }
 ?>
 <#46>
 <?php
 
-if ($ilDB->tableColumnExists('xlet_writer_notice','writer_id')) {
-	$ilDB->modifyTableColumn('xlet_writer_notice', 'writer_id', [
+if ($ilDB->tableColumnExists('xlas_writer_notice','writer_id')) {
+	$ilDB->modifyTableColumn('xlas_writer_notice', 'writer_id', [
 		'notnull' => '0',
 		'type' => 'integer',
 		'length' => '4',
@@ -1271,17 +1271,17 @@ if ($ilDB->tableColumnExists('xlet_writer_notice','writer_id')) {
 <#47>
 <?php
 
-if (!$ilDB->tableColumnExists('xlet_alert','writer_id')) {
-	$ilDB->addTableColumn('xlet_alert', 'writer_id', [
+if (!$ilDB->tableColumnExists('xlas_alert','writer_id')) {
+	$ilDB->addTableColumn('xlas_alert', 'writer_id', [
 		'notnull' => '0',
 		'type' => 'integer',
 		'length' => '4',
 	]);
-	$ilDB->addIndex("xlet_alert", array("writer_id"), "i2");
+	$ilDB->addIndex("xlas_alert", array("writer_id"), "i2");
 }
 
-if ($ilDB->tableColumnExists('xlet_alert','title')) {
-	$ilDB->modifyTableColumn('xlet_alert', 'title', [
+if ($ilDB->tableColumnExists('xlas_alert','title')) {
+	$ilDB->modifyTableColumn('xlas_alert', 'title', [
 		'notnull' => '0',
 		'type' => 'text',
 		'length' => '255',
@@ -1291,13 +1291,13 @@ if ($ilDB->tableColumnExists('xlet_alert','title')) {
 ?>
 <#48>
 <?php
-if (!$ilDB->tableColumnExists('xlet_essay','writing_excluded')) {
-	$ilDB->addTableColumn('xlet_essay', 'writing_excluded', [
+if (!$ilDB->tableColumnExists('xlas_essay','writing_excluded')) {
+	$ilDB->addTableColumn('xlas_essay', 'writing_excluded', [
 		'type' => 'timestamp',
 	]);
 }
-if (!$ilDB->tableColumnExists('xlet_essay','writing_excluded_by')) {
-	$ilDB->addTableColumn('xlet_essay', 'writing_excluded_by', [
+if (!$ilDB->tableColumnExists('xlas_essay','writing_excluded_by')) {
+	$ilDB->addTableColumn('xlas_essay', 'writing_excluded_by', [
 		'notnull' => '0',
 		'type' => 'integer',
 		'length' => '4'
@@ -1306,16 +1306,16 @@ if (!$ilDB->tableColumnExists('xlet_essay','writing_excluded_by')) {
 ?>
 <#49>
 <?php
-if (!$ilDB->tableColumnExists('xlet_grade_level','code')) {
-	$ilDB->addTableColumn('xlet_grade_level', 'code', [
+if (!$ilDB->tableColumnExists('xlas_grade_level','code')) {
+	$ilDB->addTableColumn('xlas_grade_level', 'code', [
         'notnull' => '0',
         'type' => 'text',
         'length' => '255',
 	]);
 }
 
-if (!$ilDB->tableColumnExists('xlet_grade_level','passed')) {
-	$ilDB->addTableColumn('xlet_grade_level', 'passed', [
+if (!$ilDB->tableColumnExists('xlas_grade_level','passed')) {
+	$ilDB->addTableColumn('xlas_grade_level', 'passed', [
 		'notnull' => '1',
 		'type' => 'integer',
 		'length' => '1',
@@ -1325,18 +1325,18 @@ if (!$ilDB->tableColumnExists('xlet_grade_level','passed')) {
 ?>
 <#50>
 <?php
-if (!$ilDB->tableColumnExists('xlet_corrector_summary','last_change')) {
-    $ilDB->addTableColumn('xlet_corrector_summary', 'last_change', [
+if (!$ilDB->tableColumnExists('xlas_corrector_summary','last_change')) {
+    $ilDB->addTableColumn('xlas_corrector_summary', 'last_change', [
         'type' => 'timestamp',
     ]);
 }
-if (!$ilDB->tableColumnExists('xlet_corrector_summary','correction_authorized')) {
-    $ilDB->addTableColumn('xlet_corrector_summary', 'correction_authorized', [
+if (!$ilDB->tableColumnExists('xlas_corrector_summary','correction_authorized')) {
+    $ilDB->addTableColumn('xlas_corrector_summary', 'correction_authorized', [
         'type' => 'timestamp',
     ]);
 }
-if (!$ilDB->tableColumnExists('xlet_corrector_summary','correction_authorized_by')) {
-    $ilDB->addTableColumn('xlet_corrector_summary', 'correction_authorized_by', [
+if (!$ilDB->tableColumnExists('xlas_corrector_summary','correction_authorized_by')) {
+    $ilDB->addTableColumn('xlas_corrector_summary', 'correction_authorized_by', [
         'notnull' => '0',
         'type' => 'integer',
         'length' => 4,
@@ -1346,8 +1346,8 @@ if (!$ilDB->tableColumnExists('xlet_corrector_summary','correction_authorized_by
 ?>
 <#51>
 <?php
-if ($ilDB->tableColumnExists('xlet_corr_setting','max_auto_distance')) {
-    $ilDB->modifyTableColumn('xlet_corr_setting', 'max_auto_distance', [
+if ($ilDB->tableColumnExists('xlas_corr_setting','max_auto_distance')) {
+    $ilDB->modifyTableColumn('xlas_corr_setting', 'max_auto_distance', [
         'notnull' => '1',
         'type' => 'float',
         'default' => 0
@@ -1356,8 +1356,8 @@ if ($ilDB->tableColumnExists('xlet_corr_setting','max_auto_distance')) {
 ?>
 <#52>
 <?php
-if ($ilDB->tableColumnExists('xlet_corr_setting','max_auto_distance')) {
-    $ilDB->modifyTableColumn('xlet_corr_setting', 'max_auto_distance', [
+if ($ilDB->tableColumnExists('xlas_corr_setting','max_auto_distance')) {
+    $ilDB->modifyTableColumn('xlas_corr_setting', 'max_auto_distance', [
         'notnull' => '1',
         'type' => 'float',
         'default' => 0
@@ -1366,10 +1366,10 @@ if ($ilDB->tableColumnExists('xlet_corr_setting','max_auto_distance')) {
 ?>
 <#53>
 <?php
-if ($ilDB->tableColumnExists('xlet_corr_setting','mutual_visibility')) {
-    $ilDB->dropTableColumn('xlet_corr_setting', 'mutual_visibility');
+if ($ilDB->tableColumnExists('xlas_corr_setting','mutual_visibility')) {
+    $ilDB->dropTableColumn('xlas_corr_setting', 'mutual_visibility');
 }
-$ilDB->addTableColumn('xlet_corr_setting', 'mutual_visibility', [
+$ilDB->addTableColumn('xlas_corr_setting', 'mutual_visibility', [
     'notnull' => '1',
     'type' => 'integer',
     'length' => 4,
@@ -1378,8 +1378,8 @@ $ilDB->addTableColumn('xlet_corr_setting', 'mutual_visibility', [
 ?>
 <#54>
 <?php
-if (!$ilDB->tableColumnExists('xlet_corr_setting','assign_mode')) {
-    $ilDB->addTableColumn('xlet_corr_setting', 'assign_mode', [
+if (!$ilDB->tableColumnExists('xlas_corr_setting','assign_mode')) {
+    $ilDB->addTableColumn('xlas_corr_setting', 'assign_mode', [
         'notnull' => '1',
         'type' => 'text',
         'length' => '50',
@@ -1389,8 +1389,8 @@ if (!$ilDB->tableColumnExists('xlet_corr_setting','assign_mode')) {
 ?>
 <#55>
 <?php
-if ($ilDB->tableColumnExists('xlet_grade_level','min_points')) {
-	$ilDB->modifyTableColumn('xlet_grade_level', 'min_points', array(
+if ($ilDB->tableColumnExists('xlas_grade_level','min_points')) {
+	$ilDB->modifyTableColumn('xlas_grade_level', 'min_points', array(
 		'notnull' => '1',
 		'type' => 'float'
 	));
@@ -1398,8 +1398,8 @@ if ($ilDB->tableColumnExists('xlet_grade_level','min_points')) {
 ?>
 <#56>
 <?php
-if ($ilDB->tableColumnExists('xlet_corrector_summary','points')) {
-    $ilDB->modifyTableColumn('xlet_corrector_summary', 'points', array(
+if ($ilDB->tableColumnExists('xlas_corrector_summary','points')) {
+    $ilDB->modifyTableColumn('xlas_corrector_summary', 'points', array(
         'notnull' => '0',
         'type' => 'float'
     ));
@@ -1407,8 +1407,8 @@ if ($ilDB->tableColumnExists('xlet_corrector_summary','points')) {
 ?>
 <#57>
 <?php
-if (!$ilDB->tableColumnExists('xlet_plugin_config','primary_color')) {
-    $ilDB->addTableColumn('xlet_plugin_config', 'primary_color', array(
+if (!$ilDB->tableColumnExists('xlas_plugin_config','primary_color')) {
+    $ilDB->addTableColumn('xlas_plugin_config', 'primary_color', array(
         'type' => 'text',
         'length' => '250'
     ));
@@ -1416,8 +1416,8 @@ if (!$ilDB->tableColumnExists('xlet_plugin_config','primary_color')) {
 ?>
 <#58>
 <?php
-if (!$ilDB->tableColumnExists('xlet_plugin_config','primary_text_color')) {
-    $ilDB->addTableColumn('xlet_plugin_config', 'primary_text_color', array(
+if (!$ilDB->tableColumnExists('xlas_plugin_config','primary_text_color')) {
+    $ilDB->addTableColumn('xlas_plugin_config', 'primary_text_color', array(
         'type' => 'text',
         'length' => '250'
     ));
@@ -1425,37 +1425,37 @@ if (!$ilDB->tableColumnExists('xlet_plugin_config','primary_text_color')) {
 ?>
 <#59>
 <?php
-if (!$ilDB->tableColumnExists('xlet_essay','stitch_comment')) {
-    $ilDB->addTableColumn('xlet_essay', 'stitch_comment', array(
+if (!$ilDB->tableColumnExists('xlas_essay','stitch_comment')) {
+    $ilDB->addTableColumn('xlas_essay', 'stitch_comment', array(
         'type' => 'clob'
     ));
 }
 ?>
 <#60>
 <?php
-if (!$ilDB->tableColumnExists('xlet_task_settings','keep_essay_available')) {
-    $ilDB->addTableColumn('xlet_task_settings', 'keep_essay_available', array(
+if (!$ilDB->tableColumnExists('xlas_task_settings','keep_essay_available')) {
+    $ilDB->addTableColumn('xlas_task_settings', 'keep_essay_available', array(
         'notnull' => '1',
         'type' => 'integer',
         'length' => 4,
         'default' => 0
     ));
 }
-if (!$ilDB->tableColumnExists('xlet_task_settings','solution_available_date')) {
-    $ilDB->addTableColumn('xlet_task_settings', 'solution_available_date', array(
+if (!$ilDB->tableColumnExists('xlas_task_settings','solution_available_date')) {
+    $ilDB->addTableColumn('xlas_task_settings', 'solution_available_date', array(
         'type' => 'timestamp'
     ));
 }
-if (!$ilDB->tableColumnExists('xlet_task_settings','result_available_type')) {
-    $ilDB->addTableColumn('xlet_task_settings', 'result_available_type', array(
+if (!$ilDB->tableColumnExists('xlas_task_settings','result_available_type')) {
+    $ilDB->addTableColumn('xlas_task_settings', 'result_available_type', array(
         'notnull' => '1',
         'type' => 'text',
         'length' => '10',
         'default' => 'review'
     ));
 }
-if (!$ilDB->tableColumnExists('xlet_task_settings','result_available_date')) {
-    $ilDB->addTableColumn('xlet_task_settings', 'result_available_date', array(
+if (!$ilDB->tableColumnExists('xlas_task_settings','result_available_date')) {
+    $ilDB->addTableColumn('xlas_task_settings', 'result_available_date', array(
         'type' => 'timestamp'
     ));
 }
@@ -1463,8 +1463,8 @@ if (!$ilDB->tableColumnExists('xlet_task_settings','result_available_date')) {
 ?>
 <#61>
 <?php
-if (!$ilDB->tableColumnExists('xlet_task_settings','solution_available')) {
-    $ilDB->addTableColumn('xlet_task_settings', 'solution_available', array(
+if (!$ilDB->tableColumnExists('xlas_task_settings','solution_available')) {
+    $ilDB->addTableColumn('xlas_task_settings', 'solution_available', array(
         'notnull' => '1',
         'type' => 'integer',
         'length' => 4,
@@ -1474,8 +1474,8 @@ if (!$ilDB->tableColumnExists('xlet_task_settings','solution_available')) {
 ?>
 <#62>
 <?php
-if (!$ilDB->tableColumnExists('xlet_plugin_config','simulate_offline')) {
-    $ilDB->addTableColumn('xlet_plugin_config', 'simulate_offline', array(
+if (!$ilDB->tableColumnExists('xlas_plugin_config','simulate_offline')) {
+    $ilDB->addTableColumn('xlas_plugin_config', 'simulate_offline', array(
         'notnull' => '1',
         'type' => 'integer',
         'length' => 4,
@@ -1485,8 +1485,8 @@ if (!$ilDB->tableColumnExists('xlet_plugin_config','simulate_offline')) {
 ?>
 <#63>
 <?php
-if (!$ilDB->tableColumnExists('xlet_corr_setting','stitch_when_distance')) {
-    $ilDB->addTableColumn('xlet_corr_setting', 'stitch_when_distance', array(
+if (!$ilDB->tableColumnExists('xlas_corr_setting','stitch_when_distance')) {
+    $ilDB->addTableColumn('xlas_corr_setting', 'stitch_when_distance', array(
         'notnull' => '1',
         'type' => 'integer',
         'length' => 4,
@@ -1496,8 +1496,8 @@ if (!$ilDB->tableColumnExists('xlet_corr_setting','stitch_when_distance')) {
 ?>
 <#64>
 <?php
-if (!$ilDB->tableColumnExists('xlet_corr_setting','stitch_when_decimals')) {
-    $ilDB->addTableColumn('xlet_corr_setting', 'stitch_when_decimals', array(
+if (!$ilDB->tableColumnExists('xlas_corr_setting','stitch_when_decimals')) {
+    $ilDB->addTableColumn('xlas_corr_setting', 'stitch_when_decimals', array(
         'notnull' => '1',
         'type' => 'integer',
         'length' => 4,

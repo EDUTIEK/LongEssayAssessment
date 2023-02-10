@@ -1,6 +1,6 @@
 <?php
 
-namespace ILIAS\Plugin\LongEssayTask\Data;
+namespace ILIAS\Plugin\LongEssayAssessment\Data;
 
 
 /**
@@ -117,10 +117,10 @@ class ObjectDatabaseRepository implements ObjectRepository
 
     public function deleteObject(int $a_id)
     {
-		$this->database->manipulate("DELETE FROM xlet_object_settings" .
+		$this->database->manipulate("DELETE FROM xlas_object_settings" .
             " WHERE obj_id = " . $this->database->quote($a_id, "integer"));
 
-		$this->database->manipulate("DELETE FROM xlet_plugin_config" .
+		$this->database->manipulate("DELETE FROM xlas_plugin_config" .
             " WHERE id = " . $this->database->quote($a_id, "integer"));
 
         $this->deleteGradeLevelByObjectId($a_id);
@@ -130,25 +130,25 @@ class ObjectDatabaseRepository implements ObjectRepository
 
     public function deleteGradeLevelByObjectId(int $a_object_id)
     {
-		$this->database->manipulate("DELETE FROM xlet_grade_level" .
+		$this->database->manipulate("DELETE FROM xlas_grade_level" .
             " WHERE object_id = " . $this->database->quote($a_object_id, "integer"));
     }
 
     public function deleteRatingCriterionByObjectId(int $a_object_id)
     {
-		$this->database->manipulate("DELETE FROM xlet_rating_crit" .
+		$this->database->manipulate("DELETE FROM xlas_rating_crit" .
             " WHERE object_id = " . $this->database->quote($a_object_id, "integer"));
     }
 
     public function deleteGradeLevel(int $a_id)
     {
-		$this->database->manipulate("DELETE FROM xlet_grade_level" .
+		$this->database->manipulate("DELETE FROM xlas_grade_level" .
             " WHERE id = " . $this->database->quote($a_id, "integer"));
     }
 
     public function deleteRatingCriterion(int $a_id)
     {
-		$this->database->manipulate("DELETE FROM xlet_rating_crit" .
+		$this->database->manipulate("DELETE FROM xlas_rating_crit" .
             " WHERE id = " . $this->database->quote($a_id, "integer"));
 
         $this->essay_repo->deleteCriterionPointsByRatingId($a_id);

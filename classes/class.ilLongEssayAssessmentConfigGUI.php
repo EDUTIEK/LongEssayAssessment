@@ -2,20 +2,20 @@
 /* Copyright (c) 2021 ILIAS open source, Extended GPL, see docs/LICENSE */
 
 use ILIAS\DI\Container;
-use ILIAS\Plugin\LongEssayTask\Data\PluginConfig;
+use ILIAS\Plugin\LongEssayAssessment\Data\PluginConfig;
 
 /**
  * Plugin Configuration GUI
  * @author Fred Neumann <fred.neumann@ilias.de>
  *
- * @ilCtrl_Calls: ilLongEssayTaskConfigGUI: ilPropertyFormGUI
+ * @ilCtrl_Calls: ilLongEssayAssessmentConfigGUI: ilPropertyFormGUI
  */
-class ilLongEssayTaskConfigGUI extends ilPluginConfigGUI
+class ilLongEssayAssessmentConfigGUI extends ilPluginConfigGUI
 {
     /** @var Container */
     protected $dic;
 
-	/** @var ilLongEssayTaskPlugin  */
+	/** @var ilLongEssayAssessmentPlugin  */
 	protected $plugin;
 
 	/** @var PluginConfig  */
@@ -188,7 +188,7 @@ class ilLongEssayTaskConfigGUI extends ilPluginConfigGUI
      */
 	protected function generateDBUpdate()
     {
-        $arBuilder = new arBuilder(new \ILIAS\Plugin\LongEssayTask\Data\LogEntry());
+        $arBuilder = new arBuilder(new \ILIAS\Plugin\LongEssayAssessment\Data\LogEntry());
         $arBuilder->generateDBUpdateForInstallation();
     }
 

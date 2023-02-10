@@ -1,16 +1,16 @@
 <?php
 
 
-namespace ILIAS\Plugin\LongEssayTask\Data;
+namespace ILIAS\Plugin\LongEssayAssessment\Data;
 
 use ActiveRecord;
 use arConnector;
-use ilLongEssayTaskPlugin;
+use ilLongEssayAssessmentPlugin;
 
 /**
  * Base class for the active records in the plugin
  *
- * @package ILIAS\Plugin\LongEssayTask\Data
+ * @package ILIAS\Plugin\LongEssayAssessment\Data
  */
 abstract class ActivePluginRecord extends ActiveRecord
 {
@@ -20,7 +20,7 @@ abstract class ActivePluginRecord extends ActiveRecord
     protected $ar_safe_read = false;
 
     /**
-     * @var ilLongEssayTaskPlugin
+     * @var ilLongEssayAssessmentPlugin
      */
     protected $plugin;
 
@@ -35,7 +35,7 @@ abstract class ActivePluginRecord extends ActiveRecord
     {
         parent::__construct($primary_key, $connector);
 
-        $this->plugin = ilLongEssayTaskPlugin::getInstance();
+        $this->plugin = ilLongEssayAssessmentPlugin::getInstance();
     }
 
     /**

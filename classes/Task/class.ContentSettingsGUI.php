@@ -1,19 +1,19 @@
 <?php
 /* Copyright (c) 2021 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-namespace ILIAS\Plugin\LongEssayTask\Task;
+namespace ILIAS\Plugin\LongEssayAssessment\Task;
 
-use ILIAS\Plugin\LongEssayTask\BaseGUI;
-use ILIAS\Plugin\LongEssayTask\Data\ObjectSettings;
-use ILIAS\Plugin\LongEssayTask\Data\TaskSettings;
-use ILIAS\Plugin\LongEssayTask\LongEssayTaskDI;
+use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
+use ILIAS\Plugin\LongEssayAssessment\Data\ObjectSettings;
+use ILIAS\Plugin\LongEssayAssessment\Data\TaskSettings;
+use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
 use \ilUtil;
 
 /**
  * Definition of the task content
  *
- * @package ILIAS\Plugin\LongEssayTask\Task
- * @ilCtrl_isCalledBy ILIAS\Plugin\LongEssayTask\Task\ContentSettingsGUI: ilObjLongEssayTaskGUI
+ * @package ILIAS\Plugin\LongEssayAssessment\Task
+ * @ilCtrl_isCalledBy ILIAS\Plugin\LongEssayAssessment\Task\ContentSettingsGUI: ilObjLongEssayAssessmentGUI
  */
 class ContentSettingsGUI extends BaseGUI
 {
@@ -42,7 +42,7 @@ class ContentSettingsGUI extends BaseGUI
      */
     protected function editSettings()
     {
-        $di = LongEssayTaskDI::getInstance();
+        $di = LongEssayAssessmentDI::getInstance();
         $task_repo = $di->getTaskRepo();
         $taskSettings = $task_repo->getTaskSettingsById($this->object->getId());
 
@@ -76,7 +76,7 @@ class ContentSettingsGUI extends BaseGUI
      */
     protected function updateContentSettings(array $a_data, TaskSettings $a_task_settings)
     {
-        $di = LongEssayTaskDI::getInstance();
+        $di = LongEssayAssessmentDI::getInstance();
         $task_repo = $di->getTaskRepo();
 
         $a_task_settings->setDescription($a_data["task_description"]);

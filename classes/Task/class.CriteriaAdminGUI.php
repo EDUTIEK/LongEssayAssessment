@@ -1,10 +1,10 @@
 <?php
 /* Copyright (c) 2021 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-namespace ILIAS\Plugin\LongEssayTask\Task;
+namespace ILIAS\Plugin\LongEssayAssessment\Task;
 
-use ILIAS\Plugin\LongEssayTask\BaseGUI;
-use ILIAS\Plugin\LongEssayTask\Data\ActiveRecordDummy;
+use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
+use ILIAS\Plugin\LongEssayAssessment\Data\ActiveRecordDummy;
 use ILIAS\UI\Component\Table\PresentationRow;
 use ILIAS\UI\Factory;
 use \ilUtil;
@@ -12,8 +12,8 @@ use \ilUtil;
 /**
  * Resources Administration
  *
- * @package ILIAS\Plugin\LongEssayTask\Task
- * @ilCtrl_isCalledBy ILIAS\Plugin\LongEssayTask\Task\CriteriaAdminGUI: ilObjLongEssayTaskGUI
+ * @package ILIAS\Plugin\LongEssayAssessment\Task
+ * @ilCtrl_isCalledBy ILIAS\Plugin\LongEssayAssessment\Task\CriteriaAdminGUI: ilObjLongEssayAssessmentGUI
  */
 class CriteriaAdminGUI extends BaseGUI
 {

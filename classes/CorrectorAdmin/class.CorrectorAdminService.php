@@ -1,36 +1,36 @@
 <?php
 /* Copyright (c) 2021 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-namespace ILIAS\Plugin\LongEssayTask\CorrectorAdmin;
+namespace ILIAS\Plugin\LongEssayAssessment\CorrectorAdmin;
 
-use Edutiek\LongEssayService\Corrector\Service;
-use Edutiek\LongEssayService\Data\DocuItem;
-use Edutiek\LongEssayService\Data\WritingTask;
-use ILIAS\Plugin\LongEssayTask\BaseService;
-use ILIAS\Plugin\LongEssayTask\Corrector\CorrectionFilterItem;
-use ILIAS\Plugin\LongEssayTask\Corrector\CorrectionsFilter;
-use ILIAS\Plugin\LongEssayTask\Corrector\CorrectorContext;
-use ILIAS\Plugin\LongEssayTask\Data\CorrectionSettings;
-use ILIAS\Plugin\LongEssayTask\Data\Corrector;
-use ILIAS\Plugin\LongEssayTask\Data\CorrectorAssignment;
-use ILIAS\Plugin\LongEssayTask\Data\CorrectorRepository;
-use ILIAS\Plugin\LongEssayTask\Data\CorrectorSummary;
-use ILIAS\Plugin\LongEssayTask\Data\DataService;
-use ILIAS\Plugin\LongEssayTask\Data\Essay;
-use ILIAS\Plugin\LongEssayTask\Data\EssayRepository;
-use ILIAS\Plugin\LongEssayTask\Data\GradeLevel;
-use ILIAS\Plugin\LongEssayTask\Data\LogEntry;
-use ILIAS\Plugin\LongEssayTask\Data\TaskRepository;
-use ILIAS\Plugin\LongEssayTask\Data\TaskSettings;
-use ILIAS\Plugin\LongEssayTask\Data\Writer;
-use ILIAS\Plugin\LongEssayTask\Data\WriterRepository;
+use Edutiek\LongEssayAssessmentService\Corrector\Service;
+use Edutiek\LongEssayAssessmentService\Data\DocuItem;
+use Edutiek\LongEssayAssessmentService\Data\WritingTask;
+use ILIAS\Plugin\LongEssayAssessment\BaseService;
+use ILIAS\Plugin\LongEssayAssessment\Corrector\CorrectionFilterItem;
+use ILIAS\Plugin\LongEssayAssessment\Corrector\CorrectionsFilter;
+use ILIAS\Plugin\LongEssayAssessment\Corrector\CorrectorContext;
+use ILIAS\Plugin\LongEssayAssessment\Data\CorrectionSettings;
+use ILIAS\Plugin\LongEssayAssessment\Data\Corrector;
+use ILIAS\Plugin\LongEssayAssessment\Data\CorrectorAssignment;
+use ILIAS\Plugin\LongEssayAssessment\Data\CorrectorRepository;
+use ILIAS\Plugin\LongEssayAssessment\Data\CorrectorSummary;
+use ILIAS\Plugin\LongEssayAssessment\Data\DataService;
+use ILIAS\Plugin\LongEssayAssessment\Data\Essay;
+use ILIAS\Plugin\LongEssayAssessment\Data\EssayRepository;
+use ILIAS\Plugin\LongEssayAssessment\Data\GradeLevel;
+use ILIAS\Plugin\LongEssayAssessment\Data\LogEntry;
+use ILIAS\Plugin\LongEssayAssessment\Data\TaskRepository;
+use ILIAS\Plugin\LongEssayAssessment\Data\TaskSettings;
+use ILIAS\Plugin\LongEssayAssessment\Data\Writer;
+use ILIAS\Plugin\LongEssayAssessment\Data\WriterRepository;
 use ILIAS\Data\UUID\Factory as UUID;
-use ILIAS\Plugin\LongEssayTask\LongEssayTaskDI;
+use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
 use ilObjUser;
 
 /**
  * Service for maintaining correctors (business logic)
- * @package ILIAS\Plugin\LongEssayTask\CorrectorAdmin
+ * @package ILIAS\Plugin\LongEssayAssessment\CorrectorAdmin
  */
 class CorrectorAdminService extends BaseService
 {
@@ -398,14 +398,14 @@ class CorrectorAdminService extends BaseService
 
     /**
      * Create an export file for the corrections
-     * @param \ilObjLongEssayTask $object
+     * @param \ilObjLongEssayAssessment $object
      * @return string   file path of the export
      */
-    public function createCorrectionsExport(\ilObjLongEssayTask $object) : string
+    public function createCorrectionsExport(\ilObjLongEssayAssessment $object) : string
     {
         $storage = $this->dic->filesystem()->temp();
         $basedir = ILIAS_DATA_DIR . '/' . CLIENT_ID . '/temp';
-        $tempdir = 'xlet/'. (new UUID)->uuid4AsString();
+        $tempdir = 'xlas/'. (new UUID)->uuid4AsString();
         $zipdir = $tempdir . '/' . \ilUtil::getASCIIFilename($object->getTitle());
         $storage->createDir($zipdir);
 
@@ -433,7 +433,7 @@ class CorrectorAdminService extends BaseService
     /**
      * Get the correction of an essay as PDF string
      */
-    public function getCorrectionAsPdf(\ilObjLongEssayTask $object, TaskSettings $repoTask, Writer $repoWriter) : string
+    public function getCorrectionAsPdf(\ilObjLongEssayAssessment $object, TaskSettings $repoTask, Writer $repoWriter) : string
     {
         $context = new CorrectorContext();
         $context->init((string) $this->dic->user()->getId(), (string) $object->getRefId());
@@ -524,7 +524,7 @@ class CorrectorAdminService extends BaseService
 
         $storage = $this->dic->filesystem()->temp();
         $basedir = ILIAS_DATA_DIR . '/' . CLIENT_ID . '/temp';
-        $file = 'xlet/'. (new UUID)->uuid4AsString() . '.csv';
+        $file = 'xlas/'. (new UUID)->uuid4AsString() . '.csv';
         $storage->write($file, $csv->getCSVString());
 
         return $basedir . '/' . $file;

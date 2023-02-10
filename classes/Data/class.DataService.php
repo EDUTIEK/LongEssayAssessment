@@ -1,16 +1,16 @@
 <?php
 /* Copyright (c) 2021 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-namespace ILIAS\Plugin\LongEssayTask\Data;
+namespace ILIAS\Plugin\LongEssayAssessment\Data;
 
-use ILIAS\Plugin\LongEssayTask\BaseService;
-use ILIAS\Plugin\LongEssayTask\Corrector\CorrectionFilterItem;
+use ILIAS\Plugin\LongEssayAssessment\BaseService;
+use ILIAS\Plugin\LongEssayAssessment\Corrector\CorrectionFilterItem;
 use ilObjUser;
 use Throwable;
 
 /**
  * Service for handling data related to a task
- * @package ILIAS\Plugin\LongEssayTask\Data
+ * @package ILIAS\Plugin\LongEssayAssessment\Data
  */
 class DataService extends BaseService
 {
@@ -38,8 +38,8 @@ class DataService extends BaseService
     private $ownTimeExtensionLoaded = false;
 
 
-	const USER_PREF_STATUS = "xlet_correction_status";
-	const USER_PREF_POSITION = "xlet_correction_position";
+	const USER_PREF_STATUS = "xlas_correction_status";
+	const USER_PREF_POSITION = "xlas_correction_position";
 	const ALL = "all";
 	private array $correction_status_cache = [];
 	private array $correction_position_cache = [];

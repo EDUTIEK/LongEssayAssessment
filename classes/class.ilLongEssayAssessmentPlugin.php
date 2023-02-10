@@ -2,17 +2,17 @@
 /* Copyright (c) 2021 ILIAS open source, Extended GPL, see docs/LICENSE */
 
 use ILIAS\DI\Container;
-use ILIAS\Plugin\LongEssayTask\Data\PluginConfig;
-use ILIAS\Plugin\LongEssayTask\LongEssayTaskDI;
-use ILIAS\Plugin\LongEssayTask\Task\ResourceResourceStakeholder;
+use ILIAS\Plugin\LongEssayAssessment\Data\PluginConfig;
+use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
+use ILIAS\Plugin\LongEssayAssessment\Task\ResourceResourceStakeholder;
 
 /**
  * Basic plugin file
  * @author Fred Neumann <fred.neumann@ilias.de>
  */
-class ilLongEssayTaskPlugin extends ilRepositoryObjectPlugin
+class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
 {
-     const ID = "xlet";
+     const ID = "xlas";
 
     /** @var Container */
     protected $dic;
@@ -40,7 +40,7 @@ class ilLongEssayTaskPlugin extends ilRepositoryObjectPlugin
         parent::init();
         require_once __DIR__ . '/../vendor/autoload.php';
 
-		$di = LongEssayTaskDI::getInstance();
+		$di = LongEssayAssessmentDI::getInstance();
 		$di->init($this);
     }
 
@@ -51,7 +51,7 @@ class ilLongEssayTaskPlugin extends ilRepositoryObjectPlugin
      */
     public function getPluginName()
 	{
-		return "LongEssayTask";
+		return "LongEssayAssessment";
 	}
 
     /**
@@ -75,15 +75,15 @@ class ilLongEssayTaskPlugin extends ilRepositoryObjectPlugin
      */
     protected function uninstallCustom()
     {
-		$tables = ["xlet_access_token", "xlet_alert", "xlet_corr_setting", "xlet_corrector", "xlet_corrector_ass",
-			"xlet_corrector_comment", "xlet_corrector_summary", "xlet_crit_points", "xlet_editor_comment",
-			"xlet_editor_history", "xlet_editor_notice", "xlet_editor_settings", "xlet_essay", "xlet_grade_level",
-            "xlet_log_entry",
-			"xlet_object_settings", "xlet_participant", "xlet_plugin_config", "xlet_rating_crit", "xlet_task_settings",
-			"xlet_time_extension", "xlet_writer_notice", "xlet_writer", "xlet_writer_comment", "xlet_writer_history",
-            "xlet_resource"];
+		$tables = ["xlas_access_token", "xlas_alert", "xlas_corr_setting", "xlas_corrector", "xlas_corrector_ass",
+			"xlas_corrector_comment", "xlas_corrector_summary", "xlas_crit_points", "xlas_editor_comment",
+			"xlas_editor_history", "xlas_editor_notice", "xlas_editor_settings", "xlas_essay", "xlas_grade_level",
+            "xlas_log_entry",
+			"xlas_object_settings", "xlas_participant", "xlas_plugin_config", "xlas_rating_crit", "xlas_task_settings",
+			"xlas_time_extension", "xlas_writer_notice", "xlas_writer", "xlas_writer_comment", "xlas_writer_history",
+            "xlas_resource"];
 
-		$files = $this->dic->database()->query("SELECT file_id FROM xlet_resource")->fetchAssoc();
+		$files = $this->dic->database()->query("SELECT file_id FROM xlas_resource")->fetchAssoc();
 
 		foreach ($files as $file){
 			if($identifier = $this->dic->resourceStorage()->manage()->find($file["file_id"])){

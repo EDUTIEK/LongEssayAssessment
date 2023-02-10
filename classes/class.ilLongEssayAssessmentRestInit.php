@@ -4,7 +4,7 @@
  * Extended ILIAS initialisation for REST calls
  * An initialized user is needed for access handling
  */
-class ilLongEssayTaskRestInit extends ilInitialisation
+class ilLongEssayAssessmentRestInit extends ilInitialisation
 {
     /**
      * Inject a user account

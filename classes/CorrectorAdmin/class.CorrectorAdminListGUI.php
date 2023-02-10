@@ -1,11 +1,11 @@
 <?php
 
-namespace ILIAS\Plugin\LongEssayTask\WriterAdmin;
+namespace ILIAS\Plugin\LongEssayAssessment\WriterAdmin;
 
-use ILIAS\Plugin\LongEssayTask\Data\CorrectionSettings;
-use ILIAS\Plugin\LongEssayTask\Data\Corrector;
-use ILIAS\Plugin\LongEssayTask\Data\CorrectorAssignment;
-use ILIAS\Plugin\LongEssayTask\Data\Writer;
+use ILIAS\Plugin\LongEssayAssessment\Data\CorrectionSettings;
+use ILIAS\Plugin\LongEssayAssessment\Data\Corrector;
+use ILIAS\Plugin\LongEssayAssessment\Data\CorrectorAssignment;
+use ILIAS\Plugin\LongEssayAssessment\Data\Writer;
 
 class CorrectorAdminListGUI extends WriterListGUI
 {
@@ -31,7 +31,7 @@ class CorrectorAdminListGUI extends WriterListGUI
 	 */
 	private array $correction_status_stitches = [];
 
-	public function __construct(object $parent, string $parent_cmd, \ilLongEssayTaskPlugin $plugin, CorrectionSettings $correction_settings)
+	public function __construct(object $parent, string $parent_cmd, \ilLongEssayAssessmentPlugin $plugin, CorrectionSettings $correction_settings)
 	{
 		parent::__construct($parent, $parent_cmd, $plugin);
 		$this->correction_settings = $correction_settings;
@@ -130,7 +130,7 @@ class CorrectorAdminListGUI extends WriterListGUI
 	private function getViewCorrectionAction(Writer $writer): string
 	{
 		$this->ctrl->setParameter($this->parent, "writer_id", $writer->getId());
-		return $this->ctrl->getLinkTargetByClass(["ILIAS\Plugin\LongEssayTask\CorrectorAdmin\CorrectorAdminGUI"], "viewCorrections");
+		return $this->ctrl->getLinkTargetByClass(["ILIAS\Plugin\LongEssayAssessment\CorrectorAdmin\CorrectorAdminGUI"], "viewCorrections");
 	}
 
 	private function getChangeCorrectorAction(Writer $writer): string

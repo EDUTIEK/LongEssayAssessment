@@ -1,9 +1,9 @@
 <?php
 
-namespace ILIAS\Plugin\LongEssayTask\UI\Implementation;
+namespace ILIAS\Plugin\LongEssayAssessment\UI\Implementation;
 
 use ILIAS\UI\Implementation\Component\Symbol\Icon\Factory as ILIASIconFactory;
-use \ILIAS\Plugin\LongEssayTask\UI\Component\IconFactory as PluginIconFactory;
+use \ILIAS\Plugin\LongEssayAssessment\UI\Component\IconFactory as PluginIconFactory;
 use ILIAS\UI\Implementation\Component\Symbol\Icon\Icon;
 
 class IconFactory implements PluginIconFactory
@@ -24,9 +24,9 @@ class IconFactory implements PluginIconFactory
 	/**
 	 * @inheritDoc
 	 */
-	public function xlet(string $label, string $size = 'small', bool $is_disabled = false): Icon
+	public function xlas(string $label, string $size = 'small', bool $is_disabled = false): Icon
 	{
-		return $this->factory->custom($this->icon_path("xlet"), $label, $size, $is_disabled);
+		return $this->factory->custom($this->icon_path("xlas"), $label, $size, $is_disabled);
 	}
 
 	/**

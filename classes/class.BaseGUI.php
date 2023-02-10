@@ -1,10 +1,10 @@
 <?php
 /* Copyright (c) 2021 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-namespace ILIAS\Plugin\LongEssayTask;
+namespace ILIAS\Plugin\LongEssayAssessment;
 
 use ILIAS\DI\Container;
-use ILIAS\Plugin\LongEssayTask\Data\DataService;
+use ILIAS\Plugin\LongEssayAssessment\Data\DataService;
 use ILIAS\UI\Factory;
 use ILIAS\UI\Renderer;
 use Psr\Http\Message\RequestInterface;
@@ -34,13 +34,13 @@ abstract class BaseGUI
 	/** @var \ilToolbarGUI */
 	protected $toolbar;
 
-    /** @var \ilObjLongEssayTaskGUI */
+    /** @var \ilObjLongEssayAssessmentGUI */
     protected $objectGUI;
 
-    /** @var  \ilObjLongEssayTask */
+    /** @var  \ilObjLongEssayAssessment */
     protected $object;
 
-    /** @var  \ilLongEssayTaskPlugin */
+    /** @var  \ilLongEssayAssessmentPlugin */
     protected $plugin;
 
     /** @var Factory  */
@@ -55,7 +55,7 @@ abstract class BaseGUI
     /** @var \ILIAS\Refinery\Factory  */
     protected $refinery;
 
-    /** @var LongEssayTaskDI */
+    /** @var LongEssayAssessmentDI */
     protected $localDI;
 
     /** @var DataService */
@@ -66,9 +66,9 @@ abstract class BaseGUI
 
     /**
 	 * Constructor
-	 * @param \ilObjLongEssayTaskGUI  $objectGUI
+	 * @param \ilObjLongEssayAssessmentGUI  $objectGUI
 	 */
-	public function __construct(\ilObjLongEssayTaskGUI $objectGUI)
+	public function __construct(\ilObjLongEssayAssessmentGUI $objectGUI)
 	{
 		global $DIC;
 
@@ -80,15 +80,15 @@ abstract class BaseGUI
         $this->lng = $this->dic->language();
         $this->tpl = $this->dic->ui()->mainTemplate();
         $this->uiFactory = $this->dic->ui()->factory();
-		$this->renderer = LongEssayTaskDI::getInstance()->getUIRenderer();
+		$this->renderer = LongEssayAssessmentDI::getInstance()->getUIRenderer();
         $this->request = $this->dic->http()->request();
         $this->refinery = $this->dic->refinery();
 
         // Plugin dependencies
         $this->objectGUI = $objectGUI;
         $this->object = $this->objectGUI->getObject();
-		$this->plugin = \ilLongEssayTaskPlugin::getInstance();
-        $this->localDI = LongEssayTaskDI::getInstance();
+		$this->plugin = \ilLongEssayAssessmentPlugin::getInstance();
+        $this->localDI = LongEssayAssessmentDI::getInstance();
         $this->data = $this->localDI->getDataService($this->object->getId());
         $this->params = $this->request->getQueryParams();
 	}

@@ -1,12 +1,12 @@
 <?php
 
-namespace ILIAS\Plugin\LongEssayTask\UI\Implementation;
+namespace ILIAS\Plugin\LongEssayAssessment\UI\Implementation;
 
 use ILIAS\Data;
-use ILIAS\Plugin\LongEssayTask\UI;
+use ILIAS\Plugin\LongEssayAssessment\UI;
 use ILIAS\UI\Implementation\Component\SignalGeneratorInterface;
 
-class FieldFactory implements \ILIAS\Plugin\LongEssayTask\UI\Component\FieldFactory
+class FieldFactory implements \ILIAS\Plugin\LongEssayAssessment\UI\Component\FieldFactory
 {
 	/**
 	 * @var    Data\Factory
@@ -50,7 +50,7 @@ class FieldFactory implements \ILIAS\Plugin\LongEssayTask\UI\Component\FieldFact
 	/**
 	 * @inheritdoc
 	 */
-	public function numeric($label, $byline = null) : \ILIAS\Plugin\LongEssayTask\UI\Implementation\Numeric
+	public function numeric($label, $byline = null) : \ILIAS\Plugin\LongEssayAssessment\UI\Implementation\Numeric
 	{
 		return new Numeric($this->data_factory, $this->refinery, $label, $byline);
 	}

@@ -1,6 +1,6 @@
 <?php
 
-namespace ILIAS\Plugin\LongEssayTask\Data;
+namespace ILIAS\Plugin\LongEssayAssessment\Data;
 
 use Exception;
 
@@ -148,11 +148,11 @@ class TaskDatabaseRepository implements TaskRepository
      */
     public function deleteTask(int $a_id)
     {
-        $this->database->manipulate("DELETE FROM xlet_task_settings" .
+        $this->database->manipulate("DELETE FROM xlas_task_settings" .
             " WHERE task_id = " . $this->database->quote($a_id, "integer"));
-		$this->database->manipulate("DELETE FROM xlet_editor_settings" .
+		$this->database->manipulate("DELETE FROM xlas_editor_settings" .
             " WHERE task_id = " . $this->database->quote($a_id, "integer"));
-		$this->database->manipulate("DELETE FROM xlet_corr_setting" .
+		$this->database->manipulate("DELETE FROM xlas_corr_setting" .
             " WHERE task_id = " . $this->database->quote($a_id, "integer"));
 
         $this->deleteAlertByTaskId($a_id);
@@ -167,25 +167,25 @@ class TaskDatabaseRepository implements TaskRepository
 
     public function deleteAlertByTaskId(int $a_task_id)
     {
-		$this->database->manipulate("DELETE FROM xlet_alert" .
+		$this->database->manipulate("DELETE FROM xlas_alert" .
             " WHERE task_id = " . $this->database->quote($a_task_id, "integer"));
     }
 
     public function deleteWriterNoticeByTaskId(int $a_task_id)
     {
-		$this->database->manipulate("DELETE FROM xlet_writer_notice" .
+		$this->database->manipulate("DELETE FROM xlas_writer_notice" .
             " WHERE task_id = " . $this->database->quote($a_task_id, "integer"));
     }
 
     public function deleteAlert(int $a_id)
     {
-		$this->database->manipulate("DELETE FROM xlet_alert" .
+		$this->database->manipulate("DELETE FROM xlas_alert" .
             " WHERE id = " . $this->database->quote($a_id, "integer"));
     }
 
     public function deleteWriterNotice(int $a_id)
     {
-		$this->database->manipulate("DELETE FROM xlet_writer_notice" .
+		$this->database->manipulate("DELETE FROM xlas_writer_notice" .
             " WHERE id = " . $this->database->quote($a_id, "integer"));
     }
 
@@ -225,13 +225,13 @@ class TaskDatabaseRepository implements TaskRepository
 
     public function deleteResource(int $a_id)
     {
-		$this->database->manipulate("DELETE FROM xlet_resource" .
+		$this->database->manipulate("DELETE FROM xlas_resource" .
             " WHERE id = " . $this->database->quote($a_id, "integer"));
     }
 
     public function deleteResourceByTaskId(int $a_task_id)
     {
-		$this->database->manipulate("DELETE FROM xlet_resource" .
+		$this->database->manipulate("DELETE FROM xlas_resource" .
             " WHERE task_id = " . $this->database->quote($a_task_id, "integer"));
     }
 
@@ -277,13 +277,13 @@ class TaskDatabaseRepository implements TaskRepository
 
 	public function deleteLogEntry(int $a_id)
 	{
-		$this->database->manipulate("DELETE FROM xlet_log_entry" .
+		$this->database->manipulate("DELETE FROM xlas_log_entry" .
 			" WHERE id = " . $this->database->quote($a_id, "integer"));
 	}
 
 	public function deleteLogEntryByTaskId(int $a_task_id)
 	{
-		$this->database->manipulate("DELETE FROM xlet_log_entry" .
+		$this->database->manipulate("DELETE FROM xlas_log_entry" .
 			" WHERE task_id = " . $this->database->quote($a_task_id, "integer"));
 	}
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace ILIAS\Plugin\LongEssayTask\Data;
+namespace ILIAS\Plugin\LongEssayAssessment\Data;
 
 use ilDatabaseException;
 use Exception;
@@ -103,7 +103,7 @@ class WriterDatabaseRepository implements WriterRepository
      */
     public function deleteWriter(int $a_id)
     {
-		$this->database->manipulate("DELETE FROM xlet_writer" .
+		$this->database->manipulate("DELETE FROM xlas_writer" .
             " WHERE id = " . $this->database->quote($a_id, "integer"));
 
         $this->deleteTimeExtensionByWriterId($a_id);
@@ -113,7 +113,7 @@ class WriterDatabaseRepository implements WriterRepository
 
     public function deleteTimeExtensionByWriterId(int $a_writer_id)
     {
-		$this->database->manipulate("DELETE FROM xlet_time_extension" .
+		$this->database->manipulate("DELETE FROM xlas_time_extension" .
             " WHERE writer_id = " . $this->database->quote($a_writer_id, "integer"));
     }
 
@@ -124,11 +124,11 @@ class WriterDatabaseRepository implements WriterRepository
      */
     public function deleteWriterByTaskId(int $a_task_id)
     {
-		$this->database->manipulate("DELETE FROM xlet_writer" .
+		$this->database->manipulate("DELETE FROM xlas_writer" .
             " WHERE task_id = " . $this->database->quote($a_task_id, "integer"));
 
-		$this->database->manipulate("DELETE te FROM xlet_time_extension AS te"
-            . " LEFT JOIN xlet_writer AS writer ON (te.writer_id = writer.id)"
+		$this->database->manipulate("DELETE te FROM xlas_time_extension AS te"
+            . " LEFT JOIN xlas_writer AS writer ON (te.writer_id = writer.id)"
             . " WHERE writer.task_id = " . $this->database->quote($a_task_id, "integer"));
 
 		$this->corrector_repo->deleteCorrectorAssignmentByTask($a_task_id);
@@ -137,7 +137,7 @@ class WriterDatabaseRepository implements WriterRepository
 
     public function deleteTimeExtension(int $a_writer_id, int $a_task_id)
     {
-		$this->database->manipulate("DELETE FROM xlet_time_extension" .
+		$this->database->manipulate("DELETE FROM xlas_time_extension" .
             " WHERE writer_id = " . $this->database->quote($a_writer_id, "integer") .
             " AND task_id = " . $this->database->quote($a_task_id, "integer"));
     }

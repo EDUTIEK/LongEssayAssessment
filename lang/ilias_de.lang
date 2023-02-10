@@ -6,23 +6,23 @@
 //
 
 <!-- language file start -->
-obj_xlet#:#Langtext-Aufgabe
-objs_xlet#:#Langtext-Aufgaben
-obj_xlet_duplicate#:#Kopieren
-objs_xlet_duplicate#:#Kopiere Langtext-Aufgabe
-obj_xamo_select#:#Wähle Langtext-Aufgabe
-xlet_add#:#Langtext-Aufgabe hinzufügen
-xlet_new#:#Neue Langtext-Aufgabe
-xlet_read#:#Lesezugriff auf Langtext-Aufgabe
-xlet_write#:#Langtext-Aufgabe bearbeiten
-xlet_delete#:#Langtext-Aufgabe löschen
-xlet_visible#:#Langtext-Aufgabe ist sichtbar
-xlet_edit_permission#:#Zugriffsrecht bearbeiten
-crs_create_xlet#:#Erstelle Langtext-Aufgabe
-grp_create_xlet#:#Erstelle Langtext-Aufgabe
-fold_create_xlet#:#Erstelle Langtext-Aufgabe
-root_create_xlet#:#Erstelle Langtext-Aufgabe
-cat_create_xlet#:#Erstelle Langtext-Aufgabe
+obj_xlas#:#Langtext-Aufgabe (Pilot)
+objs_xlas#:#Langtext-Aufgaben (Pilot)
+obj_xlas_duplicate#:#Kopieren
+objs_xlas_duplicate#:#Kopiere Langtext-Aufgabe (Pilot)
+obj_xlas_select#:#Wähle Langtext-Aufgabe (Pilot)
+xlas_add#:#Langtext-Aufgabe hinzufügen (Pilot)
+xlas_new#:#Neue Langtext-Aufgabe (Pilot)
+xlas_read#:#Lesezugriff auf Langtext-Aufgabe  (Pilot)
+xlas_write#:#Langtext-Aufgabe bearbeiten  (Pilot)
+xlas_delete#:#Langtext-Aufgabe löschen  (Pilot)
+xlas_visible#:#Langtext-Aufgabe ist sichtbar (Pilot)
+xlas_edit_permission#:#Zugriffsrecht bearbeiten
+crs_create_xlas#:#Erstelle Langtext-Aufgabe (Pilot)
+grp_create_xlas#:#Erstelle Langtext-Aufgabe (Pilot)
+fold_create_xlas#:#Erstelle Langtext-Aufgabe (Pilot)
+root_create_xlas#:#Erstelle Langtext-Aufgabe (Pilot)
+cat_create_xlas#:#Erstelle Langtext-Aufgabe (Pilot)
 maintain_task#:#Aufgabenstellung verwalten
 maintain_writers#:#Durchführung verwalten
 maintain_correctors#:#Korrektur verwalten

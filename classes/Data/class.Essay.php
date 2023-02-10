@@ -1,7 +1,7 @@
 <?php
 /* Copyright (c) 2021 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-namespace ILIAS\Plugin\LongEssayTask\Data;
+namespace ILIAS\Plugin\LongEssayAssessment\Data;
 
 use ILIAS\Data\UUID\Factory as UUID;
 
@@ -23,7 +23,7 @@ class Essay extends ActivePluginRecord
     /**
      * @var string
      */
-    protected $connector_container_name = 'xlet_essay';
+    protected $connector_container_name = 'xlas_essay';
 
     /**
      * Essay id

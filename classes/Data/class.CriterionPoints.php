@@ -1,7 +1,7 @@
 <?php
 /* Copyright (c) 2021 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-namespace ILIAS\Plugin\LongEssayTask\Data;
+namespace ILIAS\Plugin\LongEssayAssessment\Data;
 
 
 /**
@@ -13,7 +13,7 @@ class CriterionPoints extends ActivePluginRecord
     /**
      * @var string
      */
-    protected $connector_container_name = 'xlet_crit_points';
+    protected $connector_container_name = 'xlas_crit_points';
 
 
     /**

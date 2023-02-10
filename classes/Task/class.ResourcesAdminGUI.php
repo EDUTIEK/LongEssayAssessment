@@ -1,26 +1,26 @@
 <?php
 /* Copyright (c) 2021 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-namespace ILIAS\Plugin\LongEssayTask\Task;
+namespace ILIAS\Plugin\LongEssayAssessment\Task;
 
-use ILIAS\Plugin\LongEssayTask\BaseGUI;
-use ILIAS\Plugin\LongEssayTask\Data\Resource;
-use ILIAS\Plugin\LongEssayTask\LongEssayTaskDI;
-use ILIAS\Plugin\LongEssayTask\UI\UIService;
+use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
+use ILIAS\Plugin\LongEssayAssessment\Data\Resource;
+use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
+use ILIAS\Plugin\LongEssayAssessment\UI\UIService;
 use ilUtil;
 use ResourceUploadHandlerGUI;
 
 /**
  * Resources Administration
  *
- * @package ILIAS\Plugin\LongEssayTask\Task
- * @ilCtrl_isCalledBy ILIAS\Plugin\LongEssayTask\Task\ResourcesAdminGUI: ilObjLongEssayTaskGUI
+ * @package ILIAS\Plugin\LongEssayAssessment\Task
+ * @ilCtrl_isCalledBy ILIAS\Plugin\LongEssayAssessment\Task\ResourcesAdminGUI: ilObjLongEssayAssessmentGUI
  */
 class ResourcesAdminGUI extends BaseGUI
 {
 	protected UIService $uiService;
 
-	public function __construct(\ilObjLongEssayTaskGUI $objectGUI)
+	public function __construct(\ilObjLongEssayAssessmentGUI $objectGUI)
 	{
 		parent::__construct($objectGUI);
 		$this->uiService = $this->localDI->getUIService();
@@ -65,7 +65,7 @@ class ResourcesAdminGUI extends BaseGUI
         $button->setCaption($this->plugin->txt('add_resource'), false);
         $this->toolbar->addButtonInstance($button);
 
-        $di = LongEssayTaskDI::getInstance();
+        $di = LongEssayAssessmentDI::getInstance();
         $task_repo = $di->getTaskRepo();
         $resources = $task_repo->getResourceByTaskId($this->object->getId());
 

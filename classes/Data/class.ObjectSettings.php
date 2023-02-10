@@ -1,7 +1,7 @@
 <?php
 /* Copyright (c) 2021 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-namespace ILIAS\Plugin\LongEssayTask\Data;
+namespace ILIAS\Plugin\LongEssayAssessment\Data;
 
 /**
  * @author Fred Neumann <fred.neumann@ilias.de>
@@ -14,7 +14,7 @@ class ObjectSettings extends ActivePluginRecord
     /**
      * @var string
      */
-    protected $connector_container_name = 'xlet_object_settings';
+    protected $connector_container_name = 'xlas_object_settings';
 
 
     /**

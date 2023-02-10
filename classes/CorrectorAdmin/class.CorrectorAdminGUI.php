@@ -1,25 +1,25 @@
 <?php
 /* Copyright (c) 2021 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-namespace ILIAS\Plugin\LongEssayTask\CorrectorAdmin;
+namespace ILIAS\Plugin\LongEssayAssessment\CorrectorAdmin;
 
-use Edutiek\LongEssayService\Corrector\Service;
-use ILIAS\Plugin\LongEssayTask\BaseGUI;
-use ILIAS\Plugin\LongEssayTask\Corrector\CorrectorContext;
-use ILIAS\Plugin\LongEssayTask\Data\CorrectionSettings;
-use ILIAS\Plugin\LongEssayTask\Data\Corrector;
-use ILIAS\Plugin\LongEssayTask\Data\CorrectorAssignment;
-use ILIAS\Plugin\LongEssayTask\LongEssayTaskDI;
-use ILIAS\Plugin\LongEssayTask\WriterAdmin\CorrectorAdminListGUI;
-use ILIAS\Plugin\LongEssayTask\WriterAdmin\CorrectorListGUI;
+use Edutiek\LongEssayAssessmentService\Corrector\Service;
+use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
+use ILIAS\Plugin\LongEssayAssessment\Corrector\CorrectorContext;
+use ILIAS\Plugin\LongEssayAssessment\Data\CorrectionSettings;
+use ILIAS\Plugin\LongEssayAssessment\Data\Corrector;
+use ILIAS\Plugin\LongEssayAssessment\Data\CorrectorAssignment;
+use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
+use ILIAS\Plugin\LongEssayAssessment\WriterAdmin\CorrectorAdminListGUI;
+use ILIAS\Plugin\LongEssayAssessment\WriterAdmin\CorrectorListGUI;
 use \ilUtil;
 
 /**
  *Start page for corrector admins
  *
- * @package ILIAS\Plugin\LongEssayTask\CorrectorAdmin
- * @ilCtrl_isCalledBy ILIAS\Plugin\LongEssayTask\CorrectorAdmin\CorrectorAdminGUI: ilObjLongEssayTaskGUI
- * @ilCtrl_Calls ILIAS\Plugin\LongEssayTask\CorrectorAdmin\CorrectorAdminGUI: ilRepositorySearchGUI
+ * @package ILIAS\Plugin\LongEssayAssessment\CorrectorAdmin
+ * @ilCtrl_isCalledBy ILIAS\Plugin\LongEssayAssessment\CorrectorAdmin\CorrectorAdminGUI: ilObjLongEssayAssessmentGUI
+ * @ilCtrl_Calls ILIAS\Plugin\LongEssayAssessment\CorrectorAdmin\CorrectorAdminGUI: ilRepositorySearchGUI
  */
 class CorrectorAdminGUI extends BaseGUI
 {
@@ -27,7 +27,7 @@ class CorrectorAdminGUI extends BaseGUI
 	/** @var CorrectorAdminService */
 	protected $service;
 
-	public function __construct(\ilObjLongEssayTaskGUI $objectGUI)
+	public function __construct(\ilObjLongEssayAssessmentGUI $objectGUI)
 	{
 		parent::__construct($objectGUI);
 		$this->service = $this->localDI->getCorrectorAdminService($this->object->getId());
@@ -82,7 +82,7 @@ class CorrectorAdminGUI extends BaseGUI
      */
     protected function showStartPage()
     {
-        $di = LongEssayTaskDI::getInstance();
+        $di = LongEssayAssessmentDI::getInstance();
         $writers_repo = $di->getWriterRepo();
         $corrector_repo = $di->getCorrectorRepo();
         $essay_repo = $di->getEssayRepo();
@@ -142,7 +142,7 @@ class CorrectorAdminGUI extends BaseGUI
 		$this->toolbar->setFormAction($this->ctrl->getFormAction($this));
 		$this->showCorrectorToolbar();
 
-		$di = LongEssayTaskDI::getInstance();
+		$di = LongEssayAssessmentDI::getInstance();
 		$writers_repo = $di->getWriterRepo();
 		$corrector_repo = $di->getCorrectorRepo();
 
@@ -193,7 +193,7 @@ class CorrectorAdminGUI extends BaseGUI
 	public function filterUserIdsByLETMembership($a_user_ids)
 	{
 		$user_ids = [];
-		$corrector_repo = LongEssayTaskDI::getInstance()->getCorrectorRepo();
+		$corrector_repo = LongEssayAssessmentDI::getInstance()->getCorrectorRepo();
 		$writers = array_map(fn ($row) => $row->getUserId(), $corrector_repo->getCorrectorsByTaskId($this->object->getId()));
 
 		foreach ($a_user_ids as $user_id){
@@ -211,7 +211,7 @@ class CorrectorAdminGUI extends BaseGUI
 			ilUtil::sendFailure($this->plugin->txt("missing_corrector_id"), true);
 			$this->ctrl->redirect($this, "showCorrectors");
 		}
-		$corrector_repo = LongEssayTaskDI::getInstance()->getCorrectorRepo();
+		$corrector_repo = LongEssayAssessmentDI::getInstance()->getCorrectorRepo();
 		$corrector = $corrector_repo->getCorrectorById($id);
 
 		if($corrector === null || $corrector->getTaskId() !== $this->object->getId()){
@@ -330,7 +330,7 @@ class CorrectorAdminGUI extends BaseGUI
 			// inputs are ok => save data
 			if (array_key_exists("corrector", $data) && count($data["corrector"]) > 0 && array_key_exists("writer_id", $_GET)) {
 				$writer_id = $_GET["writer_id"];
-				$corr_repo = LongEssayTaskDI::getInstance()->getCorrectorRepo();
+				$corr_repo = LongEssayAssessmentDI::getInstance()->getCorrectorRepo();
 				$corr_repo->deleteCorrectorAssignmentByWriter(intval($writer_id));
 				$pos = 0;
 				foreach ($data["corrector"] as $corr_id){

@@ -1,7 +1,7 @@
 <?php
 /* Copyright (c) 2021 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-namespace ILIAS\Plugin\LongEssayTask\Data;
+namespace ILIAS\Plugin\LongEssayAssessment\Data;
 
 
 /**
@@ -16,7 +16,7 @@ class TaskSettings extends ActivePluginRecord
     /**
      * @var string
      */
-    protected $connector_container_name = 'xlet_task_settings';
+    protected $connector_container_name = 'xlas_task_settings';
 
 
     /**

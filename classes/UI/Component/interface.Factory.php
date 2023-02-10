@@ -1,5 +1,5 @@
 <?php
-namespace ILIAS\Plugin\LongEssayTask\UI\Component;
+namespace ILIAS\Plugin\LongEssayAssessment\UI\Component;
 
 /**
  * This is what a factory for input fields looks like.

@@ -8,14 +8,14 @@
  * PLEASE do not create instances of larger classes here. Use the
  * ...Access class to get DB data and keep it small.
  */
-class ilObjLongEssayTaskListGUI extends ilObjectPluginListGUI
+class ilObjLongEssayAssessmentListGUI extends ilObjectPluginListGUI
 {
 
 	/**
 	 * Init type
 	 */
 	function initType() {
-		$this->setType(ilLongEssayTaskPlugin::ID);
+		$this->setType(ilLongEssayAssessmentPlugin::ID);
 	}
 
 	/**
@@ -23,7 +23,7 @@ class ilObjLongEssayTaskListGUI extends ilObjectPluginListGUI
 	 */
 	function getGuiClass()
 	{
-		return "ilObjLongEssayTaskGUI";
+		return "ilObjLongEssayAssessmentGUI";
 	}
 
 	/**
@@ -57,7 +57,7 @@ class ilObjLongEssayTaskListGUI extends ilObjectPluginListGUI
 	{
 		$props = array();
 
-		if (!ilObjLongEssayTaskAccess::checkOnline($this->obj_id))
+		if (!ilObjLongEssayAssessmentAccess::checkOnline($this->obj_id))
 		{
 			$props[] = array("alert" => true, "property" => $this->txt("status"),
 				"value" => $this->txt("offline"));

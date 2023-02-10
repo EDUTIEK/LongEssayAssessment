@@ -1,12 +1,12 @@
 <?php
 
-namespace ILIAS\Plugin\LongEssayTask\WriterAdmin;
+namespace ILIAS\Plugin\LongEssayAssessment\WriterAdmin;
 
-use ILIAS\Plugin\LongEssayTask\Data\Alert;
-use ILIAS\Plugin\LongEssayTask\Data\LogEntry;
-use ILIAS\Plugin\LongEssayTask\Data\Writer;
-use ILIAS\Plugin\LongEssayTask\Data\WriterNotice;
-use ILIAS\Plugin\LongEssayTask\LongEssayTaskDI;
+use ILIAS\Plugin\LongEssayAssessment\Data\Alert;
+use ILIAS\Plugin\LongEssayAssessment\Data\LogEntry;
+use ILIAS\Plugin\LongEssayAssessment\Data\Writer;
+use ILIAS\Plugin\LongEssayAssessment\Data\WriterNotice;
+use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
 
 class WriterAdminLogListGUI
 {
@@ -28,13 +28,13 @@ class WriterAdminLogListGUI
 
 	protected \ILIAS\UI\Factory $uiFactory;
 	protected \ilCtrl $ctrl;
-	protected \ilLongEssayTaskPlugin $plugin;
+	protected \ilLongEssayAssessmentPlugin $plugin;
 	protected \ILIAS\UI\Renderer $renderer;
 	protected object $parent;
 	protected string $parent_cmd;
 	protected int $task_id;
 
-	public function __construct(object $parent, string $parent_cmd, \ilLongEssayTaskPlugin $plugin, $task_id)
+	public function __construct(object $parent, string $parent_cmd, \ilLongEssayAssessmentPlugin $plugin, $task_id)
 	{
 		global $DIC;
 		$this->parent = $parent;
@@ -50,7 +50,7 @@ class WriterAdminLogListGUI
 	private function buildAlert(Alert $alert)
 	{
 		$recipient = "";
-		$custom_factory = LongEssayTaskDI::getInstance()->getUIFactory();
+		$custom_factory = LongEssayAssessmentDI::getInstance()->getUIFactory();
 
 		if($alert->getWriterId() !== null){
 			$id = -1;
@@ -73,7 +73,7 @@ class WriterAdminLogListGUI
 	}
 
 	private function buildLogEntry(LogEntry $log_entry) {
-		$custom_factory = LongEssayTaskDI::getInstance()->getUIFactory();
+		$custom_factory = LongEssayAssessmentDI::getInstance()->getUIFactory();
 		switch($log_entry->getCategory()){
 			case LogEntry::CATEGORY_EXCLUSION:
 				$icon = $custom_factory->icon()->disq('exclusion', 'medium');
@@ -209,7 +209,7 @@ class WriterAdminLogListGUI
 				$writer_ids[] = $alert->getWriterId();
 		}
 
-		$writer_repo = LongEssayTaskDI::getInstance()->getWriterRepo();
+		$writer_repo = LongEssayAssessmentDI::getInstance()->getWriterRepo();
 		$user_ids = [];
 
 		foreach ($writer_repo->getWritersByTaskId($this->task_id, $writer_ids) as $writer){

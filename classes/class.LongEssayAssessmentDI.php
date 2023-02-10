@@ -1,36 +1,36 @@
 <?php
 
-namespace ILIAS\Plugin\LongEssayTask;
+namespace ILIAS\Plugin\LongEssayAssessment;
 
 
-use ILIAS\Plugin\LongEssayTask\CorrectorAdmin\CorrectorAdminService;
-use ILIAS\Plugin\LongEssayTask\Data\CorrectorDatabaseRepository;
-use ILIAS\Plugin\LongEssayTask\Data\CorrectorRepository;
-use ILIAS\Plugin\LongEssayTask\Data\DataService;
-use ILIAS\Plugin\LongEssayTask\Data\EssayDatabaseRepository;
-use ILIAS\Plugin\LongEssayTask\Data\EssayRepository;
-use ILIAS\Plugin\LongEssayTask\Data\ObjectDatabaseRepository;
-use ILIAS\Plugin\LongEssayTask\Data\ObjectRepository;
-use ILIAS\Plugin\LongEssayTask\Data\SystemDatabaseRepository;
-use ILIAS\Plugin\LongEssayTask\Data\TaskDatabaseRepository;
-use ILIAS\Plugin\LongEssayTask\Data\TaskRepository;
-use ILIAS\Plugin\LongEssayTask\Data\WriterDatabaseRepository;
-use ILIAS\Plugin\LongEssayTask\Data\WriterRepository;
-use ILIAS\Plugin\LongEssayTask\UI\Implementation\Factory;
-use ILIAS\Plugin\LongEssayTask\UI\Implementation\FieldFactory;
-use ILIAS\Plugin\LongEssayTask\UI\Implementation\IconFactory;
-use ILIAS\Plugin\LongEssayTask\UI\PluginLoader;
-use ILIAS\Plugin\LongEssayTask\UI\PluginRendererFactory;
-use ILIAS\Plugin\LongEssayTask\UI\PluginTemplateFactory;
-use ILIAS\Plugin\LongEssayTask\UI\UIService;
-use ILIAS\Plugin\LongEssayTask\WriterAdmin\WriterAdminService;
+use ILIAS\Plugin\LongEssayAssessment\CorrectorAdmin\CorrectorAdminService;
+use ILIAS\Plugin\LongEssayAssessment\Data\CorrectorDatabaseRepository;
+use ILIAS\Plugin\LongEssayAssessment\Data\CorrectorRepository;
+use ILIAS\Plugin\LongEssayAssessment\Data\DataService;
+use ILIAS\Plugin\LongEssayAssessment\Data\EssayDatabaseRepository;
+use ILIAS\Plugin\LongEssayAssessment\Data\EssayRepository;
+use ILIAS\Plugin\LongEssayAssessment\Data\ObjectDatabaseRepository;
+use ILIAS\Plugin\LongEssayAssessment\Data\ObjectRepository;
+use ILIAS\Plugin\LongEssayAssessment\Data\SystemDatabaseRepository;
+use ILIAS\Plugin\LongEssayAssessment\Data\TaskDatabaseRepository;
+use ILIAS\Plugin\LongEssayAssessment\Data\TaskRepository;
+use ILIAS\Plugin\LongEssayAssessment\Data\WriterDatabaseRepository;
+use ILIAS\Plugin\LongEssayAssessment\Data\WriterRepository;
+use ILIAS\Plugin\LongEssayAssessment\UI\Implementation\Factory;
+use ILIAS\Plugin\LongEssayAssessment\UI\Implementation\FieldFactory;
+use ILIAS\Plugin\LongEssayAssessment\UI\Implementation\IconFactory;
+use ILIAS\Plugin\LongEssayAssessment\UI\PluginLoader;
+use ILIAS\Plugin\LongEssayAssessment\UI\PluginRendererFactory;
+use ILIAS\Plugin\LongEssayAssessment\UI\PluginTemplateFactory;
+use ILIAS\Plugin\LongEssayAssessment\UI\UIService;
+use ILIAS\Plugin\LongEssayAssessment\WriterAdmin\WriterAdminService;
 use ILIAS\UI\Implementation\Render\ComponentRenderer;
 use Pimple\Container;
 
 /**
  * @author Fabian Wolf <wolf@ilias.de>
  */
-class LongEssayTaskDI
+class LongEssayAssessmentDI
 {
     protected static $instance;
     protected $dataServices = [];
@@ -125,7 +125,7 @@ class LongEssayTaskDI
 
 
 
-    public static function getInstance(): LongEssayTaskDI
+    public static function getInstance(): LongEssayAssessmentDI
     {
 		global $DIC;
 

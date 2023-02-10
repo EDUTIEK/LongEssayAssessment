@@ -1,28 +1,28 @@
 <?php
 /* Copyright (c) 2021 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-namespace ILIAS\Plugin\LongEssayTask\WriterAdmin;
+namespace ILIAS\Plugin\LongEssayAssessment\WriterAdmin;
 
-use ILIAS\Plugin\LongEssayTask\BaseGUI;
-use ILIAS\Plugin\LongEssayTask\Data\Alert;
-use ILIAS\Plugin\LongEssayTask\Data\LogEntry;
-use ILIAS\Plugin\LongEssayTask\Data\WriterNotice;
-use ILIAS\Plugin\LongEssayTask\LongEssayTaskDI;
+use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
+use ILIAS\Plugin\LongEssayAssessment\Data\Alert;
+use ILIAS\Plugin\LongEssayAssessment\Data\LogEntry;
+use ILIAS\Plugin\LongEssayAssessment\Data\WriterNotice;
+use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
 use ILIAS\UI\Factory;
 use \ilUtil;
 
 /**
  *Start page for corrector admins
  *
- * @package ILIAS\Plugin\LongEssayTask\WriterAdmin
- * @ilCtrl_isCalledBy ILIAS\Plugin\LongEssayTask\WriterAdmin\WriterAdminLogGUI: ilObjLongEssayTaskGUI
+ * @package ILIAS\Plugin\LongEssayAssessment\WriterAdmin
+ * @ilCtrl_isCalledBy ILIAS\Plugin\LongEssayAssessment\WriterAdmin\WriterAdminLogGUI: ilObjLongEssayAssessmentGUI
  */
 class WriterAdminLogGUI extends BaseGUI
 {
     /** @var WriterAdminService */
     protected $service;
 
-    public function __construct(\ilObjLongEssayTaskGUI $objectGUI)
+    public function __construct(\ilObjLongEssayAssessmentGUI $objectGUI)
     {
         parent::__construct($objectGUI);
         $this->service = $this->localDI->getWriterAdminService($this->object->getId());
@@ -70,7 +70,7 @@ class WriterAdminLogGUI extends BaseGUI
             $this->ctrl->getLinkTarget($this, 'exportLog'));
         $this->toolbar->addComponent($button_export);
 
-		$task_repo = LongEssayTaskDI::getInstance()->getTaskRepo();
+		$task_repo = LongEssayAssessmentDI::getInstance()->getTaskRepo();
 
 		$list = new WriterAdminLogListGUI($this, "showStartPage", $this->plugin, $this->object->getId());
 		$list->addLogEntries($task_repo->getLogEntriesByTaskId($this->object->getId()));
@@ -94,7 +94,7 @@ class WriterAdminLogGUI extends BaseGUI
 				if($data['recipient'] != -1) {
 					$alert->setWriterId((int) $data['recipient']);
 				}
-				$task_repo = LongEssayTaskDI::getInstance()->getTaskRepo();
+				$task_repo = LongEssayAssessmentDI::getInstance()->getTaskRepo();
 				$task_repo->createAlert($alert);
 
 				ilUtil::sendSuccess($this->plugin->txt("alert_created"), true);
@@ -119,7 +119,7 @@ class WriterAdminLogGUI extends BaseGUI
 				$log_entry->setEntry($data['entry']);
 				$log_entry->setCategory(LogEntry::CATEGORY_NOTE);
 
-				$task_repo = LongEssayTaskDI::getInstance()->getTaskRepo();
+				$task_repo = LongEssayAssessmentDI::getInstance()->getTaskRepo();
 				$task_repo->createLogEntry($log_entry);
 
 				ilUtil::sendSuccess($this->plugin->txt("log_entry_created"), true);
@@ -202,7 +202,7 @@ class WriterAdminLogGUI extends BaseGUI
 
 	private function getWriterNameOptions(): array
 	{
-		$writer_repo = LongEssayTaskDI::getInstance()->getWriterRepo();
+		$writer_repo = LongEssayAssessmentDI::getInstance()->getWriterRepo();
 		$writers = [];
 		foreach($writer_repo->getWritersByTaskId($this->object->getId()) as $writer){
 			$writers[$writer->getUserId()] = $writer;

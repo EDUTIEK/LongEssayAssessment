@@ -1,6 +1,6 @@
 <?php
 
-namespace ILIAS\Plugin\LongEssayTask\UI;
+namespace ILIAS\Plugin\LongEssayAssessment\UI;
 
 use ILIAS\UI\Implementation\Render\ilTemplateWrapper;
 use ILIAS\UI\Implementation\Render\TemplateFactory;

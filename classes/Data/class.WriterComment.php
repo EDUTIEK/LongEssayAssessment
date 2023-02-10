@@ -1,7 +1,7 @@
 <?php
 /* Copyright (c) 2021 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-namespace ILIAS\Plugin\LongEssayTask\Data;
+namespace ILIAS\Plugin\LongEssayAssessment\Data;
 
 /**
  * @author Fabian Wolf <wolf@ilias.de>
@@ -11,7 +11,7 @@ class WriterComment extends ActivePluginRecord
     /**
      * @var string
      */
-    protected $connector_container_name = 'xlet_writer_comment';
+    protected $connector_container_name = 'xlas_writer_comment';
 
     /**
      * Writer comment id

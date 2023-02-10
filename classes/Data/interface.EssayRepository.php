@@ -1,8 +1,8 @@
 <?php
 
-namespace ILIAS\Plugin\LongEssayTask\Data;
+namespace ILIAS\Plugin\LongEssayAssessment\Data;
 
-use Edutiek\LongEssayService\Data\CorrectionSummary;
+use Edutiek\LongEssayAssessmentService\Data\CorrectionSummary;
 
 /**
  * Manages ActiveDirectoryClasses:

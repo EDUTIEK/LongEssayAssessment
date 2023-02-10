@@ -1,9 +1,9 @@
 <?php
 
-namespace ILIAS\Plugin\LongEssayTask\UI;
+namespace ILIAS\Plugin\LongEssayAssessment\UI;
 
-use ILIAS\Plugin\LongEssayTask\UI\Implementation\FieldRenderer;
-use ILIAS\Plugin\LongEssayTask\UI\Implementation\Renderer;
+use ILIAS\Plugin\LongEssayAssessment\UI\Implementation\FieldRenderer;
+use ILIAS\Plugin\LongEssayAssessment\UI\Implementation\Renderer;
 use ILIAS\UI\Implementation\Render;
 use ILIAS\UI\Component;
 

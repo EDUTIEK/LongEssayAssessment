@@ -1,19 +1,19 @@
 <?php
 
-namespace ILIAS\Plugin\LongEssayTask\Writer;
+namespace ILIAS\Plugin\LongEssayAssessment\Writer;
 
-use Edutiek\LongEssayService\Data\Alert;
-use Edutiek\LongEssayService\Data\WritingSettings;
-use Edutiek\LongEssayService\Data\WritingStep;
-use Edutiek\LongEssayService\Data\WritingTask;
-use Edutiek\LongEssayService\Writer\Context;
-use Edutiek\LongEssayService\Writer\Service;
-use Edutiek\LongEssayService\Data\WrittenEssay;
-use ILIAS\Plugin\LongEssayTask\Data\Essay;
-use ILIAS\Plugin\LongEssayTask\Data\Resource;
-use ILIAS\Plugin\LongEssayTask\Data\Writer;
-use ILIAS\Plugin\LongEssayTask\Data\WriterHistory;
-use ILIAS\Plugin\LongEssayTask\ServiceContext;
+use Edutiek\LongEssayAssessmentService\Data\Alert;
+use Edutiek\LongEssayAssessmentService\Data\WritingSettings;
+use Edutiek\LongEssayAssessmentService\Data\WritingStep;
+use Edutiek\LongEssayAssessmentService\Data\WritingTask;
+use Edutiek\LongEssayAssessmentService\Writer\Context;
+use Edutiek\LongEssayAssessmentService\Writer\Service;
+use Edutiek\LongEssayAssessmentService\Data\WrittenEssay;
+use ILIAS\Plugin\LongEssayAssessment\Data\Essay;
+use ILIAS\Plugin\LongEssayAssessment\Data\Resource;
+use ILIAS\Plugin\LongEssayAssessment\Data\Writer;
+use ILIAS\Plugin\LongEssayAssessment\Data\WriterHistory;
+use ILIAS\Plugin\LongEssayAssessment\ServiceContext;
 
 class WriterContext extends ServiceContext implements Context
 {
@@ -39,7 +39,7 @@ class WriterContext extends ServiceContext implements Context
         }
         else {
             return  ILIAS_HTTP_PATH
-                . "/Customizing/global/plugins/Services/Repository/RepositoryObject/LongEssayTask"
+                . "/Customizing/global/plugins/Services/Repository/RepositoryObject/LongEssayAssessment"
                 . "/vendor/edutiek/long-essay-service"
                 . "/" . Service::FRONTEND_RELATIVE_PATH;
         }
@@ -52,7 +52,7 @@ class WriterContext extends ServiceContext implements Context
     public function getBackendUrl(): string
     {
         return  ILIAS_HTTP_PATH
-            . "/Customizing/global/plugins/Services/Repository/RepositoryObject/LongEssayTask/writer_service.php"
+            . "/Customizing/global/plugins/Services/Repository/RepositoryObject/LongEssayAssessment/writer_service.php"
             . "?client_id=" . CLIENT_ID;
     }
 
@@ -63,7 +63,7 @@ class WriterContext extends ServiceContext implements Context
      */
     public function getReturnUrl(): string
     {
-        return \ilLink::_getStaticLink($this->object->getRefId(), 'xlet', true, '_writer');
+        return \ilLink::_getStaticLink($this->object->getRefId(), 'xlas', true, '_writer');
     }
 
 

@@ -1,10 +1,10 @@
 <?php
 
-namespace ILIAS\Plugin\LongEssayTask\WriterAdmin;
+namespace ILIAS\Plugin\LongEssayAssessment\WriterAdmin;
 
 use Exception;
-use ILIAS\Plugin\LongEssayTask\Data\Corrector;
-use ILIAS\Plugin\LongEssayTask\Data\CorrectorAssignment;
+use ILIAS\Plugin\LongEssayAssessment\Data\Corrector;
+use ILIAS\Plugin\LongEssayAssessment\Data\CorrectorAssignment;
 
 class CorrectorListGUI extends WriterListGUI
 {

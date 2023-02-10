@@ -1,19 +1,19 @@
 <?php
 /* Copyright (c) 2021 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-namespace ILIAS\Plugin\LongEssayTask\Corrector;
+namespace ILIAS\Plugin\LongEssayAssessment\Corrector;
 
-use Edutiek\LongEssayService\Corrector\Service;
-use ILIAS\Plugin\LongEssayTask\BaseGUI;
-use ILIAS\Plugin\LongEssayTask\CorrectorAdmin\CorrectorAdminService;
-use ILIAS\Plugin\LongEssayTask\Data\CorrectionSettings;
-use ILIAS\Plugin\LongEssayTask\Data\CorrectorAssignment;
-use ILIAS\Plugin\LongEssayTask\Data\CorrectorRepository;
-use ILIAS\Plugin\LongEssayTask\Data\CorrectorSummary;
-use ILIAS\Plugin\LongEssayTask\Data\DataService;
-use ILIAS\Plugin\LongEssayTask\Data\Essay;
-use ILIAS\Plugin\LongEssayTask\Data\Writer;
-use ILIAS\Plugin\LongEssayTask\LongEssayTaskDI;
+use Edutiek\LongEssayAssessmentService\Corrector\Service;
+use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
+use ILIAS\Plugin\LongEssayAssessment\CorrectorAdmin\CorrectorAdminService;
+use ILIAS\Plugin\LongEssayAssessment\Data\CorrectionSettings;
+use ILIAS\Plugin\LongEssayAssessment\Data\CorrectorAssignment;
+use ILIAS\Plugin\LongEssayAssessment\Data\CorrectorRepository;
+use ILIAS\Plugin\LongEssayAssessment\Data\CorrectorSummary;
+use ILIAS\Plugin\LongEssayAssessment\Data\DataService;
+use ILIAS\Plugin\LongEssayAssessment\Data\Essay;
+use ILIAS\Plugin\LongEssayAssessment\Data\Writer;
+use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
 use ILIAS\UI\Component\Button\Shy;
 use ILIAS\UI\Component\Item\Standard;
 use ILIAS\UI\Component\Link\Link;
@@ -25,8 +25,8 @@ use Sabre\CalDAV\Notifications\Plugin;
 /**
  *Start page for correctors
  *
- * @package ILIAS\Plugin\LongEssayTask\Writer
- * @ilCtrl_isCalledBy ILIAS\Plugin\LongEssayTask\Corrector\CorrectorStartGUI: ilObjLongEssayTaskGUI
+ * @package ILIAS\Plugin\LongEssayAssessment\Writer
+ * @ilCtrl_isCalledBy ILIAS\Plugin\LongEssayAssessment\Corrector\CorrectorStartGUI: ilObjLongEssayAssessmentGUI
  */
 class CorrectorStartGUI extends BaseGUI
 {
@@ -43,7 +43,7 @@ class CorrectorStartGUI extends BaseGUI
 	private int $ready_items = 0;
 
 
-	public function __construct(\ilObjLongEssayTaskGUI $objectGUI)
+	public function __construct(\ilObjLongEssayAssessmentGUI $objectGUI)
     {
         parent::__construct($objectGUI);
         $this->service = $this->localDI->getCorrectorAdminService($this->object->getId());

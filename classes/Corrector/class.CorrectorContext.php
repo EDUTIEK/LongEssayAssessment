@@ -1,21 +1,21 @@
 <?php
 
-namespace ILIAS\Plugin\LongEssayTask\Corrector;
+namespace ILIAS\Plugin\LongEssayAssessment\Corrector;
 
-use Edutiek\LongEssayService\Corrector\Context;
-use Edutiek\LongEssayService\Corrector\Service;
-use Edutiek\LongEssayService\Data\CorrectionGradeLevel;
-use Edutiek\LongEssayService\Data\CorrectionItem;
-use Edutiek\LongEssayService\Data\CorrectionSettings;
-use Edutiek\LongEssayService\Data\CorrectionSummary;
-use Edutiek\LongEssayService\Data\CorrectionTask;
-use Edutiek\LongEssayService\Data\Corrector;
-use Edutiek\LongEssayService\Data\WrittenEssay;
-use Edutiek\LongEssayService\Exceptions\ContextException;
-use ILIAS\Plugin\LongEssayTask\Data\CorrectorSummary;
-use ILIAS\Plugin\LongEssayTask\Data\Resource;
-use ILIAS\Plugin\LongEssayTask\Data\Writer;
-use ILIAS\Plugin\LongEssayTask\ServiceContext;
+use Edutiek\LongEssayAssessmentService\Corrector\Context;
+use Edutiek\LongEssayAssessmentService\Corrector\Service;
+use Edutiek\LongEssayAssessmentService\Data\CorrectionGradeLevel;
+use Edutiek\LongEssayAssessmentService\Data\CorrectionItem;
+use Edutiek\LongEssayAssessmentService\Data\CorrectionSettings;
+use Edutiek\LongEssayAssessmentService\Data\CorrectionSummary;
+use Edutiek\LongEssayAssessmentService\Data\CorrectionTask;
+use Edutiek\LongEssayAssessmentService\Data\Corrector;
+use Edutiek\LongEssayAssessmentService\Data\WrittenEssay;
+use Edutiek\LongEssayAssessmentService\Exceptions\ContextException;
+use ILIAS\Plugin\LongEssayAssessment\Data\CorrectorSummary;
+use ILIAS\Plugin\LongEssayAssessment\Data\Resource;
+use ILIAS\Plugin\LongEssayAssessment\Data\Writer;
+use ILIAS\Plugin\LongEssayAssessment\ServiceContext;
 
 class CorrectorContext extends ServiceContext implements Context
 {
@@ -102,7 +102,7 @@ class CorrectorContext extends ServiceContext implements Context
         }
         else {
             return  ILIAS_HTTP_PATH
-                . "/Customizing/global/plugins/Services/Repository/RepositoryObject/LongEssayTask"
+                . "/Customizing/global/plugins/Services/Repository/RepositoryObject/LongEssayAssessment"
                 . "/vendor/edutiek/long-essay-service"
                 . "/" . Service::FRONTEND_RELATIVE_PATH;
         }
@@ -115,7 +115,7 @@ class CorrectorContext extends ServiceContext implements Context
     public function getBackendUrl(): string
     {
         return  ILIAS_HTTP_PATH
-            . "/Customizing/global/plugins/Services/Repository/RepositoryObject/LongEssayTask/corrector_service.php"
+            . "/Customizing/global/plugins/Services/Repository/RepositoryObject/LongEssayAssessment/corrector_service.php"
             . "?client_id=" . CLIENT_ID;
     }
 
@@ -127,9 +127,9 @@ class CorrectorContext extends ServiceContext implements Context
     public function getReturnUrl(): string
     {
         if ($this->isReview() || $this->isStitchDecision()) {
-            return \ilLink::_getStaticLink($this->object->getRefId(), 'xlet', true, '_correctoradmin');
+            return \ilLink::_getStaticLink($this->object->getRefId(), 'xlas', true, '_correctoradmin');
         }
-        return \ilLink::_getStaticLink($this->object->getRefId(), 'xlet', true, '_corrector');
+        return \ilLink::_getStaticLink($this->object->getRefId(), 'xlas', true, '_corrector');
     }
 
     /**

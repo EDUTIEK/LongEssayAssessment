@@ -1,9 +1,9 @@
 <?php
 
-namespace ILIAS\Plugin\LongEssayTask\WriterAdmin;
+namespace ILIAS\Plugin\LongEssayAssessment\WriterAdmin;
 
-use ILIAS\Plugin\LongEssayTask\Data\TimeExtension;
-use ILIAS\Plugin\LongEssayTask\Data\Writer;
+use ILIAS\Plugin\LongEssayAssessment\Data\TimeExtension;
+use ILIAS\Plugin\LongEssayAssessment\Data\Writer;
 
 class WriterAdminListGUI extends WriterListGUI
 {

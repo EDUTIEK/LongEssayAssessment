@@ -2,24 +2,24 @@
 /* Copyright (c) 2021 ILIAS open source, Extended GPL, see docs/LICENSE */
 
 use ILIAS\DI\Container;
-use ILIAS\Plugin\LongEssayTask\CorrectorAdmin\CorrectorAdminService;
-use ILIAS\Plugin\LongEssayTask\Data\CorrectionSettings;
-use ILIAS\Plugin\LongEssayTask\Data\DataService;
-use ILIAS\Plugin\LongEssayTask\Data\EditorSettings;
-use ILIAS\Plugin\LongEssayTask\Data\GradeLevel;
-use ILIAS\Plugin\LongEssayTask\Data\ObjectSettings;
-use ILIAS\Plugin\LongEssayTask\Data\PluginConfig;
-use ILIAS\Plugin\LongEssayTask\Data\RatingCriterion;
-use ILIAS\Plugin\LongEssayTask\Data\Resource;
-use ILIAS\Plugin\LongEssayTask\Data\TaskSettings;
-use ILIAS\Plugin\LongEssayTask\LongEssayTaskDI;
-use ILIAS\Plugin\LongEssayTask\Task\ResourceResourceStakeholder;
+use ILIAS\Plugin\LongEssayAssessment\CorrectorAdmin\CorrectorAdminService;
+use ILIAS\Plugin\LongEssayAssessment\Data\CorrectionSettings;
+use ILIAS\Plugin\LongEssayAssessment\Data\DataService;
+use ILIAS\Plugin\LongEssayAssessment\Data\EditorSettings;
+use ILIAS\Plugin\LongEssayAssessment\Data\GradeLevel;
+use ILIAS\Plugin\LongEssayAssessment\Data\ObjectSettings;
+use ILIAS\Plugin\LongEssayAssessment\Data\PluginConfig;
+use ILIAS\Plugin\LongEssayAssessment\Data\RatingCriterion;
+use ILIAS\Plugin\LongEssayAssessment\Data\Resource;
+use ILIAS\Plugin\LongEssayAssessment\Data\TaskSettings;
+use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
+use ILIAS\Plugin\LongEssayAssessment\Task\ResourceResourceStakeholder;
 
 /**
  * Repository object
  * @author Fred Neumann <fred.neumann@ilias.de>
  */
-class ilObjLongEssayTask extends ilObjectPlugin
+class ilObjLongEssayAssessment extends ilObjectPlugin
 {
     /** @var Container */
     protected $dic;
@@ -36,10 +36,10 @@ class ilObjLongEssayTask extends ilObjectPlugin
     /** @var TaskSettings */
     protected $taskSettings;
 
-    /** @var LongEssayTaskDI */
+    /** @var LongEssayAssessmentDI */
     protected $localDI;
 
-    /** @var ilLongEssayTaskPlugin */
+    /** @var ilLongEssayAssessmentPlugin */
     protected $plugin;
 
     /** @var DataService  */
@@ -58,8 +58,8 @@ class ilObjLongEssayTask extends ilObjectPlugin
 	    $this->dic = $DIC;
         $this->access = $DIC->access();
         $this->user = $DIC->user();
-        $this->localDI = LongEssayTaskDI::getInstance();
-        $this->plugin = ilLongEssayTaskPlugin::getInstance();
+        $this->localDI = LongEssayAssessmentDI::getInstance();
+        $this->plugin = ilLongEssayAssessmentPlugin::getInstance();
 		$this->resource = $DIC->resourceStorage();
 
 		parent::__construct($a_ref_id);
@@ -71,7 +71,7 @@ class ilObjLongEssayTask extends ilObjectPlugin
 	 */
 	final function initType()
 	{
-		$this->setType(ilLongEssayTaskPlugin::ID);
+		$this->setType(ilLongEssayAssessmentPlugin::ID);
 	}
 
 	/**
@@ -79,7 +79,7 @@ class ilObjLongEssayTask extends ilObjectPlugin
 	 */
 	protected function doCreate()
 	{
-        $di = LongEssayTaskDI::getInstance();
+        $di = LongEssayAssessmentDI::getInstance();
         $object_repo = $di->getObjectRepo();
         $task_repo = $di->getTaskRepo();
 

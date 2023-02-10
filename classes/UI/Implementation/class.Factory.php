@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-namespace ILIAS\Plugin\LongEssayTask\UI\Implementation;
+namespace ILIAS\Plugin\LongEssayAssessment\UI\Implementation;
 
 use ILIAS\Data;
-use ILIAS\Plugin\LongEssayTask\UI;
-use ILIAS\Plugin\LongEssayTask\UI\Component\FieldFactory;
-use ILIAS\Plugin\LongEssayTask\UI\Component\IconFactory;
+use ILIAS\Plugin\LongEssayAssessment\UI;
+use ILIAS\Plugin\LongEssayAssessment\UI\Component\FieldFactory;
+use ILIAS\Plugin\LongEssayAssessment\UI\Component\IconFactory;
 use ILIAS\UI\Implementation\Component\SignalGeneratorInterface;
 
 /**
  * Class Factory
  *
- * @package ILIAS\Plugin\LongEssayTask\UI\Implementation
+ * @package ILIAS\Plugin\LongEssayAssessment\UI\Implementation
  */
 class Factory implements UI\Component\Factory
 {

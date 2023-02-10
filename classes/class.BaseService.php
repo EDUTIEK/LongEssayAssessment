@@ -1,7 +1,7 @@
 <?php
 /* Copyright (c) 2021 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-namespace ILIAS\Plugin\LongEssayTask;
+namespace ILIAS\Plugin\LongEssayAssessment;
 
 /**
  * Base class for service classes
@@ -15,13 +15,13 @@ abstract class BaseService
 	/** @var \ilLanguage */
 	public $lng;
 
-    /** @var  \ilObjLongEssayTask */
+    /** @var  \ilObjLongEssayAssessment */
     public $object;
 
-    /** @var  \ilLongEssayTaskPlugin */
+    /** @var  \ilLongEssayAssessmentPlugin */
     public $plugin;
 
-    /** @var LongEssayTaskDI */
+    /** @var LongEssayAssessmentDI */
     protected $localDI;
 
     /** @var int */
@@ -30,7 +30,7 @@ abstract class BaseService
 
     /**
 	 * Constructor
-	 * @param \ilObjLongEssayTask
+	 * @param \ilObjLongEssayAssessment
 	 */
 	public function __construct(int $task_id)
 	{
@@ -43,7 +43,7 @@ abstract class BaseService
 
         // Plugin dependencies
         $this->task_id = $task_id;
-		$this->plugin = \ilLongEssayTaskPlugin::getInstance();
-        $this->localDI = LongEssayTaskDI::getInstance();
+		$this->plugin = \ilLongEssayAssessmentPlugin::getInstance();
+        $this->localDI = LongEssayAssessmentDI::getInstance();
 	}
 }

@@ -1,25 +1,25 @@
 <?php
 /* Copyright (c) 2021 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-namespace ILIAS\Plugin\LongEssayTask\WriterAdmin;
+namespace ILIAS\Plugin\LongEssayAssessment\WriterAdmin;
 
 use ILIAS\DI\Exceptions\Exception;
-use ILIAS\Plugin\LongEssayTask\BaseGUI;
-use ILIAS\Plugin\LongEssayTask\Data\Essay;
-use ILIAS\Plugin\LongEssayTask\Data\GradeLevel;
-use ILIAS\Plugin\LongEssayTask\Data\LogEntry;
-use ILIAS\Plugin\LongEssayTask\Data\ObjectSettings;
-use ILIAS\Plugin\LongEssayTask\Data\TimeExtension;
-use ILIAS\Plugin\LongEssayTask\Data\Writer;
-use ILIAS\Plugin\LongEssayTask\LongEssayTaskDI;
+use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
+use ILIAS\Plugin\LongEssayAssessment\Data\Essay;
+use ILIAS\Plugin\LongEssayAssessment\Data\GradeLevel;
+use ILIAS\Plugin\LongEssayAssessment\Data\LogEntry;
+use ILIAS\Plugin\LongEssayAssessment\Data\ObjectSettings;
+use ILIAS\Plugin\LongEssayAssessment\Data\TimeExtension;
+use ILIAS\Plugin\LongEssayAssessment\Data\Writer;
+use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
 use \ilUtil;
 
 /**
  *Start page for corrector admins
  *
- * @package ILIAS\Plugin\LongEssayTask\WriterAdmin
- * @ilCtrl_isCalledBy ILIAS\Plugin\LongEssayTask\WriterAdmin\WriterAdminGUI: ilObjLongEssayTaskGUI
- * @ilCtrl_Calls ILIAS\Plugin\LongEssayTask\WriterAdmin\WriterAdminGUI: ilRepositorySearchGUI
+ * @package ILIAS\Plugin\LongEssayAssessment\WriterAdmin
+ * @ilCtrl_isCalledBy ILIAS\Plugin\LongEssayAssessment\WriterAdmin\WriterAdminGUI: ilObjLongEssayAssessmentGUI
+ * @ilCtrl_Calls ILIAS\Plugin\LongEssayAssessment\WriterAdmin\WriterAdminGUI: ilRepositorySearchGUI
  */
 class WriterAdminGUI extends BaseGUI
 {
@@ -91,8 +91,8 @@ class WriterAdminGUI extends BaseGUI
 			->withOnClick($delete_writer_data_modal->getShowSignal());
 		$this->toolbar->addComponent($delete_writer_data_button);
 
-		$writer_repo = LongEssayTaskDI::getInstance()->getWriterRepo();
-		$essay_repo = LongEssayTaskDI::getInstance()->getEssayRepo();
+		$writer_repo = LongEssayAssessmentDI::getInstance()->getWriterRepo();
+		$essay_repo = LongEssayAssessmentDI::getInstance()->getEssayRepo();
 
 		$list_gui = new WriterAdminListGUI($this, "showStartPage", $this->plugin);
 		$list_gui->setWriters($writer_repo->getWritersByTaskId($this->object->getId()));
@@ -109,14 +109,14 @@ class WriterAdminGUI extends BaseGUI
 			ilUtil::sendFailure($this->plugin->txt("missing_writer_id"), true);
 			$this->ctrl->redirect($this, "showStartPage");
 		}
-		$writer_repo = LongEssayTaskDI::getInstance()->getWriterRepo();
+		$writer_repo = LongEssayAssessmentDI::getInstance()->getWriterRepo();
 		$writer = $writer_repo->getWriterById($id);
 
 		if($writer === null || $writer->getTaskId() !== $this->object->getId()){
 			ilUtil::sendFailure($this->plugin->txt("missing_writer"), true);
 			$this->ctrl->redirect($this, "showStartPage");
 		}
-		$essay_repo = LongEssayTaskDI::getInstance()->getEssayRepo();
+		$essay_repo = LongEssayAssessmentDI::getInstance()->getEssayRepo();
 		$essay = $essay_repo->getEssayByWriterIdAndTaskId($writer->getId(), $this->object->getId());
 
 		if($essay !== null && $essay->getEditStarted() !== null){
@@ -141,9 +141,9 @@ class WriterAdminGUI extends BaseGUI
 			ilUtil::sendFailure($this->plugin->txt("missing_writer_id"), true);
 			$this->ctrl->redirect($this, "showStartPage");
 		}
-		$writer_repo = LongEssayTaskDI::getInstance()->getWriterRepo();
+		$writer_repo = LongEssayAssessmentDI::getInstance()->getWriterRepo();
 		$writer = $writer_repo->getWriterById($id);
-		$essay_repo = LongEssayTaskDI::getInstance()->getEssayRepo();
+		$essay_repo = LongEssayAssessmentDI::getInstance()->getEssayRepo();
 		$essay = $essay_repo->getEssayByWriterIdAndTaskId($writer->getId(), $this->object->getId());
 
 		if($writer === null || $writer->getTaskId() !== $this->object->getId() || $essay === null){
@@ -172,9 +172,9 @@ class WriterAdminGUI extends BaseGUI
 			$this->ctrl->redirect($this, "showStartPage");
 		}
 
-		$essay_repo = LongEssayTaskDI::getInstance()->getEssayRepo();
-		$writer_repo = LongEssayTaskDI::getInstance()->getWriterRepo();
-		$corr_repo = LongEssayTaskDI::getInstance()->getCorrectorRepo();
+		$essay_repo = LongEssayAssessmentDI::getInstance()->getEssayRepo();
+		$writer_repo = LongEssayAssessmentDI::getInstance()->getWriterRepo();
+		$corr_repo = LongEssayAssessmentDI::getInstance()->getCorrectorRepo();
 
 		$writer = $writer_repo->getWriterById($id);
 
@@ -223,7 +223,7 @@ class WriterAdminGUI extends BaseGUI
 	public function filterUserIdsByLETMembership($a_user_ids)
 	{
 		$user_ids = [];
-		$writer_repo = LongEssayTaskDI::getInstance()->getWriterRepo();
+		$writer_repo = LongEssayAssessmentDI::getInstance()->getWriterRepo();
 		$writers = array_map(fn ($row) => $row->getUserId(), $writer_repo->getWritersByTaskId($this->object->getId()));
 
 		foreach ($a_user_ids as $user_id){
@@ -297,7 +297,7 @@ class WriterAdminGUI extends BaseGUI
 				//TODO: ERROR
 			}
 
-			$task_repo = LongEssayTaskDI::getInstance()->getTaskRepo();
+			$task_repo = LongEssayAssessmentDI::getInstance()->getTaskRepo();
 			$settings = $task_repo->getTaskSettingsById($this->object->getId());
 
 			if(isset($data["form"]["extension"])
@@ -320,7 +320,7 @@ class WriterAdminGUI extends BaseGUI
 			// inputs are ok => save data
 			if (isset($data)) {
 				$record->setMinutes($data["form"]["extension"]);
-				$obj_repo  = LongEssayTaskDI::getInstance()->getWriterRepo();
+				$obj_repo  = LongEssayAssessmentDI::getInstance()->getWriterRepo();
 
 				if($record->getMinutes() === 0){
 					$obj_repo->deleteTimeExtension($record->getWriterId(), $record->getTaskId());
@@ -349,7 +349,7 @@ class WriterAdminGUI extends BaseGUI
 			$this->ctrl->redirect($this, "showStartPage");
 		}
 
-		$essay_repo = LongEssayTaskDI::getInstance()->getEssayRepo();
+		$essay_repo = LongEssayAssessmentDI::getInstance()->getEssayRepo();
 		$essay = $essay_repo->getEssayByWriterIdAndTaskId($id, $this->object->getId());
 
 		if($essay === null){
@@ -369,10 +369,10 @@ class WriterAdminGUI extends BaseGUI
 	}
 
 	protected function deleteWriterData(){
-		$essay_repo = LongEssayTaskDI::getInstance()->getEssayRepo();
-		$writer_repo = LongEssayTaskDI::getInstance()->getWriterRepo();
-		$task_repo = LongEssayTaskDI::getInstance()->getTaskRepo();
-		$corr_repo = LongEssayTaskDI::getInstance()->getCorrectorRepo();
+		$essay_repo = LongEssayAssessmentDI::getInstance()->getEssayRepo();
+		$writer_repo = LongEssayAssessmentDI::getInstance()->getWriterRepo();
+		$task_repo = LongEssayAssessmentDI::getInstance()->getTaskRepo();
+		$corr_repo = LongEssayAssessmentDI::getInstance()->getCorrectorRepo();
 
 		$essay_repo->deleteEssayByTaskId($this->object->getId());
 		$writer_repo->deleteWriterByTaskId($this->object->getId());
@@ -382,7 +382,7 @@ class WriterAdminGUI extends BaseGUI
 
 
 		/* TODO: Besprechen ob manuell hinzugefügte Teilnehmer bei nicht selbständigem Start erhalten bleiben sollen.
-		$object_repo = LongEssayTaskDI::getInstance()->getObjectRepo();
+		$object_repo = LongEssayAssessmentDI::getInstance()->getObjectRepo();
 		$settings = $object_repo->getObjectSettingsById($this->object->getId());
 
 		// when self participation is active also delete all writer
@@ -396,7 +396,7 @@ class WriterAdminGUI extends BaseGUI
 
 	protected function getExtension(int $writer_id): ?TimeExtension
 	{
-		$writer_repo  = LongEssayTaskDI::getInstance()->getWriterRepo();
+		$writer_repo  = LongEssayAssessmentDI::getInstance()->getWriterRepo();
 		$record = $writer_repo->getTimeExtensionByWriterId($writer_id, $this->object->getId());
 
 		if(!$record){
@@ -409,8 +409,8 @@ class WriterAdminGUI extends BaseGUI
 	private function createAuthorizeLogEntry(Essay $essay){
 		global $DIC;
 
-		$writer_repo = LongEssayTaskDI::getInstance()->getWriterRepo();
-		$task_repo = LongEssayTaskDI::getInstance()->getTaskRepo();
+		$writer_repo = LongEssayAssessmentDI::getInstance()->getWriterRepo();
+		$task_repo = LongEssayAssessmentDI::getInstance()->getTaskRepo();
 		$writer = $writer_repo->getWriterById($essay->getWriterId());
 
 		$lng = $DIC->language();
@@ -433,8 +433,8 @@ class WriterAdminGUI extends BaseGUI
 	private function createExtensionLogEntry(TimeExtension $time_extension){
 		global $DIC;
 
-		$writer_repo = LongEssayTaskDI::getInstance()->getWriterRepo();
-		$task_repo = LongEssayTaskDI::getInstance()->getTaskRepo();
+		$writer_repo = LongEssayAssessmentDI::getInstance()->getWriterRepo();
+		$task_repo = LongEssayAssessmentDI::getInstance()->getTaskRepo();
 		$writer = $writer_repo->getWriterById($time_extension->getWriterId());
 
 		$lng = $DIC->language();
@@ -458,7 +458,7 @@ class WriterAdminGUI extends BaseGUI
 
 	private function createExclusionLogEntry(Writer $writer){
 		global $DIC;
-		$task_repo = LongEssayTaskDI::getInstance()->getTaskRepo();
+		$task_repo = LongEssayAssessmentDI::getInstance()->getTaskRepo();
 
 		$lng = $DIC->language();
 
@@ -482,7 +482,7 @@ class WriterAdminGUI extends BaseGUI
 
 	private function createExclusionRepealLogEntry(Writer $writer){
 		global $DIC;
-		$task_repo = LongEssayTaskDI::getInstance()->getTaskRepo();
+		$task_repo = LongEssayAssessmentDI::getInstance()->getTaskRepo();
 
 		$lng = $DIC->language();
 

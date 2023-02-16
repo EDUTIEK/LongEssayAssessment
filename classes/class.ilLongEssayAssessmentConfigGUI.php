@@ -2,7 +2,8 @@
 /* Copyright (c) 2021 ILIAS open source, Extended GPL, see docs/LICENSE */
 
 use ILIAS\DI\Container;
-use ILIAS\Plugin\LongEssayAssessment\Data\Object\PluginConfig;
+use ILIAS\Plugin\LongEssayAssessment\Data\System\PluginConfig;
+use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
 
 /**
  * Plugin Configuration GUI
@@ -18,7 +19,7 @@ class ilLongEssayAssessmentConfigGUI extends ilPluginConfigGUI
 	/** @var ilLongEssayAssessmentPlugin  */
 	protected $plugin;
 
-	/** @var PluginConfig  */
+	/** @var \ILIAS\Plugin\LongEssayAssessment\Data\System\PluginConfig  */
 	protected $config;
 
 	/** @var ilTabsGUI  */
@@ -120,7 +121,10 @@ class ilLongEssayAssessmentConfigGUI extends ilPluginConfigGUI
             $this->config->setPrimaryColor((string) $form->getInput('primary_color'));
             $this->config->setPrimaryTextColor((string) $form->getInput('primary_text_color'));
             $this->config->setSimulateOffline((bool) $form->getInput('simulate_offline'));
-            $this->config->save();
+
+            $di = LongEssayAssessmentDI::getInstance();
+            $di->getSystemRepo()->save($this->config);
+
             ilUtil::sendSuccess($this->lng->txt('settings_saved'));
             $this->ctrl->redirect($this, 'configure');
         }

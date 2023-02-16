@@ -4,6 +4,7 @@ namespace ILIAS\Plugin\LongEssayAssessment\Data\Object;
 
 
 use ILIAS\Plugin\LongEssayAssessment\Data\Essay\EssayRepository;
+use ILIAS\Plugin\LongEssayAssessment\Data\System\PluginConfig;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\TaskRepository;
 
 /**
@@ -37,14 +38,6 @@ class ObjectRepository
         $a_rating_criterion->create();
     }
 
-    public function getPluginConfigById(int $a_id): ?PluginConfig
-    {
-        $plugin = PluginConfig::findOrGetInstance($a_id);
-        if ($plugin != null) {
-            return $plugin;
-        }
-        return null;
-    }
 
     public function ifObjectExistsById(int $a_id): bool
     {
@@ -101,11 +94,6 @@ class ObjectRepository
     public function updateObjectSettings(ObjectSettings $a_object_settings)
     {
         $a_object_settings->update();
-    }
-
-    public function updatePluginConfig(PluginConfig $a_plugin_config)
-    {
-        $a_plugin_config->update();
     }
 
     public function updateGradeLevel(GradeLevel $a_grade_level)

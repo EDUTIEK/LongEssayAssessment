@@ -2,15 +2,22 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\Data\System;
 
-class SystemRepository
+use ILIAS\Plugin\LongEssayAssessment\Data\RecordData;
+use ILIAS\Plugin\LongEssayAssessment\Data\RecordRepo;
+
+class SystemRepository extends RecordRepo
 {
-    private \ilDBInterface $database;
-
-    public function __construct(\ilDBInterface $database)
+    public function __construct(\ilDBInterface $db, \ilLogger $logger)
     {
-        $this->database = $database;
-
+        parent::__construct($db, $logger);
     }
+
+
+    public function getPluginConfig() : PluginConfig
+    {
+        return $this->getSingleRecord('SELECT * FROM xlas_plugin_config', PluginConfig::model(), PluginConfig::model());
+    }
+
 
     /**
      * Get the ids of active sessions for a user, and (optional) a specific ip address
@@ -18,17 +25,17 @@ class SystemRepository
      */
     public function getActiveSessionIds(int $user_id, ?string $ip_address = null) : array
     {
-        $query = "SELECT session_id FROM usr_session WHERE user_id = " . $this->database->quote($user_id, 'integer')
-        . " AND expires > " . $this->database->quote(time(), 'integer');
+        $query = "SELECT session_id FROM usr_session WHERE user_id = " . $this->db->quote($user_id, 'integer')
+        . " AND expires > " . $this->db->quote(time(), 'integer');
 
         if (!empty($ip_address)) {
-            $query .= " AND remote_addr = " . $this->database->quote($ip_address, 'text');
+            $query .= " AND remote_addr = " . $this->db->quote($ip_address, 'text');
         }
 
-        $result = $this->database->query($query);
+        $result = $this->db->query($query);
 
         $ids = [];
-        while ($row = $this->database->fetchAssoc($result)) {
+        while ($row = $this->db->fetchAssoc($result)) {
             $ids[] = (string) $row['session_id'];
         }
 
@@ -40,9 +47,18 @@ class SystemRepository
      */
     public function setSessionExpires(string $session_id, int $expires) : void
     {
-        $query = "UPDATE usr_session SET expires = "  . $this->database->quote($expires, 'integer')
-            ." WHERE session_id = ". $this->database->quote($session_id, 'text');
+        $query = "UPDATE usr_session SET expires = "  . $this->db->quote($expires, 'integer')
+            ." WHERE session_id = ". $this->db->quote($session_id, 'text');
 
-        $this->database->manipulate($query);
+        $this->db->manipulate($query);
+    }
+
+    /**
+     * Save record data of an allowed type
+     * @param PluginConfig $record
+     */
+    public function save(RecordData $record)
+    {
+        $this->replaceRecord($record);
     }
 }

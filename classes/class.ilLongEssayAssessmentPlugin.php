@@ -2,7 +2,7 @@
 /* Copyright (c) 2021 ILIAS open source, Extended GPL, see docs/LICENSE */
 
 use ILIAS\DI\Container;
-use ILIAS\Plugin\LongEssayAssessment\Data\Object\PluginConfig;
+use ILIAS\Plugin\LongEssayAssessment\Data\System\PluginConfig;
 use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
 use ILIAS\Plugin\LongEssayAssessment\Task\ResourceResourceStakeholder;
 
@@ -115,10 +115,8 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
      */
     public function getConfig(): PluginConfig
     {
-        // caching is already done by ActiveRecord
-        $config = new PluginConfig();
-        $config->read();
-        return $config;
+        $di = LongEssayAssessmentDI::getInstance();
+        return $di->getSystemRepo()->getPluginConfig();
     }
 
 

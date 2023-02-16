@@ -147,7 +147,6 @@ class ilObjLongEssayAssessment extends ilObjectPlugin
 		$new_obj->objectSettings = clone $this->objectSettings;
         $new_obj_settings = $new_obj->objectSettings->setObjId($new_obj->getId());
 
-        $new_plugin_settings = clone $object_repo->getPluginConfigById($this->getId());
         $new_task_settings = clone $task_repo->getTaskSettingsById($this->getId());
         $new_editor_settings = clone $task_repo->getEditorSettingsById($this->getId());
         $new_correction_settings = clone $task_repo->getCorrectionSettingsById($this->getId());
@@ -182,8 +181,6 @@ class ilObjLongEssayAssessment extends ilObjectPlugin
 
         // Creation Area
         $object_repo->updateObjectSettings($new_obj_settings);
-        $object_repo->updatePluginConfig($new_plugin_settings->setId($new_obj->getId()));
-
         $task_repo->updateTaskSettings($new_task_settings->setTaskId($new_obj->getId()));
         $task_repo->updateEditorSettings($new_editor_settings->setTaskId($new_obj->getId()));
         $task_repo->updateCorrectionSettings($new_correction_settings->setTaskId($new_obj->getId()));

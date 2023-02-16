@@ -152,16 +152,13 @@ abstract class RecordData
     /**
      * Get a clone with a sequence value
      * Assume that a record with sequence has only one integer key
-     * @return static
      */
-    public function withTableSequence(int $value)
+    public function setTableSequence(int $value) : void
     {
-        $clone = clone $this;
         if (static::tableHasSequence()) {
             $key = array_keys(static::tableKeyTypes())[0];
-            $clone->$key = $value;
+            $this->$key = $value;
         }
-        return $clone;
     }
 
     /**

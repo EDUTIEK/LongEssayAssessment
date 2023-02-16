@@ -4,7 +4,16 @@
 namespace ILIAS\Plugin\LongEssayAssessment\Data;
 
 use ILIAS\Plugin\LongEssayAssessment\BaseService;
-use ILIAS\Plugin\LongEssayAssessment\Corrector\CorrectionFilterItem;
+use ILIAS\Plugin\LongEssayAssessment\Data\Corrector\Corrector;
+use ILIAS\Plugin\LongEssayAssessment\Data\Corrector\CorrectorAssignment;
+use ILIAS\Plugin\LongEssayAssessment\Data\Corrector\CorrectorRepository;
+use ILIAS\Plugin\LongEssayAssessment\Data\Essay\CorrectorSummary;
+use ILIAS\Plugin\LongEssayAssessment\Data\Essay\Essay;
+use ILIAS\Plugin\LongEssayAssessment\Data\Essay\EssayRepository;
+use ILIAS\Plugin\LongEssayAssessment\Data\Task\Resource;
+use ILIAS\Plugin\LongEssayAssessment\Data\Task\TaskSettings;
+use ILIAS\Plugin\LongEssayAssessment\Data\Writer\Writer;
+use ILIAS\Plugin\LongEssayAssessment\Data\Writer\WriterRepository;
 use ilObjUser;
 use Throwable;
 

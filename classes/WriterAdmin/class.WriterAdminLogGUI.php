@@ -4,11 +4,9 @@
 namespace ILIAS\Plugin\LongEssayAssessment\WriterAdmin;
 
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
-use ILIAS\Plugin\LongEssayAssessment\Data\Alert;
-use ILIAS\Plugin\LongEssayAssessment\Data\LogEntry;
-use ILIAS\Plugin\LongEssayAssessment\Data\WriterNotice;
+use ILIAS\Plugin\LongEssayAssessment\Data\Task\Alert;
+use ILIAS\Plugin\LongEssayAssessment\Data\Task\LogEntry;
 use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
-use ILIAS\UI\Factory;
 use \ilUtil;
 
 /**

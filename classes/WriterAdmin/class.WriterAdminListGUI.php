@@ -2,8 +2,8 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\WriterAdmin;
 
-use ILIAS\Plugin\LongEssayAssessment\Data\TimeExtension;
-use ILIAS\Plugin\LongEssayAssessment\Data\Writer;
+use ILIAS\Plugin\LongEssayAssessment\Data\Writer\TimeExtension;
+use ILIAS\Plugin\LongEssayAssessment\Data\Writer\Writer;
 
 class WriterAdminListGUI extends WriterListGUI
 {
@@ -183,7 +183,7 @@ class WriterAdminListGUI extends WriterListGUI
 	}
 
 	/**
-	 * @param Writer $writer
+	 * @param \ILIAS\Plugin\LongEssayAssessment\Data\Writer\Writer $writer
 	 * @return void
 	 */
 	private function extensionString(Writer $writer): string

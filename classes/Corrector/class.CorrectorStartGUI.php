@@ -6,21 +6,12 @@ namespace ILIAS\Plugin\LongEssayAssessment\Corrector;
 use Edutiek\LongEssayAssessmentService\Corrector\Service;
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\CorrectorAdmin\CorrectorAdminService;
-use ILIAS\Plugin\LongEssayAssessment\Data\CorrectionSettings;
-use ILIAS\Plugin\LongEssayAssessment\Data\CorrectorAssignment;
-use ILIAS\Plugin\LongEssayAssessment\Data\CorrectorRepository;
-use ILIAS\Plugin\LongEssayAssessment\Data\CorrectorSummary;
+use ILIAS\Plugin\LongEssayAssessment\Data\Task\CorrectionSettings;
+use ILIAS\Plugin\LongEssayAssessment\Data\Corrector\CorrectorRepository;
+use ILIAS\Plugin\LongEssayAssessment\Data\Essay\CorrectorSummary;
 use ILIAS\Plugin\LongEssayAssessment\Data\DataService;
-use ILIAS\Plugin\LongEssayAssessment\Data\Essay;
-use ILIAS\Plugin\LongEssayAssessment\Data\Writer;
-use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
-use ILIAS\UI\Component\Button\Shy;
-use ILIAS\UI\Component\Item\Standard;
-use ILIAS\UI\Component\Link\Link;
-use ILIAS\UI\Component\Table\DataRetrieval;
-use ILIAS\UI\Factory;
+use ILIAS\Plugin\LongEssayAssessment\Data\Writer\Writer;
 use \ilUtil;
-use Sabre\CalDAV\Notifications\Plugin;
 
 /**
  *Start page for correctors

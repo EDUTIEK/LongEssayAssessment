@@ -3,14 +3,10 @@
 namespace ILIAS\Plugin\LongEssayAssessment\WriterAdmin;
 
 use Exception;
-use ILIAS\Plugin\LongEssayAssessment\Data\Corrector;
-use ILIAS\Plugin\LongEssayAssessment\Data\Essay;
-use ILIAS\Plugin\LongEssayAssessment\Data\TimeExtension;
-use ILIAS\Plugin\LongEssayAssessment\Data\Writer;
-use ILIAS\Plugin\LongEssayAssessment\Data\WriterHistory;
+use ILIAS\Plugin\LongEssayAssessment\Data\Essay\Essay;
+use ILIAS\Plugin\LongEssayAssessment\Data\Writer\Writer;
 use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
 use ILIAS\UI\Component\Symbol\Icon\Icon;
-use function GuzzleHttp\Psr7\str;
 
 abstract class WriterListGUI
 {
@@ -20,7 +16,7 @@ abstract class WriterListGUI
     protected $essays = [];
 
     /**
-	 * @var Writer[]
+	 * @var \ILIAS\Plugin\LongEssayAssessment\Data\Writer\Writer[]
 	 */
 	protected $writers = [];
 
@@ -83,7 +79,7 @@ abstract class WriterListGUI
     }
 
     /**
-	 * @return Writer[]
+	 * @return \ILIAS\Plugin\LongEssayAssessment\Data\Writer\Writer[]
 	 */
 	public function getWriters(): array
 	{
@@ -130,7 +126,7 @@ abstract class WriterListGUI
 	/**
 	 * Get Writer name
 	 *
-	 * @param Writer $writer
+	 * @param \ILIAS\Plugin\LongEssayAssessment\Data\Writer\Writer $writer
 	 * @return string
 	 */
 	protected function getWriterName(Writer $writer, $strip_img = false): string
@@ -142,7 +138,7 @@ abstract class WriterListGUI
 	/**
 	 * Get Writer Profile Picture
 	 *
-	 * @param Writer $writer
+	 * @param \ILIAS\Plugin\LongEssayAssessment\Data\Writer\Writer $writer
 	 * @return Icon
 	 * @throws Exception
 	 */
@@ -179,7 +175,7 @@ abstract class WriterListGUI
 	}
 
 	/**
-	 * @param Writer $writer
+	 * @param \ILIAS\Plugin\LongEssayAssessment\Data\Writer\Writer $writer
 	 * @return string
 	 */
 	protected function getWriterAnchor(Writer $writer): string

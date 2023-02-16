@@ -5,12 +5,10 @@ namespace ILIAS\Plugin\LongEssayAssessment\WriterAdmin;
 
 use ILIAS\DI\Exceptions\Exception;
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
-use ILIAS\Plugin\LongEssayAssessment\Data\Essay;
-use ILIAS\Plugin\LongEssayAssessment\Data\GradeLevel;
-use ILIAS\Plugin\LongEssayAssessment\Data\LogEntry;
-use ILIAS\Plugin\LongEssayAssessment\Data\ObjectSettings;
-use ILIAS\Plugin\LongEssayAssessment\Data\TimeExtension;
-use ILIAS\Plugin\LongEssayAssessment\Data\Writer;
+use ILIAS\Plugin\LongEssayAssessment\Data\Essay\Essay;
+use ILIAS\Plugin\LongEssayAssessment\Data\Task\LogEntry;
+use ILIAS\Plugin\LongEssayAssessment\Data\Writer\TimeExtension;
+use ILIAS\Plugin\LongEssayAssessment\Data\Writer\Writer;
 use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
 use \ilUtil;
 

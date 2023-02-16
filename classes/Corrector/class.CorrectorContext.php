@@ -12,9 +12,9 @@ use Edutiek\LongEssayAssessmentService\Data\CorrectionTask;
 use Edutiek\LongEssayAssessmentService\Data\Corrector;
 use Edutiek\LongEssayAssessmentService\Data\WrittenEssay;
 use Edutiek\LongEssayAssessmentService\Exceptions\ContextException;
-use ILIAS\Plugin\LongEssayAssessment\Data\CorrectorSummary;
-use ILIAS\Plugin\LongEssayAssessment\Data\Resource;
-use ILIAS\Plugin\LongEssayAssessment\Data\Writer;
+use ILIAS\Plugin\LongEssayAssessment\Data\Essay\CorrectorSummary;
+use ILIAS\Plugin\LongEssayAssessment\Data\Task\Resource;
+use ILIAS\Plugin\LongEssayAssessment\Data\Writer\Writer;
 use ILIAS\Plugin\LongEssayAssessment\ServiceContext;
 
 class CorrectorContext extends ServiceContext implements Context

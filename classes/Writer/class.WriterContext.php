@@ -9,17 +9,17 @@ use Edutiek\LongEssayAssessmentService\Data\WritingTask;
 use Edutiek\LongEssayAssessmentService\Writer\Context;
 use Edutiek\LongEssayAssessmentService\Writer\Service;
 use Edutiek\LongEssayAssessmentService\Data\WrittenEssay;
-use ILIAS\Plugin\LongEssayAssessment\Data\Essay;
-use ILIAS\Plugin\LongEssayAssessment\Data\Resource;
-use ILIAS\Plugin\LongEssayAssessment\Data\Writer;
-use ILIAS\Plugin\LongEssayAssessment\Data\WriterHistory;
+use ILIAS\Plugin\LongEssayAssessment\Data\Essay\Essay;
+use ILIAS\Plugin\LongEssayAssessment\Data\Task\Resource;
+use ILIAS\Plugin\LongEssayAssessment\Data\Writer\Writer;
+use ILIAS\Plugin\LongEssayAssessment\Data\Essay\WriterHistory;
 use ILIAS\Plugin\LongEssayAssessment\ServiceContext;
 
 class WriterContext extends ServiceContext implements Context
 {
     /**
      * List the availabilities for which resources should be provided in the app
-     * @see Resource
+     * @see \ILIAS\Plugin\LongEssayAssessment\Data\Task\Resource
      */
     const RESOURCES_AVAILABILITIES = [
         Resource::RESOURCE_AVAILABILITY_BEFORE,
@@ -210,7 +210,7 @@ class WriterContext extends ServiceContext implements Context
 
     /**
      * Get or create the essay object from the repository
-     * @return Essay
+     * @return \ILIAS\Plugin\LongEssayAssessment\Data\Essay\Essay
      */
     protected function getRepoEssay() : Essay
     {
@@ -231,7 +231,7 @@ class WriterContext extends ServiceContext implements Context
 
     /**
      * Get or create the writer object from the repository
-     * @return Writer
+     * @return \ILIAS\Plugin\LongEssayAssessment\Data\Writer\Writer
      */
     protected function getRepoWriter() : Writer
     {

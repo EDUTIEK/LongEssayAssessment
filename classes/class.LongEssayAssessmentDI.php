@@ -4,18 +4,13 @@ namespace ILIAS\Plugin\LongEssayAssessment;
 
 
 use ILIAS\Plugin\LongEssayAssessment\CorrectorAdmin\CorrectorAdminService;
-use ILIAS\Plugin\LongEssayAssessment\Data\CorrectorDatabaseRepository;
-use ILIAS\Plugin\LongEssayAssessment\Data\CorrectorRepository;
+use ILIAS\Plugin\LongEssayAssessment\Data\Corrector\CorrectorRepository;
 use ILIAS\Plugin\LongEssayAssessment\Data\DataService;
-use ILIAS\Plugin\LongEssayAssessment\Data\EssayDatabaseRepository;
-use ILIAS\Plugin\LongEssayAssessment\Data\EssayRepository;
-use ILIAS\Plugin\LongEssayAssessment\Data\ObjectDatabaseRepository;
-use ILIAS\Plugin\LongEssayAssessment\Data\ObjectRepository;
-use ILIAS\Plugin\LongEssayAssessment\Data\SystemDatabaseRepository;
-use ILIAS\Plugin\LongEssayAssessment\Data\TaskDatabaseRepository;
-use ILIAS\Plugin\LongEssayAssessment\Data\TaskRepository;
-use ILIAS\Plugin\LongEssayAssessment\Data\WriterDatabaseRepository;
-use ILIAS\Plugin\LongEssayAssessment\Data\WriterRepository;
+use ILIAS\Plugin\LongEssayAssessment\Data\Essay\EssayRepository;
+use ILIAS\Plugin\LongEssayAssessment\Data\Object\ObjectRepository;
+use ILIAS\Plugin\LongEssayAssessment\Data\System\SystemRepository;
+use ILIAS\Plugin\LongEssayAssessment\Data\Task\TaskRepository;
+use ILIAS\Plugin\LongEssayAssessment\Data\Writer\WriterRepository;
 use ILIAS\Plugin\LongEssayAssessment\UI\Implementation\Factory;
 use ILIAS\Plugin\LongEssayAssessment\UI\Implementation\FieldFactory;
 use ILIAS\Plugin\LongEssayAssessment\UI\Implementation\IconFactory;
@@ -24,6 +19,7 @@ use ILIAS\Plugin\LongEssayAssessment\UI\PluginRendererFactory;
 use ILIAS\Plugin\LongEssayAssessment\UI\PluginTemplateFactory;
 use ILIAS\Plugin\LongEssayAssessment\UI\UIService;
 use ILIAS\Plugin\LongEssayAssessment\WriterAdmin\WriterAdminService;
+use ILIAS\UI\Implementation\DefaultRenderer;
 use ILIAS\UI\Implementation\Render\ComponentRenderer;
 use Pimple\Container;
 
@@ -66,7 +62,7 @@ class LongEssayAssessmentDI
 		};
 
 		$dic["custom_renderer"] = function (\ILIAS\DI\Container $dic) {
-			return new \ILIAS\UI\Implementation\DefaultRenderer(
+			return new DefaultRenderer(
 				$dic["custom_renderer_loader"]
 			);
 		};
@@ -87,23 +83,23 @@ class LongEssayAssessmentDI
 		};
 
         $dic["system_repository"] = function (\ILIAS\DI\Container $dic) {
-            return new SystemDatabaseRepository($dic["ilDB"]);
+            return new SystemRepository($dic["ilDB"]);
         };
 
         $dic["essay_repository"] = function (\ILIAS\DI\Container $dic) {
-			return new EssayDatabaseRepository($dic["ilDB"]);
+			return new EssayRepository($dic["ilDB"]);
 		};
 
 		$dic["corrector_repository"] = function (\ILIAS\DI\Container $dic) {
-			return new CorrectorDatabaseRepository($dic["ilDB"], $dic["essay_repository"]);
+			return new CorrectorRepository($dic["ilDB"], $dic["essay_repository"]);
 		};
 
 		$dic["writer_repository"] = function (\ILIAS\DI\Container $dic) {
-			return new WriterDatabaseRepository($dic["ilDB"], $dic["essay_repository"], $dic["corrector_repository"]);
+			return new WriterRepository($dic["ilDB"], $dic["essay_repository"], $dic["corrector_repository"]);
 		};
 
 		$dic["task_repository"] = function (\ILIAS\DI\Container $dic) {
-			return new TaskDatabaseRepository(
+			return new TaskRepository(
 				$dic["ilDB"],
 				$dic["essay_repository"],
 				$dic["corrector_repository"],
@@ -111,7 +107,7 @@ class LongEssayAssessmentDI
 		};
 
 		$dic["object_repository"] = function (\ILIAS\DI\Container $dic) {
-			return new ObjectDatabaseRepository(
+			return new ObjectRepository(
 				$dic["ilDB"],
 				$dic["essay_repository"],
 				$dic["task_repository"]
@@ -137,9 +133,9 @@ class LongEssayAssessmentDI
     }
 
     /**
-     * @return SystemDatabaseRepository
+     * @return \ILIAS\Plugin\LongEssayAssessment\Data\System\SystemRepository
      */
-    public function getSystemRepo(): SystemDatabaseRepository
+    public function getSystemRepo(): SystemRepository
     {
         return $this->container["system_repository"];
     }
@@ -169,7 +165,7 @@ class LongEssayAssessmentDI
     }
 
     /**
-     * @return WriterRepository
+     * @return \ILIAS\Plugin\LongEssayAssessment\Data\Writer\WriterRepository
      */
     public function getWriterRepo(): WriterRepository
     {
@@ -177,7 +173,7 @@ class LongEssayAssessmentDI
     }
 
     /**
-     * @return CorrectorRepository
+     * @return \ILIAS\Plugin\LongEssayAssessment\Data\Corrector\CorrectorRepository
      */
     public function getCorrectorRepo(): CorrectorRepository
     {

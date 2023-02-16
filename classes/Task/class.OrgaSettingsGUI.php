@@ -4,8 +4,8 @@
 namespace ILIAS\Plugin\LongEssayAssessment\Task;
 
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
-use ILIAS\Plugin\LongEssayAssessment\Data\ObjectSettings;
-use ILIAS\Plugin\LongEssayAssessment\Data\TaskSettings;
+use ILIAS\Plugin\LongEssayAssessment\Data\Object\ObjectSettings;
+use ILIAS\Plugin\LongEssayAssessment\Data\Task\TaskSettings;
 use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
 use \ilUtil;
 
@@ -70,7 +70,7 @@ class OrgaSettingsGUI extends BaseGUI
      * Update TaskSettings
      *
      * @param array $a_data
-     * @param TaskSettings $a_task_settings
+     * @param \ILIAS\Plugin\LongEssayAssessment\Data\Task\TaskSettings $a_task_settings
      * @return void
      */
     protected function updateTaskSettings(array $a_data, TaskSettings $a_task_settings)

@@ -3,14 +3,14 @@
 namespace ILIAS\Plugin\LongEssayAssessment\WriterAdmin;
 
 use Exception;
-use ILIAS\Plugin\LongEssayAssessment\Data\Corrector;
-use ILIAS\Plugin\LongEssayAssessment\Data\CorrectorAssignment;
+use ILIAS\Plugin\LongEssayAssessment\Data\Corrector\Corrector;
+use ILIAS\Plugin\LongEssayAssessment\Data\Corrector\CorrectorAssignment;
 
 class CorrectorListGUI extends WriterListGUI
 {
 
 	/**
-	 * @var Corrector[]
+	 * @var \ILIAS\Plugin\LongEssayAssessment\Data\Corrector\Corrector[]
 	 */
 	private $correctors = [];
 
@@ -82,7 +82,7 @@ class CorrectorListGUI extends WriterListGUI
 	}
 
 	/**
-	 * @return Corrector[]
+	 * @return \ILIAS\Plugin\LongEssayAssessment\Data\Corrector\Corrector[]
 	 */
 	public function getCorrectors(): array
 	{
@@ -110,7 +110,7 @@ class CorrectorListGUI extends WriterListGUI
 	}
 
 	/**
-	 * @param CorrectorAssignment[] $assignments
+	 * @param \ILIAS\Plugin\LongEssayAssessment\Data\Corrector\CorrectorAssignment[] $assignments
 	 */
 	public function setAssignments(array $assignments): void
 	{

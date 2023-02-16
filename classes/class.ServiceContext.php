@@ -7,10 +7,10 @@ use Edutiek\LongEssayAssessmentService\Data\ApiToken;
 use Edutiek\LongEssayAssessmentService\Data\EnvResource;
 use Edutiek\LongEssayAssessmentService\Data\WritingTask;
 use Edutiek\LongEssayAssessmentService\Exceptions\ContextException;
-use ILIAS\Plugin\LongEssayAssessment\Data\AccessToken;
+use ILIAS\Plugin\LongEssayAssessment\Data\Essay\AccessToken;
 use ILIAS\Plugin\LongEssayAssessment\Data\DataService;
-use ILIAS\Plugin\LongEssayAssessment\Data\Resource;
-use ILIAS\Plugin\LongEssayAssessment\Data\TaskSettings;
+use ILIAS\Plugin\LongEssayAssessment\Data\Task\Resource;
+use ILIAS\Plugin\LongEssayAssessment\Data\Task\TaskSettings;
 use ilContext;
 use \ilObjUser;
 use \ilObject;
@@ -21,7 +21,7 @@ abstract class ServiceContext implements BaseContext
 {
     /**
      * List the availabilities for which resources should be provided in the app
-     * @see Resource
+     * @see \ILIAS\Plugin\LongEssayAssessment\Data\Task\Resource
      */
     const RESOURCES_AVAILABILITIES = [
         // override this for writer and corrector context
@@ -201,7 +201,7 @@ abstract class ServiceContext implements BaseContext
         $repo = $this->localDI->getTaskRepo();
         $env_resources = [];
 
-        /** @var Resource $resource */
+        /** @var \ILIAS\Plugin\LongEssayAssessment\Data\Task\Resource $resource */
         foreach ($repo->getResourceByTaskId($this->object->getId()) as $resource) {
 
             // late static binding - use constant definition in the extended class
@@ -254,7 +254,7 @@ abstract class ServiceContext implements BaseContext
 
         $repo = $this->localDI->getTaskRepo();
 
-        /** @var Resource $resource */
+        /** @var \ILIAS\Plugin\LongEssayAssessment\Data\Task\Resource $resource */
         foreach ($repo->getResourceByTaskId($this->object->getId()) as $resource) {
             if ($resource->getId() == (int) $key && $resource->getType() == Resource::RESOURCE_TYPE_FILE) {
                 $identifier = "";

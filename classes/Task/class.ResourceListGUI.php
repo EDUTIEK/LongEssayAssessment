@@ -2,8 +2,7 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\Task;
 
-use ILIAS\Plugin\LongEssayAssessment\Data\Resource;
-use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
+use ILIAS\Plugin\LongEssayAssessment\Data\Task\Resource;
 use ILIAS\UI\Component\Table\PresentationRow;
 use ILIAS\UI\Factory;
 use ILIAS\UI\Renderer;
@@ -92,7 +91,7 @@ class ResourceListGUI
     }
 
     /**
-     * @param Resource[] $items
+     * @param \ILIAS\Plugin\LongEssayAssessment\Data\Task\Resource[] $items
      * @return ResourceListGUI
      */
     public function setItems(array $items): ResourceListGUI

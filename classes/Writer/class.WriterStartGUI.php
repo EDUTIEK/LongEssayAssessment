@@ -3,11 +3,10 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\Writer;
 
-use Edutiek\LongEssayAssessmentService\Exceptions\ContextException;
 use Edutiek\LongEssayAssessmentService\Writer\Service;
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
-use ILIAS\Plugin\LongEssayAssessment\Data\Resource;
-use ILIAS\Plugin\LongEssayAssessment\Data\TaskSettings;
+use ILIAS\Plugin\LongEssayAssessment\Data\Task\Resource;
+use ILIAS\Plugin\LongEssayAssessment\Data\Task\TaskSettings;
 use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
 use ILIAS\Plugin\LongEssayAssessment\Task\ResourceAdmin;
 use \ilUtil;
@@ -20,7 +19,7 @@ use \ilUtil;
  */
 class WriterStartGUI extends BaseGUI
 {
-    /** @var TaskSettings */
+    /** @var \ILIAS\Plugin\LongEssayAssessment\Data\Task\TaskSettings */
     protected $task;
 
     /**

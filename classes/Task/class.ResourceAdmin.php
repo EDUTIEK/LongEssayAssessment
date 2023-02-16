@@ -3,7 +3,7 @@
 namespace ILIAS\Plugin\LongEssayAssessment\Task;
 
 use ILIAS\FileUpload\DTO\UploadResult;
-use ILIAS\Plugin\LongEssayAssessment\Data\Resource;
+use ILIAS\Plugin\LongEssayAssessment\Data\Task\Resource;
 use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
 use ILIAS\ResourceStorage\Identification\ResourceIdentification;
 
@@ -124,7 +124,7 @@ class ResourceAdmin
 
     /**
      * @param int $a_id
-     * @return Resource
+     * @return \ILIAS\Plugin\LongEssayAssessment\Data\Task\Resource
      */
     public function getResource(?int $a_id = 0): Resource
     {

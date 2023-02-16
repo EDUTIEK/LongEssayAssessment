@@ -4,8 +4,7 @@
 namespace ILIAS\Plugin\LongEssayAssessment\Task;
 
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
-use ILIAS\Plugin\LongEssayAssessment\Data\EditorSettings;
-use ILIAS\Refinery\Custom\Transformation;
+use ILIAS\Plugin\LongEssayAssessment\Data\Task\EditorSettings;
 use \ilUtil;
 
 /**

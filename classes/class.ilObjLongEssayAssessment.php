@@ -2,16 +2,14 @@
 /* Copyright (c) 2021 ILIAS open source, Extended GPL, see docs/LICENSE */
 
 use ILIAS\DI\Container;
-use ILIAS\Plugin\LongEssayAssessment\CorrectorAdmin\CorrectorAdminService;
-use ILIAS\Plugin\LongEssayAssessment\Data\CorrectionSettings;
+use ILIAS\Plugin\LongEssayAssessment\Data\Task\CorrectionSettings;
 use ILIAS\Plugin\LongEssayAssessment\Data\DataService;
-use ILIAS\Plugin\LongEssayAssessment\Data\EditorSettings;
-use ILIAS\Plugin\LongEssayAssessment\Data\GradeLevel;
-use ILIAS\Plugin\LongEssayAssessment\Data\ObjectSettings;
-use ILIAS\Plugin\LongEssayAssessment\Data\PluginConfig;
-use ILIAS\Plugin\LongEssayAssessment\Data\RatingCriterion;
-use ILIAS\Plugin\LongEssayAssessment\Data\Resource;
-use ILIAS\Plugin\LongEssayAssessment\Data\TaskSettings;
+use ILIAS\Plugin\LongEssayAssessment\Data\Task\EditorSettings;
+use ILIAS\Plugin\LongEssayAssessment\Data\Object\GradeLevel;
+use ILIAS\Plugin\LongEssayAssessment\Data\Object\ObjectSettings;
+use ILIAS\Plugin\LongEssayAssessment\Data\Object\RatingCriterion;
+use ILIAS\Plugin\LongEssayAssessment\Data\Task\Resource;
+use ILIAS\Plugin\LongEssayAssessment\Data\Task\TaskSettings;
 use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
 use ILIAS\Plugin\LongEssayAssessment\Task\ResourceResourceStakeholder;
 
@@ -30,10 +28,10 @@ class ilObjLongEssayAssessment extends ilObjectPlugin
     /** @var ilObjUser */
     protected $user;
 
-    /** @var ObjectSettings */
+    /** @var \ILIAS\Plugin\LongEssayAssessment\Data\Object\ObjectSettings */
     protected $objectSettings;
 
-    /** @var TaskSettings */
+    /** @var \ILIAS\Plugin\LongEssayAssessment\Data\Task\TaskSettings */
     protected $taskSettings;
 
     /** @var LongEssayAssessmentDI */

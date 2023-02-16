@@ -2,16 +2,16 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\WriterAdmin;
 
-use ILIAS\Plugin\LongEssayAssessment\Data\CorrectionSettings;
-use ILIAS\Plugin\LongEssayAssessment\Data\Corrector;
-use ILIAS\Plugin\LongEssayAssessment\Data\CorrectorAssignment;
-use ILIAS\Plugin\LongEssayAssessment\Data\Writer;
+use ILIAS\Plugin\LongEssayAssessment\Data\Task\CorrectionSettings;
+use ILIAS\Plugin\LongEssayAssessment\Data\Corrector\Corrector;
+use ILIAS\Plugin\LongEssayAssessment\Data\Corrector\CorrectorAssignment;
+use ILIAS\Plugin\LongEssayAssessment\Data\Writer\Writer;
 
 class CorrectorAdminListGUI extends WriterListGUI
 {
 
 	/**
-	 * @var Corrector[]
+	 * @var \ILIAS\Plugin\LongEssayAssessment\Data\Corrector\Corrector[]
 	 */
 	private $correctors = [];
 
@@ -21,7 +21,7 @@ class CorrectorAdminListGUI extends WriterListGUI
 	private $assignments = [];
 
 	/**
-	 * @var CorrectionSettings
+	 * @var \ILIAS\Plugin\LongEssayAssessment\Data\Task\CorrectionSettings
 	 */
 	private $correction_settings;
 
@@ -271,7 +271,7 @@ class CorrectorAdminListGUI extends WriterListGUI
 	}
 
 	/**
-	 * @return Corrector[]
+	 * @return \ILIAS\Plugin\LongEssayAssessment\Data\Corrector\Corrector[]
 	 */
 	public function getCorrectors(): array
 	{
@@ -279,7 +279,7 @@ class CorrectorAdminListGUI extends WriterListGUI
 	}
 
 	/**
-	 * @param Corrector[] $correctors
+	 * @param \ILIAS\Plugin\LongEssayAssessment\Data\Corrector\Corrector[] $correctors
 	 */
 	public function setCorrectors(array $correctors): void
 	{
@@ -299,8 +299,8 @@ class CorrectorAdminListGUI extends WriterListGUI
 	}
 
 	/**
-	 * @param Corrector $corrector
-	 * @return array|CorrectorAssignment[]
+	 * @param \ILIAS\Plugin\LongEssayAssessment\Data\Corrector\Corrector $corrector
+	 * @return array|\ILIAS\Plugin\LongEssayAssessment\Data\Corrector\CorrectorAssignment[]
 	 */
 	private function getAssignmentsByWriter(Writer $writer): array
 	{
@@ -311,9 +311,9 @@ class CorrectorAdminListGUI extends WriterListGUI
 	}
 
 	/**
-	 * @param Writer $writer
+	 * @param \ILIAS\Plugin\LongEssayAssessment\Data\Writer\Writer $writer
 	 * @param int $position
-	 * @return CorrectorAssignment|null
+	 * @return \ILIAS\Plugin\LongEssayAssessment\Data\Corrector\CorrectorAssignment|null
 	 */
 	private function getAssignmentByWriterPosition(Writer $writer, int $position): ?CorrectorAssignment
 	{

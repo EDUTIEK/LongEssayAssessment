@@ -4,9 +4,8 @@
 namespace ILIAS\Plugin\LongEssayAssessment\Task;
 
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
-use ILIAS\Plugin\LongEssayAssessment\Data\GradeLevel;
+use ILIAS\Plugin\LongEssayAssessment\Data\Object\GradeLevel;
 use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
-use ILIAS\Plugin\LongEssayAssessment\UI\Implementation\Numeric;
 use ILIAS\UI\Component\Table\PresentationRow;
 use ILIAS\UI\Factory;
 use \ilUtil;

@@ -2,10 +2,9 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\WriterAdmin;
 
-use ILIAS\Plugin\LongEssayAssessment\Data\Alert;
-use ILIAS\Plugin\LongEssayAssessment\Data\LogEntry;
-use ILIAS\Plugin\LongEssayAssessment\Data\Writer;
-use ILIAS\Plugin\LongEssayAssessment\Data\WriterNotice;
+use ILIAS\Plugin\LongEssayAssessment\Data\Task\Alert;
+use ILIAS\Plugin\LongEssayAssessment\Data\Task\LogEntry;
+use ILIAS\Plugin\LongEssayAssessment\Data\Writer\Writer;
 use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
 
 class WriterAdminLogListGUI

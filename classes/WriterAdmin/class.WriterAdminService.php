@@ -6,14 +6,14 @@ use Edutiek\LongEssayAssessmentService\Data\WritingStep;
 use Edutiek\LongEssayAssessmentService\Writer\Service;
 use ILIAS\Data\UUID\Factory as UUID;
 use ILIAS\Plugin\LongEssayAssessment\BaseService;
-use ILIAS\Plugin\LongEssayAssessment\Data\Alert;
+use ILIAS\Plugin\LongEssayAssessment\Data\Task\Alert;
 use ILIAS\Plugin\LongEssayAssessment\Data\DataService;
-use ILIAS\Plugin\LongEssayAssessment\Data\Essay;
-use ILIAS\Plugin\LongEssayAssessment\Data\EssayRepository;
-use ILIAS\Plugin\LongEssayAssessment\Data\LogEntry;
-use ILIAS\Plugin\LongEssayAssessment\Data\TaskRepository;
-use ILIAS\Plugin\LongEssayAssessment\Data\Writer;
-use ILIAS\Plugin\LongEssayAssessment\Data\WriterRepository;
+use ILIAS\Plugin\LongEssayAssessment\Data\Essay\Essay;
+use ILIAS\Plugin\LongEssayAssessment\Data\Essay\EssayRepository;
+use ILIAS\Plugin\LongEssayAssessment\Data\Task\LogEntry;
+use ILIAS\Plugin\LongEssayAssessment\Data\Task\TaskRepository;
+use ILIAS\Plugin\LongEssayAssessment\Data\Writer\Writer;
+use ILIAS\Plugin\LongEssayAssessment\Data\Writer\WriterRepository;
 use ILIAS\Plugin\LongEssayAssessment\Writer\WriterContext;
 
 class WriterAdminService extends BaseService

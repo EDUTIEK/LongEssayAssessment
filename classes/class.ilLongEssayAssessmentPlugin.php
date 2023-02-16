@@ -2,7 +2,7 @@
 /* Copyright (c) 2021 ILIAS open source, Extended GPL, see docs/LICENSE */
 
 use ILIAS\DI\Container;
-use ILIAS\Plugin\LongEssayAssessment\Data\PluginConfig;
+use ILIAS\Plugin\LongEssayAssessment\Data\Object\PluginConfig;
 use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
 use ILIAS\Plugin\LongEssayAssessment\Task\ResourceResourceStakeholder;
 

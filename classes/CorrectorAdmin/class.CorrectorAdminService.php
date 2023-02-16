@@ -5,27 +5,23 @@ namespace ILIAS\Plugin\LongEssayAssessment\CorrectorAdmin;
 
 use Edutiek\LongEssayAssessmentService\Corrector\Service;
 use Edutiek\LongEssayAssessmentService\Data\DocuItem;
-use Edutiek\LongEssayAssessmentService\Data\WritingTask;
 use ILIAS\Plugin\LongEssayAssessment\BaseService;
-use ILIAS\Plugin\LongEssayAssessment\Corrector\CorrectionFilterItem;
-use ILIAS\Plugin\LongEssayAssessment\Corrector\CorrectionsFilter;
 use ILIAS\Plugin\LongEssayAssessment\Corrector\CorrectorContext;
-use ILIAS\Plugin\LongEssayAssessment\Data\CorrectionSettings;
-use ILIAS\Plugin\LongEssayAssessment\Data\Corrector;
-use ILIAS\Plugin\LongEssayAssessment\Data\CorrectorAssignment;
-use ILIAS\Plugin\LongEssayAssessment\Data\CorrectorRepository;
-use ILIAS\Plugin\LongEssayAssessment\Data\CorrectorSummary;
+use ILIAS\Plugin\LongEssayAssessment\Data\Task\CorrectionSettings;
+use ILIAS\Plugin\LongEssayAssessment\Data\Corrector\Corrector;
+use ILIAS\Plugin\LongEssayAssessment\Data\Corrector\CorrectorAssignment;
+use ILIAS\Plugin\LongEssayAssessment\Data\Corrector\CorrectorRepository;
+use ILIAS\Plugin\LongEssayAssessment\Data\Essay\CorrectorSummary;
 use ILIAS\Plugin\LongEssayAssessment\Data\DataService;
-use ILIAS\Plugin\LongEssayAssessment\Data\Essay;
-use ILIAS\Plugin\LongEssayAssessment\Data\EssayRepository;
-use ILIAS\Plugin\LongEssayAssessment\Data\GradeLevel;
-use ILIAS\Plugin\LongEssayAssessment\Data\LogEntry;
-use ILIAS\Plugin\LongEssayAssessment\Data\TaskRepository;
-use ILIAS\Plugin\LongEssayAssessment\Data\TaskSettings;
-use ILIAS\Plugin\LongEssayAssessment\Data\Writer;
-use ILIAS\Plugin\LongEssayAssessment\Data\WriterRepository;
+use ILIAS\Plugin\LongEssayAssessment\Data\Essay\Essay;
+use ILIAS\Plugin\LongEssayAssessment\Data\Essay\EssayRepository;
+use ILIAS\Plugin\LongEssayAssessment\Data\Object\GradeLevel;
+use ILIAS\Plugin\LongEssayAssessment\Data\Task\LogEntry;
+use ILIAS\Plugin\LongEssayAssessment\Data\Task\TaskRepository;
+use ILIAS\Plugin\LongEssayAssessment\Data\Task\TaskSettings;
+use ILIAS\Plugin\LongEssayAssessment\Data\Writer\Writer;
+use ILIAS\Plugin\LongEssayAssessment\Data\Writer\WriterRepository;
 use ILIAS\Data\UUID\Factory as UUID;
-use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
 use ilObjUser;
 
 /**
@@ -37,10 +33,10 @@ class CorrectorAdminService extends BaseService
     /** @var CorrectionSettings */
     protected $settings;
 
-    /** @var WriterRepository */
+    /** @var \ILIAS\Plugin\LongEssayAssessment\Data\Writer\WriterRepository */
     protected $writerRepo;
 
-    /** @var CorrectorRepository */
+    /** @var \ILIAS\Plugin\LongEssayAssessment\Data\Corrector\CorrectorRepository */
     protected $correctorRepo;
 
     /** @var EssayRepository */
@@ -264,7 +260,7 @@ class CorrectorAdminService extends BaseService
 
     /**
      * Check if the correction for an essay needs a stitch decision
-     * @param CorrectorSummary[] $summaries
+     * @param \ILIAS\Plugin\LongEssayAssessment\Data\Essay\CorrectorSummary[] $summaries
      */
     protected function isStitchDecisionNeededForSummaries(array $summaries) : bool
     {
@@ -323,8 +319,8 @@ class CorrectorAdminService extends BaseService
 
     /**
      * Get all correction summaries saved for an essay
-     * @param Essay|null $essay
-     * @return CorrectorSummary[]
+     * @param \ILIAS\Plugin\LongEssayAssessment\Data\Essay\Essay|null $essay
+     * @return \ILIAS\Plugin\LongEssayAssessment\Data\Essay\CorrectorSummary[]
      */
     public function getAuthorizedSummaries(?Essay $essay) : array
     {

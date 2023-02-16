@@ -4,7 +4,7 @@
 namespace ILIAS\Plugin\LongEssayAssessment\Task;
 
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
-use ILIAS\Plugin\LongEssayAssessment\Data\Resource;
+use ILIAS\Plugin\LongEssayAssessment\Data\Task\Resource;
 use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
 use ILIAS\Plugin\LongEssayAssessment\UI\UIService;
 use ilUtil;
@@ -80,7 +80,7 @@ class ResourcesAdminGUI extends BaseGUI
 
     /**
      * Build Resource Form
-     * @param Resource $a_resource
+     * @param \ILIAS\Plugin\LongEssayAssessment\Data\Task\Resource $a_resource
      * @return \ILIAS\UI\Component\Input\Container\Form\Standard
      */
     protected function buildResourceForm(Resource $a_resource): \ILIAS\UI\Component\Input\Container\Form\Standard

@@ -1,7 +1,7 @@
 <?php
 /* Copyright (c) 2021 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-use \ILIAS\Plugin\LongEssayAssessment\Data\ObjectSettings;
+use ILIAS\Plugin\LongEssayAssessment\Data\Object\ObjectSettings;
 
 /**
  * Please do not create instances of large application classes

@@ -228,7 +228,7 @@ abstract class RecordRepo
     protected function insertRecord(RecordData $record) : RecordData
     {
         if ($record::tableHasSequence() && empty($record->sequence())) {
-            $record = $record->withTableSequence((int) $this->db->nextId($record::tableName()));
+            $record->setTableSequence((int) $this->db->nextId($record::tableName()));
         }
         $types = array_merge($record::tableKeyTypes(), $record::tableOtherTypes());
         $fields = $this->getFieldsArray($record, $types, false);
@@ -244,7 +244,7 @@ abstract class RecordRepo
     protected function replaceRecord(RecordData $record) : RecordData
     {
         if ($record::tableHasSequence() && empty($record->sequence())) {
-            $record = $record->withTableSequence((int) $this->db->nextId($record::tableName()));
+           $record->setTableSequence((int) $this->db->nextId($record::tableName()));
         }
         $key_fields = $this->getFieldsArray($record, $record::tableKeyTypes());
         $other_fields = $this->getFieldsArray($record, $record::tableOtherTypes());

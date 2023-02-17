@@ -205,13 +205,9 @@ class GradesAdminGUI extends BaseGUI
 				$record->setMinPoints($data["form"]["points"]);
 				$record->setCode($data["form"]["code"]);
 				$record->setPassed($data["form"]["passed"]);
-				$obj_repo  = LongEssayAssessmentDI::getInstance()->getObjectRepo();
+				$obj_repo = LongEssayAssessmentDI::getInstance()->getObjectRepo();
+                $obj_repo->save($record);
 
-				if($id !== null){
-					$obj_repo->updateGradeLevel($record);
-				}else {
-					$obj_repo->createGradeLevel($record);
-				}
 				ilUtil::sendSuccess($this->lng->txt("settings_saved"), true);
 				$this->ctrl->redirect($this, "showItems");
 			}else {

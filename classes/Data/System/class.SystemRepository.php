@@ -12,8 +12,10 @@ class SystemRepository extends RecordRepo
         parent::__construct($db, $logger);
     }
 
-
-    public function getPluginConfig() : PluginConfig
+    /**
+     * @return PluginConfig|null
+     */
+    public function getPluginConfig() : ?RecordData
     {
         return $this->getSingleRecord('SELECT * FROM xlas_plugin_config', PluginConfig::model(), PluginConfig::model());
     }

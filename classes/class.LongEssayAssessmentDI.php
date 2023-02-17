@@ -85,31 +85,39 @@ class LongEssayAssessmentDI
         };
 
         $dic["xlas.essay_repository"] = function (\ILIAS\DI\Container $dic) {
-			return new EssayRepository($dic["ilDB"]);
+			return new EssayRepository(
+                $dic->database(),
+            );
 		};
 
 		$dic["xlas.corrector_repository"] = function (\ILIAS\DI\Container $dic) {
-			return new CorrectorRepository($dic["ilDB"], $dic["xlas.essay_repository"]);
+			return new CorrectorRepository(
+                $dic->database(),
+                $dic["xlas.essay_repository"]
+            );
 		};
 
 		$dic["xlas.writer_repository"] = function (\ILIAS\DI\Container $dic) {
 			return new WriterRepository(
-                $dic["ilDB"],
+                $dic->database(),
                 $dic["xlas.essay_repository"],
-                $dic["xlas.corrector_repository"]);
+                $dic["xlas.corrector_repository"]
+            );
 		};
 
 		$dic["xlas.task_repository"] = function (\ILIAS\DI\Container $dic) {
 			return new TaskRepository(
-				$dic["ilDB"],
+                $dic->database(),
 				$dic["xlas.essay_repository"],
 				$dic["xlas.corrector_repository"],
-				$dic["xlas.writer_repository"]);
+				$dic["xlas.writer_repository"]
+            );
 		};
 
 		$dic["xlas.object_repository"] = function (\ILIAS\DI\Container $dic) {
 			return new ObjectRepository(
-				$dic["ilDB"],
+				$dic->database(),
+                $dic->logger()->xlas(),
 				$dic["xlas.essay_repository"],
 				$dic["xlas.task_repository"]
 			);

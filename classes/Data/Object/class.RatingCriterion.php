@@ -3,87 +3,47 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\Data\Object;
 
-
-use ILIAS\Plugin\LongEssayAssessment\Data\ActivePluginRecord;
+use ILIAS\Plugin\LongEssayAssessment\Data\RecordData;
 
 /**
- * @author Fabian Wolf <wolf@ilias.de>
+ * Criterion that is used for rating an essay
+ * See getters for details of the properties
  */
-class RatingCriterion extends ActivePluginRecord
+class RatingCriterion extends RecordData
 {
+    protected const tableName = 'xlas_rating_crit';
+    protected const hasSequence = true;
+    protected const keyTypes = [
+        'id' => 'integer',
+    ];
+    protected const otherTypes = [
+        'object_id' => 'integer',
+        'title'=> 'text',
+        'description' => 'text',
+        'points' => 'integer'
+    ];
+
+
+    protected int $id = 0;
+    protected int $object_id = 0;
+    protected string $title = "";
+    protected ?string $description = null;
+    protected int $points = 0;
+
+
+    public static function model() {
+        return new self();
+    }
+
 
     /**
-     * @var string
-     */
-    protected $connector_container_name = 'xlas_rating_crit';
-
-
-    /**
-     * ID
-     *
-     * @var integer
-     * @con_has_field        true
-     * @con_is_primary       true
-     * @con_sequence         true
-     * @con_is_notnull       true
-     * @con_fieldtype        integer
-     * @con_length           4
-     */
-    protected $id;
-
-    /**
-     * The object id
-     *
-     * @var integer
-     * @con_has_field        true
-     * @con_is_primary       false
-     * @con_sequence         false
-     * @con_is_notnull       true
-     * @con_fieldtype        integer
-     * @con_length           4
-     */
-    protected $object_id;
-
-    /**
-     * @var string
-     * @con_has_field        true
-     * @con_is_notnull       true
-     * @con_fieldtype        text
-     * @con_length           255
-     */
-    protected $title = "";
-
-    /**
-     * Description Text (richtext)
-     *
-     * @var null|string
-     * @con_has_field        true
-     * @con_is_notnull       false
-     * @con_fieldtype        clob
-     */
-    protected $description = null;
-
-    /**
-     * @var int
-     * @con_has_field        true
-     * @con_is_notnull       true
-     * @con_fieldtype        integer
-     * @con_length           4
-     */
-    protected $points = 0;
-
-    /**
-     * @return int
+     * The id is a sequence value
      */
     public function getId(): int
     {
         return $this->id;
     }
 
-    /**
-     * @param int $id
-     * @return RatingCriterion
-     */
     public function setId(int $id): RatingCriterion
     {
         $this->id = $id;
@@ -91,17 +51,13 @@ class RatingCriterion extends ActivePluginRecord
     }
 
     /**
-     * @return int
+     * The object id binds this criterion to an ilias repository object
      */
     public function getObjectId(): int
     {
         return $this->object_id;
     }
 
-    /**
-     * @param int $object_id
-     * @return RatingCriterion
-     */
     public function setObjectId(int $object_id): RatingCriterion
     {
         $this->object_id = $object_id;
@@ -109,17 +65,13 @@ class RatingCriterion extends ActivePluginRecord
     }
 
     /**
-     * @return string
+     * The title should fit into a single line with half screen width
      */
     public function getTitle(): string
     {
         return $this->title;
     }
 
-    /**
-     * @param string $title
-     * @return RatingCriterion
-     */
     public function setTitle(string $title): RatingCriterion
     {
         $this->title = $title;
@@ -127,17 +79,13 @@ class RatingCriterion extends ActivePluginRecord
     }
 
     /**
-     * @return string|null
+     * The description may be a longer text
      */
     public function getDescription(): ?string
     {
         return $this->description;
     }
 
-    /**
-     * @param string|null $description
-     * @return RatingCriterion
-     */
     public function setDescription(?string $description): RatingCriterion
     {
         $this->description = $description;
@@ -145,17 +93,13 @@ class RatingCriterion extends ActivePluginRecord
     }
 
     /**
-     * @return int
+     * Maximum sum of points that can be given for this criterion
      */
     public function getPoints(): int
     {
         return $this->points;
     }
 
-    /**
-     * @param int $points
-     * @return RatingCriterion
-     */
     public function setPoints(int $points): RatingCriterion
     {
         $this->points = $points;

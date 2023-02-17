@@ -3,65 +3,50 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\Data\Object;
 
-use ILIAS\Plugin\LongEssayAssessment\Data\ActivePluginRecord;
+use ILIAS\Plugin\LongEssayAssessment\Data\RecordData;
 
 /**
- * @author Fred Neumann <fred.neumann@ilias.de>
+ * Settings related to the whole assessment object
+ * See getters for details of the properties
  */
-class ObjectSettings extends ActivePluginRecord
+class ObjectSettings extends RecordData
 {
     const PARTICIPATION_TYPE_FIXED = 'fixed';
     const PARTICIPATION_TYPE_INSTANT = 'instant';
 
-    /**
-     * @var string
-     */
-    protected $connector_container_name = 'xlas_object_settings';
+    protected const tableName = 'xlas_object_settings';
+    protected const hasSequence = false;
+    protected const keyTypes = [
+        'obj_id' => 'integer',
+    ];
+    protected const otherTypes = [
+        'online' => 'integer',
+        'participation_type' => 'text'
+    ];
+
+    protected int $obj_id = 0;
+    protected int $online = 0;
+    protected string $participation_type = self::PARTICIPATION_TYPE_INSTANT;
 
 
-    /**
-     * @var integer
-     * @con_has_field        true
-     * @con_is_primary       true
-     * @con_sequence         false
-     * @con_is_notnull       true
-     * @con_fieldtype        integer
-     * @con_length           4
-     */
-    protected $obj_id = 0;
+    public function __construct(int $obj_id)
+    {
+        $this->obj_id = $obj_id;
+    }
 
-
-    /**
-     * @var bool
-     * @con_has_field        true
-     * @con_is_notnull       true
-     * @con_fieldtype        integer
-     * @con_length           4
-     */
-    protected $online = 0;
-
+    public static function model()
+    {
+        return new self(0);
+    }
 
     /**
-     * @var string
-     * @con_has_field        true
-     * @con_is_notnull       true
-     * @con_fieldtype        text
-     * @con_length           10
-     */
-    protected $participation_type = self::PARTICIPATION_TYPE_INSTANT;
-
-    /**
-     * @return int
+     * The object id binds these setting to an ilias repository object
      */
     public function getObjId(): int
     {
         return $this->obj_id;
     }
 
-    /**
-     * @param int $obj_id
-     * @return ObjectSettings
-     */
     public function setObjId(int $obj_id): ObjectSettings
     {
         $this->obj_id = $obj_id;
@@ -69,36 +54,31 @@ class ObjectSettings extends ActivePluginRecord
     }
 
     /**
-     * @return bool
+     * The object must be online to be visible for participants and correctors
      */
     public function isOnline()
     {
         return $this->online;
     }
 
-    /**
-     * @param bool $online
-     * @return ObjectSettings
-     */
-    public function setOnline($online)
+    public function setOnline(string $online): ObjectSettings
     {
         $this->online = $online;
         return $this;
     }
 
     /**
-     * @return string
+     * Instant participation allows all user with read acces to participate
+     * Fixed participation requires all participants to be added explictly
+     * @see self::PARTICIPATION_TYPE_FIXED
+     * @see self::PARTICIPATION_TYPE_INSTANT
      */
     public function getParticipationType(): string
     {
         return $this->participation_type;
     }
 
-    /**
-     * @param string $participation_type
-     * @return ObjectSettings
-     */
-    public function setParticipationType(string $participation_type): ObjectSettings
+    public function setParticipationType(string $participation_type) : ObjectSettings
     {
         $this->participation_type = $participation_type;
         return $this;

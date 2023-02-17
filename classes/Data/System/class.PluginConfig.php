@@ -7,9 +7,10 @@ use ILIAS\Plugin\LongEssayAssessment\Data\RecordData;
 
 /**
  * Plugin Configuration
- * Single record: id is always 0
- *
- * @author Fred Neumann <fred.neumann@ilias.de>
+ * This configuration is set in the plugin administration and is identical for all objects
+ * There is only a single record with an id of 0
+ * This id is hard coded and never get or set by other classes
+ * See getters for details of the properties
  */
 class PluginConfig extends RecordData
 {
@@ -29,12 +30,12 @@ class PluginConfig extends RecordData
     ];
 
     protected int $id = 0;
-    protected ?string $writer_url;
-    protected ?string $corrector_url;
-    protected ?string $eskript_url;
-    protected ?string $eskript_key;
-    protected ?string $primary_color;
-    protected ?string $primary_text_color;
+    protected ?string $writer_url = null;
+    protected ?string $corrector_url = null;
+    protected ?string $eskript_url = null;
+    protected ?string $eskript_key = null;
+    protected ?string $primary_color = '04427E';
+    protected ?string $primary_text_color = 'FFFFFF';
     protected int $simulate_offline = 0;
 
 
@@ -43,6 +44,11 @@ class PluginConfig extends RecordData
         return new self();
     }
 
+    /**
+     * URL of the writer web app
+     * This can be set for development purposes
+     * Otherwise the built-in app is used
+     */
     public function getWriterUrl(): string
     {
         return (string) $this->writer_url;
@@ -54,6 +60,11 @@ class PluginConfig extends RecordData
         return $this;
     }
 
+    /**
+     * URL of the corrector web app
+     * This can be set for development purposes
+     * Otherwise the built-in app is used
+     */
     public function getCorrectorUrl(): string
     {
         return (string) $this->corrector_url;
@@ -65,28 +76,10 @@ class PluginConfig extends RecordData
         return $this;
     }
 
-    public function getEskriptUrl(): string
-    {
-        return (string) $this->eskript_url;
-    }
-
-    public function setEskriptUrl(string $eskript_url): PluginConfig
-    {
-        $this->eskript_url = $eskript_url;
-        return $this;
-    }
-
-    public function getEskriptKey(): string
-    {
-        return (string) $this->eskript_key;
-    }
-
-    public function setEskriptKey(string $eskript_key): PluginConfig
-    {
-        $this->eskript_key = $eskript_key;
-        return $this;
-    }
-
+    /**
+     * Get the primary background color for buttons in the web app
+     * e.g. '04427E'
+     */
     public function getPrimaryColor(): string
     {
         return (string) $this->primary_color;
@@ -98,6 +91,10 @@ class PluginConfig extends RecordData
         return $this;
     }
 
+    /**
+     * Get the primary text color for buttons in the web app
+     * e.g. 'FFFFFF'
+     */
     public function getPrimaryTextColor(): string
     {
         return (string) $this->primary_text_color;
@@ -109,6 +106,9 @@ class PluginConfig extends RecordData
         return $this;
     }
 
+    /**
+     * Respond to REST calls
+     */
     public function getSimulateOffline(): bool
     {
         return (bool) $this->simulate_offline;

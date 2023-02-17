@@ -86,7 +86,7 @@ class ilObjLongEssayAssessment extends ilObjectPlugin
         $new_editor_settings = new EditorSettings($this->getId());
         $new_correction_settings = new CorrectionSettings($this->getId());
 
-        $object_repo->createObject($new_obj_settings);
+        $object_repo->save($new_obj_settings);
         $task_repo->createTask($new_task_settings, $new_editor_settings, $new_correction_settings);
         $this->objectSettings = $new_obj_settings;
         $this->taskSettings = $new_task_settings;
@@ -107,7 +107,7 @@ class ilObjLongEssayAssessment extends ilObjectPlugin
 	 */
     protected function doUpdate()
 	{
-        $this->localDI->getObjectRepo()->updateObjectSettings($this->objectSettings);
+        $this->localDI->getObjectRepo()->save($this->objectSettings);
 	}
 
 	/**
@@ -161,7 +161,7 @@ class ilObjLongEssayAssessment extends ilObjectPlugin
             }
         }
 
-        $old_rating_criterion = $object_repo->getRatingCriterionByObjectId($this->getId());
+        $old_rating_criterion = $object_repo->getRatingCriteriaByObjectId($this->getId());
         $new_rating_criterion = [];
         foreach($old_rating_criterion as $rating_criterion)
         {
@@ -180,19 +180,19 @@ class ilObjLongEssayAssessment extends ilObjectPlugin
 		}
 
         // Creation Area
-        $object_repo->updateObjectSettings($new_obj_settings);
+        $object_repo->save($new_obj_settings);
         $task_repo->updateTaskSettings($new_task_settings->setTaskId($new_obj->getId()));
         $task_repo->updateEditorSettings($new_editor_settings->setTaskId($new_obj->getId()));
         $task_repo->updateCorrectionSettings($new_correction_settings->setTaskId($new_obj->getId()));
 
         foreach($new_grade_level as $grade_level)
         {
-            $object_repo->createGradeLevel($grade_level);
+            $object_repo->save($grade_level);
         }
 
         foreach($new_rating_criterion as $rating_criterion)
         {
-            $object_repo->createRatingCriterion($rating_criterion);
+            $object_repo->save($rating_criterion);
         }
 
 		foreach($new_resource as $resource)

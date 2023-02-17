@@ -2,6 +2,7 @@
 /* Copyright (c) 2021 ILIAS open source, Extended GPL, see docs/LICENSE */
 
 use ILIAS\Plugin\LongEssayAssessment\Data\Object\ObjectSettings;
+use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
 
 /**
  * Please do not create instances of large application classes
@@ -56,7 +57,8 @@ class ilObjLongEssayAssessmentAccess extends ilObjectPluginAccess
 	 */
 	static function checkOnline($a_id)
 	{
-		$objectSettings = ObjectSettings::findOrGetInstance($a_id);
-		return $objectSettings->isOnline();
+        ilLongEssayAssessmentPlugin::getInstance();
+        $di = LongEssayAssessmentDI::getInstance();
+        return $di->getObjectRepo()->getObjectSettingsById($a_id)->isOnline();
 	}
 }

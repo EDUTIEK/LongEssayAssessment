@@ -32,7 +32,8 @@ use Pimple\Container;
  */
 class LongEssayTaskDI
 {
-    protected static $instance;
+    protected static LongEssayTaskDI $instance;
+	protected static bool $inited = false;
     protected $dataServices = [];
     protected $writerAdminServices = [];
     protected $correctorAdminServices = [];
@@ -48,6 +49,10 @@ class LongEssayTaskDI
 	}
 
 	public function init(\ilPlugin $plugin){
+		if(self::$inited){
+			return;
+		}
+
 		$dic = $this->container;
 
 		$dic["plugin"] = $plugin;
@@ -121,6 +126,8 @@ class LongEssayTaskDI
 		$dic["ui_service"] = function (\ILIAS\DI\Container $dic) {
 			return new UIService($dic["lng"]);
 		};
+
+		self::$inited = true;
 	}
 
 

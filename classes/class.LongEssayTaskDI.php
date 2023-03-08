@@ -32,7 +32,7 @@ use Pimple\Container;
  */
 class LongEssayTaskDI
 {
-    protected static LongEssayTaskDI $instance;
+    protected static ?LongEssayTaskDI $instance;
 	protected static bool $inited = false;
     protected $dataServices = [];
     protected $writerAdminServices = [];

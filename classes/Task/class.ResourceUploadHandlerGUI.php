@@ -1,13 +1,15 @@
 <?php
 
+namespace ILIAS\Plugin\LongEssayAssessment\Task;
+
 use ILIAS\FileUpload\DTO\UploadResult;
 use ILIAS\FileUpload\Handler\AbstractCtrlAwareUploadHandler;
 use ILIAS\FileUpload\Handler\FileInfoResult;
 use ILIAS\FileUpload\Handler\HandlerResult as HandlerResultInterface;
 use ILIAS\FileUpload\Handler\BasicHandlerResult;
 use ILIAS\FileUpload\Handler\BasicFileInfoResult;
-use ILIAS\Plugin\LongEssayAssessment\Task\ResourceResourceStakeholder;
 use ILIAS\ResourceStorage\Services;
+use ilUIPluginRouterGUI;
 
 /**
  * Class ResourceUploadHandlerGUI

@@ -8,7 +8,6 @@ use ILIAS\Plugin\LongEssayTask\Data\Resource;
 use ILIAS\Plugin\LongEssayTask\LongEssayTaskDI;
 use ILIAS\Plugin\LongEssayTask\UI\UIService;
 use ilUtil;
-use ResourceUploadHandlerGUI;
 
 /**
  * Resources Administration

@@ -66,7 +66,9 @@ class CorrectorListGUI extends WriterListGUI
 
 			$items[] = $item;
 		}
-		$resources = array_merge([$this->uiFactory->item()->group($this->plugin->txt("correctors"), $items)], $modals);
+		$resources = array_merge([$this->uiFactory->item()->group(
+            $this->plugin->txt("correctors") . $this->localDI->getDataService(0)->formatCounterSuffix(count($this->correctors))
+            , $items)], $modals);
 		return $this->renderer->render($resources);
 	}
 

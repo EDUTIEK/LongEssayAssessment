@@ -368,3 +368,5 @@ remove_own_authorization_failed#:#Ihre Korrektur-Autorisierung für %s konnte ni
 remove_own_authorization_log#:#Die Autorisierung der eigenen Korrektur für %s wurde durch %s zurückgezogen.
 own_position#:#Funktion
 own_correction#:#Eigene Korrekturen
+count_x_of_y#:#%s von %s
+count_x_total#:#%s gesamt

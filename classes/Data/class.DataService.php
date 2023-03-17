@@ -416,6 +416,21 @@ class DataService extends BaseService
 	}
 
     /**
+     * Format a counter for titles of item lists
+     * @param int $number   number of displayed items
+     * @param ?int $total    number of unfiltered items
+     */
+    public function formatCounterSuffix(int $number, ?int $total = null) : string
+    {
+        if (!isset($total) || $total == $number) {
+            return ' <span class="small">(' . sprintf($this->plugin->txt('count_x_total'), $number). ')<span>';
+        }
+        else {
+            return ' <span class="small">(' . sprintf($this->plugin->txt('count_x_of_y'), $number, $total). ')<span>';
+        }
+    }
+
+    /**
      * Format the result from a single correction
      */
     public function formatCorrectionResult(?CorrectorSummary $summary, bool $onlyStatus = false, $onlyAuthorizedGrades = false) : string

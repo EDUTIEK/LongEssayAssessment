@@ -28,7 +28,8 @@ use Pimple\Container;
  */
 class LongEssayAssessmentDI
 {
-    protected static $instance;
+    protected static ?LongEssayAssessmentDI $instance = null;
+    protected static bool $inited = false;
 
     protected $dataServices = [];
     protected $writerAdminServices = [];
@@ -42,7 +43,11 @@ class LongEssayAssessmentDI
 	}
 
 	public function init(\ilLongEssayAssessmentPlugin $plugin) {
-		$dic = $this->container;
+        if(self::$inited){
+            return;
+        }
+
+        $dic = $this->container;
 
 		$dic["xlas.plugin"] = $plugin;
 
@@ -126,7 +131,9 @@ class LongEssayAssessmentDI
 		$dic["xlas.ui_service"] = function (\ILIAS\DI\Container $dic) {
 			return new UIService($dic["lng"]);
 		};
-	}
+
+        self::$inited = true;
+    }
 
 
     public static function getInstance(): LongEssayAssessmentDI

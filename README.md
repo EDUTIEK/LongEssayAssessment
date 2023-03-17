@@ -1,5 +1,9 @@
-# LongEssayAssessment
-Plugin for the LMS ILIAS to realize exams with writing of long texts
+# LongEssayAssessment (Pilot Version)
+Plugin for the LMS ILIAS open source to realize exams with writing of long texts.
+
+This **pilot version** is currently **under development** to complete the functionality required by the [EDUTIEK project](https://www.edutiek.de).
+
+An initial set of features is a valiable in the **pre-pest version** names LongEssayTask which is maintained in a different [GitHub repository](https://github.com/fneumann/LongEssayTask)
 
 ## Installation
 

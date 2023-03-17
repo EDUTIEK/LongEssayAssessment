@@ -70,7 +70,9 @@ class CorrectorStartGUI extends BaseGUI
 	 * Fetches all possible corrections (unfiltered)
 	 * @return array
 	 */
-	protected function getItems(){
+	protected function getItems() : array
+    {
+        $items = [];
 		$corrector = $this->localDI->getCorrectorRepo()->getCorrectorByUserId($this->dic->user()->getId(), $this->settings->getTaskId());
 		foreach ($this->localDI->getCorrectorRepo()->getAssignmentsByCorrectorId($corrector->getId()) as $assignment) {
 			$writer = $this->localDI->getWriterRepo()->getWriterById($assignment->getWriterId());
@@ -205,10 +207,12 @@ class CorrectorStartGUI extends BaseGUI
 		$items = $this->getItems();
 
 		$is_empty_before_filter = empty($items);
+        $count_total = count($items);
 		$admin_service = $this->localDI->getCorrectorAdminService($this->object->getId());
 		$admin_service->sortCorrectionsArray($items);
 		$items = $admin_service->filterCorrections($this->dic->user()->getId(), $items);
 		$is_empty_after_filter = empty($items);
+        $count_filtered = count($items);
 
 		if(!$is_empty_before_filter){
 			$this->filterViewControl();
@@ -239,7 +243,10 @@ class CorrectorStartGUI extends BaseGUI
 		};
 
 		if (!$is_empty_before_filter) {
-            $essays = $this->uiFactory->item()->group($this->plugin->txt('assigned_writings'), array_map($object_from_item, $items));
+            $essays = $this->uiFactory->item()->group(
+                $this->plugin->txt('assigned_writings') . $this->data->formatCounterSuffix($count_filtered, $count_total),
+                array_map($object_from_item, $items)
+            );
             $this->tpl->setContent($this->renderer->render($essays));
             $taskSettings = $this->localDI->getTaskRepo()->getTaskSettingsById($this->settings->getTaskId());
             if (!empty($period = $this->data->formatPeriod($taskSettings->getCorrectionStart(), $taskSettings->getCorrectionEnd()))) {

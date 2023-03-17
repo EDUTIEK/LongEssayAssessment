@@ -21,11 +21,14 @@ class WriterAdminListGUI extends WriterListGUI
 		$items = [];
 		$modals = [];
 
-		foreach($this->getWriters() as $writer)
+        $count_total = count($this->getWriters());
+        $count_filtered = 0;
+        foreach($this->getWriters() as $writer)
 		{
 			if(!$this->isFiltered($writer)){
 				continue;
 			}
+            $count_filtered++;
 
 			$actions = [];
 			if($this->canGetSight($writer)) {
@@ -113,7 +116,10 @@ class WriterAdminListGUI extends WriterListGUI
                 ->withActions($actions_dropdown);
 		}
 
-		$resources = array_merge([$this->uiFactory->item()->group($this->plugin->txt("participants"), $items)], $modals);
+		$resources = array_merge([$this->uiFactory->item()->group(
+            $this->plugin->txt("participants")
+                . $this->localDI->getDataService(0)->formatCounterSuffix($count_filtered, $count_total)
+            , $items)], $modals);
 
 		return $this->renderer->render($this->filterControl()) . '<br><br>' .
 			$this->renderer->render($resources);

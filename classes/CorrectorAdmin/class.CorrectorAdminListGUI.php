@@ -46,10 +46,15 @@ class CorrectorAdminListGUI extends WriterListGUI
 		$items = [];
 		$modals = [];
 
+        $count_total = count($this->writers);
+        $count_filtered = 0;
+
 		foreach ($this->writers as $writer) {
 			if(!$this->isFiltered($writer)){
 				continue;
 			}
+            $count_filtered++;
+
 			$change_corrector_modal = $this->buildFormModalCorrectorAssignment($writer);
 			$modals[] = $change_corrector_modal;
 			$actions = [];
@@ -105,7 +110,8 @@ class CorrectorAdminListGUI extends WriterListGUI
 				->withActions($actions_dropdown);
 		}
 
-		$resources = $this->uiFactory->item()->group($this->plugin->txt("correctable_exams"), $items);
+		$resources = $this->uiFactory->item()->group($this->plugin->txt("correctable_exams")
+            . $this->localDI->getDataService(0)->formatCounterSuffix($count_filtered, $count_total), $items);
 
 		return $this->renderer->render($this->filterControl()) . '<br><br>' .
 			$this->renderer->render(array_merge([$resources], $modals));

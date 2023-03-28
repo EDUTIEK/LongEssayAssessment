@@ -338,7 +338,7 @@ class CorrectorAdminGUI extends BaseGUI
 						$assignment->setWriterId(intval($writer_id));
 						$assignment->setCorrectorId(intval($corr_id));
 						$assignment->setPosition($pos);
-						$corr_repo->createCorrectorAssignment($assignment);
+						$corr_repo->save($assignment);
 					}
 					$pos++;
 				}

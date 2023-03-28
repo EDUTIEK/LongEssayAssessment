@@ -98,6 +98,7 @@ class LongEssayAssessmentDI
 		$dic["xlas.corrector_repository"] = function (\ILIAS\DI\Container $dic) {
 			return new CorrectorRepository(
                 $dic->database(),
+				$dic->logger()->xlas(),
                 $dic["xlas.essay_repository"]
             );
 		};

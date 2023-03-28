@@ -4,7 +4,7 @@
 namespace ILIAS\Plugin\LongEssayAssessment\Data\Corrector;
 
 
-use ILIAS\Plugin\LongEssayAssessment\Data\ActivePluginRecord;
+use ILIAS\Plugin\LongEssayAssessment\Data\RecordData;
 
 /**
  * CorrectorAssignment
@@ -13,62 +13,45 @@ use ILIAS\Plugin\LongEssayAssessment\Data\ActivePluginRecord;
  *
  * @author Fabian Wolf <wolf@ilias.de>
  */
-class CorrectorAssignment extends ActivePluginRecord
+class CorrectorAssignment extends RecordData
 {
-
-    /**
-     * @var string
-     */
-    protected $connector_container_name = 'xlas_corrector_ass';
-
+	protected const tableName = 'xlas_corrector_ass';
+	protected const hasSequence = true;
+	protected const keyTypes = [
+		'id' => 'integer',
+	];
+	protected const otherTypes = [
+		'writer_id' => 'integer',
+		'corrector_id' => 'integer',
+		'position' => 'integer',
+		'code' => 'text',
+		'passed' => 'integer'
+	];
 
     /**
      * Editor notice id
-     *
-     * @var integer
-     * @con_has_field        true
-     * @con_is_primary       true
-     * @con_sequence         true
-     * @con_is_notnull       true
-     * @con_fieldtype        integer
-     * @con_length           4
      */
-    protected $id;
+    protected int $id;
 
     /**
      * The writer id
-     *
-     * @var integer
-     * @con_has_field        true
-     * @con_is_primary       false
-     * @con_sequence         false
-     * @con_is_notnull       true
-     * @con_fieldtype        integer
-     * @con_length           4
      */
-    protected $writer_id;
+    protected int $writer_id;
 
     /**
      * The Corrector Id
-     *
-     * @var integer
-     * @con_has_field        true
-     * @con_is_primary       false
-     * @con_sequence         false
-     * @con_is_notnull       true
-     * @con_fieldtype        integer
-     * @con_length           4
      */
-    protected $corrector_id;
+    protected int $corrector_id;
 
     /**
      * @var int
-     * @con_has_field        true
-     * @con_is_notnull       true
-     * @con_fieldtype        integer
-     * @con_length           4
      */
-    protected $position = 0;
+    protected int $position = 0;
+
+	public static function model(): CorrectorAssignment
+	{
+		return new self();
+	}
 
     /**
      * @return int

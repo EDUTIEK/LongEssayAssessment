@@ -3,8 +3,7 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\Data\Corrector;
 
-
-use ILIAS\Plugin\LongEssayAssessment\Data\ActivePluginRecord;
+use ILIAS\Plugin\LongEssayAssessment\Data\RecordData;
 
 /**
  * Corrector
@@ -12,52 +11,48 @@ use ILIAS\Plugin\LongEssayAssessment\Data\ActivePluginRecord;
  *
  * @author Fabian Wolf <wolf@ilias.de>
  */
-class Corrector extends ActivePluginRecord
+class Corrector extends RecordData
 {
 
-    /**
-     * @var string
-     */
-    protected $connector_container_name = 'xlas_corrector';
+	protected const tableName = 'xlas_corrector';
+	protected const hasSequence = true;
+	protected const keyTypes = [
+		'id' => 'integer',
+	];
+	protected const otherTypes = [
+		'user_id' => 'integer',
+		'task_id' => 'integer',
+	];
 
     /**
      * alert id
-     *
-     * @var integer
-     * @con_has_field        true
-     * @con_is_primary       true
-     * @con_sequence         true
-     * @con_is_notnull       true
-     * @con_fieldtype        integer
-     * @con_length           4
      */
-    protected $id;
+    protected int $id;
 
     /**
      * The ILIAS user id
      *
      * @var integer
-     * @con_has_field        true
-     * @con_is_primary       false
-     * @con_sequence         false
-     * @con_is_notnull       true
-     * @con_fieldtype        integer
-     * @con_length           4
      */
-    protected $user_id;
+    protected int $user_id;
 
     /**
      * The task_id currently corresponds to the obj_id of the ILIAS object
-     *
-     * @var integer
-     * @con_has_field        true
-     * @con_is_primary       false
-     * @con_sequence         false
-     * @con_is_notnull       true
-     * @con_fieldtype        integer
-     * @con_length           4
      */
-    protected $task_id;
+    protected int $task_id;
+
+
+	public function __construct(int $id)
+	{
+		$this->id = $id;
+	}
+
+
+
+	public static function model(): Corrector
+	{
+		return new self(0);
+	}
 
     /**
      * @return int

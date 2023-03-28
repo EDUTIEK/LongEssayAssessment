@@ -83,10 +83,10 @@ class CorrectorAdminService extends BaseService
     {
         $corrector = $this->correctorRepo->getCorrectorByUserId($user_id, $this->settings->getTaskId());
         if (!isset($corrector)) {
-            $corrector = new Corrector();
+            $corrector = Corrector::model();
             $corrector->setUserId($user_id);
             $corrector->setTaskId($this->settings->getTaskId());
-            $this->correctorRepo->createCorrector($corrector);
+            $this->correctorRepo->save($corrector);
         }
         return $corrector;
     }
@@ -211,7 +211,7 @@ class CorrectorAdminService extends BaseService
                         $assignment->setCorrectorId($correctorId);
                         $assignment->setWriterId($writerId);
                         $assignment->setPosition($position);
-                        $this->correctorRepo->createCorrectorAssignment($assignment);
+                        $this->correctorRepo->save($assignment);
                         $assigned++;
 
                         // remember the assignment for the next candidate collection

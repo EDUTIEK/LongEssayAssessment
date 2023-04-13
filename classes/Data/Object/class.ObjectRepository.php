@@ -70,6 +70,10 @@ class ObjectRepository extends RecordRepo
         return $this->getSingleRecord($query, RatingCriterion::model());
     }
 
+	/**
+	 * @param int $a_object_id
+	 * @return RatingCriterion[]
+	 */
     public function getRatingCriteriaByObjectId(int $a_object_id): array
     {
         $query = "SELECT * FROM xlas_rating_crit WHERE object_id = " . $this->db->quote($a_object_id, 'integer');

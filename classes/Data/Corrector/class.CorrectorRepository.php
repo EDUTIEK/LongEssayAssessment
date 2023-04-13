@@ -161,6 +161,10 @@ class CorrectorRepository extends RecordRepo
             . " WHERE corrector.task_id = " . $this->db->quote($a_task_id, "integer"));
     }
 
+	/**
+	 * @param int $a_task_id
+	 * @return CorrectorAssignment[]
+	 */
 	public function getAssignmentsByTaskId(int $a_task_id): array
 	{
 		$query = "SELECT xlas_corrector_ass.* FROM xlas_corrector_ass LEFT JOIN xlas_corrector ON (xlas_corrector_ass.corrector_id = xlas_corrector.id)"
@@ -169,7 +173,7 @@ class CorrectorRepository extends RecordRepo
 	}
 	/**
 	 * Save record data of an allowed type
-	 * @param Corrector $record
+	 * @param Corrector|CorrectorAssignment $record
 	 */
 	public function save(RecordData $record)
 	{

@@ -36,12 +36,21 @@ class WriterRepository extends RecordRepo
 		$this->replaceRecord($record);
 	}
 
+	/**
+	 * @param int $a_id
+	 * @return Writer|null
+	 */
     public function getWriterById(int $a_id): ?RecordData
     {
 		$query = "SELECT * FROM xlas_writer WHERE id = " . $this->db->quote($a_id, 'integer');
 		return $this->getSingleRecord($query, Writer::model());
     }
 
+	/**
+	 * @param int $a_task_id
+	 * @param array|null $a_writer_ids
+	 * @return Writer[]
+	 */
     public function getWritersByTaskId(int $a_task_id, ?array $a_writer_ids = null): array
     {
 		$in_writer_ids = "";
@@ -61,6 +70,11 @@ class WriterRepository extends RecordRepo
         return $this->getWriterByUserId($a_user_id, $a_task_id) != null;
     }
 
+	/**
+	 * @param int $a_user_id
+	 * @param int $a_task_id
+	 * @return Writer|null
+	 */
     public function getWriterByUserId(int $a_user_id, int $a_task_id): ?RecordData
     {
 		$query = "SELECT * FROM xlas_writer WHERE user_id = " . $this->db->quote($a_user_id, 'integer') .
@@ -69,12 +83,21 @@ class WriterRepository extends RecordRepo
 		return $this->getSingleRecord($query, Writer::model());
     }
 
+	/**
+	 * @param int $a_id
+	 * @return TimeExtension|null
+	 */
     public function getTimeExtensionById(int $a_id): ?RecordData
     {
 		$query = "SELECT * FROM xlas_time_extension WHERE id = " . $this->db->quote($a_id, 'integer');
 		return $this->getSingleRecord($query, TimeExtension::model());
     }
 
+	/**
+	 * @param int $a_writer_id
+	 * @param int $a_task_id
+	 * @return TimeExtension|null
+	 */
     public function getTimeExtensionByWriterId(int $a_writer_id, int $a_task_id): ?RecordData
     {
 		$query = "SELECT * FROM xlas_time_extension WHERE writer_id = " . $this->db->quote($a_writer_id, 'integer') .
@@ -82,6 +105,10 @@ class WriterRepository extends RecordRepo
 		return $this->getSingleRecord($query, TimeExtension::model());
     }
 
+	/**
+	 * @param int $a_task_id
+	 * @return TimeExtension[]
+	 */
     public function getTimeExtensionsByTaskId(int $a_task_id): array
     {
 		$query = "SELECT * FROM xlas_time_extension WHERE task_id = " . $this->db->quote($a_task_id, 'integer');
@@ -134,13 +161,18 @@ class WriterRepository extends RecordRepo
             " AND task_id = " . $this->db->quote($a_task_id, "integer"));
     }
 
+	/**
+	 * @param array $a_user_ids
+	 * @param int $a_task_id
+	 * @return Writer[]
+	 */
 	public function getWriterByUserIds(array $a_user_ids, int $a_task_id): array
 	{
 		if(count($a_user_ids) == 0){
 			return [];
 		}
 
-		$query = "SELECT * FROM xlas_time_extension WHERE task_id = " . $this->db->quote($a_task_id, "integer") .
+		$query = "SELECT * FROM xlas_writer WHERE task_id = " . $this->db->quote($a_task_id, "integer") .
 			" AND " . $this->db->in('user_id', $a_user_ids, false, 'integer');
 		return $this->queryRecords($query, Writer::model());
 	}

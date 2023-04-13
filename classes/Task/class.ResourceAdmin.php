@@ -43,7 +43,7 @@ class ResourceAdmin
 
         $let_dic = LongEssayAssessmentDI::getInstance();
         $task_repo = $let_dic->getTaskRepo();
-        $task_repo->createResource($resource);
+        $task_repo->save($resource);
         return $resource->getId();
     }
 
@@ -66,7 +66,7 @@ class ResourceAdmin
 
         $let_dic = LongEssayAssessmentDI::getInstance();
         $task_repo = $let_dic->getTaskRepo();
-        $task_repo->createResource($resource);
+        $task_repo->save($resource);
 
         return $resource->getId();
     }
@@ -92,7 +92,7 @@ class ResourceAdmin
             if ($resource->getType() == Resource::RESOURCE_TYPE_URL) {
                 $resource->setUrl($this->normalizeUrl($a_url));
             }
-            $task_repo->updateResource($resource);
+            $task_repo->save($resource);
             return true;
         }
 

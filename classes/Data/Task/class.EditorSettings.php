@@ -3,13 +3,12 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\Data\Task;
 
-
-use ILIAS\Plugin\LongEssayAssessment\Data\ActivePluginRecord;
+use ILIAS\Plugin\LongEssayAssessment\Data\RecordData;
 
 /**
  * @author Fred Neumann <fred.neumann@ilias.de>
  */
-class EditorSettings extends ActivePluginRecord
+class EditorSettings extends RecordData
 {
     const HEADLINE_SCHEME_NONE = 'none';
     const HEADLINE_SCHEME_NUMERIC = 'numeric';
@@ -21,63 +20,27 @@ class EditorSettings extends ActivePluginRecord
     const FORMATTING_OPTIONS_FULL = 'full';
 
 
-    /**
-     * @var string
-     */
-    protected $connector_container_name = 'xlas_editor_settings';
+	protected const tableName = 'xlas_editor_settings';
+	protected const hasSequence = false;
+	protected const keyTypes = [
+		'task_id' => 'integer',
+	];
+	protected const otherTypes = [
+		'headline_scheme'=> 'text',
+		'formatting_options' => 'text',
+		'notice_boards' => 'integer',
+		'copy_allowed' => 'integer'
+	];
 
+    protected int $task_id = 0;
+    protected string $headline_scheme = self::HEADLINE_SCHEME_NONE;
+    protected string $formatting_options = self::FORMATTING_OPTIONS_MEDIUM;
+    protected int $notice_boards = 0;
+    protected int $copy_allowed = 0;
 
-    /**
-     * The task_id currently corresponds to the obj_id of the ILIAS object
-     *
-     * @var integer
-     * @con_has_field        true
-     * @con_is_primary       true
-     * @con_sequence         false
-     * @con_is_notnull       true
-     * @con_fieldtype        integer
-     * @con_length           4
-     */
-    protected $task_id = 0;
-
-
-    /**
-     * @var string
-     * @con_has_field        true
-     * @con_is_notnull       true
-     * @con_fieldtype        text
-     * @con_length           50
-     */
-    protected $headline_scheme = self::HEADLINE_SCHEME_NONE;
-
-
-    /**
-     * @var string
-     * @con_has_field        true
-     * @con_is_notnull       true
-     * @con_fieldtype        text
-     * @con_length           50
-     */
-    protected $formatting_options = self::FORMATTING_OPTIONS_MEDIUM;
-
-
-    /**
-     * @var integer
-     * @con_has_field        true
-     * @con_is_notnull       true
-     * @con_fieldtype        integer
-     * @con_length           4
-     */
-    protected $notice_boards = 0;
-
-    /**
-     * @var bool
-     * @con_has_field        true
-     * @con_is_notnull       true
-     * @con_fieldtype        integer
-     * @con_length           4
-     */
-    protected $copy_allowed = false;
+	public static function model() {
+		return new self();
+	}
 
     /**
      * @return string
@@ -140,7 +103,7 @@ class EditorSettings extends ActivePluginRecord
      */
     public function setCopyAllowed(?bool $copy_allowed): void
     {
-        $this->copy_allowed = (bool)$copy_allowed;
+        $this->copy_allowed = (int)$copy_allowed;
     }
 
     /**

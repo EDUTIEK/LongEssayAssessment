@@ -5,70 +5,66 @@ namespace ILIAS\Plugin\LongEssayAssessment\Data\Task;
 use Exception;
 use ILIAS\Plugin\LongEssayAssessment\Data\Corrector\CorrectorRepository;
 use ILIAS\Plugin\LongEssayAssessment\Data\Essay\EssayRepository;
+use ILIAS\Plugin\LongEssayAssessment\Data\RecordData;
+use ILIAS\Plugin\LongEssayAssessment\Data\RecordRepo;
 use ILIAS\Plugin\LongEssayAssessment\Data\Writer\WriterRepository;
 
 /**
  * @author Fabian Wolf <wolf@ilias.de>
  */
-class TaskRepository
+class TaskRepository extends RecordRepo
 {
-	private \ilDBInterface $database;
 	private EssayRepository $essay_repo;
 	private CorrectorRepository $corrector_repo;
 	private WriterRepository $writer_repo;
 
-	public function __construct(\ilDBInterface $database,
+	public function __construct(\ilDBInterface $db,
+								\ilLogger $logger,
 								EssayRepository $essay_repo,
 								CorrectorRepository $corrector_repo,
 								WriterRepository $writer_repo)
 	{
-		$this->database = $database;
+		parent::__construct($db, $logger);
 		$this->essay_repo = $essay_repo;
 		$this->corrector_repo = $corrector_repo;
 		$this->writer_repo = $writer_repo;
 	}
 
+	/**
+	 * Save record data of an allowed type
+	 * @param TaskSettings|EditorSettings|CorrectionSettings|Alert|WriterNotice|Resource $record
+	 */
+	public function save(RecordData $record)
+	{
+		$this->replaceRecord($record);
+	}
 
 	public function createTask(TaskSettings $a_task_settings, EditorSettings $a_editor_settings, CorrectionSettings $a_correction_settings)
     {
-        $a_task_settings->create();
-        $a_editor_settings->create();
-        $a_correction_settings->create();
+		$this->save($a_task_settings);
+		$this->save($a_editor_settings);
+		$this->save($a_correction_settings);
     }
 
-    public function createAlert(Alert $a_alert)
+	/**
+	 * @param int $a_id
+	 * @return EditorSettings|null
+	 */
+    public function getEditorSettingsById(int $a_id): ?RecordData
     {
-        $a_alert->create();
+		$query = "SELECT * FROM xlas_editor_settings WHERE task_id = " . $this->db->quote($a_id, 'integer');
+		return $this->getSingleRecord($query, EditorSettings::model());
     }
 
-    public function createWriterNotice(WriterNotice $a_writer_notice)
+	/**
+	 * @param int $a_id
+	 * @return CorrectionSettings|null
+	 */
+    public function getCorrectionSettingsById(int $a_id): ?RecordData
     {
-        $a_writer_notice->create();
+		$query = "SELECT * FROM xlas_corr_setting WHERE task_id = " . $this->db->quote($a_id, 'integer');
+		return $this->getSingleRecord($query, CorrectionSettings::model());
     }
-
-    public function createResource(Resource $a_resource)
-    {
-        $a_resource->create();
-    }
-
-    public function getEditorSettingsById(int $a_id): ?EditorSettings
-    {
-        $editor_settings = EditorSettings::findOrGetInstance($a_id);
-        if ($editor_settings != null) {
-            return $editor_settings;
-        }
-        return null;
-    }
-
-    public function getCorrectionSettingsById(int $a_id): ?CorrectionSettings
-    {
-        $correction_settings = CorrectionSettings::findOrGetInstance($a_id);
-        if ($correction_settings != null) {
-            return $correction_settings;
-        }
-        return null;
-    }
-
 
 
     public function ifTaskExistsById(int $a_id): bool
@@ -76,13 +72,14 @@ class TaskRepository
         return $this->getTaskSettingsById($a_id) != null;
     }
 
-    public function getTaskSettingsById(int $a_id): ?TaskSettings
+	/**
+	 * @param int $a_id
+	 * @return TaskSettings|null
+	 */
+    public function getTaskSettingsById(int $a_id): ?RecordData
     {
-        $task_settings = TaskSettings::findOrGetInstance($a_id);
-        if ($task_settings != null) {
-            return $task_settings;
-        }
-        return null;
+		$query = "SELECT * FROM xlas_task_settings WHERE task_id = " . $this->db->quote($a_id, 'integer');
+		return $this->getSingleRecord($query, TaskSettings::model());
     }
 
     public function ifAlertExistsById(int $a_id): bool
@@ -90,13 +87,14 @@ class TaskRepository
         return $this->getAlertById($a_id) != null;
     }
 
-    public function getAlertById(int $a_id): ?Alert
+	/**
+	 * @param int $a_id
+	 * @return Alert|null
+	 */
+    public function getAlertById(int $a_id): ?RecordData
     {
-        $alert = Alert::findOrGetInstance($a_id);
-        if ($alert != null) {
-            return $alert;
-        }
-        return null;
+		$query = "SELECT * FROM xlas_alert WHERE id = " . $this->db->quote($a_id, 'integer');
+		return $this->getSingleRecord($query, Alert::model());
     }
 
     public function ifWriterNoticeExistsById(int $a_id): bool
@@ -104,43 +102,17 @@ class TaskRepository
         return $this->getWriterNoticeById($a_id) != null;
     }
 
+	/**
 	public function getWriterNoticeByTaskId(int $a_task_id): array
 	{
-		return WriterNotice::where(['task_id' => $a_task_id])->get();
+		$query = "SELECT * FROM xlas_writer_notice WHERE task_id = " . $this->db->quote($a_task_id, 'integer');
+		return $this->queryRecords($query, WriterNotice::model());
 	}
 
-    public function getWriterNoticeById(int $a_id): ?WriterNotice
+    public function getWriterNoticeById(int $a_id): ?RecordData
     {
-        $writer_notice = WriterNotice::findOrGetInstance($a_id);
-        if ($writer_notice != null) {
-            return $writer_notice;
-        }
-        return null;
-    }
-
-    public function updateEditorSettings(EditorSettings $a_editor_settings)
-    {
-        $a_editor_settings->update();
-    }
-
-    public function updateCorrectionSettings(CorrectionSettings $a_correction_settings)
-    {
-        $a_correction_settings->update();
-    }
-
-    public function updateTaskSettings(TaskSettings $a_task_settings)
-    {
-        $a_task_settings->update();
-    }
-
-    public function updateAlert(Alert $a_alert)
-    {
-        $a_alert->update();
-    }
-
-    public function updateWriterNotice(WriterNotice $a_writer_notice)
-    {
-        $a_writer_notice->update();
+		$query = "SELECT * FROM xlas_writer_notice WHERE id = " . $this->db->quote($a_id, 'integer');
+		return $this->getSingleRecord($query, WriterNotice::model());
     }
 
     /**
@@ -151,12 +123,12 @@ class TaskRepository
      */
     public function deleteTask(int $a_id)
     {
-        $this->database->manipulate("DELETE FROM xlas_task_settings" .
-            " WHERE task_id = " . $this->database->quote($a_id, "integer"));
-		$this->database->manipulate("DELETE FROM xlas_editor_settings" .
-            " WHERE task_id = " . $this->database->quote($a_id, "integer"));
-		$this->database->manipulate("DELETE FROM xlas_corr_setting" .
-            " WHERE task_id = " . $this->database->quote($a_id, "integer"));
+        $this->db->manipulate("DELETE FROM xlas_task_settings" .
+            " WHERE task_id = " . $this->db->quote($a_id, "integer"));
+		$this->db->manipulate("DELETE FROM xlas_editor_settings" .
+            " WHERE task_id = " . $this->db->quote($a_id, "integer"));
+		$this->db->manipulate("DELETE FROM xlas_corr_setting" .
+            " WHERE task_id = " . $this->db->quote($a_id, "integer"));
 
         $this->deleteAlertByTaskId($a_id);
         $this->deleteWriterNoticeByTaskId($a_id);
@@ -170,14 +142,14 @@ class TaskRepository
 
     public function deleteAlertByTaskId(int $a_task_id)
     {
-		$this->database->manipulate("DELETE FROM xlas_alert" .
-            " WHERE task_id = " . $this->database->quote($a_task_id, "integer"));
+		$this->db->manipulate("DELETE FROM xlas_alert" .
+            " WHERE task_id = " . $this->db->quote($a_task_id, "integer"));
     }
 
     public function deleteWriterNoticeByTaskId(int $a_task_id)
     {
-		$this->database->manipulate("DELETE FROM xlas_writer_notice" .
-            " WHERE task_id = " . $this->database->quote($a_task_id, "integer"));
+		$this->db->manipulate("DELETE FROM xlas_writer_notice" .
+            " WHERE task_id = " . $this->db->quote($a_task_id, "integer"));
     }
 
     public function deleteAlert(int $a_id)
@@ -202,18 +174,24 @@ class TaskRepository
 		$this->deleteTask($a_object_id);
     }
 
-    public function getResourceById(int $a_id): ?Resource
+	/**
+	 * @param int $a_id
+	 * @return Resource|null
+	 */
+    public function getResourceById(int $a_id): ?RecordData
     {
-        $resource = Resource::findOrGetInstance($a_id);
-        if ($resource != null) {
-            return $resource;
-        }
-        return null;
+		$query = "SELECT * FROM xlas_resource WHERE id = " . $this->db->quote($a_id, 'integer');
+		return $this->getSingleRecord($query, Resource::model());
     }
 
+	/**
+	 * @param int $a_task_id
+	 * @return Resource[]
+	 */
     public function getResourceByTaskId(int $a_task_id): array
     {
-        return Resource::where(['task_id' => $a_task_id])->get();
+		$query = "SELECT * FROM xlas_resource WHERE task_id = " . $this->db->quote($a_task_id, 'integer');
+		return $this->queryRecords($query, Resource::model());
     }
 
     public function ifResourceExistsById(int $a_id): bool
@@ -221,31 +199,26 @@ class TaskRepository
         return $this->getResourceById($a_id) != null;
     }
 
-    public function updateResource(Resource $a_resource)
-    {
-        $a_resource->update();
-    }
-
     public function deleteResource(int $a_id)
     {
-		$this->database->manipulate("DELETE FROM xlas_resource" .
-            " WHERE id = " . $this->database->quote($a_id, "integer"));
+		$this->db->manipulate("DELETE FROM xlas_resource" .
+            " WHERE id = " . $this->db->quote($a_id, "integer"));
     }
 
     public function deleteResourceByTaskId(int $a_task_id)
     {
-		$this->database->manipulate("DELETE FROM xlas_resource" .
-            " WHERE task_id = " . $this->database->quote($a_task_id, "integer"));
+		$this->db->manipulate("DELETE FROM xlas_resource" .
+            " WHERE task_id = " . $this->db->quote($a_task_id, "integer"));
     }
 
-    public function getResourceByFileId(string $a_file_id): ?Resource
+	/**
+	 * @param string $a_file_id
+	 * @return Resource|null
+	 */
+    public function getResourceByFileId(string $a_file_id): ?RecordData
     {
-        $resource =Resource::where(['file_id' => $a_file_id])->get();
-
-        if (count($resource) > 0) {
-            return $resource[0];
-        }
-        return null;
+		$query = "SELECT * FROM xlas_resource WHERE file_id = " . $this->db->quote($a_file_id, 'text');
+		return $this->getSingleRecord($query, Resource::model());
     }
 
     public function ifResourceExistsByFileId(string $a_file_id): bool
@@ -253,50 +226,50 @@ class TaskRepository
         return $this->getResourceByFileId($a_file_id) != null;
     }
 
-
-	public function createLogEntry(LogEntry $a_log_entry)
-	{
-		$a_log_entry->create();
-	}
-
 	public function ifLogEntryExistsById(int $a_id): bool
 	{
 		return $this->getLogEntryById($a_id) != null;
 	}
 
-	public function getLogEntryById(int $a_id): ?LogEntry
+	/**
+	 * @param int $a_id
+	 * @return LogEntry|null
+	 */
+	public function getLogEntryById(int $a_id): ?RecordData
 	{
-		$log_entry = LogEntry::findOrGetInstance($a_id);
-		if ($log_entry != null) {
-			return $log_entry;
-		}
-		return null;
-	}
-
-	public function updateLogEntry(LogEntry $a_log_entry)
-	{
-		$a_log_entry->update();
+		$query = "SELECT * FROM xlas_log_entry WHERE id = " . $this->db->quote($a_id, 'text');
+		return $this->getSingleRecord($query, LogEntry::model());
 	}
 
 	public function deleteLogEntry(int $a_id)
 	{
-		$this->database->manipulate("DELETE FROM xlas_log_entry" .
-			" WHERE id = " . $this->database->quote($a_id, "integer"));
+		$this->db->manipulate("DELETE FROM xlas_log_entry" .
+			" WHERE id = " . $this->db->quote($a_id, "integer"));
 	}
 
 	public function deleteLogEntryByTaskId(int $a_task_id)
 	{
-		$this->database->manipulate("DELETE FROM xlas_log_entry" .
-			" WHERE task_id = " . $this->database->quote($a_task_id, "integer"));
+		$this->db->manipulate("DELETE FROM xlas_log_entry" .
+			" WHERE task_id = " . $this->db->quote($a_task_id, "integer"));
 	}
 
+	/**
+	 * @param int $a_task_id
+	 * @return LogEntry[]
+	 */
 	public function getLogEntriesByTaskId(int $a_task_id): array
 	{
-		return LogEntry::where(['task_id' => $a_task_id])->get();
+		$query = "SELECT * FROM xlas_log_entry WHERE task_id = " . $this->db->quote($a_task_id, 'integer');
+		return $this->queryRecords($query, LogEntry::model());
 	}
 
+	/**
+	 * @param int $a_task_id
+	 * @return Alert[]
+	 */
 	public function getAlertsByTaskId(int $a_task_id): array
 	{
-		return Alert::where(['task_id' => $a_task_id])->get();
+		$query = "SELECT * FROM xlas_alert WHERE task_id = " . $this->db->quote($a_task_id, 'integer');
+		return $this->queryRecords($query, Alert::model());
 	}
 }

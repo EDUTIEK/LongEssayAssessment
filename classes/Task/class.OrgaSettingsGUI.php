@@ -117,7 +117,7 @@ class OrgaSettingsGUI extends BaseGUI
         $date = $a_data['task']['review_end'];
         $a_task_settings->setReviewEnd($date instanceof \DateTimeInterface ? $date->format('Y-m-d H:i:s') : null);
 
-        $task_repo->updateTaskSettings($a_task_settings);
+        $task_repo->save($a_task_settings);
     }
 
     /**

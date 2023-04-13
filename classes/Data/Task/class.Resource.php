@@ -4,12 +4,12 @@
 namespace ILIAS\Plugin\LongEssayAssessment\Data\Task;
 
 
-use ILIAS\Plugin\LongEssayAssessment\Data\ActivePluginRecord;
+use ILIAS\Plugin\LongEssayAssessment\Data\RecordData;
 
 /**
  * @author Fred Neumann <fred.neumann@ilias.de>
  */
-class Resource extends ActivePluginRecord
+class Resource extends RecordData
 {
     const RESOURCE_TYPE_FILE = 'file';
     const RESOURCE_TYPE_URL = 'url';
@@ -18,97 +18,36 @@ class Resource extends ActivePluginRecord
     const RESOURCE_AVAILABILITY_DURING = 'during';  // after writing start, unlimited
     const RESOURCE_AVAILABILITY_AFTER = 'after';    // for review period
 
-    /**
-     * @var string
-     */
-    protected $connector_container_name = 'xlas_resource';
+	protected const tableName = 'xlas_resource';
+	protected const hasSequence = true;
+	protected const keyTypes = [
+		'id' => 'integer',
+	];
+	protected const otherTypes = [
+		'task_id'=> 'integer',
+		'title' => 'text',
+		'description' => 'text',
+		'file_id' => 'text',
+		'url' => 'text',
+		'type' => 'text',
+		'availability' => 'text'
+	];
 
-    /**
-     * Essay id
-     *
-     * @var integer
-     * @con_has_field        true
-     * @con_is_primary       true
-     * @con_sequence         true
-     * @con_is_notnull       true
-     * @con_fieldtype        integer
-     * @con_length           4
-     */
-    protected $id;
+    protected int $id = 0;
+    protected int $task_id = 0;
+    protected string $title = "";
+    protected ?string $description = null;
+    protected string $file_id = "";
+    protected string $url = "";
+    protected string $type = self::RESOURCE_TYPE_URL;
+    protected string $availability = self::RESOURCE_AVAILABILITY_BEFORE;
 
-    /**
-     * The task_id currently corresponds to the obj_id of the ILIAS object
-     *
-     * @var integer
-     * @con_has_field        true
-     * @con_is_primary       false
-     * @con_sequence         false
-     * @con_is_notnull       true
-     * @con_fieldtype        integer
-     * @con_length           4
-     */
-    protected $task_id = 0;
+	public static function model() {
+		return new self();
+	}
 
 
-    /**
-     * @var string
-     * @con_has_field        true
-     * @con_is_notnull       true
-     * @con_fieldtype        text
-     * @con_length           255
-     */
-    protected $title = "";
-
-
-    /**
-     * @var string
-     * @con_has_field        true
-     * @con_is_notnull       false
-     * @con_fieldtype        clob
-     */
-    protected $description = null;
-
-    /**
-     * The file_id
-     *
-     * @var string
-     * @con_has_field        true
-     * @con_is_primary       false
-     * @con_sequence         false
-     * @con_is_notnull       false
-     * @con_fieldtype        text
-     * @con_length           50
-     */
-    protected $file_id = "";
-
-    /**
-     * @var string
-     * @con_has_field        true
-     * @con_is_notnull       true
-     * @con_fieldtype        text
-     * @con_length           4000
-     */
-    protected $url = "";
-
-    /**
-     * @var string
-     * @con_has_field        true
-     * @con_is_notnull       true
-     * @con_fieldtype        text
-     * @con_length           10
-     */
-    protected $type = self::RESOURCE_TYPE_URL;
-
-    /**
-     * @var string
-     * @con_has_field        true
-     * @con_is_notnull       true
-     * @con_fieldtype        text
-     * @con_length           10
-     */
-    protected $availability = self::RESOURCE_AVAILABILITY_BEFORE;
-
-    /**
+	/**
      * @return int
      */
     public function getId(): int

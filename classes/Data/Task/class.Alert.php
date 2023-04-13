@@ -4,106 +4,39 @@
 namespace ILIAS\Plugin\LongEssayAssessment\Data\Task;
 
 
-use ILIAS\Plugin\LongEssayAssessment\Data\ActivePluginRecord;
+use ILIAS\Plugin\LongEssayAssessment\Data\RecordData;
 
 /**
  * @author Fabian Wolf <wolf@ilias.de>
  */
-class Alert extends ActivePluginRecord
+class Alert extends RecordData
 {
 
-    /**
-     * @var string
-     */
-    protected $connector_container_name = 'xlas_alert';
+	protected const tableName = 'xlas_alert';
+	protected const hasSequence = true;
+	protected const keyTypes = [
+		'id' => 'integer',
+	];
+	protected const otherTypes = [
+		'task_id'=> 'integer',
+		'writer_id' => 'integer',
+		'title' => 'text',
+		'message' => 'text',
+		'shown_from' => 'datetime',
+		'shown_until' => 'datetime'
+	];
 
+    protected int $id = 0;
+    protected int $task_id = 0;
+	protected ?int $writer_id = 0;
+    protected ?string $title = null;
+    protected ?string $message = null;
+    protected ?string $shown_from = null;
+    protected ?string $shown_until = null;
 
-    /**
-     * alert id
-     *
-     * @var integer
-     * @con_has_field        true
-     * @con_is_primary       true
-     * @con_sequence         true
-     * @con_is_notnull       true
-     * @con_fieldtype        integer
-     * @con_length           4
-     */
-    protected $id;
-
-
-    /**
-     * The task_id currently corresponds to the obj_id of the ILIAS object
-     *
-     * @var integer
-     * @con_has_field        true
-     * @con_is_primary       false
-     * @con_sequence         false
-     * @con_is_notnull       true
-     * @con_fieldtype        integer
-     * @con_length           4
-     */
-    protected $task_id;
-
-	/**
-	 * Recipient
-	 *
-	 * @var integer
-	 * @con_has_field        true
-	 * @con_is_primary       false
-	 * @con_sequence         false
-	 * @con_is_notnull       false
-	 * @con_fieldtype        integer
-	 * @con_length           4
-	 */
-	protected ?int $writer_id = null;
-
-    /**
-     * title
-     *
-     * @var string
-     * @con_has_field        true
-     * @con_is_primary       false
-     * @con_sequence         false
-     * @con_is_notnull       true
-     * @con_fieldtype        text
-     * @con_length           255
-     */
-    protected $title;
-
-    /**
-     * Message
-     *
-     * @var string
-     * @con_has_field        true
-     * @con_is_primary       false
-     * @con_sequence         false
-     * @con_is_notnull       true
-     * @con_fieldtype        clob
-     */
-    protected $message;
-
-
-    /**
-     * Shown From
-     *
-     * @var string|null
-     * @con_has_field        true
-     * @con_is_notnull       false
-     * @con_fieldtype        timestamp
-     */
-    protected $shown_from = null;
-
-
-    /**
-     * Shown until
-     *
-     * @var string|null
-     * @con_has_field        true
-     * @con_is_notnull       false
-     * @con_fieldtype        timestamp
-     */
-    protected $shown_until = null;
+	public static function model() {
+		return new self();
+	}
 
     /**
      * @return int

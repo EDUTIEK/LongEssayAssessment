@@ -114,7 +114,8 @@ class LongEssayAssessmentDI
 
 		$dic["xlas.task_repository"] = function (\ILIAS\DI\Container $dic) {
 			return new TaskRepository(
-                $dic->database(),
+				$dic->database(),
+				$dic->logger()->xlas(),
 				$dic["xlas.essay_repository"],
 				$dic["xlas.corrector_repository"],
 				$dic["xlas.writer_repository"]

@@ -3,80 +3,39 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\Data\Task;
 
-use ILIAS\Plugin\LongEssayAssessment\Data\ActivePluginRecord;
+use ILIAS\Plugin\LongEssayAssessment\Data\RecordData;
 
 /**
  * @author Fabian Wolf <wolf@ilias.de>
  */
-class LogEntry extends ActivePluginRecord
+class LogEntry extends RecordData
 {
 	const CATEGORY_AUTHORIZE = "authorize";
 	const CATEGORY_NOTE = "note";
 	const CATEGORY_EXTENSION = "extension";
 	const CATEGORY_EXCLUSION = "exclusion";
 
-    /**
-     * @var string
-     */
-    protected $connector_container_name = 'xlas_log_entry';
+	protected const tableName = 'xlas_log_entry';
+	protected const hasSequence = true;
+	protected const keyTypes = [
+		'id' => 'integer',
+	];
+	protected const otherTypes = [
+		'task_id'=> 'integer',
+		'timestamp' => 'datetime',
+		'category' => 'text',
+		'entry' => 'text'
+	];
 
-    /**
-     * Writer notice id
-     *
-     * @var integer
-     * @con_has_field        true
-     * @con_is_primary       true
-     * @con_sequence         true
-     * @con_is_notnull       true
-     * @con_fieldtype        integer
-     * @con_length           4
-     */
-    protected $id;
+    protected int $id = 0;
+    protected int $task_id = 0;
+	protected ?string $timestamp = null;
+	protected string $category = self::CATEGORY_NOTE;
+    protected ?string $entry = null;
 
-    /**
-     * The task_id
-     *
-     * @var integer
-     * @con_has_field        true
-     * @con_is_primary       false
-     * @con_sequence         false
-     * @con_is_notnull       true
-     * @con_fieldtype        integer
-     * @con_length           4
-     */
-    protected $task_id;
-
-
-	/**
-	 * timestamp (datetime)
-	 *
-	 * @var string|null
-	 * @con_has_field        true
-	 * @con_is_notnull       false
-	 * @con_fieldtype        timestamp
-	 */
-	protected $timestamp = null;
-
-
-	/**
-	 * @var string
-	 * @con_has_field        true
-	 * @con_is_notnull       true
-	 * @con_fieldtype        text
-	 * @con_length           255
-	 */
-	protected $category = null;
-
-
-	/**
-     * Entry Text (richtext)
-     *
-     * @var null|string
-     * @con_has_field        true
-     * @con_is_notnull       false
-     * @con_fieldtype        clob
-     */
-    protected $entry = null;
+	public static function model() {
+		return new self();
+	}
 
 	/**
 	 * @return int

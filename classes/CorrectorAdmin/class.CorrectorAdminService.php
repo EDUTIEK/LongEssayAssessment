@@ -598,7 +598,7 @@ class CorrectorAdminService extends BaseService
             ->setTimestamp($datetime->get(IL_CAL_DATETIME))
             ->setCategory(LogEntry::CATEGORY_AUTHORIZE);
 
-        $this->taskRepo->createLogEntry($log_entry);
+        $this->taskRepo->save($log_entry);
 
         return true;
     }
@@ -637,7 +637,7 @@ class CorrectorAdminService extends BaseService
             ->setTimestamp($datetime->get(IL_CAL_DATETIME))
             ->setCategory(LogEntry::CATEGORY_AUTHORIZE);
 
-        $this->taskRepo->createLogEntry($log_entry);
+        $this->taskRepo->save($log_entry);
 
         return true;
     }

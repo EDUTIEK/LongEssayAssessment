@@ -3,141 +3,47 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\Data\Task;
 
-
-use ILIAS\Plugin\LongEssayAssessment\Data\ActivePluginRecord;
+use ILIAS\Plugin\LongEssayAssessment\Data\RecordData;
 
 /**
  * @author Fabian Wolf <wolf@ilias.de>
  */
-class CorrectionSettings extends ActivePluginRecord
+class CorrectionSettings extends RecordData
 {
     public const ASSIGN_MODE_RANDOM_EQUAL = 'random_equal';
 
-    /**
-     * @var string
-     */
-    protected $connector_container_name = 'xlas_corr_setting';
+	protected const tableName = 'xlas_corr_setting';
+	protected const hasSequence = false;
+	protected const keyTypes = [
+		'task_id' => 'integer',
+	];
+	protected const otherTypes = [
+		'required_correctors'=> 'integer',
+		'mutual_visibility' => 'integer',
+		'multi_color_highlight' => 'integer',
+		'max_points' => 'integer',
+		'max_auto_distance' => 'integer',
+		'assign_mode' => 'text',
+		'stitch_when_distance' => 'integer',
+		'stitch_when_decimals' => 'integer'
+	];
+
+    protected int $task_id = 0;
+    protected int $required_correctors = 2;
+    protected int $mutual_visibility = 1;
+    protected int $multi_color_highlight = 1;
+    protected int $max_points = 0;
+    protected int $max_auto_distance = 0;
+    protected string $assign_mode = self::ASSIGN_MODE_RANDOM_EQUAL;
+    protected int $stitch_when_distance = 1;
+    protected int $stitch_when_decimals = 1;
+
+	public static function model() {
+		return new self();
+	}
 
 
-    /**
-     * The task id
-     *
-     * @var integer
-     * @con_has_field        true
-     * @con_is_primary       true
-     * @con_sequence         false
-     * @con_is_notnull       true
-     * @con_fieldtype        integer
-     * @con_length           4
-     */
-    protected $task_id;
-
-    /**
-     * required correctors
-     *
-     * @var integer
-     * @con_has_field        true
-     * @con_is_primary       false
-     * @con_sequence         false
-     * @con_is_notnull       true
-     * @con_fieldtype        integer
-     * @con_length           4
-     */
-    protected $required_correctors = 2;
-
-    /**
-     * mutual visibility
-     *
-     * @var integer
-     * @con_has_field        true
-     * @con_is_primary       false
-     * @con_sequence         false
-     * @con_is_notnull       true
-     * @con_fieldtype        integer
-     * @con_length           4
-     */
-    protected $mutual_visibility = 1;
-
-    /**
-     * multi color highlight
-     *
-     * @var integer
-     * @con_has_field        true
-     * @con_is_primary       false
-     * @con_sequence         false
-     * @con_is_notnull       true
-     * @con_fieldtype        integer
-     * @con_length           4
-     */
-    protected $multi_color_highlight = 1;
-
-    /**
-     * max points
-     *
-     * @var integer
-     * @con_has_field        true
-     * @con_is_primary       false
-     * @con_sequence         false
-     * @con_is_notnull       true
-     * @con_fieldtype        integer
-     * @con_length           4
-     */
-    protected $max_points = 0;
-
-
-    /**
-     * max distance of points for automated finalisation
-     *
-     * @var float
-     * @con_has_field        true
-     * @con_is_primary       false
-     * @con_sequence         false
-     * @con_is_notnull       true
-     * @con_fieldtype        float
-     */
-    protected $max_auto_distance = 0;
-
-
-    /**
-     * @var string
-     * @con_has_field        true
-     * @con_is_notnull       true
-     * @con_fieldtype        text
-     * @con_length           50
-     */
-    protected $assign_mode = self::ASSIGN_MODE_RANDOM_EQUAL;
-
-
-
-    /**
-     * require a stitch decision when the distance of points is higher than allowed
-     *
-     * @var integer
-     * @con_has_field        true
-     * @con_is_primary       false
-     * @con_sequence         false
-     * @con_is_notnull       true
-     * @con_fieldtype        integer
-     * @con_length           4
-     */
-    protected $stitch_when_distance = 1;
-
-
-    /**
-     * require a stitch decision when the average points are not integer
-     *
-     * @var integer
-     * @con_has_field        true
-     * @con_is_primary       false
-     * @con_sequence         false
-     * @con_is_notnull       true
-     * @con_fieldtype        integer
-     * @con_length           4
-     */
-    protected $stitch_when_decimals = 1;
-
-
-    /**
+	/**
      * @return int
      */
     public function getTaskId(): int

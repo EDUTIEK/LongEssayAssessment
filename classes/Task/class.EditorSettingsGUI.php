@@ -39,7 +39,9 @@ class EditorSettingsGUI extends BaseGUI
      */
     protected function editSettings()
     {
-        $editorSettings = EditorSettings::findOrGetInstance($this->object->getId());
+		$task_repo = $this->localDI->getTaskRepo();
+
+		$editorSettings = $task_repo->getEditorSettingsById($this->object->getId());
 
         $factory = $this->uiFactory->input()->field();
 
@@ -102,7 +104,7 @@ class EditorSettingsGUI extends BaseGUI
             $editorSettings->setFormattingOptions($data['editor']['formatting_options']);
             $editorSettings->setNoticeBoards((int) $data['editor']['notice_boards']);
             $editorSettings->setCopyAllowed($data['editor']['copy_allowed']);
-            $editorSettings->save();
+			$task_repo->save($editorSettings);
 
             ilUtil::sendSuccess($this->lng->txt("settings_saved"), true);
             $this->ctrl->redirect($this, "editSettings");

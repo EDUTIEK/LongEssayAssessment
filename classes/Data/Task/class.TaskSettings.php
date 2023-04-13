@@ -4,163 +4,59 @@
 namespace ILIAS\Plugin\LongEssayAssessment\Data\Task;
 
 
-use ILIAS\Plugin\LongEssayAssessment\Data\ActivePluginRecord;
+use ILIAS\Plugin\LongEssayAssessment\Data\RecordData;
 
 /**
  * @author Fred Neumann <fred.neumann@ilias.de>
  */
-class TaskSettings extends ActivePluginRecord
+class TaskSettings extends RecordData
 {
     const RESULT_AVAILABLE_FINALISED = 'finalised';
     const RESULT_AVAILABLE_REVIEW = 'review';
     const RESULT_AVAILABLE_DATE = 'date';
 
-    /**
-     * @var string
-     */
-    protected $connector_container_name = 'xlas_task_settings';
+	protected const tableName = 'xlas_task_settings';
+	protected const hasSequence = false;
+	protected const keyTypes = [
+		'task_id' => 'integer',
+	];
+	protected const otherTypes = [
+		'description' => 'text',
+		'instructions' => 'text',
+		'solution' => 'text',
+		'writing_start' => 'datetime',
+		'writing_end' => 'datetime',
+		'correction_start' => 'datetime',
+		'correction_end' => 'datetime',
+		'review_start' => 'datetime',
+		'review_end' => 'datetime',
+		'keep_essay_available' => 'integer',
+		'solution_available' => 'integer',
+		'solution_available_date' => 'datetime',
+		'result_available_type' => 'text',
+		'result_available_date' => 'datetime'
+	];
 
 
-    /**
-     * The task_id currently corresponds to the obj_id of the ILIAS object
-     *
-     * @var integer
-     * @con_has_field        true
-     * @con_is_primary       true
-     * @con_sequence         false
-     * @con_is_notnull       true
-     * @con_fieldtype        integer
-     * @con_length           4
-     */
-    protected $task_id = 0;
+    protected int $task_id = 0;
+    protected ?string $description = null;
+    protected ?string $instructions = null;
+    protected ?string $solution = null;
+    protected ?string $writing_start = null;
+    protected ?string $writing_end = null;
+    protected ?string $correction_start = null;
+    protected ?string $correction_end = null;
+    protected ?string $review_start = null;
+    protected ?string $review_end = null;
+    protected int $keep_essay_available = 0;
+    protected int $solution_available = 0;
+    protected ?string $solution_available_date = null;
+    protected string $result_available_type = self::RESULT_AVAILABLE_REVIEW;
+    protected ?string $result_available_date = null;
 
-
-    /**
-     * @var string
-     * @con_has_field        true
-     * @con_is_notnull       false
-     * @con_fieldtype        clob
-     */
-    protected $description = null;
-
-    /**
-     * @var string
-     * @con_has_field        true
-     * @con_is_notnull       false
-     * @con_fieldtype        clob
-     */
-    protected $instructions = null;
-
-    /**
-     * @var string
-     * @con_has_field        true
-     * @con_is_notnull       false
-     * @con_fieldtype        clob
-     */
-    protected $solution = null;
-
-
-    /**
-     * @var string
-     * @con_has_field        true
-     * @con_is_notnull       false
-     * @con_fieldtype        timestamp
-     * Format IL_CAL_DATETIME in default timezone of the installation
-     */
-    protected $writing_start = null;
-
-
-    /**
-     * @var string
-     * @con_has_field        true
-     * @con_is_notnull       false
-     * @con_fieldtype        timestamp
-     * Format IL_CAL_DATETIME in default timezone of the installation
-     */
-    protected $writing_end = null;
-
-    /**
-     * @var string
-     * @con_has_field        true
-     * @con_is_notnull       false
-     * @con_fieldtype        timestamp
-     * Format IL_CAL_DATETIME in default timezone of the installation
-     */
-    protected $correction_start = null;
-
-
-    /**
-     * @var string
-     * @con_has_field        true
-     * @con_is_notnull       false
-     * @con_fieldtype        timestamp
-     * Format IL_CAL_DATETIME in default timezone of the installation
-     */
-    protected $correction_end = null;
-
-
-    /**
-     * @var string
-     * @con_has_field        true
-     * @con_is_notnull       false
-     * @con_fieldtype        timestamp
-     * Format IL_CAL_DATETIME in default timezone of the installation
-     */
-    protected $review_start = null;
-
-
-    /**
-     * @var string
-     * @con_has_field        true
-     * @con_is_notnull       false
-     * @con_fieldtype        timestamp
-     * Format IL_CAL_DATETIME in default timezone of the installation
-     */
-    protected $review_end = null;
-
-
-    /**
-     * @var integer
-     * @con_has_field        true
-     * @con_is_notnull       true
-     * @con_fieldtype        integer
-     */
-    protected $keep_essay_available = '0';
-
-    /**
-     * @var integer
-     * @con_has_field        true
-     * @con_is_notnull       true
-     * @con_fieldtype        integer
-     */
-    protected $solution_available = 0;
-
-    /**
-     * @var string
-     * @con_has_field        true
-     * @con_is_notnull       false
-     * @con_fieldtype        timestamp
-     * Format IL_CAL_DATETIME in default timezone of the installation
-     */
-    protected $solution_available_date = null;
-
-
-    /**
-     * @var string
-     * @con_has_field        true
-     * @con_is_notnull       true
-     * @con_fieldtype        text
-     */
-    protected $result_available_type = self::RESULT_AVAILABLE_REVIEW;
-
-    /**
-     * @var string
-     * @con_has_field        true
-     * @con_is_notnull       false
-     * @con_fieldtype        timestamp
-     * Format IL_CAL_DATETIME in default timezone of the installation
-     */
-    protected $result_available_date = null;
+	public static function model() {
+		return new self();
+	}
 
     /**
      * @return int

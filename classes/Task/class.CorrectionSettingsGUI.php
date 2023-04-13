@@ -39,10 +39,10 @@ class CorrectionSettingsGUI extends BaseGUI
      */
     protected function editSettings()
     {
-        $correctionSettings = CorrectionSettings::findOrGetInstance($this->object->getId());
+		$task_repo = $this->localDI->getTaskRepo();
+        $correctionSettings = $task_repo->getCorrectionSettingsById($this->object->getId());
 
         $factory = $this->uiFactory->input()->field();
-        $localFactory = $this->localDI->getUIFactory()->field();
 
         $sections = [];
 
@@ -114,7 +114,7 @@ class CorrectionSettingsGUI extends BaseGUI
                 $correctionSettings->setStitchWhenDistance(false);
             }
             $correctionSettings->setStitchWhenDecimals(!empty($data['stitch']['stitch_when_decimals']));
-            $correctionSettings->save();
+			$task_repo->save($correctionSettings);
 
             ilUtil::sendSuccess($this->lng->txt("settings_saved"), true);
             $this->ctrl->redirect($this, "editSettings");

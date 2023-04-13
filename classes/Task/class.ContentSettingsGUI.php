@@ -82,7 +82,7 @@ class ContentSettingsGUI extends BaseGUI
         $a_task_settings->setInstructions($a_data["task_instructions"]);
         $a_task_settings->setSolution($a_data["task_solution"]);
 
-        $task_repo->updateTaskSettings($a_task_settings);
+        $task_repo->save($a_task_settings);
     }
 
     /**

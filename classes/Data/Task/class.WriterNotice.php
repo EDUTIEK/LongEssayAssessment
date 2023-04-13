@@ -3,77 +3,36 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\Data\Task;
 
-use ILIAS\Plugin\LongEssayAssessment\Data\ActivePluginRecord;
+use ILIAS\Plugin\LongEssayAssessment\Data\RecordData;
 
 /**
  * @author Fabian Wolf <wolf@ilias.de>
  */
-class WriterNotice extends ActivePluginRecord
+class WriterNotice extends RecordData
 {
-    /**
-     * @var string
-     */
-    protected $connector_container_name = 'xlas_writer_notice';
 
-    /**
-     * Writer notice id
-     *
-     * @var integer
-     * @con_has_field        true
-     * @con_is_primary       true
-     * @con_sequence         true
-     * @con_is_notnull       true
-     * @con_fieldtype        integer
-     * @con_length           4
-     */
-    protected $id;
-
-    /**
-     * The task_id
-     *
-     * @var integer
-     * @con_has_field        true
-     * @con_is_primary       false
-     * @con_sequence         false
-     * @con_is_notnull       true
-     * @con_fieldtype        integer
-     * @con_length           4
-     */
-    protected $task_id;
+	protected const tableName = 'xlas_writer_notice';
+	protected const hasSequence = true;
+	protected const keyTypes = [
+		'id' => 'integer',
+	];
+	protected const otherTypes = [
+		'task_id'=> 'integer',
+		'writer_id' => 'integer',
+		'notice_text' => 'text',
+		'created' => 'datetime'
+	];
 
 
-	/**
-	 * Recipient
-	 *
-	 * @var integer
-	 * @con_has_field        true
-	 * @con_is_primary       false
-	 * @con_sequence         false
-	 * @con_is_notnull       false
-	 * @con_fieldtype        integer
-	 * @con_length           4
-	 */
-	protected $writer_id;
+    protected int $id = 0;
+    protected int $task_id = 0;
+	protected int $writer_id = 0;
+    protected ?string $notice_text = null;
+    protected ?string $created = null;
 
-    /**
-     * Notice Text (richtext)
-     *
-     * @var null|string
-     * @con_has_field        true
-     * @con_is_notnull       false
-     * @con_fieldtype        clob
-     */
-    protected $notice_text = null;
-
-    /**
-     * Created (datetime)
-     *
-     * @var string|null
-     * @con_has_field        true
-     * @con_is_notnull       false
-     * @con_fieldtype        timestamp
-     */
-    protected $created = null;
+	public static function model() {
+		return new self();
+	}
 
     /**
      * @return int

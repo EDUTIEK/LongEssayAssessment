@@ -181,9 +181,9 @@ class ilObjLongEssayAssessment extends ilObjectPlugin
 
         // Creation Area
         $object_repo->save($new_obj_settings);
-        $task_repo->updateTaskSettings($new_task_settings->setTaskId($new_obj->getId()));
-        $task_repo->updateEditorSettings($new_editor_settings->setTaskId($new_obj->getId()));
-        $task_repo->updateCorrectionSettings($new_correction_settings->setTaskId($new_obj->getId()));
+        $task_repo->save($new_task_settings->setTaskId($new_obj->getId()));
+        $task_repo->save($new_editor_settings->setTaskId($new_obj->getId()));
+        $task_repo->save($new_correction_settings->setTaskId($new_obj->getId()));
 
         foreach($new_grade_level as $grade_level)
         {
@@ -204,7 +204,7 @@ class ilObjLongEssayAssessment extends ilObjectPlugin
 				$resource->setFileId((string) $new_file_id);
 			}
 
-			$task_repo->createResource($resource);
+			$task_repo->save($resource);
 		}
 	}
 

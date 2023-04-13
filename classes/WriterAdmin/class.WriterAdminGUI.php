@@ -423,7 +423,7 @@ class WriterAdminGUI extends BaseGUI
 			->setTimestamp($essay->getWritingAuthorized())
 			->setCategory(LogEntry::CATEGORY_AUTHORIZE);
 
-		$task_repo->createLogEntry($log_entry);
+		$task_repo->save($log_entry);
 	}
 
 	private function createExtensionLogEntry(TimeExtension $time_extension){
@@ -449,7 +449,7 @@ class WriterAdminGUI extends BaseGUI
 			->setTimestamp($datetime->get(IL_CAL_DATETIME))
 			->setCategory(LogEntry::CATEGORY_EXTENSION);
 
-		$task_repo->createLogEntry($log_entry);
+		$task_repo->save($log_entry);
 	}
 
 	private function createExclusionLogEntry(Writer $writer){
@@ -473,7 +473,7 @@ class WriterAdminGUI extends BaseGUI
 			->setTimestamp($datetime->get(IL_CAL_DATETIME))
 			->setCategory(LogEntry::CATEGORY_EXCLUSION);
 
-		$task_repo->createLogEntry($log_entry);
+		$task_repo->save($log_entry);
 	}
 
 	private function createExclusionRepealLogEntry(Writer $writer){
@@ -497,7 +497,7 @@ class WriterAdminGUI extends BaseGUI
 			->setTimestamp($datetime->get(IL_CAL_DATETIME))
 			->setCategory(LogEntry::CATEGORY_EXCLUSION);
 
-		$task_repo->createLogEntry($log_entry);
+		$task_repo->save($log_entry);
 	}
 
 	private function buildDeleteWriterDataModal()

@@ -93,7 +93,7 @@ class WriterAdminLogGUI extends BaseGUI
 					$alert->setWriterId((int) $data['recipient']);
 				}
 				$task_repo = LongEssayAssessmentDI::getInstance()->getTaskRepo();
-				$task_repo->createAlert($alert);
+				$task_repo->save($alert);
 
 				ilUtil::sendSuccess($this->plugin->txt("alert_created"), true);
 			} else {
@@ -118,7 +118,7 @@ class WriterAdminLogGUI extends BaseGUI
 				$log_entry->setCategory(LogEntry::CATEGORY_NOTE);
 
 				$task_repo = LongEssayAssessmentDI::getInstance()->getTaskRepo();
-				$task_repo->createLogEntry($log_entry);
+				$task_repo->save($log_entry);
 
 				ilUtil::sendSuccess($this->plugin->txt("log_entry_created"), true);
 			} else {

@@ -156,7 +156,7 @@ class CorrectorRepository extends RecordRepo
 		$this->db->manipulate("DELETE FROM xlas_corrector" .
             " WHERE task_id = " . $this->db->quote($a_task_id, "integer"));
 
-		$this->db->manipulate("DELETE xlas_corrector_ass FROM xlas_corrector_ass AS ass"
+		$this->db->manipulate("DELETE ass FROM xlas_corrector_ass AS ass"
             . " LEFT JOIN xlas_corrector AS corrector ON (ass.corrector_id = corrector.user_id)"
             . " WHERE corrector.task_id = " . $this->db->quote($a_task_id, "integer"));
     }

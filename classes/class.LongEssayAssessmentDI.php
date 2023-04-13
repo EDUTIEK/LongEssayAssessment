@@ -106,6 +106,7 @@ class LongEssayAssessmentDI
 		$dic["xlas.writer_repository"] = function (\ILIAS\DI\Container $dic) {
 			return new WriterRepository(
                 $dic->database(),
+				$dic->logger()->xlas(),
                 $dic["xlas.essay_repository"],
                 $dic["xlas.corrector_repository"]
             );

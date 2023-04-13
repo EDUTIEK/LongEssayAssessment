@@ -322,10 +322,8 @@ class WriterAdminGUI extends BaseGUI
 
 				if($record->getMinutes() === 0){
 					$obj_repo->deleteTimeExtension($record->getWriterId(), $record->getTaskId());
-				}elseif($record->getId() !== 0){
-					$obj_repo->updateTimeExtension($record);
 				}else {
-					$obj_repo->createTimeExtension($record);
+					$obj_repo->save($record);
 				}
 
 				$this->createExtensionLogEntry($record);

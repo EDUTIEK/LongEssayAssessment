@@ -4,7 +4,7 @@
 namespace ILIAS\Plugin\LongEssayAssessment\Data\Writer;
 
 
-use ILIAS\Plugin\LongEssayAssessment\Data\ActivePluginRecord;
+use ILIAS\Plugin\LongEssayAssessment\Data\RecordData;
 
 /**
  * Writer
@@ -12,70 +12,29 @@ use ILIAS\Plugin\LongEssayAssessment\Data\ActivePluginRecord;
  * Indexes: (user_id, task_id), task_id
  * @author Fabian Wolf <wolf@ilias.de>
  */
-class Writer extends ActivePluginRecord
+class Writer extends RecordData
 {
+	protected const tableName = 'xlas_writer';
+	protected const hasSequence = true;
+	protected const keyTypes = [
+		'id' => 'integer',
+	];
+	protected const otherTypes = [
+		'user_id'=> 'integer',
+		'task_id' => 'integer',
+		'pseudonym' => 'text',
+		'editor_font_size' => 'integer'
+	];
 
-    /**
-     * @var string
-     */
-    protected $connector_container_name = 'xlas_writer';
-
-    /**
-     * alert id
-     *
-     * @var integer
-     * @con_has_field        true
-     * @con_is_primary       true
-     * @con_sequence         true
-     * @con_is_notnull       true
-     * @con_fieldtype        integer
-     * @con_length           4
-     */
-    protected $id;
-
-    /**
-     * The ILIAS user id
-     *
-     * @var integer
-     * @con_has_field        true
-     * @con_is_primary       false
-     * @con_sequence         false
-     * @con_is_notnull       true
-     * @con_fieldtype        integer
-     * @con_length           4
-     */
-    protected $user_id;
-
-    /**
-     * The task_id currently corresponds to the obj_id of the ILIAS object
-     *
-     * @var integer
-     * @con_has_field        true
-     * @con_is_primary       false
-     * @con_sequence         false
-     * @con_is_notnull       true
-     * @con_fieldtype        integer
-     * @con_length           4
-     */
-    protected $task_id;
-
-    /**
-     * @var string
-     * @con_has_field        true
-     * @con_is_notnull       true
-     * @con_fieldtype        text
-     * @con_length           255
-     */
+    protected int $id = 0;
+    protected int $user_id = 0;
+	protected int $task_id = 0;
     protected $pseudonym = null;
+    protected int $editor_font_size = 0;
 
-    /**
-     * @var integer
-     * @con_has_field        true
-     * @con_is_notnull       false
-     * @con_fieldtype        integer
-     * @con_length           4
-     */
-    protected $editor_font_size = 0;
+	public static function model() {
+		return new self();
+	}
 
     /**
      * @return int

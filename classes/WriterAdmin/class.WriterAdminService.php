@@ -57,7 +57,7 @@ class WriterAdminService extends BaseService
             $writer->setUserId($user_id)
                 ->setTaskId($this->task_id)
                 ->setPseudonym($this->plugin->txt('participant') . ' ' . $user_id);
-            $this->writerRepo->createWriter($writer);
+            $this->writerRepo->save($writer);
         }
         return $writer;
     }

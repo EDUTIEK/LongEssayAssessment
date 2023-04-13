@@ -4,7 +4,7 @@
 namespace ILIAS\Plugin\LongEssayAssessment\Data\Writer;
 
 
-use ILIAS\Plugin\LongEssayAssessment\Data\ActivePluginRecord;
+use ILIAS\Plugin\LongEssayAssessment\Data\RecordData;
 
 /**
  * TimeExtension
@@ -13,62 +13,29 @@ use ILIAS\Plugin\LongEssayAssessment\Data\ActivePluginRecord;
  *
  * @author Fabian Wolf <wolf@ilias.de>
  */
-class TimeExtension extends ActivePluginRecord
+class TimeExtension extends RecordData
 {
 
-    /**
-     * @var string
-     */
-    protected $connector_container_name = 'xlas_time_extension';
+	protected const tableName = 'xlas_time_extension';
+	protected const hasSequence = true;
+	protected const keyTypes = [
+		'id' => 'integer',
+	];
+	protected const otherTypes = [
+		'id' => 'integer',
+		'writer_id'=> 'integer',
+		'task_id' => 'integer',
+		'minutes' => 'integer'
+	];
 
+    protected int $id = 0;
+    protected int $writer_id = 0;
+    protected int $task_id = 0;
+    protected int $minutes = 0;
 
-    /**
-     * ID
-     *
-     * @var integer
-     * @con_has_field        true
-     * @con_is_primary       true
-     * @con_sequence         true
-     * @con_is_notnull       true
-     * @con_fieldtype        integer
-     * @con_length           4
-     */
-    protected $id = null;
-
-    /**
-     * The writer id
-     *
-     * @var integer
-     * @con_has_field        true
-     * @con_is_primary       false
-     * @con_sequence         false
-     * @con_is_notnull       true
-     * @con_fieldtype        integer
-     * @con_length           4
-     */
-    protected $writer_id;
-
-    /**
-     * The Task Id
-     *
-     * @var integer
-     * @con_has_field        true
-     * @con_is_primary       false
-     * @con_sequence         false
-     * @con_is_notnull       true
-     * @con_fieldtype        integer
-     * @con_length           4
-     */
-    protected $task_id;
-
-    /**
-     * @var int
-     * @con_has_field        true
-     * @con_is_notnull       true
-     * @con_fieldtype        integer
-     * @con_length           4
-     */
-    protected $minutes = 0;
+	public static function model() {
+		return new self();
+	}
 
     /**
      * @return int

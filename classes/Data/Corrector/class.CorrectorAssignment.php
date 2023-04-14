@@ -23,29 +23,12 @@ class CorrectorAssignment extends RecordData
 	protected const otherTypes = [
 		'writer_id' => 'integer',
 		'corrector_id' => 'integer',
-		'position' => 'integer',
-		'code' => 'text',
-		'passed' => 'integer'
+		'position' => 'integer'
 	];
 
-    /**
-     * Editor notice id
-     */
-    protected int $id;
-
-    /**
-     * The writer id
-     */
-    protected int $writer_id;
-
-    /**
-     * The Corrector Id
-     */
-    protected int $corrector_id;
-
-    /**
-     * @var int
-     */
+    protected int $id = 0;
+    protected int $writer_id = 0;
+    protected int $corrector_id = 0;
     protected int $position = 0;
 
 	public static function model(): CorrectorAssignment

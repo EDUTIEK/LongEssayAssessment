@@ -88,7 +88,7 @@ class CorrectorRepository extends RecordRepo
     public function getAssignmentsByCorrectorId(int $a_corrector_id): array
     {
 		$query = "SELECT * FROM " . CorrectorAssignment::tableName() . " WHERE corrector_id = " .
-			$this->db->quote($a_corrector_id, 'integer') . ' ORDER BY min_points ASC';
+			$this->db->quote($a_corrector_id, 'integer') . ' ORDER BY position ASC';
 		return $this->queryRecords($query, CorrectorAssignment::model());
     }
 

@@ -383,7 +383,7 @@ class CorrectorAdminService extends BaseService
                     $essay->setCorrectionFinalizedBy($user_id);
 
                     $essayRepo = $this->localDI->getEssayRepo();
-                    $essayRepo->updateEssay($essay);
+                    $essayRepo->save($essay);
 
                     return true;
                 }
@@ -572,14 +572,14 @@ class CorrectorAdminService extends BaseService
         if (!empty($essay->getCorrectionFinalized())) {
             $essay->setCorrectionFinalized(null);
             $essay->setCorrectionFinalizedBy(null);
-            $this->essayRepo->updateEssay($essay);
+            $this->essayRepo->save($essay);
         }
 
         // remove authorizations
         foreach ($this->getAuthorizedSummaries($essay) as $summary) {
             $summary->setCorrectionAuthorized(null);
             $summary->setCorrectionAuthorizedBy(null);
-            $this->essayRepo->updateCorrectorSummary($summary);
+            $this->essayRepo->save($summary);
         }
 
         // log the actions
@@ -619,7 +619,7 @@ class CorrectorAdminService extends BaseService
 
         $summary->setCorrectionAuthorized(null);
         $summary->setCorrectionAuthorizedBy(null);
-        $this->essayRepo->updateCorrectorSummary($summary);
+        $this->essayRepo->save($summary);
 
         // log the actions
         $description = \ilLanguage::_lookupEntry(

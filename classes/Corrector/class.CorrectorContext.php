@@ -478,7 +478,7 @@ class CorrectorContext extends ServiceContext implements Context
         $essayRepo = $this->localDI->getEssayRepo();
         if (!empty($repoEssay = $essayRepo->getEssayByWriterIdAndTaskId((int)$item_key, $this->task->getTaskId()))) {
             $repoEssay->setProcessedText($text);
-            $essayRepo->updateEssay($repoEssay);
+            $essayRepo->save($repoEssay);
         }
     }
 
@@ -499,7 +499,7 @@ class CorrectorContext extends ServiceContext implements Context
                 $repoSummary = new CorrectorSummary();
                 $repoSummary->setEssayId($repoEssay->getId());
                 $repoSummary->setCorrectorId((int) $corrector_key);
-                $essayRepo->createCorrectorSummary($repoSummary);
+                $essayRepo->save($repoSummary);
             }
             $repoSummary->setSummaryText($summary->getText());
             $repoSummary->setPoints($summary->getPoints());
@@ -513,13 +513,13 @@ class CorrectorContext extends ServiceContext implements Context
                 if (empty($repoSummary->getCorrectionAuthorizedBy())) {
                     $repoSummary->setCorrectionAuthorizedBy($this->user->getId());
                 }
-                $essayRepo->updateCorrectorSummary($repoSummary);
+                $essayRepo->save($repoSummary);
                 $service->tryFinalisation($repoEssay, $this->user->getId());
             }
             else {
                 $repoSummary->setCorrectionAuthorized(null);
                 $repoSummary->setCorrectionAuthorizedBy(null);
-                $essayRepo->updateCorrectorSummary($repoSummary);
+                $essayRepo->save($repoSummary);
             }
 
         }
@@ -540,7 +540,7 @@ class CorrectorContext extends ServiceContext implements Context
             $repoEssay->setCorrectionFinalized($dataService->unixTimeToDb($timestamp));
             $repoEssay->setCorrectionFinalizedBy($this->user->getId());
             $repoEssay->setStitchComment($stitch_comment);
-            $essayRepo->updateEssay($repoEssay);
+            $essayRepo->save($repoEssay);
             return true;
         }
         return false;

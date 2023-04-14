@@ -3,100 +3,38 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\Data\Essay;
 
-use ILIAS\Plugin\LongEssayAssessment\Data\ActivePluginRecord;
+use ILIAS\Plugin\LongEssayAssessment\Data\RecordData;
 
 /**
  * @author Fabian Wolf <wolf@ilias.de>
  */
-class WriterHistory extends ActivePluginRecord
+class WriterHistory extends RecordData
 {
-    /**
-     * @var string
-     */
-    protected $connector_container_name = 'xlas_writer_history';
+	protected const tableName = 'xlas_writer_history';
+	protected const hasSequence = true;
+	protected const keyTypes = [
+		'id' => 'integer',
+	];
+	protected const otherTypes = [
+		'essay_id' => 'integer',
+		'timestamp' => 'timestamp',
+		'content' => 'text',
+		'is_delta' => 'integer',
+		'hash_before' => 'text',
+		'hash_after' => 'text'
+	];
 
-    /**
-     * Writer history id
-     *
-     * @var integer
-     * @con_has_field        true
-     * @con_is_primary       true
-     * @con_sequence         true
-     * @con_is_notnull       true
-     * @con_fieldtype        integer
-     * @con_length           4
-     */
-    protected $id;
+    protected int $id = 0;
+    protected int $essay_id = 0;
+    protected ?string $timestamp = null;
+    protected ?string $content = null;
+    protected int $is_delta = 0;
+    protected ?string $hash_before = null;
+    protected ?string $hash_after = null;
 
-    /**
-     * The Essay Id
-     *
-     * @var integer
-     * @con_has_field        true
-     * @con_is_primary       false
-     * @con_sequence         false
-     * @con_is_notnull       true
-     * @con_fieldtype        integer
-     * @con_length           4
-     */
-    protected $essay_id;
-
-
-    /**
-     * Timestamp (datetime)
-     *
-     * @var string|null
-     * @con_has_field        true
-     * @con_is_notnull       false
-     * @con_fieldtype        timestamp
-     */
-    protected $timestamp = null;
-
-    /**
-     * Content Text (richtext)
-     *
-     * @var null|string
-     * @con_has_field        true
-     * @con_is_notnull       false
-     * @con_fieldtype        clob
-     */
-    protected $content = null;
-
-    /**
-     * is delta
-     * @var bool
-     * @con_has_field        true
-     * @con_is_notnull       true
-     * @con_fieldtype        integer
-     * @con_length           4
-     */
-    protected $is_delta = false;
-
-    /**
-     * hash before
-     *
-     * @var string
-     * @con_has_field        true
-     * @con_is_primary       false
-     * @con_sequence         false
-     * @con_is_notnull       false
-     * @con_fieldtype        text
-     * @con_length           50
-     */
-    protected $hash_before;
-
-    /**
-     * hash after
-     *
-     * @var string
-     * @con_has_field        true
-     * @con_is_primary       false
-     * @con_sequence         false
-     * @con_is_notnull       false
-     * @con_fieldtype        text
-     * @con_length           50
-     */
-    protected $hash_after;
+	public static function model() {
+		return new self();
+	}
 
     /**
      * @return int
@@ -175,7 +113,7 @@ class WriterHistory extends ActivePluginRecord
      */
     public function isIsDelta(): bool
     {
-        return $this->is_delta;
+        return (bool) $this->is_delta;
     }
 
     /**
@@ -184,7 +122,7 @@ class WriterHistory extends ActivePluginRecord
      */
     public function setIsDelta(bool $is_delta): WriterHistory
     {
-        $this->is_delta = $is_delta;
+        $this->is_delta = (int) $is_delta;
         return $this;
     }
 

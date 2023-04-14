@@ -3,71 +3,35 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\Data\Essay;
 
-use ILIAS\Plugin\LongEssayAssessment\Data\ActivePluginRecord;
+use ILIAS\Plugin\LongEssayAssessment\Data\RecordData;
 
 /**
  * @author Fabian Wolf <wolf@ilias.de>
  */
-class WriterComment extends ActivePluginRecord
+class WriterComment extends RecordData
 {
-    /**
-     * @var string
-     */
-    protected $connector_container_name = 'xlas_writer_comment';
 
-    /**
-     * Writer comment id
-     *
-     * @var integer
-     * @con_has_field        true
-     * @con_is_primary       true
-     * @con_sequence         true
-     * @con_is_notnull       true
-     * @con_fieldtype        integer
-     * @con_length           4
-     */
-    protected $id;
+	protected const tableName = 'xlas_writer_comment';
+	protected const hasSequence = true;
+	protected const keyTypes = [
+		'id' => 'integer',
+	];
+	protected const otherTypes = [
+		'task_id' => 'integer',
+		'comment' => 'text',
+		'start_position' => 'integer',
+		'end_position' => 'integer'
+	];
 
-    /**
-     * The task_id
-     *
-     * @var integer
-     * @con_has_field        true
-     * @con_is_primary       false
-     * @con_sequence         false
-     * @con_is_notnull       true
-     * @con_fieldtype        integer
-     * @con_length           4
-     */
-    protected $task_id;
+    protected int $id = 0;
+    protected int $task_id = 0;
+    protected ?string $comment = null;
+    protected int $start_position = 0;
+    protected int $end_position = 0;
 
-    /**
-     * Comment (richtext)
-     *
-     * @var null|string
-     * @con_has_field        true
-     * @con_is_notnull       false
-     * @con_fieldtype        clob
-     */
-    protected $comment = null;
-
-    /**
-     * @var int
-     * @con_has_field        true
-     * @con_is_notnull       true
-     * @con_fieldtype        integer
-     * @con_length           4
-     */
-    protected $start_position = 0;
-
-    /**
-     * @var int
-     * @con_has_field        true
-     * @con_is_notnull       true
-     * @con_fieldtype        integer
-     * @con_length           4
-     */
-    protected $end_position = 0;
+	public static function model() {
+		return new self();
+	}
 
     /**
      * @return int

@@ -4,12 +4,12 @@
 namespace ILIAS\Plugin\LongEssayAssessment\Data\Essay;
 
 
-use ILIAS\Plugin\LongEssayAssessment\Data\ActivePluginRecord;
+use ILIAS\Plugin\LongEssayAssessment\Data\RecordData;
 
 /**
  * @author Fabian Wolf <wolf@ilias.de>
  */
-class AccessToken extends ActivePluginRecord
+class AccessToken extends RecordData
 {
     /**
      * The token ist
@@ -17,86 +17,31 @@ class AccessToken extends ActivePluginRecord
     public const PURPOSE_DATA = 'data';
     public const PURPOSE_FILE = 'file';
 
-    /**
-     * @var string
-     */
-    protected $connector_container_name = 'xlas_access_token';
+	protected const tableName = 'xlas_access_token';
+	protected const hasSequence = true;
+	protected const keyTypes = [
+		'id' => 'integer',
+	];
+	protected const otherTypes = [
+		'user_id' => 'integer',
+		'task_id' => 'integer',
+		'purpose' => 'text',
+		'token' => 'text',
+		'ip' => 'datetime',
+		'valid_until' => 'datetime'
+	];
 
-    /**
-     * token id
-     *
-     * @var integer
-     * @con_has_field        true
-     * @con_is_primary       true
-     * @con_sequence         true
-     * @con_is_notnull       true
-     * @con_fieldtype        integer
-     * @con_length           4
-     */
-    protected $id = 0;
+    protected int $id = 0;
+    protected int $user_id = 0;
+    protected int $task_id = 0;
+    protected string $purpose = "";
+    protected string $token = "";
+    protected string $ip = "";
+    protected ?string $valid_until = null;
 
-    /**
-     * The ILIAS user id
-     *
-     * @var integer
-     * @con_has_field        true
-     * @con_is_primary       false
-     * @con_sequence         false
-     * @con_is_notnull       true
-     * @con_fieldtype        integer
-     * @con_length           4
-     */
-    protected $user_id = 0;
-
-    /**
-     * The Task id
-     *
-     * @var integer
-     * @con_has_field        true
-     * @con_is_primary       false
-     * @con_sequence         false
-     * @con_is_notnull       true
-     * @con_fieldtype        integer
-     * @con_length           4
-     */
-    protected $task_id = 0;
-
-    /**
-     * @var string
-     * @con_has_field        true
-     * @con_is_notnull       true
-     * @con_fieldtype        text
-     * @con_length           10
-     */
-    protected $purpose = "";
-
-    /**
-     * @var string
-     * @con_has_field        true
-     * @con_is_notnull       true
-     * @con_fieldtype        text
-     * @con_length           50
-     */
-    protected $token = "";
-
-    /**
-     * @var string
-     * @con_has_field        true
-     * @con_is_notnull       true
-     * @con_fieldtype        text
-     * @con_length           50
-     */
-    protected $ip = "";
-
-    /**
-     * Valid Until (datetime)
-     *
-     * @var string|null
-     * @con_has_field        true
-     * @con_is_notnull       false
-     * @con_fieldtype        timestamp
-     */
-    protected $valid_until = null;
+	public static function model() {
+		return new self();
+	}
 
     /**
      * @return int

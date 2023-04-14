@@ -121,7 +121,7 @@ class WriterAdminGUI extends BaseGUI
 			$datetime = new \ilDateTime(time(), IL_CAL_UNIX);
 			$essay->setWritingExcluded($datetime->get(IL_CAL_DATETIME));
 			$essay->setWritingExcludedBy($DIC->user()->getId());
-			$essay_repo->updateEssay($essay);
+			$essay_repo->save($essay);
 			$this->createExclusionLogEntry($writer);
 		}else{
 			// Writer hasn't started yet and is causally deleted
@@ -156,7 +156,7 @@ class WriterAdminGUI extends BaseGUI
 
 		$essay->setWritingExcluded(null);
 		$essay->setWritingExcludedBy(null);
-		$essay_repo->updateEssay($essay);
+		$essay_repo->save($essay);
 		$this->createExclusionRepealLogEntry($writer);
 
 		ilUtil::sendSuccess($this->plugin->txt("exclude_writer_repeal_success"), true);
@@ -356,7 +356,7 @@ class WriterAdminGUI extends BaseGUI
 		$essay->setWritingAuthorized($datetime->get(IL_CAL_DATETIME));
 		$essay->setWritingAuthorizedBy($DIC->user()->getId());
 
-		$essay_repo->updateEssay($essay);
+		$essay_repo->save($essay);
 
 		$this->createAuthorizeLogEntry($essay);
 

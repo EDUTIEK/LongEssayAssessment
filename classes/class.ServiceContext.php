@@ -186,7 +186,7 @@ abstract class ServiceContext implements BaseContext
         $token->setToken($api_token->getValue());
         $token->setIp($api_token->getIpAddress());
         $token->setValidUntil($valid);
-        $repo->createAccessToken($token);
+        $repo->save($token);
     }
 
 

@@ -3,12 +3,12 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\Data\Essay;
 
-use ILIAS\Plugin\LongEssayAssessment\Data\ActivePluginRecord;
+use ILIAS\Plugin\LongEssayAssessment\Data\RecordData;
 
 /**
  * @author Fabian Wolf <wolf@ilias.de>
  */
-class CorrectorSummary extends ActivePluginRecord
+class CorrectorSummary extends RecordData
 {
 	const STATUS_BLOCKED= "blocked";
 	const STATUS_DUE = "due";
@@ -16,117 +16,36 @@ class CorrectorSummary extends ActivePluginRecord
 	const STATUS_AUTHORIZED = "authorized";
 	const STATUS_STITCH = "stitch";
 
-    /**
-     * @var string
-     */
-    protected $connector_container_name = 'xlas_corrector_summary';
-
-    /**
-     * Editor notice id
-     *
-     * @var integer
-     * @con_has_field        true
-     * @con_is_primary       true
-     * @con_sequence         true
-     * @con_is_notnull       true
-     * @con_fieldtype        integer
-     * @con_length           4
-     */
-    protected $id;
-
-    /**
-     * The Essay Id
-     *
-     * @var integer
-     * @con_has_field        true
-     * @con_is_primary       false
-     * @con_sequence         false
-     * @con_is_notnull       true
-     * @con_fieldtype        integer
-     * @con_length           4
-     */
-    protected $essay_id;
-
-    /**
-     * The Corrector Id
-     *
-     * @var integer
-     * @con_has_field        true
-     * @con_is_primary       false
-     * @con_sequence         false
-     * @con_is_notnull       true
-     * @con_fieldtype        integer
-     * @con_length           4
-     */
-    protected $corrector_id;
-
-    /**
-     * Summary Text (richtext)
-     *
-     * @var null|string
-     * @con_has_field        true
-     * @con_is_notnull       false
-     * @con_fieldtype        clob
-     */
-    protected $summary_text = null;
-
-    /**
-     * @var int
-     * @con_has_field        true
-     * @con_is_notnull       false
-     * @con_fieldtype        float
-     * @con_length           4
-     */
-    protected $points = 0;
+	protected const tableName = 'xlas_corrector_summary';
+	protected const hasSequence = true;
+	protected const keyTypes = [
+		'id' => 'integer',
+	];
+	protected const otherTypes = [
+		'essay_id' => 'integer',
+		'corrector_id' => 'integer',
+		'summary_text' => 'text',
+		'points' => 'integer',
+		'grade_level_id' => 'integer',
+		'last_change' => 'datetime',
+		'correction_authorized' => 'datetime',
+		'correction_authorized_by' => 'integer'
+	];
 
 
-    /**
-     * Id of the grade level
-     *
-     * @var integer
-     * @con_has_field        true
-     * @con_is_primary       false
-     * @con_sequence         false
-     * @con_is_notnull       false
-     * @con_fieldtype        integer
-     * @con_length           4
-     */
-    protected $grade_level_id = null;
+    protected int $id = 0;
+    protected int $essay_id = 0;
+    protected int $corrector_id = 0;
+    protected ?string $summary_text = null;
+    protected int $points = 0;
+    protected ?int $grade_level_id = null;
+    protected ?string $last_change = null;
+    protected ?string $correction_authorized = null;
+    protected ?int $correction_authorized_by = null;
 
-    /**
-     * Last change at the correction
-     *
-     * @var string|null
-     * @con_has_field        true
-     * @con_is_notnull       false
-     * @con_fieldtype        timestamp
-     */
-    protected $last_change = null;
-
-
-    /**
-     * Correction authorized (datetime)
-     *
-     * @var string|null
-     * @con_has_field        true
-     * @con_is_notnull       false
-     * @con_fieldtype        timestamp
-     */
-    protected $correction_authorized = null;
-
-
-    /**
-     * ILIAS user id of the user that has finalized the correction
-     * (this may be the corrector or an admin)
-     *
-     * @var integer
-     * @con_has_field        true
-     * @con_is_notnull       false
-     * @con_fieldtype        integer
-     * @con_length           4
-     */
-    protected $correction_authorized_by = null;
-
+	public static function model() {
+		return new self();
+	}
 
     /**
      * @return int
@@ -290,3 +209,34 @@ class CorrectorSummary extends ActivePluginRecord
         return $this;
     }
 }
+
+/**
+SELECT cs.id as id, cs.corrector_id as corrector_id, cs.essay_id as essay_id,
+CASE
+WHEN NOT cs.correction_authorized IS null THEN "STATUS_AUTHORIZED"
+WHEN NOT cs.id IS null AND NOT cs.last_change IS null THEN "STATUS_STARTED"
+WHEN ca.position = 0 OR NOT predecessor_cs.correction_authorized IS null THEN "STATUS_DUE"
+WHEN predecessor_cs.correction_authorized IS null  THEN "STATUS_BLOCKED"
+ELSE "STATUS_UNKNOWN"
+END as CORRECTION_STATUS
+FROM xlet_corrector_summary AS cs
+LEFT JOIN xlet_essay AS essay ON (essay.id = cs.essay_id)
+LEFT JOIN xlet_corrector_ass AS ca ON (cs.corrector_id = ca.corrector_id AND essay.writer_id = ca.writer_id)
+LEFT JOIN xlet_corrector_ass AS predecessor_ca ON (essay.writer_id = predecessor_ca.writer_id AND predecessor_ca.position = ca.position-1)
+LEFT JOIN xlet_corrector_summary as predecessor_cs ON (essay.id = predecessor_cs.essay_id AND predecessor_cs.corrector_id = predecessor_ca.corrector_id);
+ *
+ *
+SELECT cs.id, essay.id, ca.corrector_id, ca.writer_id,
+CASE
+WHEN NOT cs.correction_authorized IS null THEN "STATUS_AUTHORIZED"
+WHEN NOT cs.id IS null AND NOT cs.last_change IS null THEN "STATUS_STARTED"
+WHEN ca.position = 0 OR NOT predecessor_cs.correction_authorized IS null THEN "STATUS_DUE"
+WHEN predecessor_cs.correction_authorized IS null  THEN "STATUS_BLOCKED"
+ELSE "STATUS_UNKNOWN"
+END as correction_status
+FROM xlet_corrector_ass AS ca
+LEFT JOIN xlet_essay AS essay ON (ca.writer_id = essay.writer_id)
+LEFT JOIN xlet_corrector_summary AS cs ON (ca.corrector_id = cs.corrector_id AND essay.id = cs.essay_id)
+LEFT JOIN xlet_corrector_ass AS predecessor_ca ON (essay.writer_id = predecessor_ca.writer_id AND predecessor_ca.position = ca.position-1)
+LEFT JOIN xlet_corrector_summary as predecessor_cs ON (essay.id = predecessor_cs.essay_id AND predecessor_cs.corrector_id = predecessor_ca.corrector_id);
+ */

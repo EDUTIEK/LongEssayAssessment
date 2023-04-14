@@ -3,106 +3,44 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\Data\Essay;
 
-use ILIAS\Plugin\LongEssayAssessment\Data\ActivePluginRecord;
+use ILIAS\Plugin\LongEssayAssessment\Data\RecordData;
 
 /**
  * @author Fabian Wolf <wolf@ilias.de>
  */
-class CorrectorComment extends ActivePluginRecord
+class CorrectorComment extends RecordData
 {
     const RATING_CARDINAL = 'cardinal';
     const RAITNG_FAILURE = 'failure';
     const RAITNG_EXCELLENT = 'excellent';
 
-    /**
-     * @var string
-     */
-    protected $connector_container_name = 'xlas_corrector_comment';
+	protected const tableName = 'xlas_corrector_comment';
+	protected const hasSequence = true;
+	protected const keyTypes = [
+		'id' => 'integer',
+	];
+	protected const otherTypes = [
+		'essay_id' => 'integer',
+		'corrector_id' => 'integer',
+		'comment' => 'text',
+		'start_position' => 'integer',
+		'end_position' => 'integer',
+		'points' => 'integer',
+		'rating' => 'text'
+	];
 
-    /**
-     * Editor notice id
-     *
-     * @var integer
-     * @con_has_field        true
-     * @con_is_primary       true
-     * @con_sequence         true
-     * @con_is_notnull       true
-     * @con_fieldtype        integer
-     * @con_length           4
-     */
-    protected $id;
+    protected int $id = 0;
+    protected int $essay_id = 0;
+    protected int $corrector_id = 0;
+    protected ?string $comment = null;
+    protected int $start_position = 0;
+    protected int $end_position = 0;
+    protected int  $points = 0;
+    protected string $rating = self::RATING_CARDINAL;
 
-    /**
-     * The Essay Id
-     *
-     * @var integer
-     * @con_has_field        true
-     * @con_is_primary       false
-     * @con_sequence         false
-     * @con_is_notnull       true
-     * @con_fieldtype        integer
-     * @con_length           4
-     */
-    protected $essay_id;
-
-    /**
-     * The Corrector Id
-     *
-     * @var integer
-     * @con_has_field        true
-     * @con_is_primary       false
-     * @con_sequence         false
-     * @con_is_notnull       true
-     * @con_fieldtype        integer
-     * @con_length           4
-     */
-    protected $corrector_id;
-
-    /**
-     * Comment (richtext)
-     *
-     * @var null|string
-     * @con_has_field        true
-     * @con_is_notnull       false
-     * @con_fieldtype        clob
-     */
-    protected $comment = null;
-
-    /**
-     * @var int
-     * @con_has_field        true
-     * @con_is_notnull       true
-     * @con_fieldtype        integer
-     * @con_length           4
-     */
-    protected $start_position = 0;
-
-    /**
-     * @var int
-     * @con_has_field        true
-     * @con_is_notnull       true
-     * @con_fieldtype        integer
-     * @con_length           4
-     */
-    protected $end_position = 0;
-
-    /**
-     * @var int
-     * @con_has_field        true
-     * @con_is_notnull       true
-     * @con_fieldtype        integer
-     * @con_length           4
-     */
-    protected $points = 0;
-
-    /**
-     * @var string
-     * @con_has_field        true
-     * @con_is_notnull       true
-     * @con_fieldtype        text
-     * @con_length           16
-     */
-    protected $rating = self::RATING_CARDINAL;
+	public static function model() {
+		return new self();
+	}
 
     /**
      * @return int

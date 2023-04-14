@@ -156,7 +156,7 @@ class WriterContext extends ServiceContext implements Context
             $essay->setWritingAuthorizedBy(null);
         }
 
-        $this->localDI->getEssayRepo()->updateEssay($essay);
+        $this->localDI->getEssayRepo()->save($essay);
     }
 
     /**
@@ -194,7 +194,7 @@ class WriterContext extends ServiceContext implements Context
                 ->setTimestamp($this->data->unixTimeToDb($step->getTimestamp()))
                 ->setHashBefore($step->getHashBefore())
                 ->setHashAfter($step->getHashAfter());
-            $this->localDI->getEssayRepo()->createWriterHistory($entry);
+            $this->localDI->getEssayRepo()->save($entry);
         }
     }
 
@@ -224,7 +224,7 @@ class WriterContext extends ServiceContext implements Context
                 ->setTaskId($writer->getTaskId())
                 ->setUuid($essay->generateUUID4())
                 ->setRawTextHash('');
-            $repo->createEssay($essay);
+            $repo->save($essay);
         }
         return $essay;
     }

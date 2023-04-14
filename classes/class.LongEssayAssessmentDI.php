@@ -92,6 +92,7 @@ class LongEssayAssessmentDI
         $dic["xlas.essay_repository"] = function (\ILIAS\DI\Container $dic) {
 			return new EssayRepository(
                 $dic->database(),
+				$dic->logger()->xlas()
             );
 		};
 

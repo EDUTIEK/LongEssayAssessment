@@ -4,12 +4,12 @@
 namespace ILIAS\Plugin\LongEssayAssessment\Data\Essay;
 
 use ILIAS\Data\UUID\Factory as UUID;
-use ILIAS\Plugin\LongEssayAssessment\Data\ActivePluginRecord;
+use ILIAS\Plugin\LongEssayAssessment\Data\RecordData;
 
 /**
  * @author Fabian Wolf <wolf@ilias.de>
  */
-class Essay extends ActivePluginRecord
+class Essay extends RecordData
 {
 	const WRITING_STATUS_NOT_WRITTEN = 'writing_status_not_written';
 	const WRITING_STATUS_NOT_AUTHORIZED = 'writing_status_not_authorized';
@@ -21,236 +21,58 @@ class Essay extends ActivePluginRecord
 	const CORRECTION_STATUS_STITCH_NEEDED = 'correction_status_stitch_needed';
 	const CORRECTION_STATUS_OPEN = 'correction_status_open';
 
-    /**
-     * @var string
-     */
-    protected $connector_container_name = 'xlas_essay';
+	protected const tableName = 'xlas_essay';
+	protected const hasSequence = true;
+	protected const keyTypes = [
+		'id' => 'integer',
+	];
+	protected const otherTypes = [
+		'uuid' => 'text',
+		'writer_id' => 'integer',
+		'task_id' => 'integer',
+		'written_text' => 'text',
+		'raw_text_hash' => 'text',
+		'edit_started' => 'datetime',
+		'edit_ended' => 'datetime',
+		'processed_text' => 'text',
+		'writing_authorized' => 'datetime',
+		'writing_authorized_by' => 'integer',
+		'writing_excluded' => 'datetime',
+		'writing_excluded_by' => 'integer',
+		'pdf_version' => 'integer',
+		'correction_finalized' => 'datetime',
+		'correction_finalized_by' => 'integer',
+		'final_points' => 'float',
+		'final_grade_level_id' => 'integer',
+		'stitch_comment' => 'text'
+	];
 
-    /**
-     * Essay id
-     *
-     * @var integer
-     * @con_has_field        true
-     * @con_is_primary       true
-     * @con_sequence         true
-     * @con_is_notnull       true
-     * @con_fieldtype        integer
-     * @con_length           4
-     */
-    protected $id;
+    protected int $id = 0;
+    protected ?string $uuid = null;
+    protected int $writer_id = 0;
+    protected int $task_id = 0;
+    protected ?string $written_text = null;
+    protected ?string $raw_text_hash = null;
+    protected ?string  $edit_started = null;
+    protected ?string $edit_ended = null;
+    protected ?string $processed_text = null;
+    protected ?string $writing_authorized = null;
+    protected ?int $writing_authorized_by = null;
+	protected ?string $writing_excluded = null;
+	protected ?int $writing_excluded_by = null;
+    protected ?int $pdf_version = null;
+    protected ?string $correction_finalized = null;
+    protected ?int $correction_finalized_by = null;
+    protected ?float $final_points = null;
+    protected ?int $final_grade_level_id = null;
+    protected ?string $stitch_comment = null;
 
-    /**
-     * UUID
-     *
-     * @var string
-     * @con_has_field        true
-     * @con_is_notnull       true
-     * @con_fieldtype        text
-     * @con_length           50
-     */
-    protected $uuid;
-
-    /**
-     * The writer id
-     *
-     * @var integer
-     * @con_has_field        true
-     * @con_is_primary       false
-     * @con_sequence         false
-     * @con_is_notnull       true
-     * @con_fieldtype        integer
-     * @con_length           4
-     */
-    protected $writer_id;
-
-    /**
-     * The task id
-     *
-     * @var integer
-     * @con_has_field        true
-     * @con_is_primary       false
-     * @con_sequence         false
-     * @con_is_notnull       true
-     * @con_fieldtype        integer
-     * @con_length           4
-     */
-    protected $task_id;
-
-    /**
-     * Written Text (richtext)
-     *
-     * @var null|string
-     * @con_has_field        true
-     * @con_is_notnull       false
-     * @con_fieldtype        clob
-     */
-    protected $written_text = null;
-
-    /**
-     * Rawtext Hash
-     *
-     * @var null|string
-     * @con_has_field        true
-     * @con_is_notnull       true
-     * @con_fieldtype        text
-     * @con_length           50
-     */
-    protected $raw_text_hash = null;
-
-
-    /**
-     * Edit Started (datetime)
-     *
-     * @var string|null
-     * @con_has_field        true
-     * @con_is_notnull       false
-     * @con_fieldtype        timestamp
-     */
-    protected $edit_started = null;
-
-
-    /**
-     * Edit Ended (datetime)
-     *
-     * @var string|null
-     * @con_has_field        true
-     * @con_is_notnull       false
-     * @con_fieldtype        timestamp
-     */
-    protected $edit_ended = null;
-
-
-    /**
-     * Processed Text (html)
-     *
-     * @var null|string
-     * @con_has_field        true
-     * @con_is_notnull       false
-     * @con_fieldtype        clob
-     */
-    protected $processed_text = null;
-
-
-    /**
-     * Writing authorized (datetime)
-     *
-     * @var string|null
-     * @con_has_field        true
-     * @con_is_notnull       false
-     * @con_fieldtype        timestamp
-     */
-    protected $writing_authorized = null;
-
-
-    /**
-     * ILIAS user id of the user that has authorized the written text
-     * (this may be the writer or an admin)
-     *
-     * @var integer
-     * @con_has_field        true
-     * @con_is_notnull       false
-     * @con_fieldtype        integer
-     * @con_length           4
-     */
-    protected $writing_authorized_by = null;
-
-	/**
-	 * Writing excluded (datetime)
-	 *
-	 * @var string|null
-	 * @con_has_field        true
-	 * @con_is_notnull       false
-	 * @con_fieldtype        timestamp
-	 */
-	protected $writing_excluded = null;
+	public static function model() {
+		return new self();
+	}
 
 
 	/**
-	 * ILIAS user id of the user that has excluded the written text
-	 *
-	 * @var integer
-	 * @con_has_field        true
-	 * @con_is_notnull       false
-	 * @con_fieldtype        integer
-	 * @con_length           4
-	 */
-	protected $writing_excluded_by = null;
-
-    /**
-     * PDF version as il file id
-     *
-     * @var null|integer
-     * @con_has_field        true
-     * @con_is_primary       false
-     * @con_sequence         false
-     * @con_is_notnull       false
-     * @con_fieldtype        integer
-     * @con_length           4
-     */
-    protected $pdf_version;
-
-    /**
-     * Correction finalized (datetime)
-     *
-     * @var string|null
-     * @con_has_field        true
-     * @con_is_notnull       false
-     * @con_fieldtype        timestamp
-     */
-    protected $correction_finalized = null;
-
-
-    /**
-     * ILIAS user id of the user that has finalized the correction
-     * (this may be a corrector or an admin)
-     *
-     * @var integer
-     * @con_has_field        true
-     * @con_is_notnull       false
-     * @con_fieldtype        integer
-     * @con_length           4
-     */
-    protected $correction_finalized_by = null;
-
-
-    /**
-     * Final Points (float)
-     *
-     * @var null|float
-     * @con_has_field        true
-     * @con_is_primary       false
-     * @con_sequence         false
-     * @con_is_notnull       false
-     * @con_fieldtype        float
-     * @con_length           4
-     */
-    protected $final_points;
-
-
-    /**
-     * Final Grade Level (id)
-     *
-     * @var null|integer
-     * @con_has_field        true
-     * @con_is_notnull       false
-     * @con_fieldtype        integer
-     * @con_length           4
-     */
-    protected $final_grade_level_id = null;
-
-
-    /**
-     * Comment from a stitch decision
-     *
-     * @var null|string
-     * @con_has_field        true
-     * @con_is_notnull       false
-     * @con_fieldtype        clob
-     */
-    protected $stitch_comment = null;
-
-
-    /**
      * @return string
      */
     public function getUuid(): string
@@ -595,3 +417,45 @@ class Essay extends ActivePluginRecord
         return $this;
     }
 }
+/**
+protected function baseQuery(?int $essay_id) :string
+{
+$where = [];
+if($essay_id !== null){
+$where[] = "essay.id = ". $essay_id;
+}
+
+
+return "SELECT essay.id AS essay_id, sn.stitch_needed,
+CASE
+WHEN edit_started IS null THEN " . Essay::WRITING_STATUS_NOT_WRITTEN . "
+WHEN NOT writing_excluded IS null THEN " . Essay::WRITING_STATUS_EXCLUDED . "
+WHEN writing_authorized IS null THEN " . Essay::WRITING_STATUS_NOT_AUTHORIZED . "
+ELSE " . Essay::WRITING_STATUS_AUTHORIZED . "
+END AS writing_status,
+CASE
+WHEN writing_authorized IS null THEN " . Essay::CORRECTION_STATUS_NOT_POSSIBLE . "
+WHEN NOT correction_finalized IS null THEN " . Essay::CORRECTION_STATUS_FINISHED . "
+WHEN sn.stitch_needed = \"YES\" THEN " . Essay::CORRECTION_STATUS_STITCH_NEEDED . "
+ELSE " . Essay::CORRECTION_STATUS_OPEN . "
+END AS correction_status
+FROM xlet_essay as essay
+LEFT JOIN (" . $this->stitch_query() . ") AS sn ON (essay.id = sn.essay_id);";
+}
+
+protected function stitch_query()
+{
+$where = "";
+return "SELECT essay.id AS essay_id,
+CASE
+WHEN stitch_when_distance = 1 THEN IF(ABS(MAX(csum.points) - MIN(csum.points)) > cset.max_auto_distance, \"YES\", \"NO\")
+WHEN stitch_when_decimals = 1 AND NOT AVG(csum.points) IS null THEN IF(FLOOR(AVG(csum.points)) < AVG(csum.points), \"YES\", \"NO\")
+ELSE \"NO\"
+END AS stitch_needed
+FROM xlet_essay as essay
+LEFT JOIN xlet_corrector_summary AS csum ON (essay.id = csum.essay_id)
+LEFT JOIN xlet_corr_setting AS cset ON (essay.task_id = cset.task_id)
+" . $where . "
+GROUP BY essay.id";
+}
+ */

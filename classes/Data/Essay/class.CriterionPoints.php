@@ -4,67 +4,32 @@
 namespace ILIAS\Plugin\LongEssayAssessment\Data\Essay;
 
 
-use ILIAS\Plugin\LongEssayAssessment\Data\ActivePluginRecord;
+use ILIAS\Plugin\LongEssayAssessment\Data\RecordData;
 
 /**
  * @author Fabian Wolf <wolf@ilias.de>
  */
-class CriterionPoints extends ActivePluginRecord
+class CriterionPoints extends RecordData
 {
+	protected const tableName = 'xlas_crit_points';
+	protected const hasSequence = true;
+	protected const keyTypes = [
+		'id' => 'integer',
+	];
+	protected const otherTypes = [
+		'rating_id' => 'integer',
+		'corr_comment_id' => 'integer',
+		'points' => 'integer'
+	];
 
-    /**
-     * @var string
-     */
-    protected $connector_container_name = 'xlas_crit_points';
+    protected int $id = 0;
+    protected int $rating_id = 0;
+    protected int $corr_comment_id = 0;
+    protected int $points = 0;
 
-
-    /**
-     * ID
-     *
-     * @var integer
-     * @con_has_field        true
-     * @con_is_primary       true
-     * @con_sequence         true
-     * @con_is_notnull       true
-     * @con_fieldtype        integer
-     * @con_length           4
-     */
-    protected $id;
-
-    /**
-     * The object id
-     *
-     * @var integer
-     * @con_has_field        true
-     * @con_is_primary       false
-     * @con_sequence         false
-     * @con_is_notnull       true
-     * @con_fieldtype        integer
-     * @con_length           4
-     */
-    protected $rating_id;
-
-    /**
-     * The corrector comment id
-     *
-     * @var integer
-     * @con_has_field        true
-     * @con_is_primary       false
-     * @con_sequence         false
-     * @con_is_notnull       true
-     * @con_fieldtype        integer
-     * @con_length           4
-     */
-    protected $corr_comment_id;
-
-    /**
-     * @var int
-     * @con_has_field        true
-     * @con_is_notnull       true
-     * @con_fieldtype        integer
-     * @con_length           4
-     */
-    protected $points = 0;
+	public static function model() {
+		return new self();
+	}
 
     /**
      * @return int

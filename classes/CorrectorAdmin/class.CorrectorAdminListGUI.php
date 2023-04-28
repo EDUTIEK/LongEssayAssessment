@@ -101,19 +101,23 @@ class CorrectorAdminListGUI extends WriterListGUI
                 $properties[$this->plugin->txt("final_grade")] = $this->localDI->getDataService($writer->getTaskId())->formatFinalResult($essay);
             }
 
+			$properties["Ort"] = "<input type='text'>";
+
 			$actions_dropdown = $this->uiFactory->dropdown()->standard($actions)
 				->withLabel($this->plugin->txt("actions"));
 
-			$items[] = $this->uiFactory->item()->standard($this->getWriterName($writer, true). $this->getWriterAnchor($writer))
+			$items[] = $this->localDI->getUIFactory()->formItem($this->getWriterName($writer, true). $this->getWriterAnchor($writer))
 				->withLeadIcon($this->getWriterIcon($writer))
 				->withProperties($properties)
 				->withActions($actions_dropdown);
 		}
+		$resources = $this->localDI->getUIFactory()->formGroup($this->plugin->txt("correctable_exams")
+			. $this->localDI->getDataService(0)->formatCounterSuffix($count_filtered, $count_total), $items, "");
+		$resources = $resources->withActionButtons(["abc" => "ABC", "cde" => "CDE"])->withCheckboxEnabled(true);
+//		$resources = $this->uiFactory->item()->group($this->plugin->txt("correctable_exams")
+//            . $this->localDI->getDataService(0)->formatCounterSuffix($count_filtered, $count_total), $items);
 
-		$resources = $this->uiFactory->item()->group($this->plugin->txt("correctable_exams")
-            . $this->localDI->getDataService(0)->formatCounterSuffix($count_filtered, $count_total), $items);
-
-		return $this->renderer->render($this->filterControl()) . '<br><br>' .
+		return $this->localDI->getUIRenderer()->render($this->filterControl(), $this->localDI->getUIRenderer()) . '<br><br>' .
 			$this->renderer->render(array_merge([$resources], $modals));
 	}
 

@@ -9,4 +9,6 @@ interface Factory
 	public function field(): FieldFactory;
 
 	public function icon(): IconFactory;
+
+	public function formGroup(string $title, array $items, string $form_action): FormGroup;
 }

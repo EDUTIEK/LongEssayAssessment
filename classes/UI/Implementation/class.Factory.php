@@ -7,6 +7,8 @@ namespace ILIAS\Plugin\LongEssayAssessment\UI\Implementation;
 use ILIAS\Data;
 use ILIAS\Plugin\LongEssayAssessment\UI;
 use ILIAS\Plugin\LongEssayAssessment\UI\Component\FieldFactory;
+use ILIAS\Plugin\LongEssayAssessment\UI\Component\FormGroup;
+use ILIAS\Plugin\LongEssayAssessment\UI\Component\FormItem;
 use ILIAS\Plugin\LongEssayAssessment\UI\Component\IconFactory;
 use ILIAS\UI\Implementation\Component\SignalGeneratorInterface;
 
@@ -38,5 +40,19 @@ class Factory implements UI\Component\Factory
 	public function icon(): IconFactory
 	{
 		return $this->icon_factory;
+	}
+
+	public function formGroup(string $title, array $items, string $form_action): FormGroup
+	{
+		return new \ILIAS\Plugin\LongEssayAssessment\UI\Implementation\FormGroup(
+			$title,
+			$items,
+			$form_action
+		);
+	}
+
+	public function formItem(string $title): FormItem
+	{
+		return new \ILIAS\Plugin\LongEssayAssessment\UI\Implementation\FormItem($title);
 	}
 }

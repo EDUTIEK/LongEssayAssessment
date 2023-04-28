@@ -1,0 +1,45 @@
+<div class="il-item il-std-item <!-- BEGIN color -->il-item-marker " style="border-color:{COLOR}<!-- END color -->">
+	<!-- BEGIN lead_start -->
+	<div class="row">
+		<!-- BEGIN lead_text -->
+		<div class="col-sm-3">{LEAD_TEXT}</div>
+		<div class="col-sm-9">
+		<!-- END lead_text -->
+		<!-- BEGIN lead_image -->
+			<div class="col-xs-2 col-sm-3">{LEAD_IMAGE}</div>
+			<div class="col-xs-10 col-sm-9">
+		<!-- END lead_image -->
+	<!-- END lead_start -->
+	<!-- BEGIN lead_start_icon -->
+	<div class="media">
+		<!-- BEGIN checkbox -->
+		<div class="media-left">
+			<input type="checkbox" name="cb_{CHECKBOX}[]">
+		</div>
+		<!-- END checkbox -->
+		<div class="media-left">
+			<!-- BEGIN lead_icon -->{LEAD_ICON}<!-- END lead_icon -->
+		</div>
+		<div class="media-body">
+			<!-- END lead_start_icon -->
+			<div class="il-item-title">{TITLE}</div>
+			{ACTIONS}
+			<!-- BEGIN desc -->
+			<div class="il-item-description">{DESC}</div><!-- END desc -->
+			<!-- BEGIN properties -->
+			<hr class="il-item-divider" />
+			<!-- BEGIN property_row -->
+			<div class="row">
+				<div class="col-md-6 il-multi-line-cap-3">
+					<span class="il-item-property-name">{PROP_NAME_A}</span><span class="il-item-property-value">{PROP_VAL_A}</span>
+				</div>
+				<div class="col-md-6 il-multi-line-cap-3">
+					<span class="il-item-property-name">{PROP_NAME_B}</span><span class="il-item-property-value">{PROP_VAL_B}</span>
+				</div>
+			</div>
+			<!-- END property_row -->
+			<!-- END properties -->
+			<!-- BEGIN lead_end -->
+		</div>
+	</div><!-- END lead_end -->
+</div>

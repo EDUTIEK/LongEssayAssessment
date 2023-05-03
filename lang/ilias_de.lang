@@ -176,7 +176,7 @@ add_grade_level#:#Notenstufe hinzufügen
 grade_levels#:#Notenstufen
 edit_grade_level#:#Notenstufe bearbeiten
 delete_grade_level_successful#:#Notenstufe erfolgreich gelöscht.
-delete_grade_level_failure#:#Notenstufe konnte nicht gelsöcht werden.
+delete_grade_level_failure#:#Notenstufe konnte nicht gelöscht werden.
 writing_finalized_from#:#finalisiert von
 writing_authorized_from#:#autorisiert von
 writing_edit_started#:#gestartet
@@ -370,3 +370,12 @@ own_position#:#Funktion
 own_correction#:#Eigene Korrekturen
 count_x_of_y#:#%s von %s
 count_x_total#:#%s gesamt
+criteria#:#Bewertungskriterien
+criteria_add#:#Kriterium hinzufügen
+criteria_edit#:#Kriterium bearbeiten
+criteria_max_point#:#Max. Punkte
+criteria_max_point_desc#:#Maximal vergebbare Punkte für dieses Kriterium.
+delete_criteria_successful#:#Kriterium erfolgreich gelöscht.
+delete_criteria_failure#:#Kriterium konnte nicht gelöscht werden.
+delete_criteria#:#Kriterium löschen
+delete_criteria_confirmation#:#Sind Sie sicher, dass Sie das Kriterium unwiderruflich entfernen möchten?

@@ -150,7 +150,7 @@ abstract class RecordData
     }
 
     /**
-     * Get a clone with a sequence value
+     * Set a sequence value
      * Assume that a record with sequence has only one integer key
      */
     public function setTableSequence(int $value) : void

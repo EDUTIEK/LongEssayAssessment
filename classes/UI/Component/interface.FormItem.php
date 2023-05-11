@@ -11,6 +11,7 @@ use \ILIAS\UI\Component\Symbol\Icon\Icon;
 use \ILIAS\UI\Component\Image\Image;
 use \ILIAS\Data\Color;
 use ILIAS\UI\Implementation\Component\Input\Field\Input;
+use ILIAS\UI\Implementation\Component\Input\NameSource;
 
 /**
  * Interface Standard Item
@@ -35,4 +36,8 @@ interface FormItem extends Standard
 	 * @return array<string,string|Shy|Input>		Title => Content
 	 */
 	public function getProperties();
+
+	public function withName(string $name);
+
+	public function getName(): ?string;
 }

@@ -8,5 +8,18 @@ use ILIAS\UI\Implementation\Component\Item\Standard;
 
 class FormItem extends Standard implements \ILIAS\Plugin\LongEssayAssessment\UI\Component\FormItem
 {
+	protected ?string $name;
 
+	public function withName(string $name): FormItem
+	{
+		$clone = clone $this;
+		$clone->name = $name;
+
+		return $clone;
+	}
+
+	public function getName(): ?string
+	{
+		return $this->name;
+	}
 }

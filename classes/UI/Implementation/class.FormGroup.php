@@ -30,29 +30,11 @@ class FormGroup extends Group implements \ILIAS\Plugin\LongEssayAssessment\UI\Co
 		return $this->form_action;
 	}
 
-	public function withActionButtons(array $actions): \ILIAS\Plugin\LongEssayAssessment\UI\Component\FormGroup
+	public function withoutActions(): Group
 	{
 		$clone = clone $this;
-		$clone->action_buttons = $actions;
+		$clone->actions = null;
 
 		return $clone;
-	}
-
-	public function getActionButtons(): array
-	{
-		return $this->action_buttons;
-	}
-
-	public function withCheckboxEnabled(bool $enabled): \ILIAS\Plugin\LongEssayAssessment\UI\Component\FormGroup
-	{
-		$clone = clone $this;
-		$clone->cb_enabled = $enabled;
-
-		return $clone;
-	}
-
-	public function isCheckboxEnabled(): bool
-	{
-		return $this->cb_enabled;
 	}
 }

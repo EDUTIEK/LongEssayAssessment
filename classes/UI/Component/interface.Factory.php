@@ -10,5 +10,5 @@ interface Factory
 
 	public function icon(): IconFactory;
 
-	public function formGroup(string $title, array $items, string $form_action): FormGroup;
+	public function item(): ItemFactory;
 }

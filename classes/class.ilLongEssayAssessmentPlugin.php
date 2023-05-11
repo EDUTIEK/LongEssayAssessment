@@ -5,6 +5,9 @@ use ILIAS\DI\Container;
 use ILIAS\Plugin\LongEssayAssessment\Data\System\PluginConfig;
 use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
 use ILIAS\Plugin\LongEssayAssessment\Task\ResourceResourceStakeholder;
+use ILIAS\Plugin\LongEssayAssessment\UI\Implementation\FieldRenderer;
+use ILIAS\Plugin\LongEssayAssessment\UI\Implementation\ItemRenderer;
+use ILIAS\Plugin\LongEssayAssessment\UI\PluginRenderer;
 
 /**
  * Basic plugin file
@@ -164,4 +167,43 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
 
         $this->readEventListening();
     }
+
+
+	public function exchangeUIRendererAfterInitialization(Container $dic): Closure
+	{
+		$this->init();
+		$custom_dic =
+		//Safe the origin renderer closure
+		$renderer = $dic->raw('ui.renderer');
+
+		//return origin if plugin is not active
+		if (!$this->isActive()) {
+			return $renderer;
+		}
+
+		//else return own renderer with origin as default
+		//be aware that you can not provide the renderer itself for the closure since its state changes
+		return function () use ($dic, $renderer) {
+			return new PluginRenderer(
+				$renderer($dic),
+				new ItemRenderer(
+					$dic["ui.factory"],
+					$dic["xlas.custom_template_factory"],
+					$dic["lng"],
+					$dic["ui.javascript_binding"],
+					$dic["refinery"],
+					$dic["ui.pathresolver"]
+				),
+				new FieldRenderer(
+					$dic["ui.factory"],
+					$dic["xlas.custom_template_factory"],
+					$dic["lng"],
+					$dic["ui.javascript_binding"],
+					$dic["refinery"],
+					$dic["ui.pathresolver"]
+				)
+			);
+		};
+	}
+
 }

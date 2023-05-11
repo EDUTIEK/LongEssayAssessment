@@ -3,9 +3,11 @@
 namespace ILIAS\Plugin\LongEssayAssessment\UI\Implementation;
 
 use ILIAS\UI\Component\Component;
+use ILIAS\UI\Component\Image\Image;
+use ILIAS\UI\Component\Item\Group;
+use ILIAS\UI\Component\Item\Item;
+use ILIAS\UI\Component\Symbol\Icon\Icon;
 use ILIAS\UI\Implementation\Component\Input\Field\Input;
-use ILIAS\UI\Implementation\Render\Template;
-use \ILIAS\Plugin\LongEssayAssessment\UI\Component as F;
 use ILIAS\UI\Renderer as RendererInterface;
 
 class ItemRenderer extends \ILIAS\UI\Implementation\Component\Item\Renderer
@@ -21,8 +23,10 @@ class ItemRenderer extends \ILIAS\UI\Implementation\Component\Item\Renderer
 		$this->checkComponent($component);
 
 		switch (true) {
-			case ($component instanceof F\Numeric):
-				return $this->renderCustomNumericField($component, $default_renderer);
+			case ($component instanceof FormGroup):
+				return $this->renderFormGroup($component, $default_renderer);
+			case ($component instanceof FormItem):
+				return $this->renderFormItem($component, $default_renderer);
 			default:
 				throw new \LogicException("Cannot render '" . get_class($component) . "'");
 		}
@@ -31,9 +35,7 @@ class ItemRenderer extends \ILIAS\UI\Implementation\Component\Item\Renderer
 
 	protected function getComponentInterfaceName(): array
 	{
-		return [
-
-		];
+		return [FormGroup::class, FormItem::class];
 	}
 
 	/**
@@ -54,12 +56,125 @@ class ItemRenderer extends \ILIAS\UI\Implementation\Component\Item\Renderer
 	{
 		if($this->files_cache === null){
 
-			$this->files_cache =  array_filter(scandir(dirname(__FILE__). "/../../../templates/Input"), function($item){
+			$this->files_cache =  array_filter(scandir(dirname(__FILE__). "/../../../templates/Item"), function($item){
 				return str_starts_with($item, "tpl.");
 			});
 
 		}
 
 		return $this->files_cache;
+	}
+
+	protected function renderFormGroup(FormGroup $component, RendererInterface $default_renderer)
+	{
+		$tpl = $this->getTemplate("tpl.form_group.html", true, true);
+		$tpl->setVariable("FORM_ACTION", $component->getFormAction());
+		$tpl->setVariable("LIST_STD", $this->renderGroup($component->withoutActions(), $default_renderer));
+		$tpl->setVariable("FORM_ID", "test1");
+
+		if (count($component->getItems()) > 0)
+		{
+			$tpl->setVariable("IMG_ARROW_TOP", \ilUtil::getImagePath("arrow_upright.svg"));
+			$tpl->setVariable("ALT_ARROW_TOP", $this->txt("action"));
+
+			$tpl->setVariable("IMG_ARROW_BOT", \ilUtil::getImagePath("arrow_downright.svg"));
+			$tpl->setVariable("ALT_ARROW_BOT", $this->txt("action"));
+
+			$tpl->setVariable("SELECT_ALL_TXT_SELECT_ALL", $this->txt("select_all"));
+
+
+			$actions = $component->getActions();
+			if ($actions === null) {
+				$tpl->setVariable("CMD_BUTTONS", $default_renderer->render($this->getUIFactory()->button()->standard($this->txt("execute"), "")));
+			} else {
+				$tpl->setVariable("CMD_BUTTONS", $default_renderer->render($component->getActions()->withLabel($this->txt("execute"))));
+			}
+		}
+
+		return $tpl->get();
+	}
+
+	protected function renderFormItem(FormItem $component, RendererInterface $default_renderer)
+	{
+		$tpl = $this->getTemplate("tpl.form_item.html", true, true);
+
+		$this->renderTitle($component, $default_renderer, $tpl);
+		$this->renderDescription($component, $default_renderer, $tpl);
+		$this->renderProperties($component, $default_renderer, $tpl);
+		// color
+		$color = $component->getColor();
+		if ($color !== null) {
+			$tpl->setCurrentBlock("color");
+			$tpl->setVariable("COLOR", $color->asHex());
+			$tpl->parseCurrentBlock();
+		}
+
+		$tpl->setCurrentBlock("checkbox");
+		$tpl->setVariable("CB_VALUE", $component->getName());
+		$tpl->parseCurrentBlock();
+
+		// lead
+		$lead = $component->getLead();
+		if ($lead != null) {
+			if (is_string($lead)) {
+				$tpl->setCurrentBlock("lead_text");
+				$tpl->setVariable("LEAD_TEXT", $lead);
+				$tpl->parseCurrentBlock();
+			}
+			if ($lead instanceof Image) {
+				$tpl->setCurrentBlock("lead_image");
+				$tpl->setVariable("LEAD_IMAGE", $default_renderer->render($lead));
+				$tpl->parseCurrentBlock();
+			}
+			if ($lead instanceof Icon) {
+				$tpl->setCurrentBlock("lead_icon");
+				$tpl->setVariable("LEAD_ICON", $default_renderer->render($lead));
+				$tpl->parseCurrentBlock();
+				$tpl->setCurrentBlock("lead_start_icon");
+				$tpl->parseCurrentBlock();
+			} else {
+				$tpl->setCurrentBlock("lead_start");
+				$tpl->parseCurrentBlock();
+			}
+			$tpl->touchBlock("lead_end");
+		}
+		// actions
+		$actions = $component->getActions();
+		if ($actions !== null) {
+			$tpl->setVariable("ACTIONS", $default_renderer->render($actions));
+		}
+		return $tpl->get();
+	}
+
+	protected function renderProperties(
+		Item $component,
+		RendererInterface $default_renderer,
+		\ILIAS\UI\Implementation\Render\Template $tpl
+	) {
+		// properties
+		$props = $component->getProperties();
+		if (count($props) > 0) {
+			$cnt = 0;
+			foreach ($props as $name => $value) {
+				if ($value instanceof \ILIAS\UI\Component\Button\Shy || $value instanceof Input) {
+					$value = $default_renderer->render($value);
+				}
+				$cnt++;
+				if ($cnt % 2 == 1) {
+					$tpl->setCurrentBlock("property_row");
+					$tpl->setVariable("PROP_NAME_A", $name);
+					$tpl->setVariable("PROP_VAL_A", $value);
+				} else {
+					$tpl->setVariable("PROP_NAME_B", $name);
+					$tpl->setVariable("PROP_VAL_B", $value);
+					$tpl->parseCurrentBlock();
+				}
+			}
+			if ($cnt % 2 == 1) {
+				$tpl->parseCurrentBlock();
+			}
+			$tpl->setCurrentBlock("properties");
+			$tpl->parseCurrentBlock();
+		}
 	}
 }

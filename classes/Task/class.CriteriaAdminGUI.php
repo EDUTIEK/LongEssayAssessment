@@ -4,7 +4,7 @@
 namespace ILIAS\Plugin\LongEssayAssessment\Task;
 
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
-use ILIAS\Plugin\LongEssayAssessment\Data\ActiveRecordDummy;
+use ILIAS\Plugin\LongEssayAssessment\Data\Object\RatingCriterion;
 use ILIAS\UI\Component\Table\PresentationRow;
 use ILIAS\UI\Factory;
 use \ilUtil;
@@ -28,10 +28,10 @@ class CriteriaAdminGUI extends BaseGUI
         switch ($cmd)
         {
             case 'showItems':
-            case "editItem":
+            case 'editItem':
+			case 'deleteItem':
                 $this->$cmd();
                 break;
-
             default:
                 $this->tpl->setContent('unknown command: ' . $cmd);
         }
@@ -42,24 +42,21 @@ class CriteriaAdminGUI extends BaseGUI
      */
     protected function getItemData()
     {
-        return [
-            [
-                'headline' => 'Bewertungskriterium Eins',
-                'subheadline' => 'Hier wird bewertet, dass ...',
-                'important' => [
-                    'Max. Punkte' => 2
-                ],
-            ],
-            [
-                'headline' => 'Bewertungskriterium Zwei',
-                'subheadline' => 'Hier wird bewertet, dass ...',
-                'important' => [
-                    'Max. Punkte' => 3
-                ],
-            ],
+		$creteria = $this->localDI->getObjectRepo()->getRatingCriteriaByObjectId($this->object->getId());
+		$items = [];
 
+		foreach($creteria as $obj){
+			$items[] = [
+				'id' => $obj->getId(),
+				'headline' => $obj->getTitle(),
+				'subheadline' => $obj->getDescription(),
+				'important' => [
+					$this->plugin->txt("criteria_max_point") => $obj->getPoints()
+					]
+				];
+		}
 
-        ];
+        return $items;
     }
 
     /**
@@ -70,29 +67,41 @@ class CriteriaAdminGUI extends BaseGUI
         $this->toolbar->setFormAction($this->ctrl->getFormAction($this));
         $button = \ilLinkButton::getInstance();
         $button->setUrl($this->ctrl->getLinkTarget($this, 'editItem'));
-        $button->setCaption('Kriterium hinzufügen', false);
+        $button->setCaption($this->plugin->txt("criteria_add"), false);
         $this->toolbar->addButtonInstance($button);
 
-
         $ptable = $this->uiFactory->table()->presentation(
-            'Bewertungskriterien',
+            $this->plugin->txt("criteria"),
             [],
             function (
                 PresentationRow $row,
                 array $record,
                 Factory $ui_factory,
                 $environment) {
+				$this->ctrl->setParameter($this, 'criterion_id', $record['id']);
+				$edit_target = $this->ctrl->getLinkTarget($this, 'editItem');
+				$this->ctrl->setParameter($this, 'criterion_id', $record['id']);
+				$delete_target = $this->ctrl->getLinkTarget($this, 'deleteItem');
+
+				$approve_modal = $ui_factory->modal()->interruptive(
+					$this->plugin->txt("delete_criteria"),
+					$this->plugin->txt("delete_criteria_confirmation"),
+					$delete_target
+				)->withAffectedItems([
+					$ui_factory->modal()->interruptiveItem($record["id"], $record['headline'])
+				]);
+
                 return $row
-                    ->withHeadline($record['headline'])
-                    //->withSubheadline($record['subheadline'])
+                    ->withHeadline($record['headline'] . $this->renderer->render($approve_modal))
                     ->withImportantFields($record['important'])
-                    ->withContent($ui_factory->listing()->descriptive(['Beschreibung' => $record['subheadline']]))
+                    ->withContent($ui_factory->listing()->descriptive([$this->lng->txt("description") => $record['subheadline']]))
                     ->withFurtherFieldsHeadline('')
                     ->withFurtherFields($record['important'])
                     ->withAction(
                         $ui_factory->dropdown()->standard([
-                            $ui_factory->button()->shy($this->lng->txt('edit'), '#'),
-                            $ui_factory->button()->shy($this->lng->txt('delete'), '#')
+                            $ui_factory->button()->shy($this->lng->txt('edit'), $edit_target),
+                            $ui_factory->button()->shy($this->lng->txt('delete'), '')
+								->withOnClick($approve_modal->getShowSignal())
                             ])
                             ->withLabel($this->lng->txt("actions"))
                     )
@@ -109,39 +118,44 @@ class CriteriaAdminGUI extends BaseGUI
      */
     protected function editItem()
     {
-        $params = $this->request->getQueryParams();
-        if (!empty($params['id'])) {
-            $record = ActiveRecordDummy::findOrGetInstance($params['id']);
-            if ($record->getTaskId() != $this->object->getId()) {
-                $this->raisePermissionError();
-            }
-            $section_title = $this->plugin->txt('Kriterium bearbeiten');
+		$object_repo = $this->localDI->getObjectRepo();
+
+        if (($id = $this->getRatingCriterionId()) !== null) {
+            $record = $object_repo->getRatingCriterionById($id);
+            $this->checkRecordInObject($record);
+			$this->setRatingCriterionId($id);
+            $section_title = $this->plugin->txt('criteria_edit');
         }
         else {
-            $record = new ActiveRecordDummy();
-            $record->setTaskId($this->object->getId());
-            $section_title = $this->plugin->txt('Kriterium hinzufügen');
+			$record = new RatingCriterion();
+			$record->setId(0);
+            $record->setObjectId($this->object->getId());
+            $section_title = $this->plugin->txt('criteria_add');
         }
 
         $factory = $this->uiFactory->input()->field();
-
+		$custom_factory = $this->localDI->getUIFactory();
+		$custom_renderer = $this->localDI->getUIRenderer();
         $sections = [];
 
         $fields = [];
         $fields['title'] = $factory->text($this->lng->txt("title"))
+			->withAdditionalTransformation($this->refinery->string()->hasMinLength(1))
             ->withRequired(true)
-            ->withValue($record->getStringDummy());
+            ->withValue($record->getTitle());
 
         $fields['description'] = $factory->textarea($this->lng->txt("description"))
-            ->withValue($record->getStringDummy());
+            ->withValue($record->getDescription() !== null ? $record->getDescription(): "");
 
-        $fields['points'] = $factory->text('Max. Punkte', "Maximal vergebbare Punkte für dieses Kriterium.")
-            ->withValue($record->getStringDummy('0'));
-
+        $fields['points'] = $custom_factory->field()->numeric($this->plugin->txt('criteria_max_point'), $this->plugin->txt('criteria_max_point_desc'))
+			->withAdditionalTransformation($this->refinery->kindlyTo()->int())
+			->withAdditionalTransformation($this->refinery->int()->isGreaterThan(0))
+			->withRequired(true)
+            ->withValue($record->getPoints());
 
         $sections['form'] = $factory->section($fields, $section_title);
 
-        $form = $this->uiFactory->input()->container()->form()->standard($this->ctrl->getFormAction($this), $sections);
+        $form = $this->uiFactory->input()->container()->form()->standard($this->ctrl->getFormAction($this, "editItem"), $sections);
 
         // apply inputs
         if ($this->request->getMethod() == "POST") {
@@ -151,15 +165,64 @@ class CriteriaAdminGUI extends BaseGUI
 
         // inputs are ok => save data
         if (isset($data)) {
-            $record->setMixedDummy($data['form']['title']);
-            $record->save();
+            $record->setTitle($data['form']['title']);
+			$record->setDescription($data['form']['description']);
+			$record->setPoints($data['form']['points']);
+            $object_repo->save($record);
 
             ilUtil::sendSuccess($this->lng->txt("settings_saved"), true);
 
-            $this->ctrl->setParameter($this, 'id', $record->getId());
-            $this->ctrl->redirect($this, "editItem");
+            $this->ctrl->redirect($this, "showItems");
         }
 
-        $this->tpl->setContent($this->renderer->render($form));
+        $this->tpl->setContent($custom_renderer->render($form, $this->renderer));
     }
+
+	protected function deleteItem(){
+		if (($id = $this->getRatingCriterionId()) !== null) {
+			$object_repo = $this->localDI->getObjectRepo();
+			$record = $object_repo->getRatingCriterionById($id);
+			$this->checkRecordInObject($record);
+			$object_repo->deleteRatingCriterion($id);
+			ilUtil::sendSuccess($this->plugin->txt("delete_criteria_successful"), true);
+		}else{
+			ilUtil::sendFailure($this->plugin->txt("delete_criteria_failure"), true);
+		}
+		$this->ctrl->redirect($this, "showItems");
+	}
+
+	/**
+	 * @param RatingCriterion|null $record
+	 * @param bool $throw_permission_error
+	 * @return bool
+	 */
+	protected function checkRecordInObject(?RatingCriterion $record, bool $throw_permission_error = true): bool
+	{
+		if($record !== null && $this->object->getId() === $record->getObjectId()){
+			return true;
+		}
+
+		if($throw_permission_error) {
+			$this->raisePermissionError();
+		}
+		return false;
+	}
+
+	protected function setRatingCriterionId(int $id)
+	{
+		$this->ctrl->setParameter($this, "criterion_id", $id);
+	}
+
+	protected function getRatingCriterionId(): ?int
+	{
+		$params = $this->request->getQueryParams();
+
+		if (isset($params["criterion_id"]))
+		{
+			return (int) $params["criterion_id"];
+		}
+		else{
+			return null;
+		}
+	}
 }

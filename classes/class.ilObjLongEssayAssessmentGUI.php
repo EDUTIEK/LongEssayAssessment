@@ -313,13 +313,13 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
             ];
         }
 
-//        if ($this->object->canEditContentSettings()) {
-//            $tabs[] = [
-//                'id' => 'tab_criteria',
-//                'txt' => $this->plugin->txt('tab_criteria'),
-//                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessayassessment\task\criteriaadmingui')
-//            ];
-//        }
+        if ($this->object->canEditContentSettings()) {
+            $tabs[] = [
+                'id' => 'tab_criteria',
+                'txt' => $this->plugin->txt('tab_criteria'),
+                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessayassessment\task\criteriaadmingui')
+            ];
+        }
         if ($this->object->canEditContentSettings()) {
             $tabs[] = [
                 'id' => 'tab_grades',

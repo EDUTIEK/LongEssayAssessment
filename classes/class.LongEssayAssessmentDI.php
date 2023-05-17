@@ -14,15 +14,10 @@ use ILIAS\Plugin\LongEssayAssessment\Data\Writer\WriterRepository;
 use ILIAS\Plugin\LongEssayAssessment\UI\Implementation\Factory;
 use ILIAS\Plugin\LongEssayAssessment\UI\Implementation\FieldFactory;
 use ILIAS\Plugin\LongEssayAssessment\UI\Implementation\IconFactory;
-use ILIAS\Plugin\LongEssayAssessment\UI\PluginLoader;
-use ILIAS\Plugin\LongEssayAssessment\UI\PluginRendererFactory;
+use ILIAS\Plugin\LongEssayAssessment\UI\Implementation\ItemFactory;
 use ILIAS\Plugin\LongEssayAssessment\UI\PluginTemplateFactory;
 use ILIAS\Plugin\LongEssayAssessment\UI\UIService;
 use ILIAS\Plugin\LongEssayAssessment\WriterAdmin\WriterAdminService;
-use ILIAS\UI\Implementation\DefaultRenderer;
-use ILIAS\UI\Implementation\Render\ComponentRenderer;
-use Pimple\Container;
-
 /**
  * @author Fabian Wolf <wolf@ilias.de>
  */
@@ -51,23 +46,8 @@ class LongEssayAssessmentDI
 
 		$dic["xlas.plugin"] = $plugin;
 
-		$dic["xlas.custom_renderer_loader"] =  function (\ILIAS\DI\Container $dic ) {
-			return new PluginLoader($dic["ui.component_renderer_loader"],
-				new PluginRendererFactory(
-					$dic["ui.factory"],
-					new PluginTemplateFactory($dic["ui.template_factory"], $dic["xlas.plugin"], $dic["tpl"]),
-					$dic["lng"],
-					$dic["ui.javascript_binding"],
-					$dic["refinery"],
-					$dic["ui.pathresolver"]
-				)
-			);
-		};
-
-		$dic["xlas.custom_renderer"] = function (\ILIAS\DI\Container $dic) {
-			return new DefaultRenderer(
-				$dic["xlas.custom_renderer_loader"]
-			);
+		$dic["xlas.custom_template_factory"] = function () use($dic) {
+			return new PluginTemplateFactory($dic["ui.template_factory"], $dic["xlas.plugin"], $dic["tpl"]);
 		};
 
 		$dic["xlas.custom_factory"] = function (\ILIAS\DI\Container $dic) {
@@ -79,6 +59,10 @@ class LongEssayAssessmentDI
 					$refinery,
 					$dic["lng"]),
 				new IconFactory(
+					$dic->ui()->factory()->symbol()->icon(),
+					$dic["xlas.plugin"]
+				),
+				new ItemFactory(
 					$dic->ui()->factory()->symbol()->icon(),
 					$dic["xlas.plugin"]
 				)
@@ -181,13 +165,13 @@ class LongEssayAssessmentDI
 		return $this->container["xlas.corrector_repository"];
     }
 
-    /**
-     * @return ComponentRenderer
-     */
-    public function getUIRenderer()
-    {
-        return $this->container["xlas.custom_renderer"];
-    }
+//    /**
+//     * @return ComponentRenderer
+//     */
+//    public function getUIRenderer()
+//    {
+//        return $this->container["xlas.custom_renderer"];
+//    }
 
     /**
      * @return Factory

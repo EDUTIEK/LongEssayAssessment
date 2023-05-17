@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace ILIAS\Plugin\LongEssayAssessment\UI\Implementation;
 
-use ILIAS\Data;
 use ILIAS\Plugin\LongEssayAssessment\UI;
 use ILIAS\Plugin\LongEssayAssessment\UI\Component\FieldFactory;
 use ILIAS\Plugin\LongEssayAssessment\UI\Component\IconFactory;
-use ILIAS\UI\Implementation\Component\SignalGeneratorInterface;
+use ILIAS\Plugin\LongEssayAssessment\UI\Component\ItemFactory;
 
 /**
  * Class Factory
@@ -19,14 +18,17 @@ class Factory implements UI\Component\Factory
 {
 	private FieldFactory $field_factory;
 	private IconFactory $icon_factory;
+	private ItemFactory $item_factory;
 
 	public function __construct(
 		FieldFactory $field_factory,
-		IconFactory $icon_factory
+		IconFactory $icon_factory,
+		ItemFactory $item_factory
 	)
 	{
 		$this->field_factory = $field_factory;
 		$this->icon_factory = $icon_factory;
+		$this->item_factory = $item_factory;
 	}
 
 
@@ -38,5 +40,10 @@ class Factory implements UI\Component\Factory
 	public function icon(): IconFactory
 	{
 		return $this->icon_factory;
+	}
+
+	public function item(): ItemFactory
+	{
+		return $this->item_factory;
 	}
 }

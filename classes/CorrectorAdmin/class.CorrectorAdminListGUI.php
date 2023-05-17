@@ -101,17 +101,24 @@ class CorrectorAdminListGUI extends WriterListGUI
                 $properties[$this->plugin->txt("final_grade")] = $this->localDI->getDataService($writer->getTaskId())->formatFinalResult($essay);
             }
 
+			$properties["Ort"] = "<input type='text'>";
+
 			$actions_dropdown = $this->uiFactory->dropdown()->standard($actions)
 				->withLabel($this->plugin->txt("actions"));
 
-			$items[] = $this->uiFactory->item()->standard($this->getWriterName($writer, true). $this->getWriterAnchor($writer))
+			$items[] = $this->localDI->getUIFactory()->item()->formItem($this->getWriterName($writer, true). $this->getWriterAnchor($writer))->withName((string)$writer->getId())
 				->withLeadIcon($this->getWriterIcon($writer))
 				->withProperties($properties)
 				->withActions($actions_dropdown);
 		}
-
-		$resources = $this->uiFactory->item()->group($this->plugin->txt("correctable_exams")
-            . $this->localDI->getDataService(0)->formatCounterSuffix($count_filtered, $count_total), $items);
+		$resources = $this->localDI->getUIFactory()->item()
+			->formGroup(
+				$this->plugin->txt("correctable_exams") .
+				$this->localDI->getDataService(0)->formatCounterSuffix($count_filtered, $count_total), $items, ""
+			)->withActions($this->uiFactory->dropdown()->standard([
+					$this->uiFactory->button()->shy($this->plugin->txt("assign_location"), $this->ctrl->getFormAction($this->parent)),
+					$this->uiFactory->button()->shy($this->plugin->txt("remove"), $this->ctrl->getFormAction($this->parent))
+				]));
 
 		return $this->renderer->render($this->filterControl()) . '<br><br>' .
 			$this->renderer->render(array_merge([$resources], $modals));

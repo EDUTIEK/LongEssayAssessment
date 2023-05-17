@@ -9,4 +9,6 @@ interface Factory
 	public function field(): FieldFactory;
 
 	public function icon(): IconFactory;
+
+	public function item(): ItemFactory;
 }

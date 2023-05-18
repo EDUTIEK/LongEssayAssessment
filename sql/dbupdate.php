@@ -1505,3 +1505,25 @@ if (!$ilDB->tableColumnExists('xlas_corr_setting','stitch_when_decimals')) {
     ));
 }
 ?>
+<#65>
+<?php
+if ($ilDB->tableColumnExists('xlas_crit_points','rating_id')) {
+    $ilDB->renameTableColumn('xlas_crit_points', 'rating_id', 'criterion_id');
+}
+?>
+<#66>
+<?php
+if ($ilDB->tableColumnExists('xlas_corrector_comment','points')) {
+    $ilDB->dropTableColumn('xlas_corrector_comment', 'points');
+}
+?>
+<#67>
+<?php
+if (!$ilDB->tableColumnExists('xlas_corrector_comment','parent_number')) {
+    $ilDB->addTableColumn('xlas_corrector_comment', 'parent_number', array(
+        'notnull' => '1',
+        'type' => 'integer',
+        'length' => 4,
+        'default' => 0
+    ));}
+?>

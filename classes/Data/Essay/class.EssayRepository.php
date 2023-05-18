@@ -4,6 +4,7 @@ namespace ILIAS\Plugin\LongEssayAssessment\Data\Essay;
 
 use ILIAS\Plugin\LongEssayAssessment\Data\RecordData;
 use ILIAS\Plugin\LongEssayAssessment\Data\RecordRepo;
+use Edutiek\LongEssayAssessmentService\Data\CorrectionComment;
 
 /**
  * @author Fabian Wolf <wolf@ilias.de>
@@ -111,7 +112,34 @@ class EssayRepository extends RecordRepo
 		return $this->getSingleRecord($query, CorrectorSummary::model());
     }
 
-	/**
+    /**
+     * @param int $essay_id
+     * @param int $corrector_id
+     * @return CorrectorComment[]
+     */
+    public function getCorrectorCommentsByEssayIdAndCorrectorId(int $essay_id, int $corrector_id): array
+    {
+        $query = "SELECT * FROM " . CorrectorComment::tableName() . " WHERE essay_id = " . $this->db->quote($essay_id, 'integer') .
+            " AND corrector_id = ". $this->db->quote($corrector_id, 'integer');
+        return $this->queryRecords($query, CorrectorComment::model());
+    }
+
+    /**
+     * @param int $essay_id
+     * @param int $corrector_id
+     * @return CriterionPoints[]
+     */
+    public function getCriterionPointsByEssayIdAndCorrectorId(int $essay_id, int $corrector_id): array
+    {
+        $query = "SELECT * FROM " . CriterionPoints::tableName() . " WHERE corr_comment_id IN ("
+            . "SELECT id FROM " . CorrectorComment::tableName()
+            . " WHERE essay_id = " . $this->db->quote($essay_id, 'integer')
+            . " AND corrector_id = ". $this->db->quote($corrector_id, 'integer')
+            . ")";
+        return $this->queryRecords($query, CriterionPoints::model());
+    }
+
+    /**
 	 * @param int $a_user_id
 	 * @param int $a_task_id
 	 * @param string $a_purpose

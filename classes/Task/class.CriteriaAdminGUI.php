@@ -135,7 +135,6 @@ class CriteriaAdminGUI extends BaseGUI
 
         $factory = $this->uiFactory->input()->field();
 		$custom_factory = $this->localDI->getUIFactory();
-		$custom_renderer = $this->localDI->getUIRenderer();
         $sections = [];
 
         $fields = [];
@@ -175,7 +174,7 @@ class CriteriaAdminGUI extends BaseGUI
             $this->ctrl->redirect($this, "showItems");
         }
 
-        $this->tpl->setContent($custom_renderer->render($form, $this->renderer));
+        $this->tpl->setContent($this->renderer->render($form, $this->renderer));
     }
 
 	protected function deleteItem(){

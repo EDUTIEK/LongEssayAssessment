@@ -12,7 +12,7 @@ use ILIAS\Plugin\LongEssayAssessment\Data\System\SystemRepository;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\TaskRepository;
 use ILIAS\Plugin\LongEssayAssessment\Data\Writer\WriterRepository;
 use ILIAS\Plugin\LongEssayAssessment\UI\Implementation\Factory;
-use ILIAS\Plugin\LongEssayAssessment\UI\Implementation\FieldFactory;
+use ILIAS\Plugin\LongEssayAssessment\UI\Implementation\InputFactory;
 use ILIAS\Plugin\LongEssayAssessment\UI\Implementation\IconFactory;
 use ILIAS\Plugin\LongEssayAssessment\UI\Implementation\ItemFactory;
 use ILIAS\Plugin\LongEssayAssessment\UI\PluginTemplateFactory;
@@ -54,7 +54,9 @@ class LongEssayAssessmentDI
 			$data_factory = new \ILIAS\Data\Factory();
 			$refinery = new \ILIAS\Refinery\Factory($data_factory, $dic["lng"]);
 			return new Factory(
-				new FieldFactory($dic["ui.signal_generator"],
+				new InputFactory(
+					$dic["ui.factory.input.field"],
+					$dic["ui.signal_generator"],
 					$data_factory,
 					$refinery,
 					$dic["lng"]),
@@ -64,7 +66,8 @@ class LongEssayAssessmentDI
 				),
 				new ItemFactory(
 					$dic->ui()->factory()->symbol()->icon(),
-					$dic["xlas.plugin"]
+					$dic["xlas.plugin"],
+					$dic["ui.signal_generator"]
 				)
 			);
 		};

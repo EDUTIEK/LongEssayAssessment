@@ -5,7 +5,7 @@ use ILIAS\DI\Container;
 use ILIAS\Plugin\LongEssayAssessment\Data\System\PluginConfig;
 use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
 use ILIAS\Plugin\LongEssayAssessment\Task\ResourceResourceStakeholder;
-use ILIAS\Plugin\LongEssayAssessment\UI\Implementation\FieldRenderer;
+use ILIAS\Plugin\LongEssayAssessment\UI\Implementation\InputRenderer;
 use ILIAS\Plugin\LongEssayAssessment\UI\Implementation\ItemRenderer;
 use ILIAS\Plugin\LongEssayAssessment\UI\PluginRenderer;
 
@@ -194,7 +194,7 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
 					$dic["refinery"],
 					$dic["ui.pathresolver"]
 				),
-				new FieldRenderer(
+				new InputRenderer(
 					$dic["ui.factory"],
 					$dic["xlas.custom_template_factory"],
 					$dic["lng"],

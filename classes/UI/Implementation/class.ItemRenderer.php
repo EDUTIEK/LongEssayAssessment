@@ -68,9 +68,13 @@ class ItemRenderer extends \ILIAS\UI\Implementation\Component\Item\Renderer
 	protected function renderFormGroup(FormGroup $component, RendererInterface $default_renderer)
 	{
 		$tpl = $this->getTemplate("tpl.form_group.html", true, true);
+
+		$component = $this->registerSignals($component);
+		$id = $this->bindJavaScript($component);
+		$tpl->setVariable("FORM_ID", $id);
+
 		$tpl->setVariable("FORM_ACTION", $component->getFormAction());
 		$tpl->setVariable("LIST_STD", $this->renderGroup($component->withoutActions(), $default_renderer));
-		$tpl->setVariable("FORM_ID", "test1");
 
 		if (count($component->getItems()) > 0)
 		{
@@ -85,10 +89,13 @@ class ItemRenderer extends \ILIAS\UI\Implementation\Component\Item\Renderer
 
 			$actions = $component->getActions();
 			if ($actions === null) {
-				$tpl->setVariable("CMD_BUTTONS", $default_renderer->render($this->getUIFactory()->button()->standard($this->txt("execute"), "")));
+				$buttons = $this->getUIFactory()->button()->standard($this->txt("execute"), "")
+					->withOnClick($component->getSubmitSignal());
 			} else {
-				$tpl->setVariable("CMD_BUTTONS", $default_renderer->render($component->getActions()->withLabel($this->txt("execute"))));
+				$buttons = $component->getActions()->withLabel($this->txt("execute"));
 			}
+			$tpl->setVariable("CMD_BUTTONS_TOP", $default_renderer->render($buttons));
+			$tpl->setVariable("CMD_BUTTONS_BOTTOM", $default_renderer->render($buttons));
 		}
 
 		return $tpl->get();
@@ -111,6 +118,7 @@ class ItemRenderer extends \ILIAS\UI\Implementation\Component\Item\Renderer
 
 		$tpl->setCurrentBlock("checkbox");
 		$tpl->setVariable("CB_VALUE", $component->getName());
+		$tpl->setVariable("LIST_DATA_SOURCE_NAME", strip_tags($component->getTitle()));
 		$tpl->parseCurrentBlock();
 
 		// lead
@@ -177,4 +185,28 @@ class ItemRenderer extends \ILIAS\UI\Implementation\Component\Item\Renderer
 			$tpl->parseCurrentBlock();
 		}
 	}
+
+	/**
+	 * @param FormGroup $form
+	 */
+	protected function registerSignals(FormGroup $form)
+	{
+		$submit = $form->getSubmitSignal();
+		$list_data_source = $form->getListDataSourceSignal();
+
+		return $form->withAdditionalOnLoadCode(function ($id) use ($list_data_source) {
+				return "$(document).on('{$list_data_source}', function(event, signalData) {
+					var data_list = [];
+					$('#{$id}').find('.list_data_source_item:checked').map(function() {
+						data_list[$(this).attr( 'value' )] = $(this).attr( 'list_data_source_name' );
+					});
+					\$triggerer = signalData['triggerer'];
+					\$triggerer.trigger('load_list_data_source_callback', {'data_list': data_list});
+					return false; 
+				});";
+			})->withAdditionalOnLoadCode(function ($id) use ($submit) {
+			return "$(document).on('{$submit}', function() { document.forms['{$id}'].submit(); return false; });";
+		});
+	}
+
 }

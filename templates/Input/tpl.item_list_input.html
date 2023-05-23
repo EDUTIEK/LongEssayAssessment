@@ -1,0 +1,9 @@
+<div id="{ID}" class="form-control form-control-sm list-data-input"<!-- BEGIN disabled --> {DISABLED}<!-- END disabled -->></div>
+<script type="application/javascript">
+    $( "#{ID}" ).on( "load_list_data_source_callback", function( event, signalData ) {
+        $('#{ID}').children('.list-data-input-item').remove();
+        signalData['data_list'].forEach(function (item, index, arr){
+            $('#{ID}').append("<span class='list-data-input-item'>" + item + ", <input name=\"{NAME}[]\" type=\"hidden\" value=\" "+ index +"\" /></span>");
+        });
+    });
+</script>

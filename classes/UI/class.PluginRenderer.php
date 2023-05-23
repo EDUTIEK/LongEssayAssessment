@@ -2,10 +2,12 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\UI;
 
+use ILIAS\Plugin\LongEssayAssessment\UI\Component\BlankForm;
 use ILIAS\Plugin\LongEssayAssessment\UI\Component\FormGroup;
 use ILIAS\Plugin\LongEssayAssessment\UI\Component\FormItem;
+use ILIAS\Plugin\LongEssayAssessment\UI\Component\ItemListInput;
 use ILIAS\Plugin\LongEssayAssessment\UI\Component\Numeric;
-use ILIAS\Plugin\LongEssayAssessment\UI\Implementation\FieldRenderer;
+use ILIAS\Plugin\LongEssayAssessment\UI\Implementation\InputRenderer;
 use ILIAS\Plugin\LongEssayAssessment\UI\Implementation\ItemRenderer;
 use ILIAS\UI\Implementation\Render\DecoratedRenderer;
 use ILIAS\UI\Renderer;
@@ -15,9 +17,9 @@ use ILIAS\UI\Renderer;
 class PluginRenderer extends DecoratedRenderer
 {
 	private ItemRenderer $item_renderer;
-	protected FieldRenderer $field_render;
+	protected InputRenderer $field_render;
 
-	public function __construct(Renderer $default, ItemRenderer $item_renderer, FieldRenderer $field_render)
+	public function __construct(Renderer $default, ItemRenderer $item_renderer, InputRenderer $field_render)
 	{
 		parent::__construct($default);
 		$this->item_renderer = $item_renderer;
@@ -32,7 +34,9 @@ class PluginRenderer extends DecoratedRenderer
 			case ($component instanceof FormItem):
 			case ($component instanceof FormGroup):
 				return $this->item_renderer->render($component, $root);
+			case ($component instanceof ItemListInput):
 			case ($component instanceof Numeric):
+			case ($component instanceof BlankForm):
 				return $this->field_render->render($component, $root);
 		}
 

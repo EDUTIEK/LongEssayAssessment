@@ -6,6 +6,8 @@ use ILIAS\Plugin\LongEssayAssessment\Data\Task\CorrectionSettings;
 use ILIAS\Plugin\LongEssayAssessment\Data\Corrector\Corrector;
 use ILIAS\Plugin\LongEssayAssessment\Data\Corrector\CorrectorAssignment;
 use ILIAS\Plugin\LongEssayAssessment\Data\Writer\Writer;
+use ILIAS\Plugin\LongEssayAssessment\UI\Component\FormGroup;
+use ILIAS\UI\Component\Modal\Modal;
 
 class CorrectorAdminListGUI extends WriterListGUI
 {
@@ -111,17 +113,38 @@ class CorrectorAdminListGUI extends WriterListGUI
 				->withProperties($properties)
 				->withActions($actions_dropdown);
 		}
+
+		$hidden = $this->localDI->getUIFactory()->field()->itemList("adsfdsa", "adsfdsaf");
+		$assign = $this->uiFactory->button()->shy($this->plugin->txt("assign_location"), "")->withOnClick($hidden->getTriggerLoadSignal());
+
+
 		$resources = $this->localDI->getUIFactory()->item()
 			->formGroup(
 				$this->plugin->txt("correctable_exams") .
 				$this->localDI->getDataService(0)->formatCounterSuffix($count_filtered, $count_total), $items, ""
-			)->withActions($this->uiFactory->dropdown()->standard([
-					$this->uiFactory->button()->shy($this->plugin->txt("assign_location"), $this->ctrl->getFormAction($this->parent)),
-					$this->uiFactory->button()->shy($this->plugin->txt("remove"), $this->ctrl->getFormAction($this->parent))
-				]));
+			);
+
+		$modals[] = $test_modal = $this->getTestModal($hidden->withListDataSource($resources->getListDataSourceSignal()));
+
+		$resources = $resources->withActions($this->uiFactory->dropdown()->standard([
+			$assign->appendOnClick($test_modal->getShowSignal()),
+			$this->uiFactory->button()->shy($this->plugin->txt("remove"), "")
+		]));
 
 		return $this->renderer->render($this->filterControl()) . '<br><br>' .
 			$this->renderer->render(array_merge([$resources], $modals));
+	}
+
+
+	private function getTestModal($hidden):Modal
+	{
+		$form = $this->localDI->getUIFactory()->field()->blankForm("", [
+			"hidden" =>  $hidden,
+			"test" => $this->uiFactory->input()->field()->text("fgsdgd", "fdsg")
+		]);
+		$submit = $this->uiFactory->button()->primary($this->plugin->txt('submit'), "")->withOnClick($form->getSubmitSignal());
+		$modal = $this->uiFactory->modal()->roundtrip("dgfdsfgdsf", $form)->withActionButtons([$submit]);
+		return $modal;
 	}
 
 	private function getAssignedCorrectorName(Writer $writer, int $pos): string

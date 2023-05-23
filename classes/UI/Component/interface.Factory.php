@@ -6,7 +6,7 @@ namespace ILIAS\Plugin\LongEssayAssessment\UI\Component;
  */
 interface Factory
 {
-	public function field(): FieldFactory;
+	public function field(): InputFactory;
 
 	public function icon(): IconFactory;
 

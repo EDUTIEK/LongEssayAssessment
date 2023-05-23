@@ -2,7 +2,7 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\UI\Component;
 
-interface FieldFactory
+interface InputFactory
 {
 	/**
 	 * ---
@@ -31,4 +31,8 @@ interface FieldFactory
 	 * @return Numeric
 	 */
 	public function numeric(string $label, string $byline = null): Numeric;
+
+	public function itemList(string $label, string $byline = null): ItemListInput;
+
+	public function blankForm(string $post_url, array $inputs): BlankForm;
 }

@@ -1,32 +1,33 @@
-<form id="{FORM_ID}" action="{FORM_ACTION}" method="POST">
-	<!-- BEGIN top_action_row -->
-	<div class="ilTableCommandRowTop form-inline">
-		<div class="ilTableCommandRow form-inline">
-			<div class="ilFloatLeft">
-				<img src="{IMG_ARROW_TOP}" alt="{ALT_ARROW_TOP}" style="vertical-align:middle;"  />
-				<div style="display: inline-block;">
-					{CMD_BUTTONS}
-				</div>
-			</div>
-		<div style="clear:both;"></div>
-	</div>
-		<!-- END top_action_row -->
-	{LIST_STD}
-		<!-- BEGIN bottom_action_row -->
-	<div class="ilTableSelectAll">
-		<input type="checkbox" name="chb_select_all_{FORM_ID}" id="chb_select_all_{FORM_ID}" value="1" onClick="$(this).closest('form').find('[type=\'checkbox\'][name=\'cb[]\']').prop('checked', $(this).is(':checked'));" />
-		<label for="chb_select_all_{FORM_ID}">{SELECT_ALL_TXT_SELECT_ALL}</label>
-	</div>
-	<div class="ilTableOuter">
-		<div class="ilTableCommandRow form-inline">
-			<div class="ilFloatLeft">
-				<img src="{IMG_ARROW_BOT}" alt="{ALT_ARROW_BOT}" style="vertical-align:middle;"  />
-				<div style="display: inline-block;">
-					{CMD_BUTTONS}
-				</div>
+<!-- BEGIN top_action_row -->
+<div class="ilTableCommandRowTop form-inline">
+	<div class="ilTableCommandRow form-inline">
+		<div class="ilFloatLeft">
+			<img src="{IMG_ARROW_TOP}" alt="{ALT_ARROW_TOP}" style="vertical-align:middle;"  />
+			<div style="display: inline-block;">
+				{CMD_BUTTONS_TOP}
 			</div>
 		</div>
-		<div style="clear:both;"></div>
 	</div>
-		<!-- END bottom_action_row -->
+	<div style="clear:both;"></div>
+</div>
+<form id="{FORM_ID}" action="{FORM_ACTION}" method="POST">
+	<!-- END top_action_row -->
+	{LIST_STD}
+	<!-- BEGIN bottom_action_row -->
 </form>
+<div class="ilTableSelectAll">
+	<input type="checkbox" name="chb_select_all_{FORM_ID}" id="chb_select_all_{FORM_ID}" value="1" onClick="$(this).closest('form').find('[type=\'checkbox\'][name=\'cb[]\']').prop('checked', $(this).is(':checked'));" />
+	<label for="chb_select_all_{FORM_ID}">{SELECT_ALL_TXT_SELECT_ALL}</label>
+</div>
+<div class="ilTableOuter">
+	<div class="ilTableCommandRow form-inline">
+		<div class="ilFloatLeft">
+			<img src="{IMG_ARROW_BOT}" alt="{ALT_ARROW_BOT}" style="vertical-align:middle;"  />
+			<div style="display: inline-block;">
+				{CMD_BUTTONS_BOTTOM}
+			</div>
+		</div>
+	</div>
+	<div style="clear:both;"></div>
+</div>
+<!-- END bottom_action_row -->

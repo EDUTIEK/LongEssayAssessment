@@ -38,7 +38,7 @@ class TaskSettings extends RecordData
 	];
 
 
-    protected int $task_id = 0;
+    protected int $task_id;
     protected ?string $description = null;
     protected ?string $instructions = null;
     protected ?string $solution = null;
@@ -54,8 +54,14 @@ class TaskSettings extends RecordData
     protected string $result_available_type = self::RESULT_AVAILABLE_REVIEW;
     protected ?string $result_available_date = null;
 
+
+	public function __construct(int $task_id)
+	{
+		$this->task_id = $task_id;
+	}
+
 	public static function model() {
-		return new self();
+		return new self(0);
 	}
 
     /**

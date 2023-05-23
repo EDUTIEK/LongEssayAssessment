@@ -32,14 +32,19 @@ class EditorSettings extends RecordData
 		'copy_allowed' => 'integer'
 	];
 
-    protected int $task_id = 0;
+    protected int $task_id;
     protected string $headline_scheme = self::HEADLINE_SCHEME_NONE;
     protected string $formatting_options = self::FORMATTING_OPTIONS_MEDIUM;
     protected int $notice_boards = 0;
     protected int $copy_allowed = 0;
 
+	public function __construct(int $task_id)
+	{
+		$this->task_id = $task_id;
+	}
+
 	public static function model() {
-		return new self();
+		return new self(0);
 	}
 
     /**

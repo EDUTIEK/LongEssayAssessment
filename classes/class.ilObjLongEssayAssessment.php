@@ -263,7 +263,7 @@ class ilObjLongEssayAssessment extends ilObjectPlugin
             // don't show screen if instant participation is not allowed
             return false;
         }
-        elseif (!empty($this->taskSettings->getWritingEnd())) {
+        elseif ($this->taskSettings !== null && !empty($this->taskSettings->getWritingEnd())) {
             // show screen until the end of the writing period if an end is set
             return time() < $this->data->dbTimeToUnix($this->taskSettings->getWritingEnd());
         }

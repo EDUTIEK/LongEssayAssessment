@@ -28,7 +28,7 @@ class CorrectionSettings extends RecordData
 		'stitch_when_decimals' => 'integer'
 	];
 
-    protected int $task_id = 0;
+    protected int $task_id;
     protected int $required_correctors = 2;
     protected int $mutual_visibility = 1;
     protected int $multi_color_highlight = 1;
@@ -38,8 +38,13 @@ class CorrectionSettings extends RecordData
     protected int $stitch_when_distance = 1;
     protected int $stitch_when_decimals = 1;
 
+	public function __construct(int $task_id)
+	{
+		$this->task_id = $task_id;
+	}
+
 	public static function model() {
-		return new self();
+		return new self(0);
 	}
 
 

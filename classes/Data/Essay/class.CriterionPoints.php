@@ -17,13 +17,13 @@ class CriterionPoints extends RecordData
 		'id' => 'integer',
 	];
 	protected const otherTypes = [
-		'rating_id' => 'integer',
+		'criterion_id' => 'integer',
 		'corr_comment_id' => 'integer',
 		'points' => 'integer'
 	];
 
     protected int $id = 0;
-    protected int $rating_id = 0;
+    protected int $criterion_id = 0;
     protected int $corr_comment_id = 0;
     protected int $points = 0;
 
@@ -52,18 +52,18 @@ class CriterionPoints extends RecordData
     /**
      * @return int
      */
-    public function getRatingId(): int
+    public function getCriterionId(): int
     {
-        return $this->rating_id;
+        return $this->criterion_id;
     }
 
     /**
-     * @param int $rating_id
+     * @param int $criterion_id
      * @return CriterionPoints
      */
-    public function setRatingId(int $rating_id): CriterionPoints
+    public function setCriterionId(int $criterion_id): CriterionPoints
     {
-        $this->rating_id = $rating_id;
+        $this->criterion_id = $criterion_id;
         return $this;
     }
 

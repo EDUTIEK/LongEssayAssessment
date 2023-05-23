@@ -16,6 +16,9 @@ use ILIAS\Plugin\LongEssayAssessment\Data\Essay\CorrectorSummary;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\Resource;
 use ILIAS\Plugin\LongEssayAssessment\Data\Writer\Writer;
 use ILIAS\Plugin\LongEssayAssessment\ServiceContext;
+use Edutiek\LongEssayAssessmentService\Data\CorrectionRatingCriterion;
+use Edutiek\LongEssayAssessmentService\Data\CorrectionComment;
+use Edutiek\LongEssayAssessmentService\Data\CorrectionPoints;
 
 class CorrectorContext extends ServiceContext implements Context
 {
@@ -178,6 +181,26 @@ class CorrectorContext extends ServiceContext implements Context
         }
         return $levels;
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function getRatingCriteria(): array
+    {
+        $objectRepo = $this->localDI->getObjectRepo();
+
+        $criteria = [];
+        foreach ($objectRepo->getRatingCriteriaByObjectId($this->object->getId()) as $repoCriterion) {
+            $criteria[] = new CorrectionRatingCriterion(
+                (string) $repoCriterion->getId(),
+                $repoCriterion->getTitle(),
+                $repoCriterion->getDescription(),
+                $repoCriterion->getPoints()
+            );
+        }
+        return $criteria;
+    }
+
 
     /**
      * @inheritDoc
@@ -466,6 +489,61 @@ class CorrectorContext extends ServiceContext implements Context
             }
         }
         return null;
+    }
+
+
+    /**
+     * @inheritDoc
+     * here:    the item key is a string of the writer id
+     *          the corrector key is a string of the corrector id
+     */
+    public function getCorrectionComments(string $item_key, string $corrector_key): array
+    {
+        $repoCorrector = $this->localDI->getCorrectorRepo()->getCorrectorById((int) $corrector_key);
+        $essayRepo = $this->localDI->getEssayRepo();
+        $comments = [];
+        if (!empty($repoEssay = $essayRepo->getEssayByWriterIdAndTaskId((int) $item_key, $this->task->getTaskId()))) {
+            foreach ($essayRepo->getCorrectorCommentsByEssayIdAndCorrectorId(
+                $repoEssay->getId(), $repoCorrector->getId()
+            ) as $repoComment) {
+                $comments[] = new CorrectionComment(
+                    (string) $repoComment->getId(),
+                    $item_key,
+                    $corrector_key,
+                    $repoComment->getStartPosition(),
+                    $repoComment->getEndPosition(),
+                    $repoComment->getParentNumber(),
+                    $repoComment->getComment(),
+                    $repoComment->getRating()
+                );
+            }
+        }
+        return $comments;
+    }
+
+    /**
+     * @inheritDoc
+     * here:    the item key is a string of the writer id
+     *          the corrector key is a string of the corrector id
+     */
+    public function getCorrectionPoints(string $item_key, string $corrector_key): array
+    {
+        $repoCorrector = $this->localDI->getCorrectorRepo()->getCorrectorById((int) $corrector_key);
+        $essayRepo = $this->localDI->getEssayRepo();
+        $points = [];
+        if (!empty($repoEssay = $essayRepo->getEssayByWriterIdAndTaskId((int) $item_key, $this->task->getTaskId()))) {
+            foreach ($essayRepo->getCriterionPointsByEssayIdAndCorrectorId(
+                $repoEssay->getId(), $repoCorrector->getId()
+            ) as $repoPoints) {
+                $points[] = new CorrectionPoints(
+                    (string) $repoPoints->getId(),
+                    (string) $repoPoints->getCorrCommentId(),
+                    (string) $repoPoints->getCriterionId(),
+                    $repoPoints->getPoints()
+                );
+            }
+        }
+        return $points;
     }
 
     /**

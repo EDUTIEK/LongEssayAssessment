@@ -301,6 +301,9 @@ class WriterStartGUI extends BaseGUI
              $context->init((string) $this->dic->user()->getId(), (string) $this->object->getRefId());
              $service = new Service($context);
 
+//             $filename = 'task' . $this->object->getId() . '_user' . $this->dic->user()->getId(). '.html';
+//             ilUtil::deliverData($service->getProcessedTextAsHtml(), $filename, 'text/html');
+
              $filename = 'task' . $this->object->getId() . '_user' . $this->dic->user()->getId(). '.pdf';
              ilUtil::deliverData($service->getProcessedTextAsPdf(), $filename, 'application/pdf');
          }

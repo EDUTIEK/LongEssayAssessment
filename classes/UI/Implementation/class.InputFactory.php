@@ -45,7 +45,7 @@ class InputFactory implements \ILIAS\Plugin\LongEssayAssessment\UI\Component\Inp
 	 * @param \ilLanguage $lng
 	 */
 	public function __construct(
-		\ILIAS\UI\Implementation\Component\Input\Field\Factory $input_factory,
+		Factory $input_factory,
 		SignalGeneratorInterface $signal_generator,
 		Data\Factory $data_factory,
 		\ILIAS\Refinery\Factory $refinery,

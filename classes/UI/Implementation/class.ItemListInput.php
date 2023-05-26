@@ -19,10 +19,7 @@ class ItemListInput extends Input implements \ILIAS\Plugin\LongEssayAssessment\U
 	use JavaScriptBindable;
 
 	private SignalGeneratorInterface $signal_generator;
-	/**
-	 * @var \ILIAS\UI\Implementation\Component\Signal|mixed
-	 */
-	private $trigger_load;
+	private ?Signal $trigger_load;
 
 	public function __construct(DataFactory $data_factory, Factory $refinery, $label, $byline, SignalGeneratorInterface $signal_generator)
 	{
@@ -61,11 +58,17 @@ class ItemListInput extends Input implements \ILIAS\Plugin\LongEssayAssessment\U
 		};
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	public function withListDataSource(Signal $signal): ItemListInput
 	{
 		return $this->withTriggeredSignal($signal, 'load_list_data_source');
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	public function getTriggerLoadSignal(): Signal
 	{
 		return $this->trigger_load;
@@ -76,6 +79,9 @@ class ItemListInput extends Input implements \ILIAS\Plugin\LongEssayAssessment\U
 		$this->trigger_load = $this->signal_generator->create();
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	public function getListDataSource(): ?Signal
 	{
 		$signals = $this->getTriggeredSignals();

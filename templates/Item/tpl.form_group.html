@@ -16,7 +16,7 @@
 	<!-- BEGIN bottom_action_row -->
 </form>
 <div class="ilTableSelectAll">
-	<input type="checkbox" name="chb_select_all_{FORM_ID}" id="chb_select_all_{FORM_ID}" value="1" onClick="$(this).closest('form').find('[type=\'checkbox\'][name=\'cb[]\']').prop('checked', $(this).is(':checked'));" />
+	<input type="checkbox" name="chb_select_all_{FORM_ID}" id="chb_select_all_{FORM_ID}" value="1" onClick="$('#{FORM_ID}').find('[type=\'checkbox\'][name=\'cb[]\']').prop('checked', $(this).is(':checked'));" />
 	<label for="chb_select_all_{FORM_ID}">{SELECT_ALL_TXT_SELECT_ALL}</label>
 </div>
 <div class="ilTableOuter">

@@ -91,11 +91,17 @@ class Numeric extends Input  implements \ILIAS\Plugin\LongEssayAssessment\UI\Com
         return $this->complex;
     }
 
+	/**
+	 * @inheritDoc
+	 */
 	public function getStep(): float
 	{
 		return $this->step;
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	public function withStep(float $step): \ILIAS\UI\Component\Input\Field\Input
 	{
 		$clone = clone $this;

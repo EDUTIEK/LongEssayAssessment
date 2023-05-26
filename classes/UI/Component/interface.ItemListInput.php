@@ -10,7 +10,24 @@ use ILIAS\UI\Component\Triggerer;
  */
 interface ItemListInput extends Input, Triggerer
 {
+	/**
+	 * Attach a DataSource signal to get its input values
+	 *
+	 * @param Signal $signal
+	 * @return ItemListInput
+	 */
 	public function withListDataSource(Signal $signal): ItemListInput;
+
+	/**
+	 * DataSource signal
+	 * @return Signal|null
+	 */
 	public function getListDataSource(): ?Signal;
+
+	/**
+	 * A Signal which triggers the loading of a DataSource like the FormGroup
+	 *
+	 * @return Signal
+	 */
 	public function getTriggerLoadSignal(): Signal;
 }

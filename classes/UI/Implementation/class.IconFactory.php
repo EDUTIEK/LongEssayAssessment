@@ -53,11 +53,17 @@ class IconFactory implements PluginIconFactory
 		return $this->factory->custom($this->icon_path("time"), $label, $size, $is_disabled);
 	}
 
+	/**
+	 * @ineritdoc
+	 */
 	public function nots(string $label, string $size = 'small', bool $is_disabled = false): Icon
 	{
 		return $this->factory->custom($this->icon_path("nots"), $label, $size, $is_disabled);
 	}
 
+	/**
+	 * @ineritdoc
+	 */
 	public function nota(string $label, string $size = 'small', bool $is_disabled = false): Icon
 	{
 		return $this->factory->custom($this->icon_path("nota"), $label, $size, $is_disabled);

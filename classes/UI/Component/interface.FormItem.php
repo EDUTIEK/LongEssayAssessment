@@ -20,24 +20,15 @@ use ILIAS\UI\Implementation\Component\Input\NameSource;
 interface FormItem extends Standard
 {
 	/**
-	 * Get a new item with the given properties as key-value pairs.
-	 *
-	 * The key is holding the title and the value is holding the content of the
-	 * specific data set.
-	 *
-	 * @param array<string,string|Shy|Input> $properties Label => Content
-	 * @return self
+	 * Set Name or ID of this Item
+	 * @param string $name
+	 * @return mixed
 	 */
-	public function withProperties(array $properties);
-
-	/**
-	 * Get the properties of the appointment.
-	 *
-	 * @return array<string,string|Shy|Input>		Title => Content
-	 */
-	public function getProperties();
-
 	public function withName(string $name);
 
+	/**
+	 * Get Name or ID of this Item
+	 * @return string|null
+	 */
 	public function getName(): ?string;
 }

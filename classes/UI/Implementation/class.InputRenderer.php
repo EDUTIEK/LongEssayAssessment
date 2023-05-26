@@ -3,7 +3,46 @@
 namespace ILIAS\Plugin\LongEssayAssessment\UI\Implementation;
 
 use ILIAS\UI\Component\Component;
+use ILIAS\UI\Component\Test\JSTestComponent;
+use ILIAS\UI\Implementation\Component\Button\Button;
+use ILIAS\UI\Implementation\Component\Button\Close;
+use ILIAS\UI\Implementation\Component\Button\Month;
+use ILIAS\UI\Implementation\Component\Button\Toggle;
+use ILIAS\UI\Implementation\Component\Card\Card;
+use ILIAS\UI\Implementation\Component\Dropdown\Dropdown;
+use ILIAS\UI\Implementation\Component\Dropzone\File\File;
+use ILIAS\UI\Implementation\Component\Image\Image;
+use ILIAS\UI\Implementation\Component\Input\Container\Filter\Filter;
+use ILIAS\UI\Implementation\Component\Input\Container\Filter\ProxyFilterField;
+use ILIAS\UI\Implementation\Component\Input\Field\Checkbox;
+use ILIAS\UI\Implementation\Component\Input\Field\DateTime;
+use ILIAS\UI\Implementation\Component\Input\Field\Duration;
 use ILIAS\UI\Implementation\Component\Input\Field\Input;
+use ILIAS\UI\Implementation\Component\Input\Field\OptionalGroup;
+use ILIAS\UI\Implementation\Component\Input\Field\Password;
+use ILIAS\UI\Implementation\Component\Input\Field\Radio;
+use ILIAS\UI\Implementation\Component\Input\Field\SwitchableGroup;
+use ILIAS\UI\Implementation\Component\Input\Field\Tag;
+use ILIAS\UI\Implementation\Component\Input\Field\Textarea;
+use ILIAS\UI\Implementation\Component\Item\Notification;
+use ILIAS\UI\Implementation\Component\Layout\Page\Standard;
+use ILIAS\UI\Implementation\Component\Legacy\Legacy;
+use ILIAS\UI\Implementation\Component\Link\Bulky;
+use ILIAS\UI\Implementation\Component\MainControls\MainBar;
+use ILIAS\UI\Implementation\Component\MainControls\MetaBar;
+use ILIAS\UI\Implementation\Component\MainControls\Slate\Slate;
+use ILIAS\UI\Implementation\Component\MainControls\SystemInfo;
+use ILIAS\UI\Implementation\Component\Menu\Menu;
+use ILIAS\UI\Implementation\Component\Modal\Modal;
+use ILIAS\UI\Implementation\Component\Popover\Popover;
+use ILIAS\UI\Implementation\Component\Symbol\Avatar\Avatar;
+use ILIAS\UI\Implementation\Component\Symbol\Glyph\Glyph;
+use ILIAS\UI\Implementation\Component\Symbol\Icon\Icon;
+use ILIAS\UI\Implementation\Component\Table\PresentationRow;
+use ILIAS\UI\Implementation\Component\Tree\Expandable;
+use ILIAS\UI\Implementation\Component\Tree\Node\Node;
+use ILIAS\UI\Implementation\Component\ViewControl\Pagination;
+use ILIAS\UI\Implementation\Component\ViewControl\Sortation;
 use ILIAS\UI\Implementation\Render\Template;
 use \ILIAS\Plugin\LongEssayAssessment\UI\Component as F;
 use ILIAS\UI\Renderer as RendererInterface;
@@ -19,7 +58,7 @@ class InputRenderer extends \ILIAS\UI\Implementation\Component\Input\Field\Rende
 	/**
 	 * @inheritdoc
 	 */
-	public function render(Component $component, RendererInterface $default_renderer)
+	public function render(Component $component, RendererInterface $default_renderer): string
 	{
 		if($component instanceof Input)
 		{
@@ -64,7 +103,7 @@ class InputRenderer extends \ILIAS\UI\Implementation\Component\Input\Field\Rende
 	protected function renderBlankForm (F\BlankForm $form, RendererInterface $default_renderer)
 	{
 		$tpl = $this->getTemplate("tpl.blank_form.html", true, true);
-		$form = $this->registerSignals($form);
+		$form = $this->registerBlankFormSignals($form);
 
 		$id = $this->bindJavaScript($form);
 		$tpl->setVariable('ID', $id);
@@ -84,10 +123,10 @@ class InputRenderer extends \ILIAS\UI\Implementation\Component\Input\Field\Rende
 		return $tpl->get();
 	}
 
-	protected function renderItemListInput(F\ItemListInput $component, RendererInterface $default_renderer)
+	protected function renderItemListInput(F\ItemListInput $component, RendererInterface $default_renderer): string
 	{
 		$tpl = $this->getTemplate("tpl.item_list_input.html", true, true);
-		$component = $this->registerSignals2($component);
+		$component = $this->registerItemListInputSignals($component);
 
 		$id = $this->bindJavaScript($component);
 		$tpl->setVariable('ID', $id);
@@ -137,9 +176,9 @@ class InputRenderer extends \ILIAS\UI\Implementation\Component\Input\Field\Rende
 
 	/**
 	 * @param BlankForm $form
-	 * @param BlankForm $id
+	 * @return BlankForm
 	 */
-	protected function registerSignals(BlankForm $form)
+	protected function registerBlankFormSignals(BlankForm $form): BlankForm
 	{
 		$submit = $form->getSubmitSignal();
 
@@ -149,10 +188,10 @@ class InputRenderer extends \ILIAS\UI\Implementation\Component\Input\Field\Rende
 	}
 
 	/**
-	 * @param BlankForm $form
-	 * @param BlankForm $id
+	 * @param ItemListInput $input
+	 * @return ItemListInput
 	 */
-	protected function registerSignals2(ItemListInput $input)
+	protected function registerItemListInputSignals(ItemListInput $input):ItemListInput
 	{
 		$trigger_load = $input->getTriggerLoadSignal();
 		$data_source = $input->getListDataSource();

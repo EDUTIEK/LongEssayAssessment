@@ -32,7 +32,22 @@ interface InputFactory
 	 */
 	public function numeric(string $label, string $byline = null): Numeric;
 
+	/**
+	 * An input field which is fed from another component like a form group
+	 * the filling of this input happens by a trigger, mostly a button which activates the form modal
+	 *
+	 * @param string $label
+	 * @param string|null $byline
+	 * @return ItemListInput
+	 */
 	public function itemList(string $label, string $byline = null): ItemListInput;
 
+	/**
+	 * A form without action buttons to integrate into a modal. It is triggered via submit signal.
+	 *
+	 * @param string $post_url
+	 * @param array $inputs
+	 * @return BlankForm
+	 */
 	public function blankForm(string $post_url, array $inputs): BlankForm;
 }

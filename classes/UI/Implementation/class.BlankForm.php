@@ -16,17 +16,17 @@ class BlankForm extends Form implements \ILIAS\Plugin\LongEssayAssessment\UI\Com
 	/**
 	 * @var SignalGeneratorInterface
 	 */
-	protected $signal_generator;
+	protected SignalGeneratorInterface $signal_generator;
 
 	/**
 	 * @var string
 	 */
-	protected $post_url;
+	protected string $post_url;
 
 	/**
 	 * @var Signal
 	 */
-	protected $submit_signal;
+	protected Signal $submit_signal;
 
 
 	public function __construct(Input\Field\Factory $input_factory, $post_url, array $inputs, SignalGeneratorInterface $signal_generator)
@@ -41,7 +41,7 @@ class BlankForm extends Form implements \ILIAS\Plugin\LongEssayAssessment\UI\Com
 	/**
 	 * @inheritdoc
 	 */
-	public function getSubmitSignal()
+	public function getSubmitSignal(): Signal
 	{
 		return $this->submit_signal;
 	}
@@ -50,7 +50,7 @@ class BlankForm extends Form implements \ILIAS\Plugin\LongEssayAssessment\UI\Com
 	/**
 	 * @inheritdoc
 	 */
-	public function getPostURL()
+	public function getPostURL(): string
 	{
 		return $this->post_url;
 	}

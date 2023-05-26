@@ -10,6 +10,9 @@ class FormItem extends Standard implements \ILIAS\Plugin\LongEssayAssessment\UI\
 {
 	protected ?string $name;
 
+	/**
+	 * @ineritdoc
+	 */
 	public function withName(string $name): FormItem
 	{
 		$clone = clone $this;
@@ -18,6 +21,9 @@ class FormItem extends Standard implements \ILIAS\Plugin\LongEssayAssessment\UI\
 		return $clone;
 	}
 
+	/**
+	 * @ineritdoc
+	 */
 	public function getName(): ?string
 	{
 		return $this->name;

@@ -65,7 +65,7 @@ class ItemRenderer extends \ILIAS\UI\Implementation\Component\Item\Renderer
 		return $this->files_cache;
 	}
 
-	protected function renderFormGroup(FormGroup $component, RendererInterface $default_renderer)
+	protected function renderFormGroup(FormGroup $component, RendererInterface $default_renderer): string
 	{
 		$tpl = $this->getTemplate("tpl.form_group.html", true, true);
 
@@ -101,7 +101,7 @@ class ItemRenderer extends \ILIAS\UI\Implementation\Component\Item\Renderer
 		return $tpl->get();
 	}
 
-	protected function renderFormItem(FormItem $component, RendererInterface $default_renderer)
+	protected function renderFormItem(FormItem $component, RendererInterface $default_renderer): string
 	{
 		$tpl = $this->getTemplate("tpl.form_item.html", true, true);
 
@@ -188,8 +188,9 @@ class ItemRenderer extends \ILIAS\UI\Implementation\Component\Item\Renderer
 
 	/**
 	 * @param FormGroup $form
+	 * @return FormGroup
 	 */
-	protected function registerSignals(FormGroup $form)
+	protected function registerSignals(FormGroup $form): FormGroup
 	{
 		$submit = $form->getSubmitSignal();
 		$list_data_source = $form->getListDataSourceSignal();

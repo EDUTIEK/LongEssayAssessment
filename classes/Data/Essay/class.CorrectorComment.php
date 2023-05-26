@@ -25,8 +25,8 @@ class CorrectorComment extends RecordData
 		'comment' => 'text',
 		'start_position' => 'integer',
 		'end_position' => 'integer',
-		'points' => 'integer',
-		'rating' => 'text'
+        'parent_number' => 'integer',
+        'rating' => 'text'
 	];
 
     protected int $id = 0;
@@ -35,8 +35,8 @@ class CorrectorComment extends RecordData
     protected ?string $comment = null;
     protected int $start_position = 0;
     protected int $end_position = 0;
-    protected int  $points = 0;
-    protected string $rating = self::RATING_CARDINAL;
+    protected int $parent_number = 0;
+    protected string $rating = '';
 
 	public static function model() {
 		return new self();
@@ -133,24 +133,6 @@ class CorrectorComment extends RecordData
     }
 
     /**
-     * @return int
-     */
-    public function getPoints(): int
-    {
-        return $this->points;
-    }
-
-    /**
-     * @param int $points
-     * @return CorrectorComment
-     */
-    public function setPoints(int $points): CorrectorComment
-    {
-        $this->points = $points;
-        return $this;
-    }
-
-    /**
      * @return string
      */
     public function getRating(): string
@@ -184,5 +166,21 @@ class CorrectorComment extends RecordData
     {
         $this->corrector_id = $corrector_id;
         return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getParentNumber(): int
+    {
+        return $this->parent_number;
+    }
+
+    /**
+     * @param int $parent_number
+     */
+    public function setParentNumber(int $parent_number): void
+    {
+        $this->parent_number = $parent_number;
     }
 }

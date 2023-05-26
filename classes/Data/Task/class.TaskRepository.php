@@ -32,7 +32,7 @@ class TaskRepository extends RecordRepo
 
 	/**
 	 * Save record data of an allowed type
-	 * @param TaskSettings|EditorSettings|CorrectionSettings|Alert|WriterNotice|Resource $record
+	 * @param TaskSettings|EditorSettings|CorrectionSettings|Alert|WriterNotice|Resource|Location $record
 	 */
 	public function save(RecordData $record)
 	{
@@ -272,4 +272,59 @@ class TaskRepository extends RecordRepo
 		$query = "SELECT * FROM xlas_alert WHERE task_id = " . $this->db->quote($a_task_id, 'integer');
 		return $this->queryRecords($query, Alert::model());
 	}
+
+	/**
+	 * @param int $a_id
+	 * @return Location|null
+	 */
+	public function getLocationById(int $a_id): ?RecordData
+	{
+		$query = "SELECT * FROM xlas_alert WHERE id = " . $this->db->quote($a_id, 'integer');
+		return $this->getSingleRecord($query, Alert::model());
+	}
+
+	/**
+	 * @param int $a_task_id
+	 * @return Location[]
+	 */
+	public function getLocationsByTaskId(int $a_task_id): array
+	{
+		$query = "SELECT * FROM xlas_location WHERE task_id = " . $this->db->quote($a_task_id, 'integer');
+		return $this->queryRecords($query, Location::model());
+	}
+
+	/**
+	 * @return string[]
+	 */
+	public function getLocationExamples(): array
+	{
+		$locations = [];
+
+		$query = "SELECT title FROM xlas_location GROUP BY title LIMIT 100";
+		$result = $this->db->query($query);
+
+
+		while ($row = $this->db->fetchAssoc($result)) {
+			$locations[] = (string)$row["title"];
+		}
+		return $locations;
+	}
+
+	public function ifLocationExistsById(int $a_id): bool
+	{
+		return $this->getLocationById($a_id) != null;
+	}
+
+	public function deleteLocation(int $a_id)
+	{
+		$this->db->manipulate("DELETE FROM xlas_location" .
+			" WHERE id = " . $this->db->quote($a_id, "integer"));
+	}
+
+	public function deleteLocationByTaskId(int $a_task_id)
+	{
+		$this->db->manipulate("DELETE FROM xlas_location" .
+			" WHERE task_id = " . $this->db->quote($a_task_id, "integer"));
+	}
+
 }

@@ -1527,3 +1527,35 @@ if (!$ilDB->tableColumnExists('xlas_corrector_comment','parent_number')) {
         'default' => 0
     ));}
 ?>
+<#68>
+<?php
+$fields = array(
+	'id' => array(
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+
+	),
+	'task_id' => array(
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '4',
+
+	),
+	'title' => array(
+		'notnull' => '1',
+		'type' => 'text',
+		'length' => '255',
+
+	)
+);
+if (! $ilDB->tableExists('xlas_location')) {
+	$ilDB->createTable('xlas_location', $fields);
+	$ilDB->addPrimaryKey('xlas_location', array( 'id' ));
+	$ilDB->addIndex("xlas_location", array("task_id"), "i1");
+
+	if (! $ilDB->sequenceExists('xlas_location')) {
+		$ilDB->createSequence('xlas_location');
+	}
+}
+?>

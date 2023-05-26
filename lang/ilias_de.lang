@@ -379,3 +379,5 @@ delete_criteria_successful#:#Kriterium erfolgreich gelöscht.
 delete_criteria_failure#:#Kriterium konnte nicht gelöscht werden.
 delete_criteria#:#Kriterium löschen
 delete_criteria_confirmation#:#Sind Sie sicher, dass Sie das Kriterium unwiderruflich entfernen möchten?
+locations#:#Teilnahmeorte
+locations_info#:#Den Teilnehmenden kann in der Teilnehmerliste ein Teilnahmeort zugewiesen werden, der im Abgabe- und Ergebnis-PDF angezeigt wird.

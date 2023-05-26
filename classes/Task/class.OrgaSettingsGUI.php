@@ -5,8 +5,11 @@ namespace ILIAS\Plugin\LongEssayAssessment\Task;
 
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\Data\Object\ObjectSettings;
+use ILIAS\Plugin\LongEssayAssessment\Data\Task\Location;
+use ILIAS\Plugin\LongEssayAssessment\Data\Task\TaskRepository;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\TaskSettings;
 use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
+use ILIAS\UI\Component\Input\Container\Form\Standard;
 use \ilUtil;
 
 /**
@@ -44,8 +47,8 @@ class OrgaSettingsGUI extends BaseGUI
         $di = LongEssayAssessmentDI::getInstance();
         $task_repo = $di->getTaskRepo();
         $taskSettings = $task_repo->getTaskSettingsById($this->object->getId());
-
-        $form = $this->buildTaskSettings($taskSettings);
+		$locations = $task_repo->getLocationsByTaskId($this->object->getId());
+        $form = $this->buildTaskSettings($taskSettings, $locations);
 
         // apply inputs
         if ($this->request->getMethod() == "POST") {
@@ -54,7 +57,7 @@ class OrgaSettingsGUI extends BaseGUI
             $result = $form->getInputGroup()->getContent();
 
             if ($result->isOK()) {
-                $this->updateTaskSettings($data, $taskSettings);
+                $this->updateTaskSettings($data, $taskSettings, $locations);
 
                 ilUtil::sendSuccess($this->lng->txt("settings_saved"), true);
                 $this->ctrl->redirect($this, "editSettings");
@@ -70,10 +73,11 @@ class OrgaSettingsGUI extends BaseGUI
      * Update TaskSettings
      *
      * @param array $a_data
-     * @param \ILIAS\Plugin\LongEssayAssessment\Data\Task\TaskSettings $a_task_settings
+     * @param TaskSettings $a_task_settings
+	 * @param Location[] $locations
      * @return void
      */
-    protected function updateTaskSettings(array $a_data, TaskSettings $a_task_settings)
+    protected function updateTaskSettings(array $a_data, TaskSettings $a_task_settings, array $locations)
     {
         // ilUtil::sendInfo('<pre>'.print_r($a_data, true) .'<pre>', true);
         $di = LongEssayAssessmentDI::getInstance();
@@ -118,15 +122,17 @@ class OrgaSettingsGUI extends BaseGUI
         $a_task_settings->setReviewEnd($date instanceof \DateTimeInterface ? $date->format('Y-m-d H:i:s') : null);
 
         $task_repo->save($a_task_settings);
+		$this->saveLocations($a_data['task']['location'], $locations);
     }
 
     /**
      * Build TaskSettings Form
      *
      * @param TaskSettings $taskSettings
-     * @return \ILIAS\UI\Component\Input\Container\Form\Standard
+	 * @param Location[] $locations
+     * @return Standard
      */
-    protected function buildTaskSettings(TaskSettings $taskSettings): \ILIAS\UI\Component\Input\Container\Form\Standard
+    protected function buildTaskSettings(TaskSettings $taskSettings, array $locations): Standard
     {
         $factory = $this->uiFactory->input()->field();
 
@@ -169,6 +175,12 @@ class OrgaSettingsGUI extends BaseGUI
             $this->plugin->txt("writing_end_info"))
             ->withUseTime(true)
             ->withValue((string) $taskSettings->getWritingEnd());
+
+		$fields['location'] =  $factory->tag($this->plugin->txt("locations"),
+			$this->localDI->getTaskRepo()->getLocationExamples(),
+			$this->plugin->txt("locations_info"))
+			->withTagMaxLength(255)
+			->withValue($this->getLocationStrList($locations));
 
         $fields['keep_essay_available'] = $factory->checkbox(
             $this->plugin->txt('keep_essay_available'),
@@ -240,4 +252,25 @@ class OrgaSettingsGUI extends BaseGUI
         $sections['task'] = $factory->section($fields, $this->plugin->txt('task_settings'));
         return $this->uiFactory->input()->container()->form()->standard($this->ctrl->getFormAction($this), $sections);
     }
+
+	private function getLocationStrList(array $locations){
+		return array_values(array_map(fn(Location $x) => $x->getTitle(), $locations ));
+	}
+
+	private function saveLocations(array $input_strs, array $saved_objs){
+		$task_repo = LongEssayAssessmentDI::getInstance()->getTaskRepo();
+		$saved_strs = $this->getLocationStrList($saved_objs);
+
+		foreach($saved_objs as $saved){
+			if(!in_array($saved->getTitle(), $input_strs)){
+				$task_repo->deleteLocation($saved->getId());
+			}
+		}
+
+		foreach($input_strs as $input){
+			if(!in_array($input, $saved_strs)){
+				$task_repo->save(Location::model()->setTaskId($this->object->getId())->setTitle($input));
+			}
+		}
+	}
 }

@@ -130,7 +130,6 @@ class InputRenderer extends \ILIAS\UI\Implementation\Component\Input\Field\Rende
 
 		$id = $this->bindJavaScript($component);
 		$tpl->setVariable('ID', $id);
-
 		$this->applyName($component, $tpl);
 		$this->applyValue($component, $tpl, $this->escapeSpecialChars());
 		$this->maybeDisable($component, $tpl);

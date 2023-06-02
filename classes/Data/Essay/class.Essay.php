@@ -44,7 +44,8 @@ class Essay extends RecordData
 		'correction_finalized_by' => 'integer',
 		'final_points' => 'float',
 		'final_grade_level_id' => 'integer',
-		'stitch_comment' => 'text'
+		'stitch_comment' => 'text',
+		'location' => 'integer'
 	];
 
     protected int $id = 0;
@@ -66,6 +67,7 @@ class Essay extends RecordData
     protected ?float $final_points = null;
     protected ?int $final_grade_level_id = null;
     protected ?string $stitch_comment = null;
+	protected ?int $location = null;
 
 	public static function model() {
 		return new self();
@@ -416,6 +418,25 @@ class Essay extends RecordData
         $this->stitch_comment = $stitch_comment;
         return $this;
     }
+
+	/**
+	 * @return int|null
+	 */
+	public function getLocation(): ?int
+	{
+		return $this->location;
+	}
+
+	/**
+	 * @param int|null $location
+	 * @return Essay
+	 */
+	public function setLocation(?int $location): Essay
+	{
+		$this->location = $location;
+		return $this;
+	}
+
 }
 /**
 protected function baseQuery(?int $essay_id) :string

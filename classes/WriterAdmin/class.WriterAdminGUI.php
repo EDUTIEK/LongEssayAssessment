@@ -6,10 +6,13 @@ namespace ILIAS\Plugin\LongEssayAssessment\WriterAdmin;
 use ILIAS\DI\Exceptions\Exception;
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\Data\Essay\Essay;
+use ILIAS\Plugin\LongEssayAssessment\Data\Task\Location;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\LogEntry;
 use ILIAS\Plugin\LongEssayAssessment\Data\Writer\TimeExtension;
 use ILIAS\Plugin\LongEssayAssessment\Data\Writer\Writer;
 use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
+use ILIAS\Plugin\LongEssayAssessment\UI\Component\BlankForm;
+use ILIAS\UI\Component\Modal\RoundTrip;
 use \ilUtil;
 
 /**
@@ -52,6 +55,9 @@ class WriterAdminGUI extends BaseGUI
 					case 'deleteWriterData':
 					case 'removeWriter':
                     case 'exportSteps':
+					case 'editLocationMulti':
+					case 'editLocation':
+					case 'updateLocation':
 						$this->$cmd();
 						break;
 
@@ -64,7 +70,7 @@ class WriterAdminGUI extends BaseGUI
     /**
      * Show the items
      */
-    protected function showStartPage()
+    protected function showStartPage(Roundtrip $multi_modal = null)
     {
         $this->toolbar->setFormAction($this->ctrl->getFormAction($this));
 
@@ -91,11 +97,17 @@ class WriterAdminGUI extends BaseGUI
 
 		$writer_repo = LongEssayAssessmentDI::getInstance()->getWriterRepo();
 		$essay_repo = LongEssayAssessmentDI::getInstance()->getEssayRepo();
+		$task_repo = LongEssayAssessmentDI::getInstance()->getTaskRepo();
 
 		$list_gui = new WriterAdminListGUI($this, "showStartPage", $this->plugin);
 		$list_gui->setWriters($writer_repo->getWritersByTaskId($this->object->getId()));
 		$list_gui->setExtensions($writer_repo->getTimeExtensionsByTaskId($this->object->getId()));
 		$list_gui->setEssays($essay_repo->getEssaysByTaskId($this->object->getId()));
+		$list_gui->setLocations($task_repo->getLocationsByTaskId($this->object->getId()));
+
+		if($multi_modal !== null){
+			$list_gui->setMultiCommandModal($multi_modal);
+		}
 
         $this->tpl->setContent($this->renderer->render($delete_writer_data_modal) . $list_gui->getContent());
      }
@@ -526,4 +538,111 @@ class WriterAdminGUI extends BaseGUI
 
         ilUtil::deliverFile($zipfile, $name . '.zip', 'application/zip', true, true);
     }
+
+	protected function buildLocationForm($value = null): BlankForm
+	{
+		$task_repo = $this->localDI->getTaskRepo();
+		$locations = $task_repo->getLocationsByTaskId($this->object->getId());
+		$options = [];
+		foreach ($locations as $location){
+			$options[$location->getId()] = $location->getTitle();
+		}
+		$location_input = $this->uiFactory->input()->field()->select($this->plugin->txt("location"), $options);
+
+		if($value !== null){
+			$location_input = $location_input->withValue($value);
+		}
+		return $this->localDI->getUIFactory()->field()->blankForm(
+			$this->ctrl->getFormAction($this, "updateLocation"),
+			["location" => $location_input]
+		);
+	}
+
+	protected function updateLocation(){
+		$form = $this->buildLocationForm()->withRequest($this->request);
+
+		if($data = $form->getData()){
+			$essay_repo = $this->localDI->getEssayRepo();
+			$task_repo = $this->localDI->getTaskRepo();
+			$location = $task_repo->ifLocationExistsById((int)$data["location"]) ? (int)$data["location"] : null;
+
+			$essays = $this->getEssaysFromWriterIds();
+
+			foreach($essays as $writer_id => $essay){
+				if($essay === null) {
+					$essay = Essay::model();
+					$essay->setTaskId($this->object->getId())
+						->setWriterId($writer_id)
+						->setUuid($essay->generateUUID4())
+						->setRawTextHash('');;
+				}
+				$essay_repo->save($essay->setLocation($location));
+			}
+
+			ilUtil::sendSuccess($this->plugin->txt("location_assigned"), true);
+			$this->ctrl->setParameter($this, "writer_id", "");
+			$this->ctrl->setParameter($this, "writer_ids", "");
+			$this->ctrl->redirect($this, "showStartPage");
+		}else
+		{
+			$this->showStartPage(
+				$this->uiFactory->modal()->roundtrip($this->plugin->txt("assign_location"), $form)->withActionButtons([
+					$this->uiFactory->button()->primary($this->lng->txt("submit"), "")->withOnClick($form->getSubmitSignal())
+				])
+			);
+		}
+	}
+
+	protected function editLocationMulti(){
+		$this->ctrl->saveParameter($this, "writer_ids");
+		$form = $this->buildLocationForm();
+		$modal = $this->uiFactory->modal()->roundtrip($this->plugin->txt("assign_location"), $form)->withActionButtons([
+			$this->uiFactory->button()->primary($this->lng->txt("submit"), "")->withOnClick($form->getSubmitSignal())
+		]);
+		echo($this->renderer->renderAsync($modal));
+		exit();
+	}
+
+	protected function editLocation()
+	{
+
+		$essays = $this->getEssaysFromWriterIds();
+		$value = count($essays) > 0 ? array_pop($essays)->getLocation() : null;
+		$this->ctrl->saveParameter($this, "writer_id");
+		$form = $this->buildLocationForm($value);
+		$modal = $this->uiFactory->modal()->roundtrip($this->plugin->txt("change_location"), $form)->withActionButtons([
+			$this->uiFactory->button()->primary($this->lng->txt("submit"), "")->withOnClick($form->getSubmitSignal())
+		]);
+		echo($this->renderer->renderAsync($modal));
+		exit();
+	}
+
+	/**
+	 * @return Essay[]
+	 */
+	protected function getEssaysFromWriterIds(): array
+	{
+		$ids = [];
+		$query_params = $this->request->getQueryParams();
+		$essay_repo = $this->localDI->getEssayRepo();
+
+		if(isset($query_params["writer_id"]) && $query_params["writer_id"] !== ""){
+			$ids[] = (int) $query_params["writer_id"];
+		}elseif (isset($query_params["writer_ids"])){
+			foreach(explode('/', $query_params["writer_ids"]) as $value){
+				$ids[] = (int) $value;
+			}
+		}
+		$essays = [];
+		foreach ($essay_repo->getEssaysByTaskId($this->object->getId()) as $essay){
+			$essays[$essay->getWriterId()] = $essay;
+		}
+		$ret = [];
+
+		foreach($ids as $id){
+			$ret[$id] = $essays[$id] ?? null;
+		}
+
+		return $ret;
+	}
 }

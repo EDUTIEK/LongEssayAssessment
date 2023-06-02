@@ -1,5 +1,7 @@
 <div id="{ID}" class="list-data-input"<!-- BEGIN disabled --> {DISABLED}<!-- END disabled --> style="max-height: 120px;overflow:scroll;-webkit-overflow-scrolling: touch;">
-
+    <!-- BEGIN values -->
+    <span class='list-data-input-item form-control input-sm'>{VAL_TITLE}<input name=\"{VAL_NAME}[]\" type=\"hidden\" value="{VALUE}" /></span>
+    <!-- END values -->
 </div>
 <script type="application/javascript">
     $( "#{ID}" ).on( "load_list_data_source_callback", function( event, signalData ) {

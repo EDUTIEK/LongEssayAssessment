@@ -279,7 +279,7 @@ class TaskRepository extends RecordRepo
 	 */
 	public function getLocationById(int $a_id): ?RecordData
 	{
-		$query = "SELECT * FROM xlas_alert WHERE id = " . $this->db->quote($a_id, 'integer');
+		$query = "SELECT * FROM xlas_location WHERE id = " . $this->db->quote($a_id, 'integer');
 		return $this->getSingleRecord($query, Alert::model());
 	}
 

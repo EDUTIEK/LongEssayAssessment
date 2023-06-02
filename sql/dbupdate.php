@@ -1559,3 +1559,14 @@ if (! $ilDB->tableExists('xlas_location')) {
 	}
 }
 ?>
+<#69>
+<?php
+if (!$ilDB->tableColumnExists('xlas_essay','location')) {
+	$ilDB->addTableColumn('xlas_essay', 'location', [
+		'notnull' => '0',
+		'type' => 'integer',
+		'length' => '4',
+	]);
+	$ilDB->addIndex("xlas_essay", array("location"), "i4");
+}
+?>

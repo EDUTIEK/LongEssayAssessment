@@ -2,15 +2,26 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\WriterAdmin;
 
+use ILIAS\Plugin\LongEssayAssessment\Data\Task\Location;
 use ILIAS\Plugin\LongEssayAssessment\Data\Writer\TimeExtension;
 use ILIAS\Plugin\LongEssayAssessment\Data\Writer\Writer;
+use ILIAS\UI\Component\Modal\RoundTrip;
+use ILIAS\UI\Component\Signal;
+use ILIAS\UI\Implementation\Component\Modal\Modal;
 
 class WriterAdminListGUI extends WriterListGUI
 {
 	/**
 	 * @var TimeExtension[]
 	 */
-	private $extensions = [];
+	private array $extensions = [];
+
+	/**
+	 * @var Location[]
+	 */
+	private array $locations = [];
+
+	private ?RoundTrip $multi_command_modal = null;
 
 
 	public function getContent() :string
@@ -98,9 +109,16 @@ class WriterAdminListGUI extends WriterListGUI
 				->withOnClick($remove_modal->getShowSignal());
 			$modals[] = $remove_modal;
 
+			if($this->canChangeLocation()){
+				$modals[] = $location_modal = $this->uiFactory->modal()->roundtrip("", [])->withAsyncRenderUrl(
+					$this->getChangeLocationAction($writer)
+				);
+				$actions[] = $this->uiFactory->button()->shy($this->plugin->txt("change_location"), '')
+					->withOnClick($location_modal->getShowSignal());
+			}
+
 			$actions_dropdown = $this->uiFactory->dropdown()->standard($actions)
 				->withLabel($this->plugin->txt("actions"));
-
 
             $properties = [
                 $this->plugin->txt("pseudonym") => $writer->getPseudonym(),
@@ -110,16 +128,37 @@ class WriterAdminListGUI extends WriterListGUI
             if (!empty($this->lastSave($writer))) {
                 $properties[ $this->plugin->txt("writing_last_save")] = $this->lastSave($writer);
             }
-			$items[] = $this->uiFactory->item()->standard($this->getWriterName($writer, true) . $this->getWriterAnchor($writer))
+			if($this->canChangeLocation()){
+				$properties[$this->plugin->txt("location")] = $this->location($writer);
+			}
+
+			$items[] = $this->localDI->getUIFactory()->item()->formItem($this->getWriterName($writer, true) . $this->getWriterAnchor($writer))
+				->withName($writer->getId())
 				->withLeadIcon($this->getWriterIcon($writer))
 				->withProperties($properties)
                 ->withActions($actions_dropdown);
 		}
+		$modals[] = $multi_command_modal = $this->getMultiCommandModal();
 
-		$resources = array_merge([$this->uiFactory->item()->group(
-            $this->plugin->txt("participants")
-                . $this->localDI->getDataService(0)->formatCounterSuffix($count_filtered, $count_total)
-            , $items)], $modals);
+		$resources = $this->localDI->getUIFactory()->item()->formGroup(
+			$this->plugin->txt("participants")
+			. $this->localDI->getDataService(0)->formatCounterSuffix($count_filtered, $count_total)
+			, $items, "");
+
+		$this->ctrl->setParameter($this->parent, "writer_id", "");
+		$form_actions = [];
+
+		if($this->canChangeLocation()){
+			$form_actions[] = $this->openModalButton($this->plugin->txt("assign_location"),
+					$this->ctrl->getFormAction($this->parent, "editLocationMulti", "", true),
+					$multi_command_modal, $resources->getListDataSourceSignal());
+		}
+
+
+		$resources = $resources->withActions($this->uiFactory->dropdown()->standard($form_actions));
+
+
+		$resources = array_merge([$resources], $modals);
 
 		return $this->renderer->render($this->filterControl()) . '<br><br>' .
 			$this->renderer->render($resources);
@@ -133,8 +172,56 @@ class WriterAdminListGUI extends WriterListGUI
 		return false;
 	}
 
+	private function openModalButton(string $txt, string $link, RoundTrip $modal, Signal $data_source){
+		$replace_signal_id = $modal->getReplaceSignal()->getId();
+		$data_source_id = $data_source->getId();
+		return $this->uiFactory->button()->shy($txt, "#")->withOnClick($modal->getShowSignal())->withOnLoadCode(
+			function ($id) use ($link, $replace_signal_id, $data_source_id) {
+				return "
+					$( '#{$id}' ).on( 'load_list_data_source_callback', function( event, signalData ) {
+						writer_ids = Object.keys(signalData['data_list']);
+						n_url = '{$link}' + '&writer_ids=' + writer_ids.join('/');
+						
+						$(this).trigger('{$replace_signal_id}',
+							{
+								'id' : '{$replace_signal_id}', 'event' : 'click',
+								'triggerer' : $(this),
+								'options' : JSON.parse('{\"url\":\"' + n_url + '\"}')
+							}
+						);
+   					 });
+					
+					
+					$('#{$id}').click(function() { 
+					
+						$(document).trigger('{$data_source_id}',
+							{
+								'id' : '{$data_source_id}', 'event' : 'load_list_data_source',
+								'triggerer' : $('#{$id}'),
+								'options' : JSON.parse('[]')
+							}
+						);
+						return false;
+					}
+				);";
+			}
+		);
+	}
 
-	private function canGetAuthorized(Writer $writer){
+	private function canChangeLocation(): bool
+	{
+		return $this->locations !== null;
+	}
+
+	private function getChangeLocationAction(Writer $writer): string
+	{
+		$this->ctrl->setParameter($this->parent,"writer_id", $writer->getId());
+		return $this->ctrl->getFormAction($this->parent, "editLocation", "", true);
+	}
+
+
+	private function canGetAuthorized(Writer $writer): bool
+	{
 		if(isset($this->essays[$writer->getId()])) {
 			$essay = $this->essays[$writer->getId()];
 
@@ -145,12 +232,14 @@ class WriterAdminListGUI extends WriterListGUI
 		return false;
 	}
 
-	private function getAuthorizeAction(Writer $writer) {
+	private function getAuthorizeAction(Writer $writer): string
+	{
 		$this->ctrl->setParameter($this->parent,"writer_id", $writer->getId());
 		return $this->ctrl->getFormAction($this->parent, "authorizeWriting");
 	}
 
-	private function canGetExtension(Writer $writer) {
+	private function canGetExtension(Writer $writer): bool
+	{
 		if(isset($this->essays[$writer->getId()])) {
 			$essay = $this->essays[$writer->getId()];
 
@@ -159,12 +248,14 @@ class WriterAdminListGUI extends WriterListGUI
 		return true;
 	}
 
-	private function getExtensionAction(Writer $writer){
+	private function getExtensionAction(Writer $writer): string
+	{
 		$this->ctrl->setParameter($this->parent,"writer_id", $writer->getId());
 		return $this->ctrl->getFormAction($this->parent, "editExtension");
 	}
 
-	private function canGetRepealed(Writer $writer){
+	private function canGetRepealed(Writer $writer): bool
+	{
 		if(isset($this->essays[$writer->getId()])) {
 			$essay = $this->essays[$writer->getId()];
 
@@ -173,17 +264,20 @@ class WriterAdminListGUI extends WriterListGUI
 		return false;
 	}
 
-	private function getRepealExclusionAction(Writer $writer){
+	private function getRepealExclusionAction(Writer $writer): string
+	{
 		$this->ctrl->setParameter($this->parent,"writer_id", $writer->getId());
 		return $this->ctrl->getFormAction($this->parent, "repealExclusion");
 	}
 
-	private function getExclusionAction(Writer $writer){
+	private function getExclusionAction(Writer $writer): string
+	{
 		$this->ctrl->setParameter($this->parent,"writer_id", $writer->getId());
 		return $this->ctrl->getFormAction($this->parent, "excludeWriter");
 	}
 
-	private function getRemoveAction(Writer $writer){
+	private function getRemoveAction(Writer $writer): string
+	{
 		$this->ctrl->setParameter($this->parent,"writer_id", $writer->getId());
 		return $this->ctrl->getFormAction($this->parent, "removeWriter");
 	}
@@ -239,6 +333,15 @@ class WriterAdminListGUI extends WriterListGUI
             }
 		}
         return '';
+	}
+
+	private function location(Writer $writer){
+		if(isset($this->essays[$writer->getId()]) &&
+			($location = $this->essays[$writer->getId()]->getLocation()) !== null &&
+			isset($this->locations[$location])){
+			return $this->locations[$location]->getTitle();
+		}
+		return " - ";
 	}
 
 
@@ -314,5 +417,27 @@ class WriterAdminListGUI extends WriterListGUI
 
 		$aria_label = "change_the_currently_displayed_mode";
 		return $this->uiFactory->viewControl()->mode($actions, $aria_label)->withActive($this->plugin->txt("filter_writer_admin_list_" . $this->getFilter()));
+	}
+
+	public function setMultiCommandModal(Roundtrip $modal){
+		$this->multi_command_modal = $modal->withOnLoadCode(function ($id){
+			return "$(document).ready(function(){ $( '#{$id}' ).modal('show'); return false;});";
+		});
+	}
+
+	public function getMultiCommandModal():Modal{
+		if($this->multi_command_modal === null)
+			return $this->uiFactory->modal()->roundtrip("",[]);
+		return $this->multi_command_modal;
+	}
+
+	/**
+	 * @param Location[] $locations
+	 * @return void
+	 */
+	public function setLocations(array $locations){
+		foreach($locations as $location){
+			$this->locations[$location->getId()] = $location;
+		}
 	}
 }

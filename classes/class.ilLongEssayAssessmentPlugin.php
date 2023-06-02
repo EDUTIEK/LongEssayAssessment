@@ -84,7 +84,7 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
             "xlas_log_entry",
 			"xlas_object_settings", "xlas_participant", "xlas_plugin_config", "xlas_rating_crit", "xlas_task_settings",
 			"xlas_time_extension", "xlas_writer_notice", "xlas_writer", "xlas_writer_comment", "xlas_writer_history",
-            "xlas_resource"];
+            "xlas_resource", "xlas_location"];
 
 		$files = $this->dic->database()->query("SELECT file_id FROM xlas_resource")->fetchAssoc();
 

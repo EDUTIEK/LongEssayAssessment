@@ -607,7 +607,7 @@ class WriterAdminGUI extends BaseGUI
 	{
 
 		$essays = $this->getEssaysFromWriterIds();
-		$value = count($essays) > 0 ? array_pop($essays)->getLocation() : null;
+		$value = count($essays) > 0 && ($essay =  array_pop($essays)) !== null? $essay->getLocation() : null;
 		$this->ctrl->saveParameter($this, "writer_id");
 		$form = $this->buildLocationForm($value);
 		$modal = $this->uiFactory->modal()->roundtrip($this->plugin->txt("change_location"), $form)->withActionButtons([

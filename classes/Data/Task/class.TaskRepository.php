@@ -319,6 +319,8 @@ class TaskRepository extends RecordRepo
 	{
 		$this->db->manipulate("DELETE FROM xlas_location" .
 			" WHERE id = " . $this->db->quote($a_id, "integer"));
+
+		$this->db->update("xlas_essay",["location" => ["integer", null]], ["location" => ["integer", $a_id]]);
 	}
 
 	public function deleteLocationByTaskId(int $a_task_id)

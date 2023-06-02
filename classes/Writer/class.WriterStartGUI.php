@@ -131,14 +131,18 @@ class WriterStartGUI extends BaseGUI
                 $this->ctrl->getLinkTarget($this, 'viewInstructions')));
         }
 
+		$properties = [$this->plugin->txt('writing_period') => $this->data->formatPeriod(
+			$this->task->getWritingStart(), $writing_end
+		)];
+		if (isset($essay) && $essay->getLocation() !== null) {
+			$taskRepo = $this->localDI->getTaskRepo();
+			$properties[$this->plugin->txt("location")] = ($location = $taskRepo->getLocationById($essay->getLocation())) !== null ? $location->getTitle() : " - ";
+		}
+
         $contents[] = $this->uiFactory->item()->group($this->plugin->txt('task_instructions'),
             [$this->uiFactory->item()->standard($this->lng->txt('description'))
                 ->withDescription(implode('<br>', $inst_parts))
-                ->withProperties(array(
-                    $this->plugin->txt('writing_period') => $this->data->formatPeriod(
-                        $this->task->getWritingStart(), $writing_end
-                    )
-                ))]);
+                ->withProperties($properties)]);
 
 
         // Resources

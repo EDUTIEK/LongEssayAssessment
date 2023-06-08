@@ -105,6 +105,27 @@ class InputRenderer extends \ILIAS\UI\Implementation\Component\Input\Field\Rende
 		$tpl = $this->getTemplate("tpl.blank_form.html", true, true);
 		$form = $this->registerBlankFormSignals($form);
 
+		if($form->isAsyncOnEnter()){
+			$async_submit = $form->getSubmitAsyncSignal();
+			$form = $form->withAdditionalOnLoadCode(function ($id) use ($async_submit){return
+				"$('#{$id}').submit(function(e) {console.log('NoNONONONO');e.preventDefault();});
+				$('#{$id}').on('keyup keypress', function(e) {
+					  var keyCode = e.keyCode || e.which;
+					  if (keyCode === 13) {
+						e.preventDefault();
+						$(document).trigger('{$async_submit}',
+							{
+								'id' : '{$async_submit}', 'event' : 'keypress',
+								'triggerer' : $('#{$id}'),
+								'options' : JSON.parse('[]')
+							}
+						);
+						return false;
+					  }
+				});";}
+			);
+		}
+
 		$id = $this->bindJavaScript($form);
 		$tpl->setVariable('ID', $id);
 
@@ -180,9 +201,33 @@ class InputRenderer extends \ILIAS\UI\Implementation\Component\Input\Field\Rende
 	protected function registerBlankFormSignals(BlankForm $form): BlankForm
 	{
 		$submit = $form->getSubmitSignal();
+		$submit_async = $form->getSubmitAsyncSignal();
 
-		return $form->withAdditionalOnLoadCode(function ($id) use ($submit) {
-			return "$(document).on('{$submit}', function() { document.forms['{$id}'].submit(); return false; });";
+		return $form->withAdditionalOnLoadCode(function ($id) use ($submit, $submit_async) {
+			return "
+			$(document).on('{$submit}', function() { document.forms['{$id}'].submit(); return false; });
+			$(document).on('{$submit_async}', function() { 
+				var form = $('#{$id}');
+    			var actionUrl = form.attr('action');
+    
+				$.ajax({
+					type: 'POST',
+					url: actionUrl,
+					dataType: 'html',
+					data: form.serialize()
+				}).done(function(html) {
+					if(html.length == 0){
+						location.reload();
+					}else
+					{
+						var \$new_content = $('<div>' + html + '</div>');
+						$('#{$id}').html(\$new_content.html());
+					}
+				});
+
+				return false; 
+			});
+			";
 		});
 	}
 

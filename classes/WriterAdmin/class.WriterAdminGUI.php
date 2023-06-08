@@ -60,6 +60,7 @@ class WriterAdminGUI extends BaseGUI
 					case 'editLocation':
 					case 'updateLocation':
 					case 'showEssay':
+					case 'editExtensionMulti':
 						$this->$cmd();
 						break;
 
@@ -248,27 +249,35 @@ class WriterAdminGUI extends BaseGUI
 	}
 
 
-	protected function buildExtensionForm($data):\ILIAS\UI\Component\Input\Container\Form\Standard{
-		if($id = $this->getWriterId()){
-			$section_title = $this->plugin->txt('edit_time_extension');
-		}
-		else {
-			$section_title = $this->plugin->txt('add_time_extension');
-		}
-
-		$factory = $this->uiFactory->input()->field();
-
-		$sections = [];
-
-		$fields = [];
-
-		$fields['extension'] = $factory->numeric($this->lng->txt('minutes'), $this->plugin->txt("time_extension_caption"))
-			->withRequired(true)
-			->withValue($data["extension"]);
-
-		$sections['form'] = $factory->section($fields, $section_title);
+	protected function buildExtensionForm($value = null):BlankForm
+	{
+		$settings = $this->localDI->getTaskRepo()->getTaskSettingsById($this->object->getId());
 		$this->ctrl->saveParameter($this, "writer_id");
-		return $this->uiFactory->input()->container()->form()->standard($this->ctrl->getFormAction($this,"updateExtension"), $sections);
+
+		$extension_input = $this->uiFactory->input()->field()
+			->numeric($this->lng->txt('minutes'), $this->plugin->txt("time_extension_caption"))
+			->withRequired(true)
+			->withAdditionalTransformation($this->refinery->int()->isGreaterThan(-1))
+			->withAdditionalTransformation($this->refinery->custom()->constraint(function ($var) use ($settings){
+				if( $settings->getCorrectionStart() !== null
+					&& $settings->getWritingEnd() !== null){
+					$solution_available = new \ilDateTime($settings->getSolutionAvailableDate(), IL_CAL_DATETIME);
+					$writing_end = new \ilDateTime($settings->getWritingEnd(), IL_CAL_DATETIME);
+					$extension_date = clone $writing_end;
+					$extension_date->increment(\ilDate::MINUTE, $var);
+					return !\ilDate::_before($extension_date, $solution_available);
+				}else{
+					return true;
+				}
+			}, $this->plugin->txt("time_exceeds_solution_availability")));
+
+		if($value !== null){
+			$extension_input = $extension_input->withValue($value);
+		}
+
+		return $this->localDI->getUIFactory()->field()->blankForm(
+			$this->ctrl->getFormAction($this,"updateExtension"),['extension' => $extension_input]
+		)->withAsyncOnEnter();
 	}
 
 	/**
@@ -276,80 +285,53 @@ class WriterAdminGUI extends BaseGUI
 	 */
 	protected function editExtension($form = null)
 	{
-		if($form === null){
+		$writer_id = $this->getWriterId();
+		$extension = $this->getExtension($writer_id);
+		$value = $extension->getMinutes();
+		$this->ctrl->saveParameter($this, "writer_id");
+		$form = $this->buildExtensionForm($value);
 
-
-			if ($id = $this->getWriterId())
-			{
-				$record = $this->getExtension($id);
-				$form = $this->buildExtensionForm([
-					"extension" => $record->getMinutes()
-				]);
-			}else {
-				// TODO: ERROR
-			}
-		}
-
-		$this->tpl->setContent($this->renderer->render($form));
+		$modal = $this->uiFactory->modal()->roundtrip($this->plugin->txt("extent_time"), $form)->withActionButtons([
+			$this->uiFactory->button()->primary($this->lng->txt("submit"), "")->withOnClick($form->getSubmitAsyncSignal())
+		]);
+		echo($this->renderer->renderAsync($modal));
+		exit();
 	}
 
+	protected function editExtensionMulti(){
+		$this->ctrl->saveParameter($this, "writer_ids");
+		$form = $this->buildExtensionForm();
+		$modal = $this->uiFactory->modal()->roundtrip($this->plugin->txt("extent_time"), $form)->withActionButtons([
+			$this->uiFactory->button()->primary($this->lng->txt("submit"), "")->withOnClick($form->getSubmitAsyncSignal())
+		]);
+		echo($this->renderer->renderAsync($modal));
+		exit();
+	}
 
 	protected function updateExtension(){
-		$form = $this->buildExtensionForm([
-			"extension" => 0
-		]);
+		$form = $this->buildExtensionForm()->withRequest($this->request);
 
-		if ($this->request->getMethod() == "POST") {
-			$form = $form->withRequest($this->request);
-			$data = $form->getData();
-
-			if(($id = $this->getWriterId()) !== null ){
-				$record = $this->getExtension($id);
-			}else {
-				//TODO: ERROR
-			}
-
-			$task_repo = LongEssayAssessmentDI::getInstance()->getTaskRepo();
-			$settings = $task_repo->getTaskSettingsById($this->object->getId());
-
-			if(isset($data["form"]["extension"])
-				&& $settings->getCorrectionStart() !== null
-				&& $settings->getWritingEnd() !== null)
-			{
-
-				$solution_available = new \ilDateTime($settings->getSolutionAvailableDate(), IL_CAL_DATETIME);
-				$writing_end = new \ilDateTime($settings->getWritingEnd(), IL_CAL_DATETIME);
-				$extension_date = clone $writing_end;
-				$extension_date->increment(\ilDate::MINUTE, $data["form"]["extension"]);
-
-				if(!\ilDate::_before($extension_date, $solution_available)){
-					ilUtil::sendFailure($this->plugin->txt("time_exceeds_solution_availability"), false);
-					$this->editExtension($form);
-					return;
-				}
-			}
-
-			// inputs are ok => save data
-			if (isset($data)) {
-				$record->setMinutes($data["form"]["extension"]);
-				$obj_repo  = LongEssayAssessmentDI::getInstance()->getWriterRepo();
-
+		if($data = $form->getData()){
+			$writer_repo  = $this->localDI->getWriterRepo();
+			foreach ($this->getWriterIds() as $writer_id){
+				$record = $this->getExtension($writer_id);
+				$record->setMinutes($data['extension']);
 				if($record->getMinutes() === 0){
-					$obj_repo->deleteTimeExtension($record->getWriterId(), $record->getTaskId());
+					$writer_repo->deleteTimeExtension($record->getWriterId(), $record->getTaskId());
 				}else {
-					$obj_repo->save($record);
+					$writer_repo->save($record);
 				}
 
 				$this->createExtensionLogEntry($record);
-
-				ilUtil::sendSuccess($this->lng->txt("settings_saved"), true);
-				$this->ctrl->redirect($this, "showStartPage", "writer_" . $id);
-			}else {
-				ilUtil::sendFailure($this->lng->txt("validation_error"), false);
-				$this->editExtension($form);
 			}
+			ilUtil::sendSuccess($this->lng->txt("settings_saved"), true);
+			exit();
+		}else{
+			echo($this->renderer->render($form));
+			exit();
 		}
 	}
+
 
 	protected function authorizeWriting(){
 		global $DIC;
@@ -618,6 +600,21 @@ class WriterAdminGUI extends BaseGUI
 		exit();
 	}
 
+	protected function getWriterIds(): array
+	{
+		$ids = [];
+		$query_params = $this->request->getQueryParams();
+
+		if(isset($query_params["writer_id"]) && $query_params["writer_id"] !== ""){
+			$ids[] = (int) $query_params["writer_id"];
+		}elseif (isset($query_params["writer_ids"])){
+			foreach(explode('/', $query_params["writer_ids"]) as $value){
+				$ids[] = (int) $value;
+			}
+		}
+		return $ids;
+	}
+
 	/**
 	 * @return Essay[]
 	 */
@@ -658,12 +655,17 @@ class WriterAdminGUI extends BaseGUI
 		$sight_modal = $this->uiFactory->modal()->roundtrip($this->plugin->txt("submission"),
 			$this->uiFactory->legacy($value ? $this->localDI->getDataService($this->object->getId())->cleanupRichText($value): "")
 		);
-		$reload_button = $this->uiFactory->button()->standard($this->lng->txt("refresh"), "")->withOnLoadCode(
-			function ($id) use ($link) {
+		$reload_button = $this->uiFactory->button()->standard($this->lng->txt("refresh"), "")
+			->withLoadingAnimationOnClick(true)
+			->withOnLoadCode(function ($id) use ($link) {
 				return
 					"$('#{$id}').click(function() { 
 						n_url = '{$link}';
+						text = $('#$id').html();
+						$('#$id').html('...');
 						il.UI.core.replaceContent($(this).closest('.modal').attr('id'), n_url, 'component');
+						$('#$id').html(text);
+						il.UI.button.deactivateLoadingAnimation('$id');
 						return false;
 					}
 				);";

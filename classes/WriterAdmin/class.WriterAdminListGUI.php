@@ -64,7 +64,11 @@ class WriterAdminListGUI extends WriterListGUI
 			}
 
 			if($this->canGetExtension($writer)) {
-				$actions[] = $this->uiFactory->button()->shy($this->plugin->txt('extent_time'), $this->getExtensionAction($writer));
+				$modals[] = $extension = $this->uiFactory->modal()->roundtrip("", [])->withAsyncRenderUrl(
+					$this->getExtensionAction($writer)
+				);
+				$actions[] = $this->uiFactory->button()->shy($this->plugin->txt("extent_time"), '')
+					->withOnClick($extension->getShowSignal());
 			}
 
 			if($this->canGetRepealed($writer)){
@@ -147,11 +151,19 @@ class WriterAdminListGUI extends WriterListGUI
 		$form_actions = [];
 
 		if($this->canChangeLocation()){
-			$form_actions[] = $this->openModalButton($this->plugin->txt("assign_location"),
-					$this->ctrl->getFormAction($this->parent, "editLocationMulti", "", true),
-					$multi_command_modal, $resources->getListDataSourceSignal());
+			$form_actions[] = $resources->addModalTriggerCodeToButton(
+				$this->uiFactory->button()->shy($this->plugin->txt("assign_location"), "#"),
+				$multi_command_modal,
+				$this->ctrl->getFormAction($this->parent, "editLocationMulti", "", true),
+				"writer_ids"
+			);
 		}
-
+		$form_actions[] = $resources->addModalTriggerCodeToButton(
+			$this->uiFactory->button()->shy($this->plugin->txt("extent_time"), "#"),
+			$multi_command_modal,
+			$this->ctrl->getFormAction($this->parent, "editExtensionMulti", "", true),
+			"writer_ids"
+		);
 
 		$resources = $resources->withActions($this->uiFactory->dropdown()->standard($form_actions));
 
@@ -173,42 +185,6 @@ class WriterAdminListGUI extends WriterListGUI
 	private function getSightAction(Writer $writer){
 		$this->ctrl->setParameter($this->parent,"writer_id", $writer->getId());
 		return $this->ctrl->getFormAction($this->parent, "		showEssay", "", true);
-	}
-
-	private function openModalButton(string $txt, string $link, RoundTrip $modal, Signal $data_source){
-		$replace_signal_id = $modal->getReplaceSignal()->getId();
-		$data_source_id = $data_source->getId();
-		return $this->uiFactory->button()->shy($txt, "#")->withOnClick($modal->getShowSignal())->withOnLoadCode(
-			function ($id) use ($link, $replace_signal_id, $data_source_id) {
-				return "
-					$( '#{$id}' ).on( 'load_list_data_source_callback', function( event, signalData ) {
-						writer_ids = Object.keys(signalData['data_list']);
-						n_url = '{$link}' + '&writer_ids=' + writer_ids.join('/');
-						
-						$(this).trigger('{$replace_signal_id}',
-							{
-								'id' : '{$replace_signal_id}', 'event' : 'click',
-								'triggerer' : $(this),
-								'options' : JSON.parse('{\"url\":\"' + n_url + '\"}')
-							}
-						);
-   					 });
-					
-					
-					$('#{$id}').click(function() { 
-					
-						$(document).trigger('{$data_source_id}',
-							{
-								'id' : '{$data_source_id}', 'event' : 'load_list_data_source',
-								'triggerer' : $('#{$id}'),
-								'options' : JSON.parse('[]')
-							}
-						);
-						return false;
-					}
-				);";
-			}
-		);
 	}
 
 	private function canChangeLocation(): bool

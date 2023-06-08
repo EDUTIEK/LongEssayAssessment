@@ -27,6 +27,9 @@ class BlankForm extends Form implements \ILIAS\Plugin\LongEssayAssessment\UI\Com
 	 * @var Signal
 	 */
 	protected Signal $submit_signal;
+	private Signal $submit_async_signal;
+
+	private bool $asyncOnEnter = false;
 
 
 	public function __construct(Input\Field\Factory $input_factory, $post_url, array $inputs, SignalGeneratorInterface $signal_generator)
@@ -46,6 +49,27 @@ class BlankForm extends Form implements \ILIAS\Plugin\LongEssayAssessment\UI\Com
 		return $this->submit_signal;
 	}
 
+	/**
+	 * @inheritdoc
+	 */
+	public function getSubmitAsyncSignal(): Signal
+	{
+		return $this->submit_async_signal;
+	}
+
+	public function withAsyncOnEnter(): \ILIAS\Plugin\LongEssayAssessment\UI\Component\BlankForm
+	{
+		$clone = clone $this;
+		$clone->asyncOnEnter = true;
+
+		return $clone;
+	}
+
+	public function isAsyncOnEnter(): bool
+	{
+		return $this->asyncOnEnter;
+	}
+
 
 	/**
 	 * @inheritdoc
@@ -58,6 +82,6 @@ class BlankForm extends Form implements \ILIAS\Plugin\LongEssayAssessment\UI\Com
 	public function initSignals()
 	{
 		$this->submit_signal = $this->signal_generator->create();
+		$this->submit_async_signal = $this->signal_generator->create();
 	}
-
 }

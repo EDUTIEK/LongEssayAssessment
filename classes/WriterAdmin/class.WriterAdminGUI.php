@@ -13,6 +13,7 @@ use ILIAS\Plugin\LongEssayAssessment\Data\Writer\Writer;
 use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
 use ILIAS\Plugin\LongEssayAssessment\UI\Component\BlankForm;
 use ILIAS\UI\Component\Modal\RoundTrip;
+use ILIAS\UI\Implementation\Component\SignalGeneratorInterface;
 use \ilUtil;
 
 /**
@@ -58,6 +59,7 @@ class WriterAdminGUI extends BaseGUI
 					case 'editLocationMulti':
 					case 'editLocation':
 					case 'updateLocation':
+					case 'showEssay':
 						$this->$cmd();
 						break;
 
@@ -605,7 +607,6 @@ class WriterAdminGUI extends BaseGUI
 
 	protected function editLocation()
 	{
-
 		$essays = $this->getEssaysFromWriterIds();
 		$value = count($essays) > 0 && ($essay =  array_pop($essays)) !== null? $essay->getLocation() : null;
 		$this->ctrl->saveParameter($this, "writer_id");
@@ -644,5 +645,32 @@ class WriterAdminGUI extends BaseGUI
 		}
 
 		return $ret;
+	}
+
+	protected function showEssay()
+	{
+		$essays = $this->getEssaysFromWriterIds();
+		$value = count($essays) > 0 && ($essay =  array_pop($essays)) !== null? $essay->getWrittenText() : null;
+
+		$this->ctrl->saveParameter($this, "writer_id");
+		$link = $this->ctrl->getFormAction($this, "showEssay", "", true);
+
+		$sight_modal = $this->uiFactory->modal()->roundtrip($this->plugin->txt("submission"),
+			$this->uiFactory->legacy($value ? $this->localDI->getDataService($this->object->getId())->cleanupRichText($value): "")
+		);
+		$reload_button = $this->uiFactory->button()->standard($this->lng->txt("refresh"), "")->withOnLoadCode(
+			function ($id) use ($link) {
+				return
+					"$('#{$id}').click(function() { 
+						n_url = '{$link}';
+						il.UI.core.replaceContent($(this).closest('.modal').attr('id'), n_url, 'component');
+						return false;
+					}
+				);";
+			}
+		);
+
+		echo($this->renderer->renderAsync($sight_modal->withActionButtons([$reload_button])));
+		exit();
 	}
 }

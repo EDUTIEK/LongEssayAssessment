@@ -43,10 +43,8 @@ class WriterAdminListGUI extends WriterListGUI
 
 			$actions = [];
 			if($this->canGetSight($writer)) {
-				$sight_modal = $this->uiFactory->modal()->lightbox($this->uiFactory->modal()->lightboxTextPage(
-                    $this->localDI->getDataService($writer->getTaskId())->cleanupRichText($this->essays[$writer->getId()]->getWrittenText()),
-					$this->plugin->txt("submission"),
-				));
+				$sight_modal = $this->uiFactory->modal()->roundtrip("",[])
+					->withAsyncRenderUrl($this->getSightAction($writer));
 				$modals[] = $sight_modal;
 				$actions[] = $this->uiFactory->button()->shy($this->plugin->txt('view_processing'), '')->withOnClick($sight_modal->getShowSignal());
                 $actions[] = $this->uiFactory->button()->shy($this->plugin->txt('export_steps'), $this->getExportStepsTarget($writer));
@@ -170,6 +168,11 @@ class WriterAdminListGUI extends WriterListGUI
 			return /*$essay->getEditEnded() === null &&*/ $essay->getEditStarted() !== null;
 		}
 		return false;
+	}
+
+	private function getSightAction(Writer $writer){
+		$this->ctrl->setParameter($this->parent,"writer_id", $writer->getId());
+		return $this->ctrl->getFormAction($this->parent, "		showEssay", "", true);
 	}
 
 	private function openModalButton(string $txt, string $link, RoundTrip $modal, Signal $data_source){

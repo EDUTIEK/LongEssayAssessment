@@ -201,6 +201,16 @@ class ItemRenderer extends \ILIAS\UI\Implementation\Component\Item\Renderer
 					$('#{$id}').find('.list_data_source_item:checked').map(function() {
 						data_list[$(this).attr( 'value' )] = $(this).attr( 'list_data_source_name' );
 					});
+										
+					if('callback' in signalData['options']){
+						callback = signalData['options']['callback'];
+						$( document ).trigger(callback, {'id': callback,
+						 'event' : 'load_list_data_source_callback', 'triggerer' : $('#{$id}'), 
+						 'options': {'data_list': data_list}}
+						 );
+						return false; 
+					}
+
 					\$triggerer = signalData['triggerer'];
 					\$triggerer.trigger('load_list_data_source_callback', {'data_list': data_list});
 					return false; 

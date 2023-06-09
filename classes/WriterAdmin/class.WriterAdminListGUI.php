@@ -140,7 +140,8 @@ class WriterAdminListGUI extends WriterListGUI
 				->withProperties($properties)
                 ->withActions($actions_dropdown);
 		}
-		$modals[] = $multi_command_modal = $this->getMultiCommandModal();
+
+		$modals[] = $multi_command_modal2 = $this->uiFactory->modal()->interruptive("", "", "");
 
 		$resources = $this->localDI->getUIFactory()->item()->formGroup(
 			$this->plugin->txt("participants")
@@ -151,22 +152,49 @@ class WriterAdminListGUI extends WriterListGUI
 		$form_actions = [];
 
 		if($this->canChangeLocation()){
-			$form_actions[] = $resources->addModalTriggerCodeToButton(
-				$this->uiFactory->button()->shy($this->plugin->txt("assign_location"), "#"),
-				$multi_command_modal,
+			$location_callback_signal = $resources->generateDSCallbackSignal();
+
+			$modals[] = $resources->addDSModalTriggerToModal(
+				$this->getMultiCommandModal(),
 				$this->ctrl->getFormAction($this->parent, "editLocationMulti", "", true),
-				"writer_ids"
+				"writer_ids",
+				$location_callback_signal
+			);
+
+			$form_actions[] = $resources->addDSModalTriggerToButton(
+				$this->uiFactory->button()->shy($this->plugin->txt("assign_location"), "#"),
+				$location_callback_signal
 			);
 		}
-		$form_actions[] = $resources->addModalTriggerCodeToButton(
-			$this->uiFactory->button()->shy($this->plugin->txt("extent_time"), "#"),
-			$multi_command_modal,
+		$extension_callback_signal = $resources->generateDSCallbackSignal();
+
+		$modals[] = $resources->addDSModalTriggerToModal(
+			$this->uiFactory->modal()->roundtrip("", []),
 			$this->ctrl->getFormAction($this->parent, "editExtensionMulti", "", true),
-			"writer_ids"
+			"writer_ids",
+			$extension_callback_signal
+		);
+
+		$form_actions[] = $resources->addDSModalTriggerToButton(
+			$this->uiFactory->button()->shy($this->plugin->txt("extent_time"), "#"),
+			$extension_callback_signal
+		);
+
+		$remove_callback_signal = $resources->generateDSCallbackSignal();
+
+		$modals[] = $resources->addDSModalTriggerToModal(
+			$this->uiFactory->modal()->interruptive("", "", ""),
+			$this->ctrl->getFormAction($this->parent, "removeWriterMultiConfirmation", "", true),
+			"writer_ids",
+			$remove_callback_signal
+		);
+
+		$form_actions[] = $resources->addDSModalTriggerToButton(
+			$this->uiFactory->button()->shy($this->plugin->txt("remove_writer"), "#"),
+			$remove_callback_signal
 		);
 
 		$resources = $resources->withActions($this->uiFactory->dropdown()->standard($form_actions));
-
 
 		$resources = array_merge([$resources], $modals);
 

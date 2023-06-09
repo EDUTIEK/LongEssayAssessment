@@ -69,24 +69,35 @@ class FormGroup extends Group implements \ILIAS\Plugin\LongEssayAssessment\UI\Co
 	}
 
 	/**
+	 * Generates Signal which can be used to set a data source callback signal
 	 *
-	 *
-	 * @param Button $button
-	 * @param RoundTrip $modal
-	 * @param string $modal_source_link
-	 * @return Button
+	 * @return Signal
 	 */
-	public function addModalTriggerCodeToButton(Button $button, RoundTrip $modal, string $modal_source_link, string $param_name): Button
+	public function generateDSCallbackSignal(): Signal
 	{
-		$replace_signal_id = $modal->getReplaceSignal()->getId();
-		$data_source_id = $this->list_data_source_signal->getId();
-		$open_signal_id = $modal->getShowSignal();
-		return $button->withAdditionalOnLoadCode(
-			function ($id) use ($modal_source_link, $param_name, $replace_signal_id, $data_source_id, $open_signal_id) {
+		return $this->signal_generator->create();
+	}
+
+	/**
+	 * Adds the handler to a data source callback signal to a modal to build a async render url including all selected ids
+	 *
+	 * @param Modal $modal
+	 * @param $modal_source_link
+	 * @param $param_name
+	 * @param Signal $callback
+	 * @return Modal
+	 */
+	public function addDSModalTriggerToModal(Modal $modal, $modal_source_link, $param_name, Signal $callback): Modal
+	{
+		$callback_id = $callback->getId();
+		$modal_source_link = str_replace("\\", "\\\\", $modal_source_link);
+		$modal = $modal->withAsyncRenderUrl($modal_source_link);#Prefill async render URL even its not working. It is needed for a proper rendering
+
+		return $modal->withOnLoadCode(
+			function ($id) use ($modal_source_link, $param_name, $callback_id) {
 				return "
-					$( '#{$id}' ).on( 'load_list_data_source_callback', function( event, signalData ) {
-						ids = Object.keys(signalData['data_list']);
-						
+					$( document ).on( '{$callback_id}', function( event, signalData ) {
+						ids = Object.keys(signalData['options']['data_list']);
 						if(ids.length == 0){
 							$('#{$id}').effect('shake');
 							return false;
@@ -94,35 +105,42 @@ class FormGroup extends Group implements \ILIAS\Plugin\LongEssayAssessment\UI\Co
 						
 						n_url = '{$modal_source_link}' + '&{$param_name}=' + ids.join('/');
 						
-						$(this).trigger('{$replace_signal_id}',
-							{
-								'id' : '{$replace_signal_id}', 'event' : 'click',
-								'triggerer' : $(this),
-								'options' : JSON.parse('{\"url\":\"' + n_url + '\"}')
-							}
-						);
-						$(this).trigger('{$open_signal_id}',
-							{
-								'id' : '{$open_signal_id}', 'event' : 'click',
-								'triggerer' : $(this),
-								'options' : []
-							}
-						);
-   					 });
-					
-					
+						il.UI.modal.showModal(
+							'{$id}', 
+							{'url': '#{$id}', 'ajaxRenderUrl': n_url, 'keyboard': true},
+							signalData
+						); 
+						return false;
+   					 });";
+			}
+		);
+	}
+
+	/**
+	 * Adds the datasource trigger to a button to call an async modal open with an async render url containing all ids
+	 *
+	 * @param Button $button
+	 * @param Signal $callback
+	 * @return Button
+	 */
+	public function addDSModalTriggerToButton(Button $button, Signal $callback): Button
+	{
+		$data_source_id = $this->list_data_source_signal->getId();
+		$callback_id = $callback->getId();
+
+		return $button->withAdditionalOnLoadCode(
+			function ($id) use ($data_source_id, $callback_id) {
+				return "
 					$('#{$id}').click(function() { 
-					
 						$(document).trigger('{$data_source_id}',
 							{
 								'id' : '{$data_source_id}', 'event' : 'load_list_data_source',
 								'triggerer' : $('#{$id}'),
-								'options' : JSON.parse('[]')
+								'options' : JSON.parse('{\"callback\":\"{$callback_id}\"}')
 							}
 						);
 						return false;
-					}
-				);";
+					});";
 			}
 		);
 	}

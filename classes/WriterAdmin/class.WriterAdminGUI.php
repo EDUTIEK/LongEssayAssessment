@@ -61,6 +61,7 @@ class WriterAdminGUI extends BaseGUI
 					case 'updateLocation':
 					case 'showEssay':
 					case 'editExtensionMulti':
+					case 'removeWriterMultiConfirmation':
 						$this->$cmd();
 						break;
 
@@ -178,27 +179,70 @@ class WriterAdminGUI extends BaseGUI
 		$this->ctrl->redirect($this, "showStartPage");
 	}
 
+
+	protected function removeWriterMultiConfirmation()
+	{
+		$writer_ids = $this->getWriterIds();
+		$writers = $this->localDI->getWriterRepo()->getWritersByTaskId($this->object->getId());
+		$user_data = \ilUserUtil::getNamePresentation(array_unique(array_map(fn(Writer $x) => $x->getUserId(), $writers)), true, true, "", true);
+
+		$items = [];
+
+		foreach ($writer_ids as $writer_id){
+			if(array_key_exists($writer_id, $writers)){
+				$writer = $writers[$writer_id];
+				$items[] = $this->uiFactory->modal()->interruptiveItem(
+					$writer->getId(), $user_data[$writer->getUserId()]
+				);
+			}
+		}
+
+		$remove_modal = $this->uiFactory->modal()->interruptive(
+			$this->plugin->txt("remove_writer"),
+			$this->plugin->txt("remove_writer_confirmation"),
+			$this->ctrl->getFormAction($this, "removeWriter")
+		)->withAffectedItems($items)->withActionButtonLabel("remove");
+
+		echo($this->renderer->renderAsync($remove_modal));
+		exit();
+	}
+
 	private function removeWriter(){
-		if(($id = $this->getWriterId()) === null)
+		$ids = [];
+		$multi = false;
+
+
+		if(($id = $this->getWriterId()) !== null)
 		{
+			$ids[] = (int)$id;
+		}elseif(is_array($items = $this->request->getParsedBody()) && array_key_exists("interruptive_items", $items)){
+			foreach($items["interruptive_items"] as $item){
+				$ids[] = (int) $item;
+			}
+			$multi = true;
+		}
+
+		if(count($ids) < 1){
 			ilUtil::sendFailure($this->plugin->txt("missing_writer_id"), true);
 			$this->ctrl->redirect($this, "showStartPage");
 		}
 
-		$essay_repo = LongEssayAssessmentDI::getInstance()->getEssayRepo();
-		$writer_repo = LongEssayAssessmentDI::getInstance()->getWriterRepo();
-		$corr_repo = LongEssayAssessmentDI::getInstance()->getCorrectorRepo();
+		$essay_repo = $this->localDI->getEssayRepo();
+		$writer_repo = $this->localDI->getWriterRepo();
+		$corr_repo = $this->localDI->getCorrectorRepo();
 
-		$writer = $writer_repo->getWriterById($id);
+		foreach($ids as $id){
+			$writer = $writer_repo->getWriterById($id);
 
-		if($writer === null || $writer->getTaskId() !== $this->object->getId()){
-			ilUtil::sendFailure($this->plugin->txt("missing_writer"), true);
-			$this->ctrl->redirect($this, "showStartPage");
+			if(!$multi && ($writer === null || $writer->getTaskId() !== $this->object->getId())){
+				ilUtil::sendFailure($this->plugin->txt("missing_writer"), true);
+				$this->ctrl->redirect($this, "showStartPage");
+			}
+
+			$essay_repo->deleteEssayByWriterId($id);
+			$writer_repo->deleteWriter($id);
+			$corr_repo->deleteCorrectorAssignmentByWriter($id);
 		}
-
-		$essay_repo->deleteEssayByWriterId($id);
-		$writer_repo->deleteWriter($id);
-		$corr_repo->deleteCorrectorAssignmentByWriter($id);
 
 		ilUtil::sendSuccess($this->plugin->txt("remove_writer_success"), true);
 		$this->ctrl->redirect($this, "showStartPage");

@@ -19,6 +19,7 @@ use ILIAS\Plugin\LongEssayAssessment\ServiceContext;
 use Edutiek\LongEssayAssessmentService\Data\CorrectionRatingCriterion;
 use Edutiek\LongEssayAssessmentService\Data\CorrectionComment;
 use Edutiek\LongEssayAssessmentService\Data\CorrectionPoints;
+use ILIAS\Plugin\LongEssayAssessment\Data\Essay\CorrectorComment;
 
 class CorrectorContext extends ServiceContext implements Context
 {
@@ -622,5 +623,69 @@ class CorrectorContext extends ServiceContext implements Context
             return true;
         }
         return false;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function saveCorrectionComment(CorrectionComment $comment, string $corrector_key): ?int
+    {
+        if ($comment->getCorrectorKey() != $corrector_key) {
+            return null;
+        }
+        
+        $correctorRepo = $this->localDI->getCorrectorRepo();
+        if (!$correctorRepo->ifCorrectorIsAssigned((int) $comment->getItemKey(), (int) $comment->getCorrectorKey())) {
+            return null;
+        }
+
+        $essayRepo = $this->localDI->getEssayRepo();
+        $repoEssay = $essayRepo->getEssayByWriterIdAndTaskId((int) $comment->getItemKey(), $this->task->getTaskId());
+        if (!isset($repoEssay) || $repoEssay->getWriterId() != (int) $comment->getItemKey()) {
+            return null;
+        }
+        
+        $repoComment = $essayRepo->getCorrectorCommentById((int) $comment->getKey());
+        if (!isset($repoComment)) {
+            $repoComment = CorrectorComment::model();
+        }
+        elseif ($repoComment->getEssayId() != $repoEssay->getId() || $repoComment->getCorrectorId() != (int) $comment->getCorrectorKey()) {
+            return null;
+        }
+        $repoComment
+            ->setEssayId($repoEssay->getId())
+            ->setCorrectorId((int) $comment->getCorrectorKey())
+            ->setStartPosition($comment->getStartPosition())
+            ->setEndPosition($comment->getEndPosition())
+            ->setParentNumber($comment->getParentNumber())
+            ->setComment($comment->getComment())
+            ->setRating($comment->getRating());
+        
+        $essayRepo->save($repoComment);
+        
+        return $repoComment->getId();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function deleteCorrectionComment(string $comment_key, string $corrector_key): bool
+    {
+        $essayRepo = $this->localDI->getEssayRepo();
+        
+        $repoComment = $essayRepo->getCorrectorCommentById((int) $comment_key);
+        if (!isset($repoComment)) {
+            return true; // already deleted
+        }
+        
+        if (!isset($repoCorrector)) {
+            return false;   // corrector not found
+        }
+        elseif ((string) $repoComment->getCorrectorId() != $corrector_key) {
+            return false;   // given corrector is not the owner corrector of that comment
+        }
+        
+        $essayRepo->deleteCorrectorComment($repoComment->getId());
+        return true;
     }
 }

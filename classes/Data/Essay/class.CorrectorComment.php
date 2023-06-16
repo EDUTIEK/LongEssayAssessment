@@ -178,9 +178,11 @@ class CorrectorComment extends RecordData
 
     /**
      * @param int $parent_number
+     * @return CorrectorComment
      */
-    public function setParentNumber(int $parent_number): void
+    public function setParentNumber(int $parent_number): CorrectorComment
     {
         $this->parent_number = $parent_number;
+        return $this;
     }
 }

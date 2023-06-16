@@ -113,6 +113,16 @@ class EssayRepository extends RecordRepo
     }
 
     /**
+     * @param int $id
+     * @return CorrectorComment|null
+     */
+    public function getCorrectorCommentById(int $id) : ?RecordData 
+    {
+        $query = "SELECT * FROM " . CorrectorComment::tableName() . " WHERE id = ". $this->db->quote($id, 'integer');
+        return $this->getSingleRecord($query, CorrectorComment::model());
+    }
+    
+    /**
      * @param int $essay_id
      * @param int $corrector_id
      * @return CorrectorComment[]
@@ -123,6 +133,17 @@ class EssayRepository extends RecordRepo
             " AND corrector_id = ". $this->db->quote($corrector_id, 'integer');
         return $this->queryRecords($query, CorrectorComment::model());
     }
+
+    /**
+     * @param int $id
+     * @return CriterionPoints|null
+     */
+    public function getCriterionPointsById(int $id) : ?RecordData
+    {
+        $query = "SELECT * FROM " . CriterionPoints::tableName() . " WHERE id = ". $this->db->quote($id, 'integer');
+        return $this->getSingleRecord($query, CriterionPoints::model());
+    }
+
 
     /**
      * @param int $essay_id

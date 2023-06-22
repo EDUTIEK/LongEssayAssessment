@@ -24,6 +24,7 @@ class TaskSettings extends RecordData
 		'description' => 'text',
 		'instructions' => 'text',
 		'solution' => 'text',
+		'closing_message' => 'text',
 		'writing_start' => 'datetime',
 		'writing_end' => 'datetime',
 		'correction_start' => 'datetime',
@@ -42,6 +43,7 @@ class TaskSettings extends RecordData
     protected ?string $description = null;
     protected ?string $instructions = null;
     protected ?string $solution = null;
+	protected ?string $closing_message = null;
     protected ?string $writing_start = null;
     protected ?string $writing_end = null;
     protected ?string $correction_start = null;
@@ -135,6 +137,24 @@ class TaskSettings extends RecordData
         $this->solution = $solution;
         return $this;
     }
+
+	/**
+	 * @return string
+	 */
+	public function getClosingMessage(): ?string
+	{
+		return $this->closing_message;
+	}
+
+	/**
+	 * @param ?string $closing_message
+	 * @return TaskSettings
+	 */
+	public function setClosingMessage(?string $closing_message): TaskSettings
+	{
+		$this->closing_message = $closing_message;
+		return $this;
+	}
 
     /**
      * @return string

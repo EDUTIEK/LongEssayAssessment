@@ -1570,3 +1570,11 @@ if (!$ilDB->tableColumnExists('xlas_essay','location')) {
 	$ilDB->addIndex("xlas_essay", array("location"), "i4");
 }
 ?>
+<#70>
+<?php
+if (!$ilDB->tableColumnExists('xlas_task_settings','closing_message')) {
+	$ilDB->addTableColumn('xlas_task_settings', 'closing_message', [
+		'type' => 'clob'
+	]);
+}
+?>

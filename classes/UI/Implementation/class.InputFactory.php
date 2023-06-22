@@ -3,9 +3,11 @@
 namespace ILIAS\Plugin\LongEssayAssessment\UI\Implementation;
 
 use ILIAS\Data;
-use ILIAS\Plugin\LongEssayAssessment\UI;
+use ILIAS\Data\Factory as DataFactory;
 use ILIAS\Plugin\LongEssayAssessment\UI\Component\BlankForm;
 use ILIAS\UI\Implementation\Component\Input\Field\Factory;
+use ILIAS\UI\Implementation\Component\Input\Field\Input;
+use ILIAS\UI\Implementation\Component\Input\Field\Textarea;
 use ILIAS\UI\Implementation\Component\SignalGeneratorInterface;
 
 class InputFactory implements \ILIAS\Plugin\LongEssayAssessment\UI\Component\InputFactory
@@ -82,5 +84,18 @@ class InputFactory implements \ILIAS\Plugin\LongEssayAssessment\UI\Component\Inp
 		return new \ILIAS\Plugin\LongEssayAssessment\UI\Implementation\BlankForm(
 			$this->input_factory, $post_url, $inputs, $this->signal_generator
 		);
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function textareaModified($label, $byline = null): Textarea
+	{
+		return new class ($this->data_factory, $this->refinery, $label, $byline) extends Textarea{
+			public function __construct(DataFactory $data_factory, \ILIAS\Refinery\Factory $refinery, $label, $byline)
+			{
+				Input::__construct($data_factory, $refinery, $label, $byline);//Skip striptags transformation
+			}
+		};
 	}
 }

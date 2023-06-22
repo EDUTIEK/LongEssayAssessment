@@ -121,6 +121,12 @@ class OrgaSettingsGUI extends BaseGUI
         $date = $a_data['task']['review_end'];
         $a_task_settings->setReviewEnd($date instanceof \DateTimeInterface ? $date->format('Y-m-d H:i:s') : null);
 
+		$task_description = $a_data['content']['task_description'];
+		$a_task_settings->setDescription((string)$task_description);
+
+		$closing_message = $a_data['content']['closing_message'];
+		$a_task_settings->setClosingMessage((string)$closing_message);
+
         $task_repo->save($a_task_settings);
 		$this->saveLocations($a_data['task']['location'], $locations);
     }
@@ -135,6 +141,7 @@ class OrgaSettingsGUI extends BaseGUI
     protected function buildTaskSettings(TaskSettings $taskSettings, array $locations): Standard
     {
         $factory = $this->uiFactory->input()->field();
+		$ui_service = $this->localDI->getUIService();
 
         $sections = [];
 
@@ -145,7 +152,8 @@ class OrgaSettingsGUI extends BaseGUI
             ->withValue($this->object->getTitle());
 
         $fields['description'] = $factory->textarea($this->lng->txt("description"))
-            ->withValue($this->object->getDescription());
+            ->withValue($this->object->getDescription())
+			->withAdditionalOnLoadCode($ui_service->noRTEOnloadCode());// Exclude from RTE
 
         $fields['online'] = $factory->checkbox($this->lng->txt('online'))
             ->withValue($this->object->isOnline());
@@ -160,6 +168,25 @@ class OrgaSettingsGUI extends BaseGUI
             ->withValue($this->object->getParticipationType());
 
         $sections['object'] = $factory->section($fields, $this->plugin->txt('object_settings'));
+
+
+		$fields = [];
+
+		$fields['task_description'] = $this->localDI->getUIFactory()->field()
+			->textareaModified($this->plugin->txt("task_description"),$this->plugin->txt("task_description_info"))
+			->withValue($taskSettings->getDescription() ?? "")
+			->withAdditionalTransformation($ui_service->stringTransformationByRTETagSet());
+
+		$fields['closing_message'] = $this->localDI->getUIFactory()->field()
+			->textareaModified($this->plugin->txt("closing_message"),$this->plugin->txt("closing_message_info"))
+			->withValue($taskSettings->getClosingMessage() ?? "")
+			->withAdditionalOnLoadCode(function ($id) use ($ui_service){
+				$ui_service->addTinyMCEToTextareas();// delay TinyMCE onload code so that description can add its noRTE-Tag before
+				return "";
+			})
+			->withAdditionalTransformation($ui_service->stringTransformationByRTETagSet());;
+
+		$sections['content'] = $factory->section($fields, $this->plugin->txt('content'));
 
         // Task
         $fields = [];

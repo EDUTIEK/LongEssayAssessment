@@ -2,6 +2,8 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\UI\Component;
 
+use ILIAS\UI\Component\Input\Field\Textarea;
+
 interface InputFactory
 {
 	/**
@@ -50,4 +52,48 @@ interface InputFactory
 	 * @return BlankForm
 	 */
 	public function blankForm(string $post_url, array $inputs): BlankForm;
+
+	/**
+	 * ---
+	 * description:
+	 *   purpose: >
+	 *     A textarea is intended for entering multi-line texts.
+	 *   composition: >
+	 *      Textarea fields will render an textarea HTML tag.
+	 *      If a limit is set, a byline about limitation is automatically set.
+	 *   effect: >
+	 *      Textarea inputs are NOT restricted to one line of text.
+	 *      A textarea counts the amount of character input by user and displays the number.
+	 *   rivals:
+	 *      text field: Use a text field if users should input only one line of text.
+	 *      numeric field: Use a numeric field if users should input numbers.
+	 *      alphabet field: >
+	 *          Use an alphabet field if the user should input single letters.
+	 *
+	 * rules:
+	 *   usage:
+	 *     1: Textarea Input MUST NOT be used for choosing from predetermined options.
+	 *     2: >
+	 *         Textarea input MUST NOT be used for numeric input, a Numeric Field is
+	 *         to be used instead.
+	 *     3: >
+	 *         Textarea Input MUST NOT be used for letter-only input, an Alphabet Field
+	 *         is to be used instead.
+	 *     4: >
+	 *         Textarea Input MUST NOT be used for single-line input, a Text Field
+	 *         is to be used instead.
+	 *     5: >
+	 *         If a min. or max. number of characters is set for textarea, a byline MUST
+	 *         be added stating the number of min. and/or max. characters.
+	 *   interaction:
+	 *     1: >
+	 *         Textarea Input MAY limit the number of characters, if a certain length
+	 *         of text-input may not be exceeded (e.g. due to database-limitations).
+	 *
+	 * ---
+	 * @param    string      $label
+	 * @param    string|null $byline
+	 * @return   Textarea
+	 */
+	public function textareaModified($label, $byline = null): Textarea;
 }

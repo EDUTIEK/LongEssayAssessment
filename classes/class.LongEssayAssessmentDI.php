@@ -120,7 +120,7 @@ class LongEssayAssessmentDI
 		};
 
 		$dic["xlas.ui_service"] = function (\ILIAS\DI\Container $dic) {
-			return new UIService($dic["lng"]);
+			return new UIService($dic["lng"], $dic["refinery"]);
 		};
 
         self::$inited = true;

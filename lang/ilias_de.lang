@@ -99,7 +99,7 @@ result_available_date#:#Datum
 result_available_date_info#:#Das Ergebnis wird ab diesem Zeitpunkt angezeigt, sofern die Korrektur ihrer Abgabe finalisiert wurde. Bitte beachten Sie, das das Ergebnis bei aktiver Einsichtnahme auch im PDF der korrigierten Abgabe erscheint.
 task_definition#:#Aufgaben-Beschreibung
 task_description#:#Vorab-Beschreibung
-task_description_info#:#Die Vorab-Beschreibung wird schon vor dem Bearbeitungszeitraum angezeigt.
+task_description_info#:#Die Vorab-Beschreibung wird dem Teilnehmer vor dem Bearbeitungszeitraum angezeigt.
 task_instructions#:#Aufgabe
 task_instructions_info#:#Die Aufgabenstellung wird erst mit Start der Bearbeitung angezeigt.
 task_solution#:#Lösungshinweise
@@ -385,3 +385,5 @@ locations_info#:#Den Teilnehmenden kann in der Teilnehmerliste ein Teilnahmeort 
 assign_location#:#Teilnahmeort zuweisen
 change_location#:#Teilnahmeort ändern
 location_assigned#:#Teilnahmeort erfolgreich zugewiesen.
+closing_message#:#Abschlussmeldung
+closing_message_info#:#Die Abschlussmeldung wird dem Teilnehmer nach der Abgabe im Klausuren-Reiter angezeigt.

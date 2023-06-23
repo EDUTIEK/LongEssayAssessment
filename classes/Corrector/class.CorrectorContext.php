@@ -350,6 +350,10 @@ class CorrectorContext extends ServiceContext implements Context
      */
     public function getCurrentCorrector(): ?Corrector
     {
+        if ($this->isReview() || $this->isStitchDecision()) {
+            return null;
+        }
+        
         $correctorRepo = $this->localDI->getCorrectorRepo();
         if (!empty($repoCorrector = $correctorRepo->getCorrectorByUserId($this->user->getId(), $this->task->getTaskId()))) {
             return new Corrector(

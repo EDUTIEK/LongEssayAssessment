@@ -483,6 +483,8 @@ class CorrectorContext extends ServiceContext implements Context
                 $repoEssay->getId(), $repoCorrector->getId())
             )) {
                 return new CorrectionSummary(
+                    $item_key,
+                    $corrector_key,
                     $repoSummary->getSummaryText(),
                     (float) $repoSummary->getPoints(),
                     $repoSummary->getGradeLevelId() ? (string) $repoSummary->getGradeLevelId() : null,

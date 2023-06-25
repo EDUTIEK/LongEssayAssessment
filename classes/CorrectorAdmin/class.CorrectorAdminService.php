@@ -438,17 +438,21 @@ class CorrectorAdminService extends BaseService
         $writtenEssay = $context->getEssayOfItem((string) $repoWriter->getId());
 
         $correctionSummaries = [];
+        $correctionComments = [];
         foreach ($this->correctorRepo->getAssignmentsByWriterId($repoWriter->getId()) as $assignment) {
             $repoCorrector = $this->correctorRepo->getCorrectorById($assignment->getCorrectorId());
             if (!empty($summary = $context->getCorrectionSummary((string) $repoWriter->getId(), (string) $repoCorrector->getId()))) {
                 $correctionSummaries[] = $summary;
             }
+            $correctionComments = array_merge($correctionComments, 
+                $context->getCorrectionComments((string) $repoWriter->getId(), (string) $repoCorrector->getId()));
         }
 
         $item = new DocuItem(
             $writingTask,
             $writtenEssay,
-            $correctionSummaries
+            $correctionSummaries,
+            $correctionComments
         );
 
         $service = new Service($context);

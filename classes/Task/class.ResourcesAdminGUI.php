@@ -101,13 +101,12 @@ class ResourcesAdminGUI extends BaseGUI
 
         $resource_file = $factory->file(new ResourceUploadHandlerGUI($this->dic->resourceStorage(), $this->localDI->getTaskRepo()), $this->lng->txt("file"))
 			->withValue($a_resource->getFileId() !== null ? [$a_resource->getFileId()] : null)
-			->withAdditionalTransformation($file_constraint = $this->ifParentEnabledNotEmptyConstraint(Resource::RESOURCE_TYPE_FILE))
             ->withAcceptedMimeTypes(['application/pdf'])
             ->withByline($this->plugin->txt("resource_file_description") . "<br>" . $this->uiService->getMaxFileSizeString());
 
         $url = $factory->text($this->lng->txt('url'))
-            ->withValue($a_resource->getUrl())
-			->withAdditionalTransformation($url_constraint = $this->ifParentEnabledNotEmptyConstraint(Resource::RESOURCE_TYPE_URL));
+			->withRequired(true)
+            ->withValue($a_resource->getUrl());
 
         $availability = $factory->radio($this->plugin->txt("resource_availability"))
             ->withRequired(true)
@@ -130,8 +129,13 @@ class ResourcesAdminGUI extends BaseGUI
             Resource::RESOURCE_TYPE_FILE => $group1,
             Resource::RESOURCE_TYPE_URL => $group2,
         ], $this->lng->txt("type"))->withValue($a_resource->getType())
-			->withAdditionalTransformation($file_constraint)
-			->withAdditionalTransformation($url_constraint);
+			->withAdditionalTransformation(
+				$this->refinery->custom()->constraint(
+					function ($var){
+						return !($var[0] === Resource::RESOURCE_TYPE_FILE) || $var[1]["resource_file"] !== null;
+					}, $this->plugin->txt("missing_file")
+				)
+			);
         $fields['availability'] = $availability;
         $sections['form'] = $factory->section($fields, $section_title);
         $action = $this->ctrl->getFormAction($this, "editItem");
@@ -213,29 +217,19 @@ class ResourcesAdminGUI extends BaseGUI
 
         $form = $this->buildResourceForm($resource);
 
-        // apply inputs
-        if ($this->request->getMethod() == "POST") {
-            $form = $form->withRequest($this->request);
-            $data = $form->getData();
+		if($this->request->getMethod() === "POST") {
+			$form = $form->withRequest($this->request);
 
-            $result = $form->getInputGroup()->getContent();
-
-            if ($result->isOK()) {
-                if ($resource_id == null) {
-                    $this->createResource($data["form"]);
-                }
-                else {
-                    $this->replaceResource($data["form"], (int) $resource_id);
-                }
-
-                ilUtil::sendSuccess($this->lng->txt("settings_saved"), true);
-                //$this->ctrl->redirect($this, "showItems");
-				exit();
-            }else{
-                $this->ctrl->setParameter($this, 'resource_id', $resource->getId());
-                ilUtil::sendFailure($this->lng->txt("validation_failure"), false);
-            }
-        }
+			if (($data = $form->getData()) !== null) {
+				if ($resource_id == null) {
+					$this->createResource($data["form"]);
+				} else {
+					$this->replaceResource($data["form"], (int)$resource_id);
+				}
+				ilUtil::sendSuccess($this->lng->txt("settings_saved"), true);
+				$this->ctrl->redirect($this, "showItems");
+			}
+		}
 
         $this->tpl->setContent($this->renderer->render($form));
     }
@@ -301,22 +295,4 @@ class ResourcesAdminGUI extends BaseGUI
 			// TODO: Error resource not in Storage
 		}
     }
-
-	private function ifParentEnabledNotEmptyConstraint($parent_name){
-		$data = new \stdClass();
-		$data->parent_enabled = null;
-
-		return $this->refinery->custom()->constraint(function ($val) use($data, $parent_name){
-			var_dump($val);
-			if($data->parent_enabled === null){
-				$data->parent_enabled = ($val[0] == $parent_name);
-				return true;
-			}
-
-			if($data->parent_enabled){
-				return $val !== null && $val !== "";
-			}
-			return true;
-		}, "This cannot be null if parent is enabled");
-	}
 }

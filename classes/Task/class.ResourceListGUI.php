@@ -133,7 +133,6 @@ class ResourceListGUI
 
                     break;
             }
-            //TODO: Lang var Verfügbar und availability
             $item_data[] = [
                 'headline' => $resource->getTitle(),
                 'subheadline' => $resource->getDescription() ?? "",

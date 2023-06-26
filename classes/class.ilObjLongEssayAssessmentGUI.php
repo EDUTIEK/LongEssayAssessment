@@ -1,6 +1,8 @@
 <?php
 /* Copyright (c) 2021 ILIAS open source, Extended GPL, see docs/LICENSE */
 
+use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
+
 require_once(__DIR__ . "/class.ilLongEssayAssessmentPlugin.php");
 
 /**
@@ -110,6 +112,8 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
 	 */
 	function performCommand($cmd)
 	{
+		global $DIC;
+
         $next_class = $this->ctrl->getNextClass();
         if (!empty($next_class)) {
             switch ($next_class) {
@@ -119,18 +123,32 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                         $this->ctrl->forwardCommand(new \ILIAS\Plugin\LongEssayAssessment\Task\OrgaSettingsGUI($this));
                     }
                     break;
-                case 'ilias\plugin\longessayassessment\task\contentsettingsgui':
-                    if ($this->object->canEditContentSettings()) {
-                        $this->activateTab('tab_task', 'tab_content_settings');
-                        $this->ctrl->forwardCommand(new \ILIAS\Plugin\LongEssayAssessment\Task\ContentSettingsGUI($this));
-                    }
-                    break;
+				case 'ilias\plugin\longessayassessment\task\instructionssettingsgui':
+					if ($this->object->canEditContentSettings()) {
+						$this->activateTab('tab_task', 'tab_instructions_settings');
+						$this->ctrl->forwardCommand(new \ILIAS\Plugin\LongEssayAssessment\Task\InstructionsSettingsGUI($this));
+					}
+					break;
+				case 'ilias\plugin\longessayassessment\task\solutionsettingsgui':
+					if ($this->object->canEditContentSettings()) {
+						$this->activateTab('tab_task', 'tab_solution_settings');
+						$this->ctrl->forwardCommand(new \ILIAS\Plugin\LongEssayAssessment\Task\SolutionSettingsGUI($this));
+					}
+					break;
                 case 'ilias\plugin\longessayassessment\task\resourcesadmingui':
                     if ($this->object->canEditContentSettings()) {
                         $this->activateTab('tab_task', 'tab_resources');
                         $this->ctrl->forwardCommand(new \ILIAS\Plugin\LongEssayAssessment\Task\ResourcesAdminGUI($this));
                     }
                     break;
+				case 'ilias\plugin\longessayassessment\task\resourceuploadhandlergui':
+					if ($this->object->canEditMaterial()) {
+						$task_repo = LongEssayAssessmentDI::getInstance()->getTaskRepo();
+						$this->ctrl->forwardCommand(
+							new \ILIAS\Plugin\LongEssayAssessment\Task\ResourceUploadHandlerGUI($DIC->resourceStorage(), $task_repo)
+						);
+					}
+					break;
                 case 'ilias\plugin\longessayassessment\task\editorsettingsgui':
                     if ($this->object->canEditTechnicalSettings()) {
                         $this->activateTab('tab_task', 'tab_technical_settings');
@@ -238,7 +256,7 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
             $this->ctrl->redirectByClass('ilias\plugin\longessayassessment\task\orgasettingsgui');
         }
         if ($this->object->canEditContentSettings()) {
-            $this->ctrl->redirectByClass('ilias\plugin\longessayassessment\task\contentsettingsgui');
+            $this->ctrl->redirectByClass('ilias\plugin\longessayassessment\task\solutionsettingsgui');
         }
         if ($this->object->canMaintainWriters()) {
             $this->ctrl->redirectByClass('ilias\plugin\longessayassessment\writerAdmin\writeradmingui');
@@ -284,13 +302,20 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                 'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessayassessment\task\orgasettingsgui')
             ];
         }
-        if ($this->object->canEditContentSettings()) {
-            $tabs[] = [
-                'id' => 'tab_content_settings',
-                'txt' => $this->plugin->txt('tab_content_settings'),
-                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessayassessment\task\contentsettingsgui')
-            ];
-        }
+		if ($this->object->canEditContentSettings()) {
+			$tabs[] = [
+				'id' => 'tab_instructions_settings',
+				'txt' => $this->plugin->txt('tab_instructions_settings'),
+				'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessayassessment\task\instructionssettingsgui')
+			];
+		}
+		if ($this->object->canEditContentSettings()) {
+			$tabs[] = [
+				'id' => 'tab_solution_settings',
+				'txt' => $this->plugin->txt('tab_solution_settings'),
+				'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessayassessment\task\solutionsettingsgui')
+			];
+		}
         if ($this->object->canEditContentSettings()) {
             $tabs[] = [
                 'id' => 'tab_resources',

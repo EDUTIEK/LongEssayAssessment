@@ -136,7 +136,7 @@ class ResourceListGUI
             //TODO: Lang var Verfügbar und availability
             $item_data[] = [
                 'headline' => $resource->getTitle(),
-                'subheadline' => $resource->getDescription(),
+                'subheadline' => $resource->getDescription() ?? "",
                 'important' => [
                     $this->plugin->txt('resource_available') => $this->plugin->txt('resource_availability_'.$resource->getAvailability()),
                     $this->renderer->render($this->uiFactory->link()->standard($label,$action))

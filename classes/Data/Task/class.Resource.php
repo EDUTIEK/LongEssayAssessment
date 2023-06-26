@@ -13,6 +13,8 @@ class Resource extends RecordData
 {
     const RESOURCE_TYPE_FILE = 'file';
     const RESOURCE_TYPE_URL = 'url';
+	const RESOURCE_TYPE_INSTRUCTION = 'instruct';
+	const RESOURCE_TYPE_SOLUTION  = 'solution';
 
     const RESOURCE_AVAILABILITY_BEFORE = 'before';  // before writing
     const RESOURCE_AVAILABILITY_DURING = 'during';  // after writing start, unlimited

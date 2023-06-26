@@ -151,11 +151,13 @@ class WriterStartGUI extends BaseGUI
 		$writing_resources = [];
         $solution_items = [];
 
+		$resources = $repo->getResourceByTaskId($this->object->getId(),[Resource::RESOURCE_TYPE_URL, Resource::RESOURCE_TYPE_FILE]);
+
 		/** @var Resource $resource */
-		foreach ($repo->getResourceByTaskId($this->object->getId()) as $resource) {
+		foreach ($resources as $resource) {
 			if ($this->data->isResourceAvailable($resource, $this->task)) {
 
-				if ($resource->getType() == Resource::RESOURCE_TYPE_FILE) {
+				if ($resource->getType() == Resource::RESOURCE_TYPE_FILE && $resource->getFileId() !== null) {
 					$resource_file = $this->dic->resourceStorage()->manage()->find($resource->getFileId());
 					$revision = $this->dic->resourceStorage()->manage()->getCurrentRevision($resource_file);
 

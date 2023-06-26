@@ -8,7 +8,6 @@ use ILIAS\Plugin\LongEssayAssessment\Data\Task\Resource;
 use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
 use ILIAS\Plugin\LongEssayAssessment\UI\UIService;
 use ilUtil;
-use ResourceUploadHandlerGUI;
 
 /**
  * Resources Administration
@@ -67,7 +66,7 @@ class ResourcesAdminGUI extends BaseGUI
 
         $di = LongEssayAssessmentDI::getInstance();
         $task_repo = $di->getTaskRepo();
-        $resources = $task_repo->getResourceByTaskId($this->object->getId());
+        $resources = $task_repo->getResourceByTaskId($this->object->getId(), [Resource::RESOURCE_TYPE_URL, Resource::RESOURCE_TYPE_FILE]);
 
         $list = new ResourceListGUI($this, $this->uiFactory, $this->renderer, $this->lng, $this->plugin);
         $list->setItems($resources);
@@ -100,12 +99,15 @@ class ResourcesAdminGUI extends BaseGUI
         $description = $factory->textarea($this->lng->txt("description"))
             ->withValue((string) $a_resource->getDescription());
 
-        $resource_file = $factory->file(new ResourceUploadHandlerGUI(), $this->lng->txt("file"))
+        $resource_file = $factory->file(new ResourceUploadHandlerGUI($this->dic->resourceStorage(), $this->localDI->getTaskRepo()), $this->lng->txt("file"))
+			->withValue($a_resource->getFileId() !== null ? [$a_resource->getFileId()] : null)
+			->withAdditionalTransformation($file_constraint = $this->ifParentEnabledNotEmptyConstraint(Resource::RESOURCE_TYPE_FILE))
             ->withAcceptedMimeTypes(['application/pdf'])
             ->withByline($this->plugin->txt("resource_file_description") . "<br>" . $this->uiService->getMaxFileSizeString());
 
         $url = $factory->text($this->lng->txt('url'))
-            ->withValue($a_resource->getUrl());
+            ->withValue($a_resource->getUrl())
+			->withAdditionalTransformation($url_constraint = $this->ifParentEnabledNotEmptyConstraint(Resource::RESOURCE_TYPE_URL));
 
         $availability = $factory->radio($this->plugin->txt("resource_availability"))
             ->withRequired(true)
@@ -119,12 +121,17 @@ class ResourcesAdminGUI extends BaseGUI
         $fields = [];
         $fields['title'] = $title;
         $fields['description'] = $description;
-        $group1 = $factory->group(["resource_file" => $resource_file,], $this->lng->txt("file"));
+
+		$group1 = $factory->group(["resource_file" => $resource_file,], $this->lng->txt("file"));
         $group2 = $factory->group(["url" => $url, ],$this->plugin->txt("resource_weblink"));
+
+
         $fields['type'] = $factory->switchableGroup([
             Resource::RESOURCE_TYPE_FILE => $group1,
             Resource::RESOURCE_TYPE_URL => $group2,
-        ], $this->lng->txt("type"))->withValue($a_resource->getType());
+        ], $this->lng->txt("type"))->withValue($a_resource->getType())
+			->withAdditionalTransformation($file_constraint)
+			->withAdditionalTransformation($url_constraint);
         $fields['availability'] = $availability;
         $sections['form'] = $factory->section($fields, $section_title);
         $action = $this->ctrl->getFormAction($this, "editItem");
@@ -222,7 +229,8 @@ class ResourcesAdminGUI extends BaseGUI
                 }
 
                 ilUtil::sendSuccess($this->lng->txt("settings_saved"), true);
-                $this->ctrl->redirect($this, "showItems");
+                //$this->ctrl->redirect($this, "showItems");
+				exit();
             }else{
                 $this->ctrl->setParameter($this, 'resource_id', $resource->getId());
                 ilUtil::sendFailure($this->lng->txt("validation_failure"), false);
@@ -293,4 +301,22 @@ class ResourcesAdminGUI extends BaseGUI
 			// TODO: Error resource not in Storage
 		}
     }
+
+	private function ifParentEnabledNotEmptyConstraint($parent_name){
+		$data = new \stdClass();
+		$data->parent_enabled = null;
+
+		return $this->refinery->custom()->constraint(function ($val) use($data, $parent_name){
+			var_dump($val);
+			if($data->parent_enabled === null){
+				$data->parent_enabled = ($val[0] == $parent_name);
+				return true;
+			}
+
+			if($data->parent_enabled){
+				return $val !== null && $val !== "";
+			}
+			return true;
+		}, "This cannot be null if parent is enabled");
+	}
 }

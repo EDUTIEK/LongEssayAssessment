@@ -200,9 +200,10 @@ abstract class ServiceContext implements BaseContext
 
         $repo = $this->localDI->getTaskRepo();
         $env_resources = [];
+		$resources = $repo->getResourceByTaskId($this->object->getId(),[Resource::RESOURCE_TYPE_URL, Resource::RESOURCE_TYPE_FILE]);
 
         /** @var \ILIAS\Plugin\LongEssayAssessment\Data\Task\Resource $resource */
-        foreach ($repo->getResourceByTaskId($this->object->getId()) as $resource) {
+        foreach ($resources as $resource) {
 
             // late static binding - use constant definition in the extended class
             if (in_array($resource->getAvailability(), static::RESOURCES_AVAILABILITIES)) {
@@ -253,10 +254,11 @@ abstract class ServiceContext implements BaseContext
         global $DIC;
 
         $repo = $this->localDI->getTaskRepo();
+		$resources = $repo->getResourceByTaskId($this->object->getId(),[Resource::RESOURCE_TYPE_FILE]);
 
         /** @var \ILIAS\Plugin\LongEssayAssessment\Data\Task\Resource $resource */
-        foreach ($repo->getResourceByTaskId($this->object->getId()) as $resource) {
-            if ($resource->getId() == (int) $key && $resource->getType() == Resource::RESOURCE_TYPE_FILE) {
+        foreach ($resources as $resource) {
+            if ($resource->getId() == (int) $key) {
                 $identifier = "";
 
                 if (is_string($resource->getFileId())) {

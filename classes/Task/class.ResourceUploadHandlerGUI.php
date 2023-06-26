@@ -8,62 +8,57 @@ use ILIAS\FileUpload\Handler\FileInfoResult;
 use ILIAS\FileUpload\Handler\HandlerResult as HandlerResultInterface;
 use ILIAS\FileUpload\Handler\BasicHandlerResult;
 use ILIAS\FileUpload\Handler\BasicFileInfoResult;
+use ILIAS\Plugin\LongEssayAssessment\Data\Task\TaskRepository;
 use ILIAS\ResourceStorage\Services;
-use ilUIPluginRouterGUI;
 
 /**
  * Class ResourceUploadHandlerGUI
  *
  * @author            Fabian Wolf <wolf@ilias.de>
  *
- * @ilCtrl_isCalledBy ResourceUploadHandlerGUI: ilUIPluginRouterGUI
+ * @ilCtrl_isCalledBy ILIAS\Plugin\LongEssayAssessment\Task\ResourceUploadHandlerGUI: ilObjLongEssayAssessmentGUI
  */
 class ResourceUploadHandlerGUI extends AbstractCtrlAwareUploadHandler
 {
-    /**
-     * @var Services
-     */
-    private $storage;
-    /**
-     * @var ResourceResourceStakeholder
-     */
-    private $stakeholder;
-
+    private Services $storage;
+    private ResourceResourceStakeholder $stakeholder;
+	private TaskRepository $task_repo;
 
     /**
      * ilUIDemoFileUploadHandlerGUI constructor.
      */
-    public function __construct()
+    public function __construct(Services $storage, TaskRepository $task_repo)
     {
         global $DIC;
         parent::__construct();
-        $this->storage = $DIC['resource_storage'];
+        $this->storage = $storage;
+		$this->task_repo = $task_repo;
         $this->stakeholder = new ResourceResourceStakeholder();
     }
 
     public function getUploadURL() : string
     {
-        return $this->ctrl->getLinkTargetByClass(
-            [ilUIPluginRouterGUI::class, ResourceUploadHandlerGUI::class],
+        return str_replace("\\", "\\\\", $this->ctrl->getLinkTargetByClass(
+            [\ilObjPluginDispatchGUI::class, \ilObjLongEssayAssessmentGUI::class, ResourceUploadHandlerGUI::class],
             self::CMD_UPLOAD
-        );
+        ));// Need to double escape backslashes because UI can't handle urls otherwise in json parse in src/UI/templates/js/Input/Field/file.js
     }
 
 
     public function getExistingFileInfoURL() : string
     {
-        return $this->ctrl->getLinkTargetByClass(
-            [ilUIPluginRouterGUI::class, ResourceUploadHandlerGUI::class],
+        return str_replace("\\", "\\\\", $this->ctrl->getLinkTargetByClass(
+			[\ilObjPluginDispatchGUI::class, \ilObjLongEssayAssessmentGUI::class, ResourceUploadHandlerGUI::class],
             self::CMD_INFO
-        );
+        ));// Need to double escape backslashes because UI can't handle urls otherwise in json parse in src/UI/templates/js/Input/Field/file.js
     }
 
     public function getFileRemovalURL() : string
     {
-        return $this->ctrl->getLinkTargetByClass(
-            [ilUIPluginRouterGUI::class, ResourceUploadHandlerGUI::class],
+        return str_replace("\\", "\\\\", $this->ctrl->getLinkTargetByClass(
+			[\ilObjPluginDispatchGUI::class, \ilObjLongEssayAssessmentGUI::class, ResourceUploadHandlerGUI::class],
             self::CMD_REMOVE
-        );
+        ));// Need to double escape backslashes because UI can't handle urls otherwise in json parse in src/UI/templates/js/Input/Field/file.js
     }
 
 
@@ -97,8 +92,6 @@ class ResourceUploadHandlerGUI extends AbstractCtrlAwareUploadHandler
     {
         $id = $this->storage->manage()->find($identifier);
         if ($id !== null) {
-            $this->storage->manage()->remove($id, $this->stakeholder);
-
             return new BasicHandlerResult($this->getFileIdentifierParameterName(), HandlerResultInterface::STATUS_OK, $identifier, 'file deleted');
         } else {
             return new BasicHandlerResult($this->getFileIdentifierParameterName(), HandlerResultInterface::STATUS_FAILED, $identifier, 'file not found');

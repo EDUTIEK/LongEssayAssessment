@@ -188,9 +188,14 @@ class TaskRepository extends RecordRepo
 	 * @param int $a_task_id
 	 * @return Resource[]
 	 */
-    public function getResourceByTaskId(int $a_task_id): array
+    public function getResourceByTaskId(int $a_task_id, ?array $types= null): array
     {
 		$query = "SELECT * FROM xlas_resource WHERE task_id = " . $this->db->quote($a_task_id, 'integer');
+
+		if($types !== null){
+			$query .= " AND " . $this->db->in("type", $types, false, 'text');
+		}
+
 		return $this->queryRecords($query, Resource::model());
     }
 

@@ -52,6 +52,8 @@ eskript_key_info#:#Bitte tragen Sie dieses ILIAS-Token in der Datei eskript/inc.
 tab_task#:#Aufgabenerstellung
 tab_orga_settings#:#Organisation
 tab_content_settings#:#Inhalt
+tab_instructions_settings#:#Aufgabenstellung
+tab_solution_settings#:#Lösungshinweise
 tab_resources#:#Material
 tab_technical_settings#:#Technik
 tab_criteria#:#Bewertungskriterien
@@ -100,10 +102,10 @@ result_available_date_info#:#Das Ergebnis wird ab diesem Zeitpunkt angezeigt, so
 task_definition#:#Aufgaben-Beschreibung
 task_description#:#Vorab-Beschreibung
 task_description_info#:#Die Vorab-Beschreibung wird dem Teilnehmer vor dem Bearbeitungszeitraum angezeigt.
-task_instructions#:#Aufgabe
-task_instructions_info#:#Die Aufgabenstellung wird erst mit Start der Bearbeitung angezeigt.
+task_instructions#:#Aufgabenstellung
+task_instructions_info#:#Die Aufgabenstellung wird mit Start der Bearbeitung angezeigt.
 task_solution#:#Lösungshinweise
-task_solution_info#:#Die Lösungshinweise werden erst ab einem festgelegten Zeitpunkt angezeigt. Zusätzliche Hinweise oder Musterläsungen können als PDF-Upload oder Weblink unter "Material" bereitgestellt werden.
+task_solution_info#:#Die Lösungshinweise werden erst ab einem festgelegten Zeitpunkt oder am Ende angezeigt. Dieser wird unter „Organisation ► Lösungshinweise verfügbar“ aktiviert und konfiguriert. Zusätzliche Hinweise können als Datei oder Weblink unter "Material" bereitgestellt werden.
 editor_settings#:#Einstellungen für den Editor
 headline_scheme#:#Überschriften-Schema
 headline_scheme_none#:#Ohne Numerierung
@@ -387,3 +389,6 @@ change_location#:#Teilnahmeort ändern
 location_assigned#:#Teilnahmeort erfolgreich zugewiesen.
 closing_message#:#Abschlussmeldung
 closing_message_info#:#Die Abschlussmeldung wird dem Teilnehmer nach der Abgabe im Klausuren-Reiter angezeigt.
+solution_is_not_available#:#Die Lösungshinweise werden aktuell nicht angezeigt. Sie können unter „Organisation ► Lösungshinweise verfügbar“ aktiviert werden.
+task_instructions_file_info#:#Die Aufgabenstellung kann auch als PDF-Datei hochgeladen werden. Sie wird wie der Text mit Start der Bearbeitung angezeigt.
+task_solution_file_info#:#Die Lösungshinweise kann auch als PDF-Datei hochgeladen werden. Sie werden erst ab einem festgelegten Zeitpunkt angezeigt.

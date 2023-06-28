@@ -141,8 +141,6 @@ class WriterAdminListGUI extends WriterListGUI
                 ->withActions($actions_dropdown);
 		}
 
-		$modals[] = $multi_command_modal2 = $this->uiFactory->modal()->interruptive("", "", "");
-
 		$resources = $this->localDI->getUIFactory()->item()->formGroup(
 			$this->plugin->txt("participants")
 			. $this->localDI->getDataService(0)->formatCounterSuffix($count_filtered, $count_total)

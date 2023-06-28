@@ -104,17 +104,33 @@ class CorrectorAdminListGUI extends WriterListGUI
 			$actions_dropdown = $this->uiFactory->dropdown()->standard($actions)
 				->withLabel($this->plugin->txt("actions"));
 
-			$items[] = $this->uiFactory->item()->standard($this->getWriterName($writer, true). $this->getWriterAnchor($writer))
+			$items[] = $this->localDI->getUIFactory()->item()->formItem($this->getWriterName($writer, true). $this->getWriterAnchor($writer))
+				->withName($writer->getId())
 				->withLeadIcon($this->getWriterIcon($writer))
 				->withProperties($properties)
 				->withActions($actions_dropdown);
 		}
 
-		$resources = $this->uiFactory->item()->group($this->plugin->txt("correctable_exams")
-            . $this->localDI->getDataService(0)->formatCounterSuffix($count_filtered, $count_total), $items);
+		$resources = $this->localDI->getUIFactory()->item()->formGroup($this->plugin->txt("correctable_exams")
+            . $this->localDI->getDataService(0)->formatCounterSuffix($count_filtered, $count_total), $items, "");
+
+		$assign_callback_signal = $resources->generateDSCallbackSignal();
+		$this->ctrl->clearParameters($this->parent);
+		$modals[] = $resources->addDSModalTriggerToModal(
+			$this->uiFactory->modal()->roundtrip("",[]),
+			$this->ctrl->getFormAction($this->parent, "editAssignmentsAsync", "", true),
+			"writer_ids",
+			$assign_callback_signal
+		);
+
+		$form_actions[] = $resources->addDSModalTriggerToButton(
+			$this->uiFactory->button()->shy($this->plugin->txt("change_corrector"), "#"),
+			$assign_callback_signal
+		);
+
 
 		return $this->renderer->render($this->filterControl()) . '<br><br>' .
-			$this->renderer->render(array_merge([$resources], $modals));
+			$this->renderer->render(array_merge([$resources->withActions($this->uiFactory->dropdown()->standard($form_actions))], $modals));
 	}
 
 	private function getAssignedCorrectorName(Writer $writer, int $pos): string

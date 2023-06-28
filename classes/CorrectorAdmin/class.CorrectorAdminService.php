@@ -646,4 +646,84 @@ class CorrectorAdminService extends BaseService
         return true;
     }
 
+	const BLANK_CORRECTOR_ASSIGNMENT = -1;
+	const UNCHANGED_CORRECTOR_ASSIGNMENT = -2;
+
+	public function assignMultipleCorrector(int $first_corrector,
+											int $second_corrector,
+											array $writer_ids,
+											$dry_run = false,
+											array $assignments=null): array
+	{
+		if($assignments === null){
+			$assignments = [];
+			foreach($this->correctorRepo->getAssignmentsByTaskId($this->task_id) as $assignment){
+				$assignments[$assignment->getWriterId()][$assignment->getPosition()] = $assignment;
+			}
+		}
+
+		$result = ["changed" => [], "unchanged" => [], "invalid" => []];
+
+		// Dry run everything to check if configuration is valid
+
+		foreach ($writer_ids as $writer_id){
+			$first_assignment = $assignments[$writer_id][0] ?? null;
+			$second_assignment = $assignments[$writer_id][1] ?? null;
+
+			$first_unchanged = $this->assign($writer_id, $first_corrector, $first_assignment, 0); // assignment is changed by reference
+			$second_unchanged = $this->assign($writer_id, $second_corrector, $second_assignment, 1); // assignment is changed by reference
+
+			// Do nothing if both are unchanged
+			if($first_unchanged && $second_unchanged){
+				$result["unchanged"][] = $writer_id;
+			}elseif($first_assignment !== null
+				&& $second_assignment !== null
+				&& $first_assignment->getCorrectorId() == $second_assignment->getCorrectorId()
+			){// Do not proceed if first and second position is the same
+				$result["invalid"][] = $writer_id;
+
+			}else{
+
+				$result["changed"][] = $writer_id;
+				if(!$dry_run){// Stop here if its a dry run
+
+					// If something changed remove old assignments
+					$this->correctorRepo->deleteCorrectorAssignmentByWriter($writer_id);
+
+					if($first_assignment !== null){
+						$this->correctorRepo->save($first_assignment);
+					}
+
+					if($second_assignment !== null){
+						$this->correctorRepo->save($second_assignment);
+					}
+				}
+			}
+
+		}
+		return $result;
+	}
+
+	private function assign(int $writer_id, int $corrector, ?CorrectorAssignment &$assignment, int $position) : bool
+	{
+		$unchanged = true;
+		if( $corrector > -1) {// corrector is real and not removed or keep unchanged
+			if ($assignment == null) { // if assignment is missing create a new
+				$assignment = CorrectorAssignment::model()
+					->setWriterId($writer_id)
+					->setCorrectorId($corrector)
+					->setPosition($position);
+				$unchanged = false;
+			}
+			if ($assignment->getCorrectorId() != $corrector) { // if corrector is changed assign new
+				$assignment->setCorrectorId($corrector);
+				$unchanged = false;
+			}
+		}
+		if($corrector == self::BLANK_CORRECTOR_ASSIGNMENT){// corrector assignment is actively removed
+			$assignment = null;
+			$unchanged = false;
+		}
+		return $unchanged;
+	}
 }

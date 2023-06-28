@@ -4,13 +4,17 @@
 namespace ILIAS\Plugin\LongEssayAssessment\CorrectorAdmin;
 
 use Edutiek\LongEssayAssessmentService\Corrector\Service;
+use Edutiek\LongEssayAssessmentService\Data\Corrector;
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\Corrector\CorrectorContext;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\CorrectionSettings;
 use ILIAS\Plugin\LongEssayAssessment\Data\Corrector\CorrectorAssignment;
 use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
+use ILIAS\Plugin\LongEssayAssessment\UI\Component\BlankForm;
 use ILIAS\Plugin\LongEssayAssessment\WriterAdmin\CorrectorAdminListGUI;
 use ILIAS\Plugin\LongEssayAssessment\WriterAdmin\CorrectorListGUI;
+use ILIAS\Plugin\LongEssayAssessment\WriterAdmin\WriterAdminService;
+use ILIAS\UI\Component\Input\Container\Form\Form;
 use \ilUtil;
 
 /**
@@ -66,6 +70,7 @@ class CorrectorAdminGUI extends BaseGUI
                     case 'exportSteps':
                     case 'confirmRemoveAuthorizations':
                     case 'removeAuthorizations':
+					case 'editAssignmentsAsync':
 						$this->$cmd();
 						break;
 
@@ -430,6 +435,103 @@ class CorrectorAdminGUI extends BaseGUI
 			return (int) $query["corrector_id"];
 		}
 		return null;
+	}
+
+	protected function getWriterIds(): array
+	{
+		$ids = [];
+		$query_params = $this->request->getQueryParams();
+
+		if(isset($query_params["writer_id"]) && $query_params["writer_id"] !== ""){
+			$this->ctrl->saveParameter($this, "writer_id");
+			$ids[] = (int) $query_params["writer_id"];
+		}elseif (isset($query_params["writer_ids"])){
+			$this->ctrl->saveParameter($this, "writer_ids");
+			foreach(explode('/', $query_params["writer_ids"]) as $value){
+				$ids[] = (int) $value;
+			}
+		}
+		return $ids;
+	}
+
+	/**
+	 * @param array $writer_ids
+	 * @return BlankForm
+	 */
+	private function buildAssignmentForm(array $writer_ids): Form
+	{
+		$service = $this->localDI->getCorrectorAdminService($this->object->getId());
+		$factory = $this->uiFactory;
+		$custom_factory = $this->localDI->getUIFactory();
+		$corrector_repo = $this->localDI->getCorrectorRepo();
+		$corrector_list = [
+			CorrectorAdminService::BLANK_CORRECTOR_ASSIGNMENT => " - ",
+			CorrectorAdminService::UNCHANGED_CORRECTOR_ASSIGNMENT => $this->plugin->txt("unchanged")
+		];
+
+		$corrector_ids = [];
+
+		foreach($corrector_repo->getCorrectorsByTaskId($this->object->getId()) as $corrector){
+			$corrector_ids[$corrector->getId()] = $corrector->getUserId();
+		}
+		$names = \ilUserUtil::getNamePresentation(array_unique($corrector_ids), false, false, "", true);
+
+		foreach ($corrector_ids as $id => $user_id){
+			$corrector_list[$id] = $names[$user_id];
+		}
+
+		$fields = [];
+		$fields["first_corrector"] = $factory->input()->field()->select(
+			$this->plugin->txt("assignment_pos_first"), $corrector_list)
+			->withRequired(true)
+			->withValue(CorrectorAdminService::BLANK_CORRECTOR_ASSIGNMENT)
+			->withAdditionalTransformation($this->refinery->kindlyTo()->int());
+		$fields["second_corrector"] = $factory->input()->field()->select(
+			$this->plugin->txt("assignment_pos_second"), $corrector_list)
+			->withRequired(true)
+			->withValue(CorrectorAdminService::BLANK_CORRECTOR_ASSIGNMENT)
+
+			->withAdditionalTransformation($this->refinery->kindlyTo()->int());
+		return $custom_factory->field()->blankForm($this->ctrl->getFormAction($this, "editAssignmentsAsync"), $fields)
+			->withAdditionalTransformation($this->refinery->custom()->constraint(
+				function (array $var){
+					if($var["first_corrector"] === CorrectorAdminService::BLANK_CORRECTOR_ASSIGNMENT
+						&& $var["second_corrector"] === CorrectorAdminService::BLANK_CORRECTOR_ASSIGNMENT){
+						return true;
+					}
+					return $var["first_corrector"] != $var["second_corrector"];
+				}, $this->plugin->txt("same_assigned_corrector_error")))
+			->withAdditionalTransformation($this->refinery->custom()->constraint(
+				function (array $var) use ($service, $writer_ids){
+					$result = $service->assignMultipleCorrector($var["first_corrector"], $var["second_corrector"], $writer_ids, true);
+					return count($result['invalid']) === 0;
+				}, $this->plugin->txt("invalid_assignment_combinations_error")));
+	}
+
+
+	protected function editAssignmentsAsync(){
+		$writer_ids = $this->getWriterIds();
+		$form = $this->buildAssignmentForm($writer_ids);
+
+		if($this->request->getMethod() === "POST") {
+			$form = $form->withRequest($this->request);
+
+			if (($data = $form->getData()) !== null) {
+
+				$this->service->assignMultipleCorrector($data["first_corrector"], $data["second_corrector"], $writer_ids);
+				ilUtil::sendSuccess($this->lng->txt("settings_saved"), true);
+				exit();
+			}else{
+				echo($this->renderer->render($form));
+				exit();
+			}
+		}
+
+		echo($this->renderer->renderAsync($this->uiFactory->modal()->roundtrip(
+			$this->plugin->txt("change_corrector"), $form)
+			->withActionButtons([$this->uiFactory->button()->primary($this->lng->txt("submit"), "")->withOnClick($form->getSubmitAsyncSignal())])
+		));
+		exit();
 	}
 
 }

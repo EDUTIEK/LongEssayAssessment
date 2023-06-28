@@ -57,17 +57,12 @@ class SolutionSettingsGUI extends BaseGUI
 
 		if($this->request->getMethod() === "POST"){
 			$form = $form->withRequest($this->request);
-			$data = $form->getData();
-			$result = $form->getInputGroup()->getContent();
 
-			if ($result->isOK()) {
+			if (($data = $form->getData()) !== null) {
 				$this->updateSolutionSettings($data["form"], $taskSettings, $resource);
 
 				ilUtil::sendSuccess($this->lng->txt("settings_saved"), true);
 				$this->ctrl->redirect($this, "editSettings");
-			}else{
-				// TODO: Add or search lang var
-				ilUtil::sendFailure($this->lng->txt("validation_error"), true);
 			}
 		}
 		$this->tpl->setContent($this->renderer->render($form));

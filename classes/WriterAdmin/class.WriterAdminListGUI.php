@@ -424,12 +424,6 @@ class WriterAdminListGUI extends WriterListGUI
 		return $this->uiFactory->viewControl()->mode($actions, $aria_label)->withActive($this->plugin->txt("filter_writer_admin_list_" . $this->getFilter()));
 	}
 
-	public function setMultiCommandModal(Roundtrip $modal){
-		$this->multi_command_modal = $modal->withOnLoadCode(function ($id){
-			return "$(document).ready(function(){ $( '#{$id}' ).modal('show'); return false;});";
-		});
-	}
-
 	public function getMultiCommandModal():Modal{
 		if($this->multi_command_modal === null)
 			return $this->uiFactory->modal()->roundtrip("",[]);

@@ -58,7 +58,6 @@ class WriterAdminGUI extends BaseGUI
                     case 'exportSteps':
 					case 'editLocationMulti':
 					case 'editLocation':
-					case 'updateLocation':
 					case 'showEssay':
 					case 'editExtensionMulti':
 					case 'removeWriterMultiConfirmation':
@@ -74,7 +73,7 @@ class WriterAdminGUI extends BaseGUI
     /**
      * Show the items
      */
-    protected function showStartPage(Roundtrip $multi_modal = null)
+    protected function showStartPage()
     {
         $this->toolbar->setFormAction($this->ctrl->getFormAction($this));
 
@@ -108,10 +107,6 @@ class WriterAdminGUI extends BaseGUI
 		$list_gui->setExtensions($writer_repo->getTimeExtensionsByTaskId($this->object->getId()));
 		$list_gui->setEssays($essay_repo->getEssaysByTaskId($this->object->getId()));
 		$list_gui->setLocations($task_repo->getLocationsByTaskId($this->object->getId()));
-
-		if($multi_modal !== null){
-			$list_gui->setMultiCommandModal($multi_modal);
-		}
 
         $this->tpl->setContent($this->renderer->render($delete_writer_data_modal) . $list_gui->getContent());
      }
@@ -581,51 +576,50 @@ class WriterAdminGUI extends BaseGUI
 			$location_input = $location_input->withValue($value);
 		}
 		return $this->localDI->getUIFactory()->field()->blankForm(
-			$this->ctrl->getFormAction($this, "updateLocation"),
+			$this->ctrl->getFormAction($this, "editLocation"),
 			["location" => $location_input]
 		);
 	}
 
-	protected function updateLocation(){
-		$form = $this->buildLocationForm()->withRequest($this->request);
+	protected function updateLocation($data){
 
-		if($data = $form->getData()){
-			$essay_repo = $this->localDI->getEssayRepo();
-			$task_repo = $this->localDI->getTaskRepo();
-			$location = $task_repo->ifLocationExistsById((int)$data["location"]) ? (int)$data["location"] : null;
+		$essay_repo = $this->localDI->getEssayRepo();
+		$task_repo = $this->localDI->getTaskRepo();
+		$location = $task_repo->ifLocationExistsById((int)$data["location"]) ? (int)$data["location"] : null;
 
-			$essays = $this->getEssaysFromWriterIds();
+		$essays = $this->getEssaysFromWriterIds();
 
-			foreach($essays as $writer_id => $essay){
-				if($essay === null) {
-					$essay = Essay::model();
-					$essay->setTaskId($this->object->getId())
-						->setWriterId($writer_id)
-						->setUuid($essay->generateUUID4())
-						->setRawTextHash('');;
-				}
-				$essay_repo->save($essay->setLocation($location));
+		foreach($essays as $writer_id => $essay){
+			if($essay === null) {
+				$essay = Essay::model();
+				$essay->setTaskId($this->object->getId())
+					->setWriterId($writer_id)
+					->setUuid($essay->generateUUID4())
+					->setRawTextHash('');;
 			}
-
-			ilUtil::sendSuccess($this->plugin->txt("location_assigned"), true);
-			$this->ctrl->setParameter($this, "writer_id", "");
-			$this->ctrl->setParameter($this, "writer_ids", "");
-			$this->ctrl->redirect($this, "showStartPage");
-		}else
-		{
-			$this->showStartPage(
-				$this->uiFactory->modal()->roundtrip($this->plugin->txt("assign_location"), $form)->withActionButtons([
-					$this->uiFactory->button()->primary($this->lng->txt("submit"), "")->withOnClick($form->getSubmitSignal())
-				])
-			);
+			$essay_repo->save($essay->setLocation($location));
 		}
 	}
 
 	protected function editLocationMulti(){
 		$this->ctrl->saveParameter($this, "writer_ids");
 		$form = $this->buildLocationForm();
+
+		if($this->request->getMethod() === "POST") {
+			$form = $form->withRequest($this->request);
+
+			if($data = $form->getData()){
+				$this->updateLocation($data);
+				ilUtil::sendSuccess($this->plugin->txt("location_assigned"), true);
+				exit();
+			}else{
+				echo($this->renderer->render($form));
+				exit();
+			}
+		}
+
 		$modal = $this->uiFactory->modal()->roundtrip($this->plugin->txt("assign_location"), $form)->withActionButtons([
-			$this->uiFactory->button()->primary($this->lng->txt("submit"), "")->withOnClick($form->getSubmitSignal())
+			$this->uiFactory->button()->primary($this->lng->txt("submit"), "")->withOnClick($form->getSubmitAsyncSignal())
 		]);
 		echo($this->renderer->renderAsync($modal));
 		exit();
@@ -637,8 +631,22 @@ class WriterAdminGUI extends BaseGUI
 		$value = count($essays) > 0 && ($essay =  array_pop($essays)) !== null? $essay->getLocation() : null;
 		$this->ctrl->saveParameter($this, "writer_id");
 		$form = $this->buildLocationForm($value);
+
+		if($this->request->getMethod() === "POST") {
+			$form = $form->withRequest($this->request);
+
+			if($data = $form->getData()){
+				$this->updateLocation($data);
+				ilUtil::sendSuccess($this->plugin->txt("location_assigned"), true);
+				exit();
+			}else{
+				echo($this->renderer->render($form));
+				exit();
+			}
+		}
+
 		$modal = $this->uiFactory->modal()->roundtrip($this->plugin->txt("change_location"), $form)->withActionButtons([
-			$this->uiFactory->button()->primary($this->lng->txt("submit"), "")->withOnClick($form->getSubmitSignal())
+			$this->uiFactory->button()->primary($this->lng->txt("submit"), "")->withOnClick($form->getSubmitAsyncSignal())
 		]);
 		echo($this->renderer->renderAsync($modal));
 		exit();

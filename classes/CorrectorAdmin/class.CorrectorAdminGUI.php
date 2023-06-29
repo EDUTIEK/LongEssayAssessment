@@ -4,16 +4,14 @@
 namespace ILIAS\Plugin\LongEssayAssessment\CorrectorAdmin;
 
 use Edutiek\LongEssayAssessmentService\Corrector\Service;
-use Edutiek\LongEssayAssessmentService\Data\Corrector;
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\Corrector\CorrectorContext;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\CorrectionSettings;
-use ILIAS\Plugin\LongEssayAssessment\Data\Corrector\CorrectorAssignment;
+use ILIAS\Plugin\LongEssayAssessment\Data\Writer\Writer;
 use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
 use ILIAS\Plugin\LongEssayAssessment\UI\Component\BlankForm;
 use ILIAS\Plugin\LongEssayAssessment\WriterAdmin\CorrectorAdminListGUI;
 use ILIAS\Plugin\LongEssayAssessment\WriterAdmin\CorrectorListGUI;
-use ILIAS\Plugin\LongEssayAssessment\WriterAdmin\WriterAdminService;
 use ILIAS\UI\Component\Input\Container\Form\Form;
 use \ilUtil;
 
@@ -68,9 +66,9 @@ class CorrectorAdminGUI extends BaseGUI
                     case 'viewCorrections':
                     case 'stitchDecision':
                     case 'exportSteps':
-                    case 'confirmRemoveAuthorizations':
                     case 'removeAuthorizations':
 					case 'editAssignmentsAsync':
+					case 'confirmRemoveAuthorizationsAsync':
 						$this->$cmd();
 						break;
 
@@ -327,64 +325,37 @@ class CorrectorAdminGUI extends BaseGUI
         $service->openFrontend();
     }
 
-	protected function changeCorrector() {
-		if ($this->request->getMethod() == "POST") {
-			$data = $_POST;
-
-			// inputs are ok => save data
-			if (array_key_exists("corrector", $data) && count($data["corrector"]) > 0 && array_key_exists("writer_id", $_GET)) {
-				$writer_id = $_GET["writer_id"];
-				$corr_repo = LongEssayAssessmentDI::getInstance()->getCorrectorRepo();
-				$corr_repo->deleteCorrectorAssignmentByWriter(intval($writer_id));
-				$pos = 0;
-				foreach ($data["corrector"] as $corr_id){
-					if($corr_id !== "" && $corr_id !== "-1"){
-						$assignment = new CorrectorAssignment();
-						$assignment->setWriterId(intval($writer_id));
-						$assignment->setCorrectorId(intval($corr_id));
-						$assignment->setPosition($pos);
-						$corr_repo->save($assignment);
-					}
-					$pos++;
-				}
-				ilUtil::sendSuccess($this->plugin->txt("corrector_assignment_changed"), true);
-				$anchor = "writer_" . $writer_id;
-			} else {
-				ilUtil::sendFailure($this->lng->txt("validation_error"), true);
-			}
-			$this->ctrl->redirect($this, "showStartPage", $anchor ?? "");
-		}
-	}
-
-    protected function confirmRemoveAuthorizations()
-    {
-        if (empty($writer_id = $this->getWriterId()) || empty($writer = $this->localDI->getWriterRepo()->getWriterById($writer_id))) {
-            $this->ctrl->redirect($this);
-        }
-        $name = \ilObjUser::_lookupFullname($writer->getUserId()) . ' [' . $writer->getPseudonym() . ']';
-
-        $cancel = $this->uiFactory->button()->standard($this->lng->txt('cancel'), $this->ctrl->getLinkTarget($this));
-        $this->ctrl->setParameter($this, 'writer_id', $writer_id);
-        $ok = $this->uiFactory->button()->standard($this->lng->txt('ok'), $this->ctrl->getLinkTarget($this, 'removeAuthorizations'));
-
-        $this->tpl->setContent($this->renderer->render($this->uiFactory->messageBox()->confirmation(
-            sprintf($this->plugin->txt('confirm_remove_authorizations_for'), $name))->withButtons([$ok, $cancel])));
-    }
-
-
     protected function removeAuthorizations()
     {
-        if (empty($writer_id = $this->getWriterId()) || empty($writer = $this->localDI->getWriterRepo()->getWriterById($writer_id))) {
-            $this->ctrl->redirect($this);
-        }
-        $name = \ilObjUser::_lookupFullname($writer->getUserId()) . ' [' . $writer->getPseudonym() . ']';
+		$writer_ids = $this->getWriterIds();
+		$valid = [];
+		$invalid = [];
 
-        if ($this->service->removeAuthorizations($writer)) {
-            ilutil::sendSuccess(sprintf($this->plugin->txt('remove_authorizations_for_done'), $name), true);
-        }
-        else {
-            ilutil::sendFailure(sprintf($this->plugin->txt('remove_authorizations_for_failed'), $name), true);
-        }
+		foreach($writer_ids as $writer_id){
+			if(($writer = $this->localDI->getWriterRepo()->getWriterById($writer_id)) !== null) {
+				if ($this->service->removeAuthorizations($writer)) {
+					$valid[] = $writer;
+				} else {
+					$invalid[] = $writer;
+				}
+			}
+		}
+		if(count($invalid) > 0){
+			$names = [];
+			foreach ($invalid as $writer){
+				$names[] = \ilObjUser::_lookupFullname($writer->getUserId()) . ' [' . $writer->getPseudonym() . ']';
+			}
+			ilutil::sendFailure(sprintf($this->plugin->txt('remove_authorizations_for_failed'), implode(", ", $names)), true);
+		}
+		if(count($valid) > 0){
+			$names = [];
+			foreach ($valid as $writer){
+				$names[] = \ilObjUser::_lookupFullname($writer->getUserId()) . ' [' . $writer->getPseudonym() . ']';
+			}
+			ilutil::sendSuccess(sprintf($this->plugin->txt('remove_authorizations_for_done'), implode(", ", $names)), true);
+		}
+
+		$this->ctrl->clearParameters($this);
         $this->ctrl->redirect($this);
     }
 
@@ -519,7 +490,7 @@ class CorrectorAdminGUI extends BaseGUI
 			if (($data = $form->getData()) !== null) {
 
 				$this->service->assignMultipleCorrector($data["first_corrector"], $data["second_corrector"], $writer_ids);
-				ilUtil::sendSuccess($this->lng->txt("settings_saved"), true);
+				ilUtil::sendSuccess($this->lng->txt("corrector_assignment_changed"), true);
 				exit();
 			}else{
 				echo($this->renderer->render($form));
@@ -534,4 +505,45 @@ class CorrectorAdminGUI extends BaseGUI
 		exit();
 	}
 
+	protected function confirmRemoveAuthorizationsAsync()
+	{
+		$writer_ids = $this->getWriterIds();
+		$writers = $this->localDI->getWriterRepo()->getWritersByTaskId($this->object->getId());
+		$essays = [];
+		foreach($this->localDI->getEssayRepo()->getEssaysByTaskId($this->object->getId()) as $essay){
+			$essays[$essay->getWriterId()] = $essay;
+		}
+
+		$user_data = \ilUserUtil::getNamePresentation(array_unique(array_map(fn(Writer $x) => $x->getUserId(), $writers)), true, true, "", true);
+
+		$items = [];
+
+		foreach ($writer_ids as $writer_id){
+			$essay = $essays[$writer_id] ?? null;
+			if ((!empty($essay->getCorrectionFinalized())
+				|| !empty($this->localDI->getCorrectorAdminService($essay->getTaskId())->getAuthorizedSummaries($essay)))
+				&& array_key_exists($writer_id, $writers))
+			{
+				$writer = $writers[$writer_id];
+				$items[] = $this->uiFactory->modal()->interruptiveItem(
+					$writer->getId(), $user_data[$writer->getUserId()] . ' [' . $writer->getPseudonym() . ']'
+				);
+			}
+		}
+
+		if(count($items) > 0){
+			$confirm_modal = $this->uiFactory->modal()->interruptive(
+				$this->plugin->txt("remove_authorizations"),
+				$this->plugin->txt("remove_authorizations_confirmation"),
+				$this->ctrl->getFormAction($this, "removeAuthorizations")
+			)->withAffectedItems($items)->withActionButtonLabel("ok");
+		}else{
+			$confirm_modal = $this->uiFactory->modal()->roundtrip($this->plugin->txt("remove_authorizations"),
+				$this->uiFactory->messageBox()->failure($this->plugin->txt("remove_authorizations_no_valid_essays")))
+				->withCancelButtonLabel("ok");
+		}
+
+		echo($this->renderer->renderAsync($confirm_modal));
+		exit();
+	}
 }

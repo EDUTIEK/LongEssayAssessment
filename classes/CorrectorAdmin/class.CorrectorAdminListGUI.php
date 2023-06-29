@@ -55,8 +55,6 @@ class CorrectorAdminListGUI extends WriterListGUI
 			}
             $count_filtered++;
 
-			$change_corrector_modal = $this->buildFormModalCorrectorAssignment($writer);
-			$modals[] = $change_corrector_modal;
 			$actions = [];
 			$actions[] = $this->uiFactory->button()->shy($this->plugin->txt('view_correction'), $this->getViewCorrectionAction($writer));
             if ($this->hasCorrectionStatusStitchDecided($writer)) {
@@ -68,6 +66,10 @@ class CorrectorAdminListGUI extends WriterListGUI
                 $actions[] = $this->uiFactory->button()->shy($this->plugin->txt('view_stitch_comment'), '')->withOnClick($sight_modal->getShowSignal());
             }
 
+			$change_corrector_modal = $this->uiFactory->modal()->roundtrip("",[])
+				->withAsyncRenderUrl($this->getChangeCorrectorAction($writer));
+
+			$modals[] = $change_corrector_modal;
 			$actions[] = $this->uiFactory->button()->shy($this->plugin->txt('change_corrector'), "")
 				->withOnClick($change_corrector_modal->getShowSignal());
 
@@ -94,8 +96,17 @@ class CorrectorAdminListGUI extends WriterListGUI
                 if (!empty($essay->getCorrectionFinalized())
                     || !empty($this->localDI->getCorrectorAdminService($essay->getTaskId())->getAuthorizedSummaries($essay))
                 ) {
-                    $actions[] = $this->uiFactory->button()->shy($this->plugin->txt('remove_authorizations'), $this->getRemoveAuthorisationsAction($writer));
-                }
+					$modals[] = $confirm_remove_auth_modal = $this->uiFactory->modal()->interruptive(
+						$this->plugin->txt("remove_authorizations"),
+						$this->plugin->txt("remove_authorizations_confirmation"),
+						$this->getRemoveAuthorisationsAction($writer)
+					)->withAffectedItems([ $this->uiFactory->modal()->interruptiveItem(
+						$writer->getId(), $this->getWriterName($writer) . ' [' . $writer->getPseudonym() . ']'
+					)])->withActionButtonLabel("ok");
+
+                    $actions[] = $this->uiFactory->button()->shy($this->plugin->txt('remove_authorizations'), "")
+						->withOnClick($confirm_remove_auth_modal->getShowSignal());
+				}
 
                 $actions[] = $this->uiFactory->button()->shy($this->plugin->txt('export_steps'), $this->getExportStepsTarget($writer));
                 $properties[$this->plugin->txt("final_grade")] = $this->localDI->getDataService($writer->getTaskId())->formatFinalResult($essay);
@@ -128,6 +139,20 @@ class CorrectorAdminListGUI extends WriterListGUI
 			$assign_callback_signal
 		);
 
+		$remove_auth_callback_signal = $resources->generateDSCallbackSignal();
+
+		$modals[] = $resources->addDSModalTriggerToModal(
+			$this->uiFactory->modal()->interruptive("", "", ""),
+			$this->ctrl->getFormAction($this->parent, "confirmRemoveAuthorizationsAsync", "", true),
+			"writer_ids",
+			$remove_auth_callback_signal
+		);
+
+		$form_actions[] = $resources->addDSModalTriggerToButton(
+			$this->uiFactory->button()->shy($this->plugin->txt("remove_authorizations"), "#"),
+			$remove_auth_callback_signal
+		);
+
 
 		return $this->renderer->render($this->filterControl()) . '<br><br>' .
 			$this->renderer->render(array_merge([$resources->withActions($this->uiFactory->dropdown()->standard($form_actions))], $modals));
@@ -158,7 +183,7 @@ class CorrectorAdminListGUI extends WriterListGUI
 	private function getChangeCorrectorAction(Writer $writer): string
 	{
 		$this->ctrl->setParameter($this->parent, "writer_id", $writer->getId());
-		return $this->ctrl->getLinkTarget($this->parent, "changeCorrector");
+		return $this->ctrl->getLinkTarget($this->parent, "editAssignmentsAsync");
 	}
 
 	private function hasCorrectionStatusStitch($writer): bool
@@ -185,7 +210,7 @@ class CorrectorAdminListGUI extends WriterListGUI
     private function getRemoveAuthorisationsAction(Writer $writer): string
     {
         $this->ctrl->setParameter($this->parent, "writer_id", $writer->getId());
-        return $this->ctrl->getLinkTarget($this->parent, "confirmRemoveAuthorizations");
+        return $this->ctrl->getLinkTarget($this->parent, "removeAuthorizations");
     }
 
     private function essayStatus(Writer $writer)
@@ -223,73 +248,6 @@ class CorrectorAdminListGUI extends WriterListGUI
 		}
 
 		return $this->plugin->txt("writing_not_started");
-	}
-
-
-	private function buildFormModalCorrectorAssignment(Writer $writer): \ILIAS\UI\Component\Modal\RoundTrip
-	{
-		$form = new \ilPropertyFormGUI();
-		$form->setId(uniqid('form'));
-
-		$options = [-1 => ""];
-
-		foreach($this->correctors as $corrector){
-			$options[$corrector->getId()] = $this->getUsername($corrector->getUserId(), true);
-		}
-
-		if($this->correction_settings->getRequiredCorrectors() > 0){
-			$cc = $this->correction_settings->getRequiredCorrectors();
-		}else{
-			$cc = 3;
-		}
-
-		for($i = 0; $i <  $cc; $i++){
-			switch($i){
-				case 0: $pos = $this->plugin->txt("assignment_pos_first");break;
-				case 1: $pos = $this->plugin->txt("assignment_pos_second");break;
-				default: $pos = $this->plugin->txt("assignment_pos_other");break;
-			}
-			$val = -1;
-			if(($ass = $this->getAssignmentByWriterPosition($writer, $i)) !== null){
-				$val = $ass->getCorrectorId();
-			}
-
-			$item = new \ilSelectInputGUI($pos, 'corrector[]');
-			$item->setOptions($options);
-			$item->setValue($val);
-			$form->addItem($item);
-		}
-
-		$form->setFormAction($this->getChangeCorrectorAction($writer));
-
-		$item = new \ilHiddenInputGUI('cmd');
-		$item->setValue('submit');
-		$form->addItem($item);
-
-		return $this->buildFormModal($this->plugin->txt("change_corrector"), $form);
-	}
-
-
-	private function buildFormModal(string $title, \ilPropertyFormGUI $form): \ILIAS\UI\Component\Modal\RoundTrip
-	{
-		global $DIC;
-		$factory = $DIC->ui()->factory();
-		$renderer = $DIC->ui()->renderer();
-
-		// Build the form
-		$item = new \ilHiddenInputGUI('cmd');
-		$item->setValue('submit');
-		$form->addItem($item);
-
-		// Build a submit button (action button) for the modal footer
-		$form_id = 'form_' . $form->getId();
-		$submit = $factory->button()->primary('Submit', '#')
-			->withOnLoadCode(function ($id) use ($form_id) {
-				return "$('#{$id}').click(function() { $('#{$form_id}').submit(); return false; });";
-			});
-
-		return $factory->modal()->roundtrip($title, $factory->legacy($form->getHTML()))
-			->withActionButtons([$submit]);
 	}
 
 	/**

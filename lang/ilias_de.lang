@@ -396,3 +396,5 @@ missing_file#:#Die Datei muss hochgeladen werden."
 unchanged#:#nicht Ändern
 same_assigned_corrector_error#:#Erstkorrektor/in und Zweitkorrektor/in können nicht gleich sein.
 invalid_assignment_combinations_error#:#Diese Zuweisung führt in einigen Fällen zu unerlaubten Kombinationen.
+remove_authorizations_confirmation#:#Möchten Sie die Autorisierung für die Korrektur(en) folgende Teilnehmer zurücknehmen? Diese Aktion wird protokolliert.
+remove_authorizations_no_valid_essays#:#In der Auswahl gab es keine Korrektur(en), die zurückgenommen werden können.

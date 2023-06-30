@@ -123,7 +123,7 @@ class SolutionSettingsGUI extends BaseGUI
 			->withAdditionalTransformation($ui_service->stringTransformationByRTETagSet());
 
 		$fields['resource_file'] = $factory->file(new ResourceUploadHandlerGUI($this->dic->resourceStorage(),
-			$this->localDI->getTaskRepo()), $this->lng->txt("file"),
+			$this->localDI->getTaskRepo()), "",
 			$this->plugin->txt("task_solution_file_info") . "<br>" . $ui_service->getMaxFileSizeString())
 			->withAcceptedMimeTypes(['application/pdf'])
 			->withValue($resource !== null && $resource->getFileId() !== null ? [$resource->getFileId()] : null);

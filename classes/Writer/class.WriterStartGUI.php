@@ -64,7 +64,12 @@ class WriterStartGUI extends BaseGUI
                 ilUtil::sendInfo($this->plugin->txt('message_writing_excluded'));
             }
             elseif (!empty($essay->getWritingAuthorized())) {
-                $message = $this->plugin->txt('message_writing_authorized');
+                if(!empty($this->task->getClosingMessage())){
+					$message = $this->task->getClosingMessage();
+				}else{
+					$message = $this->plugin->txt('message_writing_authorized');
+				}
+
                 $review_message = '';
                 $back_link = '';
                 if (!empty($this->task->getReviewStart()) || !empty($this->task->getReviewEnd())) {

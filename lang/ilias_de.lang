@@ -391,7 +391,7 @@ closing_message#:#Abschlussmeldung
 closing_message_info#:#Die Abschlussmeldung wird dem Teilnehmer nach der Abgabe im Klausuren-Reiter angezeigt.
 solution_is_not_available#:#Die Lösungshinweise werden aktuell nicht angezeigt. Sie können unter „Organisation ► Lösungshinweise verfügbar“ aktiviert werden.
 task_instructions_file_info#:#Die Aufgabenstellung kann auch als PDF-Datei hochgeladen werden. Sie wird wie der Text mit Start der Bearbeitung angezeigt.
-task_solution_file_info#:#Die Lösungshinweise kann auch als PDF-Datei hochgeladen werden. Sie werden erst ab einem festgelegten Zeitpunkt angezeigt.
+task_solution_file_info#:#Die Lösungshinweise können auch als PDF-Datei hochgeladen werden. Sie werden erst ab einem festgelegten Zeitpunkt angezeigt.
 missing_file#:#Die Datei muss hochgeladen werden."
 unchanged#:#nicht Ändern
 same_assigned_corrector_error#:#Erstkorrektor/in und Zweitkorrektor/in können nicht gleich sein.

@@ -649,29 +649,52 @@ class CorrectorAdminService extends BaseService
 	const BLANK_CORRECTOR_ASSIGNMENT = -1;
 	const UNCHANGED_CORRECTOR_ASSIGNMENT = -2;
 
+	/**
+	 * Reassigns a couple of correctors to multiple writer
+	 * - first and second corrector cannot be the same -> invalid
+	 * - already authorized corrections are not changed -> unchanged
+	 * - if both assignments are untouched -> unchanged
+	 * - if one assignment changes -> changed
+	 * - existing correction summaries and comments are moved to the new corrector -> changed
+	 * - if the assignment of an existing correction is removed the summaries and comments are removed too!
+	 * - criterion points are removed if an existing correction is changed or removed because they can be individual
+	 *   and not reused by the new assigned corrector
+	 *
+	 * @param int $first_corrector
+	 * @param int $second_corrector
+	 * @param int[] $writer_ids
+	 * @param bool $dry_run
+	 * @return array[]
+	 */
 	public function assignMultipleCorrector(int $first_corrector,
 											int $second_corrector,
 											array $writer_ids,
-											$dry_run = false,
-											array $assignments=null): array
+											$dry_run = false): array
 	{
-		if($assignments === null){
-			$assignments = [];
-			foreach($this->correctorRepo->getAssignmentsByTaskId($this->task_id) as $assignment){
-				$assignments[$assignment->getWriterId()][$assignment->getPosition()] = $assignment;
-			}
+		$assignments = [];
+		foreach($this->correctorRepo->getAssignmentsByTaskId($this->task_id) as $assignment){
+			$assignments[$assignment->getWriterId()][$assignment->getPosition()] = $assignment;
 		}
+		$summaries = $this->essayRepo->getCorrectorSummariesByTaskIdAndWriterIds($this->task_id, $writer_ids);
 
 		$result = ["changed" => [], "unchanged" => [], "invalid" => []];
-
-		// Dry run everything to check if configuration is valid
 
 		foreach ($writer_ids as $writer_id){
 			$first_assignment = $assignments[$writer_id][0] ?? null;
 			$second_assignment = $assignments[$writer_id][1] ?? null;
+			$old_first_corrector = $first_assignment !== null
+				? $first_assignment->getCorrectorId()
+				: null;
+			$old_second_corrector = $second_assignment !== null ?
+				$second_assignment->getCorrectorId() : null;
 
-			$first_unchanged = $this->assign($writer_id, $first_corrector, $first_assignment, 0); // assignment is changed by reference
-			$second_unchanged = $this->assign($writer_id, $second_corrector, $second_assignment, 1); // assignment is changed by reference
+			$first_summary =  $first_assignment !== null ?
+				($summaries[$writer_id][$first_assignment->getCorrectorId()] ?? null) : null;
+			$second_summary = $second_assignment !== null ?
+				($summaries[$writer_id][$second_assignment->getCorrectorId()] ?? null) : null;
+
+			$first_unchanged = $this->assign($writer_id, $first_corrector, $first_assignment, $first_summary, 0); // assignment is changed by reference
+			$second_unchanged = $this->assign($writer_id, $second_corrector, $second_assignment, $second_summary, 1); // assignment is changed by reference
 
 			// Do nothing if both are unchanged
 			if($first_unchanged && $second_unchanged){
@@ -679,13 +702,35 @@ class CorrectorAdminService extends BaseService
 			}elseif($first_assignment !== null
 				&& $second_assignment !== null
 				&& $first_assignment->getCorrectorId() == $second_assignment->getCorrectorId()
-			){// Do not proceed if first and second position is the same
+			) {// Do not proceed if first and second position is the same
 				$result["invalid"][] = $writer_id;
-
 			}else{
 
 				$result["changed"][] = $writer_id;
-				if(!$dry_run){// Stop here if its a dry run
+				if(!$dry_run){// Stop here if it's a dry run
+
+					if($old_first_corrector !== null && $first_assignment !== null && $first_summary !== null){
+						// Move all comments and summaries of first correction to new corrector if they changed,
+						// criterium points are individual and are removed
+						$this->moveCorrection($old_first_corrector, $first_assignment->getCorrectorId(), $first_summary->getEssayId());
+					}
+
+					if($old_second_corrector !== null && $second_assignment !== null && $second_summary !== null){
+						// Move all comments and summaries of second correction to new corrector if they changed,
+						// criterium points are individual and are removed
+						$this->moveCorrection($old_second_corrector,
+							$second_assignment->getCorrectorId(), $second_summary->getEssayId());
+					}
+
+					if($first_assignment === null && $old_first_corrector !== null && $first_summary !== null){
+						// if the first assignment is removed, also its comments and summary are removed
+						$this->deleteCorrection($old_first_corrector, $first_summary->getEssayId());
+					}
+
+					if($second_assignment === null && $old_second_corrector !== null  && $second_summary !== null){
+						// if the second assignment is removed, also its comments and summary are removed
+						$this->deleteCorrection($old_second_corrector, $second_summary->getEssayId());
+					}
 
 					// If something changed remove old assignments
 					$this->correctorRepo->deleteCorrectorAssignmentByWriter($writer_id);
@@ -704,9 +749,24 @@ class CorrectorAdminService extends BaseService
 		return $result;
 	}
 
-	private function assign(int $writer_id, int $corrector, ?CorrectorAssignment &$assignment, int $position) : bool
+	private function moveCorrection(int $from_corrector, int $to_corrector, int $essay_id){
+		if($from_corrector === $to_corrector)
+			return;//Prevent removal of criterion points and useless queries if nothing has changed
+		$this->essayRepo->moveCorrectorSummaries($from_corrector, $to_corrector, $essay_id);
+		$this->essayRepo->deleteCriterionPointsByCorrectorIdAndEssayId($from_corrector, $essay_id);
+		$this->essayRepo->moveCorrectorComments($from_corrector, $to_corrector, $essay_id);
+	}
+
+	private function deleteCorrection(int $corrector, int $essay_id){
+		$this->essayRepo->deleteCorrectorSummaryByCorrectorIdAndEssayId($corrector, $essay_id);
+		$this->essayRepo->deleteCorrectorCommentByCorrectorIdAndEssayId($corrector, $essay_id);
+	}
+
+	private function assign(int $writer_id, int $corrector, ?CorrectorAssignment &$assignment, ?CorrectorSummary $summary, int $position) : bool
 	{
 		$unchanged = true;
+		$authorized = isset($summary) && $summary->getCorrectionAuthorized() !== null;
+
 		if( $corrector > -1) {// corrector is real and not removed or keep unchanged
 			if ($assignment == null) { // if assignment is missing create a new
 				$assignment = CorrectorAssignment::model()
@@ -715,12 +775,12 @@ class CorrectorAdminService extends BaseService
 					->setPosition($position);
 				$unchanged = false;
 			}
-			if ($assignment->getCorrectorId() != $corrector) { // if corrector is changed assign new
+			if ($assignment->getCorrectorId() != $corrector && !$authorized) { // if corrector is changed assign new
 				$assignment->setCorrectorId($corrector);
 				$unchanged = false;
 			}
 		}
-		if($corrector == self::BLANK_CORRECTOR_ASSIGNMENT){// corrector assignment is actively removed
+		if($corrector == self::BLANK_CORRECTOR_ASSIGNMENT && !$authorized){// corrector assignment is actively removed
 			$assignment = null;
 			$unchanged = false;
 		}

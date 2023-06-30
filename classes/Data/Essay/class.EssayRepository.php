@@ -344,5 +344,81 @@ class EssayRepository extends RecordRepo
 		$query = "SELECT * FROM xlas_writer_history WHERE " . $this->db->in("id", $ids, false, "integer");
 		return $this->queryRecords($query, WriterHistory::model());
 	}
+
+	/**
+	 * @param int $from_corrector
+	 * @param int $to_corrector
+	 * @param int $essay_id
+	 * @return void
+	 */
+	public function moveCorrectorSummaries(int $from_corrector, int $to_corrector, int $essay_id)
+	{
+		$this->db->update(CorrectorSummary::tableName(),
+			["corrector_id" => ['integer', $to_corrector]],
+			["corrector_id" => ['integer', $from_corrector], "essay_id" => ['integer', $essay_id]]);
+	}
+
+	public function moveCorrectorComments(int $from_corrector, int $to_corrector, int $essay_id)
+	{
+		$this->db->update(CorrectorComment::tableName(),
+			["corrector_id" => ['integer', $to_corrector]],
+			["corrector_id" => ['integer', $from_corrector], "essay_id" => ['integer', $essay_id]]);
+	}
+
+	/**
+	 * @param int $writer_ids
+	 * @return CorrectorSummary[][]|null
+	 */
+	public function getCorrectorSummariesByTaskIdAndWriterIds(int $task_id, array $writer_ids): array
+	{
+		$query = "SELECT summary.*, essay.writer_id as writer_id FROM " . CorrectorSummary::tableName() . " as summary " .
+			" LEFT JOIN " . Essay::tableName() . " as essay ON (summary.essay_id = essay.id) " .
+		" WHERE " . $this->db->in("essay.writer_id", $writer_ids, false, "integer") .
+		" AND essay.task_id = " . $this->db->quote($task_id, "integer");
+
+		$modified_model = new class () extends CorrectorSummary{
+			public int $writer_id;
+			public static function tableOtherTypes() : array
+			{
+				$other_types = parent::tableOtherTypes();
+				$other_types["writer_id"] = "integer";
+				return $other_types;
+			}
+			public static function model() {
+				return new self();
+			}
+		};
+
+		$summaries = [];
+		/** @var CorrectorSummary $summary*/
+		foreach($this->queryRecords($query, $modified_model::model()) as $summary){
+			$summaries[$summary->writer_id][$summary->getCorrectorId()] = $summary;
+		}
+		return $summaries;
+	}
+
+	public function deleteCorrectorSummaryByCorrectorIdAndEssayId(int $a_corrector_id, int $a_essay_id)
+	{
+		$this->db->manipulate("DELETE FROM xlas_corrector_summary" .
+			" WHERE corrector_id = " . $this->db->quote($a_corrector_id, "integer")) .
+		    " AND essay_id = " . $this->db->quote($a_essay_id, "integer");
+	}
+
+	public function deleteCorrectorCommentByCorrectorIdAndEssayId(int $a_corrector_id, int $a_essay_id)
+	{
+		$this->db->manipulate("DELETE FROM xlas_corrector_comment" .
+			" WHERE corrector_id = " . $this->db->quote($a_corrector_id, "integer")).
+		" AND essay_id = " . $this->db->quote($a_essay_id, "integer");
+
+		$this->deleteCriterionPointsByCorrectorIdAndEssayId($a_corrector_id, $a_essay_id);
+	}
+
+	public function deleteCriterionPointsByCorrectorIdAndEssayId(int $a_corrector_id, int $a_essay_id){
+
+		$this->db->manipulate("DELETE cp FROM xlas_crit_points AS cp"
+			. " LEFT JOIN xlas_corrector_comment AS cc ON (cp.corr_comment_id = cc.id)"
+			. " WHERE cc.corrector_id = " . $this->db->quote($a_corrector_id, "integer"))
+		. " AND cc.essay_id = " . $this->db->quote($a_essay_id, "integer");
+	}
 }
 

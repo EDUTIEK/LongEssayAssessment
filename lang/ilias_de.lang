@@ -398,3 +398,4 @@ same_assigned_corrector_error#:#Erstkorrektor/in und Zweitkorrektor/in können n
 invalid_assignment_combinations_error#:#Diese Zuweisung führt in einigen Fällen zu unerlaubten Kombinationen.
 remove_authorizations_confirmation#:#Möchten Sie die Autorisierung für die Korrektur(en) folgende Teilnehmer zurücknehmen? Diese Aktion wird protokolliert.
 remove_authorizations_no_valid_essays#:#In der Auswahl gab es keine Korrektur(en), die zurückgenommen werden können.
+change_corrector_info#:#Bitte beachten Sie folgendes, wenn es bereits Korrekturen gibt: <ul><li>Korrekturen werden auf neuen Korrektor übretragen</li><li>Korrektoren von bereits autorisierten Korrekturen können nicht geändert werden</li><li>An Bewertungskriterien vergebene Punkte werden beim übertragen entfernt</li><li>Korrekturen entfernter Korrektoren werden ebenfalls permanent entfernt</li></ul>

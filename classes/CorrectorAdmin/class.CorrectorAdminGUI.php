@@ -436,8 +436,8 @@ class CorrectorAdminGUI extends BaseGUI
 		$custom_factory = $this->localDI->getUIFactory();
 		$corrector_repo = $this->localDI->getCorrectorRepo();
 		$corrector_list = [
-			CorrectorAdminService::BLANK_CORRECTOR_ASSIGNMENT => " - ",
-			CorrectorAdminService::UNCHANGED_CORRECTOR_ASSIGNMENT => $this->plugin->txt("unchanged")
+			CorrectorAdminService::UNCHANGED_CORRECTOR_ASSIGNMENT => $this->plugin->txt("unchanged"),
+			CorrectorAdminService::BLANK_CORRECTOR_ASSIGNMENT => $this->lng->txt("remove")
 		];
 
 		$corrector_ids = [];
@@ -455,14 +455,32 @@ class CorrectorAdminGUI extends BaseGUI
 		$fields["first_corrector"] = $factory->input()->field()->select(
 			$this->plugin->txt("assignment_pos_first"), $corrector_list)
 			->withRequired(true)
-			->withValue(CorrectorAdminService::BLANK_CORRECTOR_ASSIGNMENT)
+			->withValue(CorrectorAdminService::UNCHANGED_CORRECTOR_ASSIGNMENT)
 			->withAdditionalTransformation($this->refinery->kindlyTo()->int());
 		$fields["second_corrector"] = $factory->input()->field()->select(
 			$this->plugin->txt("assignment_pos_second"), $corrector_list)
 			->withRequired(true)
-			->withValue(CorrectorAdminService::BLANK_CORRECTOR_ASSIGNMENT)
-
+			->withValue(CorrectorAdminService::UNCHANGED_CORRECTOR_ASSIGNMENT)
 			->withAdditionalTransformation($this->refinery->kindlyTo()->int());
+
+		if(count($writer_ids) == 1){ // Pre set the assigned correctors if its just one corrector
+			$assignments = [];
+			foreach($this->localDI->getCorrectorRepo()->getAssignmentsByWriterId($writer_ids[0]) as $assignment){
+				$assignments[$assignment->getPosition()] = $assignment;
+			}
+
+			$fields["first_corrector"] = $fields["first_corrector"]->withValue(
+				isset($assignments[0]) ?
+					$assignments[0]->getCorrectorId() :
+					CorrectorAdminService::UNCHANGED_CORRECTOR_ASSIGNMENT
+			);
+
+			$fields["second_corrector"] = $fields["second_corrector"]->withValue(isset($assignments[1]) ?
+				$assignments[1]->getCorrectorId() :
+				CorrectorAdminService::UNCHANGED_CORRECTOR_ASSIGNMENT
+			);
+		}
+
 		return $custom_factory->field()->blankForm($this->ctrl->getFormAction($this, "editAssignmentsAsync"), $fields)
 			->withAdditionalTransformation($this->refinery->custom()->constraint(
 				function (array $var){
@@ -490,16 +508,16 @@ class CorrectorAdminGUI extends BaseGUI
 			if (($data = $form->getData()) !== null) {
 
 				$this->service->assignMultipleCorrector($data["first_corrector"], $data["second_corrector"], $writer_ids);
-				ilUtil::sendSuccess($this->lng->txt("corrector_assignment_changed"), true);
+				ilUtil::sendSuccess($this->plugin->txt("corrector_assignment_changed"), true);
 				exit();
 			}else{
 				echo($this->renderer->render($form));
 				exit();
 			}
 		}
-
+		$message_box = $this->uiFactory->messageBox()->info($this->plugin->txt("change_corrector_info"));
 		echo($this->renderer->renderAsync($this->uiFactory->modal()->roundtrip(
-			$this->plugin->txt("change_corrector"), $form)
+			$this->plugin->txt("change_corrector"), [$message_box, $form])
 			->withActionButtons([$this->uiFactory->button()->primary($this->lng->txt("submit"), "")->withOnClick($form->getSubmitAsyncSignal())])
 		));
 		exit();

@@ -774,8 +774,8 @@ class CorrectorAdminService extends BaseService
 					->setCorrectorId($corrector)
 					->setPosition($position);
 				$unchanged = false;
-			}
-			if ($assignment->getCorrectorId() != $corrector && !$authorized) { // if corrector is changed assign new
+			}elseif ($assignment->getCorrectorId() != $corrector && !$authorized) { // if corrector is changed assign new
+				$assignment = clone $assignment; // cloning is needed to prevent the usage of cached objects
 				$assignment->setCorrectorId($corrector);
 				$unchanged = false;
 			}

@@ -372,6 +372,11 @@ own_position#:#Funktion
 own_correction#:#Eigene Korrekturen
 count_x_of_y#:#%s von %s
 count_x_total#:#%s gesamt
+criteria_mode#:#Bewertungskriterien verwenden
+criteria_mode_none#:#keine Bewertungskriterien
+criteria_mode_none_info#:#Es werden zur Bewertung keine Kriterien vorgegeben. Teilpunkte werden direkt bei den Kommentaren eingegeben.
+criteria_mode_fixed#:#einheitliche Bewertungskriterien
+criteria_mode_fixed_info#:#Die Bewertungskriterien werden für alle Korrekturkräfte einheitlich vorgegeben. Teilpunkte werden nach Kriterium aufgeschlüsselt eingegeben.
 criteria#:#Bewertungskriterien
 criteria_add#:#Kriterium hinzufügen
 criteria_edit#:#Kriterium bearbeiten

@@ -338,7 +338,7 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
             ];
         }
 
-        if ($this->object->canEditContentSettings()) {
+        if ($this->object->canEditFixedRatingCriteria()) {
             $tabs[] = [
                 'id' => 'tab_criteria',
                 'txt' => $this->plugin->txt('tab_criteria'),

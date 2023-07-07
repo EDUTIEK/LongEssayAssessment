@@ -308,6 +308,20 @@ class ilObjLongEssayAssessment extends ilObjectPlugin
     }
 
     /**
+     *Check if the user can edit the fixed rating criteria
+     */
+    public function canEditFixedRatingCriteria() : bool
+    {
+        if ($this->canEditContentSettings()) {
+            $repo = $this->localDI->getTaskRepo();
+            $settings = $repo->getCorrectionSettingsById($this->getId()) ?? new CorrectionSettings($this->getId());
+            return ($settings->getCriteriaMode() == CorrectionSettings::CRITERIA_MODE_FIXED);
+        }
+        return false;
+    }
+
+
+    /**
      *Check if the user can edit the grades
      */
     public function canEditGrades() : bool

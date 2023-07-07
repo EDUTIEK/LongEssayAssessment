@@ -1578,3 +1578,24 @@ if (!$ilDB->tableColumnExists('xlas_task_settings','closing_message')) {
 	]);
 }
 ?>
+<#71>
+<?php
+if (!$ilDB->tableColumnExists('xlas_corr_setting','criteria_mode')) {
+    $ilDB->addTableColumn('xlas_corr_setting', 'criteria_mode', [
+        'notnull' => '1',
+        'type' => 'text',
+        'length' => '50',
+        'default' => 'none'
+    ]);
+}
+?>
+<#72>
+<?php
+if (!$ilDB->tableColumnExists('xlas_corrector_comment','points')) {
+    $ilDB->addTableColumn('xlas_corrector_comment', 'points', [
+        'notnull' => '1',
+        'type' => 'integer',
+        'length' => '4',
+    ]);
+}
+?>

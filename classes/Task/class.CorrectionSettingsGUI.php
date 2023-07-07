@@ -70,6 +70,20 @@ class CorrectionSettingsGUI extends BaseGUI
             ->withRequired(true)
             ->withValue($correctionSettings->getMaxPoints());
 
+        $fields['criteria_mode'] = $factory->radio($this->plugin->txt('criteria_mode'))
+                                           ->withRequired(true)
+                                           ->withOption(
+                                               CorrectionSettings::CRITERIA_MODE_NONE,
+                                               $this->plugin->txt('criteria_mode_none'),
+                                               $this->plugin->txt('criteria_mode_none_info')
+                                           )
+                                           ->withOption(
+                                               CorrectionSettings::CRITERIA_MODE_FIXED,
+                                               $this->plugin->txt('criteria_mode_fixed'),
+                                               $this->plugin->txt('criteria_mode_fixed_info')
+                                           )
+                                           ->withValue($correctionSettings->getCriteriaMode());
+        
         $sections['correction'] = $factory->section($fields, $this->plugin->txt('correction_settings'));
 
         // Stitch decision
@@ -106,6 +120,7 @@ class CorrectionSettingsGUI extends BaseGUI
             $correctionSettings->setAssignMode((string) $data['correction']['assign_mode']);
             $correctionSettings->setMutualVisibility((int) $data['correction']['mutual_visibility']);
             $correctionSettings->setMaxPoints((int) $data['correction']['max_points']);
+            $correctionSettings->setCriteriaMode((string) $data['correction']['criteria_mode']);
             if (isset($data['stitch']['stitch_when_distance']) && is_array($data['stitch']['stitch_when_distance'])) {
                 $correctionSettings->setStitchWhenDistance(true);
                 $correctionSettings->setMaxAutoDistance((float) $data['stitch']['stitch_when_distance']['max_auto_distance']);

@@ -190,15 +190,20 @@ class CorrectorContext extends ServiceContext implements Context
     public function getRatingCriteria(): array
     {
         $objectRepo = $this->localDI->getObjectRepo();
+        $taskRepo = $this->localDI->getTaskRepo();
+        $settings = $taskRepo->getCorrectionSettingsById($this->task->getTaskId());
 
         $criteria = [];
-        foreach ($objectRepo->getRatingCriteriaByObjectId($this->object->getId()) as $repoCriterion) {
-            $criteria[] = new CorrectionRatingCriterion(
-                (string) $repoCriterion->getId(),
-                $repoCriterion->getTitle(),
-                $repoCriterion->getDescription(),
-                $repoCriterion->getPoints()
-            );
+        
+        if (!empty($settings) && $settings->getCriteriaMode() == \ILIAS\Plugin\LongEssayAssessment\Data\Task\CorrectionSettings::CRITERIA_MODE_FIXED) {
+            foreach ($objectRepo->getRatingCriteriaByObjectId($this->object->getId()) as $repoCriterion) {
+                $criteria[] = new CorrectionRatingCriterion(
+                    (string) $repoCriterion->getId(),
+                    $repoCriterion->getTitle(),
+                    $repoCriterion->getDescription(),
+                    $repoCriterion->getPoints()
+                );
+            }
         }
         return $criteria;
     }
@@ -522,7 +527,8 @@ class CorrectorContext extends ServiceContext implements Context
                     $repoComment->getEndPosition(),
                     $repoComment->getParentNumber(),
                     $repoComment->getComment(),
-                    $repoComment->getRating()
+                    $repoComment->getRating(),
+                    $repoComment->getPoints()
                 );
             }
         }
@@ -666,7 +672,8 @@ class CorrectorContext extends ServiceContext implements Context
             ->setEndPosition($comment->getEndPosition())
             ->setParentNumber($comment->getParentNumber())
             ->setComment($comment->getComment())
-            ->setRating($comment->getRating());
+            ->setRating($comment->getRating())
+            ->setPoints($comment->getPoints());
         
         $essayRepo->save($repoComment);
         

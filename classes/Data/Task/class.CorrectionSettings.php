@@ -11,6 +11,9 @@ use ILIAS\Plugin\LongEssayAssessment\Data\RecordData;
 class CorrectionSettings extends RecordData
 {
     public const ASSIGN_MODE_RANDOM_EQUAL = 'random_equal';
+    
+    public const CRITERIA_MODE_NONE = 'none';
+    public const CRITERIA_MODE_FIXED = 'fixed';
 
 	protected const tableName = 'xlas_corr_setting';
 	protected const hasSequence = false;
@@ -25,7 +28,8 @@ class CorrectionSettings extends RecordData
 		'max_auto_distance' => 'integer',
 		'assign_mode' => 'text',
 		'stitch_when_distance' => 'integer',
-		'stitch_when_decimals' => 'integer'
+		'stitch_when_decimals' => 'integer',
+        'criteria_mode' => 'text'
 	];
 
     protected int $task_id;
@@ -37,6 +41,7 @@ class CorrectionSettings extends RecordData
     protected string $assign_mode = self::ASSIGN_MODE_RANDOM_EQUAL;
     protected int $stitch_when_distance = 1;
     protected int $stitch_when_decimals = 1;
+    protected string $criteria_mode = self::CRITERIA_MODE_NONE;
 
 	public function __construct(int $task_id)
 	{
@@ -204,6 +209,22 @@ class CorrectionSettings extends RecordData
     public function setStitchWhenDecimals(bool $stitch_when_decimals): void
     {
         $this->stitch_when_decimals = (int) $stitch_when_decimals;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCriteriaMode(): string
+    {
+        return $this->criteria_mode;
+    }
+
+    /**
+     * @param string $criteria_mode
+     */
+    public function setCriteriaMode(string $criteria_mode): void
+    {
+        $this->criteria_mode = $criteria_mode;
     }
 
 }

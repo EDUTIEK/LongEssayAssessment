@@ -607,6 +607,13 @@ class CorrectorAdminService extends BaseService
         return true;
     }
 
+	public function authorizeCorrection(CorrectorSummary $summary, int $user_id)
+	{
+		$summary->setCorrectionAuthorized($this->dataService->unixTimeToDb(time()));
+		$summary->setCorrectionAuthorizedBy($user_id);
+		$this->localDI->getEssayRepo()->save($summary);
+	}
+
     public function removeSingleAuthorization(Writer $writer, Corrector $corrector) : bool
     {
         if (empty($essay = $this->essayRepo->getEssayByWriterIdAndTaskId($writer->getId(), $writer->getTaskId()))) {
@@ -785,5 +792,17 @@ class CorrectorAdminService extends BaseService
 			$unchanged = false;
 		}
 		return $unchanged;
+	}
+
+	public function canRemoveCorrectionAuthorize(Essay $essay, ?CorrectorSummary $summary) : bool
+	{
+		return empty($essay->getCorrectionFinalized()) && isset($summary) && !empty($summary->getCorrectionAuthorized());
+	}
+
+	public function canAuthorizeCorrection(Essay $essay, ?CorrectorSummary $summary) : bool
+	{
+		return !empty($essay->getWritingAuthorized()) &&
+			isset($summary) &&
+			empty($summary->getCorrectionAuthorized());
 	}
 }

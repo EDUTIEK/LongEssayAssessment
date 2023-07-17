@@ -4,6 +4,8 @@ namespace ILIAS\Plugin\LongEssayAssessment\UI\Implementation;
 
 use ILIAS\Plugin\LongEssayAssessment\UI\Component\FormGroup;
 use ILIAS\Plugin\LongEssayAssessment\UI\Component\FormItem;
+use ILIAS\UI\Component\Button\Shy;
+use ILIAS\UI\Component\Link\Link;
 use ILIAS\UI\Implementation\Component\SignalGeneratorInterface;
 use ILIAS\UI\Implementation\Component\Symbol\Icon\Factory as ILIASIconFactory;
 
@@ -30,7 +32,11 @@ class ItemFactory implements \ILIAS\Plugin\LongEssayAssessment\UI\Component\Item
 		);
 	}
 
-	public function formItem(string $title): FormItem
+	/**
+	 * @param Shy|Link|string $title
+	 * @return FormItem
+	 */
+	public function formItem($title): FormItem
 	{
 		return new \ILIAS\Plugin\LongEssayAssessment\UI\Implementation\FormItem($title);
 	}

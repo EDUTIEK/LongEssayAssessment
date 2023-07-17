@@ -16,5 +16,5 @@ interface ItemFactory
 	 * @return FormGroup
 	 */
 	public function formGroup(string $title, array $items, string $form_action): FormGroup;
-	public function formItem(string $title): FormItem;
+	public function formItem($title): FormItem;
 }

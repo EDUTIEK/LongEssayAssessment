@@ -364,8 +364,8 @@ remove_authorizations_for_done#:#Die Korrektur-Autorisierungen für %s wurden zu
 remove_authorizations_for_failed#:#Die Korrektur-Autorisierungen für %s konnten nicht zurückgenommen werden.
 remove_authorization_log#:#Die Autorisierung der Korrekturen für %s wurde durch %s zurückgezogen.
 remove_own_authorization#:#Autorisierung zurückziehen
-confirm_remove_own_authorization#:#Möchten Sie Ihre Korrektur-Autorisierung für %s zurücknehmen? Diese Aktion wird protokolliert.
-remove_own_authorization_done#:#Ihre Korrektur-Autorisierung für %s wurde zurückgezogen.
+confirm_remove_own_authorization#:#Möchten Sie folgende Korrektur-Autorisierungen zurücknehmen? Diese Aktion wird protokolliert.
+remove_own_authorization_done#:#Ihre Korrektur-Autorisierungen wurden zurückgezogen.
 remove_own_authorization_failed#:#Ihre Korrektur-Autorisierung für %s konnte nicht zurücckgezogen werden.
 remove_own_authorization_log#:#Die Autorisierung der eigenen Korrektur für %s wurde durch %s zurückgezogen.
 own_position#:#Funktion
@@ -404,3 +404,8 @@ invalid_assignment_combinations_error#:#Diese Zuweisung führt in einigen Fälle
 remove_authorizations_confirmation#:#Möchten Sie die Autorisierung für die Korrektur(en) folgende Teilnehmer zurücknehmen? Diese Aktion wird protokolliert.
 remove_authorizations_no_valid_essays#:#In der Auswahl gab es keine Korrektur(en), die zurückgenommen werden können.
 change_corrector_info#:#Bitte beachten Sie folgendes, wenn es bereits Korrekturen gibt: <ul><li>Korrekturen werden auf neuen Korrektor übretragen</li><li>Korrektoren von bereits autorisierten Korrekturen können nicht geändert werden</li><li>An Bewertungskriterien vergebene Punkte werden beim übertragen entfernt</li><li>Korrekturen entfernter Korrektoren werden ebenfalls permanent entfernt</li></ul>
+authorize_correction#:#Korrektur autorisieren
+confirm_authorize_correction#:#Möchten Sie die folgenden Korrekturen autorisieren?
+authorize_correction_done#:#Ihre Korrektur wurde autorisiert.
+no_authorizations_to_remove#:#In Ihrer Auswahl waren keine Korrektur-Autorisierungen, die zurückgenommen werden können.
+no_corrections_to_authorize#:#In Ihrer Auswahl waren keine Korrekturen, die autorisiert werden können.

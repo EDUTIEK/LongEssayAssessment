@@ -2,10 +2,12 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\UI\Implementation;
 
+use ILIAS\UI\Component\Button\Shy;
 use ILIAS\UI\Component\Component;
 use ILIAS\UI\Component\Image\Image;
 use ILIAS\UI\Component\Item\Group;
 use ILIAS\UI\Component\Item\Item;
+use ILIAS\UI\Component\Link\Link;
 use ILIAS\UI\Component\Symbol\Icon\Icon;
 use ILIAS\UI\Implementation\Component\Input\Field\Input;
 use ILIAS\UI\Renderer as RendererInterface;
@@ -116,9 +118,21 @@ class ItemRenderer extends \ILIAS\UI\Implementation\Component\Item\Renderer
 			$tpl->parseCurrentBlock();
 		}
 
+
+		$title = $component->getTitle();
+		switch (true){
+			case $title instanceof Shy:
+			case $title instanceof Link:
+				$title = $title->getLabel();
+				break;
+			default:
+				$title = strip_tags($title);
+				break;
+		}
+
 		$tpl->setCurrentBlock("checkbox");
 		$tpl->setVariable("CB_VALUE", $component->getName());
-		$tpl->setVariable("LIST_DATA_SOURCE_NAME", strip_tags($component->getTitle()));
+		$tpl->setVariable("LIST_DATA_SOURCE_NAME", $title);
 		$tpl->parseCurrentBlock();
 
 		// lead

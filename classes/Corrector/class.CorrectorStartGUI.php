@@ -56,8 +56,10 @@ class CorrectorStartGUI extends BaseGUI
         {
             case 'showStartPage':
             case 'startCorrector':
-            case 'confirmRemoveAuthorization':
             case 'removeAuthorization':
+			case 'removeAuthorizationConfirmationAsync':
+			case 'authorizationConfirmationAsync':
+			case 'authorizeCorrection':
                 $this->$cmd();
                 break;
 
@@ -81,9 +83,10 @@ class CorrectorStartGUI extends BaseGUI
 			if (empty($essay)) {
 				continue;
 			}
+			$modals = [];
+			$actions = [];
 
-			$summary = $this->localDI->getEssayRepo()->getCorrectorSummaryByEssayIdAndCorrectorId(
-				(isset($essay) ? $essay->getId() : 0), $corrector->getId());
+			$summary = $this->localDI->getEssayRepo()->getCorrectorSummaryByEssayIdAndCorrectorId($essay->getId(), $corrector->getId());
 
 			$properties = [
 				$this->plugin->txt('writing_status') => $this->data->formatWritingStatus($essay),
@@ -96,14 +99,40 @@ class CorrectorStartGUI extends BaseGUI
                     $properties[$this->data->formatCorrectorPosition($otherAssignment)] = $this->data->formatCorrectorAssignment($otherAssignment);
                 }
             }
-            $actions = [];
-            if (empty($essay->getCorrectionFinalized()) && isset($summary) && !empty($summary->getCorrectionAuthorized())) {
-                $this->ctrl->setParameter($this, 'writer_id', $essay->getWriterId());
-                $actions[] = $this->uiFactory->button()->shy($this->plugin->txt('remove_own_authorization'),
-                    $this->ctrl->getLinkTarget($this, 'confirmRemoveAuthorization'));
-            }
 
-            $title = $writer->getPseudonym();
+
+			if ($this->service->canRemoveCorrectionAuthorize($essay, $summary)) {
+				$this->ctrl->setParameter($this, 'writer_id', $essay->getWriterId());
+
+				$modals[] = $remove_auth_modal = $this->uiFactory->modal()->interruptive(
+					$this->plugin->txt('remove_own_authorization'),
+					$this->plugin->txt('confirm_remove_own_authorization'),
+					$this->ctrl->getLinkTarget($this, 'removeAuthorization')
+				)->withAffectedItems([
+					$this->uiFactory->modal()->interruptiveItem($writer->getId(), $writer->getPseudonym())
+				])->withActionButtonLabel('ok');
+
+				$actions[] = $this->uiFactory->button()->shy($this->plugin->txt('remove_own_authorization'), "")
+					->withOnClick($remove_auth_modal->getShowSignal());
+			}
+
+			if ($this->service->canAuthorizeCorrection($essay, $summary)) {
+				$this->ctrl->setParameter($this, 'writer_id', $essay->getWriterId());
+
+				$modals[] = $auth_modal = $this->uiFactory->modal()->interruptive(
+					$this->plugin->txt('authorize_correction'),
+					$this->plugin->txt('confirm_authorize_correction'),
+					$this->ctrl->getLinkTarget($this, 'authorizeCorrection')
+				)->withAffectedItems([
+					$this->uiFactory->modal()->interruptiveItem($writer->getId(), $writer->getPseudonym())
+				])->withActionButtonLabel('ok');
+
+				$actions[] = $this->uiFactory->button()->shy($this->plugin->txt('authorize_correction'),"")
+					->withOnClick($auth_modal->getShowSignal());
+			}
+
+
+			$title = $writer->getPseudonym();
 			if ($this->can_correct && $this->service->isCorrectionPossible($essay, $summary)) {
 				$this->ready_items++;
 				$this->ctrl->setParameter($this, 'writer_id', $assignment->getWriterId());
@@ -112,8 +141,10 @@ class CorrectorStartGUI extends BaseGUI
 
 			$items[] = [
 				"title" => $title,
+				"writer_id" => $writer->getId(),
 				"properties" => $properties,
                 "actions" => $actions,
+				"modals" => $modals,
 				"position" => $assignment->getPosition(),
 				"pseudonym" => $writer->getPseudonym(),
 				"correction_status" => $this->data->getOwnCorrectionStatus($essay, $summary)
@@ -213,6 +244,7 @@ class CorrectorStartGUI extends BaseGUI
 		$items = $admin_service->filterCorrections($this->dic->user()->getId(), $items);
 		$is_empty_after_filter = empty($items);
         $count_filtered = count($items);
+		$modals = [];
 
 		if(!$is_empty_before_filter){
 			$this->filterViewControl();
@@ -232,22 +264,62 @@ class CorrectorStartGUI extends BaseGUI
 			}
         }
 
-		$object_from_item = function(array $item): \ILIAS\UI\Component\Item\Item {
-            $object = $this->uiFactory->item()->standard($item["title"])
+		$object_from_item = function(array $item) use (&$modals): \ILIAS\UI\Component\Item\Item {
+
+			$object = $this->localDI->getUIFactory()->item()->formItem($item["title"])
+				->withName($item["writer_id"])
 				->withLeadIcon($this->uiFactory->symbol()->icon()->standard('adve', 'user', 'medium'))
 				->withProperties($item["properties"]);
             if (!empty($item['actions'])) {
                 $object = $object->withActions($this->uiFactory->dropdown()->standard($item['actions'])->withLabel($this->plugin->txt("actions")));
             }
+			if(!empty($item["modals"])) {
+				$modals = array_merge($modals, $item["modals"]);
+			}
+
             return $object;
 		};
 
 		if (!$is_empty_before_filter) {
-            $essays = $this->uiFactory->item()->group(
+
+			$form_actions = [];
+
+            $essays = $this->localDI->getUIFactory()->item()->formGroup(
                 $this->plugin->txt('assigned_writings') . $this->data->formatCounterSuffix($count_filtered, $count_total),
-                array_map($object_from_item, $items)
+                array_map($object_from_item, $items), ""
             );
-            $this->tpl->setContent($this->renderer->render($essays));
+
+			$auth_callback_signal = $essays->generateDSCallbackSignal();
+
+			$modals[] = $essays->addDSModalTriggerToModal(
+				$this->uiFactory->modal()->interruptive("", "", ""),
+				$this->ctrl->getFormAction($this, "authorizationConfirmationAsync", "", true),
+				"writer_ids",
+				$auth_callback_signal
+			);
+
+			$form_actions[] = $essays->addDSModalTriggerToButton(
+				$this->uiFactory->button()->shy($this->plugin->txt("authorize_correction"), "#"),
+				$auth_callback_signal
+			);
+
+			$deauth_callback_signal = $essays->generateDSCallbackSignal();
+
+			$modals[] = $essays->addDSModalTriggerToModal(
+				$this->uiFactory->modal()->interruptive("", "", ""),
+				$this->ctrl->getFormAction($this, "removeAuthorizationConfirmationAsync", "", true),
+				"writer_ids",
+				$deauth_callback_signal
+			);
+
+			$form_actions[] = $essays->addDSModalTriggerToButton(
+				$this->uiFactory->button()->shy($this->plugin->txt("remove_own_authorization"), "#"),
+				$deauth_callback_signal
+			);
+
+			$essays = $essays->withActions($this->uiFactory->dropdown()->standard($form_actions));
+
+            $this->tpl->setContent($this->renderer->render(array_merge([$essays], $modals)));
             $taskSettings = $this->localDI->getTaskRepo()->getTaskSettingsById($this->settings->getTaskId());
             if (!empty($period = $this->data->formatPeriod($taskSettings->getCorrectionStart(), $taskSettings->getCorrectionEnd()))) {
                 ilUtil::sendInfo($this->plugin->txt('correction_period') . ': ' . $period);
@@ -275,40 +347,143 @@ class CorrectorStartGUI extends BaseGUI
         $service->openFrontend();
     }
 
+	protected function authorizeCorrection(){
+		$corrector = $this->localDI->getCorrectorRepo()->getCorrectorByUserId($this->dic->user()->getId(), $this->settings->getTaskId());
 
-    protected function confirmRemoveAuthorization()
-    {
-        if (empty($writer = $this->getWriterFromRequest())) {
-            $this->ctrl->redirect($this);
-        }
-        $name = \ilObjUser::_lookupFullname($writer->getUserId()) . ' [' . $writer->getPseudonym() . ']';
+		$valid = false;
 
-        $cancel = $this->uiFactory->button()->standard($this->lng->txt('cancel'), $this->ctrl->getLinkTarget($this));
-        $this->ctrl->setParameter($this, 'writer_id', $writer->getId());
-        $ok = $this->uiFactory->button()->standard($this->lng->txt('ok'), $this->ctrl->getLinkTarget($this, 'removeAuthorization'));
+		foreach($this->getWriterIds() as $writer_id){
+			$essay = $this->localDI->getEssayRepo()->getEssayByWriterIdAndTaskId($writer_id, $this->settings->getTaskId());
 
-        $this->tpl->setContent($this->renderer->render($this->uiFactory->messageBox()->confirmation(
-            sprintf($this->plugin->txt('confirm_remove_own_authorization'), $name))->withButtons([$ok, $cancel])));
-    }
+			if (empty($essay)) {
+				continue;
+			}
+			$summary = $this->localDI->getEssayRepo()->getCorrectorSummaryByEssayIdAndCorrectorId($essay->getId(), $corrector->getId());
+
+			if (empty($summary)) {
+				continue;
+			}
+			$valid = true;
+			$this->service->authorizeCorrection($summary, $corrector->getUserId());
+		}
+
+		if( $valid ) {
+			ilutil::sendSuccess($this->plugin->txt('authorize_correction_done'), true);
+			$this->ctrl->redirect($this);
+		}else{
+			ilutil::sendFailure($this->plugin->txt('no_corrections_to_authorize'), true);
+			$this->ctrl->redirect($this);
+		}
+	}
 
 
     protected function removeAuthorization()
     {
-        if (empty($writer = $this->getWriterFromRequest())) {
-            $this->ctrl->redirect($this);
-        }
         $corrector = $this->localDI->getCorrectorRepo()->getCorrectorByUserId($this->dic->user()->getId(), $this->settings->getTaskId());
+		$success = false;
 
-        $name = \ilObjUser::_lookupFullname($writer->getUserId()) . ' [' . $writer->getPseudonym() . ']';
+		foreach($this->getWriterIds() as $writer_id){
+			$writer = $this->localDI->getWriterRepo()->getWriterById($writer_id);
+			if(empty($writer)){
+				continue;
+			}
+			if ($this->service->removeSingleAuthorization($writer, $corrector)) {
+				$success = true;
+			}
+			else {
+				ilutil::sendFailure(sprintf($this->plugin->txt('remove_own_authorization_failed'), $writer->getPseudonym()), true);
+			}
+		}
 
-        if ($this->service->removeSingleAuthorization($writer, $corrector)) {
-            ilutil::sendSuccess(sprintf($this->plugin->txt('remove_own_authorization_done'), $name), true);
-        }
-        else {
-            ilutil::sendFailure(sprintf($this->plugin->txt('remove_own_authorization_failed'), $name), true);
-        }
+		if($success){
+			ilutil::sendSuccess($this->plugin->txt('remove_own_authorization_done'), true);
+		}
+
         $this->ctrl->redirect($this);
     }
+
+	protected function removeAuthorizationConfirmationAsync()
+	{
+		$ids = $this->getWriterIds();
+		$corrector = $this->localDI->getCorrectorRepo()->getCorrectorByUserId($this->dic->user()->getId(), $this->settings->getTaskId());
+		$items = [];
+
+
+		foreach ($this->localDI->getCorrectorRepo()->getAssignmentsByCorrectorId($corrector->getId()) as $assignment) {
+			if(!in_array($assignment->getWriterId(), $ids)){
+				continue;
+			}
+
+			$writer = $this->localDI->getWriterRepo()->getWriterById($assignment->getWriterId());
+			$essay = $this->localDI->getEssayRepo()->getEssayByWriterIdAndTaskId($assignment->getWriterId(), $this->settings->getTaskId());
+
+			if (empty($essay)) {
+				continue;
+			}
+
+			$summary = $this->localDI->getEssayRepo()->getCorrectorSummaryByEssayIdAndCorrectorId($essay->getId(), $corrector->getId());
+
+			if($this->service->canRemoveCorrectionAuthorize($essay, $summary)){
+				$items[] = $this->uiFactory->modal()->interruptiveItem($writer->getId(), $writer->getPseudonym());
+			}
+		}
+
+		if(count($items) > 0){
+			echo($this->renderer->render($this->uiFactory->modal()->interruptive(
+				$this->plugin->txt('remove_own_authorization'),
+				$this->plugin->txt('confirm_remove_own_authorization'),
+				$this->ctrl->getFormAction($this, "removeAuthorization")
+			)->withAffectedItems($items)
+				->withActionButtonLabel("ok")));
+		}else{
+			echo($this->renderer->render($this->uiFactory->modal()->roundtrip(
+				"", $this->uiFactory->messageBox()->failure($this->plugin->txt("no_authorizations_to_remove"))
+			)));
+		}
+
+		exit();
+	}
+
+	protected function authorizationConfirmationAsync()
+	{
+		$ids = $this->getWriterIds();
+		$corrector = $this->localDI->getCorrectorRepo()->getCorrectorByUserId($this->dic->user()->getId(), $this->settings->getTaskId());
+		$items = [];
+
+		foreach ($this->localDI->getCorrectorRepo()->getAssignmentsByCorrectorId($corrector->getId()) as $assignment) {
+			if(!in_array($assignment->getWriterId(), $ids)){
+				continue;
+			}
+
+			$writer = $this->localDI->getWriterRepo()->getWriterById($assignment->getWriterId());
+			$essay = $this->localDI->getEssayRepo()->getEssayByWriterIdAndTaskId($assignment->getWriterId(), $this->settings->getTaskId());
+
+			if (empty($essay)) {
+				continue;
+			}
+
+			$summary = $this->localDI->getEssayRepo()->getCorrectorSummaryByEssayIdAndCorrectorId($essay->getId(), $corrector->getId());
+
+			if($this->service->canAuthorizeCorrection($essay, $summary)){
+				$items[] = $this->uiFactory->modal()->interruptiveItem($writer->getId(), $writer->getPseudonym());
+			}
+		}
+
+		if(count($items) > 0){
+			echo($this->renderer->render($this->uiFactory->modal()->interruptive(
+				$this->plugin->txt('authorize_correction'),
+				$this->plugin->txt('confirm_authorize_correction'),
+				$this->ctrl->getFormAction($this, "authorizeCorrection")
+			)->withAffectedItems($items)
+			->withActionButtonLabel("ok")));
+		}else{
+			echo($this->renderer->render($this->uiFactory->modal()->roundtrip(
+				"", $this->uiFactory->messageBox()->failure($this->plugin->txt("no_corrections_to_authorize"))
+			)));
+		}
+
+		exit();
+	}
 
 
     protected function getWriterFromRequest() : ?Writer
@@ -319,4 +494,25 @@ class CorrectorStartGUI extends BaseGUI
         }
         return null;
     }
+
+	protected function getWriterIds(): array
+	{
+		$ids = [];
+		$query_params = $this->request->getQueryParams();
+		$post = $this->request->getParsedBody();
+
+		if( isset($post["interruptive_items"]) ){
+			foreach($post["interruptive_items"] as $value){
+				$ids[] = intval($value);
+			}
+		}elseif (isset($query_params["writer_ids"])){
+			foreach(explode('/', $query_params["writer_ids"]) as $value){
+				$ids[] = (int) $value;
+			}
+		}elseif(isset($query_params["writer_id"]) && $query_params["writer_id"] !== ""){
+			$ids[] = (int) $query_params["writer_id"];
+		}
+
+		return $ids;
+	}
 }

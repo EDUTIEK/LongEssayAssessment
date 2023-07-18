@@ -199,6 +199,34 @@ class TaskRepository extends RecordRepo
 		return $this->queryRecords($query, Resource::model());
     }
 
+    /**
+     * @param int $a_task_id
+     * @return Resource|null
+     */
+    public function getInstructionResource(int $a_task_id) : ?Resource
+    {
+        $resources = $this->getResourceByTaskId($a_task_id, [Resource::RESOURCE_TYPE_INSTRUCTION]);
+        if(count($resources) > 0) {
+            return array_pop($resources);
+        }
+        return null;
+    }
+
+    
+    /**
+     * @param int $a_task_id
+     * @return Resource|null
+     */
+    public function getSolutionResource(int $a_task_id) : ?Resource
+    {
+        $resources = $this->getResourceByTaskId($a_task_id, [Resource::RESOURCE_TYPE_SOLUTION]);
+        if(count($resources) > 0){
+            return array_pop($resources);
+        }
+        return null;
+    }
+
+
     public function ifResourceExistsById(int $a_id): bool
     {
         return $this->getResourceById($a_id) != null;

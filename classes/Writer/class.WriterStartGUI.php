@@ -42,7 +42,9 @@ class WriterStartGUI extends BaseGUI
             case 'downloadCorrectedPdf':
 			case 'downloadResourceFile':
             case 'viewInstructions':
+            case 'downloadInstructions':
             case 'viewSolution':
+            case 'downloadSolution':
                 $this->$cmd();
                 break;
 
@@ -130,10 +132,21 @@ class WriterStartGUI extends BaseGUI
         if (!empty($this->task->getDescription())) {
             $inst_parts[] = $this->task->getDescription();
         }
-        if (!empty($this->task->getInstructions())
-            && $this->data->isInRange(time(), $this->data->dbTimeToUnix($this->task->getWritingStart()), null)) {
-            $inst_parts[] = $this->renderer->render($this->uiFactory->button()->standard($this->plugin->txt('view_instructions'),
-                $this->ctrl->getLinkTarget($this, 'viewInstructions')));
+        if ($this->data->isInRange(time(), $this->data->dbTimeToUnix($this->task->getWritingStart()), null)) {
+            $inst_buttons = [];
+            if (!empty($this->task->getInstructions())) {
+                $inst_buttons[] = $this->uiFactory->button()->standard($this->plugin->txt('view_instructions'),
+                    $this->ctrl->getLinkTarget($this, 'viewInstructions'));
+            }
+            $task_repo = $this->localDI->getTaskRepo();
+            if (!empty($task_repo->getInstructionResource($this->object->getId()))) {
+                $inst_buttons[] = $this->uiFactory->button()->standard($this->plugin->txt('download_instructions'),
+                    $this->ctrl->getLinkTarget($this, 'downloadInstructions'));
+            }
+
+            if (!empty($inst_buttons)) {
+                $inst_parts[] = $this->renderer->render($inst_buttons);
+            }
         }
 
 		$properties = [$this->plugin->txt('writing_period') => $this->data->formatPeriod(
@@ -239,12 +252,20 @@ class WriterStartGUI extends BaseGUI
 
         // Solution
         if ($this->object->canViewSolution()) {
+            $solution_buttons = [];
             if (!empty($this->task->getSolution())) {
+                $solution_buttons[] =$this->uiFactory->button()->standard($this->plugin->txt('view_solution'),
+                    $this->ctrl->getLinkTarget($this, 'viewSolution'));
+            }
+            $task_repo = $this->localDI->getTaskRepo();
+            if (!empty($task_repo->getSolutionResource($this->object->getId()))) {
+                $solution_buttons[] =$this->uiFactory->button()->standard($this->plugin->txt('download_solution'),
+                    $this->ctrl->getLinkTarget($this, 'downloadSolution'));
+            }
 
-                $solution_button = $this->renderer->render($this->uiFactory->button()->standard($this->plugin->txt('view_solution'),
-                    $this->ctrl->getLinkTarget($this, 'viewSolution')));
 
-                $solution_item = $this->uiFactory->item()->standard($solution_button);
+            if (!empty($solution_buttons)) {
+                $solution_item = $this->uiFactory->item()->standard($this->renderer->render($solution_buttons));
                 $solution_items = array_merge([$solution_item], $solution_items);
             }
 
@@ -356,7 +377,6 @@ class WriterStartGUI extends BaseGUI
 
 	protected function downloadResourceFile()
 	{
-		global $DIC;
 		$identifier = "";
 		if (($resource_id = $this->getResourceId()) !== null) {
 			$resource_admin = new ResourceAdmin($this->object->getId());
@@ -377,10 +397,10 @@ class WriterStartGUI extends BaseGUI
 			// TODO: Error no resource ID in GET
 		}
 
-		$resource = $DIC->resourceStorage()->manage()->find($identifier);
+		$resource = $this->dic->resourceStorage()->manage()->find($identifier);
 
 		if ($resource !== null) {
-			$DIC->resourceStorage()->consume()->download($resource)->run();
+			$this->dic->resourceStorage()->consume()->download($resource)->run();
 		} else {
 			// TODO: Error resource not in Storage
 		}
@@ -399,6 +419,18 @@ class WriterStartGUI extends BaseGUI
         $this->tpl->setContent($this->renderer->render($content));
     }
 
+    protected function downloadInstructions() 
+    {
+        if ($this->data->isInRange(time(), $this->data->dbTimeToUnix($this->task->getWritingStart()), null)) {
+            $task_repo = $this->localDI->getTaskRepo();
+            if (!empty($resource = $task_repo->getInstructionResource($this->object->getId()))) {
+                $identifier = $resource->getFileId();
+                $file = $this->dic->resourceStorage()->manage()->find($identifier);
+                $this->dic->resourceStorage()->consume()->download($file)->run();
+            }
+        }
+    }
+    
     protected function viewSolution()
     {
         $this->toolbar->addComponent( $this->uiFactory->button()->standard($this->lng->txt('back'),
@@ -410,5 +442,18 @@ class WriterStartGUI extends BaseGUI
         }
 
         $this->tpl->setContent($this->renderer->render($content));
+    }
+
+
+    protected function downloadSolution()
+    {
+        if ($this->object->canViewSolution()) {
+            $task_repo = $this->localDI->getTaskRepo();
+            if (!empty($resource = $task_repo->getSolutionResource($this->object->getId()))) {
+                $identifier = $resource->getFileId();
+                $file = $this->dic->resourceStorage()->manage()->find($identifier);
+                $this->dic->resourceStorage()->consume()->download($file)->run();
+            }
+        }
     }
 }

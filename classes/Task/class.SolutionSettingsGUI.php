@@ -46,7 +46,7 @@ class SolutionSettingsGUI extends BaseGUI
 		$di = LongEssayAssessmentDI::getInstance();
 		$task_repo = $di->getTaskRepo();
 		$taskSettings = $task_repo->getTaskSettingsById($this->object->getId());
-		$resource = $this->getSolutionResource();
+		$resource = $task_repo->getSolutionResource($this->object->getId());
 
 		if(!$taskSettings->isSolutionAvailable())
 		{
@@ -133,16 +133,5 @@ class SolutionSettingsGUI extends BaseGUI
 		$ui_service->addTinyMCEToTextareas();
 
 		return $this->uiFactory->input()->container()->form()->standard($this->ctrl->getFormAction($this), $sections);
-	}
-
-	protected function getSolutionResource() : ?Resource
-	{
-		$task_repo = $this->localDI->getTaskRepo();
-		$resources = $task_repo->getResourceByTaskId($this->object->getId(), [Resource::RESOURCE_TYPE_SOLUTION]);
-
-		if(count($resources) > 0){
-			return array_pop($resources);
-		}
-		return null;
 	}
 }

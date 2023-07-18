@@ -47,7 +47,7 @@ class InstructionsSettingsGUI extends BaseGUI
 		$di = LongEssayAssessmentDI::getInstance();
 		$task_repo = $di->getTaskRepo();
 		$taskSettings = $task_repo->getTaskSettingsById($this->object->getId());
-		$resource = $this->getInstructionResource();
+		$resource = $task_repo->getInstructionResource($this->object->getId());
 
 		$form = $this->buildInstructionsSettings($taskSettings, $resource);
 
@@ -129,15 +129,4 @@ class InstructionsSettingsGUI extends BaseGUI
 
 		return $this->uiFactory->input()->container()->form()->standard($this->ctrl->getFormAction($this), $sections);
     }
-
-	protected function getInstructionResource() : ?Resource
-	{
-		$task_repo = $this->localDI->getTaskRepo();
-		$resources = $task_repo->getResourceByTaskId($this->object->getId(), [Resource::RESOURCE_TYPE_INSTRUCTION]);
-
-		if(count($resources) > 0){
-			return array_pop($resources);
-		}
-		return null;
-	}
 }

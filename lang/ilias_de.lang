@@ -409,3 +409,5 @@ confirm_authorize_correction#:#Möchten Sie die folgenden Korrekturen autorisier
 authorize_correction_done#:#Ihre Korrektur wurde autorisiert.
 no_authorizations_to_remove#:#In Ihrer Auswahl waren keine Korrektur-Autorisierungen, die zurückgenommen werden können.
 no_corrections_to_authorize#:#In Ihrer Auswahl waren keine Korrekturen, die autorisiert werden können.
+download_instructions#:#PDF herunterladen
+download_solution#:#PDF herunterladen

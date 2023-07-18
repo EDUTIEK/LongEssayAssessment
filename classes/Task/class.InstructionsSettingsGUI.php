@@ -89,6 +89,7 @@ class InstructionsSettingsGUI extends BaseGUI
 				(new Resource())
 				->setTaskId($this->object->getId())
 				->setType(Resource::RESOURCE_TYPE_INSTRUCTION)
+                ->setAvailability(Resource::RESOURCE_AVAILABILITY_DURING)
 				->setFileId($a_data["resource_file"][0])
 			);
 		}elseif($resource !== null && !isset($a_data["resource_file"][0])){

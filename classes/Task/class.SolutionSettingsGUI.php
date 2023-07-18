@@ -92,6 +92,7 @@ class SolutionSettingsGUI extends BaseGUI
 				(new Resource())
 					->setTaskId($this->object->getId())
 					->setType(Resource::RESOURCE_TYPE_SOLUTION)
+                    ->setAvailability(Resource::RESOURCE_AVAILABILITY_AFTER)
 					->setFileId($a_data["resource_file"][0])
 			);
 		}elseif($resource !== null && !isset($a_data["resource_file"][0])){

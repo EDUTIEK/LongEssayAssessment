@@ -145,6 +145,7 @@ class CorrectorContext extends ServiceContext implements Context
         return new CorrectionTask(
 			(string) $this->object->getTitle(),
 			(string) $this->task->getInstructions(),
+            (string) $this->task->getSolution(),
             $this->data->dbTimeToUnix($this->task->getCorrectionEnd()));
     }
 

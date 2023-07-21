@@ -1615,8 +1615,7 @@ if (!$ilDB->tableColumnExists('xlas_rating_crit','corrector_id')) {
 	$ilDB->addTableColumn('xlas_rating_crit', 'corrector_id', [
 		'notnull' => '0',
 		'type' => 'integer',
-		'length' => '4',
-        'default' => 'null'
+		'length' => '4'
 	]);
 }
 ?>

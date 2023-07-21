@@ -22,6 +22,7 @@ class Corrector extends RecordData
 	protected const otherTypes = [
 		'user_id' => 'integer',
 		'task_id' => 'integer',
+		'criterion_copy' => 'integer'
 	];
 
     /**
@@ -40,6 +41,7 @@ class Corrector extends RecordData
      * The task_id currently corresponds to the obj_id of the ILIAS object
      */
     protected int $task_id;
+	protected int $criterion_copy;
 
 
 	public function __construct(int $id)
@@ -107,4 +109,22 @@ class Corrector extends RecordData
         $this->task_id = $task_id;
         return $this;
     }
+
+	/**
+	 * @return bool
+	 */
+	public function isCriterionCopyEnabled(): bool
+	{
+		return $this->criterion_copy === 1;
+	}
+
+	/**
+	 * @param bool $criterion_copy
+	 * @return Corrector
+	 */
+	public function setCriterionCopyEnabled(bool $criterion_copy): Corrector
+	{
+		$this->criterion_copy = $criterion_copy ? 1 : 0;
+		return $this;
+	}
 }

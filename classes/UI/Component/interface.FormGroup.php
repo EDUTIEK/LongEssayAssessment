@@ -26,6 +26,19 @@ interface FormGroup extends Group, JavaScriptBindable
 	public function getFormAction(): string;
 
 	/**
+	 * Change the label of the action button
+	 *
+	 * @param string $label
+	 * @return FormGroup
+	 */
+	public function withActionLabel(string $label): FormGroup;
+
+	/**
+	 * @return string
+	 */
+	public function getActionLabel(): ?string;
+
+	/**
 	 * This FormGroup without Actions
 	 *
 	 * @return Group

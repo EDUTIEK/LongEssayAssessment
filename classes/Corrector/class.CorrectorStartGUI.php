@@ -16,7 +16,7 @@ use \ilUtil;
 /**
  *Start page for correctors
  *
- * @package ILIAS\Plugin\LongEssayAssessment\Writer
+ * @package ILIAS\Plugin\LongEssayAssessment\Corrector
  * @ilCtrl_isCalledBy ILIAS\Plugin\LongEssayAssessment\Corrector\CorrectorStartGUI: ilObjLongEssayAssessmentGUI
  */
 class CorrectorStartGUI extends BaseGUI

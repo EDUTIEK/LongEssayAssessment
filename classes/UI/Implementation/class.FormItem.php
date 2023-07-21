@@ -8,7 +8,7 @@ use ILIAS\UI\Implementation\Component\Item\Standard;
 
 class FormItem extends Standard implements \ILIAS\Plugin\LongEssayAssessment\UI\Component\FormItem
 {
-	protected ?string $name;
+	protected ?string $name = null;
 
 	/**
 	 * @ineritdoc

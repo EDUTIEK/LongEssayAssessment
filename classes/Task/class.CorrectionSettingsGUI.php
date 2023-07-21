@@ -82,6 +82,11 @@ class CorrectionSettingsGUI extends BaseGUI
                                                $this->plugin->txt('criteria_mode_fixed'),
                                                $this->plugin->txt('criteria_mode_fixed_info')
                                            )
+											->withOption(
+												CorrectionSettings::CRITERIA_MODE_CORRECTOR,
+												$this->plugin->txt('criteria_mode_corrector'),
+												$this->plugin->txt('criteria_mode_corrector_info')
+											)
                                            ->withValue($correctionSettings->getCriteriaMode());
         
         $sections['correction'] = $factory->section($fields, $this->plugin->txt('correction_settings'));

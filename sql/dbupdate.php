@@ -1599,3 +1599,24 @@ if (!$ilDB->tableColumnExists('xlas_corrector_comment','points')) {
     ]);
 }
 ?>
+<#73>
+<?php
+if (!$ilDB->tableColumnExists('xlas_corrector','criterion_copy')) {
+	$ilDB->addTableColumn('xlas_corrector', 'criterion_copy', [
+		'notnull' => '1',
+		'type' => 'integer',
+		'length' => '1',
+	]);
+}
+?>
+<#74>
+<?php
+if (!$ilDB->tableColumnExists('xlas_rating_crit','corrector_id')) {
+	$ilDB->addTableColumn('xlas_rating_crit', 'corrector_id', [
+		'notnull' => '0',
+		'type' => 'integer',
+		'length' => '4',
+        'default' => 'null'
+	]);
+}
+?>

@@ -61,7 +61,7 @@ tab_grades#:#Notenstufen
 tab_writer#:#Meine Klausur
 tab_writer_start#:#Meine Aufgabe
 tab_corrector#:#Meine Korrektur
-tab_corrector_start#:#zugeteilte Abgaben
+tab_corrector_start#:#Abgaben
 tab_writer_admin#:#Teilnehmerverwaltung
 tab_writer_admin_log#:#Aufsichtsprotokoll
 tab_corrector_admin#:#Korrektorenverwaltung
@@ -377,15 +377,25 @@ criteria_mode_none#:#keine Bewertungskriterien
 criteria_mode_none_info#:#Es werden zur Bewertung keine Kriterien vorgegeben. Teilpunkte werden direkt bei den Kommentaren eingegeben.
 criteria_mode_fixed#:#einheitliche Bewertungskriterien
 criteria_mode_fixed_info#:#Die Bewertungskriterien werden für alle Korrekturkräfte einheitlich vorgegeben. Teilpunkte werden nach Kriterium aufgeschlüsselt eingegeben.
+criteria_mode_corrector#:#persönliche Bewertungskriterien
+criteria_mode_corrector_info#:#Die Bewertungskriterien können von der Korrekturkraft selbst erstellt und mit anderen geteilt werden. Im Bereich »Bewertungskriterien« kann eine Vorlage für alle Korrekturkräfte erstellt werden. Teilpunkte werden nach Kriterium aufgeschlüsselt eingegeben.
 criteria#:#Bewertungskriterien
 criteria_add#:#Kriterium hinzufügen
 criteria_edit#:#Kriterium bearbeiten
 criteria_max_point#:#Max. Punkte
 criteria_max_point_desc#:#Maximal vergebbare Punkte für dieses Kriterium.
-delete_criteria_successful#:#Kriterium erfolgreich gelöscht.
-delete_criteria_failure#:#Kriterium konnte nicht gelöscht werden.
+delete_criteria_successful#:#Kriterien erfolgreich gelöscht.
+delete_criteria_failure#:#Kriterien konnte nicht gelöscht werden.
 delete_criteria#:#Kriterium löschen
 delete_criteria_confirmation#:#Sind Sie sicher, dass Sie das Kriterium unwiderruflich entfernen möchten?
+copy_rating_criterion_from#:#Kopiere Bewertungskriterien von
+publish_rating_criterion#:#Bewertungskriterien teilen
+criteria_publish_enabled#:#Kriterien erfolgreich geteilt.
+criteria_publish_disabled#:#Kriterien werden nicht mehr geteilt.
+criteria_template#:#Vorlage
+copy_criteria_successful#:#Kriterien erfolgreich kopiert.
+copy_criteria_failure#:#Kriterien konnte nicht kopiert werden.
+criteria_from#:#Bewertungskriterien von %s
 locations#:#Teilnahmeorte
 location#:#Teilnahmeort
 locations_info#:#Den Teilnehmenden kann in der Teilnehmerliste ein Teilnahmeort zugewiesen werden, der im Abgabe- und Ergebnis-PDF angezeigt wird.

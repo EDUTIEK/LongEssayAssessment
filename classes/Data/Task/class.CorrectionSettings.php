@@ -14,6 +14,7 @@ class CorrectionSettings extends RecordData
     
     public const CRITERIA_MODE_NONE = 'none';
     public const CRITERIA_MODE_FIXED = 'fixed';
+	public const CRITERIA_MODE_CORRECTOR = 'corr';
 
 	protected const tableName = 'xlas_corr_setting';
 	protected const hasSequence = false;

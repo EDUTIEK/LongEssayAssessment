@@ -315,10 +315,20 @@ class ilObjLongEssayAssessment extends ilObjectPlugin
         if ($this->canEditContentSettings()) {
             $repo = $this->localDI->getTaskRepo();
             $settings = $repo->getCorrectionSettingsById($this->getId()) ?? new CorrectionSettings($this->getId());
-            return ($settings->getCriteriaMode() == CorrectionSettings::CRITERIA_MODE_FIXED);
+            return in_array($settings->getCriteriaMode(), [CorrectionSettings::CRITERIA_MODE_FIXED, CorrectionSettings::CRITERIA_MODE_CORRECTOR]);
         }
         return false;
     }
+
+	public function canEditOwnRatingCriteria() : bool
+	{
+		if ($this->canViewCorrectorScreen()) {
+			$repo = $this->localDI->getTaskRepo();
+			$settings = $repo->getCorrectionSettingsById($this->getId()) ?? new CorrectionSettings($this->getId());
+			return ($settings->getCriteriaMode() == CorrectionSettings::CRITERIA_MODE_CORRECTOR);
+		}
+		return false;
+	}
 
 
     /**

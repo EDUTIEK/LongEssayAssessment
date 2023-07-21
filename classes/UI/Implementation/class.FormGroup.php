@@ -15,6 +15,8 @@ class FormGroup extends Group implements \ILIAS\Plugin\LongEssayAssessment\UI\Co
 	use JavaScriptBindable;
 
 	protected string $form_action = "";
+	protected ?string $action_label = null;
+
 	private SignalGeneratorInterface $signal_generator;
 	private \ILIAS\UI\Implementation\Component\Signal $list_data_source_signal;
 	private \ILIAS\UI\Implementation\Component\Signal $submit_signal;
@@ -39,6 +41,19 @@ class FormGroup extends Group implements \ILIAS\Plugin\LongEssayAssessment\UI\Co
 	public function getFormAction(): string
 	{
 		return $this->form_action;
+	}
+
+	public function withActionLabel(string $label): \ILIAS\Plugin\LongEssayAssessment\UI\Component\FormGroup
+	{
+		$clone = clone $this;
+		$clone->action_label = $label;
+
+		return $clone;
+	}
+
+	public function getActionLabel(): ?string
+	{
+		return $this->action_label;
 	}
 
 	public function withoutActions(): Group

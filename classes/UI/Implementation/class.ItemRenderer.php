@@ -90,11 +90,12 @@ class ItemRenderer extends \ILIAS\UI\Implementation\Component\Item\Renderer
 
 
 			$actions = $component->getActions();
+			$action_label = $component->getActionLabel() ?? $this->txt("execute");
 			if ($actions === null) {
-				$buttons = $this->getUIFactory()->button()->standard($this->txt("execute"), "")
+				$buttons = $this->getUIFactory()->button()->standard($action_label, "")
 					->withOnClick($component->getSubmitSignal());
 			} else {
-				$buttons = $component->getActions()->withLabel($this->txt("execute"));
+				$buttons = $component->getActions()->withLabel($action_label);
 			}
 			$tpl->setVariable("CMD_BUTTONS_TOP", $default_renderer->render($buttons));
 			$tpl->setVariable("CMD_BUTTONS_BOTTOM", $default_renderer->render($buttons));
@@ -129,14 +130,20 @@ class ItemRenderer extends \ILIAS\UI\Implementation\Component\Item\Renderer
 				$title = strip_tags($title);
 				break;
 		}
-
-		$tpl->setCurrentBlock("checkbox");
-		$tpl->setVariable("CB_VALUE", $component->getName());
-		$tpl->setVariable("LIST_DATA_SOURCE_NAME", $title);
-		$tpl->parseCurrentBlock();
-
 		// lead
 		$lead = $component->getLead();
+
+		if($component->getName() !== null){
+			$tpl->setCurrentBlock("checkbox");
+			$tpl->setVariable("CB_VALUE", $component->getName());
+			$tpl->setVariable("LIST_DATA_SOURCE_NAME", $title);
+			$tpl->parseCurrentBlock();
+
+			if($lead == null){ // checkbox activates lead-block so lead_end has to be called
+				$tpl->touchBlock("lead_end");
+			}
+		}
+
 		if ($lead != null) {
 			if (is_string($lead)) {
 				$tpl->setCurrentBlock("lead_text");

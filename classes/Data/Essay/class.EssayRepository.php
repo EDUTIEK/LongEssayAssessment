@@ -291,7 +291,7 @@ class EssayRepository extends RecordRepo
     public function deleteCriterionPointsByRatingId(int $a_rating_id)
     {
 		$this->db->manipulate("DELETE FROM xlas_crit_points" .
-            " WHERE rating_id = " . $this->db->quote($a_rating_id, "integer"));
+            " WHERE criterion_id = " . $this->db->quote($a_rating_id, "integer"));
     }
 
     public function deleteAccessToken(int $a_id)

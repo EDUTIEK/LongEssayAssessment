@@ -21,6 +21,7 @@ use Edutiek\LongEssayAssessmentService\Data\CorrectionComment;
 use Edutiek\LongEssayAssessmentService\Data\CorrectionPoints;
 use ILIAS\Plugin\LongEssayAssessment\Data\Essay\CorrectorComment;
 use ILIAS\Plugin\LongEssayAssessment\Data\Essay\CriterionPoints;
+use ILIAS\Plugin\LongEssayAssessment\Data\Task\CorrectionSettings as PluginCorrectionSettings;
 
 class CorrectorContext extends ServiceContext implements Context
 {
@@ -193,20 +194,49 @@ class CorrectorContext extends ServiceContext implements Context
         $objectRepo = $this->localDI->getObjectRepo();
         $taskRepo = $this->localDI->getTaskRepo();
         $settings = $taskRepo->getCorrectionSettingsById($this->task->getTaskId());
-
-        $criteria = [];
+        if (!isset($settings)) {
+            return [];
+        } 
         
-        if (!empty($settings) && $settings->getCriteriaMode() == \ILIAS\Plugin\LongEssayAssessment\Data\Task\CorrectionSettings::CRITERIA_MODE_FIXED) {
-            foreach ($objectRepo->getRatingCriteriaByObjectId($this->object->getId()) as $repoCriterion) {
-                $criteria[] = new CorrectionRatingCriterion(
-                    (string) $repoCriterion->getId(),
-                    $repoCriterion->getTitle(),
-                    $repoCriterion->getDescription(),
-                    $repoCriterion->getPoints()
-                );
-            }
+        $criteria = [];
+        switch ($settings->getCriteriaMode()) {
+            case PluginCorrectionSettings::CRITERIA_MODE_NONE:
+                return [];
+
+            case PluginCorrectionSettings::CRITERIA_MODE_CORRECTOR:
+                $correctors = [];
+                foreach ($this->getCorrectionItems() as $correction_item) {
+                    foreach ($this->getCorrectorsOfItem($correction_item->getKey()) as $corrector) {
+                        $correctors[$corrector->getKey()] = $corrector;
+                    }
+                }
+                foreach ($correctors as $corrector) {
+                    foreach ($objectRepo->getRatingCriteriaByObjectId($this->object->getId(), (int) $corrector->getKey()) as $repoCriterion) {
+                        $criteria[] = new CorrectionRatingCriterion(
+                            (string) $repoCriterion->getId(),
+                            (string) $repoCriterion->getCorrectorId(),
+                            $repoCriterion->getTitle(),
+                            $repoCriterion->getDescription(),
+                            $repoCriterion->getPoints()
+                        );
+                    }
+                }
+                return $criteria;
+                
+            case PluginCorrectionSettings::CRITERIA_MODE_FIXED:
+                foreach ($objectRepo->getRatingCriteriaByObjectId($this->object->getId()) as $repoCriterion) {
+                    $criteria[] = new CorrectionRatingCriterion(
+                        (string) $repoCriterion->getId(),
+                        (string) $repoCriterion->getCorrectorId(),
+                        $repoCriterion->getTitle(),
+                        $repoCriterion->getDescription(),
+                        $repoCriterion->getPoints()
+                    );
+                }
+                return $criteria;
         }
-        return $criteria;
+        
+        return [];
     }
 
 
@@ -545,17 +575,37 @@ class CorrectorContext extends ServiceContext implements Context
     {
         $repoCorrector = $this->localDI->getCorrectorRepo()->getCorrectorById((int) $corrector_key);
         $essayRepo = $this->localDI->getEssayRepo();
+        $objectRepo = $this->localDI->getObjectRepo();
+        $taskRepo = $this->localDI->getTaskRepo();
+        
+        $criteria_ids = [];
+        $settings = $taskRepo->getCorrectionSettingsById($this->task->getTaskId());
+        if (!isset($settings) || $settings->getCriteriaMode() == PluginCorrectionSettings::CRITERIA_MODE_NONE) {
+            $criteria = [];
+        }
+        elseif ($settings->getCriteriaMode() == PluginCorrectionSettings::CRITERIA_MODE_FIXED) {
+            $criteria = $objectRepo->getRatingCriteriaByObjectId($this->object->getId(), null);
+        }
+        else {
+            $criteria = $objectRepo->getRatingCriteriaByObjectId($this->object->getId(), (int) $corrector_key);
+        }
+        foreach ($criteria as $criterion) {
+            $criteria_ids[] = $criterion->getId();          
+        }
+        
         $points = [];
         if (!empty($repoEssay = $essayRepo->getEssayByWriterIdAndTaskId((int) $item_key, $this->task->getTaskId()))) {
             foreach ($essayRepo->getCriterionPointsByEssayIdAndCorrectorId(
                 $repoEssay->getId(), $repoCorrector->getId()
             ) as $repoPoints) {
-                $points[] = new CorrectionPoints(
-                    (string) $repoPoints->getId(),
-                    (string) $repoPoints->getCorrCommentId(),
-                    (string) $repoPoints->getCriterionId(),
-                    $repoPoints->getPoints()
-                );
+                if (in_array($repoPoints->getCriterionId(), $criteria_ids)) {
+                    $points[] = new CorrectionPoints(
+                        (string) $repoPoints->getId(),
+                        (string) $repoPoints->getCorrCommentId(),
+                        (string) $repoPoints->getCriterionId(),
+                        $repoPoints->getPoints()
+                    );
+                }
             }
         }
         return $points;

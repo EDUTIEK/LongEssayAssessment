@@ -79,4 +79,11 @@ class Location extends RecordData
 		$this->title = $title;
 		return $this;
 	}
+
+	public function __toString()
+	{
+		return $this->getTitle();
+	}
+
+
 }

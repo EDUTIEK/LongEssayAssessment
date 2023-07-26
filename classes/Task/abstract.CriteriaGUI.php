@@ -102,6 +102,7 @@ abstract class CriteriaGUI extends BaseGUI
 		$criteria_ids = array_map(fn (RatingCriterion $x) => $x->getId(), $this->getRatingCriterionFromContext());
 
 		if (($id = $this->getRatingCriterionId()) !== null && in_array($id, $criteria_ids)) {
+			$this->ctrl->saveParameter($this, "criterion_id");
 			$item = $this->object_repo->getRatingCriterionById($id);
 			$title = $this->plugin->txt('criteria_edit');
 		}

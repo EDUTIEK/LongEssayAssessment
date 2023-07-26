@@ -181,6 +181,8 @@ class GradesAdminGUI extends BaseGUI
 	}
 
 	protected function updateItem(){
+		$this->tabs->setBackTarget($this->lng->txt("back"), $this->ctrl->getLinkTarget($this));
+
 		$form = $this->buildEditForm([
 			"grade" => "",
 			"points" => 0,
@@ -223,6 +225,8 @@ class GradesAdminGUI extends BaseGUI
      */
     protected function editItem($form = null)
     {
+		$this->tabs->setBackTarget($this->lng->txt("back"), $this->ctrl->getLinkTarget($this));
+
 		if($form === null){
 			if ($id = $this->getGradeLevelId())
 			{

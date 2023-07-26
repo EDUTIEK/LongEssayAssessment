@@ -204,6 +204,8 @@ class ResourcesAdminGUI extends BaseGUI
      */
     protected function editItem()
     {
+		$this->tabs->setBackTarget($this->lng->txt("back"), $this->ctrl->getLinkTarget($this));
+		
         $resource_admin = new ResourceAdmin($this->object->getId());
         $resource_id = $this->getResourceId();
         if ($resource_id != null) {

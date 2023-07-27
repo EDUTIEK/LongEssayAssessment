@@ -86,7 +86,8 @@ abstract class CriteriaGUI extends BaseGUI
 					$this->uiFactory->button()->shy($this->lng->txt("remove"), $this->ctrl->getLinkTarget($this, "deleteItems"))
 				]));
 		}
-		$this->ctrl->clearParameterByClass(self::class, "criterion_id");
+		$this->ctrl->clearParameters($this);
+
 		$form_group = $this->custom_factory->item()->formGroup($this->plugin->txt("criteria"), $items,
 			$this->ctrl->getLinkTarget($this, "deleteItems"))->withActionLabel($this->lng->txt('remove'));
 		$this->tpl->setContent($this->renderer->render(array_merge([$form_group], $modals)));
@@ -176,6 +177,7 @@ abstract class CriteriaGUI extends BaseGUI
 		}else{
 			\ilUtil::sendFailure($this->plugin->txt("delete_criteria_failure"), true);
 		}
+		$this->ctrl->clearParameters($this);
 		$this->ctrl->redirect($this, "showItems");
 	}
 
@@ -204,11 +206,9 @@ abstract class CriteriaGUI extends BaseGUI
 		if(isset($post["cb"])){
 			$ids = array_map(fn($x) => (int)$x, $post["cb"]);
 		}else if(isset($query_params["criterion_id"]) && $query_params["criterion_id"] !== ""){
-			$this->ctrl->saveParameter($this, "criterion_id");
 			$ids[] = (int) $query_params["criterion_id"];
-		}elseif (isset($query_params["criterion_id"])){
-			$this->ctrl->saveParameter($this, "criterion_id");
-			foreach(explode('/', $query_params["criterion_id"]) as $value){
+		}elseif (isset($query_params["criterion_ids"])){
+			foreach(explode('/', $query_params["criterion_ids"]) as $value){
 				$ids[] = (int) $value;
 			}
 		}
@@ -232,6 +232,7 @@ abstract class CriteriaGUI extends BaseGUI
 				\ilUtil::sendSuccess($this->plugin->txt("criteria_publish_disabled"), true);
 			}
 		}
+		$this->ctrl->clearParameters($this);
 		$this->ctrl->redirect($this, "showItems");
 	}
 
@@ -307,6 +308,7 @@ abstract class CriteriaGUI extends BaseGUI
 		}else{
 			\ilUtil::sendFailure($this->plugin->txt("copy_criteria_failure"), true);
 		}
+		$this->ctrl->clearParameters($this);
 		$this->ctrl->redirect($this, "showItems");
 	}
 
@@ -353,7 +355,7 @@ abstract class CriteriaGUI extends BaseGUI
 			$this->ctrl->setParameter($this, "publish", "off");
 			$off_action = $this->ctrl->getFormAction($this, "publishRatingCriterion");
 
-			$this->ctrl->clearParameterByClass(self::class, "publish");
+			$this->ctrl->clearParameters($this);
 			$this->toolbar->addSeparator();
 			$this->toolbar->addText($this->plugin->txt("publish_rating_criterion"));
 			$this->toolbar->addComponent($this->uiFactory->button()->toggle("", $on_action, $off_action, $corrector->isCriterionCopyEnabled())

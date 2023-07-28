@@ -3,6 +3,14 @@
     {
       "type": "vcs",
       "url": "https://github.com/EDUTIEK/long-essay-assessment-service"
+    },
+    {
+      "type": "vcs",
+      "url": "https://github.com/EDUTIEK/long-essay-pdf-converter"
+    },
+    {
+      "type": "vcs",
+      "url": "https://github.com/EDUTIEK/long-essay-image-sketch"
     }
   ],
   "require": {

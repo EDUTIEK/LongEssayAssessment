@@ -39,7 +39,7 @@ class Essay extends RecordData
 		'writing_authorized_by' => 'integer',
 		'writing_excluded' => 'datetime',
 		'writing_excluded_by' => 'integer',
-		'pdf_version' => 'integer',
+		'pdf_version' => 'text',
 		'correction_finalized' => 'datetime',
 		'correction_finalized_by' => 'integer',
 		'final_points' => 'float',
@@ -61,7 +61,7 @@ class Essay extends RecordData
     protected ?int $writing_authorized_by = null;
 	protected ?string $writing_excluded = null;
 	protected ?int $writing_excluded_by = null;
-    protected ?int $pdf_version = null;
+    protected ?string $pdf_version = null;
     protected ?string $correction_finalized = null;
     protected ?int $correction_finalized_by = null;
     protected ?float $final_points = null;
@@ -255,16 +255,16 @@ class Essay extends RecordData
     /**
      * @return int
      */
-    public function getPdfVersion(): int
+    public function getPdfVersion(): ?string
     {
         return $this->pdf_version;
     }
 
     /**
-     * @param int $pdf_version
+     * @param ?string $pdf_version
      * @return Essay
      */
-    public function setPdfVersion(int $pdf_version): Essay
+    public function setPdfVersion(?string $pdf_version): Essay
     {
         $this->pdf_version = $pdf_version;
         return $this;

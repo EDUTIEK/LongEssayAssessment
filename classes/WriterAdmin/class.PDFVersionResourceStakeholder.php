@@ -1,11 +1,12 @@
 <?php
 
-namespace ILIAS\Plugin\LongEssayAssessment\Task;
+namespace ILIAS\Plugin\LongEssayAssessment\WriterAdmin;
 
 use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
 use ILIAS\ResourceStorage\Identification\ResourceIdentification;
+use ILIAS\ResourceStorage\Stakeholder\AbstractResourceStakeholder;
 
-class ResourceResourceStakeholder extends \ILIAS\ResourceStorage\Stakeholder\AbstractResourceStakeholder
+class PDFVersionResourceStakeholder extends AbstractResourceStakeholder
 {
     /**
      * @var int
@@ -22,7 +23,7 @@ class ResourceResourceStakeholder extends \ILIAS\ResourceStorage\Stakeholder\Abs
      */
     public function getId(): string
     {
-        return "xlas_resource";
+        return "xlas_essay";
     }
 
     /**
@@ -36,13 +37,14 @@ class ResourceResourceStakeholder extends \ILIAS\ResourceStorage\Stakeholder\Abs
     public function resourceHasBeenDeleted(ResourceIdentification $identification): bool
     {
 		$let_dic = LongEssayAssessmentDI::getInstance();
+		$essay_repo = $let_dic->getEssayRepo();
 		$task_repo = $let_dic->getTaskRepo();
-		$resource = $task_repo->getResourceByFileId((string) $identification);
+		$essay = $essay_repo->getEssayByPDFVersionFileID((string) $identification);
 
-		if($resource === null){
+		if($essay === null){
 			return true;
 		}
-		$task = $task_repo->getTaskSettingsById($resource->getTaskId());
+		$task = $task_repo->getTaskSettingsById($essay->getTaskId());
 
 		if($task === null){
 			return true;

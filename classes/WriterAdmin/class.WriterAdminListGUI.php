@@ -6,7 +6,6 @@ use ILIAS\Plugin\LongEssayAssessment\Data\Task\Location;
 use ILIAS\Plugin\LongEssayAssessment\Data\Writer\TimeExtension;
 use ILIAS\Plugin\LongEssayAssessment\Data\Writer\Writer;
 use ILIAS\UI\Component\Modal\RoundTrip;
-use ILIAS\UI\Component\Signal;
 use ILIAS\UI\Implementation\Component\Modal\Modal;
 
 class WriterAdminListGUI extends WriterListGUI
@@ -60,7 +59,8 @@ class WriterAdminListGUI extends WriterListGUI
 				])->withActionButtonLabel("confirm");
 
 				$modals[] = $authorize_modal;
-				$actions[] = $this->uiFactory->button()->shy($this->plugin->txt('authorize_writing'), "",)->withOnClick($authorize_modal->getShowSignal());
+				$actions[] = $this->uiFactory->button()->shy($this->plugin->txt('authorize_writing'), "",)
+					->withOnClick($authorize_modal->getShowSignal());
 			}
 
 			if($this->canGetExtension($writer)) {
@@ -69,6 +69,22 @@ class WriterAdminListGUI extends WriterListGUI
 				);
 				$actions[] = $this->uiFactory->button()->shy($this->plugin->txt("extent_time"), '')
 					->withOnClick($extension->getShowSignal());
+			}
+
+			if($this->canChangeLocation()){
+				$modals[] = $location_modal = $this->uiFactory->modal()->roundtrip("", [])->withAsyncRenderUrl(
+					$this->getChangeLocationAction($writer)
+				);
+				$actions[] = $this->uiFactory->button()->shy($this->plugin->txt("change_location"), '')
+					->withOnClick($location_modal->getShowSignal());
+			}
+
+			$actions[] = $this->uiFactory->button()->shy($this->getPDFVersionLinkText($writer), $this->getPDFVersionLink($writer));
+
+			if($this->canDownloadPDFVersion($writer)){
+				$link = $this->getPDFDownloadLink($writer);
+				$actions[] = $this->uiFactory->button()->shy(
+					$this->plugin->txt("pdf_version_download"), $link);
 			}
 
 			if($this->canGetRepealed($writer)){
@@ -111,14 +127,6 @@ class WriterAdminListGUI extends WriterListGUI
 				->withOnClick($remove_modal->getShowSignal());
 			$modals[] = $remove_modal;
 
-			if($this->canChangeLocation()){
-				$modals[] = $location_modal = $this->uiFactory->modal()->roundtrip("", [])->withAsyncRenderUrl(
-					$this->getChangeLocationAction($writer)
-				);
-				$actions[] = $this->uiFactory->button()->shy($this->plugin->txt("change_location"), '')
-					->withOnClick($location_modal->getShowSignal());
-			}
-
 			$actions_dropdown = $this->uiFactory->dropdown()->standard($actions)
 				->withLabel($this->plugin->txt("actions"));
 
@@ -132,6 +140,12 @@ class WriterAdminListGUI extends WriterListGUI
             }
 			if($this->canChangeLocation()){
 				$properties[$this->plugin->txt("location")] = $this->location($writer);
+			}
+
+			if($this->canDownloadPDFVersion($writer)){
+				$link = $this->getPDFDownloadLink($writer);
+				$properties[$this->plugin->txt("pdf_version")] = $this->uiFactory->button()->shy(
+					$this->plugin->txt("download"), $link);
 			}
 
 			$items[] = $this->localDI->getUIFactory()->item()->formItem($this->getWriterName($writer, true) . $this->getWriterAnchor($writer))
@@ -285,6 +299,30 @@ class WriterAdminListGUI extends WriterListGUI
 	{
 		$this->ctrl->setParameter($this->parent,"writer_id", $writer->getId());
 		return $this->ctrl->getFormAction($this->parent, "removeWriter");
+	}
+
+	private function canDownloadPDFVersion(Writer $writer): bool
+	{
+		return isset($this->essays[$writer->getId()]) && $this->essays[$writer->getId()]->getPdfVersion() !== null;
+	}
+
+	private function getPDFDownloadLink(Writer $writer): string
+	{
+		$this->ctrl->setParameter($this->parent,"writer_id", $writer->getId());
+		return $this->ctrl->getFormAction($this->parent, "downloadPDFVersion");
+	}
+
+	private function getPDFVersionLink(Writer $writer):string
+	{
+		$this->ctrl->setParameter($this->parent,"writer_id", $writer->getId());
+		return $this->ctrl->getFormAction($this->parent, "uploadPDFVersion");
+	}
+
+	private function getPDFVersionLinkText(Writer $writer): string
+	{
+		$essay = $this->essays[$writer->getId()] ?? null;
+
+		return $essay !== null && $essay->getPdfVersion() !== null ? $this->plugin->txt("pdf_version_edit") : $this->plugin->txt("pdf_version_upload");
 	}
 
 	/**

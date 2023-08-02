@@ -12,6 +12,7 @@ use ILIAS\Plugin\LongEssayAssessment\Data\Task\Resource;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\TaskSettings;
 use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
 use ILIAS\Plugin\LongEssayAssessment\Task\ResourceResourceStakeholder;
+use ILIAS\Plugin\LongEssayAssessment\WriterAdmin\PDFVersionResourceStakeholder;
 
 /**
  * Repository object
@@ -116,6 +117,7 @@ class ilObjLongEssayAssessment extends ilObjectPlugin
     protected function doDelete()
 	{
 		$task_repo = $this->localDI->getTaskRepo();
+		$essay_repo = $this->localDI->getEssayRepo();
 
 		$old_resource = $task_repo->getResourceByTaskId($this->getId());
 		foreach($old_resource as $resource){
@@ -124,6 +126,13 @@ class ilObjLongEssayAssessment extends ilObjectPlugin
 				($identifier = $this->resource->manage()->find($resource->getFileId())))
 			{
 				$this->resource->manage()->remove($identifier, new ResourceResourceStakeholder());
+			}
+		}
+		$old_essays = $essay_repo->getEssaysByTaskId($this->getId());
+		foreach($old_essays as $essay){
+			if($essay->getPdfVersion() !== null && ($identifier = $this->resource->manage()->find($essay->getPdfVersion())))
+			{
+				$this->resource->manage()->remove($identifier, new PDFVersionResourceStakeholder());
 			}
 		}
 

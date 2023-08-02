@@ -8,6 +8,7 @@ use ILIAS\Plugin\LongEssayAssessment\Task\ResourceResourceStakeholder;
 use ILIAS\Plugin\LongEssayAssessment\UI\Implementation\InputRenderer;
 use ILIAS\Plugin\LongEssayAssessment\UI\Implementation\ItemRenderer;
 use ILIAS\Plugin\LongEssayAssessment\UI\PluginRenderer;
+use ILIAS\Plugin\LongEssayAssessment\WriterAdmin\PDFVersionResourceStakeholder;
 
 /**
  * Basic plugin file
@@ -86,11 +87,19 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
 			"xlas_time_extension", "xlas_writer_notice", "xlas_writer", "xlas_writer_comment", "xlas_writer_history",
             "xlas_resource", "xlas_location"];
 
-		$files = $this->dic->database()->query("SELECT file_id FROM xlas_resource")->fetchAssoc();
+		$resources = $this->dic->database()->query("SELECT file_id FROM xlas_resource WHERE file_id IS NOT NULL")->fetchAssoc();
 
-		foreach ($files as $file){
+		foreach ($resources as $file){
 			if($identifier = $this->dic->resourceStorage()->manage()->find($file["file_id"])){
 				$this->dic->resourceStorage()->manage()->remove($identifier, new ResourceResourceStakeholder());
+			}
+		}
+
+		$essay_files = $this->dic->database()->query("SELECT pdf_version FROM xlas_essay WHERE pdf_version IS NOT NULL")->fetchAssoc();
+
+		foreach ($essay_files as $file){
+			if($identifier = $this->dic->resourceStorage()->manage()->find($file["pdf_version"])){
+				$this->dic->resourceStorage()->manage()->remove($identifier, new PDFVersionResourceStakeholder());
 			}
 		}
 

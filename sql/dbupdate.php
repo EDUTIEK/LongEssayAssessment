@@ -1009,7 +1009,6 @@ $fields = array(
     'file_id' => array(
         'type' => 'integer',
         'length' => '4',
-
     ),
     'url' => array(
         'notnull' => '1',
@@ -1616,6 +1615,36 @@ if (!$ilDB->tableColumnExists('xlas_rating_crit','corrector_id')) {
 		'notnull' => '0',
 		'type' => 'integer',
 		'length' => '4'
+	]);
+}
+?>
+<#75>
+<?php
+// Migrate all files of stakeholder xlas to xlas_resource
+$set = $ilDB->query("SELECT file_id FROM xlas_resource WHERE file_id IS NOT NULL;");
+$result = $ilDB->fetchAll($set);
+
+if(count($result) > 0){
+	$ilDB->manipulate("UPDATE il_resource_stkh_u SET stakeholder_id='xlas_resource' WHERE stakeholder_id LIKE 'xlas'");
+}
+
+$set = $ilDB->query("SELECT id FROM il_resource_stkh WHERE id LIKE 'xlas_resource';");
+$result = $ilDB->fetchAll($set);
+if(count($result) == 0){
+	$ilDB->manipulate("UPDATE il_resource_stkh SET id='xlas_resource' WHERE id LIKE 'xlas'");
+}else{
+	$ilDB->manipulate("DELETE FROM il_resource_stkh WHERE id LIKE 'xlas'");
+}
+
+?>
+<#76>
+<?php
+if ($ilDB->tableColumnExists('xlas_essay','pdf_version')) {
+	$ilDB->modifyTableColumn('xlas_essay', 'pdf_version', [
+		'notnull' => '0',
+		'type' => 'text',
+		'length' => '50',
+        'default' => null
 	]);
 }
 ?>

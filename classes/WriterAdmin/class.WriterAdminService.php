@@ -14,6 +14,7 @@ use ILIAS\Plugin\LongEssayAssessment\Data\Task\LogEntry;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\TaskRepository;
 use ILIAS\Plugin\LongEssayAssessment\Data\Writer\Writer;
 use ILIAS\Plugin\LongEssayAssessment\Data\Writer\WriterRepository;
+use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
 use ILIAS\Plugin\LongEssayAssessment\Writer\WriterContext;
 
 class WriterAdminService extends BaseService
@@ -266,4 +267,95 @@ class WriterAdminService extends BaseService
 
         return [$before, $writing, $after];
     }
+
+	public function authorizeWriting(Essay $essay, int $user_id){
+		$datetime = new \ilDateTime(time(), IL_CAL_UNIX);
+		$essay->setWritingAuthorized($datetime->get(IL_CAL_DATETIME));
+		$essay->setWritingAuthorizedBy($user_id);
+
+		$this->essayRepo->save($essay);
+
+		$this->createAuthorizeLogEntry($essay);
+	}
+
+	private function createAuthorizeLogEntry(Essay $essay){
+		$writer_repo = LongEssayAssessmentDI::getInstance()->getWriterRepo();
+		$task_repo = LongEssayAssessmentDI::getInstance()->getTaskRepo();
+		$writer = $writer_repo->getWriterById($essay->getWriterId());
+
+		$lng = $this->dic->language();
+
+		$description = \ilLanguage::_lookupEntry(
+			$lng->getDefaultLanguage(),
+			$this->plugin->getPrefix(),
+			$this->plugin->getPrefix() . "_writing_authorized_log_description"
+		);
+		$names = \ilUserUtil::getNamePresentation([$writer->getUserId(), $essay->getWritingAuthorizedBy()], false, false, "", true);
+
+		$log_entry = new LogEntry();
+		$log_entry->setEntry(sprintf($description, $names[$writer->getUserId()] ?? "unknown", $names[$essay->getWritingAuthorizedBy()] ?? "unknown"))
+			->setTaskId($this->task_id)
+			->setTimestamp($essay->getWritingAuthorized())
+			->setCategory(LogEntry::CATEGORY_AUTHORIZE);
+
+		$task_repo->save($log_entry);
+	}
+
+	public function removeAuthorizationWriting(Essay $essay, int $user_id)
+	{
+		if($essay->getWritingAuthorized() !== null){ // Only actively remove authorization if there was any before
+			$essay->setWritingAuthorized(null);
+			$essay->setWritingAuthorizedBy(null);
+
+			$this->essayRepo->save($essay);
+
+			$this->createAuthorizationRemoveLogEntry($essay, $user_id);
+		}
+	}
+
+	private function createAuthorizationRemoveLogEntry(Essay $essay, int $user_id){
+		$writer_repo = LongEssayAssessmentDI::getInstance()->getWriterRepo();
+		$task_repo = LongEssayAssessmentDI::getInstance()->getTaskRepo();
+		$writer = $writer_repo->getWriterById($essay->getWriterId());
+		$datetime = new \ilDateTime(time(), IL_CAL_UNIX);
+
+		$lng = $this->dic->language();
+
+		$description = \ilLanguage::_lookupEntry(
+			$lng->getDefaultLanguage(),
+			$this->plugin->getPrefix(),
+			$this->plugin->getPrefix() . "_writing_remove_authorize_log_description"
+		);
+		$names = \ilUserUtil::getNamePresentation([$writer->getUserId(), $user_id], false, false, "", true);
+
+		$log_entry = new LogEntry();
+		$log_entry->setEntry(sprintf($description, $names[$writer->getUserId()] ?? "unknown", $names[$user_id] ?? "unknown"))
+			->setTaskId($this->task_id)
+			->setTimestamp($datetime->get(IL_CAL_DATETIME))
+			->setCategory(LogEntry::CATEGORY_AUTHORIZE);
+
+		$task_repo->save($log_entry);
+	}
+
+	public function handlePDFVersionInput(Essay $essay, ?string $new_file_id){
+		$temp_file = $this->localDI->getUploadTempFile();
+		$saved_file_id = $essay->getPdfVersion();
+
+		if ($new_file_id === null && $saved_file_id !== null){
+			$resource_id = $this->dic->resourceStorage()->manage()->find($essay->getPdfVersion());
+			$this->dic->resourceStorage()->manage()->remove($resource_id, new PDFVersionResourceStakeholder());
+			$essay->setPdfVersion(null);
+		}elseif($new_file_id !== $saved_file_id){
+			if($saved_file_id == null){
+				$resource_id = $temp_file->storeTempFileInResources($new_file_id, new PDFVersionResourceStakeholder());
+			}else{
+				$resource_id =  $this->dic->resourceStorage()->manage()->find($essay->getPdfVersion());
+				if($resource_id !== null){
+					$temp_file->replaceTempFileWithResource($new_file_id, $resource_id, new PDFVersionResourceStakeholder());
+				}
+			}
+			$essay->setPdfVersion($resource_id !== null ? (string) $resource_id : null);
+		}
+		$this->essayRepo->save($essay);
+	}
 }

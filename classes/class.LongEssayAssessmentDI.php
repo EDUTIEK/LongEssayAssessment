@@ -119,6 +119,10 @@ class LongEssayAssessmentDI
 			);
 		};
 
+		$dic["xlas.upload_temp"] = function (\ILIAS\DI\Container $dic) {
+			return new ilLongEssayAssessmentUploadTempFile($dic->resourceStorage(), $dic->filesystem(), $dic->upload());
+		};
+
 		$dic["xlas.ui_service"] = function (\ILIAS\DI\Container $dic) {
 			return new UIService($dic["lng"], $dic["refinery"]);
 		};
@@ -179,16 +183,24 @@ class LongEssayAssessmentDI
     /**
      * @return Factory
      */
-    public function getUIFactory()
-    {
+    public function getUIFactory(): Factory
+	{
         return $this->container["xlas.custom_factory"];
     }
+
+	/**
+	 * @return ilLongEssayAssessmentUploadTempFile
+	 */
+	public function getUploadTempFile(): ilLongEssayAssessmentUploadTempFile
+	{
+		return $this->container["xlas.upload_temp"];
+	}
 
     /**
      * @return UIService
      */
-    public function getUIService()
-    {
+    public function getUIService(): UIService
+	{
         return $this->container["xlas.ui_service"];
     }
 

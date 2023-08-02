@@ -64,7 +64,9 @@ abstract class BaseGUI
     /** @var array query params */
     protected $params;
 
-    /**
+	protected \ILIAS\ResourceStorage\Services $storage;
+
+	/**
 	 * Constructor
 	 * @param \ilObjLongEssayAssessmentGUI  $objectGUI
 	 */
@@ -91,6 +93,7 @@ abstract class BaseGUI
         $this->localDI = LongEssayAssessmentDI::getInstance();
         $this->data = $this->localDI->getDataService($this->object->getId());
         $this->params = $this->request->getQueryParams();
+		$this->storage = $DIC->resourceStorage();
 	}
 
 	/**

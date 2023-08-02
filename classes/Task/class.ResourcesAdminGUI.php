@@ -99,7 +99,7 @@ class ResourcesAdminGUI extends BaseGUI
         $description = $factory->textarea($this->lng->txt("description"))
             ->withValue((string) $a_resource->getDescription());
 
-        $resource_file = $factory->file(new ResourceUploadHandlerGUI($this->dic->resourceStorage(), $this->localDI->getTaskRepo()), $this->lng->txt("file"))
+        $resource_file = $factory->file(new ResourceUploadHandlerGUI($this->storage, $this->localDI->getTaskRepo()), $this->lng->txt("file"))
 			->withValue($a_resource->getFileId() !== null ? [$a_resource->getFileId()] : null)
             ->withAcceptedMimeTypes(['application/pdf'])
             ->withByline($this->plugin->txt("resource_file_description") . "<br>" . $this->uiService->getMaxFileSizeString());
@@ -205,7 +205,7 @@ class ResourcesAdminGUI extends BaseGUI
     protected function editItem()
     {
 		$this->tabs->setBackTarget($this->lng->txt("back"), $this->ctrl->getLinkTarget($this));
-		
+
         $resource_admin = new ResourceAdmin($this->object->getId());
         $resource_id = $this->getResourceId();
         if ($resource_id != null) {

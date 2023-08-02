@@ -35,6 +35,16 @@ class EssayRepository extends RecordRepo
 		return $this->getSingleRecord($query, Essay::model());
 	}
 
+	/**
+	 * @param string $a_uuid
+	 * @return Essay|null
+	 */
+	public function getEssayByPDFVersionFileID(string $a_file_id): ?RecordData
+	{
+		$query = "SELECT * FROM " . Essay::tableName() . " WHERE pdf_version = " . $this->db->quote($a_file_id, 'text');
+		return $this->getSingleRecord($query, Essay::model());
+	}
+
     public function ifEssayExistsById(int $a_id): bool
     {
         return ($this->getEssayById($a_id) != null);

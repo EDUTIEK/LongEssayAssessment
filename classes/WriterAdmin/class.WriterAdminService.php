@@ -16,6 +16,8 @@ use ILIAS\Plugin\LongEssayAssessment\Data\Writer\Writer;
 use ILIAS\Plugin\LongEssayAssessment\Data\Writer\WriterRepository;
 use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
 use ILIAS\Plugin\LongEssayAssessment\Writer\WriterContext;
+use ILIAS\Filesystem\Stream\Streams;
+use ILIAS\Plugin\LongEssayAssessment\Data\Essay\EssayImage;
 
 class WriterAdminService extends BaseService
 {
@@ -358,4 +360,59 @@ class WriterAdminService extends BaseService
 		}
 		$this->essayRepo->save($essay);
 	}
+    
+    public function createEssayImages(Essay $essay, WriterContext $context) 
+    {
+        $essay_repo = LongEssayAssessmentDI::getInstance()->getEssayRepo();
+        $service = new Service($context);
+        
+        $this->removeEssayImages($essay->getId());
+        
+        $pdfs = [];
+        if (!empty($essay->getPdfVersion())) {
+
+            if (!empty($essay->getWrittenText())) {
+                $fs = $this->dic->filesystem()->temp();
+                $fs->put('xlas/processed_text.pdf', $service->getProcessedTextAsPdf());
+                $pdfs[] = $fs->readStream('xlas/processed_text.pdf')->detach();
+            }
+            
+            $resource_id = $this->dic->resourceStorage()->manage()->find($essay->getPdfVersion());
+            if (!empty($resource_id)) {
+                $pdfs[] = $this->dic->resourceStorage()->consume()->stream($resource_id)->getStream()->detach();
+            }
+        }
+        
+        if (!empty($pdfs)) {
+            $images = $service->createPageImagesFromPdfs($pdfs);
+
+            $page = 0;
+            foreach ($images as $image) {
+                $stream = Streams::ofResource($image->getImage());
+                $resource_id = $this->dic->resourceStorage()->manage()->stream($stream, new EssayImageResourceStakeholder());
+
+                $repoImage = new EssayImage(
+                    0,
+                    $essay->getId(),
+                    $page++,
+                    (string) $resource_id,
+                    $image->getWidth(),
+                    $image->getHeight()
+                );
+                $essay_repo->save($repoImage);
+            }
+        }
+        
+    }
+    
+    
+    public function removeEssayImages(int $essay_id) 
+    {
+        $essay_repo = LongEssayAssessmentDI::getInstance()->getEssayRepo();
+        foreach ($essay_repo->getEssayImagesByEssayID($essay_id) as $essay_image) {
+            if($identifier = $this->dic->resourceStorage()->manage()->find($essay_image->getFileId())){
+                $this->dic->resourceStorage()->manage()->remove($identifier, new EssayImageResourceStakeholder());
+            }
+        }
+    }
 }

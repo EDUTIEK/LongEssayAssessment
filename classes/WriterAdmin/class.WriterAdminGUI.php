@@ -17,6 +17,7 @@ use ILIAS\UI\Component\Input\Container\Form\Standard;
 use ILIAS\UI\Component\Modal\RoundTrip;
 use ILIAS\UI\Implementation\Component\SignalGeneratorInterface;
 use \ilUtil;
+use ILIAS\Plugin\LongEssayAssessment\Writer\WriterContext;
 
 /**
  *Start page for corrector admins
@@ -797,6 +798,11 @@ class WriterAdminGUI extends BaseGUI
 						}
 
 						$service->handlePDFVersionInput($essay, $file_id);
+                        
+                        $context = new WriterContext();
+                        $context->init((string) $writer->getUserId(), (string) $this->object->getRefId());
+                        $service->createEssayImages($essay, $context);
+                        
 						$this->ctrl->redirect($this);
 					}else{
 						ilUtil::sendFailure($this->plugin->txt("pdf_version_upload_failure"));

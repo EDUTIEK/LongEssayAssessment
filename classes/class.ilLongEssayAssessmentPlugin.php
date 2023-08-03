@@ -103,7 +103,15 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
 			}
 		}
 
-		foreach($tables as $table){
+        $essay_images = $this->dic->database()->query("SELECT pdf_version FROM xlas_essay_images WHERE file_id IS NOT NULL")->fetchAssoc();
+
+        foreach ($essay_images as $image){
+            if($identifier = $this->dic->resourceStorage()->manage()->find($file["file_id"])){
+                $this->dic->resourceStorage()->manage()->remove($identifier, new PDFVersionResourceStakeholder());
+            }
+        }
+
+        foreach($tables as $table){
 			if ($this->dic->database()->tableExists($table)){
 				$this->dic->database()->dropTable($table);
 			}

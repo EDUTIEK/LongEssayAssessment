@@ -1658,3 +1658,50 @@ if (!$ilDB->tableColumnExists('xlas_corrector_comment','mark')) {
     ]);
 }
 ?>
+<#78>
+<?php
+$fields = array(
+    'id' => array(
+        'notnull' => '1',
+        'type' => 'integer',
+        'length' => '4',
+
+    ),
+    'essay_id' => array(
+        'notnull' => '1',
+        'type' => 'integer',
+        'length' => '4',
+    ),
+    'page_no' => array(
+        'notnull' => '1',
+        'type' => 'integer',
+        'length' => '4',
+    ),
+    'file_id' => array(
+        'notnull' => '1',
+        'type' => 'text',
+        'length' => '50',
+    ),
+    'width' => array(
+        'notnull' => '1',
+        'type' => 'integer',
+        'length' => '4',
+    ),
+    'height' => array(
+        'notnull' => '1',
+        'type' => 'integer',
+        'length' => '4',
+    ),
+
+    
+);
+if (! $ilDB->tableExists('xlas_essay_image')) {
+    $ilDB->createTable('xlas_essay_image', $fields);
+    $ilDB->addPrimaryKey('xlas_essay_image', array( 'id' ));
+    $ilDB->addIndex("xlas_essay_image", array("essay_id"), "i1");
+
+    if (! $ilDB->sequenceExists('xlas_essay_image')) {
+        $ilDB->createSequence('xlas_essay_image');
+    }
+}
+?>

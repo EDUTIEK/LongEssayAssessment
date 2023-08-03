@@ -1009,6 +1009,7 @@ $fields = array(
     'file_id' => array(
         'type' => 'integer',
         'length' => '4',
+
     ),
     'url' => array(
         'notnull' => '1',
@@ -1646,5 +1647,14 @@ if ($ilDB->tableColumnExists('xlas_essay','pdf_version')) {
 		'length' => '50',
         'default' => null
 	]);
+}
+?>
+<#77>
+<?php
+if (!$ilDB->tableColumnExists('xlas_corrector_comment','mark')) {
+    $ilDB->addTableColumn('xlas_corrector_comment', 'mark', [
+        'type' => 'text',
+        'length' => '4000',
+    ]);
 }
 ?>

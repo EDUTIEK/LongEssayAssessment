@@ -11,7 +11,6 @@ use ILIAS\Plugin\LongEssayAssessment\Data\RecordData;
 class CorrectorComment extends RecordData
 {
     const RATING_CARDINAL = 'cardinal';
-    const RAITNG_FAILURE = 'failure';
     const RAITNG_EXCELLENT = 'excellent';
 
 	protected const tableName = 'xlas_corrector_comment';
@@ -27,7 +26,8 @@ class CorrectorComment extends RecordData
 		'end_position' => 'integer',
         'parent_number' => 'integer',
         'rating' => 'text',
-        'points' => 'integer'
+        'points' => 'integer',
+        'mark' => 'text',
 	];
 
     protected int $id = 0;
@@ -39,6 +39,7 @@ class CorrectorComment extends RecordData
     protected int $parent_number = 0;
     protected string $rating = '';
     protected int $points = 0;
+    protected ?string $mark = null;
 
 	public static function model() {
 		return new self();
@@ -202,5 +203,21 @@ class CorrectorComment extends RecordData
     public function setPoints(int $points): void
     {
         $this->points = $points;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getMark(): ?string
+    {
+        return $this->mark;
+    }
+
+    /**
+     * @param string|null $mark
+     */
+    public function setMark(?string $mark): void
+    {
+        $this->mark = $mark;
     }
 }

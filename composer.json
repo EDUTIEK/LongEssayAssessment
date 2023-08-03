@@ -2,15 +2,15 @@
   "repositories": [
     {
       "type": "vcs",
-      "url": "https://github.com/EDUTIEK/long-essay-assessment-service"
+      "url": "https://github.com/edutiek/long-essay-assessment-service"
     },
     {
       "type": "vcs",
-      "url": "https://github.com/EDUTIEK/long-essay-pdf-converter"
+      "url": "https://github.com/edutiek/long-essay-pdf-converter"
     },
     {
       "type": "vcs",
-      "url": "https://github.com/EDUTIEK/long-essay-image-sketch"
+      "url": "https://github.com/edutiek/long-essay-image-sketch"
     }
   ],
   "require": {

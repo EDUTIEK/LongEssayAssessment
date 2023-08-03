@@ -839,9 +839,9 @@ class WriterAdminGUI extends BaseGUI
 				}else if($essay->getPdfVersion() === null){
 					ilUtil::sendInfo($this->plugin->txt("pdf_version_info_started_essay"));
 				}
-
+                
 				$subs[] = $this->uiFactory->panel()->sub($this->plugin->txt("writing"),
-					$this->uiFactory->legacy($essay->getProcessedText())
+                    $this->uiFactory->legacy((string) $essay->getProcessedText())
 				);
 			}
 

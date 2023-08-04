@@ -1705,3 +1705,13 @@ if (! $ilDB->tableExists('xlas_essay_image')) {
     }
 }
 ?>
+
+<#79>
+<?php
+if (!$ilDB->tableColumnExists('xlas_corrector_comment','marks')) {
+    $ilDB->addTableColumn('xlas_corrector_comment', 'marks', [
+        'type' => 'text',
+        'length' => '4000',
+    ]);
+}
+?>

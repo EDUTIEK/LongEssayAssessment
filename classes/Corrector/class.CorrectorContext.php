@@ -24,6 +24,7 @@ use ILIAS\Plugin\LongEssayAssessment\Data\Essay\CriterionPoints;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\CorrectionSettings as PluginCorrectionSettings;
 use Edutiek\LongEssayAssessmentService\Data\PageImage;
 use Edutiek\LongEssayAssessmentService\Data\CorrectionPage;
+use Edutiek\LongEssayAssessmentService\Data\CorrectionMark;
 
 class CorrectorContext extends ServiceContext implements Context
 {
@@ -588,7 +589,8 @@ class CorrectorContext extends ServiceContext implements Context
                     $repoComment->getParentNumber(),
                     $repoComment->getComment(),
                     $repoComment->getRating(),
-                    $repoComment->getPoints()
+                    $repoComment->getPoints(),
+                    CorrectionMark::multiFromArray((array) json_decode($repoComment->getMarksJson()))
                 );
             }
         }
@@ -753,7 +755,8 @@ class CorrectorContext extends ServiceContext implements Context
             ->setParentNumber($comment->getParentNumber())
             ->setComment($comment->getComment())
             ->setRating($comment->getRating())
-            ->setPoints($comment->getPoints());
+            ->setPoints($comment->getPoints())
+            ->setMarksJson(json_encode(CorrectionMark::multiToArray($comment->getMarks())));
         
         $essayRepo->save($repoComment);
         

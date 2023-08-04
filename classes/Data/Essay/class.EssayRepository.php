@@ -44,28 +44,6 @@ class EssayRepository extends RecordRepo
 		$query = "SELECT * FROM " . Essay::tableName() . " WHERE pdf_version = " . $this->db->quote($a_file_id, 'text');
 		return $this->getSingleRecord($query, Essay::model());
 	}
-
-    /**
-     * @param int $a_essay_id
-     * @return EssayImage[]
-     */
-    public function getEssayImagesByEssayID(int $a_essay_id): array
-    {
-        $query = "SELECT * FROM " . EssayImage::tableName() . " WHERE essay_id = " . $this->db->quote($a_essay_id, 'text')
-            . ' ORDER BY page_no ASC';
-        return $this->queryRecords($query, EssayImage::model(), true, true, 'page_no');
-
-    }
-
-    /**
-     * @param string $a_file_id
-     * @return EssayImage|null
-     */
-    public function getEssayImageByFileID(string $a_file_id): ?RecordData
-    {
-        $query = "SELECT * FROM " . EssayImage::tableName() . " WHERE file_id = " . $this->db->quote($a_file_id, 'text');
-        return $this->getSingleRecord($query, EssayImage::model());
-    }
     
 
     public function ifEssayExistsById(int $a_id): bool
@@ -104,7 +82,41 @@ class EssayRepository extends RecordRepo
 		" AND task_id = ". $this->db->quote($a_task_id, 'integer');
 		return $this->getSingleRecord($query, Essay::model());
     }
+    
+    /**
+     * @param int $a_essay_id
+     * @return EssayImage[]
+     */
+    public function getEssayImagesByEssayID(int $a_essay_id): array
+    {
+        $query = "SELECT * FROM " . EssayImage::tableName() . " WHERE essay_id = " . $this->db->quote($a_essay_id, 'integer')
+            . ' ORDER BY page_no ASC';
+        return $this->queryRecords($query, EssayImage::model(), true, true, 'page_no');
 
+    }
+
+    /**
+     * @param string $a_file_id
+     * @return EssayImage|null
+     */
+    public function getEssayImageByID(int $a_id): ?RecordData
+    {
+        $query = "SELECT * FROM " . EssayImage::tableName() . " WHERE id = " . $this->db->quote($a_id, 'integer');
+        return $this->getSingleRecord($query, EssayImage::model());
+    }
+
+    /**
+     * @param string $a_file_id
+     * @return EssayImage|null
+     */
+    public function getEssayImageByFileID(string $a_file_id): ?RecordData
+    {
+        $query = "SELECT * FROM " . EssayImage::tableName() . " WHERE file_id = " . $this->db->quote($a_file_id, 'text');
+        return $this->getSingleRecord($query, EssayImage::model());
+    }
+
+    
+    
 	/**
 	 * @param int $essay_id
 	 * @param int|null $limit
@@ -279,7 +291,7 @@ class EssayRepository extends RecordRepo
     }
     
     public function deleteEssayImagesByEssayId(int $essay_id) {
-        $this->db->manipulate("DELETE FROM essay_image WHERE essay_id = "
+        $this->db->manipulate("DELETE FROM xlas_essay_image WHERE essay_id = "
             . $this->db->quote($essay_id, 'integer'));
     }
 

@@ -285,6 +285,24 @@ abstract class ServiceContext implements BaseContext
 
 
     /**
+     * @inheritDoc
+     */
+    public function sendPageImage(string $key): void
+    {
+        global $DIC;
+
+        $repo = $this->localDI->getEssayRepo();
+        $image = $repo->getEssayImageByID((int) $key);
+        
+        if (!empty($image) && !empty($image->getFileId())) {
+            $image_file = $DIC->resourceStorage()->manage()->find($image->getFileId());
+            if (!empty($image_file)) {
+                $DIC->resourceStorage()->consume()->inline($image_file)->run();
+            }
+        }
+    }
+    
+    /**
      * Get the writing task of a certain writer
      * (not needed by interface, but public because needed by CorrectorAdminService)
      */

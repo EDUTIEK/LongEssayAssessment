@@ -386,7 +386,7 @@ class WriterAdminService extends BaseService
         if (!empty($pdfs)) {
             $images = $service->createPageImagesFromPdfs($pdfs);
 
-            $page = 0;
+            $page = 1;
             foreach ($images as $image) {
                 $stream = Streams::ofResource($image->getImage());
                 $resource_id = $this->dic->resourceStorage()->manage()->stream($stream, new EssayImageResourceStakeholder());
@@ -414,5 +414,6 @@ class WriterAdminService extends BaseService
                 $this->dic->resourceStorage()->manage()->remove($identifier, new EssayImageResourceStakeholder());
             }
         }
+        $essay_repo->deleteEssayImagesByEssayId($essay_id);
     }
 }

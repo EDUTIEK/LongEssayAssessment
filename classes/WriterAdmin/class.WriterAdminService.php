@@ -373,7 +373,7 @@ class WriterAdminService extends BaseService
 
             if (!empty($essay->getWrittenText())) {
                 $fs = $this->dic->filesystem()->temp();
-                $fs->put('xlas/processed_text.pdf', $service->getProcessedTextAsPdf());
+                $fs->put('xlas/processed_text.pdf', $service->getProcessedTextAsPlainPdf());
                 $pdfs[] = $fs->readStream('xlas/processed_text.pdf')->detach();
             }
             
@@ -389,20 +389,31 @@ class WriterAdminService extends BaseService
             $page = 1;
             foreach ($images as $image) {
                 $stream = Streams::ofResource($image->getImage());
-                $resource_id = $this->dic->resourceStorage()->manage()->stream($stream, new EssayImageResourceStakeholder());
+                $file_id = $this->dic->resourceStorage()->manage()->stream($stream, new EssayImageResourceStakeholder());
+                
+                $thumb_id = null;
+                if (!empty($image->getThumbnail())) {
+                    $thumb_stream = Streams::ofResource($image->getThumbnail());
+                    $thumb_id = $this->dic->resourceStorage()->manage()->stream($thumb_stream, new EssayImageResourceStakeholder());
+                }
 
                 $repoImage = new EssayImage(
                     0,
                     $essay->getId(),
                     $page++,
-                    (string) $resource_id,
+                    (string) $file_id,
+                    $image->getMime(),
                     $image->getWidth(),
-                    $image->getHeight()
+                    $image->getHeight(),
+                    (string) $thumb_id,
+                    $image->getThumbMime(),
+                    $image->getThumbWidth(),
+                    $image->getThumbHeight(),
+
                 );
                 $essay_repo->save($repoImage);
             }
         }
-        
     }
     
     

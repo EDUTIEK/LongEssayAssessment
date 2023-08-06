@@ -57,6 +57,8 @@ class CorrectorAdminListGUI extends WriterListGUI
 
 			$actions = [];
 			$actions[] = $this->uiFactory->button()->shy($this->plugin->txt('view_correction'), $this->getViewCorrectionAction($writer));
+            $actions[] = $this->uiFactory->button()->shy($this->plugin->txt('download_corrected_pdf'), $this->getDownloadCorrectedPdfAction($writer));
+            
             if ($this->hasCorrectionStatusStitchDecided($writer)) {
                 $sight_modal = $this->uiFactory->modal()->lightbox($this->uiFactory->modal()->lightboxTextPage(
                     $this->localDI->getDataService($writer->getTaskId())->cleanupRichText($this->essays[$writer->getId()]->getStitchComment()),
@@ -180,7 +182,13 @@ class CorrectorAdminListGUI extends WriterListGUI
 		return $this->ctrl->getLinkTargetByClass(["ILIAS\Plugin\LongEssayAssessment\CorrectorAdmin\CorrectorAdminGUI"], "viewCorrections");
 	}
 
-	private function getChangeCorrectorAction(Writer $writer): string
+    private function getDownloadCorrectedPdfAction(Writer $writer): string
+    {
+        $this->ctrl->setParameter($this->parent, "writer_id", $writer->getId());
+        return $this->ctrl->getLinkTargetByClass(["ILIAS\Plugin\LongEssayAssessment\CorrectorAdmin\CorrectorAdminGUI"], "downloadCorrectedPdf");
+    }
+
+    private function getChangeCorrectorAction(Writer $writer): string
 	{
 		$this->ctrl->setParameter($this->parent, "writer_id", $writer->getId());
 		return $this->ctrl->getLinkTarget($this->parent, "editAssignmentsAsync");

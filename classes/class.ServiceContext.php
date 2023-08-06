@@ -16,6 +16,7 @@ use \ilObjUser;
 use \ilObject;
 use \ilObjLongEssayAssessment;
 use ilSession;
+use Edutiek\LongEssayAssessmentService\Data\PageImage;
 
 abstract class ServiceContext implements BaseContext
 {
@@ -292,16 +293,53 @@ abstract class ServiceContext implements BaseContext
         global $DIC;
 
         $repo = $this->localDI->getEssayRepo();
-        $image = $repo->getEssayImageByID((int) $key);
+        $repoImage = $repo->getEssayImageByID((int) $key);
         
-        if (!empty($image) && !empty($image->getFileId())) {
-            $image_file = $DIC->resourceStorage()->manage()->find($image->getFileId());
-            if (!empty($image_file)) {
-                $DIC->resourceStorage()->consume()->inline($image_file)->run();
+        if (!empty($repoImage) && !empty($repoImage->getFileId())) {
+            $identification = $DIC->resourceStorage()->manage()->find($repoImage->getFileId());
+            if (!empty($identification)) {
+                $DIC->resourceStorage()->consume()->inline($identification)->run();
             }
         }
     }
-    
+
+    /**
+     * Get the page image with loaded resources by its key
+     * @param string $key
+     * @return PageImage|null
+     */
+    public function getPageImage(string $key): ?PageImage
+    {
+        global $DIC;
+
+        $repo = $this->localDI->getEssayRepo();
+        $repoImage = $repo->getEssayImageByID((int) $key);
+
+        if (!empty($repoImage) && !empty($repoImage->getFileId())) {
+            $identification = $DIC->resourceStorage()->manage()->find($repoImage->getFileId());
+            if (!empty($identification)) {
+                $stream = $DIC->resourceStorage()->consume()->stream($identification)->getStream()->detach();
+                $thumb_stream = null;
+                if (!empty($repoImage->getThumbId())) {
+                    $thumb_identification = $DIC->resourceStorage()->manage()->find($repoImage->getThumbId());
+                    $thumb_stream = $DIC->resourceStorage()->consume()->stream($thumb_identification)->getStream()->detach();
+                }
+                return new PageImage(
+                    $stream,
+                    $repoImage->getMime(),
+                    $repoImage->getWidth(),
+                    $repoImage->getHeight(),
+                    $thumb_stream,
+                    $repoImage->getThumbMime(),
+                    $repoImage->getThumbWidth(),
+                    $repoImage->getThumbHeight()
+                );
+            }
+        }
+        return null;
+    }
+
+
     /**
      * Get the writing task of a certain writer
      * (not needed by interface, but public because needed by CorrectorAdminService)

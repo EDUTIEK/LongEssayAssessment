@@ -22,7 +22,6 @@ use Edutiek\LongEssayAssessmentService\Data\CorrectionPoints;
 use ILIAS\Plugin\LongEssayAssessment\Data\Essay\CorrectorComment;
 use ILIAS\Plugin\LongEssayAssessment\Data\Essay\CriterionPoints;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\CorrectionSettings as PluginCorrectionSettings;
-use Edutiek\LongEssayAssessmentService\Data\PageImage;
 use Edutiek\LongEssayAssessmentService\Data\CorrectionPage;
 use Edutiek\LongEssayAssessmentService\Data\CorrectionMark;
 

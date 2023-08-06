@@ -69,6 +69,7 @@ class CorrectorAdminGUI extends BaseGUI
                     case 'removeAuthorizations':
 					case 'editAssignmentsAsync':
 					case 'confirmRemoveAuthorizationsAsync':
+                    case 'downloadCorrectedPdf':
 						$this->$cmd();
 						break;
 
@@ -370,6 +371,22 @@ class CorrectorAdminGUI extends BaseGUI
     {
         $filename = \ilUtil::getASCIIFilename($this->plugin->txt('export_results_file_prefix') .' ' . $this->object->getTitle()) . '.csv';
         ilUtil::deliverFile($this->service->createResultsExport(), $filename, 'text/csv', true, true);
+    }
+
+    /**
+     * Download a generated pdf from the correction
+     */
+    protected function downloadCorrectedPdf()
+    {
+        $params = $this->request->getQueryParams();
+        $writer_id = (int) ($params['writer_id'] ?? 0);
+
+        $service = $this->localDI->getCorrectorAdminService($this->object->getId());
+        $repoTask = $this->localDI->getTaskRepo()->getTaskSettingsById($this->object->getId());
+        $repoWriter = $this->localDI->getWriterRepo()->getWriterById($writer_id);
+
+        $filename = 'task' . $this->object->getId() . '_user' . $this->dic->user()->getId(). '.pdf';
+        ilUtil::deliverData($service->getCorrectionAsPdf($this->object, $repoTask, $repoWriter), $filename, 'application/pdf');
     }
 
     private function exportSteps()

@@ -449,6 +449,7 @@ class CorrectorAdminService extends BaseService
         }
 
         $item = new DocuItem(
+            (string) $repoWriter->getId(),
             $writingTask,
             $writtenEssay,
             $correctionSummaries,

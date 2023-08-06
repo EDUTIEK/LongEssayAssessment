@@ -436,3 +436,4 @@ pdf_version_upload_successful_removed#:#Die PDF-Version wurde erfolgreich entfer
 pdf_version_upload_successful_no_auth#:#Die PDF-Version wurde erfolgreich hochgeladen. Eine Autorisierung steht noch aus.
 pdf_version_upload_failure#:#Bitte laden Sie eine PDF-Version hoch.
 pdf_version_not_found#:#Es konnte keine PDF-Version gefunden werden.
+download_corrected_pdf#:#Korrektur-PDF herunterladen

@@ -1705,7 +1705,6 @@ if (! $ilDB->tableExists('xlas_essay_image')) {
     }
 }
 ?>
-
 <#79>
 <?php
 if (!$ilDB->tableColumnExists('xlas_corrector_comment','marks')) {
@@ -1714,4 +1713,43 @@ if (!$ilDB->tableColumnExists('xlas_corrector_comment','marks')) {
         'length' => '4000',
     ]);
 }
+?>
+<#80>
+<?php
+if (!$ilDB->tableColumnExists('xlas_essay_image', 'mime')) {
+    $ilDB->addTableColumn('xlas_essay_image', 'mime', [
+       'notnull' => '1',
+       'type' => 'text',
+       'length' => '255'
+    ]);
+}
+if (!$ilDB->tableColumnExists('xlas_essay_image', 'thumb_id')) {
+    $ilDB->addTableColumn('xlas_essay_image', 'thumb_id', [
+        'notnull' => '0',
+        'type' => 'text',
+        'length' => '50',
+    ]);
+}
+if (!$ilDB->tableColumnExists('xlas_essay_image', 'thumb_width')) {
+    $ilDB->addTableColumn('xlas_essay_image', 'thumb_width', [
+        'notnull' => '0',
+        'type' => 'integer',
+        'length' => '4',
+    ]);
+}
+if (!$ilDB->tableColumnExists('xlas_essay_image', 'thumb_height')) {
+    $ilDB->addTableColumn('xlas_essay_image', 'thumb_height', [
+        'notnull' => '0',
+        'type' => 'integer',
+        'length' => '4',
+    ]);
+}
+if (!$ilDB->tableColumnExists('xlas_essay_image', 'thumb_mime')) {
+    $ilDB->addTableColumn('xlas_essay_image', 'thumb_mime', [
+        'notnull' => '0',
+        'type' => 'text',
+        'length' => '255'
+    ]);
+}
+
 ?>

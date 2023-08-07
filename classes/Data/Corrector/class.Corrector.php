@@ -41,7 +41,7 @@ class Corrector extends RecordData
      * The task_id currently corresponds to the obj_id of the ILIAS object
      */
     protected int $task_id;
-	protected int $criterion_copy;
+	protected int $criterion_copy = 0;
 
 
 	public function __construct(int $id)

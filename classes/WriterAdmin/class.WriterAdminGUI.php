@@ -765,17 +765,13 @@ class WriterAdminGUI extends BaseGUI
 		$essay_repo = $this->localDI->getEssayRepo();
 		$task_repo = $this->localDI->getTaskRepo();
 		$task_id = $this->object->getId();
+
+        $service = $this->localDI->getWriterAdminService($this->object->getId());
+        
 		$this->tabs->setBackTarget($this->lng->txt("back"), $this->ctrl->getLinkTarget($this));
 
 		if(($id = $this->getWriterId()) !== null && ($writer = $writer_repo->getWriterById($id)) !== null){
-			$essay = $essay_repo->getEssayByWriterIdAndTaskId($id, $task_id);
-
-			if($essay == null){
-				$essay = Essay::model()
-					->setTaskId($task_id)
-					->setWriterId($id);
-				$essay_repo->save($essay);
-			}
+			$essay = $service->getOrCreateEssayForWriter($writer);
 			$form = $this->buildPDFVersionForm($essay);
 
 			if($this->request->getMethod() === "POST") {
@@ -785,8 +781,7 @@ class WriterAdminGUI extends BaseGUI
 					$file_id = $data["pdf_version"][0];
 
 					if($file_id != $essay->getPdfVersion()){
-						$service = $this->localDI->getWriterAdminService($this->object->getId());
-
+                        
 						if((int)$data["authorize"] == 1 && $file_id !== null){
 							$service->authorizeWriting($essay, $this->dic->user()->getId());
 							ilUtil::sendSuccess($this->plugin->txt("pdf_version_upload_successful_auth"), true);

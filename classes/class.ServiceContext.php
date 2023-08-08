@@ -17,6 +17,7 @@ use \ilObject;
 use \ilObjLongEssayAssessment;
 use ilSession;
 use Edutiek\LongEssayAssessmentService\Data\PageImage;
+use ILIAS\Filesystem\Util\LegacyPathHelper;
 
 abstract class ServiceContext implements BaseContext
 {
@@ -102,6 +103,36 @@ abstract class ServiceContext implements BaseContext
     {
         global $DIC;
         return (string) $DIC->clientIni()->readVariable('client', 'name');
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getRelativeTempPath(): string
+    {
+        $this->createTempWebDir();
+        return ILIAS_WEB_DIR. '/' . CLIENT_ID . '/temp';
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getAbsoluteTempPath(): string
+    {
+        $this->createTempWebDir();
+        return ILIAS_ABSOLUTE_PATH . '/' . ILIAS_WEB_DIR . '/' . CLIENT_ID . '/temp';
+    }
+
+    /**
+     * Create the directory 'temp' in the web data directory
+     */
+    protected function createTempWebDir() 
+    {
+        global $DIC;
+        $fs = $DIC->filesystem()->web();
+        if (!$fs->hasDir('temp')) {
+            $fs->createDir('temp');
+        }
     }
 
     /**

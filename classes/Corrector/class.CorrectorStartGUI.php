@@ -60,6 +60,7 @@ class CorrectorStartGUI extends BaseGUI
 			case 'removeAuthorizationConfirmationAsync':
 			case 'authorizationConfirmationAsync':
 			case 'authorizeCorrection':
+            case 'downloadPdf';
                 $this->$cmd();
                 break;
 
@@ -100,6 +101,9 @@ class CorrectorStartGUI extends BaseGUI
                 }
             }
 
+            $this->ctrl->setParameter($this, 'writer_id', $writer->getId());
+            $actions[] = $this->uiFactory->button()->shy($this->plugin->txt('download_corrected_pdf'), 
+                $this->ctrl->getLinkTarget($this, 'downloadPdf'));
 
 			if ($this->service->canRemoveCorrectionAuthorize($essay, $summary)) {
 				$this->ctrl->setParameter($this, 'writer_id', $essay->getWriterId());
@@ -375,6 +379,20 @@ class CorrectorStartGUI extends BaseGUI
 			$this->ctrl->redirect($this);
 		}
 	}
+
+    protected function downloadPdf() 
+    {
+        $params = $this->request->getQueryParams();
+        $writer_id = (int) ($params['writer_id'] ?? 0);
+
+        $service = $this->localDI->getCorrectorAdminService($this->object->getId());
+        $repoWriter = $this->localDI->getWriterRepo()->getWriterById($writer_id);
+        $repoCorrector = $this->localDI->getCorrectorRepo()->getCorrectorByUserId($this->dic->user()->getId(), $this->settings->getTaskId());
+
+        $filename = 'task' . $this->object->getId() . '_user' . $this->dic->user()->getId(). '.pdf';
+        ilUtil::deliverData($service->getCorrectionAsPdf($this->object, $repoWriter, $repoCorrector), $filename, 'application/pdf');
+    }
+
 
 
     protected function removeAuthorization()

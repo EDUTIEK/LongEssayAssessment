@@ -412,7 +412,7 @@ class CorrectorAdminService extends BaseService
             $filename = \ilUtil::getASCIIFilename(
                 \ilObjUser::_lookupFullname($repoWriter->getUserId()) . ' (' . \ilObjUser::_lookupLogin($repoWriter->getUserId()) . ')') . '.pdf';
 
-            $storage->write($zipdir . '/'. $filename, $this->getCorrectionAsPdf($object, $repoTask, $repoWriter));
+            $storage->write($zipdir . '/'. $filename, $this->getCorrectionAsPdf($object, $repoWriter));
         }
 
         $zipfile = $basedir . '/' . $tempdir . '/' . \ilUtil::getASCIIFilename($object->getTitle()) . '.zip';
@@ -428,8 +428,10 @@ class CorrectorAdminService extends BaseService
 
     /**
      * Get the correction of an essay as PDF string
+     * if a repo corrector is given as parameter, then only this correction is included,
+     *      not the original writer text and not other correctors
      */
-    public function getCorrectionAsPdf(\ilObjLongEssayAssessment $object, TaskSettings $repoTask, Writer $repoWriter) : string
+    public function getCorrectionAsPdf(\ilObjLongEssayAssessment $object, Writer $repoWriter, ?Corrector $repoCorrector = null) : string
     {
         $context = new CorrectorContext();
         $context->init((string) $this->dic->user()->getId(), (string) $object->getRefId());
@@ -440,12 +442,13 @@ class CorrectorAdminService extends BaseService
         $correctionSummaries = [];
         $correctionComments = [];
         foreach ($this->correctorRepo->getAssignmentsByWriterId($repoWriter->getId()) as $assignment) {
-            $repoCorrector = $this->correctorRepo->getCorrectorById($assignment->getCorrectorId());
-            if (!empty($summary = $context->getCorrectionSummary((string) $repoWriter->getId(), (string) $repoCorrector->getId()))) {
-                $correctionSummaries[] = $summary;
+            if (!isset($repoCorrector) || $assignment->getCorrectorId() == $repoCorrector->getId()) {
+                if (!empty($summary = $context->getCorrectionSummary((string) $repoWriter->getId(), (string) $assignment->getCorrectorId()))) {
+                    $correctionSummaries[] = $summary;
+                }
+                $correctionComments = array_merge($correctionComments,
+                    $context->getCorrectionComments((string) $repoWriter->getId(), (string) $assignment->getCorrectorId()));
             }
-            $correctionComments = array_merge($correctionComments, 
-                $context->getCorrectionComments((string) $repoWriter->getId(), (string) $repoCorrector->getId()));
         }
 
         $item = new DocuItem(
@@ -457,7 +460,7 @@ class CorrectorAdminService extends BaseService
         );
 
         $service = new Service($context);
-        return $service->getCorrectionAsPdf($item);
+        return $service->getCorrectionAsPdf($item, $repoCorrector ? (string) $repoCorrector->getId() : null);
     }
 
 

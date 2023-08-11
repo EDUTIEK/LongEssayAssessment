@@ -382,11 +382,10 @@ class CorrectorAdminGUI extends BaseGUI
         $writer_id = (int) ($params['writer_id'] ?? 0);
 
         $service = $this->localDI->getCorrectorAdminService($this->object->getId());
-        $repoTask = $this->localDI->getTaskRepo()->getTaskSettingsById($this->object->getId());
         $repoWriter = $this->localDI->getWriterRepo()->getWriterById($writer_id);
 
         $filename = 'task' . $this->object->getId() . '_user' . $this->dic->user()->getId(). '.pdf';
-        ilUtil::deliverData($service->getCorrectionAsPdf($this->object, $repoTask, $repoWriter), $filename, 'application/pdf');
+        ilUtil::deliverData($service->getCorrectionAsPdf($this->object, $repoWriter), $filename, 'application/pdf');
     }
 
     private function exportSteps()

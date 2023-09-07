@@ -222,6 +222,14 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                         $this->ctrl->forwardCommand(new \ILIAS\Plugin\LongEssayAssessment\CorrectorAdmin\CorrectorAdminGUI($this));
                     }
                     break;
+                case 'ilias\plugin\longessayassessment\correctoradmin\correctoradminstatisticsgui':
+                    if ($this->object->canMaintainCorrectors()) {
+                        $cmd = $this->ctrl->getCmd('showStartPage');
+                        $active_sub = 'tab_corrector_statistic';
+                        $this->activateTab('tab_corrector_admin', $active_sub);
+                        $this->ctrl->forwardCommand(new \ILIAS\Plugin\LongEssayAssessment\CorrectorAdmin\CorrectorAdminStatisticsGUI($this));
+                    }
+                    break;
                 default:
                     ilUtil::sendFailure('Unsupported cmdClass: ' . $next_class);
             }
@@ -439,6 +447,11 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
 				'txt' => $this->plugin->txt('tab_corrector_list'),
 				'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessayassessment\correctorAdmin\correctoradmingui', "showCorrectors")
 			];
+            $tabs[] = [
+                'id' => 'tab_corrector_statistic',
+                'txt' => $this->plugin->txt('tab_corrector_statistic'),
+                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessayassessment\correctorAdmin\correctoradminstatisticsgui', "showStartPage")
+            ];
         }
         if (!empty($tabs)) {
             $this->tabs->addTab('tab_corrector_admin', $this->plugin->txt('tab_corrector_admin'), $tabs[0]['url']);

@@ -158,6 +158,32 @@ class EssayRepository extends RecordRepo
     }
 
     /**
+     * @param int $task_id
+     * @param int $corrector_id
+     * @return CorrectorSummary[]
+     */
+    public function getCorrectorSummariesByTaskIdAndCorrectorId(int $task_id, int $corrector_id): array
+    {
+        $query = "SELECT summary.* FROM " . CorrectorSummary::tableName() . " as summary " .
+            " LEFT JOIN " . Essay::tableName() . "as essay ON (summary.essay_id = essay.id)" .
+            " WHERE essay.task_id = " . $this->db->quote($task_id, 'integer') .
+            " AND summary.corrector_id = ". $this->db->quote($corrector_id, 'integer');
+        return $this->queryRecords($query, CorrectorSummary::model());
+    }
+
+    /**
+     * @param int $task_id
+     * @return CorrectorSummary[]
+     */
+    public function getCorrectorSummariesByTaskId(int $task_id): array
+    {
+        $query = "SELECT summary.* FROM " . CorrectorSummary::tableName() . " as summary " .
+            " LEFT JOIN " . Essay::tableName() . " as essay ON (summary.essay_id = essay.id)" .
+            " WHERE essay.task_id = " . $this->db->quote($task_id, 'integer');
+        return $this->queryRecords($query, CorrectorSummary::model());
+    }
+
+    /**
      * @param int $id
      * @return CorrectorComment|null
      */

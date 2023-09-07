@@ -437,3 +437,17 @@ pdf_version_upload_successful_no_auth#:#Die PDF-Version wurde erfolgreich hochge
 pdf_version_upload_failure#:#Bitte laden Sie eine PDF-Version hoch.
 pdf_version_not_found#:#Es konnte keine PDF-Version gefunden werden.
 download_corrected_pdf#:#Korrektur-PDF herunterladen
+tab_corrector_statistic#:#Notenstatistik
+statistic#:#Notenstatistik
+correction_count#:#Korrekturen insgesamt
+correction_final#:#Korrekturen fertig
+essay_count#:#bewertbare Klausuren
+essay_final#:#fertig bewertet
+essay_not_attended#:#nicht teilgenommen
+essay_passed#:#Bestanden
+essay_not_passed#:#nicht Bestanden
+essay_not_passed_quota#:#Durchfallquote
+essay_average_points#:#Durchschnittspunkte
+grade_distribution#:#Notenverteilung
+corrections_all#:#Alle Korrekturen
+essay_correction_finlized#:#Finalisierte Korrekturen

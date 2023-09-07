@@ -809,4 +809,78 @@ class CorrectorAdminService extends BaseService
 			isset($summary) &&
 			empty($summary->getCorrectionAuthorized());
 	}
+
+    /**
+     * @param CorrectorSummary[]|Essay[] $grading_objects
+     * @return array
+     *
+     */
+    public function gradeStatistics(array $grading_objects): array
+    {
+        $sum = 0;
+        $count_authorized = 0;
+        $count_by_level = [];
+        $count_passed = 0;
+        $count_not_attended = null;
+        $count_all = 0;
+        $passed_levels = [];
+
+        foreach($this->localDI->getObjectRepo()->getGradeLevelsByObjectId($this->task_id) as $level)
+        {
+            if($level->isPassed())
+                $passed_levels[] = $level->getId();
+
+            $count_by_level[$level->getId()] = 0;
+        }
+
+        foreach($grading_objects as $grading_object){
+
+            switch(true) {
+                case ($grading_object instanceof Essay):
+                    $points = $grading_object->getFinalPoints();
+                    $grade = $grading_object->getFinalGradeLevelId();
+                    $authorized_and_ok = $grading_object->getCorrectionFinalized() && $points !== null && $grade !== null;
+                    if($count_not_attended === null) $count_not_attended = 0; // if one essay is present, there could be not attended
+                    if(!$grading_object->getEditEnded() === null) $count_not_attended++; else $count_all++;
+                    break;
+                case ($grading_object instanceof CorrectorSummary):
+                    $points = $grading_object->getPoints();
+                    $grade = $grading_object->getGradeLevelId();
+                    $authorized_and_ok = $grading_object->getCorrectionAuthorized() && $points !== null && $grade !== null;
+                    $count_all++;
+                    break;
+                default:
+                    throw new \ValueError("Could not evaluate object of type " . get_class($grading_object) . " for grade statistics.");
+            }
+            if ($authorized_and_ok) {
+                $sum += $points;
+                $count_authorized++;
+                $count_by_level[$grade] = ($count_by_level[$grade] ?? 0) + 1;
+                if (in_array($grade, $passed_levels)) {
+                    $count_passed++;
+                }
+            }
+        }
+
+        return [
+            self::STATISTIC_COUNT_BY_LEVEL => $count_by_level,
+            self::STATISTIC_COUNT => $count_all,
+            self::STATISTIC_FINAL => $count_authorized,
+            self::STATISTIC_TODO => $count_all - $count_authorized,
+            self::STATISTIC_PASSED => $count_passed,
+            self::STATISTIC_NOT_PASSED => $count_authorized - $count_passed,
+            self::STATISTIC_NOT_PASSED_QUOTA => $count_authorized > 0 ? ($count_passed / $count_authorized) - 1 : null,
+            self::STATISTIC_AVERAGE => $count_authorized > 0 ? ($sum / $count_authorized) : null,
+            self::STATISTIC_NOT_ATTENDED => $count_not_attended
+        ];
+    }
+    CONST STATISTIC_COUNT_BY_LEVEL = 0;
+    CONST STATISTIC_COUNT = 1;
+    CONST STATISTIC_FINAL = 2;
+    CONST STATISTIC_TODO = 3;
+    CONST STATISTIC_PASSED = 4;
+    CONST STATISTIC_NOT_PASSED = 5;
+    CONST STATISTIC_AVERAGE = 6;
+    CONST STATISTIC_NOT_PASSED_QUOTA = 7;
+    CONST STATISTIC_NOT_ATTENDED = 8;
 }

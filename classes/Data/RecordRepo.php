@@ -246,8 +246,8 @@ abstract class RecordRepo
         if ($record::tableHasSequence() && empty($record->sequence())) {
            $record->setTableSequence((int) $this->db->nextId($record::tableName()));
         }
-        $key_fields = $this->getFieldsArray($record, $record::tableKeyTypes());
-        $other_fields = $this->getFieldsArray($record, $record::tableOtherTypes());
+        $key_fields = $this->getFieldsArray($record, $record::tableKeyTypes(), false);
+        $other_fields = $this->getFieldsArray($record, $record::tableOtherTypes(), false);
         $this->logAction('REPLACE', $record);
         $this->db->replace($record::tableName(), $key_fields, $other_fields);
         return $record;
@@ -258,8 +258,8 @@ abstract class RecordRepo
      */
     protected function updateRecord(RecordData $record)
     {
-        $key_fields = $this->getFieldsArray($record, $record::tableKeyTypes());
-        $other_fields = $this->getFieldsArray($record, $record::tableOtherTypes());
+        $key_fields = $this->getFieldsArray($record, $record::tableKeyTypes(), false);
+        $other_fields = $this->getFieldsArray($record, $record::tableOtherTypes(), false);
         $this->logAction('UPDATE', $record);
         $this->db->update($record::tableName(), array_merge($key_fields, $other_fields), $key_fields);
     }

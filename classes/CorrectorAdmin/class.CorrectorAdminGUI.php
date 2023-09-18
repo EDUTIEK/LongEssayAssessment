@@ -14,6 +14,12 @@ use ILIAS\Plugin\LongEssayAssessment\WriterAdmin\CorrectorAdminListGUI;
 use ILIAS\Plugin\LongEssayAssessment\WriterAdmin\CorrectorListGUI;
 use ILIAS\UI\Component\Input\Container\Form\Form;
 use \ilUtil;
+use ILIAS\Plugin\LongEssayAssessment\Data\Corrector\Corrector;
+use PhpOffice\PhpSpreadsheet\Style\ConditionalFormatting\Wizard;
+use ILIAS\Plugin\LongEssayAssessment\Task\ResourceUploadHandlerGUI;
+use ILIAS\Plugin\LongEssayAssessment\ilLongEssayAssessmentUploadTempFile;
+use ILIAS\Filesystem\Filesystem;
+use ILIAS\DI\Exceptions\Exception;
 
 /**
  *Start page for corrector admins
@@ -70,6 +76,8 @@ class CorrectorAdminGUI extends BaseGUI
 					case 'editAssignmentsAsync':
 					case 'confirmRemoveAuthorizationsAsync':
                     case 'downloadCorrectedPdf':
+                    case 'correctorAssignmentSpreadsheetExport':
+                    case 'correctorAssignmentSpreadsheetImport':
 						$this->$cmd();
 						break;
 
@@ -130,6 +138,19 @@ class CorrectorAdminGUI extends BaseGUI
         $button->setCaption($this->plugin->txt("export_results"), false);
         $this->toolbar->addButtonInstance($button);
 
+        $this->toolbar->addSeparator();
+
+        $button = \ilLinkButton::getInstance();
+        $button->setUrl($this->ctrl->getLinkTarget($this, "correctorAssignmentSpreadsheetExport"));
+        $button->setCaption($this->plugin->txt("export_assignment_excel"), false);
+        $button->setPrimary(false);
+        $this->toolbar->addButtonInstance($button);
+
+        $button = \ilLinkButton::getInstance();
+        $button->setUrl($this->ctrl->getLinkTarget($this, "correctorAssignmentSpreadsheetImport"));
+        $button->setCaption($this->plugin->txt("import_assignment_excel"), false);
+        $button->setPrimary(false);
+        $this->toolbar->addButtonInstance($button);
 
 		$list_gui = new CorrectorAdminListGUI($this, "showStartPage", $this->plugin, $correction_settings);
 		$list_gui->setWriters($writers_repo->getWritersByTaskId($this->object->getId()));
@@ -580,4 +601,157 @@ class CorrectorAdminGUI extends BaseGUI
 		echo($this->renderer->renderAsync($confirm_modal));
 		exit();
 	}
+
+    public function correctorAssignmentSpreadsheetImport(){
+        $corrector_repo = $this->localDI->getCorrectorRepo();
+        $task_repo = $this->localDI->getTaskRepo();
+        $tempfile = new ilLongEssayAssessmentUploadTempFile($this->storage, $this->dic->filesystem(), $this->dic->upload());
+
+        $form = $this->uiFactory->input()->container()->form()->standard(
+            $this->ctrl->getFormAction($this, "correctorAssignmentSpreadsheetImport"),
+            ["excel" => $this->uiFactory->input()->field()->file(
+                new \ilLongEssayAssessmentUploadHandlerGUI($this->storage, $tempfile
+                ), "Import")]
+        );
+
+        if($this->request->getMethod() === "POST") {
+            $form = $form->withRequest($this->request);
+
+            if($data = $form->getData()) {
+                $filename = $data['excel'][0];
+                $needed_corr = $task_repo->getCorrectionSettingsById($this->object->getId())->getRequiredCorrectors();
+
+                try{
+                    $spreadsheet = new CorrectorAssignmentExcel();
+                    $spreadsheet->loadFromFile(\ilUtil::getDataDir() . '/temp/' . $filename);
+
+                    $spreadsheet->setActiveSheet(1);
+                    $corrector = [];
+                    $r = 2;
+                    while (($id = $spreadsheet->getCell($r, 0)) != null) {
+                        $login = $spreadsheet->getCell($r, 1);
+                        $corrector[$login] = $id;
+                        $r++;
+                    }
+                    $spreadsheet->setActiveSheet(0);
+                    $corrector_assignments = [];
+                    $r = 2;
+                    while (($id = $spreadsheet->getCell($r, 0)) != null) {
+                        $assigned = [];
+                        foreach(range(0, $needed_corr-1) as $pos){
+                            $login = $spreadsheet->getCell($r, 6+$pos);
+                            $assigned[$pos] = (int) $corrector[$login] ?? CorrectorAdminService::BLANK_CORRECTOR_ASSIGNMENT;
+                        }
+
+                        $corrector_assignments[$id] = $assigned;
+                        $r++;
+                    }
+
+                    foreach($corrector_assignments as $writer_id => $as){
+                        $fa = $as[0];
+                        $sa = $needed_corr == 2 ? $as[1] : CorrectorAdminService::UNCHANGED_CORRECTOR_ASSIGNMENT;
+
+                        $this->service->assignMultipleCorrector($fa, $sa, [$writer_id]);
+                    }
+                    $tempfile->removeTempFile($filename);
+                    ilUtil::sendSuccess($this->plugin->txt("corrector_assignment_changed"), true);
+                    $this->ctrl->redirect($this);
+                }catch (\Exception $exception){
+                    ilUtil::sendFailure($this->plugin->txt("corrector_assignment_change_file_failure"), true);
+                }
+            }
+        }
+       $this->tpl->setContent($this->renderer->render($form));
+    }
+
+    public function correctorAssignmentSpreadsheetExport()
+    {
+        $corrector_repo = $this->localDI->getCorrectorRepo();
+        $writer_repo = $this->localDI->getWriterRepo();
+        $task_repo = $this->localDI->getTaskRepo();
+        $needed_corr = $task_repo->getCorrectionSettingsById($this->object->getId())->getRequiredCorrectors();
+        $participant_title = "Writer";
+        $corrector_title = "Corrector";
+
+        $corrector = [];
+        foreach($corrector_repo->getCorrectorsByTaskId($this->object->getId()) as $r){
+            $corrector[$r->getId()] = $r;
+        }
+
+        $writer = $writer_repo->getWritersByTaskId($this->object->getId());
+        $users = [];
+
+        foreach(\ilObjUser::_getUserData(array_merge(
+            array_map(fn (Corrector $x) => $x->getUserId(), $corrector),
+            array_map(fn (Writer $x) => $x->getUserId(), $writer),
+        )) as $u){
+            $users[(int)$u['usr_id']] = $u;
+        }
+
+        $assignments = [];
+
+        foreach($corrector_repo->getAssignmentsByTaskId($this->object->getId()) as $assignment){
+            $assignments[$assignment->getWriterId()][$assignment->getPosition()] = $assignment;
+        }
+        $r = 2;
+        $spreadsheet = new CorrectorAssignmentExcel();
+        $writer_sheet = $spreadsheet->addSheet($participant_title, true);
+        $corrector_sheet = $spreadsheet->addSheet($corrector_title, false);
+        $spreadsheet->setCell(1, 0, 'Id');
+        $spreadsheet->setCell(1, 1, 'Login');
+        $spreadsheet->setCell(1, 2, 'Firstname');
+        $spreadsheet->setCell(1, 3, 'Lastname');
+        $spreadsheet->setCell(1, 4, 'Email');
+        $spreadsheet->setCell(1, 5, 'Pseudonym');
+        foreach(range(0, $needed_corr-1) as $pos){
+            $spreadsheet->setCell(1, 6+$pos, 'Corrector ' . ($pos+1));
+        }
+
+        foreach($writer as $w){
+            $data = $users[$w->getUserId()] ?? [];
+            $ass = $assignments[$w->getId()] ?? [];
+            ksort($ass);
+
+            $spreadsheet->setCell($r, 0, $w->getId());
+            $spreadsheet->setCell($r, 1, $data['login'] ?? "");
+            $spreadsheet->setCell($r, 2, $data['firstname'] ?? "");
+            $spreadsheet->setCell($r, 3, $data['lastname'] ?? "");
+            $spreadsheet->setCell($r, 4, $data['email'] ?? "");
+            $spreadsheet->setCell($r, 5, $w->getPseudonym());
+
+            foreach(range(0, $needed_corr-1) as $pos){
+                $spreadsheet->addDropdownCol($r, 6+$pos, '=\''.$corrector_title.'\'!$B$2:$B$'.(count($corrector)+1));
+            }
+
+            foreach ($ass as $a){
+                $c = $corrector[$a->getCorrectorId()] ?? null;
+                $login = $c !== null && isset($users[$c->getUserId()]) ? $users[$c->getUserId()]['login'] ?? '' : '';
+                $spreadsheet->setCell($r, 6+$a->getPosition(), $login);
+            }
+            $r++;
+        }
+        $r = 2;
+        $spreadsheet->setActiveSheet($corrector_sheet);
+        $spreadsheet->setCell(1, 0, "Id");
+        $spreadsheet->setCell(1, 1, 'Login');
+        $spreadsheet->setCell(1, 2, 'Firstname');
+        $spreadsheet->setCell(1, 3, 'Lastname');
+        $spreadsheet->setCell(1, 4, 'Email');
+
+        foreach($corrector as $c){
+            $data = $users[$c->getUserId()] ?? [];
+            $ass = $assignments[$c->getId()] ?? [];
+            ksort($ass);
+
+            $spreadsheet->setCell($r, 0, $c->getId());
+            $spreadsheet->setCell($r, 1, $data['login'] ?? "");
+            $spreadsheet->setCell($r, 2, $data['firstname'] ?? "");
+            $spreadsheet->setCell($r, 3, $data['lastname'] ?? "");
+            $spreadsheet->setCell($r, 4, $data['email'] ?? "");
+            $r++;
+        }
+        $spreadsheet->setActiveSheet($corrector_sheet);
+        $spreadsheet->sendToClient("corrector_assignment.xlsx");
+        $this->ctrl->redirect($this);
+    }
 }

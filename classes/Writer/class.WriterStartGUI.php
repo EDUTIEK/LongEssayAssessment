@@ -173,23 +173,26 @@ class WriterStartGUI extends BaseGUI
 
 		/** @var Resource $resource */
 		foreach ($resources as $resource) {
+            $item = null;
 			if ($this->data->isResourceAvailable($resource, $this->task)) {
 
 				if ($resource->getType() == Resource::RESOURCE_TYPE_FILE && $resource->getFileId() !== null) {
 					$resource_file = $this->dic->resourceStorage()->manage()->find($resource->getFileId());
-					$revision = $this->dic->resourceStorage()->manage()->getCurrentRevision($resource_file);
+                    if ($resource_file !== null) {
+                        $revision = $this->dic->resourceStorage()->manage()->getCurrentRevision($resource_file);
 
-					$this->ctrl->setParameter($this, "resource_id", $resource->getId());
+                        $this->ctrl->setParameter($this, "resource_id", $resource->getId());
 
-					$item = $this->uiFactory->item()->standard(
-						$this->uiFactory->link()->standard(
-							$resource->getTitle(),
-							$this->ctrl->getLinkTarget($this, "downloadResourceFile"))
-					)
-						->withLeadIcon($this->uiFactory->symbol()->icon()->standard('file', 'File', 'medium'))
-						->withProperties(array(
-							"Filename" => $revision->getInformation()->getTitle(),
-							"Verfügbar" => $this->plugin->txt('resource_availability_' . $resource->getAvailability())));
+                        $item = $this->uiFactory->item()->standard(
+                            $this->uiFactory->link()->standard(
+                                $resource->getTitle(),
+                                $this->ctrl->getLinkTarget($this, "downloadResourceFile"))
+                        )
+                                                ->withLeadIcon($this->uiFactory->symbol()->icon()->standard('file', 'File', 'medium'))
+                                                ->withProperties(array(
+                                                    "Filename" => $revision->getInformation()->getTitle(),
+                                                    "Verfügbar" => $this->plugin->txt('resource_availability_' . $resource->getAvailability())));
+                    }
 				}
 				else {
 					$item = $this->uiFactory->item()->standard($this->uiFactory->link()->standard($resource->getTitle(), $resource->getUrl()))
@@ -199,11 +202,13 @@ class WriterStartGUI extends BaseGUI
 							"Verfügbar" => $this->plugin->txt('resource_availability_' . $resource->getAvailability())));
 				}
 
-                if ($resource->getAvailability() == Resource::RESOURCE_AVAILABILITY_AFTER) {
-                    $solution_items[] = $item;
-                }
-                else {
-                    $writing_resources[] = $item;
+                if ($item !== null) {
+                    if ($resource->getAvailability() == Resource::RESOURCE_AVAILABILITY_AFTER) {
+                        $solution_items[] = $item;
+                    }
+                    else {
+                        $writing_resources[] = $item;
+                    }
                 }
 
 			}

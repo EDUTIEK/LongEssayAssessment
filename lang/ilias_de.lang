@@ -454,3 +454,4 @@ essay_correction_finlized#:#Finalisierte Korrekturen
 corrector_assignment_change_file_failure#:#Beim Auswerten der Datei ist etwas schiefgelaufen.
 export_assignment_excel#:#Korrektorzuweisung exportieren
 import_assignment_excel#:#Korrektorzuweisung importieren
+resource_title#:#Titel zur Anzeige

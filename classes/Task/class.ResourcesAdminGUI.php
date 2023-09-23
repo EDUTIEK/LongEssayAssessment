@@ -92,7 +92,7 @@ class ResourcesAdminGUI extends BaseGUI
         }
         $factory = $this->uiFactory->input()->field();
 
-        $title = $factory->text($this->lng->txt("title"))
+        $title = $factory->text($this->plugin->txt("resource_title"))
             ->withRequired(true)
             ->withValue($a_resource->getTitle());
 

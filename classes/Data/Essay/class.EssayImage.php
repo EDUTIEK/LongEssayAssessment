@@ -160,7 +160,7 @@ class EssayImage extends RecordData
      */
     public function getThumbHeight(): ?int
     {
-        return $this->thumb_heigth;
+        return $this->thumb_height;
     }
 
 

@@ -315,6 +315,23 @@ abstract class ServiceContext implements BaseContext
         }
     }
 
+    /**
+     * @inheritDoc
+     */
+    public function sendPageThumb(string $key): void
+    {
+        global $DIC;
+
+        $repo = $this->localDI->getEssayRepo();
+        $repoImage = $repo->getEssayImageByID((int) $key);
+
+        if (!empty($repoImage) && !empty($repoImage->getFileId())) {
+            $identification = $DIC->resourceStorage()->manage()->find($repoImage->getThumbId());
+            if (!empty($identification)) {
+                $DIC->resourceStorage()->consume()->inline($identification)->run();
+            }
+        }
+    }
 
     /**
      * @inheritDoc

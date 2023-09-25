@@ -63,7 +63,21 @@ class WriterAdminListGUI extends WriterListGUI
 					->withOnClick($authorize_modal->getShowSignal());
 			}
 
-			if($this->canGetExtension($writer)) {
+            if($this->canGetUnauthorized($writer)) {
+                $authorize_modal = $this->uiFactory->modal()->interruptive(
+                    $this->plugin->txt("unauthorize_writing"),
+                    $this->plugin->txt("unauthorize_writing_confirmation"),
+                    $this->getUnauthorizeAction($writer)
+                )->withAffectedItems([
+                    $this->uiFactory->modal()->interruptiveItem($writer->getUserId(), $this->getWriterName($writer))
+                ])->withActionButtonLabel("confirm");
+
+                $modals[] = $authorize_modal;
+                $actions[] = $this->uiFactory->button()->shy($this->plugin->txt('unauthorize_writing'), "",)
+                                             ->withOnClick($authorize_modal->getShowSignal());
+            }
+
+            if($this->canGetExtension($writer)) {
 				$modals[] = $extension = $this->uiFactory->modal()->roundtrip("", [])->withAsyncRenderUrl(
 					$this->getExtensionAction($writer)
 				);
@@ -257,7 +271,27 @@ class WriterAdminListGUI extends WriterListGUI
 		return $this->ctrl->getFormAction($this->parent, "authorizeWriting");
 	}
 
-	private function canGetExtension(Writer $writer): bool
+
+    private function canGetUnauthorized(Writer $writer): bool
+    {
+        if(isset($this->essays[$writer->getId()])) {
+            $essay = $this->essays[$writer->getId()];
+
+            return $essay->getEditStarted() !== null
+                /*&& $essay->getEditEnded() !== null*/
+                && $essay->getWritingAuthorized() !== null;
+        }
+        return false;
+    }
+
+    private function getUnauthorizeAction(Writer $writer): string
+    {
+        $this->ctrl->setParameter($this->parent,"writer_id", $writer->getId());
+        return $this->ctrl->getFormAction($this->parent, "unauthorizeWriting");
+    }
+
+
+    private function canGetExtension(Writer $writer): bool
 	{
 		if(isset($this->essays[$writer->getId()])) {
 			$essay = $this->essays[$writer->getId()];

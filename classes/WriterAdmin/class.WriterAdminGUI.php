@@ -55,6 +55,7 @@ class WriterAdminGUI extends BaseGUI
 					case 'editExtension':
 					case 'updateExtension':
 					case 'authorizeWriting':
+                    case 'unauthorizeWriting':
 					case 'repealExclusion':
 					case 'deleteWriterData':
 					case 'removeWriter':
@@ -378,7 +379,6 @@ class WriterAdminGUI extends BaseGUI
 
 
 	protected function authorizeWriting(){
-		global $DIC;
 
 		if (($id = $this->getWriterId()) === null){
 			ilUtil::sendSuccess($this->plugin->txt('writing_autorized'), true);
@@ -398,7 +398,28 @@ class WriterAdminGUI extends BaseGUI
 		$this->ctrl->redirect($this, "showStartPage", "writer_" . $id);
 	}
 
-	protected function deleteWriterData(){
+    protected function unauthorizeWriting(){
+
+        if (($id = $this->getWriterId()) === null){
+            ilUtil::sendSuccess($this->plugin->txt('writing_unautorized'), true);
+            $this->ctrl->redirect($this, "showStartPage");
+        }
+
+        $essay_repo = LongEssayAssessmentDI::getInstance()->getEssayRepo();
+        $essay = $essay_repo->getEssayByWriterIdAndTaskId($id, $this->object->getId());
+
+        if($essay === null){
+            throw new Exception("No Essay found for writer.");
+        }
+
+        $this->localDI->getWriterAdminService($this->object->getId())->removeAuthorizationWriting($essay, $this->dic->user()->getId());
+
+        ilUtil::sendSuccess($this->plugin->txt('writing_unauthorized'), true);
+        $this->ctrl->redirect($this, "showStartPage", "writer_" . $id);
+    }
+
+
+    protected function deleteWriterData(){
 		$essay_repo = LongEssayAssessmentDI::getInstance()->getEssayRepo();
 		$writer_repo = LongEssayAssessmentDI::getInstance()->getWriterRepo();
 		$task_repo = LongEssayAssessmentDI::getInstance()->getTaskRepo();

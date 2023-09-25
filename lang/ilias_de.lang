@@ -188,6 +188,7 @@ participants#:#Teilnehmer
 exclude_participant#:#Von Bearbeitung ausschließen
 extent_time#:#Zeit verlängern
 authorize_writing#:#Abgabe autorisieren
+unauthorize_writing#:#Autorisierung zurücknehmen
 view_processing#:#Bearbeitung einsehen
 writing_last_save#:#Letzte Speicherung
 writing_time_extension#:#Zeitverlängerung
@@ -205,6 +206,7 @@ edit_time_extension#:#Zeitverlängerung bearbeiten
 add_time_extension#:#Zeitverlängerung hinzufügen
 time_extension_caption#:#Verlängerung des Bearbeitungs-Endes in Minuten
 authorize_writing_confirmation#:#Wollen Sie die Abgabe vom folgenden Teilnehmer wirklich autorisieren?
+unauthorize_writing_confirmation#:#Wollen Sie die Autorisierung der Abgabe vom folgenden Teilnehmer wirklich zurücknehmen?
 correctors#:#Korrektoren
 tab_corrector_list#:#Korrektoren
 search_correctors#:#Korrektoren suchen
@@ -265,7 +267,8 @@ resource_available#:#Verfügbar:
 pseudonym#:#Pseudonym
 icon_label#:#Profilbild von
 time_exceeds_solution_availability#:#Die Lösungshinweise wären in der Bearbeitungszeit verfügbar!
-writing_authorized#:#Die Abgabe von wurde autorisiert.
+writing_authorized#:#Die Abgabe wurde autorisiert.
+writing_unauthorized#:#Die Autorisierung der Abgabe wurde entfernt.
 grade_level_code#:#Code
 grade_level_code_caption#:#Interner Code zum Abgleich der Notenstufe mit internen Systemen
 passed#:#Bestanden

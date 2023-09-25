@@ -1753,3 +1753,38 @@ if (!$ilDB->tableColumnExists('xlas_essay_image', 'thumb_mime')) {
 }
 
 ?>
+<#81>
+<?php
+if (!$ilDB->tableColumnExists('xlas_corrector_summary', 'include_comments')) {
+    $ilDB->addTableColumn('xlas_corrector_summary', 'include_comments', [
+        'notnull' => '0',
+        'type' => 'integer',
+        'length' => '4',
+        'default' => '0'
+    ]);
+}
+if (!$ilDB->tableColumnExists('xlas_corrector_summary', 'include_comment_ratings')) {
+    $ilDB->addTableColumn('xlas_corrector_summary', 'include_comment_ratings', [
+        'notnull' => '0',
+        'type' => 'integer',
+        'length' => '4',
+        'default' => '0'
+    ]);
+}
+if (!$ilDB->tableColumnExists('xlas_corrector_summary', 'include_comment_points')) {
+    $ilDB->addTableColumn('xlas_corrector_summary', 'include_comment_points', [
+        'notnull' => '0',
+        'type' => 'integer',
+        'length' => '4',
+        'default' => '0'
+    ]);
+}
+if (!$ilDB->tableColumnExists('xlas_corrector_summary', 'include_criteria_points')) {
+    $ilDB->addTableColumn('xlas_corrector_summary', 'include_criteria_points', [
+        'notnull' => '0',
+        'type' => 'integer',
+        'length' => '4',
+        'default' => '0'
+    ]);
+}
+?>

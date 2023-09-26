@@ -555,6 +555,10 @@ class CorrectorContext extends ServiceContext implements Context
                     $repoSummary->getGradeLevelId() ? (string) $repoSummary->getGradeLevelId() : null,
                     $this->data->dbTimeToUnix($repoSummary->getLastChange()),
                     !empty($repoSummary->getCorrectionAuthorized()),
+                    $repoSummary->getIncludeComments(),
+                    $repoSummary->getIncludeCommentRatings(),
+                    $repoSummary->getIncludeCommentPoints(),
+                    $repoSummary->getIncludeCriteriaPoints(),
                     \ilObjUser::_lookupFullname($repoCorrector->getUserId()),
                     $this->localDI->getObjectRepo()->ifGradeLevelExistsById((int) $repoSummary->getGradeLevelId()) ?
                         $this->localDI->getObjectRepo()->getGradeLevelById((int) $repoSummary->getGradeLevelId())->getGrade() : ''
@@ -678,6 +682,10 @@ class CorrectorContext extends ServiceContext implements Context
             $repoSummary->setPoints($summary->getPoints());
             $repoSummary->setGradeLevelId($summary->getGradeKey() ? (int) $summary->getGradeKey() : null);
             $repoSummary->setLastChange($this->data->unixTimeToDb($summary->getLastChange()));
+            $repoSummary->setIncludeComments($summary->getIncludeComments());
+            $repoSummary->setIncludeCommentRatings($summary->getIncludeCommentRatings());
+            $repoSummary->setIncludeCommentPoints($summary->getIncludeCommentPoints());
+            $repoSummary->setIncludeCriteriaPoints($summary->getIncludeCriteriaPoints());
 
             if ($summary->isAuthorized()) {
                 if (empty($repoSummary->getCorrectionAuthorized())) {

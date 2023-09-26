@@ -29,7 +29,11 @@ class CorrectorSummary extends RecordData
 		'grade_level_id' => 'integer',
 		'last_change' => 'datetime',
 		'correction_authorized' => 'datetime',
-		'correction_authorized_by' => 'integer'
+		'correction_authorized_by' => 'integer',
+        'include_comments' => 'integer',
+        'include_comment_ratings' => 'integer',
+        'include_comment_points' => 'integer',
+        'include_criteria_points' => 'integer',
 	];
 
 
@@ -42,8 +46,13 @@ class CorrectorSummary extends RecordData
     protected ?string $last_change = null;
     protected ?string $correction_authorized = null;
     protected ?int $correction_authorized_by = null;
+    protected int $include_comments = 0;
+    protected int $include_comment_ratings = 0;
+    protected int $include_comment_points = 0;
+    protected int $include_criteria_points = 0;
 
-	public static function model() {
+
+    public static function model() {
 		return new self();
 	}
 
@@ -207,6 +216,70 @@ class CorrectorSummary extends RecordData
     {
         $this->correction_authorized_by = $correction_authorized_by;
         return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getIncludeComments(): bool
+    {
+        return (bool) $this->include_comments;
+    }
+
+    /**
+     * @param bool $include_comments
+     */
+    public function setIncludeComments(bool $include_comments): void
+    {
+        $this->include_comments = (int) $include_comments;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getIncludeCommentRatings(): bool
+    {
+        return (bool) $this->include_comment_ratings;
+    }
+
+    /**
+     * @param bool $include_comment_ratings
+     */
+    public function setIncludeCommentRatings(bool $include_comment_ratings): void
+    {
+        $this->include_comment_ratings = (int) $include_comment_ratings;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getIncludeCommentPoints(): bool
+    {
+        return (bool) $this->include_comment_points;
+    }
+
+    /**
+     * @param bool $include_comment_points
+     */
+    public function setIncludeCommentPoints(bool $include_comment_points): void
+    {
+        $this->include_comment_points = (int) $include_comment_points;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getIncludeCriteriaPoints(): bool
+    {
+        return (bool) $this->include_criteria_points;
+    }
+
+    /**
+     * @param bool $include_criteria_points
+     */
+    public function setIncludeCriteriaPoints(bool $include_criteria_points): void
+    {
+        $this->include_criteria_points = (int) $include_criteria_points;
     }
 }
 

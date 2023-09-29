@@ -559,6 +559,7 @@ class CorrectorContext extends ServiceContext implements Context
                     $repoSummary->getIncludeCommentRatings(),
                     $repoSummary->getIncludeCommentPoints(),
                     $repoSummary->getIncludeCriteriaPoints(),
+                    $repoSummary->getIncludeWriterNotes(),
                     \ilObjUser::_lookupFullname($repoCorrector->getUserId()),
                     $this->localDI->getObjectRepo()->ifGradeLevelExistsById((int) $repoSummary->getGradeLevelId()) ?
                         $this->localDI->getObjectRepo()->getGradeLevelById((int) $repoSummary->getGradeLevelId())->getGrade() : ''
@@ -686,6 +687,7 @@ class CorrectorContext extends ServiceContext implements Context
             $repoSummary->setIncludeCommentRatings($summary->getIncludeCommentRatings());
             $repoSummary->setIncludeCommentPoints($summary->getIncludeCommentPoints());
             $repoSummary->setIncludeCriteriaPoints($summary->getIncludeCriteriaPoints());
+            $repoSummary->setIncludeWriterNotes($summary->getIncludeWriterNotes());
 
             if ($summary->isAuthorized()) {
                 if (empty($repoSummary->getCorrectionAuthorized())) {

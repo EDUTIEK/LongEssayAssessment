@@ -16,7 +16,11 @@ class CorrectorSummary extends RecordData
 	const STATUS_AUTHORIZED = "authorized";
 	const STATUS_STITCH = "stitch";
 
-	protected const tableName = 'xlas_corrector_summary';
+    const INCLUDE_NOT = 0;          // don't conclude to documentation
+    const INCLUDE_INFO = 1;         // include to documentation as info
+    const INCLUDE_RELEVANT = 2;     // include to documentation as relevant for the result
+
+    protected const tableName = 'xlas_corrector_summary';
 	protected const hasSequence = true;
 	protected const keyTypes = [
 		'id' => 'integer',
@@ -34,9 +38,9 @@ class CorrectorSummary extends RecordData
         'include_comment_ratings' => 'integer',
         'include_comment_points' => 'integer',
         'include_criteria_points' => 'integer',
+        'include_writer_notes' => 'integer',
 	];
-
-
+    
     protected int $id = 0;
     protected int $essay_id = 0;
     protected int $corrector_id = 0;
@@ -50,6 +54,7 @@ class CorrectorSummary extends RecordData
     protected int $include_comment_ratings = 0;
     protected int $include_comment_points = 0;
     protected int $include_criteria_points = 0;
+    protected int $include_writer_notes = 0;
 
 
     public static function model() {
@@ -219,67 +224,84 @@ class CorrectorSummary extends RecordData
     }
 
     /**
-     * @return bool
+     * @return int
      */
-    public function getIncludeComments(): bool
+    public function getIncludeComments(): int
     {
-        return (bool) $this->include_comments;
+        return $this->include_comments;
     }
 
     /**
-     * @param bool $include_comments
+     * @param int $include_comments
      */
-    public function setIncludeComments(bool $include_comments): void
+    public function setIncludeComments(int $include_comments): void
     {
-        $this->include_comments = (int) $include_comments;
+        $this->include_comments = $include_comments;
     }
 
     /**
-     * @return bool
+     * @return int
      */
-    public function getIncludeCommentRatings(): bool
+    public function getIncludeCommentRatings(): int
     {
-        return (bool) $this->include_comment_ratings;
+        return $this->include_comment_ratings;
     }
 
     /**
-     * @param bool $include_comment_ratings
+     * @param int $include_comment_ratings
      */
-    public function setIncludeCommentRatings(bool $include_comment_ratings): void
+    public function setIncludeCommentRatings(int $include_comment_ratings): void
     {
-        $this->include_comment_ratings = (int) $include_comment_ratings;
+        $this->include_comment_ratings = $include_comment_ratings;
     }
 
     /**
-     * @return bool
+     * @return int
      */
-    public function getIncludeCommentPoints(): bool
+    public function getIncludeCommentPoints(): int
     {
-        return (bool) $this->include_comment_points;
+        return$this->include_comment_points;
     }
 
     /**
-     * @param bool $include_comment_points
+     * @param int $include_comment_points
      */
-    public function setIncludeCommentPoints(bool $include_comment_points): void
+    public function setIncludeCommentPoints(int $include_comment_points): void
     {
-        $this->include_comment_points = (int) $include_comment_points;
+        $this->include_comment_points = $include_comment_points;
     }
 
     /**
-     * @return bool
+     * @return int
      */
-    public function getIncludeCriteriaPoints(): bool
+    public function getIncludeCriteriaPoints(): int
     {
-        return (bool) $this->include_criteria_points;
+        return $this->include_criteria_points;
     }
 
     /**
-     * @param bool $include_criteria_points
+     * @param int $include_criteria_points
      */
-    public function setIncludeCriteriaPoints(bool $include_criteria_points): void
+    public function setIncludeCriteriaPoints(int $include_criteria_points): void
     {
-        $this->include_criteria_points = (int) $include_criteria_points;
+        $this->include_criteria_points = $include_criteria_points;
+    }
+
+
+    /**
+     * @return int
+     */
+    public function getIncludeWriterNotes(): int
+    {
+        return $this->include_writer_notes;
+    }
+
+    /**
+     * @param int $include_writer_notes
+     */
+    public function setIncludeWriterNotes(int $include_writer_notes): void
+    {
+        $this->include_writer_notes = $include_writer_notes;
     }
 }
 

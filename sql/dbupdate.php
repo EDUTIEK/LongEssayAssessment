@@ -1788,3 +1788,15 @@ if (!$ilDB->tableColumnExists('xlas_corrector_summary', 'include_criteria_points
     ]);
 }
 ?>
+<#82>
+<?php
+if (!$ilDB->tableColumnExists('xlas_corrector_summary', 'include_writer_notes')) {
+    $ilDB->addTableColumn('xlas_corrector_summary', 'include_writer_notes', [
+        'notnull' => '0',
+        'type' => 'integer',
+        'length' => '4',
+        'default' => '0'
+    ]);
+}
+
+?>

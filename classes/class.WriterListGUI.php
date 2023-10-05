@@ -157,10 +157,12 @@ abstract class WriterListGUI
 	{
 		$name = $this->getUsername($user_id, false);
 		preg_match('/src="(.+?)"/', $name, $matches);
-		$src = $matches[1];
+        $src = $matches[1] ?? "";
 		$label = $this->plugin->txt("icon_label") . " " . strip_tags($name);
 
-		return $this->uiFactory->symbol()->icon()->custom($src, $label, "medium");
+        return $src !== ""
+            ? $this->uiFactory->symbol()->icon()->custom($src, $label, "medium")
+            : $this->uiFactory->symbol()->icon()->standard("usr", "", "medium");
 	}
 
 	/**

@@ -636,6 +636,7 @@ class CorrectorContext extends ServiceContext implements Context
                 if (in_array($repoPoints->getCriterionId(), $criteria_ids)) {
                     $points[] = new CorrectionPoints(
                         (string) $repoPoints->getId(),
+                        $item_key,
                         (string) $repoPoints->getCorrCommentId(),
                         (string) $repoPoints->getCriterionId(),
                         $repoPoints->getPoints()

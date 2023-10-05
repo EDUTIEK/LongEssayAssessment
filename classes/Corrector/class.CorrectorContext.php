@@ -526,7 +526,7 @@ class CorrectorContext extends ServiceContext implements Context
                     \ilObjUser::_lookupFullname($repoCorrector->getUserId())
                 );
 
-                if ($add_others || $corrector->getKey() == $currentCorrector->getKey()){
+                if ($add_others || (isset($currentCorrector) && $corrector->getKey() == $currentCorrector->getKey())) {
                     $correctors[] = $corrector;
                 }
             }

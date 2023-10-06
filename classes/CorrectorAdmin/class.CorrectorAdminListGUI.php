@@ -117,11 +117,16 @@ class CorrectorAdminListGUI extends WriterListGUI
 			$actions_dropdown = $this->uiFactory->dropdown()->standard($actions)
 				->withLabel($this->plugin->txt("actions"));
 
-			$items[] = $this->localDI->getUIFactory()->item()->formItem($this->getWriterName($writer, true). $this->getWriterAnchor($writer))
-				->withName($writer->getId())
-				->withLeadIcon($this->getWriterIcon($writer))
-				->withProperties($properties)
-				->withActions($actions_dropdown);
+            $item = $this->localDI->getUIFactory()->item()->formItem($this->getWriterName($writer, true). $this->getWriterAnchor($writer))
+                                  ->withName($writer->getId())
+                                  ->withProperties($properties)
+                                  ->withActions($actions_dropdown);
+
+            if(($icon = $this->getWriterIcon($writer)) !== null){
+                $item->withLeadIcon($icon);
+            }
+
+			$items[] = $item;
 		}
 
 		$resources = $this->localDI->getUIFactory()->item()->formGroup($this->plugin->txt("correctable_exams")

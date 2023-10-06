@@ -52,8 +52,11 @@ class CorrectorListGUI extends WriterListGUI
 				$writers["&nbsp;&nbsp;" . $this->getWriterName($this->writers[$assignment->getWriterId()], true)] = $pos;
 			}
 
-			$item = $this->uiFactory->item()->standard($this->getUsername($corrector->getUserId(), true))
-				->withLeadIcon($this->getUserIcon($corrector->getUserId()));
+			$item = $this->uiFactory->item()->standard($this->getUsername($corrector->getUserId(), true));
+
+            if(($icon = $this->getUserIcon($corrector->getUserId())) !== null){
+                $item->withLeadIcon($icon);
+            }
 
 			if(count($writers) > 0) {
 				$item = $item->withDescription($this->renderer->render($this->uiFactory->listing()->characteristicValue()->text($writers)));

@@ -76,7 +76,7 @@ class DataService extends BaseService
     public function getOwnWriter() : ?Writer
     {
         if (!$this->ownWriterLoaded) {
-            $this->ownWriter = $this->writerRepo->getWriterByUserId($this->dic->user()->getId(), $this->task_id);
+            $this->ownWriter = $this->writerRepo->getWriterByUserIdAndTaskId($this->dic->user()->getId(), $this->task_id);
             $this->ownWriterLoaded = true;
         }
         return $this->ownWriter;

@@ -67,7 +67,7 @@ class WriterRepository extends RecordRepo
 
     public function ifUserExistsInTasksAsWriter(int $a_user_id, int $a_task_id): bool
     {
-        return $this->getWriterByUserId($a_user_id, $a_task_id) != null;
+        return $this->getWriterByUserIdAndTaskId($a_user_id, $a_task_id) != null;
     }
 
 	/**
@@ -75,12 +75,24 @@ class WriterRepository extends RecordRepo
 	 * @param int $a_task_id
 	 * @return Writer|null
 	 */
-    public function getWriterByUserId(int $a_user_id, int $a_task_id): ?RecordData
+    public function getWriterByUserIdAndTaskId(int $a_user_id, int $a_task_id): ?RecordData
     {
 		$query = "SELECT * FROM xlas_writer WHERE user_id = " . $this->db->quote($a_user_id, 'integer') .
 			" AND task_id = " . $this->db->quote($a_task_id, 'integer') ;
 
 		return $this->getSingleRecord($query, Writer::model());
+    }
+
+    /**
+     * @param int $a_user_id
+     * @param int $a_task_id
+     * @return Writer[]
+     */
+    public function getWritersByUserId(int $a_user_id): array
+    {
+        $query = "SELECT * FROM xlas_writer WHERE user_id = " . $this->db->quote($a_user_id, 'integer') ;
+
+        return $this->queryRecords($query, Writer::model());
     }
 
 	/**

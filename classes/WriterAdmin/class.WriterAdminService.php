@@ -54,7 +54,7 @@ class WriterAdminService extends BaseService
      */
     public function getOrCreateWriterFromUserId(int $user_id) : Writer
     {
-        $writer = $this->writerRepo->getWriterByUserId($user_id, $this->task_id);
+        $writer = $this->writerRepo->getWriterByUserIdAndTaskId($user_id, $this->task_id);
         if (!isset($writer)) {
             $writer = new Writer();
             $writer->setUserId($user_id)

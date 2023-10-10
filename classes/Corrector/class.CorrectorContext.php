@@ -637,6 +637,7 @@ class CorrectorContext extends ServiceContext implements Context
                     $points[] = new CorrectionPoints(
                         (string) $repoPoints->getId(),
                         $item_key,
+                        $corrector_key,
                         (string) $repoPoints->getCorrCommentId(),
                         (string) $repoPoints->getCriterionId(),
                         $repoPoints->getPoints()
@@ -666,18 +667,18 @@ class CorrectorContext extends ServiceContext implements Context
      * here:    the item key is a string of the writer id
      *          the corrector key is a string of the corrector id
      */
-    public function setCorrectionSummary(string $item_key, string $corrector_key, CorrectionSummary $summary) : void
+    public function saveCorrectionSummary(CorrectionSummary $summary) : bool
     {
         $service = $this->localDI->getCorrectorAdminService($this->task->getTaskId());
         $essayRepo = $this->localDI->getEssayRepo();
 
-        if (!empty($repoEssay = $essayRepo->getEssayByWriterIdAndTaskId((int) $item_key, $this->task->getTaskId()))) {
+        if (!empty($repoEssay = $essayRepo->getEssayByWriterIdAndTaskId((int) $summary->getItemKey(), $this->task->getTaskId()))) {
 
-            $repoSummary = $essayRepo->getCorrectorSummaryByEssayIdAndCorrectorId($repoEssay->getId(), (int) $corrector_key);
+            $repoSummary = $essayRepo->getCorrectorSummaryByEssayIdAndCorrectorId($repoEssay->getId(), (int) $summary->getCorrectorKey());
             if (!isset($repoSummary)) {
                 $repoSummary = new CorrectorSummary();
                 $repoSummary->setEssayId($repoEssay->getId());
-                $repoSummary->setCorrectorId((int) $corrector_key);
+                $repoSummary->setCorrectorId((int) $summary->getCorrectorKey());
                 $essayRepo->save($repoSummary);
             }
             $repoSummary->setSummaryText($summary->getText());
@@ -705,8 +706,9 @@ class CorrectorContext extends ServiceContext implements Context
                 $repoSummary->setCorrectionAuthorizedBy(null);
                 $essayRepo->save($repoSummary);
             }
-
+            return true;
         }
+        return false;
     }
 
     /**
@@ -733,12 +735,8 @@ class CorrectorContext extends ServiceContext implements Context
     /**
      * @inheritDoc
      */
-    public function saveCorrectionComment(CorrectionComment $comment, string $corrector_key): ?int
+    public function saveCorrectionComment(CorrectionComment $comment): ?string
     {
-        if ($comment->getCorrectorKey() != $corrector_key) {
-            return null;
-        }
-        
         $correctorRepo = $this->localDI->getCorrectorRepo();
         if (!$correctorRepo->ifCorrectorIsAssigned((int) $comment->getItemKey(), (int) $comment->getCorrectorKey())) {
             return null;
@@ -770,7 +768,7 @@ class CorrectorContext extends ServiceContext implements Context
         
         $essayRepo->save($repoComment);
         
-        return $repoComment->getId();
+        return (string) $repoComment->getId();
     }
 
     /**
@@ -793,11 +791,11 @@ class CorrectorContext extends ServiceContext implements Context
     /**
      * @inheritDoc
      */
-    public function saveCorrectionPoints(CorrectionPoints $points, string $corrector_key): ?int
+    public function saveCorrectionPoints(CorrectionPoints $points): ?string
     {
         $essayRepo = $this->localDI->getEssayRepo();
         $repoComment = $essayRepo->getCorrectorCommentById((int) $points->getCommentKey());
-        if (!isset($repoComment) || $repoComment->getCorrectorId() != (int) $corrector_key) {
+        if (!isset($repoComment) || $repoComment->getCorrectorId() != (int) $points->getCorrectorKey()) {
             return null;
         }
         
@@ -820,7 +818,7 @@ class CorrectorContext extends ServiceContext implements Context
             ->setPoints($points->getPoints());
 
         $essayRepo->save($repoPoints);
-        return $repoPoints->getId();
+        return (string) $repoPoints->getId();
 
     }
 
@@ -836,7 +834,7 @@ class CorrectorContext extends ServiceContext implements Context
         }
         $repoComment = $essayRepo->getCorrectorCommentById($repoPoints->getCorrCommentId());
         if (isset($repoComment) && (string) $repoComment->getCorrectorId() != $corrector_key) {
-            return false;   // given corrector is not the owner corrector of that comment
+            return false;   // given corrector is not the owner of that comment
         }
         $essayRepo->deleteCriterionPoints($repoPoints->getId());
         return true;

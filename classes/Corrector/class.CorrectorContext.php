@@ -195,6 +195,8 @@ class CorrectorContext extends ServiceContext implements Context
     {
         $objectRepo = $this->localDI->getObjectRepo();
         $taskRepo = $this->localDI->getTaskRepo();
+        $correctorRepo = $this->localDI->getCorrectorRepo();
+        
         $settings = $taskRepo->getCorrectionSettingsById($this->task->getTaskId());
         if (!isset($settings)) {
             return [];
@@ -206,14 +208,14 @@ class CorrectorContext extends ServiceContext implements Context
                 return [];
 
             case PluginCorrectionSettings::CRITERIA_MODE_CORRECTOR:
-                $correctors = [];
+                $corrector_ids = [];
                 foreach ($this->getCorrectionItems() as $correction_item) {
-                    foreach ($this->getCorrectorsOfItem($correction_item->getKey()) as $corrector) {
-                        $correctors[$corrector->getKey()] = $corrector;
+                    foreach ($correctorRepo->getAssignmentsByWriterId((int) $correction_item->getKey()) as $assignment) {
+                        $corrector_ids[$assignment->getCorrectorId()] = $assignment->getCorrectorId();
                     }
                 }
-                foreach ($correctors as $corrector) {
-                    foreach ($objectRepo->getRatingCriteriaByObjectId($this->object->getId(), (int) $corrector->getKey()) as $repoCriterion) {
+                foreach ($corrector_ids as $corrector_id) {
+                    foreach ($objectRepo->getRatingCriteriaByObjectId($this->object->getId(), $corrector_id) as $repoCriterion) {
                         $criteria[] = new CorrectionRatingCriterion(
                             (string) $repoCriterion->getId(),
                             (string) $repoCriterion->getCorrectorId(),
@@ -331,6 +333,7 @@ class CorrectorContext extends ServiceContext implements Context
                         continue;
                     }
 
+                    // authorization is allowed if correctors with lower positions have already authorized
                     $authorization_allowed = true;
                     foreach ($correctorRepo->getAssignmentsByWriterId($repoWriter->getId()) as $otherAssignment) {
                         if ($otherAssignment->getCorrectorId() == $repoAssignment->getCorrectorId()
@@ -343,7 +346,7 @@ class CorrectorContext extends ServiceContext implements Context
                         }
                     }
 
-                    $title = $repoWriter->getPseudonym() . ' (' . $this->data->formatCorrectorPosition($repoAssignment) . ')';
+                    $title = $repoWriter->getPseudonym();
                     if (empty($repoEssay->getWritingAuthorized()) || !empty($repoEssay->getWritingExcluded())) {
                         $title .= ' - ' . $this->data->formatWritingStatus($repoEssay, false);
                     }
@@ -386,18 +389,15 @@ class CorrectorContext extends ServiceContext implements Context
      * @inheritDoc
      * here:    the corrector key is a string of the corrector id
      */
-    public function getCurrentCorrector(): ?Corrector
+    public function getCurrentCorrectorKey(): ?string
     {
         if ($this->isReview() || $this->isStitchDecision()) {
             return null;
         }
-        
+
         $correctorRepo = $this->localDI->getCorrectorRepo();
         if (!empty($repoCorrector = $correctorRepo->getCorrectorByUserId($this->user->getId(), $this->task->getTaskId()))) {
-            return new Corrector(
-                (string) $repoCorrector->getId(),
-                $this->user->getFullname()
-            );
+            return (string) $repoCorrector->getId();
         }
         return null;
     }
@@ -509,30 +509,47 @@ class CorrectorContext extends ServiceContext implements Context
      *          the corrector titles are the usernames of the correctors
      */
     public function getCorrectorsOfItem(string $item_key): array
-    {
-       $add_others = true;
-       if (empty($correctionSettings = $this->localDI->getTaskRepo()->getCorrectionSettingsById($this->task->getTaskId()))
+    {  
+        $dataService = $this->localDI->getDataService($this->task->getTaskId()); 
+        $correctorRepo = $this->localDI->getCorrectorRepo();
+        $currentCorrectorKey = $this->getCurrentCorrectorKey();
+        
+        $add_others = true;
+        if (empty($correctionSettings = $this->localDI->getTaskRepo()->getCorrectionSettingsById($this->task->getTaskId()))
            || $correctionSettings->getMutualVisibility() == 0 ) {
            $add_others = false;
-       }
-
-       $currentCorrector = $this->getCurrentCorrector();
-       $correctorRepo = $this->localDI->getCorrectorRepo();
-       $correctors = [];
-       foreach ($correctorRepo->getAssignmentsByWriterId((int) $item_key) as $assignment) {
+        }
+      
+        $correctors = [];
+        foreach ($correctorRepo->getAssignmentsByWriterId((int) $item_key) as $assignment) {
             if (!empty($repoCorrector = $correctorRepo->getCorrectorById($assignment->getCorrectorId()))) {
-                $corrector = new Corrector(
-                    (string) $repoCorrector->getId(),
-                    \ilObjUser::_lookupFullname($repoCorrector->getUserId())
-                );
-
-                if ($add_others || (isset($currentCorrector) && $corrector->getKey() == $currentCorrector->getKey())) {
+                
+                if ($add_others || (string) $repoCorrector->getId() == $currentCorrectorKey) {
+                    $user = $dataService->getCachedUser($repoCorrector->getUserId());
+                    $corrector = new Corrector(
+                        $item_key,
+                        (string) $repoCorrector->getId(),
+                        $user->getFullname(50),
+                        $dataService->formatUserInitials($user),
+                        $assignment->getPosition()
+                    );
+                    
                     $correctors[] = $corrector;
                 }
             }
         }
         return $correctors;
     }
+
+    /**
+     * Get if a corrector is assigned to an item
+     */
+    public function isCorrectorOfItem(string $item_key, string $corrector_key) : bool
+    {
+        $correctorRepo = $this->localDI->getCorrectorRepo();
+        return $correctorRepo->ifCorrectorIsAssigned((int) $item_key, (int) $corrector_key);
+    }
+
 
     /**
      * @inheritDoc

@@ -292,6 +292,9 @@ class WriterAdminService extends BaseService
 
 	public function authorizeWriting(Essay $essay, int $user_id){
 		$datetime = new \ilDateTime(time(), IL_CAL_UNIX);
+        if (empty($essay->getEditStarted())) {
+            $essay->setEditStarted($datetime->get(IL_CAL_DATETIME));
+        }
 		$essay->setWritingAuthorized($datetime->get(IL_CAL_DATETIME));
 		$essay->setWritingAuthorizedBy($user_id);
 

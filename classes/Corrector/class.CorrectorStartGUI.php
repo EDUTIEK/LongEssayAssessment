@@ -369,6 +369,7 @@ class CorrectorStartGUI extends BaseGUI
 			}
 			$valid = true;
 			$this->service->authorizeCorrection($summary, $corrector->getUserId());
+            $this->service->tryFinalisation($essay, $corrector->getUserId());
 		}
 
 		if( $valid ) {

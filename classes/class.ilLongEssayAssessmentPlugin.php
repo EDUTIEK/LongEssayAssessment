@@ -223,4 +223,23 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
 		};
 	}
 
+    /**
+     * Handle an event
+     * @param string	$a_component
+     * @param string	$a_event
+     * @param mixed		$a_parameter
+     */
+    public function handleEvent($a_component, $a_event, $a_parameter)
+    {
+        if ('Services/User' == $a_component && 'deleteUser' == $a_event) {
+            $usr_id = $a_parameter['usr_id'];
+            $di = LongEssayAssessmentDI::getInstance();
+            $writer_repo = $di->getWriterRepo();
+            $writer = $writer_repo->getWritersByUserId($usr_id);
+            foreach ($writer as $w) {
+                $writer_repo->deleteWriter($w->getId());
+            }
+        }
+    }
+
 }

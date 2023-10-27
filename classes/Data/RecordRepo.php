@@ -68,6 +68,18 @@ abstract class RecordRepo
     }
 
     /**
+     * Clear the caches in the current repository
+     */
+    protected function clearCaches() 
+    {
+        $this->recordCache = [];
+        $this->boolCache = [];
+        $this->integerCache = [];
+        $this->integerListCache = [];
+        $this->stringListCache = [];
+    }
+
+    /**
      * Check if a query has a record
      */
     protected function hasRecord(string $query, $useCache = true) : bool
@@ -234,6 +246,7 @@ abstract class RecordRepo
         $fields = $this->getFieldsArray($record, $types, false);
         $this->logAction('INSERT', $record);
         $this->db->insert($record::tableName(), $fields);
+        $this->clearCaches();
         return $record;
     }
 
@@ -250,6 +263,7 @@ abstract class RecordRepo
         $other_fields = $this->getFieldsArray($record, $record::tableOtherTypes(), false);
         $this->logAction('REPLACE', $record);
         $this->db->replace($record::tableName(), $key_fields, $other_fields);
+        $this->clearCaches();
         return $record;
     }
 
@@ -262,6 +276,7 @@ abstract class RecordRepo
         $other_fields = $this->getFieldsArray($record, $record::tableOtherTypes(), false);
         $this->logAction('UPDATE', $record);
         $this->db->update($record::tableName(), array_merge($key_fields, $other_fields), $key_fields);
+        $this->clearCaches();
     }
 
     /**
@@ -277,6 +292,7 @@ abstract class RecordRepo
             . " WHERE " . implode(" AND ", $conditions);
         $this->logAction('DELETE', $record);
         $this->db->manipulate($query);
+        $this->clearCaches();
     }
 
     /**

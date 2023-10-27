@@ -61,7 +61,7 @@ class ObjectSettings extends RecordData
         return $this->online;
     }
 
-    public function setOnline(string $online): ObjectSettings
+    public function setOnline(int $online): ObjectSettings
     {
         $this->online = $online;
         return $this;

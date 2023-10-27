@@ -376,8 +376,8 @@ class CorrectorAdminService extends BaseService
         if (!$this->isStitchDecisionNeededForSummaries($summaries)) {
             $average = $this->getAveragePointsOfSummaries($summaries);
             if ($average !== null) {
-                $essay->setFinalPoints($average);
                 if (!empty($level = $this->getGradeLevelForPoints($average))) {
+                    $essay->setFinalPoints($average);
                     $essay->setFinalGradeLevelId($level->getId());
                     $essay->setCorrectionFinalized($this->dataService->unixTimeToDb(time()));
                     $essay->setCorrectionFinalizedBy($user_id);

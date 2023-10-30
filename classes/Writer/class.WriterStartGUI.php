@@ -357,7 +357,7 @@ class WriterStartGUI extends BaseGUI
          if ($this->object->canReviewCorrectedEssay()) {
              $service = $this->localDI->getCorrectorAdminService($this->object->getId());
              $repoTask = $this->localDI->getTaskRepo()->getTaskSettingsById($this->object->getId());
-             $repoWriter = $this->localDI->getWriterRepo()->getWriterByUserId($this->dic->user()->getId(), $this->object->getId());
+             $repoWriter = $this->localDI->getWriterRepo()->getWriterByUserIdAndTaskId($this->dic->user()->getId(), $this->object->getId());
 
              $filename = 'task' . $this->object->getId() . '_user' . $this->dic->user()->getId(). '.pdf';
              ilUtil::deliverData($service->getCorrectionAsPdf($this->object, $repoWriter), $filename, 'application/pdf');

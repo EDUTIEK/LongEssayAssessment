@@ -97,6 +97,7 @@ class CorrectorAdminStatisticsGUI extends BaseGUI
             function ($row, $record, $ui_factory, $environment) use ($grade_level){ //mapping-closure
                 $statistic = $record["statistic"];
                 $properties = [];
+                $fproperties = [];
                 $properties[$record['count']] = (string)$statistic[CorrectorAdminService::STATISTIC_COUNT];
                 $properties[$record['final']] = (string)$statistic[CorrectorAdminService::STATISTIC_FINAL];
                 if($statistic[CorrectorAdminService::STATISTIC_NOT_ATTENDED] !== null) {

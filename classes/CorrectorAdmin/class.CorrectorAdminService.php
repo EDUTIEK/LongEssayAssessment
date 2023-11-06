@@ -435,6 +435,7 @@ class CorrectorAdminService extends BaseService
     {
         $context = new CorrectorContext();
         $context->init((string) $this->dic->user()->getId(), (string) $object->getRefId());
+        $context->setReview(true);
 
         $writingTask = $context->getWritingTaskByWriterId($repoWriter->getId());
         $writtenEssay = $context->getEssayOfItem((string) $repoWriter->getId());

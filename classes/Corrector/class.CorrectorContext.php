@@ -191,7 +191,7 @@ class CorrectorContext extends ServiceContext implements Context
     /**
      * @inheritDoc
      */
-    public function getRatingCriteria(): array
+    public function getRatingCriteria(?string $corrector_key = null): array
     {
         $objectRepo = $this->localDI->getObjectRepo();
         $taskRepo = $this->localDI->getTaskRepo();
@@ -200,6 +200,7 @@ class CorrectorContext extends ServiceContext implements Context
         $settings = $taskRepo->getCorrectionSettingsById($this->task->getTaskId());
         if (!isset($settings)) {
             return [];
+
         } 
         
         $criteria = [];
@@ -208,12 +209,18 @@ class CorrectorContext extends ServiceContext implements Context
                 return [];
 
             case PluginCorrectionSettings::CRITERIA_MODE_CORRECTOR:
-                $corrector_ids = [];
-                foreach ($this->getCorrectionItems() as $correction_item) {
-                    foreach ($correctorRepo->getAssignmentsByWriterId((int) $correction_item->getKey()) as $assignment) {
-                        $corrector_ids[$assignment->getCorrectorId()] = $assignment->getCorrectorId();
+                if (!empty($corrector_key)) {
+                    $corrector_ids = [(int) $corrector_key];
+                }
+                else {
+                    $corrector_ids = [];
+                    foreach ($this->getCorrectionItems() as $correction_item) {
+                        foreach ($correctorRepo->getAssignmentsByWriterId((int) $correction_item->getKey()) as $assignment) {
+                            $corrector_ids[$assignment->getCorrectorId()] = $assignment->getCorrectorId();
+                        }
                     }
                 }
+                
                 foreach ($corrector_ids as $corrector_id) {
                     foreach ($objectRepo->getRatingCriteriaByObjectId($this->object->getId(), $corrector_id) as $repoCriterion) {
                         $criteria[] = new CorrectionRatingCriterion(
@@ -623,7 +630,7 @@ class CorrectorContext extends ServiceContext implements Context
      * here:    the item key is a string of the writer id
      *          the corrector key is a string of the corrector id
      */
-    public function getCorrectionPoints(string $item_key, string $corrector_key): array
+    public function getCorrectionPoints(string $item_key, string $corrector_key, ?string $comment_key = null): array
     {
         $repoCorrector = $this->localDI->getCorrectorRepo()->getCorrectorById((int) $corrector_key);
         $essayRepo = $this->localDI->getEssayRepo();
@@ -650,7 +657,9 @@ class CorrectorContext extends ServiceContext implements Context
             foreach ($essayRepo->getCriterionPointsByEssayIdAndCorrectorId(
                 $repoEssay->getId(), $repoCorrector->getId()
             ) as $repoPoints) {
-                if (in_array($repoPoints->getCriterionId(), $criteria_ids)) {
+                if (in_array($repoPoints->getCriterionId(), $criteria_ids)
+                    && ($comment_key == null || $repoPoints->getCorrCommentId() == (int) $comment_key)
+                ) {
                     $points[] = new CorrectionPoints(
                         (string) $repoPoints->getId(),
                         $item_key,

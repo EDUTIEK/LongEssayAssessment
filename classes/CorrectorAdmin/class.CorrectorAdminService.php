@@ -409,10 +409,14 @@ class CorrectorAdminService extends BaseService
         foreach ($this->essayRepo->getEssaysByTaskId($repoTask->getTaskId()) as $repoEssay) {
             $repoWriter = $this->writerRepo->getWriterById($repoEssay->getWriterId());
 
-            $filename = \ilUtil::getASCIIFilename(
-                \ilObjUser::_lookupFullname($repoWriter->getUserId()) . ' (' . \ilObjUser::_lookupLogin($repoWriter->getUserId()) . ')') . '.pdf';
+            $subdir = \ilUtil::getASCIIFilename(\ilObjUser::_lookupFullname($repoWriter->getUserId()) . ' (' . \ilObjUser::_lookupLogin($repoWriter->getUserId()) . ')');
+            $storage->createDir($zipdir . '/' . $subdir);
 
-            $storage->write($zipdir . '/'. $filename, $this->getCorrectionAsPdf($object, $repoWriter));
+            $filename = $subdir . '-writing.pdf';
+            $storage->write($zipdir . '/' . $subdir. '/'. $filename, $this->getWritingAsPdf($object, $repoWriter));
+            
+            $filename = $subdir . '-correction.pdf';
+            $storage->write($zipdir . '/' . $subdir. '/'. $filename, $this->getCorrectionAsPdf($object, $repoWriter));
         }
 
         $zipfile = $basedir . '/' . $tempdir . '/' . \ilUtil::getASCIIFilename($object->getTitle()) . '.zip';
@@ -426,6 +430,29 @@ class CorrectorAdminService extends BaseService
         //$delivery = new \ilFileDelivery()
     }
 
+    /**
+     * Get the writing of an essay as PDF string
+     */
+    public function getWritingAsPdf(\ilObjLongEssayAssessment $object, Writer $repoWriter) 
+    {
+        $context = new CorrectorContext();
+        $context->init((string) $this->dic->user()->getId(), (string) $object->getRefId());
+
+        $writingTask = $context->getWritingTaskByWriterId($repoWriter->getId());
+        $writtenEssay = $context->getEssayOfItem((string) $repoWriter->getId());
+
+        $item = new DocuItem(
+            (string) $repoWriter->getId(),
+            $writingTask,
+            $writtenEssay,
+            [],
+            [],
+        );
+
+        $service = new Service($context);
+        return $service->getWritingAsPdf($item);
+    }
+    
     /**
      * Get the correction of an essay as PDF string
      * if a repo corrector is given as parameter, then only this correction is included,

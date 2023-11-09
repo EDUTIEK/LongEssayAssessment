@@ -455,6 +455,8 @@ grade_distribution#:#Notenverteilung
 corrections_all#:#Alle Korrekturen
 essay_correction_finlized#:#Finalisierte Korrekturen
 corrector_assignment_change_file_failure#:#Beim Auswerten der Datei ist etwas schiefgelaufen.
-export_assignment_excel#:#Korrektorzuweisung exportieren
-import_assignment_excel#:#Korrektorzuweisung importieren
+assignment_excel#:#Korrektorzuweisung
+assignment_excel_export#:#Export
+assignment_excel_import#:#Import
+assignment_excel_export_auth#:#nur Autorisiert
 resource_title#:#Titel zur Anzeige

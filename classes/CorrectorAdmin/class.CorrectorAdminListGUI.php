@@ -111,6 +111,7 @@ class CorrectorAdminListGUI extends WriterListGUI
 				}
 
                 $actions[] = $this->uiFactory->button()->shy($this->plugin->txt('export_steps'), $this->getExportStepsTarget($writer));
+                $properties[$this->plugin->txt("word_count")]  = str_word_count($essay->getWrittenText());
                 $properties[$this->plugin->txt("final_grade")] = $this->localDI->getDataService($writer->getTaskId())->formatFinalResult($essay);
             }
 

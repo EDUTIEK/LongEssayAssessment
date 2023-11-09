@@ -376,6 +376,8 @@ class CorrectorAdminListGUI extends WriterListGUI
 				return $essay === null || $essay->getCorrectionFinalized() === null;
 			case "with_stitch":
 				return $stitch !== null;
+            case "authorized":
+                return $essay !== null && $essay->getWritingAuthorized() !== null;
 			case "all":
 			default:
 				return true;
@@ -385,7 +387,7 @@ class CorrectorAdminListGUI extends WriterListGUI
 	public function getFilter(){
 		global $DIC;
 		$query = $DIC->http()->request()->getQueryParams();
-		if(array_key_exists("filter", $query) && in_array($query["filter"], ["all", "corrected", "not_corrected", "with_stitch"])){
+		if(array_key_exists("filter", $query) && in_array($query["filter"], ["all", "corrected", "not_corrected", "authorized", "with_stitch"])){
 			return $query["filter"];
 		}
 		return "all";
@@ -399,6 +401,7 @@ class CorrectorAdminListGUI extends WriterListGUI
 			"all",
 			"corrected",
 			"not_corrected",
+            "authorized",
 			"with_stitch"
 		];
 

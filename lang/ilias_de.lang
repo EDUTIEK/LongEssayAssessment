@@ -225,6 +225,7 @@ filter_writer_admin_list_with_extension#:#Mit Zeitverlängerung
 filter_corrector_admin_list_all#:#Alle
 filter_corrector_admin_list_corrected#:#Korrigiert
 filter_corrector_admin_list_not_corrected#:#Noch nicht korrigiert
+filter_corrector_admin_list_authorized#:#Abgegeben
 filter_corrector_admin_list_with_stitch#:#Stichentscheid gefordert
 log_type#:#Typ
 alert_send#:#Gesendet

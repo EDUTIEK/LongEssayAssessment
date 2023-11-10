@@ -29,7 +29,7 @@ class CorrectorSummary extends RecordData
 		'essay_id' => 'integer',
 		'corrector_id' => 'integer',
 		'summary_text' => 'text',
-		'points' => 'integer',
+		'points' => 'float',
 		'grade_level_id' => 'integer',
 		'last_change' => 'datetime',
 		'correction_authorized' => 'datetime',
@@ -45,7 +45,7 @@ class CorrectorSummary extends RecordData
     protected int $essay_id = 0;
     protected int $corrector_id = 0;
     protected ?string $summary_text = null;
-    protected int $points = 0;
+    protected ?float $points = null;
     protected ?int $grade_level_id = null;
     protected ?string $last_change = null;
     protected ?string $correction_authorized = null;

@@ -648,7 +648,7 @@ class CorrectorAdminGUI extends BaseGUI
                     while (($id = $spreadsheet->getCell($r, 0)) != null) {
                         $assigned = [];
                         foreach(range(0, $needed_corr-1) as $pos){
-                            $login = $spreadsheet->getCell($r, 7+$pos);
+                            $login = $spreadsheet->getCell($r, 8+$pos);
                             $assigned[$pos] = (int) $corrector[$login] ?? CorrectorAdminService::BLANK_CORRECTOR_ASSIGNMENT;
                         }
 
@@ -684,6 +684,12 @@ class CorrectorAdminGUI extends BaseGUI
         $needed_corr = $task_repo->getCorrectionSettingsById($this->object->getId())->getRequiredCorrectors();
         $participant_title = "Writer";
         $corrector_title = "Corrector";
+        $locations = [];
+
+        foreach($task_repo->getLocationsByTaskId($this->object->getId()) as $location){
+            $locations[$location->getId()] = $location;
+        }
+
         $essays = [];
 
         foreach($essay_repo->getEssaysByTaskId($this->object->getId()) as $essay){
@@ -731,32 +737,38 @@ class CorrectorAdminGUI extends BaseGUI
         $spreadsheet->setCell(1, 3, 'Lastname');
         $spreadsheet->setCell(1, 4, 'Email');
         $spreadsheet->setCell(1, 5, 'Pseudonym');
-        $spreadsheet->setCell(1, 6, 'Words');
+        $spreadsheet->setCell(1, 6, 'Location');
+        $spreadsheet->setCell(1, 7, 'Words');
         foreach(range(0, $needed_corr-1) as $pos){
-            $spreadsheet->setCell(1, 7+$pos, 'Corrector ' . ($pos+1));
+            $spreadsheet->setCell(1, 8+$pos, 'Corrector ' . ($pos+1));
         }
 
         foreach($writer as $w){
             $data = $users[$w->getUserId()] ?? [];
             $ass = $assignments[$w->getId()] ?? [];
             ksort($ass);
-            $written_text = isset($essays[$w->getId()]) ? $essays[$w->getId()]->getWrittenText() : "";
+            $essay = $essays[$w->getId()] ?? null;
+            $location = $essay !== null ? $locations[$essay->getLocation()] ?? null : null;
+            $written_text = $essay !== null ? $essay->getWrittenText() : "";
+            $location_text = $location !== null ? $location->getTitle() : "";
+
             $spreadsheet->setCell($r, 0, $w->getId());
             $spreadsheet->setCell($r, 1, $data['login'] ?? "");
             $spreadsheet->setCell($r, 2, $data['firstname'] ?? "");
             $spreadsheet->setCell($r, 3, $data['lastname'] ?? "");
             $spreadsheet->setCell($r, 4, $data['email'] ?? "");
             $spreadsheet->setCell($r, 5, $w->getPseudonym());
-            $spreadsheet->setCell($r, 6, str_word_count($written_text));
+            $spreadsheet->setCell($r, 6, $location_text);
+            $spreadsheet->setCell($r, 7, str_word_count($written_text));
 
             foreach(range(0, $needed_corr-1) as $pos){
-                $spreadsheet->addDropdownCol($r, 7+$pos, '=\''.$corrector_title.'\'!$B$2:$B$'.(count($corrector)+1));
+                $spreadsheet->addDropdownCol($r, 8+$pos, '=\''.$corrector_title.'\'!$B$2:$B$'.(count($corrector)+1));
             }
 
             foreach ($ass as $a){
                 $c = $corrector[$a->getCorrectorId()] ?? null;
                 $login = $c !== null && isset($users[$c->getUserId()]) ? $users[$c->getUserId()]['login'] ?? '' : '';
-                $spreadsheet->setCell($r, 7+$a->getPosition(), $login);
+                $spreadsheet->setCell($r, 8+$a->getPosition(), $login);
             }
             $r++;
         }

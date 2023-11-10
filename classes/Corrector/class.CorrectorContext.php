@@ -705,7 +705,6 @@ class CorrectorContext extends ServiceContext implements Context
                 $repoSummary = new CorrectorSummary();
                 $repoSummary->setEssayId($repoEssay->getId());
                 $repoSummary->setCorrectorId((int) $summary->getCorrectorKey());
-                $essayRepo->save($repoSummary);
             }
             $repoSummary->setSummaryText($summary->getText());
             $repoSummary->setPoints($summary->getPoints());

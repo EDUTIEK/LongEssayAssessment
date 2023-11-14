@@ -296,7 +296,7 @@ assign_missing_correctors#:#Fehlende Zuteilungen: %s
 assign_available_correctors#:#Verfügbare Korrekturkräfte: %s
 required_correctors#:#Anzahl Korrektoren
 mutual_visibility#:#Gegenseitige Sichtbarkeit
-mutual_visibility_info#:#Korrektoren derselben Abgabe können ihre Korrekturen gegenseitig sehen
+mutual_visibility_info#:#Korrektoren derselben Abgabe können ihre Korrekturen gegenseitig sehen, sobals sie autorisiert sind.
 max_points#:#Maximale Punkte
 max_auto_distance#:#Maximaler Punkteunterschied
 max_auto_distance_info#:#Maximaler Unterschied zwischen niedrigster und höchster Punktzahl, bei der eine Durchschnittsnote gebildet werden kann und kein Stichentscheid notwendig ist

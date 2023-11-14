@@ -52,6 +52,7 @@ class DataService extends BaseService
 	const ALL = "all";
 	private array $correction_status_cache = [];
 	private array $correction_position_cache = [];
+    private array $user_cache = [];
 	public static array $correction_status_list = [CorrectorSummary::STATUS_STARTED, CorrectorSummary::STATUS_DUE,
 		CorrectorSummary::STATUS_STITCH, CorrectorSummary::STATUS_AUTHORIZED, self::ALL];
 	public static array $corrector_position_list = [1, 2, self::ALL];
@@ -128,6 +129,19 @@ class DataService extends BaseService
         return $this->ownCorrector;
     }
 
+    /**
+     * Get a cached user object for a user id
+     * @param int $user_id
+     * @return ilObjUser
+     */
+    public function getCachedUser(int $user_id) : ilObjUser
+    {
+        if (!isset($this->user_cache[$user_id])) {
+            $this->user_cache[$user_id] = new \ilObjUser($user_id);
+        }
+        return $this->user_cache[$user_id];
+    }
+    
 
     /**
      * Convert a string timestamp stored in the database to a unix timestamp
@@ -360,6 +374,23 @@ class DataService extends BaseService
         return $text;
     }
 
+    /**
+     * Format the initials of a users like in letter avatars of ILIAS
+     * This is used to indicate the authors of correction comments
+     * 
+     * @param ilObjUser $user
+     * @return string
+     * @see \ilUserAvatarResolver::init
+     */
+    public function formatUserInitials(ilObjUser $user) : string
+    {
+        if ($user->hasPublicProfile()) {
+            return \ilStr::subStr($user->getFirstname(), 0, 1) . \ilStr::subStr($user->getLastname(), 0, 1);
+        } else {
+            return \ilStr::subStr($user->getLogin(), 0, 2);
+        }
+    }
+    
 	/**
 	 * @param Essay $essay
 	 * @param CorrectorSummary|null $summary

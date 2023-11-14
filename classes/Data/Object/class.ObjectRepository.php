@@ -80,7 +80,7 @@ class ObjectRepository extends RecordRepo
     {
         $query = "SELECT * FROM xlas_rating_crit WHERE object_id = " . $this->db->quote($a_object_id, 'integer');
 
-		if($corrector_id !== null){
+		if ($corrector_id !== null){
 			$query .= " AND corrector_id = " . $this->db->quote($corrector_id, "integer");
 		}else{
 			$query .= " AND corrector_id IS NULL";

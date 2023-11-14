@@ -7,9 +7,14 @@ use ILIAS\Plugin\LongEssayAssessment\Data\Essay\Essay;
 use ILIAS\Plugin\LongEssayAssessment\Data\Writer\Writer;
 use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
 use ILIAS\UI\Component\Symbol\Icon\Icon;
+use ILIAS\Plugin\LongEssayAssessment\Data\Task\Location;
+use ILIAS\UI\Component\Input\Container\Filter\Standard;
 
 abstract class WriterListGUI
 {
+    const FILTER_YES= "1";
+    const FILTER_NO = "2";
+
     /**
      * @var Essay[]
      */
@@ -26,6 +31,11 @@ abstract class WriterListGUI
 	 */
 	protected $user_data = [];
 
+    /**
+     * @var Location[]
+     */
+    private array $locations = [];
+
 	/**
 	 * @var bool
 	 */
@@ -37,6 +47,7 @@ abstract class WriterListGUI
 	protected \ILIAS\UI\Renderer $renderer;
 	protected object $parent;
 	protected string $parent_cmd;
+    protected \ilUIService $ui_service;
 
     /** @var LongEssayAssessmentDI  */
     protected $localDI;
@@ -52,6 +63,7 @@ abstract class WriterListGUI
 		$this->plugin = $plugin;
 		$this->renderer = $DIC->ui()->renderer();
         $this->localDI = LongEssayAssessmentDI::getInstance();
+        $this->ui_service = $DIC->uiService();
 	}
 
 	abstract public function getContent():string;
@@ -232,4 +244,128 @@ abstract class WriterListGUI
 			usort($target_array, $by_name);
 		}
 	}
+
+    /**
+     * @param Location[] $locations
+     * @return void
+     */
+    public function setLocations(array $locations){
+        foreach($locations as $location){
+            $this->locations[$location->getId()] = $location;
+        }
+    }
+
+    /**
+     * @return Location[]
+     */
+    public function getLocations(): array
+    {
+        return $this->locations;
+    }
+
+    /**
+     * @param Writer $writer
+     * @return string
+     */
+    protected function location(Writer $writer): string
+    {
+        if(isset($this->essays[$writer->getId()]) &&
+            ($location = $this->essays[$writer->getId()]->getLocation()) !== null &&
+            isset($this->locations[$location])){
+            return $this->locations[$location]->getTitle();
+        }
+        return " - ";
+    }
+
+    protected function word_count(Writer $writer)
+    {
+        $essay = $this->essays[$writer->getId()];
+        return str_word_count($essay !== null ? ($essay->getWrittenText() ?? "") : "");
+    }
+
+    protected function filterInputs(): array
+    {
+        return [];
+    }
+
+    protected function filterInputActivation(): array
+    {
+        return [];
+    }
+    protected function filterItems(array $filter, Writer $writer): bool
+    {
+        return true;
+    }
+
+    public function filterForm(): Standard
+    {
+        $link = $this->ctrl->getLinkTarget($this->parent, $this->parent_cmd);
+        $locations = [];
+
+        foreach($this->getLocations() as $location){
+            $locations[$location->getId()] = (string) $location->getTitle();
+        }
+
+        $more_than_txt = $this->plugin->txt("filter_words_more_than");
+        $more_than = function (int $x) use ($more_than_txt): string {
+            return sprintf($more_than_txt, $x);
+        };
+        $less_than_txt = $this->plugin->txt("filter_words_less_than");
+        $less_than = function (int $x) use ($less_than_txt): string {
+            return sprintf($less_than_txt, $x);
+        };
+
+        $filter = [];
+        $filter["name"] = $this->uiFactory->input()->field()->text($this->plugin->txt("participants"));
+        $filter["location"] = $this->uiFactory->input()->field()->multiselect($this->plugin->txt("locations"), $locations);
+        $filter["authorized"] = $this->uiFactory->input()->field()->select($this->plugin->txt("filter_authorized"),
+            [self::FILTER_YES => $this->plugin->txt("yes"), self::FILTER_NO => $this->plugin->txt("no")]);
+        $filter["words"] = $this->uiFactory->input()->field()->select($this->plugin->txt("filter_words"),
+            ["m100" => $more_than(100), "m50" => $more_than(50), "m10" => $more_than(10),
+             "l10" => $less_than(10), "l50" => $less_than(50), "l100" => $less_than(100)]);
+
+        return $this->ui_service->filter()->standard("abc1", $link, array_merge($filter, $this->filterInputs()),
+            array_merge([true, true, true, true], $this->filterInputActivation()),true, true);
+    }
+
+    public function filter(array $filter, Writer $writer): bool
+    {
+        if($filter["name"] !== null && strlen($filter["name"]) > 3){
+            $names = $writer->getPseudonym() . strip_tags($this->getUsername($writer->getUserId(), true));
+            if(!str_contains($names, $filter["name"])){
+                return false;
+            }
+        }
+        $essay = $this->essays[$writer->getId()];
+
+        if(!empty($filter["location"])){
+
+            if($essay === null || !in_array((string)$essay->getLocation(), $filter["location"])){
+                return false;
+            }
+        }
+        if(!empty($filter["authorized"]) && $filter["authorized"] == self::FILTER_YES){
+            if($essay === null || $essay->getWritingAuthorized() === null){
+                return false;
+            }
+        }
+        if(!empty($filter["authorized"]) && $filter["authorized"] == self::FILTER_NO){
+            if($essay !== null && $essay->getWritingAuthorized() !== null){
+                return false;
+            }
+        }
+        if(!empty($filter["words"])){
+            $words = $this->word_count($writer);
+            switch($filter["words"]){
+                case "m100": if($words <= 100) return false; breaK;
+                case "m50": if($words <= 50) return false; breaK;
+                case "m10": if($words <= 10) return false; breaK;
+                case "l10": if($words >= 10) return false; breaK;
+                case "l50": if($words >= 50) return false; breaK;
+                case "l100": if($words >= 100) return false; breaK;
+            }
+        }
+
+        return $this->filterItems($filter, $writer);
+    }
 }

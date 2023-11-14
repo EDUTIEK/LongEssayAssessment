@@ -6,6 +6,8 @@ use ILIAS\Plugin\LongEssayAssessment\Data\Task\CorrectionSettings;
 use ILIAS\Plugin\LongEssayAssessment\Data\Corrector\Corrector;
 use ILIAS\Plugin\LongEssayAssessment\Data\Corrector\CorrectorAssignment;
 use ILIAS\Plugin\LongEssayAssessment\Data\Writer\Writer;
+use ILIAS\UI\Implementation\Component\Input\Field\Input;
+use ILIAS\UI\Component\Input\Container\Filter\Standard;
 
 class CorrectorAdminListGUI extends WriterListGUI
 {
@@ -48,9 +50,11 @@ class CorrectorAdminListGUI extends WriterListGUI
 
         $count_total = count($this->writers);
         $count_filtered = 0;
+        $filter_gui = $this->filterForm();
+        $filter_data = $this->ui_service->filter()->getData($filter_gui) ?? [];
 
 		foreach ($this->writers as $writer) {
-			if(!$this->isFiltered($writer)){
+			if(!$this->filter($filter_data, $writer)){
 				continue;
 			}
             $count_filtered++;
@@ -111,8 +115,12 @@ class CorrectorAdminListGUI extends WriterListGUI
 				}
 
                 $actions[] = $this->uiFactory->button()->shy($this->plugin->txt('export_steps'), $this->getExportStepsTarget($writer));
-                $properties[$this->plugin->txt("word_count")]  = str_word_count($essay->getWrittenText());
+                $properties[$this->plugin->txt("word_count")]  = $this->word_count($writer);
                 $properties[$this->plugin->txt("final_grade")] = $this->localDI->getDataService($writer->getTaskId())->formatFinalResult($essay);
+            }
+
+            if(!empty($this->getLocations())){
+                $properties[$this->plugin->txt("location")] = $this->location($writer);
             }
 
 			$actions_dropdown = $this->uiFactory->dropdown()->standard($actions)
@@ -161,9 +169,7 @@ class CorrectorAdminListGUI extends WriterListGUI
 			$remove_auth_callback_signal
 		);
 
-
-		return $this->renderer->render($this->filterControl()) . '<br><br>' .
-			$this->renderer->render(array_merge([$resources->withActions($this->uiFactory->dropdown()->standard($form_actions))], $modals));
+		return $this->renderer->render(array_merge([$filter_gui], [$resources->withActions($this->uiFactory->dropdown()->standard($form_actions))], $modals));
 	}
 
 	private function getAssignedCorrectorName(Writer $writer, int $pos): string
@@ -355,62 +361,78 @@ class CorrectorAdminListGUI extends WriterListGUI
 		$this->correction_status_stitches = $correction_status_stitches;
 	}
 
-	public function isFiltered(Writer $writer):bool
-	{
-		$filter = $this->getFilter();
-		$essay = null;
-		$stitch = null;
+    protected function filterInputs(): array
+    {
+        $correctors = [];
 
-		if(array_key_exists($writer->getId(), $this->essays)){
-			$essay = $this->essays[$writer->getId()];
-		}
+        foreach($this->getCorrectors() as $corrector){
+            $name = strip_tags($this->getUsername($corrector->getUserId(), true));
+            $correctors[$corrector->getId()] = $name;
 
-		if($essay !== null && in_array($essay->getId(), $this->correction_status_stitches)){
-			$stitch = true;
-		}
+        }
 
-		switch($filter){
-			case "corrected":
-				return $essay !== null && $essay->getCorrectionFinalized() !== null;
-			case "not_corrected":
-				return $essay === null || $essay->getCorrectionFinalized() === null;
-			case "with_stitch":
-				return $stitch !== null;
-            case "authorized":
-                return $essay !== null && $essay->getWritingAuthorized() !== null;
-			case "all":
-			default:
-				return true;
-		}
-	}
+        return ["corrector" => $this->uiFactory->input()->field()->multiselect($this->plugin->txt("correctors"), $correctors),
+                "corrected" => $this->uiFactory->input()->field()->select($this->plugin->txt("filter_corrected"),
+                    [self::FILTER_YES => $this->plugin->txt("yes"), self::FILTER_NO => $this->plugin->txt("no")]),
+                "stitch" => $this->uiFactory->input()->field()->select($this->plugin->txt("filter_stitch"),
+                    [self::FILTER_YES => $this->plugin->txt("yes"), self::FILTER_NO => $this->plugin->txt("no")]),
+                "assigned" => $this->uiFactory->input()->field()->select($this->plugin->txt("filter_assigned"),
+                    [self::FILTER_YES => $this->plugin->txt("yes"), self::FILTER_NO => $this->plugin->txt("no")])
+        ];
+    }
 
-	public function getFilter(){
-		global $DIC;
-		$query = $DIC->http()->request()->getQueryParams();
-		if(array_key_exists("filter", $query) && in_array($query["filter"], ["all", "corrected", "not_corrected", "authorized", "with_stitch"])){
-			return $query["filter"];
-		}
-		return "all";
-	}
+    protected function filterInputActivation(): array
+    {
+        return [true, true, true, true];
+    }
+    protected function filterItems(array $filter, Writer $writer): bool
+    {
+        if(!empty($filter["corrector"])){
+            $has = [];
+            foreach($this->getAssignmentsByWriter($writer) as $ass){
+                $has[] = (string) $ass->getCorrectorId();
+            }
+            if(empty(array_intersect($has, $filter["corrector"]))){
+                return false;
+            }
+        }
+        $essay = $this->essays[$writer->getId()];
 
-	public function filterControl()
-	{
+        if(!empty($filter["corrected"]) && $filter["corrected"] == self::FILTER_YES){
+            if($essay === null || $essay->getCorrectionFinalized() === null){
+                return false;
+            }
+        }
+        if(!empty($filter["corrected"]) && $filter["corrected"] == self::FILTER_NO){
+            if($essay !== null && $essay->getCorrectionFinalized() !== null){
+                return false;
+            }
+        }
 
-		$link = $this->ctrl->getLinkTarget($this->parent, $this->parent_cmd);
-		$filter = [
-			"all",
-			"corrected",
-			"not_corrected",
-            "authorized",
-			"with_stitch"
-		];
+        if(!empty($filter["stitch"]) && $filter["stitch"] == self::FILTER_YES){
+            if($essay === null || !in_array($essay->getId(), $this->correction_status_stitches)){
+                return false;
+            }
+        }
+        if(!empty($filter["stitch"]) && $filter["stitch"] == self::FILTER_NO){
+            if($essay !== null && in_array($essay->getId(), $this->correction_status_stitches)){
+                return false;
+            }
+        }
 
-		$actions  = [];
-		foreach ($filter as $key){
-			$actions[$this->plugin->txt("filter_corrector_admin_list_" . $key)] = $link . "&filter=" . $key;
-		}
+        if(!empty($filter["assigned"]) && $filter["assigned"] == self::FILTER_YES){
+            if(count($this->getAssignmentsByWriter($writer)) !== $this->correction_settings->getRequiredCorrectors()){
+                return false;
+            }
+        }
+        if(!empty($filter["assigned"]) && $filter["assigned"] == self::FILTER_NO){
+            if(count($this->getAssignmentsByWriter($writer)) === $this->correction_settings->getRequiredCorrectors()){
+                return false;
+            }
+        }
 
-		$aria_label = "change_the_currently_displayed_mode";
-		return $this->uiFactory->viewControl()->mode($actions, $aria_label)->withActive($this->plugin->txt("filter_corrector_admin_list_" . $this->getFilter()));
-	}
+        return true;
+    }
+
+
 }

@@ -218,15 +218,6 @@ remove_writer_pending_assignments#:#Korrektor konnte nicht entfernt werden, da e
 remove_writer_success#:#Korrektor wurde erfolgreich entfernt.
 assign_corrector_success#:#Korrektor(en) wurden erfolgreich hinzugefügt.
 correction_status_stitch#:#Stichentscheid
-filter_writer_admin_list_all#:#Alle
-filter_writer_admin_list_attended#:#Teilgenommen
-filter_writer_admin_list_not_attended#:#Nicht Teilgenommen
-filter_writer_admin_list_with_extension#:#Mit Zeitverlängerung
-filter_corrector_admin_list_all#:#Alle
-filter_corrector_admin_list_corrected#:#Korrigiert
-filter_corrector_admin_list_not_corrected#:#Noch nicht korrigiert
-filter_corrector_admin_list_authorized#:#Abgegeben
-filter_corrector_admin_list_with_stitch#:#Stichentscheid gefordert
 log_type#:#Typ
 alert_send#:#Gesendet
 log_type_alert#:#Benachrichtigung
@@ -462,3 +453,16 @@ assignment_excel_import#:#Import
 assignment_excel_export_auth#:#nur Autorisiert
 resource_title#:#Titel zur Anzeige
 word_count#:#Wörter
+filter_authorized#:#Autorisiert
+filter_words#:#Wörter
+filter_assigned#:#Korrektor(en) zugewiesen
+filter_stitch#:#Stichentscheid notwendig
+filter_corrected#:#Korrigiert
+filter_attended#:#Teilgenommen
+filter_with_extension#:#Zeitverlängerung
+filter_pdf_version#:#PDF-Version
+filter_exclusion#:#Ausgeschlossen
+filter_words_more_than#:#mehr als %d
+filter_words_less_than#:#weniger als %d
+yes#:#Ja
+no#:#Nein

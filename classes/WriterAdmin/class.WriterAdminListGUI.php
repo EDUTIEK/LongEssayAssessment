@@ -15,11 +15,6 @@ class WriterAdminListGUI extends WriterListGUI
 	 */
 	private array $extensions = [];
 
-	/**
-	 * @var Location[]
-	 */
-	private array $locations = [];
-
 	private ?RoundTrip $multi_command_modal = null;
 
 
@@ -33,11 +28,15 @@ class WriterAdminListGUI extends WriterListGUI
 
         $count_total = count($this->getWriters());
         $count_filtered = 0;
+
+        $filter_gui = $this->filterForm();
+        $filter_data = $this->ui_service->filter()->getData($filter_gui) ?? [];
+
         foreach($this->getWriters() as $writer)
 		{
-			if(!$this->isFiltered($writer)){
-				continue;
-			}
+            if(!$this->filter($filter_data, $writer)){
+                continue;
+            }
             $count_filtered++;
 
 			$actions = [];
@@ -152,7 +151,9 @@ class WriterAdminListGUI extends WriterListGUI
             if (!empty($this->lastSave($writer))) {
                 $properties[ $this->plugin->txt("writing_last_save")] = $this->lastSave($writer);
             }
-			if($this->canChangeLocation()){
+            $properties[$this->plugin->txt("word_count")]  = $this->word_count($writer);
+
+            if($this->canChangeLocation()){
 				$properties[$this->plugin->txt("location")] = $this->location($writer);
 			}
 
@@ -224,8 +225,7 @@ class WriterAdminListGUI extends WriterListGUI
 
 		$resources = array_merge([$resources], $modals);
 
-		return $this->renderer->render($this->filterControl()) . '<br><br>' .
-			$this->renderer->render($resources);
+		return $this->renderer->render([$filter_gui, $resources]);
 	}
 
 	private function canGetSight(Writer $writer){
@@ -243,7 +243,7 @@ class WriterAdminListGUI extends WriterListGUI
 
 	private function canChangeLocation(): bool
 	{
-		return $this->locations !== null;
+		return $this->getLocations() !== null;
 	}
 
 	private function getChangeLocationAction(Writer $writer): string
@@ -412,16 +412,6 @@ class WriterAdminListGUI extends WriterListGUI
         return '';
 	}
 
-	private function location(Writer $writer){
-		if(isset($this->essays[$writer->getId()]) &&
-			($location = $this->essays[$writer->getId()]->getLocation()) !== null &&
-			isset($this->locations[$location])){
-			return $this->locations[$location]->getTitle();
-		}
-		return " - ";
-	}
-
-
 	/**
 	 * @return TimeExtension[]
 	 */
@@ -440,75 +430,83 @@ class WriterAdminListGUI extends WriterListGUI
 		}
 	}
 
-	public function isFiltered(Writer $writer):bool
-	{
-		$filter = $this->getFilter();
-		$essay = null;
-		$extension = null;
-
-		if(array_key_exists($writer->getId(), $this->essays)){
-			$essay = $this->essays[$writer->getId()];
-		}
-
-		if(array_key_exists($writer->getId(), $this->extensions)){
-			$extension = $this->extensions[$writer->getId()];
-		}
-
-		switch($filter){
-			case "attended":
-				return $essay !== null && $essay->getEditStarted() !== null;
-			case "not_attended":
-				return $essay === null || $essay->getEditStarted() === null;
-			case "with_extension":
-				return $extension !== null;
-			case "all":
-			default:
-				return true;
-		}
-	}
-
-	public function getFilter():string
-	{
-		global $DIC;
-		$query = $DIC->http()->request()->getQueryParams();
-		if(array_key_exists("filter", $query) && in_array($query["filter"], ["attended", "not_attended", "with_extension", "all"])){
-			return $query["filter"];
-		}
-		return "all";
-	}
-
-	public function filterControl()
-	{
-		$link = $this->ctrl->getLinkTarget($this->parent, $this->parent_cmd);
-		$filter = [
-			"all",
-			"attended",
-			"not_attended",
-			"with_extension"
-		];
-
-		$actions  = [];
-		foreach ($filter as $key){
-			$actions[$this->plugin->txt("filter_writer_admin_list_" . $key)] = $link . "&filter=" . $key;
-		}
-
-		$aria_label = "change_the_currently_displayed_mode";
-		return $this->uiFactory->viewControl()->mode($actions, $aria_label)->withActive($this->plugin->txt("filter_writer_admin_list_" . $this->getFilter()));
-	}
-
 	public function getMultiCommandModal():Modal{
 		if($this->multi_command_modal === null)
 			return $this->uiFactory->modal()->roundtrip("",[]);
 		return $this->multi_command_modal;
 	}
 
-	/**
-	 * @param Location[] $locations
-	 * @return void
-	 */
-	public function setLocations(array $locations){
-		foreach($locations as $location){
-			$this->locations[$location->getId()] = $location;
-		}
-	}
+    protected function filterInputs(): array
+    {
+        return ["attended" => $this->uiFactory->input()->field()->select($this->plugin->txt("filter_attended"),
+            [self::FILTER_YES => $this->plugin->txt("yes"), self::FILTER_NO => $this->plugin->txt("no")]),
+                "assigned" => $this->uiFactory->input()->field()->select($this->plugin->txt("filter_with_extension"),
+                    [self::FILTER_YES => $this->plugin->txt("yes"), self::FILTER_NO => $this->plugin->txt("no")]),
+                "pdf_version" => $this->uiFactory->input()->field()->select($this->plugin->txt("filter_pdf_version"),
+                    [self::FILTER_YES => $this->plugin->txt("yes"), self::FILTER_NO => $this->plugin->txt("no")]),
+                "exclusion" => $this->uiFactory->input()->field()->select($this->plugin->txt("filter_exclusion"),
+                    [self::FILTER_YES => $this->plugin->txt("yes"), self::FILTER_NO => $this->plugin->txt("no")])];
+    }
+
+    protected function filterInputActivation(): array
+    {
+        return [true, true, true, true];
+    }
+    protected function filterItems(array $filter, Writer $writer): bool
+    {
+        $essay = $this->essays[$writer->getId()];
+
+        if(!empty($filter["attended"]) && $filter["attended"] == self::FILTER_YES){
+            if($essay === null || $essay->getEditStarted() === null){
+                return false;
+            }
+        }
+        if(!empty($filter["attended"]) && $filter["attended"] == self::FILTER_NO){
+            if($essay !== null && $essay->getEditStarted() !== null){
+                return false;
+            }
+        }
+
+        $extension = null;
+
+        if(array_key_exists($writer->getId(), $this->extensions)){
+            $extension = $this->extensions[$writer->getId()];
+        }
+
+        if(!empty($filter["assigned"]) && $filter["assigned"] == self::FILTER_YES){
+            if($extension !== null){
+                return false;
+            }
+        }
+        if(!empty($filter["assigned"]) && $filter["assigned"] == self::FILTER_NO){
+            if($extension === null){
+                return false;
+            }
+        }
+
+        if(!empty($filter["pdf_version"]) && $filter["pdf_version"] == self::FILTER_YES){
+            if($essay === null || $essay->getPdfVersion() === null){
+                return false;
+            }
+        }
+        if(!empty($filter["pdf_version"]) && $filter["pdf_version"] == self::FILTER_NO){
+            if($essay !== null && $essay->getPdfVersion() !== null){
+                return false;
+            }
+        }
+
+        if(!empty($filter["exclusion"]) && $filter["exclusion"] == self::FILTER_YES){
+            if($essay === null || $essay->getWritingExcluded() === null){
+                return false;
+            }
+        }
+        if(!empty($filter["exclusion"]) && $filter["exclusion"] == self::FILTER_NO){
+            if($essay !== null && $essay->getWritingExcluded() !== null){
+                return false;
+            }
+        }
+
+
+        return true;
+    }
 }

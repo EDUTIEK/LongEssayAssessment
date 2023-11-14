@@ -97,6 +97,7 @@ class CorrectorAdminGUI extends BaseGUI
         $writers_repo = $di->getWriterRepo();
         $corrector_repo = $di->getCorrectorRepo();
         $essay_repo = $di->getEssayRepo();
+        $task_repo = $di->getTaskRepo();
 
         $essays = $essay_repo->getEssaysByTaskId($this->object->getId());
         $stitches = [];
@@ -167,6 +168,7 @@ class CorrectorAdminGUI extends BaseGUI
 		$list_gui->setEssays($essays);
 		$list_gui->setAssignments($corrector_repo->getAssignmentsByTaskId($this->object->getId()));
 		$list_gui->setCorrectionStatusStitches($stitches);
+        $list_gui->setLocations($task_repo->getLocationsByTaskId($this->object->getId()));
 
         $this->tpl->setContent($list_gui->getContent());
 	}
@@ -178,6 +180,7 @@ class CorrectorAdminGUI extends BaseGUI
 		$di = LongEssayAssessmentDI::getInstance();
 		$writers_repo = $di->getWriterRepo();
 		$corrector_repo = $di->getCorrectorRepo();
+
 
 		$list_gui = new CorrectorListGUI($this, "showCorrectors", $this->plugin);
 		$list_gui->setWriters($writers_repo->getWritersByTaskId($this->object->getId()));

@@ -50,11 +50,11 @@ class CorrectorSummary extends RecordData
     protected ?string $last_change = null;
     protected ?string $correction_authorized = null;
     protected ?int $correction_authorized_by = null;
-    protected int $include_comments = 0;
-    protected int $include_comment_ratings = 0;
-    protected int $include_comment_points = 0;
-    protected int $include_criteria_points = 0;
-    protected int $include_writer_notes = 0;
+    protected ?int $include_comments = null;
+    protected ?int $include_comment_ratings = null;
+    protected ?int $include_comment_points = null;
+    protected ?int $include_criteria_points = null;
+    protected ?int $include_writer_notes = null;
 
 
     public static function model() {
@@ -224,82 +224,82 @@ class CorrectorSummary extends RecordData
     }
 
     /**
-     * @return int
+     * @return int|null
      */
-    public function getIncludeComments(): int
+    public function getIncludeComments(): ?int
     {
         return $this->include_comments;
     }
 
     /**
-     * @param int $include_comments
+     * @param int|null $include_comments
      */
-    public function setIncludeComments(int $include_comments): void
+    public function setIncludeComments(?int $include_comments): void
     {
         $this->include_comments = $include_comments;
     }
 
     /**
-     * @return int
+     * @return int|null
      */
-    public function getIncludeCommentRatings(): int
+    public function getIncludeCommentRatings(): ?int
     {
         return $this->include_comment_ratings;
     }
 
     /**
-     * @param int $include_comment_ratings
+     * @param int|null $include_comment_ratings
      */
-    public function setIncludeCommentRatings(int $include_comment_ratings): void
+    public function setIncludeCommentRatings(?int $include_comment_ratings): void
     {
         $this->include_comment_ratings = $include_comment_ratings;
     }
 
     /**
-     * @return int
+     * @return int|null
      */
-    public function getIncludeCommentPoints(): int
+    public function getIncludeCommentPoints(): ?int
     {
         return$this->include_comment_points;
     }
 
     /**
-     * @param int $include_comment_points
+     * @param int|null $include_comment_points
      */
-    public function setIncludeCommentPoints(int $include_comment_points): void
+    public function setIncludeCommentPoints(?int $include_comment_points): void
     {
         $this->include_comment_points = $include_comment_points;
     }
 
     /**
-     * @return int
+     * @return int|null
      */
-    public function getIncludeCriteriaPoints(): int
+    public function getIncludeCriteriaPoints(): ?int
     {
         return $this->include_criteria_points;
     }
 
     /**
-     * @param int $include_criteria_points
+     * @param int|null $include_criteria_points
      */
-    public function setIncludeCriteriaPoints(int $include_criteria_points): void
+    public function setIncludeCriteriaPoints(?int $include_criteria_points): void
     {
         $this->include_criteria_points = $include_criteria_points;
     }
 
 
     /**
-     * @return int
+     * @return int|null
      */
-    public function getIncludeWriterNotes(): int
+    public function getIncludeWriterNotes(): ?int
     {
         return $this->include_writer_notes;
     }
 
     /**
-     * @param int $include_writer_notes
+     * @param int|null $include_writer_notes
      */
-    public function setIncludeWriterNotes(int $include_writer_notes): void
+    public function setIncludeWriterNotes(?int $include_writer_notes): void
     {
         $this->include_writer_notes = $include_writer_notes;
     }

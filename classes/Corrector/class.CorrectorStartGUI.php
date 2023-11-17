@@ -353,7 +353,8 @@ class CorrectorStartGUI extends BaseGUI
 
 	protected function authorizeCorrection(){
 		$corrector = $this->localDI->getCorrectorRepo()->getCorrectorByUserId($this->dic->user()->getId(), $this->settings->getTaskId());
-
+        $preferences = $this->localDI->getCorrectorRepo()->getCorrectorPreferences($corrector->getId());
+        
 		$valid = false;
 
 		foreach($this->getWriterIds() as $writer_id){
@@ -368,6 +369,7 @@ class CorrectorStartGUI extends BaseGUI
 				continue;
 			}
 			$valid = true;
+            $summary->applyPreferences($preferences);
 			$this->service->authorizeCorrection($summary, $corrector->getUserId());
             $this->service->tryFinalisation($essay, $corrector->getUserId());
 		}

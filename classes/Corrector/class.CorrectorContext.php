@@ -24,6 +24,8 @@ use ILIAS\Plugin\LongEssayAssessment\Data\Essay\CriterionPoints;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\CorrectionSettings as PluginCorrectionSettings;
 use Edutiek\LongEssayAssessmentService\Data\CorrectionPage;
 use Edutiek\LongEssayAssessmentService\Data\CorrectionMark;
+use Edutiek\LongEssayAssessmentService\Data\CorrectionPreferences;
+use ILIAS\Plugin\LongEssayAssessment\Data\Corrector\CorrectorPreferences;
 
 class CorrectorContext extends ServiceContext implements Context
 {
@@ -169,6 +171,26 @@ class CorrectorContext extends ServiceContext implements Context
         }
         return new CorrectionSettings(false, false, 0, 0, false, false);
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function getCorrectionPreferences(string $corrector_key): CorrectionPreferences
+    {
+        $repoPrefs = $this->localDI->getCorrectorRepo()->getCorrectorPreferences((int) $corrector_key);
+        return new CorrectionPreferences(
+            $corrector_key,
+            $repoPrefs->getEssayPageZoom(),
+            $repoPrefs->getEssayTextZoom(),
+            $repoPrefs->getSummaryTextZoom(),
+            $repoPrefs->getIncludeComments(),
+            $repoPrefs->getIncludeCommentRatings(),
+            $repoPrefs->getIncludeCommentPoints(),
+            $repoPrefs->getIncludeCriteriaPoints(),
+            $repoPrefs->getIncludeWriterNotes()
+        );
+    }
+
 
     /**
      * @inheritDoc
@@ -687,6 +709,27 @@ class CorrectorContext extends ServiceContext implements Context
             $essayRepo->save($repoEssay);
         }
     }
+
+    /**
+     * @inheritDoc
+     * here:     the corrector key is a string of the corrector id
+     */
+    public function saveCorrectionPreferences(CorrectionPreferences $preferences): bool
+    {
+        $repoPrefs = new CorrectorPreferences((int) $preferences->getCorrectorKey());
+        $repoPrefs->setEssayPageZoom($preferences->getEssayPageZoom());
+        $repoPrefs->setEssayTextZoom($preferences->getEssayTextZoom());
+        $repoPrefs->setSummaryTextZoom($preferences->getSummaryTextZoom());
+        $repoPrefs->setIncludeComments($preferences->getIncludeComments());
+        $repoPrefs->setIncludeCommentRatings($preferences->getIncludeCommentRatings());
+        $repoPrefs->setIncludeCommentPoints($preferences->getIncludeCommentPoints());
+        $repoPrefs->setIncludeCriteriaPoints($preferences->getIncludeCriteriaPoints());
+        $repoPrefs->setIncludeWriterNotes($preferences->getIncludeWriterNotes());
+        
+        $this->localDI->getCorrectorRepo()->save($repoPrefs);
+        return true;
+    }
+
 
     /**
      * @inheritDoc

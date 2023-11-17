@@ -4,6 +4,7 @@
 namespace ILIAS\Plugin\LongEssayAssessment\Data\Essay;
 
 use ILIAS\Plugin\LongEssayAssessment\Data\RecordData;
+use ILIAS\Plugin\LongEssayAssessment\Data\Corrector\CorrectorPreferences;
 
 /**
  * @author Fabian Wolf <wolf@ilias.de>
@@ -302,6 +303,18 @@ class CorrectorSummary extends RecordData
     public function setIncludeWriterNotes(?int $include_writer_notes): void
     {
         $this->include_writer_notes = $include_writer_notes;
+    }
+
+    /**
+     * Apply preferences for properties which are not yet set
+     */
+    public function applyPreferences(CorrectorPreferences $preferences) : void
+    {
+        $this->include_comments = $this->include_comments ?? $preferences->getIncludeComments();
+        $this->include_comment_ratings = $this->include_comment_points ?? $preferences->getIncludeCommentPoints();
+        $this->include_comment_points = $this->include_comment_points ?? $preferences->getIncludeCommentPoints();
+        $this->include_criteria_points = $this->include_criteria_points ?? $preferences->getIncludeCriteriaPoints();
+        $this->include_writer_notes = $this->include_writer_notes ?? $preferences->getIncludeWriterNotes();
     }
 }
 

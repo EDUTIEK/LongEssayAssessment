@@ -1800,3 +1800,54 @@ if (!$ilDB->tableColumnExists('xlas_corrector_summary', 'include_writer_notes'))
 }
 
 ?>
+<#83>
+<?php
+if (!$ilDB->tableExists('xlas_corrector_prefs')) {
+    $ilDB->createTable('xlas_corrector_prefs', [
+       'corrector_id' => [
+           'notnull' => '1',
+           'type' => 'integer',
+           'length' => '4'
+       ],
+       'essay_page_zoom' => [
+           'notnull' => '1',
+           'type' => 'float',
+       ],
+       'essay_text_zoom' => [
+           'notnull' => '1',
+           'type' => 'float',
+       ],
+       'summary_text_zoom' => [
+           'notnull' => '1',
+           'type' => 'float',
+       ],
+       'include_comments' => [
+           'notnull' => '1',
+           'type' => 'integer',
+           'length' => '4'
+       ],
+       'include_comment_ratings' => [
+           'notnull' => '1',
+           'type' => 'integer',
+           'length' => '4'
+       ],
+       'include_comment_points' => [
+           'notnull' => '1',
+           'type' => 'integer',
+           'length' => '4'
+       ],
+       'include_criteria_points' => [
+           'notnull' => '1',
+           'type' => 'integer',
+           'length' => '4'
+       ],
+       'include_writer_notes' => [
+           'notnull' => '1',
+           'type' => 'integer',
+           'length' => '4'
+       ],
+    ]);
+    $ilDB->addPrimaryKey('xlas_corrector_prefs', ['corrector_id']);
+}
+?>
+

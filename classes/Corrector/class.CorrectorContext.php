@@ -175,11 +175,11 @@ class CorrectorContext extends ServiceContext implements Context
     /**
      * @inheritDoc
      */
-    public function getCorrectionPreferences(string $corrector_key): CorrectionPreferences
+    public function getCorrectionPreferences(?string $corrector_key): CorrectionPreferences
     {
         $repoPrefs = $this->localDI->getCorrectorRepo()->getCorrectorPreferences((int) $corrector_key);
         return new CorrectionPreferences(
-            $corrector_key,
+            (string) $corrector_key,
             $repoPrefs->getEssayPageZoom(),
             $repoPrefs->getEssayTextZoom(),
             $repoPrefs->getSummaryTextZoom(),

@@ -122,27 +122,7 @@ class CorrectorAdminGUI extends BaseGUI
         $button->setCaption($this->plugin->txt("assign_writers"), false);
         $button->setPrimary(true);
         $this->toolbar->addButtonInstance($button);
-
-        $button = \ilLinkButton::getInstance();
-        $button->setUrl(empty($stitches) ? '#' : $stitch_decision_action);
-        $button->setCaption($this->plugin->txt("do_stich_decision"), false);
-        $button->setDisabled(empty($stitches));
-        $this->toolbar->addButtonInstance($button);
-
-        $this->toolbar->addSeparator();
-
-        $button = \ilLinkButton::getInstance();
-        $button->setUrl($export_corrections_action);
-        $button->setCaption($this->plugin->txt("export_corrections"), false);
-        $this->toolbar->addButtonInstance($button);
-
-        $button = \ilLinkButton::getInstance();
-        $button->setUrl($export_results_action);
-        $button->setCaption($this->plugin->txt("export_results"), false);
-        $this->toolbar->addButtonInstance($button);
-
-        $this->toolbar->addSeparator();
-
+        
         $btn_export = $this->uiFactory->button()->standard(
             $this->plugin->txt("assignment_excel_export"),
             $this->ctrl->getLinkTarget($this, "correctorAssignmentSpreadsheetExport")
@@ -162,6 +142,27 @@ class CorrectorAdminGUI extends BaseGUI
         $this->toolbar->addComponent($btn_import);
         $this->toolbar->addComponent($btn_export);
         $this->toolbar->addComponent($btn_export_ass);
+        $this->toolbar->addSeparator();
+
+        if ($this->settings->getRequiredCorrectors() > 1) {
+            $button = \ilLinkButton::getInstance();
+            $button->setUrl(empty($stitches) ? '#' : $stitch_decision_action);
+            $button->setCaption($this->plugin->txt("do_stich_decision"), false);
+            $button->setDisabled(empty($stitches));
+            $this->toolbar->addButtonInstance($button);
+            $this->toolbar->addSeparator();
+        }
+        
+        $button = \ilLinkButton::getInstance();
+        $button->setUrl($export_corrections_action);
+        $button->setCaption($this->plugin->txt("export_corrections"), false);
+        $this->toolbar->addButtonInstance($button);
+
+        $button = \ilLinkButton::getInstance();
+        $button->setUrl($export_results_action);
+        $button->setCaption($this->plugin->txt("export_results"), false);
+        $this->toolbar->addButtonInstance($button);
+
         $this->toolbar->addSeparator();
 
 		$list_gui = new CorrectorAdminListGUI($this, "showStartPage", $this->plugin, $this->settings);

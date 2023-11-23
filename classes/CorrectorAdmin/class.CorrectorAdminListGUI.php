@@ -61,6 +61,7 @@ class CorrectorAdminListGUI extends WriterListGUI
 
 			$actions = [];
 			$actions[] = $this->uiFactory->button()->shy($this->plugin->txt('view_correction'), $this->getViewCorrectionAction($writer));
+            $actions[] = $this->uiFactory->button()->shy($this->plugin->txt('download_written_pdf'), $this->getDownloadWrittenPdfAction($writer));
             $actions[] = $this->uiFactory->button()->shy($this->plugin->txt('download_corrected_pdf'), $this->getDownloadCorrectedPdfAction($writer));
             
             if ($this->hasCorrectionStatusStitchDecided($writer)) {
@@ -203,6 +204,12 @@ class CorrectorAdminListGUI extends WriterListGUI
 		$this->ctrl->setParameter($this->parent, "writer_id", $writer->getId());
 		return $this->ctrl->getLinkTargetByClass(["ILIAS\Plugin\LongEssayAssessment\CorrectorAdmin\CorrectorAdminGUI"], "viewCorrections");
 	}
+
+    private function getDownloadWrittenPdfAction(Writer $writer): string
+    {
+        $this->ctrl->setParameter($this->parent, "writer_id", $writer->getId());
+        return $this->ctrl->getLinkTargetByClass(["ILIAS\Plugin\LongEssayAssessment\CorrectorAdmin\CorrectorAdminGUI"], "downloadWrittenPdf");
+    }
 
     private function getDownloadCorrectedPdfAction(Writer $writer): string
     {

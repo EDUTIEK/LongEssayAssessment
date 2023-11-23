@@ -79,6 +79,7 @@ class CorrectorAdminGUI extends BaseGUI
                     case 'removeAuthorizations':
 					case 'editAssignmentsAsync':
 					case 'confirmRemoveAuthorizationsAsync':
+                    case 'downloadWrittenPdf':
                     case 'downloadCorrectedPdf':
                     case 'correctorAssignmentSpreadsheetExport':
                     case 'correctorAssignmentSpreadsheetImport':
@@ -410,6 +411,22 @@ class CorrectorAdminGUI extends BaseGUI
     }
 
     /**
+     * Download a generated pdf from the written essay
+     */
+    protected function downloadWrittenPdf()
+    {
+        $params = $this->request->getQueryParams();
+        $writer_id = (int) ($params['writer_id'] ?? 0);
+
+        $service = $this->localDI->getCorrectorAdminService($this->object->getId());
+        $repoWriter = $this->localDI->getWriterRepo()->getWriterById($writer_id);
+
+        $filename = 'task' . $this->object->getId() . '_user' . $this->dic->user()->getId(). '-writing.pdf';
+        ilUtil::deliverData($service->getWritingAsPdf($this->object, $repoWriter), $filename, 'application/pdf');
+    }
+
+
+    /**
      * Download a generated pdf from the correction
      */
     protected function downloadCorrectedPdf()
@@ -420,7 +437,7 @@ class CorrectorAdminGUI extends BaseGUI
         $service = $this->localDI->getCorrectorAdminService($this->object->getId());
         $repoWriter = $this->localDI->getWriterRepo()->getWriterById($writer_id);
 
-        $filename = 'task' . $this->object->getId() . '_user' . $this->dic->user()->getId(). '.pdf';
+        $filename = 'task' . $this->object->getId() . '_user' . $this->dic->user()->getId(). '-correction.pdf';
         ilUtil::deliverData($service->getCorrectionAsPdf($this->object, $repoWriter), $filename, 'application/pdf');
     }
 

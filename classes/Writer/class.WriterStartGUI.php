@@ -341,7 +341,7 @@ class WriterStartGUI extends BaseGUI
 //             $filename = 'task' . $this->object->getId() . '_user' . $this->dic->user()->getId(). '.html';
 //             ilUtil::deliverData($service->getProcessedTextAsHtml(), $filename, 'text/html');
 
-             $filename = 'task' . $this->object->getId() . '_user' . $this->dic->user()->getId(). '.pdf';
+             $filename = 'task' . $this->object->getId() . '_user' . $this->dic->user()->getId(). '-writing.pdf';
              ilUtil::deliverData($service->getProcessedTextAsPdf(), $filename, 'application/pdf');
          }
          else {
@@ -359,7 +359,7 @@ class WriterStartGUI extends BaseGUI
              $repoTask = $this->localDI->getTaskRepo()->getTaskSettingsById($this->object->getId());
              $repoWriter = $this->localDI->getWriterRepo()->getWriterByUserIdAndTaskId($this->dic->user()->getId(), $this->object->getId());
 
-             $filename = 'task' . $this->object->getId() . '_user' . $this->dic->user()->getId(). '.pdf';
+             $filename = 'task' . $this->object->getId() . '_user' . $this->dic->user()->getId(). '-correction.pdf';
              ilUtil::deliverData($service->getCorrectionAsPdf($this->object, $repoWriter), $filename, 'application/pdf');
          }
          else {

@@ -165,6 +165,7 @@ own_grading#:#Eigene Wertung
 grading_not_started#:#nicht begonnen
 grading_open#:#offen
 grading_authorized#:#autorisiert
+assignment_pos_single#:# Korrektor/in
 assignment_pos_first#:#Erstkorrektor/in
 assignment_pos_second#:#Zweitkorrektor/in
 assignment_pos_x#:#%s. Korrektor/in
@@ -353,6 +354,7 @@ potential_authorizations_after#:#Nach Bearbeitungszeit, aber noch nicht zur Korr
 settings_stitch_required#:#Stichentscheid
 stitch_when_distance#:#Bei abweichenden Punkten
 stitch_when_decimals#:#Wenn der Punktedurchschnitt keine ganze Zahl ist
+remove_authorization#:#Korrektur-Autorisierung zurücknehmen
 remove_authorizations#:#Korrektur-Autorisierungen zurücknehmen
 confirm_remove_authorizations_for#:#Möchten Sie die Autorisierung der Korrektur(en) für %s zurücknehmen? Diese Aktion wird protokolliert.
 remove_authorizations_for_done#:#Die Korrektur-Autorisierungen für %s wurden zurückgenommen.
@@ -406,9 +408,9 @@ missing_file#:#Die Datei muss hochgeladen werden."
 unchanged#:#nicht Ändern
 same_assigned_corrector_error#:#Erstkorrektor/in und Zweitkorrektor/in können nicht gleich sein.
 invalid_assignment_combinations_error#:#Diese Zuweisung führt in einigen Fällen zu unerlaubten Kombinationen.
-remove_authorizations_confirmation#:#Möchten Sie die Autorisierung für die Korrektur(en) folgende Teilnehmer zurücknehmen? Diese Aktion wird protokolliert.
+remove_authorizations_confirmation#:#Möchten Sie die Autorisierung für die Korrektur(en) folgender Teilnehmer zurücknehmen? Diese Aktion wird protokolliert.
 remove_authorizations_no_valid_essays#:#In der Auswahl gab es keine Korrektur(en), die zurückgenommen werden können.
-change_corrector_info#:#Bitte beachten Sie folgendes, wenn es bereits Korrekturen gibt: <ul><li>Korrekturen werden auf neuen Korrektor übretragen</li><li>Korrektoren von bereits autorisierten Korrekturen können nicht geändert werden</li><li>An Bewertungskriterien vergebene Punkte werden beim übertragen entfernt</li><li>Korrekturen entfernter Korrektoren werden ebenfalls permanent entfernt</li></ul>
+change_corrector_info#:#Bitte beachten Sie folgendes, wenn es bereits Korrekturen gibt: <ul><li>Korrekturen werden auf neuen Korrektor übretragen</li><li>Korrektoren von bereits autorisierten Korrekturen können nicht geändert werden</li><li>An Bewertungskriterien vergebene Punkte werden beim Übertragen entfernt</li><li>Korrekturen entfernter Korrektoren werden ebenfalls permanent entfernt</li></ul>
 authorize_correction#:#Korrektur autorisieren
 confirm_authorize_correction#:#Möchten Sie die folgenden Korrekturen autorisieren?
 authorize_correction_done#:#Ihre Korrektur wurde autorisiert.

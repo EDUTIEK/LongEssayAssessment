@@ -89,11 +89,15 @@ class CorrectorAdminListGUI extends WriterListGUI
 			];
 
 			foreach($this->getAssignmentsByWriter($writer) as $assignment){
-				switch($assignment->getPosition()){
-					case 0: $pos = $this->plugin->txt("assignment_pos_first");break;
-					case 1: $pos = $this->plugin->txt("assignment_pos_second");break;
-					default: $pos = $this->plugin->txt("assignment_pos_other");break;
-				}
+                if ($this->correction_settings->getRequiredCorrectors() == 1) {
+                    $pos = $this->plugin->txt("assignment_pos_single");
+                } else {
+                    switch($assignment->getPosition()){
+                        case 0: $pos = $this->plugin->txt("assignment_pos_first");break;
+                        case 1: $pos = $this->plugin->txt("assignment_pos_second");break;
+                        default: $pos = $this->plugin->txt("assignment_pos_other");break;
+                    }
+                }
 				$properties[$pos] = $this->getAssignedCorrectorName($writer, $assignment->getPosition());
 			}
 
@@ -103,14 +107,20 @@ class CorrectorAdminListGUI extends WriterListGUI
                     || !empty($this->localDI->getCorrectorAdminService($essay->getTaskId())->getAuthorizedSummaries($essay))
                 ) {
 					$modals[] = $confirm_remove_auth_modal = $this->uiFactory->modal()->interruptive(
-						$this->plugin->txt("remove_authorizations"),
+                        $this->correction_settings->getRequiredCorrectors() == 1
+                            ? $this->plugin->txt('remove_authorization')
+                            : $this->plugin->txt('remove_authorizations'),
 						$this->plugin->txt("remove_authorizations_confirmation"),
 						$this->getRemoveAuthorisationsAction($writer)
 					)->withAffectedItems([ $this->uiFactory->modal()->interruptiveItem(
 						$writer->getId(), $this->getWriterName($writer) . ' [' . $writer->getPseudonym() . ']'
 					)])->withActionButtonLabel("ok");
 
-                    $actions[] = $this->uiFactory->button()->shy($this->plugin->txt('remove_authorizations'), "")
+                    $actions[] = $this->uiFactory->button()->shy(
+                        $this->correction_settings->getRequiredCorrectors() == 1 
+                            ? $this->plugin->txt('remove_authorization') 
+                            : $this->plugin->txt('remove_authorizations'),
+                        "")
 						->withOnClick($confirm_remove_auth_modal->getShowSignal());
 				}
 

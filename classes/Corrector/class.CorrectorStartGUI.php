@@ -175,29 +175,39 @@ class CorrectorStartGUI extends BaseGUI
 			CorrectorSummary::STATUS_DUE => $this->plugin->txt('correction_filter_not_started'),
 			CorrectorSummary::STATUS_STARTED => $this->plugin->txt('correction_filter_started'),
 			CorrectorSummary::STATUS_AUTHORIZED => $this->plugin->txt('correction_filter_authorized'),
-			CorrectorSummary::STATUS_STITCH => $this->plugin->txt('correction_filter_stitch'),
 		];
+        
+        if ($this->settings->getRequiredCorrectors() > 1) {
+            $correction_actions[CorrectorSummary::STATUS_STITCH] = $this->plugin->txt('correction_filter_stitch');
+        }
+        
 
 		$correction_aria_label = "change_the_currently_displayed_mode";
 		$view_control_correction = $this->uiFactory->viewControl()->mode($this->prepareActionList($correction_actions, "fcorr"), $correction_aria_label)
 			->withActive($correction_actions[$fcorr]);
 		$ctrl->setParameter($this, "fcorr", $fcorr);//Reset ctrl saved parameter
 
-		$position_aria_label = "change_the_currently_displayed_mode";
-		$position_actions = [
-			DataService::ALL => $this->lng->txt("all"),
-			"1" => $this->plugin->txt('assignment_pos_first'),
-			"2" => $this->plugin->txt('assignment_pos_second'),
-		];
-		$view_control_position = $this->uiFactory->viewControl()->mode($this->prepareActionList($position_actions, "fpos"), $position_aria_label)
-			->withActive($position_actions[$fpos]);
-		$ctrl->setParameter($this, "fpos", $fpos);//Reset ctrl saved parameter
+        if ($this->settings->getRequiredCorrectors() > 1) {
+            $position_aria_label = "change_the_currently_displayed_mode";
+            $position_actions = [
+                DataService::ALL => $this->lng->txt("all"),
+                "1" => $this->plugin->txt('assignment_pos_first'),
+                "2" => $this->plugin->txt('assignment_pos_second'),
+            ];
+            $view_control_position = $this->uiFactory->viewControl()->mode($this->prepareActionList($position_actions, "fpos"), $position_aria_label)
+                                                     ->withActive($position_actions[$fpos]);
+            $ctrl->setParameter($this, "fpos", $fpos);//Reset ctrl saved parameter
+        }
+        
 		$this->toolbar->addText($this->plugin->txt("own_correction") . ":");
 		$this->toolbar->addComponent($view_control_correction);
 		$this->toolbar->addSeparator();
-		$this->toolbar->addText($this->plugin->txt("own_position") . ":");
-		$this->toolbar->addComponent($view_control_position);
-		$this->toolbar->addSeparator();
+
+        if ($this->settings->getRequiredCorrectors() > 1) {
+            $this->toolbar->addText($this->plugin->txt("own_position") . ":");
+            $this->toolbar->addComponent($view_control_position);
+            $this->toolbar->addSeparator();
+        }
 	}
 
 	protected function prepareActionList ($actions, $type) : array{

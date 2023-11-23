@@ -441,7 +441,7 @@ class ilObjLongEssayAssessment extends ilObjectPlugin
                 return $this->canReviewCorrectedEssay();
             case TaskSettings::RESULT_AVAILABLE_DATE:
                 return $this->data->isInRange(time(),
-                    $this->data->dbTimeToUnix($this->taskSettings->getSolutionAvailableDate()),
+                    $this->data->dbTimeToUnix($this->taskSettings->getResultAvailableDate()),
                     null);
         }
         return false;

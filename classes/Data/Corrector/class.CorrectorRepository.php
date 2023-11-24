@@ -63,8 +63,10 @@ class CorrectorRepository extends RecordRepo
     }
 
     /**
+     * Get the preferences of a corrector
+     * This will get defaults if preferences are not yet saved by the corrector
      * @param int $a_corrector_id
-     * @return CorrectorPreferences|null
+     * @return CorrectorPreferences
      */
     public function getCorrectorPreferences(int $a_corrector_id) : RecordData
     {

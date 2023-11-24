@@ -758,15 +758,10 @@ class CorrectorContext extends ServiceContext implements Context
             $repoSummary->setIncludeCommentPoints($summary->getIncludeCommentPoints());
             $repoSummary->setIncludeCriteriaPoints($summary->getIncludeCriteriaPoints());
             $repoSummary->setIncludeWriterNotes($summary->getIncludeWriterNotes());
-
+            $essayRepo->save($repoSummary);
+            
             if ($summary->isAuthorized()) {
-                if (empty($repoSummary->getCorrectionAuthorized())) {
-                    $repoSummary->setCorrectionAuthorized($this->data->unixTimeToDb(time()));
-                }
-                if (empty($repoSummary->getCorrectionAuthorizedBy())) {
-                    $repoSummary->setCorrectionAuthorizedBy($this->user->getId());
-                }
-                $essayRepo->save($repoSummary);
+                $service->authorizeCorrection($repoSummary, $this->user->getId());
                 $service->tryFinalisation($repoEssay, $this->user->getId());
             }
             else {

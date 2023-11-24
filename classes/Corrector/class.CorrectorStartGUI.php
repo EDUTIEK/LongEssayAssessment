@@ -77,7 +77,11 @@ class CorrectorStartGUI extends BaseGUI
     {
         $items = [];
 		$corrector = $this->localDI->getCorrectorRepo()->getCorrectorByUserId($this->dic->user()->getId(), $this->settings->getTaskId());
-		foreach ($this->localDI->getCorrectorRepo()->getAssignmentsByCorrectorId($corrector->getId()) as $assignment) {
+        $preferences = $this->correctorRepo->getCorrectorPreferences($corrector->getId());
+        $dataService = $this->localDI->getDataService($this->settings->getTaskId());
+        $icon = $this->uiFactory->image()->responsive('./templates/default/images/icon_wiki.svg', '');
+
+        foreach ($this->localDI->getCorrectorRepo()->getAssignmentsByCorrectorId($corrector->getId()) as $assignment) {
 			$writer = $this->localDI->getWriterRepo()->getWriterById($assignment->getWriterId());
 			$essay = $this->localDI->getEssayRepo()->getEssayByWriterIdAndTaskId($assignment->getWriterId(), $this->settings->getTaskId());
 
@@ -113,7 +117,11 @@ class CorrectorStartGUI extends BaseGUI
 					$this->plugin->txt('confirm_remove_own_authorization'),
 					$this->ctrl->getLinkTarget($this, 'removeAuthorization')
 				)->withAffectedItems([
-					$this->uiFactory->modal()->interruptiveItem($writer->getId(), $writer->getPseudonym())
+					$this->uiFactory->modal()->interruptiveItem(
+                        $writer->getId(),
+                        $writer->getPseudonym() . ': ' . $dataService->formatCorrectionResult($summary),
+                        $icon
+                    )
 				])->withActionButtonLabel('ok');
 
 				$actions[] = $this->uiFactory->button()->shy($this->plugin->txt('remove_own_authorization'), "")
@@ -128,7 +136,12 @@ class CorrectorStartGUI extends BaseGUI
 					$this->plugin->txt('confirm_authorize_correction'),
 					$this->ctrl->getLinkTarget($this, 'authorizeCorrection')
 				)->withAffectedItems([
-					$this->uiFactory->modal()->interruptiveItem($writer->getId(), $writer->getPseudonym())
+					$this->uiFactory->modal()->interruptiveItem(
+                        $writer->getId(), 
+                        $writer->getPseudonym() . ': ' . $dataService->formatCorrectionResult($summary), 
+                        $icon, 
+                        $dataService->formatCorrectionInclusions($summary, $preferences)
+                    )
 				])->withActionButtonLabel('ok');
 
 				$actions[] = $this->uiFactory->button()->shy($this->plugin->txt('authorize_correction'),"")
@@ -478,8 +491,12 @@ class CorrectorStartGUI extends BaseGUI
 	protected function authorizationConfirmationAsync()
 	{
 		$ids = $this->getWriterIds();
-		$corrector = $this->localDI->getCorrectorRepo()->getCorrectorByUserId($this->dic->user()->getId(), $this->settings->getTaskId());
-		$items = [];
+		$corrector = $this->correctorRepo->getCorrectorByUserId($this->dic->user()->getId(), $this->settings->getTaskId());
+        $preferences = $this->correctorRepo->getCorrectorPreferences($corrector->getId());
+        $dataService = $this->localDI->getDataService($this->settings->getTaskId());
+        $icon = $this->uiFactory->image()->responsive('./templates/default/images/icon_wiki.svg', '');
+
+        $items = [];
 
 		foreach ($this->localDI->getCorrectorRepo()->getAssignmentsByCorrectorId($corrector->getId()) as $assignment) {
 			if(!in_array($assignment->getWriterId(), $ids)){
@@ -494,9 +511,12 @@ class CorrectorStartGUI extends BaseGUI
 			}
 
 			$summary = $this->localDI->getEssayRepo()->getCorrectorSummaryByEssayIdAndCorrectorId($essay->getId(), $corrector->getId());
-
 			if($this->service->canAuthorizeCorrection($essay, $summary)){
-				$items[] = $this->uiFactory->modal()->interruptiveItem($writer->getId(), $writer->getPseudonym());
+				$items[] = $this->uiFactory->modal()->interruptiveItem(
+                    $writer->getId(), 
+                    $writer->getPseudonym() . ': ' . $dataService->formatCorrectionResult($summary), 
+                    $icon, 
+                    $dataService->formatCorrectionInclusions($summary, $preferences));
 			}
 		}
 

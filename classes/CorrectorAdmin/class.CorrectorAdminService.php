@@ -638,12 +638,29 @@ class CorrectorAdminService extends BaseService
         return true;
     }
 
+    /**
+     * Authorize a correction
+     * This also sets defaults for the correction inclusions
+     */
 	public function authorizeCorrection(CorrectorSummary $summary, int $user_id)
 	{
-		$summary->setCorrectionAuthorized($this->dataService->unixTimeToDb(time()));
-		$summary->setCorrectionAuthorizedBy($user_id);
+        $preferences = $this->correctorRepo->getCorrectorPreferences($summary->getCorrectorId());
+        $summary->setIncludeComments($summary->getIncludeComments() ?? $preferences->getIncludeComments());
+        $summary->setIncludeCommentRatings($summary->getIncludeCommentRatings() ?? $preferences->getIncludeCommentRatings());
+        $summary->setIncludeCommentPoints($summary->getIncludeCommentPoints() ?? $preferences->getIncludeCommentPoints());
+        $summary->setIncludeCriteriaPoints($summary->getIncludeCriteriaPoints() ?? $preferences->getIncludeCriteriaPoints());
+        $summary->setIncludeWriterNotes($summary->getIncludeWriterNotes() ?? $preferences->getIncludeWriterNotes());
+        
+        if (empty($summary->getCorrectionAuthorized())) {
+            $summary->setCorrectionAuthorized($summary->getLastChange() ?? $this->dataService->unixTimeToDb(time()));
+            $summary->setCorrectionAuthorizedBy($user_id);
+        }
+        if (empty($summary->getCorrectionAuthorizedBy())) {
+            $summary->setCorrectionAuthorizedBy($user_id);
+        }
+
 		$this->localDI->getEssayRepo()->save($summary);
-	}
+    }
 
     public function removeSingleAuthorization(Writer $writer, Corrector $corrector) : bool
     {

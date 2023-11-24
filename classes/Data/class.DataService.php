@@ -16,6 +16,7 @@ use ILIAS\Plugin\LongEssayAssessment\Data\Writer\Writer;
 use ILIAS\Plugin\LongEssayAssessment\Data\Writer\WriterRepository;
 use ilObjUser;
 use Throwable;
+use ILIAS\Plugin\LongEssayAssessment\Data\Corrector\CorrectorPreferences;
 
 /**
  * Service for handling data related to a task
@@ -509,6 +510,42 @@ class DataService extends BaseService
         }
 
         return $grade($text);
+    }
+    
+    public function formatCorrectionInclusions (CorrectorSummary $summary, correctorPreferences $preferences) 
+    {
+        $text = '';
+        
+        if (($inclusion = $summary->getIncludeComments() ?? $preferences->getIncludeComments()) > CorrectorSummary::INCLUDE_NOT) {
+            $text .= ($text ? ', ' : '') 
+                . $this->plugin->txt('include_comments') . ' '
+                . $this->plugin->txt($inclusion == CorrectorSummary::INCLUDE_INFO ? 'include_suffix_info' : 'include_suffix_relevant');
+        }
+        if (($inclusion = $summary->getIncludeCommentRatings() ?? $preferences->getIncludeCommentRatings()) > CorrectorSummary::INCLUDE_NOT) {
+            $text .= ($text ? ', ' : '')
+                . $this->plugin->txt('include_comment_ratings') . ' '
+                . $this->plugin->txt($inclusion == CorrectorSummary::INCLUDE_INFO ? 'include_suffix_info' : 'include_suffix_relevant');
+        }
+        if (($inclusion = $summary->getIncludeCommentPoints() ?? $preferences->getIncludeCommentPoints()) > CorrectorSummary::INCLUDE_NOT) {
+            $text .= ($text ? ', ' : '')
+                . $this->plugin->txt('include_comment_points') . ' '
+                . $this->plugin->txt($inclusion == CorrectorSummary::INCLUDE_INFO ? 'include_suffix_info' : 'include_suffix_relevant');
+        }
+        if (($inclusion = $summary->getIncludeCriteriaPoints() ?? $preferences->getIncludeCriteriaPoints()) > CorrectorSummary::INCLUDE_NOT) {
+            $text .= ($text ? ', ' : '')
+                . $this->plugin->txt('include_criteria_points') . ' '
+                . $this->plugin->txt($inclusion == CorrectorSummary::INCLUDE_INFO ? 'include_suffix_info' : 'include_suffix_relevant');
+        }
+        if (($inclusion = $summary->getIncludeWriterNotes() ?? $preferences->getIncludeWriterNotes()) > CorrectorSummary::INCLUDE_NOT) {
+            $text .= ($text ? ', ' : '')
+                . $this->plugin->txt('include_writer_notes') . ' '
+                . $this->plugin->txt($inclusion == CorrectorSummary::INCLUDE_INFO ? 'include_suffix_info' : 'include_suffix_relevant');
+        }
+        if (empty($text)) {
+            $text = $this->plugin->txt('include_nothing');
+        }
+        
+        return  $this->plugin->txt('inclusions_label') . ': ' . $text;
     }
 
 	/**

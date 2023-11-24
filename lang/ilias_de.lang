@@ -469,3 +469,12 @@ filter_words_more_than#:#mehr als %d
 filter_words_less_than#:#weniger als %d
 yes#:#Ja
 no#:#Nein
+inclusions_label#:#Einbeziehen
+include_suffix_info#:#(i)
+include_suffix_relevant#:#(r)
+include_comments#:#Kommentare
+include_comment_ratings#:#Kardinal und Exzellent
+include_comment_points#:#Teilpunkte
+include_criteria_points#:#Bewertungsschema
+include_writer_notes#:#Nozizen
+include_nothing#:#Keine Detail-Informationen

@@ -1850,4 +1850,43 @@ if (!$ilDB->tableExists('xlas_corrector_prefs')) {
     $ilDB->addPrimaryKey('xlas_corrector_prefs', ['corrector_id']);
 }
 ?>
+<#84>
+<?php
+$fields = array(
+    'id' => array(
+        'notnull' => '1',
+        'type' => 'integer',
+        'length' => '4',
+
+    ),
+    'essay_id' => array(
+        'notnull' => '1',
+        'type' => 'integer',
+        'length' => '4',
+
+    ),
+    'note_no' => array(
+        'notnull' => '1',
+        'type' => 'integer',
+        'length' => '4',
+
+    ),
+    'note_text' => array(
+        'type' => 'clob',
+
+    ),
+    'last_change' => array(
+        'type' => 'timestamp',
+    )
+);
+if (! $ilDB->tableExists('xlas_essay_note')) {
+    $ilDB->createTable('xlas_essay_note', $fields);
+    $ilDB->addPrimaryKey('xlas_essay_note', array( 'id' ));
+    $ilDB->addIndex("xlas_essay_note", array("essay_id"), "i1");
+
+    if (! $ilDB->sequenceExists('xlas_essay_note')) {
+        $ilDB->createSequence('xlas_essay_note');
+    }
+}
+?>
 

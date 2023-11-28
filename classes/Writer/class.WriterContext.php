@@ -14,6 +14,8 @@ use ILIAS\Plugin\LongEssayAssessment\Data\Task\Resource;
 use ILIAS\Plugin\LongEssayAssessment\Data\Writer\Writer;
 use ILIAS\Plugin\LongEssayAssessment\Data\Essay\WriterHistory;
 use ILIAS\Plugin\LongEssayAssessment\ServiceContext;
+use Edutiek\LongEssayAssessmentService\Data\WrittenNote;
+use ILIAS\Plugin\LongEssayAssessment\Data\Essay\EssayNote;
 
 class WriterContext extends ServiceContext implements Context
 {
@@ -158,6 +160,45 @@ class WriterContext extends ServiceContext implements Context
 
         $this->localDI->getEssayRepo()->save($essay);
     }
+
+
+    /**
+     * @inheritDoc
+     */
+    public function getWrittenNotes(): array
+    {
+        $notes = [];
+        $repoEssay = $this->getRepoEssay();
+        foreach ($this->localDI->getEssayRepo()->getEssayNotesByEssayID($repoEssay->getId()) as $repoNote) {
+            $notes[] = new WrittenNote(
+                $repoNote->getNoteNo(), 
+                $repoNote->getNoteText(),
+                $this->data->dbTimeToUnix($repoNote->getLastChange())
+            );
+        }
+        return $notes;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setWrittenNote(WrittenNote $note): void
+    {
+        $repoEssay = $this->getRepoEssay();
+        $repoNote = $this->localDI->getEssayRepo()->getEssayNoteByEssayAndNo($repoEssay->getId(), $note->getNoteNo());
+        if (!isset($repoNote)) {
+            $repoNote = (new EssayNote())
+                ->setEssayId($repoEssay->getId())
+                ->setNoteNo($note->getNoteNo());
+        }
+        $repoNote->setNoteText($note->getNoteText());
+        $repoNote->setLastChange($note->getLastChange() 
+            ? $this->data->unixTimeToDb($note->getLastChange())
+            : $this->data->unixTimeToDb(time()));
+        
+        $this->localDI->getEssayRepo()->save($repoNote);
+    }
+
 
     /**
      * @inheritDoc

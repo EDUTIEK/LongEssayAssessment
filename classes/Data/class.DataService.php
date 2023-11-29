@@ -356,11 +356,11 @@ class DataService extends BaseService
             return $this->plugin->txt('result_not_finalized');
         }
 
-        if (empty($essay->getFinalGradeLevelId())) {
+        $level = $this->localDI->getObjectRepo()->getGradeLevelById((int) $essay->getFinalGradeLevelId());
+        if (empty($level)) {
             $text =  $this->plugin->txt('result_not_graded');
         }
         else {
-            $level = $this->localDI->getObjectRepo()->getGradeLevelById($essay->getFinalGradeLevelId());
             $text = $level->getGrade();
         }
 

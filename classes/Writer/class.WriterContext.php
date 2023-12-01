@@ -15,7 +15,7 @@ use ILIAS\Plugin\LongEssayAssessment\Data\Writer\Writer;
 use ILIAS\Plugin\LongEssayAssessment\Data\Essay\WriterHistory;
 use ILIAS\Plugin\LongEssayAssessment\ServiceContext;
 use Edutiek\LongEssayAssessmentService\Data\WrittenNote;
-use ILIAS\Plugin\LongEssayAssessment\Data\Essay\EssayNote;
+use ILIAS\Plugin\LongEssayAssessment\Data\Essay\WriterNotice;
 
 class WriterContext extends ServiceContext implements Context
 {
@@ -169,7 +169,7 @@ class WriterContext extends ServiceContext implements Context
     {
         $notes = [];
         $repoEssay = $this->getRepoEssay();
-        foreach ($this->localDI->getEssayRepo()->getEssayNotesByEssayID($repoEssay->getId()) as $repoNote) {
+        foreach ($this->localDI->getEssayRepo()->getWriterNoticesByEssayID($repoEssay->getId()) as $repoNote) {
             $notes[] = new WrittenNote(
                 $repoNote->getNoteNo(), 
                 $repoNote->getNoteText(),
@@ -185,9 +185,9 @@ class WriterContext extends ServiceContext implements Context
     public function setWrittenNote(WrittenNote $note): void
     {
         $repoEssay = $this->getRepoEssay();
-        $repoNote = $this->localDI->getEssayRepo()->getEssayNoteByEssayAndNo($repoEssay->getId(), $note->getNoteNo());
+        $repoNote = $this->localDI->getEssayRepo()->getWriterNoticeByEssayAndNo($repoEssay->getId(), $note->getNoteNo());
         if (!isset($repoNote)) {
-            $repoNote = (new EssayNote())
+            $repoNote = (new WriterNotice())
                 ->setEssayId($repoEssay->getId())
                 ->setNoteNo($note->getNoteNo());
         }
@@ -197,6 +197,16 @@ class WriterContext extends ServiceContext implements Context
             : $this->data->unixTimeToDb(time()));
         
         $this->localDI->getEssayRepo()->save($repoNote);
+    }
+
+
+    /**
+     * @inheritDoc
+     */
+    public function deleteWrittenNotes(): void
+    {
+        $repoEssay = $this->getRepoEssay();
+        $this->localDI->getEssayRepo()->deleteWriterNoticesByEssayID($repoEssay->getId());
     }
 
 

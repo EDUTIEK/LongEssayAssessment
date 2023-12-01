@@ -1879,14 +1879,17 @@ $fields = array(
         'type' => 'timestamp',
     )
 );
-if (! $ilDB->tableExists('xlas_essay_note')) {
-    $ilDB->createTable('xlas_essay_note', $fields);
-    $ilDB->addPrimaryKey('xlas_essay_note', array( 'id' ));
-    $ilDB->addIndex("xlas_essay_note", array("essay_id"), "i1");
 
-    if (! $ilDB->sequenceExists('xlas_essay_note')) {
-        $ilDB->createSequence('xlas_essay_note');
-    }
+// recreate the table with the new scheme (was not yet used)
+if ($ilDB->tableExists('xlas_writer_notice')) {
+    $ilDB->dropTable('xlas_writer_notice');
+}
+$ilDB->createTable('xlas_writer_notice', $fields);
+$ilDB->addPrimaryKey('xlas_writer_notice', array( 'id' ));
+$ilDB->addIndex("xlas_writer_notice", array("essay_id"), "i1");
+
+if (! $ilDB->sequenceExists('xlas_writer_notice')) {
+    $ilDB->createSequence('xlas_writer_notice');
 }
 ?>
 

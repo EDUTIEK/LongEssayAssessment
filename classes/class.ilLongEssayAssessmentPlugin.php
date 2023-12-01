@@ -81,7 +81,7 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
     {
 		$tables = ["xlas_access_token", "xlas_alert", "xlas_corr_setting", "xlas_corrector", "xlas_corrector_ass",
 			"xlas_corrector_comment", "xlas_corrector_summary", "xlas_crit_points", "xlas_editor_comment",
-			"xlas_editor_history", "xlas_editor_notice", "xlas_editor_settings", "xlas_essay", "xlas_grade_level",
+			"xlas_editor_settings", "xlas_essay", "xlas_grade_level",
             "xlas_log_entry",
 			"xlas_object_settings", "xlas_participant", "xlas_plugin_config", "xlas_rating_crit", "xlas_task_settings",
 			"xlas_time_extension", "xlas_writer_notice", "xlas_writer", "xlas_writer_comment", "xlas_writer_history",

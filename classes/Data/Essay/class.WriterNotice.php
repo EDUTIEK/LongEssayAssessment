@@ -8,9 +8,9 @@ use ILIAS\Plugin\LongEssayAssessment\Data\RecordData;
 /**
  * @author Fred Neumann <neumann@ilias.de>
  */
-class EssayNote extends RecordData
+class WriterNotice extends RecordData
 {
-    protected const tableName = 'xlas_essay_note';
+    protected const tableName = 'xlas_writer_notice';
     protected const hasSequence = true;
     protected const keyTypes = [
         'id' => 'integer',
@@ -43,9 +43,9 @@ class EssayNote extends RecordData
 
     /**
      * @param int $id
-     * @return EssayNote
+     * @return WriterNotice
      */
-    public function setId(int $id): EssayNote
+    public function setId(int $id): WriterNotice
     {
         $this->id = $id;
         return $this;
@@ -61,9 +61,9 @@ class EssayNote extends RecordData
 
     /**
      * @param int $essay_id
-     * @return EssayNote
+     * @return WriterNotice
      */
-    public function setEssayId(int $essay_id): EssayNote
+    public function setEssayId(int $essay_id): WriterNotice
     {
         $this->essay_id = $essay_id;
         return $this;
@@ -80,7 +80,7 @@ class EssayNote extends RecordData
     /**
      * @param int $note_no
      */
-    public function setNoteNo(int $note_no): EssayNote
+    public function setNoteNo(int $note_no): WriterNotice
     {
         $this->note_no = $note_no;
         return $this;
@@ -97,7 +97,7 @@ class EssayNote extends RecordData
     /**
      * @param string|null $note_text
      */
-    public function setNoteText(?string $note_text): EssayNote
+    public function setNoteText(?string $note_text): WriterNotice
     {
         $this->note_text = $note_text;
         return $this;
@@ -114,7 +114,7 @@ class EssayNote extends RecordData
     /**
      * @param string|null $last_change
      */
-    public function setLastChange(?string $last_change): EssayNote
+    public function setLastChange(?string $last_change): WriterNotice
     {
         $this->last_change = $last_change;
         return $this;

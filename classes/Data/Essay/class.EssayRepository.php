@@ -18,7 +18,7 @@ class EssayRepository extends RecordRepo
 
 	/**
 	 * Save record data of an allowed type
-	 * @param AccessToken|CorrectorComment|CorrectorSummary|CriterionPoints|Essay|EssayNote|EssayImage|WriterComment|WriterHistory $record
+	 * @param AccessToken|CorrectorComment|CorrectorSummary|CriterionPoints|Essay|WriterNotice|EssayImage|WriterComment|WriterHistory $record
 	 */
 	public function save(RecordData $record)
 	{
@@ -82,30 +82,7 @@ class EssayRepository extends RecordRepo
 		" AND task_id = ". $this->db->quote($a_task_id, 'integer');
 		return $this->getSingleRecord($query, Essay::model());
     }
-
-    /**
-     * @param int $a_essay_id
-     * @return EssayNote[]
-     */
-    public function getEssayNotesByEssayID(int $a_essay_id): array
-    {
-        $query = "SELECT * FROM " . EssayNote::tableName() . " WHERE essay_id = " . $this->db->quote($a_essay_id, 'integer')
-            . " ORDER BY note_no";
-        return $this->queryRecords($query, EssayNote::model(), true,true, 'note_no');
-    }
-
-    /**
-     * @param int $a_essay_id
-     * @return EssayNote|null
-     */
-    public function getEssayNoteByEssayAndNo(int $a_essay_id, int $a_note_no): ?RecordData
-    {
-        $query = "SELECT * FROM " . EssayNote::tableName() . " WHERE essay_id = " . $this->db->quote($a_essay_id, 'integer')
-            . " AND note_no = " . $this->db->quote($a_note_no, 'integer');
-        return $this->getSingleRecord($query, EssayNote::model());
-    }
-
-
+    
 
     /**
      * @param int $a_essay_id
@@ -169,7 +146,40 @@ class EssayRepository extends RecordRepo
         return count($records) > 0;
     }
 
-	/**
+    /**
+     * @param int $a_essay_id
+     * @return WriterNotice[]
+     */
+    public function getWriterNoticesByEssayID(int $a_essay_id): array
+    {
+        $query = "SELECT * FROM " . WriterNotice::tableName() . " WHERE essay_id = " . $this->db->quote($a_essay_id, 'integer')
+            . " ORDER BY note_no";
+        return $this->queryRecords($query, WriterNotice::model(), true,true, 'note_no');
+    }
+
+    /**
+     * @param int $a_essay_id
+     */
+    public function deleteWriterNoticesByEssayID(int $a_essay_id): void
+    {
+        $query = "DELETE FROM " . WriterNotice::tableName() . " WHERE essay_id = " . $this->db->quote($a_essay_id, 'integer');
+        $this->db->manipulate($query);
+    }
+
+    /**
+     * @param int $a_essay_id
+     * @param int $a_note_no
+     * @return WriterNotice|null
+     */
+    public function getWriterNoticeByEssayAndNo(int $a_essay_id, int $a_note_no): ?RecordData
+    {
+        $query = "SELECT * FROM " . WriterNotice::tableName() . " WHERE essay_id = " . $this->db->quote($a_essay_id, 'integer')
+            . " AND note_no = " . $this->db->quote($a_note_no, 'integer');
+        return $this->getSingleRecord($query, WriterNotice::model());
+    }
+
+
+    /**
 	 * @param int $essay_id
 	 * @param int $corrector_id
 	 * @return CorrectorSummary|null
@@ -275,7 +285,7 @@ class EssayRepository extends RecordRepo
 		$this->db->manipulate("DELETE FROM xlas_essay" .
             " WHERE id = " . $this->db->quote($a_id, "integer"));
 
-        $this->db->manipulate("DELETE FROM xlas_essay_note" .
+        $this->db->manipulate("DELETE FROM xlas_writer_notice" .
             " WHERE essay_id = " . $this->db->quote($a_id, "integer"));
 		$this->db->manipulate("DELETE FROM xlas_access_token" .
             " WHERE essay_id = " . $this->db->quote($a_id, "integer"));
@@ -297,10 +307,14 @@ class EssayRepository extends RecordRepo
 		$this->db->manipulate("DELETE FROM xlas_essay" .
             " WHERE task_id = " . $this->db->quote($a_task_id, "integer"));
 
-        $this->db->manipulate("DELETE essay_note FROM xlas_essay_note AS essay_note"
-            . " LEFT JOIN xlas_essay AS essay ON (essay_note.essay_id = essay.id)"
+        $this->db->manipulate("DELETE writer_notice FROM xlas_writer_notice AS writer_notice"
+            . " LEFT JOIN xlas_essay AS essay ON (writer_notice.essay_id = essay.id)"
             . " WHERE essay.task_id = " . $this->db->quote($a_task_id, "integer"));
 
+        $this->db->manipulate("DELETE writer_history FROM xlas_writer_history AS writer_history"
+            . " LEFT JOIN xlas_essay AS essay ON (writer_history.essay_id = essay.id)"
+            . " WHERE essay.task_id = " . $this->db->quote($a_task_id, "integer"));
+        
         $this->db->manipulate("DELETE FROM xlas_access_token" .
 			" WHERE task_id = " . $this->db->quote($a_task_id, "integer"));
 
@@ -316,10 +330,6 @@ class EssayRepository extends RecordRepo
 			. " LEFT JOIN xlas_corrector_comment AS corrector_comment ON (crit_points.corr_comment_id = corrector_comment.id)"
 			. " LEFT JOIN xlas_essay AS essay ON (corrector_comment.essay_id = essay.id)"
 			. " WHERE essay.task_id = " . $this->db->quote($a_task_id, "integer"));
-
-		$this->db->manipulate("DELETE writer_history FROM xlas_writer_history AS writer_history"
-			. " LEFT JOIN xlas_essay AS essay ON (writer_history.essay_id = essay.id)"
-			. " WHERE essay.task_id = " . $this->db->quote($a_task_id, "integer"));
     }
 
     public function deleteEssayByWriterId(int $a_writer_id)
@@ -327,8 +337,12 @@ class EssayRepository extends RecordRepo
 		$this->db->manipulate("DELETE FROM xlas_essay" .
             " WHERE writer_id = " . $this->db->quote($a_writer_id, "integer"));
 
-        $this->db->manipulate("DELETE essay_note FROM xlas_essay_note AS essay_note"
-            . " LEFT JOIN xlas_essay AS essay ON (essay_note.essay_id = essay.id)"
+        $this->db->manipulate("DELETE writer_notice FROM xlas_writer_notice AS writer_notice"
+            . " LEFT JOIN xlas_essay AS essay ON (writer_notice.essay_id = essay.id)"
+            . " WHERE essay.writer_id = " . $this->db->quote($a_writer_id, "integer"));
+
+        $this->db->manipulate("DELETE writer_history FROM xlas_writer_history AS writer_history"
+            . " LEFT JOIN xlas_essay AS essay ON (writer_history.essay_id = essay.id)"
             . " WHERE essay.writer_id = " . $this->db->quote($a_writer_id, "integer"));
 
         $this->db->manipulate("DELETE corrector_summary FROM xlas_corrector_summary AS corrector_summary"
@@ -342,10 +356,6 @@ class EssayRepository extends RecordRepo
 		$this->db->manipulate("DELETE crit_points FROM xlas_crit_points AS crit_points"
 			. " LEFT JOIN xlas_corrector_comment AS corrector_comment ON (crit_points.corr_comment_id = corrector_comment.id)"
 			. " LEFT JOIN xlas_essay AS essay ON (corrector_comment.essay_id = essay.id)"
-			. " WHERE essay.writer_id = " . $this->db->quote($a_writer_id, "integer"));
-
-		$this->db->manipulate("DELETE writer_history FROM xlas_writer_history AS writer_history"
-			. " LEFT JOIN xlas_essay AS essay ON (writer_history.essay_id = essay.id)"
 			. " WHERE essay.writer_id = " . $this->db->quote($a_writer_id, "integer"));
     }
     

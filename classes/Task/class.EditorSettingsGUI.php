@@ -80,7 +80,6 @@ class EditorSettingsGUI extends BaseGUI
                 '4' => '4',
                 '5' => '5'
             ])
-            ->withDisabled(true) // remove in pilot
             ->withRequired(true)
             ->withValue((string) $editorSettings->getNoticeBoards());
 

@@ -32,7 +32,7 @@ class TaskRepository extends RecordRepo
 
 	/**
 	 * Save record data of an allowed type
-	 * @param TaskSettings|EditorSettings|CorrectionSettings|Alert|WriterNotice|Resource|Location $record
+	 * @param TaskSettings|EditorSettings|CorrectionSettings|Alert|Resource|Location $record
 	 */
 	public function save(RecordData $record)
 	{
@@ -97,24 +97,6 @@ class TaskRepository extends RecordRepo
 		return $this->getSingleRecord($query, Alert::model());
     }
 
-    public function ifWriterNoticeExistsById(int $a_id): bool
-    {
-        return $this->getWriterNoticeById($a_id) != null;
-    }
-
-	/**
-	public function getWriterNoticeByTaskId(int $a_task_id): array
-	{
-		$query = "SELECT * FROM xlas_writer_notice WHERE task_id = " . $this->db->quote($a_task_id, 'integer');
-		return $this->queryRecords($query, WriterNotice::model());
-	}
-
-    public function getWriterNoticeById(int $a_id): ?RecordData
-    {
-		$query = "SELECT * FROM xlas_writer_notice WHERE id = " . $this->db->quote($a_id, 'integer');
-		return $this->getSingleRecord($query, WriterNotice::model());
-    }
-
     /**
      * Deletes TaskSettings, EditorSettings, CorrectionSettings, Resources, Alerts, WriterNotices and Essay related datasets by Task ID
      *
@@ -131,7 +113,6 @@ class TaskRepository extends RecordRepo
             " WHERE task_id = " . $this->db->quote($a_id, "integer"));
 
         $this->deleteAlertByTaskId($a_id);
-        $this->deleteWriterNoticeByTaskId($a_id);
         $this->deleteResourceByTaskId($a_id);
 		$this->deleteLogEntryByTaskId($a_id);
 
@@ -145,24 +126,13 @@ class TaskRepository extends RecordRepo
 		$this->db->manipulate("DELETE FROM xlas_alert" .
             " WHERE task_id = " . $this->db->quote($a_task_id, "integer"));
     }
-
-    public function deleteWriterNoticeByTaskId(int $a_task_id)
-    {
-		$this->db->manipulate("DELETE FROM xlas_writer_notice" .
-            " WHERE task_id = " . $this->db->quote($a_task_id, "integer"));
-    }
-
+    
     public function deleteAlert(int $a_id)
     {
-		$this->database->manipulate("DELETE FROM xlas_alert" .
-            " WHERE id = " . $this->database->quote($a_id, "integer"));
+		$this->db->manipulate("DELETE FROM xlas_alert" .
+            " WHERE id = " . $this->db->quote($a_id, "integer"));
     }
 
-    public function deleteWriterNotice(int $a_id)
-    {
-		$this->database->manipulate("DELETE FROM xlas_writer_notice" .
-            " WHERE id = " . $this->database->quote($a_id, "integer"));
-    }
 
     /**
      * Deletes TaskSettings, EditorSettings, CorrectionSettings, Alerts and WriterNotices by Object ID

@@ -75,7 +75,7 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
         // Description is not shown by ilObjectPluginGUI
         if (isset($this->object))
         {
-            $this->tpl->setDescription("<b>[Pilot]</b> " . $this->object->getDescription());
+            $this->tpl->setDescription($this->object->getDescription());
             $alerts = array();
             if (!$this->object->isOnline())
             {

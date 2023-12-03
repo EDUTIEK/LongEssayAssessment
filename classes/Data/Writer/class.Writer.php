@@ -22,15 +22,13 @@ class Writer extends RecordData
 	protected const otherTypes = [
 		'user_id'=> 'integer',
 		'task_id' => 'integer',
-		'pseudonym' => 'text',
-		'editor_font_size' => 'integer'
+		'pseudonym' => 'text'
 	];
 
     protected int $id = 0;
     protected int $user_id = 0;
 	protected int $task_id = 0;
     protected $pseudonym = null;
-    protected int $editor_font_size = 0;
 
 	public static function model() {
 		return new self();
@@ -105,24 +103,6 @@ class Writer extends RecordData
     public function setPseudonym(?string $pseudonym): Writer
     {
         $this->pseudonym = $pseudonym;
-        return $this;
-    }
-
-    /**
-     * @return int
-     */
-    public function getEditorFontSize(): int
-    {
-        return $this->editor_font_size;
-    }
-
-    /**
-     * @param int $editor_font_size
-     * @return Writer
-     */
-    public function setEditorFontSize(int $editor_font_size): Writer
-    {
-        $this->editor_font_size = $editor_font_size;
         return $this;
     }
 }

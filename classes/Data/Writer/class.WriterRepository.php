@@ -29,7 +29,7 @@ class WriterRepository extends RecordRepo
 
 	/**
 	 * Save record data of an allowed type
-	 * @param Writer|TimeExtension $record
+	 * @param Writer|WriterPreferences|TimeExtension $record
 	 */
 	public function save(RecordData $record)
 	{
@@ -95,7 +95,20 @@ class WriterRepository extends RecordRepo
         return $this->queryRecords($query, Writer::model());
     }
 
-	/**
+    /**
+     * Get the preferences of a writer
+     * This will get defaults if preferences are not yet saved by the writer
+     * @param int $a_writer_id
+     * @return WriterPreferences
+     */
+    public function getWriterPreferences(int $a_writer_id) : RecordData
+    {
+        $query = "SELECT * FROM " . WriterPreferences::tableName() . " WHERE writer_id = " . $this->db->quote($a_writer_id, 'integer');
+        return $this->getSingleRecord($query, WriterPreferences::model(), new WriterPreferences($a_writer_id));
+    }
+
+
+    /**
 	 * @param int $a_id
 	 * @return TimeExtension|null
 	 */
@@ -138,10 +151,18 @@ class WriterRepository extends RecordRepo
             " WHERE id = " . $this->db->quote($a_id, "integer"));
 
         $this->deleteTimeExtensionByWriterId($a_id);
+        $this->deleteWriterPreferencesByWriter($a_id);
         $this->corrector_repo->deleteCorrectorAssignmentByWriter($a_id);
         $this->essay_repo->deleteEssayByWriterId($a_id);
     }
 
+    public function deleteWriterPreferencesByWriter(int $a_writer_id)
+    {
+        $this->db->manipulate("DELETE FROM xlas_writer_prefs" .
+            " WHERE writer_id = " . $this->db->quote($a_writer_id, "integer"));
+    }
+
+    
     public function deleteTimeExtensionByWriterId(int $a_writer_id)
     {
 		$this->db->manipulate("DELETE FROM xlas_time_extension" .
@@ -156,7 +177,7 @@ class WriterRepository extends RecordRepo
     public function deleteWriterByTaskId(int $a_task_id)
     {
 		$this->db->manipulate("DELETE FROM xlas_writer" .
-            " WHERE task_id = " . $this->database->quote($a_task_id, "integer"));
+            " WHERE task_id = " . $this->db->quote($a_task_id, "integer"));
 
 		$this->db->manipulate("DELETE te FROM xlas_time_extension AS te"
             . " LEFT JOIN xlas_writer AS writer ON (te.writer_id = writer.id)"

@@ -8,7 +8,6 @@ use Edutiek\LongEssayAssessmentService\Data\CorrectionSummary;
 
 /**
  * Corrector Preferences
- * Indexes: user_id
  *
  * @author Fred Neumann <neumann@ilias.de>
  */

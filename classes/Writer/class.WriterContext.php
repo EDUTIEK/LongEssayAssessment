@@ -16,6 +16,7 @@ use ILIAS\Plugin\LongEssayAssessment\Data\Essay\WriterHistory;
 use ILIAS\Plugin\LongEssayAssessment\ServiceContext;
 use Edutiek\LongEssayAssessmentService\Data\WrittenNote;
 use ILIAS\Plugin\LongEssayAssessment\Data\Essay\WriterNotice;
+use Edutiek\LongEssayAssessmentService\Data\WritingPreferences;
 
 class WriterContext extends ServiceContext implements Context
 {
@@ -207,6 +208,30 @@ class WriterContext extends ServiceContext implements Context
     {
         $repoEssay = $this->getRepoEssay();
         $this->localDI->getEssayRepo()->deleteWriterNoticesByEssayID($repoEssay->getId());
+    }
+
+
+    /**
+     * @inheritDoc
+     */
+    public function getWritingPreferences(): WritingPreferences
+    {
+        $repoPreferences = $this->localDI->getWriterRepo()->getWriterPreferences($this->getRepoWriter()->getId());
+        return new WritingPreferences(
+            $repoPreferences->getInstructionsZoom(),
+            $repoPreferences->getEditorZoom()
+        );
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setWritingPreferences(WritingPreferences $preferences): void
+    {
+        $repoPreferences = $this->localDI->getWriterRepo()->getWriterPreferences($this->getRepoWriter()->getId());
+        $repoPreferences->setInstructionsZoom($preferences->getInstructionsZoom());
+        $repoPreferences->setEditorZoom($preferences->getEditorZoom());
+        $this->localDI->getWriterRepo()->save($repoPreferences);
     }
 
 

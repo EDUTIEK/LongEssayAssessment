@@ -1892,4 +1892,30 @@ if (! $ilDB->sequenceExists('xlas_writer_notice')) {
     $ilDB->createSequence('xlas_writer_notice');
 }
 ?>
-
+<#85>
+<?php
+if (!$ilDB->tableExists('xlas_writer_prefs')) {
+    $ilDB->createTable('xlas_writer_prefs', [
+        'writer_id' => [
+            'notnull' => '1',
+            'type' => 'integer',
+            'length' => '4'
+        ],
+        'instructions_zoom' => [
+            'notnull' => '1',
+            'type' => 'float',
+        ],
+        'editor_zoom' => [
+            'notnull' => '1',
+            'type' => 'float',
+        ],
+    ]);
+    $ilDB->addPrimaryKey('xlas_writer_prefs', ['writer_id']);
+}
+?>
+<#86>
+<?php
+if ($ilDB->tableColumnExists('xlas_writer', 'editor_font_size')) {
+    $ilDB->dropTableColumn('xlas_writer', 'editor_font_size');
+}
+?>

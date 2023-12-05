@@ -84,7 +84,6 @@ class EditorSettingsGUI extends BaseGUI
             ->withValue((string) $editorSettings->getNoticeBoards());
 
         $fields['copy_allowed'] = $factory->checkbox($this->plugin->txt('copy_allowed'), $this->plugin->txt('copy_allowed_info'))
-            ->withDisabled(true)    // remove in pilot
             ->withValue($editorSettings->isCopyAllowed());
 
         $sections['editor'] = $factory->section($fields, $this->plugin->txt('editor_settings'));

@@ -25,7 +25,7 @@ class WriterPreferences extends RecordData
 
     protected int $writer_id = 0;
     protected float $instructions_zoom = 0.25;            
-    protected float $essay_zoom =  1;              
+    protected float $editor_zoom =  1;              
     
 	public function __construct(int $writer_id)
 	{

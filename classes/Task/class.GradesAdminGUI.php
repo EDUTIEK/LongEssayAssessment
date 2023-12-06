@@ -9,6 +9,9 @@ use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
 use ILIAS\UI\Component\Table\PresentationRow;
 use ILIAS\UI\Factory;
 use \ilUtil;
+use ILIAS\Plugin\LongEssayAssessment\CorrectorAdmin\CorrectorAdminService;
+use ILIAS\Plugin\LongEssayAssessment\Data\Object\ObjectRepository;
+use ILIAS\Plugin\LongEssayAssessment\Data\Task\TaskRepository;
 
 /**
  * Resources Administration
@@ -18,6 +21,18 @@ use \ilUtil;
  */
 class GradesAdminGUI extends BaseGUI
 {
+    protected TaskRepository $task_repo;
+    protected ObjectRepository $object_repo;
+    protected CorrectorAdminService $corrector_service;
+
+    public function __construct(\ilObjLongEssayAssessmentGUI $objectGUI)
+    {
+        parent::__construct($objectGUI);
+        $this->corrector_service = $this->localDI->getCorrectorAdminService($this->object->getId());
+        $this->object_repo = $this->localDI->getObjectRepo();
+        $this->task_repo = $this->localDI->getTaskRepo();
+    }
+
     /**
      * Execute a command
      * This should be overridden in the child classes
@@ -45,8 +60,7 @@ class GradesAdminGUI extends BaseGUI
      */
     protected function getItemData()
     {
-		$obj_repo  = LongEssayAssessmentDI::getInstance()->getObjectRepo();
-		$records = $obj_repo->getGradeLevelsByObjectId($this->object->getId());
+		$records = $this->object_repo->getGradeLevelsByObjectId($this->object->getId());
 		$item_data = [];
 
 		foreach($records as $record){
@@ -76,15 +90,19 @@ class GradesAdminGUI extends BaseGUI
      */
     protected function showItems()
     {
-        $this->toolbar->setFormAction($this->ctrl->getFormAction($this));
-        $button = \ilLinkButton::getInstance();
-        $button->setUrl($this->ctrl->getLinkTarget($this, 'editItem'));
-        $button->setCaption($this->plugin->txt("add_grade_level"), false);
-        $this->toolbar->addButtonInstance($button);
+
 
 		$can_delete = true;
-		$task_repo = LongEssayAssessmentDI::getInstance()->getTaskRepo();
-		$settings = $task_repo->getTaskSettingsById($this->object->getId());
+		$settings = $this->task_repo->getTaskSettingsById($this->object->getId());
+        $authorized = $this->corrector_service->authorizedCorrectionsExists();
+
+        if(!$authorized){
+            $this->toolbar->setFormAction($this->ctrl->getFormAction($this));
+            $button = \ilLinkButton::getInstance();
+            $button->setUrl($this->ctrl->getLinkTarget($this, 'editItem'));
+            $button->setCaption($this->plugin->txt("add_grade_level"), false);
+            $this->toolbar->addButtonInstance($button);
+        }
 
 		if($settings->getCorrectionStart() !== null) {
 			$correction_start = new \ilDateTime($settings->getCorrectionStart(), IL_CAL_DATETIME);
@@ -94,7 +112,9 @@ class GradesAdminGUI extends BaseGUI
 			$can_delete = !\ilDate::_after($today, $correction_start);
 		}
 
-
+        if($authorized){
+            ilUtil::sendInfo($this->plugin->txt("grade_level_cannot_edit_used_info"));
+        }
 
         $ptable = $this->uiFactory->table()->presentation(
             $this->plugin->txt('grade_levels'),
@@ -103,7 +123,7 @@ class GradesAdminGUI extends BaseGUI
                 PresentationRow $row,
                 array $record,
                 Factory $ui_factory,
-                $environment) use ($can_delete)  {
+                $environment) use ($authorized, $can_delete)  {
 
 				$this->setGradeLevelId($record["id"]);
 				$edit_link = $this->ctrl->getLinkTarget($this, "editItem");
@@ -129,14 +149,19 @@ class GradesAdminGUI extends BaseGUI
 					$action = $ui_factory->button()->standard($this->lng->txt('edit'), $edit_link);
 				}
 
-                return $row
+                $row =  $row
                     ->withHeadline($record['headline']. $this->renderer->render($approve_modal))
                     //->withSubheadline($record['subheadline'])
                     ->withImportantFields($record['important'])
                     ->withContent($ui_factory->listing()->descriptive([$this->lng->txt("description")=> $record['subheadline']]))
                     ->withFurtherFieldsHeadline('')
-                    ->withFurtherFields($record['important'])
-                    ->withAction($action);
+                    ->withFurtherFields($record['important']);
+                
+                if($authorized){
+                    return $row;
+                }else{
+                    return $row->withAction($action);
+                }
             }
         );
 
@@ -181,6 +206,7 @@ class GradesAdminGUI extends BaseGUI
 	}
 
 	protected function updateItem(){
+        $this->checkAuthorizedCorrections();
 		$this->tabs->setBackTarget($this->lng->txt("back"), $this->ctrl->getLinkTarget($this));
 
 		$form = $this->buildEditForm([
@@ -207,8 +233,8 @@ class GradesAdminGUI extends BaseGUI
 				$record->setMinPoints($data["form"]["points"]);
 				$record->setCode($data["form"]["code"]);
 				$record->setPassed($data["form"]["passed"]);
-				$obj_repo = LongEssayAssessmentDI::getInstance()->getObjectRepo();
-                $obj_repo->save($record);
+                $this->object_repo->save($record);
+                $this->corrector_service->recalculateGradeLevel();
 
 				ilUtil::sendSuccess($this->lng->txt("settings_saved"), true);
 				$this->ctrl->redirect($this, "showItems");
@@ -225,6 +251,7 @@ class GradesAdminGUI extends BaseGUI
      */
     protected function editItem($form = null)
     {
+        $this->checkAuthorizedCorrections();
 		$this->tabs->setBackTarget($this->lng->txt("back"), $this->ctrl->getLinkTarget($this));
 
 		if($form === null){
@@ -251,11 +278,11 @@ class GradesAdminGUI extends BaseGUI
     }
 
 	protected function deleteItem(){
+        $this->checkAuthorizedCorrections();
 		// TODO: Zwischenfrage hinzufügen!
 		if(($id = $this->getGradeLevelId()) !== null){
 			$this->getGradeLevel($id, true);//Permission check
-			$obj_repo  = LongEssayAssessmentDI::getInstance()->getObjectRepo();
-			$obj_repo->deleteGradeLevel($id);
+			$this->object_repo->deleteGradeLevel($id);
 			ilUtil::sendSuccess($this->plugin->txt("delete_grade_level_successful"), true);
 		}else{
 			ilUtil::sendFailure($this->plugin->txt("delete_grade_level_failure"), true);
@@ -275,10 +302,18 @@ class GradesAdminGUI extends BaseGUI
 		return false;
 	}
 
+    protected function checkAuthorizedCorrections()
+    {
+        if($this->corrector_service->authorizedCorrectionsExists()){
+            \ilUtil::sendFailure($this->plugin->txt('grade_level_cannot_edit_used'), true);
+            $this->ctrl->clearParameters($this);
+            $this->ctrl->redirect($this);
+        }
+    }
+
 	protected function getGradeLevel(int $id, bool $throw_permission_error = true): ?GradeLevel
 	{
-		$obj_repo  = LongEssayAssessmentDI::getInstance()->getObjectRepo();
-		$record = $obj_repo->getGradeLevelById($id);
+		$record = $this->object_repo->getGradeLevelById($id);
 		if($throw_permission_error){
 			$this->checkRecordInObject($record, true);
 		}

@@ -478,3 +478,5 @@ include_comment_points#:#Teilpunkte
 include_criteria_points#:#Bewertungsschema
 include_writer_notes#:#Nozizen
 include_nothing#:#Keine Detail-Informationen
+grade_level_cannot_edit_used#:#Notenstufen dürfen in laufenden Aufgaben nicht verändert werden.
+grade_level_cannot_edit_used_info#:#Die Aufgabe enthält bereits autorisierte Korrekturen. Sie können die Notenstufen erst wieder bearbeiten, wenn Sie alle Korrektur-Autorisierungen zurücknehmen.

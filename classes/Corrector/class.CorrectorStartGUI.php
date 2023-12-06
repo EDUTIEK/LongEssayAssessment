@@ -198,6 +198,9 @@ class CorrectorStartGUI extends BaseGUI
             $correction_actions[CorrectorSummary::STATUS_STITCH] = $this->plugin->txt('correction_filter_stitch');
         }
         
+        if (!isset($correction_actions[$fcorr])) {
+            $correction_actions[$fcorr] = DataService::ALL;
+        }
 
 		$correction_aria_label = "change_the_currently_displayed_mode";
 		$view_control_correction = $this->uiFactory->viewControl()->mode($this->prepareActionList($correction_actions, "fcorr"), $correction_aria_label)

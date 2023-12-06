@@ -199,7 +199,7 @@ class CorrectorStartGUI extends BaseGUI
         }
         
         if (!isset($correction_actions[$fcorr])) {
-            $correction_actions[$fcorr] = DataService::ALL;
+            $fcorr = DataService::ALL;
         }
 
 		$correction_aria_label = "change_the_currently_displayed_mode";

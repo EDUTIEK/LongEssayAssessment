@@ -392,6 +392,29 @@ class CorrectorAdminService extends BaseService
         return false;
     }
 
+    public function authorizedCorrectionsExists(): bool
+    {
+        $c_auth = 0;
+
+        foreach($this->essayRepo->getCorrectorSummariesByTaskId($this->task_id) as $summary){
+            if($summary->getCorrectionAuthorized() !== null){
+                $c_auth++;
+            }
+        }
+        return $c_auth > 0;
+    }
+
+    public function recalculateGradeLevel(){
+        foreach($this->essayRepo->getCorrectorSummariesByTaskId($this->task_id) as $summary){
+            $level = $this->getGradeLevelForPoints($summary->getPoints());
+
+            if($level !== null && $level->getId() !== $summary->getGradeLevelId()){
+                $summary->setGradeLevelId($level->getId());
+                $this->essayRepo->save($summary);
+            }
+        }
+    }
+
     /**
      * Create an export file for the corrections
      * @param \ilObjLongEssayAssessment $object

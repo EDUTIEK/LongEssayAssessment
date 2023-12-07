@@ -1919,3 +1919,22 @@ if ($ilDB->tableColumnExists('xlas_writer', 'editor_font_size')) {
     $ilDB->dropTableColumn('xlas_writer', 'editor_font_size');
 }
 ?>
+<#87>
+<?php
+if (!$ilDB->tableColumnExists('xlas_corr_setting', 'positive_rating')) {
+    $ilDB->addTableColumn('xlas_corr_setting', 'positive_rating', [
+        'notnull' => '1',
+        'type' => 'text',
+        'length' => '50',
+        'default' => 'Exzellent'
+    ]);
+}
+if (!$ilDB->tableColumnExists('xlas_corr_setting', 'negative_rating')) {
+    $ilDB->addTableColumn('xlas_corr_setting', 'negative_rating', [
+        'notnull' => '1',
+        'type' => 'text',
+        'length' => '50',
+        'default' => 'Kardinal'
+    ]);
+}
+?>

@@ -30,7 +30,9 @@ class CorrectionSettings extends RecordData
 		'assign_mode' => 'text',
 		'stitch_when_distance' => 'integer',
 		'stitch_when_decimals' => 'integer',
-        'criteria_mode' => 'text'
+        'criteria_mode' => 'text',
+        'positive_rating' => 'text',
+        'negative_rating' => 'text'
 	];
 
     protected int $task_id;
@@ -43,6 +45,8 @@ class CorrectionSettings extends RecordData
     protected int $stitch_when_distance = 1;
     protected int $stitch_when_decimals = 1;
     protected string $criteria_mode = self::CRITERIA_MODE_NONE;
+    protected string $positive_rating = "";
+    protected string $negative_rating = "";
 
 	public function __construct(int $task_id)
 	{
@@ -226,6 +230,28 @@ class CorrectionSettings extends RecordData
     public function setCriteriaMode(string $criteria_mode): void
     {
         $this->criteria_mode = $criteria_mode;
+    }
+
+    public function getPositiveRating(): string
+    {
+        return $this->positive_rating;
+    }
+
+    public function setPositiveRating(string $positive_rating): CorrectionSettings
+    {
+        $this->positive_rating = $positive_rating;
+        return $this;
+    }
+
+    public function getNegativeRating(): string
+    {
+        return $this->negative_rating;
+    }
+
+    public function setNegativeRating(string $negative_rating): CorrectionSettings
+    {
+        $this->negative_rating = $negative_rating;
+        return $this;
     }
 
 }

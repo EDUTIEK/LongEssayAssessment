@@ -70,6 +70,16 @@ class CorrectionSettingsGUI extends BaseGUI
             ->withRequired(true)
             ->withValue($correctionSettings->getMaxPoints());
 
+        $fields['positive_rating'] = $factory->text($this->plugin->txt('comment_rating_positive'), $this->plugin->txt('comment_rating_positive_info'))
+                                             ->withAdditionalTransformation($this->refinery->string()->hasMinLength(3))
+                                             ->withAdditionalTransformation($this->refinery->string()->hasMaxLength(50))
+                                             ->withValue($correctionSettings->getPositiveRating());
+
+        $fields['negative_rating'] = $factory->text($this->plugin->txt('comment_rating_negative'), $this->plugin->txt('comment_rating_negative_info'))
+                                             ->withAdditionalTransformation($this->refinery->string()->hasMinLength(3))
+                                             ->withAdditionalTransformation($this->refinery->string()->hasMaxLength(50))
+                                             ->withValue($correctionSettings->getNegativeRating());
+
         $fields['criteria_mode'] = $factory->radio($this->plugin->txt('criteria_mode'))
                                            ->withRequired(true)
                                            ->withOption(
@@ -124,6 +134,8 @@ class CorrectionSettingsGUI extends BaseGUI
             $correctionSettings->setRequiredCorrectors((int) $data['correction']['required_correctors']);
             $correctionSettings->setAssignMode((string) $data['correction']['assign_mode']);
             $correctionSettings->setMutualVisibility((int) $data['correction']['mutual_visibility']);
+            $correctionSettings->setPositiveRating((string) $data['correction']['positive_rating']);
+            $correctionSettings->setNegativeRating((string) $data['correction']['negative_rating']);
             $correctionSettings->setMaxPoints((int) $data['correction']['max_points']);
             $correctionSettings->setCriteriaMode((string) $data['correction']['criteria_mode']);
             if (isset($data['stitch']['stitch_when_distance']) && is_array($data['stitch']['stitch_when_distance'])) {

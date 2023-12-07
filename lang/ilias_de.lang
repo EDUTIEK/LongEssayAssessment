@@ -480,3 +480,9 @@ include_writer_notes#:#Nozizen
 include_nothing#:#Keine Detail-Informationen
 grade_level_cannot_edit_used#:#Notenstufen dürfen in laufenden Aufgaben nicht verändert werden.
 grade_level_cannot_edit_used_info#:#Die Aufgabe enthält bereits autorisierte Korrekturen. Sie können die Notenstufen erst wieder bearbeiten, wenn Sie alle Korrektur-Autorisierungen zurücknehmen.
+comment_rating_negative#:#Negativbewertung
+comment_rating_negative_info#:#Anzeigename für negative Bewertungen in den Korrektur-Anmerkungen im Editor
+comment_rating_negative_default#:#Kardinal
+comment_rating_positive#:#Positivbewertung
+comment_rating_positive_info#:#Anzeigename für positive Bewertungen in den Korrektur-Anmerkungen im Editor
+comment_rating_positive_default#:#Exzellent

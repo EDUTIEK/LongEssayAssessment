@@ -126,6 +126,7 @@ class WriterContext extends ServiceContext implements Context
         $essay = $this->getRepoEssay()
             ->setWrittenText($writtenEssay->getWrittenText())
             ->setRawTextHash($writtenEssay->getWrittenHash())
+            ->setServiceVersion($writtenEssay->getServiceVersion())
             ->setEditStarted($this->data->unixTimeToDb($writtenEssay->getEditStarted()))
             ->setEditEnded($this->data->unixTimeToDb($writtenEssay->getEditEnded()));
 

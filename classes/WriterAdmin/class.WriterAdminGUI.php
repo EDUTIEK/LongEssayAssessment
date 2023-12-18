@@ -863,7 +863,7 @@ class WriterAdminGUI extends BaseGUI
 				}
                 
 				$subs[] = $this->uiFactory->panel()->sub($this->plugin->txt("writing"),
-                    $this->uiFactory->legacy((string) $essay->getProcessedText())
+                    $this->uiFactory->legacy((string) $essay->getWrittenText())
 				);
 			}
 

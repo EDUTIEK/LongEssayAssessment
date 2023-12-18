@@ -1938,3 +1938,18 @@ if (!$ilDB->tableColumnExists('xlas_corr_setting', 'negative_rating')) {
     ]);
 }
 ?>
+<#88>
+<?php
+if ($ilDB->tableColumnExists('xlas_essay', 'processed_text')) {
+    $ilDB->dropTableColumn('xlas_essay', 'processed_text');
+}
+
+if (!$ilDB->tableColumnExists('xlas_essay', 'service_version')) {
+    $ilDB->addTableColumn('xlas_essay', 'service_version', [
+        'notnull' => '1',
+        'type' => 'integer',
+        'length' => '4',
+        'default' => '0'
+    ]);}
+
+?>

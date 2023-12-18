@@ -55,7 +55,6 @@ class EditorSettingsGUI extends BaseGUI
                 EditorSettings::HEADLINE_SCHEME_NUMERIC => $this->plugin->txt('headline_scheme_numeric'),
                 EditorSettings::HEADLINE_SCHEME_EDUTIEK => $this->plugin->txt('headline_scheme_edutiek'),
             ])
-            ->withDisabled(true) // remove in pilot
             ->withRequired(true)
             ->withValue($editorSettings->getHeadlineScheme());
 

@@ -481,7 +481,7 @@ class CorrectorContext extends ServiceContext implements Context
             $writtenEssay = new WrittenEssay(
                 $repoEssay->getWrittenText(),
                 $repoEssay->getRawTextHash(),
-                $repoEssay->getProcessedText(),
+                $repoEssay->getServiceVersion(),
                 $this->data->dbTimeToUnix($repoEssay->getEditStarted()),
                 $this->data->dbTimeToUnix($repoEssay->getEditEnded()),
                 !empty($repoEssay->getWritingAuthorized()),
@@ -696,19 +696,6 @@ class CorrectorContext extends ServiceContext implements Context
         return $points;
     }
 
-    /**
-     * @inheritDoc
-     * here:    the item key is a string of the writer id
-     */
-
-    public function setProcessedText(string $item_key, ?string $text) : void
-    {
-        $essayRepo = $this->localDI->getEssayRepo();
-        if (!empty($repoEssay = $essayRepo->getEssayByWriterIdAndTaskId((int)$item_key, $this->task->getTaskId()))) {
-            $repoEssay->setProcessedText($text);
-            $essayRepo->save($repoEssay);
-        }
-    }
 
     /**
      * @inheritDoc

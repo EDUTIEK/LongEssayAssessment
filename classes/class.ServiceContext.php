@@ -17,7 +17,7 @@ use \ilObject;
 use \ilObjLongEssayAssessment;
 use ilSession;
 use Edutiek\LongEssayAssessmentService\Data\PageImage;
-use ILIAS\Filesystem\Util\LegacyPathHelper;
+use Edutiek\LongEssayAssessmentService\Data\WritingSettings;
 
 abstract class ServiceContext implements BaseContext
 {
@@ -387,9 +387,25 @@ abstract class ServiceContext implements BaseContext
         return null;
     }
 
+    /**
+     * @inheritDoc
+     */
+    public function getWritingSettings(): WritingSettings
+    {
+        $repoSettings = $this->localDI->getTaskRepo()->getEditorSettingsById($this->task->getTaskId());
+        return new WritingSettings(
+            $repoSettings->getHeadlineScheme(),
+            $repoSettings->getFormattingOptions(),
+            $repoSettings->getNoticeBoards(),
+            $repoSettings->isCopyAllowed(),
+            $this->plugin->getConfig()->getPrimaryColor(),
+            $this->plugin->getConfig()->getPrimaryTextColor()
+        );
+    }
 
     /**
      * Get the writing task of a certain writer
+     * This is individual because if writing end and writing exclusion
      * (not needed by interface, but public because needed by CorrectorAdminService)
      */
     public function getWritingTaskByWriterId(int $writer_id) : WritingTask

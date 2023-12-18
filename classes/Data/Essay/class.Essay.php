@@ -32,9 +32,9 @@ class Essay extends RecordData
 		'task_id' => 'integer',
 		'written_text' => 'text',
 		'raw_text_hash' => 'text',
+        'service_version' => 'integer',
 		'edit_started' => 'datetime',
 		'edit_ended' => 'datetime',
-		'processed_text' => 'text',
 		'writing_authorized' => 'datetime',
 		'writing_authorized_by' => 'integer',
 		'writing_excluded' => 'datetime',
@@ -54,9 +54,9 @@ class Essay extends RecordData
     protected int $task_id = 0;
     protected ?string $written_text = null;
     protected ?string $raw_text_hash = null;
+    protected int $service_version = 0;
     protected ?string  $edit_started = null;
     protected ?string $edit_ended = null;
-    protected ?string $processed_text = null;
     protected ?string $writing_authorized = null;
     protected ?int $writing_authorized_by = null;
 	protected ?string $writing_excluded = null;
@@ -165,6 +165,24 @@ class Essay extends RecordData
     }
 
     /**
+     * @return int
+     */
+    public function getServiceVersion(): int
+    {
+        return $this->service_version;
+    }
+
+    /**
+     * @param int $service_version
+     * @return Essay
+     */
+    public function setServiceVersion(int $service_version): Essay
+    {
+        $this->service_version = $service_version;
+        return $this;
+    }
+
+    /**
      * @return string|null
      */
     public function getEditStarted(): ?string
@@ -199,25 +217,7 @@ class Essay extends RecordData
         $this->edit_ended = $edit_ended;
         return $this;
     }
-
-    /**
-     * @return string|null
-     */
-    public function getProcessedText(): ?string
-    {
-        return $this->processed_text;
-    }
-
-    /**
-     * @param string|null $processed_text
-     * @return Essay
-     */
-    public function setProcessedText(?string $processed_text): Essay
-    {
-        $this->processed_text = $processed_text;
-        return $this;
-    }
-
+    
     /**
      * @return string|null
      */

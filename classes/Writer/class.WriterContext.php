@@ -68,23 +68,7 @@ class WriterContext extends ServiceContext implements Context
     {
         return \ilLink::_getStaticLink($this->object->getRefId(), 'xlas', true, '_writer');
     }
-
-
-    /**
-     * @inheritDoc
-     */
-    public function getWritingSettings(): WritingSettings
-    {
-        $repoSettings = $this->localDI->getTaskRepo()->getEditorSettingsById($this->task->getTaskId());
-        return new WritingSettings(
-            $repoSettings->getHeadlineScheme(),
-            $repoSettings->getFormattingOptions(),
-            $repoSettings->getNoticeBoards(),
-            $repoSettings->isCopyAllowed(),
-            $this->plugin->getConfig()->getPrimaryColor(),
-            $this->plugin->getConfig()->getPrimaryTextColor()
-        );
-    }
+    
 
 
     /**
@@ -125,7 +109,7 @@ class WriterContext extends ServiceContext implements Context
         return new WrittenEssay(
             $repoEssay->getWrittenText(),
             $repoEssay->getRawTextHash(),
-            $repoEssay->getProcessedText(),
+            $repoEssay->getServiceVersion(),
             $this->data->dbTimeToUnix($repoEssay->getEditStarted()),
             $this->data->dbTimeToUnix($repoEssay->getEditEnded()),
             !empty($repoEssay->getWritingAuthorized()),
@@ -142,7 +126,7 @@ class WriterContext extends ServiceContext implements Context
         $essay = $this->getRepoEssay()
             ->setWrittenText($writtenEssay->getWrittenText())
             ->setRawTextHash($writtenEssay->getWrittenHash())
-            ->setProcessedText($writtenEssay->getProcessedText())
+            ->setServiceVersion($writtenEssay->getServiceVersion())
             ->setEditStarted($this->data->unixTimeToDb($writtenEssay->getEditStarted()))
             ->setEditEnded($this->data->unixTimeToDb($writtenEssay->getEditEnded()));
 

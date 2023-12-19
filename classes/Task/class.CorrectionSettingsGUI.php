@@ -71,11 +71,13 @@ class CorrectionSettingsGUI extends BaseGUI
             ->withValue($correctionSettings->getMaxPoints());
 
         $fields['positive_rating'] = $factory->text($this->plugin->txt('comment_rating_positive'), $this->plugin->txt('comment_rating_positive_info'))
+                                             ->withRequired(true)
                                              ->withAdditionalTransformation($this->refinery->string()->hasMinLength(3))
                                              ->withAdditionalTransformation($this->refinery->string()->hasMaxLength(50))
                                              ->withValue($correctionSettings->getPositiveRating());
 
         $fields['negative_rating'] = $factory->text($this->plugin->txt('comment_rating_negative'), $this->plugin->txt('comment_rating_negative_info'))
+                                             ->withRequired(true)
                                              ->withAdditionalTransformation($this->refinery->string()->hasMinLength(3))
                                              ->withAdditionalTransformation($this->refinery->string()->hasMaxLength(50))
                                              ->withValue($correctionSettings->getNegativeRating());

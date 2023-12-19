@@ -166,10 +166,12 @@ class CorrectorContext extends ServiceContext implements Context
                 (int) $repoSettings->getMaxPoints(),
                 (float) $repoSettings->getMaxAutoDistance(),
                 (bool) $repoSettings->getStitchWhenDistance(),
-                (bool) $repoSettings->getStitchWhenDecimals()
+                (bool) $repoSettings->getStitchWhenDecimals(),
+                (string) $repoSettings->getPositiveRating(),
+                (string) $repoSettings->getNegativeRating()
             );
         }
-        return new CorrectionSettings(false, false, 0, 0, false, false);
+        return new CorrectionSettings(false, false, 0, 0, false, false, '', '');
     }
 
     /**

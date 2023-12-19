@@ -17,6 +17,7 @@ use ILIAS\Plugin\LongEssayAssessment\Data\Writer\WriterRepository;
 use ilObjUser;
 use Throwable;
 use ILIAS\Plugin\LongEssayAssessment\Data\Corrector\CorrectorPreferences;
+use ILIAS\Plugin\LongEssayAssessment\Data\Task\CorrectionSettings;
 
 /**
  * Service for handling data related to a task
@@ -512,7 +513,7 @@ class DataService extends BaseService
         return $grade($text);
     }
     
-    public function formatCorrectionInclusions (CorrectorSummary $summary, correctorPreferences $preferences) 
+    public function formatCorrectionInclusions (CorrectorSummary $summary, CorrectorPreferences $preferences, CorrectionSettings $settings) 
     {
         $text = '';
         
@@ -523,7 +524,7 @@ class DataService extends BaseService
         }
         if (($inclusion = $summary->getIncludeCommentRatings() ?? $preferences->getIncludeCommentRatings()) > CorrectorSummary::INCLUDE_NOT) {
             $text .= ($text ? ', ' : '')
-                . $this->plugin->txt('include_comment_ratings') . ' '
+                . sprintf($this->plugin->txt('include_comment_ratings'), $settings->getPositiveRating(), $settings->getNegativeRating()) . ' '
                 . $this->plugin->txt($inclusion == CorrectorSummary::INCLUDE_INFO ? 'include_suffix_info' : 'include_suffix_relevant');
         }
         if (($inclusion = $summary->getIncludeCommentPoints() ?? $preferences->getIncludeCommentPoints()) > CorrectorSummary::INCLUDE_NOT) {

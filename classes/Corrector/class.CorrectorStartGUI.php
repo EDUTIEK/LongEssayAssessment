@@ -144,7 +144,7 @@ class CorrectorStartGUI extends BaseGUI
                         $writer->getId(), 
                         $writer->getPseudonym() . ': ' . $dataService->formatCorrectionResult($summary), 
                         $icon, 
-                        $dataService->formatCorrectionInclusions($summary, $preferences)
+                        $dataService->formatCorrectionInclusions($summary, $preferences, $this->settings)
                     )
 				])->withActionButtonLabel('ok');
 
@@ -535,7 +535,8 @@ class CorrectorStartGUI extends BaseGUI
                     $writer->getId(), 
                     $writer->getPseudonym() . ': ' . $dataService->formatCorrectionResult($summary), 
                     $icon, 
-                    $dataService->formatCorrectionInclusions($summary, $preferences));
+                    $dataService->formatCorrectionInclusions($summary, $preferences, $this->settings)
+                );
 			}
 		}
 

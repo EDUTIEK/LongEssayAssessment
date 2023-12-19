@@ -127,4 +127,12 @@ abstract class BaseGUI
 	   $this->ctrl->clearParameters($this->objectGUI);
 	   $this->ctrl->redirect($this->objectGUI);
     }
+
+    /**
+     * Display an HTML text in readable width
+     */
+    public function displayText(?string $html) : string
+    {
+            return '<div style="max-width: 60em;">' . $html . '</div>';    
+    }
 }

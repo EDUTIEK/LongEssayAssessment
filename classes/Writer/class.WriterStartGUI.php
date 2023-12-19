@@ -6,7 +6,6 @@ namespace ILIAS\Plugin\LongEssayAssessment\Writer;
 use Edutiek\LongEssayAssessmentService\Writer\Service;
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\Resource;
-use ILIAS\Plugin\LongEssayAssessment\Data\Task\TaskSettings;
 use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
 use ILIAS\Plugin\LongEssayAssessment\Task\ResourceAdmin;
 use \ilUtil;
@@ -67,7 +66,7 @@ class WriterStartGUI extends BaseGUI
             }
             elseif (!empty($essay->getWritingAuthorized())) {
                 if(!empty($this->task->getClosingMessage())){
-					$message = $this->task->getClosingMessage();
+					$message = $this->displayText($this->task->getClosingMessage());
 				}else{
 					$message = $this->plugin->txt('message_writing_authorized');
 				}
@@ -130,7 +129,7 @@ class WriterStartGUI extends BaseGUI
 
         $inst_parts = [];
         if (!empty($this->task->getDescription())) {
-            $inst_parts[] = $this->task->getDescription();
+            $inst_parts[] = $this->displayText($this->task->getDescription());
         }
         if ($this->data->isInRange(time(), $this->data->dbTimeToUnix($this->task->getWritingStart()), null)) {
             $inst_buttons = [];
@@ -418,7 +417,8 @@ class WriterStartGUI extends BaseGUI
 
         $content = [];
         if ($this->data->isInRange(time(), $this->data->dbTimeToUnix($this->task->getWritingStart()), null)) {
-            $content[] = $this->uiFactory->panel()->standard($this->plugin->txt('task_instructions'), $this->uiFactory->legacy($this->task->getInstructions()));
+            $content[] = $this->uiFactory->panel()->standard($this->plugin->txt('task_instructions'), 
+                $this->uiFactory->legacy($this->displayText($this->task->getInstructions())));
         }
 
         $this->tpl->setContent($this->renderer->render($content));
@@ -443,7 +443,8 @@ class WriterStartGUI extends BaseGUI
 
         $content = [];
         if ($this->object->canViewSolution()) {
-            $content[] = $this->uiFactory->panel()->standard($this->plugin->txt('task_solution'), $this->uiFactory->legacy($this->task->getSolution()));
+            $content[] = $this->uiFactory->panel()->standard($this->plugin->txt('task_solution'), 
+                $this->uiFactory->legacy($this->displayText($this->task->getSolution())));
         }
 
         $this->tpl->setContent($this->renderer->render($content));

@@ -488,3 +488,8 @@ comment_rating_positive#:#Positivbewertung
 comment_rating_positive_info#:#Anzeigename für positive Bewertungen in den Korrektur-Anmerkungen
 comment_rating_positive_default#:#Exzellent
 refresh_page#:# ➜ Seite aktualisieren
+change_text_to_pdf#:#Textabgabe in PDF-Abgabe umwandeln
+change_text_to_pdf_confirmation#:#Die folgenden Abgabe können von Text in PDF umgewandelt werden, um sie mit grafischen Markierungen zu korrigieren. Bei der Umwandlung gehen Textmarkierungen und Kommentare bereits begonnener Korrekturen verloren. Die Abgaben werden zur Korrektur autorisiert.
+change_text_to_pdf_none_possible#:#Ihre Auswahl enthält keine Abgaben, die umgewandelt werden könnten.
+change_text_to_pdf_success#:#Die ausgewählten Textabgaben wurden in PDF-Abgaben umgewandelt.
+pdf_from_text#:#Konvertierte Textabgabe

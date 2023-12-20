@@ -387,7 +387,31 @@ class WriterAdminService extends BaseService
 		$this->essayRepo->save($essay);
 	}
     
-    public function createEssayImages(Essay $essay, WriterContext $context) 
+    public function purgeCorrectorComments(Essay $essay) 
+    {
+        $essay_repo = LongEssayAssessmentDI::getInstance()->getEssayRepo();
+        $essay_repo->deleteCorrectorCommentByEssayId($essay->getId());
+    }
+    
+    public function createPdfFromText(Essay $essay, WriterContext $context) 
+    {
+        $essay_repo = LongEssayAssessmentDI::getInstance()->getEssayRepo();
+        $service = new Service($context);
+        
+        if (empty($essay->getPdfVersion()) && !empty($essay->getWrittenText())) {
+                $content = $service->getProcessedTextAsPlainPdf();
+                $stream = Streams::ofString($content);
+                $file_id = $this->dic->resourceStorage()->manage()->stream($stream, new PDFVersionResourceStakeholder(), $this->plugin->txt('pdf_from_text'));
+                $essay->setPdfVersion((string) $file_id);
+                $essay_repo->save($essay);
+                $this->authorizeWriting($essay, $this->dic->user()->getId());
+                
+                // test is put into the PDF, so it does not need to be added to the images
+                $this->createEssayImages($essay, $context, false);
+        }
+    }
+    
+    public function createEssayImages(Essay $essay, WriterContext $context, bool $with_text = true) 
     {
         $essay_repo = LongEssayAssessmentDI::getInstance()->getEssayRepo();
         $service = new Service($context);
@@ -397,7 +421,7 @@ class WriterAdminService extends BaseService
         $pdfs = [];
         if (!empty($essay->getPdfVersion())) {
 
-            if (!empty($essay->getWrittenText())) {
+            if ($with_text && !empty($essay->getWrittenText())) {
                 $fs = $this->dic->filesystem()->temp();
                 $fs->put('xlas/processed_text.pdf', $service->getProcessedTextAsPlainPdf());
                 $pdfs[] = $fs->readStream('xlas/processed_text.pdf')->detach();

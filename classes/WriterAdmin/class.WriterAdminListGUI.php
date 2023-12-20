@@ -221,7 +221,21 @@ class WriterAdminListGUI extends WriterListGUI
 			$remove_callback_signal
 		);
 
-		$resources = $resources->withActions($this->uiFactory->dropdown()->standard($form_actions));
+        $remove_callback_signal = $resources->generateDSCallbackSignal();
+
+        $modals[] = $resources->addDSModalTriggerToModal(
+            $this->uiFactory->modal()->interruptive("", "", ""),
+            $this->ctrl->getFormAction($this->parent, "changeTextToPdfMultiConfirmation", "", true),
+            "writer_ids",
+            $remove_callback_signal
+        );
+
+        $form_actions[] = $resources->addDSModalTriggerToButton(
+            $this->uiFactory->button()->shy($this->plugin->txt("change_text_to_pdf"), "#"),
+            $remove_callback_signal
+        );
+
+        $resources = $resources->withActions($this->uiFactory->dropdown()->standard($form_actions));
 
 		$resources = array_merge([$resources], $modals);
 

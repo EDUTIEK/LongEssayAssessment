@@ -65,6 +65,8 @@ class WriterAdminGUI extends BaseGUI
 					case 'showEssay':
 					case 'editExtensionMulti':
 					case 'removeWriterMultiConfirmation':
+                    case 'changeTextToPdfMultiConfirmation':
+                    case 'changeTextToPdf':
 					case 'uploadPDFVersion':
 					case 'downloadPDFVersion':
 						$this->$cmd();
@@ -779,11 +781,97 @@ class WriterAdminGUI extends BaseGUI
 		return $this->uiFactory->input()->container()->form()->standard($link, $fields, "");
 	}
 
+    protected function changeTextToPdfMultiConfirmation()
+    {
+        $essayRepo = $this->localDI->getEssayRepo();
+        
+        $writer_ids = $this->getWriterIds();
+        $writers = $this->localDI->getWriterRepo()->getWritersByTaskId($this->object->getId());
+        $user_data = \ilUserUtil::getNamePresentation(array_unique(array_map(fn(Writer $x) => $x->getUserId(), $writers)), true, true, "", true);
 
-	public function uploadPDFVersion()
+        $items = [];
+        foreach ($writer_ids as $writer_id) {
+            if(array_key_exists($writer_id, $writers)) {
+                $writer = $writers[$writer_id];
+                $essay = $essayRepo->getEssayByWriterIdAndTaskId($writer->getId(), $writer->getTaskId());
+                if (empty($essay->getWrittenText()) || !empty($essay->getPdfVersion())) {
+                    continue;
+                }
+                if(!empty(
+                    $this->localDI->getCorrectorAdminService(
+                        $this->object->getId())->getAuthorizedSummaries($essay))
+                ) {
+                    continue;
+                }
+                
+                $items[] = $this->uiFactory->modal()->interruptiveItem(
+                    $writer->getId(), $user_data[$writer->getUserId()]
+                );
+            }
+        }
+
+        if(empty($items)) {
+            ilUtil::sendFailure($this->plugin->txt("change_text_to_pdf_none_possible"), true);
+            $this->ctrl->redirect($this, "showStartPage");
+        }
+
+        $change_modal = $this->uiFactory->modal()->interruptive(
+            $this->plugin->txt("change_text_to_pdf"),
+            $this->plugin->txt("change_text_to_pdf_confirmation"),
+            $this->ctrl->getFormAction($this, "changeTextToPdf")
+        )->withAffectedItems($items)->withActionButtonLabel('change');
+
+        echo($this->renderer->renderAsync($change_modal));
+        exit();
+    }
+
+    public function changeTextToPdf() {
+        $writer_ids = [];
+        if(($id = $this->getWriterId()) !== null) {
+            $writer_ids[] = (int) $id;
+        } elseif(is_array($items = $this->request->getParsedBody()) && array_key_exists("interruptive_items", $items)){
+            foreach($items["interruptive_items"] as $item){
+                $writer_ids[] = (int) $item;
+            }
+        }
+
+        if(empty($writer_ids)) {
+            ilUtil::sendFailure($this->plugin->txt("missing_writer_id"), true);
+            $this->ctrl->redirect($this, "showStartPage");
+        }
+
+        $essayRepo = $this->localDI->getEssayRepo();
+        $writers = $this->localDI->getWriterRepo()->getWritersByTaskId($this->object->getId());
+        $service = $this->localDI->getWriterAdminService($this->object->getId());
+        
+        foreach ($writer_ids as $writer_id) {
+            if(array_key_exists($writer_id, $writers)) {
+                $writer = $writers[$writer_id];
+                $essay = $essayRepo->getEssayByWriterIdAndTaskId($writer->getId(), $writer->getTaskId());
+                if (empty($essay->getWrittenText()) || !empty($essay->getPdfVersion())) {
+                    continue;
+                }
+                if(!empty(
+                $this->localDI->getCorrectorAdminService(
+                    $this->object->getId())->getAuthorizedSummaries($essay))
+                ) {
+                    continue;
+                }
+
+                $context = new WriterContext();
+                $context->init((string) $writer->getUserId(), (string) $this->object->getRefId());
+                $service->createPdfFromText($essay, $context);
+                $service->purgeCorrectorComments($essay);
+            }
+        }
+
+        ilUtil::sendSuccess($this->plugin->txt('change_text_to_pdf_success'), true);
+        $this->ctrl->redirect($this);
+    }
+
+    public function uploadPDFVersion()
 	{
 		$writer_repo = $this->localDI->getWriterRepo();
-		$essay_repo = $this->localDI->getEssayRepo();
 		$task_repo = $this->localDI->getTaskRepo();
 		$task_id = $this->object->getId();
 
@@ -795,7 +883,8 @@ class WriterAdminGUI extends BaseGUI
 			$essay = $service->getOrCreateEssayForWriter($writer);
             
             if(!empty(
-                $this->localDI->getCorrectorAdminService($this->object->getId())->getAuthorizedSummaries($essay))
+                $this->localDI->getCorrectorAdminService(
+                    $this->object->getId())->getAuthorizedSummaries($essay))
             ) {
                 ilUtil::sendFailure($this->plugin->txt('pdf_version_upload_not_allowed_by_corrections'), true);    
                 $this->ctrl->redirect($this);
@@ -825,8 +914,8 @@ class WriterAdminGUI extends BaseGUI
                         
                         $context = new WriterContext();
                         $context->init((string) $writer->getUserId(), (string) $this->object->getRefId());
-                        $essay_repo->deleteCorrectorCommentByEssayId($essay->getId());
                         $service->createEssayImages($essay, $context);
+                        $service->purgeCorrectorComments($essay);
                         
 						$this->ctrl->redirect($this);
 					}else{

@@ -21,3 +21,9 @@ An initial set of features is available in the **pre-test version** named LongEs
  rm composer.lock
  composer install --no-dev
 ````
+
+## History
+
+### Version 1.1 (2023-12-20)
+
+- First published version of the plugin for ILIAS 7

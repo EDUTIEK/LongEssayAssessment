@@ -456,12 +456,15 @@ class CorrectorAdminService extends BaseService
     /**
      * Get the writing of an essay as PDF string
      */
-    public function getWritingAsPdf(\ilObjLongEssayAssessment $object, Writer $repoWriter) 
+    public function getWritingAsPdf(\ilObjLongEssayAssessment $object, Writer $repoWriter, $anonymous = false) 
     {
         $context = new CorrectorContext();
         $context->init((string) $this->dic->user()->getId(), (string) $object->getRefId());
 
         $writingTask = $context->getWritingTaskByWriterId($repoWriter->getId());
+        if ($anonymous) {
+            $writingTask = $writingTask->withWriterName($repoWriter->getPseudonym());
+        }
         $writtenEssay = $context->getEssayOfItem((string) $repoWriter->getId());
 
         $item = new DocuItem(
@@ -478,15 +481,17 @@ class CorrectorAdminService extends BaseService
     
     /**
      * Get the correction of an essay as PDF string
-     * if a repo corrector is given as parameter, then only this correction is included,
-     *      not the original writer text and not other correctors
+     * if a repo corrector is given as parameter, then only this correction is included, not other correctors
      */
-    public function getCorrectionAsPdf(\ilObjLongEssayAssessment $object, Writer $repoWriter, ?Corrector $repoCorrector = null) : string
+    public function getCorrectionAsPdf(\ilObjLongEssayAssessment $object, Writer $repoWriter, ?Corrector $repoCorrector = null, $anonymous = false) : string
     {
         $context = new CorrectorContext();
         $context->init((string) $this->dic->user()->getId(), (string) $object->getRefId());
 
         $writingTask = $context->getWritingTaskByWriterId($repoWriter->getId());
+        if ($anonymous) {
+            $writingTask = $writingTask->withWriterName($repoWriter->getPseudonym());
+        }
         $writtenEssay = $context->getEssayOfItem((string) $repoWriter->getId());
 
         $correctionSummaries = [];

@@ -283,6 +283,7 @@ class GradesAdminGUI extends BaseGUI
 		if(($id = $this->getGradeLevelId()) !== null){
 			$this->getGradeLevel($id, true);//Permission check
 			$this->object_repo->deleteGradeLevel($id);
+            $this->corrector_service->recalculateGradeLevel();
 			ilUtil::sendSuccess($this->plugin->txt("delete_grade_level_successful"), true);
 		}else{
 			ilUtil::sendFailure($this->plugin->txt("delete_grade_level_failure"), true);

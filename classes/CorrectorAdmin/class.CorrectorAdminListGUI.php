@@ -388,7 +388,10 @@ class CorrectorAdminListGUI extends WriterListGUI
 
         }
 
-        return ["corrector" => $this->uiFactory->input()->field()->multiselect($this->plugin->txt("correctors"), $correctors),
+        return [
+            "pdf_version" => $this->uiFactory->input()->field()->select($this->plugin->txt("filter_pdf_version"),
+                [self::FILTER_YES => $this->plugin->txt("yes"), self::FILTER_NO => $this->plugin->txt("no")]),
+            "corrector" => $this->uiFactory->input()->field()->multiselect($this->plugin->txt("correctors"), $correctors),
                 "corrected" => $this->uiFactory->input()->field()->select($this->plugin->txt("filter_corrected"),
                     [self::FILTER_YES => $this->plugin->txt("yes"), self::FILTER_NO => $this->plugin->txt("no")]),
                 "stitch" => $this->uiFactory->input()->field()->select($this->plugin->txt("filter_stitch"),
@@ -400,10 +403,11 @@ class CorrectorAdminListGUI extends WriterListGUI
 
     protected function filterInputActivation(): array
     {
-        return [true, true, true, true];
+        return [true, true, true, true, true];
     }
     protected function filterItems(array $filter, Writer $writer): bool
     {
+ 
         if(!empty($filter["corrector"])){
             $has = [];
             foreach($this->getAssignmentsByWriter($writer) as $ass){
@@ -414,6 +418,12 @@ class CorrectorAdminListGUI extends WriterListGUI
             }
         }
         $essay = $this->essays[$writer->getId()];
+
+        if(!empty($filter["pdf_version"]) && $filter["pdf_version"] == self::FILTER_YES){
+            if($essay === null || $essay->getPdfVersion() === null){
+                return false;
+            }
+        }
 
         if(!empty($filter["corrected"]) && $filter["corrected"] == self::FILTER_YES){
             if($essay === null || $essay->getCorrectionFinalized() === null){

@@ -148,9 +148,16 @@ class WriterStartGUI extends BaseGUI
             }
         }
 
+        $refresh_link = '';
+        if ($this->localDI->getDataService($this->task->getTaskId())->dbTimeToUnix($this->task->getWritingStart()) > time()) {
+            $refresh_link = ' ' . $this->renderer->render($this->uiFactory->button()->shy($this->plugin->txt('refresh_page'), $this->ctrl->getLinkTarget($this)));
+        }
 		$properties = [$this->plugin->txt('writing_period') => $this->data->formatPeriod(
 			$this->task->getWritingStart(), $writing_end
-		)];
+		) . $refresh_link];
+        
+        
+        
 		if (isset($essay) && $essay->getLocation() !== null) {
 			$taskRepo = $this->localDI->getTaskRepo();
 			$properties[$this->plugin->txt("location")] = ($location = $taskRepo->getLocationById($essay->getLocation())) !== null ? $location->getTitle() : " - ";

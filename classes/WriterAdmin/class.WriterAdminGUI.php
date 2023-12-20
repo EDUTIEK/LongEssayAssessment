@@ -793,6 +793,14 @@ class WriterAdminGUI extends BaseGUI
 
 		if(($id = $this->getWriterId()) !== null && ($writer = $writer_repo->getWriterById($id)) !== null){
 			$essay = $service->getOrCreateEssayForWriter($writer);
+            
+            if(!empty(
+                $this->localDI->getCorrectorAdminService($this->object->getId())->getAuthorizedSummaries($essay))
+            ) {
+                ilUtil::sendFailure($this->plugin->txt('pdf_version_upload_not_allowed_by_corrections'), true);    
+                $this->ctrl->redirect($this);
+            }
+            
 			$form = $this->buildPDFVersionForm($essay);
 
 			if($this->request->getMethod() === "POST") {
@@ -817,6 +825,7 @@ class WriterAdminGUI extends BaseGUI
                         
                         $context = new WriterContext();
                         $context->init((string) $writer->getUserId(), (string) $this->object->getRefId());
+                        $essay_repo->deleteCorrectorCommentByEssayId($essay->getId());
                         $service->createEssayImages($essay, $context);
                         
 						$this->ctrl->redirect($this);

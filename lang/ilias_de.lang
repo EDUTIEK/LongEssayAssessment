@@ -422,12 +422,13 @@ authorize_pdf_version_info#:#Wenn eine PDF-Abgabe hinzugefügt oder geändert wi
 pdf_version#:#PDF-Abgabe
 pdf_version_edit#:#PDF-Abgabe editieren
 pdf_version_upload#:#PDF-Abgabe hochladen
-pdf_version_info_started_essay#:#Teilnehmer*in hat bereits einen Text angefangen. Sind Sie sich sicher, dass Sie diese Ergebnisse mit dem PDF-Upload ergänzen möchten?
-pdf_version_warning_authorized_essay#:#Teilnehmer*in hat bereits einen Text abgegeben und autorisiert. Sind Sie sich sicher, dass Sie diese Ergebnisse mit dem PDF-Upload ergänzen möchten?
+pdf_version_info_started_essay#:#Teilnehmer/in hat bereits einen Text angefangen. Sind Sie sich sicher, dass Sie diese Ergebnisse mit dem PDF-Upload ergänzen möchten? Die Markierungen und Kommentare bereits begonnener Korrekturen werden verworfen.
+pdf_version_warning_authorized_essay#:#Teilnehmer/in hat bereits einen Text abgegeben und autorisiert. Sind Sie sich sicher, dass Sie diese Ergebnisse mit dem PDF-Upload ergänzen möchten? Die Markierungen und Kommentare bereits begonnener Korrekturen werden verworfen.
 writing_remove_authorize_log_description#:#Die Autorisierung der Abgabe von %s wurde von %s entfernt.
 pdf_version_download#:#PDF-Abgabe herunterladen
 download#:#Herunterladen
 writing#:#Bearbeitung
+pdf_version_upload_not_allowed_by_corrections#:#Sie können keine PDF-Version hochladen, da eine Korrektur bereits autorisiert ist.
 pdf_version_upload_successful_auth#:#Die PDF-Version wurde erfolgreich hochgeladen und autorisiert.
 pdf_version_upload_successful_removed#:#Die PDF-Version wurde erfolgreich entfernt.
 pdf_version_upload_successful_no_auth#:#Die PDF-Version wurde erfolgreich hochgeladen. Eine Autorisierung steht noch aus.

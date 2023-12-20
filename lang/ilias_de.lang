@@ -216,7 +216,7 @@ remove_corrector_confirmation#:#Wollen Sie den folgenden Korrektor wirklich entf
 missing_corrector_id#:#Korrektornummer fehlt.
 missing_corrector#:#Korrektor konnte nicht gefunden werden.
 remove_writer_pending_assignments#:#Korrektor konnte nicht entfernt werden, da er noch ein Erst- oder ZWeitkorrektor eingetragen ist.
-remove_writer_success#:#Korrektor wurde erfolgreich entfernt.
+remove_corrector_success#:#Korrektor(en) wurden erfolgreich entfernt.
 assign_corrector_success#:#Korrektor(en) wurden erfolgreich hinzugefügt.
 correction_status_stitch#:#Stichentscheid
 log_type#:#Typ
@@ -493,3 +493,5 @@ change_text_to_pdf_confirmation#:#Die folgenden Abgabe können von Text in PDF u
 change_text_to_pdf_none_possible#:#Ihre Auswahl enthält keine Abgaben, die umgewandelt werden könnten.
 change_text_to_pdf_success#:#Die ausgewählten Textabgaben wurden in PDF-Abgaben umgewandelt.
 pdf_from_text#:#Konvertierte Textabgabe
+info_missing_correctors#:#Es gibt Abgaben zur Korrektur, aber Sie haben noch keine Korrektoren festgelegt. Wechseln Sie zu "Korrektoren", um Benutzer als Korrektoren hinzuzufügen. Anschließend können Sie diese den Abgaben zuweisen.
+info_missing_assignments#:#Es fehlen noch Korrektorenzuweisungen.

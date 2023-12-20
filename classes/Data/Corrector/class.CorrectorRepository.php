@@ -146,7 +146,7 @@ class CorrectorRepository extends RecordRepo
 
     public function deleteCorrectorPreferencesByCorrector(int $a_corrector_id)
     {
-        $this->db->manipulate("DELETE FROM xlas_corrector_xlas_corrector_prefs" .
+        $this->db->manipulate("DELETE FROM xlas_corrector_prefs" .
             " WHERE corrector_id = " . $this->db->quote($a_corrector_id, "integer"));
     }
 

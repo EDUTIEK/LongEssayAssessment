@@ -104,11 +104,27 @@ class CorrectorAdminGUI extends BaseGUI
         $essay_repo = $di->getEssayRepo();
         $task_repo = $di->getTaskRepo();
 
+        $authorized_essay_exists = false;
         $essays = $essay_repo->getEssaysByTaskId($this->object->getId());
         $stitches = [];
         foreach ($essays as $essay){
             if($this->service->isStitchDecisionNeeded($essay)){
                 $stitches[] = $essay->getId();
+            }
+            if ($essay->getWritingAuthorized()) {
+                $authorized_essay_exists = true;
+            }
+        }
+
+        $writers = $writers_repo->getWritersByTaskId($this->object->getId());
+        $correctors = $corrector_repo->getCorrectorsByTaskId($this->object->getId());
+        
+        if ($authorized_essay_exists) {
+            if (empty($correctors)) {
+                ilUtil::sendInfo($this->plugin->txt('info_missing_correctors'));
+            }
+            elseif(!empty($this->service->countMissingCorrectors())) {
+                ilUtil::sendInfo($this->plugin->txt('info_missing_assignments'));
             }
         }
 
@@ -167,8 +183,8 @@ class CorrectorAdminGUI extends BaseGUI
         $this->toolbar->addSeparator();
 
 		$list_gui = new CorrectorAdminListGUI($this, "showStartPage", $this->plugin, $this->settings);
-		$list_gui->setWriters($writers_repo->getWritersByTaskId($this->object->getId()));
-		$list_gui->setCorrectors($corrector_repo->getCorrectorsByTaskId($this->object->getId()));
+		$list_gui->setWriters($writers);
+		$list_gui->setCorrectors($correctors);
 		$list_gui->setEssays($essays);
 		$list_gui->setAssignments($corrector_repo->getAssignmentsByTaskId($this->object->getId()));
 		$list_gui->setCorrectionStatusStitches($stitches);
@@ -266,7 +282,7 @@ class CorrectorAdminGUI extends BaseGUI
 		}
 
 		$corrector_repo->deleteCorrector($corrector->getId());
-		ilUtil::sendSuccess($this->plugin->txt("remove_writer_success"), true);
+		ilUtil::sendSuccess($this->plugin->txt("remove_corrector_success"), true);
 		$this->ctrl->redirect($this, "showCorrectors");
 	}
 

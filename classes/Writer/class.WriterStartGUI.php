@@ -342,12 +342,13 @@ class WriterStartGUI extends BaseGUI
 
              $context = new WriterContext();
              $context->init((string) $this->dic->user()->getId(), (string) $this->object->getRefId());
+             $repoWriter = $this->localDI->getWriterRepo()->getWriterByUserIdAndTaskId($this->dic->user()->getId(), $this->object->getId());
              $service = new Service($context);
 
 //             $filename = 'task' . $this->object->getId() . '_user' . $this->dic->user()->getId(). '.html';
 //             ilUtil::deliverData($service->getProcessedTextAsHtml(), $filename, 'text/html');
 
-             $filename = 'task' . $this->object->getId() . '_user' . $this->dic->user()->getId(). '-writing.pdf';
+             $filename = 'task' . $this->object->getId() . '_writer' . $repoWriter->getId(). '-writing.pdf';
              ilUtil::deliverData($service->getProcessedTextAsPdf(), $filename, 'application/pdf');
          }
          else {
@@ -362,10 +363,9 @@ class WriterStartGUI extends BaseGUI
      {
          if ($this->object->canReviewCorrectedEssay()) {
              $service = $this->localDI->getCorrectorAdminService($this->object->getId());
-             $repoTask = $this->localDI->getTaskRepo()->getTaskSettingsById($this->object->getId());
              $repoWriter = $this->localDI->getWriterRepo()->getWriterByUserIdAndTaskId($this->dic->user()->getId(), $this->object->getId());
 
-             $filename = 'task' . $this->object->getId() . '_user' . $this->dic->user()->getId(). '-correction.pdf';
+             $filename = 'task' . $this->object->getId() . '_writer' . $repoWriter->getId(). '-correction.pdf';
              ilUtil::deliverData($service->getCorrectionAsPdf($this->object, $repoWriter), $filename, 'application/pdf');
          }
          else {

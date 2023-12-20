@@ -421,7 +421,7 @@ class CorrectorStartGUI extends BaseGUI
         $service = $this->localDI->getCorrectorAdminService($this->object->getId());
         $repoWriter = $this->localDI->getWriterRepo()->getWriterById($writer_id);
 
-        $filename = 'task' . $this->object->getId() . '_user' . $this->dic->user()->getId(). '-writing.pdf';
+        $filename = 'task' . $this->object->getId() . '_writer' . $repoWriter->getId(). '-writing.pdf';
         ilUtil::deliverData($service->getWritingAsPdf($this->object, $repoWriter), $filename, 'application/pdf');
     }
 
@@ -434,7 +434,7 @@ class CorrectorStartGUI extends BaseGUI
         $repoWriter = $this->localDI->getWriterRepo()->getWriterById($writer_id);
         $repoCorrector = $this->localDI->getCorrectorRepo()->getCorrectorByUserId($this->dic->user()->getId(), $this->settings->getTaskId());
 
-        $filename = 'task' . $this->object->getId() . '_user' . $this->dic->user()->getId(). '-correction.pdf';
+        $filename = 'task' . $this->object->getId() . '_writer' . $repoWriter->getId(). '-correction.pdf';
         ilUtil::deliverData($service->getCorrectionAsPdf($this->object, $repoWriter, $repoCorrector), $filename, 'application/pdf');
     }
 

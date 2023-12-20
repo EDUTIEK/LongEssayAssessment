@@ -255,6 +255,11 @@ class ilObjLongEssayAssessment extends ilObjectPlugin
 		return (bool) $this->objectSettings->isOnline();
 	}
 
+    public function canViewInfoScreen() : bool
+    {
+        return $this->access->checkAccess('write', '', $this->getRefId());
+    }
+    
     /**
      * Check if the current user can view the writer screen
      * The screen is available until the end of the writing period or if the user is a writer

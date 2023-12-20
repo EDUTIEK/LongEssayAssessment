@@ -378,7 +378,7 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
             $this->tabs->addTab('tab_task', $this->plugin->txt('tab_task'), $tabs[0]['url']);
             $this->subtabs['tab_task'] = $tabs;
         }
-
+        
         // Corrector Tab
         $tabs = [];
         if ($this->object->canViewCorrectorScreen()) {
@@ -461,7 +461,9 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
 
 
         // standard info screen tab
-        // $this->addInfoTab();
+        if ($this->object->canViewInfoScreen()) {
+            $this->addInfoTab();
+        }
 
         // standard export tab
 		// $this->addExportTab();

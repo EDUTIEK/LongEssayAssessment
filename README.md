@@ -1,9 +1,13 @@
-# LongEssayAssessment (Pilot Version)
+# LongEssayAssessment
 Plugin for the LMS ILIAS open source to realize exams with writing of long texts.
 
-This pilot version is currently **under development** to complete the functionality required by the [EDUTIEK project](https://www.edutiek.de).
+The EDUTIEK project (acronym for "Einfache Durchführung textintensiver E-Klausuren") is developing a comprehensive software solution for online exams in subjects in which longer texts have to be submitted as exam solutions. These include law, history, linguistics, philosophy, sociology and many more.
 
-An initial set of features is available in the **pre-test version** named LongEssayTask which is maintained in a different [GitHub repository](https://github.com/fneumann/LongEssayTask).
+The "Long Essay Assessment" is a repository object and bundles all functions for the realisation of a text exam. Responsibilities for creating, carrying out and correcting tasks are assigned to different people via the authorisation system. Support material can be provided for editing and correction is supported by an evaluation scheme. All results can be output in PDF/A format for documentation purposes.
+
+The integrated "Writer" is a specialised editing page for examinees during the exam. The text editor and the task or additional material can be displayed side by side or on a full page. All editing steps are logged and are reversible. Even if the network is interrupted, you can continue writing and the editing steps will be saved afterwards. At the end of the editing time, the written text is displayed for review and its submission is finally confirmed.
+
+The integrated "Corrector" is a specialised editing page for the proofreaders. In the submitted text, passages are marked and provided with comments. With each comment, partial points can be awarded based on the evaluation scheme. The text and comments are clearly displayed next to each other, optionally also with the comments from the first correction in the case of a second correction. To create the overall vote, a proposal for the final grade is calculated from the sum of the partial points, which can be accepted or changed. The vote can be used to create a textual overall assessment.
 
 ## Installation
 
@@ -22,8 +26,19 @@ An initial set of features is available in the **pre-test version** named LongEs
  composer install --no-dev
 ````
 
-## History
+Please clear your browser cache after an update before you start the writing and ccorrection screens.
 
-### Version 1.1 (2023-12-20)
+## Branches and Versions
 
-- First published version of the plugin for ILIAS 7
+The plugin is published for ILIAS in different branches:
+
+* **release1_ilias7** will receive bug fixes only
+* **release2_ilias8** will be created by March 2024
+* **main** is the current development branch. Please do not use it for production.
+
+Versions 2.x will receive bug fixes as well as new features without breaking existing functionality and data.
+Please consult the [CHANGELOG](CHANGELOG.md) to see the different versions.
+
+## Known Issues
+
+The writing and correction of exams is tested with Firefox and Chrome, so modern Chromium based browser should work. We know about issues with older Safari browsers. Please test with you local system before writing an exam and offer a tryout service for students who should write on their own device.

@@ -83,6 +83,7 @@ class WriterAdminGUI extends BaseGUI
      */
     protected function showStartPage()
     {
+        $this->addContentCss();
         $this->toolbar->setFormAction($this->ctrl->getFormAction($this));
 
 		\ilRepositorySearchGUI::fillAutoCompleteToolbar(
@@ -721,13 +722,14 @@ class WriterAdminGUI extends BaseGUI
 	protected function showEssay()
 	{
 		$essays = $this->getEssaysFromWriterIds();
-		$value = count($essays) > 0 && ($essay =  array_pop($essays)) !== null? $essay->getWrittenText() : null;
+		$value = count($essays) > 0 && ($essay =  array_pop($essays)) !== null? $essay->getWrittenText() : '';
+        $value = $this->displayContent($this->localDI->getDataService($this->object->getId())->cleanupRichText($value));
 
 		$this->ctrl->saveParameter($this, "writer_id");
 		$link = $this->ctrl->getFormAction($this, "showEssay", "", true);
 
 		$sight_modal = $this->uiFactory->modal()->roundtrip($this->plugin->txt("submission"),
-			$this->uiFactory->legacy($value ? $this->localDI->getDataService($this->object->getId())->cleanupRichText($value): "")
+			$this->uiFactory->legacy($value)
 		);
 		$reload_button = $this->uiFactory->button()->standard($this->lng->txt("refresh"), "")
 			->withLoadingAnimationOnClick(true)

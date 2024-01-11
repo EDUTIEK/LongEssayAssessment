@@ -110,7 +110,7 @@ editor_settings#:#Einstellungen für den Editor
 headline_scheme#:#Überschriften-Schema
 headline_scheme_none#:#Ohne Numerierung
 headline_scheme_numeric#:#Numeriert: 1 ‧ 1.1 ‧ 1.1.1
-headline_scheme_edutiek#:#Gutachten: A. ‧ I. ‧ 1 ‧ a. ‧ aa. ‧ (1)
+headline_scheme_edutiek#:#Gutachten: A. ‧ I. ‧ 1. ‧ a. ‧ aa. ‧ (1)
 formatting_options#:#Text-Formatierung
 formatting_options_none#:#Aus
 formatting_options_none_info#:#Keine Formatatierungs-Optionen

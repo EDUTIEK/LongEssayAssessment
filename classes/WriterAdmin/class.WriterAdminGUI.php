@@ -813,15 +813,18 @@ class WriterAdminGUI extends BaseGUI
         }
 
         if(empty($items)) {
-            ilUtil::sendFailure($this->plugin->txt("change_text_to_pdf_none_possible"), true);
-            $this->ctrl->redirect($this, "showStartPage");
+            $change_modal = $this->uiFactory->modal()->roundtrip(
+                $this->plugin->txt("change_text_to_pdf"),
+                $this->uiFactory->legacy($this->plugin->txt("change_text_to_pdf_none_possible")),
+            );
         }
-
-        $change_modal = $this->uiFactory->modal()->interruptive(
-            $this->plugin->txt("change_text_to_pdf"),
-            $this->plugin->txt("change_text_to_pdf_confirmation"),
-            $this->ctrl->getFormAction($this, "changeTextToPdf")
-        )->withAffectedItems($items)->withActionButtonLabel('change');
+        else {
+            $change_modal = $this->uiFactory->modal()->interruptive(
+                $this->plugin->txt("change_text_to_pdf"),
+                $this->plugin->txt("change_text_to_pdf_confirmation"),
+                $this->ctrl->getFormAction($this, "changeTextToPdf")
+            )->withAffectedItems($items)->withActionButtonLabel('change');
+        }
 
         echo($this->renderer->renderAsync($change_modal));
         exit();

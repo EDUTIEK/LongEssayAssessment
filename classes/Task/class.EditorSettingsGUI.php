@@ -47,7 +47,8 @@ class EditorSettingsGUI extends BaseGUI
 
         $sections = [];
 
-        // Object
+        // Editor
+
         $fields = [];
         $fields['headline_scheme'] = $factory->select($this->plugin->txt('headline_scheme'),
             [
@@ -87,6 +88,38 @@ class EditorSettingsGUI extends BaseGUI
 
         $sections['editor'] = $factory->section($fields, $this->plugin->txt('editor_settings'));
 
+        // Processing
+
+        $fields = [];
+
+        $fields['add_paragraph_numbers'] = $factory->checkbox($this->plugin->txt('add_paragraph_numbers'))
+            ->withValue($editorSettings->getAddParagraphNumbers());
+
+        $fields['top_margin'] = $factory->numeric($this->plugin->txt('top_margin'))
+            ->withAdditionalTransformation($this->refinery->to()->int())
+            ->withRequired(true)
+            ->withValue($editorSettings->getTopMargin());
+
+        $fields['bottom_margin'] = $factory->numeric($this->plugin->txt('bottom_margin'))
+            ->withAdditionalTransformation($this->refinery->to()->int())
+            ->withRequired(true)
+            ->withValue($editorSettings->getBottomMargin());
+
+        $fields['left_margin'] = $factory->numeric($this->plugin->txt('left_margin'))
+            ->withAdditionalTransformation($this->refinery->to()->int())
+            ->withRequired(true)
+            ->withValue($editorSettings->getLeftMargin());
+
+        $fields['right_margin'] = $factory->numeric($this->plugin->txt('right_margin'))
+            ->withAdditionalTransformation($this->refinery->to()->int())
+            ->withRequired(true)
+            ->withValue($editorSettings->getRightMargin());
+
+        $sections['processing'] = $factory->section($fields,
+            $this->plugin->txt('processing_settings'),
+            $this->plugin->txt('processing_settings_info')
+        );
+
         $form = $this->uiFactory->input()->container()->form()->standard($this->ctrl->getFormAction($this), $sections);
 
         // apply inputs
@@ -100,7 +133,12 @@ class EditorSettingsGUI extends BaseGUI
             $editorSettings->setHeadlineScheme($data['editor']['headline_scheme']);
             $editorSettings->setFormattingOptions($data['editor']['formatting_options']);
             $editorSettings->setNoticeBoards((int) $data['editor']['notice_boards']);
-            $editorSettings->setCopyAllowed($data['editor']['copy_allowed']);
+            $editorSettings->setCopyAllowed((bool) $data['editor']['copy_allowed']);
+            $editorSettings->setAddParagraphNumbers((bool) $data['processing']['add_paragraph_numbers']);
+            $editorSettings->setTopMargin((int) $data['processing']['top_margin']);
+            $editorSettings->setBottomMargin((int) $data['processing']['bottom_margin']);
+            $editorSettings->setLeftMargin((int) $data['processing']['left_margin']);
+            $editorSettings->setRightMargin((int) $data['processing']['right_margin']);
 			$task_repo->save($editorSettings);
 
             ilUtil::sendSuccess($this->lng->txt("settings_saved"), true);

@@ -1950,6 +1950,50 @@ if (!$ilDB->tableColumnExists('xlas_essay', 'service_version')) {
         'type' => 'integer',
         'length' => '4',
         'default' => '0'
-    ]);}
+    ]);
+}
+?>
+<#89>
+<?php
+if (!$ilDB->tableColumnExists('xlas_editor_settings', 'add_paragraph_numbers')) {
+    $ilDB->addTableColumn('xlas_editor_settings', 'add_paragraph_numbers', [
+        'notnull' => '1',
+        'type' => 'integer',
+        'length' => '4',
+        'default' => '1'
+    ]);
+}
+if (!$ilDB->tableColumnExists('xlas_editor_settings', 'top_margin')) {
+    $ilDB->addTableColumn('xlas_editor_settings', 'top_margin', [
+        'notnull' => '1',
+        'type' => 'integer',
+        'length' => '4',
+        'default' => '10'
+    ]);
+}
+if (!$ilDB->tableColumnExists('xlas_editor_settings', 'bottom_margin')) {
+    $ilDB->addTableColumn('xlas_editor_settings', 'bottom_margin', [
+        'notnull' => '1',
+        'type' => 'integer',
+        'length' => '4',
+        'default' => '10'
+    ]);
+}
+if (!$ilDB->tableColumnExists('xlas_editor_settings', 'left_margin')) {
+    $ilDB->addTableColumn('xlas_editor_settings', 'left_margin', [
+        'notnull' => '1',
+        'type' => 'integer',
+        'length' => '4',
+        'default' => '10'
+    ]);
+}
+if (!$ilDB->tableColumnExists('xlas_editor_settings', 'right_margin')) {
+    $ilDB->addTableColumn('xlas_editor_settings', 'right_margin', [
+        'notnull' => '1',
+        'type' => 'integer',
+        'length' => '4',
+        'default' => '10'
+    ]);
+}
 
 ?>

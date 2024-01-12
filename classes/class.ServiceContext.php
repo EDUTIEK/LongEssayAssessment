@@ -393,13 +393,19 @@ abstract class ServiceContext implements BaseContext
     public function getWritingSettings(): WritingSettings
     {
         $repoSettings = $this->localDI->getTaskRepo()->getEditorSettingsById($this->task->getTaskId());
+
         return new WritingSettings(
             $repoSettings->getHeadlineScheme(),
             $repoSettings->getFormattingOptions(),
             $repoSettings->getNoticeBoards(),
             $repoSettings->isCopyAllowed(),
             $this->plugin->getConfig()->getPrimaryColor(),
-            $this->plugin->getConfig()->getPrimaryTextColor()
+            $this->plugin->getConfig()->getPrimaryTextColor(),
+            $repoSettings->getAddParagraphNumbers(),
+            $repoSettings->getTopMargin(),
+            $repoSettings->getBottomMargin(),
+            $repoSettings->getLeftMargin(),
+            $repoSettings->getRightMargin()
         );
     }
 

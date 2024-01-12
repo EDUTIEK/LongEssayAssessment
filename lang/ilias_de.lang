@@ -106,7 +106,7 @@ task_instructions#:#Aufgabenstellung
 task_instructions_info#:#Die Aufgabenstellung wird mit Start der Bearbeitung angezeigt.
 task_solution#:#Lösungshinweise
 task_solution_info#:#Die Lösungshinweise werden erst ab einem festgelegten Zeitpunkt oder am Ende angezeigt. Dieser wird unter „Organisation ► Lösungshinweise verfügbar“ aktiviert und konfiguriert. Zusätzliche Hinweise können als Datei oder Weblink unter "Material" bereitgestellt werden.
-editor_settings#:#Einstellungen für den Editor
+editor_settings#:#Schreiben der Aufgabe
 headline_scheme#:#Überschriften-Schema
 headline_scheme_none#:#Ohne Numerierung
 headline_scheme_numeric#:#Numeriert: 1 ‧ 1.1 ‧ 1.1.1
@@ -495,3 +495,10 @@ change_text_to_pdf_success#:#Die ausgewählten Textabgaben wurden in PDF-Abgaben
 pdf_from_text#:#Konvertierte Textabgabe
 info_missing_correctors#:#Es gibt Abgaben zur Korrektur, aber Sie haben noch keine Korrektoren festgelegt. Wechseln Sie zu "Korrektoren", um Benutzer als Korrektoren hinzuzufügen. Anschließend können Sie diese den Abgaben zuweisen.
 info_missing_assignments#:#Es fehlen noch Korrektorenzuweisungen.
+processing_settings#:#Weiterverarbeitung
+processing_settings_info#:#Die Ränder werden bei der Konvertierung des geschriebenen Texts in eine PDF-Abgabe verwendet.
+add_paragraph_numbers#:#Absatznummern generieren
+top_margin#:#Oberer Rand (mm)
+bottom_margin#:#Unterer Rand (mm)
+left_margin#:#Linker Rand (mm)
+right_margin#:#Rechter Rand (mm)

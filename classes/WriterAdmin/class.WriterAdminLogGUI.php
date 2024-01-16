@@ -95,9 +95,7 @@ class WriterAdminLogGUI extends BaseGUI
 				$task_repo = LongEssayAssessmentDI::getInstance()->getTaskRepo();
 				$task_repo->save($alert);
 
-				ilUtil::sendSuccess($this->plugin->txt("alert_created"), true);
-			} else {
-				ilUtil::sendFailure($this->lng->txt("validation_error"), true);
+                $this->tpl->setOnScreenMessage("success", $this->plugin->txt("alert_created"), true);
 			}
 			$this->ctrl->redirect($this, "showStartPage");
 		}
@@ -120,10 +118,8 @@ class WriterAdminLogGUI extends BaseGUI
 				$task_repo = LongEssayAssessmentDI::getInstance()->getTaskRepo();
 				$task_repo->save($log_entry);
 
-				ilUtil::sendSuccess($this->plugin->txt("log_entry_created"), true);
-			} else {
-				ilUtil::sendFailure($this->lng->txt("validation_error"), true);
-			}
+                $this->tpl->setOnScreenMessage("success", $this->plugin->txt("log_entry_created"), true);
+            }
 			$this->ctrl->redirect($this, "showStartPage");
 		}
 	}

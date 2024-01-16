@@ -28,18 +28,22 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
     /**
      * Constructor.
      */
-    public function __construct()
+    public function __construct(
+        \ilDBInterface $db,
+        \ilComponentRepositoryWrite $component_repository,
+        string $id
+    )
     {
         global $DIC;
         $this->dic = $DIC;
 
-        parent::__construct();
+        parent::__construct($db, $component_repository, $id);
     }
 
     /**
      * @inheritdoc
      */
-    protected function init()
+    protected function init() : void
     {
         parent::init();
         require_once __DIR__ . '/../vendor/autoload.php';
@@ -53,15 +57,15 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
      * must correspond to the plugin subdirectory
      * @return string
      */
-    public function getPluginName()
-	{
+    public function getPluginName() : string
+    {
 		return "LongEssayAssessment";
 	}
 
     /**
      * @inheritdoc
      */
-    public function getParentTypes()
+    public function getParentTypes() : array
     {
         return array("cat", "crs", "grp", "fold");
     }
@@ -69,7 +73,7 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
     /**
      * @inheritdoc
      */
-    public function allowCopy()
+    public function allowCopy() : bool
     {
         return true;
     }
@@ -77,7 +81,7 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
     /**
      * Uninstall custom data of this plugin
      */
-    protected function uninstallCustom()
+    protected function uninstallCustom() : void
     {
 		$tables = ["xlas_access_token", "xlas_alert", "xlas_corr_setting", "xlas_corrector", "xlas_corrector_ass",
 			"xlas_corrector_comment", "xlas_corrector_summary", "xlas_crit_points", "xlas_editor_comment",
@@ -87,7 +91,7 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
 			"xlas_time_extension", "xlas_writer_notice", "xlas_writer", "xlas_writer_comment", "xlas_writer_history",
             "xlas_resource", "xlas_location"];
 
-		$resources = $this->dic->database()->query("SELECT file_id FROM xlas_resource WHERE file_id IS NOT NULL")->fetchAssoc();
+		$resources = $this->db->query("SELECT file_id FROM xlas_resource WHERE file_id IS NOT NULL")->fetchAssoc();
 
 		foreach ($resources as $file){
 			if($identifier = $this->dic->resourceStorage()->manage()->find($file["file_id"])){
@@ -95,7 +99,7 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
 			}
 		}
 
-		$essay_files = $this->dic->database()->query("SELECT pdf_version FROM xlas_essay WHERE pdf_version IS NOT NULL")->fetchAssoc();
+		$essay_files = $this->db->query("SELECT pdf_version FROM xlas_essay WHERE pdf_version IS NOT NULL")->fetchAssoc();
 
 		foreach ($essay_files as $file){
 			if($identifier = $this->dic->resourceStorage()->manage()->find($file["pdf_version"])){
@@ -103,7 +107,7 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
 			}
 		}
 
-        $essay_images = $this->dic->database()->query("SELECT pdf_version FROM xlas_essay_images WHERE file_id IS NOT NULL")->fetchAssoc();
+        $essay_images = $this->db->query("SELECT pdf_version FROM xlas_essay_images WHERE file_id IS NOT NULL")->fetchAssoc();
 
         foreach ($essay_images as $image){
             if($identifier = $this->dic->resourceStorage()->manage()->find($file["file_id"])){
@@ -125,7 +129,8 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
     public static function getInstance(): self
     {
         if (!isset(self::$instance)) {
-            self::$instance = new self();
+            global $DIC;
+            self::$instance = new self($DIC->database(), $DIC["component.repository"], self::ID);
         }
         return self::$instance;
     }

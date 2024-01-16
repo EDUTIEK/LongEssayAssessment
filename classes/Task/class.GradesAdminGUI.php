@@ -113,7 +113,7 @@ class GradesAdminGUI extends BaseGUI
 		}
 
         if($authorized){
-            ilUtil::sendInfo($this->plugin->txt("grade_level_cannot_edit_used_info"));
+            $this->tpl->setOnScreenMessage("success", $this->plugin->txt("grade_level_cannot_edit_used_info"), false);
         }
 
         $ptable = $this->uiFactory->table()->presentation(
@@ -236,8 +236,8 @@ class GradesAdminGUI extends BaseGUI
                 $this->object_repo->save($record);
                 $this->corrector_service->recalculateGradeLevel();
 
-				ilUtil::sendSuccess($this->lng->txt("settings_saved"), true);
-				$this->ctrl->redirect($this, "showItems");
+                $this->tpl->setOnScreenMessage("success", $this->lng->txt("settings_saved"), true);
+                $this->ctrl->redirect($this, "showItems");
 			}else {
 				// ilUtil::sendFailure($this->lng->txt("validation_error"), false);
 				$this->editItem($form);
@@ -284,9 +284,9 @@ class GradesAdminGUI extends BaseGUI
 			$this->getGradeLevel($id, true);//Permission check
 			$this->object_repo->deleteGradeLevel($id);
             $this->corrector_service->recalculateGradeLevel();
-			ilUtil::sendSuccess($this->plugin->txt("delete_grade_level_successful"), true);
-		}else{
-			ilUtil::sendFailure($this->plugin->txt("delete_grade_level_failure"), true);
+            $this->tpl->setOnScreenMessage("success", $this->plugin->txt("delete_grade_level_successful"), true);
+        }else{
+            $this->tpl->setOnScreenMessage("failure", $this->plugin->txt("delete_grade_level_failure"), true);
 		}
 		$this->ctrl->redirect($this, "showItems");
 	}
@@ -306,7 +306,7 @@ class GradesAdminGUI extends BaseGUI
     protected function checkAuthorizedCorrections()
     {
         if($this->corrector_service->authorizedCorrectionsExists()){
-            \ilUtil::sendFailure($this->plugin->txt('grade_level_cannot_edit_used'), true);
+            $this->tpl->setOnScreenMessage("failure", $this->plugin->txt("grade_level_cannot_edit_used"), true);
             $this->ctrl->clearParameters($this);
             $this->ctrl->redirect($this);
         }

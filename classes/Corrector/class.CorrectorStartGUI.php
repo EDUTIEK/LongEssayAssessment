@@ -356,11 +356,11 @@ class CorrectorStartGUI extends BaseGUI
             $this->tpl->setContent($this->renderer->render(array_merge([$essays], $modals)));
             $taskSettings = $this->localDI->getTaskRepo()->getTaskSettingsById($this->settings->getTaskId());
             if (!empty($period = $this->data->formatPeriod($taskSettings->getCorrectionStart(), $taskSettings->getCorrectionEnd()))) {
-                ilUtil::sendInfo($this->plugin->txt('correction_period') . ': ' . $period);
+                $this->tpl->setOnScreenMessage("info", $this->plugin->txt("correction_period"), false);
             }
         }
         else {
-            ilUtil::sendInfo($this->plugin->txt('message_no_correction_items'));
+            $this->tpl->setOnScreenMessage("info", $this->plugin->txt("message_no_correction_items"), false);
         }
      }
 
@@ -405,11 +405,12 @@ class CorrectorStartGUI extends BaseGUI
 		}
 
 		if( $valid ) {
-			ilutil::sendSuccess($this->plugin->txt('authorize_correction_done'), true);
+            $this->tpl->setOnScreenMessage("success", $this->plugin->txt("authorize_correction_done"), true);
 			$this->ctrl->redirect($this);
 		}else{
-			ilutil::sendFailure($this->plugin->txt('no_corrections_to_authorize'), true);
-			$this->ctrl->redirect($this);
+            $this->tpl->setOnScreenMessage("failure", $this->plugin->txt("no_corrections_to_authorize"), true);
+
+            $this->ctrl->redirect($this);
 		}
 	}
 
@@ -454,13 +455,14 @@ class CorrectorStartGUI extends BaseGUI
 				$success = true;
 			}
 			else {
-				ilutil::sendFailure(sprintf($this->plugin->txt('remove_own_authorization_failed'), $writer->getPseudonym()), true);
-			}
+                $this->tpl->setOnScreenMessage("failure", sprintf($this->plugin->txt('remove_own_authorization_failed'), $writer->getPseudonym()), true);
+
+            }
 		}
 
 		if($success){
-			ilutil::sendSuccess($this->plugin->txt('remove_own_authorization_done'), true);
-		}
+            $this->tpl->setOnScreenMessage("success", $this->plugin->txt('remove_own_authorization_done'), true);
+        }
 
         $this->ctrl->redirect($this);
     }

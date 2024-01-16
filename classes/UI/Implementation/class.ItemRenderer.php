@@ -17,8 +17,8 @@ class ItemRenderer extends \ILIAS\UI\Implementation\Component\Item\Renderer
 	/**
 	 * @inheritdoc
 	 */
-	public function render(Component $component, RendererInterface $default_renderer)
-	{
+	public function render(Component $component, RendererInterface $default_renderer) : string
+    {
 		/**
 		 * @var $component Input
 		 */
@@ -44,8 +44,8 @@ class ItemRenderer extends \ILIAS\UI\Implementation\Component\Item\Renderer
 	 * @param $name
 	 * @return mixed|string
 	 */
-	protected function getTemplatePath($name)
-	{
+	protected function getTemplatePath($name) : string
+    {
 		if(in_array($name, $this->getPluginTemplateFiles()))
 		{
 			return "Item/$name";
@@ -179,7 +179,7 @@ class ItemRenderer extends \ILIAS\UI\Implementation\Component\Item\Renderer
 		Item $component,
 		RendererInterface $default_renderer,
 		\ILIAS\UI\Implementation\Render\Template $tpl
-	) {
+	) : void {
 		// properties
 		$props = $component->getProperties();
 		if (count($props) > 0) {

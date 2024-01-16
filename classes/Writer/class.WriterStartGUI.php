@@ -62,7 +62,7 @@ class WriterStartGUI extends BaseGUI
 
         if (!empty($essay = $this->data->getOwnEssay())) {
             if (!empty($essay->getWritingExcluded())) {
-                ilUtil::sendInfo($this->plugin->txt('message_writing_excluded'));
+                $this->tpl->setOnScreenMessage("info", $this->plugin->txt("message_writing_excluded"), false);
             }
             elseif (!empty($essay->getWritingAuthorized())) {
                 if(!empty($this->task->getClosingMessage())){
@@ -82,10 +82,10 @@ class WriterStartGUI extends BaseGUI
                     $back_url = \ilLink::_getLink($this->dic->repositoryTree()->getParentId($this->object->getRefId()));
                     $back_text = $this->plugin->txt('message_writing_authorized_link');
                     $back_link = '<p><a href="'.$back_url.'">'.$back_text.'</a></p>';
-                    ilUtil::sendSuccess($message. $review_message. $back_link);
+                    $this->tpl->setOnScreenMessage("success", $message. $review_message. $back_link, false);
                 }
                 else {
-                    ilUtil::sendInfo($message. $review_message. $back_link);
+                    $this->tpl->setOnScreenMessage("info", $message. $review_message. $back_link, false);
                 }
             }
         }
@@ -100,7 +100,7 @@ class WriterStartGUI extends BaseGUI
             $this->toolbar->addButtonInstance($button);
 
             if (isset($this->params['returned'])) {
-                ilUtil::sendInfo($this->plugin->txt('message_writing_returned_interrupted'));
+                $this->tpl->setOnScreenMessage("info", $this->plugin->txt('message_writing_returned_interrupted'), false);
             }
         }
         elseif (!empty($essay) && empty($essay->getWritingAuthorized())) {
@@ -110,11 +110,10 @@ class WriterStartGUI extends BaseGUI
                 $button->setUrl($this->ctrl->getLinkTarget($this, 'startWritingReview'));
                 $button->setCaption($this->plugin->txt('review_writing'), false);
                 $this->toolbar->addButtonInstance($button);
-
-                ilUtil::sendFailure($this->plugin->txt('message_writing_to_authorize'));
+                $this->tpl->setOnScreenMessage("failure", $this->plugin->txt('message_writing_to_authorize'), false);
             }
             else {
-                ilUtil::sendFailure($this->plugin->txt('message_writing_not_authorized'));
+                $this->tpl->setOnScreenMessage("failure", $this->plugin->txt('message_writing_not_authorized'), false);
             }
         }
 

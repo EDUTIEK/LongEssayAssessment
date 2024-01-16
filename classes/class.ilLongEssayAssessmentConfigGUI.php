@@ -9,7 +9,8 @@ use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
  * Plugin Configuration GUI
  * @author Fred Neumann <fred.neumann@ilias.de>
  *
- * @ilCtrl_Calls: ilLongEssayAssessmentConfigGUI: ilPropertyFormGUI
+ * @ilCtrl_IsCalledBy ilLongEssayAssessmentConfigGUI: ilObjComponentSettingsGUI
+ *
  */
 class ilLongEssayAssessmentConfigGUI extends ilPluginConfigGUI
 {
@@ -41,8 +42,8 @@ class ilLongEssayAssessmentConfigGUI extends ilPluginConfigGUI
 	 * Handles all commands, default is "configure"
      * @throws Exception
 	 */
-	public function performCommand($cmd)
-	{
+	public function performCommand($cmd) : void
+    {
         global $DIC;
 
         // this can't be in the constructor
@@ -125,7 +126,7 @@ class ilLongEssayAssessmentConfigGUI extends ilPluginConfigGUI
             $di = LongEssayAssessmentDI::getInstance();
             $di->getSystemRepo()->save($this->config);
 
-            ilUtil::sendSuccess($this->lng->txt('settings_saved'));
+            $this->tpl->setOnScreenMessage("success", $this->lng->txt("settings_saved"), true);
             $this->ctrl->redirect($this, 'configure');
         }
         $form->setValuesByPost();

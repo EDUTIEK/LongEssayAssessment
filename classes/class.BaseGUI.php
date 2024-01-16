@@ -123,7 +123,7 @@ abstract class BaseGUI
      */
 	public function raisePermissionError()
     {
-	   \ilUtil::sendFailure($this->lng->txt('permission_denied'), true);
+       $this->tpl->setOnScreenMessage("failure", $this->lng->txt("permission_denied"), true);
 	   $this->ctrl->clearParameters($this->objectGUI);
 	   $this->ctrl->redirect($this->objectGUI);
     }

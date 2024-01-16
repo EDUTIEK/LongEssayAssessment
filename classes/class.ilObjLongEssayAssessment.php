@@ -27,7 +27,7 @@ class ilObjLongEssayAssessment extends ilObjectPlugin
     protected $access;
 
     /** @var ilObjUser */
-    protected $user;
+    protected ilObjUser $user;
 
     /** @var \ILIAS\Plugin\LongEssayAssessment\Data\Object\ObjectSettings */
     protected $objectSettings;
@@ -39,7 +39,7 @@ class ilObjLongEssayAssessment extends ilObjectPlugin
     protected $localDI;
 
     /** @var ilLongEssayAssessmentPlugin */
-    protected $plugin;
+    protected ?ilPlugin $plugin;
 
     /** @var DataService  */
     protected $data;
@@ -68,16 +68,17 @@ class ilObjLongEssayAssessment extends ilObjectPlugin
 	/**
 	 * Get type.
 	 */
-	final function initType()
-	{
+	final function initType() : void
+    {
 		$this->setType(ilLongEssayAssessmentPlugin::ID);
 	}
 
 	/**
 	 * Create object
-	 */
-	protected function doCreate()
-	{
+     * @param bool $clone_mode
+     */
+	protected function doCreate(bool $clone_mode = false) : void
+    {
         $di = LongEssayAssessmentDI::getInstance();
         $object_repo = $di->getObjectRepo();
         $task_repo = $di->getTaskRepo();
@@ -97,8 +98,8 @@ class ilObjLongEssayAssessment extends ilObjectPlugin
 	/**
 	 * Read data from db
 	 */
-    protected function doRead()
-	{
+    protected function doRead() : void
+    {
         $this->data = $this->localDI->getDataService($this->getId());
         $this->objectSettings = $this->localDI->getObjectRepo()->getObjectSettingsById($this->getId());
         $this->taskSettings = $this->localDI->getTaskRepo()->getTaskSettingsById($this->getId());
@@ -107,16 +108,16 @@ class ilObjLongEssayAssessment extends ilObjectPlugin
 	/**
 	 * Update data
 	 */
-    protected function doUpdate()
-	{
+    protected function doUpdate() : void
+    {
         $this->localDI->getObjectRepo()->save($this->objectSettings);
 	}
 
 	/**
 	 * Delete data from db
 	 */
-    protected function doDelete()
-	{
+    protected function doDelete() : void
+    {
 		$task_repo = $this->localDI->getTaskRepo();
 		$essay_repo = $this->localDI->getEssayRepo();
 
@@ -148,8 +149,8 @@ class ilObjLongEssayAssessment extends ilObjectPlugin
      * @param int $a_target_id
      * @param int|null $a_copy_id
 	 */
-    protected function doCloneObject($new_obj, $a_target_id, $a_copy_id = null)
-	{
+    protected function doCloneObject($new_obj, $a_target_id, $a_copy_id = null) : void
+    {
         $object_repo = $this->localDI->getObjectRepo();
         $task_repo = $this->localDI->getTaskRepo();
 

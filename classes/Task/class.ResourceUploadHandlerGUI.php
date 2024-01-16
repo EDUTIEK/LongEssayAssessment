@@ -99,7 +99,7 @@ class ResourceUploadHandlerGUI extends AbstractCtrlAwareUploadHandler
     }
 
 
-    protected function getInfoResult(string $identifier) : FileInfoResult
+    public function getInfoResult(string $identifier) : FileInfoResult
     {
         $id = $this->storage->manage()->find($identifier);
         if ($id === null) {

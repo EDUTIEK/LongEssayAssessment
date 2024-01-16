@@ -24,8 +24,8 @@ class ilObjLongEssayAssessmentAccess extends ilObjectPluginAccess
 	 * @param 		int $a_user_id user id (default is current user)
 	 * @return bool true, if everything is ok
 	 */
-	function _checkAccess($a_cmd, $a_permission, $a_ref_id, $a_obj_id, $a_user_id = 0)
-	{
+	function _checkAccess($a_cmd, $a_permission, $a_ref_id, $a_obj_id, $a_user_id = 0) : bool
+    {
 	    global $DIC;
 
 		if ($a_user_id == 0) {

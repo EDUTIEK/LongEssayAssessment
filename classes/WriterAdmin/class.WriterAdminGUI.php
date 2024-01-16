@@ -124,15 +124,15 @@ class WriterAdminGUI extends BaseGUI
 		global $DIC;
 		if(($id = $this->getWriterId()) === null)
 		{
-			ilUtil::sendFailure($this->plugin->txt("missing_writer_id"), true);
-			$this->ctrl->redirect($this, "showStartPage");
+            $this->tpl->setOnScreenMessage("failure", $this->plugin->txt('missing_writer_id'), true);
+            $this->ctrl->redirect($this, "showStartPage");
 		}
 		$writer_repo = LongEssayAssessmentDI::getInstance()->getWriterRepo();
 		$writer = $writer_repo->getWriterById($id);
 
 		if($writer === null || $writer->getTaskId() !== $this->object->getId()){
-			ilUtil::sendFailure($this->plugin->txt("missing_writer"), true);
-			$this->ctrl->redirect($this, "showStartPage");
+            $this->tpl->setOnScreenMessage("failure", $this->plugin->txt('missing_writer'), true);
+            $this->ctrl->redirect($this, "showStartPage");
 		}
 		$essay_repo = LongEssayAssessmentDI::getInstance()->getEssayRepo();
 		$essay = $essay_repo->getEssayByWriterIdAndTaskId($writer->getId(), $this->object->getId());
@@ -148,7 +148,7 @@ class WriterAdminGUI extends BaseGUI
 			$writer_repo->deleteWriter($writer->getId());
 		}
 
-		ilUtil::sendSuccess($this->plugin->txt("exclude_writer_success"), true);
+        $this->tpl->setOnScreenMessage("success", $this->plugin->txt("exclude_writer_success"), true);
 		$this->ctrl->redirect($this, "showStartPage");
 	}
 
@@ -156,8 +156,8 @@ class WriterAdminGUI extends BaseGUI
 		global $DIC;
 		if(($id = $this->getWriterId()) === null)
 		{
-			ilUtil::sendFailure($this->plugin->txt("missing_writer_id"), true);
-			$this->ctrl->redirect($this, "showStartPage");
+            $this->tpl->setOnScreenMessage("failure", $this->plugin->txt('missing_writer_id'), true);
+            $this->ctrl->redirect($this, "showStartPage");
 		}
 		$writer_repo = LongEssayAssessmentDI::getInstance()->getWriterRepo();
 		$writer = $writer_repo->getWriterById($id);
@@ -165,13 +165,13 @@ class WriterAdminGUI extends BaseGUI
 		$essay = $essay_repo->getEssayByWriterIdAndTaskId($writer->getId(), $this->object->getId());
 
 		if($writer === null || $writer->getTaskId() !== $this->object->getId() || $essay === null){
-			ilUtil::sendFailure($this->plugin->txt("missing_essay"), true);
-			$this->ctrl->redirect($this, "showStartPage");
+            $this->tpl->setOnScreenMessage("failure", $this->plugin->txt('missing_essay'), true);
+            $this->ctrl->redirect($this, "showStartPage");
 		}
 
 		if($essay->getWritingExcluded() === null){
-			ilUtil::sendFailure($this->plugin->txt("essay_not_excluded"), true);
-			$this->ctrl->redirect($this, "showStartPage");
+            $this->tpl->setOnScreenMessage("failure", $this->plugin->txt('essay_not_excluded'), true);
+            $this->ctrl->redirect($this, "showStartPage");
 		}
 
 		$essay->setWritingExcluded(null);
@@ -179,8 +179,8 @@ class WriterAdminGUI extends BaseGUI
 		$essay_repo->save($essay);
 		$this->createExclusionRepealLogEntry($writer);
 
-		ilUtil::sendSuccess($this->plugin->txt("exclude_writer_repeal_success"), true);
-		$this->ctrl->redirect($this, "showStartPage");
+        $this->tpl->setOnScreenMessage("success", $this->plugin->txt('exclude_writer_repeal_success'), true);
+        $this->ctrl->redirect($this, "showStartPage");
 	}
 
 
@@ -227,8 +227,8 @@ class WriterAdminGUI extends BaseGUI
 		}
 
 		if(count($ids) < 1){
-			ilUtil::sendFailure($this->plugin->txt("missing_writer_id"), true);
-			$this->ctrl->redirect($this, "showStartPage");
+            $this->tpl->setOnScreenMessage("failure", $this->plugin->txt('missing_writer_id'), true);
+            $this->ctrl->redirect($this, "showStartPage");
 		}
 
 		$essay_repo = $this->localDI->getEssayRepo();
@@ -239,24 +239,23 @@ class WriterAdminGUI extends BaseGUI
 			$writer = $writer_repo->getWriterById($id);
 
 			if(!$multi && ($writer === null || $writer->getTaskId() !== $this->object->getId())){
-				ilUtil::sendFailure($this->plugin->txt("missing_writer"), true);
-				$this->ctrl->redirect($this, "showStartPage");
+                $this->tpl->setOnScreenMessage("failure", $this->plugin->txt('missing_writer'), true);
+                $this->ctrl->redirect($this, "showStartPage");
 			}
 
 			$essay_repo->deleteEssayByWriterId($id);
 			$writer_repo->deleteWriter($id);
 			$corr_repo->deleteCorrectorAssignmentByWriter($id);
 		}
-
-		ilUtil::sendSuccess($this->plugin->txt("remove_writer_success"), true);
+        $this->tpl->setOnScreenMessage("success", $this->plugin->txt('remove_writer_success'), true);
 		$this->ctrl->redirect($this, "showStartPage");
 	}
 
 	public function assignWriters(array $a_usr_ids, $a_type = null)
 	{
 		if (count($a_usr_ids) <= 0) {
-			ilUtil::sendFailure($this->plugin->txt("no_writer_set"), true);
-			$this->ctrl->redirect($this,"showStartPage");
+            $this->tpl->setOnScreenMessage("failure", $this->plugin->txt('no_writer_set'), true);
+            $this->ctrl->redirect($this,"showStartPage");
 		}
 
 		foreach($a_usr_ids as $id) {
@@ -267,8 +266,7 @@ class WriterAdminGUI extends BaseGUI
 		if(count($a_usr_ids) == 1){
 			$anchor =  "user_" . $a_usr_ids[0];
 		}
-
-		ilUtil::sendSuccess($this->plugin->txt("assign_writer_success"), true);
+        $this->tpl->setOnScreenMessage("success", $this->plugin->txt('assign_writer_success'), true);
 		$this->ctrl->redirect($this,"showStartPage", $anchor ?? "");
 	}
 
@@ -372,8 +370,8 @@ class WriterAdminGUI extends BaseGUI
 
 				$this->createExtensionLogEntry($record);
 			}
-			ilUtil::sendSuccess($this->lng->txt("settings_saved"), true);
-			exit();
+            $this->tpl->setOnScreenMessage("success", $this->lng->txt("settings_saved"), true);
+            exit();
 		}else{
 			echo($this->renderer->render($form));
 			exit();
@@ -384,8 +382,8 @@ class WriterAdminGUI extends BaseGUI
 	protected function authorizeWriting(){
 
 		if (($id = $this->getWriterId()) === null){
-			ilUtil::sendSuccess($this->plugin->txt('writing_autorized'), true);
-			$this->ctrl->redirect($this, "showStartPage");
+            $this->tpl->setOnScreenMessage("success", $this->plugin->txt("writing_autorized"), true);
+            $this->ctrl->redirect($this, "showStartPage");
 		}
 
 		$essay_repo = LongEssayAssessmentDI::getInstance()->getEssayRepo();
@@ -396,15 +394,14 @@ class WriterAdminGUI extends BaseGUI
 		}
 
 		$this->localDI->getWriterAdminService($this->object->getId())->authorizeWriting($essay, $this->dic->user()->getId());
-
-		ilUtil::sendSuccess($this->plugin->txt('writing_authorized'), true);
+        $this->tpl->setOnScreenMessage("success", $this->plugin->txt("writing_authorized"), true);
 		$this->ctrl->redirect($this, "showStartPage", "writer_" . $id);
 	}
 
     protected function unauthorizeWriting(){
 
         if (($id = $this->getWriterId()) === null){
-            ilUtil::sendSuccess($this->plugin->txt('writing_unautorized'), true);
+            $this->tpl->setOnScreenMessage("success", $this->plugin->txt("writing_unautorized"), true);
             $this->ctrl->redirect($this, "showStartPage");
         }
 
@@ -416,8 +413,7 @@ class WriterAdminGUI extends BaseGUI
         }
 
         $this->localDI->getWriterAdminService($this->object->getId())->removeAuthorizationWriting($essay, $this->dic->user()->getId());
-
-        ilUtil::sendSuccess($this->plugin->txt('writing_unauthorized'), true);
+        $this->tpl->setOnScreenMessage("success", $this->plugin->txt("writing_unautorized"), true);
         $this->ctrl->redirect($this, "showStartPage", "writer_" . $id);
     }
 
@@ -443,8 +439,7 @@ class WriterAdminGUI extends BaseGUI
 		if($settings->getParticipationType() === ObjectSettings::PARTICIPATION_TYPE_INSTANT){
 			$writer_repo->deleteWriterByTaskId($this->object->getId());
 		}*/
-
-		ilUtil::sendSuccess($this->plugin->txt("delete_writer_data_success"), true);
+        $this->tpl->setOnScreenMessage("success", $this->plugin->txt("delete_writer_data_success"), true);
 		$this->ctrl->redirect($this, "showStartPage");
 	}
 
@@ -570,7 +565,7 @@ class WriterAdminGUI extends BaseGUI
     private function exportSteps()
     {
         if (empty($repoWriter = $this->localDI->getWriterRepo()->getWriterById((int) $this->getWriterId()))) {
-            ilUtil::sendFailure($this->plugin->txt("missing_writer_id"), true);
+            $this->tpl->setOnScreenMessage("failure", $this->plugin->txt("missing_writer_id"), true);
             $this->ctrl->redirect($this, "showStartPage");
         }
 
@@ -578,7 +573,7 @@ class WriterAdminGUI extends BaseGUI
         $name = \ilUtil::getASCIIFilename($this->object->getTitle() .'_' . \ilObjUser::_lookupFullname($repoWriter->getUserId()));
         $zipfile = $service->createWritingStepsExport($this->object, $repoWriter, $name);
         if (empty($zipfile)) {
-            ilUtil::sendFailure($this->plugin->txt("content_not_available"), true);
+            $this->tpl->setOnScreenMessage("failure", $this->plugin->txt("content_not_available"), true);
             $this->ctrl->redirect($this, "showStartPage");
         }
 
@@ -633,7 +628,7 @@ class WriterAdminGUI extends BaseGUI
 
 			if($data = $form->getData()){
 				$this->updateLocation($data);
-				ilUtil::sendSuccess($this->plugin->txt("location_assigned"), true);
+                $this->tpl->setOnScreenMessage("success", $this->plugin->txt("location_assigned"), true);
 				exit();
 			}else{
 				echo($this->renderer->render($form));
@@ -660,7 +655,7 @@ class WriterAdminGUI extends BaseGUI
 
 			if($data = $form->getData()){
 				$this->updateLocation($data);
-				ilUtil::sendSuccess($this->plugin->txt("location_assigned"), true);
+                $this->tpl->setOnScreenMessage("success", $this->plugin->txt("location_assigned"), true);
 				exit();
 			}else{
 				echo($this->renderer->render($form));
@@ -841,7 +836,7 @@ class WriterAdminGUI extends BaseGUI
         }
 
         if(empty($writer_ids)) {
-            ilUtil::sendFailure($this->plugin->txt("missing_writer_id"), true);
+            $this->tpl->setOnScreenMessage("failure", $this->plugin->txt("missing_writer_id"), true);
             $this->ctrl->redirect($this, "showStartPage");
         }
 
@@ -870,7 +865,7 @@ class WriterAdminGUI extends BaseGUI
             }
         }
 
-        ilUtil::sendSuccess($this->plugin->txt('change_text_to_pdf_success'), true);
+        $this->tpl->setOnScreenMessage("success", $this->plugin->txt("change_text_to_pdf_success"), true);
         $this->ctrl->redirect($this);
     }
 
@@ -891,7 +886,7 @@ class WriterAdminGUI extends BaseGUI
                 $this->localDI->getCorrectorAdminService(
                     $this->object->getId())->getAuthorizedSummaries($essay))
             ) {
-                ilUtil::sendFailure($this->plugin->txt('pdf_version_upload_not_allowed_by_corrections'), true);    
+                $this->tpl->setOnScreenMessage("failure", $this->plugin->txt("pdf_version_upload_not_allowed_by_corrections"), true);
                 $this->ctrl->redirect($this);
             }
             
@@ -907,12 +902,12 @@ class WriterAdminGUI extends BaseGUI
                         
 						if((int)$data["authorize"] == 1 && $file_id !== null){
 							$service->authorizeWriting($essay, $this->dic->user()->getId());
-							ilUtil::sendSuccess($this->plugin->txt("pdf_version_upload_successful_auth"), true);
+                            $this->tpl->setOnScreenMessage("success", $this->plugin->txt("pdf_version_upload_successful_auth"), true);
 						}else if($file_id !== null){
 							$service->removeAuthorizationWriting($essay, $this->dic->user()->getId());
-							ilUtil::sendSuccess($this->plugin->txt("pdf_version_upload_successful_no_auth"), true);
+                            $this->tpl->setOnScreenMessage("success", $this->plugin->txt("pdf_version_upload_successful_no_auth"), true);
 						}else{
-							ilUtil::sendSuccess($this->plugin->txt("pdf_version_upload_successful_removed"), true);
+                            $this->tpl->setOnScreenMessage("success", $this->plugin->txt("pdf_version_upload_successful_removed"), true);
 						}
 
 						$service->handlePDFVersionInput($essay, $file_id);
@@ -924,7 +919,7 @@ class WriterAdminGUI extends BaseGUI
                         
 						$this->ctrl->redirect($this);
 					}else{
-						ilUtil::sendFailure($this->plugin->txt("pdf_version_upload_failure"));
+                        $this->tpl->setOnScreenMessage("failure", $this->plugin->txt("pdf_version_upload_failure"), true);
 					}
 				}
 			}
@@ -960,9 +955,9 @@ class WriterAdminGUI extends BaseGUI
 					&& $essay->getWritingAuthorizedBy() === $writer->getUserId()
 					&& $essay->getPdfVersion() === null)
 				{
-					ilUtil::sendQuestion($this->plugin->txt("pdf_version_warning_authorized_essay"));
+                    $this->tpl->setOnScreenMessage("question", $this->plugin->txt("pdf_version_warning_authorized_essay"), false);
 				}else if($essay->getPdfVersion() === null){
-					ilUtil::sendInfo($this->plugin->txt("pdf_version_info_started_essay"));
+                    $this->tpl->setOnScreenMessage("info", $this->plugin->txt("pdf_version_info_started_essay"), false);
 				}
 
                 $this->addContentCss();
@@ -996,8 +991,8 @@ class WriterAdminGUI extends BaseGUI
 
 			$this->storage->consume()->download($identifier)->overrideFileName($name . ".pdf")->run();
 		}else{
-			ilUtil::sendFailure("pdf_version_not_found", true);
-		}
+            $this->tpl->setOnScreenMessage("failure", $this->plugin->txt("pdf_version_not_found"), true);
+        }
 		$this->ctrl->redirect($this);
 	}
 }

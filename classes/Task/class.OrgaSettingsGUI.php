@@ -59,11 +59,8 @@ class OrgaSettingsGUI extends BaseGUI
             if ($result->isOK()) {
                 $this->updateTaskSettings($data, $taskSettings, $locations);
 
-                ilUtil::sendSuccess($this->lng->txt("settings_saved"), true);
+                $this->tpl->setOnScreenMessage("success", $this->lng->txt("settings_saved"), true);
                 $this->ctrl->redirect($this, "editSettings");
-            }else{
-                // TODO: Add or search lang var
-                ilUtil::sendFailure($this->lng->txt("validation_error"), true);
             }
         }
         $this->tpl->setContent($this->renderer->render($form));

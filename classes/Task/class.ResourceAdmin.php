@@ -230,7 +230,7 @@ class ResourceAdmin
         return (empty($parsed['scheme']) ? '//' : $parsed['scheme'] . '://')
             . (empty($parsed['host']) ? $_SERVER['SERVER_NAME'] : $parsed['host'])
             . (empty($parsed['port']) ? '' : ':' . $parsed['port'])
-            . $parsed['path']
+            . ($parsed['path'] ?? '')
             . (empty($parsed['query']) ? '' : '?' . $parsed['query'])
             . (empty($parsed['fragment']) ? '' : '#' . $parsed['fragment']);
     }

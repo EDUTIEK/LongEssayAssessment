@@ -40,8 +40,8 @@ class ItemListInput extends Input implements \ILIAS\Plugin\LongEssayAssessment\U
 	/**
 	 * @inheritdoc
 	 */
-	protected function getConstraintForRequirement()
-	{
+	protected function getConstraintForRequirement() : ?\ILIAS\Refinery\Constraint
+    {
 		return $this->refinery->kindlyTo()->listOf($this->refinery->kindlyTo()->string());
 	}
 

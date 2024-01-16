@@ -61,7 +61,7 @@ class Numeric extends Input  implements \ILIAS\Plugin\LongEssayAssessment\UI\Com
     /**
      * @inheritdoc
      */
-    protected function getConstraintForRequirement()
+    protected function getConstraintForRequirement() : ?\ILIAS\Refinery\Constraint
     {
 		if($this->step === 1.){
 			return $this->refinery->kindlyTo()->int();

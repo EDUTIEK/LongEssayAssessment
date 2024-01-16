@@ -150,7 +150,7 @@ class CorrectionSettingsGUI extends BaseGUI
             $correctionSettings->setStitchWhenDecimals(!empty($data['stitch']['stitch_when_decimals']));
 			$task_repo->save($correctionSettings);
 
-            ilUtil::sendSuccess($this->lng->txt("settings_saved"), true);
+            $this->tpl->setOnScreenMessage("success", $this->lng->txt("settings_saved"), true);
             $this->ctrl->redirect($this, "editSettings");
         }
 

@@ -171,8 +171,8 @@ class InputRenderer extends \ILIAS\UI\Implementation\Component\Input\Field\Rende
 	 * @param $name
 	 * @return mixed|string
 	 */
-	protected function getTemplatePath($name)
-	{
+	protected function getTemplatePath($name) : string
+    {
 		if(in_array($name, $this->getPluginTemplateFiles()))
 		{
 			return "Input/$name";

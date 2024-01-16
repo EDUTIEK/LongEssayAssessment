@@ -57,8 +57,8 @@ class InstructionsSettingsGUI extends BaseGUI
 			if (($data = $form->getData()) !== null) {
 				$this->updateInstructionsSettings($data["form"], $taskSettings, $resource);
 
-				ilUtil::sendSuccess($this->lng->txt("settings_saved"), true);
-				$this->ctrl->redirect($this, "editSettings");
+                $this->tpl->setOnScreenMessage("success", $this->lng->txt("settings_saved"), true);
+                $this->ctrl->redirect($this, "editSettings");
 			}
 		}
 		$this->tpl->setContent($this->renderer->render($form));
@@ -122,7 +122,7 @@ class InstructionsSettingsGUI extends BaseGUI
 			$this->localDI->getTaskRepo()), "",
 			$this->plugin->txt("task_instructions_file_info") . "<br>" . $ui_service->getMaxFileSizeString())
 			->withAcceptedMimeTypes(['application/pdf'])
-			->withValue($resource !== null && $resource->getFileId() !== null ? [$resource->getFileId()] : null);
+			->withValue($resource !== null && $resource->getFileId() !== null ? [$resource->getFileId()] : []);
 
 		$sections["form"] = $factory->section($fields, $this->plugin->txt('tab_instructions_settings'));
 

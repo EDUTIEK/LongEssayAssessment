@@ -134,7 +134,7 @@ class ilLongEssayAssessmentUploadHandlerGUI extends AbstractCtrlAwareUploadHandl
 	/**
 	 * @inheritDoc
 	 */
-	protected function getInfoResult(string $identifier) : FileInfoResult
+	public function getInfoResult(string $identifier) : FileInfoResult
 	{
 		return $this->getInfoResultIfExisting($identifier)
 			?? new BasicFileInfoResult($this->getFileIdentifierParameterName(), 'unknown', 'unknown', 0, 'unknown');

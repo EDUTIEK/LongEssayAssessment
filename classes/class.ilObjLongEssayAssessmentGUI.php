@@ -16,10 +16,10 @@ require_once(__DIR__ . "/class.ilLongEssayAssessmentPlugin.php");
 class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
 {
     /** @var ilObjLongEssayAssessment */
-	public $object;
+	public ?ilObject $object;
 
 	/** @var ilLongEssayAssessmentPlugin */
-	public $plugin;
+	public ?ilPlugin $plugin;
 
     /**
      * Definition of the plugin specific sub tabs
@@ -34,7 +34,7 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
      * Enhanced for direct return to writer or corrector start screens
      * @see \ILIAS\Plugin\LongEssayAssessment\Corrector\CorrectorContext::getReturnUrl
      */
-    public static function _goto($a_target)
+    public static function _goto($a_target) : void
     {
         global $DIC;
 
@@ -68,8 +68,8 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
     /**
 	 * Initialisation
 	 */
-	protected function afterConstructor()
-	{
+	protected function afterConstructor() : void
+    {
 	    $this->plugin = ilLongEssayAssessmentPlugin::getInstance();
 
         // Description is not shown by ilObjectPluginGUI
@@ -91,8 +91,8 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
 	/**
 	 * Get type.
 	 */
-	final function getType()
-	{
+	final function getType() : string
+    {
 		return ilLongEssayAssessmentPlugin::ID;
 	}
 
@@ -101,7 +101,7 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
      * Ger the repository object
      * @return ilObjLongEssayAssessment
      */
-	public function getObject()
+	public function getObject() : ?ilObject
     {
         return $this->object;
     }
@@ -110,8 +110,8 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
     /**
 	 * Handles all commands of this class, centralizes permission checks
 	 */
-	function performCommand($cmd)
-	{
+	function performCommand($cmd) : void
+    {
 		global $DIC;
 
         $next_class = $this->ctrl->getNextClass();
@@ -231,7 +231,8 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                     }
                     break;
                 default:
-                    ilUtil::sendFailure('Unsupported cmdClass: ' . $next_class);
+                    $this->tpl->setOnScreenMessage("failure", 'Unsupported cmdClass: ' . $next_class, true);
+
             }
         }
         else {
@@ -248,7 +249,7 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                     break;
 
                 default:
-                    ilUtil::sendFailure('Unsupported cmd: ' . $cmd);
+                    $this->tpl->setOnScreenMessage("failure", 'Unsupported cmd: ' . $cmd);
             }
         }
 	}
@@ -256,16 +257,16 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
 	/**
 	 * After object has been created -> jump to this command
 	 */
-	function getAfterCreationCmd()
-	{
+	function getAfterCreationCmd() : string
+    {
 		return "jumpToOrgaSettings";
 	}
 
 	/**
 	 * Get standard command
 	 */
-	function getStandardCmd()
-	{
+	function getStandardCmd() : string
+    {
 		return "standardCommand";
 	}
 
@@ -293,7 +294,7 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
             $this->ctrl->redirectByClass('ilias\plugin\longessayassessment\writer\writerstartgui');
         }
 
-        \ilUtil::sendFailure($this->plugin->txt('message_no_admin_writer_corrector'), true);
+        $this->tpl->setOnScreenMessage("failure", $this->plugin->txt('message_no_admin_writer_corrector'), true);
     }
 
     /**
@@ -311,8 +312,8 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
      * A Tab is added to the GUI with the URL of the first available sub tab
      * The actual sub tabs are added to the GUI in self::activateTab() when the current tab is known
 	 */
-	function setTabs()
-	{
+	function setTabs() : void
+    {
         $this->subtabs = [];
 
         // Task Definition Tab

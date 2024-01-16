@@ -121,10 +121,10 @@ class CorrectorAdminGUI extends BaseGUI
         
         if ($authorized_essay_exists) {
             if (empty($correctors)) {
-                ilUtil::sendInfo($this->plugin->txt('info_missing_correctors'));
+                $this->tpl->setOnScreenMessage("info", $this->plugin->txt('info_missing_correctors'), false);
             }
             elseif(!empty($this->service->countMissingCorrectors())) {
-                ilUtil::sendInfo($this->plugin->txt('info_missing_assignments'));
+                $this->tpl->setOnScreenMessage("info", $this->plugin->txt('info_missing_assignments'), false);
             }
         }
 
@@ -234,16 +234,16 @@ class CorrectorAdminGUI extends BaseGUI
 	public function assignCorrectors(array $a_usr_ids, $a_type = null)
 	{
 		if (count($a_usr_ids) <= 0) {
-			ilUtil::sendFailure($this->plugin->txt("missing_corrector_id"), true);
-			$this->ctrl->redirect($this,"showCorrectors");
+            $this->tpl->setOnScreenMessage("failure", $this->plugin->txt('missing_corrector_id'), true);
+            $this->ctrl->redirect($this,"showCorrectors");
 		}
 
 		foreach($a_usr_ids as $id) {
             $this->service->getOrCreateCorrectorFromUserId($id);
 		}
 
-		ilUtil::sendSuccess($this->plugin->txt("assign_corrector_success"), true);
-		$this->ctrl->redirect($this,"showCorrectors");
+        $this->tpl->setOnScreenMessage("success", $this->plugin->txt('assign_corrector_success'), true);
+        $this->ctrl->redirect($this,"showCorrectors");
 	}
 
 	public function filterUserIdsByLETMembership($a_user_ids)
@@ -264,38 +264,38 @@ class CorrectorAdminGUI extends BaseGUI
 	private function removeCorrector(){
 		if(($id = $this->getCorrectorId()) === null)
 		{
-			ilUtil::sendFailure($this->plugin->txt("missing_corrector_id"), true);
-			$this->ctrl->redirect($this, "showCorrectors");
+            $this->tpl->setOnScreenMessage("failure", $this->plugin->txt('missing_corrector_id'), true);
+            $this->ctrl->redirect($this, "showCorrectors");
 		}
 		$corrector_repo = LongEssayAssessmentDI::getInstance()->getCorrectorRepo();
 		$corrector = $corrector_repo->getCorrectorById($id);
 
 		if($corrector === null || $corrector->getTaskId() !== $this->object->getId()){
-			ilUtil::sendFailure($this->plugin->txt("missing_corrector"), true);
-			$this->ctrl->redirect($this, "showCorrectors");
+            $this->tpl->setOnScreenMessage("failure", $this->plugin->txt('missing_corrector'), true);
+            $this->ctrl->redirect($this, "showCorrectors");
 		}
 		$ass = $corrector_repo->getAssignmentsByCorrectorId($corrector->getId());
 
 		if(count($ass) > 0){
-			ilUtil::sendFailure($this->plugin->txt("remove_writer_pending_assignments"), true);
+            $this->tpl->setOnScreenMessage("failure", $this->plugin->txt('remove_writer_pending_assignments'), true);
 			$this->ctrl->redirect($this, "showCorrectors");
 		}
 
 		$corrector_repo->deleteCorrector($corrector->getId());
-		ilUtil::sendSuccess($this->plugin->txt("remove_corrector_success"), true);
-		$this->ctrl->redirect($this, "showCorrectors");
+        $this->tpl->setOnScreenMessage("success", $this->plugin->txt('remove_corrector_success'), true);
+        $this->ctrl->redirect($this, "showCorrectors");
 	}
 
     protected function confirmAssignWriters() {
 
         $missing = $this->service->countMissingCorrectors();
         if ($missing == 0) {
-            ilUtil::sendInfo($this->plugin->txt('assign_not_needed'), true);
+            $this->tpl->setOnScreenMessage("info", $this->plugin->txt('assign_not_needed'), true);
             $this->ctrl->redirect($this, 'showStartPage');
         }
         $available = $this->service->countAvailableCorrectors();
         if ($available == 0)  {
-            ilUtil::sendInfo($this->plugin->txt('assign_not_available'), true);
+            $this->tpl->setOnScreenMessage("info", $this->plugin->txt('assign_not_available'), true);
             $this->ctrl->redirect($this, 'showStartPage');
         }
 
@@ -311,7 +311,7 @@ class CorrectorAdminGUI extends BaseGUI
             $warnings[] = sprintf($this->plugin->txt('potential_authorizations_after'), $after);
         }
         if ($warnings) {
-            ilUtil::sendInfo($this->plugin->txt('warning_potential_later_assignments') . '<br>' . implode('<br>', $warnings));
+            $this->tpl->setOnScreenMessage("info", $this->plugin->txt('warning_potential_later_assignments') . '<br>' . implode('<br>', $warnings), false);
         }
 
 
@@ -340,13 +340,13 @@ class CorrectorAdminGUI extends BaseGUI
 	protected function assignWriters() {
 		$assigned = $this->service->assignMissingCorrectors();
         if ($assigned == 0) {
-            ilUtil::sendFailure($this->plugin->txt("0_assigned_correctors"), true);
+            $this->tpl->setOnScreenMessage("failure", $this->plugin->txt("0_assigned_correctors"), true);
         }
         elseif ($assigned == 1) {
-            ilUtil::sendSuccess($this->plugin->txt("1_assigned_corrector"), true);
+            $this->tpl->setOnScreenMessage("success", $this->plugin->txt("1_assigned_corrector"), true);
         }
         else {
-            ilUtil::sendSuccess(sprintf($this->plugin->txt("n_assigned_correctors"), $assigned), true);
+            $this->tpl->setOnScreenMessage("success", sprintf($this->plugin->txt("n_assigned_correctors"), $assigned), true);
         }
 		$this->ctrl->redirect($this, "showStartPage");
 	}
@@ -399,15 +399,15 @@ class CorrectorAdminGUI extends BaseGUI
 			foreach ($invalid as $writer){
 				$names[] = \ilObjUser::_lookupFullname($writer->getUserId()) . ' [' . $writer->getPseudonym() . ']';
 			}
-			ilutil::sendFailure(sprintf($this->plugin->txt('remove_authorizations_for_failed'), implode(", ", $names)), true);
-		}
+            $this->tpl->setOnScreenMessage("failure", sprintf($this->plugin->txt('remove_authorizations_for_failed'), implode(", ", $names)), true);
+        }
 		if(count($valid) > 0){
 			$names = [];
 			foreach ($valid as $writer){
 				$names[] = \ilObjUser::_lookupFullname($writer->getUserId()) . ' [' . $writer->getPseudonym() . ']';
 			}
-			ilutil::sendSuccess(sprintf($this->plugin->txt('remove_authorizations_for_done'), implode(", ", $names)), true);
-		}
+            $this->tpl->setOnScreenMessage("success", sprintf($this->plugin->txt('remove_authorizations_for_done'), implode(", ", $names)), true);
+        }
 
 		$this->ctrl->clearParameters($this);
         $this->ctrl->redirect($this);
@@ -460,7 +460,7 @@ class CorrectorAdminGUI extends BaseGUI
     private function exportSteps()
     {
         if (empty($repoWriter = $this->localDI->getWriterRepo()->getWriterById((int) $this->getWriterId()))) {
-            ilUtil::sendFailure($this->plugin->txt("missing_writer_id"), true);
+            $this->tpl->setOnScreenMessage("failure", $this->plugin->txt("missing_writer_id"), true);
             $this->ctrl->redirect($this, "showStartPage");
         }
 
@@ -468,7 +468,7 @@ class CorrectorAdminGUI extends BaseGUI
         $name = \ilUtil::getASCIIFilename($this->object->getTitle() .'_' . \ilObjUser::_lookupFullname($repoWriter->getUserId()));
         $zipfile = $service->createWritingStepsExport($this->object, $repoWriter, $name);
         if (empty($zipfile)) {
-            ilUtil::sendFailure($this->plugin->txt("content_not_available"), true);
+            $this->tpl->setOnScreenMessage("failure", $this->plugin->txt("content_not_available"), true);
             $this->ctrl->redirect($this, "showStartPage");
         }
 
@@ -616,8 +616,8 @@ class CorrectorAdminGUI extends BaseGUI
                     $data["first_corrector"] ?? CorrectorAdminService::UNCHANGED_CORRECTOR_ASSIGNMENT, 
                     $data["second_corrector"] ?? CorrectorAdminService::UNCHANGED_CORRECTOR_ASSIGNMENT,
                     $writer_ids);
-				ilUtil::sendSuccess($this->plugin->txt("corrector_assignment_changed"), true);
-				exit();
+                $this->tpl->setOnScreenMessage("success", $this->plugin->txt("corrector_assignment_changed"), true);
+                exit();
 			}else{
 				echo($this->renderer->render($form));
 				exit();
@@ -725,15 +725,15 @@ class CorrectorAdminGUI extends BaseGUI
                         $this->service->assignMultipleCorrector($fa, $sa, [$writer_id]);
                     }
                     $tempfile->removeTempFile($filename);
-                    ilUtil::sendSuccess($this->plugin->txt("corrector_assignment_changed"), true);
+                    $this->tpl->setOnScreenMessage("success", $this->plugin->txt("corrector_assignment_changed"), true);
                     $this->ctrl->redirect($this);
                 }catch (\Exception $exception){
                     $tempfile->removeTempFile($filename);
-                    ilUtil::sendFailure($this->plugin->txt("corrector_assignment_change_file_failure"), true);
+                    $this->tpl->setOnScreenMessage("failure", $this->plugin->txt("corrector_assignment_change_file_failure"), true);
                 }
             }
         }
-        ilUtil::sendInfo($this->plugin->txt("change_corrector_info"));
+        $this->tpl->setOnScreenMessage("info", $this->plugin->txt("change_corrector_info"), false);
         $this->tpl->setContent($this->renderer->render($form));
     }
 

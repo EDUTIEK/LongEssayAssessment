@@ -21,16 +21,16 @@ class ilObjLongEssayAssessmentListGUI extends ilObjectPluginListGUI
 	/**
 	 * Get name of gui class handling the commands
 	 */
-	function getGuiClass()
-	{
+	function getGuiClass() : string
+    {
 		return "ilObjLongEssayAssessmentGUI";
 	}
 
 	/**
 	 * Get commands
 	 */
-	function initCommands()
-	{
+	function initCommands() : array
+    {
 		return array
 		(
 			array(
@@ -53,8 +53,8 @@ class ilObjLongEssayAssessmentListGUI extends ilObjectPluginListGUI
 	 *                                "property" (string) => property name
 	 *                                "value" (string) => property value
 	 */
-	function getProperties()
-	{
+	function getProperties() : array
+    {
 		$props = array();
 
 		if (!ilObjLongEssayAssessmentAccess::checkOnline($this->obj_id))

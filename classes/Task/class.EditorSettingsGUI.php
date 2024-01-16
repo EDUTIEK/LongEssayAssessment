@@ -103,7 +103,7 @@ class EditorSettingsGUI extends BaseGUI
             $editorSettings->setCopyAllowed($data['editor']['copy_allowed']);
 			$task_repo->save($editorSettings);
 
-            ilUtil::sendSuccess($this->lng->txt("settings_saved"), true);
+            $this->tpl->setOnScreenMessage("success", $this->lng->txt("settings_saved"), true);
             $this->ctrl->redirect($this, "editSettings");
         }
 

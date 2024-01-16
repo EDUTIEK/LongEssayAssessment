@@ -228,7 +228,7 @@ class ResourcesAdminGUI extends BaseGUI
 				} else {
 					$this->replaceResource($data["form"], (int)$resource_id);
 				}
-				ilUtil::sendSuccess($this->lng->txt("settings_saved"), true);
+                $this->tpl->setOnScreenMessage("success", $this->lng->txt("settings_saved"), true);
 				$this->ctrl->redirect($this, "showItems");
 			}
 		}
@@ -248,10 +248,10 @@ class ResourcesAdminGUI extends BaseGUI
 
 			if($resource->getTaskId() == $this->object->getId()){
 				$resource_admin->deleteResource($resource_id);
-				ilUtil::sendSuccess($this->lng->txt("resource_deleted"), true);
-			}else {
-				ilUtil::sendFailure($this->lng->txt("permission_denied"), true);
-			}
+                $this->tpl->setOnScreenMessage("success", $this->plugin->txt("resource_deleted"), true);
+            }else {
+                $this->tpl->setOnScreenMessage("failure", $this->lng->txt("permission_denied"), true);
+            }
 		}else{
 			// TODO: Error no resource ID in GET
 		}
@@ -282,8 +282,8 @@ class ResourcesAdminGUI extends BaseGUI
 			}
 
 			if ($resource->getTaskId() != $this->object->getId()) {
-				ilUtil::sendFailure($this->lng->txt("permission_denied"), true);
-				$this->ctrl->redirect($this, "showItems");
+                $this->tpl->setOnScreenMessage("failure", $this->lng->txt("permission_denied"), true);
+                $this->ctrl->redirect($this, "showItems");
 			}
 		}else{
 			// TODO: Error no resource ID in GET

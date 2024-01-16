@@ -14,6 +14,8 @@ use ILIAS\UI\Renderer as RendererInterface;
 
 class ItemRenderer extends \ILIAS\UI\Implementation\Component\Item\Renderer
 {
+    private ?array $files_cache = null;
+
 	/**
 	 * @inheritdoc
 	 */

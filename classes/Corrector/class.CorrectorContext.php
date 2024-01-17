@@ -22,7 +22,7 @@ use Edutiek\LongEssayAssessmentService\Data\CorrectionPoints;
 use ILIAS\Plugin\LongEssayAssessment\Data\Essay\CorrectorComment;
 use ILIAS\Plugin\LongEssayAssessment\Data\Essay\CriterionPoints;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\CorrectionSettings as PluginCorrectionSettings;
-use Edutiek\LongEssayAssessmentService\Data\CorrectionPage;
+use Edutiek\LongEssayAssessmentService\Data\PageData;
 use Edutiek\LongEssayAssessmentService\Data\CorrectionMark;
 use Edutiek\LongEssayAssessmentService\Data\CorrectionPreferences;
 use ILIAS\Plugin\LongEssayAssessment\Data\Corrector\CorrectorPreferences;
@@ -518,9 +518,8 @@ class CorrectorContext extends ServiceContext implements Context
             (int) $item_key, $this->task->getTaskId()))
         ) {
             foreach ($essay_repo->getEssayImagesByEssayID($repoEssay->getId()) as $repoImage) {
-                $pages[] = new CorrectionPage(
+                $pages[] = new PageData(
                     (string) $repoImage->getId(),
-                    $item_key,
                     $repoImage->getPageNo(),
                     $repoImage->getWidth(),
                     $repoImage->getHeight(),

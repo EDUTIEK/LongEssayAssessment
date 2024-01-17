@@ -3,7 +3,7 @@
 namespace ILIAS\Plugin\LongEssayAssessment\Writer;
 
 use Edutiek\LongEssayAssessmentService\Data\Alert;
-use Edutiek\LongEssayAssessmentService\Data\WritingSettings;
+use Edutiek\LongEssayAssessmentService\Data\PageData;
 use Edutiek\LongEssayAssessmentService\Data\WritingStep;
 use Edutiek\LongEssayAssessmentService\Data\WritingTask;
 use Edutiek\LongEssayAssessmentService\Writer\Context;
@@ -117,6 +117,32 @@ class WriterContext extends ServiceContext implements Context
             !empty($repoEssay->getWritingAuthorized()) ? \ilObjUser::_lookupFullname($repoEssay->getWritingAuthorizedBy()) : null
         );
     }
+
+
+    /**
+     * @inheritDoc
+     */
+    public function getPagesOfWriter(): array
+    {
+        $essay_repo = $this->localDI->getEssayRepo();
+
+        $pages = [];
+        if (!empty($repoEssay = $essay_repo->getEssayByWriterIdAndTaskId($this->getRepoWriter()->getId(), $this->getRepoWriter()->getTaskId()))
+        ) {
+            foreach ($essay_repo->getEssayImagesByEssayID($repoEssay->getId()) as $repoImage) {
+                $pages[] = new PageData(
+                    (string) $repoImage->getId(),
+                    $repoImage->getPageNo(),
+                    $repoImage->getWidth(),
+                    $repoImage->getHeight(),
+                    null,
+                    null
+                );
+            }
+        }
+        return $pages;
+    }
+
 
     /**
      * @inheritDoc

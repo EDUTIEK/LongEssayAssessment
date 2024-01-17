@@ -43,7 +43,7 @@ class EditorSettings extends RecordData
     protected int $notice_boards = 0;
     protected int $copy_allowed = 0;
     protected int $add_paragraph_numbers = 1;
-    protected int $top_margin = 10;
+    protected int $top_margin = 15;
     protected int $bottom_margin = 10;
     protected int $left_margin = 10;
     protected int $right_margin = 10;

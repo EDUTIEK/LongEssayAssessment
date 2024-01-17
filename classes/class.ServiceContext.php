@@ -411,8 +411,8 @@ abstract class ServiceContext implements BaseContext
 
     /**
      * Get the writing task of a certain writer
-     * This is individual because if writing end and writing exclusion
-     * (not needed by interface, but public because needed by CorrectorAdminService)
+     * This is specific for a writer because of his/her writing end and writing exclusion
+     * (not needed by interface, but public because needed by WriterAdminService and CorrectorAdminService)
      */
     public function getWritingTaskByWriterId(int $writer_id) : WritingTask
     {

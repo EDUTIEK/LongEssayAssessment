@@ -97,11 +97,13 @@ class EditorSettingsGUI extends BaseGUI
 
         $fields['top_margin'] = $factory->numeric($this->plugin->txt('top_margin'))
             ->withAdditionalTransformation($this->refinery->to()->int())
+            ->withAdditionalTransformation($this->refinery->int()->isGreaterThan(14))
             ->withRequired(true)
             ->withValue($editorSettings->getTopMargin());
 
         $fields['bottom_margin'] = $factory->numeric($this->plugin->txt('bottom_margin'))
             ->withAdditionalTransformation($this->refinery->to()->int())
+            ->withAdditionalTransformation($this->refinery->int()->isGreaterThan(9))
             ->withRequired(true)
             ->withValue($editorSettings->getBottomMargin());
 

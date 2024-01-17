@@ -1968,7 +1968,7 @@ if (!$ilDB->tableColumnExists('xlas_editor_settings', 'top_margin')) {
         'notnull' => '1',
         'type' => 'integer',
         'length' => '4',
-        'default' => '10'
+        'default' => '15'
     ]);
 }
 if (!$ilDB->tableColumnExists('xlas_editor_settings', 'bottom_margin')) {

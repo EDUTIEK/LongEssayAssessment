@@ -18,6 +18,7 @@ use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
 use ILIAS\Plugin\LongEssayAssessment\Writer\WriterContext;
 use ILIAS\Filesystem\Stream\Streams;
 use ILIAS\Plugin\LongEssayAssessment\Data\Essay\EssayImage;
+use ilObjLongEssayAssessment;
 
 class WriterAdminService extends BaseService
 {
@@ -88,6 +89,23 @@ class WriterAdminService extends BaseService
         return $essay;
     }
 
+    /**
+     * Get the writing of an essay as PDF string
+     */
+    public function getWritingAsPdf(ilObjLongEssayAssessment $object, Writer $repoWriter, bool $anonymous = false, bool $withHeader = true) : string
+    {
+        $context = new WriterContext();
+        $context->init((string) $repoWriter->getUserId(), (string) $object->getRefId());
+
+        $writingTask = $context->getWritingTask();
+        if ($anonymous) {
+            $writingTask = $writingTask->withWriterName($repoWriter->getPseudonym());
+        }
+        $writtenEssay = $context->getWrittenEssay();
+
+        $service = new Service($context);
+        return $service->getWritingAsPdf($writingTask, $writtenEssay, $withHeader);
+    }
 
     public function createLogExport()
     {

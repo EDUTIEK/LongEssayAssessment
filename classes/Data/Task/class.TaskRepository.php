@@ -32,38 +32,42 @@ class TaskRepository extends RecordRepo
 
 	/**
 	 * Save record data of an allowed type
-	 * @param TaskSettings|EditorSettings|CorrectionSettings|Alert|Resource|Location $record
+	 * @param TaskSettings|EditorSettings|PdfSettings|CorrectionSettings|Alert|Resource|Location $record
 	 */
 	public function save(RecordData $record)
 	{
 		$this->replaceRecord($record);
 	}
 
-	public function createTask(TaskSettings $a_task_settings, EditorSettings $a_editor_settings, CorrectionSettings $a_correction_settings)
-    {
-		$this->save($a_task_settings);
-		$this->save($a_editor_settings);
-		$this->save($a_correction_settings);
-    }
-
 	/**
 	 * @param int $a_id
-	 * @return EditorSettings|null
+	 * @return EditorSettings
 	 */
-    public function getEditorSettingsById(int $a_id): ?RecordData
+    public function getEditorSettingsById(int $a_id): RecordData
     {
 		$query = "SELECT * FROM xlas_editor_settings WHERE task_id = " . $this->db->quote($a_id, 'integer');
-		return $this->getSingleRecord($query, EditorSettings::model());
+		return $this->getSingleRecord($query, EditorSettings::model(), new EditorSettings($a_id));
     }
 
-	/**
+    /**
+     * @param int $a_id
+     * @return PdfSettings
+     */
+    public function getPdfSettingsById(int $a_id): RecordData
+    {
+        $query = "SELECT * FROM xlas_pdf_settings WHERE task_id = " . $this->db->quote($a_id, 'integer');
+        return $this->getSingleRecord($query, PdfSettings::model(), new PdfSettings($a_id));
+    }
+
+
+    /**
 	 * @param int $a_id
-	 * @return CorrectionSettings|null
+	 * @return CorrectionSettings
 	 */
-    public function getCorrectionSettingsById(int $a_id): ?RecordData
+    public function getCorrectionSettingsById(int $a_id): RecordData
     {
 		$query = "SELECT * FROM xlas_corr_setting WHERE task_id = " . $this->db->quote($a_id, 'integer');
-		return $this->getSingleRecord($query, CorrectionSettings::model());
+		return $this->getSingleRecord($query, CorrectionSettings::model(), new CorrectionSettings($a_id));
     }
 
 
@@ -74,12 +78,12 @@ class TaskRepository extends RecordRepo
 
 	/**
 	 * @param int $a_id
-	 * @return TaskSettings|null
+	 * @return TaskSettings
 	 */
-    public function getTaskSettingsById(int $a_id): ?RecordData
+    public function getTaskSettingsById(int $a_id): RecordData
     {
 		$query = "SELECT * FROM xlas_task_settings WHERE task_id = " . $this->db->quote($a_id, 'integer');
-		return $this->getSingleRecord($query, TaskSettings::model());
+		return $this->getSingleRecord($query, TaskSettings::model(), new TaskSettings($a_id));
     }
 
     public function ifAlertExistsById(int $a_id): bool
@@ -108,6 +112,8 @@ class TaskRepository extends RecordRepo
         $this->db->manipulate("DELETE FROM xlas_task_settings" .
             " WHERE task_id = " . $this->db->quote($a_id, "integer"));
 		$this->db->manipulate("DELETE FROM xlas_editor_settings" .
+            " WHERE task_id = " . $this->db->quote($a_id, "integer"));
+        $this->db->manipulate("DELETE FROM xlas_pdf_settings" .
             " WHERE task_id = " . $this->db->quote($a_id, "integer"));
 		$this->db->manipulate("DELETE FROM xlas_corr_setting" .
             " WHERE task_id = " . $this->db->quote($a_id, "integer"));

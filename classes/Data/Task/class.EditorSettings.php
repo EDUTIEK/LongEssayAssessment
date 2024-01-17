@@ -31,10 +31,9 @@ class EditorSettings extends RecordData
 		'notice_boards' => 'integer',
 		'copy_allowed' => 'integer',
         'add_paragraph_numbers' => 'integer',
-        'top_margin' => 'integer',
-        'bottom_margin' => 'integer',
-        'left_margin' => 'integer',
-        'right_margin' => 'integer'
+        'add_correction_margin' => 'integer',
+        'left_correction_margin' => 'integer',
+        'right_correction_margin' => 'integer'
 	];
 
     protected int $task_id;
@@ -43,10 +42,9 @@ class EditorSettings extends RecordData
     protected int $notice_boards = 0;
     protected int $copy_allowed = 0;
     protected int $add_paragraph_numbers = 1;
-    protected int $top_margin = 15;
-    protected int $bottom_margin = 10;
-    protected int $left_margin = 10;
-    protected int $right_margin = 10;
+    protected int $add_correction_margin = 0;
+    protected int $left_correction_margin = 5;
+    protected int $right_correction_margin = 5;
 
 	public function __construct(int $task_id)
 	{
@@ -126,47 +124,36 @@ class EditorSettings extends RecordData
         return $this;
     }
 
-    public function getTopMargin() : int
+    public function getAddCorrectionMargin() : bool
     {
-        return $this->top_margin;
+        return (bool) $this->add_correction_margin;
     }
 
-    public function setTopMargin(int $top_margin) : self
+    public function setAddCorrectionMargin(bool $add_correction_margin) : self
     {
-        $this->top_margin = $top_margin;
+        $this->add_correction_margin = (int) $add_correction_margin;
         return $this;
     }
 
-    public function getBottomMargin() : int
+    public function getLeftCorrectionMargin() : int
     {
-        return $this->bottom_margin;
+        return $this->left_correction_margin;
     }
 
-    public function setBottomMargin(int $bottom_margin) : self
+    public function setLeftCorrectionMargin(int $left_correction_margin) : self
     {
-        $this->bottom_margin = $bottom_margin;
+        $this->left_correction_margin = $left_correction_margin;
         return $this;
     }
 
-    public function getLeftMargin() : int
+    public function getRightCorrectionMargin() : int
     {
-        return $this->left_margin;
+        return $this->right_correction_margin;
     }
 
-    public function setLeftMargin(int $left_margin) : self
+    public function setRightCorrectionMargin(int $right_correction_margin) : self
     {
-        $this->left_margin = $left_margin;
-        return $this;
-    }
-
-    public function getRightMargin() : int
-    {
-        return $this->right_margin;
-    }
-
-    public function setRightMargin(int $right_margin) : self
-    {
-        $this->right_margin = $right_margin;
+        $this->right_correction_margin = $right_correction_margin;
         return $this;
     }
 }

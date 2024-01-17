@@ -18,6 +18,7 @@ use \ilObjLongEssayAssessment;
 use ilSession;
 use Edutiek\LongEssayAssessmentService\Data\PageImage;
 use Edutiek\LongEssayAssessmentService\Data\WritingSettings;
+use Edutiek\LongEssayAssessmentService\Data\PdfSettings;
 
 abstract class ServiceContext implements BaseContext
 {
@@ -402,12 +403,29 @@ abstract class ServiceContext implements BaseContext
             $this->plugin->getConfig()->getPrimaryColor(),
             $this->plugin->getConfig()->getPrimaryTextColor(),
             $repoSettings->getAddParagraphNumbers(),
+            $repoSettings->getAddCorrectionMargin(),
+            $repoSettings->getLeftCorrectionMargin(),
+            $repoSettings->getRightCorrectionMargin()
+        );
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getPdfSettings(): PdfSettings
+    {
+        $repoSettings = $this->localDI->getTaskRepo()->getPdfSettingsById($this->task->getTaskId());
+
+        return new PdfSettings(
+            $repoSettings->getAddHeader(),
+            $repoSettings->getAddFooter(),
             $repoSettings->getTopMargin(),
             $repoSettings->getBottomMargin(),
             $repoSettings->getLeftMargin(),
             $repoSettings->getRightMargin()
         );
     }
+
 
     /**
      * Get the writing task of a certain writer

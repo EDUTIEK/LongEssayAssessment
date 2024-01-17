@@ -92,7 +92,7 @@ class WriterAdminService extends BaseService
     /**
      * Get the writing of an essay as PDF string
      */
-    public function getWritingAsPdf(ilObjLongEssayAssessment $object, Writer $repoWriter, bool $anonymous = false, bool $withHeader = true) : string
+    public function getWritingAsPdf(ilObjLongEssayAssessment $object, Writer $repoWriter, bool $anonymous = false) : string
     {
         $context = new WriterContext();
         $context->init((string) $repoWriter->getUserId(), (string) $object->getRefId());
@@ -104,7 +104,7 @@ class WriterAdminService extends BaseService
         $writtenEssay = $context->getWrittenEssay();
 
         $service = new Service($context);
-        return $service->getWritingAsPdf($writingTask, $writtenEssay, $withHeader);
+        return $service->getWritingAsPdf($writingTask, $writtenEssay);
     }
 
     public function createLogExport()

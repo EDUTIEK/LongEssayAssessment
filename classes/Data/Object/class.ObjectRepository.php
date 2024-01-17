@@ -31,12 +31,12 @@ class ObjectRepository extends RecordRepo
 	}
 
     /**
-     * @return ObjectSettings|null
+     * @return ObjectSettings
      */
-    public function getObjectSettingsById(int $a_id): ?RecordData
+    public function getObjectSettingsById(int $a_id): RecordData
     {
         $query = "SELECT * FROM xlas_object_settings WHERE obj_id = " . $this->db->quote($a_id, 'integer');
-        return $this->getSingleRecord($query, ObjectSettings::model());
+        return $this->getSingleRecord($query, ObjectSettings::model(), new ObjectSettings($a_id));
     }
 
     public function ifGradeLevelExistsById(int $a_id): bool

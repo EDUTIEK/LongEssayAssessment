@@ -99,14 +99,12 @@ class EditorSettingsGUI extends BaseGUI
             ->withValue($editorSettings->getAddParagraphNumbers());
 
         $fields['add_correction_margin'] = $factory->optionalGroup([
-            'left_correction_margin' => $factory->numeric($this->plugin->txt('left_correction_margin'), $this->plugin->txt('left_correction_margin_info'))
+            'left_correction_margin' => $factory->numeric($this->plugin->txt('left_correction_margin'))
                 ->withAdditionalTransformation($this->refinery->to()->int())
-                ->withAdditionalTransformation($this->refinery->int()->isGreaterThan(4))
                 ->withRequired(true)
                 ->withValue($editorSettings->getLeftCorrectionMargin()),
-            'right_correction_margin' => $factory->numeric($this->plugin->txt('right_correction_margin'), $this->plugin->txt('right_correction_margin_info'))
+            'right_correction_margin' => $factory->numeric($this->plugin->txt('right_correction_margin'))
                 ->withAdditionalTransformation($this->refinery->to()->int())
-                ->withAdditionalTransformation($this->refinery->int()->isGreaterThan(4))
                 ->withRequired(true)
                 ->withValue($editorSettings->getRightCorrectionMargin()),
         ],

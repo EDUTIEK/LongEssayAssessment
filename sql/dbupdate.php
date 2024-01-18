@@ -1976,7 +1976,7 @@ if (!$ilDB->tableColumnExists('xlas_editor_settings', 'left_correction_margin'))
         'notnull' => '1',
         'type' => 'integer',
         'length' => '4',
-        'default' => '5'
+        'default' => '0'
     ]);
 }
 if (!$ilDB->tableColumnExists('xlas_editor_settings', 'right_correction_margin')) {
@@ -1984,7 +1984,7 @@ if (!$ilDB->tableColumnExists('xlas_editor_settings', 'right_correction_margin')
         'notnull' => '1',
         'type' => 'integer',
         'length' => '4',
-        'default' => '5'
+        'default' => '0'
     ]);
 }
 ?>

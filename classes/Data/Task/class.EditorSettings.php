@@ -43,8 +43,8 @@ class EditorSettings extends RecordData
     protected int $copy_allowed = 0;
     protected int $add_paragraph_numbers = 1;
     protected int $add_correction_margin = 0;
-    protected int $left_correction_margin = 5;
-    protected int $right_correction_margin = 5;
+    protected int $left_correction_margin = 0;
+    protected int $right_correction_margin = 0;
 
 	public function __construct(int $task_id)
 	{

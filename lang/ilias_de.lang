@@ -502,9 +502,7 @@ add_paragraph_numbers_info#:#Alle Überschriften, Absätze und Aufzählungen erh
 add_correction_margin#:#Korrekturrand
 add_correction_margin_info#:#Wird ein geschriebener Text zur Korrektur in eine PDF-Abgabe umgewandelt, kann ein Korrekturrand hinzgefügt werden, um dort Markierungen wie Haken zu platzieren.
 left_correction_margin#:#Linker Rand (mm)
-left_correction_margin_info#:#Minimum: 5
 right_correction_margin#:#Rechter Rand (mm)
-right_correction_margin_info#:#Minimum:  5
 pdf_settings#:#PDF-Generierung
 pdf_settings_info#:#Diese Einstellungen gelten für PDF-Dateien, die zur Dokumentation der Abgabe und Korrektur generiert werden.
 pdf_add_header#:#Kopfzeile

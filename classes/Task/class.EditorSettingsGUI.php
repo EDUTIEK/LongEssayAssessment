@@ -40,9 +40,11 @@ class EditorSettingsGUI extends BaseGUI
     protected function editSettings()
     {
 		$task_repo = $this->localDI->getTaskRepo();
+        $essay_repo = $this->localDI->getEssayRepo();
 
-		$editorSettings = $task_repo->getEditorSettingsById($this->object->getId());
+        $editorSettings = $task_repo->getEditorSettingsById($this->object->getId());
         $pdfSettings = $task_repo->getPdfSettingsById($this->object->getId());
+        $hasComments = $essay_repo->hasCorrectorCommentsByTaskId($this->object->getId());
 
         $factory = $this->uiFactory->input()->field();
 
@@ -96,21 +98,24 @@ class EditorSettingsGUI extends BaseGUI
         $fields['add_paragraph_numbers'] = $factory->checkbox(
             $this->plugin->txt('add_paragraph_numbers'),
             $this->plugin->txt('add_paragraph_numbers_info'))
+            ->withDisabled($hasComments)
             ->withValue($editorSettings->getAddParagraphNumbers());
 
         $fields['add_correction_margin'] = $factory->optionalGroup([
             'left_correction_margin' => $factory->numeric($this->plugin->txt('left_correction_margin'))
                 ->withAdditionalTransformation($this->refinery->to()->int())
                 ->withRequired(true)
+                ->withDisabled($hasComments)
                 ->withValue($editorSettings->getLeftCorrectionMargin()),
             'right_correction_margin' => $factory->numeric($this->plugin->txt('right_correction_margin'))
                 ->withAdditionalTransformation($this->refinery->to()->int())
                 ->withRequired(true)
+                ->withDisabled($hasComments)
                 ->withValue($editorSettings->getRightCorrectionMargin()),
         ],
             $this->plugin->txt('add_correction_margin'),
             $this->plugin->txt('add_correction_margin_info'),
-        );
+        )->withDisabled($hasComments);
         // strange but effective
         if (!$editorSettings->getAddCorrectionMargin()) {
             $fields['add_correction_margin'] = $fields['add_correction_margin']->withValue(null);
@@ -175,16 +180,18 @@ class EditorSettingsGUI extends BaseGUI
             $editorSettings->setNoticeBoards((int) $data['editor']['notice_boards']);
             $editorSettings->setCopyAllowed((bool) $data['editor']['copy_allowed']);
 
-            $editorSettings->setAddParagraphNumbers((bool) $data['processing']['add_paragraph_numbers']);
-            if (isset($data['processing']['add_correction_margin']) && is_array($data['processing']['add_correction_margin'])) {
-                $editorSettings->setAddCorrectionMargin(true);
-                $editorSettings->setLeftCorrectionMargin((int) $data['processing']['add_correction_margin']['left_correction_margin']);
-                $editorSettings->setRightCorrectionMargin((int) $data['processing']['add_correction_margin']['right_correction_margin']);
+            if (!$hasComments) {
+                $editorSettings->setAddParagraphNumbers((bool) $data['processing']['add_paragraph_numbers']);
+                if (isset($data['processing']['add_correction_margin']) && is_array($data['processing']['add_correction_margin'])) {
+                    $editorSettings->setAddCorrectionMargin(true);
+                    $editorSettings->setLeftCorrectionMargin((int) $data['processing']['add_correction_margin']['left_correction_margin']);
+                    $editorSettings->setRightCorrectionMargin((int) $data['processing']['add_correction_margin']['right_correction_margin']);
+                }
+                else {
+                    $editorSettings->setAddCorrectionMargin(false);
+                }
             }
-            else {
-                $editorSettings->setAddCorrectionMargin(false);
-            }
-            $task_repo->save($editorSettings);
+             $task_repo->save($editorSettings);
 
             $pdfSettings->setAddHeader((bool) $data['pdf']['add_header']);
             $pdfSettings->setAddFooter((bool) $data['pdf']['add_footer']);

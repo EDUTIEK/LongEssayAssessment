@@ -876,6 +876,7 @@ class WriterAdminGUI extends BaseGUI
 
     public function uploadPDFVersion()
 	{
+        $essay_repo = $this->localDI->getEssayRepo();
 		$writer_repo = $this->localDI->getWriterRepo();
 		$task_repo = $this->localDI->getTaskRepo();
 		$task_id = $this->object->getId();
@@ -951,15 +952,15 @@ class WriterAdminGUI extends BaseGUI
 					: $this->plugin->txt("pdf_version_upload"), $form)->withCard($user_info)
 			];
 
-			if($essay->getEditStarted()){
-
-				if($essay->getWritingAuthorized() !== null
-					&& $essay->getWritingAuthorizedBy() === $writer->getUserId()
-					&& $essay->getPdfVersion() === null)
-				{
+			if($essay->getEditStarted()) {
+				if ($essay->getPdfVersion() !== null) {
+                    if ($service->hasCorrectorComments($essay)) {
+                        ilUtil::sendQuestion($this->plugin->txt("pdf_version_info_already_uploaded"));
+                    }
+                } elseif($essay->getWritingAuthorized() !== null && $essay->getWritingAuthorizedBy() === $writer->getUserId()) {
 					ilUtil::sendQuestion($this->plugin->txt("pdf_version_warning_authorized_essay"));
-				}else if($essay->getPdfVersion() === null){
-					ilUtil::sendInfo($this->plugin->txt("pdf_version_info_started_essay"));
+				}else {
+					ilUtil::sendQuestion($this->plugin->txt("pdf_version_info_started_essay"));
 				}
 
                 $this->addContentCss();

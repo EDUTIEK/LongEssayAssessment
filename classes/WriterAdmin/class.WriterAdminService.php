@@ -404,6 +404,12 @@ class WriterAdminService extends BaseService
 		}
 		$this->essayRepo->save($essay);
 	}
+
+    public function hasCorrectorComments(Essay $essay) : bool
+    {
+        $essay_repo = LongEssayAssessmentDI::getInstance()->getEssayRepo();
+        return !empty($essay_repo->getCorrectorCommentsByEssayIdAndCorrectorId($essay->getId(), null));
+    }
     
     public function purgeCorrectorComments(Essay $essay) 
     {

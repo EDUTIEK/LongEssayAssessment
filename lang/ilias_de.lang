@@ -422,6 +422,7 @@ authorize_pdf_version_info#:#Wenn eine PDF-Abgabe hinzugefügt oder geändert wi
 pdf_version#:#PDF-Abgabe
 pdf_version_edit#:#PDF-Abgabe editieren
 pdf_version_upload#:#PDF-Abgabe hochladen
+pdf_version_info_already_uploaded#:#Wenn Sie die vorhandene PDF-Abgabe entfernen oder ersetzen, werden die Markierungen und Kommentare bereits begonnener Korrekturen verworfen!
 pdf_version_info_started_essay#:#Teilnehmer/in hat bereits einen Text angefangen. Sind Sie sich sicher, dass Sie diese Ergebnisse mit dem PDF-Upload ergänzen möchten? Die Markierungen und Kommentare bereits begonnener Korrekturen werden verworfen.
 pdf_version_warning_authorized_essay#:#Teilnehmer/in hat bereits einen Text abgegeben und autorisiert. Sind Sie sich sicher, dass Sie diese Ergebnisse mit dem PDF-Upload ergänzen möchten? Die Markierungen und Kommentare bereits begonnener Korrekturen werden verworfen.
 writing_remove_authorize_log_description#:#Die Autorisierung der Abgabe von %s wurde von %s entfernt.
@@ -500,7 +501,7 @@ processing_settings_info#:#Diese Einstellungen gelten für die Weiterverarbeitun
 add_paragraph_numbers#:#Absatznummern generieren
 add_paragraph_numbers_info#:#Alle Überschriften, Absätze und Aufzählungen erhalten am Rand eine Nummer.
 add_correction_margin#:#Korrekturrand
-add_correction_margin_info#:#Wird ein geschriebener Text zur Korrektur in eine PDF-Abgabe umgewandelt, kann ein Korrekturrand hinzgefügt werden, um dort Markierungen wie Haken zu platzieren.
+add_correction_margin_info#:#Wird ein Text zur Korrektur in ein PDF umgewandelt, kann ein Korrekturrand hinzugefügt werden, um dort Markierungen wie Haken zu platzieren.
 left_correction_margin#:#Linker Rand (mm)
 right_correction_margin#:#Rechter Rand (mm)
 pdf_settings#:#PDF-Generierung

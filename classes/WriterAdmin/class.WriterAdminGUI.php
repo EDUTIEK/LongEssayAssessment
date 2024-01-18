@@ -83,6 +83,7 @@ class WriterAdminGUI extends BaseGUI
      */
     protected function showStartPage()
     {
+        $this->addContentCss();
         $this->toolbar->setFormAction($this->ctrl->getFormAction($this));
 
 		\ilRepositorySearchGUI::fillAutoCompleteToolbar(
@@ -721,13 +722,14 @@ class WriterAdminGUI extends BaseGUI
 	protected function showEssay()
 	{
 		$essays = $this->getEssaysFromWriterIds();
-		$value = count($essays) > 0 && ($essay =  array_pop($essays)) !== null? $essay->getWrittenText() : null;
+		$value = count($essays) > 0 && ($essay =  array_pop($essays)) !== null? $essay->getWrittenText() : '';
+        $value = $this->displayContent($this->localDI->getDataService($this->object->getId())->cleanupRichText($value));
 
 		$this->ctrl->saveParameter($this, "writer_id");
 		$link = $this->ctrl->getFormAction($this, "showEssay", "", true);
 
 		$sight_modal = $this->uiFactory->modal()->roundtrip($this->plugin->txt("submission"),
-			$this->uiFactory->legacy($value ? $this->localDI->getDataService($this->object->getId())->cleanupRichText($value): "")
+			$this->uiFactory->legacy($value)
 		);
 		$reload_button = $this->uiFactory->button()->standard($this->lng->txt("refresh"), "")
 			->withLoadingAnimationOnClick(true)
@@ -811,15 +813,18 @@ class WriterAdminGUI extends BaseGUI
         }
 
         if(empty($items)) {
-            ilUtil::sendFailure($this->plugin->txt("change_text_to_pdf_none_possible"), true);
-            $this->ctrl->redirect($this, "showStartPage");
+            $change_modal = $this->uiFactory->modal()->roundtrip(
+                $this->plugin->txt("change_text_to_pdf"),
+                $this->uiFactory->legacy($this->plugin->txt("change_text_to_pdf_none_possible")),
+            );
         }
-
-        $change_modal = $this->uiFactory->modal()->interruptive(
-            $this->plugin->txt("change_text_to_pdf"),
-            $this->plugin->txt("change_text_to_pdf_confirmation"),
-            $this->ctrl->getFormAction($this, "changeTextToPdf")
-        )->withAffectedItems($items)->withActionButtonLabel('change');
+        else {
+            $change_modal = $this->uiFactory->modal()->interruptive(
+                $this->plugin->txt("change_text_to_pdf"),
+                $this->plugin->txt("change_text_to_pdf_confirmation"),
+                $this->ctrl->getFormAction($this, "changeTextToPdf")
+            )->withAffectedItems($items)->withActionButtonLabel('change');
+        }
 
         echo($this->renderer->renderAsync($change_modal));
         exit();
@@ -956,9 +961,10 @@ class WriterAdminGUI extends BaseGUI
 				}else if($essay->getPdfVersion() === null){
 					ilUtil::sendInfo($this->plugin->txt("pdf_version_info_started_essay"));
 				}
-                
+
+                $this->addContentCss();
 				$subs[] = $this->uiFactory->panel()->sub($this->plugin->txt("writing"),
-                    $this->uiFactory->legacy((string) $essay->getWrittenText())
+                    $this->uiFactory->legacy($this->displayContent($this->localDI->getDataService($task_id)->cleanupRichText($essay->getWrittenText())))
 				);
 			}
 

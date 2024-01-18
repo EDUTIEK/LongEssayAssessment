@@ -422,7 +422,7 @@ class CorrectorStartGUI extends BaseGUI
         $repoWriter = $this->localDI->getWriterRepo()->getWriterById($writer_id);
 
         $filename = 'task' . $this->object->getId() . '_writer' . $repoWriter->getId(). '-writing.pdf';
-        ilUtil::deliverData($service->getWritingAsPdf($this->object, $repoWriter, true), $filename, 'application/pdf');
+        ilUtil::deliverData($service->getWritingAsPdf($this->object, $repoWriter, true, true), $filename, 'application/pdf');
     }
 
     protected function downloadCorrectedPdf() 

@@ -860,7 +860,7 @@ class WriterAdminGUI extends BaseGUI
 
                 $context = new WriterContext();
                 $context->init((string) $writer->getUserId(), (string) $this->object->getRefId());
-                $service->createPdfFromText($essay, $context);
+                $service->createPdfFromText($this->object, $essay, $writer);
                 $service->purgeCorrectorComments($essay);
             }
         }
@@ -911,10 +911,7 @@ class WriterAdminGUI extends BaseGUI
 						}
 
 						$service->handlePDFVersionInput($essay, $file_id);
-                        
-                        $context = new WriterContext();
-                        $context->init((string) $writer->getUserId(), (string) $this->object->getRefId());
-                        $service->createEssayImages($essay, $context);
+                        $service->createEssayImages($this->object, $essay, $writer);
                         $service->purgeCorrectorComments($essay);
                         
 						$this->ctrl->redirect($this);

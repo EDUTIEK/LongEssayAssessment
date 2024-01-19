@@ -49,7 +49,7 @@ class SolutionSettingsGUI extends BaseGUI
 
 		if(!$taskSettings->isSolutionAvailable())
 		{
-            $this->tpl->setOnScreenMessage("info", $this->lng->txt("solution_is_not_available"), false);
+            $this->tpl->setOnScreenMessage("info", $this->plugin->txt("solution_is_not_available"), false);
 		}
 
 		$form = $this->buildSolutionSettings($taskSettings, $resource);

@@ -964,7 +964,7 @@ class WriterAdminGUI extends BaseGUI
 				}
 
                 $this->addContentCss();
-				$subs[] = $this->uiFactory->panel()->sub($this->plugin->txt("writing"),
+				$subs[] = $this->uiFactory->panel()->sub($this->plugin->txt("pdf_version_header_writing"),
                     $this->uiFactory->legacy($this->displayContent($this->localDI->getDataService($task_id)->cleanupRichText($essay->getWrittenText())))
 				);
 			}

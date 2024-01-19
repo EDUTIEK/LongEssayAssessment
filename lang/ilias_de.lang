@@ -428,7 +428,7 @@ pdf_version_warning_authorized_essay#:#Teilnehmer/in hat bereits einen Text abge
 writing_remove_authorize_log_description#:#Die Autorisierung der Abgabe von %s wurde von %s entfernt.
 pdf_version_download#:#PDF-Abgabe herunterladen
 download#:#Herunterladen
-writing#:#Bearbeitung
+pdf_version_header_writing#:#Text aus der Schreiboberfläche (wird hinzugefügt)
 pdf_version_upload_not_allowed_by_corrections#:#Sie können keine PDF-Version hochladen, da eine Korrektur bereits autorisiert ist.
 pdf_version_upload_successful_auth#:#Die PDF-Version wurde erfolgreich hochgeladen und autorisiert.
 pdf_version_upload_successful_removed#:#Die PDF-Version wurde erfolgreich entfernt.

@@ -13,7 +13,6 @@ use ILIAS\Plugin\LongEssayAssessment\UI\Component\BlankForm;
 use ILIAS\Plugin\LongEssayAssessment\WriterAdmin\CorrectorAdminListGUI;
 use ILIAS\Plugin\LongEssayAssessment\WriterAdmin\CorrectorListGUI;
 use ILIAS\UI\Component\Input\Container\Form\Form;
-use \ilUtil;
 use ILIAS\Plugin\LongEssayAssessment\Data\Essay\CorrectorSummary;
 use ILIAS\Plugin\LongEssayAssessment\Data\Corrector\Corrector;
 

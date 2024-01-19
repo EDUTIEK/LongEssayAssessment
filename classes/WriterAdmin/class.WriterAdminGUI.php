@@ -16,7 +16,6 @@ use ILIAS\ResourceStorage\Identification\ResourceIdentification;
 use ILIAS\UI\Component\Input\Container\Form\Standard;
 use ILIAS\UI\Component\Modal\RoundTrip;
 use ILIAS\UI\Implementation\Component\SignalGeneratorInterface;
-use \ilUtil;
 use ILIAS\Plugin\LongEssayAssessment\Writer\WriterContext;
 
 /**
@@ -570,14 +569,14 @@ class WriterAdminGUI extends BaseGUI
         }
 
         $service = $this->localDI->getWriterAdminService($this->object->getId());
-        $name = \ilUtil::getASCIIFilename($this->object->getTitle() .'_' . \ilObjUser::_lookupFullname($repoWriter->getUserId()));
+        $name = \ilFileUtils::getASCIIFilename($this->object->getTitle() .'_' . \ilObjUser::_lookupFullname($repoWriter->getUserId()));
         $zipfile = $service->createWritingStepsExport($this->object, $repoWriter, $name);
         if (empty($zipfile)) {
             $this->tpl->setOnScreenMessage("failure", $this->plugin->txt("content_not_available"), true);
             $this->ctrl->redirect($this, "showStartPage");
         }
 
-        ilUtil::deliverFile($zipfile, $name . '.zip', 'application/zip', true, true);
+        \ilFileDelivery::deliverFileAttached($zipfile, $name . '.zip', 'application/zip', true);
     }
 
 	protected function buildLocationForm($value = null): BlankForm
@@ -984,7 +983,7 @@ class WriterAdminGUI extends BaseGUI
 			&& $essay->getPdfVersion() !== null
 			&& ($identifier = $this->storage->manage()->find($essay->getPdfVersion())) )
 		{
-			$name = \ilUtil::getASCIIFilename(
+			$name = \ilFileUtils::getASCIIFilename(
 				$this->object->getTitle() . '_' .
 				$this->plugin->txt("pdf_version") . '_' .
 				\ilObjUser::_lookupFullname($writer->getUserId()));

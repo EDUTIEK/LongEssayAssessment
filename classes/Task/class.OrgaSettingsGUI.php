@@ -10,7 +10,6 @@ use ILIAS\Plugin\LongEssayAssessment\Data\Task\TaskRepository;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\TaskSettings;
 use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
 use ILIAS\UI\Component\Input\Container\Form\Standard;
-use \ilUtil;
 
 /**
  * Organisational Settings

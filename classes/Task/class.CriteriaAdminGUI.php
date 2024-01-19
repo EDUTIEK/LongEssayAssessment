@@ -7,7 +7,6 @@ use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\Data\Object\RatingCriterion;
 use ILIAS\UI\Component\Table\PresentationRow;
 use ILIAS\UI\Factory;
-use \ilUtil;
 
 /**
  * Resources Administration

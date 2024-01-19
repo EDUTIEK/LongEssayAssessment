@@ -7,7 +7,6 @@ use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\Resource;
 use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
 use ILIAS\Plugin\LongEssayAssessment\UI\UIService;
-use ilUtil;
 
 /**
  * Resources Administration

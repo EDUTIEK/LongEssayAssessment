@@ -8,7 +8,6 @@ use ILIAS\Plugin\LongEssayAssessment\Data\Task\Resource;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\TaskSettings;
 use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
 use ILIAS\UI\Component\Input\Container\Form\Form;
-use \ilUtil;
 
 /**
  * Definition of the task solution

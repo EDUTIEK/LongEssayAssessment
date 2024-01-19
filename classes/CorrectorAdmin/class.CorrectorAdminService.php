@@ -425,14 +425,14 @@ class CorrectorAdminService extends BaseService
         $storage = $this->dic->filesystem()->temp();
         $basedir = ILIAS_DATA_DIR . '/' . CLIENT_ID . '/temp';
         $tempdir = 'xlas/'. (new UUID)->uuid4AsString();
-        $zipdir = $tempdir . '/' . \ilUtil::getASCIIFilename($object->getTitle());
+        $zipdir = $tempdir . '/' . \ilFileDelivery::returnASCIIFileName($object->getTitle());
         $storage->createDir($zipdir);
 
         $repoTask = $this->taskRepo->getTaskSettingsById($object->getId());
         foreach ($this->essayRepo->getEssaysByTaskId($repoTask->getTaskId()) as $repoEssay) {
             $repoWriter = $this->writerRepo->getWriterById($repoEssay->getWriterId());
 
-            $subdir = \ilUtil::getASCIIFilename(\ilObjUser::_lookupFullname($repoWriter->getUserId()) . ' (' . \ilObjUser::_lookupLogin($repoWriter->getUserId()) . ')');
+            $subdir = \ilFileDelivery::returnASCIIFileName(\ilObjUser::_lookupFullname($repoWriter->getUserId()) . ' (' . \ilObjUser::_lookupLogin($repoWriter->getUserId()) . ')');
             $storage->createDir($zipdir . '/' . $subdir);
 
             $filename = $subdir . '-writing.pdf';
@@ -442,8 +442,10 @@ class CorrectorAdminService extends BaseService
             $storage->write($zipdir . '/' . $subdir. '/'. $filename, $this->getCorrectionAsPdf($object, $repoWriter));
         }
 
-        $zipfile = $basedir . '/' . $tempdir . '/' . \ilUtil::getASCIIFilename($object->getTitle()) . '.zip';
-        \ilUtil::zip($basedir . '/' . $zipdir, $zipfile);
+        $zipfile = $basedir . '/' . $tempdir . '/' . \ilFileUtils::getASCIIFilename($object->getTitle()) . '.zip';
+        \ilFileUtils::zip($basedir . '/' . $zipdir, $zipfile);
+        // With ILIAS 9 rewrite with this guide:
+        // https://github.com/ILIAS-eLearning/ILIAS/blob/release_9/docs/development/file-handling.md#zip-and-unzip
 
         $storage->deleteDir($zipdir);
         return $zipfile;

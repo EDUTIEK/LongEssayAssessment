@@ -7,7 +7,6 @@ use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\Alert;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\LogEntry;
 use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
-use \ilUtil;
 
 /**
  *Start page for corrector admins
@@ -216,8 +215,8 @@ class WriterAdminLogGUI extends BaseGUI
 
     private function exportLog()
     {
-        $filename = \ilUtil::getASCIIFilename($this->plugin->txt('export_log_file_prefix') .' ' . $this->object->getTitle()) . '.csv';
-        ilUtil::deliverFile($this->service->createLogExport(), $filename, 'text/csv', true, true);
+        $filename = \ilFileUtils::getASCIIFilename($this->plugin->txt('export_log_file_prefix') .' ' . $this->object->getTitle()) . '.csv';
+        \ilFileDelivery::deliverFileAttached($this->service->createLogExport(), $filename, 'text/csv', true, true);
     }
 
 }

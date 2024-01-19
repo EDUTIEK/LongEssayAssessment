@@ -8,7 +8,6 @@ use ILIAS\Plugin\LongEssayAssessment\Data\Object\GradeLevel;
 use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
 use ILIAS\UI\Component\Table\PresentationRow;
 use ILIAS\UI\Factory;
-use \ilUtil;
 use ILIAS\Plugin\LongEssayAssessment\CorrectorAdmin\CorrectorAdminService;
 use ILIAS\Plugin\LongEssayAssessment\Data\Object\ObjectRepository;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\TaskRepository;

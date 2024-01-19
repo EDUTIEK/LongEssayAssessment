@@ -13,7 +13,6 @@ use ILIAS\Plugin\LongEssayAssessment\UI\Component\BlankForm;
 use ILIAS\Plugin\LongEssayAssessment\WriterAdmin\CorrectorAdminListGUI;
 use ILIAS\Plugin\LongEssayAssessment\WriterAdmin\CorrectorListGUI;
 use ILIAS\UI\Component\Input\Container\Form\Form;
-use \ilUtil;
 use ILIAS\Plugin\LongEssayAssessment\Data\Corrector\Corrector;
 use PhpOffice\PhpSpreadsheet\Style\ConditionalFormatting\Wizard;
 use ILIAS\Plugin\LongEssayAssessment\Task\ResourceUploadHandlerGUI;
@@ -416,14 +415,14 @@ class CorrectorAdminGUI extends BaseGUI
 
     protected function exportCorrections()
     {
-        $filename = \ilUtil::getASCIIFilename($this->plugin->txt('export_corrections_file_prefix') .' ' .$this->object->getTitle()) . '.zip';
-        ilUtil::deliverFile($this->service->createCorrectionsExport($this->object), $filename, 'application/zip', true, true);
+        $filename = \ilFileDelivery::returnASCIIFileName($this->plugin->txt('export_corrections_file_prefix') .' ' .$this->object->getTitle()) . '.zip';
+        \ilFileDelivery::deliverFileAttached($this->service->createCorrectionsExport($this->object), $filename, 'application/zip', true);
     }
 
     protected function exportResults()
     {
-        $filename = \ilUtil::getASCIIFilename($this->plugin->txt('export_results_file_prefix') .' ' . $this->object->getTitle()) . '.csv';
-        ilUtil::deliverFile($this->service->createResultsExport(), $filename, 'text/csv', true, true);
+        $filename = \ilFileUtils::getASCIIFilename($this->plugin->txt('export_results_file_prefix') .' ' . $this->object->getTitle()) . '.csv';
+        \ilFileDelivery::deliverFileAttached($this->service->createResultsExport(), $filename, 'text/csv', true);
     }
 
     /**
@@ -438,7 +437,7 @@ class CorrectorAdminGUI extends BaseGUI
         $repoWriter = $this->localDI->getWriterRepo()->getWriterById($writer_id);
 
         $filename = 'task' . $this->object->getId() . '_writer' . $repoWriter->getId(). '-writing.pdf';
-        ilUtil::deliverData($service->getWritingAsPdf($this->object, $repoWriter), $filename, 'application/pdf');
+        \ilFileDelivery::deliverFileAttached($service->getWritingAsPdf($this->object, $repoWriter), $filename, 'application/pdf');
     }
 
 
@@ -454,7 +453,7 @@ class CorrectorAdminGUI extends BaseGUI
         $repoWriter = $this->localDI->getWriterRepo()->getWriterById($writer_id);
 
         $filename = 'task' . $this->object->getId() . '_writer' . $repoWriter->getId(). '-correction.pdf';
-        ilUtil::deliverData($service->getCorrectionAsPdf($this->object, $repoWriter), $filename, 'application/pdf');
+        \ilFileDelivery::deliverFileAttached($service->getCorrectionAsPdf($this->object, $repoWriter), $filename, 'application/pdf');
     }
 
     private function exportSteps()
@@ -465,14 +464,14 @@ class CorrectorAdminGUI extends BaseGUI
         }
 
         $service = $this->localDI->getWriterAdminService($this->object->getId());
-        $name = \ilUtil::getASCIIFilename($this->object->getTitle() .'_' . \ilObjUser::_lookupFullname($repoWriter->getUserId()));
+        $name = \ilFileUtils::getASCIIFilename($this->object->getTitle() .'_' . \ilObjUser::_lookupFullname($repoWriter->getUserId()));
         $zipfile = $service->createWritingStepsExport($this->object, $repoWriter, $name);
         if (empty($zipfile)) {
             $this->tpl->setOnScreenMessage("failure", $this->plugin->txt("content_not_available"), true);
             $this->ctrl->redirect($this, "showStartPage");
         }
 
-        ilUtil::deliverFile($zipfile, $name . '.zip', 'application/zip', true, true);
+        \ilFileDelivery::deliverFileAttached($zipfile, $name . '.zip', 'application/zip', true);
     }
 
     private function getWriterId(): ?int
@@ -694,7 +693,7 @@ class CorrectorAdminGUI extends BaseGUI
 
                 try{
                     $spreadsheet = new CorrectorAssignmentExcel();
-                    $spreadsheet->loadFromFile(\ilUtil::getDataDir() . '/temp/' . $filename);
+                    $spreadsheet->loadFromFile(ILIAS_DATA_DIR . '/' . CLIENT_ID . '/temp/' . $filename);
 
                     $spreadsheet->setActiveSheet(1);
                     $corrector = [];

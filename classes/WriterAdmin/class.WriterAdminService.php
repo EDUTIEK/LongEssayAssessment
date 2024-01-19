@@ -203,7 +203,7 @@ class WriterAdminService extends BaseService
         $storage->write($zipdir . '/index.html', $toc);
 
         $zipfile = $basedir . '/' . $tempdir . '/export.zip';
-        \ilUtil::zip($basedir . '/' . $zipdir, $zipfile);
+        \ilFileUtils::zip($basedir . '/' . $zipdir, $zipfile);
 
         $storage->deleteDir($zipdir);
         return $zipfile;

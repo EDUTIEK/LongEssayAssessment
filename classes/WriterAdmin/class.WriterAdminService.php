@@ -18,6 +18,7 @@ use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
 use ILIAS\Plugin\LongEssayAssessment\Writer\WriterContext;
 use ILIAS\Filesystem\Stream\Streams;
 use ILIAS\Plugin\LongEssayAssessment\Data\Essay\EssayImage;
+use ilObjLongEssayAssessment;
 
 class WriterAdminService extends BaseService
 {
@@ -88,6 +89,23 @@ class WriterAdminService extends BaseService
         return $essay;
     }
 
+    /**
+     * Get the writing of an essay as PDF string
+     */
+    public function getWritingAsPdf(ilObjLongEssayAssessment $object, Writer $repoWriter, bool $anonymous = false, bool $rawContent = false) : string
+    {
+        $context = new WriterContext();
+        $context->init((string) $repoWriter->getUserId(), (string) $object->getRefId());
+
+        $writingTask = $context->getWritingTask();
+        if ($anonymous) {
+            $writingTask = $writingTask->withWriterName($repoWriter->getPseudonym());
+        }
+        $writtenEssay = $context->getWrittenEssay();
+
+        $service = new Service($context);
+        return $service->getWritingAsPdf($writingTask, $writtenEssay, $rawContent);
+    }
 
     public function createLogExport()
     {
@@ -386,6 +404,12 @@ class WriterAdminService extends BaseService
 		}
 		$this->essayRepo->save($essay);
 	}
+
+    public function hasCorrectorComments(Essay $essay) : bool
+    {
+        $essay_repo = LongEssayAssessmentDI::getInstance()->getEssayRepo();
+        return !empty($essay_repo->getCorrectorCommentsByEssayIdAndCorrectorId($essay->getId(), null));
+    }
     
     public function purgeCorrectorComments(Essay $essay) 
     {
@@ -393,29 +417,27 @@ class WriterAdminService extends BaseService
         $essay_repo->deleteCorrectorCommentByEssayId($essay->getId());
     }
     
-    public function createPdfFromText(Essay $essay, WriterContext $context) 
+    public function createPdfFromText(ilObjLongEssayAssessment $object, Essay $essay, Writer $writer)
     {
         $essay_repo = LongEssayAssessmentDI::getInstance()->getEssayRepo();
-        $service = new Service($context);
         
         if (empty($essay->getPdfVersion()) && !empty($essay->getWrittenText())) {
-                $content = $service->getProcessedTextAsPlainPdf();
+                $content = $this->getWritingAsPdf($object, $writer, true, true);
                 $stream = Streams::ofString($content);
                 $file_id = $this->dic->resourceStorage()->manage()->stream($stream, new PDFVersionResourceStakeholder(), $this->plugin->txt('pdf_from_text'));
                 $essay->setPdfVersion((string) $file_id);
                 $essay_repo->save($essay);
                 $this->authorizeWriting($essay, $this->dic->user()->getId());
                 
-                // test is put into the PDF, so it does not need to be added to the images
-                $this->createEssayImages($essay, $context, false);
+                // text is put into the created PDF, so it does not need to be added to the images
+                $this->createEssayImages($object, $essay, $writer, false);
         }
     }
     
-    public function createEssayImages(Essay $essay, WriterContext $context, bool $with_text = true) 
+    public function createEssayImages(ilObjLongEssayAssessment $object, Essay $essay, Writer $writer, bool $with_text = true)
     {
         $essay_repo = LongEssayAssessmentDI::getInstance()->getEssayRepo();
-        $service = new Service($context);
-        
+
         $this->removeEssayImages($essay->getId());
         
         $pdfs = [];
@@ -423,7 +445,7 @@ class WriterAdminService extends BaseService
 
             if ($with_text && !empty($essay->getWrittenText())) {
                 $fs = $this->dic->filesystem()->temp();
-                $fs->put('xlas/processed_text.pdf', $service->getProcessedTextAsPlainPdf());
+                $fs->put('xlas/processed_text.pdf', $this->getWritingAsPdf($object, $writer,true, true));
                 $pdfs[] = $fs->readStream('xlas/processed_text.pdf')->detach();
             }
             
@@ -434,6 +456,9 @@ class WriterAdminService extends BaseService
         }
         
         if (!empty($pdfs)) {
+            $context = new WriterContext();
+            $context->init((string) $writer->getUserId(), (string) $object->getRefId());
+            $service = new Service($context);
             $images = $service->createPageImagesFromPdfs($pdfs);
 
             $page = 1;

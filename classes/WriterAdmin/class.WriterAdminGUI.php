@@ -83,6 +83,7 @@ class WriterAdminGUI extends BaseGUI
      */
     protected function showStartPage()
     {
+        $this->addContentCss();
         $this->toolbar->setFormAction($this->ctrl->getFormAction($this));
 
 		\ilRepositorySearchGUI::fillAutoCompleteToolbar(
@@ -721,13 +722,14 @@ class WriterAdminGUI extends BaseGUI
 	protected function showEssay()
 	{
 		$essays = $this->getEssaysFromWriterIds();
-		$value = count($essays) > 0 && ($essay =  array_pop($essays)) !== null? $essay->getWrittenText() : null;
+		$value = count($essays) > 0 && ($essay =  array_pop($essays)) !== null? $essay->getWrittenText() : '';
+        $value = $this->displayContent($this->localDI->getDataService($this->object->getId())->cleanupRichText($value));
 
 		$this->ctrl->saveParameter($this, "writer_id");
 		$link = $this->ctrl->getFormAction($this, "showEssay", "", true);
 
 		$sight_modal = $this->uiFactory->modal()->roundtrip($this->plugin->txt("submission"),
-			$this->uiFactory->legacy($value ? $this->localDI->getDataService($this->object->getId())->cleanupRichText($value): "")
+			$this->uiFactory->legacy($value)
 		);
 		$reload_button = $this->uiFactory->button()->standard($this->lng->txt("refresh"), "")
 			->withLoadingAnimationOnClick(true)
@@ -811,15 +813,18 @@ class WriterAdminGUI extends BaseGUI
         }
 
         if(empty($items)) {
-            ilUtil::sendFailure($this->plugin->txt("change_text_to_pdf_none_possible"), true);
-            $this->ctrl->redirect($this, "showStartPage");
+            $change_modal = $this->uiFactory->modal()->roundtrip(
+                $this->plugin->txt("change_text_to_pdf"),
+                $this->uiFactory->legacy($this->plugin->txt("change_text_to_pdf_none_possible")),
+            );
         }
-
-        $change_modal = $this->uiFactory->modal()->interruptive(
-            $this->plugin->txt("change_text_to_pdf"),
-            $this->plugin->txt("change_text_to_pdf_confirmation"),
-            $this->ctrl->getFormAction($this, "changeTextToPdf")
-        )->withAffectedItems($items)->withActionButtonLabel('change');
+        else {
+            $change_modal = $this->uiFactory->modal()->interruptive(
+                $this->plugin->txt("change_text_to_pdf"),
+                $this->plugin->txt("change_text_to_pdf_confirmation"),
+                $this->ctrl->getFormAction($this, "changeTextToPdf")
+            )->withAffectedItems($items)->withActionButtonLabel('change');
+        }
 
         echo($this->renderer->renderAsync($change_modal));
         exit();
@@ -860,7 +865,7 @@ class WriterAdminGUI extends BaseGUI
 
                 $context = new WriterContext();
                 $context->init((string) $writer->getUserId(), (string) $this->object->getRefId());
-                $service->createPdfFromText($essay, $context);
+                $service->createPdfFromText($this->object, $essay, $writer);
                 $service->purgeCorrectorComments($essay);
             }
         }
@@ -871,6 +876,7 @@ class WriterAdminGUI extends BaseGUI
 
     public function uploadPDFVersion()
 	{
+        $essay_repo = $this->localDI->getEssayRepo();
 		$writer_repo = $this->localDI->getWriterRepo();
 		$task_repo = $this->localDI->getTaskRepo();
 		$task_id = $this->object->getId();
@@ -911,10 +917,7 @@ class WriterAdminGUI extends BaseGUI
 						}
 
 						$service->handlePDFVersionInput($essay, $file_id);
-                        
-                        $context = new WriterContext();
-                        $context->init((string) $writer->getUserId(), (string) $this->object->getRefId());
-                        $service->createEssayImages($essay, $context);
+                        $service->createEssayImages($this->object, $essay, $writer);
                         $service->purgeCorrectorComments($essay);
                         
 						$this->ctrl->redirect($this);
@@ -949,19 +952,20 @@ class WriterAdminGUI extends BaseGUI
 					: $this->plugin->txt("pdf_version_upload"), $form)->withCard($user_info)
 			];
 
-			if($essay->getEditStarted()){
-
-				if($essay->getWritingAuthorized() !== null
-					&& $essay->getWritingAuthorizedBy() === $writer->getUserId()
-					&& $essay->getPdfVersion() === null)
-				{
+			if($essay->getEditStarted()) {
+				if ($essay->getPdfVersion() !== null) {
+                    if ($service->hasCorrectorComments($essay)) {
+                        ilUtil::sendQuestion($this->plugin->txt("pdf_version_info_already_uploaded"));
+                    }
+                } elseif($essay->getWritingAuthorized() !== null && $essay->getWritingAuthorizedBy() === $writer->getUserId()) {
 					ilUtil::sendQuestion($this->plugin->txt("pdf_version_warning_authorized_essay"));
-				}else if($essay->getPdfVersion() === null){
-					ilUtil::sendInfo($this->plugin->txt("pdf_version_info_started_essay"));
+				}else {
+					ilUtil::sendQuestion($this->plugin->txt("pdf_version_info_started_essay"));
 				}
-                
-				$subs[] = $this->uiFactory->panel()->sub($this->plugin->txt("writing"),
-                    $this->uiFactory->legacy((string) $essay->getWrittenText())
+
+                $this->addContentCss();
+				$subs[] = $this->uiFactory->panel()->sub($this->plugin->txt("pdf_version_header_writing"),
+                    $this->uiFactory->legacy($this->displayContent($this->localDI->getDataService($task_id)->cleanupRichText($essay->getWrittenText())))
 				);
 			}
 

@@ -434,7 +434,7 @@ class CorrectorAdminGUI extends BaseGUI
         $params = $this->request->getQueryParams();
         $writer_id = (int) ($params['writer_id'] ?? 0);
 
-        $service = $this->localDI->getCorrectorAdminService($this->object->getId());
+        $service = $this->localDI->getWriterAdminService($this->object->getId());
         $repoWriter = $this->localDI->getWriterRepo()->getWriterById($writer_id);
 
         $filename = 'task' . $this->object->getId() . '_writer' . $repoWriter->getId(). '-writing.pdf';

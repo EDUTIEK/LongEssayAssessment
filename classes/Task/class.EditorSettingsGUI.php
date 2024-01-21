@@ -40,14 +40,18 @@ class EditorSettingsGUI extends BaseGUI
     protected function editSettings()
     {
 		$task_repo = $this->localDI->getTaskRepo();
+        $essay_repo = $this->localDI->getEssayRepo();
 
-		$editorSettings = $task_repo->getEditorSettingsById($this->object->getId());
+        $editorSettings = $task_repo->getEditorSettingsById($this->object->getId());
+        $pdfSettings = $task_repo->getPdfSettingsById($this->object->getId());
+        $hasComments = $essay_repo->hasCorrectorCommentsByTaskId($this->object->getId());
 
         $factory = $this->uiFactory->input()->field();
 
         $sections = [];
 
-        // Object
+        // Editor
+
         $fields = [];
         $fields['headline_scheme'] = $factory->select($this->plugin->txt('headline_scheme'),
             [
@@ -87,6 +91,80 @@ class EditorSettingsGUI extends BaseGUI
 
         $sections['editor'] = $factory->section($fields, $this->plugin->txt('editor_settings'));
 
+        // Processing
+
+        $fields = [];
+
+        $fields['add_paragraph_numbers'] = $factory->checkbox(
+            $this->plugin->txt('add_paragraph_numbers'),
+            $this->plugin->txt('add_paragraph_numbers_info'))
+            ->withDisabled($hasComments)
+            ->withValue($editorSettings->getAddParagraphNumbers());
+
+        $fields['add_correction_margin'] = $factory->optionalGroup([
+            'left_correction_margin' => $factory->numeric($this->plugin->txt('left_correction_margin'))
+                ->withAdditionalTransformation($this->refinery->to()->int())
+                ->withRequired(true)
+                ->withDisabled($hasComments)
+                ->withValue($editorSettings->getLeftCorrectionMargin()),
+            'right_correction_margin' => $factory->numeric($this->plugin->txt('right_correction_margin'))
+                ->withAdditionalTransformation($this->refinery->to()->int())
+                ->withRequired(true)
+                ->withDisabled($hasComments)
+                ->withValue($editorSettings->getRightCorrectionMargin()),
+        ],
+            $this->plugin->txt('add_correction_margin'),
+            $this->plugin->txt('add_correction_margin_info'),
+        )->withDisabled($hasComments);
+        // strange but effective
+        if (!$editorSettings->getAddCorrectionMargin()) {
+            $fields['add_correction_margin'] = $fields['add_correction_margin']->withValue(null);
+        }
+
+        $sections['processing'] = $factory->section($fields,
+            $this->plugin->txt('processing_settings'),
+            $this->plugin->txt('processing_settings_info')
+        );
+
+        // PDF generation
+
+        $fields = [];
+
+        $fields['add_header'] = $factory->checkbox($this->plugin->txt('pdf_add_header'), $this->plugin->txt('pdf_add_header_info'))
+            ->withValue($pdfSettings->getAddHeader());
+
+        $fields['add_footer'] = $factory->checkbox($this->plugin->txt('pdf_add_footer'), $this->plugin->txt('pdf_add_footer_info'))
+            ->withValue($pdfSettings->getAddFooter());
+
+        $fields['top_margin'] = $factory->numeric($this->plugin->txt('pdf_top_margin'), $this->plugin->txt('pdf_top_margin_info'))
+            ->withAdditionalTransformation($this->refinery->to()->int())
+            ->withAdditionalTransformation($this->refinery->int()->isGreaterThan(4))
+            ->withRequired(true)
+            ->withValue($pdfSettings->getTopMargin());
+
+        $fields['bottom_margin'] = $factory->numeric($this->plugin->txt('pdf_bottom_margin'), $this->plugin->txt('pdf_bottom_margin_info'))
+            ->withAdditionalTransformation($this->refinery->to()->int())
+            ->withAdditionalTransformation($this->refinery->int()->isGreaterThan(4))
+            ->withRequired(true)
+            ->withValue($pdfSettings->getBottomMargin());
+
+        $fields['left_margin'] = $factory->numeric($this->plugin->txt('pdf_left_margin'), $this->plugin->txt('pdf_left_margin_info'))
+            ->withAdditionalTransformation($this->refinery->to()->int())
+            ->withAdditionalTransformation($this->refinery->int()->isGreaterThan(4))
+            ->withRequired(true)
+            ->withValue($pdfSettings->getLeftMargin());
+
+        $fields['right_margin'] = $factory->numeric($this->plugin->txt('pdf_right_margin'), $this->plugin->txt('pdf_right_margin_info'))
+            ->withAdditionalTransformation($this->refinery->to()->int())
+            ->withAdditionalTransformation($this->refinery->int()->isGreaterThan(4))
+            ->withRequired(true)
+            ->withValue($pdfSettings->getRightMargin());
+
+        $sections['pdf'] = $factory->section($fields,
+            $this->plugin->txt('pdf_settings'),
+            $this->plugin->txt('pdf_settings_info')
+        );
+
         $form = $this->uiFactory->input()->container()->form()->standard($this->ctrl->getFormAction($this), $sections);
 
         // apply inputs
@@ -100,8 +178,28 @@ class EditorSettingsGUI extends BaseGUI
             $editorSettings->setHeadlineScheme($data['editor']['headline_scheme']);
             $editorSettings->setFormattingOptions($data['editor']['formatting_options']);
             $editorSettings->setNoticeBoards((int) $data['editor']['notice_boards']);
-            $editorSettings->setCopyAllowed($data['editor']['copy_allowed']);
-			$task_repo->save($editorSettings);
+            $editorSettings->setCopyAllowed((bool) $data['editor']['copy_allowed']);
+
+            if (!$hasComments) {
+                $editorSettings->setAddParagraphNumbers((bool) $data['processing']['add_paragraph_numbers']);
+                if (isset($data['processing']['add_correction_margin']) && is_array($data['processing']['add_correction_margin'])) {
+                    $editorSettings->setAddCorrectionMargin(true);
+                    $editorSettings->setLeftCorrectionMargin((int) $data['processing']['add_correction_margin']['left_correction_margin']);
+                    $editorSettings->setRightCorrectionMargin((int) $data['processing']['add_correction_margin']['right_correction_margin']);
+                }
+                else {
+                    $editorSettings->setAddCorrectionMargin(false);
+                }
+            }
+             $task_repo->save($editorSettings);
+
+            $pdfSettings->setAddHeader((bool) $data['pdf']['add_header']);
+            $pdfSettings->setAddFooter((bool) $data['pdf']['add_footer']);
+            $pdfSettings->setTopMargin((int) $data['pdf']['top_margin']);
+            $pdfSettings->setBottomMargin((int) $data['pdf']['bottom_margin']);
+            $pdfSettings->setLeftMargin((int) $data['pdf']['left_margin']);
+            $pdfSettings->setRightMargin((int) $data['pdf']['right_margin']);
+			$task_repo->save($pdfSettings);
 
             ilUtil::sendSuccess($this->lng->txt("settings_saved"), true);
             $this->ctrl->redirect($this, "editSettings");

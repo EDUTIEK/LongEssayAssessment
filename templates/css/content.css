@@ -1,0 +1,28 @@
+/**
+ * Style of written contents
+ */
+
+.mce-content-body, .long-essay-content {
+    font-family: serif;
+    font-size: 16px;
+    max-width: 60em;
+    line-height: 150%;
+}
+.mce-content-body h1, .long-essay-content h1,
+.mce-content-body h2, .long-essay-content h2,
+.mce-content-body h3, .long-essay-content h3,
+.mce-content-body h4, .long-essay-content h4,
+.mce-content-body h5, .long-essay-content h5,
+.mce-content-body h6, .long-essay-content h6 {
+    font-size: 16px;
+    font-weight: bold;
+    padding: 0;
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+
+.mce-content-body ol, .long-essay-content ol,
+.mce-content-body ul, .long-essay-content ul {
+    margin-left: 10px;
+    margin-bottom: 20px;
+}

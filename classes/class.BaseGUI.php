@@ -5,6 +5,7 @@ namespace ILIAS\Plugin\LongEssayAssessment;
 
 use ILIAS\DI\Container;
 use ILIAS\Plugin\LongEssayAssessment\Data\DataService;
+use ILIAS\Plugin\LongEssayAssessment\Data\Task\EditorSettings;
 use ILIAS\UI\Factory;
 use ILIAS\UI\Renderer;
 use Psr\Http\Message\RequestInterface;
@@ -134,5 +135,42 @@ abstract class BaseGUI
     public function displayText(?string $html) : string
     {
             return '<div style="max-width: 60em;">' . $html . '</div>';    
+    }
+
+    /**
+     * Display an essay content
+     */
+    public function displayContent(?string $html) : string
+    {
+        if (!empty($settings = $this->localDI->getTaskRepo()->getEditorSettingsById($this->object->getId()))) {
+            switch ($settings->getHeadlineScheme()) {
+                case EditorSettings::HEADLINE_SCHEME_EDUTIEK:
+                    $headline_class = "headlines-edutiek";
+                    break;
+                case EditorSettings::HEADLINE_SCHEME_NUMERIC:
+                    $headline_class = "headlines-numeric";
+                    break;
+            }
+        }
+        return '<div class="long-essay-content '. $headline_class.' ">' . $html . '</div>';
+    }
+
+    /**
+     * Add the css for displaying essay content
+     */
+    public function addContentCss() : void
+    {
+        $this->tpl->addCss($this->plugin->getDirectory() .'/templates/css/content.css');
+
+        if (!empty($settings = $this->localDI->getTaskRepo()->getEditorSettingsById($this->object->getId()))) {
+            switch ($settings->getHeadlineScheme()) {
+                case EditorSettings::HEADLINE_SCHEME_EDUTIEK:
+                    $this->tpl->addCss($this->plugin->getDirectory() .'/templates/css/headlines-edutiek.css');
+                    break;
+                case EditorSettings::HEADLINE_SCHEME_NUMERIC:
+                    $this->tpl->addCss($this->plugin->getDirectory() .'/templates/css/headlines-numeric.css');
+                    break;
+            }
+        }
     }
 }

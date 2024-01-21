@@ -537,11 +537,6 @@ class DataService extends BaseService
                 . $this->plugin->txt('include_criteria_points') . ' '
                 . $this->plugin->txt($inclusion == CorrectorSummary::INCLUDE_INFO ? 'include_suffix_info' : 'include_suffix_relevant');
         }
-        if (($inclusion = $summary->getIncludeWriterNotes() ?? $preferences->getIncludeWriterNotes()) > CorrectorSummary::INCLUDE_NOT) {
-            $text .= ($text ? ', ' : '')
-                . $this->plugin->txt('include_writer_notes') . ' '
-                . $this->plugin->txt($inclusion == CorrectorSummary::INCLUDE_INFO ? 'include_suffix_info' : 'include_suffix_relevant');
-        }
         if (empty($text)) {
             $text = $this->plugin->txt('include_nothing');
         }

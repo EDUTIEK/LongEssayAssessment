@@ -6,23 +6,23 @@
 //
 
 <!-- language file start -->
-obj_xlas#:#Langtext-Aufgabe (Pilot)
-objs_xlas#:#Langtext-Aufgaben (Pilot)
+obj_xlas#:#Langtext-Aufgabe
+objs_xlas#:#Langtext-Aufgaben
 obj_xlas_duplicate#:#Kopieren
-objs_xlas_duplicate#:#Kopiere Langtext-Aufgabe (Pilot)
-obj_xlas_select#:#Wähle Langtext-Aufgabe (Pilot)
-xlas_add#:#Langtext-Aufgabe hinzufügen (Pilot)
-xlas_new#:#Neue Langtext-Aufgabe (Pilot)
-xlas_read#:#Lesezugriff auf Langtext-Aufgabe  (Pilot)
-xlas_write#:#Langtext-Aufgabe bearbeiten  (Pilot)
-xlas_delete#:#Langtext-Aufgabe löschen  (Pilot)
-xlas_visible#:#Langtext-Aufgabe ist sichtbar (Pilot)
+objs_xlas_duplicate#:#Kopiere Langtext-Aufgabe
+obj_xlas_select#:#Wähle Langtext-Aufgabe
+xlas_add#:#Langtext-Aufgabe hinzufügen
+xlas_new#:#Neue Langtext-Aufgabe
+xlas_read#:#Lesezugriff auf Langtext-Aufgabe
+xlas_write#:#Langtext-Aufgabe bearbeiten
+xlas_delete#:#Langtext-Aufgabe löschen
+xlas_visible#:#Langtext-Aufgabe ist sichtbar
 xlas_edit_permission#:#Zugriffsrecht bearbeiten
-crs_create_xlas#:#Erstelle Langtext-Aufgabe (Pilot)
-grp_create_xlas#:#Erstelle Langtext-Aufgabe (Pilot)
-fold_create_xlas#:#Erstelle Langtext-Aufgabe (Pilot)
-root_create_xlas#:#Erstelle Langtext-Aufgabe (Pilot)
-cat_create_xlas#:#Erstelle Langtext-Aufgabe (Pilot)
+crs_create_xlas#:#Erstelle Langtext-Aufgabe
+grp_create_xlas#:#Erstelle Langtext-Aufgabe
+fold_create_xlas#:#Erstelle Langtext-Aufgabe
+root_create_xlas#:#Erstelle Langtext-Aufgabe
+cat_create_xlas#:#Erstelle Langtext-Aufgabe
 maintain_task#:#Aufgabenstellung verwalten
 maintain_writers#:#Durchführung verwalten
 maintain_correctors#:#Korrektur verwalten
@@ -106,11 +106,11 @@ task_instructions#:#Aufgabenstellung
 task_instructions_info#:#Die Aufgabenstellung wird mit Start der Bearbeitung angezeigt.
 task_solution#:#Lösungshinweise
 task_solution_info#:#Die Lösungshinweise werden erst ab einem festgelegten Zeitpunkt oder am Ende angezeigt. Dieser wird unter „Organisation ► Lösungshinweise verfügbar“ aktiviert und konfiguriert. Zusätzliche Hinweise können als Datei oder Weblink unter "Material" bereitgestellt werden.
-editor_settings#:#Einstellungen für den Editor
+editor_settings#:#Schreiben der Aufgabe
 headline_scheme#:#Überschriften-Schema
 headline_scheme_none#:#Ohne Numerierung
 headline_scheme_numeric#:#Numeriert: 1 ‧ 1.1 ‧ 1.1.1
-headline_scheme_edutiek#:#Gutachten: A. ‧ I. ‧ 1 ‧ a. ‧ aa. ‧ (1)
+headline_scheme_edutiek#:#Gutachten: A. ‧ I. ‧ 1. ‧ a. ‧ aa. ‧ (1)
 formatting_options#:#Text-Formatierung
 formatting_options_none#:#Aus
 formatting_options_none_info#:#Keine Formatatierungs-Optionen
@@ -422,12 +422,13 @@ authorize_pdf_version_info#:#Wenn eine PDF-Abgabe hinzugefügt oder geändert wi
 pdf_version#:#PDF-Abgabe
 pdf_version_edit#:#PDF-Abgabe editieren
 pdf_version_upload#:#PDF-Abgabe hochladen
+pdf_version_info_already_uploaded#:#Wenn Sie die vorhandene PDF-Abgabe entfernen oder ersetzen, werden die Markierungen und Kommentare bereits begonnener Korrekturen verworfen!
 pdf_version_info_started_essay#:#Teilnehmer/in hat bereits einen Text angefangen. Sind Sie sich sicher, dass Sie diese Ergebnisse mit dem PDF-Upload ergänzen möchten? Die Markierungen und Kommentare bereits begonnener Korrekturen werden verworfen.
 pdf_version_warning_authorized_essay#:#Teilnehmer/in hat bereits einen Text abgegeben und autorisiert. Sind Sie sich sicher, dass Sie diese Ergebnisse mit dem PDF-Upload ergänzen möchten? Die Markierungen und Kommentare bereits begonnener Korrekturen werden verworfen.
 writing_remove_authorize_log_description#:#Die Autorisierung der Abgabe von %s wurde von %s entfernt.
 pdf_version_download#:#PDF-Abgabe herunterladen
 download#:#Herunterladen
-writing#:#Bearbeitung
+pdf_version_header_writing#:#Text aus der Schreiboberfläche (wird hinzugefügt)
 pdf_version_upload_not_allowed_by_corrections#:#Sie können keine PDF-Version hochladen, da eine Korrektur bereits autorisiert ist.
 pdf_version_upload_successful_auth#:#Die PDF-Version wurde erfolgreich hochgeladen und autorisiert.
 pdf_version_upload_successful_removed#:#Die PDF-Version wurde erfolgreich entfernt.
@@ -495,3 +496,25 @@ change_text_to_pdf_success#:#Die ausgewählten Textabgaben wurden in PDF-Abgaben
 pdf_from_text#:#Konvertierte Textabgabe
 info_missing_correctors#:#Es gibt Abgaben zur Korrektur, aber Sie haben noch keine Korrektoren festgelegt. Wechseln Sie zu "Korrektoren", um Benutzer als Korrektoren hinzuzufügen. Anschließend können Sie diese den Abgaben zuweisen.
 info_missing_assignments#:#Es fehlen noch Korrektorenzuweisungen.
+processing_settings#:#Weiterverarbeitung
+processing_settings_info#:#Diese Einstellungen gelten für die Weiterverarbeitungen des geschriebenen Textes zur Korrektur. Da sie die Markierungsfunktion bei der Korrektur beeinflussen, können sie nicht mehr verändert werden, wenn es bereits Korrekuren mit Markierungen gibt.
+add_paragraph_numbers#:#Absatznummern generieren
+add_paragraph_numbers_info#:#Alle Überschriften, Absätze und Aufzählungen erhalten am Rand eine Nummer.
+add_correction_margin#:#Korrekturrand
+add_correction_margin_info#:#Wird ein Text zur Korrektur in ein PDF umgewandelt, kann ein Korrekturrand hinzugefügt werden, um dort Markierungen wie Haken zu platzieren.
+left_correction_margin#:#Linker Rand (mm)
+right_correction_margin#:#Rechter Rand (mm)
+pdf_settings#:#PDF-Generierung
+pdf_settings_info#:#Diese Einstellungen gelten für PDF-Dateien, die zur Dokumentation der Abgabe und Korrektur generiert werden.
+pdf_add_header#:#Kopfzeile
+pdf_add_header_info#:#Fügt unter dem oberen Rand eine Kopfzeile mit den folgenden Informationen ein: Aufgabentitel, Name Teilnehmer/in, Bearbeitungszeit
+pdf_add_footer#:#Fußzeile
+pdf_add_footer_info#:#Fügt über dem unteren Rand eine Fußzeile mit der Seitenummer des abgegebenen Texts ein
+pdf_top_margin#:#Oberer Rand (mm)
+pdf_top_margin_info#:#Minimum:  5
+pdf_bottom_margin#:#Unterer Rand (mm)
+pdf_bottom_margin_info#:#Minimum:  5
+pdf_left_margin#:#Linker Rand (mm)
+pdf_left_margin_info#:#Minimum:  5
+pdf_right_margin#:#Rechter Rand (mm)
+pdf_right_margin_info#:#Minimum:  5

@@ -229,14 +229,24 @@ class EssayRepository extends RecordRepo
     
     /**
      * @param int $essay_id
-     * @param int $corrector_id
+     * @param int|null $corrector_id
      * @return CorrectorComment[]
      */
-    public function getCorrectorCommentsByEssayIdAndCorrectorId(int $essay_id, int $corrector_id): array
+    public function getCorrectorCommentsByEssayIdAndCorrectorId(int $essay_id, ?int $corrector_id = null): array
     {
-        $query = "SELECT * FROM " . CorrectorComment::tableName() . " WHERE essay_id = " . $this->db->quote($essay_id, 'integer') .
-            " AND corrector_id = ". $this->db->quote($corrector_id, 'integer');
+        $query = "SELECT * FROM " . CorrectorComment::tableName() . " WHERE essay_id = " . $this->db->quote($essay_id, 'integer');
+        if (isset($corrector_id)) {
+            $query .= " AND corrector_id = ". $this->db->quote($corrector_id, 'integer');;
+        }
         return $this->queryRecords($query, CorrectorComment::model());
+    }
+
+    public function hasCorrectorCommentsByTaskId(int $task_id)
+    {
+        $query = "SELECT c.id FROM xlas_corrector_comment m JOIN xlas_corrector c ON m.corrector_id = c.id WHERE c.task_id = "
+            . $this->db->quote($task_id, 'integer') . ' LIMIT 1';
+
+        return !empty($this->getIntegerList($query, 'id'));
     }
 
     /**

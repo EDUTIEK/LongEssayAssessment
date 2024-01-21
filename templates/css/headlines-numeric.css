@@ -1,0 +1,50 @@
+/**
+ * Edutiek headline style of written contents
+ */
+
+.mce-content-body .headlines-numeric  {
+    counter-reset: h1 h2 h3 h4 h5 h6;
+}
+
+.mce-content-body h1, .headlines-numeric h1 { 
+    counter-increment: h1; 
+    counter-reset: h2 h3 h4 h5 h6;
+}
+.mce-content-body h2, .headlines-numeric h2 {
+    counter-increment: h2;
+    counter-reset: h3 h4 h5 h6;
+}
+.mce-content-body h3, .headlines-numeric h3 {
+    counter-increment: h3;
+    counter-reset: h4 h5 h6;
+}
+.mce-content-body h4, .headlines-numeric h4 {
+    counter-increment: h4;
+    counter-reset: h5 h6;
+}
+.mce-content-body h5, .headlines-numeric h5 {
+    counter-increment: h5;
+    counter-reset: h6;
+}
+.mce-content-body h6, .headlines-numeric h6 {
+    counter-increment: h6;
+}
+
+.mce-content-body h1:before, .headlines-numeric h1::before { 
+    content: counter(h1, decimal) " "; 
+}
+.mce-content-body h2:before, .headlines-numeric h2::before {
+    content: counter(h1, decimal) "." counter(h2, decimal) " ";
+}
+.mce-content-body h3:before, .headlines-numeric h3::before {
+    content: counter(h1, decimal) "." counter(h2, decimal) "." counter(h3, decimal) " ";
+}
+.mce-content-body h4:before, .headlines-numeric h4::before {
+    content: counter(h1, decimal) "." counter(h2, decimal) "." counter(h3, decimal) "." counter(h4, decimal) " ";
+}
+.mce-content-body h5:before, .headlines-numeric h5::before {
+    content: counter(h1, decimal) "." counter(h2, decimal) "." counter(h3, decimal) "." counter(h4, decimal) "." counter(h5, decimal) " ";
+}
+.mce-content-body h6:before, .headlines-numeric h6::before {
+    content: counter(h1, decimal) "." counter(h2, decimal) "." counter(h3, decimal) "." counter(h4, decimal) "." counter(h5, decimal) "." counter(h6, decimal) " ";
+}

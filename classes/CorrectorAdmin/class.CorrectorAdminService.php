@@ -10,7 +10,6 @@ use ILIAS\Plugin\LongEssayAssessment\Corrector\CorrectorContext;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\CorrectionSettings;
 use ILIAS\Plugin\LongEssayAssessment\Data\Corrector\Corrector;
 use ILIAS\Plugin\LongEssayAssessment\Data\Corrector\CorrectorAssignment;
-use ILIAS\Plugin\LongEssayAssessment\Data\Corrector\CorrectorRepository;
 use ILIAS\Plugin\LongEssayAssessment\Data\Essay\CorrectorSummary;
 use ILIAS\Plugin\LongEssayAssessment\Data\DataService;
 use ILIAS\Plugin\LongEssayAssessment\Data\Essay\Essay;
@@ -18,9 +17,7 @@ use ILIAS\Plugin\LongEssayAssessment\Data\Essay\EssayRepository;
 use ILIAS\Plugin\LongEssayAssessment\Data\Object\GradeLevel;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\LogEntry;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\TaskRepository;
-use ILIAS\Plugin\LongEssayAssessment\Data\Task\TaskSettings;
 use ILIAS\Plugin\LongEssayAssessment\Data\Writer\Writer;
-use ILIAS\Plugin\LongEssayAssessment\Data\Writer\WriterRepository;
 use ILIAS\Data\UUID\Factory as UUID;
 use ilObjUser;
 
@@ -429,6 +426,7 @@ class CorrectorAdminService extends BaseService
         $storage->createDir($zipdir);
 
         $repoTask = $this->taskRepo->getTaskSettingsById($object->getId());
+        $writerAdminService = $this->localDI->getWriterAdminService($repoTask->getTaskId());
         foreach ($this->essayRepo->getEssaysByTaskId($repoTask->getTaskId()) as $repoEssay) {
             $repoWriter = $this->writerRepo->getWriterById($repoEssay->getWriterId());
 
@@ -436,7 +434,7 @@ class CorrectorAdminService extends BaseService
             $storage->createDir($zipdir . '/' . $subdir);
 
             $filename = $subdir . '-writing.pdf';
-            $storage->write($zipdir . '/' . $subdir. '/'. $filename, $this->getWritingAsPdf($object, $repoWriter));
+            $storage->write($zipdir . '/' . $subdir. '/'. $filename, $writerAdminService->getWritingAsPdf($object, $repoWriter));
             
             $filename = $subdir . '-correction.pdf';
             $storage->write($zipdir . '/' . $subdir. '/'. $filename, $this->getCorrectionAsPdf($object, $repoWriter));
@@ -455,32 +453,7 @@ class CorrectorAdminService extends BaseService
         //$delivery = new \ilFileDelivery()
     }
 
-    /**
-     * Get the writing of an essay as PDF string
-     */
-    public function getWritingAsPdf(\ilObjLongEssayAssessment $object, Writer $repoWriter, $anonymous = false) 
-    {
-        $context = new CorrectorContext();
-        $context->init((string) $this->dic->user()->getId(), (string) $object->getRefId());
 
-        $writingTask = $context->getWritingTaskByWriterId($repoWriter->getId());
-        if ($anonymous) {
-            $writingTask = $writingTask->withWriterName($repoWriter->getPseudonym());
-        }
-        $writtenEssay = $context->getEssayOfItem((string) $repoWriter->getId());
-
-        $item = new DocuItem(
-            (string) $repoWriter->getId(),
-            $writingTask,
-            $writtenEssay,
-            [],
-            [],
-        );
-
-        $service = new Service($context);
-        return $service->getWritingAsPdf($item);
-    }
-    
     /**
      * Get the correction of an essay as PDF string
      * if a repo corrector is given as parameter, then only this correction is included, not other correctors

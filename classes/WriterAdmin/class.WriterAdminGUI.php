@@ -859,7 +859,7 @@ class WriterAdminGUI extends BaseGUI
 
                 $context = new WriterContext();
                 $context->init((string) $writer->getUserId(), (string) $this->object->getRefId());
-                $service->createPdfFromText($essay, $context);
+                $service->createPdfFromText($this->object, $essay, $writer);
                 $service->purgeCorrectorComments($essay);
             }
         }
@@ -910,10 +910,7 @@ class WriterAdminGUI extends BaseGUI
 						}
 
 						$service->handlePDFVersionInput($essay, $file_id);
-                        
-                        $context = new WriterContext();
-                        $context->init((string) $writer->getUserId(), (string) $this->object->getRefId());
-                        $service->createEssayImages($essay, $context);
+                        $service->createEssayImages($this->object, $essay, $writer);
                         $service->purgeCorrectorComments($essay);
                         
 						$this->ctrl->redirect($this);
@@ -948,19 +945,19 @@ class WriterAdminGUI extends BaseGUI
 					: $this->plugin->txt("pdf_version_upload"), $form)->withCard($user_info)
 			];
 
-			if($essay->getEditStarted()){
-
-				if($essay->getWritingAuthorized() !== null
-					&& $essay->getWritingAuthorizedBy() === $writer->getUserId()
-					&& $essay->getPdfVersion() === null)
-				{
+			if($essay->getEditStarted()) {
+				if ($essay->getPdfVersion() !== null) {
+                    if ($service->hasCorrectorComments($essay)) {
+                        $this->tpl->setOnScreenMessage("question", $this->plugin->txt("pdf_version_info_already_uploaded"), false);
+                    }
+                } elseif($essay->getWritingAuthorized() !== null && $essay->getWritingAuthorizedBy() === $writer->getUserId()) {
                     $this->tpl->setOnScreenMessage("question", $this->plugin->txt("pdf_version_warning_authorized_essay"), false);
-				}else if($essay->getPdfVersion() === null){
-                    $this->tpl->setOnScreenMessage("info", $this->plugin->txt("pdf_version_info_started_essay"), false);
-				}
+                }else {
+                    $this->tpl->setOnScreenMessage("question", $this->plugin->txt("pdf_version_info_started_essay"), false);
+                }
 
                 $this->addContentCss();
-				$subs[] = $this->uiFactory->panel()->sub($this->plugin->txt("writing"),
+				$subs[] = $this->uiFactory->panel()->sub($this->plugin->txt("pdf_version_header_writing"),
                     $this->uiFactory->legacy($this->displayContent($this->localDI->getDataService($task_id)->cleanupRichText($essay->getWrittenText())))
 				);
 			}

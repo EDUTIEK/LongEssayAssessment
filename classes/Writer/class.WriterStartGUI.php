@@ -338,17 +338,11 @@ class WriterStartGUI extends BaseGUI
      protected function downloadWriterPdf()
      {
          if ($this->object->canViewWriterScreen()) {
-
-             $context = new WriterContext();
-             $context->init((string) $this->dic->user()->getId(), (string) $this->object->getRefId());
+             $service = $this->localDI->getWriterAdminService($this->object->getId());
              $repoWriter = $this->localDI->getWriterRepo()->getWriterByUserIdAndTaskId($this->dic->user()->getId(), $this->object->getId());
-             $service = new Service($context);
-
-//             $filename = 'task' . $this->object->getId() . '_user' . $this->dic->user()->getId(). '.html';
-//             ilUtil::deliverData($service->getProcessedTextAsHtml(), $filename, 'text/html');
 
              $filename = 'task' . $this->object->getId() . '_writer' . $repoWriter->getId(). '-writing.pdf';
-             ilUtil::deliverData($service->getProcessedTextAsPdf(), $filename, 'application/pdf');
+             ilUtil::deliverData($service->getWritingAsPdf($this->object, $repoWriter), $filename, 'application/pdf');
          }
          else {
              $this->raisePermissionError();
@@ -356,8 +350,8 @@ class WriterStartGUI extends BaseGUI
      }
 
      /**
-          * Download a generated pdf from the processed written text
-          */
+      * Download a generated pdf from the processed written text
+      */
      protected function downloadCorrectedPdf()
      {
          if ($this->object->canReviewCorrectedEssay()) {

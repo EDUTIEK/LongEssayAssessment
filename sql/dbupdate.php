@@ -1950,6 +1950,90 @@ if (!$ilDB->tableColumnExists('xlas_essay', 'service_version')) {
         'type' => 'integer',
         'length' => '4',
         'default' => '0'
-    ]);}
-
+    ]);
+}
+?>
+<#89>
+<?php
+if (!$ilDB->tableColumnExists('xlas_editor_settings', 'add_paragraph_numbers')) {
+    $ilDB->addTableColumn('xlas_editor_settings', 'add_paragraph_numbers', [
+        'notnull' => '1',
+        'type' => 'integer',
+        'length' => '4',
+        'default' => '1'
+    ]);
+}
+if (!$ilDB->tableColumnExists('xlas_editor_settings', 'add_correction_margin')) {
+    $ilDB->addTableColumn('xlas_editor_settings', 'add_correction_margin', [
+        'notnull' => '1',
+        'type' => 'integer',
+        'length' => '4',
+        'default' => '0'
+    ]);
+}
+if (!$ilDB->tableColumnExists('xlas_editor_settings', 'left_correction_margin')) {
+    $ilDB->addTableColumn('xlas_editor_settings', 'left_correction_margin', [
+        'notnull' => '1',
+        'type' => 'integer',
+        'length' => '4',
+        'default' => '0'
+    ]);
+}
+if (!$ilDB->tableColumnExists('xlas_editor_settings', 'right_correction_margin')) {
+    $ilDB->addTableColumn('xlas_editor_settings', 'right_correction_margin', [
+        'notnull' => '1',
+        'type' => 'integer',
+        'length' => '4',
+        'default' => '0'
+    ]);
+}
+?>
+<#90>
+<?php
+if (!$ilDB->tableExists('xlas_pdf_settings')) {
+    $ilDB->createTable('xlas_pdf_settings', [
+        'task_id' => [
+            'notnull' => '1',
+            'type' => 'integer',
+            'length' => '4'
+        ],
+        'add_header' => [
+            'notnull' => '1',
+            'type' => 'integer',
+            'length' => '4',
+            'default' => '1'
+        ],
+        'add_footer' => [
+            'notnull' => '1',
+            'type' => 'integer',
+            'length' => '4',
+            'default' => '1'
+        ],
+        'top_margin' => [
+            'notnull' => '1',
+            'type' => 'integer',
+            'length' => '4',
+            'default' => '10'
+        ],
+        'bottom_margin' => [
+            'notnull' => '1',
+            'type' => 'integer',
+            'length' => '4',
+            'default' => '10'
+        ],
+        'left_margin'=> [
+            'notnull' => '1',
+            'type' => 'integer',
+            'length' => '4',
+            'default' => '10'
+        ],
+        'right_margin' => [
+            'notnull' => '1',
+            'type' => 'integer',
+            'length' => '4',
+            'default' => '10'
+        ]
+    ]);
+    $ilDB->addPrimaryKey('xlas_pdf_settings', ['task_id']);
+}
 ?>

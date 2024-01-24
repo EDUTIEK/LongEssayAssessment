@@ -29,7 +29,11 @@ class EditorSettings extends RecordData
 		'headline_scheme'=> 'text',
 		'formatting_options' => 'text',
 		'notice_boards' => 'integer',
-		'copy_allowed' => 'integer'
+		'copy_allowed' => 'integer',
+        'add_paragraph_numbers' => 'integer',
+        'add_correction_margin' => 'integer',
+        'left_correction_margin' => 'integer',
+        'right_correction_margin' => 'integer'
 	];
 
     protected int $task_id;
@@ -37,6 +41,10 @@ class EditorSettings extends RecordData
     protected string $formatting_options = self::FORMATTING_OPTIONS_MEDIUM;
     protected int $notice_boards = 0;
     protected int $copy_allowed = 0;
+    protected int $add_paragraph_numbers = 1;
+    protected int $add_correction_margin = 0;
+    protected int $left_correction_margin = 0;
+    protected int $right_correction_margin = 0;
 
 	public function __construct(int $task_id)
 	{
@@ -47,68 +55,48 @@ class EditorSettings extends RecordData
 		return new self(0);
 	}
 
-    /**
-     * @return string
-     */
     public function getHeadlineScheme(): string
     {
-        return (string)$this->headline_scheme;
+        return $this->headline_scheme;
     }
 
-    /**
-     * @param ?string $headline_scheme
-     */
-    public function setHeadlineScheme(?string $headline_scheme): void
+    public function setHeadlineScheme(?string $headline_scheme): self
     {
         $this->headline_scheme = (string)$headline_scheme;
+        return $this;
     }
 
-    /**
-     * @return string
-     */
     public function getFormattingOptions(): string
     {
-        return (string)$this->formatting_options;
+        return $this->formatting_options;
     }
 
-    /**
-     * @param ?string $formatting_options
-     */
-    public function setFormattingOptions(?string $formatting_options): void
+    public function setFormattingOptions(?string $formatting_options): self
     {
-        $this->formatting_options = (string)$formatting_options;
+        $this->formatting_options = (string) $formatting_options;
+        return $this;
     }
 
-    /**
-     * @return int
-     */
     public function getNoticeBoards(): int
     {
-        return (int)$this->notice_boards;
+        return $this->notice_boards;
     }
 
-    /**
-     * @param ?int $notice_boards
-     */
-    public function setNoticeBoards(?int $notice_boards): void
+    public function setNoticeBoards(?int $notice_boards): self
     {
         $this->notice_boards = $notice_boards;
+        return $this;
     }
 
-    /**
-     * @return bool
-     */
     public function isCopyAllowed(): bool
     {
-        return (bool)$this->copy_allowed;
+        return (bool )$this->copy_allowed;
     }
 
-    /**
-     * @param ?bool $copy_allowed
-     */
-    public function setCopyAllowed(?bool $copy_allowed): void
+    public function setCopyAllowed(?bool $copy_allowed): self
     {
-        $this->copy_allowed = (int)$copy_allowed;
+        $this->copy_allowed = (int) $copy_allowed;
+        return $this;
     }
 
     /**
@@ -119,13 +107,53 @@ class EditorSettings extends RecordData
         return $this->task_id;
     }
 
-    /**
-     * @param int $task_id
-     * @return EditorSettings
-     */
-    public function setTaskId(int $task_id): EditorSettings
+    public function setTaskId(int $task_id): self
     {
         $this->task_id = $task_id;
+        return $this;
+    }
+
+    public function getAddParagraphNumbers() : bool
+    {
+        return (bool) $this->add_paragraph_numbers;
+    }
+
+    public function setAddParagraphNumbers(bool $add_paragraph_numbers) : self
+    {
+        $this->add_paragraph_numbers = (int) $add_paragraph_numbers;
+        return $this;
+    }
+
+    public function getAddCorrectionMargin() : bool
+    {
+        return (bool) $this->add_correction_margin;
+    }
+
+    public function setAddCorrectionMargin(bool $add_correction_margin) : self
+    {
+        $this->add_correction_margin = (int) $add_correction_margin;
+        return $this;
+    }
+
+    public function getLeftCorrectionMargin() : int
+    {
+        return $this->left_correction_margin;
+    }
+
+    public function setLeftCorrectionMargin(int $left_correction_margin) : self
+    {
+        $this->left_correction_margin = $left_correction_margin;
+        return $this;
+    }
+
+    public function getRightCorrectionMargin() : int
+    {
+        return $this->right_correction_margin;
+    }
+
+    public function setRightCorrectionMargin(int $right_correction_margin) : self
+    {
+        $this->right_correction_margin = $right_correction_margin;
         return $this;
     }
 }

@@ -83,16 +83,13 @@ class ilObjLongEssayAssessment extends ilObjectPlugin
         $object_repo = $di->getObjectRepo();
         $task_repo = $di->getTaskRepo();
 
-        $new_obj_settings = new ObjectSettings($this->getId());
-        $new_task_settings = new TaskSettings($this->getId());
-        $new_editor_settings = new EditorSettings($this->getId());
         $new_correction_settings = (new CorrectionSettings($this->getId()))
             ->setPositiveRating($this->plugin->txt("comment_rating_positive_default"))
             ->setNegativeRating($this->plugin->txt("comment_rating_negative_default"));
-        $object_repo->save($new_obj_settings);
-        $task_repo->createTask($new_task_settings, $new_editor_settings, $new_correction_settings);
-        $this->objectSettings = $new_obj_settings;
-        $this->taskSettings = $new_task_settings;
+        $task_repo->save($new_correction_settings);
+
+        $this->objectSettings = $object_repo->getObjectSettingsById($this->getId());
+        $this->taskSettings = $task_repo->getTaskSettingsById($this->getId());
 	}
 
 	/**

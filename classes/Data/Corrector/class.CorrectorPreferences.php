@@ -14,41 +14,41 @@ use Edutiek\LongEssayAssessmentService\Data\CorrectionSummary;
 class CorrectorPreferences extends RecordData
 {
 
-	protected const tableName = 'xlas_corrector_prefs';
-	protected const hasSequence = false;
-	protected const keyTypes = [
-		'corrector_id' => 'integer',
-	];
-	protected const otherTypes = [
-		'essay_page_zoom' => 'float',
-		'essay_text_zoom' => 'float',
+    protected const tableName = 'xlas_corrector_prefs';
+    protected const hasSequence = false;
+    protected const keyTypes = [
+        'corrector_id' => 'integer',
+    ];
+    protected const otherTypes = [
+        'essay_page_zoom' => 'float',
+        'essay_text_zoom' => 'float',
         'summary_text_zoom' => 'float',
-		'include_comments' => 'integer',
-		'include_comment_ratings' => 'integer',
-		'include_comment_points' => 'integer',
+        'include_comments' => 'integer',
+        'include_comment_ratings' => 'integer',
+        'include_comment_points' => 'integer',
         'include_criteria_points' => 'integer',
         'include_writer_notes' => 'integer',
-	];
+    ];
 
     protected int $corrector_id = 0;
-    protected float $essay_page_zoom = 0.25;            
-    protected float $essay_text_zoom =  1;              
-    protected float $summary_text_zoom =  1;            
-    protected int $include_comments = CorrectionSummary::INCLUDE_INFO;      
+    protected float $essay_page_zoom = 0.25;
+    protected float $essay_text_zoom =  1;
+    protected float $summary_text_zoom =  1;
+    protected int $include_comments = CorrectionSummary::INCLUDE_INFO;
     protected int $include_comment_ratings = CorrectionSummary::INCLUDE_INFO;
-    protected int $include_comment_points = CorrectionSummary::INCLUDE_INFO;  
-    protected int $include_criteria_points = CorrectionSummary::INCLUDE_INFO; 
-    protected int $include_writer_notes = CorrectionSummary::INCLUDE_INFO; 
+    protected int $include_comment_points = CorrectionSummary::INCLUDE_INFO;
+    protected int $include_criteria_points = CorrectionSummary::INCLUDE_INFO;
+    protected int $include_writer_notes = CorrectionSummary::INCLUDE_INFO;
     
-	public function __construct(int $corrector_id)
-	{
-		$this->corrector_id = $corrector_id;
-	}
+    public function __construct(int $corrector_id)
+    {
+        $this->corrector_id = $corrector_id;
+    }
 
-	public static function model(): CorrectorPreferences
-	{
-		return new self(0);
-	}
+    public static function model(): CorrectorPreferences
+    {
+        return new self(0);
+    }
 
     /**
      * Get the corrector id

@@ -7,44 +7,42 @@ use ILIAS\UI\Implementation\Render\TemplateFactory;
 
 class PluginTemplateFactory implements TemplateFactory
 {
-	/**
-	 * @var TemplateFactory
-	 */
-	private TemplateFactory $factory;
+    /**
+     * @var TemplateFactory
+     */
+    private TemplateFactory $factory;
 
-	/**
-	 * @var \ilPlugin
-	 */
-	private \ilPlugin $plugin;
+    /**
+     * @var \ilPlugin
+     */
+    private \ilPlugin $plugin;
 
-	/**
-	 * @var	\ilGlobalTemplate
-	 */
-	protected \ilGlobalTemplateInterface $global_tpl;
-
-
-	public function __construct(TemplateFactory $factory, \ilPlugin $plugin, \ilGlobalTemplateInterface $global_tpl)
-	{
-		$this->factory = $factory;
-		$this->plugin = $plugin;
-		$this->global_tpl = $global_tpl;
-	}
+    /**
+     * @var	\ilGlobalTemplate
+     */
+    protected \ilGlobalTemplateInterface $global_tpl;
 
 
-	/**
-	 * @inheritDoc
-	 */
-	public function getTemplate($path, $purge_unfilled_vars, $purge_unused_blocks) : \ILIAS\UI\Implementation\Render\Template
+    public function __construct(TemplateFactory $factory, \ilPlugin $plugin, \ilGlobalTemplateInterface $global_tpl)
     {
-		if(!str_starts_with($path, "src/UI/templates/"))
-		{
-			if(file_exists($this->plugin->getDirectory() . "/templates/" . $path))
-			{
-				$tpl = $this->plugin->getTemplate($path, $purge_unfilled_vars, $purge_unused_blocks);
-				return new ilTemplateWrapper($this->global_tpl, $tpl);
-			}
-		}
+        $this->factory = $factory;
+        $this->plugin = $plugin;
+        $this->global_tpl = $global_tpl;
+    }
 
-		return $this->factory->getTemplate($path, $purge_unfilled_vars, $purge_unused_blocks);
-	}
+
+    /**
+     * @inheritDoc
+     */
+    public function getTemplate($path, $purge_unfilled_vars, $purge_unused_blocks) : \ILIAS\UI\Implementation\Render\Template
+    {
+        if(!str_starts_with($path, "src/UI/templates/")) {
+            if(file_exists($this->plugin->getDirectory() . "/templates/" . $path)) {
+                $tpl = $this->plugin->getTemplate($path, $purge_unfilled_vars, $purge_unused_blocks);
+                return new ilTemplateWrapper($this->global_tpl, $tpl);
+            }
+        }
+
+        return $this->factory->getTemplate($path, $purge_unfilled_vars, $purge_unused_blocks);
+    }
 }

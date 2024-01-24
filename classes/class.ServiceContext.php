@@ -52,7 +52,7 @@ abstract class ServiceContext implements BaseContext
     /**
      * @inheritDoc
      */
-    function __construct()
+    public function __construct()
     {
         $this->plugin = \ilLongEssayAssessmentPlugin::getInstance();
         $this->localDI = LongEssayAssessmentDI::getInstance();
@@ -93,8 +93,8 @@ abstract class ServiceContext implements BaseContext
             throw new ContextException('Object is offline', ContextException::ENVIRONMENT_NOT_VALID);
         }
 
-       $this->task = $this->localDI->getTaskRepo()->getTaskSettingsById($this->object->getId());
-       $this->data = $this->localDI->getDataService($this->object->getId());
+        $this->task = $this->localDI->getTaskRepo()->getTaskSettingsById($this->object->getId());
+        $this->data = $this->localDI->getDataService($this->object->getId());
     }
 
     /**
@@ -127,7 +127,7 @@ abstract class ServiceContext implements BaseContext
     /**
      * Create the directory 'temp' in the web data directory
      */
-    protected function createTempWebDir() 
+    protected function createTempWebDir()
     {
         global $DIC;
         $fs = $DIC->filesystem()->web();
@@ -182,8 +182,7 @@ abstract class ServiceContext implements BaseContext
         if (isset($token)) {
             try {
                 $expires = (new \ilDateTime($token->getValidUntil(), IL_CAL_DATETIME))->get(IL_CAL_UNIX);
-            }
-            catch (\ilDateTimeException $e) {
+            } catch (\ilDateTimeException $e) {
                 $expires = 0;
             }
             return new ApiToken($token->getToken(), $token->getIp(), (int) $expires);
@@ -208,12 +207,10 @@ abstract class ServiceContext implements BaseContext
         if ($api_token->getExpires()) {
             try {
                 $valid = (new \ilDateTime($api_token->getExpires(), IL_CAL_UNIX))->get(IL_CAL_DATETIME);
-            }
-            catch (\ilDateTimeException $e) {
+            } catch (\ilDateTimeException $e) {
                 $valid = null;
             }
-        }
-        else {
+        } else {
             $valid = null;
         }
         $token->setToken($api_token->getValue());
@@ -227,13 +224,14 @@ abstract class ServiceContext implements BaseContext
      * Get the resources that should be available in the app
      * @return EnvResource[]
      */
-    public function getResources(): array {
+    public function getResources(): array
+    {
         global $DIC;
 
 
         $repo = $this->localDI->getTaskRepo();
         $env_resources = [];
-		$resources = $repo->getResourceByTaskId($this->object->getId());
+        $resources = $repo->getResourceByTaskId($this->object->getId());
 
         /** @var \ILIAS\Plugin\LongEssayAssessment\Data\Task\Resource $resource */
         foreach ($resources as $resource) {
@@ -245,8 +243,7 @@ abstract class ServiceContext implements BaseContext
                     $mimetype = null;
                     $size = null;
                     $source = $resource->getUrl();
-                }
-                else {
+                } else {
                     $resource_file = $DIC->resourceStorage()->manage()->find($resource->getFileId());
                     if($resource_file === null) {
                         continue;
@@ -293,7 +290,7 @@ abstract class ServiceContext implements BaseContext
         global $DIC;
 
         $repo = $this->localDI->getTaskRepo();
-		$resources = $repo->getResourceByTaskId($this->object->getId(),[Resource::RESOURCE_TYPE_FILE, Resource::RESOURCE_TYPE_INSTRUCTION, Resource::RESOURCE_TYPE_SOLUTION]);
+        $resources = $repo->getResourceByTaskId($this->object->getId(), [Resource::RESOURCE_TYPE_FILE, Resource::RESOURCE_TYPE_INSTRUCTION, Resource::RESOURCE_TYPE_SOLUTION]);
 
         /** @var \ILIAS\Plugin\LongEssayAssessment\Data\Task\Resource $resource */
         foreach ($resources as $resource) {
@@ -302,14 +299,14 @@ abstract class ServiceContext implements BaseContext
 
                 if (is_string($resource->getFileId())) {
                     $identifier = $resource->getFileId();
-                }else {
+                } else {
                     // TODO: ERROR Broken Resource
                 }
 
                 $resource_file = $DIC->resourceStorage()->manage()->find($identifier);
                 if ($resource_file !== null) {
                     $DIC->resourceStorage()->consume()->inline($resource_file)->run();
-                }else{
+                } else {
                     // TODO: Error resource not in Storage
                 }
             }
@@ -444,12 +441,12 @@ abstract class ServiceContext implements BaseContext
             $writing_end += $timeExtension->getMinutes() * 60;
         }
 
-       return new WritingTask(
-           (string) $this->object->getTitle(),
-           (string) $this->task->getInstructions(),
+        return new WritingTask(
+            (string) $this->object->getTitle(),
+            (string) $this->task->getInstructions(),
             isset($repoWriter) ? \ilObjUser::_lookupFullname($repoWriter->getUserId()) : '',
             $writing_end,
-           $this->data->dbTimeToUnix($repoEssay->getWritingExcluded())
+            $this->data->dbTimeToUnix($repoEssay->getWritingExcluded())
         );
     }
 
@@ -470,8 +467,7 @@ abstract class ServiceContext implements BaseContext
 
         if ($client_ini->readVariable("session", "save_ip")) {
             $session_ids = $system_repo->getActiveSessionIds((int) $this->user->getId(), (string) $_SERVER["REMOTE_ADDR"]);
-        }
-        else {
+        } else {
             $session_ids = $system_repo->getActiveSessionIds($this->user->getId());
         }
 

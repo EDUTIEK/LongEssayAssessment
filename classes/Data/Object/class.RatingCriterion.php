@@ -18,7 +18,7 @@ class RatingCriterion extends RecordData
     ];
     protected const otherTypes = [
         'object_id' => 'integer',
-		'corrector_id' => 'integer',
+        'corrector_id' => 'integer',
         'title'=> 'text',
         'description' => 'text',
         'points' => 'integer'
@@ -27,13 +27,14 @@ class RatingCriterion extends RecordData
 
     protected int $id = 0;
     protected int $object_id = 0;
-	protected ?int $corrector_id = null;
+    protected ?int $corrector_id = null;
     protected string $title = "";
     protected ?string $description = null;
     protected int $points = 0;
 
 
-    public static function model() {
+    public static function model()
+    {
         return new self();
     }
 
@@ -66,23 +67,23 @@ class RatingCriterion extends RecordData
         return $this;
     }
 
-	/**
-	 * @return int|null
-	 */
-	public function getCorrectorId(): ?int
-	{
-		return $this->corrector_id;
-	}
+    /**
+     * @return int|null
+     */
+    public function getCorrectorId(): ?int
+    {
+        return $this->corrector_id;
+    }
 
-	/**
-	 * @param int|null $corrector_id
-	 * @return RatingCriterion
-	 */
-	public function setCorrectorId(?int $corrector_id): RatingCriterion
-	{
-		$this->corrector_id = $corrector_id;
-		return $this;
-	}
+    /**
+     * @param int|null $corrector_id
+     * @return RatingCriterion
+     */
+    public function setCorrectorId(?int $corrector_id): RatingCriterion
+    {
+        $this->corrector_id = $corrector_id;
+        return $this;
+    }
 
     /**
      * The title should fit into a single line with half screen width

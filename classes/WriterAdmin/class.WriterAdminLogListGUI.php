@@ -9,308 +9,315 @@ use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
 
 class WriterAdminLogListGUI
 {
-	const MODE_ATTR = "mode";
-	const PAGE_ATTR = "page";
-	const PAGE_SIZE = 10;
-	/**
-	 * @var mixed[]
-	 */
-	protected $entries = [];
+    const MODE_ATTR = "mode";
+    const PAGE_ATTR = "page";
+    const PAGE_SIZE = 10;
+    /**
+     * @var mixed[]
+     */
+    protected $entries = [];
 
-	protected $user_ids = [];
+    protected $user_ids = [];
 
-	/**
-	 * @var Writer[]
-	 */
-	protected $writer = [];
-
-
-	protected \ILIAS\UI\Factory $uiFactory;
-	protected \ilCtrl $ctrl;
-	protected \ilLongEssayAssessmentPlugin $plugin;
-	protected \ILIAS\UI\Renderer $renderer;
-	protected object $parent;
-	protected string $parent_cmd;
-	protected int $task_id;
-
-	public function __construct(object $parent, string $parent_cmd, \ilLongEssayAssessmentPlugin $plugin, $task_id)
-	{
-		global $DIC;
-		$this->parent = $parent;
-		$this->parent_cmd = $parent_cmd;
-		$this->uiFactory = $DIC->ui()->factory();
-		$this->ctrl = $DIC->ctrl();
-		$this->plugin = $plugin;
-		$this->renderer = $DIC->ui()->renderer();
-		$this->task_id = $task_id;
-	}
+    /**
+     * @var Writer[]
+     */
+    protected $writer = [];
 
 
-	private function buildAlert(Alert $alert)
-	{
-		$recipient = "";
-		$custom_factory = LongEssayAssessmentDI::getInstance()->getUIFactory();
+    protected \ILIAS\UI\Factory $uiFactory;
+    protected \ilCtrl $ctrl;
+    protected \ilLongEssayAssessmentPlugin $plugin;
+    protected \ILIAS\UI\Renderer $renderer;
+    protected object $parent;
+    protected string $parent_cmd;
+    protected int $task_id;
 
-		if($alert->getWriterId() !== null){
-			$id = -1;
-			if(array_key_exists($alert->getWriterId(), $this->writer)){
-				$id = $this->writer[$alert->getWriterId()]->getUserId();
-			}
-			$recipient = $this->getUsername($id);
-		}else{
-			$recipient = $this->plugin->txt("alert_recipient_all");
-		}
+    public function __construct(object $parent, string $parent_cmd, \ilLongEssayAssessmentPlugin $plugin, $task_id)
+    {
+        global $DIC;
+        $this->parent = $parent;
+        $this->parent_cmd = $parent_cmd;
+        $this->uiFactory = $DIC->ui()->factory();
+        $this->ctrl = $DIC->ctrl();
+        $this->plugin = $plugin;
+        $this->renderer = $DIC->ui()->renderer();
+        $this->task_id = $task_id;
+    }
 
-		return $this->uiFactory->item()->standard(nl2br($alert->getMessage()))
-			->withLeadIcon($custom_factory->icon()->appr('alert', 'medium'))
-			->withProperties(array(
-				$this->plugin->txt("log_type") => $this->plugin->txt("log_type_alert"),
-				$this->plugin->txt("alert_send") => $this->getFormattedTime($alert->getShownFrom()),
-				$this->plugin->txt("alert_recipient") => $recipient
 
-			));
-	}
+    private function buildAlert(Alert $alert)
+    {
+        $recipient = "";
+        $custom_factory = LongEssayAssessmentDI::getInstance()->getUIFactory();
 
-	private function buildLogEntry(LogEntry $log_entry) {
-		$custom_factory = LongEssayAssessmentDI::getInstance()->getUIFactory();
-		switch($log_entry->getCategory()){
-			case LogEntry::CATEGORY_EXCLUSION:
-				$icon = $custom_factory->icon()->disq('exclusion', 'medium');
-				break;
-			case LogEntry::CATEGORY_AUTHORIZE:
-				$icon = $custom_factory->icon()->appr('authorize', 'medium');
-				break;
-			case LogEntry::CATEGORY_EXTENSION:
-				$icon = $custom_factory->icon()->time('extension', 'medium');
-				break;
-			case LogEntry::CATEGORY_NOTE:
-				$icon = $custom_factory->icon()->nots('note', 'medium');
-				break;
-			default:
-				$icon = $this->uiFactory->symbol()->icon()->standard('nots', 'notes', 'medium');
-				break;
-		}
+        if($alert->getWriterId() !== null) {
+            $id = -1;
+            if(array_key_exists($alert->getWriterId(), $this->writer)) {
+                $id = $this->writer[$alert->getWriterId()]->getUserId();
+            }
+            $recipient = $this->getUsername($id);
+        } else {
+            $recipient = $this->plugin->txt("alert_recipient_all");
+        }
 
-		return $this->uiFactory->item()->standard(nl2br($this->replaceUserIDs($log_entry->getEntry())))
-			->withLeadIcon($icon)
-			->withProperties(array(
-				$this->plugin->txt("log_type") => $this->plugin->txt("log_type_" . $log_entry->getCategory()),
-				$this->plugin->txt("log_entry_entered") => $this->getFormattedTime($log_entry->getTimestamp()),
-			));
-	}
+        return $this->uiFactory->item()->standard(nl2br($alert->getMessage()))
+            ->withLeadIcon($custom_factory->icon()->appr('alert', 'medium'))
+            ->withProperties(array(
+                $this->plugin->txt("log_type") => $this->plugin->txt("log_type_alert"),
+                $this->plugin->txt("alert_send") => $this->getFormattedTime($alert->getShownFrom()),
+                $this->plugin->txt("alert_recipient") => $recipient
 
-	public function getContent() :string
-	{
-		$this->loadUserData();
-		try {
-			$this->sortEntries();
-		} catch (\ilDateTimeException $e) {
-		}
+            ));
+    }
 
-		$items = [];
-		$count = 0;
-		$start = $this->getActualPage() * self::PAGE_SIZE;
-		$end = ($this->getActualPage() * self::PAGE_SIZE) + self::PAGE_SIZE;
+    private function buildLogEntry(LogEntry $log_entry)
+    {
+        $custom_factory = LongEssayAssessmentDI::getInstance()->getUIFactory();
+        switch($log_entry->getCategory()) {
+            case LogEntry::CATEGORY_EXCLUSION:
+                $icon = $custom_factory->icon()->disq('exclusion', 'medium');
+                break;
+            case LogEntry::CATEGORY_AUTHORIZE:
+                $icon = $custom_factory->icon()->appr('authorize', 'medium');
+                break;
+            case LogEntry::CATEGORY_EXTENSION:
+                $icon = $custom_factory->icon()->time('extension', 'medium');
+                break;
+            case LogEntry::CATEGORY_NOTE:
+                $icon = $custom_factory->icon()->nots('note', 'medium');
+                break;
+            default:
+                $icon = $this->uiFactory->symbol()->icon()->standard('nots', 'notes', 'medium');
+                break;
+        }
 
-		foreach($this->entries as $key => $entry){
-			$count ++;
-			if($count <= $start || $count > $end){
-				continue;
-			}
-			if($entry instanceof Alert){
-				$items[] = $this->buildAlert($entry);
-			}elseif ($entry instanceof LogEntry){
-				$items[] = $this->buildLogEntry($entry);
-			}
-		}
+        return $this->uiFactory->item()->standard(nl2br($this->replaceUserIDs($log_entry->getEntry())))
+            ->withLeadIcon($icon)
+            ->withProperties(array(
+                $this->plugin->txt("log_type") => $this->plugin->txt("log_type_" . $log_entry->getCategory()),
+                $this->plugin->txt("log_entry_entered") => $this->getFormattedTime($log_entry->getTimestamp()),
+            ));
+    }
 
-		$resources = $this->uiFactory->item()->group($this->plugin->txt("log_entries"), $items);
+    public function getContent() :string
+    {
+        $this->loadUserData();
+        try {
+            $this->sortEntries();
+        } catch (\ilDateTimeException $e) {
+        }
 
-		return $this->renderer->render(array_merge(
-			[$this->buildModeControl(), $this->uiFactory->legacy("</br></br>")],
-			$this->surroundWithPagination($resources)
-			));
-	}
+        $items = [];
+        $count = 0;
+        $start = $this->getActualPage() * self::PAGE_SIZE;
+        $end = ($this->getActualPage() * self::PAGE_SIZE) + self::PAGE_SIZE;
 
-	private function surroundWithPagination($component){
+        foreach($this->entries as $key => $entry) {
+            $count ++;
+            if($count <= $start || $count > $end) {
+                continue;
+            }
+            if($entry instanceof Alert) {
+                $items[] = $this->buildAlert($entry);
+            } elseif ($entry instanceof LogEntry) {
+                $items[] = $this->buildLogEntry($entry);
+            }
+        }
 
-		if (count($this->entries) > self::PAGE_SIZE){
-			$uis = [];
-			$pagination = $this->uiFactory->viewControl()->pagination()
-				->withTargetURL($this->ctrl->getLinkTarget($this->parent, $this->parent_cmd), self::PAGE_ATTR)
-				->withTotalEntries(count($this->entries))
-				->withPageSize(self::PAGE_SIZE)
-				->withCurrentPage($this->getActualPage());
+        $resources = $this->uiFactory->item()->group($this->plugin->txt("log_entries"), $items);
 
-			$uis[] = $pagination;
-			if(is_array($component)){
-				foreach ($component as $subcomp){
-					$uis[] = $subcomp;
-				}
-			}else{
-				$uis[] = $component;
-			}
+        return $this->renderer->render(array_merge(
+            [$this->buildModeControl(), $this->uiFactory->legacy("</br></br>")],
+            $this->surroundWithPagination($resources)
+        ));
+    }
 
-			$uis[] = $pagination;
-			return $uis;
-		}
-		return [$component];
-	}
+    private function surroundWithPagination($component)
+    {
 
-	private function buildModeControl()
-	{
-		$target = $this->ctrl->getLinkTarget($this->parent, $this->parent_cmd);
-		$param = self::MODE_ATTR;
+        if (count($this->entries) > self::PAGE_SIZE) {
+            $uis = [];
+            $pagination = $this->uiFactory->viewControl()->pagination()
+                ->withTargetURL($this->ctrl->getLinkTarget($this->parent, $this->parent_cmd), self::PAGE_ATTR)
+                ->withTotalEntries(count($this->entries))
+                ->withPageSize(self::PAGE_SIZE)
+                ->withCurrentPage($this->getActualPage());
 
-		$active = $this->getActualMode();
+            $uis[] = $pagination;
+            if(is_array($component)) {
+                foreach ($component as $subcomp) {
+                    $uis[] = $subcomp;
+                }
+            } else {
+                $uis[] = $component;
+            }
 
-		$modes = ["all", "alert", "note", "exclusion", "extension", "authorize"];
-		$actions = [];
+            $uis[] = $pagination;
+            return $uis;
+        }
+        return [$component];
+    }
 
-		foreach($modes as $mode)
-		{
-			$actions[$this->plugin->txt("log_type_" . $mode)] = "$target&$param=$mode";
-		}
+    private function buildModeControl()
+    {
+        $target = $this->ctrl->getLinkTarget($this->parent, $this->parent_cmd);
+        $param = self::MODE_ATTR;
 
-		$aria_label = "change_the_currently_displayed_mode";
-		return $this->uiFactory->viewControl()->mode($actions, $aria_label)->withActive($this->plugin->txt("log_type_" . $active));
-	}
+        $active = $this->getActualMode();
 
-	/**
-	 * @param LogEntry[] $log_entries
-	 * @return void
-	 */
-	public function addLogEntries(array $log_entries) {
-		foreach ($log_entries as $log_entry){
-			if(!in_array($this->getActualMode(), ["all", $log_entry->getCategory()])){
-				continue;
-			}
+        $modes = ["all", "alert", "note", "exclusion", "extension", "authorize"];
+        $actions = [];
 
-			$this->entries[$log_entry->getTimestamp()] = $log_entry;
-			$this->user_ids= array_merge($this->user_ids, $this->parseUserIDs($log_entry->getEntry()));
-		}
-	}
+        foreach($modes as $mode) {
+            $actions[$this->plugin->txt("log_type_" . $mode)] = "$target&$param=$mode";
+        }
 
-	/**
-	 * @param Alert[] $alerts
-	 * @return void
-	 */
-	public function addAlerts(array $alerts) {
-		if(!in_array($this->getActualMode(), ["all", "alert"])){
-			return;
-		}
+        $aria_label = "change_the_currently_displayed_mode";
+        return $this->uiFactory->viewControl()->mode($actions, $aria_label)->withActive($this->plugin->txt("log_type_" . $active));
+    }
 
-		$writer_ids = [];
+    /**
+     * @param LogEntry[] $log_entries
+     * @return void
+     */
+    public function addLogEntries(array $log_entries)
+    {
+        foreach ($log_entries as $log_entry) {
+            if(!in_array($this->getActualMode(), ["all", $log_entry->getCategory()])) {
+                continue;
+            }
 
-		foreach ($alerts as $alert) {
-			$this->entries[$alert->getShownFrom()] = $alert;
-			if($alert->getWriterId() !== null)
-				$writer_ids[] = $alert->getWriterId();
-		}
+            $this->entries[$log_entry->getTimestamp()] = $log_entry;
+            $this->user_ids= array_merge($this->user_ids, $this->parseUserIDs($log_entry->getEntry()));
+        }
+    }
 
-		$writer_repo = LongEssayAssessmentDI::getInstance()->getWriterRepo();
-		$user_ids = [];
+    /**
+     * @param Alert[] $alerts
+     * @return void
+     */
+    public function addAlerts(array $alerts)
+    {
+        if(!in_array($this->getActualMode(), ["all", "alert"])) {
+            return;
+        }
 
-		foreach ($writer_repo->getWritersByTaskId($this->task_id, $writer_ids) as $writer){
-			$this->writer[$writer->getId()] = $writer;
-			$user_ids[] = $writer->getUserId();
-		}
+        $writer_ids = [];
 
-		$this->user_ids = array_merge($this->user_ids, $user_ids);
-	}
+        foreach ($alerts as $alert) {
+            $this->entries[$alert->getShownFrom()] = $alert;
+            if($alert->getWriterId() !== null) {
+                $writer_ids[] = $alert->getWriterId();
+            }
+        }
 
-	/**
-	 * @return void
-	 */
-	private function sortEntries()
-	{
-		krsort($this->entries);
-	}
+        $writer_repo = LongEssayAssessmentDI::getInstance()->getWriterRepo();
+        $user_ids = [];
 
-	/**
-	 * @param ?string $text
-	 * @return int[]
-	 */
-	private function parseUserIDs(?string $text): array
-	{
-		if($text === "" || $text === null)
-		{
-			return [];
-		}
+        foreach ($writer_repo->getWritersByTaskId($this->task_id, $writer_ids) as $writer) {
+            $this->writer[$writer->getId()] = $writer;
+            $user_ids[] = $writer->getUserId();
+        }
 
-		$output_array = [];
+        $this->user_ids = array_merge($this->user_ids, $user_ids);
+    }
 
-		preg_match_all('/\[user=(\d+)\]/', $text, $output_array);
+    /**
+     * @return void
+     */
+    private function sortEntries()
+    {
+        krsort($this->entries);
+    }
 
-		return array_map('intval',$output_array[1]);
-	}
+    /**
+     * @param ?string $text
+     * @return int[]
+     */
+    private function parseUserIDs(?string $text): array
+    {
+        if($text === "" || $text === null) {
+            return [];
+        }
 
-	/**
-	 * @param ?string $text
-	 * @return array|string|string[]|null
-	 */
-	private function replaceUserIDs(?string $text){
-		if($text === "" || $text === null)
-		{
-			return "";
-		}
+        $output_array = [];
 
-		return preg_replace_callback(
-			'/\[user=(\d+)\]/',
-			function ($matches) {
-				return $this->getUsername($matches[1], true);
-			},
-			$text
-		);
-	}
+        preg_match_all('/\[user=(\d+)\]/', $text, $output_array);
 
-	/**
-	 * Get Username
-	 *
-	 * @param $user_id
-	 * @return mixed|string
-	 */
-	protected function getUsername($user_id, $strip_img = false){
-		if(isset($this->user_data[$user_id])){
-			if($strip_img){
-				return strip_tags($this->user_data[$user_id], ["a"]);
-			}else{
-				return $this->user_data[$user_id];
-			}
-		}
-		return ' - ';
-	}
+        return array_map('intval', $output_array[1]);
+    }
 
-	/**
-	 * Load needed Usernames From DB
-	 * @return void
-	 */
-	protected function loadUserData()
-	{
-		$back = $this->ctrl->getLinkTarget($this->parent);
-		$this->user_data = \ilUserUtil::getNamePresentation(array_unique($this->user_ids), true, true, $back, true);
-	}
+    /**
+     * @param ?string $text
+     * @return array|string|string[]|null
+     */
+    private function replaceUserIDs(?string $text)
+    {
+        if($text === "" || $text === null) {
+            return "";
+        }
 
-	/**
-	 * @param string $timestamp
-	 * @return string
-	 */
-	protected function getFormattedTime($timestamp): string
-	{
-		try {
-			return \ilDatePresentation::formatDate(
-				new \ilDateTime($timestamp, IL_CAL_DATETIME));
-		} catch (\ilDateTimeException $e) {
-			return " - ";
-		}
-	}
+        return preg_replace_callback(
+            '/\[user=(\d+)\]/',
+            function ($matches) {
+                return $this->getUsername($matches[1], true);
+            },
+            $text
+        );
+    }
 
-	private function getActualPage(){
-		return $_GET[self::PAGE_ATTR] ?? 0;
-	}
+    /**
+     * Get Username
+     *
+     * @param $user_id
+     * @return mixed|string
+     */
+    protected function getUsername($user_id, $strip_img = false)
+    {
+        if(isset($this->user_data[$user_id])) {
+            if($strip_img) {
+                return strip_tags($this->user_data[$user_id], ["a"]);
+            } else {
+                return $this->user_data[$user_id];
+            }
+        }
+        return ' - ';
+    }
 
-	private function getActualMode(){
-		return $_GET[self::MODE_ATTR] ?? "all";
-	}
+    /**
+     * Load needed Usernames From DB
+     * @return void
+     */
+    protected function loadUserData()
+    {
+        $back = $this->ctrl->getLinkTarget($this->parent);
+        $this->user_data = \ilUserUtil::getNamePresentation(array_unique($this->user_ids), true, true, $back, true);
+    }
+
+    /**
+     * @param string $timestamp
+     * @return string
+     */
+    protected function getFormattedTime($timestamp): string
+    {
+        try {
+            return \ilDatePresentation::formatDate(
+                new \ilDateTime($timestamp, IL_CAL_DATETIME)
+            );
+        } catch (\ilDateTimeException $e) {
+            return " - ";
+        }
+    }
+
+    private function getActualPage()
+    {
+        return $_GET[self::PAGE_ATTR] ?? 0;
+    }
+
+    private function getActualMode()
+    {
+        return $_GET[self::MODE_ATTR] ?? "all";
+    }
 
 }

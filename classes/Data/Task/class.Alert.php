@@ -3,7 +3,6 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\Data\Task;
 
-
 use ILIAS\Plugin\LongEssayAssessment\Data\RecordData;
 
 /**
@@ -12,31 +11,32 @@ use ILIAS\Plugin\LongEssayAssessment\Data\RecordData;
 class Alert extends RecordData
 {
 
-	protected const tableName = 'xlas_alert';
-	protected const hasSequence = true;
-	protected const keyTypes = [
-		'id' => 'integer',
-	];
-	protected const otherTypes = [
-		'task_id'=> 'integer',
-		'writer_id' => 'integer',
-		'title' => 'text',
-		'message' => 'text',
-		'shown_from' => 'datetime',
-		'shown_until' => 'datetime'
-	];
+    protected const tableName = 'xlas_alert';
+    protected const hasSequence = true;
+    protected const keyTypes = [
+        'id' => 'integer',
+    ];
+    protected const otherTypes = [
+        'task_id'=> 'integer',
+        'writer_id' => 'integer',
+        'title' => 'text',
+        'message' => 'text',
+        'shown_from' => 'datetime',
+        'shown_until' => 'datetime'
+    ];
 
     protected int $id = 0;
     protected int $task_id = 0;
-	protected ?int $writer_id = 0;
+    protected ?int $writer_id = 0;
     protected ?string $title = null;
     protected ?string $message = null;
     protected ?string $shown_from = null;
     protected ?string $shown_until = null;
 
-	public static function model() {
-		return new self();
-	}
+    public static function model()
+    {
+        return new self();
+    }
 
     /**
      * @return int
@@ -146,21 +146,21 @@ class Alert extends RecordData
         return $this;
     }
 
-	/**
-	 * @return int
-	 */
-	public function getWriterId(): ?int
-	{
-		return $this->writer_id;
-	}
+    /**
+     * @return int
+     */
+    public function getWriterId(): ?int
+    {
+        return $this->writer_id;
+    }
 
-	/**
-	 * @param int $writer_id
-	 * @return Alert
-	 */
-	public function setWriterId(?int $writer_id): Alert
-	{
-		$this->writer_id = $writer_id;
-		return $this;
-	}
+    /**
+     * @param int $writer_id
+     * @return Alert
+     */
+    public function setWriterId(?int $writer_id): Alert
+    {
+        $this->writer_id = $writer_id;
+        return $this;
+    }
 }

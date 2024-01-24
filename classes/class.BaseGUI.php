@@ -17,23 +17,23 @@ use Psr\Http\Message\ServerRequestInterface;
  */
 abstract class BaseGUI
 {
-	/** @var Container */
-	protected $dic;
+    /** @var Container */
+    protected $dic;
 
-	/** @var \ilCtrl */
+    /** @var \ilCtrl */
     protected $ctrl;
 
-	/** @var  \ilTabsGUI */
+    /** @var  \ilTabsGUI */
     protected $tabs;
 
-	/** @var \ilGlobalTemplateInterface */
+    /** @var \ilGlobalTemplateInterface */
     protected $tpl;
 
-	/** @var \ilLanguage */
+    /** @var \ilLanguage */
     protected $lng;
 
-	/** @var \ilToolbarGUI */
-	protected $toolbar;
+    /** @var \ilToolbarGUI */
+    protected $toolbar;
 
     /** @var \ilObjLongEssayAssessmentGUI */
     protected $objectGUI;
@@ -65,17 +65,17 @@ abstract class BaseGUI
     /** @var array query params */
     protected $params;
 
-	protected \ILIAS\ResourceStorage\Services $storage;
+    protected \ILIAS\ResourceStorage\Services $storage;
 
-	/**
-	 * Constructor
-	 * @param \ilObjLongEssayAssessmentGUI  $objectGUI
-	 */
-	public function __construct(\ilObjLongEssayAssessmentGUI $objectGUI)
-	{
-		global $DIC;
+    /**
+     * Constructor
+     * @param \ilObjLongEssayAssessmentGUI  $objectGUI
+     */
+    public function __construct(\ilObjLongEssayAssessmentGUI $objectGUI)
+    {
+        global $DIC;
 
-		// ILIAS dependencies
+        // ILIAS dependencies
         $this->dic = $DIC;
         $this->ctrl = $this->dic->ctrl();
         $this->tabs = $this->dic->tabs();
@@ -83,50 +83,49 @@ abstract class BaseGUI
         $this->lng = $this->dic->language();
         $this->tpl = $this->dic->ui()->mainTemplate();
         $this->uiFactory = $this->dic->ui()->factory();
-		$this->renderer = $this->dic->ui()->renderer();
+        $this->renderer = $this->dic->ui()->renderer();
         $this->request = $this->dic->http()->request();
         $this->refinery = $this->dic->refinery();
 
         // Plugin dependencies
         $this->objectGUI = $objectGUI;
         $this->object = $this->objectGUI->getObject();
-		$this->plugin = \ilLongEssayAssessmentPlugin::getInstance();
+        $this->plugin = \ilLongEssayAssessmentPlugin::getInstance();
         $this->localDI = LongEssayAssessmentDI::getInstance();
         $this->data = $this->localDI->getDataService($this->object->getId());
         $this->params = $this->request->getQueryParams();
-		$this->storage = $DIC->resourceStorage();
-	}
+        $this->storage = $DIC->resourceStorage();
+    }
 
-	/**
-	 * Execute a command
-	 * This should be overridden in the child classes
-	 * note: permissions are already checked in the object gui
-	 */
-	public function executeCommand()
-	{
-		$cmd = $this->ctrl->getCmd('xxx');
-		switch ($cmd)
-		{
-			case 'yyy':
-			case 'zzz':
-				$this->$cmd();
-				break;
+    /**
+     * Execute a command
+     * This should be overridden in the child classes
+     * note: permissions are already checked in the object gui
+     */
+    public function executeCommand()
+    {
+        $cmd = $this->ctrl->getCmd('xxx');
+        switch ($cmd) {
+            case 'yyy':
+            case 'zzz':
+                $this->$cmd();
+                break;
 
-			default:
-				// show unknown command
+            default:
+                // show unknown command
                 $this->tpl->setContent('unknown command: ' . $cmd);
-		}
-	}
+        }
+    }
 
     /**
      * Raise a permission error
      * This may be needed if wrong ids for editing records are given
      */
-	public function raisePermissionError()
+    public function raisePermissionError()
     {
-       $this->tpl->setOnScreenMessage("failure", $this->lng->txt("permission_denied"), true);
-	   $this->ctrl->clearParameters($this->objectGUI);
-	   $this->ctrl->redirect($this->objectGUI);
+        $this->tpl->setOnScreenMessage("failure", $this->lng->txt("permission_denied"), true);
+        $this->ctrl->clearParameters($this->objectGUI);
+        $this->ctrl->redirect($this->objectGUI);
     }
 
     /**
@@ -134,7 +133,7 @@ abstract class BaseGUI
      */
     public function displayText(?string $html) : string
     {
-            return '<div style="max-width: 60em;">' . $html . '</div>';    
+        return '<div style="max-width: 60em;">' . $html . '</div>';
     }
 
     /**

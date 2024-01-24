@@ -22,8 +22,7 @@ class EditorSettingsGUI extends BaseGUI
     public function executeCommand()
     {
         $cmd = $this->ctrl->getCmd('editSettings');
-        switch ($cmd)
-        {
+        switch ($cmd) {
             case "editSettings":
                 $this->$cmd();
                 break;
@@ -38,7 +37,7 @@ class EditorSettingsGUI extends BaseGUI
      */
     protected function editSettings()
     {
-		$task_repo = $this->localDI->getTaskRepo();
+        $task_repo = $this->localDI->getTaskRepo();
         $essay_repo = $this->localDI->getEssayRepo();
 
         $editorSettings = $task_repo->getEditorSettingsById($this->object->getId());
@@ -52,28 +51,43 @@ class EditorSettingsGUI extends BaseGUI
         // Editor
 
         $fields = [];
-        $fields['headline_scheme'] = $factory->select($this->plugin->txt('headline_scheme'),
+        $fields['headline_scheme'] = $factory->select(
+            $this->plugin->txt('headline_scheme'),
             [
                 EditorSettings::HEADLINE_SCHEME_NONE => $this->plugin->txt('headline_scheme_none'),
                 EditorSettings::HEADLINE_SCHEME_NUMERIC => $this->plugin->txt('headline_scheme_numeric'),
                 EditorSettings::HEADLINE_SCHEME_EDUTIEK => $this->plugin->txt('headline_scheme_edutiek'),
-            ])
+            ]
+        )
             ->withRequired(true)
             ->withValue($editorSettings->getHeadlineScheme());
 
         $fields['formatting_options'] = $factory->radio($this->plugin->txt('formatting_options'))
             ->withRequired(true)
-            ->withOption( EditorSettings::FORMATTING_OPTIONS_NONE, $this->plugin->txt('formatting_options_none'),
-                $this->plugin->txt('formatting_options_none_info'))
-            ->withOption( EditorSettings::FORMATTING_OPTIONS_MINIMAL, $this->plugin->txt('formatting_options_minimal'),
-                $this->plugin->txt('formatting_options_minimal_info'))
-            ->withOption( EditorSettings::FORMATTING_OPTIONS_MEDIUM, $this->plugin->txt('formatting_options_medium'),
-                $this->plugin->txt('formatting_options_medium_info'))
-            ->withOption( EditorSettings::FORMATTING_OPTIONS_FULL, $this->plugin->txt('formatting_options_full'),
-                $this->plugin->txt('formatting_options_full_info'))
+            ->withOption(
+                EditorSettings::FORMATTING_OPTIONS_NONE,
+                $this->plugin->txt('formatting_options_none'),
+                $this->plugin->txt('formatting_options_none_info')
+            )
+            ->withOption(
+                EditorSettings::FORMATTING_OPTIONS_MINIMAL,
+                $this->plugin->txt('formatting_options_minimal'),
+                $this->plugin->txt('formatting_options_minimal_info')
+            )
+            ->withOption(
+                EditorSettings::FORMATTING_OPTIONS_MEDIUM,
+                $this->plugin->txt('formatting_options_medium'),
+                $this->plugin->txt('formatting_options_medium_info')
+            )
+            ->withOption(
+                EditorSettings::FORMATTING_OPTIONS_FULL,
+                $this->plugin->txt('formatting_options_full'),
+                $this->plugin->txt('formatting_options_full_info')
+            )
             ->withValue($editorSettings->getFormattingOptions());
 
-        $fields['notice_boards'] = $factory->select($this->plugin->txt('notice_boards'),
+        $fields['notice_boards'] = $factory->select(
+            $this->plugin->txt('notice_boards'),
             [
                 '0' => '0',
                 '1' => '1',
@@ -81,7 +95,8 @@ class EditorSettingsGUI extends BaseGUI
                 '3' => '3',
                 '4' => '4',
                 '5' => '5'
-            ])
+            ]
+        )
             ->withRequired(true)
             ->withValue((string) $editorSettings->getNoticeBoards());
 
@@ -96,11 +111,13 @@ class EditorSettingsGUI extends BaseGUI
 
         $fields['add_paragraph_numbers'] = $factory->checkbox(
             $this->plugin->txt('add_paragraph_numbers'),
-            $this->plugin->txt('add_paragraph_numbers_info'))
+            $this->plugin->txt('add_paragraph_numbers_info')
+        )
             ->withDisabled($hasComments)
             ->withValue($editorSettings->getAddParagraphNumbers());
 
-        $fields['add_correction_margin'] = $factory->optionalGroup([
+        $fields['add_correction_margin'] = $factory->optionalGroup(
+            [
             'left_correction_margin' => $factory->numeric($this->plugin->txt('left_correction_margin'))
                 ->withAdditionalTransformation($this->refinery->to()->int())
                 ->withRequired(true)
@@ -120,7 +137,8 @@ class EditorSettingsGUI extends BaseGUI
             $fields['add_correction_margin'] = $fields['add_correction_margin']->withValue(null);
         }
 
-        $sections['processing'] = $factory->section($fields,
+        $sections['processing'] = $factory->section(
+            $fields,
             $this->plugin->txt('processing_settings'),
             $this->plugin->txt('processing_settings_info')
         );
@@ -159,7 +177,8 @@ class EditorSettingsGUI extends BaseGUI
             ->withRequired(true)
             ->withValue($pdfSettings->getRightMargin());
 
-        $sections['pdf'] = $factory->section($fields,
+        $sections['pdf'] = $factory->section(
+            $fields,
             $this->plugin->txt('pdf_settings'),
             $this->plugin->txt('pdf_settings_info')
         );
@@ -185,12 +204,11 @@ class EditorSettingsGUI extends BaseGUI
                     $editorSettings->setAddCorrectionMargin(true);
                     $editorSettings->setLeftCorrectionMargin((int) $data['processing']['add_correction_margin']['left_correction_margin']);
                     $editorSettings->setRightCorrectionMargin((int) $data['processing']['add_correction_margin']['right_correction_margin']);
-                }
-                else {
+                } else {
                     $editorSettings->setAddCorrectionMargin(false);
                 }
             }
-             $task_repo->save($editorSettings);
+            $task_repo->save($editorSettings);
 
             $pdfSettings->setAddHeader((bool) $data['pdf']['add_header']);
             $pdfSettings->setAddFooter((bool) $data['pdf']['add_footer']);
@@ -198,7 +216,7 @@ class EditorSettingsGUI extends BaseGUI
             $pdfSettings->setBottomMargin((int) $data['pdf']['bottom_margin']);
             $pdfSettings->setLeftMargin((int) $data['pdf']['left_margin']);
             $pdfSettings->setRightMargin((int) $data['pdf']['right_margin']);
-			$task_repo->save($pdfSettings);
+            $task_repo->save($pdfSettings);
 
             $this->tpl->setOnScreenMessage("success", $this->lng->txt("settings_saved"), true);
             $this->ctrl->redirect($this, "editSettings");

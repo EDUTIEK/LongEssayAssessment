@@ -43,41 +43,41 @@ class ilObjLongEssayAssessment extends ilObjectPlugin
 
     /** @var DataService  */
     protected $data;
-	private \ILIAS\ResourceStorage\Services $resource;
+    private \ILIAS\ResourceStorage\Services $resource;
 
-	/**
-	 * Constructor
-	 *
-	 * @access        public
-	 * @param int $a_ref_id
-	 */
-	function __construct($a_ref_id = 0)
-	{
-	    global $DIC;
-	    $this->dic = $DIC;
+    /**
+     * Constructor
+     *
+     * @access        public
+     * @param int $a_ref_id
+     */
+    public function __construct($a_ref_id = 0)
+    {
+        global $DIC;
+        $this->dic = $DIC;
         $this->access = $DIC->access();
         $this->user = $DIC->user();
         $this->localDI = LongEssayAssessmentDI::getInstance();
         $this->plugin = ilLongEssayAssessmentPlugin::getInstance();
-		$this->resource = $DIC->resourceStorage();
+        $this->resource = $DIC->resourceStorage();
 
-		parent::__construct($a_ref_id);
-	}
+        parent::__construct($a_ref_id);
+    }
 
 
-	/**
-	 * Get type.
-	 */
-	final function initType() : void
+    /**
+     * Get type.
+     */
+    final public function initType() : void
     {
-		$this->setType(ilLongEssayAssessmentPlugin::ID);
-	}
+        $this->setType(ilLongEssayAssessmentPlugin::ID);
+    }
 
-	/**
-	 * Create object
+    /**
+     * Create object
      * @param bool $clone_mode
      */
-	protected function doCreate(bool $clone_mode = false) : void
+    protected function doCreate(bool $clone_mode = false) : void
     {
         $di = LongEssayAssessmentDI::getInstance();
         $object_repo = $di->getObjectRepo();
@@ -90,69 +90,67 @@ class ilObjLongEssayAssessment extends ilObjectPlugin
 
         $this->objectSettings = $object_repo->getObjectSettingsById($this->getId());
         $this->taskSettings = $task_repo->getTaskSettingsById($this->getId());
-	}
+    }
 
-	/**
-	 * Read data from db
-	 */
+    /**
+     * Read data from db
+     */
     protected function doRead() : void
     {
         $this->data = $this->localDI->getDataService($this->getId());
         $this->objectSettings = $this->localDI->getObjectRepo()->getObjectSettingsById($this->getId());
         $this->taskSettings = $this->localDI->getTaskRepo()->getTaskSettingsById($this->getId());
-	}
+    }
 
-	/**
-	 * Update data
-	 */
+    /**
+     * Update data
+     */
     protected function doUpdate() : void
     {
         $this->localDI->getObjectRepo()->save($this->objectSettings);
-	}
+    }
 
-	/**
-	 * Delete data from db
-	 */
+    /**
+     * Delete data from db
+     */
     protected function doDelete() : void
     {
-		$task_repo = $this->localDI->getTaskRepo();
-		$essay_repo = $this->localDI->getEssayRepo();
+        $task_repo = $this->localDI->getTaskRepo();
+        $essay_repo = $this->localDI->getEssayRepo();
 
-		$old_resource = $task_repo->getResourceByTaskId($this->getId());
-		foreach($old_resource as $resource){
-			if($resource instanceof Resource &&
-				$resource->getFileId() !== null &&
-				($identifier = $this->resource->manage()->find($resource->getFileId())))
-			{
-				$this->resource->manage()->remove($identifier, new ResourceResourceStakeholder());
-			}
-		}
-		$old_essays = $essay_repo->getEssaysByTaskId($this->getId());
-		foreach($old_essays as $essay){
-			if($essay->getPdfVersion() !== null && ($identifier = $this->resource->manage()->find($essay->getPdfVersion())))
-			{
-				$this->resource->manage()->remove($identifier, new PDFVersionResourceStakeholder());
-			}
-		}
+        $old_resource = $task_repo->getResourceByTaskId($this->getId());
+        foreach($old_resource as $resource) {
+            if($resource instanceof Resource &&
+                $resource->getFileId() !== null &&
+                ($identifier = $this->resource->manage()->find($resource->getFileId()))) {
+                $this->resource->manage()->remove($identifier, new ResourceResourceStakeholder());
+            }
+        }
+        $old_essays = $essay_repo->getEssaysByTaskId($this->getId());
+        foreach($old_essays as $essay) {
+            if($essay->getPdfVersion() !== null && ($identifier = $this->resource->manage()->find($essay->getPdfVersion()))) {
+                $this->resource->manage()->remove($identifier, new PDFVersionResourceStakeholder());
+            }
+        }
 
-		$object_repo = $this->localDI->getObjectRepo();
-		$object_repo->deleteObject($this->getId());
+        $object_repo = $this->localDI->getObjectRepo();
+        $object_repo->deleteObject($this->getId());
 
-	}
+    }
 
-	/**
-	 * Do Cloning
+    /**
+     * Do Cloning
      * @param self $new_obj
      * @param int $a_target_id
      * @param int|null $a_copy_id
-	 */
+     */
     protected function doCloneObject($new_obj, $a_target_id, $a_copy_id = null) : void
     {
         $object_repo = $this->localDI->getObjectRepo();
         $task_repo = $this->localDI->getTaskRepo();
 
         //Cloning Area
-		$new_obj->objectSettings = clone $this->objectSettings;
+        $new_obj->objectSettings = clone $this->objectSettings;
         $new_obj_settings = $new_obj->objectSettings->setObjId($new_obj->getId());
 
         $new_task_settings = clone $task_repo->getTaskSettingsById($this->getId());
@@ -161,31 +159,27 @@ class ilObjLongEssayAssessment extends ilObjectPlugin
 
         $old_grade_level = $object_repo->getGradeLevelsByObjectId($this->getId());
         $new_grade_level = [];
-        foreach($old_grade_level as $grade_level)
-        {
-            if ($grade_level instanceof GradeLevel)
-            {
+        foreach($old_grade_level as $grade_level) {
+            if ($grade_level instanceof GradeLevel) {
                 $new_grade_level[] = (clone $grade_level)->setObjectId($new_obj->getId())->setId(0);
             }
         }
 
         $old_rating_criterion = $object_repo->getRatingCriteriaByObjectId($this->getId());
         $new_rating_criterion = [];
-        foreach($old_rating_criterion as $rating_criterion)
-        {
-            if ($rating_criterion instanceof RatingCriterion)
-            {
+        foreach($old_rating_criterion as $rating_criterion) {
+            if ($rating_criterion instanceof RatingCriterion) {
                 $new_rating_criterion[] = (clone $rating_criterion)->setObjectId($new_obj->getId())->setId(0);
             }
         }
 
-		$old_resource = $task_repo->getResourceByTaskId($this->getId());
-		$new_resource = [];
-		foreach($old_resource as $resource){
-			if($resource instanceof Resource){
-				$new_resource[] = (clone $resource)->setTaskId($new_obj->getId())->setId(0);
-			}
-		}
+        $old_resource = $task_repo->getResourceByTaskId($this->getId());
+        $new_resource = [];
+        foreach($old_resource as $resource) {
+            if($resource instanceof Resource) {
+                $new_resource[] = (clone $resource)->setTaskId($new_obj->getId())->setId(0);
+            }
+        }
 
         // Creation Area
         $object_repo->save($new_obj_settings);
@@ -193,44 +187,41 @@ class ilObjLongEssayAssessment extends ilObjectPlugin
         $task_repo->save($new_editor_settings->setTaskId($new_obj->getId()));
         $task_repo->save($new_correction_settings->setTaskId($new_obj->getId()));
 
-        foreach($new_grade_level as $grade_level)
-        {
+        foreach($new_grade_level as $grade_level) {
             $object_repo->save($grade_level);
         }
 
-        foreach($new_rating_criterion as $rating_criterion)
-        {
+        foreach($new_rating_criterion as $rating_criterion) {
             $object_repo->save($rating_criterion);
         }
 
-		foreach($new_resource as $resource)
-		{
-			if($resource->getFileId() !== null &&
-				($identifier = $this->resource->manage()->find($resource->getFileId()))
-			) {
-				$new_file_id = $this->resource->manage()->clone($identifier);
-				$resource->setFileId((string) $new_file_id);
-			}
+        foreach($new_resource as $resource) {
+            if($resource->getFileId() !== null &&
+                ($identifier = $this->resource->manage()->find($resource->getFileId()))
+            ) {
+                $new_file_id = $this->resource->manage()->clone($identifier);
+                $resource->setFileId((string) $new_file_id);
+            }
 
-			$task_repo->save($resource);
-		}
-	}
+            $task_repo->save($resource);
+        }
+    }
 
-	/**
-	 * Set online
-	 *
-	 * @param boolean $a_val
-	 */
-	public function setOnline($a_val)
-	{
-		$this->objectSettings->setOnline($a_val);
-	}
+    /**
+     * Set online
+     *
+     * @param boolean $a_val
+     */
+    public function setOnline($a_val)
+    {
+        $this->objectSettings->setOnline($a_val);
+    }
 
     /**
      * Set the Participation Type
      * @param string $a_type
      */
-	public function setParticipationType($a_type)
+    public function setParticipationType($a_type)
     {
         $this->objectSettings->setParticipationType($a_type);
     }
@@ -245,13 +236,13 @@ class ilObjLongEssayAssessment extends ilObjectPlugin
     }
 
     /**
-	 * Get online
-	 * @return bool
-	 */
+     * Get online
+     * @return bool
+     */
     public function isOnline()
-	{
-		return (bool) $this->objectSettings->isOnline();
-	}
+    {
+        return (bool) $this->objectSettings->isOnline();
+    }
 
     public function canViewInfoScreen() : bool
     {
@@ -267,20 +258,16 @@ class ilObjLongEssayAssessment extends ilObjectPlugin
         if (!$this->access->checkAccess('read', '', $this->getRefId())) {
             // no permission
             return false;
-        }
-        elseif ($this->localDI->getWriterRepo()->ifUserExistsInTasksAsWriter($this->user->getId(), $this->getId())) {
+        } elseif ($this->localDI->getWriterRepo()->ifUserExistsInTasksAsWriter($this->user->getId(), $this->getId())) {
             // always show screen if user is added as writer or has started writing an essay
             return true;
-        }
-        elseif ($this->objectSettings->getParticipationType() != ObjectSettings::PARTICIPATION_TYPE_INSTANT) {
+        } elseif ($this->objectSettings->getParticipationType() != ObjectSettings::PARTICIPATION_TYPE_INSTANT) {
             // don't show screen if instant participation is not allowed
             return false;
-        }
-        elseif ($this->taskSettings !== null && !empty($this->taskSettings->getWritingEnd())) {
+        } elseif ($this->taskSettings !== null && !empty($this->taskSettings->getWritingEnd())) {
             // show screen until the end of the writing period if an end is set
             return time() < $this->data->dbTimeToUnix($this->taskSettings->getWritingEnd());
-        }
-        else {
+        } else {
             // instant participation without writing end allowed
             return true;
         }
@@ -333,15 +320,15 @@ class ilObjLongEssayAssessment extends ilObjectPlugin
         return false;
     }
 
-	public function canEditOwnRatingCriteria() : bool
-	{
-		if ($this->canViewCorrectorScreen()) {
-			$repo = $this->localDI->getTaskRepo();
-			$settings = $repo->getCorrectionSettingsById($this->getId()) ?? new CorrectionSettings($this->getId());
-			return ($settings->getCriteriaMode() == CorrectionSettings::CRITERIA_MODE_CORRECTOR);
-		}
-		return false;
-	}
+    public function canEditOwnRatingCriteria() : bool
+    {
+        if ($this->canViewCorrectorScreen()) {
+            $repo = $this->localDI->getTaskRepo();
+            $settings = $repo->getCorrectionSettingsById($this->getId()) ?? new CorrectionSettings($this->getId());
+            return ($settings->getCriteriaMode() == CorrectionSettings::CRITERIA_MODE_CORRECTOR);
+        }
+        return false;
+    }
 
 
     /**
@@ -409,7 +396,7 @@ class ilObjLongEssayAssessment extends ilObjectPlugin
         if (!empty($end)) {
             $end += $this->data->getOwnTimeExtensionSeconds();
         }
-        return $this->data->isInRange(time(),$start, $end);
+        return $this->data->isInRange(time(), $start, $end);
     }
 
     /**
@@ -423,9 +410,11 @@ class ilObjLongEssayAssessment extends ilObjectPlugin
         if (!$this->taskSettings->isSolutionAvailable()) {
             return false;
         }
-        return $this->data->isInRange(time(),
+        return $this->data->isInRange(
+            time(),
             $this->data->dbTimeToUnix($this->taskSettings->getSolutionAvailableDate()),
-            null);
+            null
+        );
     }
 
     public function canViewResult() : bool
@@ -444,9 +433,11 @@ class ilObjLongEssayAssessment extends ilObjectPlugin
             case TaskSettings::RESULT_AVAILABLE_REVIEW:
                 return $this->canReviewCorrectedEssay();
             case TaskSettings::RESULT_AVAILABLE_DATE:
-                return $this->data->isInRange(time(),
+                return $this->data->isInRange(
+                    time(),
                     $this->data->dbTimeToUnix($this->taskSettings->getResultAvailableDate()),
-                    null);
+                    null
+                );
         }
         return false;
     }
@@ -477,17 +468,18 @@ class ilObjLongEssayAssessment extends ilObjectPlugin
             return false;
         }
 
-        if (!$this->data->isInRange(time(),
+        if (!$this->data->isInRange(
+            time(),
             $this->data->dbTimeToUnix($this->taskSettings->getReviewStart()),
-            $this->data->dbTimeToUnix($this->taskSettings->getReviewEnd()))) {
+            $this->data->dbTimeToUnix($this->taskSettings->getReviewEnd())
+        )) {
             return false;
         }
 
         // check if essay is authorized
         if (empty($essay = $this->data->getOwnEssay())) {
             return false;
-        }
-        elseif (empty($essay->getCorrectionFinalized())) {
+        } elseif (empty($essay->getCorrectionFinalized())) {
             return false;
         }
 
@@ -503,9 +495,11 @@ class ilObjLongEssayAssessment extends ilObjectPlugin
             return false;
         }
 
-        if (!$this->data->isInRange(time(),
+        if (!$this->data->isInRange(
+            time(),
             $this->data->dbTimeToUnix($this->taskSettings->getCorrectionStart()),
-            $this->data->dbTimeToUnix($this->taskSettings->getCorrectionEnd()))) {
+            $this->data->dbTimeToUnix($this->taskSettings->getCorrectionEnd())
+        )) {
             return false;
         }
 

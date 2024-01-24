@@ -70,8 +70,19 @@ class EssayImage extends RecordData
     
     public static function model()
     {
-        return new self(0,0,0,'','', 0,0, 
-        null, null, null, null);
+        return new self(
+            0,
+            0,
+            0,
+            '',
+            '',
+            0,
+            0,
+            null,
+            null,
+            null,
+            null
+        );
     }
 
     /**

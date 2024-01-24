@@ -11,42 +11,42 @@ use ILIAS\Plugin\LongEssayAssessment\Data\RecordData;
  */
 class Essay extends RecordData
 {
-	const WRITING_STATUS_NOT_WRITTEN = 'writing_status_not_written';
-	const WRITING_STATUS_NOT_AUTHORIZED = 'writing_status_not_authorized';
-	const WRITING_STATUS_EXCLUDED = 'writing_excluded';
-	const WRITING_STATUS_AUTHORIZED = 'writing_status_authorized';
+    const WRITING_STATUS_NOT_WRITTEN = 'writing_status_not_written';
+    const WRITING_STATUS_NOT_AUTHORIZED = 'writing_status_not_authorized';
+    const WRITING_STATUS_EXCLUDED = 'writing_excluded';
+    const WRITING_STATUS_AUTHORIZED = 'writing_status_authorized';
 
-	const CORRECTION_STATUS_NOT_POSSIBLE = 'correction_status_not_possible';
-	const CORRECTION_STATUS_FINISHED = 'correction_status_finished';
-	const CORRECTION_STATUS_STITCH_NEEDED = 'correction_status_stitch_needed';
-	const CORRECTION_STATUS_OPEN = 'correction_status_open';
+    const CORRECTION_STATUS_NOT_POSSIBLE = 'correction_status_not_possible';
+    const CORRECTION_STATUS_FINISHED = 'correction_status_finished';
+    const CORRECTION_STATUS_STITCH_NEEDED = 'correction_status_stitch_needed';
+    const CORRECTION_STATUS_OPEN = 'correction_status_open';
 
-	protected const tableName = 'xlas_essay';
-	protected const hasSequence = true;
-	protected const keyTypes = [
-		'id' => 'integer',
-	];
-	protected const otherTypes = [
-		'uuid' => 'text',
-		'writer_id' => 'integer',
-		'task_id' => 'integer',
-		'written_text' => 'text',
-		'raw_text_hash' => 'text',
+    protected const tableName = 'xlas_essay';
+    protected const hasSequence = true;
+    protected const keyTypes = [
+        'id' => 'integer',
+    ];
+    protected const otherTypes = [
+        'uuid' => 'text',
+        'writer_id' => 'integer',
+        'task_id' => 'integer',
+        'written_text' => 'text',
+        'raw_text_hash' => 'text',
         'service_version' => 'integer',
-		'edit_started' => 'datetime',
-		'edit_ended' => 'datetime',
-		'writing_authorized' => 'datetime',
-		'writing_authorized_by' => 'integer',
-		'writing_excluded' => 'datetime',
-		'writing_excluded_by' => 'integer',
-		'pdf_version' => 'text',
-		'correction_finalized' => 'datetime',
-		'correction_finalized_by' => 'integer',
-		'final_points' => 'float',
-		'final_grade_level_id' => 'integer',
-		'stitch_comment' => 'text',
-		'location' => 'integer'
-	];
+        'edit_started' => 'datetime',
+        'edit_ended' => 'datetime',
+        'writing_authorized' => 'datetime',
+        'writing_authorized_by' => 'integer',
+        'writing_excluded' => 'datetime',
+        'writing_excluded_by' => 'integer',
+        'pdf_version' => 'text',
+        'correction_finalized' => 'datetime',
+        'correction_finalized_by' => 'integer',
+        'final_points' => 'float',
+        'final_grade_level_id' => 'integer',
+        'stitch_comment' => 'text',
+        'location' => 'integer'
+    ];
 
     protected int $id = 0;
     protected ?string $uuid = null;
@@ -59,22 +59,23 @@ class Essay extends RecordData
     protected ?string $edit_ended = null;
     protected ?string $writing_authorized = null;
     protected ?int $writing_authorized_by = null;
-	protected ?string $writing_excluded = null;
-	protected ?int $writing_excluded_by = null;
+    protected ?string $writing_excluded = null;
+    protected ?int $writing_excluded_by = null;
     protected ?string $pdf_version = null;
     protected ?string $correction_finalized = null;
     protected ?int $correction_finalized_by = null;
     protected ?float $final_points = null;
     protected ?int $final_grade_level_id = null;
     protected ?string $stitch_comment = null;
-	protected ?int $location = null;
+    protected ?int $location = null;
 
-	public static function model() {
-		return new self();
-	}
+    public static function model()
+    {
+        return new self();
+    }
 
 
-	/**
+    /**
      * @return string
      */
     public function getUuid(): string
@@ -346,41 +347,41 @@ class Essay extends RecordData
         return (new UUID())->uuid4AsString();
     }
 
-	/**
-	 * @return string|null
-	 */
-	public function getWritingExcluded(): ?string
-	{
-		return $this->writing_excluded;
-	}
+    /**
+     * @return string|null
+     */
+    public function getWritingExcluded(): ?string
+    {
+        return $this->writing_excluded;
+    }
 
-	/**
-	 * @param string|null $writing_excluded
-	 * @return Essay
-	 */
-	public function setWritingExcluded(?string $writing_excluded): Essay
-	{
-		$this->writing_excluded = $writing_excluded;
-		return $this;
-	}
+    /**
+     * @param string|null $writing_excluded
+     * @return Essay
+     */
+    public function setWritingExcluded(?string $writing_excluded): Essay
+    {
+        $this->writing_excluded = $writing_excluded;
+        return $this;
+    }
 
-	/**
-	 * @return int
-	 */
-	public function getWritingExcludedBy(): ?int
-	{
-		return $this->writing_excluded_by;
-	}
+    /**
+     * @return int
+     */
+    public function getWritingExcludedBy(): ?int
+    {
+        return $this->writing_excluded_by;
+    }
 
-	/**
-	 * @param int $writing_excluded_by
-	 * @return Essay
-	 */
-	public function setWritingExcludedBy(?int $writing_excluded_by): Essay
-	{
-		$this->writing_excluded_by = $writing_excluded_by;
-		return $this;
-	}
+    /**
+     * @param int $writing_excluded_by
+     * @return Essay
+     */
+    public function setWritingExcludedBy(?int $writing_excluded_by): Essay
+    {
+        $this->writing_excluded_by = $writing_excluded_by;
+        return $this;
+    }
 
 
     /**
@@ -419,23 +420,23 @@ class Essay extends RecordData
         return $this;
     }
 
-	/**
-	 * @return int|null
-	 */
-	public function getLocation(): ?int
-	{
-		return $this->location;
-	}
+    /**
+     * @return int|null
+     */
+    public function getLocation(): ?int
+    {
+        return $this->location;
+    }
 
-	/**
-	 * @param int|null $location
-	 * @return Essay
-	 */
-	public function setLocation(?int $location): Essay
-	{
-		$this->location = $location;
-		return $this;
-	}
+    /**
+     * @param int|null $location
+     * @return Essay
+     */
+    public function setLocation(?int $location): Essay
+    {
+        $this->location = $location;
+        return $this;
+    }
 
 }
 /**

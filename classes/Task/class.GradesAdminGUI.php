@@ -40,12 +40,11 @@ class GradesAdminGUI extends BaseGUI
     public function executeCommand()
     {
         $cmd = $this->ctrl->getCmd('showItems');
-        switch ($cmd)
-        {
-			case 'updateItem':
+        switch ($cmd) {
+            case 'updateItem':
             case 'showItems':
             case "editItem":
-			case 'deleteItem':
+            case 'deleteItem':
                 $this->$cmd();
                 break;
 
@@ -59,27 +58,27 @@ class GradesAdminGUI extends BaseGUI
      */
     protected function getItemData()
     {
-		$records = $this->object_repo->getGradeLevelsByObjectId($this->object->getId());
-		$item_data = [];
+        $records = $this->object_repo->getGradeLevelsByObjectId($this->object->getId());
+        $item_data = [];
 
-		foreach($records as $record){
+        foreach($records as $record) {
 
-			$important = [
-				$this->plugin->txt('min_points').":" => $record->getMinPoints(),
-				$this->plugin->txt('passed').":" => $record->isPassed() ? $this->lng->txt('yes') : $this->lng->txt('no')
-			];
+            $important = [
+                $this->plugin->txt('min_points').":" => $record->getMinPoints(),
+                $this->plugin->txt('passed').":" => $record->isPassed() ? $this->lng->txt('yes') : $this->lng->txt('no')
+            ];
 
-			if($record->getCode() !== null && $record->getCode() !== ""){
-				$important[$this->plugin->txt('grade_level_code')] = $record->getCode();
-			}
+            if($record->getCode() !== null && $record->getCode() !== "") {
+                $important[$this->plugin->txt('grade_level_code')] = $record->getCode();
+            }
 
-			$item_data[] = [
-				'id' => $record->getId(),
-				'headline' => $record->getGrade(),
-				'subheadline' => '',
-				'important' => $important,
-			];
-		}
+            $item_data[] = [
+                'id' => $record->getId(),
+                'headline' => $record->getGrade(),
+                'subheadline' => '',
+                'important' => $important,
+            ];
+        }
 
         return $item_data;
     }
@@ -91,11 +90,11 @@ class GradesAdminGUI extends BaseGUI
     {
 
 
-		$can_delete = true;
-		$settings = $this->task_repo->getTaskSettingsById($this->object->getId());
+        $can_delete = true;
+        $settings = $this->task_repo->getTaskSettingsById($this->object->getId());
         $authorized = $this->corrector_service->authorizedCorrectionsExists();
 
-        if(!$authorized){
+        if(!$authorized) {
             $this->toolbar->setFormAction($this->ctrl->getFormAction($this));
             $button = \ilLinkButton::getInstance();
             $button->setUrl($this->ctrl->getLinkTarget($this, 'editItem'));
@@ -103,15 +102,15 @@ class GradesAdminGUI extends BaseGUI
             $this->toolbar->addButtonInstance($button);
         }
 
-		if($settings->getCorrectionStart() !== null) {
-			$correction_start = new \ilDateTime($settings->getCorrectionStart(), IL_CAL_DATETIME);
+        if($settings->getCorrectionStart() !== null) {
+            $correction_start = new \ilDateTime($settings->getCorrectionStart(), IL_CAL_DATETIME);
 
-			$today = new \ilDateTime(time(), IL_CAL_UNIX);
+            $today = new \ilDateTime(time(), IL_CAL_UNIX);
 
-			$can_delete = !\ilDate::_after($today, $correction_start);
-		}
+            $can_delete = !\ilDate::_after($today, $correction_start);
+        }
 
-        if($authorized){
+        if($authorized) {
             $this->tpl->setOnScreenMessage("success", $this->plugin->txt("grade_level_cannot_edit_used_info"), false);
         }
 
@@ -122,31 +121,31 @@ class GradesAdminGUI extends BaseGUI
                 PresentationRow $row,
                 array $record,
                 Factory $ui_factory,
-                $environment) use ($authorized, $can_delete)  {
+                $environment
+            ) use ($authorized, $can_delete) {
 
-				$this->setGradeLevelId($record["id"]);
-				$edit_link = $this->ctrl->getLinkTarget($this, "editItem");
-				$this->setGradeLevelId($record["id"]);
-				$delete_link = $this->ctrl->getLinkTarget($this, "deleteItem");
+                $this->setGradeLevelId($record["id"]);
+                $edit_link = $this->ctrl->getLinkTarget($this, "editItem");
+                $this->setGradeLevelId($record["id"]);
+                $delete_link = $this->ctrl->getLinkTarget($this, "deleteItem");
 
-				$approve_modal = $ui_factory->modal()->interruptive(
-					$this->plugin->txt("delete_grade_level"),
-					$this->plugin->txt("delete_grade_level_confirmation"),
-					$delete_link
-				)->withAffectedItems([
-					$ui_factory->modal()->interruptiveItem($record["id"], $record['headline'])
-				]);
+                $approve_modal = $ui_factory->modal()->interruptive(
+                    $this->plugin->txt("delete_grade_level"),
+                    $this->plugin->txt("delete_grade_level_confirmation"),
+                    $delete_link
+                )->withAffectedItems([
+                    $ui_factory->modal()->interruptiveItem($record["id"], $record['headline'])
+                ]);
 
-				if($can_delete){
-					$action = $ui_factory->dropdown()->standard([
-						$ui_factory->button()->shy($this->lng->txt('edit'), $edit_link),
-						$ui_factory->button()->shy($this->lng->txt('delete'), '')
-							->withOnClick($approve_modal->getShowSignal())
-					])->withLabel($this->lng->txt("actions"));
-				}else
-				{
-					$action = $ui_factory->button()->standard($this->lng->txt('edit'), $edit_link);
-				}
+                if($can_delete) {
+                    $action = $ui_factory->dropdown()->standard([
+                        $ui_factory->button()->shy($this->lng->txt('edit'), $edit_link),
+                        $ui_factory->button()->shy($this->lng->txt('delete'), '')
+                            ->withOnClick($approve_modal->getShowSignal())
+                    ])->withLabel($this->lng->txt("actions"));
+                } else {
+                    $action = $ui_factory->button()->standard($this->lng->txt('edit'), $edit_link);
+                }
 
                 $row =  $row
                     ->withHeadline($record['headline']. $this->renderer->render($approve_modal))
@@ -156,9 +155,9 @@ class GradesAdminGUI extends BaseGUI
                     ->withFurtherFieldsHeadline('')
                     ->withFurtherFields($record['important']);
                 
-                if($authorized){
+                if($authorized) {
                     return $row;
-                }else{
+                } else {
                     return $row->withAction($action);
                 }
             }
@@ -167,82 +166,83 @@ class GradesAdminGUI extends BaseGUI
         $this->tpl->setContent($this->renderer->render($ptable->withData($this->getItemData())));
     }
 
-	protected function buildEditForm($data):\ILIAS\UI\Component\Input\Container\Form\Standard{
-		if($id = $this->getGradeLevelId()){
-			$section_title = $this->plugin->txt('edit_grade_level');
-			$this->setGradeLevelId($id);
-		}
-		else {
-			$section_title = $this->plugin->txt('add_grade_level');
-		}
+    protected function buildEditForm($data):\ILIAS\UI\Component\Input\Container\Form\Standard
+    {
+        if($id = $this->getGradeLevelId()) {
+            $section_title = $this->plugin->txt('edit_grade_level');
+            $this->setGradeLevelId($id);
+        } else {
+            $section_title = $this->plugin->txt('add_grade_level');
+        }
 
-		$factory = $this->uiFactory->input()->field();
-		$custom_factory = LongEssayAssessmentDI::getInstance()->getUIFactory();
-		$sections = [];
+        $factory = $this->uiFactory->input()->field();
+        $custom_factory = LongEssayAssessmentDI::getInstance()->getUIFactory();
+        $sections = [];
 
-		$fields = [];
-		$fields['grade'] = $factory->text($this->plugin->txt("grade_level"))
-			->withRequired(true)
-			->withValue($data["grade"]);
+        $fields = [];
+        $fields['grade'] = $factory->text($this->plugin->txt("grade_level"))
+            ->withRequired(true)
+            ->withValue($data["grade"]);
 
-		$fields['code'] = $factory->text($this->plugin->txt("grade_level_code"), $this->plugin->txt("grade_level_code_caption"))
-			->withRequired(false)
-			->withValue($data["code"]!== null ? $data["code"] : "");
+        $fields['code'] = $factory->text($this->plugin->txt("grade_level_code"), $this->plugin->txt("grade_level_code_caption"))
+            ->withRequired(false)
+            ->withValue($data["code"]!== null ? $data["code"] : "");
 
-		$fields['points'] = $custom_factory->field()->numeric($this->plugin->txt('min_points'), $this->plugin->txt("min_points_caption"))
-			->withStep(0.01)
-			->withRequired(true)
-			->withValue((float)$data["points"]);
+        $fields['points'] = $custom_factory->field()->numeric($this->plugin->txt('min_points'), $this->plugin->txt("min_points_caption"))
+            ->withStep(0.01)
+            ->withRequired(true)
+            ->withValue((float)$data["points"]);
 
-		$fields['passed'] =$factory->checkbox($this->plugin->txt('passed'), $this->plugin->txt("passed_caption"))
-			->withRequired(true)
-			->withValue($data["passed"]);
+        $fields['passed'] =$factory->checkbox($this->plugin->txt('passed'), $this->plugin->txt("passed_caption"))
+            ->withRequired(true)
+            ->withValue($data["passed"]);
 
-		$sections['form'] = $factory->section($fields, $section_title);
+        $sections['form'] = $factory->section($fields, $section_title);
 
 
-		return $this->uiFactory->input()->container()->form()->standard($this->ctrl->getFormAction($this,"updateItem"), $sections);
-	}
+        return $this->uiFactory->input()->container()->form()->standard($this->ctrl->getFormAction($this, "updateItem"), $sections);
+    }
 
-	protected function updateItem(){
+    protected function updateItem()
+    {
         $this->checkAuthorizedCorrections();
-		$this->tabs->setBackTarget($this->lng->txt("back"), $this->ctrl->getLinkTarget($this));
+        $this->tabs->setBackTarget($this->lng->txt("back"), $this->ctrl->getLinkTarget($this));
 
-		$form = $this->buildEditForm([
-			"grade" => "",
-			"points" => 0,
-			"code" => "",
-			"passed" => false
-		]);
+        $form = $this->buildEditForm([
+            "grade" => "",
+            "points" => 0,
+            "code" => "",
+            "passed" => false
+        ]);
 
-		if ($this->request->getMethod() == "POST") {
-			$form = $form->withRequest($this->request);
-			$data = $form->getData();
+        if ($this->request->getMethod() == "POST") {
+            $form = $form->withRequest($this->request);
+            $data = $form->getData();
 
-			if($id = $this->getGradeLevelId()){
-				$record = $this->getGradeLevel($id);
-			}else {
-				$record = new GradeLevel();
-				$record->setObjectId($this->object->getId());
-			}
+            if($id = $this->getGradeLevelId()) {
+                $record = $this->getGradeLevel($id);
+            } else {
+                $record = new GradeLevel();
+                $record->setObjectId($this->object->getId());
+            }
 
-			// inputs are ok => save data
-			if (isset($data)) {
-				$record->setGrade($data["form"]["grade"]);
-				$record->setMinPoints($data["form"]["points"]);
-				$record->setCode($data["form"]["code"]);
-				$record->setPassed($data["form"]["passed"]);
+            // inputs are ok => save data
+            if (isset($data)) {
+                $record->setGrade($data["form"]["grade"]);
+                $record->setMinPoints($data["form"]["points"]);
+                $record->setCode($data["form"]["code"]);
+                $record->setPassed($data["form"]["passed"]);
                 $this->object_repo->save($record);
                 $this->corrector_service->recalculateGradeLevel();
 
                 $this->tpl->setOnScreenMessage("success", $this->lng->txt("settings_saved"), true);
                 $this->ctrl->redirect($this, "showItems");
-			}else {
-				// ilUtil::sendFailure($this->lng->txt("validation_error"), false);
-				$this->editItem($form);
-			}
-		}
-	}
+            } else {
+                // ilUtil::sendFailure($this->lng->txt("validation_error"), false);
+                $this->editItem($form);
+            }
+        }
+    }
 
 
     /**
@@ -251,88 +251,86 @@ class GradesAdminGUI extends BaseGUI
     protected function editItem($form = null)
     {
         $this->checkAuthorizedCorrections();
-		$this->tabs->setBackTarget($this->lng->txt("back"), $this->ctrl->getLinkTarget($this));
+        $this->tabs->setBackTarget($this->lng->txt("back"), $this->ctrl->getLinkTarget($this));
 
-		if($form === null){
-			if ($id = $this->getGradeLevelId())
-			{
-				$record = $this->getGradeLevel($id);
-				$form = $this->buildEditForm([
-					"grade" => $record->getGrade(),
-					"points" => $record->getMinPoints(),
-					"code" => $record->getCode(),
-					"passed" => $record->isPassed()
-				]);
-			}else {
-				$form = $this->buildEditForm([
-					"grade" => "",
-					"points" => 0,
-					"code" => "",
-					"passed" => false
-				]);
-			}
-		}
+        if($form === null) {
+            if ($id = $this->getGradeLevelId()) {
+                $record = $this->getGradeLevel($id);
+                $form = $this->buildEditForm([
+                    "grade" => $record->getGrade(),
+                    "points" => $record->getMinPoints(),
+                    "code" => $record->getCode(),
+                    "passed" => $record->isPassed()
+                ]);
+            } else {
+                $form = $this->buildEditForm([
+                    "grade" => "",
+                    "points" => 0,
+                    "code" => "",
+                    "passed" => false
+                ]);
+            }
+        }
 
         $this->tpl->setContent($this->renderer->render($form));
     }
 
-	protected function deleteItem(){
+    protected function deleteItem()
+    {
         $this->checkAuthorizedCorrections();
-		// TODO: Zwischenfrage hinzufügen!
-		if(($id = $this->getGradeLevelId()) !== null){
-			$this->getGradeLevel($id, true);//Permission check
-			$this->object_repo->deleteGradeLevel($id);
+        // TODO: Zwischenfrage hinzufügen!
+        if(($id = $this->getGradeLevelId()) !== null) {
+            $this->getGradeLevel($id, true);//Permission check
+            $this->object_repo->deleteGradeLevel($id);
             $this->corrector_service->recalculateGradeLevel();
             $this->tpl->setOnScreenMessage("success", $this->plugin->txt("delete_grade_level_successful"), true);
-        }else{
+        } else {
             $this->tpl->setOnScreenMessage("failure", $this->plugin->txt("delete_grade_level_failure"), true);
-		}
-		$this->ctrl->redirect($this, "showItems");
-	}
+        }
+        $this->ctrl->redirect($this, "showItems");
+    }
 
-	protected function checkRecordInObject(?GradeLevel $record, bool $throw_permission_error = true): bool
-	{
-		if($record !== null && $this->object->getId() === $record->getObjectId()){
-			return true;
-		}
+    protected function checkRecordInObject(?GradeLevel $record, bool $throw_permission_error = true): bool
+    {
+        if($record !== null && $this->object->getId() === $record->getObjectId()) {
+            return true;
+        }
 
-		if($throw_permission_error) {
-			$this->raisePermissionError();
-		}
-		return false;
-	}
+        if($throw_permission_error) {
+            $this->raisePermissionError();
+        }
+        return false;
+    }
 
     protected function checkAuthorizedCorrections()
     {
-        if($this->corrector_service->authorizedCorrectionsExists()){
+        if($this->corrector_service->authorizedCorrectionsExists()) {
             $this->tpl->setOnScreenMessage("failure", $this->plugin->txt("grade_level_cannot_edit_used"), true);
             $this->ctrl->clearParameters($this);
             $this->ctrl->redirect($this);
         }
     }
 
-	protected function getGradeLevel(int $id, bool $throw_permission_error = true): ?GradeLevel
-	{
-		$record = $this->object_repo->getGradeLevelById($id);
-		if($throw_permission_error){
-			$this->checkRecordInObject($record, true);
-		}
-		return $record;
-	}
+    protected function getGradeLevel(int $id, bool $throw_permission_error = true): ?GradeLevel
+    {
+        $record = $this->object_repo->getGradeLevelById($id);
+        if($throw_permission_error) {
+            $this->checkRecordInObject($record, true);
+        }
+        return $record;
+    }
 
-	protected function setGradeLevelId(int $id)
-	{
-		$this->ctrl->setParameter($this, "grade_level", $id);
-	}
+    protected function setGradeLevelId(int $id)
+    {
+        $this->ctrl->setParameter($this, "grade_level", $id);
+    }
 
-	protected function getGradeLevelId(): ?int
-	{
-		if (isset($_GET["grade_level"]))
-		{
-			return (int) $_GET["grade_level"];
-		}
-		else{
-			return null;
-		}
-	}
+    protected function getGradeLevelId(): ?int
+    {
+        if (isset($_GET["grade_level"])) {
+            return (int) $_GET["grade_level"];
+        } else {
+            return null;
+        }
+    }
 }

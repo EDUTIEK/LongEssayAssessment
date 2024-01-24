@@ -16,17 +16,17 @@ require_once(__DIR__ . "/class.ilLongEssayAssessmentPlugin.php");
 class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
 {
     /** @var ilObjLongEssayAssessment */
-	public ?ilObject $object;
+    public ?ilObject $object;
 
-	/** @var ilLongEssayAssessmentPlugin */
-	public ?ilPlugin $plugin;
+    /** @var ilLongEssayAssessmentPlugin */
+    public ?ilPlugin $plugin;
 
     /**
      * Definition of the plugin specific sub tabs
      * @var array tab_id => [ ['id' => string, 'txt' => string, 'url' => string, ... ]
      * @see setTabs()
      */
-	protected $subtabs = [];
+    protected $subtabs = [];
 
 
     /**
@@ -66,20 +66,20 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
 
 
     /**
-	 * Initialisation
-	 */
-	protected function afterConstructor() : void
+     * Initialisation
+     */
+    protected function afterConstructor() : void
     {
-	    $this->plugin = ilLongEssayAssessmentPlugin::getInstance();
+        $this->plugin = ilLongEssayAssessmentPlugin::getInstance();
 
         // Description is not shown by ilObjectPluginGUI
-        if (isset($this->object))
-        {
+        if (isset($this->object)) {
             $this->tpl->setDescription($this->object->getDescription());
             $alerts = array();
-            if (!$this->object->isOnline())
-            {
-                array_push($alerts, array(
+            if (!$this->object->isOnline()) {
+                array_push(
+                    $alerts,
+                    array(
                         'property' => $this->plugin->txt('status'),
                         'value' => $this->plugin->txt('offline'))
                 );
@@ -88,75 +88,78 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
         }
     }
 
-	/**
-	 * Get type.
-	 */
-	final function getType() : string
+    /**
+     * Get type.
+     */
+    final public function getType() : string
     {
-		return ilLongEssayAssessmentPlugin::ID;
-	}
+        return ilLongEssayAssessmentPlugin::ID;
+    }
 
 
     /**
      * Ger the repository object
      * @return ilObjLongEssayAssessment
      */
-	public function getObject() : ?ilObject
+    public function getObject() : ?ilObject
     {
         return $this->object;
     }
 
 
     /**
-	 * Handles all commands of this class, centralizes permission checks
-	 */
-	function performCommand($cmd) : void
+     * Handles all commands of this class, centralizes permission checks
+     */
+    public function performCommand($cmd) : void
     {
-		global $DIC;
+        global $DIC;
 
         $next_class = $this->ctrl->getNextClass();
         if (!empty($next_class)) {
             switch ($next_class) {
-				case 'illongessayassessmentuploadhandlergui':
-					// No permission check needed because it only stores temp files
-					$this->ctrl->forwardCommand(new ilLongEssayAssessmentUploadHandlerGUI($DIC->resourceStorage(),
-							new \ILIAS\Plugin\LongEssayAssessment\ilLongEssayAssessmentUploadTempFile(
-								$DIC->resourceStorage(), $DIC->filesystem(), $DIC->upload()
-							)
-						));
-					break;
+                case 'illongessayassessmentuploadhandlergui':
+                    // No permission check needed because it only stores temp files
+                    $this->ctrl->forwardCommand(new ilLongEssayAssessmentUploadHandlerGUI(
+                        $DIC->resourceStorage(),
+                        new \ILIAS\Plugin\LongEssayAssessment\ilLongEssayAssessmentUploadTempFile(
+                            $DIC->resourceStorage(),
+                            $DIC->filesystem(),
+                            $DIC->upload()
+                        )
+                    ));
+                    break;
                 case 'ilias\plugin\longessayassessment\task\orgasettingsgui':
                     if ($this->object->canEditOrgaSettings()) {
                         $this->activateTab('tab_task', 'tab_orga_settings');
                         $this->ctrl->forwardCommand(new \ILIAS\Plugin\LongEssayAssessment\Task\OrgaSettingsGUI($this));
                     }
                     break;
-				case 'ilias\plugin\longessayassessment\task\instructionssettingsgui':
-					if ($this->object->canEditContentSettings()) {
-						$this->activateTab('tab_task', 'tab_instructions_settings');
-						$this->ctrl->forwardCommand(new \ILIAS\Plugin\LongEssayAssessment\Task\InstructionsSettingsGUI($this));
-					}
-					break;
-				case 'ilias\plugin\longessayassessment\task\solutionsettingsgui':
-					if ($this->object->canEditContentSettings()) {
-						$this->activateTab('tab_task', 'tab_solution_settings');
-						$this->ctrl->forwardCommand(new \ILIAS\Plugin\LongEssayAssessment\Task\SolutionSettingsGUI($this));
-					}
-					break;
+                case 'ilias\plugin\longessayassessment\task\instructionssettingsgui':
+                    if ($this->object->canEditContentSettings()) {
+                        $this->activateTab('tab_task', 'tab_instructions_settings');
+                        $this->ctrl->forwardCommand(new \ILIAS\Plugin\LongEssayAssessment\Task\InstructionsSettingsGUI($this));
+                    }
+                    break;
+                case 'ilias\plugin\longessayassessment\task\solutionsettingsgui':
+                    if ($this->object->canEditContentSettings()) {
+                        $this->activateTab('tab_task', 'tab_solution_settings');
+                        $this->ctrl->forwardCommand(new \ILIAS\Plugin\LongEssayAssessment\Task\SolutionSettingsGUI($this));
+                    }
+                    break;
                 case 'ilias\plugin\longessayassessment\task\resourcesadmingui':
                     if ($this->object->canEditContentSettings()) {
                         $this->activateTab('tab_task', 'tab_resources');
                         $this->ctrl->forwardCommand(new \ILIAS\Plugin\LongEssayAssessment\Task\ResourcesAdminGUI($this));
                     }
                     break;
-				case 'ilias\plugin\longessayassessment\task\resourceuploadhandlergui':
-					if ($this->object->canEditMaterial()) {
-						$task_repo = LongEssayAssessmentDI::getInstance()->getTaskRepo();
-						$this->ctrl->forwardCommand(
-							new \ILIAS\Plugin\LongEssayAssessment\Task\ResourceUploadHandlerGUI($DIC->resourceStorage(), $task_repo)
-						);
-					}
-					break;
+                case 'ilias\plugin\longessayassessment\task\resourceuploadhandlergui':
+                    if ($this->object->canEditMaterial()) {
+                        $task_repo = LongEssayAssessmentDI::getInstance()->getTaskRepo();
+                        $this->ctrl->forwardCommand(
+                            new \ILIAS\Plugin\LongEssayAssessment\Task\ResourceUploadHandlerGUI($DIC->resourceStorage(), $task_repo)
+                        );
+                    }
+                    break;
                 case 'ilias\plugin\longessayassessment\task\editorsettingsgui':
                     if ($this->object->canEditTechnicalSettings()) {
                         $this->activateTab('tab_task', 'tab_technical_settings');
@@ -193,12 +196,12 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                         $this->ctrl->forwardCommand(new \ILIAS\Plugin\LongEssayAssessment\Corrector\CorrectorStartGUI($this));
                     }
                     break;
-				case 'ilias\plugin\longessayassessment\corrector\correctorcriteriagui':
-					if ($this->object->canEditOwnRatingCriteria()) {
-						$this->activateTab('tab_corrector', 'tab_corrector_criteria');
-						$this->ctrl->forwardCommand(new \ILIAS\Plugin\LongEssayAssessment\Corrector\CorrectorCriteriaGUI($this));
-					}
-					break;
+                case 'ilias\plugin\longessayassessment\corrector\correctorcriteriagui':
+                    if ($this->object->canEditOwnRatingCriteria()) {
+                        $this->activateTab('tab_corrector', 'tab_corrector_criteria');
+                        $this->ctrl->forwardCommand(new \ILIAS\Plugin\LongEssayAssessment\Corrector\CorrectorCriteriaGUI($this));
+                    }
+                    break;
                 case 'ilias\plugin\longessayassessment\writeradmin\writeradmingui':
                     if ($this->object->canMaintainWriters()) {
                         $this->activateTab('tab_writer_admin', 'tab_writer_admin');
@@ -213,11 +216,11 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                     break;
                 case 'ilias\plugin\longessayassessment\correctoradmin\correctoradmingui':
                     if ($this->object->canMaintainCorrectors()) {
-						$cmd = $this->ctrl->getCmd('showStartPage');
-						$active_sub = 'tab_correction_items';
-						if(in_array($cmd, ["showCorrectors", "start", "performSearch"])){
-							$active_sub = 'tab_corrector_list';
-						}
+                        $cmd = $this->ctrl->getCmd('showStartPage');
+                        $active_sub = 'tab_correction_items';
+                        if(in_array($cmd, ["showCorrectors", "start", "performSearch"])) {
+                            $active_sub = 'tab_corrector_list';
+                        }
                         $this->activateTab('tab_corrector_admin', $active_sub);
                         $this->ctrl->forwardCommand(new \ILIAS\Plugin\LongEssayAssessment\CorrectorAdmin\CorrectorAdminGUI($this));
                     }
@@ -234,16 +237,14 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                     $this->tpl->setOnScreenMessage("failure", 'Unsupported cmdClass: ' . $next_class, true);
 
             }
-        }
-        else {
-            switch ($cmd)
-            {
+        } else {
+            switch ($cmd) {
                 case 'jumpToOrgaSettings':
                     $this->checkPermission("write");
                     $this->$cmd();
                     break;
 
-                // list all commands that need read permission here
+                    // list all commands that need read permission here
                 case "standardCommand":
                     $this->$cmd();
                     break;
@@ -252,23 +253,23 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                     $this->tpl->setOnScreenMessage("failure", 'Unsupported cmd: ' . $cmd);
             }
         }
-	}
+    }
 
-	/**
-	 * After object has been created -> jump to this command
-	 */
-	function getAfterCreationCmd() : string
+    /**
+     * After object has been created -> jump to this command
+     */
+    public function getAfterCreationCmd() : string
     {
-		return "jumpToOrgaSettings";
-	}
+        return "jumpToOrgaSettings";
+    }
 
-	/**
-	 * Get standard command
-	 */
-	function getStandardCmd() : string
+    /**
+     * Get standard command
+     */
+    public function getStandardCmd() : string
     {
-		return "standardCommand";
-	}
+        return "standardCommand";
+    }
 
     /**
      * Apply the standard command
@@ -307,12 +308,12 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
 
 
     /**
-	 * Set tabs (called already by ilObjPluginGUI before performCommand is called)
+     * Set tabs (called already by ilObjPluginGUI before performCommand is called)
      * This defines the available sub tabs for each tab, based on the permissions
      * A Tab is added to the GUI with the URL of the first available sub tab
      * The actual sub tabs are added to the GUI in self::activateTab() when the current tab is known
-	 */
-	function setTabs() : void
+     */
+    public function setTabs() : void
     {
         $this->subtabs = [];
 
@@ -325,20 +326,20 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                 'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessayassessment\task\orgasettingsgui')
             ];
         }
-		if ($this->object->canEditContentSettings()) {
-			$tabs[] = [
-				'id' => 'tab_instructions_settings',
-				'txt' => $this->plugin->txt('tab_instructions_settings'),
-				'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessayassessment\task\instructionssettingsgui')
-			];
-		}
-		if ($this->object->canEditContentSettings()) {
-			$tabs[] = [
-				'id' => 'tab_solution_settings',
-				'txt' => $this->plugin->txt('tab_solution_settings'),
-				'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessayassessment\task\solutionsettingsgui')
-			];
-		}
+        if ($this->object->canEditContentSettings()) {
+            $tabs[] = [
+                'id' => 'tab_instructions_settings',
+                'txt' => $this->plugin->txt('tab_instructions_settings'),
+                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessayassessment\task\instructionssettingsgui')
+            ];
+        }
+        if ($this->object->canEditContentSettings()) {
+            $tabs[] = [
+                'id' => 'tab_solution_settings',
+                'txt' => $this->plugin->txt('tab_solution_settings'),
+                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessayassessment\task\solutionsettingsgui')
+            ];
+        }
         if ($this->object->canEditContentSettings()) {
             $tabs[] = [
                 'id' => 'tab_resources',
@@ -389,13 +390,13 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                 'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessayassessment\corrector\correctorstartgui')
             ];
         }
-		if($this->object->canEditOwnRatingCriteria()){
-			$tabs[] = [
-				'id' => 'tab_corrector_criteria',
-				'txt' => $this->plugin->txt('tab_criteria'),
-				'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessayassessment\corrector\correctorcriteriagui')
-			];
-		}
+        if($this->object->canEditOwnRatingCriteria()) {
+            $tabs[] = [
+                'id' => 'tab_corrector_criteria',
+                'txt' => $this->plugin->txt('tab_criteria'),
+                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessayassessment\corrector\correctorcriteriagui')
+            ];
+        }
         if (!empty($tabs)) {
             $this->tabs->addTab('tab_corrector', $this->plugin->txt('tab_corrector'), $tabs[0]['url']);
             $this->subtabs['tab_corrector'] = $tabs;
@@ -443,11 +444,11 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                 'txt' => $this->plugin->txt('tab_correction_items'),
                 'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessayassessment\correctorAdmin\correctoradmingui')
             ];
-			$tabs[] = [
-				'id' => 'tab_corrector_list',
-				'txt' => $this->plugin->txt('tab_corrector_list'),
-				'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessayassessment\correctorAdmin\correctoradmingui', "showCorrectors")
-			];
+            $tabs[] = [
+                'id' => 'tab_corrector_list',
+                'txt' => $this->plugin->txt('tab_corrector_list'),
+                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessayassessment\correctorAdmin\correctoradmingui', "showCorrectors")
+            ];
             $tabs[] = [
                 'id' => 'tab_corrector_statistic',
                 'txt' => $this->plugin->txt('tab_corrector_statistic'),
@@ -467,10 +468,10 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
         }
 
         // standard export tab
-		// $this->addExportTab();
+        // $this->addExportTab();
 
-		// standard permission tab
-		$this->addPermissionTab();
+        // standard permission tab
+        $this->addPermissionTab();
 
         // activate tab for some external GUIs
         $next_class = $this->ctrl->getCmdClass();
@@ -479,17 +480,18 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                 $this->tabs->activateTab("export");
                 break;
         }
-	}
+    }
 
 
 
-	/**
-	 * Activate a tab, add its sub tabs and activate a sub tab
+    /**
+     * Activate a tab, add its sub tabs and activate a sub tab
      *
      * @param string    $a_tab_id
      * @param string    $a_subtab_id
-	 */
-	protected function activateTab ($a_tab_id, $a_subtab_id = '') {
+     */
+    protected function activateTab($a_tab_id, $a_subtab_id = '')
+    {
 
         $this->tabs->activateTab($a_tab_id);
 
@@ -502,5 +504,5 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
         if (!empty($a_subtab_id)) {
             $this->tabs->activateSubTab($a_subtab_id);
         }
-	}
+    }
 }

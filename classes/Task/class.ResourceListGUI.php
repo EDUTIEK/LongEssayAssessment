@@ -34,7 +34,7 @@ class ResourceListGUI
      * @param Factory $uiFactory
      * @param Renderer $renderer
      * @param \ilLanguage $lng
-	 * @param \ilPlugin $plugin
+     * @param \ilPlugin $plugin
      */
     public function __construct(object $target_class, Factory $uiFactory, Renderer $renderer, \ilLanguage $lng, \ilPlugin $plugin)
     {
@@ -44,7 +44,7 @@ class ResourceListGUI
         $this->lng = $lng;
         $this->ctrl = $DIC->ctrl();
         $this->target_class = $target_class;
-		$this->plugin = $plugin;
+        $this->plugin = $plugin;
     }
 
     /**
@@ -61,7 +61,8 @@ class ResourceListGUI
                 PresentationRow $row,
                 array $record,
                 Factory $ui_factory,
-                                $environment) {
+                $environment
+            ) {
                 return $row
                     ->withHeadline($record['headline'])
                     //->withSubheadline($record['subheadline'])
@@ -107,17 +108,15 @@ class ResourceListGUI
     {
         $item_data = [];
 
-        foreach ($this->getItems() as $resource)
-        {
+        foreach ($this->getItems() as $resource) {
             $label = "";
             $action = "";
-			$this->ctrl->setParameter($this->target_class, "resource_id", (string) $resource->getId());
-			$edit_action = $this->ctrl->getFormAction($this->target_class, "editItem");
-			$this->ctrl->setParameter($this->target_class, "resource_id", (string) $resource->getId());
-			$delete_action = $this->ctrl->getFormAction($this->target_class, "deleteItem");
+            $this->ctrl->setParameter($this->target_class, "resource_id", (string) $resource->getId());
+            $edit_action = $this->ctrl->getFormAction($this->target_class, "editItem");
+            $this->ctrl->setParameter($this->target_class, "resource_id", (string) $resource->getId());
+            $delete_action = $this->ctrl->getFormAction($this->target_class, "deleteItem");
 
-            switch($resource->getType())
-            {
+            switch($resource->getType()) {
                 case Resource::RESOURCE_TYPE_FILE:
                     $label = $this->lng->txt("download");
                     $this->ctrl->setParameter($this->target_class, "resource_id", (string) $resource->getId());
@@ -127,9 +126,9 @@ class ResourceListGUI
                 case Resource::RESOURCE_TYPE_URL:
                     $label = $action = $resource->getUrl();
 
-					if (strlen($label) >= 20) {
-						$label = substr($label, 0, 17) . "...";
-					}
+                    if (strlen($label) >= 20) {
+                        $label = substr($label, 0, 17) . "...";
+                    }
 
                     break;
             }
@@ -138,10 +137,10 @@ class ResourceListGUI
                 'subheadline' => $resource->getDescription() ?? "",
                 'important' => [
                     $this->plugin->txt('resource_available') => $this->plugin->txt('resource_availability_'.$resource->getAvailability()),
-                    $this->renderer->render($this->uiFactory->link()->standard($label,$action))
+                    $this->renderer->render($this->uiFactory->link()->standard($label, $action))
                 ],
-				'edit_action' => $edit_action,
-				'delete_action' => $delete_action,
+                'edit_action' => $edit_action,
+                'delete_action' => $delete_action,
             ];
         }
 

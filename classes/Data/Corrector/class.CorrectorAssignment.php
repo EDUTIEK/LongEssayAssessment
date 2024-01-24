@@ -3,7 +3,6 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\Data\Corrector;
 
-
 use ILIAS\Plugin\LongEssayAssessment\Data\RecordData;
 
 /**
@@ -15,26 +14,26 @@ use ILIAS\Plugin\LongEssayAssessment\Data\RecordData;
  */
 class CorrectorAssignment extends RecordData
 {
-	protected const tableName = 'xlas_corrector_ass';
-	protected const hasSequence = true;
-	protected const keyTypes = [
-		'id' => 'integer',
-	];
-	protected const otherTypes = [
-		'writer_id' => 'integer',
-		'corrector_id' => 'integer',
-		'position' => 'integer'
-	];
+    protected const tableName = 'xlas_corrector_ass';
+    protected const hasSequence = true;
+    protected const keyTypes = [
+        'id' => 'integer',
+    ];
+    protected const otherTypes = [
+        'writer_id' => 'integer',
+        'corrector_id' => 'integer',
+        'position' => 'integer'
+    ];
 
     protected int $id = 0;
     protected int $writer_id = 0;
     protected int $corrector_id = 0;
     protected int $position = 0;
 
-	public static function model(): CorrectorAssignment
-	{
-		return new self();
-	}
+    public static function model(): CorrectorAssignment
+    {
+        return new self();
+    }
 
     /**
      * @return int

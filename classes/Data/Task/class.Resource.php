@@ -3,7 +3,6 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\Data\Task;
 
-
 use ILIAS\Plugin\LongEssayAssessment\Data\RecordData;
 
 /**
@@ -13,27 +12,27 @@ class Resource extends RecordData
 {
     const RESOURCE_TYPE_FILE = 'file';
     const RESOURCE_TYPE_URL = 'url';
-	const RESOURCE_TYPE_INSTRUCTION = 'instruct';
-	const RESOURCE_TYPE_SOLUTION  = 'solution';
+    const RESOURCE_TYPE_INSTRUCTION = 'instruct';
+    const RESOURCE_TYPE_SOLUTION  = 'solution';
 
     const RESOURCE_AVAILABILITY_BEFORE = 'before';  // before writing
     const RESOURCE_AVAILABILITY_DURING = 'during';  // after writing start, unlimited
     const RESOURCE_AVAILABILITY_AFTER = 'after';    // for review period
 
-	protected const tableName = 'xlas_resource';
-	protected const hasSequence = true;
-	protected const keyTypes = [
-		'id' => 'integer',
-	];
-	protected const otherTypes = [
-		'task_id'=> 'integer',
-		'title' => 'text',
-		'description' => 'text',
-		'file_id' => 'text',
-		'url' => 'text',
-		'type' => 'text',
-		'availability' => 'text'
-	];
+    protected const tableName = 'xlas_resource';
+    protected const hasSequence = true;
+    protected const keyTypes = [
+        'id' => 'integer',
+    ];
+    protected const otherTypes = [
+        'task_id'=> 'integer',
+        'title' => 'text',
+        'description' => 'text',
+        'file_id' => 'text',
+        'url' => 'text',
+        'type' => 'text',
+        'availability' => 'text'
+    ];
 
     protected int $id = 0;
     protected int $task_id = 0;
@@ -44,12 +43,13 @@ class Resource extends RecordData
     protected string $type = self::RESOURCE_TYPE_URL;
     protected string $availability = self::RESOURCE_AVAILABILITY_BEFORE;
 
-	public static function model() {
-		return new self();
-	}
+    public static function model()
+    {
+        return new self();
+    }
 
 
-	/**
+    /**
      * @return int
      */
     public function getId(): int

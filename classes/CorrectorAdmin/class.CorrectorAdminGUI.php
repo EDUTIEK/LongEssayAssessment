@@ -30,18 +30,18 @@ use ILIAS\DI\Exceptions\Exception;
 class CorrectorAdminGUI extends BaseGUI
 {
 
-	/** @var CorrectorAdminService */
-	protected $service;
+    /** @var CorrectorAdminService */
+    protected $service;
     
     /** @var CorrectionSettings */
     protected $settings;
 
-	public function __construct(\ilObjLongEssayAssessmentGUI $objectGUI)
-	{
-		parent::__construct($objectGUI);
-		$this->service = $this->localDI->getCorrectorAdminService($this->object->getId());
+    public function __construct(\ilObjLongEssayAssessmentGUI $objectGUI)
+    {
+        parent::__construct($objectGUI);
+        $this->service = $this->localDI->getCorrectorAdminService($this->object->getId());
         $this->settings = $this->localDI->getTaskRepo()->getCorrectionSettingsById($this->object->getId());
-	}
+    }
 
     /**
      * Execute a command
@@ -50,45 +50,44 @@ class CorrectorAdminGUI extends BaseGUI
      */
     public function executeCommand()
     {
-		$next_class = $this->ctrl->getNextClass();
+        $next_class = $this->ctrl->getNextClass();
 
-		switch ($next_class) {
-			case 'ilrepositorysearchgui':
-				$rep_search = new \ilRepositorySearchGUI();
-				$rep_search->addUserAccessFilterCallable([$this, 'filterUserIdsByLETMembership']);
-				$rep_search->setCallback($this, "assignCorrectors");
-				$this->ctrl->setReturn($this, 'showStartPage');
-				$ret = $this->ctrl->forwardCommand($rep_search);
-				break;
-			default:
-				$cmd = $this->ctrl->getCmd('showStartPage');
-				switch ($cmd)
-				{
-					case 'showStartPage':
-					case 'showCorrectors':
+        switch ($next_class) {
+            case 'ilrepositorysearchgui':
+                $rep_search = new \ilRepositorySearchGUI();
+                $rep_search->addUserAccessFilterCallable([$this, 'filterUserIdsByLETMembership']);
+                $rep_search->setCallback($this, "assignCorrectors");
+                $this->ctrl->setReturn($this, 'showStartPage');
+                $ret = $this->ctrl->forwardCommand($rep_search);
+                break;
+            default:
+                $cmd = $this->ctrl->getCmd('showStartPage');
+                switch ($cmd) {
+                    case 'showStartPage':
+                    case 'showCorrectors':
                     case 'confirmAssignWriters':
-					case 'assignWriters':
-					case 'changeCorrector':
-					case 'removeCorrector':
+                    case 'assignWriters':
+                    case 'changeCorrector':
+                    case 'removeCorrector':
                     case 'exportCorrections':
                     case 'exportResults':
                     case 'viewCorrections':
                     case 'stitchDecision':
                     case 'exportSteps':
                     case 'removeAuthorizations':
-					case 'editAssignmentsAsync':
-					case 'confirmRemoveAuthorizationsAsync':
+                    case 'editAssignmentsAsync':
+                    case 'confirmRemoveAuthorizationsAsync':
                     case 'downloadWrittenPdf':
                     case 'downloadCorrectedPdf':
                     case 'correctorAssignmentSpreadsheetExport':
                     case 'correctorAssignmentSpreadsheetImport':
-						$this->$cmd();
-						break;
+                        $this->$cmd();
+                        break;
 
-					default:
-						$this->tpl->setContent('unknown command: ' . $cmd);
-				}
-		}
+                    default:
+                        $this->tpl->setContent('unknown command: ' . $cmd);
+                }
+        }
     }
 
 
@@ -106,8 +105,8 @@ class CorrectorAdminGUI extends BaseGUI
         $authorized_essay_exists = false;
         $essays = $essay_repo->getEssaysByTaskId($this->object->getId());
         $stitches = [];
-        foreach ($essays as $essay){
-            if($this->service->isStitchDecisionNeeded($essay)){
+        foreach ($essays as $essay) {
+            if($this->service->isStitchDecisionNeeded($essay)) {
                 $stitches[] = $essay->getId();
             }
             if ($essay->getWritingAuthorized()) {
@@ -121,14 +120,13 @@ class CorrectorAdminGUI extends BaseGUI
         if ($authorized_essay_exists) {
             if (empty($correctors)) {
                 $this->tpl->setOnScreenMessage("info", $this->plugin->txt('info_missing_correctors'), false);
-            }
-            elseif(!empty($this->service->countMissingCorrectors())) {
+            } elseif(!empty($this->service->countMissingCorrectors())) {
                 $this->tpl->setOnScreenMessage("info", $this->plugin->txt('info_missing_assignments'), false);
             }
         }
 
         $this->toolbar->setFormAction($this->ctrl->getFormAction($this));
-		$assign_writers_action = $this->ctrl->getLinkTarget($this, "confirmAssignWriters");
+        $assign_writers_action = $this->ctrl->getLinkTarget($this, "confirmAssignWriters");
         $export_corrections_action =  $this->ctrl->getLinkTarget($this, "exportCorrections");
         $export_results_action =  $this->ctrl->getLinkTarget($this, "exportResults");
         $stitch_decision_action =  $this->ctrl->getLinkTarget($this, "stitchDecision");
@@ -148,10 +146,14 @@ class CorrectorAdminGUI extends BaseGUI
             $this->ctrl->getLinkTarget($this, "correctorAssignmentSpreadsheetImport")
         );
         $btn_export_ass = $this->uiFactory->button()->toggle(
-            $this->plugin->txt("assignment_excel_export_auth"), "#", "#", $this->spreadsheetAssignmentToggle()
-        )->withAdditionalOnLoadCode(function ($id) {
-            return "$('#{$id}').on( 'click', function() {  document.cookie = 'xlas_exass=' + ($( this ).hasClass('on') ? 'on' : 'off'); } );";
-        }
+            $this->plugin->txt("assignment_excel_export_auth"),
+            "#",
+            "#",
+            $this->spreadsheetAssignmentToggle()
+        )->withAdditionalOnLoadCode(
+            function ($id) {
+                return "$('#{$id}').on( 'click', function() {  document.cookie = 'xlas_exass=' + ($( this ).hasClass('on') ? 'on' : 'off'); } );";
+            }
         );
 
         $this->toolbar->addText($this->plugin->txt("assignment_excel"));
@@ -181,111 +183,114 @@ class CorrectorAdminGUI extends BaseGUI
 
         $this->toolbar->addSeparator();
 
-		$list_gui = new CorrectorAdminListGUI($this, "showStartPage", $this->plugin, $this->settings);
-		$list_gui->setWriters($writers);
-		$list_gui->setCorrectors($correctors);
-		$list_gui->setEssays($essays);
-		$list_gui->setAssignments($corrector_repo->getAssignmentsByTaskId($this->object->getId()));
-		$list_gui->setCorrectionStatusStitches($stitches);
+        $list_gui = new CorrectorAdminListGUI($this, "showStartPage", $this->plugin, $this->settings);
+        $list_gui->setWriters($writers);
+        $list_gui->setCorrectors($correctors);
+        $list_gui->setEssays($essays);
+        $list_gui->setAssignments($corrector_repo->getAssignmentsByTaskId($this->object->getId()));
+        $list_gui->setCorrectionStatusStitches($stitches);
         $list_gui->setLocations($task_repo->getLocationsByTaskId($this->object->getId()));
 
         $this->tpl->setContent($list_gui->getContent());
-	}
-
-	protected function showCorrectors(){
-		$this->toolbar->setFormAction($this->ctrl->getFormAction($this));
-		$this->showCorrectorToolbar();
-
-		$di = LongEssayAssessmentDI::getInstance();
-		$writers_repo = $di->getWriterRepo();
-		$corrector_repo = $di->getCorrectorRepo();
-
-
-		$list_gui = new CorrectorListGUI($this, "showCorrectors", $this->plugin);
-		$list_gui->setWriters($writers_repo->getWritersByTaskId($this->object->getId()));
-		$list_gui->setCorrectors($corrector_repo->getCorrectorsByTaskId($this->object->getId()));
-		$list_gui->setAssignments($corrector_repo->getAssignmentsByTaskId($this->object->getId()));
-
-		$this->tpl->setContent($list_gui->getContent());
-	}
-
-	private function showCorrectorToolbar(){
-
-		\ilRepositorySearchGUI::fillAutoCompleteToolbar(
-			$this,
-			$this->toolbar,
-			array()
-		);
-
-		// spacer
-		$this->toolbar->addSeparator();
-
-		// search button
-		$this->toolbar->addButton(
-			$this->plugin->txt("search_correctors"),
-			$this->ctrl->getLinkTargetByClass(
-				'ilRepositorySearchGUI',
-				'start'
-			)
-		);
     }
 
-	public function assignCorrectors(array $a_usr_ids, $a_type = null)
-	{
-		if (count($a_usr_ids) <= 0) {
-            $this->tpl->setOnScreenMessage("failure", $this->plugin->txt('missing_corrector_id'), true);
-            $this->ctrl->redirect($this,"showCorrectors");
-		}
+    protected function showCorrectors()
+    {
+        $this->toolbar->setFormAction($this->ctrl->getFormAction($this));
+        $this->showCorrectorToolbar();
 
-		foreach($a_usr_ids as $id) {
+        $di = LongEssayAssessmentDI::getInstance();
+        $writers_repo = $di->getWriterRepo();
+        $corrector_repo = $di->getCorrectorRepo();
+
+
+        $list_gui = new CorrectorListGUI($this, "showCorrectors", $this->plugin);
+        $list_gui->setWriters($writers_repo->getWritersByTaskId($this->object->getId()));
+        $list_gui->setCorrectors($corrector_repo->getCorrectorsByTaskId($this->object->getId()));
+        $list_gui->setAssignments($corrector_repo->getAssignmentsByTaskId($this->object->getId()));
+
+        $this->tpl->setContent($list_gui->getContent());
+    }
+
+    private function showCorrectorToolbar()
+    {
+
+        \ilRepositorySearchGUI::fillAutoCompleteToolbar(
+            $this,
+            $this->toolbar,
+            array()
+        );
+
+        // spacer
+        $this->toolbar->addSeparator();
+
+        // search button
+        $this->toolbar->addButton(
+            $this->plugin->txt("search_correctors"),
+            $this->ctrl->getLinkTargetByClass(
+                'ilRepositorySearchGUI',
+                'start'
+            )
+        );
+    }
+
+    public function assignCorrectors(array $a_usr_ids, $a_type = null)
+    {
+        if (count($a_usr_ids) <= 0) {
+            $this->tpl->setOnScreenMessage("failure", $this->plugin->txt('missing_corrector_id'), true);
+            $this->ctrl->redirect($this, "showCorrectors");
+        }
+
+        foreach($a_usr_ids as $id) {
             $this->service->getOrCreateCorrectorFromUserId($id);
-		}
+        }
 
         $this->tpl->setOnScreenMessage("success", $this->plugin->txt('assign_corrector_success'), true);
-        $this->ctrl->redirect($this,"showCorrectors");
-	}
+        $this->ctrl->redirect($this, "showCorrectors");
+    }
 
-	public function filterUserIdsByLETMembership($a_user_ids)
-	{
-		$user_ids = [];
-		$corrector_repo = LongEssayAssessmentDI::getInstance()->getCorrectorRepo();
-		$writers = array_map(fn ($row) => $row->getUserId(), $corrector_repo->getCorrectorsByTaskId($this->object->getId()));
+    public function filterUserIdsByLETMembership($a_user_ids)
+    {
+        $user_ids = [];
+        $corrector_repo = LongEssayAssessmentDI::getInstance()->getCorrectorRepo();
+        $writers = array_map(fn ($row) => $row->getUserId(), $corrector_repo->getCorrectorsByTaskId($this->object->getId()));
 
-		foreach ($a_user_ids as $user_id){
-			if(!in_array((int)$user_id, $writers)){
-				$user_ids[] = $user_id;
-			}
-		}
+        foreach ($a_user_ids as $user_id) {
+            if(!in_array((int)$user_id, $writers)) {
+                $user_ids[] = $user_id;
+            }
+        }
 
-		return $user_ids;
-	}
+        return $user_ids;
+    }
 
-	private function removeCorrector(){
-		if(($id = $this->getCorrectorId()) === null)
-		{
+    private function removeCorrector()
+    {
+        if(($id = $this->getCorrectorId()) === null) {
             $this->tpl->setOnScreenMessage("failure", $this->plugin->txt('missing_corrector_id'), true);
             $this->ctrl->redirect($this, "showCorrectors");
-		}
-		$corrector_repo = LongEssayAssessmentDI::getInstance()->getCorrectorRepo();
-		$corrector = $corrector_repo->getCorrectorById($id);
+        }
+        $corrector_repo = LongEssayAssessmentDI::getInstance()->getCorrectorRepo();
+        $corrector = $corrector_repo->getCorrectorById($id);
 
-		if($corrector === null || $corrector->getTaskId() !== $this->object->getId()){
+        if($corrector === null || $corrector->getTaskId() !== $this->object->getId()) {
             $this->tpl->setOnScreenMessage("failure", $this->plugin->txt('missing_corrector'), true);
             $this->ctrl->redirect($this, "showCorrectors");
-		}
-		$ass = $corrector_repo->getAssignmentsByCorrectorId($corrector->getId());
+        }
+        $ass = $corrector_repo->getAssignmentsByCorrectorId($corrector->getId());
 
-		if(count($ass) > 0){
+        if(count($ass) > 0) {
             $this->tpl->setOnScreenMessage("failure", $this->plugin->txt('remove_writer_pending_assignments'), true);
-			$this->ctrl->redirect($this, "showCorrectors");
-		}
+            $this->ctrl->redirect($this, "showCorrectors");
+        }
 
-		$corrector_repo->deleteCorrector($corrector->getId());
+        $corrector_repo->deleteCorrector($corrector->getId());
         $this->tpl->setOnScreenMessage("success", $this->plugin->txt('remove_corrector_success'), true);
         $this->ctrl->redirect($this, "showCorrectors");
-	}
+    }
 
-    protected function confirmAssignWriters() {
+    protected function confirmAssignWriters()
+    {
 
         $missing = $this->service->countMissingCorrectors();
         if ($missing == 0) {
@@ -293,7 +298,7 @@ class CorrectorAdminGUI extends BaseGUI
             $this->ctrl->redirect($this, 'showStartPage');
         }
         $available = $this->service->countAvailableCorrectors();
-        if ($available == 0)  {
+        if ($available == 0) {
             $this->tpl->setOnScreenMessage("info", $this->plugin->txt('assign_not_available'), true);
             $this->ctrl->redirect($this, 'showStartPage');
         }
@@ -329,26 +334,25 @@ class CorrectorAdminGUI extends BaseGUI
         $gui = new \ilConfirmationGUI();
         $gui->setFormAction($this->ctrl->getFormAction($this));
         $gui->setHeaderText($message);
-        $gui->setCancel($this->lng->txt('cancel'),'showStartPage');
-        $gui->setConfirm($this->plugin->txt('assign_writers'),'assignWriters');
+        $gui->setCancel($this->lng->txt('cancel'), 'showStartPage');
+        $gui->setConfirm($this->plugin->txt('assign_writers'), 'assignWriters');
 
         $this->tpl->setContent($gui->getHTML());
 
     }
 
-	protected function assignWriters() {
-		$assigned = $this->service->assignMissingCorrectors();
+    protected function assignWriters()
+    {
+        $assigned = $this->service->assignMissingCorrectors();
         if ($assigned == 0) {
             $this->tpl->setOnScreenMessage("failure", $this->plugin->txt("0_assigned_correctors"), true);
-        }
-        elseif ($assigned == 1) {
+        } elseif ($assigned == 1) {
             $this->tpl->setOnScreenMessage("success", $this->plugin->txt("1_assigned_corrector"), true);
-        }
-        else {
+        } else {
             $this->tpl->setOnScreenMessage("success", sprintf($this->plugin->txt("n_assigned_correctors"), $assigned), true);
         }
-		$this->ctrl->redirect($this, "showStartPage");
-	}
+        $this->ctrl->redirect($this, "showStartPage");
+    }
 
     protected function viewCorrections()
     {
@@ -380,35 +384,35 @@ class CorrectorAdminGUI extends BaseGUI
 
     protected function removeAuthorizations()
     {
-		$writer_ids = $this->getWriterIds();
-		$valid = [];
-		$invalid = [];
+        $writer_ids = $this->getWriterIds();
+        $valid = [];
+        $invalid = [];
 
-		foreach($writer_ids as $writer_id){
-			if(($writer = $this->localDI->getWriterRepo()->getWriterById($writer_id)) !== null) {
-				if ($this->service->removeAuthorizations($writer)) {
-					$valid[] = $writer;
-				} else {
-					$invalid[] = $writer;
-				}
-			}
-		}
-		if(count($invalid) > 0){
-			$names = [];
-			foreach ($invalid as $writer){
-				$names[] = \ilObjUser::_lookupFullname($writer->getUserId()) . ' [' . $writer->getPseudonym() . ']';
-			}
+        foreach($writer_ids as $writer_id) {
+            if(($writer = $this->localDI->getWriterRepo()->getWriterById($writer_id)) !== null) {
+                if ($this->service->removeAuthorizations($writer)) {
+                    $valid[] = $writer;
+                } else {
+                    $invalid[] = $writer;
+                }
+            }
+        }
+        if(count($invalid) > 0) {
+            $names = [];
+            foreach ($invalid as $writer) {
+                $names[] = \ilObjUser::_lookupFullname($writer->getUserId()) . ' [' . $writer->getPseudonym() . ']';
+            }
             $this->tpl->setOnScreenMessage("failure", sprintf($this->plugin->txt('remove_authorizations_for_failed'), implode(", ", $names)), true);
         }
-		if(count($valid) > 0){
-			$names = [];
-			foreach ($valid as $writer){
-				$names[] = \ilObjUser::_lookupFullname($writer->getUserId()) . ' [' . $writer->getPseudonym() . ']';
-			}
+        if(count($valid) > 0) {
+            $names = [];
+            foreach ($valid as $writer) {
+                $names[] = \ilObjUser::_lookupFullname($writer->getUserId()) . ' [' . $writer->getPseudonym() . ']';
+            }
             $this->tpl->setOnScreenMessage("success", sprintf($this->plugin->txt('remove_authorizations_for_done'), implode(", ", $names)), true);
         }
 
-		$this->ctrl->clearParameters($this);
+        $this->ctrl->clearParameters($this);
         $this->ctrl->redirect($this);
     }
 
@@ -484,195 +488,213 @@ class CorrectorAdminGUI extends BaseGUI
     }
 
     private function getCorrectorId(): ?int
-	{
-		$query = $this->request->getQueryParams();
-		if(isset($query["corrector_id"])) {
-			return (int) $query["corrector_id"];
-		}
-		return null;
-	}
+    {
+        $query = $this->request->getQueryParams();
+        if(isset($query["corrector_id"])) {
+            return (int) $query["corrector_id"];
+        }
+        return null;
+    }
 
-	protected function getWriterIds(): array
-	{
-		$ids = [];
-		$query_params = $this->request->getQueryParams();
+    protected function getWriterIds(): array
+    {
+        $ids = [];
+        $query_params = $this->request->getQueryParams();
 
-		if(isset($query_params["writer_id"]) && $query_params["writer_id"] !== ""){
-			$this->ctrl->saveParameter($this, "writer_id");
-			$ids[] = (int) $query_params["writer_id"];
-		}elseif (isset($query_params["writer_ids"])){
-			$this->ctrl->saveParameter($this, "writer_ids");
-			foreach(explode('/', $query_params["writer_ids"]) as $value){
-				$ids[] = (int) $value;
-			}
-		}
-		return $ids;
-	}
+        if(isset($query_params["writer_id"]) && $query_params["writer_id"] !== "") {
+            $this->ctrl->saveParameter($this, "writer_id");
+            $ids[] = (int) $query_params["writer_id"];
+        } elseif (isset($query_params["writer_ids"])) {
+            $this->ctrl->saveParameter($this, "writer_ids");
+            foreach(explode('/', $query_params["writer_ids"]) as $value) {
+                $ids[] = (int) $value;
+            }
+        }
+        return $ids;
+    }
 
-	/**
-	 * @param array $writer_ids
-	 * @return BlankForm
-	 */
-	private function buildAssignmentForm(array $writer_ids): Form
-	{
-		$service = $this->localDI->getCorrectorAdminService($this->object->getId());
-		$factory = $this->uiFactory;
-		$custom_factory = $this->localDI->getUIFactory();
-		$corrector_repo = $this->localDI->getCorrectorRepo();
-		$corrector_list = [
-			CorrectorAdminService::UNCHANGED_CORRECTOR_ASSIGNMENT => $this->plugin->txt("unchanged"),
-			CorrectorAdminService::BLANK_CORRECTOR_ASSIGNMENT => $this->lng->txt("remove")
-		];
+    /**
+     * @param array $writer_ids
+     * @return BlankForm
+     */
+    private function buildAssignmentForm(array $writer_ids): Form
+    {
+        $service = $this->localDI->getCorrectorAdminService($this->object->getId());
+        $factory = $this->uiFactory;
+        $custom_factory = $this->localDI->getUIFactory();
+        $corrector_repo = $this->localDI->getCorrectorRepo();
+        $corrector_list = [
+            CorrectorAdminService::UNCHANGED_CORRECTOR_ASSIGNMENT => $this->plugin->txt("unchanged"),
+            CorrectorAdminService::BLANK_CORRECTOR_ASSIGNMENT => $this->lng->txt("remove")
+        ];
 
-		$corrector_ids = [];
+        $corrector_ids = [];
 
-		foreach($corrector_repo->getCorrectorsByTaskId($this->object->getId()) as $corrector){
-			$corrector_ids[$corrector->getId()] = $corrector->getUserId();
-		}
-		$names = \ilUserUtil::getNamePresentation(array_unique($corrector_ids), false, false, "", true);
+        foreach($corrector_repo->getCorrectorsByTaskId($this->object->getId()) as $corrector) {
+            $corrector_ids[$corrector->getId()] = $corrector->getUserId();
+        }
+        $names = \ilUserUtil::getNamePresentation(array_unique($corrector_ids), false, false, "", true);
 
-		foreach ($corrector_ids as $id => $user_id){
-			$corrector_list[$id] = $names[$user_id];
-		}
+        foreach ($corrector_ids as $id => $user_id) {
+            $corrector_list[$id] = $names[$user_id];
+        }
 
-		$fields = [];
-		$fields["first_corrector"] = $factory->input()->field()->select(
-            $this->settings->getRequiredCorrectors() > 1 
+        $fields = [];
+        $fields["first_corrector"] = $factory->input()->field()->select(
+            $this->settings->getRequiredCorrectors() > 1
                 ? $this->plugin->txt("assignment_pos_first")
-                : $this->plugin->txt("assignment_pos_single")
-            , $corrector_list)
-			->withRequired(true)
-			->withValue(CorrectorAdminService::UNCHANGED_CORRECTOR_ASSIGNMENT)
-			->withAdditionalTransformation($this->refinery->kindlyTo()->int());
-		
+                : $this->plugin->txt("assignment_pos_single"),
+            $corrector_list
+        )
+            ->withRequired(true)
+            ->withValue(CorrectorAdminService::UNCHANGED_CORRECTOR_ASSIGNMENT)
+            ->withAdditionalTransformation($this->refinery->kindlyTo()->int());
+
         
         if ($this->settings->getRequiredCorrectors() > 1) {
             $fields["second_corrector"] = $factory->input()->field()->select(
-                $this->plugin->txt("assignment_pos_second"), $corrector_list)
+                $this->plugin->txt("assignment_pos_second"),
+                $corrector_list
+            )
                                                   ->withRequired(true)
                                                   ->withValue(CorrectorAdminService::UNCHANGED_CORRECTOR_ASSIGNMENT)
                                                   ->withAdditionalTransformation($this->refinery->kindlyTo()->int());
         }
 
 
-		if(count($writer_ids) == 1) { // Pre set the assigned correctors if its just one corrector
-			$assignments = [];
-			foreach($this->localDI->getCorrectorRepo()->getAssignmentsByWriterId($writer_ids[0]) as $assignment){
-				$assignments[$assignment->getPosition()] = $assignment;
-			}
+        if(count($writer_ids) == 1) { // Pre set the assigned correctors if its just one corrector
+            $assignments = [];
+            foreach($this->localDI->getCorrectorRepo()->getAssignmentsByWriterId($writer_ids[0]) as $assignment) {
+                $assignments[$assignment->getPosition()] = $assignment;
+            }
 
-			$fields["first_corrector"] = $fields["first_corrector"]->withValue(
-				isset($assignments[0]) ?
-					$assignments[0]->getCorrectorId() :
-					CorrectorAdminService::UNCHANGED_CORRECTOR_ASSIGNMENT
-			);
+            $fields["first_corrector"] = $fields["first_corrector"]->withValue(
+                isset($assignments[0]) ?
+                    $assignments[0]->getCorrectorId() :
+                    CorrectorAdminService::UNCHANGED_CORRECTOR_ASSIGNMENT
+            );
 
             if ($this->settings->getRequiredCorrectors() > 1) {
-                $fields["second_corrector"] = $fields["second_corrector"]->withValue(isset($assignments[1]) ?
+                $fields["second_corrector"] = $fields["second_corrector"]->withValue(
+                    isset($assignments[1]) ?
                     $assignments[1]->getCorrectorId() :
                     CorrectorAdminService::UNCHANGED_CORRECTOR_ASSIGNMENT
                 );
             }
-		}
+        }
 
-		return $custom_factory->field()->blankForm($this->ctrl->getFormAction($this, "editAssignmentsAsync"), $fields)
-			->withAdditionalTransformation($this->refinery->custom()->constraint(
-				function (array $var){
+        return $custom_factory->field()->blankForm($this->ctrl->getFormAction($this, "editAssignmentsAsync"), $fields)
+            ->withAdditionalTransformation($this->refinery->custom()->constraint(
+                function (array $var) {
                     if (!isset($var['second_corrector'])) {
                         return true;
                     }
-					if($var["first_corrector"] === CorrectorAdminService::BLANK_CORRECTOR_ASSIGNMENT
-						&& $var["second_corrector"] === CorrectorAdminService::BLANK_CORRECTOR_ASSIGNMENT){
-						return true;
-					}
-                    if($var["first_corrector"] === CorrectorAdminService::UNCHANGED_CORRECTOR_ASSIGNMENT
-                        && $var["second_corrector"] === CorrectorAdminService::UNCHANGED_CORRECTOR_ASSIGNMENT){
+                    if($var["first_corrector"] === CorrectorAdminService::BLANK_CORRECTOR_ASSIGNMENT
+                        && $var["second_corrector"] === CorrectorAdminService::BLANK_CORRECTOR_ASSIGNMENT) {
                         return true;
                     }
-					return $var["first_corrector"] != $var["second_corrector"];
-				}, $this->plugin->txt("same_assigned_corrector_error")))
-			->withAdditionalTransformation($this->refinery->custom()->constraint(
-				function (array $var) use ($service, $writer_ids){
-					$result = $service->assignMultipleCorrector(
-                        $var["first_corrector"] ?? CorrectorAdminService::UNCHANGED_CORRECTOR_ASSIGNMENT, 
-                            $var["second_corrector"] ?? CorrectorAdminService::UNCHANGED_CORRECTOR_ASSIGNMENT, 
-                        $writer_ids, true);
-					return count($result['invalid']) === 0;
-				}, $this->plugin->txt("invalid_assignment_combinations_error")));
-	}
+                    if($var["first_corrector"] === CorrectorAdminService::UNCHANGED_CORRECTOR_ASSIGNMENT
+                        && $var["second_corrector"] === CorrectorAdminService::UNCHANGED_CORRECTOR_ASSIGNMENT) {
+                        return true;
+                    }
+                    return $var["first_corrector"] != $var["second_corrector"];
+                },
+                $this->plugin->txt("same_assigned_corrector_error")
+            ))
+            ->withAdditionalTransformation($this->refinery->custom()->constraint(
+                function (array $var) use ($service, $writer_ids) {
+                    $result = $service->assignMultipleCorrector(
+                        $var["first_corrector"] ?? CorrectorAdminService::UNCHANGED_CORRECTOR_ASSIGNMENT,
+                        $var["second_corrector"] ?? CorrectorAdminService::UNCHANGED_CORRECTOR_ASSIGNMENT,
+                        $writer_ids,
+                        true
+                    );
+                    return count($result['invalid']) === 0;
+                },
+                $this->plugin->txt("invalid_assignment_combinations_error")
+            ));
+    }
 
 
-	protected function editAssignmentsAsync(){
-		$writer_ids = $this->getWriterIds();
-		$form = $this->buildAssignmentForm($writer_ids);
+    protected function editAssignmentsAsync()
+    {
+        $writer_ids = $this->getWriterIds();
+        $form = $this->buildAssignmentForm($writer_ids);
 
-		if($this->request->getMethod() === "POST") {
-			$form = $form->withRequest($this->request);
+        if($this->request->getMethod() === "POST") {
+            $form = $form->withRequest($this->request);
 
-			if (($data = $form->getData()) !== null) {
+            if (($data = $form->getData()) !== null) {
 
-				$this->service->assignMultipleCorrector(
-                    $data["first_corrector"] ?? CorrectorAdminService::UNCHANGED_CORRECTOR_ASSIGNMENT, 
+                $this->service->assignMultipleCorrector(
+                    $data["first_corrector"] ?? CorrectorAdminService::UNCHANGED_CORRECTOR_ASSIGNMENT,
                     $data["second_corrector"] ?? CorrectorAdminService::UNCHANGED_CORRECTOR_ASSIGNMENT,
-                    $writer_ids);
+                    $writer_ids
+                );
                 $this->tpl->setOnScreenMessage("success", $this->plugin->txt("corrector_assignment_changed"), true);
                 exit();
-			}else{
-				echo($this->renderer->render($form));
-				exit();
-			}
-		}
-		$message_box = $this->uiFactory->messageBox()->info($this->plugin->txt("change_corrector_info"));
-		echo($this->renderer->renderAsync($this->uiFactory->modal()->roundtrip(
-			$this->plugin->txt("change_corrector"), [$message_box, $form])
-			->withActionButtons([$this->uiFactory->button()->primary($this->lng->txt("submit"), "")->withOnClick($form->getSubmitAsyncSignal())])
-		));
-		exit();
-	}
+            } else {
+                echo($this->renderer->render($form));
+                exit();
+            }
+        }
+        $message_box = $this->uiFactory->messageBox()->info($this->plugin->txt("change_corrector_info"));
+        echo($this->renderer->renderAsync(
+            $this->uiFactory->modal()->roundtrip(
+                $this->plugin->txt("change_corrector"),
+                [$message_box, $form]
+            )
+            ->withActionButtons([$this->uiFactory->button()->primary($this->lng->txt("submit"), "")->withOnClick($form->getSubmitAsyncSignal())])
+        ));
+        exit();
+    }
 
-	protected function confirmRemoveAuthorizationsAsync()
-	{
-		$writer_ids = $this->getWriterIds();
-		$writers = $this->localDI->getWriterRepo()->getWritersByTaskId($this->object->getId());
-		$essays = [];
-		foreach($this->localDI->getEssayRepo()->getEssaysByTaskId($this->object->getId()) as $essay){
-			$essays[$essay->getWriterId()] = $essay;
-		}
+    protected function confirmRemoveAuthorizationsAsync()
+    {
+        $writer_ids = $this->getWriterIds();
+        $writers = $this->localDI->getWriterRepo()->getWritersByTaskId($this->object->getId());
+        $essays = [];
+        foreach($this->localDI->getEssayRepo()->getEssaysByTaskId($this->object->getId()) as $essay) {
+            $essays[$essay->getWriterId()] = $essay;
+        }
 
-		$user_data = \ilUserUtil::getNamePresentation(array_unique(array_map(fn(Writer $x) => $x->getUserId(), $writers)), true, true, "", true);
+        $user_data = \ilUserUtil::getNamePresentation(array_unique(array_map(fn (Writer $x) => $x->getUserId(), $writers)), true, true, "", true);
 
-		$items = [];
+        $items = [];
 
-		foreach ($writer_ids as $writer_id){
-			$essay = $essays[$writer_id] ?? null;
-			if ((!empty($essay->getCorrectionFinalized())
-				|| !empty($this->localDI->getCorrectorAdminService($essay->getTaskId())->getAuthorizedSummaries($essay)))
-				&& array_key_exists($writer_id, $writers))
-			{
-				$writer = $writers[$writer_id];
-				$items[] = $this->uiFactory->modal()->interruptiveItem(
-					$writer->getId(), $user_data[$writer->getUserId()] . ' [' . $writer->getPseudonym() . ']'
-				);
-			}
-		}
+        foreach ($writer_ids as $writer_id) {
+            $essay = $essays[$writer_id] ?? null;
+            if ((!empty($essay->getCorrectionFinalized())
+                || !empty($this->localDI->getCorrectorAdminService($essay->getTaskId())->getAuthorizedSummaries($essay)))
+                && array_key_exists($writer_id, $writers)) {
+                $writer = $writers[$writer_id];
+                $items[] = $this->uiFactory->modal()->interruptiveItem(
+                    $writer->getId(),
+                    $user_data[$writer->getUserId()] . ' [' . $writer->getPseudonym() . ']'
+                );
+            }
+        }
 
-		if(count($items) > 0){
-			$confirm_modal = $this->uiFactory->modal()->interruptive(
-				$this->plugin->txt("remove_authorizations"),
-				$this->plugin->txt("remove_authorizations_confirmation"),
-				$this->ctrl->getFormAction($this, "removeAuthorizations")
-			)->withAffectedItems($items)->withActionButtonLabel("ok");
-		}else{
-			$confirm_modal = $this->uiFactory->modal()->roundtrip($this->plugin->txt("remove_authorizations"),
-				$this->uiFactory->messageBox()->failure($this->plugin->txt("remove_authorizations_no_valid_essays")))
-				->withCancelButtonLabel("ok");
-		}
+        if(count($items) > 0) {
+            $confirm_modal = $this->uiFactory->modal()->interruptive(
+                $this->plugin->txt("remove_authorizations"),
+                $this->plugin->txt("remove_authorizations_confirmation"),
+                $this->ctrl->getFormAction($this, "removeAuthorizations")
+            )->withAffectedItems($items)->withActionButtonLabel("ok");
+        } else {
+            $confirm_modal = $this->uiFactory->modal()->roundtrip(
+                $this->plugin->txt("remove_authorizations"),
+                $this->uiFactory->messageBox()->failure($this->plugin->txt("remove_authorizations_no_valid_essays"))
+            )
+                ->withCancelButtonLabel("ok");
+        }
 
-		echo($this->renderer->renderAsync($confirm_modal));
-		exit();
-	}
+        echo($this->renderer->renderAsync($confirm_modal));
+        exit();
+    }
 
-    public function correctorAssignmentSpreadsheetImport(){
+    public function correctorAssignmentSpreadsheetImport()
+    {
         $corrector_repo = $this->localDI->getCorrectorRepo();
         $task_repo = $this->localDI->getTaskRepo();
         $tempfile = new ilLongEssayAssessmentUploadTempFile($this->storage, $this->dic->filesystem(), $this->dic->upload());
@@ -680,8 +702,12 @@ class CorrectorAdminGUI extends BaseGUI
         $form = $this->uiFactory->input()->container()->form()->standard(
             $this->ctrl->getFormAction($this, "correctorAssignmentSpreadsheetImport"),
             ["excel" => $this->uiFactory->input()->field()->file(
-                new \ilLongEssayAssessmentUploadHandlerGUI($this->storage, $tempfile
-                ), $this->plugin->txt("assignment_excel_import"))]
+                new \ilLongEssayAssessmentUploadHandlerGUI(
+                    $this->storage,
+                    $tempfile
+                ),
+                $this->plugin->txt("assignment_excel_import")
+            )]
         );
 
         if($this->request->getMethod() === "POST") {
@@ -691,7 +717,7 @@ class CorrectorAdminGUI extends BaseGUI
                 $filename = $data['excel'][0];
                 $needed_corr = $task_repo->getCorrectionSettingsById($this->object->getId())->getRequiredCorrectors();
 
-                try{
+                try {
                     $spreadsheet = new CorrectorAssignmentExcel();
                     $spreadsheet->loadFromFile(ILIAS_DATA_DIR . '/' . CLIENT_ID . '/temp/' . $filename);
 
@@ -708,7 +734,7 @@ class CorrectorAdminGUI extends BaseGUI
                     $r = 2;
                     while (($id = $spreadsheet->getCell($r, 0)) != null) {
                         $assigned = [];
-                        foreach(range(0, $needed_corr-1) as $pos){
+                        foreach(range(0, $needed_corr-1) as $pos) {
                             $login = $spreadsheet->getCell($r, 8+$pos);
                             $assigned[$pos] = (int) $corrector[$login] ?? CorrectorAdminService::BLANK_CORRECTOR_ASSIGNMENT;
                         }
@@ -717,7 +743,7 @@ class CorrectorAdminGUI extends BaseGUI
                         $r++;
                     }
 
-                    foreach($corrector_assignments as $writer_id => $as){
+                    foreach($corrector_assignments as $writer_id => $as) {
                         $fa = $as[0];
                         $sa = $needed_corr == 2 ? $as[1] : CorrectorAdminService::UNCHANGED_CORRECTOR_ASSIGNMENT;
 
@@ -726,7 +752,7 @@ class CorrectorAdminGUI extends BaseGUI
                     $tempfile->removeTempFile($filename);
                     $this->tpl->setOnScreenMessage("success", $this->plugin->txt("corrector_assignment_changed"), true);
                     $this->ctrl->redirect($this);
-                }catch (\Exception $exception){
+                } catch (\Exception $exception) {
                     $tempfile->removeTempFile($filename);
                     $this->tpl->setOnScreenMessage("failure", $this->plugin->txt("corrector_assignment_change_file_failure"), true);
                 }
@@ -747,31 +773,31 @@ class CorrectorAdminGUI extends BaseGUI
         $corrector_title = "Corrector";
         $locations = [];
 
-        foreach($task_repo->getLocationsByTaskId($this->object->getId()) as $location){
+        foreach($task_repo->getLocationsByTaskId($this->object->getId()) as $location) {
             $locations[$location->getId()] = $location;
         }
 
         $essays = [];
 
-        foreach($essay_repo->getEssaysByTaskId($this->object->getId()) as $essay){
+        foreach($essay_repo->getEssaysByTaskId($this->object->getId()) as $essay) {
             $essays[$essay->getWriterId()] = $essay;
         }
         $corrector = [];
-        foreach($corrector_repo->getCorrectorsByTaskId($this->object->getId()) as $r){
+        foreach($corrector_repo->getCorrectorsByTaskId($this->object->getId()) as $r) {
             $corrector[$r->getId()] = $r;
         }
 
         $writer = $writer_repo->getWritersByTaskId($this->object->getId());
 
-        if($this->spreadsheetAssignmentToggle()){
+        if($this->spreadsheetAssignmentToggle()) {
 
             $authorized_user = [];
-            foreach($essays as $writer_id => $essay){
-                if($essay->getWritingAuthorized() !== null){
+            foreach($essays as $writer_id => $essay) {
+                if($essay->getWritingAuthorized() !== null) {
                     $authorized_user[] = $essay->getWriterId();
                 }
             }
-            $writer = array_filter($writer, fn($x) => in_array($x->getId(), $authorized_user));
+            $writer = array_filter($writer, fn ($x) => in_array($x->getId(), $authorized_user));
         }
 
         $users = [];
@@ -779,13 +805,13 @@ class CorrectorAdminGUI extends BaseGUI
         foreach(\ilObjUser::_getUserData(array_merge(
             array_map(fn (Corrector $x) => $x->getUserId(), $corrector),
             array_map(fn (Writer $x) => $x->getUserId(), $writer),
-        )) as $u){
+        )) as $u) {
             $users[(int)$u['usr_id']] = $u;
         }
 
         $assignments = [];
 
-        foreach($corrector_repo->getAssignmentsByTaskId($this->object->getId()) as $assignment){
+        foreach($corrector_repo->getAssignmentsByTaskId($this->object->getId()) as $assignment) {
             $assignments[$assignment->getWriterId()][$assignment->getPosition()] = $assignment;
         }
         $r = 2;
@@ -800,11 +826,11 @@ class CorrectorAdminGUI extends BaseGUI
         $spreadsheet->setCell(1, 5, 'Pseudonym');
         $spreadsheet->setCell(1, 6, 'Location');
         $spreadsheet->setCell(1, 7, 'Words');
-        foreach(range(0, $needed_corr-1) as $pos){
+        foreach(range(0, $needed_corr-1) as $pos) {
             $spreadsheet->setCell(1, 8+$pos, 'Corrector ' . ($pos+1));
         }
 
-        foreach($writer as $w){
+        foreach($writer as $w) {
             $data = $users[$w->getUserId()] ?? [];
             $ass = $assignments[$w->getId()] ?? [];
             ksort($ass);
@@ -822,11 +848,11 @@ class CorrectorAdminGUI extends BaseGUI
             $spreadsheet->setCell($r, 6, $location_text);
             $spreadsheet->setCell($r, 7, str_word_count($written_text));
 
-            foreach(range(0, $needed_corr-1) as $pos){
+            foreach(range(0, $needed_corr-1) as $pos) {
                 $spreadsheet->addDropdownCol($r, 8+$pos, '=\''.$corrector_title.'\'!$B$2:$B$'.(count($corrector)+1));
             }
 
-            foreach ($ass as $a){
+            foreach ($ass as $a) {
                 $c = $corrector[$a->getCorrectorId()] ?? null;
                 $login = $c !== null && isset($users[$c->getUserId()]) ? $users[$c->getUserId()]['login'] ?? '' : '';
                 $spreadsheet->setCell($r, 8+$a->getPosition(), $login);
@@ -841,7 +867,7 @@ class CorrectorAdminGUI extends BaseGUI
         $spreadsheet->setCell(1, 3, 'Lastname');
         $spreadsheet->setCell(1, 4, 'Email');
 
-        foreach($corrector as $c){
+        foreach($corrector as $c) {
             $data = $users[$c->getUserId()] ?? [];
             $ass = $assignments[$c->getId()] ?? [];
             ksort($ass);
@@ -858,11 +884,12 @@ class CorrectorAdminGUI extends BaseGUI
         $this->ctrl->redirect($this);
     }
 
-    protected function spreadsheetAssignmentToggle(){
+    protected function spreadsheetAssignmentToggle()
+    {
         $cookie = $this->request->getCookieParams();
-        if(isset($cookie['xlas_exass']) )
+        if(isset($cookie['xlas_exass'])) {
             return $cookie['xlas_exass'] === "on";
-        else{
+        } else {
             return false;
         }
     }

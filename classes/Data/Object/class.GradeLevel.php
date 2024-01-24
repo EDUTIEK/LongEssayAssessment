@@ -2,6 +2,7 @@
 /* Copyright (c) 2021 ILIAS open source, Extended GPL, see docs/LICENSE */
 
 namespace ILIAS\Plugin\LongEssayAssessment\Data\Object;
+
 use ILIAS\Plugin\LongEssayAssessment\Data\RecordData;
 
 /**
@@ -27,10 +28,11 @@ class GradeLevel extends RecordData
     protected int $object_id = 0;
     protected float $min_points = 0.0;
     protected string $grade = "";
-	protected ?string $code = null;
-	protected int $passed = 0;
+    protected ?string $code = null;
+    protected int $passed = 0;
 
-    public static function model() {
+    public static function model()
+    {
         return new self();
     }
 
@@ -90,32 +92,32 @@ class GradeLevel extends RecordData
         return $this;
     }
 
-	/**
-	 * Code for the grade level that is used in an external system, e.g. a mark
-	 */
-	public function getCode(): ?string
-	{
-		return $this->code;
-	}
+    /**
+     * Code for the grade level that is used in an external system, e.g. a mark
+     */
+    public function getCode(): ?string
+    {
+        return $this->code;
+    }
 
-	public function setCode(?string $code): GradeLevel
-	{
-		$this->code = $code;
-		return $this;
-	}
+    public function setCode(?string $code): GradeLevel
+    {
+        $this->code = $code;
+        return $this;
+    }
 
-	/**
-	 * The assessment is passed if this grade level is reached
-	 */
-	public function isPassed(): bool
-	{
-		return $this->passed == 1;
-	}
+    /**
+     * The assessment is passed if this grade level is reached
+     */
+    public function isPassed(): bool
+    {
+        return $this->passed == 1;
+    }
 
-	public function setPassed(bool $passed): GradeLevel
-	{
-		$this->passed = $passed ? 1 : 0;
-		return $this;
-	}
+    public function setPassed(bool $passed): GradeLevel
+    {
+        $this->passed = $passed ? 1 : 0;
+        return $this;
+    }
 
 }

@@ -10,19 +10,19 @@ use ILIAS\Plugin\LongEssayAssessment\Data\RecordData;
  */
 class WriterHistory extends RecordData
 {
-	protected const tableName = 'xlas_writer_history';
-	protected const hasSequence = true;
-	protected const keyTypes = [
-		'id' => 'integer',
-	];
-	protected const otherTypes = [
-		'essay_id' => 'integer',
-		'timestamp' => 'timestamp',
-		'content' => 'text',
-		'is_delta' => 'integer',
-		'hash_before' => 'text',
-		'hash_after' => 'text'
-	];
+    protected const tableName = 'xlas_writer_history';
+    protected const hasSequence = true;
+    protected const keyTypes = [
+        'id' => 'integer',
+    ];
+    protected const otherTypes = [
+        'essay_id' => 'integer',
+        'timestamp' => 'timestamp',
+        'content' => 'text',
+        'is_delta' => 'integer',
+        'hash_before' => 'text',
+        'hash_after' => 'text'
+    ];
 
     protected int $id = 0;
     protected int $essay_id = 0;
@@ -32,9 +32,10 @@ class WriterHistory extends RecordData
     protected ?string $hash_before = null;
     protected ?string $hash_after = null;
 
-	public static function model() {
-		return new self();
-	}
+    public static function model()
+    {
+        return new self();
+    }
 
     /**
      * @return int

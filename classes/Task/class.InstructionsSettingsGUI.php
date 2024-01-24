@@ -26,8 +26,7 @@ class InstructionsSettingsGUI extends BaseGUI
     public function executeCommand()
     {
         $cmd = $this->ctrl->getCmd('editSettings');
-        switch ($cmd)
-        {
+        switch ($cmd) {
             case "editSettings":
                 $this->$cmd();
                 break;
@@ -43,24 +42,24 @@ class InstructionsSettingsGUI extends BaseGUI
      */
     protected function editSettings()
     {
-		$di = LongEssayAssessmentDI::getInstance();
-		$task_repo = $di->getTaskRepo();
-		$taskSettings = $task_repo->getTaskSettingsById($this->object->getId());
-		$resource = $task_repo->getInstructionResource($this->object->getId());
+        $di = LongEssayAssessmentDI::getInstance();
+        $task_repo = $di->getTaskRepo();
+        $taskSettings = $task_repo->getTaskSettingsById($this->object->getId());
+        $resource = $task_repo->getInstructionResource($this->object->getId());
 
-		$form = $this->buildInstructionsSettings($taskSettings, $resource);
+        $form = $this->buildInstructionsSettings($taskSettings, $resource);
 
-		if($this->request->getMethod() === "POST"){
-			$form = $form->withRequest($this->request);
+        if($this->request->getMethod() === "POST") {
+            $form = $form->withRequest($this->request);
 
-			if (($data = $form->getData()) !== null) {
-				$this->updateInstructionsSettings($data["form"], $taskSettings, $resource);
+            if (($data = $form->getData()) !== null) {
+                $this->updateInstructionsSettings($data["form"], $taskSettings, $resource);
 
                 $this->tpl->setOnScreenMessage("success", $this->lng->txt("settings_saved"), true);
                 $this->ctrl->redirect($this, "editSettings");
-			}
-		}
-		$this->tpl->setContent($this->renderer->render($form));
+            }
+        }
+        $this->tpl->setContent($this->renderer->render($form));
     }
 
     /**
@@ -79,21 +78,20 @@ class InstructionsSettingsGUI extends BaseGUI
 
 
 
-		if($resource !== null && isset($a_data["resource_file"][0]))
-		{
-			$resource->setFileId($a_data["resource_file"][0]);
-			$task_repo->save($resource);
-		}elseif ($resource === null && isset($a_data["resource_file"][0])){
-			$task_repo->save(
-				(new Resource())
-				->setTaskId($this->object->getId())
-				->setType(Resource::RESOURCE_TYPE_INSTRUCTION)
+        if($resource !== null && isset($a_data["resource_file"][0])) {
+            $resource->setFileId($a_data["resource_file"][0]);
+            $task_repo->save($resource);
+        } elseif ($resource === null && isset($a_data["resource_file"][0])) {
+            $task_repo->save(
+                (new Resource())
+                ->setTaskId($this->object->getId())
+                ->setType(Resource::RESOURCE_TYPE_INSTRUCTION)
                 ->setAvailability(Resource::RESOURCE_AVAILABILITY_DURING)
-				->setFileId($a_data["resource_file"][0])
-			);
-		}elseif($resource !== null && !isset($a_data["resource_file"][0])){
-			$task_repo->deleteResource($resource->getId());
-		}
+                ->setFileId($a_data["resource_file"][0])
+            );
+        } elseif($resource !== null && !isset($a_data["resource_file"][0])) {
+            $task_repo->deleteResource($resource->getId());
+        }
 
         $task_repo->save($a_task_settings);
     }
@@ -106,27 +104,32 @@ class InstructionsSettingsGUI extends BaseGUI
      */
     protected function buildInstructionsSettings(TaskSettings $taskSettings, ?Resource $resource): Form
     {
-		$factory = $this->uiFactory->input()->field();
-		$ui_service = $this->localDI->getUIService();
+        $factory = $this->uiFactory->input()->field();
+        $ui_service = $this->localDI->getUIService();
 
-		$sections = [];
-		$fields = [];
+        $sections = [];
+        $fields = [];
 
-		$fields['task_instructions'] = $this->localDI->getUIFactory()->field()
-			->textareaModified($this->plugin->txt("task_instructions"),$this->plugin->txt("task_instructions_info"))
-			->withValue($taskSettings->getInstructions() ?? "")
-			->withAdditionalTransformation($ui_service->stringTransformationByRTETagSet());
+        $fields['task_instructions'] = $this->localDI->getUIFactory()->field()
+            ->textareaModified($this->plugin->txt("task_instructions"), $this->plugin->txt("task_instructions_info"))
+            ->withValue($taskSettings->getInstructions() ?? "")
+            ->withAdditionalTransformation($ui_service->stringTransformationByRTETagSet());
 
-		$fields['resource_file'] = $factory->file(new ResourceUploadHandlerGUI($this->dic->resourceStorage(),
-			$this->localDI->getTaskRepo()), "",
-			$this->plugin->txt("task_instructions_file_info") . "<br>" . $ui_service->getMaxFileSizeString())
-			->withAcceptedMimeTypes(['application/pdf'])
-			->withValue($resource !== null && $resource->getFileId() !== null ? [$resource->getFileId()] : []);
+        $fields['resource_file'] = $factory->file(
+            new ResourceUploadHandlerGUI(
+                $this->dic->resourceStorage(),
+                $this->localDI->getTaskRepo()
+            ),
+            "",
+            $this->plugin->txt("task_instructions_file_info") . "<br>" . $ui_service->getMaxFileSizeString()
+        )
+            ->withAcceptedMimeTypes(['application/pdf'])
+            ->withValue($resource !== null && $resource->getFileId() !== null ? [$resource->getFileId()] : []);
 
-		$sections["form"] = $factory->section($fields, $this->plugin->txt('tab_instructions_settings'));
+        $sections["form"] = $factory->section($fields, $this->plugin->txt('tab_instructions_settings'));
 
-		$ui_service->addTinyMCEToTextareas();
+        $ui_service->addTinyMCEToTextareas();
 
-		return $this->uiFactory->input()->container()->form()->standard($this->ctrl->getFormAction($this), $sections);
+        return $this->uiFactory->input()->container()->form()->standard($this->ctrl->getFormAction($this), $sections);
     }
 }

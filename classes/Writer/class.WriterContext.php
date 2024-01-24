@@ -39,8 +39,7 @@ class WriterContext extends ServiceContext implements Context
         $config = $this->plugin->getConfig();
         if (!empty($config->getWriterUrl())) {
             return $config->getWriterUrl();
-        }
-        else {
+        } else {
             return  ILIAS_HTTP_PATH
                 . "/Customizing/global/plugins/Services/Repository/RepositoryObject/LongEssayAssessment"
                 . "/vendor/edutiek/long-essay-assessment-service"
@@ -89,7 +88,7 @@ class WriterContext extends ServiceContext implements Context
         foreach ($this->localDI->getTaskRepo()->getAlertsByTaskId($this->task->getTaskId()) as $repoAlert) {
             if (empty($repoAlert->getWriterId()) || $repoAlert->getWriterId() == $this->getRepoWriter()->getId()) {
                 if (empty($repoAlert->getShownFrom()) || $this->data->dbTimeToUnix($repoAlert->getShownFrom()) < time()) {
-                    $alerts[] = New Alert(
+                    $alerts[] = new Alert(
                         (string) $repoAlert->getId(),
                         $repoAlert->getMessage(),
                         $this->data->dbTimeToUnix($repoAlert->getShownFrom())
@@ -157,14 +156,13 @@ class WriterContext extends ServiceContext implements Context
             ->setEditEnded($this->data->unixTimeToDb($writtenEssay->getEditEnded()));
 
         if ($writtenEssay->isAuthorized()) {
-                if (empty($essay->getWritingAuthorized())) {
-                    $essay->setWritingAuthorized($this->data->unixTimeToDb(time()));
-                }
-                if (empty($essay->getWritingAuthorizedBy())) {
-                    $essay->setWritingAuthorizedBy($this->user->getId());
-                }
-        }
-        else {
+            if (empty($essay->getWritingAuthorized())) {
+                $essay->setWritingAuthorized($this->data->unixTimeToDb(time()));
+            }
+            if (empty($essay->getWritingAuthorizedBy())) {
+                $essay->setWritingAuthorizedBy($this->user->getId());
+            }
+        } else {
             $essay->setWritingAuthorized(null);
             $essay->setWritingAuthorizedBy(null);
         }
@@ -182,7 +180,7 @@ class WriterContext extends ServiceContext implements Context
         $repoEssay = $this->getRepoEssay();
         foreach ($this->localDI->getEssayRepo()->getWriterNoticesByEssayID($repoEssay->getId()) as $repoNote) {
             $notes[] = new WrittenNote(
-                $repoNote->getNoteNo(), 
+                $repoNote->getNoteNo(),
                 $repoNote->getNoteText(),
                 $this->data->dbTimeToUnix($repoNote->getLastChange())
             );
@@ -203,7 +201,7 @@ class WriterContext extends ServiceContext implements Context
                 ->setNoteNo($note->getNoteNo());
         }
         $repoNote->setNoteText($note->getNoteText());
-        $repoNote->setLastChange($note->getLastChange() 
+        $repoNote->setLastChange($note->getLastChange()
             ? $this->data->unixTimeToDb($note->getLastChange())
             : $this->data->unixTimeToDb(time()));
         
@@ -252,7 +250,8 @@ class WriterContext extends ServiceContext implements Context
     {
         $entries = $this->localDI->getEssayRepo()->getWriterHistoryStepsByEssayId(
             $this->getRepoEssay()->getId(),
-            $maximum);
+            $maximum
+        );
 
         $steps = [];
         foreach ($entries as $entry) {
@@ -291,7 +290,8 @@ class WriterContext extends ServiceContext implements Context
     {
         return $this->localDI->getEssayRepo()->ifWriterHistoryExistByEssayIdAndHashAfter(
             $this->getRepoEssay()->getId(),
-            $hash_after);
+            $hash_after
+        );
     }
 
     /**

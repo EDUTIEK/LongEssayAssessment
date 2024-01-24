@@ -36,19 +36,19 @@ class PDFVersionResourceStakeholder extends AbstractResourceStakeholder
 
     public function resourceHasBeenDeleted(ResourceIdentification $identification): bool
     {
-		$let_dic = LongEssayAssessmentDI::getInstance();
-		$essay_repo = $let_dic->getEssayRepo();
-		$task_repo = $let_dic->getTaskRepo();
-		$essay = $essay_repo->getEssayByPDFVersionFileID((string) $identification);
+        $let_dic = LongEssayAssessmentDI::getInstance();
+        $essay_repo = $let_dic->getEssayRepo();
+        $task_repo = $let_dic->getTaskRepo();
+        $essay = $essay_repo->getEssayByPDFVersionFileID((string) $identification);
 
-		if($essay === null){
-			return true;
-		}
-		$task = $task_repo->getTaskSettingsById($essay->getTaskId());
+        if($essay === null) {
+            return true;
+        }
+        $task = $task_repo->getTaskSettingsById($essay->getTaskId());
 
-		if($task === null){
-			return true;
-		}
+        if($task === null) {
+            return true;
+        }
 
         return false;
     }

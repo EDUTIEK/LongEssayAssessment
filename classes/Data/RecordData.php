@@ -77,8 +77,7 @@ abstract class RecordData
                     default:
                         $instance->$key = $row[$prefix . $key];
                 }
-            }
-            else {
+            } else {
                 $instance->$key = null;
             }
         }
@@ -113,8 +112,7 @@ abstract class RecordData
         if (count($keyvals) == 1) {
             // return a single key with unchanged type
             return $keyvals[0];
-        }
-        else {
+        } else {
             // return a composite key as serialized string
             return serialize($keyvals);
         }

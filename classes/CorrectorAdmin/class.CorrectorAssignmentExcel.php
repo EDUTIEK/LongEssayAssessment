@@ -10,7 +10,7 @@ class CorrectorAssignmentExcel extends \ilExcel
     {
         $objValidation = new DataValidation();
         //$objValidation = $this->workbook->getActiveSheet()->getCellByColumnAndRow($a_row, $a_col)->getDataValidation();
-        $objValidation->setType( \PhpOffice\PhpSpreadsheet\Cell\DataValidation::TYPE_LIST );
+        $objValidation->setType(\PhpOffice\PhpSpreadsheet\Cell\DataValidation::TYPE_LIST);
         //$objValidation->setErrorStyle( \PhpOffice\PhpSpreadsheet\Cell\DataValidation::STYLE_INFORMATION);
         $objValidation->setAllowBlank(true);
         //$objValidation->setShowInputMessage(true);

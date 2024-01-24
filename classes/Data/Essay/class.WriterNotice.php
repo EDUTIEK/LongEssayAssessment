@@ -29,7 +29,8 @@ class WriterNotice extends RecordData
     protected ?string $note_text = null;
     protected ?string $last_change = null;
 
-    public static function model() {
+    public static function model()
+    {
         return new self();
     }
 

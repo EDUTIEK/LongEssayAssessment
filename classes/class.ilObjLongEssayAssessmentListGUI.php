@@ -11,58 +11,57 @@
 class ilObjLongEssayAssessmentListGUI extends ilObjectPluginListGUI
 {
 
-	/**
-	 * Init type
-	 */
-	function initType() {
-		$this->setType(ilLongEssayAssessmentPlugin::ID);
-	}
-
-	/**
-	 * Get name of gui class handling the commands
-	 */
-	function getGuiClass() : string
+    /**
+     * Init type
+     */
+    public function initType()
     {
-		return "ilObjLongEssayAssessmentGUI";
-	}
+        $this->setType(ilLongEssayAssessmentPlugin::ID);
+    }
 
-	/**
-	 * Get commands
-	 */
-	function initCommands() : array
+    /**
+     * Get name of gui class handling the commands
+     */
+    public function getGuiClass() : string
     {
-		return array
-		(
-			array(
-				"permission" => "read",
-				"cmd" => "standardCommand",
-				"default" => true),
-			array(
-				"permission" => "write",
-				"cmd" => "jumpToOrgaSettings",
-				"txt" => $this->txt("edit"),
-				"default" => false)
-		);
-	}
+        return "ilObjLongEssayAssessmentGUI";
+    }
 
-	/**
-	 * Get item properties
-	 *
-	 * @return        array           array of property arrays:
-	 *                                "alert" (boolean) => display as an alert property (usually in red)
-	 *                                "property" (string) => property name
-	 *                                "value" (string) => property value
-	 */
-	function getProperties() : array
+    /**
+     * Get commands
+     */
+    public function initCommands() : array
     {
-		$props = array();
+        return array(
+            array(
+                "permission" => "read",
+                "cmd" => "standardCommand",
+                "default" => true),
+            array(
+                "permission" => "write",
+                "cmd" => "jumpToOrgaSettings",
+                "txt" => $this->txt("edit"),
+                "default" => false)
+        );
+    }
 
-		if (!ilObjLongEssayAssessmentAccess::checkOnline($this->obj_id))
-		{
-			$props[] = array("alert" => true, "property" => $this->txt("status"),
-				"value" => $this->txt("offline"));
-		}
+    /**
+     * Get item properties
+     *
+     * @return        array           array of property arrays:
+     *                                "alert" (boolean) => display as an alert property (usually in red)
+     *                                "property" (string) => property name
+     *                                "value" (string) => property value
+     */
+    public function getProperties() : array
+    {
+        $props = array();
 
-		return $props;
-	}
+        if (!ilObjLongEssayAssessmentAccess::checkOnline($this->obj_id)) {
+            $props[] = array("alert" => true, "property" => $this->txt("status"),
+                "value" => $this->txt("offline"));
+        }
+
+        return $props;
+    }
 }

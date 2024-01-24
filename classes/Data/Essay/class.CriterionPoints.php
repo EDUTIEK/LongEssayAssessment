@@ -3,7 +3,6 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\Data\Essay;
 
-
 use ILIAS\Plugin\LongEssayAssessment\Data\RecordData;
 
 /**
@@ -11,25 +10,26 @@ use ILIAS\Plugin\LongEssayAssessment\Data\RecordData;
  */
 class CriterionPoints extends RecordData
 {
-	protected const tableName = 'xlas_crit_points';
-	protected const hasSequence = true;
-	protected const keyTypes = [
-		'id' => 'integer',
-	];
-	protected const otherTypes = [
-		'criterion_id' => 'integer',
-		'corr_comment_id' => 'integer',
-		'points' => 'integer'
-	];
+    protected const tableName = 'xlas_crit_points';
+    protected const hasSequence = true;
+    protected const keyTypes = [
+        'id' => 'integer',
+    ];
+    protected const otherTypes = [
+        'criterion_id' => 'integer',
+        'corr_comment_id' => 'integer',
+        'points' => 'integer'
+    ];
 
     protected int $id = 0;
     protected int $criterion_id = 0;
     protected int $corr_comment_id = 0;
     protected int $points = 0;
 
-	public static function model() {
-		return new self();
-	}
+    public static function model()
+    {
+        return new self();
+    }
 
     /**
      * @return int

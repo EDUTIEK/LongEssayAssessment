@@ -11,17 +11,17 @@ use ILIAS\Plugin\LongEssayAssessment\Data\RecordData;
 class WriterComment extends RecordData
 {
 
-	protected const tableName = 'xlas_writer_comment';
-	protected const hasSequence = true;
-	protected const keyTypes = [
-		'id' => 'integer',
-	];
-	protected const otherTypes = [
-		'task_id' => 'integer',
-		'comment' => 'text',
-		'start_position' => 'integer',
-		'end_position' => 'integer'
-	];
+    protected const tableName = 'xlas_writer_comment';
+    protected const hasSequence = true;
+    protected const keyTypes = [
+        'id' => 'integer',
+    ];
+    protected const otherTypes = [
+        'task_id' => 'integer',
+        'comment' => 'text',
+        'start_position' => 'integer',
+        'end_position' => 'integer'
+    ];
 
     protected int $id = 0;
     protected int $task_id = 0;
@@ -29,9 +29,10 @@ class WriterComment extends RecordData
     protected int $start_position = 0;
     protected int $end_position = 0;
 
-	public static function model() {
-		return new self();
-	}
+    public static function model()
+    {
+        return new self();
+    }
 
     /**
      * @return int

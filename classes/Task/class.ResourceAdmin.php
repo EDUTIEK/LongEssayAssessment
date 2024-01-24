@@ -191,10 +191,12 @@ class ResourceAdmin
      */
     protected function validateAvailability(string $a_availability): string
     {
-        if (in_array($a_availability,
+        if (in_array(
+            $a_availability,
             [Resource::RESOURCE_AVAILABILITY_AFTER,
                 Resource::RESOURCE_AVAILABILITY_DURING,
-                Resource::RESOURCE_AVAILABILITY_BEFORE])
+                Resource::RESOURCE_AVAILABILITY_BEFORE]
+        )
         ) {
             return $a_availability;
         }
@@ -219,8 +221,7 @@ class ResourceAdmin
                 if ($slash === false) {
                     $parsed['host'] = $parsed['path'];
                     $parsed['path'] = '';
-                }
-                else {
+                } else {
                     $parsed['host'] = substr($parsed['path'], 0, $slash);
                     $parsed['path'] = substr($parsed['path'], $slash);
                 }

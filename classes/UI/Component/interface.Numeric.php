@@ -10,19 +10,19 @@ use ILIAS\UI\Component\Input\Field\Input;
 interface Numeric extends FilterInput
 {
 
-	/**
-	 * Get the step width of the input.
-	 *
-	 * @return    float
-	 */
-	public function getStep(): float;
+    /**
+     * Get the step width of the input.
+     *
+     * @return    float
+     */
+    public function getStep(): float;
 
-	/**
-	 * Get an input like this, but with a replaced step width.
-	 *
-	 * @param    float $step
-	 *
-	 * @return    Input
-	 */
-	public function withStep(float $step): Input;
+    /**
+     * Get an input like this, but with a replaced step width.
+     *
+     * @param    float $step
+     *
+     * @return    Input
+     */
+    public function withStep(float $step): Input;
 }

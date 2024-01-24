@@ -20,21 +20,21 @@ class EditorSettings extends RecordData
     const FORMATTING_OPTIONS_FULL = 'full';
 
 
-	protected const tableName = 'xlas_editor_settings';
-	protected const hasSequence = false;
-	protected const keyTypes = [
-		'task_id' => 'integer',
-	];
-	protected const otherTypes = [
-		'headline_scheme'=> 'text',
-		'formatting_options' => 'text',
-		'notice_boards' => 'integer',
-		'copy_allowed' => 'integer',
+    protected const tableName = 'xlas_editor_settings';
+    protected const hasSequence = false;
+    protected const keyTypes = [
+        'task_id' => 'integer',
+    ];
+    protected const otherTypes = [
+        'headline_scheme'=> 'text',
+        'formatting_options' => 'text',
+        'notice_boards' => 'integer',
+        'copy_allowed' => 'integer',
         'add_paragraph_numbers' => 'integer',
         'add_correction_margin' => 'integer',
         'left_correction_margin' => 'integer',
         'right_correction_margin' => 'integer'
-	];
+    ];
 
     protected int $task_id;
     protected string $headline_scheme = self::HEADLINE_SCHEME_NONE;
@@ -46,14 +46,15 @@ class EditorSettings extends RecordData
     protected int $left_correction_margin = 0;
     protected int $right_correction_margin = 0;
 
-	public function __construct(int $task_id)
-	{
-		$this->task_id = $task_id;
-	}
+    public function __construct(int $task_id)
+    {
+        $this->task_id = $task_id;
+    }
 
-	public static function model() {
-		return new self(0);
-	}
+    public static function model()
+    {
+        return new self(0);
+    }
 
     public function getHeadlineScheme(): string
     {

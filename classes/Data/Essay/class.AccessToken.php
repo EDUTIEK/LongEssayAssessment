@@ -3,7 +3,6 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\Data\Essay;
 
-
 use ILIAS\Plugin\LongEssayAssessment\Data\RecordData;
 
 /**
@@ -17,19 +16,19 @@ class AccessToken extends RecordData
     public const PURPOSE_DATA = 'data';
     public const PURPOSE_FILE = 'file';
 
-	protected const tableName = 'xlas_access_token';
-	protected const hasSequence = true;
-	protected const keyTypes = [
-		'id' => 'integer',
-	];
-	protected const otherTypes = [
-		'user_id' => 'integer',
-		'task_id' => 'integer',
-		'purpose' => 'text',
-		'token' => 'text',
-		'ip' => 'datetime',
-		'valid_until' => 'datetime'
-	];
+    protected const tableName = 'xlas_access_token';
+    protected const hasSequence = true;
+    protected const keyTypes = [
+        'id' => 'integer',
+    ];
+    protected const otherTypes = [
+        'user_id' => 'integer',
+        'task_id' => 'integer',
+        'purpose' => 'text',
+        'token' => 'text',
+        'ip' => 'datetime',
+        'valid_until' => 'datetime'
+    ];
 
     protected int $id = 0;
     protected int $user_id = 0;
@@ -39,9 +38,10 @@ class AccessToken extends RecordData
     protected string $ip = "";
     protected ?string $valid_until = null;
 
-	public static function model() {
-		return new self();
-	}
+    public static function model()
+    {
+        return new self();
+    }
 
     /**
      * @return int
@@ -115,7 +115,7 @@ class AccessToken extends RecordData
             case self::PURPOSE_DATA:
             case self::PURPOSE_FILE:
                 $this->purpose = $purpose;
-            break;
+                break;
         }
 
         return $this;

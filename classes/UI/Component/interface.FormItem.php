@@ -19,16 +19,16 @@ use ILIAS\UI\Implementation\Component\Input\NameSource;
  */
 interface FormItem extends Standard
 {
-	/**
-	 * Set Name or ID of this Item
-	 * @param string $name
-	 * @return mixed
-	 */
-	public function withName(string $name);
+    /**
+     * Set Name or ID of this Item
+     * @param string $name
+     * @return mixed
+     */
+    public function withName(string $name);
 
-	/**
-	 * Get Name or ID of this Item
-	 * @return string|null
-	 */
-	public function getName(): ?string;
+    /**
+     * Get Name or ID of this Item
+     * @return string|null
+     */
+    public function getName(): ?string;
 }

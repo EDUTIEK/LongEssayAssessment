@@ -70,7 +70,7 @@ abstract class RecordRepo
     /**
      * Clear the caches in the current repository
      */
-    protected function clearCaches() 
+    protected function clearCaches()
     {
         $this->recordCache = [];
         $this->boolCache = [];
@@ -218,11 +218,9 @@ abstract class RecordRepo
             $this->logAction('READ', $record);
             if (isset($indexKey)) {
                 $records[$row[$indexKey]] = $record;
-            }
-            elseif ($hasSingleKey || $forceIndex) {
+            } elseif ($hasSingleKey || $forceIndex) {
                 $records[$record->key()] = $record;
-            }
-            else {
+            } else {
                 $records[] = $record;
             }
         }
@@ -257,7 +255,7 @@ abstract class RecordRepo
     protected function replaceRecord(RecordData $record) : RecordData
     {
         if ($record::tableHasSequence() && empty($record->sequence())) {
-           $record->setTableSequence((int) $this->db->nextId($record::tableName()));
+            $record->setTableSequence((int) $this->db->nextId($record::tableName()));
         }
         $key_fields = $this->getFieldsArray($record, $record::tableKeyTypes(), false);
         $other_fields = $this->getFieldsArray($record, $record::tableOtherTypes(), false);

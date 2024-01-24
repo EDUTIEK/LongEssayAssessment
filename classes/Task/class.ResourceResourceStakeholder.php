@@ -35,18 +35,18 @@ class ResourceResourceStakeholder extends \ILIAS\ResourceStorage\Stakeholder\Abs
 
     public function resourceHasBeenDeleted(ResourceIdentification $identification): bool
     {
-		$let_dic = LongEssayAssessmentDI::getInstance();
-		$task_repo = $let_dic->getTaskRepo();
-		$resource = $task_repo->getResourceByFileId((string) $identification);
+        $let_dic = LongEssayAssessmentDI::getInstance();
+        $task_repo = $let_dic->getTaskRepo();
+        $resource = $task_repo->getResourceByFileId((string) $identification);
 
-		if($resource === null){
-			return true;
-		}
-		$task = $task_repo->getTaskSettingsById($resource->getTaskId());
+        if($resource === null) {
+            return true;
+        }
+        $task = $task_repo->getTaskSettingsById($resource->getTaskId());
 
-		if($task === null){
-			return true;
-		}
+        if($task === null) {
+            return true;
+        }
 
         return false;
     }

@@ -14,39 +14,40 @@ use ILIAS\Plugin\LongEssayAssessment\Data\Writer\WriterRepository;
  */
 class TaskRepository extends RecordRepo
 {
-	private EssayRepository $essay_repo;
-	private CorrectorRepository $corrector_repo;
-	private WriterRepository $writer_repo;
+    private EssayRepository $essay_repo;
+    private CorrectorRepository $corrector_repo;
+    private WriterRepository $writer_repo;
 
-	public function __construct(\ilDBInterface $db,
-								\ilLogger $logger,
-								EssayRepository $essay_repo,
-								CorrectorRepository $corrector_repo,
-								WriterRepository $writer_repo)
-	{
-		parent::__construct($db, $logger);
-		$this->essay_repo = $essay_repo;
-		$this->corrector_repo = $corrector_repo;
-		$this->writer_repo = $writer_repo;
-	}
+    public function __construct(
+        \ilDBInterface $db,
+        \ilLogger $logger,
+        EssayRepository $essay_repo,
+        CorrectorRepository $corrector_repo,
+        WriterRepository $writer_repo
+    ) {
+        parent::__construct($db, $logger);
+        $this->essay_repo = $essay_repo;
+        $this->corrector_repo = $corrector_repo;
+        $this->writer_repo = $writer_repo;
+    }
 
-	/**
-	 * Save record data of an allowed type
-	 * @param TaskSettings|EditorSettings|PdfSettings|CorrectionSettings|Alert|Resource|Location $record
-	 */
-	public function save(RecordData $record)
-	{
-		$this->replaceRecord($record);
-	}
+    /**
+     * Save record data of an allowed type
+     * @param TaskSettings|EditorSettings|PdfSettings|CorrectionSettings|Alert|Resource|Location $record
+     */
+    public function save(RecordData $record)
+    {
+        $this->replaceRecord($record);
+    }
 
-	/**
-	 * @param int $a_id
-	 * @return EditorSettings
-	 */
+    /**
+     * @param int $a_id
+     * @return EditorSettings
+     */
     public function getEditorSettingsById(int $a_id): RecordData
     {
-		$query = "SELECT * FROM xlas_editor_settings WHERE task_id = " . $this->db->quote($a_id, 'integer');
-		return $this->getSingleRecord($query, EditorSettings::model(), new EditorSettings($a_id));
+        $query = "SELECT * FROM xlas_editor_settings WHERE task_id = " . $this->db->quote($a_id, 'integer');
+        return $this->getSingleRecord($query, EditorSettings::model(), new EditorSettings($a_id));
     }
 
     /**
@@ -61,13 +62,13 @@ class TaskRepository extends RecordRepo
 
 
     /**
-	 * @param int $a_id
-	 * @return CorrectionSettings
-	 */
+     * @param int $a_id
+     * @return CorrectionSettings
+     */
     public function getCorrectionSettingsById(int $a_id): RecordData
     {
-		$query = "SELECT * FROM xlas_corr_setting WHERE task_id = " . $this->db->quote($a_id, 'integer');
-		return $this->getSingleRecord($query, CorrectionSettings::model(), new CorrectionSettings($a_id));
+        $query = "SELECT * FROM xlas_corr_setting WHERE task_id = " . $this->db->quote($a_id, 'integer');
+        return $this->getSingleRecord($query, CorrectionSettings::model(), new CorrectionSettings($a_id));
     }
 
 
@@ -76,14 +77,14 @@ class TaskRepository extends RecordRepo
         return $this->getTaskSettingsById($a_id) != null;
     }
 
-	/**
-	 * @param int $a_id
-	 * @return TaskSettings
-	 */
+    /**
+     * @param int $a_id
+     * @return TaskSettings
+     */
     public function getTaskSettingsById(int $a_id): RecordData
     {
-		$query = "SELECT * FROM xlas_task_settings WHERE task_id = " . $this->db->quote($a_id, 'integer');
-		return $this->getSingleRecord($query, TaskSettings::model(), new TaskSettings($a_id));
+        $query = "SELECT * FROM xlas_task_settings WHERE task_id = " . $this->db->quote($a_id, 'integer');
+        return $this->getSingleRecord($query, TaskSettings::model(), new TaskSettings($a_id));
     }
 
     public function ifAlertExistsById(int $a_id): bool
@@ -91,14 +92,14 @@ class TaskRepository extends RecordRepo
         return $this->getAlertById($a_id) != null;
     }
 
-	/**
-	 * @param int $a_id
-	 * @return Alert|null
-	 */
+    /**
+     * @param int $a_id
+     * @return Alert|null
+     */
     public function getAlertById(int $a_id): ?RecordData
     {
-		$query = "SELECT * FROM xlas_alert WHERE id = " . $this->db->quote($a_id, 'integer');
-		return $this->getSingleRecord($query, Alert::model());
+        $query = "SELECT * FROM xlas_alert WHERE id = " . $this->db->quote($a_id, 'integer');
+        return $this->getSingleRecord($query, Alert::model());
     }
 
     /**
@@ -111,31 +112,31 @@ class TaskRepository extends RecordRepo
     {
         $this->db->manipulate("DELETE FROM xlas_task_settings" .
             " WHERE task_id = " . $this->db->quote($a_id, "integer"));
-		$this->db->manipulate("DELETE FROM xlas_editor_settings" .
+        $this->db->manipulate("DELETE FROM xlas_editor_settings" .
             " WHERE task_id = " . $this->db->quote($a_id, "integer"));
         $this->db->manipulate("DELETE FROM xlas_pdf_settings" .
             " WHERE task_id = " . $this->db->quote($a_id, "integer"));
-		$this->db->manipulate("DELETE FROM xlas_corr_setting" .
+        $this->db->manipulate("DELETE FROM xlas_corr_setting" .
             " WHERE task_id = " . $this->db->quote($a_id, "integer"));
 
         $this->deleteAlertByTaskId($a_id);
         $this->deleteResourceByTaskId($a_id);
-		$this->deleteLogEntryByTaskId($a_id);
+        $this->deleteLogEntryByTaskId($a_id);
 
-		$this->essay_repo->deleteEssayByTaskId($a_id);
-		$this->corrector_repo->deleteCorrectorByTask($a_id);
-		$this->writer_repo->deleteWriter($a_id);
+        $this->essay_repo->deleteEssayByTaskId($a_id);
+        $this->corrector_repo->deleteCorrectorByTask($a_id);
+        $this->writer_repo->deleteWriter($a_id);
     }
 
     public function deleteAlertByTaskId(int $a_task_id)
     {
-		$this->db->manipulate("DELETE FROM xlas_alert" .
+        $this->db->manipulate("DELETE FROM xlas_alert" .
             " WHERE task_id = " . $this->db->quote($a_task_id, "integer"));
     }
     
     public function deleteAlert(int $a_id)
     {
-		$this->db->manipulate("DELETE FROM xlas_alert" .
+        $this->db->manipulate("DELETE FROM xlas_alert" .
             " WHERE id = " . $this->db->quote($a_id, "integer"));
     }
 
@@ -147,32 +148,32 @@ class TaskRepository extends RecordRepo
      */
     public function deleteTaskByObjectId(int $a_object_id)
     {
-		$this->deleteTask($a_object_id);
+        $this->deleteTask($a_object_id);
     }
 
-	/**
-	 * @param int $a_id
-	 * @return Resource|null
-	 */
+    /**
+     * @param int $a_id
+     * @return Resource|null
+     */
     public function getResourceById(int $a_id): ?RecordData
     {
-		$query = "SELECT * FROM xlas_resource WHERE id = " . $this->db->quote($a_id, 'integer');
-		return $this->getSingleRecord($query, Resource::model());
+        $query = "SELECT * FROM xlas_resource WHERE id = " . $this->db->quote($a_id, 'integer');
+        return $this->getSingleRecord($query, Resource::model());
     }
 
-	/**
-	 * @param int $a_task_id
-	 * @return Resource[]
-	 */
+    /**
+     * @param int $a_task_id
+     * @return Resource[]
+     */
     public function getResourceByTaskId(int $a_task_id, ?array $types= null): array
     {
-		$query = "SELECT * FROM xlas_resource WHERE task_id = " . $this->db->quote($a_task_id, 'integer');
+        $query = "SELECT * FROM xlas_resource WHERE task_id = " . $this->db->quote($a_task_id, 'integer');
 
-		if($types !== null){
-			$query .= " AND " . $this->db->in("type", $types, false, 'text');
-		}
+        if($types !== null) {
+            $query .= " AND " . $this->db->in("type", $types, false, 'text');
+        }
 
-		return $this->queryRecords($query, Resource::model());
+        return $this->queryRecords($query, Resource::model());
     }
 
     /**
@@ -196,7 +197,7 @@ class TaskRepository extends RecordRepo
     public function getSolutionResource(int $a_task_id) : ?Resource
     {
         $resources = $this->getResourceByTaskId($a_task_id, [Resource::RESOURCE_TYPE_SOLUTION]);
-        if(count($resources) > 0){
+        if(count($resources) > 0) {
             return array_pop($resources);
         }
         return null;
@@ -210,24 +211,24 @@ class TaskRepository extends RecordRepo
 
     public function deleteResource(int $a_id)
     {
-		$this->db->manipulate("DELETE FROM xlas_resource" .
+        $this->db->manipulate("DELETE FROM xlas_resource" .
             " WHERE id = " . $this->db->quote($a_id, "integer"));
     }
 
     public function deleteResourceByTaskId(int $a_task_id)
     {
-		$this->db->manipulate("DELETE FROM xlas_resource" .
+        $this->db->manipulate("DELETE FROM xlas_resource" .
             " WHERE task_id = " . $this->db->quote($a_task_id, "integer"));
     }
 
-	/**
-	 * @param string $a_file_id
-	 * @return Resource|null
-	 */
+    /**
+     * @param string $a_file_id
+     * @return Resource|null
+     */
     public function getResourceByFileId(string $a_file_id): ?RecordData
     {
-		$query = "SELECT * FROM xlas_resource WHERE file_id = " . $this->db->quote($a_file_id, 'text');
-		return $this->getSingleRecord($query, Resource::model());
+        $query = "SELECT * FROM xlas_resource WHERE file_id = " . $this->db->quote($a_file_id, 'text');
+        return $this->getSingleRecord($query, Resource::model());
     }
 
     public function ifResourceExistsByFileId(string $a_file_id): bool
@@ -235,107 +236,107 @@ class TaskRepository extends RecordRepo
         return $this->getResourceByFileId($a_file_id) != null;
     }
 
-	public function ifLogEntryExistsById(int $a_id): bool
-	{
-		return $this->getLogEntryById($a_id) != null;
-	}
+    public function ifLogEntryExistsById(int $a_id): bool
+    {
+        return $this->getLogEntryById($a_id) != null;
+    }
 
-	/**
-	 * @param int $a_id
-	 * @return LogEntry|null
-	 */
-	public function getLogEntryById(int $a_id): ?RecordData
-	{
-		$query = "SELECT * FROM xlas_log_entry WHERE id = " . $this->db->quote($a_id, 'text');
-		return $this->getSingleRecord($query, LogEntry::model());
-	}
+    /**
+     * @param int $a_id
+     * @return LogEntry|null
+     */
+    public function getLogEntryById(int $a_id): ?RecordData
+    {
+        $query = "SELECT * FROM xlas_log_entry WHERE id = " . $this->db->quote($a_id, 'text');
+        return $this->getSingleRecord($query, LogEntry::model());
+    }
 
-	public function deleteLogEntry(int $a_id)
-	{
-		$this->db->manipulate("DELETE FROM xlas_log_entry" .
-			" WHERE id = " . $this->db->quote($a_id, "integer"));
-	}
+    public function deleteLogEntry(int $a_id)
+    {
+        $this->db->manipulate("DELETE FROM xlas_log_entry" .
+            " WHERE id = " . $this->db->quote($a_id, "integer"));
+    }
 
-	public function deleteLogEntryByTaskId(int $a_task_id)
-	{
-		$this->db->manipulate("DELETE FROM xlas_log_entry" .
-			" WHERE task_id = " . $this->db->quote($a_task_id, "integer"));
-	}
+    public function deleteLogEntryByTaskId(int $a_task_id)
+    {
+        $this->db->manipulate("DELETE FROM xlas_log_entry" .
+            " WHERE task_id = " . $this->db->quote($a_task_id, "integer"));
+    }
 
-	/**
-	 * @param int $a_task_id
-	 * @return LogEntry[]
-	 */
-	public function getLogEntriesByTaskId(int $a_task_id): array
-	{
-		$query = "SELECT * FROM xlas_log_entry WHERE task_id = " . $this->db->quote($a_task_id, 'integer');
-		return $this->queryRecords($query, LogEntry::model());
-	}
+    /**
+     * @param int $a_task_id
+     * @return LogEntry[]
+     */
+    public function getLogEntriesByTaskId(int $a_task_id): array
+    {
+        $query = "SELECT * FROM xlas_log_entry WHERE task_id = " . $this->db->quote($a_task_id, 'integer');
+        return $this->queryRecords($query, LogEntry::model());
+    }
 
-	/**
-	 * @param int $a_task_id
-	 * @return Alert[]
-	 */
-	public function getAlertsByTaskId(int $a_task_id): array
-	{
-		$query = "SELECT * FROM xlas_alert WHERE task_id = " . $this->db->quote($a_task_id, 'integer');
-		return $this->queryRecords($query, Alert::model());
-	}
+    /**
+     * @param int $a_task_id
+     * @return Alert[]
+     */
+    public function getAlertsByTaskId(int $a_task_id): array
+    {
+        $query = "SELECT * FROM xlas_alert WHERE task_id = " . $this->db->quote($a_task_id, 'integer');
+        return $this->queryRecords($query, Alert::model());
+    }
 
-	/**
-	 * @param int $a_id
-	 * @return Location|null
-	 */
-	public function getLocationById(int $a_id): ?RecordData
-	{
-		$query = "SELECT * FROM xlas_location WHERE id = " . $this->db->quote($a_id, 'integer');
-		return $this->getSingleRecord($query, Location::model());
-	}
+    /**
+     * @param int $a_id
+     * @return Location|null
+     */
+    public function getLocationById(int $a_id): ?RecordData
+    {
+        $query = "SELECT * FROM xlas_location WHERE id = " . $this->db->quote($a_id, 'integer');
+        return $this->getSingleRecord($query, Location::model());
+    }
 
-	/**
-	 * @param int $a_task_id
-	 * @return Location[]
-	 */
-	public function getLocationsByTaskId(int $a_task_id): array
-	{
-		$query = "SELECT * FROM xlas_location WHERE task_id = " . $this->db->quote($a_task_id, 'integer');
-		return $this->queryRecords($query, Location::model());
-	}
+    /**
+     * @param int $a_task_id
+     * @return Location[]
+     */
+    public function getLocationsByTaskId(int $a_task_id): array
+    {
+        $query = "SELECT * FROM xlas_location WHERE task_id = " . $this->db->quote($a_task_id, 'integer');
+        return $this->queryRecords($query, Location::model());
+    }
 
-	/**
-	 * @return string[]
-	 */
-	public function getLocationExamples(): array
-	{
-		$locations = [];
+    /**
+     * @return string[]
+     */
+    public function getLocationExamples(): array
+    {
+        $locations = [];
 
-		$query = "SELECT title FROM xlas_location GROUP BY title LIMIT 100";
-		$result = $this->db->query($query);
+        $query = "SELECT title FROM xlas_location GROUP BY title LIMIT 100";
+        $result = $this->db->query($query);
 
 
-		while ($row = $this->db->fetchAssoc($result)) {
-			$locations[] = (string)$row["title"];
-		}
-		return $locations;
-	}
+        while ($row = $this->db->fetchAssoc($result)) {
+            $locations[] = (string)$row["title"];
+        }
+        return $locations;
+    }
 
-	public function ifLocationExistsById(int $a_id): bool
-	{
-		return $this->getLocationById($a_id) != null;
-	}
+    public function ifLocationExistsById(int $a_id): bool
+    {
+        return $this->getLocationById($a_id) != null;
+    }
 
-	public function deleteLocation(int $a_id)
-	{
-		$this->db->manipulate("DELETE FROM xlas_location" .
-			" WHERE id = " . $this->db->quote($a_id, "integer"));
+    public function deleteLocation(int $a_id)
+    {
+        $this->db->manipulate("DELETE FROM xlas_location" .
+            " WHERE id = " . $this->db->quote($a_id, "integer"));
 
-		$this->db->update("xlas_essay",["location" => ["integer", null]], ["location" => ["integer", $a_id]]);
-	}
+        $this->db->update("xlas_essay", ["location" => ["integer", null]], ["location" => ["integer", $a_id]]);
+    }
 
-	public function deleteLocationByTaskId(int $a_task_id)
-	{
-		$this->db->manipulate("DELETE FROM xlas_location" .
-			" WHERE task_id = " . $this->db->quote($a_task_id, "integer"));
-	}
+    public function deleteLocationByTaskId(int $a_task_id)
+    {
+        $this->db->manipulate("DELETE FROM xlas_location" .
+            " WHERE task_id = " . $this->db->quote($a_task_id, "integer"));
+    }
 
 }

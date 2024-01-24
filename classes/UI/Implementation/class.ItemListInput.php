@@ -14,80 +14,80 @@ use ILIAS\UI\Implementation\Component\Triggerer;
 
 class ItemListInput extends Input implements \ILIAS\Plugin\LongEssayAssessment\UI\Component\ItemListInput
 {
-	use Triggerer;
-	use ComponentHelper;
-	use JavaScriptBindable;
+    use Triggerer;
+    use ComponentHelper;
+    use JavaScriptBindable;
 
-	private SignalGeneratorInterface $signal_generator;
-	private ?Signal $trigger_load;
+    private SignalGeneratorInterface $signal_generator;
+    private ?Signal $trigger_load;
 
-	public function __construct(DataFactory $data_factory, Factory $refinery, $label, $byline, SignalGeneratorInterface $signal_generator)
-	{
-		parent::__construct($data_factory, $refinery, $label, $byline);
-		$this->signal_generator = $signal_generator;
-		$this->initSignals();
-	}
+    public function __construct(DataFactory $data_factory, Factory $refinery, $label, $byline, SignalGeneratorInterface $signal_generator)
+    {
+        parent::__construct($data_factory, $refinery, $label, $byline);
+        $this->signal_generator = $signal_generator;
+        $this->initSignals();
+    }
 
 
-	/**
-	 * @inheritdoc
-	 */
-	protected function isClientSideValueOk($value) : bool
-	{
-		return is_array($value) || $value === null;
-	}
+    /**
+     * @inheritdoc
+     */
+    protected function isClientSideValueOk($value) : bool
+    {
+        return is_array($value) || $value === null;
+    }
 
-	/**
-	 * @inheritdoc
-	 */
-	protected function getConstraintForRequirement()
-	{
-		return $this->refinery->kindlyTo()->listOf($this->refinery->kindlyTo()->string());
-	}
+    /**
+     * @inheritdoc
+     */
+    protected function getConstraintForRequirement()
+    {
+        return $this->refinery->kindlyTo()->listOf($this->refinery->kindlyTo()->string());
+    }
 
-	/**
-	 * @inheritdoc
-	 */
-	public function getUpdateOnLoadCode() : \Closure
-	{
-		return function ($id) {
-			return "$('#$id').on('input', function(event) {
+    /**
+     * @inheritdoc
+     */
+    public function getUpdateOnLoadCode() : \Closure
+    {
+        return function ($id) {
+            return "$('#$id').on('input', function(event) {
 				il.UI.input.onFieldUpdate(event, '$id', $('#$id').val());
 			});
 			il.UI.input.onFieldUpdate(event, '$id', $('#$id').val());";
-		};
-	}
+        };
+    }
 
-	/**
-	 * @inheritDoc
-	 */
-	public function withListDataSource(Signal $signal): ItemListInput
-	{
-		return $this->withTriggeredSignal($signal, 'load_list_data_source');
-	}
+    /**
+     * @inheritDoc
+     */
+    public function withListDataSource(Signal $signal): ItemListInput
+    {
+        return $this->withTriggeredSignal($signal, 'load_list_data_source');
+    }
 
-	/**
-	 * @inheritDoc
-	 */
-	public function getTriggerLoadSignal(): Signal
-	{
-		return $this->trigger_load;
-	}
+    /**
+     * @inheritDoc
+     */
+    public function getTriggerLoadSignal(): Signal
+    {
+        return $this->trigger_load;
+    }
 
-	public function initSignals()
-	{
-		$this->trigger_load = $this->signal_generator->create();
-	}
+    public function initSignals()
+    {
+        $this->trigger_load = $this->signal_generator->create();
+    }
 
-	/**
-	 * @inheritDoc
-	 */
-	public function getListDataSource(): ?Signal
-	{
-		$signals = $this->getTriggeredSignals();
-		if(count($signals) > 0){
-			return $signals[0]->getSignal();
-		}
-		 return null;
-	}
+    /**
+     * @inheritDoc
+     */
+    public function getListDataSource(): ?Signal
+    {
+        $signals = $this->getTriggeredSignals();
+        if(count($signals) > 0) {
+            return $signals[0]->getSignal();
+        }
+        return null;
+    }
 }

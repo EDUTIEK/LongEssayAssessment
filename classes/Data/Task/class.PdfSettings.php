@@ -10,19 +10,19 @@ use ILIAS\Plugin\LongEssayAssessment\Data\RecordData;
  */
 class PdfSettings extends RecordData
 {
-	protected const tableName = 'xlas_pdf_settings';
-	protected const hasSequence = false;
-	protected const keyTypes = [
-		'task_id' => 'integer',
-	];
-	protected const otherTypes = [
-		'add_header' => 'integer',
+    protected const tableName = 'xlas_pdf_settings';
+    protected const hasSequence = false;
+    protected const keyTypes = [
+        'task_id' => 'integer',
+    ];
+    protected const otherTypes = [
+        'add_header' => 'integer',
         'add_footer' => 'integer',
         'top_margin' => 'integer',
         'bottom_margin' => 'integer',
         'left_margin' => 'integer',
         'right_margin' => 'integer'
-	];
+    ];
 
     protected int $task_id;
     protected int $add_header = 1;
@@ -32,14 +32,15 @@ class PdfSettings extends RecordData
     protected int $left_margin = 10;
     protected int $right_margin = 10;
 
-	public function __construct(int $task_id)
-	{
-		$this->task_id = $task_id;
-	}
+    public function __construct(int $task_id)
+    {
+        $this->task_id = $task_id;
+    }
 
-	public static function model() {
-		return new self(0);
-	}
+    public static function model()
+    {
+        return new self(0);
+    }
 
     /**
      * @return int

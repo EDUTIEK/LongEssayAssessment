@@ -16,31 +16,31 @@ use ILIAS\UI\Renderer;
 //different sources to be chained behind each other.
 class PluginRenderer extends DecoratedRenderer
 {
-	private ItemRenderer $item_renderer;
-	protected InputRenderer $field_render;
+    private ItemRenderer $item_renderer;
+    protected InputRenderer $field_render;
 
-	public function __construct(Renderer $default, ItemRenderer $item_renderer, InputRenderer $field_render)
-	{
-		parent::__construct($default);
-		$this->item_renderer = $item_renderer;
-		$this->field_render = $field_render;
-	}
+    public function __construct(Renderer $default, ItemRenderer $item_renderer, InputRenderer $field_render)
+    {
+        parent::__construct($default);
+        $this->item_renderer = $item_renderer;
+        $this->field_render = $field_render;
+    }
 
 
-	//define your manipulations. This example add an "A" before every button in ILIAS
-	protected function manipulateRendering($component, Renderer $root): ?string
-	{
-		switch(true){
-			case ($component instanceof FormItem):
-			case ($component instanceof FormGroup):
-				return $this->item_renderer->render($component, $root);
-			case ($component instanceof ItemListInput):
-			case ($component instanceof Numeric):
-			case ($component instanceof BlankForm):
-				return $this->field_render->render($component, $root);
-		}
+    //define your manipulations. This example add an "A" before every button in ILIAS
+    protected function manipulateRendering($component, Renderer $root): ?string
+    {
+        switch(true) {
+            case ($component instanceof FormItem):
+            case ($component instanceof FormGroup):
+                return $this->item_renderer->render($component, $root);
+            case ($component instanceof ItemListInput):
+            case ($component instanceof Numeric):
+            case ($component instanceof BlankForm):
+                return $this->field_render->render($component, $root);
+        }
 
-		//skip components that are not important to you with returning null
-		return null;
-	}
+        //skip components that are not important to you with returning null
+        return null;
+    }
 }

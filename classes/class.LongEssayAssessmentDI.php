@@ -2,7 +2,6 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment;
 
-
 use ILIAS\Plugin\LongEssayAssessment\CorrectorAdmin\CorrectorAdminService;
 use ILIAS\Plugin\LongEssayAssessment\Data\Corrector\CorrectorRepository;
 use ILIAS\Plugin\LongEssayAssessment\Data\DataService;
@@ -18,6 +17,7 @@ use ILIAS\Plugin\LongEssayAssessment\UI\Implementation\ItemFactory;
 use ILIAS\Plugin\LongEssayAssessment\UI\PluginTemplateFactory;
 use ILIAS\Plugin\LongEssayAssessment\UI\UIService;
 use ILIAS\Plugin\LongEssayAssessment\WriterAdmin\WriterAdminService;
+
 /**
  * @author Fabian Wolf <wolf@ilias.de>
  */
@@ -30,102 +30,104 @@ class LongEssayAssessmentDI
     protected $writerAdminServices = [];
     protected $correctorAdminServices = [];
 
-	protected \ILIAS\DI\Container $container;
+    protected \ILIAS\DI\Container $container;
 
-	protected function __construct(\ILIAS\DI\Container $container)
-	{
-		$this->container = $container;
-	}
+    protected function __construct(\ILIAS\DI\Container $container)
+    {
+        $this->container = $container;
+    }
 
-	public function init(\ilLongEssayAssessmentPlugin $plugin) {
-        if(self::$inited){
+    public function init(\ilLongEssayAssessmentPlugin $plugin)
+    {
+        if(self::$inited) {
             return;
         }
 
         $dic = $this->container;
 
-		$dic["xlas.plugin"] = $plugin;
+        $dic["xlas.plugin"] = $plugin;
 
-		$dic["xlas.custom_template_factory"] = function () use($dic) {
-			return new PluginTemplateFactory($dic["ui.template_factory"], $dic["xlas.plugin"], $dic["tpl"]);
-		};
+        $dic["xlas.custom_template_factory"] = function () use ($dic) {
+            return new PluginTemplateFactory($dic["ui.template_factory"], $dic["xlas.plugin"], $dic["tpl"]);
+        };
 
-		$dic["xlas.custom_factory"] = function (\ILIAS\DI\Container $dic) {
-			$data_factory = new \ILIAS\Data\Factory();
-			$refinery = new \ILIAS\Refinery\Factory($data_factory, $dic["lng"]);
-			return new Factory(
-				new InputFactory(
-					$dic["ui.factory.input.field"],
-					$dic["ui.signal_generator"],
-					$data_factory,
-					$refinery,
-					$dic["lng"]),
-				new IconFactory(
-					$dic->ui()->factory()->symbol()->icon(),
-					$dic["xlas.plugin"]
-				),
-				new ItemFactory(
-					$dic->ui()->factory()->symbol()->icon(),
-					$dic["xlas.plugin"],
-					$dic["ui.signal_generator"]
-				)
-			);
-		};
+        $dic["xlas.custom_factory"] = function (\ILIAS\DI\Container $dic) {
+            $data_factory = new \ILIAS\Data\Factory();
+            $refinery = new \ILIAS\Refinery\Factory($data_factory, $dic["lng"]);
+            return new Factory(
+                new InputFactory(
+                    $dic["ui.factory.input.field"],
+                    $dic["ui.signal_generator"],
+                    $data_factory,
+                    $refinery,
+                    $dic["lng"]
+                ),
+                new IconFactory(
+                    $dic->ui()->factory()->symbol()->icon(),
+                    $dic["xlas.plugin"]
+                ),
+                new ItemFactory(
+                    $dic->ui()->factory()->symbol()->icon(),
+                    $dic["xlas.plugin"],
+                    $dic["ui.signal_generator"]
+                )
+            );
+        };
 
         $dic["xlas.system_repository"] = function (\ILIAS\DI\Container $dic) {
             return new SystemRepository($dic->database(), $dic->logger()->xlas());
         };
 
         $dic["xlas.essay_repository"] = function (\ILIAS\DI\Container $dic) {
-			return new EssayRepository(
+            return new EssayRepository(
                 $dic->database(),
-				$dic->logger()->xlas()
+                $dic->logger()->xlas()
             );
-		};
+        };
 
-		$dic["xlas.corrector_repository"] = function (\ILIAS\DI\Container $dic) {
-			return new CorrectorRepository(
+        $dic["xlas.corrector_repository"] = function (\ILIAS\DI\Container $dic) {
+            return new CorrectorRepository(
                 $dic->database(),
-				$dic->logger()->xlas(),
+                $dic->logger()->xlas(),
                 $dic["xlas.essay_repository"]
             );
-		};
+        };
 
-		$dic["xlas.writer_repository"] = function (\ILIAS\DI\Container $dic) {
-			return new WriterRepository(
+        $dic["xlas.writer_repository"] = function (\ILIAS\DI\Container $dic) {
+            return new WriterRepository(
                 $dic->database(),
-				$dic->logger()->xlas(),
+                $dic->logger()->xlas(),
                 $dic["xlas.essay_repository"],
                 $dic["xlas.corrector_repository"]
             );
-		};
+        };
 
-		$dic["xlas.task_repository"] = function (\ILIAS\DI\Container $dic) {
-			return new TaskRepository(
-				$dic->database(),
-				$dic->logger()->xlas(),
-				$dic["xlas.essay_repository"],
-				$dic["xlas.corrector_repository"],
-				$dic["xlas.writer_repository"]
-            );
-		};
-
-		$dic["xlas.object_repository"] = function (\ILIAS\DI\Container $dic) {
-			return new ObjectRepository(
-				$dic->database(),
+        $dic["xlas.task_repository"] = function (\ILIAS\DI\Container $dic) {
+            return new TaskRepository(
+                $dic->database(),
                 $dic->logger()->xlas(),
-				$dic["xlas.essay_repository"],
-				$dic["xlas.task_repository"]
-			);
-		};
+                $dic["xlas.essay_repository"],
+                $dic["xlas.corrector_repository"],
+                $dic["xlas.writer_repository"]
+            );
+        };
 
-		$dic["xlas.upload_temp"] = function (\ILIAS\DI\Container $dic) {
-			return new ilLongEssayAssessmentUploadTempFile($dic->resourceStorage(), $dic->filesystem(), $dic->upload());
-		};
+        $dic["xlas.object_repository"] = function (\ILIAS\DI\Container $dic) {
+            return new ObjectRepository(
+                $dic->database(),
+                $dic->logger()->xlas(),
+                $dic["xlas.essay_repository"],
+                $dic["xlas.task_repository"]
+            );
+        };
 
-		$dic["xlas.ui_service"] = function (\ILIAS\DI\Container $dic) {
-			return new UIService($dic["lng"], $dic["refinery"]);
-		};
+        $dic["xlas.upload_temp"] = function (\ILIAS\DI\Container $dic) {
+            return new ilLongEssayAssessmentUploadTempFile($dic->resourceStorage(), $dic->filesystem(), $dic->upload());
+        };
+
+        $dic["xlas.ui_service"] = function (\ILIAS\DI\Container $dic) {
+            return new UIService($dic["lng"], $dic["refinery"]);
+        };
 
         self::$inited = true;
     }
@@ -133,7 +135,7 @@ class LongEssayAssessmentDI
 
     public static function getInstance(): LongEssayAssessmentDI
     {
-		global $DIC;
+        global $DIC;
 
         if (self::$instance === null) {
             self::$instance = new self($DIC);
@@ -149,58 +151,58 @@ class LongEssayAssessmentDI
 
     public function getObjectRepo(): ObjectRepository
     {
-		return $this->container["xlas.object_repository"];
+        return $this->container["xlas.object_repository"];
     }
 
     public function getTaskRepo(): TaskRepository
     {
-		return $this->container["xlas.task_repository"];
+        return $this->container["xlas.task_repository"];
     }
 
     public function getEssayRepo(): EssayRepository
     {
-		return $this->container["xlas.essay_repository"];
+        return $this->container["xlas.essay_repository"];
     }
 
     public function getWriterRepo(): WriterRepository
     {
-		return $this->container["xlas.writer_repository"];
+        return $this->container["xlas.writer_repository"];
     }
 
     public function getCorrectorRepo(): CorrectorRepository
     {
-		return $this->container["xlas.corrector_repository"];
+        return $this->container["xlas.corrector_repository"];
     }
 
-//    /**
-//     * @return ComponentRenderer
-//     */
-//    public function getUIRenderer()
-//    {
-//        return $this->container["xlas.custom_renderer"];
-//    }
+    //    /**
+    //     * @return ComponentRenderer
+    //     */
+    //    public function getUIRenderer()
+    //    {
+    //        return $this->container["xlas.custom_renderer"];
+    //    }
 
     /**
      * @return Factory
      */
     public function getUIFactory(): Factory
-	{
+    {
         return $this->container["xlas.custom_factory"];
     }
 
-	/**
-	 * @return ilLongEssayAssessmentUploadTempFile
-	 */
-	public function getUploadTempFile(): ilLongEssayAssessmentUploadTempFile
-	{
-		return $this->container["xlas.upload_temp"];
-	}
+    /**
+     * @return ilLongEssayAssessmentUploadTempFile
+     */
+    public function getUploadTempFile(): ilLongEssayAssessmentUploadTempFile
+    {
+        return $this->container["xlas.upload_temp"];
+    }
 
     /**
      * @return UIService
      */
     public function getUIService(): UIService
-	{
+    {
         return $this->container["xlas.ui_service"];
     }
 
@@ -225,7 +227,7 @@ class LongEssayAssessmentDI
         return $this->writerAdminServices[$task_id];
     }
 
-     public function getCorrectorAdminService(int $task_id) : CorrectorAdminService
+    public function getCorrectorAdminService(int $task_id) : CorrectorAdminService
     {
         if (!isset($this->correctorAdminServices[$task_id])) {
             $this->correctorAdminServices[$task_id] = new CorrectorAdminService($task_id);

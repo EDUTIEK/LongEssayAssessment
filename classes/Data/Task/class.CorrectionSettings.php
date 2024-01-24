@@ -14,26 +14,26 @@ class CorrectionSettings extends RecordData
     
     public const CRITERIA_MODE_NONE = 'none';
     public const CRITERIA_MODE_FIXED = 'fixed';
-	public const CRITERIA_MODE_CORRECTOR = 'corr';
+    public const CRITERIA_MODE_CORRECTOR = 'corr';
 
-	protected const tableName = 'xlas_corr_setting';
-	protected const hasSequence = false;
-	protected const keyTypes = [
-		'task_id' => 'integer',
-	];
-	protected const otherTypes = [
-		'required_correctors'=> 'integer',
-		'mutual_visibility' => 'integer',
-		'multi_color_highlight' => 'integer',
-		'max_points' => 'integer',
-		'max_auto_distance' => 'integer',
-		'assign_mode' => 'text',
-		'stitch_when_distance' => 'integer',
-		'stitch_when_decimals' => 'integer',
+    protected const tableName = 'xlas_corr_setting';
+    protected const hasSequence = false;
+    protected const keyTypes = [
+        'task_id' => 'integer',
+    ];
+    protected const otherTypes = [
+        'required_correctors'=> 'integer',
+        'mutual_visibility' => 'integer',
+        'multi_color_highlight' => 'integer',
+        'max_points' => 'integer',
+        'max_auto_distance' => 'integer',
+        'assign_mode' => 'text',
+        'stitch_when_distance' => 'integer',
+        'stitch_when_decimals' => 'integer',
         'criteria_mode' => 'text',
         'positive_rating' => 'text',
         'negative_rating' => 'text'
-	];
+    ];
 
     protected int $task_id;
     protected int $required_correctors = 2;
@@ -48,17 +48,18 @@ class CorrectionSettings extends RecordData
     protected string $positive_rating = "";
     protected string $negative_rating = "";
 
-	public function __construct(int $task_id)
-	{
-		$this->task_id = $task_id;
-	}
+    public function __construct(int $task_id)
+    {
+        $this->task_id = $task_id;
+    }
 
-	public static function model() {
-		return new self(0);
-	}
+    public static function model()
+    {
+        return new self(0);
+    }
 
 
-	/**
+    /**
      * @return int
      */
     public function getTaskId(): int

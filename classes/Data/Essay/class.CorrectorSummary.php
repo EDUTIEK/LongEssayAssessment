@@ -11,36 +11,36 @@ use ILIAS\Plugin\LongEssayAssessment\Data\Corrector\CorrectorPreferences;
  */
 class CorrectorSummary extends RecordData
 {
-	const STATUS_BLOCKED= "blocked";
-	const STATUS_DUE = "due";
-	const STATUS_STARTED = "started";
-	const STATUS_AUTHORIZED = "authorized";
-	const STATUS_STITCH = "stitch";
+    const STATUS_BLOCKED= "blocked";
+    const STATUS_DUE = "due";
+    const STATUS_STARTED = "started";
+    const STATUS_AUTHORIZED = "authorized";
+    const STATUS_STITCH = "stitch";
 
     const INCLUDE_NOT = 0;          // don't conclude to documentation
     const INCLUDE_INFO = 1;         // include to documentation as info
     const INCLUDE_RELEVANT = 2;     // include to documentation as relevant for the result
 
     protected const tableName = 'xlas_corrector_summary';
-	protected const hasSequence = true;
-	protected const keyTypes = [
-		'id' => 'integer',
-	];
-	protected const otherTypes = [
-		'essay_id' => 'integer',
-		'corrector_id' => 'integer',
-		'summary_text' => 'text',
-		'points' => 'float',
-		'grade_level_id' => 'integer',
-		'last_change' => 'datetime',
-		'correction_authorized' => 'datetime',
-		'correction_authorized_by' => 'integer',
+    protected const hasSequence = true;
+    protected const keyTypes = [
+        'id' => 'integer',
+    ];
+    protected const otherTypes = [
+        'essay_id' => 'integer',
+        'corrector_id' => 'integer',
+        'summary_text' => 'text',
+        'points' => 'float',
+        'grade_level_id' => 'integer',
+        'last_change' => 'datetime',
+        'correction_authorized' => 'datetime',
+        'correction_authorized_by' => 'integer',
         'include_comments' => 'integer',
         'include_comment_ratings' => 'integer',
         'include_comment_points' => 'integer',
         'include_criteria_points' => 'integer',
         'include_writer_notes' => 'integer',
-	];
+    ];
     
     protected int $id = 0;
     protected int $essay_id = 0;
@@ -58,9 +58,10 @@ class CorrectorSummary extends RecordData
     protected ?int $include_writer_notes = null;
 
 
-    public static function model() {
-		return new self();
-	}
+    public static function model()
+    {
+        return new self();
+    }
 
     /**
      * @return int

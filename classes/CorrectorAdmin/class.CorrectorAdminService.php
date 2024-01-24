@@ -329,7 +329,9 @@ class CorrectorAdminService extends BaseService
         $summaries = [];
         foreach ($this->correctorRepo->getAssignmentsByWriterId($essay->getWriterId()) as $assignment) {
             $summary = $this->localDI->getEssayRepo()->getCorrectorSummaryByEssayIdAndCorrectorId(
-                $essay->getId(), $assignment->getCorrectorId());
+                $essay->getId(),
+                $assignment->getCorrectorId()
+            );
             if (!empty($summary) && !empty($summary->getCorrectionAuthorized())) {
                 $summaries[] = $summary;
             }
@@ -393,19 +395,20 @@ class CorrectorAdminService extends BaseService
     {
         $c_auth = 0;
 
-        foreach($this->essayRepo->getCorrectorSummariesByTaskId($this->task_id) as $summary){
-            if($summary->getCorrectionAuthorized() !== null){
+        foreach($this->essayRepo->getCorrectorSummariesByTaskId($this->task_id) as $summary) {
+            if($summary->getCorrectionAuthorized() !== null) {
                 $c_auth++;
             }
         }
         return $c_auth > 0;
     }
 
-    public function recalculateGradeLevel(){
-        foreach($this->essayRepo->getCorrectorSummariesByTaskId($this->task_id) as $summary){
+    public function recalculateGradeLevel()
+    {
+        foreach($this->essayRepo->getCorrectorSummariesByTaskId($this->task_id) as $summary) {
             $level = $this->getGradeLevelForPoints($summary->getPoints());
 
-            if($level !== null && $level->getId() !== $summary->getGradeLevelId()){
+            if($level !== null && $level->getId() !== $summary->getGradeLevelId()) {
                 $summary->setGradeLevelId($level->getId());
                 $this->essayRepo->save($summary);
             }
@@ -474,8 +477,10 @@ class CorrectorAdminService extends BaseService
                 if (!empty($summary = $context->getCorrectionSummary((string) $repoWriter->getId(), (string) $assignment->getCorrectorId()))) {
                     $correctionSummaries[] = $summary;
                 }
-                $correctionComments = array_merge($correctionComments,
-                    $context->getCorrectionComments((string) $repoWriter->getId(), (string) $assignment->getCorrectorId()));
+                $correctionComments = array_merge(
+                    $correctionComments,
+                    $context->getCorrectionComments((string) $repoWriter->getId(), (string) $assignment->getCorrectorId())
+                );
             }
         }
 
@@ -521,11 +526,9 @@ class CorrectorAdminService extends BaseService
             $csv->addColumn($user->getMatriculation());
             if (!empty($repoEssay->getWritingAuthorized())) {
                 $csv->addColumn($this->plugin->txt('writing_status_authorized'));
-            }
-            elseif (!empty($repoEssay->getEditStarted())) {
+            } elseif (!empty($repoEssay->getEditStarted())) {
                 $csv->addColumn($this->plugin->txt('writing_status_not_authorized'));
-            }
-            else {
+            } else {
                 $csv->addColumn($this->plugin->txt('writing_status_not_written'));
             }
             $csv->addColumn($repoEssay->getEditEnded());
@@ -535,15 +538,13 @@ class CorrectorAdminService extends BaseService
                 $csv->addColumn(null);
                 $csv->addColumn(null);
                 $csv->addColumn(null);
-            }
-            elseif (empty($repoEssay->getWritingAuthorized())) {
+            } elseif (empty($repoEssay->getWritingAuthorized())) {
                 $csv->addColumn($this->plugin->txt('correction_status_not_possible'));
                 $csv->addColumn(null);
                 $csv->addColumn(null);
                 $csv->addColumn(null);
                 $csv->addColumn(null);
-            }
-            else {
+            } else {
                 $csv->addColumn($this->plugin->txt('correction_status_finished'));
                 $csv->addColumn($repoEssay->getFinalPoints());
                 if (!empty($level = $this->localDI->getObjectRepo()->getGradeLevelById((int) $repoEssay->getFinalGradeLevelId()))) {
@@ -562,39 +563,40 @@ class CorrectorAdminService extends BaseService
         return $basedir . '/' . $file;
     }
 
-	/**
-	 * Sorts Assoc Array bei Position and pseudonym
-	 * Prio 1 sort by Position in $items[]["position"]
-	 * Prio 2 sort by Pseudonym Name in $items[]["pseudonym"]
-	 *
-	 * @param array $items
-	 * @return void
-	 */
-	public function sortCorrectionsArray(array &$items){
-		usort($items, function(array $item_a, array $item_b){
-			if($item_a["position"] == $item_b["position"]){
-				return strtolower($item_a["pseudonym"]) <=> strtolower($item_b["pseudonym"]);
-			}
-			return $item_a["position"] <=> $item_b["position"];
-		});
-	}
+    /**
+     * Sorts Assoc Array bei Position and pseudonym
+     * Prio 1 sort by Position in $items[]["position"]
+     * Prio 2 sort by Pseudonym Name in $items[]["pseudonym"]
+     *
+     * @param array $items
+     * @return void
+     */
+    public function sortCorrectionsArray(array &$items)
+    {
+        usort($items, function (array $item_a, array $item_b) {
+            if($item_a["position"] == $item_b["position"]) {
+                return strtolower($item_a["pseudonym"]) <=> strtolower($item_b["pseudonym"]);
+            }
+            return $item_a["position"] <=> $item_b["position"];
+        });
+    }
 
-	/**
-	 * @param int $user_id
-	 * @param array $array
-	 * @return array
-	 */
-	public function filterCorrections(int $user_id, array $array): array
-	{
-		$position_filter = $this->dataService->getCorrectorPositionFilter($user_id);
-		$status_filter = $this->dataService->getCorrectionStatusFilter($user_id);
+    /**
+     * @param int $user_id
+     * @param array $array
+     * @return array
+     */
+    public function filterCorrections(int $user_id, array $array): array
+    {
+        $position_filter = $this->dataService->getCorrectorPositionFilter($user_id);
+        $status_filter = $this->dataService->getCorrectionStatusFilter($user_id);
 
-		return array_filter($array, function (array $item) use($position_filter, $status_filter){
-			$status_ok = $status_filter == DataService::ALL || $status_filter == $item["correction_status"];
-			$position_ok = $position_filter == DataService::ALL || $position_filter == $item["position"] + 1;
-			return $status_ok && $position_ok;
-		});
-	}
+        return array_filter($array, function (array $item) use ($position_filter, $status_filter) {
+            $status_ok = $status_filter == DataService::ALL || $status_filter == $item["correction_status"];
+            $position_ok = $position_filter == DataService::ALL || $position_filter == $item["position"] + 1;
+            return $status_ok && $position_ok;
+        });
+    }
 
     public function removeAuthorizations(Writer $writer) : bool
     {
@@ -643,8 +645,8 @@ class CorrectorAdminService extends BaseService
      * Authorize a correction
      * This also sets defaults for the correction inclusions
      */
-	public function authorizeCorrection(CorrectorSummary $summary, int $user_id)
-	{
+    public function authorizeCorrection(CorrectorSummary $summary, int $user_id)
+    {
         $preferences = $this->correctorRepo->getCorrectorPreferences($summary->getCorrectorId());
         $summary->setIncludeComments($summary->getIncludeComments() ?? $preferences->getIncludeComments());
         $summary->setIncludeCommentRatings($summary->getIncludeCommentRatings() ?? $preferences->getIncludeCommentRatings());
@@ -660,7 +662,7 @@ class CorrectorAdminService extends BaseService
             $summary->setCorrectionAuthorizedBy($user_id);
         }
 
-		$this->localDI->getEssayRepo()->save($summary);
+        $this->localDI->getEssayRepo()->save($summary);
     }
 
     public function removeSingleAuthorization(Writer $writer, Corrector $corrector) : bool
@@ -702,158 +704,165 @@ class CorrectorAdminService extends BaseService
         return true;
     }
 
-	const BLANK_CORRECTOR_ASSIGNMENT = -1;
-	const UNCHANGED_CORRECTOR_ASSIGNMENT = -2;
+    const BLANK_CORRECTOR_ASSIGNMENT = -1;
+    const UNCHANGED_CORRECTOR_ASSIGNMENT = -2;
 
-	/**
-	 * Reassigns a couple of correctors to multiple writer
-	 * - first and second corrector cannot be the same -> invalid
-	 * - already authorized corrections are not changed -> unchanged
-	 * - if both assignments are untouched -> unchanged
-	 * - if one assignment changes -> changed
-	 * - existing correction summaries and comments are moved to the new corrector -> changed
-	 * - if the assignment of an existing correction is removed the summaries and comments are removed too!
-	 * - criterion points are removed if an existing correction is changed or removed because they can be individual
-	 *   and not reused by the new assigned corrector
-	 *
-	 * @param int $first_corrector
-	 * @param int $second_corrector
-	 * @param int[] $writer_ids
-	 * @param bool $dry_run
-	 * @return array[]
-	 */
-	public function assignMultipleCorrector(int $first_corrector,
-											int $second_corrector,
-											array $writer_ids,
-											$dry_run = false): array
-	{
-		$assignments = [];
-		foreach($this->correctorRepo->getAssignmentsByTaskId($this->task_id) as $assignment){
-			$assignments[$assignment->getWriterId()][$assignment->getPosition()] = $assignment;
-		}
-		$summaries = $this->essayRepo->getCorrectorSummariesByTaskIdAndWriterIds($this->task_id, $writer_ids);
+    /**
+     * Reassigns a couple of correctors to multiple writer
+     * - first and second corrector cannot be the same -> invalid
+     * - already authorized corrections are not changed -> unchanged
+     * - if both assignments are untouched -> unchanged
+     * - if one assignment changes -> changed
+     * - existing correction summaries and comments are moved to the new corrector -> changed
+     * - if the assignment of an existing correction is removed the summaries and comments are removed too!
+     * - criterion points are removed if an existing correction is changed or removed because they can be individual
+     *   and not reused by the new assigned corrector
+     *
+     * @param int $first_corrector
+     * @param int $second_corrector
+     * @param int[] $writer_ids
+     * @param bool $dry_run
+     * @return array[]
+     */
+    public function assignMultipleCorrector(
+        int $first_corrector,
+        int $second_corrector,
+        array $writer_ids,
+        $dry_run = false
+    ): array {
+        $assignments = [];
+        foreach($this->correctorRepo->getAssignmentsByTaskId($this->task_id) as $assignment) {
+            $assignments[$assignment->getWriterId()][$assignment->getPosition()] = $assignment;
+        }
+        $summaries = $this->essayRepo->getCorrectorSummariesByTaskIdAndWriterIds($this->task_id, $writer_ids);
 
-		$result = ["changed" => [], "unchanged" => [], "invalid" => []];
+        $result = ["changed" => [], "unchanged" => [], "invalid" => []];
 
-		foreach ($writer_ids as $writer_id){
-			$first_assignment = $assignments[$writer_id][0] ?? null;
-			$second_assignment = $assignments[$writer_id][1] ?? null;
-			$old_first_corrector = $first_assignment !== null
-				? $first_assignment->getCorrectorId()
-				: null;
-			$old_second_corrector = $second_assignment !== null ?
-				$second_assignment->getCorrectorId() : null;
+        foreach ($writer_ids as $writer_id) {
+            $first_assignment = $assignments[$writer_id][0] ?? null;
+            $second_assignment = $assignments[$writer_id][1] ?? null;
+            $old_first_corrector = $first_assignment !== null
+                ? $first_assignment->getCorrectorId()
+                : null;
+            $old_second_corrector = $second_assignment !== null ?
+                $second_assignment->getCorrectorId() : null;
 
-			$first_summary =  $first_assignment !== null ?
-				($summaries[$writer_id][$first_assignment->getCorrectorId()] ?? null) : null;
-			$second_summary = $second_assignment !== null ?
-				($summaries[$writer_id][$second_assignment->getCorrectorId()] ?? null) : null;
+            $first_summary =  $first_assignment !== null ?
+                ($summaries[$writer_id][$first_assignment->getCorrectorId()] ?? null) : null;
+            $second_summary = $second_assignment !== null ?
+                ($summaries[$writer_id][$second_assignment->getCorrectorId()] ?? null) : null;
 
-			$first_unchanged = $this->assign($writer_id, $first_corrector, $first_assignment, $first_summary, 0); // assignment is changed by reference
-			$second_unchanged = $this->assign($writer_id, $second_corrector, $second_assignment, $second_summary, 1); // assignment is changed by reference
+            $first_unchanged = $this->assign($writer_id, $first_corrector, $first_assignment, $first_summary, 0); // assignment is changed by reference
+            $second_unchanged = $this->assign($writer_id, $second_corrector, $second_assignment, $second_summary, 1); // assignment is changed by reference
 
-			// Do nothing if both are unchanged
-			if($first_unchanged && $second_unchanged){
-				$result["unchanged"][] = $writer_id;
-			}elseif($first_assignment !== null
-				&& $second_assignment !== null
-				&& $first_assignment->getCorrectorId() == $second_assignment->getCorrectorId()
-			) {// Do not proceed if first and second position is the same
-				$result["invalid"][] = $writer_id;
-			}else{
+            // Do nothing if both are unchanged
+            if($first_unchanged && $second_unchanged) {
+                $result["unchanged"][] = $writer_id;
+            } elseif($first_assignment !== null
+                && $second_assignment !== null
+                && $first_assignment->getCorrectorId() == $second_assignment->getCorrectorId()
+            ) {// Do not proceed if first and second position is the same
+                $result["invalid"][] = $writer_id;
+            } else {
 
-				$result["changed"][] = $writer_id;
-				if(!$dry_run){// Stop here if it's a dry run
+                $result["changed"][] = $writer_id;
+                if(!$dry_run) {// Stop here if it's a dry run
 
-					if($old_first_corrector !== null && $first_assignment !== null && $first_summary !== null){
-						// Move all comments and summaries of first correction to new corrector if they changed,
-						// criterium points are individual and are removed
-						$this->moveCorrection($old_first_corrector, $first_assignment->getCorrectorId(), $first_summary->getEssayId());
-					}
+                    if($old_first_corrector !== null && $first_assignment !== null && $first_summary !== null) {
+                        // Move all comments and summaries of first correction to new corrector if they changed,
+                        // criterium points are individual and are removed
+                        $this->moveCorrection($old_first_corrector, $first_assignment->getCorrectorId(), $first_summary->getEssayId());
+                    }
 
-					if($old_second_corrector !== null && $second_assignment !== null && $second_summary !== null){
-						// Move all comments and summaries of second correction to new corrector if they changed,
-						// criterium points are individual and are removed
-						$this->moveCorrection($old_second_corrector,
-							$second_assignment->getCorrectorId(), $second_summary->getEssayId());
-					}
+                    if($old_second_corrector !== null && $second_assignment !== null && $second_summary !== null) {
+                        // Move all comments and summaries of second correction to new corrector if they changed,
+                        // criterium points are individual and are removed
+                        $this->moveCorrection(
+                            $old_second_corrector,
+                            $second_assignment->getCorrectorId(),
+                            $second_summary->getEssayId()
+                        );
+                    }
 
-					if($first_assignment === null && $old_first_corrector !== null && $first_summary !== null){
-						// if the first assignment is removed, also its comments and summary are removed
-						$this->deleteCorrection($old_first_corrector, $first_summary->getEssayId());
-					}
+                    if($first_assignment === null && $old_first_corrector !== null && $first_summary !== null) {
+                        // if the first assignment is removed, also its comments and summary are removed
+                        $this->deleteCorrection($old_first_corrector, $first_summary->getEssayId());
+                    }
 
-					if($second_assignment === null && $old_second_corrector !== null  && $second_summary !== null){
-						// if the second assignment is removed, also its comments and summary are removed
-						$this->deleteCorrection($old_second_corrector, $second_summary->getEssayId());
-					}
+                    if($second_assignment === null && $old_second_corrector !== null  && $second_summary !== null) {
+                        // if the second assignment is removed, also its comments and summary are removed
+                        $this->deleteCorrection($old_second_corrector, $second_summary->getEssayId());
+                    }
 
-					// If something changed remove old assignments
-					$this->correctorRepo->deleteCorrectorAssignmentByWriter($writer_id);
+                    // If something changed remove old assignments
+                    $this->correctorRepo->deleteCorrectorAssignmentByWriter($writer_id);
 
-					if($first_assignment !== null){
-						$this->correctorRepo->save($first_assignment);
-					}
+                    if($first_assignment !== null) {
+                        $this->correctorRepo->save($first_assignment);
+                    }
 
-					if($second_assignment !== null){
-						$this->correctorRepo->save($second_assignment);
-					}
-				}
-			}
+                    if($second_assignment !== null) {
+                        $this->correctorRepo->save($second_assignment);
+                    }
+                }
+            }
 
-		}
-		return $result;
-	}
+        }
+        return $result;
+    }
 
-	private function moveCorrection(int $from_corrector, int $to_corrector, int $essay_id){
-		if($from_corrector === $to_corrector)
-			return;//Prevent removal of criterion points and useless queries if nothing has changed
-		$this->essayRepo->moveCorrectorSummaries($from_corrector, $to_corrector, $essay_id);
-		$this->essayRepo->deleteCriterionPointsByCorrectorIdAndEssayId($from_corrector, $essay_id);
-		$this->essayRepo->moveCorrectorComments($from_corrector, $to_corrector, $essay_id);
-	}
+    private function moveCorrection(int $from_corrector, int $to_corrector, int $essay_id)
+    {
+        if($from_corrector === $to_corrector) {
+            return;
+        }//Prevent removal of criterion points and useless queries if nothing has changed
+        $this->essayRepo->moveCorrectorSummaries($from_corrector, $to_corrector, $essay_id);
+        $this->essayRepo->deleteCriterionPointsByCorrectorIdAndEssayId($from_corrector, $essay_id);
+        $this->essayRepo->moveCorrectorComments($from_corrector, $to_corrector, $essay_id);
+    }
 
-	private function deleteCorrection(int $corrector, int $essay_id){
-		$this->essayRepo->deleteCorrectorSummaryByCorrectorIdAndEssayId($corrector, $essay_id);
-		$this->essayRepo->deleteCorrectorCommentByCorrectorIdAndEssayId($corrector, $essay_id);
-	}
+    private function deleteCorrection(int $corrector, int $essay_id)
+    {
+        $this->essayRepo->deleteCorrectorSummaryByCorrectorIdAndEssayId($corrector, $essay_id);
+        $this->essayRepo->deleteCorrectorCommentByCorrectorIdAndEssayId($corrector, $essay_id);
+    }
 
-	private function assign(int $writer_id, int $corrector, ?CorrectorAssignment &$assignment, ?CorrectorSummary $summary, int $position) : bool
-	{
-		$unchanged = true;
-		$authorized = isset($summary) && $summary->getCorrectionAuthorized() !== null;
+    private function assign(int $writer_id, int $corrector, ?CorrectorAssignment &$assignment, ?CorrectorSummary $summary, int $position) : bool
+    {
+        $unchanged = true;
+        $authorized = isset($summary) && $summary->getCorrectionAuthorized() !== null;
 
-		if( $corrector > -1) {// corrector is real and not removed or keep unchanged
-			if ($assignment == null) { // if assignment is missing create a new
-				$assignment = CorrectorAssignment::model()
-					->setWriterId($writer_id)
-					->setCorrectorId($corrector)
-					->setPosition($position);
-				$unchanged = false;
-			}elseif ($assignment->getCorrectorId() != $corrector && !$authorized) { // if corrector is changed assign new
-				$assignment = clone $assignment; // cloning is needed to prevent the usage of cached objects
-				$assignment->setCorrectorId($corrector);
-				$unchanged = false;
-			}
-		}
-		if($corrector == self::BLANK_CORRECTOR_ASSIGNMENT && !$authorized){// corrector assignment is actively removed
-			$assignment = null;
-			$unchanged = false;
-		}
-		return $unchanged;
-	}
+        if($corrector > -1) {// corrector is real and not removed or keep unchanged
+            if ($assignment == null) { // if assignment is missing create a new
+                $assignment = CorrectorAssignment::model()
+                    ->setWriterId($writer_id)
+                    ->setCorrectorId($corrector)
+                    ->setPosition($position);
+                $unchanged = false;
+            } elseif ($assignment->getCorrectorId() != $corrector && !$authorized) { // if corrector is changed assign new
+                $assignment = clone $assignment; // cloning is needed to prevent the usage of cached objects
+                $assignment->setCorrectorId($corrector);
+                $unchanged = false;
+            }
+        }
+        if($corrector == self::BLANK_CORRECTOR_ASSIGNMENT && !$authorized) {// corrector assignment is actively removed
+            $assignment = null;
+            $unchanged = false;
+        }
+        return $unchanged;
+    }
 
-	public function canRemoveCorrectionAuthorize(Essay $essay, ?CorrectorSummary $summary) : bool
-	{
-		return empty($essay->getCorrectionFinalized()) && isset($summary) && !empty($summary->getCorrectionAuthorized());
-	}
+    public function canRemoveCorrectionAuthorize(Essay $essay, ?CorrectorSummary $summary) : bool
+    {
+        return empty($essay->getCorrectionFinalized()) && isset($summary) && !empty($summary->getCorrectionAuthorized());
+    }
 
-	public function canAuthorizeCorrection(Essay $essay, ?CorrectorSummary $summary) : bool
-	{
-		return !empty($essay->getWritingAuthorized()) &&
-			isset($summary) &&
-			empty($summary->getCorrectionAuthorized());
-	}
+    public function canAuthorizeCorrection(Essay $essay, ?CorrectorSummary $summary) : bool
+    {
+        return !empty($essay->getWritingAuthorized()) &&
+            isset($summary) &&
+            empty($summary->getCorrectionAuthorized());
+    }
 
     /**
      * @param CorrectorSummary[]|Essay[] $grading_objects
@@ -870,23 +879,29 @@ class CorrectorAdminService extends BaseService
         $count_all = 0;
         $passed_levels = [];
 
-        foreach($this->localDI->getObjectRepo()->getGradeLevelsByObjectId($this->task_id) as $level)
-        {
-            if($level->isPassed())
+        foreach($this->localDI->getObjectRepo()->getGradeLevelsByObjectId($this->task_id) as $level) {
+            if($level->isPassed()) {
                 $passed_levels[] = $level->getId();
+            }
 
             $count_by_level[$level->getId()] = 0;
         }
 
-        foreach($grading_objects as $grading_object){
+        foreach($grading_objects as $grading_object) {
 
             switch(true) {
                 case ($grading_object instanceof Essay):
                     $points = $grading_object->getFinalPoints();
                     $grade = $grading_object->getFinalGradeLevelId();
                     $authorized_and_ok = $grading_object->getCorrectionFinalized() && $points !== null && $grade !== null;
-                    if($count_not_attended === null) $count_not_attended = 0; // if one essay is present, there could be not attended
-                    if(!$grading_object->getEditEnded() === null) $count_not_attended++; else $count_all++;
+                    if($count_not_attended === null) {
+                        $count_not_attended = 0;
+                    } // if one essay is present, there could be not attended
+                    if(!$grading_object->getEditEnded() === null) {
+                        $count_not_attended++;
+                    } else {
+                        $count_all++;
+                    }
                     break;
                 case ($grading_object instanceof CorrectorSummary):
                     $points = $grading_object->getPoints();
@@ -919,13 +934,13 @@ class CorrectorAdminService extends BaseService
             self::STATISTIC_NOT_ATTENDED => $count_not_attended
         ];
     }
-    CONST STATISTIC_COUNT_BY_LEVEL = 0;
-    CONST STATISTIC_COUNT = 1;
-    CONST STATISTIC_FINAL = 2;
-    CONST STATISTIC_TODO = 3;
-    CONST STATISTIC_PASSED = 4;
-    CONST STATISTIC_NOT_PASSED = 5;
-    CONST STATISTIC_AVERAGE = 6;
-    CONST STATISTIC_NOT_PASSED_QUOTA = 7;
-    CONST STATISTIC_NOT_ATTENDED = 8;
+    const STATISTIC_COUNT_BY_LEVEL = 0;
+    const STATISTIC_COUNT = 1;
+    const STATISTIC_FINAL = 2;
+    const STATISTIC_TODO = 3;
+    const STATISTIC_PASSED = 4;
+    const STATISTIC_NOT_PASSED = 5;
+    const STATISTIC_AVERAGE = 6;
+    const STATISTIC_NOT_PASSED_QUOTA = 7;
+    const STATISTIC_NOT_ATTENDED = 8;
 }

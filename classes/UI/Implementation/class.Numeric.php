@@ -8,17 +8,17 @@ use ILIAS\UI\Implementation\Component\Input\Field\Input;
 /**
  * This implements the numeric input.
  */
-class Numeric extends Input  implements \ILIAS\Plugin\LongEssayAssessment\UI\Component\Numeric
+class Numeric extends Input implements \ILIAS\Plugin\LongEssayAssessment\UI\Component\Numeric
 {
     /**
      * @var bool
      */
     private $complex = false;
 
-	/**
-	 * @var float
-	 */
-	private $step = 1.;
+    /**
+     * @var float
+     */
+    private $step = 1.;
 
     /**
      * Numeric constructor.
@@ -41,7 +41,7 @@ class Numeric extends Input  implements \ILIAS\Plugin\LongEssayAssessment\UI\Com
          */
         $trafo_numericOrNull = $this->refinery->byTrying([
             $this->refinery->kindlyTo()->null(),
-			$this->refinery->kindlyTo()->float()
+            $this->refinery->kindlyTo()->float()
         ])
         ->withProblemBuilder(function ($txt, $value) {
             return $txt("ui_numeric_only");
@@ -63,9 +63,9 @@ class Numeric extends Input  implements \ILIAS\Plugin\LongEssayAssessment\UI\Com
      */
     protected function getConstraintForRequirement()
     {
-		if($this->step === 1.){
-			return $this->refinery->kindlyTo()->int();
-		}
+        if($this->step === 1.) {
+            return $this->refinery->kindlyTo()->int();
+        }
         return $this->refinery->kindlyTo()->float();
     }
 
@@ -91,22 +91,22 @@ class Numeric extends Input  implements \ILIAS\Plugin\LongEssayAssessment\UI\Com
         return $this->complex;
     }
 
-	/**
-	 * @inheritDoc
-	 */
-	public function getStep(): float
-	{
-		return $this->step;
-	}
+    /**
+     * @inheritDoc
+     */
+    public function getStep(): float
+    {
+        return $this->step;
+    }
 
-	/**
-	 * @inheritDoc
-	 */
-	public function withStep(float $step): \ILIAS\UI\Component\Input\Field\Input
-	{
-		$clone = clone $this;
-		$clone->step = $step;
+    /**
+     * @inheritDoc
+     */
+    public function withStep(float $step): \ILIAS\UI\Component\Input\Field\Input
+    {
+        $clone = clone $this;
+        $clone->step = $step;
 
-		return $clone;
-	}
+        return $clone;
+    }
 }

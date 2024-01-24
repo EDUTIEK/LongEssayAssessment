@@ -17,16 +17,16 @@ use ilUtil;
  */
 class ResourcesAdminGUI extends BaseGUI
 {
-	protected UIService $uiService;
+    protected UIService $uiService;
 
-	public function __construct(\ilObjLongEssayAssessmentGUI $objectGUI)
-	{
-		parent::__construct($objectGUI);
-		$this->uiService = $this->localDI->getUIService();
-	}
+    public function __construct(\ilObjLongEssayAssessmentGUI $objectGUI)
+    {
+        parent::__construct($objectGUI);
+        $this->uiService = $this->localDI->getUIService();
+    }
 
 
-	/**
+    /**
      * Execute a command
      * This should be overridden in the child classes
      * note: permissions are already checked in the object gui
@@ -42,7 +42,7 @@ class ResourcesAdminGUI extends BaseGUI
                     case 'showItems':
                     case "editItem":
                     case "downloadResourceFile":
-					case "deleteItem":
+                    case "deleteItem":
                         $this->$cmd();
                         break;
 
@@ -86,8 +86,7 @@ class ResourcesAdminGUI extends BaseGUI
     {
         if ($this->getResourceId() != null) {
             $section_title = $this->plugin->txt('resource_edit');
-        }
-        else {
+        } else {
             $section_title = $this->plugin->txt('resource_add');
         }
         $factory = $this->uiFactory->input()->field();
@@ -100,12 +99,12 @@ class ResourcesAdminGUI extends BaseGUI
             ->withValue((string) $a_resource->getDescription());
 
         $resource_file = $factory->file(new ResourceUploadHandlerGUI($this->storage, $this->localDI->getTaskRepo()), $this->lng->txt("file"))
-			->withValue($a_resource->getFileId() !== null ? [$a_resource->getFileId()] : null)
+            ->withValue($a_resource->getFileId() !== null ? [$a_resource->getFileId()] : null)
             ->withAcceptedMimeTypes(['application/pdf'])
             ->withByline($this->plugin->txt("resource_file_description") . "<br>" . $this->uiService->getMaxFileSizeString());
 
         $url = $factory->text($this->lng->txt('url'))
-			->withRequired(true)
+            ->withRequired(true)
             ->withValue($a_resource->getUrl());
 
         $availability = $factory->radio($this->plugin->txt("resource_availability"))
@@ -121,21 +120,22 @@ class ResourcesAdminGUI extends BaseGUI
         $fields['title'] = $title;
         $fields['description'] = $description;
 
-		$group1 = $factory->group(["resource_file" => $resource_file,], $this->lng->txt("file"));
-        $group2 = $factory->group(["url" => $url, ],$this->plugin->txt("resource_weblink"));
+        $group1 = $factory->group(["resource_file" => $resource_file,], $this->lng->txt("file"));
+        $group2 = $factory->group(["url" => $url, ], $this->plugin->txt("resource_weblink"));
 
 
         $fields['type'] = $factory->switchableGroup([
             Resource::RESOURCE_TYPE_FILE => $group1,
             Resource::RESOURCE_TYPE_URL => $group2,
         ], $this->lng->txt("type"))->withValue($a_resource->getType())
-			->withAdditionalTransformation(
-				$this->refinery->custom()->constraint(
-					function ($var){
-						return !($var[0] === Resource::RESOURCE_TYPE_FILE) || $var[1]["resource_file"] !== null;
-					}, $this->plugin->txt("missing_file")
-				)
-			);
+            ->withAdditionalTransformation(
+                $this->refinery->custom()->constraint(
+                    function ($var) {
+                        return !($var[0] === Resource::RESOURCE_TYPE_FILE) || $var[1]["resource_file"] !== null;
+                    },
+                    $this->plugin->txt("missing_file")
+                )
+            );
         $fields['availability'] = $availability;
         $sections['form'] = $factory->section($fields, $section_title);
         $action = $this->ctrl->getFormAction($this, "editItem");
@@ -153,21 +153,22 @@ class ResourcesAdminGUI extends BaseGUI
     {
         $resource_admin = new ResourceAdmin($this->object->getId());
 
-        switch ($a_data["type"][0])
-        {
+        switch ($a_data["type"][0]) {
             case Resource::RESOURCE_TYPE_FILE:
                 $resource_admin->saveFileResource(
                     $a_data["title"],
                     $a_data["description"],
                     $a_data["availability"],
-                    (string)$a_data["type"][1]["resource_file"][0]);
+                    (string)$a_data["type"][1]["resource_file"][0]
+                );
                 break;
             case Resource::RESOURCE_TYPE_URL:
                 $resource_admin->saveURLResource(
                     $a_data["title"],
                     $a_data["description"],
                     $a_data["availability"],
-                    $a_data["type"][1]["url"]);
+                    $a_data["type"][1]["url"]
+                );
                 break;
         }
     }
@@ -204,7 +205,7 @@ class ResourcesAdminGUI extends BaseGUI
      */
     protected function editItem()
     {
-		$this->tabs->setBackTarget($this->lng->txt("back"), $this->ctrl->getLinkTarget($this));
+        $this->tabs->setBackTarget($this->lng->txt("back"), $this->ctrl->getLinkTarget($this));
 
         $resource_admin = new ResourceAdmin($this->object->getId());
         $resource_id = $this->getResourceId();
@@ -219,82 +220,83 @@ class ResourcesAdminGUI extends BaseGUI
 
         $form = $this->buildResourceForm($resource);
 
-		if($this->request->getMethod() === "POST") {
-			$form = $form->withRequest($this->request);
+        if($this->request->getMethod() === "POST") {
+            $form = $form->withRequest($this->request);
 
-			if (($data = $form->getData()) !== null) {
-				if ($resource_id == null) {
-					$this->createResource($data["form"]);
-				} else {
-					$this->replaceResource($data["form"], (int)$resource_id);
-				}
-				ilUtil::sendSuccess($this->lng->txt("settings_saved"), true);
-				$this->ctrl->redirect($this, "showItems");
-			}
-		}
+            if (($data = $form->getData()) !== null) {
+                if ($resource_id == null) {
+                    $this->createResource($data["form"]);
+                } else {
+                    $this->replaceResource($data["form"], (int)$resource_id);
+                }
+                ilUtil::sendSuccess($this->lng->txt("settings_saved"), true);
+                $this->ctrl->redirect($this, "showItems");
+            }
+        }
 
         $this->tpl->setContent($this->renderer->render($form));
     }
 
-	/**
-	 * Delete Resource items
-	 * @return void
-	 */
-	protected function deleteItem(){
-		$identifier = "";
-		if(($resource_id = $this->getResourceId()) !== null) {
-			$resource_admin = new ResourceAdmin($this->object->getId());
-			$resource = $resource_admin->getResource($resource_id);
+    /**
+     * Delete Resource items
+     * @return void
+     */
+    protected function deleteItem()
+    {
+        $identifier = "";
+        if(($resource_id = $this->getResourceId()) !== null) {
+            $resource_admin = new ResourceAdmin($this->object->getId());
+            $resource = $resource_admin->getResource($resource_id);
 
-			if($resource->getTaskId() == $this->object->getId()){
-				$resource_admin->deleteResource($resource_id);
-				ilUtil::sendSuccess($this->lng->txt("resource_deleted"), true);
-			}else {
-				ilUtil::sendFailure($this->lng->txt("permission_denied"), true);
-			}
-		}else{
-			// TODO: Error no resource ID in GET
-		}
-		$this->ctrl->redirect($this, "showItems");
-	}
+            if($resource->getTaskId() == $this->object->getId()) {
+                $resource_admin->deleteResource($resource_id);
+                ilUtil::sendSuccess($this->lng->txt("resource_deleted"), true);
+            } else {
+                ilUtil::sendFailure($this->lng->txt("permission_denied"), true);
+            }
+        } else {
+            // TODO: Error no resource ID in GET
+        }
+        $this->ctrl->redirect($this, "showItems");
+    }
 
     /**
      * @return ?int
      */
     protected function getResourceId(): ?int
     {
-		if (isset($_GET["resource_id"]) && is_numeric($_GET["resource_id"]))
-		{
-			return (int) $_GET["resource_id"];
-		}
-		return null;
+        if (isset($_GET["resource_id"]) && is_numeric($_GET["resource_id"])) {
+            return (int) $_GET["resource_id"];
+        }
+        return null;
     }
 
-    protected function downloadResourceFile() {
+    protected function downloadResourceFile()
+    {
         global $DIC;
         $identifier = "";
         if(($resource_id = $this->getResourceId()) !== null) {
-			$resource_admin = new ResourceAdmin($this->object->getId());
-			$resource = $resource_admin->getResource($resource_id);
+            $resource_admin = new ResourceAdmin($this->object->getId());
+            $resource = $resource_admin->getResource($resource_id);
 
-			if ($resource->getType() == Resource::RESOURCE_TYPE_FILE && is_string($resource->getFileId())) {
-				$identifier = $resource->getFileId();
-			}
+            if ($resource->getType() == Resource::RESOURCE_TYPE_FILE && is_string($resource->getFileId())) {
+                $identifier = $resource->getFileId();
+            }
 
-			if ($resource->getTaskId() != $this->object->getId()) {
-				ilUtil::sendFailure($this->lng->txt("permission_denied"), true);
-				$this->ctrl->redirect($this, "showItems");
-			}
-		}else{
-			// TODO: Error no resource ID in GET
-		}
+            if ($resource->getTaskId() != $this->object->getId()) {
+                ilUtil::sendFailure($this->lng->txt("permission_denied"), true);
+                $this->ctrl->redirect($this, "showItems");
+            }
+        } else {
+            // TODO: Error no resource ID in GET
+        }
 
-		$resource = $DIC->resourceStorage()->manage()->find($identifier);
+        $resource = $DIC->resourceStorage()->manage()->find($identifier);
 
         if ($resource !== null) {
             $DIC->resourceStorage()->consume()->download($resource)->run();
-        }else{
-			// TODO: Error resource not in Storage
-		}
+        } else {
+            // TODO: Error resource not in Storage
+        }
     }
 }

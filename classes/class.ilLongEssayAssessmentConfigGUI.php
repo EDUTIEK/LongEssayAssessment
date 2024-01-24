@@ -16,33 +16,33 @@ class ilLongEssayAssessmentConfigGUI extends ilPluginConfigGUI
     /** @var Container */
     protected $dic;
 
-	/** @var ilLongEssayAssessmentPlugin  */
-	protected $plugin;
+    /** @var ilLongEssayAssessmentPlugin  */
+    protected $plugin;
 
-	/** @var \ILIAS\Plugin\LongEssayAssessment\Data\System\PluginConfig  */
-	protected $config;
+    /** @var \ILIAS\Plugin\LongEssayAssessment\Data\System\PluginConfig  */
+    protected $config;
 
-	/** @var ilTabsGUI  */
+    /** @var ilTabsGUI  */
     protected $tabs;
 
     /** @var ilCtrl  */
     protected $ctrl;
 
     /** @var ilLanguage  */
-	protected $lng;
+    protected $lng;
 
     /** @var ilGlobalTemplateInterface  */
-	protected $tpl;
+    protected $tpl;
 
     /** @var  ilToolbarGUI  */
     protected $toolbar;
 
     /**
-	 * Handles all commands, default is "configure"
+     * Handles all commands, default is "configure"
      * @throws Exception
-	 */
-	public function performCommand($cmd)
-	{
+     */
+    public function performCommand($cmd)
+    {
         global $DIC;
 
         // this can't be in the constructor
@@ -57,15 +57,13 @@ class ilLongEssayAssessmentConfigGUI extends ilPluginConfigGUI
 
         $this->setToolbar();
 
-        switch ($this->dic->ctrl()->getNextClass())
-        {
+        switch ($this->dic->ctrl()->getNextClass()) {
             case 'ilpropertyformgui':
                 $this->dic->ctrl()->forwardCommand($this->initConfigForm());
                 break;
 
             default:
-                switch ($cmd)
-                {
+                switch ($cmd) {
                     case "configure":
                     case "saveConfig":
                     case "updateLanguages":
@@ -75,7 +73,7 @@ class ilLongEssayAssessmentConfigGUI extends ilPluginConfigGUI
                         break;
                 }
         }
-	}
+    }
 
     /**
      * Set the toolbar
@@ -94,20 +92,20 @@ class ilLongEssayAssessmentConfigGUI extends ilPluginConfigGUI
         $button->setCaption($this->plugin->txt('reload_control_structure'), false);
         $this->toolbar->addButtonInstance($button);
 
-//        $button = ilLinkButton::getInstance();
-//        $button->setUrl($this->ctrl->getLinkTarget($this, 'generateDBUpdate'));
-//        $button->setCaption($this->plugin->txt('generate_db_update'), false);
-//        $this->toolbar->addButtonInstance($button);
+        //        $button = ilLinkButton::getInstance();
+        //        $button->setUrl($this->ctrl->getLinkTarget($this, 'generateDBUpdate'));
+        //        $button->setCaption($this->plugin->txt('generate_db_update'), false);
+        //        $this->toolbar->addButtonInstance($button);
     }
 
     /**
-	 * Show base configuration screen
-	 */
-	protected function configure()
-	{
-		$form = $this->initConfigForm();
-		$this->tpl->setContent($form->getHtml());
-	}
+     * Show base configuration screen
+     */
+    protected function configure()
+    {
+        $form = $this->initConfigForm();
+        $this->tpl->setContent($form->getHtml());
+    }
 
     /**
      * Save the basic settings
@@ -190,7 +188,7 @@ class ilLongEssayAssessmentConfigGUI extends ilPluginConfigGUI
     /**
      * Generate the db update steps for an active record object
      */
-	protected function generateDBUpdate()
+    protected function generateDBUpdate()
     {
         $arBuilder = new arBuilder(new \ILIAS\Plugin\LongEssayAssessment\Data\Task\LogEntry());
         $arBuilder->generateDBUpdateForInstallation();
@@ -200,12 +198,13 @@ class ilLongEssayAssessmentConfigGUI extends ilPluginConfigGUI
     /**
      * Reload the plugin control structure
      */
-    protected function reloadControlStructure() {
+    protected function reloadControlStructure()
+    {
 
         ilGlobalCache::flushAll();
         $this->plugin->reloadControlStructure();
         ilGlobalCache::flushAll();
 
-//        $this->ctrl->redirect($this, 'configure');
+        //        $this->ctrl->redirect($this, 'configure');
     }
 }

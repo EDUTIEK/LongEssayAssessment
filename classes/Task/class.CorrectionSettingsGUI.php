@@ -23,8 +23,7 @@ class CorrectionSettingsGUI extends BaseGUI
     public function executeCommand()
     {
         $cmd = $this->ctrl->getCmd('editSettings');
-        switch ($cmd)
-        {
+        switch ($cmd) {
             case "editSettings":
                 $this->$cmd();
                 break;
@@ -39,7 +38,7 @@ class CorrectionSettingsGUI extends BaseGUI
      */
     protected function editSettings()
     {
-		$task_repo = $this->localDI->getTaskRepo();
+        $task_repo = $this->localDI->getTaskRepo();
         $correctionSettings = $task_repo->getCorrectionSettingsById($this->object->getId());
 
         $factory = $this->uiFactory->input()->field();
@@ -57,8 +56,11 @@ class CorrectionSettingsGUI extends BaseGUI
 
         $fields['assign_mode'] = $factory->radio($this->plugin->txt('assign_mode'))
             ->withRequired(true)
-            ->withOption( CorrectionSettings::ASSIGN_MODE_RANDOM_EQUAL, $this->plugin->txt('assign_mode_random_equal'),
-                $this->plugin->txt('assign_mode_random_equal_info'))
+            ->withOption(
+                CorrectionSettings::ASSIGN_MODE_RANDOM_EQUAL,
+                $this->plugin->txt('assign_mode_random_equal'),
+                $this->plugin->txt('assign_mode_random_equal_info')
+            )
             ->withValue($correctionSettings->getAssignMode());
 
         $fields['mutual_visibility'] = $factory->checkbox($this->plugin->txt('mutual_visibility'), $this->plugin->txt('mutual_visibility_info'))
@@ -94,11 +96,11 @@ class CorrectionSettingsGUI extends BaseGUI
                                                $this->plugin->txt('criteria_mode_fixed'),
                                                $this->plugin->txt('criteria_mode_fixed_info')
                                            )
-											->withOption(
-												CorrectionSettings::CRITERIA_MODE_CORRECTOR,
-												$this->plugin->txt('criteria_mode_corrector'),
-												$this->plugin->txt('criteria_mode_corrector_info')
-											)
+                                            ->withOption(
+                                                CorrectionSettings::CRITERIA_MODE_CORRECTOR,
+                                                $this->plugin->txt('criteria_mode_corrector'),
+                                                $this->plugin->txt('criteria_mode_corrector_info')
+                                            )
                                            ->withValue($correctionSettings->getCriteriaMode());
         
         $sections['correction'] = $factory->section($fields, $this->plugin->txt('correction_settings'));
@@ -106,12 +108,13 @@ class CorrectionSettingsGUI extends BaseGUI
         // Stitch decision
 
         $fields = [];
-        $fields['stitch_when_distance'] = $factory->optionalGroup([
+        $fields['stitch_when_distance'] = $factory->optionalGroup(
+            [
                 "max_auto_distance" => $factory->text($this->plugin->txt('max_auto_distance'), $this->plugin->txt('max_auto_distance_info'))
                     ->withAdditionalTransformation($this->refinery->kindlyTo()->float())
                     ->withRequired(true)
                     ->withValue((string) (empty($correctionSettings->getMaxAutoDistance()) ? '0.0' : $correctionSettings->getMaxAutoDistance()))],
-                $this->plugin->txt('stitch_when_distance')
+            $this->plugin->txt('stitch_when_distance')
         );
         // strange but effective
         if (!$correctionSettings->getStitchWhenDistance()) {
@@ -143,12 +146,11 @@ class CorrectionSettingsGUI extends BaseGUI
             if (isset($data['stitch']['stitch_when_distance']) && is_array($data['stitch']['stitch_when_distance'])) {
                 $correctionSettings->setStitchWhenDistance(true);
                 $correctionSettings->setMaxAutoDistance((float) $data['stitch']['stitch_when_distance']['max_auto_distance']);
-            }
-            else {
+            } else {
                 $correctionSettings->setStitchWhenDistance(false);
             }
             $correctionSettings->setStitchWhenDecimals(!empty($data['stitch']['stitch_when_decimals']));
-			$task_repo->save($correctionSettings);
+            $task_repo->save($correctionSettings);
 
             ilUtil::sendSuccess($this->lng->txt("settings_saved"), true);
             $this->ctrl->redirect($this, "editSettings");

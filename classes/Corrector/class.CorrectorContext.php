@@ -54,7 +54,8 @@ class CorrectorContext extends ServiceContext implements Context
      * The corrector app will load the correction item of this writer
      * @see Writer::getId()
      */
-    public function selectWriterId(int $id) : void {
+    public function selectWriterId(int $id) : void
+    {
         $this->selected_writer_id = $id;
     }
 
@@ -109,8 +110,7 @@ class CorrectorContext extends ServiceContext implements Context
 
         if (!empty($config->getCorrectorUrl())) {
             return $config->getCorrectorUrl();
-        }
-        else {
+        } else {
             return  ILIAS_HTTP_PATH
                 . "/Customizing/global/plugins/Services/Repository/RepositoryObject/LongEssayAssessment"
                 . "/vendor/edutiek/long-essay-assessment-service"
@@ -148,10 +148,11 @@ class CorrectorContext extends ServiceContext implements Context
     public function getCorrectionTask(): CorrectionTask
     {
         return new CorrectionTask(
-			(string) $this->object->getTitle(),
-			(string) $this->task->getInstructions(),
+            (string) $this->object->getTitle(),
+            (string) $this->task->getInstructions(),
             (string) $this->task->getSolution(),
-            $this->data->dbTimeToUnix($this->task->getCorrectionEnd()));
+            $this->data->dbTimeToUnix($this->task->getCorrectionEnd())
+        );
     }
 
     /**
@@ -225,7 +226,7 @@ class CorrectorContext extends ServiceContext implements Context
         if (!isset($settings)) {
             return [];
 
-        } 
+        }
         
         $criteria = [];
         switch ($settings->getCriteriaMode()) {
@@ -235,8 +236,7 @@ class CorrectorContext extends ServiceContext implements Context
             case PluginCorrectionSettings::CRITERIA_MODE_CORRECTOR:
                 if (!empty($corrector_key)) {
                     $corrector_ids = [(int) $corrector_key];
-                }
-                else {
+                } else {
                     $corrector_ids = [];
                     foreach ($this->getCorrectionItems() as $correction_item) {
                         foreach ($correctorRepo->getAssignmentsByWriterId((int) $correction_item->getKey()) as $assignment) {
@@ -284,11 +284,9 @@ class CorrectorContext extends ServiceContext implements Context
     {
         if ($this->isStitchDecision()) {
             return $this->getCorrectionItemsForStitchDecision();
-        }
-        elseif ($this->isReview()) {
+        } elseif ($this->isReview()) {
             return $this->getCorrectionItemsForReview();
-        }
-        else {
+        } else {
             return $this->getCorrectionItemsForCorrector($use_filter);
         }
     }
@@ -329,7 +327,7 @@ class CorrectorContext extends ServiceContext implements Context
 
         $items = [];
         $essays = $essayRepo->getEssaysByTaskId($this->object->getId());
-        foreach ($essays as $essay){
+        foreach ($essays as $essay) {
             if($adminService->isStitchDecisionNeeded($essay)) {
                 $repoWriter = $writerRepo->getWriterById($essay->getWriterId());
                 $items[] = new CorrectionItem(
@@ -382,8 +380,10 @@ class CorrectorContext extends ServiceContext implements Context
                         $title .= ' - ' . $this->data->formatWritingStatus($repoEssay, false);
                     }
 
-					$summary = $this->localDI->getEssayRepo()->getCorrectorSummaryByEssayIdAndCorrectorId(
-						$repoEssay->getId(), $repoCorrector->getId());
+                    $summary = $this->localDI->getEssayRepo()->getCorrectorSummaryByEssayIdAndCorrectorId(
+                        $repoEssay->getId(),
+                        $repoCorrector->getId()
+                    );
 
                     $sort_list[] = [
                         'item' => new CorrectionItem(
@@ -394,17 +394,17 @@ class CorrectorContext extends ServiceContext implements Context
                         ),
                         'position' => $repoAssignment->getPosition(),
                         'pseudonym' => $repoWriter->getPseudonym(),
-						'correction_status' => $this->data->getOwnCorrectionStatus($repoEssay, $summary)
+                        'correction_status' => $this->data->getOwnCorrectionStatus($repoEssay, $summary)
                     ];
                 }
             }
         }
-		$admin_service = $this->localDI->getCorrectorAdminService($this->object->getId());
-		$admin_service->sortCorrectionsArray($sort_list);
+        $admin_service = $this->localDI->getCorrectorAdminService($this->object->getId());
+        $admin_service->sortCorrectionsArray($sort_list);
 
         if ($use_filter) {
             $filtered_list = $admin_service->filterCorrections($repoCorrector->getUserId(), $sort_list);
-            if(!empty($filtered_list)){ // If no Corrections where found due to filtering use all corrections
+            if(!empty($filtered_list)) { // If no Corrections where found due to filtering use all corrections
                 $sort_list = $filtered_list;
             }
         }
@@ -457,8 +457,7 @@ class CorrectorContext extends ServiceContext implements Context
                 }
             }
             if (!empty($repoCorrector = $correctorRepo->getCorrectorByUserId($this->user->getId(), $this->task->getTaskId())) &&
-                !empty($repoWriter = $writerRepo->getWriterById((int) $this->selected_writer_id)))
-            {
+                !empty($repoWriter = $writerRepo->getWriterById((int) $this->selected_writer_id))) {
                 foreach ($correctorRepo->getAssignmentsByWriterId((int) $this->selected_writer_id) as $assignment) {
                     if ($assignment->getCorrectorId() == $repoCorrector->getId()) {
                         return new CorrectionItem(
@@ -470,7 +469,7 @@ class CorrectorContext extends ServiceContext implements Context
             }
         }
         return null;
-     }
+    }
 
     /**
      * @inheritDoc
@@ -479,7 +478,9 @@ class CorrectorContext extends ServiceContext implements Context
     public function getEssayOfItem(string $item_key): ?WrittenEssay
     {
         if (!empty($repoEssay = $this->localDI->getEssayRepo()->getEssayByWriterIdAndTaskId(
-                (int) $item_key, $this->task->getTaskId()))) {
+            (int) $item_key,
+            $this->task->getTaskId()
+        ))) {
             $writtenEssay = new WrittenEssay(
                 $repoEssay->getWrittenText(),
                 $repoEssay->getRawTextHash(),
@@ -515,7 +516,9 @@ class CorrectorContext extends ServiceContext implements Context
         $essay_repo = $this->localDI->getEssayRepo();
         $pages = [];
         if (!empty($repoEssay = $essay_repo->getEssayByWriterIdAndTaskId(
-            (int) $item_key, $this->task->getTaskId()))
+            (int) $item_key,
+            $this->task->getTaskId()
+        ))
         ) {
             foreach ($essay_repo->getEssayImagesByEssayID($repoEssay->getId()) as $repoImage) {
                 $pages[] = new PageData(
@@ -539,15 +542,15 @@ class CorrectorContext extends ServiceContext implements Context
      *          the corrector titles are the usernames of the correctors
      */
     public function getCorrectorsOfItem(string $item_key): array
-    {  
-        $dataService = $this->localDI->getDataService($this->task->getTaskId()); 
+    {
+        $dataService = $this->localDI->getDataService($this->task->getTaskId());
         $correctorRepo = $this->localDI->getCorrectorRepo();
         $currentCorrectorKey = $this->getCurrentCorrectorKey();
         
         $add_others = true;
         if (empty($correctionSettings = $this->localDI->getTaskRepo()->getCorrectionSettingsById($this->task->getTaskId()))
-           || $correctionSettings->getMutualVisibility() == 0 ) {
-           $add_others = false;
+           || $correctionSettings->getMutualVisibility() == 0) {
+            $add_others = false;
         }
       
         $correctors = [];
@@ -592,7 +595,9 @@ class CorrectorContext extends ServiceContext implements Context
         $essayRepo = $this->localDI->getEssayRepo();
         if (!empty($repoEssay = $essayRepo->getEssayByWriterIdAndTaskId((int) $item_key, $this->task->getTaskId()))) {
             if (!empty($repoSummary = $essayRepo->getCorrectorSummaryByEssayIdAndCorrectorId(
-                $repoEssay->getId(), $repoCorrector->getId())
+                $repoEssay->getId(),
+                $repoCorrector->getId()
+            )
             )) {
                 return new CorrectionSummary(
                     $item_key,
@@ -629,7 +634,8 @@ class CorrectorContext extends ServiceContext implements Context
         $comments = [];
         if (!empty($repoEssay = $essayRepo->getEssayByWriterIdAndTaskId((int) $item_key, $this->task->getTaskId()))) {
             foreach ($essayRepo->getCorrectorCommentsByEssayIdAndCorrectorId(
-                $repoEssay->getId(), $repoCorrector->getId()
+                $repoEssay->getId(),
+                $repoCorrector->getId()
             ) as $repoComment) {
                 $comments[] = new CorrectionComment(
                     (string) $repoComment->getId(),
@@ -664,21 +670,20 @@ class CorrectorContext extends ServiceContext implements Context
         $settings = $taskRepo->getCorrectionSettingsById($this->task->getTaskId());
         if (!isset($settings) || $settings->getCriteriaMode() == PluginCorrectionSettings::CRITERIA_MODE_NONE) {
             $criteria = [];
-        }
-        elseif ($settings->getCriteriaMode() == PluginCorrectionSettings::CRITERIA_MODE_FIXED) {
+        } elseif ($settings->getCriteriaMode() == PluginCorrectionSettings::CRITERIA_MODE_FIXED) {
             $criteria = $objectRepo->getRatingCriteriaByObjectId($this->object->getId(), null);
-        }
-        else {
+        } else {
             $criteria = $objectRepo->getRatingCriteriaByObjectId($this->object->getId(), (int) $corrector_key);
         }
         foreach ($criteria as $criterion) {
-            $criteria_ids[] = $criterion->getId();          
+            $criteria_ids[] = $criterion->getId();
         }
         
         $points = [];
         if (!empty($repoEssay = $essayRepo->getEssayByWriterIdAndTaskId((int) $item_key, $this->task->getTaskId()))) {
             foreach ($essayRepo->getCriterionPointsByEssayIdAndCorrectorId(
-                $repoEssay->getId(), $repoCorrector->getId()
+                $repoEssay->getId(),
+                $repoCorrector->getId()
             ) as $repoPoints) {
                 if (in_array($repoPoints->getCriterionId(), $criteria_ids)
                     && ($comment_key == null || $repoPoints->getCorrCommentId() == (int) $comment_key)
@@ -751,8 +756,7 @@ class CorrectorContext extends ServiceContext implements Context
             if ($summary->isAuthorized()) {
                 $service->authorizeCorrection($repoSummary, $this->user->getId());
                 $service->tryFinalisation($repoEssay, $this->user->getId());
-            }
-            else {
+            } else {
                 $repoSummary->setCorrectionAuthorized(null);
                 $repoSummary->setCorrectionAuthorizedBy(null);
                 $essayRepo->save($repoSummary);
@@ -802,8 +806,7 @@ class CorrectorContext extends ServiceContext implements Context
         $repoComment = $essayRepo->getCorrectorCommentById((int) $comment->getKey());
         if (!isset($repoComment)) {
             $repoComment = CorrectorComment::model();
-        }
-        elseif ($repoComment->getEssayId() != $repoEssay->getId() || $repoComment->getCorrectorId() != (int) $comment->getCorrectorKey()) {
+        } elseif ($repoComment->getEssayId() != $repoEssay->getId() || $repoComment->getCorrectorId() != (int) $comment->getCorrectorKey()) {
             return null;
         }
         $repoComment
@@ -859,8 +862,7 @@ class CorrectorContext extends ServiceContext implements Context
         $repoPoints = $essayRepo->getCriterionPointsById((int) $points->getKey());
         if (!isset($repoPoints)) {
             $repoPoints = CriterionPoints::model();
-        }
-        elseif ($repoPoints->getCorrCommentId() != (int) $points->getCommentKey()) {
+        } elseif ($repoPoints->getCorrCommentId() != (int) $points->getCommentKey()) {
             return null;
         }
         $repoPoints

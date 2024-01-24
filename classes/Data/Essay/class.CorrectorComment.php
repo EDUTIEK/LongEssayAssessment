@@ -13,22 +13,22 @@ class CorrectorComment extends RecordData
     const RATING_CARDINAL = 'cardinal';
     const RAITNG_EXCELLENT = 'excellent';
 
-	protected const tableName = 'xlas_corrector_comment';
-	protected const hasSequence = true;
-	protected const keyTypes = [
-		'id' => 'integer',
-	];
-	protected const otherTypes = [
-		'essay_id' => 'integer',
-		'corrector_id' => 'integer',
-		'comment' => 'text',
-		'start_position' => 'integer',
-		'end_position' => 'integer',
+    protected const tableName = 'xlas_corrector_comment';
+    protected const hasSequence = true;
+    protected const keyTypes = [
+        'id' => 'integer',
+    ];
+    protected const otherTypes = [
+        'essay_id' => 'integer',
+        'corrector_id' => 'integer',
+        'comment' => 'text',
+        'start_position' => 'integer',
+        'end_position' => 'integer',
         'parent_number' => 'integer',
         'rating' => 'text',
         'points' => 'integer',
         'marks' => 'text',
-	];
+    ];
 
     protected int $id = 0;
     protected int $essay_id = 0;
@@ -41,9 +41,10 @@ class CorrectorComment extends RecordData
     protected int $points = 0;
     protected ?string $marks = null;
 
-	public static function model() {
-		return new self();
-	}
+    public static function model()
+    {
+        return new self();
+    }
 
     /**
      * @return int

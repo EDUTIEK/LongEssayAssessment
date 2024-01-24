@@ -134,8 +134,7 @@ class WriterAdminService extends BaseService
                 $csv->addColumn($this->plugin->txt('log_cat_' . $entry->getCategory()));
                 $csv->addColumn('');
                 $csv->addColumn($entry->getEntry());
-            }
-            elseif ($entry instanceof Alert) {
+            } elseif ($entry instanceof Alert) {
                 $to = $this->plugin->txt('log_alert_to_all');
                 if (!empty($writer = $this->writerRepo->getWriterById((int) $entry->getWriterId())) && !empty($writer->getUserId())) {
                     $to = \ilObjUser::_lookupFullname($writer->getUserId());
@@ -199,8 +198,7 @@ class WriterAdminService extends BaseService
                     . ' ('. $step->getTimestamp() . ')';
             if ($step->isIsDelta()) {
                 $toc .= " - Incremental<br>\n";
-            }
-            else {
+            } else {
                 $toc .= " - Full<br>\n";
             }
 
@@ -237,7 +235,8 @@ class WriterAdminService extends BaseService
      * @return Writer[][] (indexed by status and writer id)
      * @see DataService::writingStatus()
      */
-    public function getWritersByStatus() {
+    public function getWritersByStatus()
+    {
 
         $essays = [];
         foreach ($this->essayRepo->getEssaysByTaskId($this->task_id) as $essay) {
@@ -299,11 +298,9 @@ class WriterAdminService extends BaseService
                 if (!$writing_over) {
                     $before++;
                 }
-            }
-            elseif (!$writing_over) {
+            } elseif (!$writing_over) {
                 $writing++;
-            }
-            else {
+            } else {
                 $after++;
             }
         }
@@ -311,99 +308,103 @@ class WriterAdminService extends BaseService
         return [$before, $writing, $after];
     }
 
-	public function authorizeWriting(Essay $essay, int $user_id){
-		$datetime = new \ilDateTime(time(), IL_CAL_UNIX);
+    public function authorizeWriting(Essay $essay, int $user_id)
+    {
+        $datetime = new \ilDateTime(time(), IL_CAL_UNIX);
         if (empty($essay->getEditStarted())) {
             $essay->setEditStarted($datetime->get(IL_CAL_DATETIME));
         }
-		$essay->setWritingAuthorized($datetime->get(IL_CAL_DATETIME));
-		$essay->setWritingAuthorizedBy($user_id);
+        $essay->setWritingAuthorized($datetime->get(IL_CAL_DATETIME));
+        $essay->setWritingAuthorizedBy($user_id);
 
-		$this->essayRepo->save($essay);
+        $this->essayRepo->save($essay);
 
-		$this->createAuthorizeLogEntry($essay);
-	}
+        $this->createAuthorizeLogEntry($essay);
+    }
 
-	private function createAuthorizeLogEntry(Essay $essay){
-		$writer_repo = LongEssayAssessmentDI::getInstance()->getWriterRepo();
-		$task_repo = LongEssayAssessmentDI::getInstance()->getTaskRepo();
-		$writer = $writer_repo->getWriterById($essay->getWriterId());
+    private function createAuthorizeLogEntry(Essay $essay)
+    {
+        $writer_repo = LongEssayAssessmentDI::getInstance()->getWriterRepo();
+        $task_repo = LongEssayAssessmentDI::getInstance()->getTaskRepo();
+        $writer = $writer_repo->getWriterById($essay->getWriterId());
 
-		$lng = $this->dic->language();
+        $lng = $this->dic->language();
 
-		$description = \ilLanguage::_lookupEntry(
-			$lng->getDefaultLanguage(),
-			$this->plugin->getPrefix(),
-			$this->plugin->getPrefix() . "_writing_authorized_log_description"
-		);
-		$names = \ilUserUtil::getNamePresentation([$writer->getUserId(), $essay->getWritingAuthorizedBy()], false, false, "", true);
+        $description = \ilLanguage::_lookupEntry(
+            $lng->getDefaultLanguage(),
+            $this->plugin->getPrefix(),
+            $this->plugin->getPrefix() . "_writing_authorized_log_description"
+        );
+        $names = \ilUserUtil::getNamePresentation([$writer->getUserId(), $essay->getWritingAuthorizedBy()], false, false, "", true);
 
-		$log_entry = new LogEntry();
-		$log_entry->setEntry(sprintf($description, $names[$writer->getUserId()] ?? "unknown", $names[$essay->getWritingAuthorizedBy()] ?? "unknown"))
-			->setTaskId($this->task_id)
-			->setTimestamp($essay->getWritingAuthorized())
-			->setCategory(LogEntry::CATEGORY_AUTHORIZE);
+        $log_entry = new LogEntry();
+        $log_entry->setEntry(sprintf($description, $names[$writer->getUserId()] ?? "unknown", $names[$essay->getWritingAuthorizedBy()] ?? "unknown"))
+            ->setTaskId($this->task_id)
+            ->setTimestamp($essay->getWritingAuthorized())
+            ->setCategory(LogEntry::CATEGORY_AUTHORIZE);
 
-		$task_repo->save($log_entry);
-	}
+        $task_repo->save($log_entry);
+    }
 
-	public function removeAuthorizationWriting(Essay $essay, int $user_id)
-	{
-		if($essay->getWritingAuthorized() !== null){ // Only actively remove authorization if there was any before
-			$essay->setWritingAuthorized(null);
-			$essay->setWritingAuthorizedBy(null);
+    public function removeAuthorizationWriting(Essay $essay, int $user_id)
+    {
+        if($essay->getWritingAuthorized() !== null) { // Only actively remove authorization if there was any before
+            $essay->setWritingAuthorized(null);
+            $essay->setWritingAuthorizedBy(null);
 
-			$this->essayRepo->save($essay);
+            $this->essayRepo->save($essay);
 
-			$this->createAuthorizationRemoveLogEntry($essay, $user_id);
-		}
-	}
+            $this->createAuthorizationRemoveLogEntry($essay, $user_id);
+        }
+    }
 
-	private function createAuthorizationRemoveLogEntry(Essay $essay, int $user_id){
-		$writer_repo = LongEssayAssessmentDI::getInstance()->getWriterRepo();
-		$task_repo = LongEssayAssessmentDI::getInstance()->getTaskRepo();
-		$writer = $writer_repo->getWriterById($essay->getWriterId());
-		$datetime = new \ilDateTime(time(), IL_CAL_UNIX);
+    private function createAuthorizationRemoveLogEntry(Essay $essay, int $user_id)
+    {
+        $writer_repo = LongEssayAssessmentDI::getInstance()->getWriterRepo();
+        $task_repo = LongEssayAssessmentDI::getInstance()->getTaskRepo();
+        $writer = $writer_repo->getWriterById($essay->getWriterId());
+        $datetime = new \ilDateTime(time(), IL_CAL_UNIX);
 
-		$lng = $this->dic->language();
+        $lng = $this->dic->language();
 
-		$description = \ilLanguage::_lookupEntry(
-			$lng->getDefaultLanguage(),
-			$this->plugin->getPrefix(),
-			$this->plugin->getPrefix() . "_writing_remove_authorize_log_description"
-		);
-		$names = \ilUserUtil::getNamePresentation([$writer->getUserId(), $user_id], false, false, "", true);
+        $description = \ilLanguage::_lookupEntry(
+            $lng->getDefaultLanguage(),
+            $this->plugin->getPrefix(),
+            $this->plugin->getPrefix() . "_writing_remove_authorize_log_description"
+        );
+        $names = \ilUserUtil::getNamePresentation([$writer->getUserId(), $user_id], false, false, "", true);
 
-		$log_entry = new LogEntry();
-		$log_entry->setEntry(sprintf($description, $names[$writer->getUserId()] ?? "unknown", $names[$user_id] ?? "unknown"))
-			->setTaskId($this->task_id)
-			->setTimestamp($datetime->get(IL_CAL_DATETIME))
-			->setCategory(LogEntry::CATEGORY_AUTHORIZE);
+        $log_entry = new LogEntry();
+        $log_entry->setEntry(sprintf($description, $names[$writer->getUserId()] ?? "unknown", $names[$user_id] ?? "unknown"))
+            ->setTaskId($this->task_id)
+            ->setTimestamp($datetime->get(IL_CAL_DATETIME))
+            ->setCategory(LogEntry::CATEGORY_AUTHORIZE);
 
-		$task_repo->save($log_entry);
-	}
+        $task_repo->save($log_entry);
+    }
 
-	public function handlePDFVersionInput(Essay $essay, ?string $new_file_id){
-		$temp_file = $this->localDI->getUploadTempFile();
-		$saved_file_id = $essay->getPdfVersion();
+    public function handlePDFVersionInput(Essay $essay, ?string $new_file_id)
+    {
+        $temp_file = $this->localDI->getUploadTempFile();
+        $saved_file_id = $essay->getPdfVersion();
 
-		if ($new_file_id === null && $saved_file_id !== null){
-			$resource_id = $this->dic->resourceStorage()->manage()->find($essay->getPdfVersion());
-			$this->dic->resourceStorage()->manage()->remove($resource_id, new PDFVersionResourceStakeholder());
-			$essay->setPdfVersion(null);
-		}elseif($new_file_id !== $saved_file_id){
-			if($saved_file_id == null){
-				$resource_id = $temp_file->storeTempFileInResources($new_file_id, new PDFVersionResourceStakeholder());
-			}else{
-				$resource_id =  $this->dic->resourceStorage()->manage()->find($essay->getPdfVersion());
-				if($resource_id !== null){
-					$temp_file->replaceTempFileWithResource($new_file_id, $resource_id, new PDFVersionResourceStakeholder());
-				}
-			}
-			$essay->setPdfVersion($resource_id !== null ? (string) $resource_id : null);
-		}
-		$this->essayRepo->save($essay);
-	}
+        if ($new_file_id === null && $saved_file_id !== null) {
+            $resource_id = $this->dic->resourceStorage()->manage()->find($essay->getPdfVersion());
+            $this->dic->resourceStorage()->manage()->remove($resource_id, new PDFVersionResourceStakeholder());
+            $essay->setPdfVersion(null);
+        } elseif($new_file_id !== $saved_file_id) {
+            if($saved_file_id == null) {
+                $resource_id = $temp_file->storeTempFileInResources($new_file_id, new PDFVersionResourceStakeholder());
+            } else {
+                $resource_id =  $this->dic->resourceStorage()->manage()->find($essay->getPdfVersion());
+                if($resource_id !== null) {
+                    $temp_file->replaceTempFileWithResource($new_file_id, $resource_id, new PDFVersionResourceStakeholder());
+                }
+            }
+            $essay->setPdfVersion($resource_id !== null ? (string) $resource_id : null);
+        }
+        $this->essayRepo->save($essay);
+    }
 
     public function hasCorrectorComments(Essay $essay) : bool
     {
@@ -411,7 +412,7 @@ class WriterAdminService extends BaseService
         return !empty($essay_repo->getCorrectorCommentsByEssayIdAndCorrectorId($essay->getId(), null));
     }
     
-    public function purgeCorrectorComments(Essay $essay) 
+    public function purgeCorrectorComments(Essay $essay)
     {
         $essay_repo = LongEssayAssessmentDI::getInstance()->getEssayRepo();
         $essay_repo->deleteCorrectorCommentByEssayId($essay->getId());
@@ -422,15 +423,15 @@ class WriterAdminService extends BaseService
         $essay_repo = LongEssayAssessmentDI::getInstance()->getEssayRepo();
         
         if (empty($essay->getPdfVersion()) && !empty($essay->getWrittenText())) {
-                $content = $this->getWritingAsPdf($object, $writer, true, true);
-                $stream = Streams::ofString($content);
-                $file_id = $this->dic->resourceStorage()->manage()->stream($stream, new PDFVersionResourceStakeholder(), $this->plugin->txt('pdf_from_text'));
-                $essay->setPdfVersion((string) $file_id);
-                $essay_repo->save($essay);
-                $this->authorizeWriting($essay, $this->dic->user()->getId());
+            $content = $this->getWritingAsPdf($object, $writer, true, true);
+            $stream = Streams::ofString($content);
+            $file_id = $this->dic->resourceStorage()->manage()->stream($stream, new PDFVersionResourceStakeholder(), $this->plugin->txt('pdf_from_text'));
+            $essay->setPdfVersion((string) $file_id);
+            $essay_repo->save($essay);
+            $this->authorizeWriting($essay, $this->dic->user()->getId());
                 
-                // text is put into the created PDF, so it does not need to be added to the images
-                $this->createEssayImages($object, $essay, $writer, false);
+            // text is put into the created PDF, so it does not need to be added to the images
+            $this->createEssayImages($object, $essay, $writer, false);
         }
     }
     
@@ -445,7 +446,7 @@ class WriterAdminService extends BaseService
 
             if ($with_text && !empty($essay->getWrittenText())) {
                 $fs = $this->dic->filesystem()->temp();
-                $fs->put('xlas/processed_text.pdf', $this->getWritingAsPdf($object, $writer,true, true));
+                $fs->put('xlas/processed_text.pdf', $this->getWritingAsPdf($object, $writer, true, true));
                 $pdfs[] = $fs->readStream('xlas/processed_text.pdf')->detach();
             }
             
@@ -484,7 +485,6 @@ class WriterAdminService extends BaseService
                     $image->getThumbMime(),
                     $image->getThumbWidth(),
                     $image->getThumbHeight(),
-
                 );
                 $essay_repo->save($repoImage);
             }
@@ -492,11 +492,11 @@ class WriterAdminService extends BaseService
     }
     
     
-    public function removeEssayImages(int $essay_id) 
+    public function removeEssayImages(int $essay_id)
     {
         $essay_repo = LongEssayAssessmentDI::getInstance()->getEssayRepo();
         foreach ($essay_repo->getEssayImagesByEssayID($essay_id) as $essay_image) {
-            if($identifier = $this->dic->resourceStorage()->manage()->find($essay_image->getFileId())){
+            if($identifier = $this->dic->resourceStorage()->manage()->find($essay_image->getFileId())) {
                 $this->dic->resourceStorage()->manage()->remove($identifier, new EssayImageResourceStakeholder());
             }
         }

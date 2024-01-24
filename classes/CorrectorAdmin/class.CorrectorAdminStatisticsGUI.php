@@ -26,14 +26,14 @@ use ILIAS\Plugin\LongEssayAssessment\Data\Corrector\Corrector;
 class CorrectorAdminStatisticsGUI extends BaseGUI
 {
 
-	/** @var CorrectorAdminService */
-	protected $service;
+    /** @var CorrectorAdminService */
+    protected $service;
 
-	public function __construct(\ilObjLongEssayAssessmentGUI $objectGUI)
-	{
-		parent::__construct($objectGUI);
-		$this->service = $this->localDI->getCorrectorAdminService($this->object->getId());
-	}
+    public function __construct(\ilObjLongEssayAssessmentGUI $objectGUI)
+    {
+        parent::__construct($objectGUI);
+        $this->service = $this->localDI->getCorrectorAdminService($this->object->getId());
+    }
 
     /**
      * Execute a command
@@ -42,21 +42,20 @@ class CorrectorAdminStatisticsGUI extends BaseGUI
      */
     public function executeCommand()
     {
-		$next_class = $this->ctrl->getNextClass();
+        $next_class = $this->ctrl->getNextClass();
 
-		switch ($next_class) {
-			default:
-				$cmd = $this->ctrl->getCmd('showStartPage');
-				switch ($cmd)
-				{
-					case 'showStartPage':
-						$this->$cmd();
-						break;
+        switch ($next_class) {
+            default:
+                $cmd = $this->ctrl->getCmd('showStartPage');
+                switch ($cmd) {
+                    case 'showStartPage':
+                        $this->$cmd();
+                        break;
 
-					default:
-						$this->tpl->setContent('unknown command: ' . $cmd);
-				}
-		}
+                    default:
+                        $this->tpl->setContent('unknown command: ' . $cmd);
+                }
+        }
     }
 
 
@@ -73,7 +72,7 @@ class CorrectorAdminStatisticsGUI extends BaseGUI
         $correctors = $corrector_repo->getCorrectorsByTaskId($this->object->getId());
         $summaries = $essay_repo->getCorrectorSummariesByTaskId($this->object->getId());
         $grade_level = $object_repo->getGradeLevelsByObjectId($this->object->getId());
-        $usernames = \ilUserUtil::getNamePresentation(array_unique(array_map(fn(Corrector $x) => $x->getUserId(), $correctors)), false, false, "", true);
+        $usernames = \ilUserUtil::getNamePresentation(array_unique(array_map(fn (Corrector $x) => $x->getUserId(), $correctors)), false, false, "", true);
         $summary_statistics = $corrector_service->gradeStatistics($summaries);
         $essays = $essay_repo->getEssaysByTaskId($this->object->getId());
         $essay_statistics = $corrector_service->gradeStatistics($essays);
@@ -83,7 +82,7 @@ class CorrectorAdminStatisticsGUI extends BaseGUI
                  ['title' => $this->plugin->txt('corrections_all') , 'count' => $this->plugin->txt('correction_count'),
                   'final' => $this->plugin->txt('correction_final'), 'statistic' => $summary_statistics]];
 
-        foreach($correctors as $corrector){
+        foreach($correctors as $corrector) {
             $corrector_id = $corrector->getId();
             $corrector_summaries = array_filter($summaries, fn (CorrectorSummary $x) => ($x->getCorrectorId() === $corrector_id));
             $statistics = $corrector_service->gradeStatistics($corrector_summaries);
@@ -94,7 +93,7 @@ class CorrectorAdminStatisticsGUI extends BaseGUI
         $ptable = $this->uiFactory->table()->presentation(
             $this->plugin->txt('statistic'), //title
             [],
-            function ($row, $record, $ui_factory, $environment) use ($grade_level){ //mapping-closure
+            function ($row, $record, $ui_factory, $environment) use ($grade_level) { //mapping-closure
                 $statistic = $record["statistic"];
                 $properties = [];
                 $fproperties = [];
@@ -114,7 +113,7 @@ class CorrectorAdminStatisticsGUI extends BaseGUI
                     $properties[$this->plugin->txt('essay_average_points')] = sprintf('%.2f', $statistic[CorrectorAdminService::STATISTIC_AVERAGE]);
                 }
 
-                foreach($grade_level as $level){
+                foreach($grade_level as $level) {
                     $fproperties[$level->getGrade()] = (string)$statistic[CorrectorAdminService::STATISTIC_COUNT_BY_LEVEL][$level->getId()] ?? 0;
                 }
 

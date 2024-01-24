@@ -3,7 +3,6 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\Data\Task;
 
-
 use ILIAS\Plugin\LongEssayAssessment\Data\RecordData;
 
 /**
@@ -15,35 +14,35 @@ class TaskSettings extends RecordData
     const RESULT_AVAILABLE_REVIEW = 'review';
     const RESULT_AVAILABLE_DATE = 'date';
 
-	protected const tableName = 'xlas_task_settings';
-	protected const hasSequence = false;
-	protected const keyTypes = [
-		'task_id' => 'integer',
-	];
-	protected const otherTypes = [
-		'description' => 'text',
-		'instructions' => 'text',
-		'solution' => 'text',
-		'closing_message' => 'text',
-		'writing_start' => 'datetime',
-		'writing_end' => 'datetime',
-		'correction_start' => 'datetime',
-		'correction_end' => 'datetime',
-		'review_start' => 'datetime',
-		'review_end' => 'datetime',
-		'keep_essay_available' => 'integer',
-		'solution_available' => 'integer',
-		'solution_available_date' => 'datetime',
-		'result_available_type' => 'text',
-		'result_available_date' => 'datetime'
-	];
+    protected const tableName = 'xlas_task_settings';
+    protected const hasSequence = false;
+    protected const keyTypes = [
+        'task_id' => 'integer',
+    ];
+    protected const otherTypes = [
+        'description' => 'text',
+        'instructions' => 'text',
+        'solution' => 'text',
+        'closing_message' => 'text',
+        'writing_start' => 'datetime',
+        'writing_end' => 'datetime',
+        'correction_start' => 'datetime',
+        'correction_end' => 'datetime',
+        'review_start' => 'datetime',
+        'review_end' => 'datetime',
+        'keep_essay_available' => 'integer',
+        'solution_available' => 'integer',
+        'solution_available_date' => 'datetime',
+        'result_available_type' => 'text',
+        'result_available_date' => 'datetime'
+    ];
 
 
     protected int $task_id;
     protected ?string $description = null;
     protected ?string $instructions = null;
     protected ?string $solution = null;
-	protected ?string $closing_message = null;
+    protected ?string $closing_message = null;
     protected ?string $writing_start = null;
     protected ?string $writing_end = null;
     protected ?string $correction_start = null;
@@ -57,14 +56,15 @@ class TaskSettings extends RecordData
     protected ?string $result_available_date = null;
 
 
-	public function __construct(int $task_id)
-	{
-		$this->task_id = $task_id;
-	}
+    public function __construct(int $task_id)
+    {
+        $this->task_id = $task_id;
+    }
 
-	public static function model() {
-		return new self(0);
-	}
+    public static function model()
+    {
+        return new self(0);
+    }
 
     /**
      * @return int
@@ -138,23 +138,23 @@ class TaskSettings extends RecordData
         return $this;
     }
 
-	/**
-	 * @return string
-	 */
-	public function getClosingMessage(): ?string
-	{
-		return $this->closing_message;
-	}
+    /**
+     * @return string
+     */
+    public function getClosingMessage(): ?string
+    {
+        return $this->closing_message;
+    }
 
-	/**
-	 * @param ?string $closing_message
-	 * @return TaskSettings
-	 */
-	public function setClosingMessage(?string $closing_message): TaskSettings
-	{
-		$this->closing_message = $closing_message;
-		return $this;
-	}
+    /**
+     * @param ?string $closing_message
+     * @return TaskSettings
+     */
+    public function setClosingMessage(?string $closing_message): TaskSettings
+    {
+        $this->closing_message = $closing_message;
+        return $this;
+    }
 
     /**
      * @return string

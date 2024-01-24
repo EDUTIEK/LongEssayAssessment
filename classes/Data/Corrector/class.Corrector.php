@@ -14,16 +14,16 @@ use ILIAS\Plugin\LongEssayAssessment\Data\RecordData;
 class Corrector extends RecordData
 {
 
-	protected const tableName = 'xlas_corrector';
-	protected const hasSequence = true;
-	protected const keyTypes = [
-		'id' => 'integer',
-	];
-	protected const otherTypes = [
-		'user_id' => 'integer',
-		'task_id' => 'integer',
-		'criterion_copy' => 'integer'
-	];
+    protected const tableName = 'xlas_corrector';
+    protected const hasSequence = true;
+    protected const keyTypes = [
+        'id' => 'integer',
+    ];
+    protected const otherTypes = [
+        'user_id' => 'integer',
+        'task_id' => 'integer',
+        'criterion_copy' => 'integer'
+    ];
 
     /**
      * alert id
@@ -41,20 +41,20 @@ class Corrector extends RecordData
      * The task_id currently corresponds to the obj_id of the ILIAS object
      */
     protected int $task_id;
-	protected int $criterion_copy = 0;
+    protected int $criterion_copy = 0;
 
 
-	public function __construct(int $id)
-	{
-		$this->id = $id;
-	}
+    public function __construct(int $id)
+    {
+        $this->id = $id;
+    }
 
 
 
-	public static function model(): Corrector
-	{
-		return new self(0);
-	}
+    public static function model(): Corrector
+    {
+        return new self(0);
+    }
 
     /**
      * @return int
@@ -110,21 +110,21 @@ class Corrector extends RecordData
         return $this;
     }
 
-	/**
-	 * @return bool
-	 */
-	public function isCriterionCopyEnabled(): bool
-	{
-		return $this->criterion_copy === 1;
-	}
+    /**
+     * @return bool
+     */
+    public function isCriterionCopyEnabled(): bool
+    {
+        return $this->criterion_copy === 1;
+    }
 
-	/**
-	 * @param bool $criterion_copy
-	 * @return Corrector
-	 */
-	public function setCriterionCopyEnabled(bool $criterion_copy): Corrector
-	{
-		$this->criterion_copy = $criterion_copy ? 1 : 0;
-		return $this;
-	}
+    /**
+     * @param bool $criterion_copy
+     * @return Corrector
+     */
+    public function setCriterionCopyEnabled(bool $criterion_copy): Corrector
+    {
+        $this->criterion_copy = $criterion_copy ? 1 : 0;
+        return $this;
+    }
 }

@@ -16,34 +16,33 @@ use ILIAS\Plugin\LongEssayAssessment\UI\Component\ItemFactory;
  */
 class Factory implements UI\Component\Factory
 {
-	private InputFactory $field_factory;
-	private IconFactory $icon_factory;
-	private ItemFactory $item_factory;
+    private InputFactory $field_factory;
+    private IconFactory $icon_factory;
+    private ItemFactory $item_factory;
 
-	public function __construct(
-		InputFactory $field_factory,
-		IconFactory  $icon_factory,
-		ItemFactory  $item_factory
-	)
-	{
-		$this->field_factory = $field_factory;
-		$this->icon_factory = $icon_factory;
-		$this->item_factory = $item_factory;
-	}
+    public function __construct(
+        InputFactory $field_factory,
+        IconFactory  $icon_factory,
+        ItemFactory  $item_factory
+    ) {
+        $this->field_factory = $field_factory;
+        $this->icon_factory = $icon_factory;
+        $this->item_factory = $item_factory;
+    }
 
 
-	public function field(): InputFactory
-	{
-		return $this->field_factory;
-	}
+    public function field(): InputFactory
+    {
+        return $this->field_factory;
+    }
 
-	public function icon(): IconFactory
-	{
-		return $this->icon_factory;
-	}
+    public function icon(): IconFactory
+    {
+        return $this->icon_factory;
+    }
 
-	public function item(): ItemFactory
-	{
-		return $this->item_factory;
-	}
+    public function item(): ItemFactory
+    {
+        return $this->item_factory;
+    }
 }

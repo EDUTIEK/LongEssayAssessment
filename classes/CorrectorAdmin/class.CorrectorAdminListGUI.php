@@ -12,55 +12,55 @@ use ILIAS\UI\Component\Input\Container\Filter\Standard;
 class CorrectorAdminListGUI extends WriterListGUI
 {
 
-	/**
-	 * @var \ILIAS\Plugin\LongEssayAssessment\Data\Corrector\Corrector[]
-	 */
-	private $correctors = [];
+    /**
+     * @var \ILIAS\Plugin\LongEssayAssessment\Data\Corrector\Corrector[]
+     */
+    private $correctors = [];
 
-	/**
-	 * @var CorrectorAssignment[][]
-	 */
-	private $assignments = [];
+    /**
+     * @var CorrectorAssignment[][]
+     */
+    private $assignments = [];
 
-	/**
-	 * @var \ILIAS\Plugin\LongEssayAssessment\Data\Task\CorrectionSettings
-	 */
-	private $correction_settings;
-
-
-	/**
-	 * @var int[]
-	 */
-	private array $correction_status_stitches = [];
-
-	public function __construct(object $parent, string $parent_cmd, \ilLongEssayAssessmentPlugin $plugin, CorrectionSettings $correction_settings)
-	{
-		parent::__construct($parent, $parent_cmd, $plugin);
-		$this->correction_settings = $correction_settings;
-	}
+    /**
+     * @var \ILIAS\Plugin\LongEssayAssessment\Data\Task\CorrectionSettings
+     */
+    private $correction_settings;
 
 
-	public function getContent():string
-	{
-		$this->loadUserData();
-		$this->sortWriter();
+    /**
+     * @var int[]
+     */
+    private array $correction_status_stitches = [];
 
-		$items = [];
-		$modals = [];
+    public function __construct(object $parent, string $parent_cmd, \ilLongEssayAssessmentPlugin $plugin, CorrectionSettings $correction_settings)
+    {
+        parent::__construct($parent, $parent_cmd, $plugin);
+        $this->correction_settings = $correction_settings;
+    }
+
+
+    public function getContent():string
+    {
+        $this->loadUserData();
+        $this->sortWriter();
+
+        $items = [];
+        $modals = [];
 
         $count_total = count($this->writers);
         $count_filtered = 0;
         $filter_gui = $this->filterForm();
         $filter_data = $this->ui_service->filter()->getData($filter_gui) ?? [];
 
-		foreach ($this->writers as $writer) {
-			if(!$this->filter($filter_data, $writer)){
-				continue;
-			}
+        foreach ($this->writers as $writer) {
+            if(!$this->filter($filter_data, $writer)) {
+                continue;
+            }
             $count_filtered++;
 
-			$actions = [];
-			$actions[] = $this->uiFactory->button()->shy($this->plugin->txt('view_correction'), $this->getViewCorrectionAction($writer));
+            $actions = [];
+            $actions[] = $this->uiFactory->button()->shy($this->plugin->txt('view_correction'), $this->getViewCorrectionAction($writer));
             $actions[] = $this->uiFactory->button()->shy($this->plugin->txt('download_written_pdf'), $this->getDownloadWrittenPdfAction($writer));
             $actions[] = $this->uiFactory->button()->shy($this->plugin->txt('download_corrected_pdf'), $this->getDownloadCorrectedPdfAction($writer));
             
@@ -73,120 +73,125 @@ class CorrectorAdminListGUI extends WriterListGUI
                 $actions[] = $this->uiFactory->button()->shy($this->plugin->txt('view_stitch_comment'), '')->withOnClick($sight_modal->getShowSignal());
             }
 
-			$change_corrector_modal = $this->uiFactory->modal()->roundtrip("",[])
-				->withAsyncRenderUrl($this->getChangeCorrectorAction($writer));
+            $change_corrector_modal = $this->uiFactory->modal()->roundtrip("", [])
+                ->withAsyncRenderUrl($this->getChangeCorrectorAction($writer));
 
-			$modals[] = $change_corrector_modal;
-			$actions[] = $this->uiFactory->button()->shy($this->plugin->txt('change_corrector'), "")
-				->withOnClick($change_corrector_modal->getShowSignal());
+            $modals[] = $change_corrector_modal;
+            $actions[] = $this->uiFactory->button()->shy($this->plugin->txt('change_corrector'), "")
+                ->withOnClick($change_corrector_modal->getShowSignal());
 
-			if($this->hasCorrectionStatusStitch($writer)){
-				$actions[] = $this->uiFactory->button()->shy($this->plugin->txt('draw_stitch_decision'), $this->getCorrectionStatusStitchAction($writer));
-			}
+            if($this->hasCorrectionStatusStitch($writer)) {
+                $actions[] = $this->uiFactory->button()->shy($this->plugin->txt('draw_stitch_decision'), $this->getCorrectionStatusStitchAction($writer));
+            }
 
             $properties = [
-				$this->plugin->txt("pseudonym") => $writer->getPseudonym(),
-				$this->plugin->txt("status") => $this->essayStatus($writer)
-			];
+                $this->plugin->txt("pseudonym") => $writer->getPseudonym(),
+                $this->plugin->txt("status") => $this->essayStatus($writer)
+            ];
 
-			foreach($this->getAssignmentsByWriter($writer) as $assignment){
+            foreach($this->getAssignmentsByWriter($writer) as $assignment) {
                 if ($this->correction_settings->getRequiredCorrectors() == 1) {
                     $pos = $this->plugin->txt("assignment_pos_single");
                 } else {
-                    switch($assignment->getPosition()){
-                        case 0: $pos = $this->plugin->txt("assignment_pos_first");break;
-                        case 1: $pos = $this->plugin->txt("assignment_pos_second");break;
-                        default: $pos = $this->plugin->txt("assignment_pos_other");break;
+                    switch($assignment->getPosition()) {
+                        case 0: $pos = $this->plugin->txt("assignment_pos_first");
+                            break;
+                        case 1: $pos = $this->plugin->txt("assignment_pos_second");
+                            break;
+                        default: $pos = $this->plugin->txt("assignment_pos_other");
+                            break;
                     }
                 }
-				$properties[$pos] = $this->getAssignedCorrectorName($writer, $assignment->getPosition());
-			}
+                $properties[$pos] = $this->getAssignedCorrectorName($writer, $assignment->getPosition());
+            }
 
             $essay = $this->essays[$writer->getId()] ?? null;
             if (!empty($essay)) {
                 if (!empty($essay->getCorrectionFinalized())
                     || !empty($this->localDI->getCorrectorAdminService($essay->getTaskId())->getAuthorizedSummaries($essay))
                 ) {
-					$modals[] = $confirm_remove_auth_modal = $this->uiFactory->modal()->interruptive(
+                    $modals[] = $confirm_remove_auth_modal = $this->uiFactory->modal()->interruptive(
                         $this->correction_settings->getRequiredCorrectors() == 1
                             ? $this->plugin->txt('remove_authorization')
                             : $this->plugin->txt('remove_authorizations'),
-						$this->plugin->txt("remove_authorizations_confirmation"),
-						$this->getRemoveAuthorisationsAction($writer)
-					)->withAffectedItems([ $this->uiFactory->modal()->interruptiveItem(
-						$writer->getId(), $this->getWriterName($writer) . ' [' . $writer->getPseudonym() . ']'
-					)])->withActionButtonLabel("ok");
+                        $this->plugin->txt("remove_authorizations_confirmation"),
+                        $this->getRemoveAuthorisationsAction($writer)
+                    )->withAffectedItems([ $this->uiFactory->modal()->interruptiveItem(
+                        $writer->getId(),
+                        $this->getWriterName($writer) . ' [' . $writer->getPseudonym() . ']'
+                    )])->withActionButtonLabel("ok");
 
                     $actions[] = $this->uiFactory->button()->shy(
-                        $this->correction_settings->getRequiredCorrectors() == 1 
-                            ? $this->plugin->txt('remove_authorization') 
+                        $this->correction_settings->getRequiredCorrectors() == 1
+                            ? $this->plugin->txt('remove_authorization')
                             : $this->plugin->txt('remove_authorizations'),
-                        "")
-						->withOnClick($confirm_remove_auth_modal->getShowSignal());
-				}
+                        ""
+                    )
+                        ->withOnClick($confirm_remove_auth_modal->getShowSignal());
+                }
 
                 $actions[] = $this->uiFactory->button()->shy($this->plugin->txt('export_steps'), $this->getExportStepsTarget($writer));
                 $properties[$this->plugin->txt("word_count")]  = $this->word_count($writer);
                 $properties[$this->plugin->txt("final_grade")] = $this->localDI->getDataService($writer->getTaskId())->formatFinalResult($essay);
             }
 
-            if(!empty($this->getLocations())){
+            if(!empty($this->getLocations())) {
                 $properties[$this->plugin->txt("location")] = $this->location($writer);
             }
 
-			$actions_dropdown = $this->uiFactory->dropdown()->standard($actions)
-				->withLabel($this->plugin->txt("actions"));
+            $actions_dropdown = $this->uiFactory->dropdown()->standard($actions)
+                ->withLabel($this->plugin->txt("actions"));
 
             $item = $this->localDI->getUIFactory()->item()->formItem($this->getWriterName($writer, true). $this->getWriterAnchor($writer))
                                   ->withName($writer->getId())
                                   ->withProperties($properties)
                                   ->withActions($actions_dropdown);
 
-            if(($icon = $this->getWriterIcon($writer)) !== null){
+            if(($icon = $this->getWriterIcon($writer)) !== null) {
                 $item->withLeadIcon($icon);
             }
 
-			$items[] = $item;
-		}
+            $items[] = $item;
+        }
 
-		$resources = $this->localDI->getUIFactory()->item()->formGroup($this->plugin->txt("correctable_exams")
+        $resources = $this->localDI->getUIFactory()->item()->formGroup($this->plugin->txt("correctable_exams")
             . $this->localDI->getDataService(0)->formatCounterSuffix($count_filtered, $count_total), $items, "");
 
-		$assign_callback_signal = $resources->generateDSCallbackSignal();
-		$this->ctrl->clearParameters($this->parent);
-		$modals[] = $resources->addDSModalTriggerToModal(
-			$this->uiFactory->modal()->roundtrip("",[]),
-			$this->ctrl->getFormAction($this->parent, "editAssignmentsAsync", "", true),
-			"writer_ids",
-			$assign_callback_signal
-		);
+        $assign_callback_signal = $resources->generateDSCallbackSignal();
+        $this->ctrl->clearParameters($this->parent);
+        $modals[] = $resources->addDSModalTriggerToModal(
+            $this->uiFactory->modal()->roundtrip("", []),
+            $this->ctrl->getFormAction($this->parent, "editAssignmentsAsync", "", true),
+            "writer_ids",
+            $assign_callback_signal
+        );
 
-		$form_actions[] = $resources->addDSModalTriggerToButton(
-			$this->uiFactory->button()->shy($this->plugin->txt("change_corrector"), "#"),
-			$assign_callback_signal
-		);
+        $form_actions[] = $resources->addDSModalTriggerToButton(
+            $this->uiFactory->button()->shy($this->plugin->txt("change_corrector"), "#"),
+            $assign_callback_signal
+        );
 
-		$remove_auth_callback_signal = $resources->generateDSCallbackSignal();
+        $remove_auth_callback_signal = $resources->generateDSCallbackSignal();
 
-		$modals[] = $resources->addDSModalTriggerToModal(
-			$this->uiFactory->modal()->interruptive("", "", ""),
-			$this->ctrl->getFormAction($this->parent, "confirmRemoveAuthorizationsAsync", "", true),
-			"writer_ids",
-			$remove_auth_callback_signal
-		);
+        $modals[] = $resources->addDSModalTriggerToModal(
+            $this->uiFactory->modal()->interruptive("", "", ""),
+            $this->ctrl->getFormAction($this->parent, "confirmRemoveAuthorizationsAsync", "", true),
+            "writer_ids",
+            $remove_auth_callback_signal
+        );
 
-		$form_actions[] = $resources->addDSModalTriggerToButton(
-			$this->uiFactory->button()->shy($this->plugin->txt("remove_authorizations"), "#"),
-			$remove_auth_callback_signal
-		);
+        $form_actions[] = $resources->addDSModalTriggerToButton(
+            $this->uiFactory->button()->shy($this->plugin->txt("remove_authorizations"), "#"),
+            $remove_auth_callback_signal
+        );
 
-		return $this->renderer->render(array_merge([$filter_gui], [$resources->withActions($this->uiFactory->dropdown()->standard($form_actions))], $modals));
-	}
+        return $this->renderer->render(array_merge([$filter_gui], [$resources->withActions($this->uiFactory->dropdown()->standard($form_actions))], $modals));
+    }
 
-	private function getAssignedCorrectorName(Writer $writer, int $pos): string
-	{
-		if(($assignment = $this->getAssignmentByWriterPosition($writer, $pos)) !== null){
-			$corrector = $this->correctors[$assignment->getCorrectorId()];
+    private function getAssignedCorrectorName(Writer $writer, int $pos): string
+    {
+        if(($assignment = $this->getAssignmentByWriterPosition($writer, $pos)) !== null) {
+            $corrector = $this->correctors[$assignment->getCorrectorId()];
 
             if (!empty($essay = $this->essays[$writer->getId()])) {
                 $summary = $this->localDI->getEssayRepo()->getCorrectorSummaryByEssayIdAndCorrectorId($essay->getId(), $assignment->getCorrectorId());
@@ -196,14 +201,14 @@ class CorrectorAdminListGUI extends WriterListGUI
                 . ' - ' . $this->localDI->getDataService($corrector->getTaskId())->formatCorrectionResult($summary);
         }
 
-		return " - ";
-	}
+        return " - ";
+    }
 
-	private function getViewCorrectionAction(Writer $writer): string
-	{
-		$this->ctrl->setParameter($this->parent, "writer_id", $writer->getId());
-		return $this->ctrl->getLinkTargetByClass(["ILIAS\Plugin\LongEssayAssessment\CorrectorAdmin\CorrectorAdminGUI"], "viewCorrections");
-	}
+    private function getViewCorrectionAction(Writer $writer): string
+    {
+        $this->ctrl->setParameter($this->parent, "writer_id", $writer->getId());
+        return $this->ctrl->getLinkTargetByClass(["ILIAS\Plugin\LongEssayAssessment\CorrectorAdmin\CorrectorAdminGUI"], "viewCorrections");
+    }
 
     private function getDownloadWrittenPdfAction(Writer $writer): string
     {
@@ -218,19 +223,19 @@ class CorrectorAdminListGUI extends WriterListGUI
     }
 
     private function getChangeCorrectorAction(Writer $writer): string
-	{
-		$this->ctrl->setParameter($this->parent, "writer_id", $writer->getId());
-		return $this->ctrl->getLinkTarget($this->parent, "editAssignmentsAsync");
-	}
+    {
+        $this->ctrl->setParameter($this->parent, "writer_id", $writer->getId());
+        return $this->ctrl->getLinkTarget($this->parent, "editAssignmentsAsync");
+    }
 
-	private function hasCorrectionStatusStitch($writer): bool
-	{
-		if (!isset($this->essays[$writer->getId()])) {
-			return false;
-		}
-		$essay = $this->essays[$writer->getId()];
-		return in_array($essay->getId(), $this->getCorrectionStatusStitches());
-	}
+    private function hasCorrectionStatusStitch($writer): bool
+    {
+        if (!isset($this->essays[$writer->getId()])) {
+            return false;
+        }
+        $essay = $this->essays[$writer->getId()];
+        return in_array($essay->getId(), $this->getCorrectionStatusStitches());
+    }
 
     private function hasCorrectionStatusStitchDecided($writer): bool
     {
@@ -238,11 +243,11 @@ class CorrectorAdminListGUI extends WriterListGUI
             && !empty($this->essays[$writer->getId()]->getStitchComment());
     }
 
-	private function getCorrectionStatusStitchAction(Writer $writer): string
-	{
-		$this->ctrl->setParameter($this->parent, "writer_id", $writer->getId());
-		return $this->ctrl->getLinkTarget($this->parent, "stitchDecision");
-	}
+    private function getCorrectionStatusStitchAction(Writer $writer): string
+    {
+        $this->ctrl->setParameter($this->parent, "writer_id", $writer->getId());
+        return $this->ctrl->getLinkTarget($this->parent, "stitchDecision");
+    }
 
     private function getRemoveAuthorisationsAction(Writer $writer): string
     {
@@ -251,153 +256,160 @@ class CorrectorAdminListGUI extends WriterListGUI
     }
 
     private function essayStatus(Writer $writer)
-	{
-		if (isset($this->essays[$writer->getId()])) {
-			$essay = $this->essays[$writer->getId()];
+    {
+        if (isset($this->essays[$writer->getId()])) {
+            $essay = $this->essays[$writer->getId()];
 
-			if($essay->getWritingExcluded() !== null)
-			{
-				return '<strong>' . $this->plugin->txt("writing_excluded_from") . " " .
-					$this->getUsername($essay->getWritingExcludedBy(), true) . '</strong>';
-			}
+            if($essay->getWritingExcluded() !== null) {
+                return '<strong>' . $this->plugin->txt("writing_excluded_from") . " " .
+                    $this->getUsername($essay->getWritingExcludedBy(), true) . '</strong>';
+            }
 
-			if ($essay->getCorrectionFinalized() !== null) {
-				return $this->plugin->txt("writing_finalized_from") . " " .
-					$this->getUsername($essay->getCorrectionFinalizedBy(), true);
-			}
+            if ($essay->getCorrectionFinalized() !== null) {
+                return $this->plugin->txt("writing_finalized_from") . " " .
+                    $this->getUsername($essay->getCorrectionFinalizedBy(), true);
+            }
 
-			if(in_array($essay->getId(), $this->getCorrectionStatusStitches())){
-				return $this->plugin->txt("correction_status_stitch_needed");
-			}
+            if(in_array($essay->getId(), $this->getCorrectionStatusStitches())) {
+                return $this->plugin->txt("correction_status_stitch_needed");
+            }
 
-			if ($essay->getWritingAuthorized() !== null) {
-				$name = $this->plugin->txt("participant");
-				if ($essay->getWritingAuthorizedBy() != $writer->getUserId()) {
-					$name = $this->getUsername($essay->getWritingAuthorizedBy(), true);
-				}
+            if ($essay->getWritingAuthorized() !== null) {
+                $name = $this->plugin->txt("participant");
+                if ($essay->getWritingAuthorizedBy() != $writer->getUserId()) {
+                    $name = $this->getUsername($essay->getWritingAuthorizedBy(), true);
+                }
 
-				return $this->plugin->txt("writing_authorized_from") . " " .$name;
-			}
+                return $this->plugin->txt("writing_authorized_from") . " " .$name;
+            }
 
-			if ($essay->getEditStarted() !== null) {
-				return $this->plugin->txt("writing_edit_started");
-			}
-		}
+            if ($essay->getEditStarted() !== null) {
+                return $this->plugin->txt("writing_edit_started");
+            }
+        }
 
-		return $this->plugin->txt("writing_not_started");
-	}
+        return $this->plugin->txt("writing_not_started");
+    }
 
-	/**
-	 * @return \ILIAS\Plugin\LongEssayAssessment\Data\Corrector\Corrector[]
-	 */
-	public function getCorrectors(): array
-	{
-		return $this->correctors;
-	}
+    /**
+     * @return \ILIAS\Plugin\LongEssayAssessment\Data\Corrector\Corrector[]
+     */
+    public function getCorrectors(): array
+    {
+        return $this->correctors;
+    }
 
-	/**
-	 * @param \ILIAS\Plugin\LongEssayAssessment\Data\Corrector\Corrector[] $correctors
-	 */
-	public function setCorrectors(array $correctors): void
-	{
-		$this->correctors = $correctors;
+    /**
+     * @param \ILIAS\Plugin\LongEssayAssessment\Data\Corrector\Corrector[] $correctors
+     */
+    public function setCorrectors(array $correctors): void
+    {
+        $this->correctors = $correctors;
 
-		foreach ($correctors as $corrector) {
-			$this->user_ids[] = $corrector->getUserId();
-		}
-	}
+        foreach ($correctors as $corrector) {
+            $this->user_ids[] = $corrector->getUserId();
+        }
+    }
 
-	/**
-	 * @return CorrectorAssignment[]
-	 */
-	public function getAssignments(): array
-	{
-		return $this->assignments;
-	}
+    /**
+     * @return CorrectorAssignment[]
+     */
+    public function getAssignments(): array
+    {
+        return $this->assignments;
+    }
 
-	/**
-	 * @param \ILIAS\Plugin\LongEssayAssessment\Data\Corrector\Corrector $corrector
-	 * @return array|\ILIAS\Plugin\LongEssayAssessment\Data\Corrector\CorrectorAssignment[]
-	 */
-	private function getAssignmentsByWriter(Writer $writer): array
-	{
-		if (array_key_exists($writer->getId(), $this->assignments)){
-			return $this->assignments[$writer->getId()];
-		}
-		return [];
-	}
+    /**
+     * @param \ILIAS\Plugin\LongEssayAssessment\Data\Corrector\Corrector $corrector
+     * @return array|\ILIAS\Plugin\LongEssayAssessment\Data\Corrector\CorrectorAssignment[]
+     */
+    private function getAssignmentsByWriter(Writer $writer): array
+    {
+        if (array_key_exists($writer->getId(), $this->assignments)) {
+            return $this->assignments[$writer->getId()];
+        }
+        return [];
+    }
 
-	/**
-	 * @param \ILIAS\Plugin\LongEssayAssessment\Data\Writer\Writer $writer
-	 * @param int $position
-	 * @return \ILIAS\Plugin\LongEssayAssessment\Data\Corrector\CorrectorAssignment|null
-	 */
-	private function getAssignmentByWriterPosition(Writer $writer, int $position): ?CorrectorAssignment
-	{
-		if(array_key_exists($writer->getId(), $this->assignments)) {
-			foreach($this->assignments[$writer->getId()] as $assignment){
-				if($assignment->getPosition() === $position){
-					return $assignment;
-				}
-			}
-		}
-		return null;
-	}
+    /**
+     * @param \ILIAS\Plugin\LongEssayAssessment\Data\Writer\Writer $writer
+     * @param int $position
+     * @return \ILIAS\Plugin\LongEssayAssessment\Data\Corrector\CorrectorAssignment|null
+     */
+    private function getAssignmentByWriterPosition(Writer $writer, int $position): ?CorrectorAssignment
+    {
+        if(array_key_exists($writer->getId(), $this->assignments)) {
+            foreach($this->assignments[$writer->getId()] as $assignment) {
+                if($assignment->getPosition() === $position) {
+                    return $assignment;
+                }
+            }
+        }
+        return null;
+    }
 
-	/**
-	 * @param CorrectorAssignment[] $assignments
-	 */
-	public function setAssignments(array $assignments): void
-	{
-		foreach ($assignments as $assignment) {
-			if (! isset($this->assignments[$assignment->getWriterId()])){
-				$this->assignments[$assignment->getWriterId()] = [];
-			}
-			$this->assignments[$assignment->getWriterId()][$assignment->getPosition()] = $assignment;
-		}
-		foreach($this->assignments as $key => $val){
-			usort($this->assignments[$key], function($a, $b){return $a->getPosition() - $b->getPosition();});
-		}
+    /**
+     * @param CorrectorAssignment[] $assignments
+     */
+    public function setAssignments(array $assignments): void
+    {
+        foreach ($assignments as $assignment) {
+            if (! isset($this->assignments[$assignment->getWriterId()])) {
+                $this->assignments[$assignment->getWriterId()] = [];
+            }
+            $this->assignments[$assignment->getWriterId()][$assignment->getPosition()] = $assignment;
+        }
+        foreach($this->assignments as $key => $val) {
+            usort($this->assignments[$key], function ($a, $b) {return $a->getPosition() - $b->getPosition();});
+        }
 
-	}
+    }
 
 
-	/**
-	 * @return int[]
-	 */
-	public function getCorrectionStatusStitches(): array
-	{
-		return $this->correction_status_stitches;
-	}
+    /**
+     * @return int[]
+     */
+    public function getCorrectionStatusStitches(): array
+    {
+        return $this->correction_status_stitches;
+    }
 
-	/**
-	 * @param int[] $correction_status_stitches
-	 */
-	public function setCorrectionStatusStitches(array $correction_status_stitches): void
-	{
-		$this->correction_status_stitches = $correction_status_stitches;
-	}
+    /**
+     * @param int[] $correction_status_stitches
+     */
+    public function setCorrectionStatusStitches(array $correction_status_stitches): void
+    {
+        $this->correction_status_stitches = $correction_status_stitches;
+    }
 
     protected function filterInputs(): array
     {
         $correctors = [];
 
-        foreach($this->getCorrectors() as $corrector){
+        foreach($this->getCorrectors() as $corrector) {
             $name = strip_tags($this->getUsername($corrector->getUserId(), true));
             $correctors[$corrector->getId()] = $name;
 
         }
 
         return [
-            "pdf_version" => $this->uiFactory->input()->field()->select($this->plugin->txt("filter_pdf_version"),
-                [self::FILTER_YES => $this->plugin->txt("yes"), self::FILTER_NO => $this->plugin->txt("no")]),
+            "pdf_version" => $this->uiFactory->input()->field()->select(
+                $this->plugin->txt("filter_pdf_version"),
+                [self::FILTER_YES => $this->plugin->txt("yes"), self::FILTER_NO => $this->plugin->txt("no")]
+            ),
             "corrector" => $this->uiFactory->input()->field()->multiselect($this->plugin->txt("correctors"), $correctors),
-                "corrected" => $this->uiFactory->input()->field()->select($this->plugin->txt("filter_corrected"),
-                    [self::FILTER_YES => $this->plugin->txt("yes"), self::FILTER_NO => $this->plugin->txt("no")]),
-                "stitch" => $this->uiFactory->input()->field()->select($this->plugin->txt("filter_stitch"),
-                    [self::FILTER_YES => $this->plugin->txt("yes"), self::FILTER_NO => $this->plugin->txt("no")]),
-                "assigned" => $this->uiFactory->input()->field()->select($this->plugin->txt("filter_assigned"),
-                    [self::FILTER_YES => $this->plugin->txt("yes"), self::FILTER_NO => $this->plugin->txt("no")])
+                "corrected" => $this->uiFactory->input()->field()->select(
+                    $this->plugin->txt("filter_corrected"),
+                    [self::FILTER_YES => $this->plugin->txt("yes"), self::FILTER_NO => $this->plugin->txt("no")]
+                ),
+                "stitch" => $this->uiFactory->input()->field()->select(
+                    $this->plugin->txt("filter_stitch"),
+                    [self::FILTER_YES => $this->plugin->txt("yes"), self::FILTER_NO => $this->plugin->txt("no")]
+                ),
+                "assigned" => $this->uiFactory->input()->field()->select(
+                    $this->plugin->txt("filter_assigned"),
+                    [self::FILTER_YES => $this->plugin->txt("yes"), self::FILTER_NO => $this->plugin->txt("no")]
+                )
         ];
     }
 
@@ -408,52 +420,52 @@ class CorrectorAdminListGUI extends WriterListGUI
     protected function filterItems(array $filter, Writer $writer): bool
     {
  
-        if(!empty($filter["corrector"])){
+        if(!empty($filter["corrector"])) {
             $has = [];
-            foreach($this->getAssignmentsByWriter($writer) as $ass){
+            foreach($this->getAssignmentsByWriter($writer) as $ass) {
                 $has[] = (string) $ass->getCorrectorId();
             }
-            if(empty(array_intersect($has, $filter["corrector"]))){
+            if(empty(array_intersect($has, $filter["corrector"]))) {
                 return false;
             }
         }
         $essay = $this->essays[$writer->getId()];
 
-        if(!empty($filter["pdf_version"]) && $filter["pdf_version"] == self::FILTER_YES){
-            if($essay === null || $essay->getPdfVersion() === null){
+        if(!empty($filter["pdf_version"]) && $filter["pdf_version"] == self::FILTER_YES) {
+            if($essay === null || $essay->getPdfVersion() === null) {
                 return false;
             }
         }
 
-        if(!empty($filter["corrected"]) && $filter["corrected"] == self::FILTER_YES){
-            if($essay === null || $essay->getCorrectionFinalized() === null){
+        if(!empty($filter["corrected"]) && $filter["corrected"] == self::FILTER_YES) {
+            if($essay === null || $essay->getCorrectionFinalized() === null) {
                 return false;
             }
         }
-        if(!empty($filter["corrected"]) && $filter["corrected"] == self::FILTER_NO){
-            if($essay !== null && $essay->getCorrectionFinalized() !== null){
-                return false;
-            }
-        }
-
-        if(!empty($filter["stitch"]) && $filter["stitch"] == self::FILTER_YES){
-            if($essay === null || !in_array($essay->getId(), $this->correction_status_stitches)){
-                return false;
-            }
-        }
-        if(!empty($filter["stitch"]) && $filter["stitch"] == self::FILTER_NO){
-            if($essay !== null && in_array($essay->getId(), $this->correction_status_stitches)){
+        if(!empty($filter["corrected"]) && $filter["corrected"] == self::FILTER_NO) {
+            if($essay !== null && $essay->getCorrectionFinalized() !== null) {
                 return false;
             }
         }
 
-        if(!empty($filter["assigned"]) && $filter["assigned"] == self::FILTER_YES){
-            if(count($this->getAssignmentsByWriter($writer)) !== $this->correction_settings->getRequiredCorrectors()){
+        if(!empty($filter["stitch"]) && $filter["stitch"] == self::FILTER_YES) {
+            if($essay === null || !in_array($essay->getId(), $this->correction_status_stitches)) {
                 return false;
             }
         }
-        if(!empty($filter["assigned"]) && $filter["assigned"] == self::FILTER_NO){
-            if(count($this->getAssignmentsByWriter($writer)) === $this->correction_settings->getRequiredCorrectors()){
+        if(!empty($filter["stitch"]) && $filter["stitch"] == self::FILTER_NO) {
+            if($essay !== null && in_array($essay->getId(), $this->correction_status_stitches)) {
+                return false;
+            }
+        }
+
+        if(!empty($filter["assigned"]) && $filter["assigned"] == self::FILTER_YES) {
+            if(count($this->getAssignmentsByWriter($writer)) !== $this->correction_settings->getRequiredCorrectors()) {
+                return false;
+            }
+        }
+        if(!empty($filter["assigned"]) && $filter["assigned"] == self::FILTER_NO) {
+            if(count($this->getAssignmentsByWriter($writer)) === $this->correction_settings->getRequiredCorrectors()) {
                 return false;
             }
         }

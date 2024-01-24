@@ -28,8 +28,7 @@ class OrgaSettingsGUI extends BaseGUI
     public function executeCommand()
     {
         $cmd = $this->ctrl->getCmd('editSettings');
-        switch ($cmd)
-        {
+        switch ($cmd) {
             case "editSettings":
                 $this->$cmd();
                 break;
@@ -47,7 +46,7 @@ class OrgaSettingsGUI extends BaseGUI
         $di = LongEssayAssessmentDI::getInstance();
         $task_repo = $di->getTaskRepo();
         $taskSettings = $task_repo->getTaskSettingsById($this->object->getId());
-		$locations = $task_repo->getLocationsByTaskId($this->object->getId());
+        $locations = $task_repo->getLocationsByTaskId($this->object->getId());
         $form = $this->buildTaskSettings($taskSettings, $locations);
 
         // apply inputs
@@ -61,7 +60,7 @@ class OrgaSettingsGUI extends BaseGUI
 
                 ilUtil::sendSuccess($this->lng->txt("settings_saved"), true);
                 $this->ctrl->redirect($this, "editSettings");
-            }else{
+            } else {
                 // TODO: Add or search lang var
                 ilUtil::sendFailure($this->lng->txt("validation_error"), true);
             }
@@ -74,7 +73,7 @@ class OrgaSettingsGUI extends BaseGUI
      *
      * @param array $a_data
      * @param TaskSettings $a_task_settings
-	 * @param Location[] $locations
+     * @param Location[] $locations
      * @return void
      */
     protected function updateTaskSettings(array $a_data, TaskSettings $a_task_settings, array $locations)
@@ -121,27 +120,27 @@ class OrgaSettingsGUI extends BaseGUI
         $date = $a_data['task']['review_end'];
         $a_task_settings->setReviewEnd($date instanceof \DateTimeInterface ? $date->format('Y-m-d H:i:s') : null);
 
-		$task_description = $a_data['content']['task_description'];
-		$a_task_settings->setDescription((string)$task_description);
+        $task_description = $a_data['content']['task_description'];
+        $a_task_settings->setDescription((string)$task_description);
 
-		$closing_message = $a_data['content']['closing_message'];
-		$a_task_settings->setClosingMessage((string)$closing_message);
+        $closing_message = $a_data['content']['closing_message'];
+        $a_task_settings->setClosingMessage((string)$closing_message);
 
         $task_repo->save($a_task_settings);
-		$this->saveLocations($a_data['task']['location'], $locations);
+        $this->saveLocations($a_data['task']['location'], $locations);
     }
 
     /**
      * Build TaskSettings Form
      *
      * @param TaskSettings $taskSettings
-	 * @param Location[] $locations
+     * @param Location[] $locations
      * @return Standard
      */
     protected function buildTaskSettings(TaskSettings $taskSettings, array $locations): Standard
     {
         $factory = $this->uiFactory->input()->field();
-		$ui_service = $this->localDI->getUIService();
+        $ui_service = $this->localDI->getUIService();
 
         $sections = [];
 
@@ -153,77 +152,89 @@ class OrgaSettingsGUI extends BaseGUI
 
         $fields['description'] = $factory->textarea($this->lng->txt("description"))
             ->withValue($this->object->getDescription())
-			->withAdditionalOnLoadCode($ui_service->noRTEOnloadCode());// Exclude from RTE
+            ->withAdditionalOnLoadCode($ui_service->noRTEOnloadCode());// Exclude from RTE
 
         $fields['online'] = $factory->checkbox($this->lng->txt('online'))
             ->withValue($this->object->isOnline());
 
         $fields['participation_type'] = $factory->radio($this->plugin->txt('participation_type'))
-            ->withOption(ObjectSettings::PARTICIPATION_TYPE_FIXED,
+            ->withOption(
+                ObjectSettings::PARTICIPATION_TYPE_FIXED,
                 $this->plugin->txt('participation_type_fixed'),
-                $this->plugin->txt('participation_type_fixed_info'))
-            ->withOption(ObjectSettings::PARTICIPATION_TYPE_INSTANT,
+                $this->plugin->txt('participation_type_fixed_info')
+            )
+            ->withOption(
+                ObjectSettings::PARTICIPATION_TYPE_INSTANT,
                 $this->plugin->txt('participation_type_instant'),
-                $this->plugin->txt('participation_type_instant_info'))
+                $this->plugin->txt('participation_type_instant_info')
+            )
             ->withValue($this->object->getParticipationType());
 
         $sections['object'] = $factory->section($fields, $this->plugin->txt('object_settings'));
 
 
-		$fields = [];
+        $fields = [];
 
-		$fields['task_description'] = $this->localDI->getUIFactory()->field()
-			->textareaModified($this->plugin->txt("task_description"),$this->plugin->txt("task_description_info"))
-			->withValue($taskSettings->getDescription() ?? "")
-			->withAdditionalTransformation($ui_service->stringTransformationByRTETagSet());
+        $fields['task_description'] = $this->localDI->getUIFactory()->field()
+            ->textareaModified($this->plugin->txt("task_description"), $this->plugin->txt("task_description_info"))
+            ->withValue($taskSettings->getDescription() ?? "")
+            ->withAdditionalTransformation($ui_service->stringTransformationByRTETagSet());
 
-		$fields['closing_message'] = $this->localDI->getUIFactory()->field()
-			->textareaModified($this->plugin->txt("closing_message"),$this->plugin->txt("closing_message_info"))
-			->withValue($taskSettings->getClosingMessage() ?? "")
-			->withAdditionalOnLoadCode(function ($id) use ($ui_service){
-				$ui_service->addTinyMCEToTextareas();// delay TinyMCE onload code so that description can add its noRTE-Tag before
-				return "";
-			})
-			->withAdditionalTransformation($ui_service->stringTransformationByRTETagSet());;
+        $fields['closing_message'] = $this->localDI->getUIFactory()->field()
+            ->textareaModified($this->plugin->txt("closing_message"), $this->plugin->txt("closing_message_info"))
+            ->withValue($taskSettings->getClosingMessage() ?? "")
+            ->withAdditionalOnLoadCode(function ($id) use ($ui_service) {
+                $ui_service->addTinyMCEToTextareas();// delay TinyMCE onload code so that description can add its noRTE-Tag before
+                return "";
+            })
+            ->withAdditionalTransformation($ui_service->stringTransformationByRTETagSet());
+        ;
 
-		$sections['content'] = $factory->section($fields, $this->plugin->txt('content'));
+        $sections['content'] = $factory->section($fields, $this->plugin->txt('content'));
 
         // Task
         $fields = [];
 
         $fields['writing_start'] = $factory->dateTime(
             $this->plugin->txt("writing_start"),
-            $this->plugin->txt("writing_start_info"))
+            $this->plugin->txt("writing_start_info")
+        )
             ->withUseTime(true)
             ->withValue((string) $taskSettings->getWritingStart());
 
         $fields['writing_end'] = $factory->dateTime(
             $this->plugin->txt("writing_end"),
-            $this->plugin->txt("writing_end_info"))
+            $this->plugin->txt("writing_end_info")
+        )
             ->withUseTime(true)
             ->withValue((string) $taskSettings->getWritingEnd());
 
-		$fields['location'] =  $factory->tag($this->plugin->txt("locations"),
-			$this->localDI->getTaskRepo()->getLocationExamples(),
-			$this->plugin->txt("locations_info"))
-			->withTagMaxLength(255)
-			->withValue($this->getLocationStrList($locations));
+        $fields['location'] =  $factory->tag(
+            $this->plugin->txt("locations"),
+            $this->localDI->getTaskRepo()->getLocationExamples(),
+            $this->plugin->txt("locations_info")
+        )
+            ->withTagMaxLength(255)
+            ->withValue($this->getLocationStrList($locations));
 
         $fields['keep_essay_available'] = $factory->checkbox(
             $this->plugin->txt('keep_essay_available'),
-            $this->plugin->txt('keep_essay_available_info'))
+            $this->plugin->txt('keep_essay_available_info')
+        )
             ->withValue($taskSettings->getKeepEssayAvailable());
 
 
-        $fields['solution_available'] = $factory->optionalGroup([
+        $fields['solution_available'] = $factory->optionalGroup(
+            [
             'solution_available_date' => $factory->dateTime(
                 $this->plugin->txt("solution_available_date"),
-                $this->plugin->txt("solution_available_date_info"))
+                $this->plugin->txt("solution_available_date_info")
+            )
                 ->withUseTime(true)
                 ->withValue((string) $taskSettings->getSolutionAvailableDate())
         ],
-        $this->plugin->txt('solution_available'),
-        $this->plugin->txt('solution_available_info')
+            $this->plugin->txt('solution_available'),
+            $this->plugin->txt('solution_available_info')
         );
         // strange but effective
         if (!$taskSettings->isSolutionAvailable()) {
@@ -232,33 +243,40 @@ class OrgaSettingsGUI extends BaseGUI
 
         $fields['correction_start'] = $factory->dateTime(
             $this->plugin->txt("correction_start"),
-            $this->plugin->txt("correction_start_info"))
+            $this->plugin->txt("correction_start_info")
+        )
             ->withUseTime(true)
             ->withValue((string) $taskSettings->getCorrectionStart());
 
         $fields['correction_end'] = $factory->dateTime(
             $this->plugin->txt("correction_end"),
-            $this->plugin->txt("correction_end_info"))
+            $this->plugin->txt("correction_end_info")
+        )
             ->withUseTime(true)
             ->withValue((string) $taskSettings->getCorrectionEnd());
 
 
-        $fields['result_available_type'] = $factory->switchableGroup([
-                TaskSettings::RESULT_AVAILABLE_FINALISED => $factory->group([],
-                        $this->plugin->txt('result_available_finalised'),
-                    ),
-                TaskSettings::RESULT_AVAILABLE_REVIEW => $factory->group([],
-                        $this->plugin->txt('result_available_review'),
-                    ),
-                TaskSettings::RESULT_AVAILABLE_DATE => $factory->group([
+        $fields['result_available_type'] = $factory->switchableGroup(
+            [
+                TaskSettings::RESULT_AVAILABLE_FINALISED => $factory->group(
+                    [],
+                    $this->plugin->txt('result_available_finalised'),
+                ),
+                TaskSettings::RESULT_AVAILABLE_REVIEW => $factory->group(
+                    [],
+                    $this->plugin->txt('result_available_review'),
+                ),
+                TaskSettings::RESULT_AVAILABLE_DATE => $factory->group(
+                    [
                     'result_available_date' =>  $factory->dateTime(
                         $this->plugin->txt("result_available_date"),
-                        $this->plugin->txt('result_available_date_info'))
+                        $this->plugin->txt('result_available_date_info')
+                    )
                         ->withUseTime(true)
                         ->withValue((string) $taskSettings->getResultAvailableDate())
                         ],
-                        $this->plugin->txt('result_available_after')
-                    )
+                    $this->plugin->txt('result_available_after')
+                )
             ],
             $this->plugin->txt('result_available_type'),
             $this->plugin->txt('result_available_type_info'),
@@ -266,13 +284,15 @@ class OrgaSettingsGUI extends BaseGUI
 
         $fields['review_start'] = $factory->dateTime(
             $this->plugin->txt("review_start"),
-            $this->plugin->txt("review_start_info"))
+            $this->plugin->txt("review_start_info")
+        )
             ->withUseTime(true)
             ->withValue((string) $taskSettings->getReviewStart());
 
         $fields['review_end'] = $factory->dateTime(
             $this->plugin->txt("review_end"),
-            $this->plugin->txt("review_end_info"))
+            $this->plugin->txt("review_end_info")
+        )
             ->withUseTime(true)
             ->withValue((string) $taskSettings->getReviewEnd());
 
@@ -280,24 +300,26 @@ class OrgaSettingsGUI extends BaseGUI
         return $this->uiFactory->input()->container()->form()->standard($this->ctrl->getFormAction($this), $sections);
     }
 
-	private function getLocationStrList(array $locations){
-		return array_values(array_map(fn(Location $x) => $x->getTitle(), $locations ));
-	}
+    private function getLocationStrList(array $locations)
+    {
+        return array_values(array_map(fn (Location $x) => $x->getTitle(), $locations));
+    }
 
-	private function saveLocations(array $input_strs, array $saved_objs){
-		$task_repo = LongEssayAssessmentDI::getInstance()->getTaskRepo();
-		$saved_strs = $this->getLocationStrList($saved_objs);
+    private function saveLocations(array $input_strs, array $saved_objs)
+    {
+        $task_repo = LongEssayAssessmentDI::getInstance()->getTaskRepo();
+        $saved_strs = $this->getLocationStrList($saved_objs);
 
-		foreach($saved_objs as $saved){
-			if(!in_array($saved->getTitle(), $input_strs)){
-				$task_repo->deleteLocation($saved->getId());
-			}
-		}
+        foreach($saved_objs as $saved) {
+            if(!in_array($saved->getTitle(), $input_strs)) {
+                $task_repo->deleteLocation($saved->getId());
+            }
+        }
 
-		foreach($input_strs as $input){
-			if(!in_array($input, $saved_strs)){
-				$task_repo->save(Location::model()->setTaskId($this->object->getId())->setTitle($input));
-			}
-		}
-	}
+        foreach($input_strs as $input) {
+            if(!in_array($input, $saved_strs)) {
+                $task_repo->save(Location::model()->setTaskId($this->object->getId())->setTitle($input));
+            }
+        }
+    }
 }

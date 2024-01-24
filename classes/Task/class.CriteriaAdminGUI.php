@@ -18,23 +18,23 @@ use \ilUtil;
 class CriteriaAdminGUI extends CriteriaGUI
 {
 
-	protected function getRatingCriterionFromContext(): array
-	{
-		return $this->localDI->getObjectRepo()->getRatingCriteriaByObjectId($this->object->getId());
-	}
+    protected function getRatingCriterionFromContext(): array
+    {
+        return $this->localDI->getObjectRepo()->getRatingCriteriaByObjectId($this->object->getId());
+    }
 
-	protected function getRatingCriterionModelFromContext(): RatingCriterion
-	{
-		return RatingCriterion::model()->setObjectId($this->object->getId())->setCorrectorId(null);
-	}
+    protected function getRatingCriterionModelFromContext(): RatingCriterion
+    {
+        return RatingCriterion::model()->setObjectId($this->object->getId())->setCorrectorId(null);
+    }
 
-	protected function getCorrectorIdFromContext(): ?int
-	{
-		return null;
-	}
+    protected function getCorrectorIdFromContext(): ?int
+    {
+        return null;
+    }
 
-	protected function allowCopyInContext(): bool
-	{
-		return false;
-	}
+    protected function allowCopyInContext(): bool
+    {
+        return false;
+    }
 }

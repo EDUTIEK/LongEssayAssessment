@@ -1,5 +1,9 @@
 # Change log
 
+## Version 1.3 (upcoming)
+- Applied code style of ILIAS 8
+- fixed 0040291: Imagemagick error in edutiek on ubuntu 22.04
+
 ## Version 1.2 (2042-01-21)
 - fixed error with ascii control characters when written text is processed
 - fixed juristic headline scheme
@@ -10,5 +14,4 @@
 - removed "Pilot" from language variables
 
 ## Version 1.1 (2023-12-20)
-
 - First published version of the plugin for ILIAS 7

@@ -9,6 +9,31 @@ The integrated "Writer" is a specialised editing page for examinees during the e
 
 The integrated "Corrector" is a specialised editing page for the proofreaders. In the submitted text, passages are marked and provided with comments. With each comment, partial points can be awarded based on the evaluation scheme. The text and comments are clearly displayed next to each other, optionally also with the comments from the first correction in the case of a second correction. To create the overall vote, a proposal for the final grade is calculated from the sum of the partial points, which can be accepted or changed. The vote can be used to create a textual overall assessment.
 
+## System Requirements
+
+The requirements of this plugin are nearly the same as for ILIAS 7 with the following exceptions:
+
+* **PHP 7.4** is required. PHP 7.3 is not supported
+
+* The following PHP extensions are required by the plugin: **curl, imagick, dom, json, xml, xsl**. On Debian/Ubuntu execute:
+
+````
+    apt-get install php7.4-curl, php7.4-dom, php7.4-imagick, php7.4-json, php7.4-xsl, php7.4-xsl
+````
+The PHP imagick extension uses Imagemagick and ghostscript to convert uploaded PDF files to images. On Debian/Ubuntu execute:
+
+ ````
+    apt-get install ghostscript
+    apt-get install imagemagick
+````
+
+ImageMagick must be allowed to convert PDF files. To enable this please edit the file `/etc/ImageMagick-6/policy.xml` and 
+ensure that the following line is ìncluded:
+
+````
+ <policy domain="coder" rights="read | write" pattern="PDF" />
+````
+
 ## Installation
 
 1. Copy the plugin to Customizing/global/plugins/Services/Repository/RepositoryObject
@@ -25,6 +50,8 @@ The integrated "Corrector" is a specialised editing page for the proofreaders. I
  rm composer.lock
  composer install --no-dev
 ````
+
+
 
 Please clear your browser cache after an update before you start the writing and ccorrection screens.
 

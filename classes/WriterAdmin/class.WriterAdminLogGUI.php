@@ -155,7 +155,7 @@ class WriterAdminLogGUI extends BaseGUI
         $item->setValue('submit');
         $form->addItem($item);
 
-        return $this->buildFormModal($this->plugin->txt("create_alert"), $form);
+        return $this->buildFormModal($this->plugin->txt("create_alert"), $this->lng->txt('send'), $form);
     }
 
     private function buildFormModalLogEntry(): \ILIAS\UI\Component\Modal\RoundTrip
@@ -174,11 +174,16 @@ class WriterAdminLogGUI extends BaseGUI
         $item->setValue('submit');
         $form->addItem($item);
 
-        return $this->buildFormModal($this->plugin->txt("create_log_entry"), $form);
+        return $this->buildFormModal($this->plugin->txt("create_log_entry"), $this->lng->txt('save'), $form);
     }
 
-
-    private function buildFormModal(string $title, \ilPropertyFormGUI $form): \ILIAS\UI\Component\Modal\RoundTrip
+    /**
+     * @param string             $title     title of the modal
+     * @param string             $submit    text of the submit button (send or save))
+     * @param \ilPropertyFormGUI $form      form to be displayed i nthe modal
+     * @return \ILIAS\UI\Component\Modal\RoundTrip
+     */
+    private function buildFormModal(string $title, string $submit, \ilPropertyFormGUI $form): \ILIAS\UI\Component\Modal\RoundTrip
     {
         global $DIC;
         $factory = $DIC->ui()->factory();
@@ -191,7 +196,7 @@ class WriterAdminLogGUI extends BaseGUI
 
         // Build a submit button (action button) for the modal footer
         $form_id = 'form_' . $form->getId();
-        $submit = $factory->button()->primary('Submit', '#')
+        $submit = $factory->button()->primary($submit, '#')
             ->withOnLoadCode(function ($id) use ($form_id) {
                 return "$('#{$id}').click(function() { $('#{$form_id}').submit(); return false; });";
             });

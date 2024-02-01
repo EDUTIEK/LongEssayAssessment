@@ -4,6 +4,7 @@
 - Applied code style of ILIAS 8
 - fixed 0040291: Imagemagick error in edutiek on ubuntu 22.04
 - fixed 0040150: pdf upload generates an error
+- fixed 0040296: Missing German Translation in Participant Management // Supervision Log
 
 ## Version 1.2 (2042-01-21)
 - fixed error with ascii control characters when written text is processed

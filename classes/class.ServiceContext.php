@@ -81,19 +81,18 @@ abstract class ServiceContext implements BaseContext
 
         // in REST calls the init() function is called from the long-essay-service
         if (ilContext::getType() == ilContext::CONTEXT_REST) {
-            if (!$this->object->isOnline()) {
-                throw new ContextException('Object is offline', ContextException::ENVIRONMENT_NOT_VALID);
-            }
-
             if ($this->plugin->getConfig()->getSimulateOffline()) {
                 throw new ContextException('Network Problem Simulation', ContextException::SERVICE_UNAVAILABLE);
             }
-
             \ilLongEssayAssessmentRestInit::initRestUser($this->user);
-
         }
 
+        // user must be initiated here
         $this->object = new ilObjLongEssayAssessment($ref_id);
+
+        if (ilContext::getType() == ilContext::CONTEXT_REST && !$this->object->isOnline()) {
+            throw new ContextException('Object is offline', ContextException::ENVIRONMENT_NOT_VALID);
+        }
 
         $this->task = $this->localDI->getTaskRepo()->getTaskSettingsById($this->object->getId());
         $this->data = $this->localDI->getDataService($this->object->getId());

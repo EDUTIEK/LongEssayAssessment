@@ -5,6 +5,10 @@
 - fixed 0040291: Imagemagick error in edutiek on ubuntu 22.04
 - fixed 0040150: pdf upload generates an error
 - fixed 0040296: Missing German Translation in Participant Management // Supervision Log
+- partially fixed 0040295: Supervisionlog does not contain all events
+  - always write log entries for removal and exclusion
+  - keep and exclude participant if writing hasn't started (prevent further access in tasks with instant participation)
+  - log entries are not yet created for addition
 
 ## Version 1.2 (2042-01-21)
 - fixed error with ascii control characters when written text is processed

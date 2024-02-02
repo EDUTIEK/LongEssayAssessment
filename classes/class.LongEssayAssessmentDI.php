@@ -17,6 +17,7 @@ use ILIAS\Plugin\LongEssayAssessment\UI\Implementation\ItemFactory;
 use ILIAS\Plugin\LongEssayAssessment\UI\PluginTemplateFactory;
 use ILIAS\Plugin\LongEssayAssessment\UI\UIService;
 use ILIAS\Plugin\LongEssayAssessment\WriterAdmin\WriterAdminService;
+use ILIAS\Plugin\LongEssayAssessment\Task\LoggingService;
 
 /**
  * @author Fabian Wolf <wolf@ilias.de>
@@ -27,6 +28,7 @@ class LongEssayAssessmentDI
     protected static bool $inited = false;
 
     protected $dataServices = [];
+    protected $loggingServices = [];
     protected $writerAdminServices = [];
     protected $correctorAdminServices = [];
 
@@ -207,10 +209,6 @@ class LongEssayAssessmentDI
     }
 
 
-    /**
-     * @param int $task_id
-     * @return DataService
-     */
     public function getDataService(int $task_id) : DataService
     {
         if (!isset($this->dataServices[$task_id])) {
@@ -218,6 +216,15 @@ class LongEssayAssessmentDI
         }
         return $this->dataServices[$task_id];
     }
+
+    public function getLoggingService(int $task_id) : LoggingService
+    {
+        if (!isset($this->loggingServices[$task_id])) {
+            $this->loggingServices[$task_id] = new LoggingService($task_id);
+        }
+        return $this->loggingServices[$task_id];
+    }
+
 
     public function getWriterAdminService(int $task_id) : WriterAdminService
     {

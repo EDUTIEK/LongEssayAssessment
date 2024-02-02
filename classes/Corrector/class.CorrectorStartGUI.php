@@ -457,7 +457,7 @@ class CorrectorStartGUI extends BaseGUI
             if(empty($writer)) {
                 continue;
             }
-            if ($this->service->removeSingleAuthorization($writer, $corrector)) {
+            if ($this->service->removeOwnAuthorization($writer, $corrector)) {
                 $success = true;
             } else {
                 ilutil::sendFailure(sprintf($this->plugin->txt('remove_own_authorization_failed'), $writer->getPseudonym()), true);

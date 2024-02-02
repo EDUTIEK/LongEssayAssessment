@@ -8,22 +8,24 @@ use ILIAS\Plugin\LongEssayAssessment\Data\Task\Alert;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\LogEntry;
 use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
 use \ilUtil;
+use ILIAS\Plugin\LongEssayAssessment\Task\LoggingService;
 
 /**
- *Start page for corrector admins
+ * Maintenance of the writer admin log
+ * NOTE: the log gets also entries from correction
  *
  * @package ILIAS\Plugin\LongEssayAssessment\WriterAdmin
  * @ilCtrl_isCalledBy ILIAS\Plugin\LongEssayAssessment\WriterAdmin\WriterAdminLogGUI: ilObjLongEssayAssessmentGUI
  */
 class WriterAdminLogGUI extends BaseGUI
 {
-    /** @var WriterAdminService */
+    /** @var LoggingService */
     protected $service;
 
     public function __construct(\ilObjLongEssayAssessmentGUI $objectGUI)
     {
         parent::__construct($objectGUI);
-        $this->service = $this->localDI->getWriterAdminService($this->object->getId());
+        $this->service = $this->localDI->getLoggingService($this->object->getId());
     }
 
     /**
@@ -107,20 +109,12 @@ class WriterAdminLogGUI extends BaseGUI
 
     private function createLogEntry()
     {
-
         if ($this->request->getMethod() == "POST") {
             $data = $_POST;
 
             // inputs are ok => save data
-            if (array_key_exists("entry", $data) && strlen($data["entry"]) > 0) {
-                $log_entry = new LogEntry();
-                $log_entry->setTaskId($this->object->getId());
-                $log_entry->setTimestamp((new \ilDateTime(time(), IL_CAL_UNIX))->get(IL_CAL_DATETIME));
-                $log_entry->setEntry($data['entry']);
-                $log_entry->setCategory(LogEntry::CATEGORY_NOTE);
-
-                $task_repo = LongEssayAssessmentDI::getInstance()->getTaskRepo();
-                $task_repo->save($log_entry);
+            if (!empty($data['entry'])) {
+                $this->service->addEntry(LogEntry::TYPE_NOTE, $this->dic->user()->getId(), null, $data['entry']);
 
                 ilUtil::sendSuccess($this->plugin->txt("log_entry_created"), true);
             } else {
@@ -228,7 +222,7 @@ class WriterAdminLogGUI extends BaseGUI
     private function exportLog()
     {
         $filename = \ilUtil::getASCIIFilename($this->plugin->txt('export_log_file_prefix') .' ' . $this->object->getTitle()) . '.csv';
-        ilUtil::deliverFile($this->service->createLogExport(), $filename, 'text/csv', true, true);
+        ilUtil::deliverData($this->service->createCsv(), $filename, 'text/csv');
     }
 
 }

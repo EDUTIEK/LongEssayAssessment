@@ -19,6 +19,7 @@ use ILIAS\Plugin\LongEssayAssessment\Writer\WriterContext;
 use ILIAS\Filesystem\Stream\Streams;
 use ILIAS\Plugin\LongEssayAssessment\Data\Essay\EssayImage;
 use ilObjLongEssayAssessment;
+use ILIAS\Plugin\LongEssayAssessment\Task\LoggingService;
 
 class WriterAdminService extends BaseService
 {
@@ -34,6 +35,9 @@ class WriterAdminService extends BaseService
     /** @var DataService */
     protected $dataService;
 
+    /** @var LoggingService */
+    protected $loggingService;
+
     /**
      * @inheritDoc
      */
@@ -46,6 +50,7 @@ class WriterAdminService extends BaseService
         $this->essayRepo = $this->localDI->getEssayRepo();
         $this->taskRepo = $this->localDI->getTaskRepo();
         $this->dataService = $this->localDI->getDataService($this->task_id);
+        $this->loggingService = $this->localDI->getLoggingService($this->task_id);
     }
 
     /**
@@ -105,53 +110,6 @@ class WriterAdminService extends BaseService
 
         $service = new Service($context);
         return $service->getWritingAsPdf($writingTask, $writtenEssay, $rawContent);
-    }
-
-    public function createLogExport()
-    {
-        $csv = new \ilCSVWriter();
-        $csv->setSeparator(';');
-
-        $csv->addColumn($this->plugin->txt('log_time'));
-        $csv->addColumn($this->plugin->txt('log_category'));
-        $csv->addColumn($this->plugin->txt('log_alert_to'));
-        $csv->addColumn($this->plugin->txt('log_content'));
-
-
-        $entries = [];
-        foreach ($this->taskRepo->getLogEntriesByTaskId($this->task_id) as $logEntry) {
-            $entries[$logEntry->getTimestamp() . ' log' . $logEntry->getId()] = $logEntry;
-        }
-        foreach ($this->taskRepo->getAlertsByTaskId($this->task_id) as $alert) {
-            $entries[$alert->getShownFrom() . ' alert' . $alert->getId()] = $alert;
-        }
-        sort($entries);
-
-        foreach ($entries as $entry) {
-            $csv->addRow();
-            if ($entry instanceof LogEntry) {
-                $csv->addColumn($entry->getTimestamp());
-                $csv->addColumn($this->plugin->txt('log_cat_' . $entry->getCategory()));
-                $csv->addColumn('');
-                $csv->addColumn($entry->getEntry());
-            } elseif ($entry instanceof Alert) {
-                $to = $this->plugin->txt('log_alert_to_all');
-                if (!empty($writer = $this->writerRepo->getWriterById((int) $entry->getWriterId())) && !empty($writer->getUserId())) {
-                    $to = \ilObjUser::_lookupFullname($writer->getUserId());
-                }
-                $csv->addColumn($entry->getShownFrom());
-                $csv->addColumn($this->plugin->txt('log_cat_alert'));
-                $csv->addColumn($to);
-                $csv->addColumn($alert->getMessage());
-            }
-        }
-
-        $storage = $this->dic->filesystem()->temp();
-        $basedir = ILIAS_DATA_DIR . '/' . CLIENT_ID . '/temp';
-        $file = 'xlas/'. (new UUID)->uuid4AsString() . '.csv';
-        $storage->write($file, $csv->getCSVString());
-
-        return $basedir . '/' . $file;
     }
 
 
@@ -319,32 +277,11 @@ class WriterAdminService extends BaseService
 
         $this->essayRepo->save($essay);
 
-        $this->createAuthorizeLogEntry($essay);
-    }
-
-    private function createAuthorizeLogEntry(Essay $essay)
-    {
         $writer_repo = LongEssayAssessmentDI::getInstance()->getWriterRepo();
-        $task_repo = LongEssayAssessmentDI::getInstance()->getTaskRepo();
         $writer = $writer_repo->getWriterById($essay->getWriterId());
-
-        $lng = $this->dic->language();
-
-        $description = \ilLanguage::_lookupEntry(
-            $lng->getDefaultLanguage(),
-            $this->plugin->getPrefix(),
-            $this->plugin->getPrefix() . "_writing_authorized_log_description"
-        );
-        $names = \ilUserUtil::getNamePresentation([$writer->getUserId(), $essay->getWritingAuthorizedBy()], false, false, "", true);
-
-        $log_entry = new LogEntry();
-        $log_entry->setEntry(sprintf($description, $names[$writer->getUserId()] ?? "unknown", $names[$essay->getWritingAuthorizedBy()] ?? "unknown"))
-            ->setTaskId($this->task_id)
-            ->setTimestamp($essay->getWritingAuthorized())
-            ->setCategory(LogEntry::CATEGORY_AUTHORIZE);
-
-        $task_repo->save($log_entry);
+        $this->loggingService->addEntry(LogEntry::TYPE_WRITING_POST_AUTHORIZED, $user_id, $writer->getUserId());
     }
+
 
     public function removeAuthorizationWriting(Essay $essay, int $user_id)
     {
@@ -354,34 +291,12 @@ class WriterAdminService extends BaseService
 
             $this->essayRepo->save($essay);
 
-            $this->createAuthorizationRemoveLogEntry($essay, $user_id);
+            $writer_repo = LongEssayAssessmentDI::getInstance()->getWriterRepo();
+            $writer = $writer_repo->getWriterById($essay->getWriterId());
+            $this->loggingService->addEntry(LogEntry::TYPE_WRITING_REMOVE_AUTHORIZATION, $user_id, $writer->getUserId());
         }
     }
 
-    private function createAuthorizationRemoveLogEntry(Essay $essay, int $user_id)
-    {
-        $writer_repo = LongEssayAssessmentDI::getInstance()->getWriterRepo();
-        $task_repo = LongEssayAssessmentDI::getInstance()->getTaskRepo();
-        $writer = $writer_repo->getWriterById($essay->getWriterId());
-        $datetime = new \ilDateTime(time(), IL_CAL_UNIX);
-
-        $lng = $this->dic->language();
-
-        $description = \ilLanguage::_lookupEntry(
-            $lng->getDefaultLanguage(),
-            $this->plugin->getPrefix(),
-            $this->plugin->getPrefix() . "_writing_remove_authorize_log_description"
-        );
-        $names = \ilUserUtil::getNamePresentation([$writer->getUserId(), $user_id], false, false, "", true);
-
-        $log_entry = new LogEntry();
-        $log_entry->setEntry(sprintf($description, $names[$writer->getUserId()] ?? "unknown", $names[$user_id] ?? "unknown"))
-            ->setTaskId($this->task_id)
-            ->setTimestamp($datetime->get(IL_CAL_DATETIME))
-            ->setCategory(LogEntry::CATEGORY_AUTHORIZE);
-
-        $task_repo->save($log_entry);
-    }
 
     public function handlePDFVersionInput(Essay $essay, ?string $new_file_id)
     {

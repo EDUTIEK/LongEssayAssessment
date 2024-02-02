@@ -20,6 +20,7 @@ use ILIAS\Plugin\LongEssayAssessment\Data\Task\TaskRepository;
 use ILIAS\Plugin\LongEssayAssessment\Data\Writer\Writer;
 use ILIAS\Data\UUID\Factory as UUID;
 use ilObjUser;
+use ILIAS\Plugin\LongEssayAssessment\Task\LoggingService;
 
 /**
  * Service for maintaining correctors (business logic)
@@ -45,6 +46,9 @@ class CorrectorAdminService extends BaseService
     /** @var DataService */
     protected $dataService;
 
+    /** @var LoggingService */
+    protected $loggingService;
+
     /**
      * @inheritDoc
      */
@@ -60,6 +64,7 @@ class CorrectorAdminService extends BaseService
         $this->essayRepo = $this->localDI->getEssayRepo();
         $this->taskRepo = $this->localDI->getTaskRepo();
         $this->dataService = $this->localDI->getDataService($this->task_id);
+        $this->loggingService = $this->localDI->getLoggingService($this->task_id);
     }
 
     /**
@@ -620,24 +625,7 @@ class CorrectorAdminService extends BaseService
             $this->essayRepo->save($summary);
         }
 
-        // log the actions
-        $description = \ilLanguage::_lookupEntry(
-            $this->lng->getDefaultLanguage(),
-            $this->plugin->getPrefix(),
-            $this->plugin->getPrefix() . "_remove_authorization_log"
-        );
-
-        $datetime = new \ilDateTime(time(), IL_CAL_UNIX);
-        $names = \ilUserUtil::getNamePresentation([$writer->getUserId(), $DIC->user()->getId()], false, false, "", true);
-
-        $log_entry = new LogEntry();
-        $log_entry->setEntry(sprintf($description, $names[$writer->getUserId()] ?? "unknown", $names[$DIC->user()->getId()] ?? "unknown"))
-            ->setTaskId($essay->getTaskId())
-            ->setTimestamp($datetime->get(IL_CAL_DATETIME))
-            ->setCategory(LogEntry::CATEGORY_AUTHORIZE);
-
-        $this->taskRepo->save($log_entry);
-
+        $this->loggingService->addEntry(LogEntry::TYPE_CORRECTION_REMOVE_AUTHORIZATION, $this->dic->user()->getId(), $writer->getUserId());
         return true;
     }
 
@@ -665,7 +653,7 @@ class CorrectorAdminService extends BaseService
         $this->localDI->getEssayRepo()->save($summary);
     }
 
-    public function removeSingleAuthorization(Writer $writer, Corrector $corrector) : bool
+    public function removeOwnAuthorization(Writer $writer, Corrector $corrector) : bool
     {
         if (empty($essay = $this->essayRepo->getEssayByWriterIdAndTaskId($writer->getId(), $writer->getTaskId()))) {
             return false;
@@ -683,24 +671,7 @@ class CorrectorAdminService extends BaseService
         $summary->setCorrectionAuthorizedBy(null);
         $this->essayRepo->save($summary);
 
-        // log the actions
-        $description = \ilLanguage::_lookupEntry(
-            $this->lng->getDefaultLanguage(),
-            $this->plugin->getPrefix(),
-            $this->plugin->getPrefix() . "_remove_own_authorization_log"
-        );
-
-        $datetime = new \ilDateTime(time(), IL_CAL_UNIX);
-        $names = \ilUserUtil::getNamePresentation([$writer->getUserId(), $corrector->getUserId()], false, false, "", true);
-
-        $log_entry = new LogEntry();
-        $log_entry->setEntry(sprintf($description, $names[$writer->getUserId()] ?? "unknown", $names[$corrector->getUserId()] ?? "unknown"))
-            ->setTaskId($essay->getTaskId())
-            ->setTimestamp($datetime->get(IL_CAL_DATETIME))
-            ->setCategory(LogEntry::CATEGORY_AUTHORIZE);
-
-        $this->taskRepo->save($log_entry);
-
+        $this->loggingService->addEntry(LogEntry::TYPE_CORRECTION_REMOVE_OWN_AUTHORIZATION, $this->dic->user()->getId(), $writer->getUserId());
         return true;
     }
 

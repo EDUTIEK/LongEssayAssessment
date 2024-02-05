@@ -51,9 +51,7 @@ ensure that the following line is ìncluded:
  composer install --no-dev
 ````
 
-
-
-Please clear your browser cache after an update before you start the writing and ccorrection screens.
+Please clear your browser cache after an update before you start the writing and correction screens.
 
 ## Branches and Versions
 

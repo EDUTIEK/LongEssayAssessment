@@ -9,6 +9,7 @@
   - always write log entries for removal and exclusion
   - keep and exclude participant if writing hasn't started (prevent further access in tasks with instant participation)
   - log entries are not yet created for addition
+- fixed 0040304: format templates for hierarchizing headings should display the preview in the dropdown menu
 
 ## Version 1.2 (2042-01-21)
 - fixed error with ascii control characters when written text is processed

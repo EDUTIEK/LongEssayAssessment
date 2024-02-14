@@ -16,10 +16,10 @@ require_once(__DIR__ . "/class.ilLongEssayAssessmentPlugin.php");
 class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
 {
     /** @var ilObjLongEssayAssessment */
-    public ?ilObject $object;
+    protected ?ilObject $object = null;
 
     /** @var ilLongEssayAssessmentPlugin */
-    public ?ilPlugin $plugin;
+    protected ?ilPlugin $plugin = null;
 
     /**
      * Definition of the plugin specific sub tabs

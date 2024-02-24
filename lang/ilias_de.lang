@@ -108,9 +108,11 @@ task_solution#:#Lösungshinweise
 task_solution_info#:#Die Lösungshinweise werden erst ab einem festgelegten Zeitpunkt oder am Ende angezeigt. Dieser wird unter „Organisation ► Lösungshinweise verfügbar“ aktiviert und konfiguriert. Zusätzliche Hinweise können als Datei oder Weblink unter "Material" bereitgestellt werden.
 editor_settings#:#Schreiben der Aufgabe
 headline_scheme#:#Überschriften-Schema
-headline_scheme_none#:#Ohne Numerierung
-headline_scheme_numeric#:#Numeriert: 1 ‧ 1.1 ‧ 1.1.1
-headline_scheme_edutiek#:#Gutachten: A. ‧ I. ‧ 1. ‧ a. ‧ aa. ‧ (1)
+headline_scheme_single#:#Eine Ebene, ohne Numerierung
+headline_scheme_three#:#Drei Ebenen, ohne Numerierung
+headline_scheme_numeric#:#Hierarchische Numerierung: 1 ‧ 1.1 ‧ 1.1.1  ‧ ...
+headline_scheme_edutiek#:#Gutachten-Stil: A. ‧ I. ‧ 1. ‧ a. ‧ aa. ‧ (1)
+headline_scheme_description#:#Bei drei Ebenen ohne Numerierung haben die Überschriften unterschiedliche Größe, sonst eine einheitliche.
 formatting_options#:#Text-Formatierung
 formatting_options_none#:#Aus
 formatting_options_none_info#:#Keine Formatatierungs-Optionen
@@ -124,6 +126,8 @@ notice_boards#:#Notizbretter
 notice_boards_info#:#Anzahl der zur Verfügung gestellten Notitzbretter
 copy_allowed#:#Freies Kopieren erlauben
 copy_allowed_info#:#Texte können auch von anderen Webseiten kopiert werden. Das Kopieren im Text und von den Notizbrettern ist immer erlaubt.
+allow_spellcheck#:#Rechtschreibprüfung zulassen
+allow_spellcheck_info#:#Beim Schreiben der Aufgabe wird eine Rechtschreibprüfung durch den Browser zugelassen.
 add_resource#:#Material hinzufügen
 lp_passed#:#Bestanden
 lp_passed_info#:#Für Lernfortschritt und Vorbedingungen gilt diese Notenstufe als bestanden.

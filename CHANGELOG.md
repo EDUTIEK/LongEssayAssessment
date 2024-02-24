@@ -1,7 +1,8 @@
 # Change log
 
 ## Version 1.3 (upcoming)
-- Applied code style of ILIAS 8
+- unnumbered headlines schemes with one or three levels
+- switch to allow browser spellcheck for writing a task
 - fixed 0040291: Imagemagick error in edutiek on ubuntu 22.04
 - fixed 0040150: pdf upload generates an error
 - fixed 0040296: Missing German Translation in Participant Management // Supervision Log
@@ -10,8 +11,9 @@
   - keep and exclude participant if writing hasn't started (prevent further access in tasks with instant participation)
   - log entries are not yet created for addition
 - fixed 0040304: format templates for hierarchizing headings should display the preview in the dropdown menu
+- Applied code style of ILIAS 8
 
-## Version 1.2 (2042-01-21)
+## Version 1.2 (2024-01-21)
 - fixed error with ascii control characters when written text is processed
 - fixed juristic headline scheme
 - added settings for processing written text (paragraph numbers, correction margins)

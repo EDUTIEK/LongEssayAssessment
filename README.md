@@ -57,7 +57,7 @@ Please clear your browser cache after an update before you start the writing and
 
 The plugin is published for ILIAS in different branches:
 
-* **release1_ilias7** will receive bug fixes only
+* **release1_ilias7** will receive bug fixes mainly
 * **release2_ilias8** will be created by March 2024
 * **main** is the current development branch. Please do not use it for production.
 

@@ -160,19 +160,19 @@ class CorrectorContext extends ServiceContext implements Context
      */
     public function getCorrectionSettings(): CorrectionSettings
     {
-        if (!empty($repoSettings = $this->localDI->getTaskRepo()->getCorrectionSettingsById($this->task->getTaskId()))) {
-            return new CorrectionSettings(
-                (bool) $repoSettings->getMutualVisibility(),
-                (bool) $repoSettings->getMultiColorHighlight(),
-                (int) $repoSettings->getMaxPoints(),
-                (float) $repoSettings->getMaxAutoDistance(),
-                (bool) $repoSettings->getStitchWhenDistance(),
-                (bool) $repoSettings->getStitchWhenDecimals(),
-                (string) $repoSettings->getPositiveRating(),
-                (string) $repoSettings->getNegativeRating()
-            );
-        }
-        return new CorrectionSettings(false, false, 0, 0, false, false, '', '');
+        $repoEditorSettings = $this->localDI->getTaskRepo()->getEditorSettingsById($this->task->getTaskId());
+        $repoCorrectionSettings = $this->localDI->getTaskRepo()->getCorrectionSettingsById($this->task->getTaskId());
+        return new CorrectionSettings(
+            (bool) $repoCorrectionSettings->getMutualVisibility(),
+            (bool) $repoCorrectionSettings->getMultiColorHighlight(),
+            (int) $repoCorrectionSettings->getMaxPoints(),
+            (float) $repoCorrectionSettings->getMaxAutoDistance(),
+            (bool) $repoCorrectionSettings->getStitchWhenDistance(),
+            (bool) $repoCorrectionSettings->getStitchWhenDecimals(),
+            (string) $repoCorrectionSettings->getPositiveRating(),
+            (string) $repoCorrectionSettings->getNegativeRating(),
+            (string) $repoEditorSettings->getHeadlineScheme()
+        );
     }
 
     /**
@@ -548,8 +548,10 @@ class CorrectorContext extends ServiceContext implements Context
         $currentCorrectorKey = $this->getCurrentCorrectorKey();
         
         $add_others = true;
-        if (empty($correctionSettings = $this->localDI->getTaskRepo()->getCorrectionSettingsById($this->task->getTaskId()))
-           || $correctionSettings->getMutualVisibility() == 0) {
+        if (!$this->object->canMaintainCorrectors() && (
+            empty($correctionSettings = $this->localDI->getTaskRepo()->getCorrectionSettingsById($this->task->getTaskId()))
+                || $correctionSettings->getMutualVisibility() == 0)
+        ) {
             $add_others = false;
         }
       

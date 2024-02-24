@@ -2037,3 +2037,18 @@ if (!$ilDB->tableExists('xlas_pdf_settings')) {
     $ilDB->addPrimaryKey('xlas_pdf_settings', ['task_id']);
 }
 ?>
+<#91>
+<?php
+    $ilDB->manipulate("UPDATE xlas_editor_settings SET headline_scheme='three' WHERE headline_scheme='none'");
+?>
+<#92>
+<?php
+    if (!$ilDB->tableColumnExists('xlas_editor_settings', 'allow_spellcheck')) {
+        $ilDB->addTableColumn('xlas_editor_settings', 'allow_spellcheck', [
+            'notnull' => '1',
+            'type' => 'integer',
+            'length' => '4',
+            'default' => '0'
+        ]);
+}
+?>

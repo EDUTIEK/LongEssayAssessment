@@ -4,7 +4,7 @@
 
 .mce-content-body, .long-essay-content {
     font-family: serif;
-    font-size: 16px;
+    font-size: 1em;
     max-width: 60em;
     line-height: 150%;
 }
@@ -14,7 +14,7 @@
 .mce-content-body h4, .long-essay-content h4,
 .mce-content-body h5, .long-essay-content h5,
 .mce-content-body h6, .long-essay-content h6 {
-    font-size: 16px;
+    font-size: 1em;
     font-weight: bold;
     padding: 0;
     margin-top: 0;
@@ -25,4 +25,49 @@
 .mce-content-body ul, .long-essay-content ul {
     margin-left: 10px;
     margin-bottom: 20px;
+}
+
+.mce-content-body li, .long-essay-content li {
+    margin-left: 20px;
+    margin-bottom: 5px;
+}
+
+.mce-content-body p, .long-essay-content p {
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+
+.mce-content-body, .long-essay-content, .tox-menu {
+    counter-reset: h1 h2 h3 h4 h5 h6;
+}
+.mce-content-body h1, .long-essay-content h1, .tox-menu h1 {
+    counter-increment: h1;
+    counter-reset: h2 h3 h4 h5 h6;
+}
+.mce-content-body h2, .long-essay-content h2, .tox-menu h2 {
+    counter-increment: h2;
+    counter-reset: h3 h4 h5 h6;
+}
+.mce-content-body h3, .long-essay-content h3, .tox-menu h3 {
+    counter-increment: h3;
+    counter-reset: h4 h5 h6;
+}
+.mce-content-body h4, .long-essay-content h4, .tox-menu h4 {
+    counter-increment: h4;
+    counter-reset: h5 h6;
+}
+.mce-content-body h5, .long-essay-content h5, .tox-menu h5 {
+    counter-increment: h5;
+    counter-reset: h6;
+}
+.mce-content-body h6, .long-essay-content h6, .tox-menu h6 {
+    counter-increment: h6;
+}
+
+/*
+    Make font sizes in the tiny formats menu independent from changing font sizes in the content area
+    May be refined by headlines css files
+*/
+.tox-menu p, .tox-menu h1, .tox-menu h2, .tox-menu h3, .tox-menu h4, .tox-menu h5, .tox-menu h6, .tox-menu pre, .tox-menu li   {
+    font-size:1em!important;
 }

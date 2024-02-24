@@ -403,7 +403,8 @@ abstract class ServiceContext implements BaseContext
             $repoSettings->getAddParagraphNumbers(),
             $repoSettings->getAddCorrectionMargin(),
             $repoSettings->getLeftCorrectionMargin(),
-            $repoSettings->getRightCorrectionMargin()
+            $repoSettings->getRightCorrectionMargin(),
+            $repoSettings->getAllowSpellcheck()
         );
     }
 

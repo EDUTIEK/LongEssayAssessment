@@ -55,10 +55,12 @@ class EditorSettingsGUI extends BaseGUI
         $fields['headline_scheme'] = $factory->select(
             $this->plugin->txt('headline_scheme'),
             [
-                EditorSettings::HEADLINE_SCHEME_NONE => $this->plugin->txt('headline_scheme_none'),
+                EditorSettings::HEADLINE_SCHEME_SINGLE => $this->plugin->txt('headline_scheme_single'),
+                EditorSettings::HEADLINE_SCHEME_THREE => $this->plugin->txt('headline_scheme_three'),
                 EditorSettings::HEADLINE_SCHEME_NUMERIC => $this->plugin->txt('headline_scheme_numeric'),
                 EditorSettings::HEADLINE_SCHEME_EDUTIEK => $this->plugin->txt('headline_scheme_edutiek'),
-            ]
+            ],
+            $this->plugin->txt('headline_scheme_description')
         )
             ->withRequired(true)
             ->withValue($editorSettings->getHeadlineScheme());
@@ -103,6 +105,10 @@ class EditorSettingsGUI extends BaseGUI
 
         $fields['copy_allowed'] = $factory->checkbox($this->plugin->txt('copy_allowed'), $this->plugin->txt('copy_allowed_info'))
             ->withValue($editorSettings->isCopyAllowed());
+
+        $fields['allow_spellcheck'] = $factory->checkbox($this->plugin->txt('allow_spellcheck'), $this->plugin->txt('allow_spellcheck_info'))
+            ->withValue($editorSettings->getAllowSpellcheck());
+
 
         $sections['editor'] = $factory->section($fields, $this->plugin->txt('editor_settings'));
 
@@ -198,6 +204,7 @@ class EditorSettingsGUI extends BaseGUI
             $editorSettings->setFormattingOptions($data['editor']['formatting_options']);
             $editorSettings->setNoticeBoards((int) $data['editor']['notice_boards']);
             $editorSettings->setCopyAllowed((bool) $data['editor']['copy_allowed']);
+            $editorSettings->setAllowSpellcheck((bool) $data['editor']['allow_spellcheck']);
 
             if (!$hasComments) {
                 $editorSettings->setAddParagraphNumbers((bool) $data['processing']['add_paragraph_numbers']);

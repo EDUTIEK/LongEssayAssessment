@@ -143,6 +143,12 @@ abstract class BaseGUI
     {
         if (!empty($settings = $this->localDI->getTaskRepo()->getEditorSettingsById($this->object->getId()))) {
             switch ($settings->getHeadlineScheme()) {
+                case EditorSettings::HEADLINE_SCHEME_SINGLE:
+                    $headline_class = "headlines-single";
+                    break;
+                case EditorSettings::HEADLINE_SCHEME_THREE:
+                    $headline_class = "headlines-three";
+                    break;
                 case EditorSettings::HEADLINE_SCHEME_EDUTIEK:
                     $headline_class = "headlines-edutiek";
                     break;
@@ -163,6 +169,12 @@ abstract class BaseGUI
 
         if (!empty($settings = $this->localDI->getTaskRepo()->getEditorSettingsById($this->object->getId()))) {
             switch ($settings->getHeadlineScheme()) {
+                case EditorSettings::HEADLINE_SCHEME_SINGLE:
+                    $this->tpl->addCss($this->plugin->getDirectory() .'/templates/css/headlines-single.css');
+                    break;
+                case EditorSettings::HEADLINE_SCHEME_THREE:
+                    $this->tpl->addCss($this->plugin->getDirectory() .'/templates/css/headlines-three.css');
+                    break;
                 case EditorSettings::HEADLINE_SCHEME_EDUTIEK:
                     $this->tpl->addCss($this->plugin->getDirectory() .'/templates/css/headlines-edutiek.css');
                     break;

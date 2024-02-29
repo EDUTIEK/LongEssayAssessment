@@ -457,7 +457,8 @@ essay_average_points#:#Durchschnittspunkte
 grade_distribution#:#Notenverteilung
 corrections_all#:#Alle Korrekturen
 essay_correction_finlized#:#Finalisierte Korrekturen
-corrector_assignment_change_file_failure#:#Beim Auswerten der Datei ist etwas schiefgelaufen.
+corrector_assignment_change_file_success#:#Die Zuweisungen aus der Datei wurden vorgenommen.
+corrector_assignment_change_file_failure#:#Die Datei konnte nicht korrekt ausgewertet werden. Es wurden keine Änderungen vorgenommen.
 assignment_excel#:#Korrektorzuweisung
 assignment_excel_export#:#Export
 assignment_excel_import#:#Import
@@ -526,3 +527,8 @@ pdf_right_margin#:#Rechter Rand (mm)
 pdf_right_margin_info#:#Minimum:  5
 unknown#:#unbekannt
 log_entry_note#:#Notiz von %s:
+import_missing_column#:#In der Datei fehlt eine Spalte mit dem Titel %s.
+import_line_user_not_found#:#Zeile %s: das Konto '%s' wurde nicht gefunden.
+import_line_writer_repeated#:#Zeile %s: das Konto '%s' wird wiederholt.
+import_line_corrector_repeated#:#Zeile %s: das Konto '%s' ist mehrfach zur Korrektur eingetragen.
+assignment_excel_import_info#:#Die Zuweisungen werden vom ersten Blatt einer Excel-Datei importiert, dessen erste Zeile die Spaltenbezeichnungen enthält. Sie muss die Bezeichnungen "Login" für den Teilnehmer, "Corrector 1" für den Korrektor und evtl. "Corrector 2" für einen Zweitkorrektor enthalten. In diesen Spalten werden  Login-Namen von Benutzerkonten eingetragen, die im System existieren müssen. Falls sie noch nicht als Teilnehmer oder Korrektoren eingetragen sind, wird das automatisch gemacht.

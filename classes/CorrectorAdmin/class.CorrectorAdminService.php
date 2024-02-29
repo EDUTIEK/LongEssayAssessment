@@ -78,16 +78,27 @@ class CorrectorAdminService extends BaseService
 
     /**
      * Get or create a writer object for an ILIAS user
-     * @param int $user_id
-     * @return Corrector
+     * A new corrector object is not yet saved
      */
-    public function getOrCreateCorrectorFromUserId(int $user_id) : Corrector
+    public function getCorrectorFromUserId(int $user_id) : Corrector
     {
         $corrector = $this->correctorRepo->getCorrectorByUserId($user_id, $this->settings->getTaskId());
         if (!isset($corrector)) {
             $corrector = Corrector::model();
             $corrector->setUserId($user_id);
             $corrector->setTaskId($this->settings->getTaskId());
+        }
+        return $corrector;
+    }
+
+    /**
+     * Get or create a writer object for an ILIAS user
+     * A new corrector object is already saved
+     */
+    public function getOrCreateCorrectorFromUserId(int $user_id) : Corrector
+    {
+        $corrector = $this->getCorrectorFromUserId($user_id);
+        if (empty($corrector->getId())) {
             $this->correctorRepo->save($corrector);
         }
         return $corrector;

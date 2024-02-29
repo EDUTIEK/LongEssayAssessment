@@ -54,21 +54,31 @@ class WriterAdminService extends BaseService
     }
 
     /**
-     * Get or create a writer object for an ILIAS user
+     * Get a writer object for an ILIAS user
+     * A new writer object is not yet saved
      * @param int $user_id
      * @return Writer
      */
-    public function getOrCreateWriterFromUserId(int $user_id) : Writer
+    public function getWriterFromUserId(int $user_id) : Writer
     {
         $writer = $this->writerRepo->getWriterByUserIdAndTaskId($user_id, $this->task_id);
         if (!isset($writer)) {
             $writer = new Writer();
             $writer->setUserId($user_id)
-                ->setTaskId($this->task_id)
-                ->setPseudonym($this->plugin->txt('participant') . ' ' . $user_id);
-            $this->writerRepo->save($writer);
-            // change the pseudonym to the writer id
-            $writer->setPseudonym($this->plugin->txt('participant') . ' ' .$writer->getId());
+                   ->setTaskId($this->task_id)
+                   ->setPseudonym($this->plugin->txt('participant') . ' ' .$writer->getId());
+        }
+        return $writer;
+    }
+
+    /**
+     * Get or create a writer object for an ILIAS user
+     * A new writer object is already saved
+     */
+    public function getOrCreateWriterFromUserId(int $user_id) : Writer
+    {
+        $writer = $this->getWriterFromUserId($user_id);
+        if (empty($writer->getId())) {
             $this->writerRepo->save($writer);
         }
         return $writer;

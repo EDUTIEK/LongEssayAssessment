@@ -2052,3 +2052,14 @@ if (!$ilDB->tableExists('xlas_pdf_settings')) {
         ]);
 }
 ?>
+<#93>
+<?php
+    // cleanup wrong corrector assignments created from a wrong import
+    // these are assignments across different tasks
+    $query = "
+        DELETE a
+        FROM xlas_corrector_ass a
+        LEFT JOIN xlas_writer w ON w.id = a.writer_id
+        LEFT JOIN xlas_corrector c ON c.id = a.corrector_id
+        WHERE c.id IS NULL OR w.id IS NULL OR c.task_id <> w.task_id
+    ";

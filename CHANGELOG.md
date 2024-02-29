@@ -1,6 +1,12 @@
-# Change log
+# Change Log
 
-## Version 1.3 (upcoming)
+## Version 1.4 (2024-02-29)
+- cleanup cross-task corrector assignments created by wrong imports
+- improve corrector assignments export and import
+    - only login is used to identify writers and correctors
+    - create writer or corrector on the fly if login exists
+
+## Version 1.3 (2024-02-24)
 - unnumbered headlines schemes with one or three levels
 - switch to allow browser spellcheck for writing a task
 - fixed 0040291: Imagemagick error in edutiek on ubuntu 22.04

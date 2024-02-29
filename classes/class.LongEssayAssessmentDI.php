@@ -18,6 +18,7 @@ use ILIAS\Plugin\LongEssayAssessment\UI\PluginTemplateFactory;
 use ILIAS\Plugin\LongEssayAssessment\UI\UIService;
 use ILIAS\Plugin\LongEssayAssessment\WriterAdmin\WriterAdminService;
 use ILIAS\Plugin\LongEssayAssessment\Task\LoggingService;
+use ILIAS\Plugin\LongEssayAssessment\CorrectorAdmin\CorrectorAssignmentsService;
 
 /**
  * @author Fabian Wolf <wolf@ilias.de>
@@ -31,6 +32,7 @@ class LongEssayAssessmentDI
     protected $loggingServices = [];
     protected $writerAdminServices = [];
     protected $correctorAdminServices = [];
+    protected $correctorAssignmentServices = [];
 
     protected \ILIAS\DI\Container $container;
 
@@ -240,5 +242,13 @@ class LongEssayAssessmentDI
             $this->correctorAdminServices[$task_id] = new CorrectorAdminService($task_id);
         }
         return $this->correctorAdminServices[$task_id];
+    }
+
+    public function getCorrectorAssignmentService(int $task_id) : CorrectorAssignmentsService
+    {
+        if (!isset($this->correctorAssignmentServices[$task_id])) {
+            $this->correctorAssignmentServices[$task_id] = new CorrectorAssignmentsService($task_id);
+        }
+        return $this->correctorAssignmentServices[$task_id];
     }
 }

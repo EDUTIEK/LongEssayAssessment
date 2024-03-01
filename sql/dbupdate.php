@@ -2064,7 +2064,7 @@ if (!$ilDB->tableExists('xlas_pdf_settings')) {
         WHERE c.id IS NULL OR w.id IS NULL OR c.task_id <> w.task_id
     ";
 ?>
-<#93>
+<#94>
 <?php
     // fix wrongly created pseudonyms
     $query = "

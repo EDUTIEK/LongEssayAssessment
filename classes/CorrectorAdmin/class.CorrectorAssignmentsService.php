@@ -231,7 +231,7 @@ class CorrectorAssignmentsService extends BaseService
         /** @var Writer[] $writers */
         foreach ($writers as $writer) {
             if (empty($writer->getId())) {
-                $this->writer_repo->save($writer);
+                $this->writer_admin_service->saveNewWriter($writer);
             }
         }
         /** @var Corrector[] $correctors */

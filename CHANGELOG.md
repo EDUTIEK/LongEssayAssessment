@@ -1,5 +1,8 @@
 # Change Log
 
+## Version 1.4.1 (2024-03-01)
+- fixed pseudonym creation for writers
+
 ## Version 1.4 (2024-02-29)
 - cleanup cross-task corrector assignments created by wrong imports
 - improve corrector assignments export and import

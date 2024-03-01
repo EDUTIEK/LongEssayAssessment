@@ -55,9 +55,10 @@ class WriterAdminService extends BaseService
 
     /**
      * Get a writer object for an ILIAS user
-     * A new writer object is not yet saved
+     * A new writer object is not yet saved, it must be saved with saveNewWriter
      * @param int $user_id
      * @return Writer
+     * @see saveNewWriter
      */
     public function getWriterFromUserId(int $user_id) : Writer
     {
@@ -65,9 +66,22 @@ class WriterAdminService extends BaseService
         if (!isset($writer)) {
             $writer = new Writer();
             $writer->setUserId($user_id)
-                   ->setTaskId($this->task_id)
-                   ->setPseudonym($this->plugin->txt('participant') . ' ' .$writer->getId());
+                   ->setTaskId($this->task_id);
         }
+        return $writer;
+    }
+
+    /**
+     * save a new writer object
+     * This sets the pseudonym which is based on the writer id
+     */
+    public function saveNewWriter(Writer $writer) : Writer
+    {
+        $writer->setPseudonym('');
+        $this->writerRepo->save($writer);
+        // now the id is known
+        $writer->setPseudonym($this->plugin->txt('participant') . ' ' .$writer->getId());
+        $this->writerRepo->save($writer);
         return $writer;
     }
 
@@ -79,7 +93,7 @@ class WriterAdminService extends BaseService
     {
         $writer = $this->getWriterFromUserId($user_id);
         if (empty($writer->getId())) {
-            $this->writerRepo->save($writer);
+            $this->saveNewWriter($writer);
         }
         return $writer;
     }

@@ -2063,3 +2063,12 @@ if (!$ilDB->tableExists('xlas_pdf_settings')) {
         LEFT JOIN xlas_corrector c ON c.id = a.corrector_id
         WHERE c.id IS NULL OR w.id IS NULL OR c.task_id <> w.task_id
     ";
+?>
+<#93>
+<?php
+    // fix wrongly created pseudonyms
+    $query = "
+        UPDATE xlas_writer 
+        SET pseudonym = CONCAT('Teilnehmer/in ', id)
+        WHERE pseudonym = 'Teilnehmer/in 0'
+    ";

@@ -20,30 +20,26 @@ use ILIAS\Filesystem\Stream\Streams;
 use ILIAS\Plugin\LongEssayAssessment\Data\Essay\EssayImage;
 use ilObjLongEssayAssessment;
 use ILIAS\Plugin\LongEssayAssessment\Task\LoggingService;
+use ILIAS\Plugin\LongEssayAssessment\Data\Corrector\CorrectorRepository;
 
 class WriterAdminService extends BaseService
 {
-    /** @var WriterRepository */
-    protected $writerRepo;
+    protected WriterRepository $writerRepo;
+    protected CorrectorRepository $correctorRepo;
+    protected EssayRepository $essayRepo;
+    protected TaskRepository $taskRepo;
+    protected DataService $dataService;
+    protected LoggingService $loggingService;
 
-    /** @var EssayRepository */
-    protected $essayRepo;
-
-    /** @var TaskRepository */
-    protected $taskRepo;
-
-    /** @var DataService */
-    protected $dataService;
-
-    /** @var LoggingService */
-    protected $loggingService;
+    protected int $task_id;
 
     /**
-     * @inheritDoc
+     * Constructor
      */
     public function __construct(int $task_id)
     {
-        parent::__construct($task_id);
+        parent::__construct();
+        $this->task_id = $task_id;
 
         $this->writerRepo = $this->localDI->getWriterRepo();
         $this->correctorRepo = $this->localDI->getCorrectorRepo();

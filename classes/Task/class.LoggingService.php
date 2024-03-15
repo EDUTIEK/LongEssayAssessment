@@ -20,16 +20,18 @@ class LoggingService extends BaseService
     /** @var DataService */
     protected $dataService;
 
+    protected int $task_id;
+
     /**
      * @inheritDoc
      */
     public function __construct(int $task_id)
     {
-        parent::__construct($task_id);
+        parent::__construct();
 
+        $this->task_id = $task_id;
         $this->taskRepo = $this->localDI->getTaskRepo();
         $this->writerRepo = $this->localDI->getWriterRepo();
-        $this->dataService = $this->localDI->getDataService($this->task_id);
     }
 
     /**

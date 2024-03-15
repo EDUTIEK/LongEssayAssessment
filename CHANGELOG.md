@@ -1,5 +1,8 @@
 # Change Log
 
+## Version 1.5 (upcoming)
+- function to add all course tutors as correctors
+
 ## Version 1.4.1 (2024-03-01)
 - fixed pseudonym creation for writers
 

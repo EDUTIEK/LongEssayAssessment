@@ -9,40 +9,23 @@ namespace ILIAS\Plugin\LongEssayAssessment;
  */
 abstract class BaseService
 {
-    /** @var \ILIAS\DI\Container */
-    public $dic;
-
-    /** @var \ilLanguage */
-    public $lng;
-
-    /** @var  \ilObjLongEssayAssessment */
-    public $object;
-
-    /** @var  \ilLongEssayAssessmentPlugin */
-    public $plugin;
-
-    /** @var LongEssayAssessmentDI */
-    protected $localDI;
-
-    /** @var int */
-    protected $task_id;
-
+    public \ILIAS\DI\Container $dic;
+    public \ilLanguage $lng;
+    public \ilLongEssayAssessmentPlugin $plugin;
+    protected LongEssayAssessmentDI $localDI;
 
     /**
      * Constructor
-     * @param \ilObjLongEssayAssessment
      */
-    public function __construct(int $task_id)
+    public function __construct()
     {
         global $DIC;
 
         // ILIAS dependencies
         $this->dic = $DIC;
-        $this->ctrl = $this->dic->ctrl();
         $this->lng = $this->dic->language();
 
         // Plugin dependencies
-        $this->task_id = $task_id;
         $this->plugin = \ilLongEssayAssessmentPlugin::getInstance();
         $this->localDI = LongEssayAssessmentDI::getInstance();
     }

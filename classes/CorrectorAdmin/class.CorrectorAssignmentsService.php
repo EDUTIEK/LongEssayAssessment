@@ -22,10 +22,15 @@ class CorrectorAssignmentsService extends BaseService
     protected WriterAdminService $writer_admin_service;
     protected CorrectorAdminService $corrector_admin_service;
 
+    protected int $task_id;
 
+    /**
+     * Constructor
+     */
     public function __construct(int $task_id)
     {
-        parent::__construct($task_id);
+        parent::__construct();
+        $this->task_id = $task_id;
 
         $this->writer_repo = $this->localDI->getWriterRepo();
         $this->corrector_repo = $this->localDI->getCorrectorRepo();

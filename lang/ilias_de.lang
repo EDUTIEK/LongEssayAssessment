@@ -532,3 +532,6 @@ import_line_user_not_found#:#Zeile %s: das Konto '%s' wurde nicht gefunden.
 import_line_writer_repeated#:#Zeile %s: das Konto '%s' wird wiederholt.
 import_line_corrector_repeated#:#Zeile %s: das Konto '%s' ist mehrfach zur Korrektur eingetragen.
 assignment_excel_import_info#:#Die Zuweisungen werden vom ersten Blatt einer Excel-Datei importiert, dessen erste Zeile die Spaltenbezeichnungen enthält. Sie muss die Bezeichnungen "Login" für den Teilnehmer, "Corrector 1" für den Korrektor und evtl. "Corrector 2" für einen Zweitkorrektor enthalten. In diesen Spalten werden  Login-Namen von Benutzerkonten eingetragen, die im System existieren müssen. Falls sie noch nicht als Teilnehmer oder Korrektoren eingetragen sind, wird das automatisch gemacht.
+add_all_course_tutors#:#Alle Tutoren hinzufügen
+confirm_add_all_course_tutors#:#Möchten Sie alle Kurstutoren als Korrektoren hinzufügen?
+tutors_added#:#Die Tutoren wurden hinzugefügt

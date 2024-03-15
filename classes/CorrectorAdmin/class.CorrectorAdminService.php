@@ -21,6 +21,8 @@ use ILIAS\Plugin\LongEssayAssessment\Data\Writer\Writer;
 use ILIAS\Data\UUID\Factory as UUID;
 use ilObjUser;
 use ILIAS\Plugin\LongEssayAssessment\Task\LoggingService;
+use ILIAS\Plugin\LongEssayAssessment\Data\Writer\WriterRepository;
+use ILIAS\Plugin\LongEssayAssessment\Data\Corrector\CorrectorRepository;
 
 /**
  * Service for maintaining correctors (business logic)
@@ -28,33 +30,23 @@ use ILIAS\Plugin\LongEssayAssessment\Task\LoggingService;
  */
 class CorrectorAdminService extends BaseService
 {
-    /** @var CorrectionSettings */
-    protected $settings;
+    protected CorrectionSettings $settings;
+    protected WriterRepository $writerRepo;
+    protected CorrectorRepository $correctorRepo;
+    protected EssayRepository $essayRepo;
+    protected TaskRepository $taskRepo;
+    protected DataService $dataService;
+    protected LoggingService $loggingService;
 
-    /** @var \ILIAS\Plugin\LongEssayAssessment\Data\Writer\WriterRepository */
-    protected $writerRepo;
-
-    /** @var \ILIAS\Plugin\LongEssayAssessment\Data\Corrector\CorrectorRepository */
-    protected $correctorRepo;
-
-    /** @var EssayRepository */
-    protected $essayRepo;
-
-    /** @var TaskRepository */
-    protected $taskRepo;
-
-    /** @var DataService */
-    protected $dataService;
-
-    /** @var LoggingService */
-    protected $loggingService;
+    protected int $task_id;
 
     /**
-     * @inheritDoc
+     * Constructor
      */
     public function __construct(int $task_id)
     {
-        parent::__construct($task_id);
+        parent::__construct();
+        $this->task_id = $task_id;
 
         $this->settings = $this->localDI->getTaskRepo()->getCorrectionSettingsById($this->task_id) ??
             new CorrectionSettings($this->task_id);

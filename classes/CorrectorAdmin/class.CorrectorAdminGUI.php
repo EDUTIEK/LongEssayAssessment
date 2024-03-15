@@ -53,10 +53,11 @@ class CorrectorAdminGUI extends BaseGUI
 
         switch ($next_class) {
             case 'ilrepositorysearchgui':
+                $this->tabs->activateSubTab('tab_corrector_list');
                 $rep_search = new \ilRepositorySearchGUI();
-                $rep_search->addUserAccessFilterCallable([$this, 'filterUserIdsByLETMembership']);
-                $rep_search->setCallback($this, "assignCorrectors");
-                $this->ctrl->setReturn($this, 'showStartPage');
+                $rep_search->addUserAccessFilterCallable([$this, 'addCorrectorsFilter']);
+                $rep_search->setCallback($this, "addCorrectorsCallback");
+                $this->ctrl->setReturn($this, 'showCorrectors');
                 $ret = $this->ctrl->forwardCommand($rep_search);
                 break;
             default:
@@ -65,6 +66,7 @@ class CorrectorAdminGUI extends BaseGUI
                     case 'showStartPage':
                     case 'showCorrectors':
                     case 'confirmAssignWriters':
+                    case 'addAllCourseTutors':
                     case 'assignWriters':
                     case 'changeCorrector':
                     case 'removeCorrector':
@@ -158,6 +160,7 @@ class CorrectorAdminGUI extends BaseGUI
         $this->toolbar->addText($this->plugin->txt("assignment_excel"));
         $this->toolbar->addComponent($btn_import);
         $this->toolbar->addComponent($btn_export);
+        /** @var \ILIAS\UI\Component\Component $btn_export_ass */
         $this->toolbar->addComponent($btn_export_ass);
         $this->toolbar->addSeparator();
 
@@ -195,13 +198,38 @@ class CorrectorAdminGUI extends BaseGUI
 
     protected function showCorrectors()
     {
+
+
         $this->toolbar->setFormAction($this->ctrl->getFormAction($this));
-        $this->showCorrectorToolbar();
+
+        \ilRepositorySearchGUI::fillAutoCompleteToolbar(
+            $this,
+            $this->toolbar,
+            array(
+                'auto_complete_name' => $this->lng->txt('user'),
+                'submit_name' => $this->lng->txt('add'),
+                'add_search' => true,
+                'add_from_container' => $this->object->getRefId()
+            )
+        );
+
+        // spacer
+        $this->toolbar->addSeparator();
+
+        // search button
+        if ($this->object_services->iliasContext()->isInCourse()) {
+            $modal = $this->uiFactory->modal()->interruptive('', '','')
+                                     ->withAsyncRenderUrl($this->ctrl->getLinkTarget($this, 'addAllCourseTutors'));
+            $button = $this->uiFactory->button()->standard($this->plugin->txt("add_all_course_tutors"), '')
+                                      ->withOnClick($modal->getShowSignal());
+
+            $this->toolbar->addComponent($button);
+            $this->tpl->addLightbox($this->renderer->render($modal), 'add_all_course_tutors');
+        }
 
         $di = LongEssayAssessmentDI::getInstance();
         $writers_repo = $di->getWriterRepo();
         $corrector_repo = $di->getCorrectorRepo();
-
 
         $list_gui = new CorrectorListGUI($this, "showCorrectors", $this->plugin);
         $list_gui->setWriters($writers_repo->getWritersByTaskId($this->object->getId()));
@@ -211,29 +239,47 @@ class CorrectorAdminGUI extends BaseGUI
         $this->tpl->setContent($list_gui->getContent());
     }
 
-    private function showCorrectorToolbar()
+    /**
+     * @return void
+     */
+    public function addAllCourseTutors()
     {
+        $user_ids = $this->object_services->iliasContext()->getCourseTutors();
 
-        \ilRepositorySearchGUI::fillAutoCompleteToolbar(
-            $this,
-            $this->toolbar,
-            array()
-        );
+        // Confirmation
+        if ($this->request->getMethod() != 'POST') {
+            ;
+            $items =[];
+            foreach ($user_ids as $user_id) {
+                $items[] = $this->uiFactory->modal()->interruptiveItem(
+                    $user_id, \ilObjUser::_lookupFullname($user_id));
+            }
+            $modal = $this->uiFactory->modal()->interruptive(
 
-        // spacer
-        $this->toolbar->addSeparator();
+                $this->plugin->txt('add_all_course_tutors'),
+                $this->plugin->txt('confirm_add_all_course_tutors'),
+                $this->ctrl->getLinkTarget($this, 'addAllCourseTutors')
+            )->withAffectedItems($items)
+            ->withActionButtonLabel('add');
+            echo $this->renderer->render($modal);
+            exit;
+        }
 
-        // search button
-        $this->toolbar->addButton(
-            $this->plugin->txt("search_correctors"),
-            $this->ctrl->getLinkTargetByClass(
-                'ilRepositorySearchGUI',
-                'start'
-            )
-        );
+        // Action
+        foreach($user_ids as $id) {
+            $this->service->getOrCreateCorrectorFromUserId($id);
+        }
+
+
+        $this->tpl->setOnScreenMessage('success',$this->plugin->txt('tutors_added'), true);
+        $this->ctrl->redirect($this, 'showCorrectors');
     }
 
-    public function assignCorrectors(array $a_usr_ids, $a_type = null)
+
+    /**
+     * Callback for adding correctors by ilRepositorySearchGUI
+     */
+    public function addCorrectorsCallback(array $a_usr_ids, $a_type = null)
     {
         if (count($a_usr_ids) <= 0) {
             ilUtil::sendFailure($this->plugin->txt("missing_corrector_id"), true);
@@ -248,7 +294,10 @@ class CorrectorAdminGUI extends BaseGUI
         $this->ctrl->redirect($this, "showCorrectors");
     }
 
-    public function filterUserIdsByLETMembership($a_user_ids)
+    /**
+     * Filter for searching correctors by lRepositorySearchGUI
+     */
+    public function addCorrectorsFilter($a_user_ids)
     {
         $user_ids = [];
         $corrector_repo = LongEssayAssessmentDI::getInstance()->getCorrectorRepo();

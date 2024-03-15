@@ -10,6 +10,7 @@ use ILIAS\UI\Factory;
 use ILIAS\UI\Renderer;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use ILIAS\Plugin\LongEssayAssessment\ServiceLayer\ObjectServices;
 
 /**
  * Base class for GUI classes (except the plugin guis required by ILIAS)
@@ -67,6 +68,8 @@ abstract class BaseGUI
 
     protected \ILIAS\ResourceStorage\Services $storage;
 
+    protected ObjectServices $object_services;
+
     /**
      * Constructor
      * @param \ilObjLongEssayAssessmentGUI  $objectGUI
@@ -95,6 +98,7 @@ abstract class BaseGUI
         $this->data = $this->localDI->getDataService($this->object->getId());
         $this->params = $this->request->getQueryParams();
         $this->storage = $DIC->resourceStorage();
+        $this->object_services = $this->localDI->factory()->objectServices($this->object->getRefId());
     }
 
     /**

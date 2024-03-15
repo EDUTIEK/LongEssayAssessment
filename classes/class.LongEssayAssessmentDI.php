@@ -19,6 +19,7 @@ use ILIAS\Plugin\LongEssayAssessment\UI\UIService;
 use ILIAS\Plugin\LongEssayAssessment\WriterAdmin\WriterAdminService;
 use ILIAS\Plugin\LongEssayAssessment\Task\LoggingService;
 use ILIAS\Plugin\LongEssayAssessment\CorrectorAdmin\CorrectorAssignmentsService;
+use ILIAS\Plugin\LongEssayAssessment\ServiceLayer\ServicesFactory;
 
 /**
  * @author Fabian Wolf <wolf@ilias.de>
@@ -133,6 +134,10 @@ class LongEssayAssessmentDI
             return new UIService($dic["lng"], $dic["refinery"]);
         };
 
+        $dic["xlas.services_factory"] = function (\ILIAS\DI\Container $dic) {
+            return new ServicesFactory($dic, $this);
+        };
+
         self::$inited = true;
     }
 
@@ -176,6 +181,11 @@ class LongEssayAssessmentDI
     public function getCorrectorRepo(): CorrectorRepository
     {
         return $this->container["xlas.corrector_repository"];
+    }
+
+    public function factory() : ServicesFactory
+    {
+        return $this->container["xlas.services_factory"];
     }
 
     //    /**

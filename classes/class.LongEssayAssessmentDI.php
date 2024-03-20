@@ -183,7 +183,7 @@ class LongEssayAssessmentDI
         return $this->container["xlas.corrector_repository"];
     }
 
-    public function factory() : ServicesFactory
+    public function services() : ServicesFactory
     {
         return $this->container["xlas.services_factory"];
     }

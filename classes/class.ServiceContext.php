@@ -19,6 +19,7 @@ use ilSession;
 use Edutiek\LongEssayAssessmentService\Data\PageImage;
 use Edutiek\LongEssayAssessmentService\Data\WritingSettings;
 use Edutiek\LongEssayAssessmentService\Data\PdfSettings;
+use ILIAS\Plugin\LongEssayAssessment\ServiceLayer\Common\FileHelper;
 
 abstract class ServiceContext implements BaseContext
 {
@@ -48,6 +49,8 @@ abstract class ServiceContext implements BaseContext
 
     /** @var DataService */
     protected $data;
+
+    protected FileHelper $file_helper;
 
     /**
      * @inheritDoc
@@ -96,6 +99,7 @@ abstract class ServiceContext implements BaseContext
 
         $this->task = $this->localDI->getTaskRepo()->getTaskSettingsById($this->object->getId());
         $this->data = $this->localDI->getDataService($this->object->getId());
+        $this->file_helper = $this->localDI->services()->common()->fileHelper();
     }
 
     /**
@@ -288,28 +292,11 @@ abstract class ServiceContext implements BaseContext
      */
     public function sendFileResource(string $key): void
     {
-        global $DIC;
-
         $repo = $this->localDI->getTaskRepo();
         $resources = $repo->getResourceByTaskId($this->object->getId(), [Resource::RESOURCE_TYPE_FILE, Resource::RESOURCE_TYPE_INSTRUCTION, Resource::RESOURCE_TYPE_SOLUTION]);
-
-        /** @var \ILIAS\Plugin\LongEssayAssessment\Data\Task\Resource $resource */
         foreach ($resources as $resource) {
             if ($resource->getId() == (int) $key) {
-                $identifier = "";
-
-                if (is_string($resource->getFileId())) {
-                    $identifier = $resource->getFileId();
-                } else {
-                    // TODO: ERROR Broken Resource
-                }
-
-                $resource_file = $DIC->resourceStorage()->manage()->find($identifier);
-                if ($resource_file !== null) {
-                    $DIC->resourceStorage()->consume()->inline($resource_file)->run();
-                } else {
-                    // TODO: Error resource not in Storage
-                }
+                $this->file_helper->deliverResource($resource->getFileId());
             }
         }
     }
@@ -319,16 +306,10 @@ abstract class ServiceContext implements BaseContext
      */
     public function sendPageThumb(string $key): void
     {
-        global $DIC;
-
         $repo = $this->localDI->getEssayRepo();
-        $repoImage = $repo->getEssayImageByID((int) $key);
-
-        if (!empty($repoImage) && !empty($repoImage->getFileId())) {
-            $identification = $DIC->resourceStorage()->manage()->find($repoImage->getThumbId());
-            if (!empty($identification)) {
-                $DIC->resourceStorage()->consume()->inline($identification)->run();
-            }
+        $image = $repo->getEssayImageByID((int) $key);
+        if (!empty($image)) {
+            $this->file_helper->deliverResource($image->getThumbId());
         }
     }
 
@@ -337,16 +318,10 @@ abstract class ServiceContext implements BaseContext
      */
     public function sendPageImage(string $key): void
     {
-        global $DIC;
-
         $repo = $this->localDI->getEssayRepo();
-        $repoImage = $repo->getEssayImageByID((int) $key);
-        
-        if (!empty($repoImage) && !empty($repoImage->getFileId())) {
-            $identification = $DIC->resourceStorage()->manage()->find($repoImage->getFileId());
-            if (!empty($identification)) {
-                $DIC->resourceStorage()->consume()->inline($identification)->run();
-            }
+        $image = $repo->getEssayImageByID((int) $key);
+        if (!empty($image)) {
+            $this->file_helper->deliverResource($image->getFileId());
         }
     }
 

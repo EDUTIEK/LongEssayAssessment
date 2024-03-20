@@ -10,8 +10,9 @@ class ServicesFactory
     protected Container $global_dic;
     protected LongEssayAssessmentDI $local_dic;
 
-    protected array $objectServices = [];
-    protected array $taskServices = [];
+    protected array $common_services = [];
+    protected array $object_services = [];
+    protected array $task_services = [];
 
     /**
      * Constructor
@@ -25,18 +26,34 @@ class ServicesFactory
     }
 
     /**
+     * Get the common services container (currently without parameter)
+     */
+    function common() : CommonServices
+    {
+        if (!isset($this->common_services[0])) {
+            $this->common_services[0] = new CommonServices(
+                $this->global_dic,
+                $this->local_dic,
+                new \Pimple\Container()
+            );
+        }
+        return $this->common_services[0];
+    }
+
+    /**
      * Get the services container for an object
      */
-    function objectServices(int $ref_id) : ObjectServices
+    function object(int $ref_id) : ObjectServices
     {
-        if (!isset($this->objectServices[$ref_id])) {
-            $this->objectServices[$ref_id] = new ObjectServices(
+        if (!isset($this->object_services[$ref_id])) {
+            $this->object_services[$ref_id] = new ObjectServices(
                 $ref_id,
                 $this->global_dic,
                 $this->local_dic,
                 new \Pimple\Container()
             );
         }
-        return $this->objectServices[$ref_id];
+        return $this->object_services[$ref_id];
     }
+
 }

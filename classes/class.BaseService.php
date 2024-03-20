@@ -9,6 +9,7 @@ namespace ILIAS\Plugin\LongEssayAssessment;
  */
 abstract class BaseService
 {
+    // todo: why public?
     public \ILIAS\DI\Container $dic;
     public \ilLanguage $lng;
     public \ilLongEssayAssessmentPlugin $plugin;

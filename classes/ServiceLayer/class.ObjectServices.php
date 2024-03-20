@@ -10,34 +10,32 @@ use ILIAS\Plugin\LongEssayAssessment\ServiceLayer\Object\IliasContext;
  */
 class ObjectServices
 {
-    protected int $obj_id;
     protected \ILIAS\DI\Container $global_dic;
     protected LongEssayAssessmentDI $local_dic;
-    protected \Pimple\Container $object_dic;
+    protected \Pimple\Container $service_dic;
 
     /**
-     * @param int $ref_id   ID of the LongEssayAssessment object to which the services relate
+     * @param int $ref_id   ref_id of the LongEssayAssessment object to which the services relates
      */
     public function __construct(
         int $ref_id,
         \ILIAS\DI\Container $global_dic,
         LongEssayAssessmentDI $local_dic,
-        \Pimple\Container $object_dic
+        \Pimple\Container $service_dic
     ) {
-        $this->obj_id = $ref_id;
         $this->global_dic = $global_dic;
         $this->local_dic = $local_dic;
-        $this->object_dic = $object_dic;
+        $this->service_dic = $service_dic;
 
         // fill the container
-        $object_dic['ilias_context'] = function() use ($ref_id) {
+        $service_dic['ilias_context'] = function() use ($ref_id) {
             return new IliasContext($ref_id);
         };
     }
 
     public function iliasContext() : IliasContext
     {
-        return $this->object_dic['ilias_context'];
+        return $this->service_dic['ilias_context'];
     }
 
 }

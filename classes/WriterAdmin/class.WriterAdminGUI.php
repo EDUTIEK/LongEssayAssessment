@@ -505,7 +505,7 @@ class WriterAdminGUI extends BaseGUI
             $this->ctrl->redirect($this, "showStartPage");
         }
 
-        ilUtil::deliverFile($zipfile, $name . '.zip', 'application/zip', true, true);
+        ilUtil::deliverFile($zipfile, $name . '.zip', 'application/zip', false, false);
     }
 
     protected function buildLocationForm($value = null): BlankForm

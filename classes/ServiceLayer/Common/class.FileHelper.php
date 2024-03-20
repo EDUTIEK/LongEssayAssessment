@@ -69,4 +69,33 @@ class FileHelper extends BaseService
             $this->http->close();
         }
     }
+
+
+    /**
+     * Deliver a file resource given by its absolute path
+     * The file is delivered by the FileDelivery dervice
+     * This takes advantage of an activated XSenfile instead of the streaming of the ResourceStorage service
+     *
+     * @param string $path  the absolute path of the file
+     * @param string $disposition 'inline' or 'attachment'
+     */
+    public function deliverFile(string $path, string $title, string $disposition = 'inline')
+    {
+        try {
+            $delivery = new Delivery($path, $this->http);
+            $delivery->setDownloadFileName($title);
+            $delivery->setDisposition($disposition);
+            $delivery->deliver();
+        }
+        catch (Exception $e) {
+            $response = $this->http->response()->withStatus(500);
+            $stream = $response->getBody();
+            $stream->write($e->getMessage());
+
+            $this->http->saveResponse($response);
+            $this->http->sendResponse();
+            $this->http->close();
+        }
+    }
+
 }

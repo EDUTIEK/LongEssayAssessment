@@ -153,8 +153,9 @@ class CorrectorAssignmentsService extends BaseService
             $r++;
         }
         $spreadsheet->setActiveSheet($corrector_sheet);
-        $spreadsheet->sendToClient("corrector_assignment.xlsx");
 
+        $file = $spreadsheet->writeToTmpFile();
+        \ilUtil::deliverFile($file, "corrector_assignment.xlsx", "", false, false);
     }
 
     /**

@@ -468,13 +468,13 @@ class CorrectorAdminGUI extends BaseGUI
     protected function exportCorrections()
     {
         $filename = \ilUtil::getASCIIFilename($this->plugin->txt('export_corrections_file_prefix') .' ' .$this->object->getTitle()) . '.zip';
-        ilUtil::deliverFile($this->service->createCorrectionsExport($this->object), $filename, 'application/zip', true, true);
+        ilUtil::deliverFile($this->service->createCorrectionsExport($this->object), $filename, 'application/zip', false, false);
     }
 
     protected function exportResults()
     {
         $filename = \ilUtil::getASCIIFilename($this->plugin->txt('export_results_file_prefix') .' ' . $this->object->getTitle()) . '.csv';
-        ilUtil::deliverFile($this->service->createResultsExport(), $filename, 'text/csv', true, true);
+        ilUtil::deliverFile($this->service->createResultsExport(), $filename, 'text/csv', false, false);
     }
 
     /**
@@ -523,7 +523,7 @@ class CorrectorAdminGUI extends BaseGUI
             $this->ctrl->redirect($this, "showStartPage");
         }
 
-        ilUtil::deliverFile($zipfile, $name . '.zip', 'application/zip', true, true);
+        ilUtil::deliverFile($zipfile, $name . '.zip', 'application/zip', false, false);
     }
 
     private function getWriterId(): ?int

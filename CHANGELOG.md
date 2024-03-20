@@ -3,6 +3,7 @@
 ## Version 1.5 (upcoming)
 - function to add all course tutors as correctors
 - optimized file delivery of instructions, material, solution
+- don't block writer startup by loading instructions and material
 
 ## Version 1.4.1 (2024-03-01)
 - fixed pseudonym creation for writers

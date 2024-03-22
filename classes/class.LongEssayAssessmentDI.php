@@ -20,6 +20,7 @@ use ILIAS\Plugin\LongEssayAssessment\WriterAdmin\WriterAdminService;
 use ILIAS\Plugin\LongEssayAssessment\Task\LoggingService;
 use ILIAS\Plugin\LongEssayAssessment\CorrectorAdmin\CorrectorAssignmentsService;
 use ILIAS\Plugin\LongEssayAssessment\ServiceLayer\ServicesFactory;
+use ILIAS\Plugin\LongEssayAssessment\Data\DataConstraints;
 
 /**
  * @author Fabian Wolf <wolf@ilias.de>
@@ -51,6 +52,13 @@ class LongEssayAssessmentDI
         $dic = $this->container;
 
         $dic["xlas.plugin"] = $plugin;
+
+        $dic["xlas.data_constraints"] = function() use ($dic) {
+            return new DataConstraints(
+                new \ILIAS\Data\Factory(),
+                $dic->language()
+            );
+        };
 
         $dic["xlas.custom_template_factory"] = function () use ($dic) {
             return new PluginTemplateFactory($dic["ui.template_factory"], $dic["xlas.plugin"], $dic["tpl"]);
@@ -153,6 +161,17 @@ class LongEssayAssessmentDI
         return self::$instance;
     }
 
+    public function constraints() : DataConstraints
+    {
+        return $this->container["xlas.data_constraints"];
+    }
+
+    public function services() : ServicesFactory
+    {
+        return $this->container["xlas.services_factory"];
+    }
+
+
     public function getSystemRepo(): SystemRepository
     {
         return $this->container["xlas.system_repository"];
@@ -183,10 +202,6 @@ class LongEssayAssessmentDI
         return $this->container["xlas.corrector_repository"];
     }
 
-    public function services() : ServicesFactory
-    {
-        return $this->container["xlas.services_factory"];
-    }
 
     //    /**
     //     * @return ComponentRenderer

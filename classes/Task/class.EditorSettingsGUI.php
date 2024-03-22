@@ -126,12 +126,12 @@ class EditorSettingsGUI extends BaseGUI
         $fields['add_correction_margin'] = $factory->optionalGroup(
             [
             'left_correction_margin' => $factory->numeric($this->plugin->txt('left_correction_margin'))
-                ->withAdditionalTransformation($this->refinery->to()->int())
+                ->withAdditionalTransformation($this->refinery->kindlyTo()->int())
                 ->withRequired(true)
                 ->withDisabled($hasComments)
                 ->withValue($editorSettings->getLeftCorrectionMargin()),
             'right_correction_margin' => $factory->numeric($this->plugin->txt('right_correction_margin'))
-                ->withAdditionalTransformation($this->refinery->to()->int())
+                ->withAdditionalTransformation($this->refinery->kindlyTo()->int())
                 ->withRequired(true)
                 ->withDisabled($hasComments)
                 ->withValue($editorSettings->getRightCorrectionMargin()),
@@ -162,25 +162,25 @@ class EditorSettingsGUI extends BaseGUI
 
         $fields['top_margin'] = $factory->numeric($this->plugin->txt('pdf_top_margin'), $this->plugin->txt('pdf_top_margin_info'))
             ->withAdditionalTransformation($this->refinery->to()->int())
-            ->withAdditionalTransformation($this->refinery->int()->isGreaterThan(4))
+            ->withAdditionalTransformation($this->localDI->constraints()->minimumInteger(5))
             ->withRequired(true)
             ->withValue($pdfSettings->getTopMargin());
 
         $fields['bottom_margin'] = $factory->numeric($this->plugin->txt('pdf_bottom_margin'), $this->plugin->txt('pdf_bottom_margin_info'))
             ->withAdditionalTransformation($this->refinery->to()->int())
-            ->withAdditionalTransformation($this->refinery->int()->isGreaterThan(4))
+            ->withAdditionalTransformation($this->localDI->constraints()->minimumInteger(5))
             ->withRequired(true)
             ->withValue($pdfSettings->getBottomMargin());
 
         $fields['left_margin'] = $factory->numeric($this->plugin->txt('pdf_left_margin'), $this->plugin->txt('pdf_left_margin_info'))
             ->withAdditionalTransformation($this->refinery->to()->int())
-            ->withAdditionalTransformation($this->refinery->int()->isGreaterThan(4))
+            ->withAdditionalTransformation($this->localDI->constraints()->minimumInteger(5))
             ->withRequired(true)
             ->withValue($pdfSettings->getLeftMargin());
 
         $fields['right_margin'] = $factory->numeric($this->plugin->txt('pdf_right_margin'), $this->plugin->txt('pdf_right_margin_info'))
             ->withAdditionalTransformation($this->refinery->to()->int())
-            ->withAdditionalTransformation($this->refinery->int()->isGreaterThan(4))
+            ->withAdditionalTransformation($this->localDI->constraints()->minimumInteger(5))
             ->withRequired(true)
             ->withValue($pdfSettings->getRightMargin());
 

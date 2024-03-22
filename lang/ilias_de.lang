@@ -535,3 +535,4 @@ assignment_excel_import_info#:#Die Zuweisungen werden vom ersten Blatt einer Exc
 add_all_course_tutors#:#Alle Tutoren hinzufügen
 confirm_add_all_course_tutors#:#Möchten Sie alle Kurstutoren als Korrektoren hinzufügen?
 tutors_added#:#Die Tutoren wurden hinzugefügt
+constraint_error_not_minimum#:#%s ist kleiner als das Minimum %s.

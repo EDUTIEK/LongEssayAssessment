@@ -1,3 +1,6 @@
+**Version 2 for ILIAS 8 is under development!**
+
+
 # LongEssayAssessment
 Plugin for the LMS ILIAS open source to realize exams with writing of long texts.
 
@@ -33,7 +36,7 @@ Please clear your browser cache after an update before you start the writing and
 The plugin is published for ILIAS in different branches:
 
 * **release1_ilias7** will receive bug fixes only
-* **release2_ilias8** will be created by March 2024
+* **release2_ilias8** will be created by April 2024
 * **main** is the current development branch. Please do not use it for production.
 
 Versions 2.x will receive bug fixes as well as new features without breaking existing functionality and data.

@@ -1,6 +1,6 @@
 # Change Log
 
-## Version 1.5 (upcoming)
+## Version 1.5 (2024-03-23)
 - plugin: function to add all course tutors as correctors
 - plugin: fixed 0040804: Minimal margin size is not set to minimum (5mm) but to 4
 - plugin: optimized file delivery of instructions, material, solution

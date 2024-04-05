@@ -235,7 +235,6 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                     break;
                 default:
                     $this->tpl->setOnScreenMessage("failure", 'Unsupported cmdClass: ' . $next_class, true);
-
             }
         } else {
             switch ($cmd) {

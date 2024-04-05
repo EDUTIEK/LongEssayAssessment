@@ -10,6 +10,8 @@ use ILIAS\UI\Factory;
 use ILIAS\UI\Renderer;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use ILIAS\Plugin\LongEssayAssessment\ServiceLayer\ObjectServices;
+use ILIAS\Plugin\LongEssayAssessment\ServiceLayer\CommonServices;
 
 /**
  * Base class for GUI classes (except the plugin guis required by ILIAS)
@@ -67,6 +69,9 @@ abstract class BaseGUI
 
     protected \ILIAS\ResourceStorage\Services $storage;
 
+    protected CommonServices $common_services;
+    protected ObjectServices $object_services;
+
     /**
      * Constructor
      * @param \ilObjLongEssayAssessmentGUI  $objectGUI
@@ -95,6 +100,8 @@ abstract class BaseGUI
         $this->data = $this->localDI->getDataService($this->object->getId());
         $this->params = $this->request->getQueryParams();
         $this->storage = $DIC->resourceStorage();
+        $this->common_services = $this->localDI->services()->common();
+        $this->object_services = $this->localDI->services()->object($this->object->getRefId());
     }
 
     /**
@@ -143,6 +150,12 @@ abstract class BaseGUI
     {
         if (!empty($settings = $this->localDI->getTaskRepo()->getEditorSettingsById($this->object->getId()))) {
             switch ($settings->getHeadlineScheme()) {
+                case EditorSettings::HEADLINE_SCHEME_SINGLE:
+                    $headline_class = "headlines-single";
+                    break;
+                case EditorSettings::HEADLINE_SCHEME_THREE:
+                    $headline_class = "headlines-three";
+                    break;
                 case EditorSettings::HEADLINE_SCHEME_EDUTIEK:
                     $headline_class = "headlines-edutiek";
                     break;
@@ -163,6 +176,12 @@ abstract class BaseGUI
 
         if (!empty($settings = $this->localDI->getTaskRepo()->getEditorSettingsById($this->object->getId()))) {
             switch ($settings->getHeadlineScheme()) {
+                case EditorSettings::HEADLINE_SCHEME_SINGLE:
+                    $this->tpl->addCss($this->plugin->getDirectory() .'/templates/css/headlines-single.css');
+                    break;
+                case EditorSettings::HEADLINE_SCHEME_THREE:
+                    $this->tpl->addCss($this->plugin->getDirectory() .'/templates/css/headlines-three.css');
+                    break;
                 case EditorSettings::HEADLINE_SCHEME_EDUTIEK:
                     $this->tpl->addCss($this->plugin->getDirectory() .'/templates/css/headlines-edutiek.css');
                     break;

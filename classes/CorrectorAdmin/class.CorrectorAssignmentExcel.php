@@ -23,4 +23,39 @@ class CorrectorAssignmentExcel extends \ilExcel
         $objValidation->setFormula1($a_target_formula);
         $this->workbook->getActiveSheet()->getCellByColumnAndRow($a_row, $a_col)->setDataValidation(clone $objValidation);
     }
+
+    /**
+     * Get the column titles in the forts row of the sheet
+     */
+    public function getColumnTitlesFromActiveSheet() : array
+    {
+        $data = $this->getSheetAsArray();
+        return $data[0] ?? [];
+    }
+
+    /**
+     * Get an array of records below the first line
+     * Each record is an associative array with column title as key
+     * @return array[][]
+     */
+    public function getAssocDataFromActiveSheet() : array
+    {
+        $data = $this->getSheetAsArray();
+        $columns = $this->getColumnTitlesFromActiveSheet();
+        $assoc = [];
+
+        for ($row = 1; $row <= count($data); $row++) {
+            $record = [];
+            foreach ($columns as $col => $label) {
+                if (!empty($label)) {
+                    $record[$label] = $data[$row][$col] ?? '';
+                }
+            }
+            if (!empty($record)) {
+                $assoc[] = $record;
+            }
+        }
+        return $assoc;
+    }
+
 }

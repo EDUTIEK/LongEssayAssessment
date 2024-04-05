@@ -353,6 +353,8 @@ class WriterStartGUI extends BaseGUI
 
             $filename = 'task' . $this->object->getId() . '_writer' . $repoWriter->getId(). '-writing.pdf';
             ilUtil::deliverData($service->getWritingAsPdf($this->object, $repoWriter), $filename, 'application/pdf');
+
+            //$this->common_services->fileHelper()->deliverData($service->getWritingAsPdf($this->object, $repoWriter), $filename, 'application/pdf');
         } else {
             $this->raisePermissionError();
         }
@@ -368,7 +370,7 @@ class WriterStartGUI extends BaseGUI
             $repoWriter = $this->localDI->getWriterRepo()->getWriterByUserIdAndTaskId($this->dic->user()->getId(), $this->object->getId());
 
             $filename = 'task' . $this->object->getId() . '_writer' . $repoWriter->getId(). '-correction.pdf';
-            ilUtil::deliverData($service->getCorrectionAsPdf($this->object, $repoWriter), $filename, 'application/pdf');
+            $this->common_services->fileHelper()->deliverData($service->getCorrectionAsPdf($this->object, $repoWriter), $filename, 'application/pdf');
         } else {
             $this->raisePermissionError();
         }
@@ -393,10 +395,6 @@ class WriterStartGUI extends BaseGUI
             $resource_admin = new ResourceAdmin($this->object->getId());
             $resource = $resource_admin->getResource($resource_id);
 
-            if ($resource->getType() == Resource::RESOURCE_TYPE_FILE && is_string($resource->getFileId())) {
-                $identifier = $resource->getFileId();
-            }
-
             if ($resource->getTaskId() != $this->object->getId()) {
                 $this->raisePermissionError();
             }
@@ -404,16 +402,9 @@ class WriterStartGUI extends BaseGUI
                 $this->raisePermissionError();
             }
 
-        } else {
-            // TODO: Error no resource ID in GET
-        }
-
-        $resource = $this->dic->resourceStorage()->manage()->find($identifier);
-
-        if ($resource !== null) {
-            $this->dic->resourceStorage()->consume()->download($resource)->run();
-        } else {
-            // TODO: Error resource not in Storage
+            if ($resource->getType() == Resource::RESOURCE_TYPE_FILE && is_string($resource->getFileId())) {
+                $this->common_services->fileHelper()->deliverResource($resource->getFileId(), 'attachment');
+            }
         }
     }
 
@@ -440,9 +431,7 @@ class WriterStartGUI extends BaseGUI
         if ($this->data->isInRange(time(), $this->data->dbTimeToUnix($this->task->getWritingStart()), null)) {
             $task_repo = $this->localDI->getTaskRepo();
             if (!empty($resource = $task_repo->getInstructionResource($this->object->getId()))) {
-                $identifier = $resource->getFileId();
-                $file = $this->dic->resourceStorage()->manage()->find($identifier);
-                $this->dic->resourceStorage()->consume()->download($file)->run();
+                $this->common_services->fileHelper()->deliverResource($resource->getFileId(), 'attachment');
             }
         }
     }
@@ -471,9 +460,7 @@ class WriterStartGUI extends BaseGUI
         if ($this->object->canViewSolution()) {
             $task_repo = $this->localDI->getTaskRepo();
             if (!empty($resource = $task_repo->getSolutionResource($this->object->getId()))) {
-                $identifier = $resource->getFileId();
-                $file = $this->dic->resourceStorage()->manage()->find($identifier);
-                $this->dic->resourceStorage()->consume()->download($file)->run();
+                $this->common_services->fileHelper()->deliverResource($resource->getFileId(), 'attachment');
             }
         }
     }

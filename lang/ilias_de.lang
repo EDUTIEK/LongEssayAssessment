@@ -108,9 +108,11 @@ task_solution#:#Lösungshinweise
 task_solution_info#:#Die Lösungshinweise werden erst ab einem festgelegten Zeitpunkt oder am Ende angezeigt. Dieser wird unter „Organisation ► Lösungshinweise verfügbar“ aktiviert und konfiguriert. Zusätzliche Hinweise können als Datei oder Weblink unter "Material" bereitgestellt werden.
 editor_settings#:#Schreiben der Aufgabe
 headline_scheme#:#Überschriften-Schema
-headline_scheme_none#:#Ohne Numerierung
-headline_scheme_numeric#:#Numeriert: 1 ‧ 1.1 ‧ 1.1.1
-headline_scheme_edutiek#:#Gutachten: A. ‧ I. ‧ 1. ‧ a. ‧ aa. ‧ (1)
+headline_scheme_single#:#Eine Ebene, ohne Numerierung
+headline_scheme_three#:#Drei Ebenen, ohne Numerierung
+headline_scheme_numeric#:#Hierarchische Numerierung: 1 ‧ 1.1 ‧ 1.1.1  ‧ ...
+headline_scheme_edutiek#:#Gutachten-Stil: A. ‧ I. ‧ 1. ‧ a. ‧ aa. ‧ (1)
+headline_scheme_description#:#Bei drei Ebenen ohne Numerierung haben die Überschriften unterschiedliche Größe, sonst eine einheitliche.
 formatting_options#:#Text-Formatierung
 formatting_options_none#:#Aus
 formatting_options_none_info#:#Keine Formatatierungs-Optionen
@@ -124,6 +126,8 @@ notice_boards#:#Notizbretter
 notice_boards_info#:#Anzahl der zur Verfügung gestellten Notitzbretter
 copy_allowed#:#Freies Kopieren erlauben
 copy_allowed_info#:#Texte können auch von anderen Webseiten kopiert werden. Das Kopieren im Text und von den Notizbrettern ist immer erlaubt.
+allow_spellcheck#:#Rechtschreibprüfung zulassen
+allow_spellcheck_info#:#Beim Schreiben der Aufgabe wird eine Rechtschreibprüfung durch den Browser zugelassen.
 add_resource#:#Material hinzufügen
 lp_passed#:#Bestanden
 lp_passed_info#:#Für Lernfortschritt und Vorbedingungen gilt diese Notenstufe als bestanden.
@@ -224,9 +228,11 @@ alert_send#:#Gesendet
 log_type_alert#:#Benachrichtigung
 log_entry_entered#:#Eingetragen
 log_entries#:#Protokolleinträge
-writing_authorized_log_description#:#Die Abgabe von %s wurde von %s nachträglich autorisiert.
-time_extension_log_description#:#Die Zeitverlängerung von %s wurde von %s auf %s Minuten geändert.
-writer_exclusion_log_description#:#Der Teilnehmer %s wurde von %s ausgeschlossen.
+log_entry_writing_post_authorized#:#Die Abgabe von %s wurde durch %s nachträglich autorisiert.
+log_entry_time_extension#:#Die Zeitverlängerung von %s wurde durch %s geändert.
+log_entry_time_extension_note#:#Verlängerung: %s Minuten
+log_entry_writer_exclusion#:#Der Teilnehmer %s wurde durch %s ausgeschlossen.
+log_entry_writer_removal#:#Der Teilnehmer %s wurde durch %s entfernt.
 log_type_exclusion#:#Ausschluss
 log_type_extension#:#Zeitverlängerung
 log_type_authorize#:#Authorisierung
@@ -245,7 +251,7 @@ writing_excluded_from#:#ausgeschlossen von
 repeal_exclude_participant#:#Ausschluss aufheben
 repeal_exclude_participant_confirmation#:#Wollen Sie den Ausschluss des folgenden Teilnehmers wirklich aufheben?
 missing_essay#:#Aufsatz konnte nicht gefunden werden.
-writer_exclusion_repeal_log_description#:#Der ausschluss von Teilnehmer %s wurde von %s aufgehoben.
+log_entry_writer_repealed_exclusion#:#Der Ausschluss von Teilnehmer %s wurde durch %s aufgehoben.
 essay_not_excluded#:#Der Teilnehmer wurde nicht ausgeschlossen und der Ausschluss kann daher nicht aufgehoben werden.
 exclude_writer_repeal_success#:#Teilnehmerausschluss erfolgreich aufgehoben.
 resource_availability_before#:#Vorab
@@ -288,7 +294,7 @@ assign_missing_correctors#:#Fehlende Zuteilungen: %s
 assign_available_correctors#:#Verfügbare Korrekturkräfte: %s
 required_correctors#:#Anzahl Korrektoren
 mutual_visibility#:#Gegenseitige Sichtbarkeit
-mutual_visibility_info#:#Korrektoren derselben Abgabe können ihre Korrekturen gegenseitig sehen, sobals sie autorisiert sind.
+mutual_visibility_info#:#Korrektoren derselben Abgabe können ihre Korrekturen gegenseitig sehen, sobald sie autorisiert sind.
 max_points#:#Maximale Punkte
 max_auto_distance#:#Maximaler Punkteunterschied
 max_auto_distance_info#:#Maximaler Unterschied zwischen niedrigster und höchster Punktzahl, bei der eine Durchschnittsnote gebildet werden kann und kein Stichentscheid notwendig ist
@@ -335,7 +341,7 @@ view_instructions#:#Aufgabenstellung ansehen
 view_solution#:#Lösungshinweise ansehen
 message_review_period#:#Die Einsichtnahme findet %s statt.
 content_not_available#:#Es ist kein Inhalt verfügbar
-resource_delete#:#Material erfolgreich gelöscht.
+resource_deleted#:#Material erfolgreich gelöscht.
 result_not_available#:#nicht verfügbar
 result_not_finalized#:#nicht festgelegt
 result_not_graded#:#ohne Note
@@ -359,12 +365,12 @@ remove_authorizations#:#Korrektur-Autorisierungen zurücknehmen
 confirm_remove_authorizations_for#:#Möchten Sie die Autorisierung der Korrektur(en) für %s zurücknehmen? Diese Aktion wird protokolliert.
 remove_authorizations_for_done#:#Die Korrektur-Autorisierungen für %s wurden zurückgenommen.
 remove_authorizations_for_failed#:#Die Korrektur-Autorisierungen für %s konnten nicht zurückgenommen werden.
-remove_authorization_log#:#Die Autorisierung der Korrekturen für %s wurde durch %s zurückgezogen.
+log_entry_removed_authorization#:#Die Autorisierung der Korrekturen für %s wurde durch %s zurückgezogen.
 remove_own_authorization#:#Autorisierung zurückziehen
 confirm_remove_own_authorization#:#Möchten Sie folgende Korrektur-Autorisierungen zurücknehmen? Diese Aktion wird protokolliert.
 remove_own_authorization_done#:#Ihre Korrektur-Autorisierungen wurden zurückgezogen.
 remove_own_authorization_failed#:#Ihre Korrektur-Autorisierung für %s konnte nicht zurücckgezogen werden.
-remove_own_authorization_log#:#Die Autorisierung der eigenen Korrektur für %s wurde durch %s zurückgezogen.
+log_entry_removed_own_authorization#:#Die Autorisierung der eigenen Korrektur für %s wurde durch %s zurückgezogen.
 own_position#:#Funktion
 own_correction#:#Eigene Korrekturen
 count_x_of_y#:#%s von %s
@@ -425,7 +431,7 @@ pdf_version_upload#:#PDF-Abgabe hochladen
 pdf_version_info_already_uploaded#:#Wenn Sie die vorhandene PDF-Abgabe entfernen oder ersetzen, werden die Markierungen und Kommentare bereits begonnener Korrekturen verworfen!
 pdf_version_info_started_essay#:#Teilnehmer/in hat bereits einen Text angefangen. Sind Sie sich sicher, dass Sie diese Ergebnisse mit dem PDF-Upload ergänzen möchten? Die Markierungen und Kommentare bereits begonnener Korrekturen werden verworfen.
 pdf_version_warning_authorized_essay#:#Teilnehmer/in hat bereits einen Text abgegeben und autorisiert. Sind Sie sich sicher, dass Sie diese Ergebnisse mit dem PDF-Upload ergänzen möchten? Die Markierungen und Kommentare bereits begonnener Korrekturen werden verworfen.
-writing_remove_authorize_log_description#:#Die Autorisierung der Abgabe von %s wurde von %s entfernt.
+log_entry_writing_removed_authorized#:#Die Autorisierung der Abgabe von %s wurde durch %s entfernt.
 pdf_version_download#:#PDF-Abgabe herunterladen
 download#:#Herunterladen
 pdf_version_header_writing#:#Text aus der Schreiboberfläche (wird hinzugefügt)
@@ -451,7 +457,8 @@ essay_average_points#:#Durchschnittspunkte
 grade_distribution#:#Notenverteilung
 corrections_all#:#Alle Korrekturen
 essay_correction_finlized#:#Finalisierte Korrekturen
-corrector_assignment_change_file_failure#:#Beim Auswerten der Datei ist etwas schiefgelaufen.
+corrector_assignment_change_file_success#:#Die Zuweisungen aus der Datei wurden vorgenommen.
+corrector_assignment_change_file_failure#:#Die Datei konnte nicht korrekt ausgewertet werden. Es wurden keine Änderungen vorgenommen.
 assignment_excel#:#Korrektorzuweisung
 assignment_excel_export#:#Export
 assignment_excel_import#:#Import
@@ -518,3 +525,14 @@ pdf_left_margin#:#Linker Rand (mm)
 pdf_left_margin_info#:#Minimum:  5
 pdf_right_margin#:#Rechter Rand (mm)
 pdf_right_margin_info#:#Minimum:  5
+unknown#:#unbekannt
+log_entry_note#:#Notiz von %s:
+import_missing_column#:#In der Datei fehlt eine Spalte mit dem Titel %s.
+import_line_user_not_found#:#Zeile %s: das Konto '%s' wurde nicht gefunden.
+import_line_writer_repeated#:#Zeile %s: das Konto '%s' wird wiederholt.
+import_line_corrector_repeated#:#Zeile %s: das Konto '%s' ist mehrfach zur Korrektur eingetragen.
+assignment_excel_import_info#:#Die Zuweisungen werden vom ersten Blatt einer Excel-Datei importiert, dessen erste Zeile die Spaltenbezeichnungen enthält. Sie muss die Bezeichnungen "Login" für den Teilnehmer, "Corrector 1" für den Korrektor und evtl. "Corrector 2" für einen Zweitkorrektor enthalten. In diesen Spalten werden  Login-Namen von Benutzerkonten eingetragen, die im System existieren müssen. Falls sie noch nicht als Teilnehmer oder Korrektoren eingetragen sind, wird das automatisch gemacht.
+add_all_course_tutors#:#Alle Tutoren hinzufügen
+confirm_add_all_course_tutors#:#Möchten Sie alle Kurstutoren als Korrektoren hinzufügen?
+tutors_added#:#Die Tutoren wurden hinzugefügt
+constraint_error_not_minimum#:#%s ist kleiner als das Minimum %s.

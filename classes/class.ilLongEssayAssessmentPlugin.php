@@ -18,6 +18,9 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
 {
     const ID = "xlas";
 
+    /** @var string[] List of supported languages */
+    const LANGUAGES = ['de'];
+
     /** @var Container */
     protected $dic;
 
@@ -153,15 +156,40 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
         return $this->dic->rbac()->system()->checkAccess("visible", SYSTEM_FOLDER_ID);
     }
 
+    /**
+     * Check if the plugin supports a language
+     */
+    public function hasLanguage($a_lang_code) : bool
+    {
+        return in_array($a_lang_code, self::LANGUAGES);
+    }
 
     /**
-     * Get a plugin text and use the variable, if not translated
+     * Get the default Language
+     */
+    public function getDefaultLanguage() : string
+    {
+        if ($this->hasLanguage($this->dic->language()->getDefaultLanguage())) {
+            return $this->dic->language()->getDefaultLanguage();
+        }
+        return self::LANGUAGES[0];
+    }
+
+    /**
+     * Get a plugin text and use the variable, if not translated, take the current language
      * @param string $a_var
+     * @param ?string $a_lang_code
      * @return string
      */
-    public function txt(string $a_var) : string
+    public function txt(string $a_var, ?string $a_lang_code = null) : string
     {
-        $txt = parent::txt($a_var);
+        if (isset($a_lang_code)) {
+            $txt = $this->dic->language()->txtlng($this->getPrefix(), $this->getPrefix() . "_" . $a_var, $a_lang_code);
+        }
+        else {
+            $txt = parent::txt($a_var);
+        }
+
         if (substr($txt, 0, 5) == '-rep_') {
             return $a_var;
         }

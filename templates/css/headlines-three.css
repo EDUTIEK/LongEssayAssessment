@@ -1,0 +1,13 @@
+/**
+ * Three level headline style of written contents
+ */
+
+.mce-content-body h1, .tox-menu h1, .headlines-three h1 {
+    font-size: 1.3em!important;
+}
+.mce-content-body h2, .tox-menu h2, .headlines-three h2 {
+    font-size: 1.15em!important;
+}
+.mce-content-body h3, .tox-menu h3, .headlines-three h3 {
+    font-size: 1.0em!important;
+}

@@ -138,7 +138,7 @@ class EssayRepository extends RecordRepo
 
     public function ifWriterHistoryExistByEssayIdAndHashAfter(int $essay_id, string $hash_after): bool
     {
-        $query = "SELECT * FROM " . WriterHistory::tableName() . " WHERE task_id = " . $this->db->quote($essay_id, 'integer') .
+        $query = "SELECT * FROM " . WriterHistory::tableName() . " WHERE essay_id = " . $this->db->quote($essay_id, 'integer') .
         " AND hash_after = ". $this->db->quote($hash_after, 'text');
         $records =  $this->queryRecords($query, WriterHistory::model());
 

@@ -20,6 +20,10 @@ use ILIAS\Plugin\LongEssayAssessment\Data\Task\TaskRepository;
 use ILIAS\Plugin\LongEssayAssessment\Data\Writer\Writer;
 use ILIAS\Data\UUID\Factory as UUID;
 use ilObjUser;
+use ILIAS\Plugin\LongEssayAssessment\Task\LoggingService;
+use ILIAS\Plugin\LongEssayAssessment\Data\Writer\WriterRepository;
+use ILIAS\Plugin\LongEssayAssessment\Data\Corrector\CorrectorRepository;
+use ilFileDelivery;
 
 /**
  * Service for maintaining correctors (business logic)
@@ -27,30 +31,23 @@ use ilObjUser;
  */
 class CorrectorAdminService extends BaseService
 {
-    /** @var CorrectionSettings */
-    protected $settings;
+    protected CorrectionSettings $settings;
+    protected WriterRepository $writerRepo;
+    protected CorrectorRepository $correctorRepo;
+    protected EssayRepository $essayRepo;
+    protected TaskRepository $taskRepo;
+    protected DataService $dataService;
+    protected LoggingService $loggingService;
 
-    /** @var \ILIAS\Plugin\LongEssayAssessment\Data\Writer\WriterRepository */
-    protected $writerRepo;
-
-    /** @var \ILIAS\Plugin\LongEssayAssessment\Data\Corrector\CorrectorRepository */
-    protected $correctorRepo;
-
-    /** @var EssayRepository */
-    protected $essayRepo;
-
-    /** @var TaskRepository */
-    protected $taskRepo;
-
-    /** @var DataService */
-    protected $dataService;
+    protected int $task_id;
 
     /**
-     * @inheritDoc
+     * Constructor
      */
     public function __construct(int $task_id)
     {
-        parent::__construct($task_id);
+        parent::__construct();
+        $this->task_id = $task_id;
 
         $this->settings = $this->localDI->getTaskRepo()->getCorrectionSettingsById($this->task_id) ??
             new CorrectionSettings($this->task_id);
@@ -60,6 +57,7 @@ class CorrectorAdminService extends BaseService
         $this->essayRepo = $this->localDI->getEssayRepo();
         $this->taskRepo = $this->localDI->getTaskRepo();
         $this->dataService = $this->localDI->getDataService($this->task_id);
+        $this->loggingService = $this->localDI->getLoggingService($this->task_id);
     }
 
     /**
@@ -73,16 +71,27 @@ class CorrectorAdminService extends BaseService
 
     /**
      * Get or create a writer object for an ILIAS user
-     * @param int $user_id
-     * @return Corrector
+     * A new corrector object is not yet saved
      */
-    public function getOrCreateCorrectorFromUserId(int $user_id) : Corrector
+    public function getCorrectorFromUserId(int $user_id) : Corrector
     {
         $corrector = $this->correctorRepo->getCorrectorByUserId($user_id, $this->settings->getTaskId());
         if (!isset($corrector)) {
             $corrector = Corrector::model();
             $corrector->setUserId($user_id);
             $corrector->setTaskId($this->settings->getTaskId());
+        }
+        return $corrector;
+    }
+
+    /**
+     * Get or create a writer object for an ILIAS user
+     * A new corrector object is already saved
+     */
+    public function getOrCreateCorrectorFromUserId(int $user_id) : Corrector
+    {
+        $corrector = $this->getCorrectorFromUserId($user_id);
+        if (empty($corrector->getId())) {
             $this->correctorRepo->save($corrector);
         }
         return $corrector;
@@ -425,7 +434,7 @@ class CorrectorAdminService extends BaseService
         $storage = $this->dic->filesystem()->temp();
         $basedir = ILIAS_DATA_DIR . '/' . CLIENT_ID . '/temp';
         $tempdir = 'xlas/'. (new UUID)->uuid4AsString();
-        $zipdir = $tempdir . '/' . \ilFileDelivery::returnASCIIFileName($object->getTitle());
+        $zipdir = $tempdir . '/' . ilFileDelivery::returnASCIIFilename($object->getTitle());
         $storage->createDir($zipdir);
 
         $repoTask = $this->taskRepo->getTaskSettingsById($object->getId());
@@ -433,7 +442,7 @@ class CorrectorAdminService extends BaseService
         foreach ($this->essayRepo->getEssaysByTaskId($repoTask->getTaskId()) as $repoEssay) {
             $repoWriter = $this->writerRepo->getWriterById($repoEssay->getWriterId());
 
-            $subdir = \ilFileDelivery::returnASCIIFileName(\ilObjUser::_lookupFullname($repoWriter->getUserId()) . ' (' . \ilObjUser::_lookupLogin($repoWriter->getUserId()) . ')');
+            $subdir = ilFileDelivery::returnASCIIFilename(\ilObjUser::_lookupFullname($repoWriter->getUserId()) . ' (' . \ilObjUser::_lookupLogin($repoWriter->getUserId()) . ')');
             $storage->createDir($zipdir . '/' . $subdir);
 
             $filename = $subdir . '-writing.pdf';
@@ -443,7 +452,7 @@ class CorrectorAdminService extends BaseService
             $storage->write($zipdir . '/' . $subdir. '/'. $filename, $this->getCorrectionAsPdf($object, $repoWriter));
         }
 
-        $zipfile = $basedir . '/' . $tempdir . '/' . \ilFileUtils::getASCIIFilename($object->getTitle()) . '.zip';
+        $zipfile = $basedir . '/' . $tempdir . '/' . ilFileDelivery::returnASCIIFilename($object->getTitle()) . '.zip';
         \ilFileUtils::zip($basedir . '/' . $zipdir, $zipfile);
         // With ILIAS 9 rewrite with this guide:
         // https://github.com/ILIAS-eLearning/ILIAS/blob/release_9/docs/development/file-handling.md#zip-and-unzip
@@ -622,24 +631,7 @@ class CorrectorAdminService extends BaseService
             $this->essayRepo->save($summary);
         }
 
-        // log the actions
-        $description = \ilLanguage::_lookupEntry(
-            $this->lng->getDefaultLanguage(),
-            $this->plugin->getPrefix(),
-            $this->plugin->getPrefix() . "_remove_authorization_log"
-        );
-
-        $datetime = new \ilDateTime(time(), IL_CAL_UNIX);
-        $names = \ilUserUtil::getNamePresentation([$writer->getUserId(), $DIC->user()->getId()], false, false, "", true);
-
-        $log_entry = new LogEntry();
-        $log_entry->setEntry(sprintf($description, $names[$writer->getUserId()] ?? "unknown", $names[$DIC->user()->getId()] ?? "unknown"))
-            ->setTaskId($essay->getTaskId())
-            ->setTimestamp($datetime->get(IL_CAL_DATETIME))
-            ->setCategory(LogEntry::CATEGORY_AUTHORIZE);
-
-        $this->taskRepo->save($log_entry);
-
+        $this->loggingService->addEntry(LogEntry::TYPE_CORRECTION_REMOVE_AUTHORIZATION, $this->dic->user()->getId(), $writer->getUserId());
         return true;
     }
 
@@ -667,7 +659,7 @@ class CorrectorAdminService extends BaseService
         $this->localDI->getEssayRepo()->save($summary);
     }
 
-    public function removeSingleAuthorization(Writer $writer, Corrector $corrector) : bool
+    public function removeOwnAuthorization(Writer $writer, Corrector $corrector) : bool
     {
         if (empty($essay = $this->essayRepo->getEssayByWriterIdAndTaskId($writer->getId(), $writer->getTaskId()))) {
             return false;
@@ -685,24 +677,7 @@ class CorrectorAdminService extends BaseService
         $summary->setCorrectionAuthorizedBy(null);
         $this->essayRepo->save($summary);
 
-        // log the actions
-        $description = \ilLanguage::_lookupEntry(
-            $this->lng->getDefaultLanguage(),
-            $this->plugin->getPrefix(),
-            $this->plugin->getPrefix() . "_remove_own_authorization_log"
-        );
-
-        $datetime = new \ilDateTime(time(), IL_CAL_UNIX);
-        $names = \ilUserUtil::getNamePresentation([$writer->getUserId(), $corrector->getUserId()], false, false, "", true);
-
-        $log_entry = new LogEntry();
-        $log_entry->setEntry(sprintf($description, $names[$writer->getUserId()] ?? "unknown", $names[$corrector->getUserId()] ?? "unknown"))
-            ->setTaskId($essay->getTaskId())
-            ->setTimestamp($datetime->get(IL_CAL_DATETIME))
-            ->setCategory(LogEntry::CATEGORY_AUTHORIZE);
-
-        $this->taskRepo->save($log_entry);
-
+        $this->loggingService->addEntry(LogEntry::TYPE_CORRECTION_REMOVE_OWN_AUTHORIZATION, $this->dic->user()->getId(), $writer->getUserId());
         return true;
     }
 

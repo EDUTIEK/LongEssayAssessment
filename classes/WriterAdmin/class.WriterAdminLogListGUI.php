@@ -187,8 +187,8 @@ class WriterAdminLogListGUI
             if(!in_array($this->getActualMode(), ["all", $log_entry->getCategory()])) {
                 continue;
             }
-
-            $this->entries[$log_entry->getTimestamp()] = $log_entry;
+            // use timestamp for sorting, add id to include all with same timestamp
+            $this->entries[$log_entry->getTimestamp() . 'log' . $log_entry->getId()] = $log_entry;
             $this->user_ids= array_merge($this->user_ids, $this->parseUserIDs($log_entry->getEntry()));
         }
     }
@@ -206,7 +206,7 @@ class WriterAdminLogListGUI
         $writer_ids = [];
 
         foreach ($alerts as $alert) {
-            $this->entries[$alert->getShownFrom()] = $alert;
+            $this->entries[$alert->getShownFrom(). 'alert'. $alert->getId()] = $alert;
             if($alert->getWriterId() !== null) {
                 $writer_ids[] = $alert->getWriterId();
             }

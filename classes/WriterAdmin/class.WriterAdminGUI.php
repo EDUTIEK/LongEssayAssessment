@@ -17,6 +17,8 @@ use ILIAS\UI\Component\Input\Container\Form\Standard;
 use ILIAS\UI\Component\Modal\RoundTrip;
 use ILIAS\UI\Implementation\Component\SignalGeneratorInterface;
 use ILIAS\Plugin\LongEssayAssessment\Writer\WriterContext;
+use ILIAS\Plugin\LongEssayAssessment\Task\LoggingService;
+use ilFileDelivery;
 
 /**
  *Start page for corrector admins
@@ -27,6 +29,16 @@ use ILIAS\Plugin\LongEssayAssessment\Writer\WriterContext;
  */
 class WriterAdminGUI extends BaseGUI
 {
+    protected LoggingService $loggingService;
+    protected WriterAdminService $writerAdminService;
+
+    public function __construct(\ilObjLongEssayAssessmentGUI $objectGUI)
+    {
+        parent::__construct($objectGUI);
+        $this->loggingService = $this->localDI->getLoggingService($this->object->getId());
+        $this->writerAdminService = $this->localDI->getWriterAdminService($this->object->getId());
+    }
+
     /**
      * Execute a command
      * This should be overridden in the child classes
@@ -120,31 +132,27 @@ class WriterAdminGUI extends BaseGUI
 
     private function excludeWriter()
     {
-        global $DIC;
         if(($id = $this->getWriterId()) === null) {
             $this->tpl->setOnScreenMessage("failure", $this->plugin->txt('missing_writer_id'), true);
             $this->ctrl->redirect($this, "showStartPage");
         }
-        $writer_repo = LongEssayAssessmentDI::getInstance()->getWriterRepo();
-        $writer = $writer_repo->getWriterById($id);
+        $writer = $this->localDI->getWriterRepo()->getWriterById($id);
 
         if($writer === null || $writer->getTaskId() !== $this->object->getId()) {
             $this->tpl->setOnScreenMessage("failure", $this->plugin->txt('missing_writer'), true);
             $this->ctrl->redirect($this, "showStartPage");
         }
-        $essay_repo = LongEssayAssessmentDI::getInstance()->getEssayRepo();
-        $essay = $essay_repo->getEssayByWriterIdAndTaskId($writer->getId(), $this->object->getId());
 
-        if($essay !== null && $essay->getEditStarted() !== null) {
-            $datetime = new \ilDateTime(time(), IL_CAL_UNIX);
-            $essay->setWritingExcluded($datetime->get(IL_CAL_DATETIME));
-            $essay->setWritingExcludedBy($DIC->user()->getId());
-            $essay_repo->save($essay);
-            $this->createExclusionLogEntry($writer);
-        } else {
-            // Writer hasn't started yet and is causally deleted
-            $writer_repo->deleteWriter($writer->getId());
-        }
+        // create essay to store the exclusion, even if writer hasn't started
+        // otherwise writer could start again in objects with instant participation
+        $essay = $this->writerAdminService->getOrCreateEssayForWriter($writer);
+
+        $datetime = new \ilDateTime(time(), IL_CAL_UNIX);
+        $essay->setWritingExcluded($datetime->get(IL_CAL_DATETIME));
+        $essay->setWritingExcludedBy($this->dic->user()->getId());
+        $this->localDI->getEssayRepo()->save($essay);
+
+        $this->loggingService->addEntry(LogEntry::TYPE_WRITER_EXCLUSION, $this->dic->user()->getId(), $writer->getUserId());
 
         $this->tpl->setOnScreenMessage("success", $this->plugin->txt("exclude_writer_success"), true);
         $this->ctrl->redirect($this, "showStartPage");
@@ -175,9 +183,10 @@ class WriterAdminGUI extends BaseGUI
         $essay->setWritingExcluded(null);
         $essay->setWritingExcludedBy(null);
         $essay_repo->save($essay);
-        $this->createExclusionRepealLogEntry($writer);
 
-        $this->tpl->setOnScreenMessage("success", $this->plugin->txt('exclude_writer_repeal_success'), true);
+        $this->loggingService->addEntry(LogEntry::TYPE_WRITER_REPEAL_EXCLUSION, $this->dic->user()->getId(), $writer->getUserId());
+
+        $this->tpl->setOnScreenMessage("success", $this->plugin->txt("exclude_writer_repeal_success"), true);
         $this->ctrl->redirect($this, "showStartPage");
     }
 
@@ -245,6 +254,8 @@ class WriterAdminGUI extends BaseGUI
             $essay_repo->deleteEssayByWriterId($id);
             $writer_repo->deleteWriter($id);
             $corr_repo->deleteCorrectorAssignmentByWriter($id);
+
+            $this->loggingService->addEntry(LogEntry::TYPE_WRITER_REMOVAL, $this->dic->user()->getId(), $writer->getUserId());
         }
         $this->tpl->setOnScreenMessage("success", $this->plugin->txt('remove_writer_success'), true);
         $this->ctrl->redirect($this, "showStartPage");
@@ -359,25 +370,30 @@ class WriterAdminGUI extends BaseGUI
     {
         $form = $this->buildExtensionForm()->withRequest($this->request);
 
-        if($data = $form->getData()) {
-            $writer_repo  = $this->localDI->getWriterRepo();
+        if ($data = $form->getData()) {
+            $writer_repo = $this->localDI->getWriterRepo();
             foreach ($this->getWriterIds() as $writer_id) {
                 $record = $this->getExtension($writer_id);
                 $record->setMinutes($data['extension']);
-                if($record->getMinutes() === 0) {
+                if ($record->getMinutes() === 0) {
                     $writer_repo->deleteTimeExtension($record->getWriterId(), $record->getTaskId());
                 } else {
                     $writer_repo->save($record);
                 }
 
-                $this->createExtensionLogEntry($record);
+                $writer = $writer_repo->getWriterById($writer_id);
+                $this->loggingService->addEntry(LogEntry::TYPE_TIME_EXTENSION,
+                    $this->dic->user()->getId(),
+                    $writer->getUserId(),
+                    sprintf($this->plugin->txt('log_entry_time_extension_note', $this->plugin->getDefaultLanguage()),
+                        $record->getMinutes())
+                );
             }
             $this->tpl->setOnScreenMessage("success", $this->lng->txt("settings_saved"), true);
-            exit();
         } else {
             echo($this->renderer->render($form));
-            exit();
         }
+        exit();
     }
 
 
@@ -460,108 +476,6 @@ class WriterAdminGUI extends BaseGUI
         return $record;
     }
 
-    private function createAuthorizeLogEntry(Essay $essay)
-    {
-        global $DIC;
-
-        $writer_repo = LongEssayAssessmentDI::getInstance()->getWriterRepo();
-        $task_repo = LongEssayAssessmentDI::getInstance()->getTaskRepo();
-        $writer = $writer_repo->getWriterById($essay->getWriterId());
-
-        $lng = $DIC->language();
-        $description = \ilLanguage::_lookupEntry(
-            $lng->getDefaultLanguage(),
-            $this->plugin->getPrefix(),
-            $this->plugin->getPrefix() . "_writing_authorized_log_description"
-        );
-        $names = \ilUserUtil::getNamePresentation([$writer->getUserId(), $essay->getWritingAuthorizedBy()], false, false, "", true);
-
-        $log_entry = new LogEntry();
-        $log_entry->setEntry(sprintf($description, $names[$writer->getUserId()] ?? "unknown", $names[$essay->getWritingAuthorizedBy()] ?? "unknown"))
-            ->setTaskId($this->object->getId())
-            ->setTimestamp($essay->getWritingAuthorized())
-            ->setCategory(LogEntry::CATEGORY_AUTHORIZE);
-
-        $task_repo->save($log_entry);
-    }
-
-    private function createExtensionLogEntry(TimeExtension $time_extension)
-    {
-        global $DIC;
-
-        $writer_repo = LongEssayAssessmentDI::getInstance()->getWriterRepo();
-        $task_repo = LongEssayAssessmentDI::getInstance()->getTaskRepo();
-        $writer = $writer_repo->getWriterById($time_extension->getWriterId());
-
-        $lng = $DIC->language();
-        $description = \ilLanguage::_lookupEntry(
-            $lng->getDefaultLanguage(),
-            $this->plugin->getPrefix(),
-            $this->plugin->getPrefix() . "_time_extension_log_description"
-        );
-
-        $datetime = new \ilDateTime(time(), IL_CAL_UNIX);
-        $names = \ilUserUtil::getNamePresentation([$writer->getUserId(), $DIC->user()->getId()], false, false, "", true);
-
-        $log_entry = new LogEntry();
-        $log_entry->setEntry(sprintf($description, $names[$writer->getUserId()] ?? "unknown", $names[$DIC->user()->getId()] ?? "unknown", $time_extension->getMinutes()))
-            ->setTaskId($this->object->getId())
-            ->setTimestamp($datetime->get(IL_CAL_DATETIME))
-            ->setCategory(LogEntry::CATEGORY_EXTENSION);
-
-        $task_repo->save($log_entry);
-    }
-
-    private function createExclusionLogEntry(Writer $writer)
-    {
-        global $DIC;
-        $task_repo = LongEssayAssessmentDI::getInstance()->getTaskRepo();
-
-        $lng = $DIC->language();
-
-        $description = \ilLanguage::_lookupEntry(
-            $lng->getDefaultLanguage(),
-            $this->plugin->getPrefix(),
-            $this->plugin->getPrefix() . "_writer_exclusion_log_description"
-        );
-
-        $datetime = new \ilDateTime(time(), IL_CAL_UNIX);
-        $names = \ilUserUtil::getNamePresentation([$writer->getUserId(), $DIC->user()->getId()], false, false, "", true);
-
-        $log_entry = new LogEntry();
-        $log_entry->setEntry(sprintf($description, $names[$writer->getUserId()] ?? "unknown", $names[$DIC->user()->getId()] ?? "unknown"))
-            ->setTaskId($this->object->getId())
-            ->setTimestamp($datetime->get(IL_CAL_DATETIME))
-            ->setCategory(LogEntry::CATEGORY_EXCLUSION);
-
-        $task_repo->save($log_entry);
-    }
-
-    private function createExclusionRepealLogEntry(Writer $writer)
-    {
-        global $DIC;
-        $task_repo = LongEssayAssessmentDI::getInstance()->getTaskRepo();
-
-        $lng = $DIC->language();
-
-        $description = \ilLanguage::_lookupEntry(
-            $lng->getDefaultLanguage(),
-            $this->plugin->getPrefix(),
-            $this->plugin->getPrefix() . "_writer_exclusion_repeal_log_description"
-        );
-
-        $datetime = new \ilDateTime(time(), IL_CAL_UNIX);
-        $names = \ilUserUtil::getNamePresentation([$writer->getUserId(), $DIC->user()->getId()], false, false, "", true);
-
-        $log_entry = new LogEntry();
-        $log_entry->setEntry(sprintf($description, $names[$writer->getUserId()] ?? "unknown", $names[$DIC->user()->getId()] ?? "unknown"))
-            ->setTaskId($this->object->getId())
-            ->setTimestamp($datetime->get(IL_CAL_DATETIME))
-            ->setCategory(LogEntry::CATEGORY_EXCLUSION);
-
-        $task_repo->save($log_entry);
-    }
-
     private function buildDeleteWriterDataModal()
     {
         return $this->uiFactory->modal()->interruptive(
@@ -579,14 +493,14 @@ class WriterAdminGUI extends BaseGUI
         }
 
         $service = $this->localDI->getWriterAdminService($this->object->getId());
-        $name = \ilFileUtils::getASCIIFilename($this->object->getTitle() .'_' . \ilObjUser::_lookupFullname($repoWriter->getUserId()));
+        $name = ilFileDelivery::returnASCIIFilename($this->object->getTitle() .'_' . \ilObjUser::_lookupFullname($repoWriter->getUserId()));
         $zipfile = $service->createWritingStepsExport($this->object, $repoWriter, $name);
         if (empty($zipfile)) {
             $this->tpl->setOnScreenMessage("failure", $this->plugin->txt("content_not_available"), true);
             $this->ctrl->redirect($this, "showStartPage");
         }
 
-        \ilFileDelivery::deliverFileAttached($zipfile, $name . '.zip', 'application/zip', true);
+        ilFileDelivery::deliverFileAttached($zipfile, $name . '.zip', 'application/zip', false);
     }
 
     protected function buildLocationForm($value = null): BlankForm
@@ -1009,7 +923,7 @@ class WriterAdminGUI extends BaseGUI
             && ($essay = $essay_repo->getEssayByWriterIdAndTaskId($id, $this->object->getId()))
             && $essay->getPdfVersion() !== null
             && ($identifier = $this->storage->manage()->find($essay->getPdfVersion()))) {
-            $name = \ilFileUtils::getASCIIFilename(
+            $name = ilFileDelivery::returnASCIIFilename(
                 $this->object->getTitle() . '_' .
                 $this->plugin->txt("pdf_version") . '_' .
                 \ilObjUser::_lookupFullname($writer->getUserId())

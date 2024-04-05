@@ -111,7 +111,7 @@ class GradesAdminGUI extends BaseGUI
         }
 
         if($authorized) {
-            $this->tpl->setOnScreenMessage("success", $this->plugin->txt("grade_level_cannot_edit_used_info"), false);
+            $this->tpl->setOnScreenMessage("info", $this->plugin->txt("grade_level_cannot_edit_used_info"));
         }
 
         $ptable = $this->uiFactory->table()->presentation(
@@ -238,7 +238,7 @@ class GradesAdminGUI extends BaseGUI
                 $this->tpl->setOnScreenMessage("success", $this->lng->txt("settings_saved"), true);
                 $this->ctrl->redirect($this, "showItems");
             } else {
-                // ilUtil::sendFailure($this->lng->txt("validation_error"), false);
+                // $this->tpl->setOnScreenMessage("failure", $this->lng->txt("validation_error"), false);
                 $this->editItem($form);
             }
         }

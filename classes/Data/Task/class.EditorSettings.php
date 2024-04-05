@@ -10,7 +10,8 @@ use ILIAS\Plugin\LongEssayAssessment\Data\RecordData;
  */
 class EditorSettings extends RecordData
 {
-    const HEADLINE_SCHEME_NONE = 'none';
+    const HEADLINE_SCHEME_SINGLE = 'single';
+    const HEADLINE_SCHEME_THREE = 'three';
     const HEADLINE_SCHEME_NUMERIC = 'numeric';
     const HEADLINE_SCHEME_EDUTIEK = 'edutiek';
 
@@ -33,11 +34,12 @@ class EditorSettings extends RecordData
         'add_paragraph_numbers' => 'integer',
         'add_correction_margin' => 'integer',
         'left_correction_margin' => 'integer',
-        'right_correction_margin' => 'integer'
+        'right_correction_margin' => 'integer',
+        'allow_spellcheck' => 'integer',
     ];
 
     protected int $task_id;
-    protected string $headline_scheme = self::HEADLINE_SCHEME_NONE;
+    protected string $headline_scheme = self::HEADLINE_SCHEME_THREE;
     protected string $formatting_options = self::FORMATTING_OPTIONS_MEDIUM;
     protected int $notice_boards = 0;
     protected int $copy_allowed = 0;
@@ -45,10 +47,22 @@ class EditorSettings extends RecordData
     protected int $add_correction_margin = 0;
     protected int $left_correction_margin = 0;
     protected int $right_correction_margin = 0;
+    protected int $allow_spellcheck = 0;
 
     public function __construct(int $task_id)
     {
         $this->task_id = $task_id;
+    }
+
+    public function getAllowSpellcheck() : bool
+    {
+        return (bool) $this->allow_spellcheck;
+    }
+
+    public function setAllowSpellcheck(bool $allow_spellcheck) : self
+    {
+        $this->allow_spellcheck = (int) $allow_spellcheck;
+        return $this;
     }
 
     public static function model()

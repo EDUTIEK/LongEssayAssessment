@@ -19,6 +19,7 @@ use ILIAS\Plugin\LongEssayAssessment\Task\ResourceUploadHandlerGUI;
 use ILIAS\Plugin\LongEssayAssessment\ilLongEssayAssessmentUploadTempFile;
 use ILIAS\Filesystem\Filesystem;
 use ILIAS\DI\Exceptions\Exception;
+use ilFileDelivery;
 
 /**
  *Start page for corrector admins
@@ -29,17 +30,15 @@ use ILIAS\DI\Exceptions\Exception;
  */
 class CorrectorAdminGUI extends BaseGUI
 {
-
-    /** @var CorrectorAdminService */
-    protected $service;
-    
-    /** @var CorrectionSettings */
-    protected $settings;
+    protected CorrectorAdminService $service;
+    protected CorrectorAssignmentsService  $assignment_service;
+    protected CorrectionSettings $settings;
 
     public function __construct(\ilObjLongEssayAssessmentGUI $objectGUI)
     {
         parent::__construct($objectGUI);
         $this->service = $this->localDI->getCorrectorAdminService($this->object->getId());
+        $this->assignment_service = $this->localDI->getCorrectorAssignmentService($this->object->getId());
         $this->settings = $this->localDI->getTaskRepo()->getCorrectionSettingsById($this->object->getId());
     }
 
@@ -54,10 +53,11 @@ class CorrectorAdminGUI extends BaseGUI
 
         switch ($next_class) {
             case 'ilrepositorysearchgui':
+                $this->tabs->activateSubTab('tab_corrector_list');
                 $rep_search = new \ilRepositorySearchGUI();
-                $rep_search->addUserAccessFilterCallable([$this, 'filterUserIdsByLETMembership']);
-                $rep_search->setCallback($this, "assignCorrectors");
-                $this->ctrl->setReturn($this, 'showStartPage');
+                $rep_search->addUserAccessFilterCallable([$this, 'addCorrectorsFilter']);
+                $rep_search->setCallback($this, "addCorrectorsCallback");
+                $this->ctrl->setReturn($this, 'showCorrectors');
                 $ret = $this->ctrl->forwardCommand($rep_search);
                 break;
             default:
@@ -66,6 +66,7 @@ class CorrectorAdminGUI extends BaseGUI
                     case 'showStartPage':
                     case 'showCorrectors':
                     case 'confirmAssignWriters':
+                    case 'addAllCourseTutors':
                     case 'assignWriters':
                     case 'changeCorrector':
                     case 'removeCorrector':
@@ -159,6 +160,7 @@ class CorrectorAdminGUI extends BaseGUI
         $this->toolbar->addText($this->plugin->txt("assignment_excel"));
         $this->toolbar->addComponent($btn_import);
         $this->toolbar->addComponent($btn_export);
+        /** @var \ILIAS\UI\Component\Component $btn_export_ass */
         $this->toolbar->addComponent($btn_export_ass);
         $this->toolbar->addSeparator();
 
@@ -196,13 +198,38 @@ class CorrectorAdminGUI extends BaseGUI
 
     protected function showCorrectors()
     {
+
+
         $this->toolbar->setFormAction($this->ctrl->getFormAction($this));
-        $this->showCorrectorToolbar();
+
+        \ilRepositorySearchGUI::fillAutoCompleteToolbar(
+            $this,
+            $this->toolbar,
+            array(
+                'auto_complete_name' => $this->lng->txt('user'),
+                'submit_name' => $this->lng->txt('add'),
+                'add_search' => true,
+                'add_from_container' => $this->object->getRefId()
+            )
+        );
+
+        // spacer
+        $this->toolbar->addSeparator();
+
+        // search button
+        if ($this->object_services->iliasContext()->isInCourse()) {
+            $modal = $this->uiFactory->modal()->interruptive('', '','')
+                                     ->withAsyncRenderUrl($this->ctrl->getLinkTarget($this, 'addAllCourseTutors'));
+            $button = $this->uiFactory->button()->standard($this->plugin->txt("add_all_course_tutors"), '')
+                                      ->withOnClick($modal->getShowSignal());
+
+            $this->toolbar->addComponent($button);
+            $this->tpl->addLightbox($this->renderer->render($modal), 'add_all_course_tutors');
+        }
 
         $di = LongEssayAssessmentDI::getInstance();
         $writers_repo = $di->getWriterRepo();
         $corrector_repo = $di->getCorrectorRepo();
-
 
         $list_gui = new CorrectorListGUI($this, "showCorrectors", $this->plugin);
         $list_gui->setWriters($writers_repo->getWritersByTaskId($this->object->getId()));
@@ -212,29 +239,47 @@ class CorrectorAdminGUI extends BaseGUI
         $this->tpl->setContent($list_gui->getContent());
     }
 
-    private function showCorrectorToolbar()
+    /**
+     * @return void
+     */
+    public function addAllCourseTutors()
     {
+        $user_ids = $this->object_services->iliasContext()->getCourseTutors();
 
-        \ilRepositorySearchGUI::fillAutoCompleteToolbar(
-            $this,
-            $this->toolbar,
-            array()
-        );
+        // Confirmation
+        if ($this->request->getMethod() != 'POST') {
+            ;
+            $items =[];
+            foreach ($user_ids as $user_id) {
+                $items[] = $this->uiFactory->modal()->interruptiveItem(
+                    $user_id, \ilObjUser::_lookupFullname($user_id));
+            }
+            $modal = $this->uiFactory->modal()->interruptive(
 
-        // spacer
-        $this->toolbar->addSeparator();
+                $this->plugin->txt('add_all_course_tutors'),
+                $this->plugin->txt('confirm_add_all_course_tutors'),
+                $this->ctrl->getLinkTarget($this, 'addAllCourseTutors')
+            )->withAffectedItems($items)
+            ->withActionButtonLabel('add');
+            echo $this->renderer->render($modal);
+            exit;
+        }
 
-        // search button
-        $this->toolbar->addButton(
-            $this->plugin->txt("search_correctors"),
-            $this->ctrl->getLinkTargetByClass(
-                'ilRepositorySearchGUI',
-                'start'
-            )
-        );
+        // Action
+        foreach($user_ids as $id) {
+            $this->service->getOrCreateCorrectorFromUserId($id);
+        }
+
+
+        $this->tpl->setOnScreenMessage("success", $this->plugin->txt('tutors_added'), true);
+        $this->ctrl->redirect($this, 'showCorrectors');
     }
 
-    public function assignCorrectors(array $a_usr_ids, $a_type = null)
+
+    /**
+     * Callback for adding correctors by ilRepositorySearchGUI
+     */
+    public function addCorrectorsCallback(array $a_usr_ids, $a_type = null)
     {
         if (count($a_usr_ids) <= 0) {
             $this->tpl->setOnScreenMessage("failure", $this->plugin->txt('missing_corrector_id'), true);
@@ -249,7 +294,10 @@ class CorrectorAdminGUI extends BaseGUI
         $this->ctrl->redirect($this, "showCorrectors");
     }
 
-    public function filterUserIdsByLETMembership($a_user_ids)
+    /**
+     * Filter for searching correctors by lRepositorySearchGUI
+     */
+    public function addCorrectorsFilter($a_user_ids)
     {
         $user_ids = [];
         $corrector_repo = LongEssayAssessmentDI::getInstance()->getCorrectorRepo();
@@ -419,14 +467,14 @@ class CorrectorAdminGUI extends BaseGUI
 
     protected function exportCorrections()
     {
-        $filename = \ilFileDelivery::returnASCIIFileName($this->plugin->txt('export_corrections_file_prefix') .' ' .$this->object->getTitle()) . '.zip';
-        \ilFileDelivery::deliverFileAttached($this->service->createCorrectionsExport($this->object), $filename, 'application/zip', true);
+        $filename = ilFileDelivery::returnASCIIFilename($this->plugin->txt('export_corrections_file_prefix') .' ' .$this->object->getTitle()) . '.zip';
+        ilFileDelivery::deliverFileAttached($this->service->createCorrectionsExport($this->object), $filename, 'application/zip', false);
     }
 
     protected function exportResults()
     {
-        $filename = \ilFileUtils::getASCIIFilename($this->plugin->txt('export_results_file_prefix') .' ' . $this->object->getTitle()) . '.csv';
-        \ilFileDelivery::deliverFileAttached($this->service->createResultsExport(), $filename, 'text/csv', true);
+        $filename = ilFileDelivery::returnASCIIFilename($this->plugin->txt('export_results_file_prefix') .' ' . $this->object->getTitle()) . '.csv';
+        ilFileDelivery::deliverFileAttached($this->service->createResultsExport(), $filename, 'text/csv', false);
     }
 
     /**
@@ -441,7 +489,7 @@ class CorrectorAdminGUI extends BaseGUI
         $repoWriter = $this->localDI->getWriterRepo()->getWriterById($writer_id);
 
         $filename = 'task' . $this->object->getId() . '_writer' . $repoWriter->getId(). '-writing.pdf';
-        \ilFileDelivery::deliverFileAttached($service->getWritingAsPdf($this->object, $repoWriter), $filename, 'application/pdf');
+        $this->common_services->fileHelper()->deliverData($service->getWritingAsPdf($this->object, $repoWriter), $filename, 'application/pdf');
     }
 
 
@@ -457,7 +505,7 @@ class CorrectorAdminGUI extends BaseGUI
         $repoWriter = $this->localDI->getWriterRepo()->getWriterById($writer_id);
 
         $filename = 'task' . $this->object->getId() . '_writer' . $repoWriter->getId(). '-correction.pdf';
-        \ilFileDelivery::deliverFileAttached($service->getCorrectionAsPdf($this->object, $repoWriter), $filename, 'application/pdf');
+        $this->common_services->fileHelper()->deliverData($service->getCorrectionAsPdf($this->object, $repoWriter), $filename, 'application/pdf');
     }
 
     private function exportSteps()
@@ -468,14 +516,14 @@ class CorrectorAdminGUI extends BaseGUI
         }
 
         $service = $this->localDI->getWriterAdminService($this->object->getId());
-        $name = \ilFileUtils::getASCIIFilename($this->object->getTitle() .'_' . \ilObjUser::_lookupFullname($repoWriter->getUserId()));
+        $name = ilFileDelivery::returnASCIIFilename($this->object->getTitle() .'_' . \ilObjUser::_lookupFullname($repoWriter->getUserId()));
         $zipfile = $service->createWritingStepsExport($this->object, $repoWriter, $name);
         if (empty($zipfile)) {
             $this->tpl->setOnScreenMessage("failure", $this->plugin->txt("content_not_available"), true);
             $this->ctrl->redirect($this, "showStartPage");
         }
 
-        \ilFileDelivery::deliverFileAttached($zipfile, $name . '.zip', 'application/zip', true);
+        ilFileDelivery::deliverFileAttached($zipfile, $name . '.zip', 'application/zip', false);
     }
 
     private function getWriterId(): ?int
@@ -695,8 +743,6 @@ class CorrectorAdminGUI extends BaseGUI
 
     public function correctorAssignmentSpreadsheetImport()
     {
-        $corrector_repo = $this->localDI->getCorrectorRepo();
-        $task_repo = $this->localDI->getTaskRepo();
         $tempfile = new ilLongEssayAssessmentUploadTempFile($this->storage, $this->dic->filesystem(), $this->dic->upload());
 
         $form = $this->uiFactory->input()->container()->form()->standard(
@@ -706,7 +752,8 @@ class CorrectorAdminGUI extends BaseGUI
                     $this->storage,
                     $tempfile
                 ),
-                $this->plugin->txt("assignment_excel_import")
+                $this->plugin->txt("assignment_excel_import"),
+                $this->plugin->txt("assignment_excel_import_info")
             )]
         );
 
@@ -715,172 +762,36 @@ class CorrectorAdminGUI extends BaseGUI
 
             if($data = $form->getData()) {
                 $filename = $data['excel'][0];
-                $needed_corr = $task_repo->getCorrectionSettingsById($this->object->getId())->getRequiredCorrectors();
 
                 try {
-                    $spreadsheet = new CorrectorAssignmentExcel();
-                    $spreadsheet->loadFromFile(ILIAS_DATA_DIR . '/' . CLIENT_ID . '/temp/' . $filename);
-
-                    $spreadsheet->setActiveSheet(1);
-                    $corrector = [];
-                    $r = 2;
-                    while (($id = $spreadsheet->getCell($r, 0)) != null) {
-                        $login = $spreadsheet->getCell($r, 1);
-                        $corrector[$login] = $id;
-                        $r++;
-                    }
-                    $spreadsheet->setActiveSheet(0);
-                    $corrector_assignments = [];
-                    $r = 2;
-                    while (($id = $spreadsheet->getCell($r, 0)) != null) {
-                        $assigned = [];
-                        foreach(range(0, $needed_corr-1) as $pos) {
-                            $login = $spreadsheet->getCell($r, 8+$pos);
-                            $assigned[$pos] = (int) $corrector[$login] ?? CorrectorAdminService::BLANK_CORRECTOR_ASSIGNMENT;
-                        }
-
-                        $corrector_assignments[$id] = $assigned;
-                        $r++;
-                    }
-
-                    foreach($corrector_assignments as $writer_id => $as) {
-                        $fa = $as[0];
-                        $sa = $needed_corr == 2 ? $as[1] : CorrectorAdminService::UNCHANGED_CORRECTOR_ASSIGNMENT;
-
-                        $this->service->assignMultipleCorrector($fa, $sa, [$writer_id]);
-                    }
+                    $this->assignment_service->importAssignments(ILIAS_DATA_DIR . '/' . CLIENT_ID . '/temp/' . $filename);
+                    $this->tpl->setOnScreenMessage("success", $this->plugin->txt("corrector_assignment_change_file_success"), true);
                     $tempfile->removeTempFile($filename);
-                    $this->tpl->setOnScreenMessage("success", $this->plugin->txt("corrector_assignment_changed"), true);
                     $this->ctrl->redirect($this);
-                } catch (\Exception $exception) {
+                }
+                catch (CorrectorAssignmentsException $exception) {
                     $tempfile->removeTempFile($filename);
-                    $this->tpl->setOnScreenMessage("failure", $this->plugin->txt("corrector_assignment_change_file_failure"), true);
+                    $this->tpl->setOnScreenMessage("failure", $this->plugin->txt("corrector_assignment_change_file_failure")
+                        . '<p class="small">' . nl2br($exception->getMessage()), true) . '</p>';
+                }
+                catch (\Exception $exception) {
+                    $tempfile->removeTempFile($filename);
+                    $this->tpl->setOnScreenMessage("failure", $this->plugin->txt("corrector_assignment_change_file_failure"));
                 }
             }
         }
-        $this->tpl->setOnScreenMessage("info", $this->plugin->txt("change_corrector_info"), false);
+
         $this->tpl->setContent($this->renderer->render($form));
     }
 
     public function correctorAssignmentSpreadsheetExport()
     {
-        $corrector_repo = $this->localDI->getCorrectorRepo();
-        $writer_repo = $this->localDI->getWriterRepo();
-        $task_repo = $this->localDI->getTaskRepo();
-        $essay_repo = $this->localDI->getEssayRepo();
-        $needed_corr = $task_repo->getCorrectionSettingsById($this->object->getId())->getRequiredCorrectors();
-        $participant_title = "Writer";
-        $corrector_title = "Corrector";
-        $locations = [];
-
-        foreach($task_repo->getLocationsByTaskId($this->object->getId()) as $location) {
-            $locations[$location->getId()] = $location;
+        try {
+            $this->assignment_service->exportAssignments($this->spreadsheetAssignmentToggle());
         }
-
-        $essays = [];
-
-        foreach($essay_repo->getEssaysByTaskId($this->object->getId()) as $essay) {
-            $essays[$essay->getWriterId()] = $essay;
+        catch (Exception $e) {
+            // maybe logging
         }
-        $corrector = [];
-        foreach($corrector_repo->getCorrectorsByTaskId($this->object->getId()) as $r) {
-            $corrector[$r->getId()] = $r;
-        }
-
-        $writer = $writer_repo->getWritersByTaskId($this->object->getId());
-
-        if($this->spreadsheetAssignmentToggle()) {
-
-            $authorized_user = [];
-            foreach($essays as $writer_id => $essay) {
-                if($essay->getWritingAuthorized() !== null) {
-                    $authorized_user[] = $essay->getWriterId();
-                }
-            }
-            $writer = array_filter($writer, fn ($x) => in_array($x->getId(), $authorized_user));
-        }
-
-        $users = [];
-
-        foreach(\ilObjUser::_getUserData(array_merge(
-            array_map(fn (Corrector $x) => $x->getUserId(), $corrector),
-            array_map(fn (Writer $x) => $x->getUserId(), $writer),
-        )) as $u) {
-            $users[(int)$u['usr_id']] = $u;
-        }
-
-        $assignments = [];
-
-        foreach($corrector_repo->getAssignmentsByTaskId($this->object->getId()) as $assignment) {
-            $assignments[$assignment->getWriterId()][$assignment->getPosition()] = $assignment;
-        }
-        $r = 2;
-        $spreadsheet = new CorrectorAssignmentExcel();
-        $writer_sheet = $spreadsheet->addSheet($participant_title, true);
-        $corrector_sheet = $spreadsheet->addSheet($corrector_title, false);
-        $spreadsheet->setCell(1, 0, 'Id');
-        $spreadsheet->setCell(1, 1, 'Login');
-        $spreadsheet->setCell(1, 2, 'Firstname');
-        $spreadsheet->setCell(1, 3, 'Lastname');
-        $spreadsheet->setCell(1, 4, 'Email');
-        $spreadsheet->setCell(1, 5, 'Pseudonym');
-        $spreadsheet->setCell(1, 6, 'Location');
-        $spreadsheet->setCell(1, 7, 'Words');
-        foreach(range(0, $needed_corr-1) as $pos) {
-            $spreadsheet->setCell(1, 8+$pos, 'Corrector ' . ($pos+1));
-        }
-
-        foreach($writer as $w) {
-            $data = $users[$w->getUserId()] ?? [];
-            $ass = $assignments[$w->getId()] ?? [];
-            ksort($ass);
-            $essay = $essays[$w->getId()] ?? null;
-            $location = $essay !== null ? $locations[$essay->getLocation()] ?? null : null;
-            $written_text = $essay !== null ? $essay->getWrittenText() : "";
-            $location_text = $location !== null ? $location->getTitle() : "";
-
-            $spreadsheet->setCell($r, 0, $w->getId());
-            $spreadsheet->setCell($r, 1, $data['login'] ?? "");
-            $spreadsheet->setCell($r, 2, $data['firstname'] ?? "");
-            $spreadsheet->setCell($r, 3, $data['lastname'] ?? "");
-            $spreadsheet->setCell($r, 4, $data['email'] ?? "");
-            $spreadsheet->setCell($r, 5, $w->getPseudonym());
-            $spreadsheet->setCell($r, 6, $location_text);
-            $spreadsheet->setCell($r, 7, str_word_count($written_text));
-
-            foreach(range(0, $needed_corr-1) as $pos) {
-                $spreadsheet->addDropdownCol($r, 8+$pos, '=\''.$corrector_title.'\'!$B$2:$B$'.(count($corrector)+1));
-            }
-
-            foreach ($ass as $a) {
-                $c = $corrector[$a->getCorrectorId()] ?? null;
-                $login = $c !== null && isset($users[$c->getUserId()]) ? $users[$c->getUserId()]['login'] ?? '' : '';
-                $spreadsheet->setCell($r, 8+$a->getPosition(), $login);
-            }
-            $r++;
-        }
-        $r = 2;
-        $spreadsheet->setActiveSheet($corrector_sheet);
-        $spreadsheet->setCell(1, 0, "Id");
-        $spreadsheet->setCell(1, 1, 'Login');
-        $spreadsheet->setCell(1, 2, 'Firstname');
-        $spreadsheet->setCell(1, 3, 'Lastname');
-        $spreadsheet->setCell(1, 4, 'Email');
-
-        foreach($corrector as $c) {
-            $data = $users[$c->getUserId()] ?? [];
-            $ass = $assignments[$c->getId()] ?? [];
-            ksort($ass);
-
-            $spreadsheet->setCell($r, 0, $c->getId());
-            $spreadsheet->setCell($r, 1, $data['login'] ?? "");
-            $spreadsheet->setCell($r, 2, $data['firstname'] ?? "");
-            $spreadsheet->setCell($r, 3, $data['lastname'] ?? "");
-            $spreadsheet->setCell($r, 4, $data['email'] ?? "");
-            $r++;
-        }
-        $spreadsheet->setActiveSheet($corrector_sheet);
-        $spreadsheet->sendToClient("corrector_assignment.xlsx");
         $this->ctrl->redirect($this);
     }
 

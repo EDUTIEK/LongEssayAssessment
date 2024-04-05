@@ -74,7 +74,7 @@ class OrgaSettingsGUI extends BaseGUI
      */
     protected function updateTaskSettings(array $a_data, TaskSettings $a_task_settings, array $locations)
     {
-        // ilUtil::sendInfo('<pre>'.print_r($a_data, true) .'<pre>', true);
+        // $this->tpl->setOnScreenMessage("info", '<pre>'.print_r($a_data, true) .'<pre>', true);
         $di = LongEssayAssessmentDI::getInstance();
         $task_repo = $di->getTaskRepo();
 

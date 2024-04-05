@@ -7,22 +7,26 @@ use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\Alert;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\LogEntry;
 use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
+use \ilUtil;
+use ILIAS\Plugin\LongEssayAssessment\Task\LoggingService;
+use ilFileDelivery;
 
 /**
- *Start page for corrector admins
+ * Maintenance of the writer admin log
+ * NOTE: the log gets also entries from correction
  *
  * @package ILIAS\Plugin\LongEssayAssessment\WriterAdmin
  * @ilCtrl_isCalledBy ILIAS\Plugin\LongEssayAssessment\WriterAdmin\WriterAdminLogGUI: ilObjLongEssayAssessmentGUI
  */
 class WriterAdminLogGUI extends BaseGUI
 {
-    /** @var WriterAdminService */
+    /** @var LoggingService */
     protected $service;
 
     public function __construct(\ilObjLongEssayAssessmentGUI $objectGUI)
     {
         parent::__construct($objectGUI);
-        $this->service = $this->localDI->getWriterAdminService($this->object->getId());
+        $this->service = $this->localDI->getLoggingService($this->object->getId());
     }
 
     /**
@@ -97,29 +101,25 @@ class WriterAdminLogGUI extends BaseGUI
                 $task_repo->save($alert);
 
                 $this->tpl->setOnScreenMessage("success", $this->plugin->txt("alert_created"), true);
-			}
-			$this->ctrl->redirect($this, "showStartPage");
-		}
-	}
+            } else {
+                $this->tpl->setOnScreenMessage("failure", $this->lng->txt("validation_error"), true);
+            }
+            $this->ctrl->redirect($this, "showStartPage");
+        }
+    }
 
     private function createLogEntry()
     {
-
         if ($this->request->getMethod() == "POST") {
             $data = $_POST;
 
             // inputs are ok => save data
-            if (array_key_exists("entry", $data) && strlen($data["entry"]) > 0) {
-                $log_entry = new LogEntry();
-                $log_entry->setTaskId($this->object->getId());
-                $log_entry->setTimestamp((new \ilDateTime(time(), IL_CAL_UNIX))->get(IL_CAL_DATETIME));
-                $log_entry->setEntry($data['entry']);
-                $log_entry->setCategory(LogEntry::CATEGORY_NOTE);
-
-                $task_repo = LongEssayAssessmentDI::getInstance()->getTaskRepo();
-                $task_repo->save($log_entry);
+            if (!empty($data['entry'])) {
+                $this->service->addEntry(LogEntry::TYPE_NOTE, $this->dic->user()->getId(), null, $data['entry']);
 
                 $this->tpl->setOnScreenMessage("success", $this->plugin->txt("log_entry_created"), true);
+            } else {
+                $this->tpl->setOnScreenMessage("failure", $this->lng->txt("validation_error"), true);
             }
 			$this->ctrl->redirect($this, "showStartPage");
 		}
@@ -150,7 +150,7 @@ class WriterAdminLogGUI extends BaseGUI
         $item->setValue('submit');
         $form->addItem($item);
 
-        return $this->buildFormModal($this->plugin->txt("create_alert"), $form);
+        return $this->buildFormModal($this->plugin->txt("create_alert"), $this->lng->txt('send'), $form);
     }
 
     private function buildFormModalLogEntry(): \ILIAS\UI\Component\Modal\RoundTrip
@@ -169,11 +169,16 @@ class WriterAdminLogGUI extends BaseGUI
         $item->setValue('submit');
         $form->addItem($item);
 
-        return $this->buildFormModal($this->plugin->txt("create_log_entry"), $form);
+        return $this->buildFormModal($this->plugin->txt("create_log_entry"), $this->lng->txt('save'), $form);
     }
 
-
-    private function buildFormModal(string $title, \ilPropertyFormGUI $form): \ILIAS\UI\Component\Modal\RoundTrip
+    /**
+     * @param string             $title     title of the modal
+     * @param string             $submit    text of the submit button (send or save))
+     * @param \ilPropertyFormGUI $form      form to be displayed i nthe modal
+     * @return \ILIAS\UI\Component\Modal\RoundTrip
+     */
+    private function buildFormModal(string $title, string $submit, \ilPropertyFormGUI $form): \ILIAS\UI\Component\Modal\RoundTrip
     {
         global $DIC;
         $factory = $DIC->ui()->factory();
@@ -186,7 +191,7 @@ class WriterAdminLogGUI extends BaseGUI
 
         // Build a submit button (action button) for the modal footer
         $form_id = 'form_' . $form->getId();
-        $submit = $factory->button()->primary('Submit', '#')
+        $submit = $factory->button()->primary($submit, '#')
             ->withOnLoadCode(function ($id) use ($form_id) {
                 return "$('#{$id}').click(function() { $('#{$form_id}').submit(); return false; });";
             });
@@ -217,8 +222,8 @@ class WriterAdminLogGUI extends BaseGUI
 
     private function exportLog()
     {
-        $filename = \ilFileUtils::getASCIIFilename($this->plugin->txt('export_log_file_prefix') .' ' . $this->object->getTitle()) . '.csv';
-        \ilFileDelivery::deliverFileAttached($this->service->createLogExport(), $filename, 'text/csv', true, true);
+        $filename = ilFileDelivery::returnASCIIFilename($this->plugin->txt('export_log_file_prefix') .' ' . $this->object->getTitle()) . '.csv';
+        $this->common_services->fileHelper()->deliverData($this->service->createCsv(), $filename, 'text/csv');
     }
 
 }

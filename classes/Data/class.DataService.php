@@ -25,17 +25,13 @@ use ILIAS\Plugin\LongEssayAssessment\Data\Task\CorrectionSettings;
  */
 class DataService extends BaseService
 {
-    /** @var WriterRepository */
-    protected $writerRepo;
+    protected WriterRepository $writerRepo;
+    protected EssayRepository $essayRepo;
+    protected CorrectorRepository $correctorRepo;
 
-    /** @var EssayRepository */
-    protected $essayRepo;
-
-    /** @var CorrectorRepository */
-    protected $correctorRepo;
+    protected int $task_id;
 
     /* cached data objects */
-
     private $ownWriter = null;
     private $ownWriterLoaded = false;
 
@@ -61,11 +57,12 @@ class DataService extends BaseService
 
 
     /**
-     * @inheritDoc
+     * Constructor
      */
     public function __construct(int $task_id)
     {
-        parent::__construct($task_id);
+        parent::__construct();
+        $this->task_id = $task_id;
 
         $this->writerRepo = $this->localDI->getWriterRepo();
         $this->essayRepo = $this->localDI->getEssayRepo();

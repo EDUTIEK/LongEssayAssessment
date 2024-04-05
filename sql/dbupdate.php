@@ -2037,3 +2037,38 @@ if (!$ilDB->tableExists('xlas_pdf_settings')) {
     $ilDB->addPrimaryKey('xlas_pdf_settings', ['task_id']);
 }
 ?>
+<#91>
+<?php
+    $ilDB->manipulate("UPDATE xlas_editor_settings SET headline_scheme='three' WHERE headline_scheme='none'");
+?>
+<#92>
+<?php
+    if (!$ilDB->tableColumnExists('xlas_editor_settings', 'allow_spellcheck')) {
+        $ilDB->addTableColumn('xlas_editor_settings', 'allow_spellcheck', [
+            'notnull' => '1',
+            'type' => 'integer',
+            'length' => '4',
+            'default' => '0'
+        ]);
+}
+?>
+<#93>
+<?php
+    // cleanup wrong corrector assignments created from a wrong import
+    // these are assignments across different tasks
+    $query = "
+        DELETE a
+        FROM xlas_corrector_ass a
+        LEFT JOIN xlas_writer w ON w.id = a.writer_id
+        LEFT JOIN xlas_corrector c ON c.id = a.corrector_id
+        WHERE c.id IS NULL OR w.id IS NULL OR c.task_id <> w.task_id
+    ";
+?>
+<#94>
+<?php
+    // fix wrongly created pseudonyms
+    $query = "
+        UPDATE xlas_writer 
+        SET pseudonym = CONCAT('Teilnehmer/in ', id)
+        WHERE pseudonym = 'Teilnehmer/in 0'
+    ";

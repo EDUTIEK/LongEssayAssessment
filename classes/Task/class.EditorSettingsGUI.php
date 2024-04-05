@@ -54,10 +54,12 @@ class EditorSettingsGUI extends BaseGUI
         $fields['headline_scheme'] = $factory->select(
             $this->plugin->txt('headline_scheme'),
             [
-                EditorSettings::HEADLINE_SCHEME_NONE => $this->plugin->txt('headline_scheme_none'),
+                EditorSettings::HEADLINE_SCHEME_SINGLE => $this->plugin->txt('headline_scheme_single'),
+                EditorSettings::HEADLINE_SCHEME_THREE => $this->plugin->txt('headline_scheme_three'),
                 EditorSettings::HEADLINE_SCHEME_NUMERIC => $this->plugin->txt('headline_scheme_numeric'),
                 EditorSettings::HEADLINE_SCHEME_EDUTIEK => $this->plugin->txt('headline_scheme_edutiek'),
-            ]
+            ],
+            $this->plugin->txt('headline_scheme_description')
         )
             ->withRequired(true)
             ->withValue($editorSettings->getHeadlineScheme());
@@ -103,6 +105,10 @@ class EditorSettingsGUI extends BaseGUI
         $fields['copy_allowed'] = $factory->checkbox($this->plugin->txt('copy_allowed'), $this->plugin->txt('copy_allowed_info'))
             ->withValue($editorSettings->isCopyAllowed());
 
+        $fields['allow_spellcheck'] = $factory->checkbox($this->plugin->txt('allow_spellcheck'), $this->plugin->txt('allow_spellcheck_info'))
+            ->withValue($editorSettings->getAllowSpellcheck());
+
+
         $sections['editor'] = $factory->section($fields, $this->plugin->txt('editor_settings'));
 
         // Processing
@@ -119,12 +125,12 @@ class EditorSettingsGUI extends BaseGUI
         $fields['add_correction_margin'] = $factory->optionalGroup(
             [
             'left_correction_margin' => $factory->numeric($this->plugin->txt('left_correction_margin'))
-                ->withAdditionalTransformation($this->refinery->to()->int())
+                ->withAdditionalTransformation($this->refinery->kindlyTo()->int())
                 ->withRequired(true)
                 ->withDisabled($hasComments)
                 ->withValue($editorSettings->getLeftCorrectionMargin()),
             'right_correction_margin' => $factory->numeric($this->plugin->txt('right_correction_margin'))
-                ->withAdditionalTransformation($this->refinery->to()->int())
+                ->withAdditionalTransformation($this->refinery->kindlyTo()->int())
                 ->withRequired(true)
                 ->withDisabled($hasComments)
                 ->withValue($editorSettings->getRightCorrectionMargin()),
@@ -155,25 +161,25 @@ class EditorSettingsGUI extends BaseGUI
 
         $fields['top_margin'] = $factory->numeric($this->plugin->txt('pdf_top_margin'), $this->plugin->txt('pdf_top_margin_info'))
             ->withAdditionalTransformation($this->refinery->to()->int())
-            ->withAdditionalTransformation($this->refinery->int()->isGreaterThan(4))
+            ->withAdditionalTransformation($this->localDI->constraints()->minimumInteger(5))
             ->withRequired(true)
             ->withValue($pdfSettings->getTopMargin());
 
         $fields['bottom_margin'] = $factory->numeric($this->plugin->txt('pdf_bottom_margin'), $this->plugin->txt('pdf_bottom_margin_info'))
             ->withAdditionalTransformation($this->refinery->to()->int())
-            ->withAdditionalTransformation($this->refinery->int()->isGreaterThan(4))
+            ->withAdditionalTransformation($this->localDI->constraints()->minimumInteger(5))
             ->withRequired(true)
             ->withValue($pdfSettings->getBottomMargin());
 
         $fields['left_margin'] = $factory->numeric($this->plugin->txt('pdf_left_margin'), $this->plugin->txt('pdf_left_margin_info'))
             ->withAdditionalTransformation($this->refinery->to()->int())
-            ->withAdditionalTransformation($this->refinery->int()->isGreaterThan(4))
+            ->withAdditionalTransformation($this->localDI->constraints()->minimumInteger(5))
             ->withRequired(true)
             ->withValue($pdfSettings->getLeftMargin());
 
         $fields['right_margin'] = $factory->numeric($this->plugin->txt('pdf_right_margin'), $this->plugin->txt('pdf_right_margin_info'))
             ->withAdditionalTransformation($this->refinery->to()->int())
-            ->withAdditionalTransformation($this->refinery->int()->isGreaterThan(4))
+            ->withAdditionalTransformation($this->localDI->constraints()->minimumInteger(5))
             ->withRequired(true)
             ->withValue($pdfSettings->getRightMargin());
 
@@ -197,6 +203,7 @@ class EditorSettingsGUI extends BaseGUI
             $editorSettings->setFormattingOptions($data['editor']['formatting_options']);
             $editorSettings->setNoticeBoards((int) $data['editor']['notice_boards']);
             $editorSettings->setCopyAllowed((bool) $data['editor']['copy_allowed']);
+            $editorSettings->setAllowSpellcheck((bool) $data['editor']['allow_spellcheck']);
 
             if (!$hasComments) {
                 $editorSettings->setAddParagraphNumbers((bool) $data['processing']['add_paragraph_numbers']);

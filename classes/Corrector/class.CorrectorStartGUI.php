@@ -416,7 +416,6 @@ class CorrectorStartGUI extends BaseGUI
             $this->ctrl->redirect($this);
         } else {
             $this->tpl->setOnScreenMessage("failure", $this->plugin->txt("no_corrections_to_authorize"), true);
-
             $this->ctrl->redirect($this);
         }
     }
@@ -430,7 +429,7 @@ class CorrectorStartGUI extends BaseGUI
         $repoWriter = $this->localDI->getWriterRepo()->getWriterById($writer_id);
 
         $filename = 'task' . $this->object->getId() . '_writer' . $repoWriter->getId(). '-writing.pdf';
-        ilUtil::deliverData($service->getWritingAsPdf($this->object, $repoWriter, true), $filename, 'application/pdf');
+        $this->common_services->fileHelper()->deliverData($service->getWritingAsPdf($this->object, $repoWriter, true), $filename, 'application/pdf');
     }
 
     protected function downloadCorrectedPdf()
@@ -443,7 +442,7 @@ class CorrectorStartGUI extends BaseGUI
         $repoCorrector = $this->localDI->getCorrectorRepo()->getCorrectorByUserId($this->dic->user()->getId(), $this->settings->getTaskId());
 
         $filename = 'task' . $this->object->getId() . '_writer' . $repoWriter->getId(). '-correction.pdf';
-        ilUtil::deliverData($service->getCorrectionAsPdf($this->object, $repoWriter, $repoCorrector, true), $filename, 'application/pdf');
+        $this->common_services->fileHelper()->deliverData($service->getCorrectionAsPdf($this->object, $repoWriter, $repoCorrector, true), $filename, 'application/pdf');
     }
 
 
@@ -458,11 +457,10 @@ class CorrectorStartGUI extends BaseGUI
             if(empty($writer)) {
                 continue;
             }
-            if ($this->service->removeSingleAuthorization($writer, $corrector)) {
+            if ($this->service->removeOwnAuthorization($writer, $corrector)) {
                 $success = true;
             } else {
                 $this->tpl->setOnScreenMessage("failure", sprintf($this->plugin->txt('remove_own_authorization_failed'), $writer->getPseudonym()), true);
-
             }
         }
 

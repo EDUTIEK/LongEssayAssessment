@@ -58,11 +58,11 @@ class OrgaSettingsGUI extends BaseGUI
             if ($result->isOK()) {
                 $this->updateTaskSettings($data, $taskSettings, $locations);
 
-                $this->tpl->setOnScreenMessage('success', $this->lng->txt("settings_saved"), true);
+                $this->tpl->setOnScreenMessage("success", $this->lng->txt("settings_saved"), true);
                 $this->ctrl->redirect($this, "editSettings");
             } else {
                 // TODO: Add or search lang var
-                $this->tpl->setOnScreenMessage('failure', $this->lng->txt("validation_error"), true);
+                $this->tpl->setOnScreenMessage("failure", $this->lng->txt("validation_error"), true);
             }
         }
         $this->tpl->setContent($this->renderer->render($form));
@@ -78,7 +78,7 @@ class OrgaSettingsGUI extends BaseGUI
      */
     protected function updateTaskSettings(array $a_data, TaskSettings $a_task_settings, array $locations)
     {
-        // $this->tpl->setOnScreenMessage('info', '<pre>'.print_r($a_data, true) .'<pre>', true);
+        // $this->tpl->setOnScreenMessage("info", '<pre>'.print_r($a_data, true) .'<pre>', true);
         $di = LongEssayAssessmentDI::getInstance();
         $task_repo = $di->getTaskRepo();
 

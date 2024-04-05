@@ -234,7 +234,7 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                     }
                     break;
                 default:
-                    $this->tpl->setOnScreenMessage('failure', 'Unsupported cmdClass: ' . $next_class);
+                    $this->tpl->setOnScreenMessage("failure", 'Unsupported cmdClass: ' . $next_class);
             }
         } else {
             switch ($cmd) {
@@ -249,7 +249,7 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                     break;
 
                 default:
-                    $this->tpl->setOnScreenMessage('failure', 'Unsupported cmd: ' . $cmd);
+                    $this->tpl->setOnScreenMessage("failure", 'Unsupported cmd: ' . $cmd);
             }
         }
     }
@@ -294,7 +294,7 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
             $this->ctrl->redirectByClass('ilias\plugin\longessayassessment\writer\writerstartgui');
         }
 
-        $this->tpl->setOnScreenMessage('failure', $this->plugin->txt('message_no_admin_writer_corrector'), true);
+        $this->tpl->setOnScreenMessage("failure", $this->plugin->txt('message_no_admin_writer_corrector'), true);
     }
 
     /**

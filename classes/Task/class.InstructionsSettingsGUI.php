@@ -56,7 +56,7 @@ class InstructionsSettingsGUI extends BaseGUI
             if (($data = $form->getData()) !== null) {
                 $this->updateInstructionsSettings($data["form"], $taskSettings, $resource);
 
-                $this->tpl->setOnScreenMessage('success', $this->lng->txt("settings_saved"), true);
+                $this->tpl->setOnScreenMessage("success", $this->lng->txt("settings_saved"), true);
                 $this->ctrl->redirect($this, "editSettings");
             }
         }

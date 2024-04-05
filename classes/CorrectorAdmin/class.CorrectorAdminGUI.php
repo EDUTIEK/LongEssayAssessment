@@ -121,9 +121,9 @@ class CorrectorAdminGUI extends BaseGUI
         
         if ($authorized_essay_exists) {
             if (empty($correctors)) {
-                $this->tpl->setOnScreenMessage('info', $this->plugin->txt('info_missing_correctors'));
+                $this->tpl->setOnScreenMessage("info", $this->plugin->txt('info_missing_correctors'));
             } elseif(!empty($this->service->countMissingCorrectors())) {
-                $this->tpl->setOnScreenMessage('info', $this->plugin->txt('info_missing_assignments'));
+                $this->tpl->setOnScreenMessage("info", $this->plugin->txt('info_missing_assignments'));
             }
         }
 
@@ -272,7 +272,7 @@ class CorrectorAdminGUI extends BaseGUI
         }
 
 
-        $this->tpl->setOnScreenMessage('success', $this->plugin->txt('tutors_added'), true);
+        $this->tpl->setOnScreenMessage("success", $this->plugin->txt('tutors_added'), true);
         $this->ctrl->redirect($this, 'showCorrectors');
     }
 
@@ -283,7 +283,7 @@ class CorrectorAdminGUI extends BaseGUI
     public function addCorrectorsCallback(array $a_usr_ids, $a_type = null)
     {
         if (count($a_usr_ids) <= 0) {
-            $this->tpl->setOnScreenMessage('failure', $this->plugin->txt("missing_corrector_id"), true);
+            $this->tpl->setOnScreenMessage("failure", $this->plugin->txt("missing_corrector_id"), true);
             $this->ctrl->redirect($this, "showCorrectors");
         }
 
@@ -291,7 +291,7 @@ class CorrectorAdminGUI extends BaseGUI
             $this->service->getOrCreateCorrectorFromUserId($id);
         }
 
-        $this->tpl->setOnScreenMessage('success', $this->plugin->txt("assign_corrector_success"), true);
+        $this->tpl->setOnScreenMessage("success", $this->plugin->txt("assign_corrector_success"), true);
         $this->ctrl->redirect($this, "showCorrectors");
     }
 
@@ -316,25 +316,25 @@ class CorrectorAdminGUI extends BaseGUI
     private function removeCorrector()
     {
         if(($id = $this->getCorrectorId()) === null) {
-            $this->tpl->setOnScreenMessage('failure', $this->plugin->txt("missing_corrector_id"), true);
+            $this->tpl->setOnScreenMessage("failure", $this->plugin->txt("missing_corrector_id"), true);
             $this->ctrl->redirect($this, "showCorrectors");
         }
         $corrector_repo = LongEssayAssessmentDI::getInstance()->getCorrectorRepo();
         $corrector = $corrector_repo->getCorrectorById($id);
 
         if($corrector === null || $corrector->getTaskId() !== $this->object->getId()) {
-            $this->tpl->setOnScreenMessage('failure', $this->plugin->txt("missing_corrector"), true);
+            $this->tpl->setOnScreenMessage("failure", $this->plugin->txt("missing_corrector"), true);
             $this->ctrl->redirect($this, "showCorrectors");
         }
         $ass = $corrector_repo->getAssignmentsByCorrectorId($corrector->getId());
 
         if(count($ass) > 0) {
-            $this->tpl->setOnScreenMessage('failure', $this->plugin->txt("remove_writer_pending_assignments"), true);
+            $this->tpl->setOnScreenMessage("failure", $this->plugin->txt("remove_writer_pending_assignments"), true);
             $this->ctrl->redirect($this, "showCorrectors");
         }
 
         $corrector_repo->deleteCorrector($corrector->getId());
-        $this->tpl->setOnScreenMessage('success', $this->plugin->txt("remove_corrector_success"), true);
+        $this->tpl->setOnScreenMessage("success", $this->plugin->txt("remove_corrector_success"), true);
         $this->ctrl->redirect($this, "showCorrectors");
     }
 
@@ -343,12 +343,12 @@ class CorrectorAdminGUI extends BaseGUI
 
         $missing = $this->service->countMissingCorrectors();
         if ($missing == 0) {
-            $this->tpl->setOnScreenMessage('info', $this->plugin->txt('assign_not_needed'), true);
+            $this->tpl->setOnScreenMessage("info", $this->plugin->txt('assign_not_needed'), true);
             $this->ctrl->redirect($this, 'showStartPage');
         }
         $available = $this->service->countAvailableCorrectors();
         if ($available == 0) {
-            $this->tpl->setOnScreenMessage('info', $this->plugin->txt('assign_not_available'), true);
+            $this->tpl->setOnScreenMessage("info", $this->plugin->txt('assign_not_available'), true);
             $this->ctrl->redirect($this, 'showStartPage');
         }
 
@@ -364,7 +364,7 @@ class CorrectorAdminGUI extends BaseGUI
             $warnings[] = sprintf($this->plugin->txt('potential_authorizations_after'), $after);
         }
         if ($warnings) {
-            $this->tpl->setOnScreenMessage('info', $this->plugin->txt('warning_potential_later_assignments') . '<br>' . implode('<br>', $warnings));
+            $this->tpl->setOnScreenMessage("info", $this->plugin->txt('warning_potential_later_assignments') . '<br>' . implode('<br>', $warnings));
         }
 
 
@@ -394,11 +394,11 @@ class CorrectorAdminGUI extends BaseGUI
     {
         $assigned = $this->service->assignMissingCorrectors();
         if ($assigned == 0) {
-            $this->tpl->setOnScreenMessage('failure', $this->plugin->txt("0_assigned_correctors"), true);
+            $this->tpl->setOnScreenMessage("failure", $this->plugin->txt("0_assigned_correctors"), true);
         } elseif ($assigned == 1) {
-            $this->tpl->setOnScreenMessage('success', $this->plugin->txt("1_assigned_corrector"), true);
+            $this->tpl->setOnScreenMessage("success", $this->plugin->txt("1_assigned_corrector"), true);
         } else {
-            $this->tpl->setOnScreenMessage('success', sprintf($this->plugin->txt("n_assigned_correctors"), $assigned), true);
+            $this->tpl->setOnScreenMessage("success", sprintf($this->plugin->txt("n_assigned_correctors"), $assigned), true);
         }
         $this->ctrl->redirect($this, "showStartPage");
     }
@@ -451,14 +451,14 @@ class CorrectorAdminGUI extends BaseGUI
             foreach ($invalid as $writer) {
                 $names[] = \ilObjUser::_lookupFullname($writer->getUserId()) . ' [' . $writer->getPseudonym() . ']';
             }
-            $this->tpl->setOnScreenMessage('failure', sprintf($this->plugin->txt('remove_authorizations_for_failed'), implode(", ", $names)), true);
+            $this->tpl->setOnScreenMessage("failure", sprintf($this->plugin->txt('remove_authorizations_for_failed'), implode(", ", $names)), true);
         }
         if(count($valid) > 0) {
             $names = [];
             foreach ($valid as $writer) {
                 $names[] = \ilObjUser::_lookupFullname($writer->getUserId()) . ' [' . $writer->getPseudonym() . ']';
             }
-            $this->tpl->setOnScreenMessage('success', sprintf($this->plugin->txt('remove_authorizations_for_done'), implode(", ", $names)), true);
+            $this->tpl->setOnScreenMessage("success", sprintf($this->plugin->txt('remove_authorizations_for_done'), implode(", ", $names)), true);
         }
 
         $this->ctrl->clearParameters($this);
@@ -512,7 +512,7 @@ class CorrectorAdminGUI extends BaseGUI
     private function exportSteps()
     {
         if (empty($repoWriter = $this->localDI->getWriterRepo()->getWriterById((int) $this->getWriterId()))) {
-            $this->tpl->setOnScreenMessage('failure', $this->plugin->txt("missing_writer_id"), true);
+            $this->tpl->setOnScreenMessage("failure", $this->plugin->txt("missing_writer_id"), true);
             $this->ctrl->redirect($this, "showStartPage");
         }
 
@@ -520,7 +520,7 @@ class CorrectorAdminGUI extends BaseGUI
         $name = ilFileDelivery::returnASCIIFilename($this->object->getTitle() .'_' . \ilObjUser::_lookupFullname($repoWriter->getUserId()));
         $zipfile = $service->createWritingStepsExport($this->object, $repoWriter, $name);
         if (empty($zipfile)) {
-            $this->tpl->setOnScreenMessage('failure', $this->plugin->txt("content_not_available"), true);
+            $this->tpl->setOnScreenMessage("failure", $this->plugin->txt("content_not_available"), true);
             $this->ctrl->redirect($this, "showStartPage");
         }
 
@@ -680,7 +680,7 @@ class CorrectorAdminGUI extends BaseGUI
                     $data["second_corrector"] ?? CorrectorAdminService::UNCHANGED_CORRECTOR_ASSIGNMENT,
                     $writer_ids
                 );
-                $this->tpl->setOnScreenMessage('success', $this->plugin->txt("corrector_assignment_changed"), true);
+                $this->tpl->setOnScreenMessage("success", $this->plugin->txt("corrector_assignment_changed"), true);
                 exit();
             } else {
                 echo($this->renderer->render($form));
@@ -766,18 +766,18 @@ class CorrectorAdminGUI extends BaseGUI
 
                 try {
                     $this->assignment_service->importAssignments(ILIAS_DATA_DIR . '/' . CLIENT_ID . '/temp/' . $filename);
-                    $this->tpl->setOnScreenMessage('success', $this->plugin->txt("corrector_assignment_change_file_success"), true);
+                    $this->tpl->setOnScreenMessage("success", $this->plugin->txt("corrector_assignment_change_file_success"), true);
                     $tempfile->removeTempFile($filename);
                     $this->ctrl->redirect($this);
                 }
                 catch (CorrectorAssignmentsException $exception) {
                     $tempfile->removeTempFile($filename);
-                    $this->tpl->setOnScreenMessage('failure', $this->plugin->txt("corrector_assignment_change_file_failure")
+                    $this->tpl->setOnScreenMessage("failure", $this->plugin->txt("corrector_assignment_change_file_failure")
                         . '<p class="small">' . nl2br($exception->getMessage()), true) . '</p>';
                 }
                 catch (\Exception $exception) {
                     $tempfile->removeTempFile($filename);
-                    $this->tpl->setOnScreenMessage('failure', $this->plugin->txt("corrector_assignment_change_file_failure"));
+                    $this->tpl->setOnScreenMessage("failure", $this->plugin->txt("corrector_assignment_change_file_failure"));
                 }
             }
         }

@@ -123,7 +123,7 @@ class ilLongEssayAssessmentConfigGUI extends ilPluginConfigGUI
             $di = LongEssayAssessmentDI::getInstance();
             $di->getSystemRepo()->save($this->config);
 
-            $this->tpl->setOnScreenMessage('success', $this->lng->txt('settings_saved'));
+            $this->tpl->setOnScreenMessage("success", $this->lng->txt('settings_saved'));
             $this->ctrl->redirect($this, 'configure');
         }
         $form->setValuesByPost();

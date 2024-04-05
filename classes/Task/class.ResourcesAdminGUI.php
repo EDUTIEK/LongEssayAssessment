@@ -229,7 +229,7 @@ class ResourcesAdminGUI extends BaseGUI
                 } else {
                     $this->replaceResource($data["form"], (int)$resource_id);
                 }
-                $this->tpl->setOnScreenMessage('success', $this->lng->txt("settings_saved"), true);
+                $this->tpl->setOnScreenMessage("success", $this->lng->txt("settings_saved"), true);
                 $this->ctrl->redirect($this, "showItems");
             }
         }
@@ -250,9 +250,9 @@ class ResourcesAdminGUI extends BaseGUI
 
             if($resource->getTaskId() == $this->object->getId()) {
                 $resource_admin->deleteResource($resource_id);
-                $this->tpl->setOnScreenMessage('success', $this->lng->txt("resource_deleted"), true);
+                $this->tpl->setOnScreenMessage("success", $this->lng->txt("resource_deleted"), true);
             } else {
-                $this->tpl->setOnScreenMessage('failure', $this->lng->txt("permission_denied"), true);
+                $this->tpl->setOnScreenMessage("failure", $this->lng->txt("permission_denied"), true);
             }
         } else {
             // TODO: Error no resource ID in GET
@@ -284,7 +284,7 @@ class ResourcesAdminGUI extends BaseGUI
             }
 
             if ($resource->getTaskId() != $this->object->getId()) {
-                $this->tpl->setOnScreenMessage('failure', $this->lng->txt("permission_denied"), true);
+                $this->tpl->setOnScreenMessage("failure", $this->lng->txt("permission_denied"), true);
                 $this->ctrl->redirect($this, "showItems");
             }
         } else {

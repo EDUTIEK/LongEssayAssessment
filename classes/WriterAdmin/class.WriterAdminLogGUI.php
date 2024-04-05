@@ -100,9 +100,9 @@ class WriterAdminLogGUI extends BaseGUI
                 $task_repo = LongEssayAssessmentDI::getInstance()->getTaskRepo();
                 $task_repo->save($alert);
 
-                $this->tpl->setOnScreenMessage('success', $this->plugin->txt("alert_created"), true);
+                $this->tpl->setOnScreenMessage("success", $this->plugin->txt("alert_created"), true);
             } else {
-                $this->tpl->setOnScreenMessage('failure', $this->lng->txt("validation_error"), true);
+                $this->tpl->setOnScreenMessage("failure", $this->lng->txt("validation_error"), true);
             }
             $this->ctrl->redirect($this, "showStartPage");
         }
@@ -117,9 +117,9 @@ class WriterAdminLogGUI extends BaseGUI
             if (!empty($data['entry'])) {
                 $this->service->addEntry(LogEntry::TYPE_NOTE, $this->dic->user()->getId(), null, $data['entry']);
 
-                $this->tpl->setOnScreenMessage('success', $this->plugin->txt("log_entry_created"), true);
+                $this->tpl->setOnScreenMessage("success", $this->plugin->txt("log_entry_created"), true);
             } else {
-                $this->tpl->setOnScreenMessage('failure', $this->lng->txt("validation_error"), true);
+                $this->tpl->setOnScreenMessage("failure", $this->lng->txt("validation_error"), true);
             }
             $this->ctrl->redirect($this, "showStartPage");
         }

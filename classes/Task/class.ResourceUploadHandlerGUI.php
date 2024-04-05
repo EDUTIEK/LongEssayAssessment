@@ -39,7 +39,7 @@ class ResourceUploadHandlerGUI extends AbstractCtrlAwareUploadHandler
     public function getUploadURL() : string
     {
         return str_replace("\\", "\\\\", $this->ctrl->getLinkTargetByClass(
-            [\ilObjPluginDispatchGUI::class, \ilObjLongEssayAssessmentGUI::class, ResourceUploadHandlerGUI::class],
+            [\ilLongEssayAssessmentDispatchGUI::class, \ilObjLongEssayAssessmentGUI::class, ResourceUploadHandlerGUI::class],
             self::CMD_UPLOAD
         ));// Need to double escape backslashes because UI can't handle urls otherwise in json parse in src/UI/templates/js/Input/Field/file.js
     }
@@ -48,7 +48,7 @@ class ResourceUploadHandlerGUI extends AbstractCtrlAwareUploadHandler
     public function getExistingFileInfoURL() : string
     {
         return str_replace("\\", "\\\\", $this->ctrl->getLinkTargetByClass(
-            [\ilObjPluginDispatchGUI::class, \ilObjLongEssayAssessmentGUI::class, ResourceUploadHandlerGUI::class],
+            [\ilLongEssayAssessmentDispatchGUI::class, \ilObjLongEssayAssessmentGUI::class, ResourceUploadHandlerGUI::class],
             self::CMD_INFO
         ));// Need to double escape backslashes because UI can't handle urls otherwise in json parse in src/UI/templates/js/Input/Field/file.js
     }
@@ -56,7 +56,7 @@ class ResourceUploadHandlerGUI extends AbstractCtrlAwareUploadHandler
     public function getFileRemovalURL() : string
     {
         return str_replace("\\", "\\\\", $this->ctrl->getLinkTargetByClass(
-            [\ilObjPluginDispatchGUI::class, \ilObjLongEssayAssessmentGUI::class, ResourceUploadHandlerGUI::class],
+            [\ilLongEssayAssessmentDispatchGUI::class, \ilObjLongEssayAssessmentGUI::class, ResourceUploadHandlerGUI::class],
             self::CMD_REMOVE
         ));// Need to double escape backslashes because UI can't handle urls otherwise in json parse in src/UI/templates/js/Input/Field/file.js
     }

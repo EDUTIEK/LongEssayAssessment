@@ -10,7 +10,7 @@ require_once(__DIR__ . "/class.ilLongEssayAssessmentPlugin.php");
  * This is the entry point for the ILIAS controller
  * It delegates
  *
- * @ilCtrl_isCalledBy ilObjLongEssayAssessmentGUI: ilRepositoryGUI, ilAdministrationGUI, ilObjPluginDispatchGUI
+ * @ilCtrl_isCalledBy ilObjLongEssayAssessmentGUI: ilRepositoryGUI, ilAdministrationGUI, ilLongEssayAssessmentDispatchGUI
  * @ilCtrl_Calls ilObjLongEssayAssessmentGUI: ilPermissionGUI, ilInfoScreenGUI, ilObjectCopyGUI, ilCommonActionDispatcherGUI, ilExportGUI
  */
 class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
@@ -53,11 +53,11 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                     $class_name = 'ilias\plugin\longessayassessment\correctoradmin\correctoradmingui';
                 }
                 if (isset($class_name)) {
-                    $DIC->ctrl()->initBaseClass("ilObjPluginDispatchGUI");
-                    $DIC->ctrl()->getCallStructure(strtolower("ilObjPluginDispatchGUI"));
+                    //$DIC->ctrl()->initBaseClass("ilObjPluginDispatchGUI");
+                    //$DIC->ctrl()->getCallStructure(strtolower("ilObjPluginDispatchGUI"));
                     $DIC->ctrl()->setParameterByClass("ilobjLongEssayAssessmentgui", "ref_id", $ref_id);
                     $DIC->ctrl()->setParameterByClass($class_name, "returned", '1');
-                    $DIC->ctrl()->redirectByClass(array("ilobjplugindispatchgui", "ilobjLongEssayAssessmentgui", $class_name), "");
+                    $DIC->ctrl()->redirectByClass(array("illongessayassessmentdispatchgui", "ilobjLongEssayAssessmentgui", $class_name), "");
                 }
             }
         }

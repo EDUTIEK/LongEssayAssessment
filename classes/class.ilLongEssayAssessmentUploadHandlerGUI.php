@@ -62,7 +62,7 @@ class ilLongEssayAssessmentUploadHandlerGUI extends AbstractCtrlAwareUploadHandl
      */
     public function getUploadURL() : string
     {
-        return $this->ctrl->getLinkTargetByClass([ilObjPluginDispatchGUI::class, ilObjLongEssayAssessmentGUI::class, self::class], self::CMD_UPLOAD);
+        return $this->ctrl->getLinkTargetByClass([ilLongEssayAssessmentDispatchGUI::class, ilObjLongEssayAssessmentGUI::class, self::class], self::CMD_UPLOAD);
         //return str_replace("\\", "\\\\", $this->ctrl->getLinkTargetByClass($this->getCTRLPath(), self::CMD_UPLOAD));
         // Need to double escape backslashes because UI can't handle urls otherwise in json parse in src/UI/templates/js/Input/Field/file.js
     }
@@ -72,7 +72,7 @@ class ilLongEssayAssessmentUploadHandlerGUI extends AbstractCtrlAwareUploadHandl
      */
     public function getExistingFileInfoURL() : string
     {
-        return $this->ctrl->getLinkTargetByClass([ilObjPluginDispatchGUI::class, ilObjLongEssayAssessmentGUI::class, self::class], self::CMD_INFO);
+        return $this->ctrl->getLinkTargetByClass([ilLongEssayAssessmentDispatchGUI::class, ilObjLongEssayAssessmentGUI::class, self::class], self::CMD_INFO);
         //return str_replace("\\", "\\\\", $this->ctrl->getLinkTargetByClass($this->getCTRLPath(), self::CMD_INFO));
         // Need to double escape backslashes because UI can't handle urls otherwise in json parse in src/UI/templates/js/Input/Field/file.js
     }
@@ -82,7 +82,7 @@ class ilLongEssayAssessmentUploadHandlerGUI extends AbstractCtrlAwareUploadHandl
      */
     public function getFileRemovalURL() : string
     {
-        return $this->ctrl->getLinkTargetByClass([ilObjPluginDispatchGUI::class, ilObjLongEssayAssessmentGUI::class, self::class], self::CMD_REMOVE);
+        return $this->ctrl->getLinkTargetByClass([ilLongEssayAssessmentDispatchGUI::class, ilObjLongEssayAssessmentGUI::class, self::class], self::CMD_REMOVE);
         //return str_replace("\\", "\\\\", $this->ctrl->getLinkTargetByClass($this->getCTRLPath(), self::CMD_REMOVE));
         // Need to double escape backslashes because UI can't handle urls otherwise in json parse in src/UI/templates/js/Input/Field/file.js
     }

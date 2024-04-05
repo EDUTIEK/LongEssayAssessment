@@ -27,6 +27,15 @@ class ilObjLongEssayAssessmentListGUI extends ilObjectPluginListGUI
         return "ilObjLongEssayAssessmentGUI";
     }
 
+    public function getCommandLink(string $cmd): string
+    {
+        // separate method for this line
+        $cmd_link = "ilias.php?baseClass=ilLongEssayAssessmentDispatchGUI&amp;" .
+            "cmd=forward&amp;ref_id=" . $this->ref_id . "&amp;forwardCmd=" . $cmd;
+
+        return $cmd_link;
+    }
+
     /**
      * Get commands
      */

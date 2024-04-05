@@ -23,6 +23,7 @@ use ilObjUser;
 use ILIAS\Plugin\LongEssayAssessment\Task\LoggingService;
 use ILIAS\Plugin\LongEssayAssessment\Data\Writer\WriterRepository;
 use ILIAS\Plugin\LongEssayAssessment\Data\Corrector\CorrectorRepository;
+use ilFileDelivery;
 
 /**
  * Service for maintaining correctors (business logic)
@@ -433,7 +434,7 @@ class CorrectorAdminService extends BaseService
         $storage = $this->dic->filesystem()->temp();
         $basedir = ILIAS_DATA_DIR . '/' . CLIENT_ID . '/temp';
         $tempdir = 'xlas/'. (new UUID)->uuid4AsString();
-        $zipdir = $tempdir . '/' . \ilUtil::getASCIIFilename($object->getTitle());
+        $zipdir = $tempdir . '/' . ilFileDelivery::returnASCIIFilename($object->getTitle());
         $storage->createDir($zipdir);
 
         $repoTask = $this->taskRepo->getTaskSettingsById($object->getId());
@@ -441,7 +442,7 @@ class CorrectorAdminService extends BaseService
         foreach ($this->essayRepo->getEssaysByTaskId($repoTask->getTaskId()) as $repoEssay) {
             $repoWriter = $this->writerRepo->getWriterById($repoEssay->getWriterId());
 
-            $subdir = \ilUtil::getASCIIFilename(\ilObjUser::_lookupFullname($repoWriter->getUserId()) . ' (' . \ilObjUser::_lookupLogin($repoWriter->getUserId()) . ')');
+            $subdir = ilFileDelivery::returnASCIIFilename(\ilObjUser::_lookupFullname($repoWriter->getUserId()) . ' (' . \ilObjUser::_lookupLogin($repoWriter->getUserId()) . ')');
             $storage->createDir($zipdir . '/' . $subdir);
 
             $filename = $subdir . '-writing.pdf';
@@ -451,7 +452,7 @@ class CorrectorAdminService extends BaseService
             $storage->write($zipdir . '/' . $subdir. '/'. $filename, $this->getCorrectionAsPdf($object, $repoWriter));
         }
 
-        $zipfile = $basedir . '/' . $tempdir . '/' . \ilUtil::getASCIIFilename($object->getTitle()) . '.zip';
+        $zipfile = $basedir . '/' . $tempdir . '/' . ilFileDelivery::returnASCIIFilename($object->getTitle()) . '.zip';
         \ilUtil::zip($basedir . '/' . $zipdir, $zipfile);
 
         $storage->deleteDir($zipdir);

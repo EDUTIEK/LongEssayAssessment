@@ -8,9 +8,14 @@ use ILIAS\ResourceStorage\StorageHandler\StorageHandlerFactory;
 use ILIAS\FileDelivery\Delivery;
 use ILIAS\HTTP\GlobalHttpState;
 use ILIAS\DI\Exceptions\Exception;
+use ILIAS\Filesystem\Stream\Streams;
+use ILIAS\FileDelivery\FileDeliveryTypes\DeliveryMethod;
+use ilUtil;
 
 /**
  * Helper functions for file storage and delivery
+ * Implements functions not provided by ilFileDelivery
+ * @see ilFileDelivery
  */
 class FileHelper extends BaseService
 {
@@ -35,7 +40,7 @@ class FileHelper extends BaseService
 
     /**
      * Deliver a file resource given by its unique_id
-     * The file is delivered by the FileDelivery dervice
+     * The file is delivered by the FileDelivery service
      * This takes advantage of an activated XSenfile instead of the streaming of the ResourceStorage service
      *
      * @param string $unique_id  the uuid of the resource
@@ -72,30 +77,13 @@ class FileHelper extends BaseService
 
 
     /**
-     * Deliver a file resource given by its absolute path
-     * The file is delivered by the FileDelivery dervice
-     * This takes advantage of an activated XSenfile instead of the streaming of the ResourceStorage service
-     *
-     * @param string $path  the absolute path of the file
-     * @param string $disposition 'inline' or 'attachment'
+     * Deliver data as a file
+     * Wrapper for the deprecated ilUtil::deliverData
+     * @see ilUtil::deliverData()
      */
-    public function deliverFile(string $path, string $title, string $disposition = 'inline')
+    public function deliverData(string $data, string $title, string $mime = "application/octet-stream"): void
     {
-        try {
-            $delivery = new Delivery($path, $this->http);
-            $delivery->setDownloadFileName($title);
-            $delivery->setDisposition($disposition);
-            $delivery->deliver();
-        }
-        catch (Exception $e) {
-            $response = $this->http->response()->withStatus(500);
-            $stream = $response->getBody();
-            $stream->write($e->getMessage());
-
-            $this->http->saveResponse($response);
-            $this->http->sendResponse();
-            $this->http->close();
-        }
+        // New Implementation of ilUtil::deliverData in ILIAS 8 does not yet work in ILIAS 7
+        ilUtil::deliverData($data, $title, $mime);
     }
-
 }

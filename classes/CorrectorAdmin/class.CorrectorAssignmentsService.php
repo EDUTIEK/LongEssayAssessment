@@ -11,6 +11,7 @@ use ILIAS\Plugin\LongEssayAssessment\Data\Corrector\CorrectorRepository;
 use ILIAS\Plugin\LongEssayAssessment\Data\Writer\Writer;
 use ILIAS\Plugin\LongEssayAssessment\WriterAdmin\WriterAdminService;
 use ILIAS\Plugin\LongEssayAssessment\Data\Corrector\Corrector;
+use ilFileDelivery;
 
 class CorrectorAssignmentsService extends BaseService
 {
@@ -155,7 +156,7 @@ class CorrectorAssignmentsService extends BaseService
         $spreadsheet->setActiveSheet($corrector_sheet);
 
         $file = $spreadsheet->writeToTmpFile();
-        \ilUtil::deliverFile($file, "corrector_assignment.xlsx", "", false, false);
+        ilFileDelivery::deliverFileAttached($file, "corrector_assignment.xlsx", "", false, false);
     }
 
     /**

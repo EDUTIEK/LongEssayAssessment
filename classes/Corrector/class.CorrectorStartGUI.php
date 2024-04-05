@@ -363,10 +363,10 @@ class CorrectorStartGUI extends BaseGUI
             $this->tpl->setContent($this->renderer->render(array_merge([$essays], $modals)));
             $taskSettings = $this->localDI->getTaskRepo()->getTaskSettingsById($this->settings->getTaskId());
             if (!empty($period = $this->data->formatPeriod($taskSettings->getCorrectionStart(), $taskSettings->getCorrectionEnd()))) {
-                ilUtil::sendInfo($this->plugin->txt('correction_period') . ': ' . $period);
+                $this->tpl->setOnScreenMessage('info', $this->plugin->txt('correction_period') . ': ' . $period);
             }
         } else {
-            ilUtil::sendInfo($this->plugin->txt('message_no_correction_items'));
+            $this->tpl->setOnScreenMessage('info', $this->plugin->txt('message_no_correction_items'));
         }
     }
 
@@ -412,10 +412,10 @@ class CorrectorStartGUI extends BaseGUI
         }
 
         if($valid) {
-            ilutil::sendSuccess($this->plugin->txt('authorize_correction_done'), true);
+            $this->tpl->setOnScreenMessage('success', $this->plugin->txt('authorize_correction_done'), true);
             $this->ctrl->redirect($this);
         } else {
-            ilutil::sendFailure($this->plugin->txt('no_corrections_to_authorize'), true);
+            $this->tpl->setOnScreenMessage('failure', $this->plugin->txt('no_corrections_to_authorize'), true);
             $this->ctrl->redirect($this);
         }
     }
@@ -429,7 +429,7 @@ class CorrectorStartGUI extends BaseGUI
         $repoWriter = $this->localDI->getWriterRepo()->getWriterById($writer_id);
 
         $filename = 'task' . $this->object->getId() . '_writer' . $repoWriter->getId(). '-writing.pdf';
-        ilUtil::deliverData($service->getWritingAsPdf($this->object, $repoWriter, true), $filename, 'application/pdf');
+        $this->common_services->fileHelper()->deliverData($service->getWritingAsPdf($this->object, $repoWriter, true), $filename, 'application/pdf');
     }
 
     protected function downloadCorrectedPdf()
@@ -442,7 +442,7 @@ class CorrectorStartGUI extends BaseGUI
         $repoCorrector = $this->localDI->getCorrectorRepo()->getCorrectorByUserId($this->dic->user()->getId(), $this->settings->getTaskId());
 
         $filename = 'task' . $this->object->getId() . '_writer' . $repoWriter->getId(). '-correction.pdf';
-        ilUtil::deliverData($service->getCorrectionAsPdf($this->object, $repoWriter, $repoCorrector, true), $filename, 'application/pdf');
+        $this->common_services->fileHelper()->deliverData($service->getCorrectionAsPdf($this->object, $repoWriter, $repoCorrector, true), $filename, 'application/pdf');
     }
 
 
@@ -460,12 +460,12 @@ class CorrectorStartGUI extends BaseGUI
             if ($this->service->removeOwnAuthorization($writer, $corrector)) {
                 $success = true;
             } else {
-                ilutil::sendFailure(sprintf($this->plugin->txt('remove_own_authorization_failed'), $writer->getPseudonym()), true);
+                $this->tpl->setOnScreenMessage('failure', sprintf($this->plugin->txt('remove_own_authorization_failed'), $writer->getPseudonym()), true);
             }
         }
 
         if($success) {
-            ilutil::sendSuccess($this->plugin->txt('remove_own_authorization_done'), true);
+            $this->tpl->setOnScreenMessage('success', $this->plugin->txt('remove_own_authorization_done'), true);
         }
 
         $this->ctrl->redirect($this);

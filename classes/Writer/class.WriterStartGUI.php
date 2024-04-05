@@ -61,7 +61,7 @@ class WriterStartGUI extends BaseGUI
 
         if (!empty($essay = $this->data->getOwnEssay())) {
             if (!empty($essay->getWritingExcluded())) {
-                ilUtil::sendInfo($this->plugin->txt('message_writing_excluded'));
+                $this->tpl->setOnScreenMessage('info', $this->plugin->txt('message_writing_excluded'));
             } elseif (!empty($essay->getWritingAuthorized())) {
                 if(!empty($this->task->getClosingMessage())) {
                     $message = $this->displayText($this->task->getClosingMessage());
@@ -82,9 +82,9 @@ class WriterStartGUI extends BaseGUI
                     $back_url = \ilLink::_getLink($this->dic->repositoryTree()->getParentId($this->object->getRefId()));
                     $back_text = $this->plugin->txt('message_writing_authorized_link');
                     $back_link = '<p><a href="'.$back_url.'">'.$back_text.'</a></p>';
-                    ilUtil::sendSuccess($message. $review_message. $back_link);
+                    $this->tpl->setOnScreenMessage('success', $message. $review_message. $back_link);
                 } else {
-                    ilUtil::sendInfo($message. $review_message. $back_link);
+                    $this->tpl->setOnScreenMessage('info', $message. $review_message. $back_link);
                 }
             }
         }
@@ -99,7 +99,7 @@ class WriterStartGUI extends BaseGUI
             $this->toolbar->addButtonInstance($button);
 
             if (isset($this->params['returned'])) {
-                ilUtil::sendInfo($this->plugin->txt('message_writing_returned_interrupted'));
+                $this->tpl->setOnScreenMessage('info', $this->plugin->txt('message_writing_returned_interrupted'));
             }
         } elseif (!empty($essay) && empty($essay->getWritingAuthorized())) {
 
@@ -109,9 +109,9 @@ class WriterStartGUI extends BaseGUI
                 $button->setCaption($this->plugin->txt('review_writing'), false);
                 $this->toolbar->addButtonInstance($button);
 
-                ilUtil::sendFailure($this->plugin->txt('message_writing_to_authorize'));
+                $this->tpl->setOnScreenMessage('failure', $this->plugin->txt('message_writing_to_authorize'));
             } else {
-                ilUtil::sendFailure($this->plugin->txt('message_writing_not_authorized'));
+                $this->tpl->setOnScreenMessage('failure', $this->plugin->txt('message_writing_not_authorized'));
             }
         }
 
@@ -354,6 +354,8 @@ class WriterStartGUI extends BaseGUI
 
             $filename = 'task' . $this->object->getId() . '_writer' . $repoWriter->getId(). '-writing.pdf';
             ilUtil::deliverData($service->getWritingAsPdf($this->object, $repoWriter), $filename, 'application/pdf');
+
+            //$this->common_services->fileHelper()->deliverData($service->getWritingAsPdf($this->object, $repoWriter), $filename, 'application/pdf');
         } else {
             $this->raisePermissionError();
         }
@@ -369,7 +371,7 @@ class WriterStartGUI extends BaseGUI
             $repoWriter = $this->localDI->getWriterRepo()->getWriterByUserIdAndTaskId($this->dic->user()->getId(), $this->object->getId());
 
             $filename = 'task' . $this->object->getId() . '_writer' . $repoWriter->getId(). '-correction.pdf';
-            ilUtil::deliverData($service->getCorrectionAsPdf($this->object, $repoWriter), $filename, 'application/pdf');
+            $this->common_services->fileHelper()->deliverData($service->getCorrectionAsPdf($this->object, $repoWriter), $filename, 'application/pdf');
         } else {
             $this->raisePermissionError();
         }

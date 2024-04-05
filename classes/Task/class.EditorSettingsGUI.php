@@ -226,7 +226,7 @@ class EditorSettingsGUI extends BaseGUI
             $pdfSettings->setRightMargin((int) $data['pdf']['right_margin']);
             $task_repo->save($pdfSettings);
 
-            ilUtil::sendSuccess($this->lng->txt("settings_saved"), true);
+            $this->tpl->setOnScreenMessage('success', $this->lng->txt("settings_saved"), true);
             $this->ctrl->redirect($this, "editSettings");
         }
 

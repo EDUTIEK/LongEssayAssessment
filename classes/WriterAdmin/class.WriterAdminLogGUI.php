@@ -9,6 +9,7 @@ use ILIAS\Plugin\LongEssayAssessment\Data\Task\LogEntry;
 use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
 use \ilUtil;
 use ILIAS\Plugin\LongEssayAssessment\Task\LoggingService;
+use ilFileDelivery;
 
 /**
  * Maintenance of the writer admin log
@@ -99,9 +100,9 @@ class WriterAdminLogGUI extends BaseGUI
                 $task_repo = LongEssayAssessmentDI::getInstance()->getTaskRepo();
                 $task_repo->save($alert);
 
-                ilUtil::sendSuccess($this->plugin->txt("alert_created"), true);
+                $this->tpl->setOnScreenMessage('success', $this->plugin->txt("alert_created"), true);
             } else {
-                ilUtil::sendFailure($this->lng->txt("validation_error"), true);
+                $this->tpl->setOnScreenMessage('failure', $this->lng->txt("validation_error"), true);
             }
             $this->ctrl->redirect($this, "showStartPage");
         }
@@ -116,9 +117,9 @@ class WriterAdminLogGUI extends BaseGUI
             if (!empty($data['entry'])) {
                 $this->service->addEntry(LogEntry::TYPE_NOTE, $this->dic->user()->getId(), null, $data['entry']);
 
-                ilUtil::sendSuccess($this->plugin->txt("log_entry_created"), true);
+                $this->tpl->setOnScreenMessage('success', $this->plugin->txt("log_entry_created"), true);
             } else {
-                ilUtil::sendFailure($this->lng->txt("validation_error"), true);
+                $this->tpl->setOnScreenMessage('failure', $this->lng->txt("validation_error"), true);
             }
             $this->ctrl->redirect($this, "showStartPage");
         }
@@ -221,8 +222,8 @@ class WriterAdminLogGUI extends BaseGUI
 
     private function exportLog()
     {
-        $filename = \ilUtil::getASCIIFilename($this->plugin->txt('export_log_file_prefix') .' ' . $this->object->getTitle()) . '.csv';
-        ilUtil::deliverData($this->service->createCsv(), $filename, 'text/csv');
+        $filename = ilFileDelivery::returnASCIIFilename($this->plugin->txt('export_log_file_prefix') .' ' . $this->object->getTitle()) . '.csv';
+        $this->common_services->fileHelper()->deliverData($this->service->createCsv(), $filename, 'text/csv');
     }
 
 }

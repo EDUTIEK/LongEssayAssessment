@@ -124,7 +124,7 @@ abstract class CriteriaGUI extends BaseGUI
                 $item->setPoints($data['points']);
                 $this->object_repo->save($item);
 
-                \ilUtil::sendSuccess($this->lng->txt("settings_saved"), true);
+                $this->tpl->setOnScreenMessage('success', $this->lng->txt("settings_saved"), true);
                 exit();
             } else {
                 echo($this->renderer->render($form));
@@ -177,9 +177,9 @@ abstract class CriteriaGUI extends BaseGUI
         }
 
         if($success) {
-            \ilUtil::sendSuccess($this->plugin->txt("delete_criteria_successful"), true);
+            $this->tpl->setOnScreenMessage('success', $this->plugin->txt("delete_criteria_successful"), true);
         } else {
-            \ilUtil::sendFailure($this->plugin->txt("delete_criteria_failure"), true);
+            $this->tpl->setOnScreenMessage('failure', $this->plugin->txt("delete_criteria_failure"), true);
         }
         $this->ctrl->clearParameters($this);
         $this->ctrl->redirect($this, "showItems");
@@ -228,9 +228,9 @@ abstract class CriteriaGUI extends BaseGUI
             $this->corrector_repo->save($corrector);
 
             if($toggle) {
-                \ilUtil::sendSuccess($this->plugin->txt("criteria_publish_enabled"), true);
+                $this->tpl->setOnScreenMessage('success', $this->plugin->txt("criteria_publish_enabled"), true);
             } else {
-                \ilUtil::sendSuccess($this->plugin->txt("criteria_publish_disabled"), true);
+                $this->tpl->setOnScreenMessage('success', $this->plugin->txt("criteria_publish_disabled"), true);
             }
         }
         $this->ctrl->clearParameters($this);
@@ -306,9 +306,9 @@ abstract class CriteriaGUI extends BaseGUI
         }
 
         if($success) {
-            \ilUtil::sendSuccess($this->plugin->txt("copy_criteria_successful"), true);
+            $this->tpl->setOnScreenMessage('success', $this->plugin->txt("copy_criteria_successful"), true);
         } else {
-            \ilUtil::sendFailure($this->plugin->txt("copy_criteria_failure"), true);
+            $this->tpl->setOnScreenMessage('failure', $this->plugin->txt("copy_criteria_failure"), true);
         }
         $this->ctrl->clearParameters($this);
         $this->ctrl->redirect($this, "showItems");

@@ -20,6 +20,7 @@ use ILIAS\Plugin\LongEssayAssessment\Task\ResourceUploadHandlerGUI;
 use ILIAS\Plugin\LongEssayAssessment\ilLongEssayAssessmentUploadTempFile;
 use ILIAS\Filesystem\Filesystem;
 use ILIAS\DI\Exceptions\Exception;
+use ilFileDelivery;
 
 /**
  *Start page for corrector admins
@@ -120,9 +121,9 @@ class CorrectorAdminGUI extends BaseGUI
         
         if ($authorized_essay_exists) {
             if (empty($correctors)) {
-                ilUtil::sendInfo($this->plugin->txt('info_missing_correctors'));
+                $this->tpl->setOnScreenMessage('info', $this->plugin->txt('info_missing_correctors'));
             } elseif(!empty($this->service->countMissingCorrectors())) {
-                ilUtil::sendInfo($this->plugin->txt('info_missing_assignments'));
+                $this->tpl->setOnScreenMessage('info', $this->plugin->txt('info_missing_assignments'));
             }
         }
 
@@ -271,7 +272,7 @@ class CorrectorAdminGUI extends BaseGUI
         }
 
 
-        $this->tpl->setOnScreenMessage('success',$this->plugin->txt('tutors_added'), true);
+        $this->tpl->setOnScreenMessage('success', $this->plugin->txt('tutors_added'), true);
         $this->ctrl->redirect($this, 'showCorrectors');
     }
 
@@ -282,7 +283,7 @@ class CorrectorAdminGUI extends BaseGUI
     public function addCorrectorsCallback(array $a_usr_ids, $a_type = null)
     {
         if (count($a_usr_ids) <= 0) {
-            ilUtil::sendFailure($this->plugin->txt("missing_corrector_id"), true);
+            $this->tpl->setOnScreenMessage('failure', $this->plugin->txt("missing_corrector_id"), true);
             $this->ctrl->redirect($this, "showCorrectors");
         }
 
@@ -290,7 +291,7 @@ class CorrectorAdminGUI extends BaseGUI
             $this->service->getOrCreateCorrectorFromUserId($id);
         }
 
-        ilUtil::sendSuccess($this->plugin->txt("assign_corrector_success"), true);
+        $this->tpl->setOnScreenMessage('success', $this->plugin->txt("assign_corrector_success"), true);
         $this->ctrl->redirect($this, "showCorrectors");
     }
 
@@ -315,25 +316,25 @@ class CorrectorAdminGUI extends BaseGUI
     private function removeCorrector()
     {
         if(($id = $this->getCorrectorId()) === null) {
-            ilUtil::sendFailure($this->plugin->txt("missing_corrector_id"), true);
+            $this->tpl->setOnScreenMessage('failure', $this->plugin->txt("missing_corrector_id"), true);
             $this->ctrl->redirect($this, "showCorrectors");
         }
         $corrector_repo = LongEssayAssessmentDI::getInstance()->getCorrectorRepo();
         $corrector = $corrector_repo->getCorrectorById($id);
 
         if($corrector === null || $corrector->getTaskId() !== $this->object->getId()) {
-            ilUtil::sendFailure($this->plugin->txt("missing_corrector"), true);
+            $this->tpl->setOnScreenMessage('failure', $this->plugin->txt("missing_corrector"), true);
             $this->ctrl->redirect($this, "showCorrectors");
         }
         $ass = $corrector_repo->getAssignmentsByCorrectorId($corrector->getId());
 
         if(count($ass) > 0) {
-            ilUtil::sendFailure($this->plugin->txt("remove_writer_pending_assignments"), true);
+            $this->tpl->setOnScreenMessage('failure', $this->plugin->txt("remove_writer_pending_assignments"), true);
             $this->ctrl->redirect($this, "showCorrectors");
         }
 
         $corrector_repo->deleteCorrector($corrector->getId());
-        ilUtil::sendSuccess($this->plugin->txt("remove_corrector_success"), true);
+        $this->tpl->setOnScreenMessage('success', $this->plugin->txt("remove_corrector_success"), true);
         $this->ctrl->redirect($this, "showCorrectors");
     }
 
@@ -342,12 +343,12 @@ class CorrectorAdminGUI extends BaseGUI
 
         $missing = $this->service->countMissingCorrectors();
         if ($missing == 0) {
-            ilUtil::sendInfo($this->plugin->txt('assign_not_needed'), true);
+            $this->tpl->setOnScreenMessage('info', $this->plugin->txt('assign_not_needed'), true);
             $this->ctrl->redirect($this, 'showStartPage');
         }
         $available = $this->service->countAvailableCorrectors();
         if ($available == 0) {
-            ilUtil::sendInfo($this->plugin->txt('assign_not_available'), true);
+            $this->tpl->setOnScreenMessage('info', $this->plugin->txt('assign_not_available'), true);
             $this->ctrl->redirect($this, 'showStartPage');
         }
 
@@ -363,7 +364,7 @@ class CorrectorAdminGUI extends BaseGUI
             $warnings[] = sprintf($this->plugin->txt('potential_authorizations_after'), $after);
         }
         if ($warnings) {
-            ilUtil::sendInfo($this->plugin->txt('warning_potential_later_assignments') . '<br>' . implode('<br>', $warnings));
+            $this->tpl->setOnScreenMessage('info', $this->plugin->txt('warning_potential_later_assignments') . '<br>' . implode('<br>', $warnings));
         }
 
 
@@ -393,11 +394,11 @@ class CorrectorAdminGUI extends BaseGUI
     {
         $assigned = $this->service->assignMissingCorrectors();
         if ($assigned == 0) {
-            ilUtil::sendFailure($this->plugin->txt("0_assigned_correctors"), true);
+            $this->tpl->setOnScreenMessage('failure', $this->plugin->txt("0_assigned_correctors"), true);
         } elseif ($assigned == 1) {
-            ilUtil::sendSuccess($this->plugin->txt("1_assigned_corrector"), true);
+            $this->tpl->setOnScreenMessage('success', $this->plugin->txt("1_assigned_corrector"), true);
         } else {
-            ilUtil::sendSuccess(sprintf($this->plugin->txt("n_assigned_correctors"), $assigned), true);
+            $this->tpl->setOnScreenMessage('success', sprintf($this->plugin->txt("n_assigned_correctors"), $assigned), true);
         }
         $this->ctrl->redirect($this, "showStartPage");
     }
@@ -450,14 +451,14 @@ class CorrectorAdminGUI extends BaseGUI
             foreach ($invalid as $writer) {
                 $names[] = \ilObjUser::_lookupFullname($writer->getUserId()) . ' [' . $writer->getPseudonym() . ']';
             }
-            ilutil::sendFailure(sprintf($this->plugin->txt('remove_authorizations_for_failed'), implode(", ", $names)), true);
+            $this->tpl->setOnScreenMessage('failure', sprintf($this->plugin->txt('remove_authorizations_for_failed'), implode(", ", $names)), true);
         }
         if(count($valid) > 0) {
             $names = [];
             foreach ($valid as $writer) {
                 $names[] = \ilObjUser::_lookupFullname($writer->getUserId()) . ' [' . $writer->getPseudonym() . ']';
             }
-            ilutil::sendSuccess(sprintf($this->plugin->txt('remove_authorizations_for_done'), implode(", ", $names)), true);
+            $this->tpl->setOnScreenMessage('success', sprintf($this->plugin->txt('remove_authorizations_for_done'), implode(", ", $names)), true);
         }
 
         $this->ctrl->clearParameters($this);
@@ -467,14 +468,14 @@ class CorrectorAdminGUI extends BaseGUI
 
     protected function exportCorrections()
     {
-        $filename = \ilUtil::getASCIIFilename($this->plugin->txt('export_corrections_file_prefix') .' ' .$this->object->getTitle()) . '.zip';
-        ilUtil::deliverFile($this->service->createCorrectionsExport($this->object), $filename, 'application/zip', false, false);
+        $filename = ilFileDelivery::returnASCIIFilename($this->plugin->txt('export_corrections_file_prefix') .' ' .$this->object->getTitle()) . '.zip';
+        ilFileDelivery::deliverFileAttached($this->service->createCorrectionsExport($this->object), $filename, 'application/zip', false);
     }
 
     protected function exportResults()
     {
-        $filename = \ilUtil::getASCIIFilename($this->plugin->txt('export_results_file_prefix') .' ' . $this->object->getTitle()) . '.csv';
-        ilUtil::deliverFile($this->service->createResultsExport(), $filename, 'text/csv', false, false);
+        $filename = ilFileDelivery::returnASCIIFilename($this->plugin->txt('export_results_file_prefix') .' ' . $this->object->getTitle()) . '.csv';
+        ilFileDelivery::deliverFileAttached($this->service->createResultsExport(), $filename, 'text/csv', false);
     }
 
     /**
@@ -489,7 +490,7 @@ class CorrectorAdminGUI extends BaseGUI
         $repoWriter = $this->localDI->getWriterRepo()->getWriterById($writer_id);
 
         $filename = 'task' . $this->object->getId() . '_writer' . $repoWriter->getId(). '-writing.pdf';
-        ilUtil::deliverData($service->getWritingAsPdf($this->object, $repoWriter), $filename, 'application/pdf');
+        $this->common_services->fileHelper()->deliverData($service->getWritingAsPdf($this->object, $repoWriter), $filename, 'application/pdf');
     }
 
 
@@ -505,25 +506,25 @@ class CorrectorAdminGUI extends BaseGUI
         $repoWriter = $this->localDI->getWriterRepo()->getWriterById($writer_id);
 
         $filename = 'task' . $this->object->getId() . '_writer' . $repoWriter->getId(). '-correction.pdf';
-        ilUtil::deliverData($service->getCorrectionAsPdf($this->object, $repoWriter), $filename, 'application/pdf');
+        $this->common_services->fileHelper()->deliverData($service->getCorrectionAsPdf($this->object, $repoWriter), $filename, 'application/pdf');
     }
 
     private function exportSteps()
     {
         if (empty($repoWriter = $this->localDI->getWriterRepo()->getWriterById((int) $this->getWriterId()))) {
-            ilUtil::sendFailure($this->plugin->txt("missing_writer_id"), true);
+            $this->tpl->setOnScreenMessage('failure', $this->plugin->txt("missing_writer_id"), true);
             $this->ctrl->redirect($this, "showStartPage");
         }
 
         $service = $this->localDI->getWriterAdminService($this->object->getId());
-        $name = \ilUtil::getASCIIFilename($this->object->getTitle() .'_' . \ilObjUser::_lookupFullname($repoWriter->getUserId()));
+        $name = ilFileDelivery::returnASCIIFilename($this->object->getTitle() .'_' . \ilObjUser::_lookupFullname($repoWriter->getUserId()));
         $zipfile = $service->createWritingStepsExport($this->object, $repoWriter, $name);
         if (empty($zipfile)) {
-            ilUtil::sendFailure($this->plugin->txt("content_not_available"), true);
+            $this->tpl->setOnScreenMessage('failure', $this->plugin->txt("content_not_available"), true);
             $this->ctrl->redirect($this, "showStartPage");
         }
 
-        ilUtil::deliverFile($zipfile, $name . '.zip', 'application/zip', false, false);
+        ilFileDelivery::deliverFileAttached($zipfile, $name . '.zip', 'application/zip', false);
     }
 
     private function getWriterId(): ?int
@@ -679,7 +680,7 @@ class CorrectorAdminGUI extends BaseGUI
                     $data["second_corrector"] ?? CorrectorAdminService::UNCHANGED_CORRECTOR_ASSIGNMENT,
                     $writer_ids
                 );
-                ilUtil::sendSuccess($this->plugin->txt("corrector_assignment_changed"), true);
+                $this->tpl->setOnScreenMessage('success', $this->plugin->txt("corrector_assignment_changed"), true);
                 exit();
             } else {
                 echo($this->renderer->render($form));
@@ -764,19 +765,19 @@ class CorrectorAdminGUI extends BaseGUI
                 $filename = $data['excel'][0];
 
                 try {
-                    $this->assignment_service->importAssignments(\ilUtil::getDataDir() . '/temp/' . $filename);
-                    ilUtil::sendSuccess($this->plugin->txt("corrector_assignment_change_file_success"), true);
+                    $this->assignment_service->importAssignments(ILIAS_DATA_DIR . '/' . CLIENT_ID . '/temp/' . $filename);
+                    $this->tpl->setOnScreenMessage('success', $this->plugin->txt("corrector_assignment_change_file_success"), true);
                     $tempfile->removeTempFile($filename);
                     $this->ctrl->redirect($this);
                 }
                 catch (CorrectorAssignmentsException $exception) {
                     $tempfile->removeTempFile($filename);
-                    ilUtil::sendFailure($this->plugin->txt("corrector_assignment_change_file_failure")
+                    $this->tpl->setOnScreenMessage('failure', $this->plugin->txt("corrector_assignment_change_file_failure")
                         . '<p class="small">' . nl2br($exception->getMessage()), true) . '</p>';
                 }
                 catch (\Exception $exception) {
                     $tempfile->removeTempFile($filename);
-                    ilUtil::sendFailure($this->plugin->txt("corrector_assignment_change_file_failure"));
+                    $this->tpl->setOnScreenMessage('failure', $this->plugin->txt("corrector_assignment_change_file_failure"));
                 }
             }
         }

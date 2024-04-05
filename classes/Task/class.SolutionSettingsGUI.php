@@ -48,7 +48,7 @@ class SolutionSettingsGUI extends BaseGUI
         $resource = $task_repo->getSolutionResource($this->object->getId());
 
         if(!$taskSettings->isSolutionAvailable()) {
-            \ilUtil::sendInfo($this->plugin->txt("solution_is_not_available"));
+            $this->tpl->setOnScreenMessage('info', $this->plugin->txt("solution_is_not_available"));
         }
 
         $form = $this->buildSolutionSettings($taskSettings, $resource);
@@ -59,7 +59,7 @@ class SolutionSettingsGUI extends BaseGUI
             if (($data = $form->getData()) !== null) {
                 $this->updateSolutionSettings($data["form"], $taskSettings, $resource);
 
-                ilUtil::sendSuccess($this->lng->txt("settings_saved"), true);
+                $this->tpl->setOnScreenMessage('success', $this->lng->txt("settings_saved"), true);
                 $this->ctrl->redirect($this, "editSettings");
             }
         }

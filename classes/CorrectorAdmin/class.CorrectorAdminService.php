@@ -512,7 +512,9 @@ class CorrectorAdminService extends BaseService
     public function createResultsExport() : string
     {
         $csv = new \ilCSVWriter();
+        $csv->setDoUTF8Decoding(true);
         $csv->setSeparator(';');
+        $csv->setDelimiter('"');
 
         $csv->addColumn($this->lng->txt('login'));
         $csv->addColumn($this->lng->txt('firstname'));
@@ -525,6 +527,19 @@ class CorrectorAdminService extends BaseService
         $csv->addColumn($this->plugin->txt('grade_level'));
         $csv->addColumn($this->plugin->txt('grade_level_code'));
         $csv->addColumn($this->plugin->txt('passed'));
+
+        $settings = $this->taskRepo->getCorrectionSettingsById($this->task_id);
+        $num_correctors = $settings->getRequiredCorrectors();
+        for ($i = 1; $i <= $num_correctors; $i++) {
+            $csv->addColumn(sprintf($this->plugin->txt('corrector_x_login'), $i));
+            $csv->addColumn(sprintf($this->plugin->txt('corrector_x_name'), $i));
+            $csv->addColumn(sprintf($this->plugin->txt('corrector_x_points'), $i));
+        }
+
+        $corrector_users = [];
+        foreach ($this->correctorRepo->getCorrectorsByTaskId($this->task_id) as $corrector) {
+            $corrector_users[$corrector->getId()] = $this->dataService->getCachedUser($corrector->getUserId());
+        }
 
         $repoTask = $this->taskRepo->getTaskSettingsById($this->task_id);
         foreach ($this->essayRepo->getEssaysByTaskId($repoTask->getTaskId()) as $repoEssay) {
@@ -562,6 +577,25 @@ class CorrectorAdminService extends BaseService
                     $csv->addColumn($level->getGrade());
                     $csv->addColumn($level->getCode());
                     $csv->addColumn($level->isPassed());
+                }
+            }
+            $i = 1;
+            foreach ($this->correctorRepo->getAssignmentsByWriterId($repoWriter->getId()) as $assignment) {
+                if (!empty($user = $corrector_users[$assignment->getCorrectorId()])) {
+                    $summary = $this->essayRepo->getCorrectorSummaryByEssayIdAndCorrectorId(
+                        $repoEssay->getId(), $assignment->getCorrectorId());
+                    $csv->addColumn($user->getLogin());
+                    $csv->addColumn($user->getFullname(50));
+                    $csv->addColumn($summary ? $summary->getPoints() : null);
+                }
+                else {
+                    $csv->addColumn(null);
+                    $csv->addColumn(null);
+                    $csv->addColumn(null);
+                }
+                $i++;
+                if ($i > $num_correctors) {
+                    break;
                 }
             }
         }

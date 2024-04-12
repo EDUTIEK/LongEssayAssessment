@@ -38,7 +38,7 @@ class CorrectorRepository extends RecordRepo
     }
 
     /**
-     * @return Corrector[]
+     * @return Corrector[] (indexed by id)
      */
     public function getCorrectorsByTaskId(int $a_task_id): array
     {
@@ -84,16 +84,18 @@ class CorrectorRepository extends RecordRepo
     }
 
     /**
+     * Get the corrector assignments of a writer ordered by position
      * @return CorrectorAssignment[]
      */
     public function getAssignmentsByWriterId(int $a_writer_id): array
     {
         $query = "SELECT * FROM " . CorrectorAssignment::tableName() . " WHERE writer_id = " .
-            $this->db->quote($a_writer_id, 'integer');
+            $this->db->quote($a_writer_id, 'integer')  . ' ORDER BY position ASC';
         return $this->queryRecords($query, CorrectorAssignment::model());
     }
 
     /**
+     * Get the corrector assignments of a corrector ordered by position
      * @return CorrectorAssignment[]
      */
     public function getAssignmentsByCorrectorId(int $a_corrector_id): array

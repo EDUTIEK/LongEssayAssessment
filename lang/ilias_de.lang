@@ -536,3 +536,6 @@ add_all_course_tutors#:#Alle Tutoren hinzufügen
 confirm_add_all_course_tutors#:#Möchten Sie alle Kurstutoren als Korrektoren hinzufügen?
 tutors_added#:#Die Tutoren wurden hinzugefügt
 constraint_error_not_minimum#:#%s ist kleiner als das Minimum %s.
+corrector_x_login#:#Korrektor %s Login
+corrector_x_name#:#Korrektor %s Name
+corrector_x_points#:#Korrektor %s Punkte

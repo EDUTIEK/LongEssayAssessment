@@ -1,12 +1,16 @@
 # Change Log
 
+## Version 1.6 (upcoming)
+- plugin: extend result export with correctors names and points
+- plugin: align implementation of file delivery and screen messages with version 2 for ILIAS 8
+
 ## Version 1.5 (2024-03-23)
 - plugin: function to add all course tutors as correctors
 - plugin: fixed 0040804: Minimal margin size is not set to minimum (5mm) but to 4
 - plugin: optimized file delivery of instructions, material, solution
 - service: fixed error sending new steps after partially successful sending
 - writer: don't block writer startup by loading instructions and material
-- writer: fixed scrolling area of preview for autorisation
+- writer: fixed scrolling area of preview for authorisation
 
 ## Version 1.4.1 (2024-03-01)
 - fixed pseudonym creation for writers

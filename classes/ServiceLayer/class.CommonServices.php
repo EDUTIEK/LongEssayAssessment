@@ -40,7 +40,11 @@ class CommonServices
                 new StorageHandlerFactory([
                         new MaxNestingFileSystemStorageHandler($this->global_dic->filesystem()->storage(), Location::STORAGE),
                         new FileSystemStorageHandler($this->global_dic->filesystem()->storage(), Location::STORAGE)
-                    ]),
+                    ],
+                    (defined('ILIAS_DATA_DIR') && defined('CLIENT_ID'))
+                        ? rtrim(ILIAS_DATA_DIR, "/") . "/" . CLIENT_ID
+                        : '-'
+                ),
                 $this->global_dic->http()
             );
         };

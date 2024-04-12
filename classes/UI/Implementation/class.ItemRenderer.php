@@ -109,7 +109,7 @@ class ItemRenderer extends \ILIAS\UI\Implementation\Component\Item\Renderer
         $tpl = $this->getTemplate("tpl.form_item.html", true, true);
 
         $this->renderTitle($component, $default_renderer, $tpl);
-        $this->renderDescription($component, $default_renderer, $tpl);
+        $this->renderDescription($component, $tpl);
         $this->renderProperties($component, $default_renderer, $tpl);
         // color
         $color = $component->getColor();

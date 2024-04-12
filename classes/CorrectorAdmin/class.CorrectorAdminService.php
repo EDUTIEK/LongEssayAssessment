@@ -510,7 +510,9 @@ class CorrectorAdminService extends BaseService
     public function createResultsExport() : string
     {
         $csv = new \ilCSVWriter();
+        $csv->setDoUTF8Decoding(true);
         $csv->setSeparator(';');
+        $csv->setDelimiter('"');
 
         $csv->addColumn($this->lng->txt('login'));
         $csv->addColumn($this->lng->txt('firstname'));

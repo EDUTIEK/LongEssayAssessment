@@ -2,6 +2,7 @@
 
 ## Version 1.6 (upcoming)
 - plugin: extend result export with correctors names and points
+- plugin: apply utf8 decoding in csv export of results for better use with ms excel
 - plugin: align implementation of file delivery and screen messages with version 2 for ILIAS 8
 
 ## Version 1.5 (2024-03-23)

@@ -67,6 +67,9 @@ abstract class BaseGUI
     /** @var array query params */
     protected $params;
 
+    /** @var string[] placeholder => html */
+    protected array $placeholders = [];
+
     protected \ILIAS\ResourceStorage\Services $storage;
 
     protected CommonServices $common_services;
@@ -190,5 +193,28 @@ abstract class BaseGUI
                     break;
             }
         }
+    }
+
+    /**
+     * Add HTML code for later replacement and get a placeholder value
+     * This is a workaround to use to html in UI elements where it would be quoted by the rendering
+     */
+    protected function createPlaceholder(string $html) : string
+    {
+        $key = '[HTML]' . md5($html) . '[/HTML]';
+        $this->placeholders[$key] = $html;
+        return $key;
+    }
+
+    /**
+     * Replace the placeholders with their remembered html content
+     * This is a workaround to use to html in UI elements where it would be quoted by the rendering
+     */
+    protected function fillPlaceholders(string $content) : string
+    {
+        foreach ($this->placeholders as $key => $value) {
+            $content = str_replace($key , $value, $content);
+        }
+        return $content;
     }
 }

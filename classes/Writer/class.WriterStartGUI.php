@@ -168,7 +168,7 @@ class WriterStartGUI extends BaseGUI
         $contents[] = $this->uiFactory->item()->group(
             $this->plugin->txt('task_instructions'),
             [$this->uiFactory->item()->standard($this->lng->txt('description'))
-                ->withDescription(implode('<br>', $inst_parts))
+                ->withDescription($this->createPlaceholder(implode('<br>', $inst_parts)))
                 ->withProperties($properties)]
         );
 
@@ -257,7 +257,7 @@ class WriterStartGUI extends BaseGUI
         }
 
         $result_item = $this->uiFactory->item()->standard($result_text)
-            ->withDescription($actions_html)
+            ->withDescription($this->createPlaceholder($actions_html))
             ->withProperties(array(
                 $this->plugin->txt('review_period') => $this->data->formatPeriod(
                     $this->task->getReviewStart(),
@@ -287,7 +287,7 @@ class WriterStartGUI extends BaseGUI
 
 
             if (!empty($solution_buttons)) {
-                $solution_item = $this->uiFactory->item()->standard($this->renderer->render($solution_buttons));
+                $solution_item = $this->uiFactory->item()->standard($this->createPlaceholder($this->renderer->render($solution_buttons)));
                 $solution_items = array_merge([$solution_item], $solution_items);
             }
 
@@ -307,7 +307,7 @@ class WriterStartGUI extends BaseGUI
             $this->tpl->addLightbox($this->renderer->render($modal), $id);
         }
 
-        $this->tpl->setContent($html);
+        $this->tpl->setContent($this->fillPlaceholders($html));
     }
 
 

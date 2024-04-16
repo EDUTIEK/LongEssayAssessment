@@ -30,8 +30,9 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
 
 
     /**
-     * Goto redirection
-     * Enhanced for direct return to writer or corrector start screens
+     * Redirection for goto links
+     * Overrides standard function for plugins to use the own plugin dispatcher
+     * Special treatment of a direct return from the writer or corrector web app
      * @see \ILIAS\Plugin\LongEssayAssessment\Corrector\CorrectorContext::getReturnUrl
      */
     public static function _goto($a_target) : void
@@ -53,15 +54,16 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                     $class_name = 'ilias\plugin\longessayassessment\correctoradmin\correctoradmingui';
                 }
                 if (isset($class_name)) {
-                    //$DIC->ctrl()->initBaseClass("ilObjPluginDispatchGUI");
-                    //$DIC->ctrl()->getCallStructure(strtolower("ilObjPluginDispatchGUI"));
-                    $DIC->ctrl()->setParameterByClass("ilobjLongEssayAssessmentgui", "ref_id", $ref_id);
+                    $DIC->ctrl()->setParameterByClass("ilObjLongEssayAssessmentgui", "ref_id", $ref_id);
                     $DIC->ctrl()->setParameterByClass($class_name, "returned", '1');
-                    $DIC->ctrl()->redirectByClass(array("illongessayassessmentdispatchgui", "ilobjLongEssayAssessmentgui", $class_name), "");
+                    $DIC->ctrl()->redirectByClass(array("illongessayassessmentdispatchgui", "ilObjLongEssayAssessmentgui", $class_name), "");
                 }
             }
         }
-        parent::_goto($a_target);
+
+        // no read access or not a special return
+        $DIC->ctrl()->setParameterByClass("ilObjLongEssayAssessmentgui", "ref_id", $ref_id);
+        $DIC->ctrl()->redirectByClass(array("illongessayassessmentdispatchgui", "ilObjLongEssayAssessmentgui"), "standardCommand");
     }
 
 

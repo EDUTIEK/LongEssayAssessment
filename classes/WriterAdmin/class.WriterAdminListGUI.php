@@ -166,7 +166,7 @@ class WriterAdminListGUI extends WriterListGUI
                 );
             }
 
-            $items[] = $this->localDI->getUIFactory()->item()->formItem($this->getWriterName($writer, true) . $this->getWriterAnchor($writer))
+            $items[] = $this->localDI->getUIFactory()->item()->formItem($this->getWriterName($writer, true))
                 ->withName($writer->getId())
                 ->withLeadIcon($this->getWriterIcon($writer))
                 ->withProperties($properties)
@@ -485,7 +485,7 @@ class WriterAdminListGUI extends WriterListGUI
     }
     protected function filterItems(array $filter, Writer $writer): bool
     {
-        $essay = $this->essays[$writer->getId()];
+        $essay = $this->essays[$writer->getId()] ?? null;
 
         if(!empty($filter["attended"]) && $filter["attended"] == self::FILTER_YES) {
             if($essay === null || $essay->getEditStarted() === null) {

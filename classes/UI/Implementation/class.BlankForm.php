@@ -34,7 +34,7 @@ class BlankForm extends Form implements \ILIAS\Plugin\LongEssayAssessment\UI\Com
 
     public function __construct(Input\Field\Factory $input_factory, $post_url, array $inputs, SignalGeneratorInterface $signal_generator)
     {
-        parent::__construct($input_factory, $inputs);
+        parent::__construct($input_factory, new Input\FormInputNameSource(), $inputs);
         $this->checkStringArg("post_url", $post_url);
         $this->post_url = $post_url;
         $this->signal_generator = $signal_generator;

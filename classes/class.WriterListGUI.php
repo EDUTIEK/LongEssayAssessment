@@ -189,17 +189,6 @@ abstract class WriterListGUI
     }
 
     /**
-     * @param \ILIAS\Plugin\LongEssayAssessment\Data\Writer\Writer $writer
-     * @return string
-     */
-    protected function getWriterAnchor(Writer $writer): string
-    {
-        $user_id = $writer->getUserId();
-        $writer_id = $writer->getId();
-        return "<blankanchor id='writer_$writer_id'><blankanchor id='user_$user_id'>";
-    }
-
-    /**
      * @param callable|null $custom_sort Custom sortation callable. Equal writer will be sorted by name.
      * @return void
      */
@@ -283,7 +272,7 @@ abstract class WriterListGUI
 
     protected function word_count(Writer $writer)
     {
-        $essay = $this->essays[$writer->getId()];
+        $essay = $this->essays[$writer->getId()] ?? null;
         return str_word_count($essay !== null ? ($essay->getWrittenText() ?? "") : "");
     }
 
@@ -350,7 +339,7 @@ abstract class WriterListGUI
                 return false;
             }
         }
-        $essay = $this->essays[$writer->getId()];
+        $essay = $this->essays[$writer->getId()] ?? null;
 
         if(!empty($filter["location"])) {
 

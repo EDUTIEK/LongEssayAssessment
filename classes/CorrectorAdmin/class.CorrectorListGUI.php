@@ -52,15 +52,18 @@ class CorrectorListGUI extends WriterListGUI
                 $writers["&nbsp;&nbsp;" . $this->getWriterName($this->writers[$assignment->getWriterId()], true)] = $pos;
             }
 
-            $item = $this->uiFactory->item()->standard($this->getUsername($corrector->getUserId(), true));
+            //if(($icon = $this->getUserIcon($corrector->getUserId())) !== null) {
+            //  $item->withLeadIcon($icon);
+            //}
 
-            if(($icon = $this->getUserIcon($corrector->getUserId())) !== null) {
-                $item->withLeadIcon($icon);
-            }
+
+            $assigned = [];
 
             if(count($writers) > 0) {
-                $item = $item->withDescription($this->renderer->render($this->uiFactory->listing()->characteristicValue()->text($writers)));
+                $assigned = $this->uiFactory->listing()->characteristicValue()->text($writers);
             }
+            $item = $this->uiFactory->panel()->sub($this->getUsername($corrector->getUserId(), true), $assigned);
+
             if(count($actions) > 0) {
                 $actions_dropdown = $this->uiFactory->dropdown()->standard($actions)
                     ->withLabel($this->plugin->txt("actions"));
@@ -69,11 +72,11 @@ class CorrectorListGUI extends WriterListGUI
 
             $items[] = $item;
         }
-        $resources = array_merge([$this->uiFactory->item()->group(
+
+        return $this->renderer->render(array_merge([$this->uiFactory->panel()->standard(
             $this->plugin->txt("correctors") . $this->localDI->getDataService(0)->formatCounterSuffix(count($this->correctors)),
             $items
-        )], $modals);
-        return $this->renderer->render($resources);
+        )], $modals));
     }
 
     private function canGetRemoved(Corrector $corrector):bool

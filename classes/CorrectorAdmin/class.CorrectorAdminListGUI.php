@@ -67,7 +67,7 @@ class CorrectorAdminListGUI extends WriterListGUI
             if ($this->hasCorrectionStatusStitchDecided($writer)) {
                 $sight_modal = $this->uiFactory->modal()->lightbox($this->uiFactory->modal()->lightboxTextPage(
                     $this->localDI->getDataService($writer->getTaskId())->cleanupRichText($this->essays[$writer->getId()]->getStitchComment()),
-                    $this->getWriterName($writer, true). $this->getWriterAnchor($writer),
+                    $this->getWriterName($writer, true),
                 ));
                 $modals[] = $sight_modal;
                 $actions[] = $this->uiFactory->button()->shy($this->plugin->txt('view_stitch_comment'), '')->withOnClick($sight_modal->getShowSignal());
@@ -142,7 +142,7 @@ class CorrectorAdminListGUI extends WriterListGUI
             $actions_dropdown = $this->uiFactory->dropdown()->standard($actions)
                 ->withLabel($this->plugin->txt("actions"));
 
-            $item = $this->localDI->getUIFactory()->item()->formItem($this->getWriterName($writer, true). $this->getWriterAnchor($writer))
+            $item = $this->localDI->getUIFactory()->item()->formItem($this->getWriterName($writer, true))
                                   ->withName($writer->getId())
                                   ->withProperties($properties)
                                   ->withActions($actions_dropdown);
@@ -193,8 +193,10 @@ class CorrectorAdminListGUI extends WriterListGUI
         if(($assignment = $this->getAssignmentByWriterPosition($writer, $pos)) !== null) {
             $corrector = $this->correctors[$assignment->getCorrectorId()];
 
-            if (!empty($essay = $this->essays[$writer->getId()])) {
+            if (!empty($essay = $this->essays[$writer->getId()] ?? null)) {
                 $summary = $this->localDI->getEssayRepo()->getCorrectorSummaryByEssayIdAndCorrectorId($essay->getId(), $assignment->getCorrectorId());
+            } else {
+                $summary = null;
             }
 
             return $this->getUsername($corrector->getUserId())
@@ -429,7 +431,7 @@ class CorrectorAdminListGUI extends WriterListGUI
                 return false;
             }
         }
-        $essay = $this->essays[$writer->getId()];
+        $essay = $this->essays[$writer->getId()] ?? null;
 
         if(!empty($filter["pdf_version"]) && $filter["pdf_version"] == self::FILTER_YES) {
             if($essay === null || $essay->getPdfVersion() === null) {

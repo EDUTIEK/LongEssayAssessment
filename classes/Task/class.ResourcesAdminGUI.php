@@ -98,7 +98,7 @@ class ResourcesAdminGUI extends BaseGUI
             ->withValue((string) $a_resource->getDescription());
 
         $resource_file = $factory->file(new ResourceUploadHandlerGUI($this->storage, $this->localDI->getTaskRepo()), $this->lng->txt("file"))
-            ->withValue($a_resource->getFileId() !== null ? [$a_resource->getFileId()] : null)
+            ->withValue(!empty($a_resource->getFileId()) ? [$a_resource->getFileId()] : [])
             ->withAcceptedMimeTypes(['application/pdf'])
             ->withByline($this->plugin->txt("resource_file_description") . "<br>" . $this->uiService->getMaxFileSizeString());
 

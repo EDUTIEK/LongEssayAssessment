@@ -344,7 +344,7 @@ abstract class WriterListGUI
 
     public function filter(array $filter, Writer $writer): bool
     {
-        if($filter["name"] !== null && strlen($filter["name"]) > 3) {
+        if(!empty($filter["name"]) && strlen($filter["name"]) > 3) {
             $names = $writer->getPseudonym() . strip_tags($this->getUsername($writer->getUserId(), true));
             if(!str_contains($names, $filter["name"])) {
                 return false;

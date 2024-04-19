@@ -192,19 +192,21 @@ class WriterStartGUI extends BaseGUI
                                 $resource->getTitle(),
                                 $this->ctrl->getLinkTarget($this, "downloadResourceFile")
                             )
-                        )->withLeadIcon($this->uiFactory->symbol()->icon()->standard('file', 'File', 'medium'))
-                                                ->withProperties(
-                                                    array(
-                                                        $this->lng->txt("filename") => $revision->getInformation()->getTitle(),
-                                                        $this->plugin->txt("resource_availability") => $this->plugin->txt('resource_availability_' . $resource->getAvailability())
-                                                    )
-                                                );
+                        )   ->withDescription((string) $resource->getDescription())
+                            ->withLeadIcon($this->uiFactory->symbol()->icon()->standard('file', 'File', 'medium'))
+                            ->withProperties(
+                                array(
+                                    $this->lng->txt("filename") => $revision->getInformation()->getTitle(),
+                                    $this->plugin->txt("resource_availability") => $this->plugin->txt('resource_availability_' . $resource->getAvailability())
+                                )
+                            );
                     }
                 } else {
                     $item = $this->uiFactory->item()->standard($this->uiFactory->link()->standard($resource->getTitle(), $resource->getUrl()))
+                                            ->withDescription((string) $resource->getDescription())
                                             ->withLeadIcon($this->uiFactory->symbol()->icon()->standard('webr', $this->lng->txt("link"), 'medium'))
                                             ->withProperties(array(
-                                                $this->lng->txt("website") => $resource->getUrl(),
+                                                $this->plugin->txt("website") => $resource->getUrl(),
                                                 $this->plugin->txt("resource_availability") => $this->plugin->txt('resource_availability_' . $resource->getAvailability())));
                 }
 

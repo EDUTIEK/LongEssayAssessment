@@ -100,6 +100,7 @@ class ResourcesAdminGUI extends BaseGUI
         $resource_file = $factory->file(new ResourceUploadHandlerGUI($this->storage, $this->localDI->getTaskRepo()), $this->lng->txt("file"))
             ->withValue(!empty($a_resource->getFileId()) ? [$a_resource->getFileId()] : [])
             ->withAcceptedMimeTypes(['application/pdf'])
+            ->withRequired(true)
             ->withByline($this->plugin->txt("resource_file_description") . "<br>" . $this->uiService->getMaxFileSizeString());
 
         $url = $factory->text($this->lng->txt('url'))
@@ -185,12 +186,12 @@ class ResourcesAdminGUI extends BaseGUI
         // check if an uploaded file should be kept
         $delete_with_file = true;
         if ($a_data["type"][0] == Resource::RESOURCE_TYPE_FILE
-            && !isset($a_data["type"][1]["resource_file"][0])
+            && isset($a_data["type"][1]["resource_file"][0])
         ) {
             $task_repo = $this->localDI->getTaskRepo();
             if (!empty($resource = $task_repo->getResourceById($resource_id))
-            && !empty($resource->getFileId())) {
-                $a_data["type"][1]["resource_file"][0] = $resource->getFileId();
+                && !empty($resource->getFileId())
+                && $resource->getFileId() == $a_data["type"][1]["resource_file"][0]) {
                 $delete_with_file = false;
             }
         }

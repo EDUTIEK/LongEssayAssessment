@@ -199,14 +199,15 @@ class WriterStartGUI extends BaseGUI
                                 $resource->getTitle(),
                                 $this->ctrl->getLinkTarget($this, "downloadResourceFile")
                             )
-                        )
-                                                ->withLeadIcon($this->uiFactory->symbol()->icon()->standard('file', 'File', 'medium'))
-                                                ->withProperties(array(
-                                                    "Filename" => $revision->getInformation()->getTitle(),
-                                                    "Verfügbar" => $this->plugin->txt('resource_availability_' . $resource->getAvailability())));
+                        )   ->withDescription((string) $resource->getDescription())
+                            ->withLeadIcon($this->uiFactory->symbol()->icon()->standard('file', 'File', 'medium'))
+                            ->withProperties(array(
+                                "Filename" => $revision->getInformation()->getTitle(),
+                                "Verfügbar" => $this->plugin->txt('resource_availability_' . $resource->getAvailability())));
                     }
                 } else {
                     $item = $this->uiFactory->item()->standard($this->uiFactory->link()->standard($resource->getTitle(), $resource->getUrl()))
+                        ->withDescription((string) $resource->getDescription())
                         ->withLeadIcon($this->uiFactory->symbol()->icon()->standard('webr', 'Link', 'medium'))
                         ->withProperties(array(
                             "Webseite" => $resource->getUrl(),

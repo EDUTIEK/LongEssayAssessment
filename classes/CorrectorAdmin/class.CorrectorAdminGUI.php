@@ -62,6 +62,9 @@ class CorrectorAdminGUI extends BaseGUI
                 break;
             default:
                 $cmd = $this->ctrl->getCmd('showStartPage');
+                if(in_array($cmd, ["remove", "change", "add", "ok"])) { // Workaround to use fallback cmd for generic cmds from interruptive modals
+                    $cmd = $this->request->getQueryParams()["fallbackCmd"] ?? $cmd;
+                }
                 switch ($cmd) {
                     case 'showStartPage':
                     case 'showCorrectors':

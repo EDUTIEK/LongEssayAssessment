@@ -58,6 +58,9 @@ class WriterAdminGUI extends BaseGUI
                 break;
             default:
                 $cmd = $this->ctrl->getCmd('showStartPage');
+                if(in_array($cmd, ["remove", "change"])) { // Workaround to use fallback cmd for generic cmds from interruptive modals
+                    $cmd = $this->request->getQueryParams()["fallbackCmd"] ?? $cmd;
+                }
                 switch ($cmd) {
                     case 'showStartPage':
                     case 'addWriter':
@@ -382,11 +385,14 @@ class WriterAdminGUI extends BaseGUI
                 }
 
                 $writer = $writer_repo->getWriterById($writer_id);
-                $this->loggingService->addEntry(LogEntry::TYPE_TIME_EXTENSION,
+                $this->loggingService->addEntry(
+                    LogEntry::TYPE_TIME_EXTENSION,
                     $this->dic->user()->getId(),
                     $writer->getUserId(),
-                    sprintf($this->plugin->txt('log_entry_time_extension_note', $this->plugin->getDefaultLanguage()),
-                        $record->getMinutes())
+                    sprintf(
+                        $this->plugin->txt('log_entry_time_extension_note', $this->plugin->getDefaultLanguage()),
+                        $record->getMinutes()
+                    )
                 );
             }
             $this->tpl->setOnScreenMessage("success", $this->lng->txt("settings_saved"), true);

@@ -10,6 +10,7 @@ use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
 use \ilUtil;
 use ILIAS\Plugin\LongEssayAssessment\Task\LoggingService;
 use ilFileDelivery;
+use ILIAS\UI\Implementation\Component\ReplaceSignal;
 
 /**
  * Maintenance of the writer admin log
@@ -85,10 +86,12 @@ class WriterAdminLogGUI extends BaseGUI
     private function createAlert()
     {
         if ($this->request->getMethod() == "POST") {
-            $data = $_POST;
+            $modal = $this->buildFormModalWriterNotice();
+            $modal = $modal->withRequest($this->request);
+            $data = $modal->getData();
 
             // inputs are ok => save data
-            if (array_key_exists("text", $data) && array_key_exists("recipient", $data) && strlen($data["text"]) > 0) {
+            if (is_array($data) && array_key_exists("text", $data) && array_key_exists("recipient", $data) && strlen($data["text"]) > 0) {
                 $alert = new Alert();
                 $alert->setTaskId($this->object->getId());
                 $alert->setShownFrom((new \ilDateTime(time(), IL_CAL_UNIX))->get(IL_CAL_DATETIME));
@@ -101,103 +104,62 @@ class WriterAdminLogGUI extends BaseGUI
                 $task_repo->save($alert);
 
                 $this->tpl->setOnScreenMessage("success", $this->plugin->txt("alert_created"), true);
+                $this->ctrl->redirect($this, "showStartPage");
             } else {
-                $this->tpl->setOnScreenMessage("failure", $this->lng->txt("validation_error"), true);
+//                $close = $modal->getCloseSignal();
+//                $modal = $modal->withAdditionalOnLoadCode(function ($id) use ($close): string {
+//                    $code = "$(document).on('$close', function() { location.reload();});";
+//                    return $code;
+//                });
+
+                $this->tpl->addLightbox($this->renderer->render([$modal->withOnLoad($modal->getShowSignal())]), uniqid());
+                $this->showStartPage();
             }
-            $this->ctrl->redirect($this, "showStartPage");
         }
     }
 
     private function createLogEntry()
     {
         if ($this->request->getMethod() == "POST") {
-            $data = $_POST;
+            $modal = $this->buildFormModalLogEntry();
+            $modal = $modal->withRequest($this->request);
+            $data = $modal->getData();
 
             // inputs are ok => save data
-            if (!empty($data['entry'])) {
+            if (is_array($data) && !empty($data['entry'])) {
                 $this->service->addEntry(LogEntry::TYPE_NOTE, $this->dic->user()->getId(), null, $data['entry']);
 
                 $this->tpl->setOnScreenMessage("success", $this->plugin->txt("log_entry_created"), true);
+                $this->ctrl->redirect($this, "showStartPage");
             } else {
-                $this->tpl->setOnScreenMessage("failure", $this->lng->txt("validation_error"), true);
+                $this->tpl->addLightbox($this->renderer->render([$modal->withOnLoad($modal->getShowSignal())]), uniqid());
+                $this->showStartPage();
             }
-			$this->ctrl->redirect($this, "showStartPage");
-		}
-	}
+        }
+    }
 
     private function buildFormModalWriterNotice(): \ILIAS\UI\Component\Modal\RoundTrip
     {
-        $form = new \ilPropertyFormGUI();
-        $form->setId(uniqid('form'));
-
         $options = array_replace(
             ["-1" => $this->plugin->txt("alert_recipient_all")],
             $this->getWriterNameOptions()
         );
 
-        $item = new \ilSelectInputGUI($this->plugin->txt("alert_recipient"), 'recipient');
-        $item->setOptions($options);
-        $item->setRequired(true);
-        $form->addItem($item);
-
-        $item = new \ilTextAreaInputGUI($this->plugin->txt("alert_text"), 'text');
-        $item->setRequired(true);
-        $form->addItem($item);
-
-        $form->setFormAction($this->ctrl->getFormAction($this, "createAlert"));
-
-        $item = new \ilHiddenInputGUI('cmd');
-        $item->setValue('submit');
-        $form->addItem($item);
-
-        return $this->buildFormModal($this->plugin->txt("create_alert"), $this->lng->txt('send'), $form);
+        $inputs = [
+            "recipient" => $this->uiFactory->input()->field()->select($this->plugin->txt("alert_recipient"), $options)->withRequired(true),
+            "text" => $this->uiFactory->input()->field()->textarea($this->plugin->txt("alert_text"))->withRequired(true)
+        ];
+        return $this->uiFactory->modal()->roundtrip($this->plugin->txt("create_alert"), [], $inputs, $this->ctrl->getFormAction($this, "createAlert"))->withSubmitCaption($this->lng->txt("send"));
     }
 
     private function buildFormModalLogEntry(): \ILIAS\UI\Component\Modal\RoundTrip
     {
 
-        $form = new \ilPropertyFormGUI();
-        $form->setId(uniqid('form'));
+        $inputs = [
+            "entry" => $this->uiFactory->input()->field()->textarea($this->plugin->txt("log_entry_text"))->withRequired(true)
+        ];
 
-        $item = new \ilTextAreaInputGUI($this->plugin->txt("log_entry_text"), 'entry');
-        $item->setRequired(true);
-        $form->addItem($item);
-
-        $form->setFormAction($this->ctrl->getFormAction($this, "createLogEntry"));
-
-        $item = new \ilHiddenInputGUI('cmd');
-        $item->setValue('submit');
-        $form->addItem($item);
-
-        return $this->buildFormModal($this->plugin->txt("create_log_entry"), $this->lng->txt('save'), $form);
-    }
-
-    /**
-     * @param string             $title     title of the modal
-     * @param string             $submit    text of the submit button (send or save))
-     * @param \ilPropertyFormGUI $form      form to be displayed i nthe modal
-     * @return \ILIAS\UI\Component\Modal\RoundTrip
-     */
-    private function buildFormModal(string $title, string $submit, \ilPropertyFormGUI $form): \ILIAS\UI\Component\Modal\RoundTrip
-    {
-        global $DIC;
-        $factory = $DIC->ui()->factory();
-        $renderer = $DIC->ui()->renderer();
-
-        // Build the form
-        $item = new \ilHiddenInputGUI('cmd');
-        $item->setValue('submit');
-        $form->addItem($item);
-
-        // Build a submit button (action button) for the modal footer
-        $form_id = 'form_' . $form->getId();
-        $submit = $factory->button()->primary($submit, '#')
-            ->withOnLoadCode(function ($id) use ($form_id) {
-                return "$('#{$id}').click(function() { $('#{$form_id}').submit(); return false; });";
-            });
-
-        return $factory->modal()->roundtrip($title, $factory->legacy($form->getHTML()))
-            ->withActionButtons([$submit]);
+        return $this->uiFactory->modal()->roundtrip($this->plugin->txt("create_log_entry"), [], $inputs, $this->ctrl->getFormAction($this, "createLogEntry"))->withSubmitCaption($this->lng->txt("save"));
     }
 
     private function getWriterNameOptions(): array

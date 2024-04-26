@@ -21,6 +21,8 @@ use ILIAS\Plugin\LongEssayAssessment\Data\Essay\EssayImage;
 use ilObjLongEssayAssessment;
 use ILIAS\Plugin\LongEssayAssessment\Task\LoggingService;
 use ILIAS\Plugin\LongEssayAssessment\Data\Corrector\CorrectorRepository;
+use ILIAS\Filesystem\Filesystem;
+use ILIAS\Plugin\LongEssayAssessment\ServiceLayer\Common\FileHelper;
 
 class WriterAdminService extends BaseService
 {
@@ -30,6 +32,9 @@ class WriterAdminService extends BaseService
     protected TaskRepository $taskRepo;
     protected DataService $dataService;
     protected LoggingService $loggingService;
+
+    protected Filesystem $temp_fs;
+    protected FileHelper $file_helper;
 
     protected int $task_id;
 
@@ -47,6 +52,9 @@ class WriterAdminService extends BaseService
         $this->taskRepo = $this->localDI->getTaskRepo();
         $this->dataService = $this->localDI->getDataService($this->task_id);
         $this->loggingService = $this->localDI->getLoggingService($this->task_id);
+
+        $this->temp_fs = $this->dic->filesystem()->temp();
+        $this->file_helper = $this->localDI->services()->common()->fileHelper();
     }
 
     /**
@@ -395,7 +403,12 @@ class WriterAdminService extends BaseService
             $context = new WriterContext();
             $context->init((string) $writer->getUserId(), (string) $object->getRefId());
             $service = new Service($context);
-            $images = $service->createPageImagesFromPdfs($pdfs);
+
+            $relative_workdir = 'xlas_'.bin2hex(random_bytes(8));
+            $this->temp_fs->createDir($relative_workdir);
+            $absolute_workdir = $this->file_helper->getAbsoluteTempDir() . '/' . $relative_workdir;
+
+            $images = $service->createPageImagesFromPdfs($pdfs, PATH_TO_GHOSTSCRIPT, $absolute_workdir);
 
             $page = 1;
             foreach ($images as $image) {
@@ -423,6 +436,8 @@ class WriterAdminService extends BaseService
                 );
                 $essay_repo->save($repoImage);
             }
+
+            $this->temp_fs->deleteDir($relative_workdir);
         }
     }
     

@@ -39,6 +39,15 @@ class FileHelper extends BaseService
     }
 
     /**
+     * Get the absolute path of the temporary directory of this installation
+     */
+    public function getAbsoluteTempDir(): string
+    {
+        return ILIAS_DATA_DIR . '/' . CLIENT_ID . '/temp';
+    }
+
+
+    /**
      * Deliver a file resource given by its unique_id
      * The file is delivered by the FileDelivery service
      * This takes advantage of an activated XSenfile instead of the streaming of the ResourceStorage service

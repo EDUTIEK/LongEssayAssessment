@@ -7,6 +7,7 @@
 - plugin: add description to material on writer start creen
 - plugin: fix file removal, when the file resource is just saved without an upload. Prevent from saving, when file upload is empty.
 - plugin: support PDF conversion to images by ghostscript. Ghostscript is directly used if its path is configured in ILIAS. The conversion with imagick may not process all pages of an uploaded PDF file.
+- service: fix html processing error when commehts include "&"
 
 ## Version 1.5 (2024-03-23)
 - plugin: function to add all course tutors as correctors

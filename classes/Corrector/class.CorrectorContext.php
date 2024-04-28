@@ -114,7 +114,7 @@ class CorrectorContext extends ServiceContext implements Context
             return  ILIAS_HTTP_PATH
                 . "/Customizing/global/plugins/Services/Repository/RepositoryObject/LongEssayAssessment"
                 . "/vendor/edutiek/long-essay-assessment-service"
-                . "/" . Service::FRONTEND_RELATIVE_PATH;
+                . "/" . Service::getFrontendRelativeUrl();
         }
     }
 

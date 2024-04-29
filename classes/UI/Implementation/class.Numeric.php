@@ -3,12 +3,11 @@ namespace ILIAS\Plugin\LongEssayAssessment\UI\Implementation;
 
 use ILIAS\Data\Factory as DataFactory;
 use ILIAS\Refinery\Transformation;
-use ILIAS\UI\Implementation\Component\Input\Field\Input;
 
 /**
  * This implements the numeric input.
  */
-class Numeric extends Input implements \ILIAS\Plugin\LongEssayAssessment\UI\Component\Numeric
+class Numeric extends \ILIAS\UI\Implementation\Component\Input\Field\Numeric implements \ILIAS\Plugin\LongEssayAssessment\UI\Component\Numeric
 {
     /**
      * @var bool
@@ -53,7 +52,7 @@ class Numeric extends Input implements \ILIAS\Plugin\LongEssayAssessment\UI\Comp
     /**
      * @inheritdoc
      */
-    protected function isClientSideValueOk($value) : bool
+    public function isClientSideValueOk($value) : bool
     {
         return is_numeric($value) || $value === "" || $value === null;
     }

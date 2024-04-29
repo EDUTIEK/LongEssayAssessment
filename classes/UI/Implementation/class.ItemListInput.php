@@ -6,13 +6,13 @@ use ILIAS\Data\Factory as DataFactory;
 use ILIAS\Refinery\Factory;
 use ILIAS\UI\Component\Signal;
 use ILIAS\UI\Implementation\Component\ComponentHelper;
-use ILIAS\UI\Implementation\Component\Input\Field\Input;
+use ILIAS\UI\Implementation\Component\Input\Field\FormInput;
 use ILIAS\UI\Implementation\Component\JavaScriptBindable;
 use ILIAS\UI\Implementation\Component\SignalGenerator;
 use ILIAS\UI\Implementation\Component\SignalGeneratorInterface;
 use ILIAS\UI\Implementation\Component\Triggerer;
 
-class ItemListInput extends Input implements \ILIAS\Plugin\LongEssayAssessment\UI\Component\ItemListInput
+class ItemListInput extends FormInput implements \ILIAS\Plugin\LongEssayAssessment\UI\Component\ItemListInput
 {
     use Triggerer;
     use ComponentHelper;
@@ -32,7 +32,7 @@ class ItemListInput extends Input implements \ILIAS\Plugin\LongEssayAssessment\U
     /**
      * @inheritdoc
      */
-    protected function isClientSideValueOk($value) : bool
+    public function isClientSideValueOk($value) : bool
     {
         return is_array($value) || $value === null;
     }
@@ -42,7 +42,7 @@ class ItemListInput extends Input implements \ILIAS\Plugin\LongEssayAssessment\U
      */
     protected function getConstraintForRequirement() : ?\ILIAS\Refinery\Constraint
     {
-        return $this->refinery->kindlyTo()->listOf($this->refinery->kindlyTo()->string());
+        return null;
     }
 
     /**

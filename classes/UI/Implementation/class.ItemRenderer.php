@@ -9,7 +9,7 @@ use ILIAS\UI\Component\Item\Group;
 use ILIAS\UI\Component\Item\Item;
 use ILIAS\UI\Component\Link\Link;
 use ILIAS\UI\Component\Symbol\Icon\Icon;
-use ILIAS\UI\Implementation\Component\Input\Field\Input;
+use ILIAS\UI\Implementation\Component\Input\Field\FormInput;
 use ILIAS\UI\Renderer as RendererInterface;
 
 class ItemRenderer extends \ILIAS\UI\Implementation\Component\Item\Renderer
@@ -22,7 +22,7 @@ class ItemRenderer extends \ILIAS\UI\Implementation\Component\Item\Renderer
     public function render(Component $component, RendererInterface $default_renderer) : string
     {
         /**
-         * @var $component Input
+         * @var $component FormInput
          */
         $this->checkComponent($component);
 
@@ -185,7 +185,7 @@ class ItemRenderer extends \ILIAS\UI\Implementation\Component\Item\Renderer
         if (count($props) > 0) {
             $cnt = 0;
             foreach ($props as $name => $value) {
-                if ($value instanceof \ILIAS\UI\Component\Button\Shy || $value instanceof Input) {
+                if ($value instanceof \ILIAS\UI\Component\Button\Shy || $value instanceof FormInput) {
                     $value = $default_renderer->render($value);
                 }
                 $cnt++;

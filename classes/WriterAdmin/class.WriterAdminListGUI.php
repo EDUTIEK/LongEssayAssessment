@@ -53,7 +53,7 @@ class WriterAdminListGUI extends WriterListGUI
                     $this->plugin->txt("authorize_writing_confirmation"),
                     $this->getAuthorizeAction($writer)
                 )->withAffectedItems([
-                    $this->uiFactory->modal()->interruptiveItem($writer->getUserId(), $this->getWriterNameText($writer)), $this->getUserImage($writer->getUserId())
+                    $this->uiFactory->modal()->interruptiveItem($writer->getUserId(), $this->getWriterNameText($writer), $this->getUserImage($writer->getUserId()))
                 ])->withActionButtonLabel("confirm");
 
                 $modals[] = $authorize_modal;

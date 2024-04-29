@@ -655,9 +655,19 @@ class WriterAdminGUI extends BaseGUI
         $this->ctrl->saveParameter($this, "writer_id");
         $link = $this->ctrl->getFormAction($this, "showEssay", "", true);
 
+        $content = [$this->uiFactory->legacy($value)];
+
+        if(isset($essay) && !empty($essay->getPdfVersion())) {
+            $this->ctrl->saveParameter($this, "writer_id");
+            $content[] = $this->uiFactory->button()->standard(
+                $this->plugin->txt('pdf_version_download'),
+                $this->ctrl->getFormAction($this, "downloadPDFVersion")
+            );
+        }
+
         $sight_modal = $this->uiFactory->modal()->roundtrip(
             $this->plugin->txt("submission"),
-            $this->uiFactory->legacy($value)
+            $content
         );
         $reload_button = $this->uiFactory->button()->standard($this->lng->txt("refresh"), "")
             ->withLoadingAnimationOnClick(true)

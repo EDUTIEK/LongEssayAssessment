@@ -259,7 +259,7 @@ class WriterAdminListGUI extends WriterListGUI
     private function getSightAction(Writer $writer)
     {
         $this->ctrl->setParameter($this->parent, "writer_id", $writer->getId());
-        return $this->ctrl->getFormAction($this->parent, "		showEssay", "", true);
+        return $this->ctrl->getFormAction($this->parent, "showEssay", "", true);
     }
 
     private function canChangeLocation(): bool

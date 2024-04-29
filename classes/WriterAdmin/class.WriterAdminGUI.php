@@ -701,7 +701,7 @@ class WriterAdminGUI extends BaseGUI
             $this->localDI->getUIService()->getMaxFileSizeString() . $download
         )
             ->withAcceptedMimeTypes(['application/pdf'])
-            ->withValue($essay->getPdfVersion() !== null ? [$essay->getPdfVersion()]: null);
+            ->withValue($essay->getPdfVersion() !== null ? [$essay->getPdfVersion()]: []);
 
         //		$fields["edit_time"] = $this->uiFactory->input()->field()->optionalGroup([
         //			"edit_start" => $this->uiFactory->input()->field()->dateTime($this->plugin->txt("edit_start"))->withValue($essay->getEditStarted() ?? ""),
@@ -890,7 +890,7 @@ class WriterAdminGUI extends BaseGUI
             $subs = [
                 $this->uiFactory->panel()->sub($essay->getPdfVersion() !== null
                     ? $this->plugin->txt("pdf_version_edit")
-                    : $this->plugin->txt("pdf_version_upload"), $form)->withCard($user_info)
+                    : $this->plugin->txt("pdf_version_upload"), $form)->withFurtherInformation($user_info)
             ];
 
             if($essay->getEditStarted()) {

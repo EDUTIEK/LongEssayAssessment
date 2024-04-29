@@ -67,7 +67,7 @@ class CorrectorAdminListGUI extends WriterListGUI
             if ($this->hasCorrectionStatusStitchDecided($writer)) {
                 $sight_modal = $this->uiFactory->modal()->lightbox($this->uiFactory->modal()->lightboxTextPage(
                     $this->localDI->getDataService($writer->getTaskId())->cleanupRichText($this->essays[$writer->getId()]->getStitchComment()),
-                    $this->getWriterName($writer, true),
+                    $this->getWriterNameText($writer),
                 ));
                 $modals[] = $sight_modal;
                 $actions[] = $this->uiFactory->button()->shy($this->plugin->txt('view_stitch_comment'), '')->withOnClick($sight_modal->getShowSignal());
@@ -118,7 +118,8 @@ class CorrectorAdminListGUI extends WriterListGUI
                         $this->getRemoveAuthorisationsAction($writer)
                     )->withAffectedItems([ $this->uiFactory->modal()->interruptiveItem(
                         $writer->getId(),
-                        $this->getWriterName($writer) . ' [' . $writer->getPseudonym() . ']'
+                        $this->getWriterNameText($writer) . ' [' . $writer->getPseudonym() . ']',
+                        $this->getUserImage($writer->getUserId())
                     )])->withActionButtonLabel("ok");
 
                     $actions[] = $this->uiFactory->button()->shy(
@@ -142,7 +143,7 @@ class CorrectorAdminListGUI extends WriterListGUI
             $actions_dropdown = $this->uiFactory->dropdown()->standard($actions)
                 ->withLabel($this->plugin->txt("actions"));
 
-            $item = $this->localDI->getUIFactory()->item()->formItem($this->getWriterName($writer, true))
+            $item = $this->localDI->getUIFactory()->item()->formItem($this->getWriterNameLink($writer))
                                   ->withName($writer->getId())
                                   ->withProperties($properties)
                                   ->withActions($actions_dropdown);
@@ -199,7 +200,7 @@ class CorrectorAdminListGUI extends WriterListGUI
                 $summary = null;
             }
 
-            return $this->getUsername($corrector->getUserId())
+            return $this->getUsernameText($corrector->getUserId())
                 . ' - ' . $this->localDI->getDataService($corrector->getTaskId())->formatCorrectionResult($summary);
         }
 
@@ -264,12 +265,12 @@ class CorrectorAdminListGUI extends WriterListGUI
 
             if($essay->getWritingExcluded() !== null) {
                 return '<strong>' . $this->plugin->txt("writing_excluded_from") . " " .
-                    $this->getUsername($essay->getWritingExcludedBy(), true) . '</strong>';
+                    $this->getUsernameText($essay->getWritingExcludedBy()) . '</strong>';
             }
 
             if ($essay->getCorrectionFinalized() !== null) {
                 return $this->plugin->txt("writing_finalized_from") . " " .
-                    $this->getUsername($essay->getCorrectionFinalizedBy(), true);
+                    $this->getUsernameText($essay->getCorrectionFinalizedBy());
             }
 
             if(in_array($essay->getId(), $this->getCorrectionStatusStitches())) {
@@ -279,7 +280,7 @@ class CorrectorAdminListGUI extends WriterListGUI
             if ($essay->getWritingAuthorized() !== null) {
                 $name = $this->plugin->txt("participant");
                 if ($essay->getWritingAuthorizedBy() != $writer->getUserId()) {
-                    $name = $this->getUsername($essay->getWritingAuthorizedBy(), true);
+                    $name = $this->getUsernameText($essay->getWritingAuthorizedBy());
                 }
 
                 return $this->plugin->txt("writing_authorized_from") . " " .$name;
@@ -389,7 +390,7 @@ class CorrectorAdminListGUI extends WriterListGUI
         $correctors = [];
 
         foreach($this->getCorrectors() as $corrector) {
-            $name = strip_tags($this->getUsername($corrector->getUserId(), true));
+            $name = $this->getUsernameText($corrector->getUserId());
             $correctors[$corrector->getId()] = $name;
 
         }

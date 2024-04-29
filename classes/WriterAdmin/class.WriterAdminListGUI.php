@@ -53,7 +53,7 @@ class WriterAdminListGUI extends WriterListGUI
                     $this->plugin->txt("authorize_writing_confirmation"),
                     $this->getAuthorizeAction($writer)
                 )->withAffectedItems([
-                    $this->uiFactory->modal()->interruptiveItem($writer->getUserId(), $this->getWriterName($writer))
+                    $this->uiFactory->modal()->interruptiveItem($writer->getUserId(), $this->getWriterNameText($writer)), $this->getUserImage($writer->getUserId())
                 ])->withActionButtonLabel("confirm");
 
                 $modals[] = $authorize_modal;
@@ -67,7 +67,7 @@ class WriterAdminListGUI extends WriterListGUI
                     $this->plugin->txt("unauthorize_writing_confirmation"),
                     $this->getUnauthorizeAction($writer)
                 )->withAffectedItems([
-                    $this->uiFactory->modal()->interruptiveItem($writer->getUserId(), $this->getWriterName($writer))
+                    $this->uiFactory->modal()->interruptiveItem($writer->getUserId(), $this->getWriterNameText($writer), $this->getUserImage($writer->getUserId()))
                 ])->withActionButtonLabel("confirm");
 
                 $modals[] = $authorize_modal;
@@ -107,7 +107,7 @@ class WriterAdminListGUI extends WriterListGUI
                     $this->plugin->txt("repeal_exclude_participant_confirmation"),
                     $this->getRepealExclusionAction($writer)
                 )->withAffectedItems([
-                    $this->uiFactory->modal()->interruptiveItem($writer->getUserId(), $this->getUsername($writer->getUserId()))
+                    $this->uiFactory->modal()->interruptiveItem($writer->getUserId(), $this->getUsernameText($writer->getUserId()), $this->getUserImage($writer->getUserId()))
                 ]);
 
                 $actions[] = $this->uiFactory->button()->shy($this->plugin->txt("repeal_exclude_participant"), '')
@@ -120,7 +120,7 @@ class WriterAdminListGUI extends WriterListGUI
                     $this->plugin->txt("exclude_participant_confirmation"),
                     $this->getExclusionAction($writer)
                 )->withAffectedItems([
-                    $this->uiFactory->modal()->interruptiveItem($writer->getUserId(), $this->getUsername($writer->getUserId()))
+                    $this->uiFactory->modal()->interruptiveItem($writer->getUserId(), $this->getUsernameText($writer->getUserId()), $this->getUserImage($writer->getUserId()))
                 ])->withActionButtonLabel("remove");
 
                 $actions[] = $this->uiFactory->button()->shy($this->plugin->txt("exclude_participant"), '')
@@ -134,7 +134,7 @@ class WriterAdminListGUI extends WriterListGUI
                 $this->plugin->txt("remove_writer_confirmation"),
                 $this->getRemoveAction($writer)
             )->withAffectedItems([
-                $this->uiFactory->modal()->interruptiveItem($writer->getUserId(), $this->getUsername($writer->getUserId()))
+                $this->uiFactory->modal()->interruptiveItem($writer->getUserId(), $this->getUsernameText($writer->getUserId()), $this->getUserImage($writer->getUserId()))
             ])->withActionButtonLabel("remove");
 
             $actions[] = $this->uiFactory->button()->shy($this->plugin->txt("remove_writer"), '')
@@ -166,7 +166,7 @@ class WriterAdminListGUI extends WriterListGUI
                 );
             }
 
-            $items[] = $this->localDI->getUIFactory()->item()->formItem($this->getWriterName($writer, true))
+            $items[] = $this->localDI->getUIFactory()->item()->formItem($this->getWriterNameLink($writer))
                 ->withName($writer->getId())
                 ->withLeadIcon($this->getWriterIcon($writer))
                 ->withProperties($properties)
@@ -399,13 +399,13 @@ class WriterAdminListGUI extends WriterListGUI
 
             if($essay->getWritingExcluded() !== null) {
                 return $this->plugin->txt("writing_excluded_from") . " " .
-                    $this->getUsername($essay->getWritingExcludedBy(), true);
+                    $this->getUsernameText($essay->getWritingExcludedBy());
             }
 
             if($essay->getWritingAuthorized() !== null) {
                 $name = $this->plugin->txt("participant");
                 if($essay->getWritingAuthorizedBy() != $writer->getUserId()) {
-                    $name = $this->getUsername($essay->getWritingAuthorizedBy(), true);
+                    $name = $this->getUsernameText($essay->getWritingAuthorizedBy());
                 }
 
                 return $this->plugin->txt("writing_authorized_from") . " " . $name;

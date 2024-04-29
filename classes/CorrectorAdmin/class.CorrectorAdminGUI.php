@@ -221,7 +221,7 @@ class CorrectorAdminGUI extends BaseGUI
 
         // search button
         if ($this->object_services->iliasContext()->isInCourse()) {
-            $modal = $this->uiFactory->modal()->interruptive('', '','')
+            $modal = $this->uiFactory->modal()->interruptive('', '', '')
                                      ->withAsyncRenderUrl($this->ctrl->getLinkTarget($this, 'addAllCourseTutors'));
             $button = $this->uiFactory->button()->standard($this->plugin->txt("add_all_course_tutors"), '')
                                       ->withOnClick($modal->getShowSignal());
@@ -255,10 +255,11 @@ class CorrectorAdminGUI extends BaseGUI
             $items =[];
             foreach ($user_ids as $user_id) {
                 $items[] = $this->uiFactory->modal()->interruptiveItem(
-                    $user_id, \ilObjUser::_lookupFullname($user_id));
+                    $user_id,
+                    \ilObjUser::_lookupFullname($user_id)
+                );
             }
             $modal = $this->uiFactory->modal()->interruptive(
-
                 $this->plugin->txt('add_all_course_tutors'),
                 $this->plugin->txt('confirm_add_all_course_tutors'),
                 $this->ctrl->getLinkTarget($this, 'addAllCourseTutors')
@@ -771,13 +772,11 @@ class CorrectorAdminGUI extends BaseGUI
                     $this->tpl->setOnScreenMessage("success", $this->plugin->txt("corrector_assignment_change_file_success"), true);
                     $tempfile->removeTempFile($filename);
                     $this->ctrl->redirect($this);
-                }
-                catch (CorrectorAssignmentsException $exception) {
+                } catch (CorrectorAssignmentsException $exception) {
                     $tempfile->removeTempFile($filename);
                     $this->tpl->setOnScreenMessage("failure", $this->plugin->txt("corrector_assignment_change_file_failure")
                         . '<p class="small">' . nl2br($exception->getMessage()), true) . '</p>';
-                }
-                catch (\Exception $exception) {
+                } catch (\Exception $exception) {
                     $tempfile->removeTempFile($filename);
                     $this->tpl->setOnScreenMessage("failure", $this->plugin->txt("corrector_assignment_change_file_failure"));
                 }
@@ -791,8 +790,7 @@ class CorrectorAdminGUI extends BaseGUI
     {
         try {
             $this->assignment_service->exportAssignments($this->spreadsheetAssignmentToggle());
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             // maybe logging
         }
         $this->ctrl->redirect($this);

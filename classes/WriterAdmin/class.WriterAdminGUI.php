@@ -915,7 +915,7 @@ class WriterAdminGUI extends BaseGUI
 
             $this->tpl->setContent($this->renderer->render([$panel]));
         } else {
-            $this->ctrl->redirect($this->ctrl->getLinkTarget($this));
+            $this->ctrl->redirect($this);
         }
     }
 

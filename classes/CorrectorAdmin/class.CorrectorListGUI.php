@@ -37,7 +37,11 @@ class CorrectorListGUI extends WriterListGUI
                     $this->plugin->txt("remove_corrector_confirmation"),
                     $this->getRemoveCorrectorAction($corrector)
                 )->withAffectedItems([
-                    $this->uiFactory->modal()->interruptiveItem($corrector->getUserId(), $this->getUsername($corrector->getUserId()))
+                    $this->uiFactory->modal()->interruptiveItem(
+                        $corrector->getUserId(),
+                        $this->getUsernameText($corrector->getUserId()),
+                        $this->getUserImage($corrector->getUserId())
+                    )
                 ])->withActionButtonLabel("remove");
 
                 $actions[] = $this->uiFactory->button()->shy($this->plugin->txt("remove_corrector"), '')
@@ -49,7 +53,7 @@ class CorrectorListGUI extends WriterListGUI
             $writers = [];
             foreach ($this->getAssignmentsByCorrector($corrector) as $assignment) {
                 $pos = $this->localDI->getDataService($corrector->getTaskId())->formatCorrectorPosition($assignment);
-                $writers["&nbsp;&nbsp;" . $this->getWriterName($this->writers[$assignment->getWriterId()], true)] = $pos;
+                $writers["&nbsp;&nbsp;" . $this->getWriterNameText($this->writers[$assignment->getWriterId()])] = $pos;
             }
 
             //if(($icon = $this->getUserIcon($corrector->getUserId())) !== null) {
@@ -62,7 +66,7 @@ class CorrectorListGUI extends WriterListGUI
             if(count($writers) > 0) {
                 $assigned = $this->uiFactory->listing()->characteristicValue()->text($writers);
             }
-            $item = $this->uiFactory->panel()->sub($this->getUsername($corrector->getUserId(), true), $assigned);
+            $item = $this->uiFactory->panel()->sub($this->getUsernameText($corrector->getUserId()), $assigned);
 
             if(count($actions) > 0) {
                 $actions_dropdown = $this->uiFactory->dropdown()->standard($actions)

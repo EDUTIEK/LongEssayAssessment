@@ -9,6 +9,8 @@ use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
 use ILIAS\UI\Component\Symbol\Icon\Icon;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\Location;
 use ILIAS\UI\Component\Input\Container\Filter\Standard;
+use DOMDocument;
+use ILIAS\UI\Component\Image\Image;
 
 abstract class WriterListGUI
 {
@@ -113,21 +115,17 @@ abstract class WriterListGUI
     /**
      * Get Username
      *
-     * @param $user_id
+     * @param int $user_id
      * @return mixed|string
      */
-    protected function getUsername($user_id, $strip_img = false)
+    private function getUsername(int $user_id)
     {
         if(!$this->user_data_loaded) {
             throw new Exception("getUsername was called without loading usernames.");
         }
 
         if(isset($this->user_data[$user_id])) {
-            if($strip_img) {
-                return strip_tags($this->user_data[$user_id], ["a"]);
-            } else {
-                return $this->user_data[$user_id];
-            }
+            return $this->user_data[$user_id];
         } elseif (!empty($fullname = \ilObjUser::_lookupFullname($user_id))) {
             return $fullname;
         }
@@ -135,15 +133,44 @@ abstract class WriterListGUI
         return ' - ';
     }
 
+    protected function getUsernameLink(int $user_id)
+    {
+        $username = $this->getUsername($user_id);
+        preg_match('/href="(.+?)"/', $username, $matches);
+        $href = $matches[1] ?? "";
+        $label = strip_tags($username);
+
+        return $href !== ""
+            ? $this->uiFactory->link()->standard($label, $href)
+            : $label;
+    }
+
     /**
-     * Get Writer name
-     *
-     * @param \ILIAS\Plugin\LongEssayAssessment\Data\Writer\Writer $writer
+     * @param $user_id
+     * @return string
+     * @throws Exception
+     */
+    protected function getUsernameText(int $user_id): string
+    {
+        return strip_tags($this->getUsername($user_id));
+    }
+
+    /**
+     * @param Writer $writer
+     * @return \ILIAS\UI\Component\Link\Standard|string
+     */
+    protected function getWriterNameLink(Writer $writer)
+    {
+        return $this->getUsernameLink($writer->getUserId());
+    }
+
+    /**
+     * @param Writer $writer
      * @return string
      */
-    protected function getWriterName(Writer $writer, $strip_img = false): string
+    protected function getWriterNameText(Writer $writer): string
     {
-        return $this->getUsername($writer->getUserId(), $strip_img);
+        return $this->getUsernameText($writer->getUserId());
     }
 
 
@@ -175,6 +202,24 @@ abstract class WriterListGUI
         return $src !== ""
             ? $this->uiFactory->symbol()->icon()->custom($src, $label, "medium")
             : $this->uiFactory->symbol()->icon()->standard("usr", "", "medium");
+    }
+
+    /**
+     * Get User Profile Picture
+     *
+     * @param int $user_id
+     * @return Icon
+     */
+    protected function getUserImage(int $user_id): ?Image
+    {
+        $name = $this->getUsername($user_id, false);
+        preg_match('/src="(.+?)"/', $name, $matches);
+        $src = $matches[1] ?? "";
+        $label = $this->plugin->txt("icon_label") . " " . strip_tags($name);
+
+        return $src !== ""
+            ? $this->uiFactory->image()->standard($src, $label)
+            : null;
     }
 
     /**
@@ -334,7 +379,7 @@ abstract class WriterListGUI
     public function filter(array $filter, Writer $writer): bool
     {
         if(!empty($filter["name"]) && strlen($filter["name"]) > 3) {
-            $names = $writer->getPseudonym() . strip_tags($this->getUsername($writer->getUserId(), true));
+            $names = $writer->getPseudonym() . $this->getUsernameText($writer->getUserId());
             if(!str_contains($names, $filter["name"])) {
                 return false;
             }

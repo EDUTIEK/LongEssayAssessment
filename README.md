@@ -21,7 +21,7 @@ The requirements of this plugin are nearly the same as for ILIAS with the follow
 * The following PHP extensions are required by the plugin: **curl, imagick, dom, json, xml, xsl**. On Debian/Ubuntu execute:
 
 ````
-    apt-get install php7.4-curl, php7.4-dom, php7.4-imagick, php7.4-json, php7.4-xsl, php7.4-xsl
+    apt-get install php7.4-curl, php7.4-dom, php7.4-imagick, php7.4-json, php7.4-xml, php7.4-xsl
 ````
 The PHP imagick extension uses Imagemagick and ghostscript to convert uploaded PDF files to images. On Debian/Ubuntu execute:
 

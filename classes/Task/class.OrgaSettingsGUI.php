@@ -109,7 +109,7 @@ class OrgaSettingsGUI extends BaseGUI
             // note: the type differs from the other dates due to the nesting in the selectable group
             $date = $a_data['task']['result_available_type'][1]['result_available_date'];
         }
-        $a_task_settings->setResultAvailableDate($date);
+        $a_task_settings->setResultAvailableDate($date instanceof \DateTimeInterface ? $date->format('Y-m-d H:i:s') : null);
 
         $date = $a_data['task']['review_start'];
         $a_task_settings->setReviewStart($date instanceof \DateTimeInterface ? $date->format('Y-m-d H:i:s') : null);

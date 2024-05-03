@@ -69,9 +69,9 @@ tab_corrector_export#:#Abgaben exportieren
 object_settings#:#Objekt-Einstellungen
 participation_type#:#Teilnahme
 participation_type_fixed#:#Vorgegeben
-participation_type_fixed_info#:#Die Möglichkeit zur Teilnahme wird vorab über eine Liste festgelegt.
+participation_type_fixed_info#:#Die Teilnahme wird vorab über eine Liste festgelegt. Andere Benutzer können weder auf das Material noch auf die Lösungshinweise zugreifen.
 participation_type_instant#:#Selbständig
-participation_type_instant_info#:#Für die Teilnahme genügt das Leserecht.
+participation_type_instant_info#:#Für die Teilnahme genügt das Leserecht. Auch ohne Teilnahme ist damit der Abruf von Material und Lösungshinweisen ab den festgelegten Zeitpunkten möglich.
 task_settings#:#Ablauf-Organisation
 writing_start#:#Bearbeitungs-Start
 writing_start_info#:#Ab diesem Zeitpunkt wird die Schaltfläche "Bearbeitung starten" für die Teilnehmenden angezeigt und die Aufgabenstellung sowie das Material, das nach Start der Bearbeitung verfügbar ist, können abgerufen werden. Ohne festgelegten Start ist alles sofort verfügbar.

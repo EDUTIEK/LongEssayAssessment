@@ -7,6 +7,7 @@
 - plugin: add description to material on writer start creen
 - plugin: fix file removal, when the file resource is just saved without an upload. Prevent from saving, when file upload is empty.
 - plugin: support PDF conversion to images by ghostscript. Ghostscript is directly used if its path is configured in ILIAS. The conversion with imagick may not process all pages of an uploaded PDF file.
+- plugin: always show writer start screen if instant participation is allowed
 - service: fix html processing error when comments include "&"
 - service: prevent use of outdated frontends from cache
 

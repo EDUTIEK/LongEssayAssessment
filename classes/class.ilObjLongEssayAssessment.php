@@ -255,22 +255,11 @@ class ilObjLongEssayAssessment extends ilObjectPlugin
      */
     public function canViewWriterScreen() : bool
     {
-        if (!$this->access->checkAccess('read', '', $this->getRefId())) {
-            // no permission
-            return false;
-        } elseif ($this->localDI->getWriterRepo()->ifUserExistsInTasksAsWriter($this->user->getId(), $this->getId())) {
-            // always show screen if user is added as writer or has started writing an essay
-            return true;
-        } elseif ($this->objectSettings->getParticipationType() != ObjectSettings::PARTICIPATION_TYPE_INSTANT) {
-            // don't show screen if instant participation is not allowed
-            return false;
-        } elseif ($this->taskSettings !== null && !empty($this->taskSettings->getWritingEnd())) {
-            // show screen until the end of the writing period if an end is set
-            return time() < $this->data->dbTimeToUnix($this->taskSettings->getWritingEnd());
-        } else {
-            // instant participation without writing end allowed
-            return true;
-        }
+        return $this->access->checkAccess('read', '', $this->getRefId())
+            && (
+                $this->objectSettings->getParticipationType() == ObjectSettings::PARTICIPATION_TYPE_INSTANT
+                || $this->localDI->getWriterRepo()->ifUserExistsInTasksAsWriter($this->user->getId(), $this->getId())
+            );
     }
 
     /**

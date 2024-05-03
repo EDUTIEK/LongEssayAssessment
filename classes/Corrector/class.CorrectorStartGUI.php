@@ -363,7 +363,7 @@ class CorrectorStartGUI extends BaseGUI
             $this->tpl->setContent($this->renderer->render(array_merge([$essays], $modals)));
             $taskSettings = $this->localDI->getTaskRepo()->getTaskSettingsById($this->settings->getTaskId());
             if (!empty($period = $this->data->formatPeriod($taskSettings->getCorrectionStart(), $taskSettings->getCorrectionEnd()))) {
-                $this->tpl->setOnScreenMessage("info", $this->plugin->txt("correction_period"), false);
+                $this->tpl->setOnScreenMessage("info", $this->plugin->txt("correction_period"). ': ' . $period, false);
             }
         } else {
             $this->tpl->setOnScreenMessage("info", $this->plugin->txt("message_no_correction_items"), false);

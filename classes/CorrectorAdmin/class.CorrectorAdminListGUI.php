@@ -8,9 +8,15 @@ use ILIAS\Plugin\LongEssayAssessment\Data\Corrector\CorrectorAssignment;
 use ILIAS\Plugin\LongEssayAssessment\Data\Writer\Writer;
 use ILIAS\UI\Implementation\Component\Input\Field\Input;
 use ILIAS\UI\Component\Input\Container\Filter\Standard;
+use ILIAS\Plugin\LongEssayAssessment\Data\Essay\CorrectorSummary;
 
 class CorrectorAdminListGUI extends WriterListGUI
 {
+
+    /**
+     * @var CorrectorSummary[][]
+     */
+    private $summaries = [];
 
     /**
      * @var \ILIAS\Plugin\LongEssayAssessment\Data\Corrector\Corrector[]
@@ -61,8 +67,14 @@ class CorrectorAdminListGUI extends WriterListGUI
 
             $actions = [];
             $actions[] = $this->uiFactory->button()->shy($this->plugin->txt('view_correction'), $this->getViewCorrectionAction($writer));
-            $actions[] = $this->uiFactory->button()->shy($this->plugin->txt('download_written_pdf'), $this->getDownloadWrittenPdfAction($writer));
-            $actions[] = $this->uiFactory->button()->shy($this->plugin->txt('download_corrected_pdf'), $this->getDownloadCorrectedPdfAction($writer));
+
+            if($this->canDownloadWrittenPdf($writer)) {
+                $actions[] = $this->uiFactory->button()->shy($this->plugin->txt('download_written_pdf'), $this->getDownloadWrittenPdfAction($writer));
+            }
+
+            if($this->canDownloadCorrectedPdf($writer)) {
+                $actions[] = $this->uiFactory->button()->shy($this->plugin->txt('download_corrected_pdf'), $this->getDownloadCorrectedPdfAction($writer));
+            }
             
             if ($this->hasCorrectionStatusStitchDecided($writer)) {
                 $sight_modal = $this->uiFactory->modal()->lightbox($this->uiFactory->modal()->lightboxTextPage(
@@ -194,8 +206,8 @@ class CorrectorAdminListGUI extends WriterListGUI
         if(($assignment = $this->getAssignmentByWriterPosition($writer, $pos)) !== null) {
             $corrector = $this->correctors[$assignment->getCorrectorId()];
 
-            if (!empty($essay = $this->essays[$writer->getId()] ?? null)) {
-                $summary = $this->localDI->getEssayRepo()->getCorrectorSummaryByEssayIdAndCorrectorId($essay->getId(), $assignment->getCorrectorId());
+            if (!empty($essay = $this->essays[$writer->getId()] ?? null) && isset($this->summaries[$essay->getId()][$corrector->getId()])) {
+                $summary = $this->summaries[$essay->getId()][$corrector->getId()];
             } else {
                 $summary = null;
             }
@@ -213,10 +225,34 @@ class CorrectorAdminListGUI extends WriterListGUI
         return $this->ctrl->getLinkTargetByClass(["ILIAS\Plugin\LongEssayAssessment\CorrectorAdmin\CorrectorAdminGUI"], "viewCorrections");
     }
 
+    private function canDownloadWrittenPdf(Writer $writer): bool
+    {
+        if (!isset($this->essays[$writer->getId()])) {
+            return false;
+        }
+        $essay = $this->essays[$writer->getId()];
+
+        return !empty($essay->getEditStarted());
+    }
+
     private function getDownloadWrittenPdfAction(Writer $writer): string
     {
         $this->ctrl->setParameter($this->parent, "writer_id", $writer->getId());
         return $this->ctrl->getLinkTargetByClass(["ILIAS\Plugin\LongEssayAssessment\CorrectorAdmin\CorrectorAdminGUI"], "downloadWrittenPdf");
+    }
+
+    private function canDownloadCorrectedPdf(Writer $writer): bool
+    {
+        if (!isset($this->essays[$writer->getId()])) {
+            return false;
+        }
+        $essay = $this->essays[$writer->getId()];
+
+        if(!isset($this->summaries[$essay->getId()])) {
+            return false;
+        }
+
+        return !empty($this->summaries[$essay->getId()]);
     }
 
     private function getDownloadCorrectedPdfAction(Writer $writer): string
@@ -366,6 +402,20 @@ class CorrectorAdminListGUI extends WriterListGUI
             usort($this->assignments[$key], function ($a, $b) {return $a->getPosition() - $b->getPosition();});
         }
 
+    }
+
+    /**
+     * @param CorrectorSummary[] $summaries
+     * @return void
+     */
+    public function setSummaries(array $summaries): void
+    {
+        foreach($summaries as $summary) {
+            if(isset($this->summaries[$summary->getEssayId()])) {
+                $this->summaries[$summary->getEssayId()]= [];
+            }
+            $this->summaries[$summary->getEssayId()][$summary->getCorrectorId()] = $summary;
+        }
     }
 
 

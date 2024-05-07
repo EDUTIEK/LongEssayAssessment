@@ -24,6 +24,7 @@ use ILIAS\Plugin\LongEssayAssessment\Task\LoggingService;
 use ILIAS\Plugin\LongEssayAssessment\Data\Writer\WriterRepository;
 use ILIAS\Plugin\LongEssayAssessment\Data\Corrector\CorrectorRepository;
 use ilFileDelivery;
+use Edutiek\LongEssayAssessmentService\Data\CorrectionSummary;
 
 /**
  * Service for maintaining correctors (business logic)
@@ -482,17 +483,37 @@ class CorrectorAdminService extends BaseService
         $writtenEssay = $context->getEssayOfItem((string) $repoWriter->getId());
 
         $correctionSummaries = [];
-        $correctionComments = [];
-        foreach ($this->correctorRepo->getAssignmentsByWriterId($repoWriter->getId()) as $assignment) {
-            if (!isset($repoCorrector) || $assignment->getCorrectorId() == $repoCorrector->getId()) {
-                if (!empty($summary = $context->getCorrectionSummary((string) $repoWriter->getId(), (string) $assignment->getCorrectorId()))) {
+
+        if (isset($repoCorrector)) {
+            // summary of a single corrector might not yet be saved - then use preferences for inclusions
+            $preferences = $this->correctorRepo->getCorrectorPreferences($repoCorrector->getId());
+            $summary = $context->getCorrectionSummary((string) $repoWriter->getId(), (string) $repoCorrector->getId());
+            if (empty($summary)) {
+                $summary = new CorrectionSummary((string) $repoWriter->getId(), (string) $repoCorrector->getId());
+            }
+            $correctionSummaries[] = $summary
+                ->withIncludeComments($summary->getIncludeComments() ?? $preferences->getIncludeComments())
+                ->withIncludeCommentRatings($summary->getIncludeCommentRatings() ?? $preferences->getIncludeCommentRatings())
+                ->withIncludeCommentPoints($summary->getIncludeCommentPoints() ?? $preferences->getIncludeCommentPoints())
+                ->withIncludeCriteriaPoints($summary->getIncludeCriteriaPoints() ?? $preferences->getIncludeCriteriaPoints())
+                ->withIncludeWriterNotes($summary->getIncludeWriterNotes() ?? $preferences->getIncludeWriterNotes());
+        }
+        else {
+            foreach ($this->correctorRepo->getAssignmentsByWriterId($repoWriter->getId()) as $assignment) {
+                if (!empty($summary = $context->getCorrectionSummary(
+                        (string) $repoWriter->getId(), (string) $assignment->getCorrectorId()))
+                ) {
                     $correctionSummaries[] = $summary;
                 }
-                $correctionComments = array_merge(
-                    $correctionComments,
-                    $context->getCorrectionComments((string) $repoWriter->getId(), (string) $assignment->getCorrectorId())
-                );
             }
+        }
+
+        $correctionComments = [];
+        foreach ($correctionSummaries as $summary) {
+            $correctionComments = array_merge(
+                $correctionComments,
+                $context->getCorrectionComments($summary->getItemKey(), $summary->getCorrectorKey())
+            );
         }
 
         $item = new DocuItem(

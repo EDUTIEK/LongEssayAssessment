@@ -58,7 +58,7 @@ class WriterAdminGUI extends BaseGUI
                 break;
             default:
                 $cmd = $this->ctrl->getCmd('showStartPage');
-                if(in_array($cmd, ["remove", "change"])) { // Workaround to use fallback cmd for generic cmds from interruptive modals
+                if(in_array($cmd, ["remove", "change", "confirm"])) { // Workaround to use fallback cmd for generic cmds from interruptive modals
                     $cmd = $this->request->getQueryParams()["fallbackCmd"] ?? $cmd;
                 }
                 switch ($cmd) {

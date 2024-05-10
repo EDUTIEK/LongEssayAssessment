@@ -18,10 +18,10 @@ The requirements of this plugin are nearly the same as for ILIAS with the follow
 
 * **PHP 7.4** is required. PHP 7.3 is not supported
 
-* The following PHP extensions are required by the plugin: **curl, imagick, dom, json, xml, xsl**. On Debian/Ubuntu execute:
+* The following PHP extensions are required by the plugin: **curl, dom, gd, imagick, json, xml, xsl**. On Debian/Ubuntu execute:
 
 ````
-    apt-get install php7.4-curl, php7.4-dom, php7.4-imagick, php7.4-json, php7.4-xml, php7.4-xsl
+    apt-get install php7.4-curl, php7.4-dom, php7.4-gd, php7.4-imagick, php7.4-json, php7.4-xml, php7.4-xsl
 ````
 The PHP imagick extension uses Imagemagick and ghostscript to convert uploaded PDF files to images. On Debian/Ubuntu execute:
 
@@ -36,6 +36,26 @@ ensure that the following line is ìncluded:
 ````
  <policy domain="coder" rights="read | write" pattern="PDF" />
 ````
+
+## ILIAS Configuration
+
+A correct **time zone** must be configured in ILIAS for the processing of time information to work correctly. It must correspond to the time zone on the PHP server and in MariaDB or MySQL server. Under Linux it can be determined with `timedatectl`, in MariaDB with `SHOW GLOBAL VARIABLES LIKE '%time_zone';`.  It is set in the ILIAS setup via the `config.json` file:
+
+``` 
+"common" : {
+    "server_timezone" : "Europe/Berlin",
+    ...
+}
+```
+
+ImageMagick may run into resource limits when uploading larger PDF files of participant submissions. A direct processing by **ghostscript** is better. To do this, the path to ghostscript must be set in the ILIAS setup via the `config.json` file:
+
+```
+"preview" : {
+    "path_to_ghostscript" : "/usr/bin/gs"
+},
+```
+
 
 ## Installation
 

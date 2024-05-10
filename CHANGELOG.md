@@ -2,7 +2,7 @@
 
 ## Version 1.6 (upcoming)
 - plugin: extend result export with correctors names and points
-- plugin: apply utf8 decoding in csv export of results for better use with ms excel
+- plugin: apply utf8 decoding in csv exports of results and log for better use with ms excel
 - plugin: align implementation of file delivery and screen messages with version 2 for ILIAS 8
 - plugin: add description to material on writer start creen
 - plugin: fix file removal, when the file resource is just saved without an upload. Prevent from saving, when file upload is empty.

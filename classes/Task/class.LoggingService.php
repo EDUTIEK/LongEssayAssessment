@@ -121,16 +121,16 @@ class LoggingService extends BaseService
         foreach ($entries as $entry) {
             $csv->addRow();
             if ($entry instanceof LogEntry) {
-                $csv->addColumn($entry->getTimestamp());
+                $csv->addColumn((string) $entry->getTimestamp());
                 $csv->addColumn($this->plugin->txt('log_cat_' . $entry->getCategory()));
                 $csv->addColumn('');
-                $csv->addColumn($entry->getEntry());
+                $csv->addColumn((string) $entry->getEntry());
             } elseif ($entry instanceof Alert) {
                 $to = $this->plugin->txt('log_alert_to_all');
                 if (!empty($writer = $this->writerRepo->getWriterById((int) $entry->getWriterId())) && !empty($writer->getUserId())) {
                     $to = \ilObjUser::_lookupFullname($writer->getUserId());
                 }
-                $csv->addColumn($entry->getShownFrom());
+                $csv->addColumn((string) $entry->getShownFrom());
                 $csv->addColumn($this->plugin->txt('log_cat_alert'));
                 $csv->addColumn($to);
                 $csv->addColumn($alert->getMessage());

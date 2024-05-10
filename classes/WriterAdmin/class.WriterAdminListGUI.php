@@ -108,7 +108,8 @@ class WriterAdminListGUI extends WriterListGUI
                     $this->getRepealExclusionAction($writer)
                 )->withAffectedItems([
                     $this->uiFactory->modal()->interruptiveItem($writer->getUserId(), $this->getUsernameText($writer->getUserId()), $this->getUserImage($writer->getUserId()))
-                ]);
+                ])->withActionButtonLabel("confirm");
+
 
                 $actions[] = $this->uiFactory->button()->shy($this->plugin->txt("repeal_exclude_participant"), '')
                     ->withOnClick($repeal_modal->getShowSignal());
@@ -121,7 +122,7 @@ class WriterAdminListGUI extends WriterListGUI
                     $this->getExclusionAction($writer)
                 )->withAffectedItems([
                     $this->uiFactory->modal()->interruptiveItem($writer->getUserId(), $this->getUsernameText($writer->getUserId()), $this->getUserImage($writer->getUserId()))
-                ])->withActionButtonLabel("remove");
+                ])->withActionButtonLabel("confirm");
 
                 $actions[] = $this->uiFactory->button()->shy($this->plugin->txt("exclude_participant"), '')
                     ->withOnClick($exclusion_modal->getShowSignal());

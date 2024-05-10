@@ -578,26 +578,26 @@ class CorrectorAdminService extends BaseService
             } else {
                 $csv->addColumn($this->plugin->txt('writing_status_not_written'));
             }
-            $csv->addColumn($repoEssay->getEditEnded());
+            $csv->addColumn((string) $repoEssay->getEditEnded());
             if (empty($repoEssay->getCorrectionFinalized())) {
                 $csv->addColumn($this->plugin->txt('correction_status_open'));
-                $csv->addColumn(null);
-                $csv->addColumn(null);
-                $csv->addColumn(null);
-                $csv->addColumn(null);
+                $csv->addColumn('');
+                $csv->addColumn('');
+                $csv->addColumn('');
+                $csv->addColumn('');
             } elseif (empty($repoEssay->getWritingAuthorized())) {
                 $csv->addColumn($this->plugin->txt('correction_status_not_possible'));
-                $csv->addColumn(null);
-                $csv->addColumn(null);
-                $csv->addColumn(null);
-                $csv->addColumn(null);
+                $csv->addColumn('');
+                $csv->addColumn('');
+                $csv->addColumn('');
+                $csv->addColumn('');
             } else {
                 $csv->addColumn($this->plugin->txt('correction_status_finished'));
-                $csv->addColumn($repoEssay->getFinalPoints());
+                $csv->addColumn((string) $repoEssay->getFinalPoints());
                 if (!empty($level = $this->localDI->getObjectRepo()->getGradeLevelById((int) $repoEssay->getFinalGradeLevelId()))) {
-                    $csv->addColumn($level->getGrade());
-                    $csv->addColumn($level->getCode());
-                    $csv->addColumn($level->isPassed());
+                    $csv->addColumn((string) $level->getGrade());
+                    $csv->addColumn((string) $level->getCode());
+                    $csv->addColumn((string) $level->isPassed());
                 }
             }
             $i = 1;
@@ -607,12 +607,12 @@ class CorrectorAdminService extends BaseService
                         $repoEssay->getId(), $assignment->getCorrectorId());
                     $csv->addColumn($user->getLogin());
                     $csv->addColumn($user->getFullname(50));
-                    $csv->addColumn($summary ? $summary->getPoints() : null);
+                    $csv->addColumn($summary ? (string) $summary->getPoints() : '');
                 }
                 else {
-                    $csv->addColumn(null);
-                    $csv->addColumn(null);
-                    $csv->addColumn(null);
+                    $csv->addColumn('');
+                    $csv->addColumn('');
+                    $csv->addColumn('');
                 }
                 $i++;
                 if ($i > $num_correctors) {

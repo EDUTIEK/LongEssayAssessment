@@ -101,6 +101,7 @@ class LoggingService extends BaseService
     {
         $csv = new \ilCSVWriter();
         $csv->setSeparator(';');
+        $csv->setDoUTF8Decoding(true);
 
         $csv->addColumn($this->plugin->txt('log_time'));
         $csv->addColumn($this->plugin->txt('log_category'));

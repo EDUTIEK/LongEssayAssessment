@@ -16,12 +16,12 @@ The integrated "Corrector" is a specialised editing page for the proofreaders. I
 
 The requirements of this plugin are nearly the same as for ILIAS with the following exceptions:
 
-* **PHP 7.4** is required. PHP 7.3 is not supported
+* **PHP 7.4** or **PHP 8.0** is required. 
 
 * The following PHP extensions are required by the plugin: **curl, dom, gd, imagick, json, xml, xsl**. On Debian/Ubuntu execute:
 
 ````
-    apt-get install php7.4-curl, php7.4-dom, php7.4-gd, php7.4-imagick, php7.4-json, php7.4-xml, php7.4-xsl
+    apt-get install php8.0-curl, php8.0-dom, php8.0-gd, php8.0-imagick, php8.0-json, php8.0-xml, php8.0-xsl
 ````
 The PHP imagick extension uses Imagemagick and ghostscript to convert uploaded PDF files to images. On Debian/Ubuntu execute:
 

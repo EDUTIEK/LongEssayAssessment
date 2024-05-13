@@ -31,6 +31,8 @@ abstract class ServiceContext implements BaseContext
         // override this for writer and corrector context
     ];
 
+    /** @var \ilLanguage */
+    protected $lng;
 
     /** @var \ilLongEssayAssessmentPlugin */
     protected $plugin;
@@ -57,6 +59,9 @@ abstract class ServiceContext implements BaseContext
      */
     public function __construct()
     {
+        global $DIC;
+
+        $this->lng = $DIC->language();
         $this->plugin = \ilLongEssayAssessmentPlugin::getInstance();
         $this->localDI = LongEssayAssessmentDI::getInstance();
     }
@@ -146,7 +151,7 @@ abstract class ServiceContext implements BaseContext
      */
     public function getLanguage(): string
     {
-        return $this->user->getLanguage();
+        return $this->user->getLanguage() ?? $this->lng->getDefaultLanguage();
     }
 
     /**

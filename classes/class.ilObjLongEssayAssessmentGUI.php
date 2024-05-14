@@ -257,6 +257,22 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
     }
 
     /**
+     * Redirect after a new object is saves
+     * Here: use illongessayassessmentdispatchgui instead of ilobjplugindispatchgui
+     */
+    protected function afterSave(ilObject $new_object): void
+    {
+        $ilCtrl = $this->ctrl;
+        // always send a message
+        $this->tpl->setOnScreenMessage('success', $this->lng->txt("object_added"), true);
+
+        $ilCtrl->setTargetScript('ilias.php');
+        $ilCtrl->setParameterByClass(get_class($this), "ref_id", $new_object->getRefId());
+        $ilCtrl->redirectByClass(['illongessayassessmentdispatchgui', get_class($this)], $this->getAfterCreationCmd());
+    }
+
+
+    /**
      * After object has been created -> jump to this command
      */
     public function getAfterCreationCmd() : string

@@ -12,6 +12,18 @@ The integrated "Writer" is a specialised editing page for examinees during the e
 
 The integrated "Corrector" is a specialised editing page for the proofreaders. In the submitted text, passages are marked and provided with comments. With each comment, partial points can be awarded based on the evaluation scheme. The text and comments are clearly displayed next to each other, optionally also with the comments from the first correction in the case of a second correction. To create the overall vote, a proposal for the final grade is calculated from the sum of the partial points, which can be accepted or changed. The vote can be used to create a textual overall assessment.
 
+Please look at the [EDUTIEK-Anleitung](docs/EDUTIEK-Anleitung.pdf) for a detailed description in German.
+
+## Branches and Versions
+
+The plugin is published for ILIAS in different branches:
+
+* **release1_ilias7** will be maintained until end of 2024. It will receive bug fixes mainly.
+* **release2_ilias8** will be maintained until April 2025 and will receive bug fixes as well as small features without breaking existing functionality and data. It may receive security fixes until end of 2025.
+* **devX_iliasY** are development branches. Please do not use them.
+
+Please consult the [CHANGELOG](CHANGELOG.md) to see the changes of different versions in this branch.
+
 ## System Requirements
 
 The requirements of this plugin are nearly the same as for ILIAS with the following exceptions:
@@ -57,35 +69,13 @@ ImageMagick may run into resource limits when uploading larger PDF files of part
 ```
 
 
-## Installation
+## Installation and Update
 
-1. Copy the plugin to Customizing/global/plugins/Services/Repository/RepositoryObject
-2. Go to the plugin folder
-3. Execute ````composer install --no-dev````
-4. Install the plugin in the ILIAS plugin administration
+1. Copy the plugin to `Customizing/global/plugins/Services/Repository/RepositoryObject`
+2. Execute `composer install --no-dev` in the plugin folder
+3. Execure `composer du` in the ILIAS main directory
+4. Install or update the plugin in the ILIAS plugin administration
 
-## Update from Git
-
-1. Go to the plugin folder
-2. Execute the following commands:
-````
- rm -R vendor
- rm composer.lock
- composer install --no-dev
-````
-
-Please clear your browser cache after an update before you start the writing and correction screens.
-
-## Branches and Versions
-
-The plugin is published for ILIAS in different branches:
-
-* **release1_ilias7** will receive bug fixes mainly
-* **release2_ilias8** will be created by April 2024
-* **main** is the current development branch. Please do not use it for production.
-
-Versions 2.x will receive bug fixes as well as new features without breaking existing functionality and data.
-Please consult the [CHANGELOG](CHANGELOG.md) to see the different versions.
 
 ## Known Issues
 

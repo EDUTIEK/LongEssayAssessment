@@ -69,10 +69,19 @@ ImageMagick may run into resource limits when uploading larger PDF files of part
 ## Installation and Update
 
 1. Copy the plugin to `Customizing/global/plugins/Services/Repository/RepositoryObject`
-2. Execute `composer install --no-dev` in the plugin folder
-3. Execure `composer du` in the ILIAS main directory
-4. Install or update the plugin in the ILIAS plugin administration
+2. Execute `composer install --no-dev` in the plugin folder.
+3. Execute `composer du` in the ILIAS main directory.
+4. Install or update the plugin in the ILIAS plugin administration.
 
+### Update to Version 1.6
+
+Before you update an already installed version to 1.6 please execute the following commands before step 2:
+
+````
+rm composer.lock
+rm -R vendor
+````
+From version 1.6 on these commands shold be omitted. Version 1.6 includes the composer.lock file to fix the used dependencies. They will be updated automatically by a `composer install` if neccessary.
 
 ## Known Issues
 

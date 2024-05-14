@@ -1,6 +1,6 @@
 # Change Log
 
-## Version 1.6 (upcoming)
+## Version 1.6 (2024-05-15)
 - plugin: extend result export with correctors names and points
 - plugin: apply utf8 decoding in csv exports of results and log for better use with ms excel
 - plugin: align implementation of file delivery and screen messages with version 2 for ILIAS 8

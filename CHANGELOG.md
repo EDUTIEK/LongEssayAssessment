@@ -1,5 +1,8 @@
 # Change Log
 
+## Upcoming Version
+- plugin: fix uninstallation problems
+
 ## Version 1.6 (2024-05-15)
 - plugin: extend result export with correctors names and points
 - plugin: apply utf8 decoding in csv exports of results and log for better use with ms excel

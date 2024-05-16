@@ -9,6 +9,7 @@ use ILIAS\Plugin\LongEssayAssessment\UI\Implementation\InputRenderer;
 use ILIAS\Plugin\LongEssayAssessment\UI\Implementation\ItemRenderer;
 use ILIAS\Plugin\LongEssayAssessment\UI\PluginRenderer;
 use ILIAS\Plugin\LongEssayAssessment\WriterAdmin\PDFVersionResourceStakeholder;
+use ILIAS\Plugin\LongEssayAssessment\WriterAdmin\EssayImageResourceStakeholder;
 
 /**
  * Basic plugin file
@@ -81,39 +82,95 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
     }
 
     /**
+     * Uninstall the plugin
+     * Overridden from ilPlugin::uninstall to catch an exception
+     * that would be thrown by ilRepositoryObjectPlugin::beforeUninstall
+     * if the last uninstall went wrong
+     *
+     * @return bool
+     */
+    public function uninstall() : bool
+    {
+        try {
+            $rep_util = new ilRepUtil();
+            $rep_util->deleteObjectType($this->getId());
+        }
+        catch (Exception $e) {
+            // repo object type may already be deleted
+            // if the uninstallCustom went wrong in the last call
+
+            // do nothing here
+            // to try the uninstallCustom again
+        }
+
+        $this->uninstallCustom();
+
+        $this->getLanguageHandler()->uninstall();
+        $this->clearEventListening();
+        $this->component_repository->removeStateInformationOf($this->getId());
+        $this->afterUninstall();
+        return true;
+    }
+
+    /**
      * Uninstall custom data of this plugin
      */
     protected function uninstallCustom() : void
     {
-        $tables = ["xlas_access_token", "xlas_alert", "xlas_corr_setting", "xlas_corrector", "xlas_corrector_ass",
-            "xlas_corrector_comment", "xlas_corrector_summary", "xlas_crit_points", "xlas_editor_comment",
-            "xlas_editor_settings", "xlas_essay", "xlas_grade_level",
-            "xlas_log_entry",
-            "xlas_object_settings", "xlas_participant", "xlas_plugin_config", "xlas_rating_crit", "xlas_task_settings",
-            "xlas_time_extension", "xlas_writer_notice", "xlas_writer", "xlas_writer_comment", "xlas_writer_history",
-            "xlas_resource", "xlas_location"];
+        $tables = [
+            'xlas_access_token',
+            'xlas_alert',
+            'xlas_corrector',
+            'xlas_corrector_ass',
+            'xlas_corrector_comment',
+            'xlas_corrector_prefs',
+            'xlas_corrector_summary',
+            'xlas_corr_setting',
+            'xlas_crit_points',
+            'xlas_editor_settings',
+            'xlas_essay',
+            'xlas_essay_image',
+            'xlas_grade_level',
+            'xlas_location',
+            'xlas_log_entry',
+            'xlas_object_settings',
+            'xlas_pdf_settings',
+            'xlas_plugin_config',
+            'xlas_rating_crit',
+            'xlas_resource',
+            'xlas_task_settings',
+            'xlas_time_extension',
+            'xlas_writer',
+            'xlas_writer_comment',
+            'xlas_writer_history',
+            'xlas_writer_notice',
+            'xlas_writer_prefs'
+        ];
 
-        $resources = $this->db->query("SELECT file_id FROM xlas_resource WHERE file_id IS NOT NULL")->fetchAssoc();
-
-        foreach ($resources as $file) {
-            if($identifier = $this->dic->resourceStorage()->manage()->find($file["file_id"])) {
-                $this->dic->resourceStorage()->manage()->remove($identifier, new ResourceResourceStakeholder());
+        if ($this->dic->database()->tableExists('xlas_resource')) {
+            $result = $this->db->query("SELECT file_id FROM xlas_resource WHERE file_id IS NOT NULL");
+            while ($row = $this->db->fetchAssoc($result)) {
+                if($identifier = $this->dic->resourceStorage()->manage()->find($row["file_id"])) {
+                    $this->dic->resourceStorage()->manage()->remove($identifier, new ResourceResourceStakeholder());
+                }
             }
         }
 
-        $essay_files = $this->db->query("SELECT pdf_version FROM xlas_essay WHERE pdf_version IS NOT NULL")->fetchAssoc();
-
-        foreach ($essay_files as $file) {
-            if($identifier = $this->dic->resourceStorage()->manage()->find($file["pdf_version"])) {
-                $this->dic->resourceStorage()->manage()->remove($identifier, new PDFVersionResourceStakeholder());
+        if ($this->dic->database()->tableExists('xlas_essay')) {
+            $result = $this->db->query("SELECT pdf_version FROM xlas_essay WHERE pdf_version IS NOT NULL");
+            while ($row = $this->db->fetchAssoc($result)) {
+                if($identifier = $this->dic->resourceStorage()->manage()->find($row["pdf_version"])) {
+                    $this->dic->resourceStorage()->manage()->remove($identifier, new PDFVersionResourceStakeholder());
+                }
             }
         }
 
-        $essay_images = $this->db->query("SELECT pdf_version FROM xlas_essay_images WHERE file_id IS NOT NULL")->fetchAssoc();
-
-        foreach ($essay_images as $image) {
-            if($identifier = $this->dic->resourceStorage()->manage()->find($file["file_id"])) {
-                $this->dic->resourceStorage()->manage()->remove($identifier, new PDFVersionResourceStakeholder());
+        if ($this->dic->database()->tableExists('xlas_essay_image')) {
+            $result = $this->db->query("SELECT file_id FROM xlas_essay_image");
+            while ($row = $this->db->fetchAssoc($result)) {
+                if ($identifier = $this->dic->resourceStorage()->manage()->find($row["file_id"])) {
+                    $this->dic->resourceStorage()->manage()->remove($identifier, new EssayImageResourceStakeholder());
+                }
             }
         }
 

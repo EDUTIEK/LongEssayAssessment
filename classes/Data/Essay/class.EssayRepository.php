@@ -373,6 +373,7 @@ class EssayRepository extends RecordRepo
     {
         $this->db->manipulate("DELETE FROM xlas_essay_image WHERE essay_id = "
             . $this->db->quote($essay_id, 'integer'));
+        $this->clearCaches();
     }
 
     public function deleteWriterHistory(int $a_id)

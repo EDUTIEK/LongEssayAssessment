@@ -3,6 +3,7 @@
 ## Upcoming Version
 - plugin: fix uninstallation problems
 - plugin: fixed 40808: Blank pages occur when Text and PDF are submitted
+- service: reduce size of correction PDF
 
 ## Version 1.6 (2024-05-15)
 - plugin: extend result export with correctors names and points

@@ -389,8 +389,9 @@ class WriterAdminService extends BaseService
 
             if ($with_text && !empty($essay->getWrittenText())) {
                 $fs = $this->dic->filesystem()->temp();
-                $fs->put('xlas/processed_text.pdf', $this->getWritingAsPdf($object, $writer, true, true));
-                $pdfs[] = $fs->readStream('xlas/processed_text.pdf')->detach();
+                $writing_pdf = 'xlas/' . (new UUID)->uuid4AsString() . '.pdf';
+                $fs->put($writing_pdf, $this->getWritingAsPdf($object, $writer, true, true));
+                $pdfs[] = $fs->readStream($writing_pdf)->detach();
             }
             
             $resource_id = $this->dic->resourceStorage()->manage()->find($essay->getPdfVersion());

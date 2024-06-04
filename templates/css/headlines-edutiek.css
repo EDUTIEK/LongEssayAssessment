@@ -2,34 +2,6 @@
  * Edutiek headline style of written contents
  */
 
-.mce-content-body .headlines-edutiek  {
-    counter-reset: h1 h2 h3 h4 h5 h6;
-}
-
-.mce-content-body h1, .headlines-edutiek h1 { 
-    counter-increment: h1; 
-    counter-reset: h2 h3 h4 h5 h6;
-}
-.mce-content-body h2, .headlines-edutiek h2 {
-    counter-increment: h2;
-    counter-reset: h3 h4 h5 h6;
-}
-.mce-content-body h3, .headlines-edutiek h3 {
-    counter-increment: h3;
-    counter-reset: h4 h5 h6;
-}
-.mce-content-body h4, .headlines-edutiek h4 {
-    counter-increment: h4;
-    counter-reset: h5 h6;
-}
-.mce-content-body h5, .headlines-edutiek h5 {
-    counter-increment: h5;
-    counter-reset: h6;
-}
-.mce-content-body h6, .headlines-edutiek h6 {
-    counter-increment: h6;
-}
-
 .mce-content-body h1:before, .headlines-edutiek h1::before { 
     content: counter(h1, upper-latin) ". "; 
 }

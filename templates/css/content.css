@@ -31,7 +31,7 @@
 .mce-content-body li, .long-essay-content li {
     margin-left: 20px;
     margin-bottom: 5px;
-    min-height: 150%;
+    min-height: 1.5em;
 }
 
 .mce-content-body p, .long-essay-content p,
@@ -39,7 +39,7 @@
 {
     margin-top: 0;
     margin-bottom: 10px;
-    min-height: 150%;
+    min-height: 1.5em;
 }
 
 .mce-content-body, .long-essay-content, .tox-menu {

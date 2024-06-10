@@ -1,7 +1,7 @@
 <?php
 namespace ILIAS\Plugin\LongEssayAssessment\UI\Component;
 
-use ILIAS\UI\Component\Input\Field\Input;
+use ILIAS\UI\Component\Input\Input;
 use ILIAS\UI\Component\Signal;
 use ILIAS\UI\Component\Triggerer;
 

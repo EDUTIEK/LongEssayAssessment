@@ -111,7 +111,7 @@ class UIService
      * a transformation to remove tags which are not allowed in this rte environment
      *
      * @param string $mode
-     * @return \ILIAS\Refinery\Custom\Transformation|\ILIAS\Refinery\Custom\Transformations\Transformation
+     * @return \ILIAS\Refinery\Transformation
      */
     public function stringTransformationByRTETagSet(string $mode = "standard")
     {

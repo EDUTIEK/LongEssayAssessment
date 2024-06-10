@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d6dcab78ef5c087d0d129636a5a8c9b6",
+    "content-hash": "2eacd39650debb22640939b6c4f82cd3",
     "packages": [
         {
             "name": "edutiek/long-essay-assessment-service",
@@ -633,7 +633,7 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": ">=7.4 <8.1"
+        "php": ">=8.1 <8.3"
     },
     "platform-dev": [],
     "plugin-api-version": "2.3.0"

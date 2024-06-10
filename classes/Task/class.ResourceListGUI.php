@@ -9,6 +9,9 @@ use ILIAS\UI\Renderer;
 
 class ResourceListGUI
 {
+    private object $target_class;
+    private \ilPlugin $plugin;
+    private \ilCtrlInterface $ctrl;
     /**
      * @var Factory
      */

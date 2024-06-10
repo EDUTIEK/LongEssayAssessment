@@ -19,6 +19,8 @@ class WriterAdminLogListGUI
 
     protected $user_ids = [];
 
+    protected $user_data = [];
+
     /**
      * @var Writer[]
      */

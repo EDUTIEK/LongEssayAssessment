@@ -98,7 +98,7 @@ class Numeric extends \ILIAS\UI\Implementation\Component\Input\Field\Numeric imp
     /**
      * @inheritDoc
      */
-    public function withStep(float $step): \ILIAS\UI\Component\Input\Field\Input
+    public function withStep(float $step): self
     {
         $clone = clone $this;
         $clone->step = $step;

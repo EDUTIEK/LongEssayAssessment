@@ -1,8 +1,7 @@
 <?php
 namespace ILIAS\Plugin\LongEssayAssessment\UI\Component;
 
-use ILIAS\UI\Component\Input\Field\FilterInput;
-use ILIAS\UI\Component\Input\Field\Input;
+use ILIAS\UI\Component\Input\Container\Filter\FilterInput;
 
 /**
  * This describes numeric inputs.
@@ -22,7 +21,7 @@ interface Numeric extends FilterInput
      *
      * @param    float $step
      *
-     * @return    Input
+     * @return    static
      */
-    public function withStep(float $step): Input;
+    public function withStep(float $step);
 }

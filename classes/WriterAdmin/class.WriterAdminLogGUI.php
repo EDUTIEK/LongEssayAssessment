@@ -149,7 +149,7 @@ class WriterAdminLogGUI extends BaseGUI
             "recipient" => $this->uiFactory->input()->field()->select($this->plugin->txt("alert_recipient"), $options)->withRequired(true),
             "text" => $this->uiFactory->input()->field()->textarea($this->plugin->txt("alert_text"))->withRequired(true)
         ];
-        return $this->uiFactory->modal()->roundtrip($this->plugin->txt("create_alert"), [], $inputs, $this->ctrl->getFormAction($this, "createAlert"))->withSubmitCaption($this->lng->txt("send"));
+        return $this->uiFactory->modal()->roundtrip($this->plugin->txt("create_alert"), [], $inputs, $this->ctrl->getFormAction($this, "createAlert"))->withSubmitLabel($this->lng->txt("send"));
     }
 
     private function buildFormModalLogEntry(): \ILIAS\UI\Component\Modal\RoundTrip
@@ -159,7 +159,7 @@ class WriterAdminLogGUI extends BaseGUI
             "entry" => $this->uiFactory->input()->field()->textarea($this->plugin->txt("log_entry_text"))->withRequired(true)
         ];
 
-        return $this->uiFactory->modal()->roundtrip($this->plugin->txt("create_log_entry"), [], $inputs, $this->ctrl->getFormAction($this, "createLogEntry"))->withSubmitCaption($this->lng->txt("save"));
+        return $this->uiFactory->modal()->roundtrip($this->plugin->txt("create_log_entry"), [], $inputs, $this->ctrl->getFormAction($this, "createLogEntry"))->withSubmitLabel($this->lng->txt("save"));
     }
 
     private function getWriterNameOptions(): array

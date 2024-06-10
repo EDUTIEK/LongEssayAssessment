@@ -17,7 +17,7 @@ use ILIAS\UI\Implementation\Component\Input\Container\Filter\ProxyFilterField;
 use ILIAS\UI\Implementation\Component\Input\Field\Checkbox;
 use ILIAS\UI\Implementation\Component\Input\Field\DateTime;
 use ILIAS\UI\Implementation\Component\Input\Field\Duration;
-use ILIAS\UI\Implementation\Component\Input\Field\Input;
+use ILIAS\UI\Implementation\Component\Input\Input;
 use ILIAS\UI\Implementation\Component\Input\Field\OptionalGroup;
 use ILIAS\UI\Implementation\Component\Input\Field\Password;
 use ILIAS\UI\Implementation\Component\Input\Field\Radio;

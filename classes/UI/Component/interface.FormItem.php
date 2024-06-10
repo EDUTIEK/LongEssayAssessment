@@ -10,7 +10,7 @@ use ILIAS\UI\Component\Item\Standard;
 use \ILIAS\UI\Component\Symbol\Icon\Icon;
 use \ILIAS\UI\Component\Image\Image;
 use \ILIAS\Data\Color;
-use ILIAS\UI\Implementation\Component\Input\Field\Input;
+use ILIAS\UI\Implementation\Component\Input\Input;
 use ILIAS\UI\Implementation\Component\Input\NameSource;
 
 /**

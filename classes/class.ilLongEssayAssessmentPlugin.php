@@ -106,7 +106,7 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
         $this->uninstallCustom();
 
         $this->getLanguageHandler()->uninstall();
-        $this->clearEventListening();
+        //$this->clearEventListening();
         $this->component_repository->removeStateInformationOf($this->getId());
         $this->afterUninstall();
         return true;
@@ -256,23 +256,23 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
 
     public function reloadControlStructure()
     {
-        // load control structure
-        $structure_reader = new ilCtrlStructureReader();
-        $structure_reader->readStructure(
-            true,
-            "./" . $this->getDirectory(),
-            $this->getPrefix(),
-            $this->getDirectory()
-        );
-
-        // add config gui to the ctrl calls
-        $this->dic->ctrl()->insertCtrlCalls(
-            "ilobjcomponentsettingsgui",
-            ilPlugin::getConfigureClassName(["name" => $this->getPluginName()]),
-            $this->getPrefix()
-        );
-
-        $this->readEventListening();
+//        // load control structure
+//        $structure_reader = new ilCtrlStructureReader();
+//        $structure_reader->readStructure(
+//            true,
+//            "./" . $this->getDirectory(),
+//            $this->getPrefix(),
+//            $this->getDirectory()
+//        );
+//
+//        // add config gui to the ctrl calls
+//        $this->dic->ctrl()->insertCtrlCalls(
+//            "ilobjcomponentsettingsgui",
+//            ilPlugin::getConfigureClassName(["name" => $this->getPluginName()]),
+//            $this->getPrefix()
+//        );
+//
+//        $this->readEventListening();
     }
 
 
@@ -288,6 +288,7 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
             return $renderer;
         }
 
+
         //else return own renderer with origin as default
         //be aware that you can not provide the renderer itself for the closure since its state changes
         return function () use ($dic, $renderer) {
@@ -300,7 +301,9 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
                     $dic["ui.javascript_binding"],
                     $dic["refinery"],
                     $dic["ui.pathresolver"],
-                    $dic["ui.data_factory"]
+                    $dic["ui.data_factory"],
+                    $dic["help.text_retriever"],
+                    $dic["ui.upload_limit_resolver"]
                 ),
                 new InputRenderer(
                     $dic["ui.factory"],
@@ -309,7 +312,9 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
                     $dic["ui.javascript_binding"],
                     $dic["refinery"],
                     $dic["ui.pathresolver"],
-                    $dic["ui.data_factory"]
+                    $dic["ui.data_factory"],
+                    $dic["help.text_retriever"],
+                    $dic["ui.upload_limit_resolver"]
                 )
             );
         };

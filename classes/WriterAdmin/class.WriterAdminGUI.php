@@ -205,7 +205,7 @@ class WriterAdminGUI extends BaseGUI
         foreach ($writer_ids as $writer_id) {
             if(array_key_exists($writer_id, $writers)) {
                 $writer = $writers[$writer_id];
-                $items[] = $this->uiFactory->modal()->interruptiveItem(
+                $items[] = $this->uiFactory->modal()->interruptiveItem()->standard(
                     $writer->getId(),
                     $user_data[$writer->getUserId()]
                 );
@@ -216,7 +216,7 @@ class WriterAdminGUI extends BaseGUI
             $this->plugin->txt("remove_writer"),
             $this->plugin->txt("remove_writer_confirmation"),
             $this->ctrl->getFormAction($this, "removeWriter")
-        )->withAffectedItems($items)->withActionButtonLabel("remove");
+        )->withAffectedItems($items)->withActionButtonLabel($this->lng->txt("remove"));
 
         echo($this->renderer->renderAsync($remove_modal));
         exit();
@@ -750,7 +750,7 @@ class WriterAdminGUI extends BaseGUI
                     continue;
                 }
                 
-                $items[] = $this->uiFactory->modal()->interruptiveItem(
+                $items[] = $this->uiFactory->modal()->interruptiveItem()->standard(
                     $writer->getId(),
                     $user_data[$writer->getUserId()]
                 );

@@ -125,7 +125,7 @@ class CorrectorStartGUI extends BaseGUI
                     $this->plugin->txt('confirm_remove_own_authorization'),
                     $this->ctrl->getLinkTarget($this, 'removeAuthorization')
                 )->withAffectedItems([
-                    $this->uiFactory->modal()->interruptiveItem(
+                    $this->uiFactory->modal()->interruptiveItem()->standard(
                         $writer->getId(),
                         $writer->getPseudonym() . ': ' . $dataService->formatCorrectionResult($summary),
                         $icon
@@ -144,7 +144,7 @@ class CorrectorStartGUI extends BaseGUI
                     $this->plugin->txt('confirm_authorize_correction'),
                     $this->ctrl->getLinkTarget($this, 'authorizeCorrection')
                 )->withAffectedItems([
-                    $this->uiFactory->modal()->interruptiveItem(
+                    $this->uiFactory->modal()->interruptiveItem()->standard(
                         $writer->getId(),
                         $writer->getPseudonym() . ': ' . $dataService->formatCorrectionResult($summary),
                         $icon,
@@ -493,7 +493,7 @@ class CorrectorStartGUI extends BaseGUI
             $summary = $this->localDI->getEssayRepo()->getCorrectorSummaryByEssayIdAndCorrectorId($essay->getId(), $corrector->getId());
 
             if($this->service->canRemoveCorrectionAuthorize($essay, $summary)) {
-                $items[] = $this->uiFactory->modal()->interruptiveItem($writer->getId(), $writer->getPseudonym());
+                $items[] = $this->uiFactory->modal()->interruptiveItem()->standard($writer->getId(), $writer->getPseudonym());
             }
         }
 
@@ -538,7 +538,7 @@ class CorrectorStartGUI extends BaseGUI
 
             $summary = $this->localDI->getEssayRepo()->getCorrectorSummaryByEssayIdAndCorrectorId($essay->getId(), $corrector->getId());
             if($this->service->canAuthorizeCorrection($essay, $summary)) {
-                $items[] = $this->uiFactory->modal()->interruptiveItem(
+                $items[] = $this->uiFactory->modal()->interruptiveItem()->standard(
                     $writer->getId(),
                     $writer->getPseudonym() . ': ' . $dataService->formatCorrectionResult($summary),
                     $icon,

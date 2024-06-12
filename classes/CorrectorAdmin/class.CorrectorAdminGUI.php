@@ -255,7 +255,7 @@ class CorrectorAdminGUI extends BaseGUI
             ;
             $items =[];
             foreach ($user_ids as $user_id) {
-                $items[] = $this->uiFactory->modal()->interruptiveItem(
+                $items[] = $this->uiFactory->modal()->interruptiveItem()->standard(
                     $user_id,
                     \ilObjUser::_lookupFullname($user_id)
                 );
@@ -721,7 +721,7 @@ class CorrectorAdminGUI extends BaseGUI
                 || !empty($this->localDI->getCorrectorAdminService($essay->getTaskId())->getAuthorizedSummaries($essay)))
                 && array_key_exists($writer_id, $writers)) {
                 $writer = $writers[$writer_id];
-                $items[] = $this->uiFactory->modal()->interruptiveItem(
+                $items[] = $this->uiFactory->modal()->interruptiveItem()->standard(
                     $writer->getId(),
                     $user_data[$writer->getUserId()] . ' [' . $writer->getPseudonym() . ']'
                 );

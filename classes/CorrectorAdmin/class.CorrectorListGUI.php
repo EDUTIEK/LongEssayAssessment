@@ -37,7 +37,7 @@ class CorrectorListGUI extends WriterListGUI
                     $this->plugin->txt("remove_corrector_confirmation"),
                     $this->getRemoveCorrectorAction($corrector)
                 )->withAffectedItems([
-                    $this->uiFactory->modal()->interruptiveItem(
+                    $this->uiFactory->modal()->interruptiveItem()->standard(
                         $corrector->getUserId(),
                         $this->getUsernameText($corrector->getUserId()),
                         $this->getUserImage($corrector->getUserId())

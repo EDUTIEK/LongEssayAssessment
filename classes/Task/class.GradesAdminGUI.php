@@ -134,7 +134,7 @@ class GradesAdminGUI extends BaseGUI
                     $this->plugin->txt("delete_grade_level_confirmation"),
                     $delete_link
                 )->withAffectedItems([
-                    $ui_factory->modal()->interruptiveItem($record["id"], $record['headline'])
+                    $ui_factory->modal()->interruptiveItem()->standard($record["id"], $record['headline'])
                 ]);
 
                 if($can_delete) {

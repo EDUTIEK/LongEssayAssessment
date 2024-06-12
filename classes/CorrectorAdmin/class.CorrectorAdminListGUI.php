@@ -128,7 +128,7 @@ class CorrectorAdminListGUI extends WriterListGUI
                             : $this->plugin->txt('remove_authorizations'),
                         $this->plugin->txt("remove_authorizations_confirmation"),
                         $this->getRemoveAuthorisationsAction($writer)
-                    )->withAffectedItems([ $this->uiFactory->modal()->interruptiveItem(
+                    )->withAffectedItems([ $this->uiFactory->modal()->interruptiveItem()->standard(
                         $writer->getId(),
                         $this->getWriterNameText($writer) . ' [' . $writer->getPseudonym() . ']',
                         $this->getUserImage($writer->getUserId())

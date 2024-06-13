@@ -79,6 +79,9 @@ ImageMagick may run into resource limits when uploading larger PDF files of part
 3. Execute `composer du` in the ILIAS main directory.
 4. Install or update the plugin in the ILIAS plugin administration.
 
+**Optional for Cron Support:**
+1. Install [LongEssayAssessmentCron](https://github.com/EDUTIEK/LongEssayAssessmentCron) as described in its [documentation](https://github.com/EDUTIEK/LongEssayAssessmentCron/?tab=readme-ov-file#installation). 
+2. Activate the cron jobs of the `Plugin/LongEssayAssessmentCron` component in the administration menu item _System Settings and Maintenance > General Settings > Cron Jobs_ according to your needs.
 
 ## Known Issues
 

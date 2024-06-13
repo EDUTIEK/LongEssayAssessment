@@ -976,4 +976,63 @@ class CorrectorAdminService extends BaseService
     const STATISTIC_AVERAGE = 6;
     const STATISTIC_NOT_PASSED_QUOTA = 7;
     const STATISTIC_NOT_ATTENDED = 8;
+
+    public function canSendReviewNotifications()
+    {
+        $task_settings = $this->taskRepo->getTaskSettingsById($this->task_id);
+
+        return $task_settings->isReviewNotification() &&                                        // check notification enabled
+            $task_settings->isReviewEnabled() &&                                                // check review available
+            ($this->dataService->isInRange(
+                time(),
+                $this->dataService->dbTimeToUnix($task_settings->getReviewStart()),
+                $this->dataService->dbTimeToUnix($task_settings->getReviewEnd())
+            ));                                                                                 // check if review period is in range
+    }
+
+    public function sendReviewNotification(int $ref_id, int $writer_id, bool $force_resend = false)
+    {
+        if($this->canSendReviewNotifications()) {
+            $writer = $this->writerRepo->getWriterById($writer_id);
+            $essay = $this->essayRepo->getEssayByWriterIdAndTaskId($writer->getId(), $this->task_id);
+
+            if(!empty($essay) && !empty($essay->getCorrectionFinalized())
+                && $this->dic->access()->checkAccessOfUser($writer->getUserId(), "read", "", $ref_id)
+                && (!$essay->isReviewNotificationSend() || $force_resend)) {
+                $mail = $this->localDI->services()->mail($ref_id)->reviewNotification([$writer->getUserId()]);
+                $mail->send();
+                $essay->setReviewNotificationSend(true);
+                $this->essayRepo->save($essay);
+            }
+        }
+    }
+
+    public function sendPendingReviewNotifications(int $ref_id)
+    {
+        if($this->canSendReviewNotifications()) {
+            $essays = [];
+
+            foreach($this->essayRepo->getEssaysByTaskId($this->task_id) as $essay) {
+                if(!empty($essay->getCorrectionFinalized()) && !$essay->isReviewNotificationSend()) {
+                    $essays[$essay->getWriterId()] = $essay; //Attention this might get a Problem in future with multiple task per object
+                }
+            }
+
+            if(!empty($essays)) {
+                $user_ids = array_map(
+                    function (Writer $writer) {return $writer->getUserId();},
+                    $this->writerRepo->getWritersByTaskId($this->task_id, array_keys($essays))
+                );
+                $user_ids = array_filter($user_ids, fn ($id) => $this->dic->access()->checkAccessOfUser($id, "read", "", $ref_id));
+
+                $mail = $this->localDI->services()->mail($ref_id)->reviewNotification($user_ids);
+                $mail->send();
+
+                foreach($essays as $essay) {
+                    $essay->setReviewNotificationSend(true);
+                    $this->essayRepo->save($essay);
+                }
+            }
+        }
+    }
 }

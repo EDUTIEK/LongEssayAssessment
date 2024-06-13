@@ -605,6 +605,7 @@ class DataService extends BaseService
 
     }
 
+
     /**
      * Cleanup HTML code from a richtext editor to be securely displayed
      */
@@ -616,6 +617,21 @@ class DataService extends BaseService
             true,
             '<p><div><br><strong><b><em><i><u><ol><ul><li><h1><h2><h3><h4><h5><h6><pre>'
         );
+    }
+
+    /**
+     * Trim a rich text to get an empty string if the text has only empty elements
+     */
+    public function trimRichText(?string $text) : ?string
+    {
+        if (!isset($text)) {
+            return null;
+        }
+
+        if (empty(trim(strip_tags($text)))) {
+            return '';
+        }
+        return trim($text);
     }
 
     /**

@@ -115,10 +115,18 @@ class OrgaSettingsGUI extends BaseGUI
         }
         $a_task_settings->setResultAvailableDate($date);
 
-        $date = $a_data['task']['review_start'];
-        $a_task_settings->setReviewStart($date instanceof \DateTimeInterface ? $date->format('Y-m-d H:i:s') : null);
-        $date = $a_data['task']['review_end'];
-        $a_task_settings->setReviewEnd($date instanceof \DateTimeInterface ? $date->format('Y-m-d H:i:s') : null);
+
+        if(!empty($a_data['task']['review'])) {
+            $a_task_settings->setReviewEnabled(true);
+            $date = $a_data['task']['review']['review_start'];
+            $a_task_settings->setReviewStart($date instanceof \DateTimeInterface ? $date->format('Y-m-d H:i:s') : null);
+            $date = $a_data['task']['review']['review_end'];
+            $a_task_settings->setReviewEnd($date instanceof \DateTimeInterface ? $date->format('Y-m-d H:i:s') : null);
+            $a_task_settings->setReviewNotification($a_data['task']['review']['review_notification']);
+        } else {
+            $a_task_settings->setReviewEnabled(false);
+        }
+
 
         $task_description = $a_data['content']['task_description'];
         $a_task_settings->setDescription((string) $this->data->trimRichText($task_description));
@@ -282,19 +290,33 @@ class OrgaSettingsGUI extends BaseGUI
             $this->plugin->txt('result_available_type_info'),
         )->withValue($taskSettings->getResultAvailableType());
 
-        $fields['review_start'] = $factory->dateTime(
-            $this->plugin->txt("review_start"),
-            $this->plugin->txt("review_start_info")
-        )
-            ->withUseTime(true)
-            ->withValue((string) $taskSettings->getReviewStart());
 
-        $fields['review_end'] = $factory->dateTime(
-            $this->plugin->txt("review_end"),
-            $this->plugin->txt("review_end_info")
-        )
-            ->withUseTime(true)
-            ->withValue((string) $taskSettings->getReviewEnd());
+        $fields['review']  = $factory->optionalGroup(
+            [
+                'review_start' =>  $factory->dateTime(
+                    $this->plugin->txt("review_start"),
+                    $this->plugin->txt("review_start_info")
+                )
+                   ->withUseTime(true)
+                   ->withValue((string) $taskSettings->getReviewStart()),
+                'review_end' =>  $factory->dateTime(
+                    $this->plugin->txt("review_end"),
+                    $this->plugin->txt("review_end_info")
+                )
+                                         ->withUseTime(true)
+                                         ->withValue((string) $taskSettings->getReviewEnd()),
+                'review_notification' => $factory->checkbox(
+                    $this->plugin->txt("review_notification_enabled"),
+                    $this->plugin->txt("review_notification_info")
+                )->withValue($taskSettings->isReviewNotification())
+            ],
+            $this->plugin->txt("review_enabled"),
+            $this->plugin->txt("review_info")
+        );
+
+        if(!$taskSettings->isReviewEnabled()) {
+            $fields['review'] = $fields['review']->withValue(null);
+        }
 
         $sections['task'] = $factory->section($fields, $this->plugin->txt('task_settings'));
         return $this->uiFactory->input()->container()->form()->standard($this->ctrl->getFormAction($this), $sections);

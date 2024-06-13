@@ -132,7 +132,7 @@ add_resource#:#Material hinzufügen
 lp_passed#:#Bestanden
 lp_passed_info#:#Für Lernfortschritt und Vorbedingungen gilt diese Notenstufe als bestanden.
 start_writing#:#Bearbeitung starten
-writing_period#:#Bearbeitungszeitraum
+writing_period#:#Bearbeitung
 not_specified#:#nicht festgelegt
 period_only_from#:#ab
 period_only_until#:#bis
@@ -341,7 +341,7 @@ view_instructions#:#Aufgabenstellung ansehen
 view_solution#:#Lösungshinweise ansehen
 message_review_period#:#Die Einsichtnahme findet %s statt.
 content_not_available#:#Es ist kein Inhalt verfügbar
-resource_delete#:#Material erfolgreich gelöscht.
+resource_deleted#:#Material erfolgreich gelöscht.
 result_not_available#:#nicht verfügbar
 result_not_finalized#:#nicht festgelegt
 result_not_graded#:#ohne Note
@@ -422,8 +422,8 @@ confirm_authorize_correction#:#Möchten Sie die folgenden Korrekturen autorisier
 authorize_correction_done#:#Ihre Korrektur wurde autorisiert.
 no_authorizations_to_remove#:#In Ihrer Auswahl waren keine Korrektur-Autorisierungen, die zurückgenommen werden können.
 no_corrections_to_authorize#:#In Ihrer Auswahl waren keine Korrekturen, die autorisiert werden können.
-download_instructions#:#Aufgabenstellung herunterladen
-download_solution#:#Lösungshinweise herunterladen
+download_instructions#:#PDF herunterladen
+download_solution#:#PDF herunterladen
 authorize_pdf_version_info#:#Wenn eine PDF-Abgabe hinzugefügt oder geändert wird, wird eine bisherige Autorisierung je nach Einstellung entfernt oder durch Sie erneuert.
 pdf_version#:#PDF-Abgabe
 pdf_version_edit#:#PDF-Abgabe editieren
@@ -552,3 +552,12 @@ correctors_with_open_corrections#:#Korrektoren mit offenen Korrekturen
 link_to_object#:#Link zur Aufgabe
 write_mail#:#Mail schreiben
 mail_for_selected_essays#:#Mail für ausgewählte Abgaben
+review_enabled#:#Einsichtnahme aktiviert
+review_info#:#Hier stellen Sie ein, ob und wann den Teilnehmern ein PDF mit ihrer korrigierten Abgabe zur Einsichtnahme auf ihrer Startseite angeboten werden soll.
+review_notification_enabled#:#Benachrichtigung aktiviert
+review_notification_info#:#Teilnehmer erhalten eine Mail-Benachrichtigung, wenn die Korrektur finalisiert und der Einsichtnahme-Zeitraum begonnen hat.
+mail_review_notification_subject#:#Die Einsichtnahme für die Klausur „%s“ hat begonnen
+mail_review_notification_body#:#Ihre Klausur wurde korrigiert und steht nun zur Einsichtnahme bereit.
+mail_permanent_link#:#Wählen Sie den folgenden Link, um auf den Klausurinhalt zuzugreifen:
+review_notification_cron_job#:#Benachrichtigung zur Einsichtnahme von Langtext-Aufgaben
+review_notification_cron_job_desc#:#Teilnehmer erhalten eine Mail-Benachrichtigung, wenn die Korrektur finalisiert, der Einsichtnahme-Zeitraum begonnen hat und Benachrichtigungen im Reiter Aufgabenstellungen > Organisation aktiviert sind.

@@ -103,7 +103,8 @@ class WriterStartGUI extends BaseGUI
                     } else {
                         $message = $this->plugin->txt('message_writing_authorized');
                     }
-                    if (!empty($this->task->getReviewStart()) || !empty($this->task->getReviewEnd())) {
+
+                    if ($this->task->isReviewEnabled()) {
                         $message .= sprintf(
                             '<p>'. $this->plugin->txt('message_review_period') . '</p>',
                             $this->data->formatPeriod($this->task->getReviewStart(), $this->task->getReviewEnd())
@@ -292,7 +293,7 @@ class WriterStartGUI extends BaseGUI
             $properties[$this->plugin->txt('label_available')] = $this->data->formatResultAvailability($this->task);
         }
 
-        if(!empty($this->task->getReviewStart()) || !empty($this->task->getReviewEnd())) {
+        if($this->task->isReviewEnabled()) {
             $properties[$this->plugin->txt('review_period')] =
                 $this->data->formatPeriod($this->task->getReviewStart(), $this->task->getReviewEnd());
         }

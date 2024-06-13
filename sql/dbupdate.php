@@ -1161,7 +1161,18 @@ if (!$ilDB->tableColumnExists('xlas_corrector_summary','last_change')) {
 ?>
 <#41>
 <?php
-// obsolete
+if (!$ilDB->tableColumnExists('xlas_corrector_summary','correction_authorized')) {
+    $ilDB->addTableColumn('xlas_essay', 'correction_authorized', [
+        'type' => 'timestamp',
+    ]);
+}
+if (!$ilDB->tableColumnExists('xlas_corrector_summary','correction_authorized_by')) {
+    $ilDB->addTableColumn('xlas_essay', 'correction_authorized_by', [
+        'notnull' => '0',
+        'type' => 'integer',
+        'length' => '4'
+    ]);
+}
 ?>
 <#42>
 <?php
@@ -2114,5 +2125,15 @@ if ($ilDB->tableColumnExists('xlas_essay','correction_authorized')) {
 }
 if ($ilDB->tableColumnExists('xlas_essay','correction_authorized_by')) {
     $ilDB->dropTableColumn('xlas_essay','correction_authorized_by');
+}
+?>
+<#100>
+<?php
+if (!$ilDB->tableColumnExists('xlas_task_settings','review_notif_text')) {
+    $ilDB->addTableColumn('xlas_task_settings', 'review_notif_text', [
+        'notnull' => '0',
+        'type' => 'clob',
+        'default' => null
+    ]);
 }
 ?>

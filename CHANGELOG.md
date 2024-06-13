@@ -4,6 +4,7 @@
 New features:
 - correction setting to anonymize the corrector names for the writers
 - add correction finalize date to results export
+- general cron job support [cron job support](https://github.com/EDUTIEK/LongEssayAssessmentCron/)
 
 ## Version 1.7 (2024-06-21)
 New features in corrector:

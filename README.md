@@ -1,3 +1,6 @@
+**PLEASE NOTE:** This version (release_2_ilias8) requires ILIAS 8 and **at least ILIAS 8.11.**
+The version for ILIAS 7 is found in the branch release1_ilias7.
+
 # LongEssayAssessment
 Plugin for the LMS ILIAS open source to realize exams with writing of long texts.
 
@@ -82,6 +85,10 @@ rm composer.lock
 rm -R vendor
 ````
 From version 1.6 on these commands shold be omitted. Version 1.6 includes the composer.lock file to fix the used dependencies. They will be updated automatically by a `composer install` if neccessary.
+
+**Optional for Cron Support:**
+1. Install [LongEssayAssessmentCron](https://github.com/EDUTIEK/LongEssayAssessmentCron) as described in its [documentation](https://github.com/EDUTIEK/LongEssayAssessmentCron/?tab=readme-ov-file#installation).
+2. Activate the cron jobs of the `Plugin/LongEssayAssessmentCron` component in the administration menu item _System Settings and Maintenance > General Settings > Cron Jobs_ according to your needs.
 
 ## Known Issues
 

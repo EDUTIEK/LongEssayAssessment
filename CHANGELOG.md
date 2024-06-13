@@ -5,6 +5,8 @@ New features:
 - correction setting to anonymize the corrector names for the writers
 - add correction finalize date to results export
 - general cron job support [cron job support](https://github.com/EDUTIEK/LongEssayAssessmentCron/)
+- disable correction reviews 
+- send review notifications after finalization and within review period via cron job
 
 ## Version 1.7 (2024-06-21)
 New features in corrector:
@@ -13,11 +15,8 @@ New features in corrector:
 
 Bug fixes:
 - plugin: fix uninstallation problems
-- plugin: fix 40808: Blank pages occur when Text and PDF are submitted
-- plugin: fix corrector assignment file upload error handling with required file
-- plugin: fix str_word_count on null in corrector assignment file export
-- plugin: fix wring display of correction status for corrector 1
-- plugin: fix error at correction start as admin, if object is not online
+- plugin: fixed 40808: Blank pages occur when Text and PDF are submitted
+- plugin: general cron job support [cron job support](https://github.com/EDUTIEK/LongEssayAssessmentCron/)
 - service: reduce size of correction PDF
 - service: fix wrong end date in PDF header
 - service: fix removing of empty lines

@@ -756,7 +756,9 @@ class CorrectorContext extends ServiceContext implements Context
             
             if ($summary->isAuthorized()) {
                 $service->authorizeCorrection($repoSummary, $this->user->getId());
-                $service->tryFinalisation($repoEssay, $this->user->getId());
+                if($service->tryFinalisation($repoEssay, $this->user->getId())) {
+                    $service->sendReviewNotification($this->object->getRefId(), $repoEssay->getWriterId());
+                }
             } else {
                 $repoSummary->setCorrectionAuthorized(null);
                 $repoSummary->setCorrectionAuthorizedBy(null);
@@ -774,6 +776,7 @@ class CorrectorContext extends ServiceContext implements Context
     {
         $essayRepo = $this->localDI->getEssayRepo();
         $dataService = $this->localDI->getDataService($this->task->getTaskId());
+        $service = $this->localDI->getCorrectorAdminService($this->task->getTaskId());
 
         if (!empty($repoEssay = $essayRepo->getEssayByWriterIdAndTaskId((int) $item_key, $this->task->getTaskId()))
             && empty($repoEssay->getCorrectionFinalized())) {
@@ -783,6 +786,9 @@ class CorrectorContext extends ServiceContext implements Context
             $repoEssay->setCorrectionFinalizedBy($this->user->getId());
             $repoEssay->setStitchComment($stitch_comment);
             $essayRepo->save($repoEssay);
+
+            $service->sendReviewNotification($this->object->getRefId(), $repoEssay->getWriterId());
+
             return true;
         }
         return false;

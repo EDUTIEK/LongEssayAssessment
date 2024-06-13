@@ -98,7 +98,8 @@ abstract class ServiceContext implements BaseContext
         // user must be initiated here
         $this->object = new ilObjLongEssayAssessment($ref_id);
 
-        if (ilContext::getType() == ilContext::CONTEXT_REST && !$this->object->isOnline()) {
+        if (ilContext::getType() == ilContext::CONTEXT_REST &&
+            !($this->object->isOnline() || $this->object->canEditOrgaSettings())) {
             throw new ContextException('Object is offline', ContextException::ENVIRONMENT_NOT_VALID);
         }
 

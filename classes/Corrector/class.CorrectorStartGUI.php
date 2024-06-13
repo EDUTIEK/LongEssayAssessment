@@ -408,7 +408,9 @@ class CorrectorStartGUI extends BaseGUI
             $valid = true;
             $summary->applyPreferences($preferences);
             $this->service->authorizeCorrection($summary, $corrector->getUserId());
-            $this->service->tryFinalisation($essay, $corrector->getUserId());
+            if($this->service->tryFinalisation($essay, $corrector->getUserId())) {
+                $this->service->sendReviewNotification($this->object->getRefId(), $writer_id);
+            }
         }
 
         if($valid) {

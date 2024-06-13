@@ -276,4 +276,9 @@ class LongEssayAssessmentDI
         }
         return $this->correctorAssignmentServices[$task_id];
     }
+
+    public function getPlugin() : \ilLongEssayAssessmentPlugin
+    {
+        return $this->container["xlas.plugin"];
+    }
 }

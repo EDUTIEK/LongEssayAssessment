@@ -3,6 +3,7 @@
 ## Upcoming Version
 - plugin: fix uninstallation problems
 - plugin: fixed 40808: Blank pages occur when Text and PDF are submitted
+- plugin: general cron job support [cron job support](https://github.com/EDUTIEK/LongEssayAssessmentCron/)
 - service: reduce size of correction PDF
 - service: fix wrong end date in PDF header
 - service: fixed removing of empty lines

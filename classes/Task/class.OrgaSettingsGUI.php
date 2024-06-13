@@ -117,10 +117,10 @@ class OrgaSettingsGUI extends BaseGUI
         $a_task_settings->setReviewEnd($date instanceof \DateTimeInterface ? $date->format('Y-m-d H:i:s') : null);
 
         $task_description = $a_data['content']['task_description'];
-        $a_task_settings->setDescription((string)$task_description);
+        $a_task_settings->setDescription((string) $this->data->trimRichText($task_description));
 
         $closing_message = $a_data['content']['closing_message'];
-        $a_task_settings->setClosingMessage((string)$closing_message);
+        $a_task_settings->setClosingMessage((string)$this->data->trimRichText($closing_message));
 
         $task_repo->save($a_task_settings);
         $this->saveLocations($a_data['task']['location'], $locations);

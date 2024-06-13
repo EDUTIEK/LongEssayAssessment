@@ -2072,3 +2072,37 @@ if (!$ilDB->tableExists('xlas_pdf_settings')) {
         SET pseudonym = CONCAT('Teilnehmer/in ', id)
         WHERE pseudonym = 'Teilnehmer/in 0'
     ";
+?>
+<#95>
+<?php
+if (!$ilDB->tableColumnExists('xlas_task_settings','review_enabled')) {
+    $ilDB->addTableColumn('xlas_task_settings', 'review_enabled', array(
+        'notnull' => '1',
+        'type' => 'integer',
+        'length' => 4,
+        'default' => 0
+    ));
+}
+?>
+<#96>
+<?php
+if (!$ilDB->tableColumnExists('xlas_task_settings','review_notification')) {
+    $ilDB->addTableColumn('xlas_task_settings', 'review_notification', array(
+        'notnull' => '1',
+        'type' => 'integer',
+        'length' => 4,
+        'default' => 0
+    ));
+}
+?>
+<#97>
+<?php
+if (!$ilDB->tableColumnExists('xlas_essay','review_notification')) {
+    $ilDB->addTableColumn('xlas_essay', 'review_notification', array(
+        'notnull' => '1',
+        'type' => 'integer',
+        'length' => 4,
+        'default' => 0
+    ));
+}
+?>

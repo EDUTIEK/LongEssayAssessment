@@ -71,7 +71,7 @@ class WriterStartGUI extends BaseGUI
 
                 $review_message = '';
                 $back_link = '';
-                if (!empty($this->task->getReviewStart()) || !empty($this->task->getReviewEnd())) {
+                if ($this->task->isReviewEnabled()) {
                     $review_message = '<p>'. sprintf(
                         $this->plugin->txt('message_review_period'),
                         $this->data->formatPeriod($this->task->getReviewStart(), $this->task->getReviewEnd())
@@ -234,12 +234,17 @@ class WriterStartGUI extends BaseGUI
             $result_text = $this->data->formatResultAvailability($this->task);
         }
 
-        $result_items[] = $this->uiFactory->item()->standard($result_text)
-                                          ->withProperties(array(
-                                              $this->plugin->txt('review_period') => $this->data->formatPeriod(
-                                                  $this->task->getReviewStart(),
-                                                  $this->task->getReviewEnd()
-                                              )));
+        $result = $this->uiFactory->item()->standard($result_text);
+
+        if($this->task->isReviewEnabled()) {
+            $result = $result->withProperties(array(
+                $this->plugin->txt('review_period') => $this->data->formatPeriod(
+                    $this->task->getReviewStart(),
+                    $this->task->getReviewEnd()
+                )));
+        }
+
+        $result_items[] = $result;
 
         if (isset($essay)) {
 

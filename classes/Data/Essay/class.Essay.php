@@ -45,7 +45,8 @@ class Essay extends RecordData
         'final_points' => 'float',
         'final_grade_level_id' => 'integer',
         'stitch_comment' => 'text',
-        'location' => 'integer'
+        'location' => 'integer',
+        'review_notification' => 'integer'
     ];
 
     protected int $id = 0;
@@ -68,6 +69,7 @@ class Essay extends RecordData
     protected ?int $final_grade_level_id = null;
     protected ?string $stitch_comment = null;
     protected ?int $location = null;
+    protected ?int $review_notification = null;
 
     public static function model()
     {
@@ -438,6 +440,23 @@ class Essay extends RecordData
         return $this;
     }
 
+    /**
+     * @return bool
+     */
+    public function isReviewNotificationSend(): bool
+    {
+        return (bool) $this->review_notification;
+    }
+
+    /**
+     * @param bool $review_notification
+     * @return $this
+     */
+    public function setReviewNotificationSend(bool $review_notification): Essay
+    {
+        $this->review_notification = (int) $review_notification;
+        return $this;
+    }
 }
 /**
 protected function baseQuery(?int $essay_id) :string

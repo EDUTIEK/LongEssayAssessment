@@ -78,7 +78,7 @@ class SolutionSettingsGUI extends BaseGUI
         $di = LongEssayAssessmentDI::getInstance();
         $task_repo = $di->getTaskRepo();
 
-        $a_task_settings->setSolution($a_data["task_solution"]);
+        $a_task_settings->setSolution($this->data->trimRichText($a_data["task_solution"]));
 
 
         if($resource !== null && isset($a_data["resource_file"][0])) {

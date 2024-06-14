@@ -4,6 +4,7 @@ namespace ILIAS\Plugin\LongEssayAssessment\WriterAdmin;
 
 use ILIAS\Plugin\LongEssayAssessment\Cron\CronJob;
 use ilCronJobResult;
+use ILIAS\Cron\Schedule\CronJobScheduleType;
 
 class ReviewNotificationCronJob extends CronJob
 {
@@ -62,9 +63,9 @@ class ReviewNotificationCronJob extends CronJob
         return true;
     }
 
-    public function getDefaultScheduleType(): int
+    public function getDefaultScheduleType(): CronJobScheduleType
     {
-        return self::SCHEDULE_TYPE_IN_HOURS;
+        return CronJobScheduleType::SCHEDULE_TYPE_IN_HOURS;
     }
 
     public function getDefaultScheduleValue(): ?int

@@ -126,7 +126,7 @@ class WriterAdminListGUI extends WriterListGUI
                         $this->renderer->render($this->getUserIcon($writer->getUserId()))
                         . $this->getUsernameText($writer->getUserId())
                     )
-                ])->withActionButtonLabel("confirm");
+                ])->withActionButtonLabel($this->plugin->txt("exclude_participant"));
 
                 $actions[] = $this->uiFactory->button()->shy($this->plugin->txt("exclude_participant"), '')
                     ->withOnClick($exclusion_modal->getShowSignal());
@@ -142,7 +142,7 @@ class WriterAdminListGUI extends WriterListGUI
                 $this->uiFactory->modal()->interruptiveItem()->standard(
                     $writer->getUserId(),
                     $this->renderer->render($this->getUserIcon($writer->getUserId()))
-                    . $this->getUsernameLink($writer->getUserId())
+                    . $this->getUsernameText($writer->getUserId())
                 )
             ])->withActionButtonLabel($this->plugin->txt("remove_writer"));
 

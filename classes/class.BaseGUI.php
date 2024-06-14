@@ -12,6 +12,7 @@ use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use ILIAS\Plugin\LongEssayAssessment\ServiceLayer\ObjectServices;
 use ILIAS\Plugin\LongEssayAssessment\ServiceLayer\CommonServices;
+use ILIAS\UI\Component\Modal\Modal;
 
 /**
  * Base class for GUI classes (except the plugin guis required by ILIAS)
@@ -19,6 +20,8 @@ use ILIAS\Plugin\LongEssayAssessment\ServiceLayer\CommonServices;
  */
 abstract class BaseGUI
 {
+    /** @var Modal[] */
+    private array $modals = [];
     /** @var Container */
     protected $dic;
 
@@ -213,8 +216,24 @@ abstract class BaseGUI
     protected function fillPlaceholders(string $content) : string
     {
         foreach ($this->placeholders as $key => $value) {
-            $content = str_replace($key , $value, $content);
+            $content = str_replace($key, $value, $content);
         }
         return $content;
+    }
+
+    /**
+     * Add Modals which gets rendered later by calling $this->setContent(html)
+     *
+     * @param Modal $modal
+     * @return void
+     */
+    public function addModal(Modal $modal)
+    {
+        $this->modals[] = $modal;
+    }
+
+    protected function setContent($content)
+    {
+        $this->tpl->setContent($content . $this->renderer->render($this->modals));
     }
 }

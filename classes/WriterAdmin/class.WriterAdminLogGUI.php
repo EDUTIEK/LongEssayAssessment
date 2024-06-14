@@ -61,11 +61,13 @@ class WriterAdminLogGUI extends BaseGUI
         $button_log_entry = $this->uiFactory->button()->primary($this->plugin->txt("create_log_entry"), '#')
             ->withOnClick($modal_log_entry->getShowSignal());
         $this->toolbar->addComponent($button_log_entry);
+        $this->addModal($modal_log_entry);
 
         $modal_writer_notice = $this->buildFormModalWriterNotice();
         $button_writer_notice = $this->uiFactory->button()->standard($this->plugin->txt("create_alert"), '#')
             ->withOnClick($modal_writer_notice->getShowSignal());
         $this->toolbar->addComponent($button_writer_notice);
+        $this->addModal($modal_writer_notice);
 
         $this->toolbar->addSeparator();
         $button_export = $this->uiFactory->button()->standard(
@@ -80,7 +82,7 @@ class WriterAdminLogGUI extends BaseGUI
         $list->addLogEntries($task_repo->getLogEntriesByTaskId($this->object->getId()));
         $list->addAlerts($task_repo->getAlertsByTaskId($this->object->getId()));
 
-        $this->tpl->setContent($this->renderer->render([$modal_log_entry, $modal_writer_notice]) . $list->getContent());
+        $this->setContent($list->getContent());
     }
 
     private function createAlert()
@@ -106,13 +108,13 @@ class WriterAdminLogGUI extends BaseGUI
                 $this->tpl->setOnScreenMessage("success", $this->plugin->txt("alert_created"), true);
                 $this->ctrl->redirect($this, "showStartPage");
             } else {
-//                $close = $modal->getCloseSignal();
-//                $modal = $modal->withAdditionalOnLoadCode(function ($id) use ($close): string {
-//                    $code = "$(document).on('$close', function() { location.reload();});";
-//                    return $code;
-//                });
+                //                $close = $modal->getCloseSignal();
+                //                $modal = $modal->withAdditionalOnLoadCode(function ($id) use ($close): string {
+                //                    $code = "$(document).on('$close', function() { location.reload();});";
+                //                    return $code;
+                //                });
 
-                $this->tpl->addLightbox($this->renderer->render([$modal->withOnLoad($modal->getShowSignal())]), uniqid());
+                $this->addModal($modal->withOnLoad($modal->getShowSignal()));
                 $this->showStartPage();
             }
         }
@@ -132,7 +134,7 @@ class WriterAdminLogGUI extends BaseGUI
                 $this->tpl->setOnScreenMessage("success", $this->plugin->txt("log_entry_created"), true);
                 $this->ctrl->redirect($this, "showStartPage");
             } else {
-                $this->tpl->addLightbox($this->renderer->render([$modal->withOnLoad($modal->getShowSignal())]), uniqid());
+                $this->addModal($modal->withOnLoad($modal->getShowSignal()));
                 $this->showStartPage();
             }
         }

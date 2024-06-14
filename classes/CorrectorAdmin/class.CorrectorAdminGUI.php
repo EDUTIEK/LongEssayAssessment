@@ -222,13 +222,13 @@ class CorrectorAdminGUI extends BaseGUI
 
         // search button
         if ($this->object_services->iliasContext()->isInCourse()) {
-            $modal = $this->uiFactory->modal()->interruptive('', '', '')
+            $add_tutors_modal = $this->uiFactory->modal()->interruptive('', '', '')
                                      ->withAsyncRenderUrl($this->ctrl->getLinkTarget($this, 'addAllCourseTutors'));
             $button = $this->uiFactory->button()->standard($this->plugin->txt("add_all_course_tutors"), '')
-                                      ->withOnClick($modal->getShowSignal());
+                                      ->withOnClick($add_tutors_modal->getShowSignal());
 
             $this->toolbar->addComponent($button);
-            $this->tpl->addLightbox($this->renderer->render($modal), 'add_all_course_tutors');
+            $this->addModal($add_tutors_modal);
         }
 
         $di = LongEssayAssessmentDI::getInstance();
@@ -240,7 +240,7 @@ class CorrectorAdminGUI extends BaseGUI
         $list_gui->setCorrectors($corrector_repo->getCorrectorsByTaskId($this->object->getId()));
         $list_gui->setAssignments($corrector_repo->getAssignmentsByTaskId($this->object->getId()));
 
-        $this->tpl->setContent($list_gui->getContent());
+        $this->setContent($list_gui->getContent());
     }
 
     /**
@@ -265,7 +265,7 @@ class CorrectorAdminGUI extends BaseGUI
                 $this->plugin->txt('confirm_add_all_course_tutors'),
                 $this->ctrl->getLinkTarget($this, 'addAllCourseTutors')
             )->withAffectedItems($items)
-            ->withActionButtonLabel('add');
+            ->withActionButtonLabel($this->lng->txt('add'));
             echo $this->renderer->render($modal);
             exit;
         }

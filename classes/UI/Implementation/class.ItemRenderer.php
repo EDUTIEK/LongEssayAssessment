@@ -80,10 +80,10 @@ class ItemRenderer extends \ILIAS\UI\Implementation\Component\Item\Renderer
         $tpl->setVariable("LIST_STD", $this->renderGroup($component->withoutActions(), $default_renderer));
 
         if (count($component->getItems()) > 0) {
-            $tpl->setVariable("IMG_ARROW_TOP", \ilUtil::getImagePath("arrow_upright.svg"));
+            $tpl->setVariable("IMG_ARROW_TOP", \ilUtil::getImagePath("nav/arrow_upright.svg"));
             $tpl->setVariable("ALT_ARROW_TOP", $this->txt("action"));
 
-            $tpl->setVariable("IMG_ARROW_BOT", \ilUtil::getImagePath("arrow_downright.svg"));
+            $tpl->setVariable("IMG_ARROW_BOT", \ilUtil::getImagePath("nav/arrow_downright.svg"));
             $tpl->setVariable("ALT_ARROW_BOT", $this->txt("action"));
 
             $tpl->setVariable("SELECT_ALL_TXT_SELECT_ALL", $this->txt("select_all"));

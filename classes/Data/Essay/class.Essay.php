@@ -69,7 +69,7 @@ class Essay extends RecordData
     protected ?int $final_grade_level_id = null;
     protected ?string $stitch_comment = null;
     protected ?int $location = null;
-    protected ?int $review_notification = null;
+    protected int $review_notification = 0;
 
     public static function model()
     {

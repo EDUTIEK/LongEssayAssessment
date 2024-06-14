@@ -848,7 +848,7 @@ class WriterAdminGUI extends BaseGUI
                 $form = $form->withRequest($this->request);
 
                 if($data = $form->getData()) {
-                    $file_id = $data["pdf_version"][0];
+                    $file_id = $data["pdf_version"][0] ?? null;
 
                     if($file_id != $essay->getPdfVersion()) {
                         

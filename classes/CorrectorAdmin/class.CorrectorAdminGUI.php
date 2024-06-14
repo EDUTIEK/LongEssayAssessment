@@ -759,7 +759,7 @@ class CorrectorAdminGUI extends BaseGUI
                 ),
                 $this->plugin->txt("assignment_excel_import"),
                 $this->plugin->txt("assignment_excel_import_info")
-            )]
+            )->withRequired(true)]
         );
 
         if($this->request->getMethod() === "POST") {

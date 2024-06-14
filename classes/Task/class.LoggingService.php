@@ -101,7 +101,6 @@ class LoggingService extends BaseService
     {
         $csv = new \ilCSVWriter();
         $csv->setSeparator(';');
-        $csv->setDoUTF8Decoding(true);
 
         $csv->addColumn($this->plugin->txt('log_time'));
         $csv->addColumn($this->plugin->txt('log_category'));
@@ -124,16 +123,16 @@ class LoggingService extends BaseService
                 $csv->addColumn((string) $entry->getTimestamp());
                 $csv->addColumn($this->plugin->txt('log_cat_' . $entry->getCategory()));
                 $csv->addColumn('');
-                $csv->addColumn((string) $entry->getEntry());
+                $csv->addColumn(utf8_decode((string) $entry->getEntry()));
             } elseif ($entry instanceof Alert) {
                 $to = $this->plugin->txt('log_alert_to_all');
                 if (!empty($writer = $this->writerRepo->getWriterById((int) $entry->getWriterId())) && !empty($writer->getUserId())) {
                     $to = \ilObjUser::_lookupFullname($writer->getUserId());
                 }
-                $csv->addColumn((string) $entry->getShownFrom());
+                $csv->addColumn(utf8_decode((string) $entry->getShownFrom()));
                 $csv->addColumn($this->plugin->txt('log_cat_alert'));
-                $csv->addColumn($to);
-                $csv->addColumn($alert->getMessage());
+                $csv->addColumn(utf8_decode($to));
+                $csv->addColumn(utf8_decode($entry->getMessage()));
             }
         }
 

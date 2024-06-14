@@ -3,6 +3,8 @@
 ## Upcoming Version
 - plugin: fix uninstallation problems
 - plugin: fixed 40808: Blank pages occur when Text and PDF are submitted
+- plugin: fix corrector assignment file upload error handling with required file
+- plugin: fix str_word_count on null in corrector assignment file export
 - service: reduce size of correction PDF
 - service: fix wrong end date in PDF header
 - service: fixed removing of empty lines

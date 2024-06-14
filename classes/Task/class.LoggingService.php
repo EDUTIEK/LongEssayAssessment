@@ -123,16 +123,16 @@ class LoggingService extends BaseService
                 $csv->addColumn((string) $entry->getTimestamp());
                 $csv->addColumn($this->plugin->txt('log_cat_' . $entry->getCategory()));
                 $csv->addColumn('');
-                $csv->addColumn(utf8_decode((string) $entry->getEntry()));
+                $csv->addColumn(mb_convert_encoding((string) $entry->getEntry(), 'ISO-8859-1', 'UTF-8'));
             } elseif ($entry instanceof Alert) {
                 $to = $this->plugin->txt('log_alert_to_all');
                 if (!empty($writer = $this->writerRepo->getWriterById((int) $entry->getWriterId())) && !empty($writer->getUserId())) {
                     $to = \ilObjUser::_lookupFullname($writer->getUserId());
                 }
-                $csv->addColumn(utf8_decode((string) $entry->getShownFrom()));
+                $csv->addColumn(mb_convert_encoding((string) $entry->getShownFrom(), 'ISO-8859-1', 'UTF-8'));
                 $csv->addColumn($this->plugin->txt('log_cat_alert'));
-                $csv->addColumn(utf8_decode($to));
-                $csv->addColumn(utf8_decode($entry->getMessage()));
+                $csv->addColumn(mb_convert_encoding($to, 'ISO-8859-1', 'UTF-8'));
+                $csv->addColumn(mb_convert_encoding($entry->getMessage(), 'ISO-8859-1', 'UTF-8'));
             }
         }
 

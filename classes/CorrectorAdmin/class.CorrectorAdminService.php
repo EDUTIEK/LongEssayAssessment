@@ -567,10 +567,10 @@ class CorrectorAdminService extends BaseService
             $repoWriter = $this->writerRepo->getWriterById($repoEssay->getWriterId());
             $user = new ilObjUser($repoWriter->getUserId());
             $csv->addRow();
-            $csv->addColumn(utf8_decode($user->getLogin()));
-            $csv->addColumn(utf8_decode($user->getFirstname()));
-            $csv->addColumn(utf8_decode($user->getLastname()));
-            $csv->addColumn(utf8_decode($user->getMatriculation()));
+            $csv->addColumn(mb_convert_encoding($user->getLogin(), 'ISO-8859-1', 'UTF-8'));
+            $csv->addColumn(mb_convert_encoding($user->getFirstname(), 'ISO-8859-1', 'UTF-8'));
+            $csv->addColumn(mb_convert_encoding($user->getLastname(), 'ISO-8859-1', 'UTF-8'));
+            $csv->addColumn(mb_convert_encoding($user->getMatriculation(), 'ISO-8859-1', 'UTF-8'));
             if (!empty($repoEssay->getWritingAuthorized())) {
                 $csv->addColumn($this->plugin->txt('writing_status_authorized'));
             } elseif (!empty($repoEssay->getEditStarted())) {
@@ -595,9 +595,9 @@ class CorrectorAdminService extends BaseService
                 $csv->addColumn($this->plugin->txt('correction_status_finished'));
                 $csv->addColumn((string) $repoEssay->getFinalPoints());
                 if (!empty($level = $this->localDI->getObjectRepo()->getGradeLevelById((int) $repoEssay->getFinalGradeLevelId()))) {
-                    $csv->addColumn(utf8_decode($level->getGrade()));
-                    $csv->addColumn(utf8_decode((string) $level->getCode()));
-                    $csv->addColumn(utf8_decode((string) $level->isPassed()));
+                    $csv->addColumn(mb_convert_encoding($level->getGrade(), 'ISO-8859-1', 'UTF-8'));
+                    $csv->addColumn(mb_convert_encoding((string) $level->getCode(), 'ISO-8859-1', 'UTF-8'));
+                    $csv->addColumn(mb_convert_encoding((string) $level->isPassed(), 'ISO-8859-1', 'UTF-8'));
                 }
             }
             $i = 1;
@@ -607,8 +607,8 @@ class CorrectorAdminService extends BaseService
                         $repoEssay->getId(),
                         $assignment->getCorrectorId()
                     );
-                    $csv->addColumn(utf8_decode($user->getLogin()));
-                    $csv->addColumn(utf8_decode($user->getFullname(50)));
+                    $csv->addColumn(mb_convert_encoding($user->getLogin(), 'ISO-8859-1', 'UTF-8'));
+                    $csv->addColumn(mb_convert_encoding($user->getFullname(50), 'ISO-8859-1', 'UTF-8'));
                     $csv->addColumn((string) $summary?->getPoints());
                 } else {
                     $csv->addColumn('');

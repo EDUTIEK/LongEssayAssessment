@@ -497,11 +497,12 @@ class CorrectorAdminService extends BaseService
                 ->withIncludeCommentPoints($summary->getIncludeCommentPoints() ?? $preferences->getIncludeCommentPoints())
                 ->withIncludeCriteriaPoints($summary->getIncludeCriteriaPoints() ?? $preferences->getIncludeCriteriaPoints())
                 ->withIncludeWriterNotes($summary->getIncludeWriterNotes() ?? $preferences->getIncludeWriterNotes());
-        }
-        else {
+        } else {
             foreach ($this->correctorRepo->getAssignmentsByWriterId($repoWriter->getId()) as $assignment) {
                 if (!empty($summary = $context->getCorrectionSummary(
-                        (string) $repoWriter->getId(), (string) $assignment->getCorrectorId()))
+                    (string) $repoWriter->getId(),
+                    (string) $assignment->getCorrectorId()
+                ))
                 ) {
                     $correctionSummaries[] = $summary;
                 }
@@ -533,7 +534,6 @@ class CorrectorAdminService extends BaseService
     public function createResultsExport() : string
     {
         $csv = new \ilCSVWriter();
-        $csv->setDoUTF8Decoding(true);
         $csv->setSeparator(';');
         $csv->setDelimiter('"');
 
@@ -567,10 +567,10 @@ class CorrectorAdminService extends BaseService
             $repoWriter = $this->writerRepo->getWriterById($repoEssay->getWriterId());
             $user = new ilObjUser($repoWriter->getUserId());
             $csv->addRow();
-            $csv->addColumn($user->getLogin());
-            $csv->addColumn($user->getFirstname());
-            $csv->addColumn($user->getLastname());
-            $csv->addColumn($user->getMatriculation());
+            $csv->addColumn(utf8_decode($user->getLogin()));
+            $csv->addColumn(utf8_decode($user->getFirstname()));
+            $csv->addColumn(utf8_decode($user->getLastname()));
+            $csv->addColumn(utf8_decode($user->getMatriculation()));
             if (!empty($repoEssay->getWritingAuthorized())) {
                 $csv->addColumn($this->plugin->txt('writing_status_authorized'));
             } elseif (!empty($repoEssay->getEditStarted())) {
@@ -595,21 +595,22 @@ class CorrectorAdminService extends BaseService
                 $csv->addColumn($this->plugin->txt('correction_status_finished'));
                 $csv->addColumn((string) $repoEssay->getFinalPoints());
                 if (!empty($level = $this->localDI->getObjectRepo()->getGradeLevelById((int) $repoEssay->getFinalGradeLevelId()))) {
-                    $csv->addColumn((string) $level->getGrade());
-                    $csv->addColumn((string) $level->getCode());
-                    $csv->addColumn((string) $level->isPassed());
+                    $csv->addColumn(utf8_decode($level->getGrade()));
+                    $csv->addColumn(utf8_decode((string) $level->getCode()));
+                    $csv->addColumn(utf8_decode((string) $level->isPassed()));
                 }
             }
             $i = 1;
             foreach ($this->correctorRepo->getAssignmentsByWriterId($repoWriter->getId()) as $assignment) {
                 if (!empty($user = $corrector_users[$assignment->getCorrectorId()])) {
                     $summary = $this->essayRepo->getCorrectorSummaryByEssayIdAndCorrectorId(
-                        $repoEssay->getId(), $assignment->getCorrectorId());
-                    $csv->addColumn($user->getLogin());
-                    $csv->addColumn($user->getFullname(50));
-                    $csv->addColumn($summary ? (string) $summary->getPoints() : '');
-                }
-                else {
+                        $repoEssay->getId(),
+                        $assignment->getCorrectorId()
+                    );
+                    $csv->addColumn(utf8_decode($user->getLogin()));
+                    $csv->addColumn(utf8_decode($user->getFullname(50)));
+                    $csv->addColumn((string) $summary?->getPoints());
+                } else {
                     $csv->addColumn('');
                     $csv->addColumn('');
                     $csv->addColumn('');

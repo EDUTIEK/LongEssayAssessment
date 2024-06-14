@@ -130,7 +130,7 @@ class CorrectorStartGUI extends BaseGUI
                         $writer->getPseudonym() . ': ' . $dataService->formatCorrectionResult($summary),
                         $icon
                     )
-                ])->withActionButtonLabel('ok');
+                ])->withActionButtonLabel($this->plugin->txt('remove_own_authorization'));
 
                 $actions[] = $this->uiFactory->button()->shy($this->plugin->txt('remove_own_authorization'), "")
                     ->withOnClick($remove_auth_modal->getShowSignal());
@@ -150,7 +150,7 @@ class CorrectorStartGUI extends BaseGUI
                         $icon,
                         $dataService->formatCorrectionInclusions($summary, $preferences, $this->settings)
                     )
-                ])->withActionButtonLabel('ok');
+                ])->withActionButtonLabel($this->plugin->txt('authorize_correction'));
 
                 $actions[] = $this->uiFactory->button()->shy($this->plugin->txt('authorize_correction'), "")
                     ->withOnClick($auth_modal->getShowSignal());
@@ -503,7 +503,7 @@ class CorrectorStartGUI extends BaseGUI
                 $this->plugin->txt('confirm_remove_own_authorization'),
                 $this->ctrl->getFormAction($this, "removeAuthorization")
             )->withAffectedItems($items)
-                ->withActionButtonLabel("ok")));
+                ->withActionButtonLabel($this->lng->txt("ok"))));
         } else {
             echo($this->renderer->render($this->uiFactory->modal()->roundtrip(
                 "",
@@ -553,7 +553,7 @@ class CorrectorStartGUI extends BaseGUI
                 $this->plugin->txt('confirm_authorize_correction'),
                 $this->ctrl->getFormAction($this, "authorizeCorrection")
             )->withAffectedItems($items)
-            ->withActionButtonLabel("ok")));
+            ->withActionButtonLabel($this->lng->txt("ok"))));
         } else {
             echo($this->renderer->render($this->uiFactory->modal()->roundtrip(
                 "",

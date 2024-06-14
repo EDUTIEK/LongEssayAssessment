@@ -733,7 +733,7 @@ class CorrectorAdminGUI extends BaseGUI
                 $this->plugin->txt("remove_authorizations"),
                 $this->plugin->txt("remove_authorizations_confirmation"),
                 $this->ctrl->getFormAction($this, "removeAuthorizations")
-            )->withAffectedItems($items)->withActionButtonLabel("ok");
+            )->withAffectedItems($items)->withActionButtonLabel($this->lng->txt("ok"));
         } else {
             $confirm_modal = $this->uiFactory->modal()->roundtrip(
                 $this->plugin->txt("remove_authorizations"),

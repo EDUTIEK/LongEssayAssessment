@@ -122,6 +122,10 @@ class CorrectorAdminListGUI extends WriterListGUI
                 if (!empty($essay->getCorrectionFinalized())
                     || !empty($this->localDI->getCorrectorAdminService($essay->getTaskId())->getAuthorizedSummaries($essay))
                 ) {
+                    $label = $this->correction_settings->getRequiredCorrectors() == 1
+                        ? $this->plugin->txt('remove_authorization')
+                        : $this->plugin->txt('remove_authorizations');
+
                     $modals[] = $confirm_remove_auth_modal = $this->uiFactory->modal()->interruptive(
                         $this->correction_settings->getRequiredCorrectors() == 1
                             ? $this->plugin->txt('remove_authorization')
@@ -132,15 +136,10 @@ class CorrectorAdminListGUI extends WriterListGUI
                         $writer->getId(),
                         $this->getWriterNameText($writer) . ' [' . $writer->getPseudonym() . ']',
                         $this->getUserImage($writer->getUserId())
-                    )])->withActionButtonLabel("ok");
+                    )])->withActionButtonLabel($label);
 
-                    $actions[] = $this->uiFactory->button()->shy(
-                        $this->correction_settings->getRequiredCorrectors() == 1
-                            ? $this->plugin->txt('remove_authorization')
-                            : $this->plugin->txt('remove_authorizations'),
-                        ""
-                    )
-                        ->withOnClick($confirm_remove_auth_modal->getShowSignal());
+                    $actions[] = $this->uiFactory->button()->shy($label, "")
+                                                           ->withOnClick($confirm_remove_auth_modal->getShowSignal());
                 }
 
                 $actions[] = $this->uiFactory->button()->shy($this->plugin->txt('export_steps'), $this->getExportStepsTarget($writer));

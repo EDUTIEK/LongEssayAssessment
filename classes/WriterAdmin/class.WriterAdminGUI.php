@@ -766,7 +766,7 @@ class WriterAdminGUI extends BaseGUI
                 $this->plugin->txt("change_text_to_pdf"),
                 $this->plugin->txt("change_text_to_pdf_confirmation"),
                 $this->ctrl->getFormAction($this, "changeTextToPdf")
-            )->withAffectedItems($items)->withActionButtonLabel('change');
+            )->withAffectedItems($items)->withActionButtonLabel($this->lng->txt('change'));
         }
 
         echo($this->renderer->renderAsync($change_modal));

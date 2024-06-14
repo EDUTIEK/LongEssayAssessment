@@ -54,7 +54,7 @@ class WriterAdminListGUI extends WriterListGUI
                     $this->getAuthorizeAction($writer)
                 )->withAffectedItems([
                     $this->uiFactory->modal()->interruptiveItem()->standard($writer->getUserId(), $this->getWriterNameText($writer), $this->getUserImage($writer->getUserId()))
-                ])->withActionButtonLabel("confirm");
+                ])->withActionButtonLabel($this->plugin->txt('authorize_writing'));
 
                 $modals[] = $authorize_modal;
                 $actions[] = $this->uiFactory->button()->shy($this->plugin->txt('authorize_writing'), "", )
@@ -68,7 +68,7 @@ class WriterAdminListGUI extends WriterListGUI
                     $this->getUnauthorizeAction($writer)
                 )->withAffectedItems([
                     $this->uiFactory->modal()->interruptiveItem()->standard($writer->getUserId(), $this->getWriterNameText($writer), $this->getUserImage($writer->getUserId()))
-                ])->withActionButtonLabel("confirm");
+                ])->withActionButtonLabel($this->plugin->txt('unauthorize_writing'));
 
                 $modals[] = $authorize_modal;
                 $actions[] = $this->uiFactory->button()->shy($this->plugin->txt('unauthorize_writing'), "", )
@@ -108,7 +108,7 @@ class WriterAdminListGUI extends WriterListGUI
                     $this->getRepealExclusionAction($writer)
                 )->withAffectedItems([
                     $this->uiFactory->modal()->interruptiveItem()->standard($writer->getUserId(), $this->getUsernameText($writer->getUserId()), $this->getUserImage($writer->getUserId()))
-                ])->withActionButtonLabel("confirm");
+                ])->withActionButtonLabel($this->plugin->txt("repeal_exclude_participant"));
 
 
                 $actions[] = $this->uiFactory->button()->shy($this->plugin->txt("repeal_exclude_participant"), '')

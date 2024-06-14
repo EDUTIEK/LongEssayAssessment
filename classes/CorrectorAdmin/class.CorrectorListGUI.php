@@ -42,7 +42,7 @@ class CorrectorListGUI extends WriterListGUI
                         $this->getUsernameText($corrector->getUserId()),
                         $this->getUserImage($corrector->getUserId())
                     )
-                ])->withActionButtonLabel("remove");
+                ])->withActionButtonLabel($this->plugin->txt("remove_corrector"));
 
                 $actions[] = $this->uiFactory->button()->shy($this->plugin->txt("remove_corrector"), '')
                     ->withOnClick($remove_modal->getShowSignal());

@@ -709,9 +709,8 @@ class WriterAdminGUI extends BaseGUI
             new \ilLongEssayAssessmentUploadHandlerGUI($this->storage, $this->localDI->getUploadTempFile()),
             $this->lng->txt("file"),
             $this->localDI->getUIService()->getMaxFileSizeString() . $download
-        )
-            ->withAcceptedMimeTypes(['application/pdf'])
-            ->withValue($essay->getPdfVersion() !== null ? [$essay->getPdfVersion()]: []);
+        )->withAcceptedMimeTypes(['application/pdf'])
+         ->withValue($essay->getPdfVersion() !== null ? [$essay->getPdfVersion()]: []);
 
         //		$fields["edit_time"] = $this->uiFactory->input()->field()->optionalGroup([
         //			"edit_start" => $this->uiFactory->input()->field()->dateTime($this->plugin->txt("edit_start"))->withValue($essay->getEditStarted() ?? ""),
@@ -869,6 +868,7 @@ class WriterAdminGUI extends BaseGUI
                         $this->ctrl->redirect($this);
                     } else {
                         $this->tpl->setOnScreenMessage("failure", $this->plugin->txt("pdf_version_upload_failure"), true);
+                        $this->ctrl->redirect($this, "uploadPDFVersion");
                     }
                 }
             }

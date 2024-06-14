@@ -1,4 +1,4 @@
-**PLEASE NOTE:** This version (release_2_ilias8) requires ILIAS 8 and **at least ILIAS 8.11.**
+**PLEASE NOTE:** This version (release_3_ilias9) requires ILIAS 9.
 The version for ILIAS 7 is found in the branch release1_ilias7.
 
 # LongEssayAssessment
@@ -20,22 +20,23 @@ The plugin is published for ILIAS in different branches:
 
 * **release1_ilias7** will be maintained until end of 2024. It will receive bug fixes mainly.
 * **release2_ilias8** will be maintained until April 2025 and will receive bug fixes as well as small features without breaking existing functionality and data. It may receive security fixes until end of 2025.
+* **release3_ilias9** will be maintained until April 2026 and will receive bug fixes as well as small features without breaking existing functionality and data. It may receive security fixes until end of 2026.
 * **devX_iliasY** are development branches. Please do not use them.
 
 Please consult the [CHANGELOG](CHANGELOG.md) to see the changes of different versions in this branch.
 
 ## System Requirements
 
-This version (release_2_ilias8) requires **ILIAS 8** with minor version **8.11** or higher.
+This version (release_3_ilias9) requires **ILIAS 9** with minor version **9.0** or higher.
 
 The requirements of this plugin are nearly the same as for ILIAS with the following exceptions:
 
-* **PHP 7.4** or **PHP 8.0** is required. 
+* **PHP 8.1** or **PHP 8.2** is required. 
 
 * The following PHP extensions are required by the plugin: **curl, dom, gd, imagick, json, xml, xsl**. On Debian/Ubuntu execute:
 
 ````
-    apt-get install php8.0-curl, php8.0-dom, php8.0-gd, php8.0-imagick, php8.0-json, php8.0-xml, php8.0-xsl
+    apt-get install php8.2-curl, php8.2-dom, php8.2-gd, php8.2-imagick, php8.2-json, php8.2-xml, php8.2-xsl
 ````
 The PHP imagick extension uses Imagemagick and ghostscript to convert uploaded PDF files to images. On Debian/Ubuntu execute:
 

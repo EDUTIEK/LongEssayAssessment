@@ -9,7 +9,5 @@
 - writer: fixed paste from word with fake numbered lists
 - writer: fixed wring display of numbering on preview screen when sendings are open
 - corrector: fixed problems with loading resources and pages in safari
-
-## Version 2.1 (2024-05-15)
-- First published version for ILIAS 8
-- Corresponds functionally to version 1.6 for ILIAS 7
+- First published version for ILIAS 9
+- Corresponds functionally to version 8.1 for ILIAS 8

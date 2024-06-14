@@ -6,6 +6,11 @@
 - plugin: general cron job support [cron job support](https://github.com/EDUTIEK/LongEssayAssessmentCron/)
 - plugin: disable correction reviews
 - plugin: send review notifications after finalization and within review period via cron job
+- plugin: fix huge user images in remove/repeal participant confirmation modal
+- plugin: fix double file error in pdf version upload, when nothing was changed
+- plugin: fix possibility to remove pdf version uploads
+- plugin: fix corrector assignment file upload error handling with required file
+- plugin: fix str_word_count on null in corrector assignment file export
 - service: reduce size of correction PDF
 - service: fix wrong end date in PDF header
 - service: fixed removing of empty lines

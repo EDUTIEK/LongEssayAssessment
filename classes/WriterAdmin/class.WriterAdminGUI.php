@@ -488,7 +488,7 @@ class WriterAdminGUI extends BaseGUI
             $this->plugin->txt("delete_writer_data"),
             $this->plugin->txt("delete_writer_data_confirmation"),
             $this->ctrl->getLinkTarget($this, "deleteWriterData")
-        )->withActionButtonLabel("remove");
+        )->withActionButtonLabel($this->lng->txt("remove"));
     }
 
     private function exportSteps()

@@ -136,7 +136,7 @@ class WriterAdminListGUI extends WriterListGUI
                 $this->getRemoveAction($writer)
             )->withAffectedItems([
                 $this->uiFactory->modal()->interruptiveItem()->standard($writer->getUserId(), $this->getUsernameText($writer->getUserId()), $this->getUserImage($writer->getUserId()))
-            ])->withActionButtonLabel("remove");
+            ])->withActionButtonLabel($this->plugin->txt("remove_writer"));
 
             $actions[] = $this->uiFactory->button()->shy($this->plugin->txt("remove_writer"), '')
                 ->withOnClick($remove_modal->getShowSignal());

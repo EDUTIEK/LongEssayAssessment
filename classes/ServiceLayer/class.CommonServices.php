@@ -10,6 +10,7 @@ use ILIAS\ResourceStorage\StorageHandler\FileSystemBased\MaxNestingFileSystemSto
 use ILIAS\FileUpload\Location;
 use ILIAS\ResourceStorage\StorageHandler\FileSystemBased\FileSystemStorageHandler;
 use ILIAS\FileDelivery\Delivery;
+use ILIAS\Plugin\LongEssayAssessment\ServiceLayer\Common\UserDataHelper;
 
 /**
  * Container for common services
@@ -34,10 +35,11 @@ class CommonServices
 
         // fill the container
 
-        $service_dic['file_helper'] = function()  {
+        $service_dic['file_helper'] = function () {
             return new FileHelper(
                 $this->global_dic->resourceStorage()->manage(),
-                new StorageHandlerFactory([
+                new StorageHandlerFactory(
+                    [
                         new MaxNestingFileSystemStorageHandler($this->global_dic->filesystem()->storage(), Location::STORAGE),
                         new FileSystemStorageHandler($this->global_dic->filesystem()->storage(), Location::STORAGE)
                     ],
@@ -48,6 +50,10 @@ class CommonServices
                 $this->global_dic->http()
             );
         };
+
+        $service_dic['user_data_helper'] = function () {
+            return new UserDataHelper($this->global_dic->language(), $this->global_dic->ui()->factory());
+        };
     }
 
     public function fileHelper() : FileHelper
@@ -55,4 +61,8 @@ class CommonServices
         return $this->service_dic['file_helper'];
     }
 
+    public function userDataHelper() : UserDataHelper
+    {
+        return $this->service_dic['user_data_helper'];
+    }
 }

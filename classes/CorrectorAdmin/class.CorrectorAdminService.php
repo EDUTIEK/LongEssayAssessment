@@ -437,13 +437,13 @@ class CorrectorAdminService extends BaseService
         $tempdir = 'xlas/'. (new UUID)->uuid4AsString();
         $zipdir = $tempdir . '/' . ilFileDelivery::returnASCIIFilename($object->getTitle());
         $storage->createDir($zipdir);
-
+        $user_data_helper = $this->localDI->services()->common()->userDataHelper();
         $repoTask = $this->taskRepo->getTaskSettingsById($object->getId());
         $writerAdminService = $this->localDI->getWriterAdminService($repoTask->getTaskId());
         foreach ($this->essayRepo->getEssaysByTaskId($repoTask->getTaskId()) as $repoEssay) {
             $repoWriter = $this->writerRepo->getWriterById($repoEssay->getWriterId());
 
-            $subdir = ilFileDelivery::returnASCIIFilename(\ilObjUser::_lookupFullname($repoWriter->getUserId()) . ' (' . \ilObjUser::_lookupLogin($repoWriter->getUserId()) . ')');
+            $subdir = ilFileDelivery::returnASCIIFilename($user_data_helper->getFullname($repoWriter->getUserId()) . ' (' . $user_data_helper->getLogin($repoWriter->getUserId()) . ')');
             $storage->createDir($zipdir . '/' . $subdir);
 
             $filename = $subdir . '-writing.pdf';

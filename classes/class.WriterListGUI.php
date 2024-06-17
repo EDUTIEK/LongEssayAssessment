@@ -16,6 +16,7 @@ abstract class WriterListGUI
 {
     const FILTER_YES= "1";
     const FILTER_NO = "2";
+    protected \ILIAS\Plugin\LongEssayAssessment\ServiceLayer\Common\UserDataHelper $user_data_helper;
 
     /**
      * @var Essay[]
@@ -28,20 +29,11 @@ abstract class WriterListGUI
     protected $writers = [];
 
     protected $user_ids = [];
-    /**
-     * @var array
-     */
-    protected $user_data = [];
 
     /**
      * @var Location[]
      */
     private array $locations = [];
-
-    /**
-     * @var bool
-     */
-    protected $user_data_loaded = false;
 
     protected \ILIAS\UI\Factory $uiFactory;
     protected \ilCtrl $ctrl;
@@ -66,6 +58,7 @@ abstract class WriterListGUI
         $this->renderer = $DIC->ui()->renderer();
         $this->localDI = LongEssayAssessmentDI::getInstance();
         $this->ui_service = $DIC->uiService();
+        $this->user_data_helper = $this->localDI->services()->common()->userDataHelper();
     }
 
     abstract public function getContent():string;
@@ -112,37 +105,10 @@ abstract class WriterListGUI
         }
     }
 
-    /**
-     * Get Username
-     *
-     * @param int $user_id
-     * @return mixed|string
-     */
-    private function getUsername(int $user_id)
-    {
-        if(!$this->user_data_loaded) {
-            throw new Exception("getUsername was called without loading usernames.");
-        }
-
-        if(isset($this->user_data[$user_id])) {
-            return $this->user_data[$user_id];
-        } elseif (!empty($fullname = \ilObjUser::_lookupFullname($user_id))) {
-            return $fullname;
-        }
-
-        return ' - ';
-    }
-
     protected function getUsernameLink(int $user_id)
     {
-        $username = $this->getUsername($user_id);
-        preg_match('/href="(.+?)"/', $username, $matches);
-        $href = $matches[1] ?? "";
-        $label = strip_tags($username);
-
-        return $href !== ""
-            ? $this->uiFactory->link()->standard($label, $href)
-            : $label;
+        $back = $this->ctrl->getLinkTarget($this->parent);
+        return $this->user_data_helper->getUserProfileLink($user_id, $back, false, null) ?? $this->getUsernameText($user_id);
     }
 
     /**
@@ -152,7 +118,7 @@ abstract class WriterListGUI
      */
     protected function getUsernameText(int $user_id): string
     {
-        return strip_tags($this->getUsername($user_id));
+        return $this->user_data_helper->getPresentation($user_id, false, ' - ');
     }
 
     /**
@@ -194,14 +160,7 @@ abstract class WriterListGUI
      */
     protected function getUserIcon(int $user_id): Icon
     {
-        $name = $this->getUsername($user_id, false);
-        preg_match('/src="(.+?)"/', $name, $matches);
-        $src = $matches[1] ?? "";
-        $label = $this->plugin->txt("icon_label") . " " . strip_tags($name);
-
-        return $src !== ""
-            ? $this->uiFactory->symbol()->icon()->custom($src, $label, "medium")
-            : $this->uiFactory->symbol()->icon()->standard("usr", "", "medium");
+        return $this->user_data_helper->getUserIcon($user_id, $this->uiFactory->symbol()->icon()->standard("usr", "", "medium"));
     }
 
     /**
@@ -212,14 +171,7 @@ abstract class WriterListGUI
      */
     protected function getUserImage(int $user_id): ?Image
     {
-        $name = $this->getUsername($user_id, false);
-        preg_match('/src="(.+?)"/', $name, $matches);
-        $src = $matches[1] ?? "";
-        $label = $this->plugin->txt("icon_label") . " " . strip_tags($name);
-
-        return $src !== ""
-            ? $this->uiFactory->image()->standard($src, $label)
-            : null;
+        return $this->user_data_helper->getUserImage($user_id, null);
     }
 
     /**
@@ -228,9 +180,7 @@ abstract class WriterListGUI
      */
     protected function loadUserData()
     {
-        $back = $this->ctrl->getLinkTarget($this->parent);
-        $this->user_data = \ilUserUtil::getNamePresentation(array_unique($this->user_ids), true, true, $back, true);
-        $this->user_data_loaded = true;
+        $this->user_data_helper->preload($this->user_ids);
     }
 
     /**
@@ -254,14 +204,7 @@ abstract class WriterListGUI
      */
     protected function sortWriterOrCorrector(array &$target_array, callable $custom_sort = null)
     {
-        if(!$this->user_data_loaded) {
-            throw new Exception("sortWriterOrCorrector was called without loading usernames.");
-        }
-
-        $names = [];
-        foreach ($this->user_data as $usr_id => $name) {
-            $names[$usr_id] = strip_tags($name);
-        }
+        $names = iterator_to_array($this->user_data_helper->getNames($this->user_ids));
 
         $by_name = function ($a, $b) use ($names) {
             $name_a = array_key_exists($a->getUserId(), $names) ? $names[$a->getUserId()] : "ÿ";

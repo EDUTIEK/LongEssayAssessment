@@ -15,6 +15,7 @@ abstract class CriteriaGUI extends BaseGUI
     private CustomFactory $custom_factory;
     private ObjectRepository $object_repo;
     private CorrectorRepository $corrector_repo;
+    private \ILIAS\Plugin\LongEssayAssessment\ServiceLayer\Common\UserDataHelper $user_data_helper;
 
     public function __construct(\ilObjLongEssayAssessmentGUI $objectGUI)
     {
@@ -23,6 +24,7 @@ abstract class CriteriaGUI extends BaseGUI
         $this->custom_factory = $this->localDI->getUIFactory();
         $this->object_repo = $this->localDI->getObjectRepo();
         $this->corrector_repo = $this->localDI->getCorrectorRepo();
+        $this->user_data_helper = $this->localDI->services()->common()->userDataHelper();
     }
 
     public function executeCommand()
@@ -261,8 +263,10 @@ abstract class CriteriaGUI extends BaseGUI
                 }
                 if($from_corrector_id !== null) {
                     $corrector = $this->corrector_repo->getCorrectorById($from_corrector_id);
-                    $names = \ilUserUtil::getNamePresentation([$corrector->getUserId()], false, false, "", true);
-                    $title = sprintf($this->plugin->txt('criteria_from'), $names[$corrector->getUserId()]);
+                    $title = sprintf(
+                        $this->plugin->txt('criteria_from'),
+                        $this->user_data_helper->getPresentation($corrector->getUserId())
+                    );
                 } else {
                     $title = $this->plugin->txt('criteria_template');
                 }
@@ -375,13 +379,7 @@ abstract class CriteriaGUI extends BaseGUI
         $corrector_id = $this->getCorrectorIdFromContext();
 
         $items = [];
-        $names = \ilUserUtil::getNamePresentation(
-            array_unique(array_map(fn ($x) => $x["usr_id"], $group)),
-            false,
-            false,
-            "",
-            true
-        );
+        $names = $this->user_data_helper->getNames(array_map(fn ($x) => $x["usr_id"], $group));
 
         foreach ($group as $item) {
             if($item["corrector_id"] == $corrector_id) {

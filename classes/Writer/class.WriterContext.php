@@ -105,6 +105,8 @@ class WriterContext extends ServiceContext implements Context
     public function getWrittenEssay(): WrittenEssay
     {
         $repoEssay = $this->getRepoEssay();
+        $userDataHelper = $this->localDI->services()->common()->userDataHelper();
+
         return new WrittenEssay(
             $repoEssay->getWrittenText(),
             $repoEssay->getRawTextHash(),
@@ -113,7 +115,7 @@ class WriterContext extends ServiceContext implements Context
             $this->data->dbTimeToUnix($repoEssay->getEditEnded()),
             !empty($repoEssay->getWritingAuthorized()),
             $this->data->dbTimeToUnix($repoEssay->getWritingAuthorized()),
-            !empty($repoEssay->getWritingAuthorized()) ? \ilObjUser::_lookupFullname($repoEssay->getWritingAuthorizedBy()) : null
+            !empty($repoEssay->getWritingAuthorized()) ? $userDataHelper->getFullname($repoEssay->getWritingAuthorizedBy()) : null
         );
     }
 

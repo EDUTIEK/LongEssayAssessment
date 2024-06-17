@@ -481,6 +481,7 @@ class CorrectorContext extends ServiceContext implements Context
             (int) $item_key,
             $this->task->getTaskId()
         ))) {
+            $user_data_helper = $this->localDI->services()->common()->userDataHelper();
             $writtenEssay = new WrittenEssay(
                 $repoEssay->getWrittenText(),
                 $repoEssay->getRawTextHash(),
@@ -489,13 +490,13 @@ class CorrectorContext extends ServiceContext implements Context
                 $this->data->dbTimeToUnix($repoEssay->getEditEnded()),
                 !empty($repoEssay->getWritingAuthorized()),
                 $this->data->dbTimeToUnix($repoEssay->getWritingAuthorized()),
-                !empty($repoEssay->getWritingAuthorized()) ? \ilObjUser::_lookupFullname($repoEssay->getWritingAuthorizedBy()) : null
+                !empty($repoEssay->getWritingAuthorized()) ? $user_data_helper->getFullname($repoEssay->getWritingAuthorizedBy()) : null
             );
 
             if ($repoEssay->getCorrectionFinalized()) {
                 $writtenEssay = $writtenEssay
                     ->withCorrectionFinalized($this->data->dbTimeToUnix($repoEssay->getCorrectionFinalized()))
-                    ->withCorrectionFinalizedBy(\ilObjUser::_lookupFullname($repoEssay->getCorrectionFinalizedBy()))
+                    ->withCorrectionFinalizedBy($user_data_helper->getFullname($repoEssay->getCorrectionFinalizedBy()))
                     ->withFinalPoints($repoEssay->getFinalPoints())
                     ->withFinalGrade($this->localDI->getObjectRepo()->ifGradeLevelExistsById((int) $repoEssay->getFinalGradeLevelId()) ?
                         $this->localDI->getObjectRepo()->getGradeLevelById((int) $repoEssay->getFinalGradeLevelId())->getGrade() : '')
@@ -601,6 +602,7 @@ class CorrectorContext extends ServiceContext implements Context
                 $repoCorrector->getId()
             )
             )) {
+                $user_data_helper = $this->localDI->services()->common()->userDataHelper();
                 return new CorrectionSummary(
                     $item_key,
                     $corrector_key,
@@ -614,7 +616,7 @@ class CorrectorContext extends ServiceContext implements Context
                     $repoSummary->getIncludeCommentPoints(),
                     $repoSummary->getIncludeCriteriaPoints(),
                     $repoSummary->getIncludeWriterNotes(),
-                    \ilObjUser::_lookupFullname($repoCorrector->getUserId()),
+                    $user_data_helper->getFullname($repoCorrector->getUserId()),
                     $this->localDI->getObjectRepo()->ifGradeLevelExistsById((int) $repoSummary->getGradeLevelId()) ?
                         $this->localDI->getObjectRepo()->getGradeLevelById((int) $repoSummary->getGradeLevelId())->getGrade() : ''
                 );

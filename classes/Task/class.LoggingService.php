@@ -11,6 +11,7 @@ use ILIAS\Plugin\LongEssayAssessment\Data\Writer\WriterRepository;
 
 class LoggingService extends BaseService
 {
+    private \ILIAS\Plugin\LongEssayAssessment\ServiceLayer\Common\UserDataHelper $user_data_helper;
     /** @var TaskRepository */
     protected $taskRepo;
 
@@ -32,6 +33,7 @@ class LoggingService extends BaseService
         $this->task_id = $task_id;
         $this->taskRepo = $this->localDI->getTaskRepo();
         $this->writerRepo = $this->localDI->getWriterRepo();
+        $this->user_data_helper = $this->localDI->services()->common()->userDataHelper();
     }
 
     /**
@@ -48,7 +50,7 @@ class LoggingService extends BaseService
         $timestamp = (new \ilDateTime(time(), IL_CAL_UNIX))->get(IL_CAL_DATETIME);
         $category = LogEntry::CATEGORY_BY_TYPE[$type] ?? LogEntry::CATEGORY_NOTE;
 
-        $names = \ilUserUtil::getNamePresentation([$subject_user_id, $object_user_id], false, false, "", true);
+        $names = $this->user_data_helper->getNames([$subject_user_id, $object_user_id]);
         $subject = $names[$subject_user_id] ?? $this->plugin->txt('unknown', $lang);
         $object = $names[$object_user_id] ?? $this->plugin->txt('unknown', $lang);
 
@@ -127,7 +129,7 @@ class LoggingService extends BaseService
             } elseif ($entry instanceof Alert) {
                 $to = $this->plugin->txt('log_alert_to_all');
                 if (!empty($writer = $this->writerRepo->getWriterById((int) $entry->getWriterId())) && !empty($writer->getUserId())) {
-                    $to = \ilObjUser::_lookupFullname($writer->getUserId());
+                    $to = $this->user_data_helper->getFullname($writer->getUserId());
                 }
                 $csv->addColumn(mb_convert_encoding((string) $entry->getShownFrom(), 'ISO-8859-1', 'UTF-8'));
                 $csv->addColumn($this->plugin->txt('log_cat_alert'));

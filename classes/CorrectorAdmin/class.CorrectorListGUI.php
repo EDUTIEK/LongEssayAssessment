@@ -163,14 +163,7 @@ class CorrectorListGUI extends WriterListGUI
      */
     protected function sortAssignments()
     {
-        if(!$this->user_data_loaded) {
-            throw new Exception("sortAssignments was called without loading usernames.");
-        }
-
-        $names = [];
-        foreach ($this->user_data as $usr_id => $name) {
-            $names[$usr_id] = strip_tags($name);
-        }
+        $names = $this->user_data_helper->getNames($this->user_ids);
 
         $by_name = function (CorrectorAssignment $a, CorrectorAssignment$b) use ($names) {
             $rating = $a->getPosition() - $b->getPosition();

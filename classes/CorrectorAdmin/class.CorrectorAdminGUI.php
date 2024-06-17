@@ -30,6 +30,7 @@ use ilFileDelivery;
  */
 class CorrectorAdminGUI extends BaseGUI
 {
+    private \ILIAS\Plugin\LongEssayAssessment\ServiceLayer\Common\UserDataHelper $user_data_helper;
     protected CorrectorAdminService $service;
     protected CorrectorAssignmentsService  $assignment_service;
     protected CorrectionSettings $settings;
@@ -40,6 +41,7 @@ class CorrectorAdminGUI extends BaseGUI
         $this->service = $this->localDI->getCorrectorAdminService($this->object->getId());
         $this->assignment_service = $this->localDI->getCorrectorAssignmentService($this->object->getId());
         $this->settings = $this->localDI->getTaskRepo()->getCorrectionSettingsById($this->object->getId());
+        $this->user_data_helper = $this->localDI->services()->common()->userDataHelper();
     }
 
     /**
@@ -249,7 +251,7 @@ class CorrectorAdminGUI extends BaseGUI
     public function addAllCourseTutors()
     {
         $user_ids = $this->object_services->iliasContext()->getCourseTutors();
-
+        $this->user_data_helper->preload($user_ids);
         // Confirmation
         if ($this->request->getMethod() != 'POST') {
             ;
@@ -257,7 +259,7 @@ class CorrectorAdminGUI extends BaseGUI
             foreach ($user_ids as $user_id) {
                 $items[] = $this->uiFactory->modal()->interruptiveItem()->standard(
                     $user_id,
-                    \ilObjUser::_lookupFullname($user_id)
+                    $this->user_data_helper->getPresentation($user_id)
                 );
             }
             $modal = $this->uiFactory->modal()->interruptive(
@@ -450,17 +452,19 @@ class CorrectorAdminGUI extends BaseGUI
                 }
             }
         }
+        $this->user_data_helper->preload(array_map(fn ($x) => $x->getUserId(), array_merge($valid, $invalid)));
+
         if(count($invalid) > 0) {
             $names = [];
             foreach ($invalid as $writer) {
-                $names[] = \ilObjUser::_lookupFullname($writer->getUserId()) . ' [' . $writer->getPseudonym() . ']';
+                $names[] = $this->user_data_helper->getPresentation($writer->getUserId(), true) . ' [' . $writer->getPseudonym() . ']';
             }
             $this->tpl->setOnScreenMessage("failure", sprintf($this->plugin->txt('remove_authorizations_for_failed'), implode(", ", $names)), true);
         }
         if(count($valid) > 0) {
             $names = [];
             foreach ($valid as $writer) {
-                $names[] = \ilObjUser::_lookupFullname($writer->getUserId()) . ' [' . $writer->getPseudonym() . ']';
+                $names[] = $this->user_data_helper->getPresentation($writer->getUserId(), true) . ' [' . $writer->getPseudonym() . ']';
             }
             $this->tpl->setOnScreenMessage("success", sprintf($this->plugin->txt('remove_authorizations_for_done'), implode(", ", $names)), true);
         }
@@ -521,7 +525,7 @@ class CorrectorAdminGUI extends BaseGUI
         }
 
         $service = $this->localDI->getWriterAdminService($this->object->getId());
-        $name = ilFileDelivery::returnASCIIFilename($this->object->getTitle() .'_' . \ilObjUser::_lookupFullname($repoWriter->getUserId()));
+        $name = ilFileDelivery::returnASCIIFilename($this->object->getTitle() .'_' . $this->user_data_helper->getFullname($repoWriter->getUserId()));
         $zipfile = $service->createWritingStepsExport($this->object, $repoWriter, $name);
         if (empty($zipfile)) {
             $this->tpl->setOnScreenMessage("failure", $this->plugin->txt("content_not_available"), true);
@@ -586,7 +590,7 @@ class CorrectorAdminGUI extends BaseGUI
         foreach($corrector_repo->getCorrectorsByTaskId($this->object->getId()) as $corrector) {
             $corrector_ids[$corrector->getId()] = $corrector->getUserId();
         }
-        $names = \ilUserUtil::getNamePresentation(array_unique($corrector_ids), false, false, "", true);
+        $names = $this->user_data_helper->getNames($corrector_ids);
 
         foreach ($corrector_ids as $id => $user_id) {
             $corrector_list[$id] = $names[$user_id];
@@ -711,8 +715,7 @@ class CorrectorAdminGUI extends BaseGUI
             $essays[$essay->getWriterId()] = $essay;
         }
 
-        $user_data = \ilUserUtil::getNamePresentation(array_unique(array_map(fn (Writer $x) => $x->getUserId(), $writers)), true, true, "", true);
-
+        $user_data = $this->user_data_helper->getNames(array_map(fn (Writer $x) => $x->getUserId(), $writers));
         $items = [];
 
         foreach ($writer_ids as $writer_id) {

@@ -415,6 +415,7 @@ abstract class ServiceContext implements BaseContext
     {
         $repoWriter = $this->localDI->getWriterRepo()->getWriterById($writer_id);
         $repoEssay = $this->localDI->getEssayRepo()->getEssayByWriterIdAndTaskId($writer_id, $this->task->getTaskId());
+        $userDataHelper = $this->localDI->services()->common()->userDataHelper();
 
         $writing_end = $this->data->dbTimeToUnix($this->task->getWritingEnd());
         if (!empty($writing_end)
@@ -426,7 +427,7 @@ abstract class ServiceContext implements BaseContext
         return new WritingTask(
             (string) $this->object->getTitle(),
             (string) $this->task->getInstructions(),
-            isset($repoWriter) ? \ilObjUser::_lookupFullname($repoWriter->getUserId()) : '',
+            isset($repoWriter) ? $userDataHelper->getFullname($repoWriter->getUserId()) : '',
             $writing_end,
             $this->data->dbTimeToUnix($repoEssay->getWritingExcluded())
         );

@@ -12,14 +12,13 @@ class WriterAdminLogListGUI
     const MODE_ATTR = "mode";
     const PAGE_ATTR = "page";
     const PAGE_SIZE = 10;
+    private \ILIAS\Plugin\LongEssayAssessment\ServiceLayer\Common\UserDataHelper $user_data_helper;
     /**
      * @var mixed[]
      */
     protected $entries = [];
 
     protected $user_ids = [];
-
-    protected $user_data = [];
 
     /**
      * @var Writer[]
@@ -45,6 +44,7 @@ class WriterAdminLogListGUI
         $this->plugin = $plugin;
         $this->renderer = $DIC->ui()->renderer();
         $this->task_id = $task_id;
+        $this->user_data_helper = LongEssayAssessmentDI::getInstance()->services()->common()->userDataHelper();
     }
 
 
@@ -57,8 +57,10 @@ class WriterAdminLogListGUI
             $id = -1;
             if(array_key_exists($alert->getWriterId(), $this->writer)) {
                 $id = $this->writer[$alert->getWriterId()]->getUserId();
+                $recipient = $this->getUsername($id);
+            } else {
+                $recipient = " - ";
             }
-            $recipient = $this->getUsername($id);
         } else {
             $recipient = $this->plugin->txt("alert_recipient_all");
         }
@@ -277,14 +279,16 @@ class WriterAdminLogListGUI
      */
     protected function getUsername($user_id, $strip_img = false)
     {
-        if(isset($this->user_data[$user_id])) {
-            if($strip_img) {
-                return strip_tags($this->user_data[$user_id], ["a"]);
-            } else {
-                return $this->user_data[$user_id];
-            }
+        $back = $this->ctrl->getLinkTarget($this->parent);
+        $no_user = $this->uiFactory->legacy(" - ");
+        if($strip_img) {
+            return $this->renderer->render([$this->user_data_helper->getUserProfileLink($user_id, $back, false, $no_user)]);
         }
-        return ' - ';
+
+        return $this->renderer->render([
+            $this->user_data_helper->getUserIcon($user_id),
+            $this->user_data_helper->getUserProfileLink($user_id, $back, false, $no_user)
+        ]);
     }
 
     /**
@@ -293,8 +297,7 @@ class WriterAdminLogListGUI
      */
     protected function loadUserData()
     {
-        $back = $this->ctrl->getLinkTarget($this->parent);
-        $this->user_data = \ilUserUtil::getNamePresentation(array_unique($this->user_ids), true, true, $back, true);
+        $this->user_data_helper->preload($this->user_ids);
     }
 
     /**

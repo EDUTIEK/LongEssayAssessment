@@ -25,6 +25,7 @@ use ILIAS\Plugin\LongEssayAssessment\Data\Task\CorrectionSettings;
  */
 class DataService extends BaseService
 {
+    private \ILIAS\Plugin\LongEssayAssessment\ServiceLayer\Common\UserDataHelper $userDataHelper;
     protected WriterRepository $writerRepo;
     protected EssayRepository $essayRepo;
     protected CorrectorRepository $correctorRepo;
@@ -67,6 +68,7 @@ class DataService extends BaseService
         $this->writerRepo = $this->localDI->getWriterRepo();
         $this->essayRepo = $this->localDI->getEssayRepo();
         $this->correctorRepo = $this->localDI->getCorrectorRepo();
+        $this->userDataHelper = $this->localDI->services()->common()->userDataHelper();
     }
 
     /**
@@ -274,7 +276,7 @@ class DataService extends BaseService
                 // no break
             case Essay::WRITING_STATUS_EXCLUDED:
                 return $this->plugin->txt('writing_excluded_from') . " " .
-                    \ilObjUser::_lookupFullname($essay->getWritingExcludedBy());
+                    $this->userDataHelper->getPresentation($essay->getWritingExcludedBy());
             case Essay::WRITING_STATUS_AUTHORIZED:
                 return $this->plugin->txt('writing_status_authorized');
         }
@@ -598,8 +600,7 @@ class DataService extends BaseService
             $summary = $this->localDI->getEssayRepo()->getCorrectorSummaryByEssayIdAndCorrectorId($essay->getId(), $corrector->getId());
         }
 
-        return \ilObjUser::_lookupFullname($corrector->getUserId())
-            . ' ('. \ilObjUser::_lookupLogin($corrector->getUserId()) . ')'
+        return $this->userDataHelper->getPresentation($corrector->getUserId())
             . ' - ' . $this->formatCorrectionResult($summary, $onlyStatus, true);
 
     }

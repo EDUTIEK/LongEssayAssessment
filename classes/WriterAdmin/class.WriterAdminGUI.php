@@ -29,6 +29,7 @@ use ilFileDelivery;
  */
 class WriterAdminGUI extends BaseGUI
 {
+    private \ILIAS\Plugin\LongEssayAssessment\ServiceLayer\Common\UserDataHelper $user_data_helper;
     protected LoggingService $loggingService;
     protected WriterAdminService $writerAdminService;
 
@@ -37,6 +38,7 @@ class WriterAdminGUI extends BaseGUI
         parent::__construct($objectGUI);
         $this->loggingService = $this->localDI->getLoggingService($this->object->getId());
         $this->writerAdminService = $this->localDI->getWriterAdminService($this->object->getId());
+        $this->user_data_helper = $this->localDI->services()->common()->userDataHelper();
     }
 
     /**
@@ -198,8 +200,7 @@ class WriterAdminGUI extends BaseGUI
     {
         $writer_ids = $this->getWriterIds();
         $writers = $this->localDI->getWriterRepo()->getWritersByTaskId($this->object->getId());
-        $user_data = \ilUserUtil::getNamePresentation(array_unique(array_map(fn (Writer $x) => $x->getUserId(), $writers)), true, true, "", true);
-
+        $user_data = $this->user_data_helper->getNames(array_map(fn (Writer $x) => $x->getUserId(), $writers));
         $items = [];
 
         foreach ($writer_ids as $writer_id) {
@@ -499,7 +500,7 @@ class WriterAdminGUI extends BaseGUI
         }
 
         $service = $this->localDI->getWriterAdminService($this->object->getId());
-        $name = ilFileDelivery::returnASCIIFilename($this->object->getTitle() .'_' . \ilObjUser::_lookupFullname($repoWriter->getUserId()));
+        $name = ilFileDelivery::returnASCIIFilename($this->object->getTitle() .'_' . $this->user_data_helper->getFullname($repoWriter->getUserId()));
         $zipfile = $service->createWritingStepsExport($this->object, $repoWriter, $name);
         if (empty($zipfile)) {
             $this->tpl->setOnScreenMessage("failure", $this->plugin->txt("content_not_available"), true);
@@ -731,7 +732,7 @@ class WriterAdminGUI extends BaseGUI
         
         $writer_ids = $this->getWriterIds();
         $writers = $this->localDI->getWriterRepo()->getWritersByTaskId($this->object->getId());
-        $user_data = \ilUserUtil::getNamePresentation(array_unique(array_map(fn (Writer $x) => $x->getUserId(), $writers)), true, true, "", true);
+        $user_data = $this->user_data_helper->getNames(array_map(fn (Writer $x) => $x->getUserId(), $writers));
 
         $items = [];
         foreach ($writer_ids as $writer_id) {
@@ -873,16 +874,15 @@ class WriterAdminGUI extends BaseGUI
                 }
             }
 
-            $names = \ilUserUtil::getNamePresentation(
-                [$writer->getUserId()],
-                true,
-                true,
+            $name =  $this->user_data_helper->getUserProfileLink(
+                $writer->getUserId(),
                 $this->ctrl->getLinkTarget($this, "uploadPDFVersion"),
-                true
-            );
+                false,
+                null
+            ) ?? $this->user_data_helper->getPresentation($writer->getUserId());
 
             $user_properties = [
-                "" => $names[$writer->getUserId()],
+                "" => $name,
                 $this->plugin->txt("pseudonym") => $writer->getPseudonym()
             ];
 
@@ -942,7 +942,7 @@ class WriterAdminGUI extends BaseGUI
             $name = ilFileDelivery::returnASCIIFilename(
                 $this->object->getTitle() . '_' .
                 $this->plugin->txt("pdf_version") . '_' .
-                \ilObjUser::_lookupFullname($writer->getUserId())
+                $this->user_data_helper->getFullname($writer->getUserId())
             );
 
             $this->storage->consume()->download($identifier)->overrideFileName($name . ".pdf")->run();

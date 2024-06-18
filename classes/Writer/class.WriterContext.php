@@ -40,8 +40,7 @@ class WriterContext extends ServiceContext implements Context
         if (!empty($config->getWriterUrl())) {
             return $config->getWriterUrl();
         } else {
-            return  ILIAS_HTTP_PATH
-                . "/Customizing/global/plugins/Services/Repository/RepositoryObject/LongEssayAssessment"
+            return  $this->getPluginHttpPath()
                 . "/vendor/edutiek/long-essay-assessment-service"
                 . "/" . Service::getFrontendRelativeUrl();
         }
@@ -53,8 +52,8 @@ class WriterContext extends ServiceContext implements Context
      */
     public function getBackendUrl(): string
     {
-        return  ILIAS_HTTP_PATH
-            . "/Customizing/global/plugins/Services/Repository/RepositoryObject/LongEssayAssessment/writer_service.php"
+        return  $this->getPluginHttpPath()
+            . "/writer_service.php"
             . "?client_id=" . CLIENT_ID;
     }
 

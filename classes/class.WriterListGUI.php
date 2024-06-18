@@ -204,7 +204,7 @@ abstract class WriterListGUI
      */
     protected function sortWriterOrCorrector(array &$target_array, callable $custom_sort = null)
     {
-        $names = iterator_to_array($this->user_data_helper->getNames($this->user_ids));
+        $names = $this->user_data_helper->getNames($this->user_ids);
 
         $by_name = function ($a, $b) use ($names) {
             $name_a = array_key_exists($a->getUserId(), $names) ? $names[$a->getUserId()] : "ÿ";

@@ -24,8 +24,6 @@ use ILIAS\Plugin\LongEssayAssessment\Data\Corrector\Corrector;
  */
 class CorrectorAdminStatisticsGUI extends BaseGUI
 {
-    private \ILIAS\Plugin\LongEssayAssessment\ServiceLayer\Common\UserDataHelper $user_data_helper;
-
     /** @var CorrectorAdminService */
     protected $service;
 
@@ -33,7 +31,6 @@ class CorrectorAdminStatisticsGUI extends BaseGUI
     {
         parent::__construct($objectGUI);
         $this->service = $this->localDI->getCorrectorAdminService($this->object->getId());
-        $this->user_data_helper = $this->localDI->services()->common()->userDataHelper();
     }
 
     /**
@@ -73,7 +70,7 @@ class CorrectorAdminStatisticsGUI extends BaseGUI
         $correctors = $corrector_repo->getCorrectorsByTaskId($this->object->getId());
         $summaries = $essay_repo->getCorrectorSummariesByTaskId($this->object->getId());
         $grade_level = $object_repo->getGradeLevelsByObjectId($this->object->getId());
-        $usernames = $this->user_data_helper->getNames(array_map(fn (Corrector $x) => $x->getUserId(), $correctors));
+        $usernames = $this->common_services->userDataHelper()->getNames(array_map(fn (Corrector $x) => $x->getUserId(), $correctors));
         $summary_statistics = $corrector_service->gradeStatistics($summaries);
         $essays = $essay_repo->getEssaysByTaskId($this->object->getId());
         $essay_statistics = $corrector_service->gradeStatistics($essays);

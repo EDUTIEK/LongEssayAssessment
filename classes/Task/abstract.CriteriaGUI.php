@@ -15,7 +15,6 @@ abstract class CriteriaGUI extends BaseGUI
     private CustomFactory $custom_factory;
     private ObjectRepository $object_repo;
     private CorrectorRepository $corrector_repo;
-    private \ILIAS\Plugin\LongEssayAssessment\ServiceLayer\Common\UserDataHelper $user_data_helper;
 
     public function __construct(\ilObjLongEssayAssessmentGUI $objectGUI)
     {
@@ -24,7 +23,6 @@ abstract class CriteriaGUI extends BaseGUI
         $this->custom_factory = $this->localDI->getUIFactory();
         $this->object_repo = $this->localDI->getObjectRepo();
         $this->corrector_repo = $this->localDI->getCorrectorRepo();
-        $this->user_data_helper = $this->localDI->services()->common()->userDataHelper();
     }
 
     public function executeCommand()
@@ -265,7 +263,7 @@ abstract class CriteriaGUI extends BaseGUI
                     $corrector = $this->corrector_repo->getCorrectorById($from_corrector_id);
                     $title = sprintf(
                         $this->plugin->txt('criteria_from'),
-                        $this->user_data_helper->getPresentation($corrector->getUserId())
+                        $this->common_services->userDataHelper()->getPresentation($corrector->getUserId())
                     );
                 } else {
                     $title = $this->plugin->txt('criteria_template');
@@ -379,7 +377,7 @@ abstract class CriteriaGUI extends BaseGUI
         $corrector_id = $this->getCorrectorIdFromContext();
 
         $items = [];
-        $names = $this->user_data_helper->getNames(array_map(fn ($x) => $x["usr_id"], $group));
+        $names = $this->common_services->userDataHelper()->getNames(array_map(fn ($x) => $x["usr_id"], $group));
 
         foreach ($group as $item) {
             if($item["corrector_id"] == $corrector_id) {

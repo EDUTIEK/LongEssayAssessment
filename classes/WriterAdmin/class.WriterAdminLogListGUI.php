@@ -12,7 +12,8 @@ class WriterAdminLogListGUI
     const MODE_ATTR = "mode";
     const PAGE_ATTR = "page";
     const PAGE_SIZE = 10;
-    private \ILIAS\Plugin\LongEssayAssessment\ServiceLayer\Common\UserDataHelper $user_data_helper;
+    private \ILIAS\Plugin\LongEssayAssessment\ServiceLayer\Common\UserDataBaseHelper $user_data_helper;
+    private \ILIAS\Plugin\LongEssayAssessment\ServiceLayer\Common\UserDataUIHelper $user_data_ui_helper;
     /**
      * @var mixed[]
      */
@@ -45,6 +46,7 @@ class WriterAdminLogListGUI
         $this->renderer = $DIC->ui()->renderer();
         $this->task_id = $task_id;
         $this->user_data_helper = LongEssayAssessmentDI::getInstance()->services()->common()->userDataHelper();
+        $this->user_data_ui_helper = LongEssayAssessmentDI::getInstance()->services()->common()->userDataUIHelper();
     }
 
 
@@ -282,12 +284,12 @@ class WriterAdminLogListGUI
         $back = $this->ctrl->getLinkTarget($this->parent);
         $no_user = $this->uiFactory->legacy(" - ");
         if($strip_img) {
-            return $this->renderer->render([$this->user_data_helper->getUserProfileLink($user_id, $back, false, $no_user)]);
+            return $this->renderer->render([$this->user_data_ui_helper->getUserProfileLink($user_id, $back, false, $no_user)]);
         }
 
         return $this->renderer->render([
-            $this->user_data_helper->getUserIcon($user_id),
-            $this->user_data_helper->getUserProfileLink($user_id, $back, false, $no_user)
+            $this->user_data_ui_helper->getUserIcon($user_id),
+            $this->user_data_ui_helper->getUserProfileLink($user_id, $back, false, $no_user)
         ]);
     }
 

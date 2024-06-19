@@ -21,7 +21,6 @@ use ILIAS\UI\Implementation\Component\ReplaceSignal;
  */
 class WriterAdminLogGUI extends BaseGUI
 {
-    private \ILIAS\Plugin\LongEssayAssessment\ServiceLayer\Common\UserDataHelper $user_data_helper;
     /** @var LoggingService */
     protected $service;
 
@@ -29,7 +28,6 @@ class WriterAdminLogGUI extends BaseGUI
     {
         parent::__construct($objectGUI);
         $this->service = $this->localDI->getLoggingService($this->object->getId());
-        $this->user_data_helper = $this->localDI->services()->common()->userDataHelper();
     }
 
     /**
@@ -179,7 +177,7 @@ class WriterAdminLogGUI extends BaseGUI
         }, $writers);
         $out = [];
 
-        foreach ($this->user_data_helper->getNames($user_ids) as $usr_id => $user) {
+        foreach ($this->common_services->userDataHelper()->getNames($user_ids) as $usr_id => $user) {
             $out[(string)$writers[$usr_id]->getId()] = $user;
         }
 

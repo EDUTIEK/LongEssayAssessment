@@ -10,7 +10,8 @@ use ILIAS\ResourceStorage\StorageHandler\FileSystemBased\MaxNestingFileSystemSto
 use ILIAS\FileUpload\Location;
 use ILIAS\ResourceStorage\StorageHandler\FileSystemBased\FileSystemStorageHandler;
 use ILIAS\FileDelivery\Delivery;
-use ILIAS\Plugin\LongEssayAssessment\ServiceLayer\Common\UserDataHelper;
+use ILIAS\Plugin\LongEssayAssessment\ServiceLayer\Common\UserDataUIHelper;
+use ILIAS\Plugin\LongEssayAssessment\ServiceLayer\Common\UserDataBaseHelper;
 
 /**
  * Container for common services
@@ -51,8 +52,16 @@ class CommonServices
             );
         };
 
-        $service_dic['user_data_helper'] = function () {
-            return new UserDataHelper($this->global_dic->language(), $this->global_dic->ui()->factory());
+        $service_dic['user_data_base_helper'] = function () {
+            return new UserDataBaseHelper();
+        };
+
+        $service_dic['user_data_ui_helper'] = function () use ($service_dic) {
+            return new UserDataUIHelper(
+                $this->global_dic->language(),
+                $this->global_dic->ui()->factory(),
+                $service_dic['user_data_base_helper']
+            );
         };
     }
 
@@ -61,8 +70,13 @@ class CommonServices
         return $this->service_dic['file_helper'];
     }
 
-    public function userDataHelper() : UserDataHelper
+    public function userDataHelper() : UserDataBaseHelper
     {
-        return $this->service_dic['user_data_helper'];
+        return $this->service_dic['user_data_base_helper'];
+    }
+
+    public function userDataUIHelper() : UserDataUIHelper
+    {
+        return $this->service_dic['user_data_ui_helper'];
     }
 }

@@ -11,7 +11,7 @@ use ILIAS\Plugin\LongEssayAssessment\Data\Writer\WriterRepository;
 
 class LoggingService extends BaseService
 {
-    private \ILIAS\Plugin\LongEssayAssessment\ServiceLayer\Common\UserDataHelper $user_data_helper;
+    private \ILIAS\Plugin\LongEssayAssessment\ServiceLayer\Common\UserDataBaseHelper $user_data_helper;
     /** @var TaskRepository */
     protected $taskRepo;
 

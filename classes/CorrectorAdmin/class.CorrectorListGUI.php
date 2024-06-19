@@ -163,7 +163,7 @@ class CorrectorListGUI extends WriterListGUI
      */
     protected function sortAssignments()
     {
-        $names = $this->user_data_helper->getNames($this->user_ids);
+        $names = $this->common_services->userDataHelper()->getNames($this->user_ids);
 
         $by_name = function (CorrectorAssignment $a, CorrectorAssignment$b) use ($names) {
             $rating = $a->getPosition() - $b->getPosition();

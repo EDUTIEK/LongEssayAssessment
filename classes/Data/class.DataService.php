@@ -25,7 +25,7 @@ use ILIAS\Plugin\LongEssayAssessment\Data\Task\CorrectionSettings;
  */
 class DataService extends BaseService
 {
-    private \ILIAS\Plugin\LongEssayAssessment\ServiceLayer\Common\UserDataHelper $userDataHelper;
+    private \ILIAS\Plugin\LongEssayAssessment\ServiceLayer\Common\UserDataBaseHelper $userDataHelper;
     protected WriterRepository $writerRepo;
     protected EssayRepository $essayRepo;
     protected CorrectorRepository $correctorRepo;
@@ -276,7 +276,7 @@ class DataService extends BaseService
                 // no break
             case Essay::WRITING_STATUS_EXCLUDED:
                 return $this->plugin->txt('writing_excluded_from') . " " .
-                    $this->userDataHelper->getPresentation($essay->getWritingExcludedBy());
+                    $this->comm->getPresentation($essay->getWritingExcludedBy());
             case Essay::WRITING_STATUS_AUTHORIZED:
                 return $this->plugin->txt('writing_status_authorized');
         }

@@ -16,7 +16,7 @@ abstract class WriterListGUI
 {
     const FILTER_YES= "1";
     const FILTER_NO = "2";
-    protected \ILIAS\Plugin\LongEssayAssessment\ServiceLayer\Common\UserDataHelper $user_data_helper;
+    protected \ILIAS\Plugin\LongEssayAssessment\ServiceLayer\CommonServices $common_services;
 
     /**
      * @var Essay[]
@@ -58,7 +58,7 @@ abstract class WriterListGUI
         $this->renderer = $DIC->ui()->renderer();
         $this->localDI = LongEssayAssessmentDI::getInstance();
         $this->ui_service = $DIC->uiService();
-        $this->user_data_helper = $this->localDI->services()->common()->userDataHelper();
+        $this->common_services = $this->localDI->services()->common();
     }
 
     abstract public function getContent():string;
@@ -108,7 +108,7 @@ abstract class WriterListGUI
     protected function getUsernameLink(int $user_id)
     {
         $back = $this->ctrl->getLinkTarget($this->parent);
-        return $this->user_data_helper->getUserProfileLink($user_id, $back, false, null) ?? $this->getUsernameText($user_id);
+        return $this->common_services->userDataUIHelper()->getUserProfileLink($user_id, $back, false, null) ?? $this->getUsernameText($user_id);
     }
 
     /**
@@ -118,7 +118,7 @@ abstract class WriterListGUI
      */
     protected function getUsernameText(int $user_id): string
     {
-        return $this->user_data_helper->getPresentation($user_id, false, ' - ');
+        return $this->common_services->userDataHelper()->getPresentation($user_id, false, ' - ');
     }
 
     /**
@@ -160,7 +160,7 @@ abstract class WriterListGUI
      */
     protected function getUserIcon(int $user_id): Icon
     {
-        return $this->user_data_helper->getUserIcon($user_id, $this->uiFactory->symbol()->icon()->standard("usr", "", "medium"));
+        return $this->common_services->userDataUIHelper()->getUserIcon($user_id, $this->uiFactory->symbol()->icon()->standard("usr", "", "medium"));
     }
 
     /**
@@ -171,7 +171,7 @@ abstract class WriterListGUI
      */
     protected function getUserImage(int $user_id): ?Image
     {
-        return $this->user_data_helper->getUserImage($user_id, null);
+        return $this->common_services->userDataUIHelper()->getUserImage($user_id, null);
     }
 
     /**
@@ -180,7 +180,7 @@ abstract class WriterListGUI
      */
     protected function loadUserData()
     {
-        $this->user_data_helper->preload($this->user_ids);
+        $this->common_services->userDataHelper()->preload($this->user_ids);
     }
 
     /**
@@ -204,7 +204,7 @@ abstract class WriterListGUI
      */
     protected function sortWriterOrCorrector(array &$target_array, callable $custom_sort = null)
     {
-        $names = $this->user_data_helper->getNames($this->user_ids);
+        $names = $this->common_services->userDataHelper()->getNames($this->user_ids);
 
         $by_name = function ($a, $b) use ($names) {
             $name_a = array_key_exists($a->getUserId(), $names) ? $names[$a->getUserId()] : "ÿ";

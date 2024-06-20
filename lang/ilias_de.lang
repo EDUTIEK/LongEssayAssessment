@@ -549,3 +549,4 @@ mail_review_notification_body#:#Ihre Klausur wurde korrigiert und steht nun zur 
 mail_permanent_link#:#Wählen Sie den folgenden Link, um auf den Klausurinhalt zuzugreifen:
 review_notification_cron_job#:#Benachrichtigung zur Einsichtnahme von Langtext-Aufgaben
 review_notification_cron_job_desc#:#Teilnehmer erhalten eine Mail-Benachrichtigung, wenn die Korrektur finalisiert, der Einsichtnahme-Zeitraum begonnen hat und Benachrichtigungen im Reiter Aufgabenstellungen > Organisation aktiviert sind.
+total_statistic#:#Gesamtstatistik

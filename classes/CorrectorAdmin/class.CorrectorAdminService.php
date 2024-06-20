@@ -902,7 +902,7 @@ class CorrectorAdminService extends BaseService
      * @return array
      *
      */
-    public function gradeStatistics(array $grading_objects): array
+    public function gradeStatistics(array $grading_objects, $grade_level = null): array
     {
         $sum = 0;
         $count_authorized = 0;
@@ -912,7 +912,7 @@ class CorrectorAdminService extends BaseService
         $count_all = 0;
         $passed_levels = [];
 
-        foreach($this->localDI->getObjectRepo()->getGradeLevelsByObjectId($this->task_id) as $level) {
+        foreach($grade_level ?? $this->localDI->getObjectRepo()->getGradeLevelsByObjectId($this->task_id) as $level) {
             if($level->isPassed()) {
                 $passed_levels[] = $level->getId();
             }

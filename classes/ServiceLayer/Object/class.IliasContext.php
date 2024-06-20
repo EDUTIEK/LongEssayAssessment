@@ -1,6 +1,7 @@
 <?php
 
 namespace ILIAS\Plugin\LongEssayAssessment\ServiceLayer\Object;
+
 use ILIAS\Plugin\LongEssayAssessment\BaseService;
 
 /**
@@ -30,7 +31,7 @@ class IliasContext extends BaseService
      */
     public function isInCourse() : bool
     {
-       return !empty($this->tree->checkForParentType($this->ref_id, "crs"));
+        return !empty($this->tree->checkForParentType($this->ref_id, "crs"));
     }
 
     /**
@@ -47,5 +48,15 @@ class IliasContext extends BaseService
         return [];
     }
 
-
+    /**
+     * Get Node Data of all LongEssayAssessment plugins of this context (parent downwards the tree)
+     *
+     * @return array
+     */
+    public function getAllEssaysInThisContext() : array
+    {
+        $parent = $this->tree->getParentNodeData($this->ref_id);
+        $nodes = $this->tree->getSubTree($parent);
+        return array_filter($nodes, fn ($node) => $node["type"] === "xlas");
+    }
 }

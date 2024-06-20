@@ -111,8 +111,7 @@ class CorrectorContext extends ServiceContext implements Context
         if (!empty($config->getCorrectorUrl())) {
             return $config->getCorrectorUrl();
         } else {
-            return  ILIAS_HTTP_PATH
-                . "/Customizing/global/plugins/Services/Repository/RepositoryObject/LongEssayAssessment"
+            return  $this->getPluginHttpPath()
                 . "/vendor/edutiek/long-essay-assessment-service"
                 . "/" . Service::getFrontendRelativeUrl();
         }
@@ -124,8 +123,8 @@ class CorrectorContext extends ServiceContext implements Context
      */
     public function getBackendUrl(): string
     {
-        return  ILIAS_HTTP_PATH
-            . "/Customizing/global/plugins/Services/Repository/RepositoryObject/LongEssayAssessment/corrector_service.php"
+        return  $this->getPluginHttpPath()
+            . "/corrector_service.php"
             . "?client_id=" . CLIENT_ID;
     }
 

@@ -59,7 +59,16 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
      */
     public function getPluginName()
     {
-        return "LongEssayAssessment";
+        return 'LongEssayAssessment';
+    }
+
+    /**
+     * Get the plugin path
+     * must be relative to the ILIAS directory without leading and trailing slash
+     */
+    public function getPluginPath(): string
+    {
+        return 'Customizing/global/plugins/Services/Repository/RepositoryObject/LongEssayAssessment';
     }
 
     /**

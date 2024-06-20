@@ -7,6 +7,7 @@ New features:
 - general cron job support [cron job support](https://github.com/EDUTIEK/LongEssayAssessmentCron/)
 - disable correction reviews 
 - send review notifications after finalization and within review period via cron job
+- adding the possibility to compare grade statistics over multiple plugin objects within the same repository context
 
 ## Version 1.7 (2024-06-21)
 New features in corrector:

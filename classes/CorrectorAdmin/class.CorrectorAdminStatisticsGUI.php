@@ -16,6 +16,11 @@ use ILIAS\UI\Component\Input\Container\Form\Form;
 use \ilUtil;
 use ILIAS\Plugin\LongEssayAssessment\Data\Essay\CorrectorSummary;
 use ILIAS\Plugin\LongEssayAssessment\Data\Corrector\Corrector;
+use ILIAS\UI\Component\Table\PresentationRow;
+use ILIAS\Plugin\LongEssayAssessment\ServiceLayer\Object\IliasContext;
+use ILIAS\Plugin\LongEssayAssessment\Data\Corrector\CorrectorRepository;
+use ILIAS\Plugin\LongEssayAssessment\Data\Essay\EssayRepository;
+use ILIAS\Plugin\LongEssayAssessment\Data\Object\ObjectRepository;
 
 /**
  *Start page for corrector admins
@@ -25,14 +30,28 @@ use ILIAS\Plugin\LongEssayAssessment\Data\Corrector\Corrector;
  */
 class CorrectorAdminStatisticsGUI extends BaseGUI
 {
-
-    /** @var CorrectorAdminService */
-    protected $service;
+    private \ilAccessHandler $access;
+    private \ilUIService $ui_service;
+    private CorrectorRepository $corrector_repo;
+    private EssayRepository $essay_repo;
+    private ObjectRepository $object_repo;
+    private CorrectorAdminService $service;
+    private array $grade_level = [];
+    private array $correctors = [];
+    private array $summaries = [];
+    private array $essays = [];
+    private array $usernames = [];
+    private array $objects = [];
 
     public function __construct(\ilObjLongEssayAssessmentGUI $objectGUI)
     {
         parent::__construct($objectGUI);
         $this->service = $this->localDI->getCorrectorAdminService($this->object->getId());
+        $this->ui_service = $this->dic->uiService();
+        $this->corrector_repo = $this->localDI->getCorrectorRepo();
+        $this->essay_repo = $this->localDI->getEssayRepo();
+        $this->object_repo = $this->localDI->getObjectRepo();
+        $this->access = $this->dic->access();
     }
 
     /**
@@ -58,42 +77,46 @@ class CorrectorAdminStatisticsGUI extends BaseGUI
         }
     }
 
-
-    /**
-     * Show the items
-     */
     protected function showStartPage()
     {
-        $di = LongEssayAssessmentDI::getInstance();
-        $corrector_repo = $di->getCorrectorRepo();
-        $essay_repo = $di->getEssayRepo();
-        $object_repo = $di->getObjectRepo();
-        $corrector_service = $this->localDI->getCorrectorAdminService($this->object->getId());
-        $correctors = $corrector_repo->getCorrectorsByTaskId($this->object->getId());
-        $summaries = $essay_repo->getCorrectorSummariesByTaskId($this->object->getId());
-        $grade_level = $object_repo->getGradeLevelsByObjectId($this->object->getId());
-        $usernames = \ilUserUtil::getNamePresentation(array_unique(array_map(fn (Corrector $x) => $x->getUserId(), $correctors)), false, false, "", true);
-        $summary_statistics = $corrector_service->gradeStatistics($summaries);
-        $essays = $essay_repo->getEssaysByTaskId($this->object->getId());
-        $essay_statistics = $corrector_service->gradeStatistics($essays);
+        $this->loadObjectsInContext();
 
-        $rows = [['title' => $this->plugin->txt('essay_correction_finlized'), 'count' => $this->plugin->txt('essay_count'),
-                  'final' => $this->plugin->txt('essay_final'), 'statistic' => $essay_statistics],
-                 ['title' => $this->plugin->txt('corrections_all') , 'count' => $this->plugin->txt('correction_count'),
-                  'final' => $this->plugin->txt('correction_final'), 'statistic' => $summary_statistics]];
+        foreach($this->objects as $obj) {
+            $this->loadDataForObject($obj["obj_id"]);
+        }
 
-        foreach($correctors as $corrector) {
-            $corrector_id = $corrector->getId();
-            $corrector_summaries = array_filter($summaries, fn (CorrectorSummary $x) => ($x->getCorrectorId() === $corrector_id));
-            $statistics = $corrector_service->gradeStatistics($corrector_summaries);
-            $rows[] = ['title' => $usernames[$corrector->getUserId()], 'count' => $this->plugin->txt('correction_count'),
-                       'final' => $this->plugin->txt('correction_final'), 'statistic' => $statistics];
+        $filter_gui = $this->buildFilter();
+        $filter_data = $this->ui_service->filter()->getData($filter_gui) ?? ['context' => null, 'correctors' => null];
+
+        $sections = array_filter(
+            $this->objects,
+            fn ($x) => $filter_data['context'] !== null
+                ? in_array($x['obj_id'], $filter_data['context'])
+                : (int)$x['obj_id'] === $this->object->getId()
+        );
+        $data = [];
+
+        if($filter_data['context'] !== null && count($filter_data['context']) > 1) {
+            $data = [$this->getItemDataOverall()];
+        }
+
+        foreach($sections as $obj) {
+            $this->loadDataForObject($obj["obj_id"]);
+            $rows = $this->getItemDataForObject($obj["obj_id"], $filter_data["correctors"]);
+            if($filter_data['context'] !== null && count($filter_data['context']) > 1) {
+                array_unshift($rows, ["title" => $obj["title"]]);
+            }
+            $data[] = $rows;
         }
 
         $ptable = $this->uiFactory->table()->presentation(
             $this->plugin->txt('statistic'), //title
             [],
-            function ($row, $record, $ui_factory, $environment) use ($grade_level) { //mapping-closure
+            function (PresentationRow $row, $record, $ui_factory, $environment) { //mapping-closure
+                if(count($record) == 1) {
+                    return [$this->uiFactory->divider()->horizontal()->withLabel("<h4>" . $record["title"] . "</h4>")];
+                }
+
                 $statistic = $record["statistic"];
                 $properties = [];
                 $fproperties = [];
@@ -113,8 +136,8 @@ class CorrectorAdminStatisticsGUI extends BaseGUI
                     $properties[$this->plugin->txt('essay_average_points')] = sprintf('%.2f', $statistic[CorrectorAdminService::STATISTIC_AVERAGE]);
                 }
 
-                foreach($grade_level as $level) {
-                    $fproperties[$level->getGrade()] = (string)$statistic[CorrectorAdminService::STATISTIC_COUNT_BY_LEVEL][$level->getId()] ?? 0;
+                foreach($record['grade_statistics'] as $key => $value) {
+                    $fproperties[$key . " "/*Hack to ensure a string*/] = (string)$value;
                 }
 
                 return $row
@@ -125,6 +148,103 @@ class CorrectorAdminStatisticsGUI extends BaseGUI
                     ->withFurtherFields($fproperties);
             }
         );
-        $this->tpl->setContent($this->renderer->render($ptable->withData($rows)));
+        $this->tpl->setContent($this->renderer->render([$filter_gui, $ptable->withData(array_merge(...$data))]));
+    }
+
+    protected function buildFilter()
+    {
+        $context = [];
+        $corr = [];
+
+        foreach($this->objects as $node) {
+            $context[$node["obj_id"]] = $node["title"];
+        }
+
+        foreach(array_merge(...$this->correctors) as $corrector) {
+            if(!isset($corr[$corrector->getUserId()])) {
+                $corr[$corrector->getUserId()] = \ilobjUser::_lookupFullname($corrector->getUserId());
+            }
+        }
+
+        $base_action = $this->ctrl->getFormAction($this, 'showStartPage');
+        $filter_gui = $this->ui_service->filter()->standard("xlas_statistics", $base_action, [
+            "context" => $this->uiFactory->input()->field()->multiSelect($this->lng->txt("context"), $context)
+                                         ->withValue([$this->object->getId()]),
+            "correctors" => $this->uiFactory->input()->field()->multiSelect($this->plugin->txt("correctors"), $corr)
+        ], [true, true], true, true);
+        return $filter_gui;
+    }
+
+    private function loadObjectsInContext()
+    {
+        $objects = $this->object_services->iliasContext()->getAllEssaysInThisContext();
+        $this->objects = array_filter($objects, fn ($object) => ($this->access->checkAccess("maintain_correctors", '', $object["ref_id"])));
+    }
+
+    private function loadDataForObject($obj_id)
+    {
+        $this->correctors[$obj_id] = $this->corrector_repo->getCorrectorsByTaskId($obj_id);
+        $this->summaries[$obj_id] = $this->essay_repo->getCorrectorSummariesByTaskId($obj_id);
+        $this->grade_level[$obj_id] = $this->object_repo->getGradeLevelsByObjectId($obj_id);
+        $this->usernames[$obj_id] = \ilUserUtil::getNamePresentation(array_unique(array_map(fn (Corrector $x) => $x->getUserId(), $this->correctors[$obj_id])), false, false, "", true);
+        $this->essays[$obj_id] = $this->essay_repo->getEssaysByTaskId($obj_id);
+    }
+
+    private function getItemDataForObject($obj_id, $corrector_filter = null) : array
+    {
+        $corrector_service = $this->localDI->getCorrectorAdminService($obj_id);
+        $summary_statistics = $corrector_service->gradeStatistics($this->summaries[$obj_id]);
+        $essay_statistics = $corrector_service->gradeStatistics($this->essays[$obj_id]);
+
+        $grade_statistics = function (array $statistic) use ($obj_id) {
+            $grade_statistics = [];
+            foreach($this->grade_level[$obj_id] as $level) {
+                $grade_statistics[$level->getGrade()] = $statistic[CorrectorAdminService::STATISTIC_COUNT_BY_LEVEL][$level->getId()] ?? 0;
+            }
+            return $grade_statistics;
+        };
+
+        $rows = [['title' => $this->plugin->txt('essay_correction_finlized'), 'count' => $this->plugin->txt('essay_count'),
+                  'final' => $this->plugin->txt('essay_final'), 'statistic' => $essay_statistics, 'grade_statistics' => $grade_statistics($essay_statistics)],
+                 ['title' => $this->plugin->txt('corrections_all') , 'count' => $this->plugin->txt('correction_count'),
+                  'final' => $this->plugin->txt('correction_final'), 'statistic' => $summary_statistics, 'grade_statistics' => $grade_statistics($summary_statistics)]];
+
+        foreach($this->correctors[$obj_id] as $corrector) {
+
+            if($corrector_filter !== null && !in_array($corrector->getUserId(), $corrector_filter)) {
+                continue;
+            }
+            $corrector_id = $corrector->getId();
+            $corrector_summaries = array_filter($this->summaries[$obj_id], fn (CorrectorSummary $x) => ($x->getCorrectorId() === $corrector_id));
+            $statistics = $corrector_service->gradeStatistics($corrector_summaries);
+            $rows[] = ['title' => $this->usernames[$obj_id][$corrector->getUserId()], 'count' => $this->plugin->txt('correction_count'),
+                       'final' => $this->plugin->txt('correction_final'), 'statistic' => $statistics, 'grade_statistics' => $grade_statistics($statistics)];
+        }
+        return $rows;
+    }
+
+    private function getItemDataOverall()
+    {
+        $grade_statistics = function (array $statistic) {
+            $grade_statistic = [];
+            foreach(array_merge(...$this->grade_level) as $level) {
+                if(!empty($level->getCode())) {
+                    if(isset($grade_statistic[$level->getCode()])) {
+                        $grade_statistic[$level->getCode()] += $statistic[CorrectorAdminService::STATISTIC_COUNT_BY_LEVEL][$level->getId()] ?? 0;
+                    } else {
+                        $grade_statistic[$level->getCode()] = $statistic[CorrectorAdminService::STATISTIC_COUNT_BY_LEVEL][$level->getId()] ?? 0;
+                    }
+                }
+            }
+            return $grade_statistic;
+        };
+        $essay_statistics = $this->service->gradeStatistics(array_merge(...$this->essays));
+        $summary_statistics = $this->service->gradeStatistics(array_merge(...$this->summaries));
+
+        return [ ['title' => $this->plugin->txt("total_statistic")],
+                 ['title' => $this->plugin->txt('essay_correction_finlized'), 'count' => $this->plugin->txt('essay_count'),
+                  'final' => $this->plugin->txt('essay_final'), 'statistic' => $essay_statistics, 'grade_statistics' => $grade_statistics($essay_statistics)],
+                 ['title' => $this->plugin->txt('corrections_all') , 'count' => $this->plugin->txt('correction_count'),
+                  'final' => $this->plugin->txt('correction_final'), 'statistic' => $summary_statistics, 'grade_statistics' => $grade_statistics($summary_statistics)]];
     }
 }

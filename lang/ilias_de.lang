@@ -563,3 +563,4 @@ review_notification_cron_job#:#Benachrichtigung zur Einsichtnahme von Langtext-A
 review_notification_cron_job_desc#:#Teilnehmer erhalten eine Mail-Benachrichtigung, wenn die Korrektur finalisiert, der Einsichtnahme-Zeitraum begonnen hat und Benachrichtigungen im Reiter Aufgabenstellungen > Organisation aktiviert sind.
 review_notification_text#:#Zusätzliche Informationen
 review_notification_text_info#:#Die Informationen werden dem Teilnehmer in der Mail-Benachrichtigung zur Einsichtsnahme angezeigt.
+total_statistic#:#Gesamtstatistik

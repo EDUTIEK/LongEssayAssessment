@@ -23,7 +23,5 @@
     "psr-4" : { "ILIAS\\Plugin\\LongEssayAssessment\\" : "./classes" },
     "classmap": ["./classes"],
     "exclude-from-classmap": []
-  },
-  "require-dev": {
   }
 }

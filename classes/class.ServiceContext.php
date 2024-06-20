@@ -109,6 +109,27 @@ abstract class ServiceContext implements BaseContext
     }
 
     /**
+     * Get the HTTP path to the plugin
+     * Helper function for child classes to handle a different ILIAS_HTTP_PATH
+     * when being called from ilias.php or from the rest end points
+     *
+     * @return string
+     */
+    public function getPluginHttpPath(): string
+    {
+
+        $plugin_path = $this->plugin->getPluginPath();
+        $pos = strpos(ILIAS_HTTP_PATH, $plugin_path);
+
+        if ($pos !== false) {
+            return substr(ILIAS_HTTP_PATH, 0, $pos + strlen($plugin_path));
+        }
+        else {
+            return ILIAS_HTTP_PATH . '/' . $plugin_path;
+        }
+    }
+
+    /**
      * @inheritDoc
      */
     public function getSystemName(): string

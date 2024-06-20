@@ -39,7 +39,6 @@ class CorrectorAdminStatisticsGUI extends BaseGUI
     private array $correctors = [];
     private array $summaries = [];
     private array $essays = [];
-    private array $usernames = [];
     private array $objects = [];
 
     public function __construct(\ilObjLongEssayAssessmentGUI $objectGUI)
@@ -161,7 +160,7 @@ class CorrectorAdminStatisticsGUI extends BaseGUI
 
         foreach(array_merge(...$this->correctors) as $corrector) {
             if(!isset($corr[$corrector->getUserId()])) {
-                $corr[$corrector->getUserId()] = \ilobjUser::_lookupFullname($corrector->getUserId());
+                $corr[$corrector->getUserId()] = $this->common_services->userDataHelper()->getPresentation($corrector->getUserId());
             }
         }
 
@@ -185,8 +184,8 @@ class CorrectorAdminStatisticsGUI extends BaseGUI
         $this->correctors[$obj_id] = $this->corrector_repo->getCorrectorsByTaskId($obj_id);
         $this->summaries[$obj_id] = $this->essay_repo->getCorrectorSummariesByTaskId($obj_id);
         $this->grade_level[$obj_id] = $this->object_repo->getGradeLevelsByObjectId($obj_id);
-        $this->usernames[$obj_id] = \ilUserUtil::getNamePresentation(array_unique(array_map(fn (Corrector $x) => $x->getUserId(), $this->correctors[$obj_id])), false, false, "", true);
         $this->essays[$obj_id] = $this->essay_repo->getEssaysByTaskId($obj_id);
+        $this->common_services->userDataHelper()->preload(array_map(fn (Corrector $x) => $x->getUserId(), $this->correctors[$obj_id]));
     }
 
     private function getItemDataForObject($obj_id, $corrector_filter = null) : array
@@ -216,7 +215,7 @@ class CorrectorAdminStatisticsGUI extends BaseGUI
             $corrector_id = $corrector->getId();
             $corrector_summaries = array_filter($this->summaries[$obj_id], fn (CorrectorSummary $x) => ($x->getCorrectorId() === $corrector_id));
             $statistics = $corrector_service->gradeStatistics($corrector_summaries);
-            $rows[] = ['title' => $this->usernames[$obj_id][$corrector->getUserId()], 'count' => $this->plugin->txt('correction_count'),
+            $rows[] = ['title' => $this->common_services->userDataHelper()->getPresentation($corrector->getUserId()), 'count' => $this->plugin->txt('correction_count'),
                        'final' => $this->plugin->txt('correction_final'), 'statistic' => $statistics, 'grade_statistics' => $grade_statistics($statistics)];
         }
         return $rows;

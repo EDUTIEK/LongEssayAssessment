@@ -12,12 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/EDUTIEK/long-essay-assessment-service.git",
-                "reference": "7adaca0a757832f1f01a26625a57eac400d3ecca"
+                "reference": "530661e1260f3c8684c2f7379df3b7ad23431230"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EDUTIEK/long-essay-assessment-service/zipball/7adaca0a757832f1f01a26625a57eac400d3ecca",
-                "reference": "7adaca0a757832f1f01a26625a57eac400d3ecca",
+                "url": "https://api.github.com/repos/EDUTIEK/long-essay-assessment-service/zipball/530661e1260f3c8684c2f7379df3b7ad23431230",
+                "reference": "530661e1260f3c8684c2f7379df3b7ad23431230",
                 "shasum": ""
             },
             "require": {
@@ -53,7 +53,7 @@
             "support": {
                 "source": "https://github.com/EDUTIEK/long-essay-assessment-service/tree/main"
             },
-            "time": "2024-06-04T20:16:12+00:00"
+            "time": "2024-06-21T00:53:47+00:00"
         },
         {
             "name": "edutiek/long-essay-image-sketch",
@@ -61,12 +61,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/EDUTIEK/long-essay-image-sketch.git",
-                "reference": "0e6597fd1d19f432dafed0c362f3e22e7e296779"
+                "reference": "3757ccb23e6a7f76378f911211308defdd929153"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EDUTIEK/long-essay-image-sketch/zipball/0e6597fd1d19f432dafed0c362f3e22e7e296779",
-                "reference": "0e6597fd1d19f432dafed0c362f3e22e7e296779",
+                "url": "https://api.github.com/repos/EDUTIEK/long-essay-image-sketch/zipball/3757ccb23e6a7f76378f911211308defdd929153",
+                "reference": "3757ccb23e6a7f76378f911211308defdd929153",
                 "shasum": ""
             },
             "require": {
@@ -99,7 +99,7 @@
                 "source": "https://github.com/EDUTIEK/long-essay-image-sketch/tree/main",
                 "issues": "https://github.com/EDUTIEK/long-essay-image-sketch/issues"
             },
-            "time": "2024-05-24T15:22:59+00:00"
+            "time": "2024-06-18T20:08:58+00:00"
         },
         {
             "name": "edutiek/long-essay-pdf-converter",
@@ -107,12 +107,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/EDUTIEK/long-essay-pdf-converter.git",
-                "reference": "ec7a2c6c6f3181ec0e7f2f4f9fbdc0a29c96bcd0"
+                "reference": "0de32ccb039c6d2deb91e71577802b53c191cf0b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EDUTIEK/long-essay-pdf-converter/zipball/ec7a2c6c6f3181ec0e7f2f4f9fbdc0a29c96bcd0",
-                "reference": "ec7a2c6c6f3181ec0e7f2f4f9fbdc0a29c96bcd0",
+                "url": "https://api.github.com/repos/EDUTIEK/long-essay-pdf-converter/zipball/0de32ccb039c6d2deb91e71577802b53c191cf0b",
+                "reference": "0de32ccb039c6d2deb91e71577802b53c191cf0b",
                 "shasum": ""
             },
             "require": {
@@ -142,10 +142,10 @@
             ],
             "description": "Convert PDF files to images.",
             "support": {
-                "source": "https://github.com/EDUTIEK/long-essay-pdf-converter/tree/main",
+                "source": "https://github.com/EDUTIEK/long-essay-pdf-converter/tree/gs-scaling",
                 "issues": "https://github.com/EDUTIEK/long-essay-pdf-converter/issues"
             },
-            "time": "2024-04-26T11:28:30+00:00"
+            "time": "2024-06-20T15:47:41+00:00"
         },
         {
             "name": "mustache/mustache",

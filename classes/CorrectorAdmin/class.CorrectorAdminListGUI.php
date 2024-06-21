@@ -205,7 +205,7 @@ class CorrectorAdminListGUI extends WriterListGUI
         if(($assignment = $this->getAssignmentByWriterPosition($writer, $pos)) !== null) {
             $corrector = $this->correctors[$assignment->getCorrectorId()];
 
-            if (!empty($essay = $this->essays[$writer->getId()] ?? null) && isset($this->summaries[$essay->getId()][$corrector->getId()])) {
+            if (!empty($essay = ($this->essays[$writer->getId()] ?? null)) && isset($this->summaries[$essay->getId()][$corrector->getId()])) {
                 $summary = $this->summaries[$essay->getId()][$corrector->getId()];
             } else {
                 $summary = null;
@@ -410,7 +410,7 @@ class CorrectorAdminListGUI extends WriterListGUI
     public function setSummaries(array $summaries): void
     {
         foreach($summaries as $summary) {
-            if(isset($this->summaries[$summary->getEssayId()])) {
+            if(!isset($this->summaries[$summary->getEssayId()])) {
                 $this->summaries[$summary->getEssayId()]= [];
             }
             $this->summaries[$summary->getEssayId()][$summary->getCorrectorId()] = $summary;

@@ -15,7 +15,7 @@
   ],
   "require": {
     "php": "~7.4",
-    "edutiek/long-essay-assessment-service": "dev-dev-ilias7",
+    "edutiek/long-essay-assessment-service": "dev-main",
     "edutiek/long-essay-pdf-converter": "dev-main",
     "edutiek/long-essay-image-sketch": "dev-main"
   },

@@ -12,6 +12,7 @@
 - plugin: fix corrector assignment file upload error handling with required file
 - plugin: fix str_word_count on null in corrector assignment file export
 - plugin: adding the possibility to compare grade statistics over multiple plugin objects within the same repository context
+- plugin: adding writer and corrector statistics with a csv export
 - service: reduce size of correction PDF
 - service: fix wrong end date in PDF header
 - service: fixed removing of empty lines

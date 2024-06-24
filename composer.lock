@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "24beb56324235b93fc2dcb73a339f2f0",
+    "content-hash": "b94d9aaa289b9f37283afa385e7a4ad4",
     "packages": [
         {
             "name": "edutiek/long-essay-assessment-service",
-            "version": "dev-dev-ilias9",
+            "version": "dev-main",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EDUTIEK/long-essay-assessment-service.git",
-                "reference": "2dedcbe4d5b621d6ed22e967070134500c5ef2fb"
+                "reference": "71afb56bc0d0e0ab4e9214867674240a69bf12e2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EDUTIEK/long-essay-assessment-service/zipball/2dedcbe4d5b621d6ed22e967070134500c5ef2fb",
-                "reference": "2dedcbe4d5b621d6ed22e967070134500c5ef2fb",
+                "url": "https://api.github.com/repos/EDUTIEK/long-essay-assessment-service/zipball/71afb56bc0d0e0ab4e9214867674240a69bf12e2",
+                "reference": "71afb56bc0d0e0ab4e9214867674240a69bf12e2",
                 "shasum": ""
             },
             "require": {
@@ -30,11 +30,12 @@
                 "ext-xsl": "*",
                 "mustache/mustache": "^2.14",
                 "php": ">=7.4",
-                "slim/psr7": "^1.7",
+                "slim/psr7": "^1.6",
                 "slim/slim": "^4.14",
                 "tecnickcom/tcpdf": "^6.3",
                 "yetanotherape/diff-match-patch": "^1.1"
             },
+            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
@@ -52,9 +53,9 @@
             ],
             "description": "Backend service for writing long essay assessments",
             "support": {
-                "source": "https://github.com/EDUTIEK/long-essay-assessment-service/tree/dev-ilias9"
+                "source": "https://github.com/EDUTIEK/long-essay-assessment-service/tree/main"
             },
-            "time": "2024-06-18T20:26:47+00:00"
+            "time": "2024-06-21T07:52:20+00:00"
         },
         {
             "name": "edutiek/long-essay-image-sketch",
@@ -109,12 +110,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/EDUTIEK/long-essay-pdf-converter.git",
-                "reference": "ec7a2c6c6f3181ec0e7f2f4f9fbdc0a29c96bcd0"
+                "reference": "0de32ccb039c6d2deb91e71577802b53c191cf0b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EDUTIEK/long-essay-pdf-converter/zipball/ec7a2c6c6f3181ec0e7f2f4f9fbdc0a29c96bcd0",
-                "reference": "ec7a2c6c6f3181ec0e7f2f4f9fbdc0a29c96bcd0",
+                "url": "https://api.github.com/repos/EDUTIEK/long-essay-pdf-converter/zipball/0de32ccb039c6d2deb91e71577802b53c191cf0b",
+                "reference": "0de32ccb039c6d2deb91e71577802b53c191cf0b",
                 "shasum": ""
             },
             "require": {
@@ -145,10 +146,10 @@
             ],
             "description": "Convert PDF files to images.",
             "support": {
-                "source": "https://github.com/EDUTIEK/long-essay-pdf-converter/tree/main",
+                "source": "https://github.com/EDUTIEK/long-essay-pdf-converter/tree/gs-scaling",
                 "issues": "https://github.com/EDUTIEK/long-essay-pdf-converter/issues"
             },
-            "time": "2024-04-26T11:28:30+00:00"
+            "time": "2024-06-20T15:47:41+00:00"
         },
         {
             "name": "fig/http-message-util",
@@ -874,16 +875,16 @@
         },
         {
             "name": "symfony/polyfill-php80",
-            "version": "v1.29.0",
+            "version": "v1.30.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-php80.git",
-                "reference": "87b68208d5c1188808dd7839ee1e6c8ec3b02f1b"
+                "reference": "77fa7995ac1b21ab60769b7323d600a991a90433"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-php80/zipball/87b68208d5c1188808dd7839ee1e6c8ec3b02f1b",
-                "reference": "87b68208d5c1188808dd7839ee1e6c8ec3b02f1b",
+                "url": "https://api.github.com/repos/symfony/polyfill-php80/zipball/77fa7995ac1b21ab60769b7323d600a991a90433",
+                "reference": "77fa7995ac1b21ab60769b7323d600a991a90433",
                 "shasum": ""
             },
             "require": {
@@ -934,7 +935,7 @@
                 "shim"
             ],
             "support": {
-                "source": "https://github.com/symfony/polyfill-php80/tree/v1.29.0"
+                "source": "https://github.com/symfony/polyfill-php80/tree/v1.30.0"
             },
             "funding": [
                 {
@@ -950,7 +951,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-01-29T20:11:03+00:00"
+            "time": "2024-05-31T15:07:36+00:00"
         },
         {
             "name": "tecnickcom/tcpdf",

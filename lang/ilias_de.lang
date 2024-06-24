@@ -564,3 +564,11 @@ review_notification_cron_job_desc#:#Teilnehmer erhalten eine Mail-Benachrichtigu
 review_notification_text#:#Zusätzliche Informationen
 review_notification_text_info#:#Die Informationen werden dem Teilnehmer in der Mail-Benachrichtigung zur Einsichtsnahme angezeigt.
 total_statistic#:#Gesamtstatistik
+tab_writer_statistic#:#Teilnehmer Notenstatistik
+tab_corrector_admin_statistic#:#Korrektoren Notenstatistik
+count#:#Anzahl
+finalized#:#Finalisiert
+min_finalized_corrections#:#Min. fertig bewertet
+export_statistics_writer_file#:#Teilnehmer Notenstatistik
+export_statistics_corrector_file#:#Korrektoren Notenstatistik
+export_statistics#:#Notenstatistik exportieren

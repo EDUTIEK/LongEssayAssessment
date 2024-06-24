@@ -41,7 +41,6 @@ abstract class StatisticsGUI extends BaseGUI
         $grade_levels = array_unique(array_merge(...array_map(fn (array $x) => array_keys($x['grade_statistics']), $records)));
 
         $csv = new \ilCSVWriter();
-        $csv->setDoUTF8Decoding(true);
         $csv->setSeparator(';');
         $csv->setDelimiter('"');
         $csv->addColumn($this->lng->txt('login'));
@@ -60,7 +59,7 @@ abstract class StatisticsGUI extends BaseGUI
         $csv->addColumn($this->plugin->txt('essay_average_points'));
 
         foreach($grade_levels as $value) {
-            $csv->addColumn($value);
+            $csv->addColumn(mb_convert_encoding($value, 'ISO-8859-1', 'UTF-8'));
         }
 
         foreach($records as $record) {
@@ -71,22 +70,22 @@ abstract class StatisticsGUI extends BaseGUI
             $user = new ilObjUser($record["usr_id"]);
             $statistic = $record["statistic"];
 
-            $csv->addColumn($user->getLogin());
-            $csv->addColumn($user->getFirstname());
-            $csv->addColumn($user->getLastname());
-            $csv->addColumn($user->getMatriculation());
+            $csv->addColumn(mb_convert_encoding($user->getLogin(), 'ISO-8859-1', 'UTF-8'));
+            $csv->addColumn(mb_convert_encoding($user->getFirstname(), 'ISO-8859-1', 'UTF-8'));
+            $csv->addColumn(mb_convert_encoding($user->getLastname(), 'ISO-8859-1', 'UTF-8'));
+            $csv->addColumn(mb_convert_encoding($user->getMatriculation(), 'ISO-8859-1', 'UTF-8'));
             if($has_obj_id) {
-                $csv->addColumn($this->objects[$record["obj_id"]]['title']);
+                $csv->addColumn(mb_convert_encoding($this->objects[$record["obj_id"]]['title'], 'ISO-8859-1', 'UTF-8'));
             }
-            $csv->addColumn((string)$statistic[CorrectorAdminService::STATISTIC_COUNT]);
-            $csv->addColumn((string)$statistic[CorrectorAdminService::STATISTIC_FINAL]);
-            $csv->addColumn((string)($statistic[CorrectorAdminService::STATISTIC_NOT_ATTENDED] ?? 0));
-            $csv->addColumn((string)$statistic[CorrectorAdminService::STATISTIC_PASSED]);
-            $csv->addColumn((string)$statistic[CorrectorAdminService::STATISTIC_NOT_PASSED]);
-            $csv->addColumn($statistic[CorrectorAdminService::STATISTIC_NOT_PASSED_QUOTA] !== null ? sprintf('%.2f', $statistic[CorrectorAdminService::STATISTIC_NOT_PASSED_QUOTA]) : "");
-            $csv->addColumn($statistic[CorrectorAdminService::STATISTIC_AVERAGE] !== null ? sprintf('%.2f', $statistic[CorrectorAdminService::STATISTIC_AVERAGE]) : "");
+            $csv->addColumn(mb_convert_encoding((string)$statistic[CorrectorAdminService::STATISTIC_COUNT], 'ISO-8859-1', 'UTF-8'));
+            $csv->addColumn(mb_convert_encoding((string)$statistic[CorrectorAdminService::STATISTIC_FINAL], 'ISO-8859-1', 'UTF-8'));
+            $csv->addColumn(mb_convert_encoding((string)($statistic[CorrectorAdminService::STATISTIC_NOT_ATTENDED] ?? 0), 'ISO-8859-1', 'UTF-8'));
+            $csv->addColumn(mb_convert_encoding((string)$statistic[CorrectorAdminService::STATISTIC_PASSED], 'ISO-8859-1', 'UTF-8'));
+            $csv->addColumn(mb_convert_encoding((string)$statistic[CorrectorAdminService::STATISTIC_NOT_PASSED], 'ISO-8859-1', 'UTF-8'));
+            $csv->addColumn(mb_convert_encoding($statistic[CorrectorAdminService::STATISTIC_NOT_PASSED_QUOTA] !== null ? sprintf('%.2f', $statistic[CorrectorAdminService::STATISTIC_NOT_PASSED_QUOTA]) : "", 'ISO-8859-1', 'UTF-8'));
+            $csv->addColumn(mb_convert_encoding($statistic[CorrectorAdminService::STATISTIC_AVERAGE] !== null ? sprintf('%.2f', $statistic[CorrectorAdminService::STATISTIC_AVERAGE]) : "", 'ISO-8859-1', 'UTF-8'));
             foreach($grade_levels as $value) {
-                $csv->addColumn((string)($record['grade_statistics'][$value] ?? 0));
+                $csv->addColumn(mb_convert_encoding((string)($record['grade_statistics'][$value] ?? 0), 'ISO-8859-1', 'UTF-8'));
 
             }
         }

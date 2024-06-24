@@ -161,7 +161,6 @@ class CorrectorAdminStatisticsGUI extends StatisticsGUI
         $summary_statistics = $corrector_service->gradeStatistics($this->summaries[$obj_id]);
         $essay_statistics = $corrector_service->gradeStatistics($this->essays[$obj_id]);
 
-
         $rows = [['title' => $this->plugin->txt('essay_correction_finlized'), 'count' => $this->plugin->txt('essay_count'),
                   'final' => $this->plugin->txt('essay_final'), 'statistic' => $essay_statistics, 'grade_statistics' => $this->getGradeStatisticOverAll($essay_statistics)],
                  ['title' => $this->plugin->txt('corrections_all') , 'count' => $this->plugin->txt('correction_count'),

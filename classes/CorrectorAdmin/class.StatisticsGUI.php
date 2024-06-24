@@ -23,7 +23,6 @@ abstract class StatisticsGUI extends BaseGUI
     protected array $grade_level = [];
     protected array $summaries = [];
     protected array $essays = [];
-    protected array $usernames = [];
     protected array $objects = [];
 
     public function __construct(\ilObjLongEssayAssessmentGUI $objectGUI)

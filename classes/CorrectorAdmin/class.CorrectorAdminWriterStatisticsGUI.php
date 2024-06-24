@@ -147,7 +147,7 @@ class CorrectorAdminWriterStatisticsGUI extends StatisticsGUI
 
             $pseudonym = array_map(fn (Writer $x) => $x->getPseudonym(), $writer);
             $rows[] = ['usr_id' => $wrtier_usr_id,
-                       'title' => $this->usernames[$wrtier_usr_id] ?? "",
+                       'title' => $this->common_services->userDataHelper()->getPresentation($wrtier_usr_id) ?? "",
                        'count' => $this->plugin->txt('essay_count'),
                        'final' => $this->plugin->txt('essay_final'), 'statistic' => $statistics,
                        'grade_statistics' => $this->getGradeStatisticOverAll($statistics),
@@ -171,6 +171,6 @@ class CorrectorAdminWriterStatisticsGUI extends StatisticsGUI
 
     protected function loadUserdata() : void
     {
-        $this->usernames = \ilUserUtil::getNamePresentation(array_unique(array_map(fn (Writer $x) => $x->getUserId(), array_merge(...$this->writer))), false, false, "", true);
+        $this->common_services->userDataHelper()->preload(array_map(fn (Writer $x) => $x->getUserId(), array_merge(...$this->writer)));
     }
 }

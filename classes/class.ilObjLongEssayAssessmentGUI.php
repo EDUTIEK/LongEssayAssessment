@@ -234,7 +234,7 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                     }
                     break;
                 case 'ilias\plugin\longessayassessment\correctoradmin\correctoradminwriterstatisticsgui':
-                    if ($this->object->canViewCorrectorScreen()) {
+                    if ($this->object->canMaintainCorrectors()) {
                         $cmd = $this->ctrl->getCmd('showStartPage');
                         $active_sub = 'tab_writer_statistic';
                         $this->activateTab('tab_corrector_admin', $active_sub);

@@ -963,7 +963,7 @@ class CorrectorAdminService extends BaseService
             self::STATISTIC_TODO => $count_all - $count_authorized,
             self::STATISTIC_PASSED => $count_passed,
             self::STATISTIC_NOT_PASSED => $count_authorized - $count_passed,
-            self::STATISTIC_NOT_PASSED_QUOTA => $count_authorized > 0 ? ($count_passed / $count_authorized) : null,
+            self::STATISTIC_NOT_PASSED_QUOTA => $count_authorized > 0 ? 1 - ($count_passed / $count_authorized) : null,
             self::STATISTIC_AVERAGE => $count_authorized > 0 ? ($sum / $count_authorized) : null,
             self::STATISTIC_NOT_ATTENDED => $count_not_attended
         ];

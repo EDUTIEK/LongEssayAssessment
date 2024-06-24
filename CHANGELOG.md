@@ -8,6 +8,7 @@ New features:
 - disable correction reviews 
 - send review notifications after finalization and within review period via cron job
 - adding the possibility to compare grade statistics over multiple plugin objects within the same repository context
+- adding writer and corrector statistics with a csv export
 
 ## Version 1.7 (2024-06-21)
 New features in corrector:

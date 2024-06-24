@@ -1,14 +1,26 @@
 # Change Log
 
-## Upcoming Version
+## Version 2.2 (2024-06-24)
+New features in corrector:
+- allow multiple marks for one comment if drawn with shift key pressed
+- show warnings for empty summary or diverging points in authorization dialogue
+
+Bug fixes:
 - plugin: fix uninstallation problems
-- plugin: fixed 40808: Blank pages occur when Text and PDF are submitted
+- plugin: fix 40808: Blank pages occur when Text and PDF are submitted
+- plugin: fix corrector assignment file upload error handling with required file
+- plugin: fix str_word_count on null in corrector assignment file export
+- plugin: fix wring display of correction status for corrector 1
+- plugin: fix error at correction start as admin, if object is not online
 - service: reduce size of correction PDF
 - service: fix wrong end date in PDF header
-- service: fixed removing of empty lines
-- writer: fixed paste from word with fake numbered lists
-- writer: fixed wring display of numbering on preview screen when sendings are open
-- corrector: fixed problems with loading resources and pages in safari
+- service: fix removing of empty lines
+- service: fix 41393 too large correction image size when pdf has unusual dimensions
+- service: fix showing of criteria and summary in pdf if correction is not authorized
+- writer: fix paste from word with fake numbered lists
+- writer: fix wrong display of numbering on preview screen when sendings are open
+- writer: fix showing of empty page if task description is only provided as PDF
+- corrector: fix problems with loading resources and pages in safari
 
 ## Version 2.1 (2024-05-15)
 - First published version for ILIAS 8

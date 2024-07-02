@@ -1,5 +1,8 @@
 # Change Log
 
+## Upcoming version
+- plugin: add correction finalize date to results export
+
 ## Version 1.7 (2024-06-21)
 New features in corrector:
 - allow multiple marks for one comment if drawn with shift key pressed

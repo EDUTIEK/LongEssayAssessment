@@ -1,12 +1,14 @@
 # Change Log
 
-## Upcoming Version
-- plugin: fix uninstallation problems
-- plugin: fix 40808: Blank pages occur when Text and PDF are submitted
+## Upcoming version
+New features:
+- plugin: correction setting to anonymize the corrector names for the writers
 - plugin: add correction finalize date to results export
 - plugin: general cron job support [cron job support](https://github.com/EDUTIEK/LongEssayAssessmentCron/)
 - plugin: disable correction reviews
 - plugin: send review notifications after finalization and within review period via cron job
+- plugin: fix uninstallation problems
+- plugin: fix 40808: Blank pages occur when Text and PDF are submitted
 - plugin: fix huge user images in remove/repeal participant confirmation modal
 - plugin: fix double file error in pdf version upload, when nothing was changed
 - plugin: fix possibility to remove pdf version uploads

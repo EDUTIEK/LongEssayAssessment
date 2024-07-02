@@ -32,7 +32,8 @@ class CorrectionSettings extends RecordData
         'stitch_when_decimals' => 'integer',
         'criteria_mode' => 'text',
         'positive_rating' => 'text',
-        'negative_rating' => 'text'
+        'negative_rating' => 'text',
+        'anonymize_correctors' => 'integer'
     ];
 
     protected int $task_id;
@@ -47,6 +48,7 @@ class CorrectionSettings extends RecordData
     protected string $criteria_mode = self::CRITERIA_MODE_NONE;
     protected string $positive_rating = "";
     protected string $negative_rating = "";
+    protected int $anonymize_correctors = 0;
 
     public function __construct(int $task_id)
     {
@@ -252,6 +254,17 @@ class CorrectionSettings extends RecordData
     public function setNegativeRating(string $negative_rating): CorrectionSettings
     {
         $this->negative_rating = $negative_rating;
+        return $this;
+    }
+
+    public function getAnonymizeCorrectors() : bool
+    {
+        return $this->anonymize_correctors;
+    }
+
+    public function setAnonymizeCorrectors(bool $anonymize_correctors) : CorrectionSettings
+    {
+        $this->anonymize_correctors = (int) $anonymize_correctors;
         return $this;
     }
 

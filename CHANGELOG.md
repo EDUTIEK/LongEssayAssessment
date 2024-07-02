@@ -1,4 +1,6 @@
 # Change Log
+## Upcoming version
+- plugin: add correction finalize date to results export
 - plugin: general cron job support [cron job support](https://github.com/EDUTIEK/LongEssayAssessmentCron/)
 - plugin: disable correction reviews
 - plugin: send review notifications after finalization and within review period via cron job

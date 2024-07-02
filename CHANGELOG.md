@@ -1,5 +1,8 @@
 # Change Log
 ## Upcoming version
+New features:
+- plugin: correction setting to anonymize the corrector names for the writers
+- plugin: add correction finalize date to results export
 - plugin: add correction finalize date to results export
 - plugin: general cron job support [cron job support](https://github.com/EDUTIEK/LongEssayAssessmentCron/)
 - plugin: disable correction reviews

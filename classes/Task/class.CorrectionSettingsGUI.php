@@ -65,6 +65,15 @@ class CorrectionSettingsGUI extends BaseGUI
         $fields['mutual_visibility'] = $factory->checkbox($this->plugin->txt('mutual_visibility'), $this->plugin->txt('mutual_visibility_info'))
             ->withValue((bool) $correctionSettings->getMutualVisibility());
 
+        $fields['anonymize_correctors'] = $factory->checkbox($this->plugin->txt('anonymize_correctors'), $this->plugin->txt('anonymize_correctors_info'))
+            ->withValue($correctionSettings->getAnonymizeCorrectors());
+
+        $sections['correction'] = $factory->section($fields, $this->plugin->txt('correction_settings'));
+
+        // Rating
+
+        $fields = [];
+
         $fields['max_points'] = $factory->numeric($this->plugin->txt('max_points'))
             ->withAdditionalTransformation($this->refinery->int()->isGreaterThan(0))
             ->withAdditionalTransformation($this->refinery->to()->int())
@@ -102,7 +111,7 @@ class CorrectionSettingsGUI extends BaseGUI
                                             )
                                            ->withValue($correctionSettings->getCriteriaMode());
         
-        $sections['correction'] = $factory->section($fields, $this->plugin->txt('correction_settings'));
+        $sections['rating'] = $factory->section($fields, $this->plugin->txt('rating_settings'));
 
         // Stitch decision
 
@@ -138,10 +147,11 @@ class CorrectionSettingsGUI extends BaseGUI
             $correctionSettings->setRequiredCorrectors((int) $data['correction']['required_correctors']);
             $correctionSettings->setAssignMode((string) $data['correction']['assign_mode']);
             $correctionSettings->setMutualVisibility((int) $data['correction']['mutual_visibility']);
-            $correctionSettings->setPositiveRating((string) $data['correction']['positive_rating']);
-            $correctionSettings->setNegativeRating((string) $data['correction']['negative_rating']);
-            $correctionSettings->setMaxPoints((int) $data['correction']['max_points']);
-            $correctionSettings->setCriteriaMode((string) $data['correction']['criteria_mode']);
+            $correctionSettings->setAnonymizeCorrectors((int) $data['correction']['anonymize_correctors']);
+            $correctionSettings->setPositiveRating((string) $data['rating']['positive_rating']);
+            $correctionSettings->setNegativeRating((string) $data['rating']['negative_rating']);
+            $correctionSettings->setMaxPoints((int) $data['rating']['max_points']);
+            $correctionSettings->setCriteriaMode((string) $data['rating']['criteria_mode']);
             if (isset($data['stitch']['stitch_when_distance']) && is_array($data['stitch']['stitch_when_distance'])) {
                 $correctionSettings->setStitchWhenDistance(true);
                 $correctionSettings->setMaxAutoDistance((float) $data['stitch']['stitch_when_distance']['max_auto_distance']);

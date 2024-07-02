@@ -2116,3 +2116,15 @@ if (!$ilDB->tableColumnExists('xlas_task_settings','review_notif_text')) {
     ]);
 }
 ?>
+<#99>
+<?php
+if (!$ilDB->tableColumnExists('xlas_corr_setting','anonymize_correctors')) {
+    $ilDB->addTableColumn('xlas_corr_setting', 'anonymize_correctors', array(
+        'notnull' => '1',
+        'type' => 'integer',
+        'length' => 4,
+        'default' => 0
+    ));
+}
+?>
+

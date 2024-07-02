@@ -541,3 +541,7 @@ corrector_x_name#:#Korrektor %s Name
 corrector_x_points#:#Korrektor %s Punkte
 website#:#Website
 correction_finalize_datetime#:#Korrektur-Ende
+anonymize_correctors#:#Korrektoren anonymisieren
+anonymize_correctors_info#:#Verbirgt die Namen der Korrektoren vor den Teilnehmern. Sie bleiben in der Korrektorenverwaltung, bei der Korrektur und beim Export der Korrekturen sichtbar.
+corrector_x#:#Korrektor %s
+rating_settings#:#Bewertung

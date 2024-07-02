@@ -467,20 +467,31 @@ class CorrectorAdminService extends BaseService
 
     /**
      * Get the correction of an essay as PDF string
-     * if a repo corrector is given as parameter, then only this correction is included, not other correctors
+     * @param Corrector|null $repoCorrector if given, then only this correction is included, not other correctors
+     * @param bool $forCorrector the PDF is for download by a corrector => writer name is anonymized
+     * @param bool $forWriter the PDF is for download by a writer => corrector name may be anonymized
      */
-    public function getCorrectionAsPdf(\ilObjLongEssayAssessment $object, Writer $repoWriter, ?Corrector $repoCorrector = null, $anonymous = false) : string
+    public function getCorrectionAsPdf(
+        \ilObjLongEssayAssessment $object,
+        Writer $repoWriter,
+        ?Corrector $repoCorrector = null,
+        $forCorrector = false,
+        $forWriter = false
+    ) : string
     {
         $context = new CorrectorContext();
         $context->init((string) $this->dic->user()->getId(), (string) $object->getRefId());
 
         $writingTask = $context->getWritingTaskByWriterId($repoWriter->getId());
-        if ($anonymous) {
+        if ($forCorrector) {
+            // anonymize the writer name for the corrector
             $writingTask = $writingTask->withWriterName($repoWriter->getPseudonym());
         }
         $writtenEssay = $context->getEssayOfItem((string) $repoWriter->getId());
 
         $correctionSummaries = [];
+
+        $settings = $this->taskRepo->getCorrectionSettingsById($this->task_id);
 
         if (isset($repoCorrector)) {
             // summary of a single corrector might not yet be saved - then use preferences for inclusions
@@ -488,6 +499,9 @@ class CorrectorAdminService extends BaseService
             $summary = $context->getCorrectionSummary((string) $repoWriter->getId(), (string) $repoCorrector->getId());
             if (empty($summary)) {
                 $summary = new CorrectionSummary((string) $repoWriter->getId(), (string) $repoCorrector->getId());
+            }
+            if ($forWriter && $settings->getAnonymizeCorrectors()) {
+                $summary = $summary->withCorrectorName(null);
             }
             $correctionSummaries[] = $summary
                 ->withIncludeComments($summary->getIncludeComments() ?? $preferences->getIncludeComments())
@@ -497,10 +511,18 @@ class CorrectorAdminService extends BaseService
                 ->withIncludeWriterNotes($summary->getIncludeWriterNotes() ?? $preferences->getIncludeWriterNotes());
         }
         else {
-            foreach ($this->correctorRepo->getAssignmentsByWriterId($repoWriter->getId()) as $assignment) {
+            $assignments = $this->correctorRepo->getAssignmentsByWriterId($repoWriter->getId());
+            foreach ($assignments as $assignment) {
                 if (!empty($summary = $context->getCorrectionSummary(
                         (string) $repoWriter->getId(), (string) $assignment->getCorrectorId()))
                 ) {
+                    if ($forWriter && $settings->getAnonymizeCorrectors()) {
+                        $summary = $summary->withCorrectorName(
+                            count($assignments) == 1
+                                ? null
+                                : sprintf($this->plugin->txt('corrector_x'), $assignment->getPosition() + 1)
+                        );
+                    }
                     $correctionSummaries[] = $summary;
                 }
             }

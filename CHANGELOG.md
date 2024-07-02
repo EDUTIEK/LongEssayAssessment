@@ -1,7 +1,9 @@
 # Change Log
 
 ## Upcoming version
-- plugin: add correction finalize date to results export
+New features:
+- correction setting to anonymize the corrector names for the writers
+- add correction finalize date to results export
 
 ## Version 1.7 (2024-06-21)
 New features in corrector:

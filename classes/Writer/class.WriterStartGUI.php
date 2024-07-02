@@ -372,7 +372,7 @@ class WriterStartGUI extends BaseGUI
             $repoWriter = $this->localDI->getWriterRepo()->getWriterByUserIdAndTaskId($this->dic->user()->getId(), $this->object->getId());
 
             $filename = 'task' . $this->object->getId() . '_writer' . $repoWriter->getId(). '-correction.pdf';
-            $this->common_services->fileHelper()->deliverData($service->getCorrectionAsPdf($this->object, $repoWriter), $filename, 'application/pdf');
+            $this->common_services->fileHelper()->deliverData($service->getCorrectionAsPdf($this->object, $repoWriter, null, false, true), $filename, 'application/pdf');
         } else {
             $this->raisePermissionError();
         }

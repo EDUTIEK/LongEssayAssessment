@@ -201,32 +201,62 @@ class DataService extends BaseService
     }
 
     /**
+     * Format a date and time with fallback
+     */
+    public function formatDateTime(?string $date, $relative = true) : string
+    {
+        $old_relative = \ilDatePresentation::useRelativeDates();
+        \ilDatePresentation::setUseRelativeDates($relative);
+
+        $text = '';
+        try {
+            if(empty($date)) {
+                $text = $this->plugin->txt('not_specified');
+            } else {
+                $text = \ilDatePresentation::formatDate(new \ilDateTime($date, IL_CAL_DATETIME));
+            }
+        } catch (Throwable $e) {
+            $text = $this->plugin->txt('not_specified');
+        }
+
+        \ilDatePresentation::setUseRelativeDates($old_relative);
+        return $text;
+    }
+
+    /**
      * Format a time period from timestamp strings with fallback for missing values
      */
-    public function formatPeriod(?string $start, ?string $end): string
+    public function formatPeriod(?string $start, ?string $end, $relative = true): string
     {
+        $old_relative = \ilDatePresentation::useRelativeDates();
+        \ilDatePresentation::setUseRelativeDates($relative);
+
+        $text = '';
         try {
             if(empty($start) && empty($end)) {
-                return $this->plugin->txt('not_specified');
+                $text = $this->plugin->txt('not_specified');
             } elseif (empty($end)) {
-                return
+                $text =
                     $this->plugin->txt('period_only_from') . ' ' .
                     \ilDatePresentation::formatDate(new \ilDateTime($start, IL_CAL_DATETIME));
             } elseif (empty($start)) {
-                return
+                $text =
                     $this->plugin->txt('period_only_until') . ' ' .
                     \ilDatePresentation::formatDate(new \ilDateTime($end, IL_CAL_DATETIME));
             } else {
-                return $this->plugin->txt('period_from') . ' ' .
-                \ilDatePresentation::formatDate(new \ilDateTime($start, IL_CAL_DATETIME)) . ' ' .
-                $this->plugin->txt('period_until') . ' ' .
-                \ilDatePresentation::formatDate(new \ilDateTime($end, IL_CAL_DATETIME));
+                $text = $this->plugin->txt('period_from') . ' ' .
+                    \ilDatePresentation::formatDate(new \ilDateTime($start, IL_CAL_DATETIME)) . ' ' .
+                    $this->plugin->txt('period_until') . ' ' .
+                    \ilDatePresentation::formatDate(new \ilDateTime($end, IL_CAL_DATETIME));
 
                 // return \ilDatePresentation::formatPeriod(new \ilDateTime($start, IL_CAL_DATETIME), new \ilDateTime($end, IL_CAL_DATETIME));
             }
         } catch (Throwable $e) {
-            return $this->plugin->txt('not_specified');
+            $text = $this->plugin->txt('not_specified');
         }
+
+        \ilDatePresentation::setUseRelativeDates($old_relative);
+        return $text;
     }
 
 

@@ -537,6 +537,7 @@ corrector_x_login#:#Korrektor %s Login
 corrector_x_name#:#Korrektor %s Name
 corrector_x_points#:#Korrektor %s Punkte
 website#:#Website
+correction_finalize_datetime#:#Korrektur-Ende
 review_enabled#:#Einsichtnahme aktiviert
 review_info#:#Hier stellen Sie ein, ob und wann den Teilnehmern ein PDF mit ihrer korrigierten Abgabe zur Einsichtnahme auf ihrer Startseite angeboten werden soll.
 review_notification_enabled#:#Benachrichtigung aktiviert

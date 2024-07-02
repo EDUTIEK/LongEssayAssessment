@@ -544,6 +544,7 @@ class CorrectorAdminService extends BaseService
         $csv->addColumn($this->plugin->txt('essay_status'));
         $csv->addColumn($this->plugin->txt('writing_last_save'));
         $csv->addColumn($this->plugin->txt('correction_status'));
+        $csv->addColumn($this->plugin->txt('correction_finalize_datetime'));
         $csv->addColumn($this->plugin->txt('points'));
         $csv->addColumn($this->plugin->txt('grade_level'));
         $csv->addColumn($this->plugin->txt('grade_level_code'));
@@ -585,14 +586,17 @@ class CorrectorAdminService extends BaseService
                 $csv->addColumn('');
                 $csv->addColumn('');
                 $csv->addColumn('');
+                $csv->addColumn('');
             } elseif (empty($repoEssay->getWritingAuthorized())) {
                 $csv->addColumn($this->plugin->txt('correction_status_not_possible'));
                 $csv->addColumn('');
                 $csv->addColumn('');
                 $csv->addColumn('');
                 $csv->addColumn('');
+                $csv->addColumn('');
             } else {
                 $csv->addColumn($this->plugin->txt('correction_status_finished'));
+                $csv->addColumn($repoEssay->getCorrectionFinalized());
                 $csv->addColumn((string) $repoEssay->getFinalPoints());
                 if (!empty($level = $this->localDI->getObjectRepo()->getGradeLevelById((int) $repoEssay->getFinalGradeLevelId()))) {
                     $csv->addColumn(mb_convert_encoding($level->getGrade(), 'ISO-8859-1', 'UTF-8'));

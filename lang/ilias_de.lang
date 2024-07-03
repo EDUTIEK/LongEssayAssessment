@@ -542,6 +542,7 @@ anonymize_correctors#:#Korrektoren anonymisieren
 anonymize_correctors_info#:#Verbirgt die Namen der Korrektoren vor den Teilnehmern. Sie bleiben in der Korrektorenverwaltung, bei der Korrektur und beim Export der Korrekturen sichtbar.
 corrector_x#:#Korrektor %s
 rating_settings#:#Bewertung
+show_resources#:#Material zur Bearbeitung
 review_enabled#:#Einsichtnahme aktiviert
 review_info#:#Hier stellen Sie ein, ob und wann den Teilnehmern ein PDF mit ihrer korrigierten Abgabe zur Einsichtnahme auf ihrer Startseite angeboten werden soll.
 review_notification_enabled#:#Benachrichtigung aktiviert

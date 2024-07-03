@@ -83,8 +83,8 @@ class DataService extends BaseService
     }
 
     /**
-     * Get the corrector record of the current user
-     * @return Corrector|null
+     * Get the essay record of the current user
+     * @return Essay|null
      */
     public function getOwnEssay() : ?Essay
     {

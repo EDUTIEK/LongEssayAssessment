@@ -39,6 +39,8 @@ class WriterStartGUI extends BaseGUI
             case 'downloadWriterPdf':
             case 'downloadCorrectedPdf':
             case 'downloadResourceFile':
+            case 'viewDescription':
+            case 'viewClosingMessage':
             case 'viewInstructions':
             case 'downloadInstructions':
             case 'viewSolution':
@@ -59,32 +61,60 @@ class WriterStartGUI extends BaseGUI
         $contents = [];
         $modals = [];
 
-        if (!empty($essay = $this->data->getOwnEssay())) {
+        $essay = $this->data->getOwnEssay(); // max be null
+
+        $writing_start = $this->task->getWritingStart();
+        $writing_end = null;
+        if (!empty($this->task->getWritingEnd())) {
+            $writing_end = $this->data->unixTimeToDb(
+                $this->data->dbTimeToUnix($this->task->getWritingEnd()) + $this->data->getOwnTimeExtensionSeconds()
+            );
+        }
+        $is_written = isset($essay) && !empty($essay->getWritingAuthorized());
+        $is_before_writing = isset($writing_start) && time() < $this->data->dbTimeToUnix($writing_start);
+        $is_after_writing = $is_written || (isset($writing_end)  && time() > $this->data->dbTimeToUnix($writing_end));
+
+        // Screen Message
+
+        if (isset($essay)) {
             if (!empty($essay->getWritingExcluded())) {
                 $this->tpl->setOnScreenMessage("info", $this->plugin->txt('message_writing_excluded'));
-            } elseif (!empty($essay->getWritingAuthorized())) {
-                if(!empty($this->task->getClosingMessage())) {
-                    $message = $this->displayText($this->task->getClosingMessage());
+
+            } elseif ($this->object->canWrite()) {
+                if (isset($this->params['returned'])) {
+                    $this->tpl->setOnScreenMessage("info", $this->plugin->txt('message_writing_returned_interrupted'));
+                }
+            } elseif (empty($essay->getWritingAuthorized())) {
+                if ($this->object->canReviewWrittenEssay()) {
+                    $this->tpl->setOnScreenMessage("failure", $this->plugin->txt('message_writing_to_authorize'));
                 } else {
-                    $message = $this->plugin->txt('message_writing_authorized');
+                    $this->tpl->setOnScreenMessage("failure", $this->plugin->txt('message_writing_not_authorized'));
                 }
 
+            } elseif (!empty($essay->getWritingAuthorized())) {
                 $review_message = '';
-                $back_link = '';
                 if (!empty($this->task->getReviewStart()) || !empty($this->task->getReviewEnd())) {
-                    $review_message = '<p>'. sprintf(
+                    $review_message = sprintf(
                         $this->plugin->txt('message_review_period'),
                         $this->data->formatPeriod($this->task->getReviewStart(), $this->task->getReviewEnd())
-                    ) . '</p>';
+                    );
                 }
-
                 if (isset($this->params['returned'])) {
+                    if(!empty($this->task->getClosingMessage())) {
+                        $message = $this->displayText($this->task->getClosingMessage());
+                    } else {
+                        $message = $this->plugin->txt('message_writing_authorized');
+                    }
                     $back_url = \ilLink::_getLink($this->dic->repositoryTree()->getParentId($this->object->getRefId()));
                     $back_text = $this->plugin->txt('message_writing_authorized_link');
-                    $back_link = '<p><a href="'.$back_url.'">'.$back_text.'</a></p>';
-                    $this->tpl->setOnScreenMessage("success", $message. $review_message. $back_link);
+                    $back_link = '<p></p><a href="'.$back_url.'">'.$back_text.'</a></p>';
+
+                    $this->tpl->setOnScreenMessage("success",
+                        $message . ($review_message ? '<p>' . $review_message . '</p>' : '') . $back_link);
+
                 } else {
-                    $this->tpl->setOnScreenMessage("info", $message. $review_message. $back_link);
+                    $this->tpl->setOnScreenMessage("info",
+                        $review_message ?: $this->plugin->txt('message_writing_authorized'));
                 }
             }
         }
@@ -98,68 +128,81 @@ class WriterStartGUI extends BaseGUI
             $button->setPrimary(true);
             $this->toolbar->addButtonInstance($button);
 
-            if (isset($this->params['returned'])) {
-                $this->tpl->setOnScreenMessage("info", $this->plugin->txt('message_writing_returned_interrupted'));
-            }
-        } elseif (!empty($essay) && empty($essay->getWritingAuthorized())) {
-
-            if ($this->object->canReviewWrittenEssay()) {
-                $button = \ilLinkButton::getInstance();
-                $button->setUrl($this->ctrl->getLinkTarget($this, 'startWritingReview'));
-                $button->setCaption($this->plugin->txt('review_writing'), false);
-                $this->toolbar->addButtonInstance($button);
-
-                $this->tpl->setOnScreenMessage("failure", $this->plugin->txt('message_writing_to_authorize'));
-            } else {
-                $this->tpl->setOnScreenMessage("failure", $this->plugin->txt('message_writing_not_authorized'));
-            }
+        } elseif ($this->object->canReviewWrittenEssay() && isset($essay) && empty($essay->getWritingAuthorized())) {
+            $button = \ilLinkButton::getInstance();
+            $button->setUrl($this->ctrl->getLinkTarget($this, 'startWritingReview'));
+            $button->setCaption($this->plugin->txt('review_writing'), false);
+            $this->toolbar->addButtonInstance($button);
         }
 
 
         // Instructions
 
-        $writing_end = null;
-        if (!empty($this->task->getWritingEnd())) {
-            $writing_end = $this->data->unixTimeToDb(
-                $this->data->dbTimeToUnix($this->task->getWritingEnd()) + $this->data->getOwnTimeExtensionSeconds()
-            );
-        }
-
         $inst_parts = [];
-        if (!empty($this->task->getDescription())) {
-            $inst_parts[] = $this->displayText($this->task->getDescription());
-        }
-        if ($this->data->isInRange(time(), $this->data->dbTimeToUnix($this->task->getWritingStart()), null)) {
-            $inst_buttons = [];
+        $inst_buttons = [];
+        $desc_title = '';
+
+        if ($is_after_writing) {
+            if (!empty($this->task->getDescription())) {
+                $inst_buttons[] = $this->uiFactory->button()->shy(
+                    $this->plugin->txt('task_description') . ' &nbsp; ',
+                    $this->ctrl->getLinkTarget($this, 'viewDescription')
+                );
+            }
+            if (!empty($this->task->getClosingMessage()) && $is_written) {
+                $inst_buttons[] = $this->uiFactory->button()->shy(
+                    $this->plugin->txt('closing_message') . ' &nbsp; ',
+                    $this->ctrl->getLinkTarget($this, 'viewClosingMessage')
+                );
+            }
             if (!empty($this->task->getInstructions())) {
-                $inst_buttons[] = $this->uiFactory->button()->standard(
-                    $this->plugin->txt('view_instructions'),
+                $inst_buttons[] = $this->uiFactory->button()->shy(
+                    $this->plugin->txt('view_instructions') . ' &nbsp; ',
                     $this->ctrl->getLinkTarget($this, 'viewInstructions')
                 );
             }
             $task_repo = $this->localDI->getTaskRepo();
             if (!empty($task_repo->getInstructionResource($this->object->getId()))) {
-                $inst_buttons[] = $this->uiFactory->button()->standard(
-                    $this->plugin->txt('download_instructions'),
+                $inst_buttons[] = $this->uiFactory->button()->shy(
+                    $this->plugin->txt('download_instructions') . ' &nbsp; ',
                     $this->ctrl->getLinkTarget($this, 'downloadInstructions')
                 );
             }
+        }
+        else {
+            if (!empty($this->task->getDescription())) {
+                $desc_title = $this->lng->txt('description');
+                $inst_parts[] = $this->displayText($this->task->getDescription());
+            }
 
-            if (!empty($inst_buttons)) {
-                $inst_parts[] = $this->renderer->render($inst_buttons);
+            if (!$is_before_writing) {
+                $inst_buttons = [];
+                if (!empty($this->task->getInstructions())) {
+                    $inst_buttons[] = $this->uiFactory->button()->standard(
+                        $this->plugin->txt('view_instructions'),
+                        $this->ctrl->getLinkTarget($this, 'viewInstructions')
+                    );
+                }
+                $task_repo = $this->localDI->getTaskRepo();
+                if (!empty($task_repo->getInstructionResource($this->object->getId()))) {
+                    $inst_buttons[] = $this->uiFactory->button()->standard(
+                        $this->plugin->txt('download_instructions'),
+                        $this->ctrl->getLinkTarget($this, 'downloadInstructions')
+                    );
+                }
             }
         }
 
+        if (!empty($inst_buttons)) {
+            $inst_parts[] = $this->renderer->render($inst_buttons);
+        }
+
         $refresh_link = '';
-        if ($this->localDI->getDataService($this->task->getTaskId())->dbTimeToUnix($this->task->getWritingStart()) > time()) {
+        if ($is_before_writing) {
             $refresh_link = ' ' . $this->renderer->render($this->uiFactory->button()->shy($this->plugin->txt('refresh_page'), $this->ctrl->getLinkTarget($this)));
         }
         $properties = [$this->plugin->txt('writing_period') => $this->data->formatPeriod(
-            $this->task->getWritingStart(),
-            $writing_end
-        ) . $refresh_link];
-        
-        
+            $this->task->getWritingStart(), $writing_end) . $refresh_link];
         
         if (isset($essay) && $essay->getLocation() !== null) {
             $taskRepo = $this->localDI->getTaskRepo();
@@ -168,11 +211,10 @@ class WriterStartGUI extends BaseGUI
 
         $contents[] = $this->uiFactory->item()->group(
             $this->plugin->txt('task_instructions'),
-            [$this->uiFactory->item()->standard($this->lng->txt('description'))
+            [$this->uiFactory->item()->standard($desc_title)
                 ->withDescription($this->createPlaceholder(implode('<br>', $inst_parts)))
                 ->withProperties($properties)]
         );
-
 
         // Resources
 
@@ -408,6 +450,34 @@ class WriterStartGUI extends BaseGUI
                 $this->common_services->fileHelper()->deliverResource($resource->getFileId(), 'attachment');
             }
         }
+    }
+
+    protected function viewDescription()
+    {
+        $this->toolbar->addComponent($this->uiFactory->button()->standard(
+            $this->lng->txt('back'),
+            $this->ctrl->getLinkTarget($this, 'showStartPage')
+        ));
+
+        $content = $this->uiFactory->panel()->standard(
+            $this->plugin->txt('task_description'),
+            $this->uiFactory->legacy($this->displayText($this->task->getDescription()))
+        );
+        $this->tpl->setContent($this->renderer->render($content));
+    }
+
+    protected function viewClosingMessage()
+    {
+        $this->toolbar->addComponent($this->uiFactory->button()->standard(
+            $this->lng->txt('back'),
+            $this->ctrl->getLinkTarget($this, 'showStartPage')
+        ));
+
+        $content = $this->uiFactory->panel()->standard(
+            $this->plugin->txt('closing_message'),
+            $this->uiFactory->legacy($this->displayText($this->task->getClosingMessage()))
+        );
+        $this->tpl->setContent($this->renderer->render($content));
     }
 
     protected function viewInstructions()

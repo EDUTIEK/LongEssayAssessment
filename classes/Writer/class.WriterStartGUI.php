@@ -140,19 +140,20 @@ class WriterStartGUI extends BaseGUI
         // Instructions
 
         $inst_parts = [];
+        $properties = [];
 
         if (!empty($this->task->getDescription()) && !$is_after_writing) {
             $inst_parts[] = $this->uiFactory->legacy($this->displayText($this->task->getDescription()));
         }
 
-        $properties = [];
-        if ($this->localDI->getDataService($this->task->getTaskId())->dbTimeToUnix($this->task->getWritingStart()) > time()) {
+        if ($is_before_writing) {
             $properties[$this->plugin->txt('writing_period')] = $this->uiFactory->button()->shy(
                 $this->data->formatPeriod($this->task->getWritingStart(), $writing_end)
                 . ' ' . $this->plugin->txt('refresh_page'),
                 $this->ctrl->getLinkTarget($this)
             );
-        } else {
+        }
+        elseif (!$is_written) {
             $properties[$this->plugin->txt('writing_period')] = $this->data->formatPeriod($this->task->getWritingStart(), $writing_end);
         }
         if (isset($essay) && $essay->getLocation() !== null) {
@@ -266,7 +267,17 @@ class WriterStartGUI extends BaseGUI
             }
         }
         if (!empty($writing_resources)) {
-            $contents[] = $this->uiFactory->panel()->standard($this->plugin->txt("tab_resources"), $writing_resources);
+            if ($is_after_writing) {
+                $popover = $this->uiFactory->popover()->listing($writing_resources)->withTitle($this->plugin->txt("tab_resources"));
+                $contents[] = $popover;
+                $button = $this->uiFactory->button()->shy($this->plugin->txt('show_resources'),'#')
+                                  ->withOnClick($popover->getShowSignal());
+                $contents[] = $this->uiFactory->panel()->standard($this->plugin->txt("tab_resources"), $button);
+            }
+            else {
+                $contents[] = $this->uiFactory->panel()->standard($this->plugin->txt("tab_resources"), $writing_resources);
+
+            }
         }
 
         // Result
@@ -289,16 +300,20 @@ class WriterStartGUI extends BaseGUI
 
         if (isset($essay)) {
             if ($this->object->canReviewWrittenEssay() && !empty($essay->getWritingAuthorized())) {
-                $result_items[] = $this->uiFactory->button()->standard(
-                    $this->plugin->txt('download_written_submission'),
-                    $this->ctrl->getLinkTarget($this, 'downloadWriterPdf')
-                );
+                $result_items[] = $this->uiFactory->item()->standard(
+                    $this->uiFactory->link()->standard(
+                        $this->plugin->txt('download_written_submission'),
+                        $this->ctrl->getLinkTarget($this, "downloadWriterPdf")
+                    )
+                )->withLeadIcon($this->uiFactory->symbol()->icon()->standard('file', 'File', 'medium'));
             }
             if ($this->object->canReviewCorrectedEssay()) {
-                $result_items[] = $this->uiFactory->button()->standard(
-                    $this->plugin->txt('download_corrected_submission'),
-                    $this->ctrl->getLinkTarget($this, 'downloadCorrectedPdf')
-                );
+                $result_items[] = $this->uiFactory->item()->standard(
+                    $this->uiFactory->link()->standard(
+                        $this->plugin->txt('download_corrected_submission'),
+                        $this->ctrl->getLinkTarget($this, "downloadCorrectedPdf")
+                    )
+                )->withLeadIcon($this->uiFactory->symbol()->icon()->standard('file', 'File', 'medium'));
             }
         }
 

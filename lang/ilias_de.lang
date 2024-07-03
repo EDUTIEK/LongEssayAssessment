@@ -93,7 +93,7 @@ solution_available_date#:#Datum
 solution_available_date_info#:#Ab diesem Datum werden die Lösungshinweise angezeigt. Ohne festgelegtes Datum werden sie sofort angezeigt.
 result_available_type#:#Ergebnis (Punkte und Note)
 result_available_type_info#:#Hier stellen Sie ein, wann das Ergebnis (Note und Punkte) den Teilnehmenden auf ihrer Startseite bekannt gegeben werden soll.
-label_available#:#Verfügbar:
+label_available#:#Verfügbar
 result_available_finalised#:#wenn Abgabe korrigiert ist
 result_available_review#:#zur Einsichtnahme
 result_available_after#:#ab festem Datum
@@ -132,7 +132,7 @@ add_resource#:#Material hinzufügen
 lp_passed#:#Bestanden
 lp_passed_info#:#Für Lernfortschritt und Vorbedingungen gilt diese Notenstufe als bestanden.
 start_writing#:#Bearbeitung starten
-writing_period#:#Bearbeitung
+writing_period#:#Bearbeitungszeitraum
 not_specified#:#nicht festgelegt
 period_only_from#:#ab
 period_only_until#:#bis
@@ -422,8 +422,8 @@ confirm_authorize_correction#:#Möchten Sie die folgenden Korrekturen autorisier
 authorize_correction_done#:#Ihre Korrektur wurde autorisiert.
 no_authorizations_to_remove#:#In Ihrer Auswahl waren keine Korrektur-Autorisierungen, die zurückgenommen werden können.
 no_corrections_to_authorize#:#In Ihrer Auswahl waren keine Korrekturen, die autorisiert werden können.
-download_instructions#:#PDF herunterladen
-download_solution#:#PDF herunterladen
+download_instructions#:#Aufgabenstellung herunterladen
+download_solution#:#Lösungshinweise herunterladen
 authorize_pdf_version_info#:#Wenn eine PDF-Abgabe hinzugefügt oder geändert wird, wird eine bisherige Autorisierung je nach Einstellung entfernt oder durch Sie erneuert.
 pdf_version#:#PDF-Abgabe
 pdf_version_edit#:#PDF-Abgabe editieren

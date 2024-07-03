@@ -356,11 +356,11 @@ class DataService extends BaseService
     {
         switch ($settings->getResultAvailableType()) {
             case TaskSettings::RESULT_AVAILABLE_FINALISED:
-                return $this->plugin->txt('label_available') . ' '. $this->plugin->txt('result_available_finalised');
+                return $this->plugin->txt('result_available_finalised');
             case TaskSettings::RESULT_AVAILABLE_REVIEW:
-                return $this->plugin->txt('label_available') . ' '. $this->plugin->txt('result_available_review');
+                return $this->plugin->txt('result_available_review');
             case TaskSettings::RESULT_AVAILABLE_DATE:
-                return $this->plugin->txt('label_available') . ' '. $this->formatPeriod($settings->getResultAvailableDate(), null);
+                return $this->formatPeriod($settings->getResultAvailableDate(), null);
         }
     }
 

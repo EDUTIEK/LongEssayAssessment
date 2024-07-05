@@ -74,9 +74,7 @@ class InstructionsSettingsGUI extends BaseGUI
         $di = LongEssayAssessmentDI::getInstance();
         $task_repo = $di->getTaskRepo();
 
-        $a_task_settings->setInstructions($a_data["task_instructions"]);
-
-
+        $a_task_settings->setInstructions($this->data->trimRichText($a_data["task_instructions"]));
 
         if($resource !== null && isset($a_data["resource_file"][0])) {
             $resource->setFileId($a_data["resource_file"][0]);

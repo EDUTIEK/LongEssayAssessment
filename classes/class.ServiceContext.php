@@ -98,13 +98,35 @@ abstract class ServiceContext implements BaseContext
         // user must be initiated here
         $this->object = new ilObjLongEssayAssessment($ref_id);
 
-        if (ilContext::getType() == ilContext::CONTEXT_REST && !$this->object->isOnline()) {
+        if (ilContext::getType() == ilContext::CONTEXT_REST &&
+            !($this->object->isOnline() || $this->object->canEditOrgaSettings())) {
             throw new ContextException('Object is offline', ContextException::ENVIRONMENT_NOT_VALID);
         }
 
         $this->task = $this->localDI->getTaskRepo()->getTaskSettingsById($this->object->getId());
         $this->data = $this->localDI->getDataService($this->object->getId());
         $this->file_helper = $this->localDI->services()->common()->fileHelper();
+    }
+
+    /**
+     * Get the HTTP path to the plugin
+     * Helper function for child classes to handle a different ILIAS_HTTP_PATH
+     * when being called from ilias.php or from the rest end points
+     *
+     * @return string
+     */
+    public function getPluginHttpPath(): string
+    {
+
+        $plugin_path = $this->plugin->getPluginPath();
+        $pos = strpos(ILIAS_HTTP_PATH, $plugin_path);
+
+        if ($pos !== false) {
+            return substr(ILIAS_HTTP_PATH, 0, $pos + strlen($plugin_path));
+        }
+        else {
+            return ILIAS_HTTP_PATH . '/' . $plugin_path;
+        }
     }
 
     /**

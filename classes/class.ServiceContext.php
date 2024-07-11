@@ -12,9 +12,9 @@ use ILIAS\Plugin\LongEssayAssessment\Data\DataService;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\Resource;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\TaskSettings;
 use ilContext;
-use \ilObjUser;
-use \ilObject;
-use \ilObjLongEssayAssessment;
+use ilObjUser;
+use ilObject;
+use ilObjLongEssayAssessment;
 use ilSession;
 use Edutiek\LongEssayAssessmentService\Data\PageImage;
 use Edutiek\LongEssayAssessmentService\Data\WritingSettings;
@@ -27,7 +27,7 @@ abstract class ServiceContext implements BaseContext
      * List the availabilities for which resources should be provided in the app
      * @see \ILIAS\Plugin\LongEssayAssessment\Data\Task\Resource
      */
-    const RESOURCES_AVAILABILITIES = [
+    public const RESOURCES_AVAILABILITIES = [
         // override this for writer and corrector context
     ];
 
@@ -113,20 +113,25 @@ abstract class ServiceContext implements BaseContext
      * Helper function for child classes to handle a different ILIAS_HTTP_PATH
      * when being called from ilias.php or from the rest end points
      *
+     * Returns the absolute URL path to the plugin directory without host, schema and port
+     * This avoids a "Mixed Content" error for REST calls from writer and corrector
+     * when HTTPS is terminated by a proxy and the ILIAS web worker is called by HTTP behind.
+     * Without HTTPS auto detection the ILIAS_HTTP_PATH would return a wrong schema
+     *
      * @return string
      */
     public function getPluginHttpPath(): string
     {
-
         $plugin_path = $this->plugin->getPluginPath();
         $pos = strpos(ILIAS_HTTP_PATH, $plugin_path);
 
         if ($pos !== false) {
-            return substr(ILIAS_HTTP_PATH, 0, $pos + strlen($plugin_path));
+            $url = substr(ILIAS_HTTP_PATH, 0, $pos + strlen($plugin_path));
+        } else {
+            $url = ILIAS_HTTP_PATH . '/' . $plugin_path;
         }
-        else {
-            return ILIAS_HTTP_PATH . '/' . $plugin_path;
-        }
+
+        return parse_url($url, PHP_URL_PATH);
     }
 
     /**
@@ -144,7 +149,7 @@ abstract class ServiceContext implements BaseContext
     public function getRelativeTempPath(): string
     {
         $this->createTempWebDir();
-        return ILIAS_WEB_DIR. '/' . CLIENT_ID . '/temp';
+        return ILIAS_WEB_DIR . '/' . CLIENT_ID . '/temp';
     }
 
     /**
@@ -290,7 +295,7 @@ abstract class ServiceContext implements BaseContext
                     $mimetype = $revision->getInformation()->getMimeType();
                     $size = $revision->getInformation()->getSize();
                 }
-                
+
                 $title = $resource->getTitle();
                 if ($resource->getType() == Resource::RESOURCE_TYPE_INSTRUCTION) {
                     $title = $this->plugin->txt('task_instructions');
@@ -433,7 +438,7 @@ abstract class ServiceContext implements BaseContext
      * This is specific for a writer because of his/her writing end and writing exclusion
      * (not needed by interface, but public because needed by WriterAdminService and CorrectorAdminService)
      */
-    public function getWritingTaskByWriterId(int $writer_id) : WritingTask
+    public function getWritingTaskByWriterId(int $writer_id): WritingTask
     {
         $repoWriter = $this->localDI->getWriterRepo()->getWriterById($writer_id);
         $repoEssay = $this->localDI->getEssayRepo()->getEssayByWriterIdAndTaskId($writer_id, $this->task->getTaskId());
@@ -462,7 +467,7 @@ abstract class ServiceContext implements BaseContext
      * We cannot determine the session because the service does not provide its session_id
      * So continue all active sessions, and try to filter them by i if the ip is stored in ilias
      */
-    public function setAlive() : void
+    public function setAlive(): void
     {
         global $DIC;
 

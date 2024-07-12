@@ -20,6 +20,9 @@ use ILIAS\Plugin\LongEssayAssessment\ilLongEssayAssessmentUploadTempFile;
 use ILIAS\Filesystem\Filesystem;
 use ILIAS\DI\Exceptions\Exception;
 use ilFileDelivery;
+use ilMailFormCall;
+use ilObjUser;
+use ilLink;
 
 /**
  *Start page for corrector admins
@@ -70,6 +73,7 @@ class CorrectorAdminGUI extends BaseGUI
                     case 'showCorrectors':
                     case 'confirmAssignWriters':
                     case 'addAllCourseTutors':
+                    case 'mailToCorrectors':
                     case 'assignWriters':
                     case 'changeCorrector':
                     case 'removeCorrector':
@@ -202,8 +206,7 @@ class CorrectorAdminGUI extends BaseGUI
 
     protected function showCorrectors()
     {
-
-
+        $components = [];
         $this->toolbar->setFormAction($this->ctrl->getFormAction($this));
 
         \ilRepositorySearchGUI::fillAutoCompleteToolbar(
@@ -220,16 +223,23 @@ class CorrectorAdminGUI extends BaseGUI
         // spacer
         $this->toolbar->addSeparator();
 
-        // search button
+        // add all course tutors
         if ($this->object_services->iliasContext()->isInCourse()) {
             $modal = $this->uiFactory->modal()->interruptive('', '', '')
                                      ->withAsyncRenderUrl($this->ctrl->getLinkTarget($this, 'addAllCourseTutors'));
             $button = $this->uiFactory->button()->standard($this->plugin->txt("add_all_course_tutors"), '')
                                       ->withOnClick($modal->getShowSignal());
-
+            $components[] = $modal;
             $this->toolbar->addComponent($button);
-            $this->tpl->addLightbox($this->renderer->render($modal), 'add_all_course_tutors');
         }
+
+        // mail to correctors
+        $modal = $this->uiFactory->modal()->roundtrip('', [])
+                                 ->withAsyncRenderUrl($this->ctrl->getFormAction($this, 'mailToCorrectors'));
+        $button = $this->uiFactory->button()->standard($this->plugin->txt("mail_to_correctors"), '')
+                                  ->withOnClick($modal->getShowSignal());
+        $components[] = $modal;
+        $this->toolbar->addComponent($button);
 
         $di = LongEssayAssessmentDI::getInstance();
         $writers_repo = $di->getWriterRepo();
@@ -240,7 +250,7 @@ class CorrectorAdminGUI extends BaseGUI
         $list_gui->setCorrectors($corrector_repo->getCorrectorsByTaskId($this->object->getId()));
         $list_gui->setAssignments($corrector_repo->getAssignmentsByTaskId($this->object->getId()));
 
-        $this->tpl->setContent($list_gui->getContent());
+        $this->tpl->setContent($list_gui->getContent(). $this->renderer->render($components));
     }
 
     /**
@@ -277,6 +287,77 @@ class CorrectorAdminGUI extends BaseGUI
 
 
         $this->tpl->setOnScreenMessage("success", $this->plugin->txt('tutors_added'), true);
+        $this->ctrl->redirect($this, 'showCorrectors');
+    }
+
+
+    /**
+     * Open the mail form for sending a mail to correctors
+     * First choose in a modal which correctors will be addressed
+     * @see Services/Mail/README.md
+     */
+    public function mailToCorrectors()
+    {
+        $all = $this->service->getCorrectors();
+        $open = $this->service->getCorrectorsWithOpenAuthorizations();
+
+        // Selection Modal
+        if ($this->request->getMethod() != 'POST') {
+            $fields= ['selection' => $this->uiFactory->input()->field()->radio($this->lng->txt('select'))
+                ->withOption('all', $this->plugin->txt('all_correctors') . ' (' . count($all) . ')')
+                ->withOption('open', $this->plugin->txt('correctors_with_open_corrections') . ' (' . count($open) . ')')
+                ->withValue('all')
+            ];
+            $form = $this->localDI->getUIFactory()->field()->blankForm(
+                $this->ctrl->getFormAction($this, "mailToCorrectors"), $fields)->withAsyncOnEnter();
+            $modal = $this->uiFactory->modal()->roundtrip(
+                $this->plugin->txt('mail_to_correctors'), $form)->withActionButtons([
+                    $this->uiFactory->button()->primary($this->plugin->txt('write_mail'), "")
+                                              ->withOnClick($form->getSubmitSignal())
+            ]);
+            echo $this->renderer->renderAsync($modal);
+            exit;
+        }
+
+        // Action
+        $post = $this->request->getParsedBody();
+        $get = $this->request->getQueryParams();
+
+        $correctors = [];
+        switch($post['form_input_1'] ?? '') {
+            case 'all':
+                $correctors = $all;
+                break;
+            case 'open':
+                $correctors = $open;
+                break;
+        }
+        $logins = [];
+        foreach ($correctors as $corrector) {
+            if (!empty($login = ilObjUser::_lookupLogin($corrector->getUserId()))) {
+                $logins[] = $login;
+            }
+        }
+
+        $sig = chr(13) . chr(10) . chr(13) . chr(10);
+        $sig .= $this->plugin->txt('link_to_object');
+        $sig .= chr(13) . chr(10);
+        $sig .= ilLink::_getStaticLink($get['ref_id'] ?? '');
+        $sig = rawurlencode(base64_encode($sig));
+
+        $this->ctrl->redirectToUrl(
+            \ilMailFormCall::getRedirectTarget(
+                $this, 'showCorrectors', ['ref_id' => $get['ref_id'] ?? ''],
+                [
+                    'type' => 'new', // Could also be 'reply' with an additional 'mail_id' paremter provided here
+                    'rcp_to' => implode(', ', $logins),
+                    ilMailFormCall::SIGNATURE_KEY => $sig
+                ],
+            )
+        );
+
+        //$this->tpl->setOnScreenMessage('success', print_r($this->request->getParsedBody(), true), true);
+
         $this->ctrl->redirect($this, 'showCorrectors');
     }
 

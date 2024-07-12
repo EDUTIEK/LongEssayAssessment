@@ -64,7 +64,7 @@ class ServicesFactory
     public function mail(int $ref_id) : MailServices
     {
         if (!isset($this->mail_services[$ref_id])) {
-            $this->mail_services[$ref_id] = new MailServices($this->global_dic, $this->local_dic->getPlugin(), $ref_id);
+            $this->mail_services[$ref_id] = new MailServices($this->global_dic, $this->local_dic->getPlugin(), $this->local_dic->getTaskRepo(), $ref_id);
         }
 
         return $this->mail_services[$ref_id];

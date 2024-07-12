@@ -66,6 +66,7 @@ class OrgaSettingsGUI extends BaseGUI
             }
         }
         $this->tpl->setContent($this->renderer->render($form));
+        $this->localDI->getUIService()->addTinyMCEToTextareas(); // Has to be called last for the noRTEditor Tags to be effective
     }
 
     /**
@@ -122,7 +123,14 @@ class OrgaSettingsGUI extends BaseGUI
             $a_task_settings->setReviewStart($date instanceof \DateTimeInterface ? $date->format('Y-m-d H:i:s') : null);
             $date = $a_data['task']['review']['review_end'];
             $a_task_settings->setReviewEnd($date instanceof \DateTimeInterface ? $date->format('Y-m-d H:i:s') : null);
-            $a_task_settings->setReviewNotification($a_data['task']['review']['review_notification']);
+
+            if(!empty($a_data['task']['review']['review_notification'])) {
+                $a_task_settings->setReviewNotification(true);
+                $a_task_settings->setReviewNotificationText($a_data['task']['review']['review_notification']['review_notification_text']);
+            } else {
+                $a_task_settings->setReviewNotification(false);
+            }
+
         } else {
             $a_task_settings->setReviewEnabled(false);
         }
@@ -153,19 +161,19 @@ class OrgaSettingsGUI extends BaseGUI
         $sections = [];
 
         // Object
-        $fields = [];
-        $fields['title'] = $factory->text($this->lng->txt("title"))
+        $fields_object = [];
+        $fields_object['title'] = $factory->text($this->lng->txt("title"))
             ->withRequired(true)
             ->withValue($this->object->getTitle());
 
-        $fields['description'] = $factory->textarea($this->lng->txt("description"))
+        $fields_object['description'] = $factory->textarea($this->lng->txt("description"))
             ->withValue($this->object->getDescription())
             ->withAdditionalOnLoadCode($ui_service->noRTEOnloadCode());// Exclude from RTE
 
-        $fields['online'] = $factory->checkbox($this->lng->txt('online'))
+        $fields_object['online'] = $factory->checkbox($this->lng->txt('online'))
             ->withValue($this->object->isOnline());
 
-        $fields['participation_type'] = $factory->radio($this->plugin->txt('participation_type'))
+        $fields_object['participation_type'] = $factory->radio($this->plugin->txt('participation_type'))
             ->withOption(
                 ObjectSettings::PARTICIPATION_TYPE_FIXED,
                 $this->plugin->txt('participation_type_fixed'),
@@ -178,46 +186,35 @@ class OrgaSettingsGUI extends BaseGUI
             )
             ->withValue($this->object->getParticipationType());
 
-        $sections['object'] = $factory->section($fields, $this->plugin->txt('object_settings'));
-
-
-        $fields = [];
-
-        $fields['task_description'] = $this->localDI->getUIFactory()->field()
+        // Content
+        $fields_content = [];
+        $fields_content['task_description'] = $this->localDI->getUIFactory()->field()
             ->textareaModified($this->plugin->txt("task_description"), $this->plugin->txt("task_description_info"))
             ->withValue($taskSettings->getDescription() ?? "")
             ->withAdditionalTransformation($ui_service->stringTransformationByRTETagSet());
 
-        $fields['closing_message'] = $this->localDI->getUIFactory()->field()
+        $fields_content['closing_message'] = $this->localDI->getUIFactory()->field()
             ->textareaModified($this->plugin->txt("closing_message"), $this->plugin->txt("closing_message_info"))
             ->withValue($taskSettings->getClosingMessage() ?? "")
-            ->withAdditionalOnLoadCode(function ($id) use ($ui_service) {
-                $ui_service->addTinyMCEToTextareas();// delay TinyMCE onload code so that description can add its noRTE-Tag before
-                return "";
-            })
             ->withAdditionalTransformation($ui_service->stringTransformationByRTETagSet());
-        ;
-
-        $sections['content'] = $factory->section($fields, $this->plugin->txt('content'));
 
         // Task
-        $fields = [];
-
-        $fields['writing_start'] = $factory->dateTime(
+        $fields_settings = [];
+        $fields_settings['writing_start'] = $factory->dateTime(
             $this->plugin->txt("writing_start"),
             $this->plugin->txt("writing_start_info")
         )
             ->withUseTime(true)
             ->withValue((string) $taskSettings->getWritingStart());
 
-        $fields['writing_end'] = $factory->dateTime(
+        $fields_settings['writing_end'] = $factory->dateTime(
             $this->plugin->txt("writing_end"),
             $this->plugin->txt("writing_end_info")
         )
             ->withUseTime(true)
             ->withValue((string) $taskSettings->getWritingEnd());
 
-        $fields['location'] =  $factory->tag(
+        $fields_settings['location'] =  $factory->tag(
             $this->plugin->txt("locations"),
             $this->localDI->getTaskRepo()->getLocationExamples(),
             $this->plugin->txt("locations_info")
@@ -225,14 +222,14 @@ class OrgaSettingsGUI extends BaseGUI
             ->withTagMaxLength(255)
             ->withValue($this->getLocationStrList($locations));
 
-        $fields['keep_essay_available'] = $factory->checkbox(
+        $fields_settings['keep_essay_available'] = $factory->checkbox(
             $this->plugin->txt('keep_essay_available'),
             $this->plugin->txt('keep_essay_available_info')
         )
             ->withValue($taskSettings->getKeepEssayAvailable());
 
 
-        $fields['solution_available'] = $factory->optionalGroup(
+        $fields_settings['solution_available'] = $factory->optionalGroup(
             [
             'solution_available_date' => $factory->dateTime(
                 $this->plugin->txt("solution_available_date"),
@@ -246,17 +243,17 @@ class OrgaSettingsGUI extends BaseGUI
         );
         // strange but effective
         if (!$taskSettings->isSolutionAvailable()) {
-            $fields['solution_available'] = $fields['solution_available']->withValue(null);
+            $fields_settings['solution_available'] = $fields_settings['solution_available']->withValue(null);
         }
 
-        $fields['correction_start'] = $factory->dateTime(
+        $fields_settings['correction_start'] = $factory->dateTime(
             $this->plugin->txt("correction_start"),
             $this->plugin->txt("correction_start_info")
         )
             ->withUseTime(true)
             ->withValue((string) $taskSettings->getCorrectionStart());
 
-        $fields['correction_end'] = $factory->dateTime(
+        $fields_settings['correction_end'] = $factory->dateTime(
             $this->plugin->txt("correction_end"),
             $this->plugin->txt("correction_end_info")
         )
@@ -264,7 +261,7 @@ class OrgaSettingsGUI extends BaseGUI
             ->withValue((string) $taskSettings->getCorrectionEnd());
 
 
-        $fields['result_available_type'] = $factory->switchableGroup(
+        $fields_settings['result_available_type'] = $factory->switchableGroup(
             [
                 TaskSettings::RESULT_AVAILABLE_FINALISED => $factory->group(
                     [],
@@ -291,34 +288,51 @@ class OrgaSettingsGUI extends BaseGUI
         )->withValue($taskSettings->getResultAvailableType());
 
 
-        $fields['review']  = $factory->optionalGroup(
-            [
-                'review_start' =>  $factory->dateTime(
-                    $this->plugin->txt("review_start"),
-                    $this->plugin->txt("review_start_info")
-                )
-                   ->withUseTime(true)
-                   ->withValue((string) $taskSettings->getReviewStart()),
-                'review_end' =>  $factory->dateTime(
-                    $this->plugin->txt("review_end"),
-                    $this->plugin->txt("review_end_info")
-                )
-                                         ->withUseTime(true)
-                                         ->withValue((string) $taskSettings->getReviewEnd()),
-                'review_notification' => $factory->checkbox(
-                    $this->plugin->txt("review_notification_enabled"),
-                    $this->plugin->txt("review_notification_info")
-                )->withValue($taskSettings->isReviewNotification())
-            ],
+        $review_settings = [
+            'review_start' =>  $factory->dateTime(
+                $this->plugin->txt("review_start"),
+                $this->plugin->txt("review_start_info")
+            )
+                                       ->withUseTime(true)
+                                       ->withValue((string) $taskSettings->getReviewStart()),
+            'review_end' =>  $factory->dateTime(
+                $this->plugin->txt("review_end"),
+                $this->plugin->txt("review_end_info")
+            )
+                                     ->withUseTime(true)
+                                     ->withValue((string) $taskSettings->getReviewEnd()),
+            'review_notification' => $factory->optionalGroup(
+                [
+                    "review_notification_text" => $factory->textarea(
+                        $this->plugin->txt("review_notification_text"),
+                        $this->plugin->txt("review_notification_text_info")
+                    )
+                                                          ->withAdditionalOnLoadCode($ui_service->noRTEOnloadCode())
+                                                          ->withValue($taskSettings->getReviewNotificationText() ?? ""),
+                ],
+                $this->plugin->txt("review_notification_enabled"),
+                $this->plugin->txt("review_notification_info")
+            )
+        ];
+
+        if(!$taskSettings->isReviewNotification()) {
+            $review_settings['review_notification'] = $review_settings['review_notification']->withValue(null);
+        }
+
+        $fields_settings['review']  = $factory->optionalGroup(
+            $review_settings,
             $this->plugin->txt("review_enabled"),
             $this->plugin->txt("review_info")
         );
 
         if(!$taskSettings->isReviewEnabled()) {
-            $fields['review'] = $fields['review']->withValue(null);
+            $fields_settings['review'] = $fields_settings['review']->withValue(null);
         }
 
-        $sections['task'] = $factory->section($fields, $this->plugin->txt('task_settings'));
+        $sections['object'] = $factory->section($fields_object, $this->plugin->txt('object_settings'));
+        $sections['content'] = $factory->section($fields_content, $this->plugin->txt('content'));
+        $sections['task'] = $factory->section($fields_settings, $this->plugin->txt('task_settings'));
+
         return $this->uiFactory->input()->container()->form()->standard($this->ctrl->getFormAction($this), $sections);
     }
 

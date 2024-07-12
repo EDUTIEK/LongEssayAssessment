@@ -30,6 +30,7 @@ class TaskSettings extends RecordData
         'correction_end' => 'datetime',
         'review_enabled' => 'integer',
         'review_notification' => 'integer',
+        'review_notif_text' => 'text',
         'review_start' => 'datetime',
         'review_end' => 'datetime',
         'keep_essay_available' => 'integer',
@@ -51,6 +52,7 @@ class TaskSettings extends RecordData
     protected ?string $correction_end = null;
     protected int $review_enabled = 0;
     protected int $review_notification = 0;
+    protected ?string $review_notif_text = null;
     protected ?string $review_start = null;
     protected ?string $review_end = null;
     protected int $keep_essay_available = 0;
@@ -391,6 +393,17 @@ class TaskSettings extends RecordData
     public function setReviewNotification(bool $review_notification): TaskSettings
     {
         $this->review_notification = (int) $review_notification;
+        return $this;
+    }
+
+    public function getReviewNotificationText(): ?string
+    {
+        return $this->review_notif_text;
+    }
+
+    public function setReviewNotificationText(?string $review_notif_text): TaskSettings
+    {
+        $this->review_notif_text = $review_notif_text;
         return $this;
     }
 }

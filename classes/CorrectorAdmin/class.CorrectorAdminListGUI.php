@@ -167,8 +167,23 @@ class CorrectorAdminListGUI extends WriterListGUI
             $items[] = $item;
         }
 
+        // Multi actions
+
         $resources = $this->localDI->getUIFactory()->item()->formGroup($this->plugin->txt("correctable_exams")
             . $this->localDI->getDataService(0)->formatCounterSuffix($count_filtered, $count_total), $items, "");
+
+        $write_mail_signal = $resources->generateDSCallbackSignal();
+        $this->ctrl->clearParameters($this->parent);
+        $modals[] = $resources->addDSModalTriggerToModal(
+            $this->uiFactory->modal()->roundtrip("", []),
+            $this->ctrl->getFormAction($this->parent, "mailToSelectedAsync", "", true),
+            "writer_ids",
+            $write_mail_signal
+        );
+        $form_actions[] = $resources->addDSModalTriggerToButton(
+            $this->uiFactory->button()->shy($this->plugin->txt("write_mail"), "#"),
+            $write_mail_signal
+        );
 
         $assign_callback_signal = $resources->generateDSCallbackSignal();
         $this->ctrl->clearParameters($this->parent);
@@ -178,21 +193,18 @@ class CorrectorAdminListGUI extends WriterListGUI
             "writer_ids",
             $assign_callback_signal
         );
-
         $form_actions[] = $resources->addDSModalTriggerToButton(
             $this->uiFactory->button()->shy($this->plugin->txt("change_corrector"), "#"),
             $assign_callback_signal
         );
 
         $remove_auth_callback_signal = $resources->generateDSCallbackSignal();
-
         $modals[] = $resources->addDSModalTriggerToModal(
             $this->uiFactory->modal()->interruptive("", "", ""),
             $this->ctrl->getFormAction($this->parent, "confirmRemoveAuthorizationsAsync", "", true),
             "writer_ids",
             $remove_auth_callback_signal
         );
-
         $form_actions[] = $resources->addDSModalTriggerToButton(
             $this->uiFactory->button()->shy($this->plugin->txt("remove_authorizations"), "#"),
             $remove_auth_callback_signal

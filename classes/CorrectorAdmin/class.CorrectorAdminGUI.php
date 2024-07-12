@@ -23,6 +23,7 @@ use ilFileDelivery;
 use ilMailFormCall;
 use ilObjUser;
 use ilLink;
+use ILIAS\Plugin\LongEssayAssessment\Data\Corrector\CorrectorRepository;
 
 /**
  *Start page for corrector admins
@@ -37,12 +38,15 @@ class CorrectorAdminGUI extends BaseGUI
     protected CorrectorAssignmentsService  $assignment_service;
     protected CorrectionSettings $settings;
 
+    protected CorrectorRepository $corrector_repo;
+
     public function __construct(\ilObjLongEssayAssessmentGUI $objectGUI)
     {
         parent::__construct($objectGUI);
         $this->service = $this->localDI->getCorrectorAdminService($this->object->getId());
         $this->assignment_service = $this->localDI->getCorrectorAssignmentService($this->object->getId());
         $this->settings = $this->localDI->getTaskRepo()->getCorrectionSettingsById($this->object->getId());
+        $this->corrector_repo = $this->localDI->getCorrectorRepo();
     }
 
     /**
@@ -74,6 +78,7 @@ class CorrectorAdminGUI extends BaseGUI
                     case 'confirmAssignWriters':
                     case 'addAllCourseTutors':
                     case 'mailToCorrectors':
+                    case 'mailToSingleCorrector':
                     case 'assignWriters':
                     case 'changeCorrector':
                     case 'removeCorrector':
@@ -106,7 +111,6 @@ class CorrectorAdminGUI extends BaseGUI
     {
         $di = LongEssayAssessmentDI::getInstance();
         $writers_repo = $di->getWriterRepo();
-        $corrector_repo = $di->getCorrectorRepo();
         $essay_repo = $di->getEssayRepo();
         $task_repo = $di->getTaskRepo();
 
@@ -123,7 +127,7 @@ class CorrectorAdminGUI extends BaseGUI
         }
 
         $writers = $writers_repo->getWritersByTaskId($this->object->getId());
-        $correctors = $corrector_repo->getCorrectorsByTaskId($this->object->getId());
+        $correctors = $this->corrector_repo->getCorrectorsByTaskId($this->object->getId());
         
         if ($authorized_essay_exists) {
             if (empty($correctors)) {
@@ -196,7 +200,7 @@ class CorrectorAdminGUI extends BaseGUI
         $list_gui->setWriters($writers);
         $list_gui->setCorrectors($correctors);
         $list_gui->setEssays($essays);
-        $list_gui->setAssignments($corrector_repo->getAssignmentsByTaskId($this->object->getId()));
+        $list_gui->setAssignments($this->corrector_repo->getAssignmentsByTaskId($this->object->getId()));
         $list_gui->setCorrectionStatusStitches($stitches);
         $list_gui->setLocations($task_repo->getLocationsByTaskId($this->object->getId()));
         $list_gui->setSummaries($essay_repo->getCorrectorSummariesByTaskId($this->object->getId()));
@@ -242,12 +246,11 @@ class CorrectorAdminGUI extends BaseGUI
 
         $di = LongEssayAssessmentDI::getInstance();
         $writers_repo = $di->getWriterRepo();
-        $corrector_repo = $di->getCorrectorRepo();
 
         $list_gui = new CorrectorListGUI($this, "showCorrectors", $this->plugin);
         $list_gui->setWriters($writers_repo->getWritersByTaskId($this->object->getId()));
-        $list_gui->setCorrectors($corrector_repo->getCorrectorsByTaskId($this->object->getId()));
-        $list_gui->setAssignments($corrector_repo->getAssignmentsByTaskId($this->object->getId()));
+        $list_gui->setCorrectors($this->corrector_repo->getCorrectorsByTaskId($this->object->getId()));
+        $list_gui->setAssignments($this->corrector_repo->getAssignmentsByTaskId($this->object->getId()));
 
         $this->setContent($list_gui->getContent());
     }
@@ -289,13 +292,20 @@ class CorrectorAdminGUI extends BaseGUI
         $this->ctrl->redirect($this, 'showCorrectors');
     }
 
+    private function mailToSingleCorrector()
+    {
+        $corrector = $this->getCorrectorFromRequest();
+        if (!empty($login = ilObjUser::_lookupLogin($corrector->getUserId()))) {
+            $this->openMailForm([$login]);
+        }
+        $this->ctrl->redirect($this, 'showCorrectors');
+    }
 
     /**
-     * Open the mail form for sending a mail to correctors
-     * First choose in a modal which correctors will be addressed
+     * Choose in a modal which correctors will be addressed
      * @see Services/Mail/README.md
      */
-    public function mailToCorrectors()
+    private function mailToCorrectors()
     {
         $all = $this->service->getCorrectors();
         $open = $this->service->getCorrectorsWithOpenAuthorizations();
@@ -320,8 +330,6 @@ class CorrectorAdminGUI extends BaseGUI
 
         // Action
         $post = $this->request->getParsedBody();
-        $get = $this->request->getQueryParams();
-
         $correctors = [];
         switch($post['form_input_1'] ?? '') {
             case 'all':
@@ -337,27 +345,7 @@ class CorrectorAdminGUI extends BaseGUI
                 $logins[] = $login;
             }
         }
-
-        $sig = chr(13) . chr(10) . chr(13) . chr(10);
-        $sig .= $this->plugin->txt('link_to_object');
-        $sig .= chr(13) . chr(10);
-        $sig .= ilLink::_getStaticLink($get['ref_id'] ?? '');
-        $sig = rawurlencode(base64_encode($sig));
-
-        $this->ctrl->redirectToUrl(
-            \ilMailFormCall::getRedirectTarget(
-                $this, 'showCorrectors', ['ref_id' => $get['ref_id'] ?? ''],
-                [
-                    'type' => 'new', // Could also be 'reply' with an additional 'mail_id' paremter provided here
-                    'rcp_to' => implode(', ', $logins),
-                    ilMailFormCall::SIGNATURE_KEY => $sig
-                ],
-            )
-        );
-
-        //$this->tpl->setOnScreenMessage('success', print_r($this->request->getParsedBody(), true), true);
-
-        $this->ctrl->redirect($this, 'showCorrectors');
+        $this->openMailForm($logins);
     }
 
 
@@ -385,8 +373,7 @@ class CorrectorAdminGUI extends BaseGUI
     public function addCorrectorsFilter($a_user_ids)
     {
         $user_ids = [];
-        $corrector_repo = LongEssayAssessmentDI::getInstance()->getCorrectorRepo();
-        $writers = array_map(fn ($row) => $row->getUserId(), $corrector_repo->getCorrectorsByTaskId($this->object->getId()));
+        $writers = array_map(fn ($row) => $row->getUserId(), $this->corrector_repo->getCorrectorsByTaskId($this->object->getId()));
 
         foreach ($a_user_ids as $user_id) {
             if(!in_array((int)$user_id, $writers)) {
@@ -399,28 +386,51 @@ class CorrectorAdminGUI extends BaseGUI
 
     private function removeCorrector()
     {
-        if(($id = $this->getCorrectorId()) === null) {
-            $this->tpl->setOnScreenMessage("failure", $this->plugin->txt('missing_corrector_id'), true);
-            $this->ctrl->redirect($this, "showCorrectors");
-        }
-        $corrector_repo = LongEssayAssessmentDI::getInstance()->getCorrectorRepo();
-        $corrector = $corrector_repo->getCorrectorById($id);
+        $corrector = $this->getCorrectorFromRequest();
 
         if($corrector === null || $corrector->getTaskId() !== $this->object->getId()) {
             $this->tpl->setOnScreenMessage("failure", $this->plugin->txt('missing_corrector'), true);
             $this->ctrl->redirect($this, "showCorrectors");
         }
-        $ass = $corrector_repo->getAssignmentsByCorrectorId($corrector->getId());
+        $ass = $this->corrector_repo->getAssignmentsByCorrectorId($corrector->getId());
 
         if(count($ass) > 0) {
             $this->tpl->setOnScreenMessage("failure", $this->plugin->txt('remove_writer_pending_assignments'), true);
             $this->ctrl->redirect($this, "showCorrectors");
         }
 
-        $corrector_repo->deleteCorrector($corrector->getId());
-        $this->tpl->setOnScreenMessage("success", $this->plugin->txt('remove_corrector_success'), true);
+        $this->corrector_repo->deleteCorrector($corrector->getId());
+        $this->tpl->setOnScreenMessage("success", $this->plugin->txt("remove_corrector_success"), true);
         $this->ctrl->redirect($this, "showCorrectors");
     }
+
+
+    /**
+     * Open the mail form for sending a mail to accounts
+     * @see Services/Mail/README.md
+     */
+    private function openMailForm(array $logins)
+    {
+        $sig = chr(13) . chr(10) . chr(13) . chr(10);
+        $sig .= $this->plugin->txt('link_to_object');
+        $sig .= chr(13) . chr(10);
+        $sig .= ilLink::_getStaticLink($get['ref_id'] ?? '');
+        $sig = rawurlencode(base64_encode($sig));
+
+        $get = $this->request->getQueryParams();
+        $this->ctrl->redirectToUrl(
+            \ilMailFormCall::getRedirectTarget(
+                $this, 'showCorrectors', ['ref_id' => $get['ref_id'] ?? ''],
+                [
+                    'type' => 'new', // Could also be 'reply' with an additional 'mail_id' paremter provided here
+                    'rcp_to' => implode(', ', $logins),
+                    ilMailFormCall::SIGNATURE_KEY => $sig
+                ],
+            )
+        );
+    }
+
+
 
     protected function confirmAssignWriters()
     {
@@ -623,13 +633,20 @@ class CorrectorAdminGUI extends BaseGUI
         return null;
     }
 
-    private function getCorrectorId(): ?int
+    private function getCorrectorFromRequest(): Corrector
     {
         $query = $this->request->getQueryParams();
-        if(isset($query["corrector_id"])) {
-            return (int) $query["corrector_id"];
+        if((empty($id = $query["corrector_id"]) ?? null)) {
+            $this->tpl->setOnScreenMessage("failure", $this->plugin->txt("missing_corrector_id"), true);
+            $this->ctrl->redirect($this, "showCorrectors");
         }
-        return null;
+        $corrector = $this->corrector_repo->getCorrectorById((int) $id);
+
+        if($corrector === null || $corrector->getTaskId() !== $this->object->getId()) {
+            $this->tpl->setOnScreenMessage("failure", $this->plugin->txt("missing_corrector"), true);
+            $this->ctrl->redirect($this, "showCorrectors");
+        }
+        return $corrector;
     }
 
     protected function getWriterIds(): array
@@ -658,7 +675,6 @@ class CorrectorAdminGUI extends BaseGUI
         $service = $this->localDI->getCorrectorAdminService($this->object->getId());
         $factory = $this->uiFactory;
         $custom_factory = $this->localDI->getUIFactory();
-        $corrector_repo = $this->localDI->getCorrectorRepo();
         $corrector_list = [
             CorrectorAdminService::UNCHANGED_CORRECTOR_ASSIGNMENT => $this->plugin->txt("unchanged"),
             CorrectorAdminService::BLANK_CORRECTOR_ASSIGNMENT => $this->lng->txt("remove")
@@ -666,7 +682,7 @@ class CorrectorAdminGUI extends BaseGUI
 
         $corrector_ids = [];
 
-        foreach($corrector_repo->getCorrectorsByTaskId($this->object->getId()) as $corrector) {
+        foreach($this->corrector_repo->getCorrectorsByTaskId($this->object->getId()) as $corrector) {
             $corrector_ids[$corrector->getId()] = $corrector->getUserId();
         }
         $names = $this->common_services->userDataHelper()->getNames($corrector_ids);

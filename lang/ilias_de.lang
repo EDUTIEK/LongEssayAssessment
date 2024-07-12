@@ -551,3 +551,4 @@ all_correctors#:#alle Korrektoren
 correctors_with_open_corrections#:#Korrektoren mit offenen Korrekturen
 link_to_object#:#Link zur Aufgabe
 write_mail#:#Mail schreiben
+mail_for_selected_essays#:#Mail für ausgewählte Abgaben

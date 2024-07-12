@@ -2106,3 +2106,13 @@ if (!$ilDB->tableColumnExists('xlas_essay','review_notification')) {
     ));
 }
 ?>
+<#98>
+<?php
+if (!$ilDB->tableColumnExists('xlas_task_settings','review_notif_text')) {
+    $ilDB->addTableColumn('xlas_task_settings', 'review_notif_text', [
+        'notnull' => '0',
+        'type' => 'clob',
+        'default' => null
+    ]);
+}
+?>

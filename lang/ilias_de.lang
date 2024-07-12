@@ -543,6 +543,11 @@ anonymize_correctors_info#:#Verbirgt die Namen der Korrektoren vor den Teilnehme
 corrector_x#:#Korrektor %s
 rating_settings#:#Bewertung
 show_resources#:#Material zur Bearbeitung
+mail_to_correctors#:#Mail an Korrektoren
+all_correctors#:#alle Korrektoren
+correctors_with_open_corrections#:#Korrektoren mit offenen Korrekturen
+link_to_object#:#Link zur Aufgabe
+write_mail#:#Mail schreiben
 review_enabled#:#Einsichtnahme aktiviert
 review_info#:#Hier stellen Sie ein, ob und wann den Teilnehmern ein PDF mit ihrer korrigierten Abgabe zur Einsichtnahme auf ihrer Startseite angeboten werden soll.
 review_notification_enabled#:#Benachrichtigung aktiviert

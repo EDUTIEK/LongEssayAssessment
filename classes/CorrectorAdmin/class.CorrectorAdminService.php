@@ -71,6 +71,54 @@ class CorrectorAdminService extends BaseService
     }
 
     /**
+     * Get All Correctors of the task
+     * @return array
+     */
+    public function getCorrectors(): array
+    {
+        return $this->correctorRepo->getCorrectorsByTaskId($this->task_id);
+    }
+
+    /**
+     * Get correctors that have open authorizations
+     * @return Corrector[] indexed by id
+     */
+    public function getCorrectorsWithOpenAuthorizations(): array
+    {
+        $correctors = $this->correctorRepo->getCorrectorsByTaskId($this->task_id);
+        $assignments = $this->correctorRepo->getAssignmentsByTaskId($this->task_id);
+        $writers = $this->writerRepo->getWritersByTaskId($this->task_id);
+        $essays = $this->essayRepo->getEssaysByTaskId($this->task_id);
+        $summaries = $this->essayRepo->getCorrectorSummariesByTaskId($this->task_id);
+
+        $selected = [];
+        foreach ($assignments as $assignment) {
+            if (!empty($corrector = $correctors[$assignment->getCorrectorId()])) {
+                if (!empty($writer = $writers[$assignment->getWriterId()])) {
+                    foreach ($essays as $essay) {
+                        if ($essay->getWriterId() == $writer->getId() && !empty($essay->getWritingAuthorized())) {
+                            $correction_authorized = false;
+                            foreach ($summaries as $summary) {
+                                if ($summary->getEssayId() == $essay->getId()
+                                    && $summary->getCorrectorId() == $corrector->getId()
+                                    && !empty($summary->getCorrectionAuthorized())
+                                ) {
+                                    $correction_authorized = true;
+                                    break;
+                                }
+                            }
+                            if (!$correction_authorized) {
+                                $selected[$corrector->getId()] = $corrector;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return $selected;
+    }
+
+    /**
      * Get or create a writer object for an ILIAS user
      * A new corrector object is not yet saved
      */

@@ -28,6 +28,24 @@ class UserDataBaseHelper
         return $names;
     }
 
+    /**
+     * Get the login names of users given by their ids
+     * @param int[] $user_ids
+     * @return string[]
+     */
+    public function getLogins(array $user_ids): array
+    {
+        $this->loadUserData($user_ids);
+
+        $logins = [];
+        foreach($user_ids as $user_id) {
+            if(is_int($user_id)) {
+                $logins[$user_id] = $this->getLogin($user_id);
+            }
+        }
+        return $logins;
+    }
+
     public function getFullname(int $user_id, string $default = "") : string
     {
         $row = $this->getUserData($user_id);

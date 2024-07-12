@@ -548,6 +548,7 @@ all_correctors#:#alle Korrektoren
 correctors_with_open_corrections#:#Korrektoren mit offenen Korrekturen
 link_to_object#:#Link zur Aufgabe
 write_mail#:#Mail schreiben
+mail_for_selected_essays#:#Mail für ausgewählte Abgaben
 review_enabled#:#Einsichtnahme aktiviert
 review_info#:#Hier stellen Sie ein, ob und wann den Teilnehmern ein PDF mit ihrer korrigierten Abgabe zur Einsichtnahme auf ihrer Startseite angeboten werden soll.
 review_notification_enabled#:#Benachrichtigung aktiviert

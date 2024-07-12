@@ -4,6 +4,7 @@ namespace ILIAS\Plugin\LongEssayAssessment\ServiceLayer;
 
 use ilMail;
 use ilPlugin;
+use ILIAS\Plugin\LongEssayAssessment\Data\Task\TaskSettings;
 
 /**
  * Build and send mail notifications via cron and background tasks
@@ -12,11 +13,13 @@ class MailNotification extends \ilMailNotification
 {
     const REVIEW_NOTIFICATION = 1;
     private ilPlugin $plugin;
+    private TaskSettings $task_settings;
 
-    public function __construct(ilPlugin $plugin)
+    public function __construct(ilPlugin $plugin, TaskSettings $task_settings)
     {
         parent::__construct(false);
         $this->plugin = $plugin;
+        $this->task_settings = $task_settings;
         $this->setLangModules([$this->plugin->getPrefix()]);
     }
 
@@ -54,6 +57,12 @@ class MailNotification extends \ilMailNotification
         $this->appendBody("\n\n");
         $this->appendBody($this->getLanguageText("mail_review_notification_body", true));
         $this->appendBody("\n\n");
+
+        if(!empty($this->task_settings->getReviewNotificationText())) {
+            $this->appendBody($this->task_settings->getReviewNotificationText());
+            $this->appendBody("\n\n");
+        }
+
         $this->appendBody($this->getLanguageText("mail_permanent_link", true));
         $this->appendBody("\n\n");
         $this->appendBody($this->createPermanentLink([], "_writer"));

@@ -1161,18 +1161,7 @@ if (!$ilDB->tableColumnExists('xlas_corrector_summary','last_change')) {
 ?>
 <#41>
 <?php
-if (!$ilDB->tableColumnExists('xlas_corrector_summary','correction_authorized')) {
-    $ilDB->addTableColumn('xlas_essay', 'correction_authorized', [
-        'type' => 'timestamp',
-    ]);
-}
-if (!$ilDB->tableColumnExists('xlas_corrector_summary','correction_authorized_by')) {
-    $ilDB->addTableColumn('xlas_essay', 'correction_authorized_by', [
-        'notnull' => '0',
-        'type' => 'integer',
-        'length' => '4'
-    ]);
-}
+// obsolete
 ?>
 <#42>
 <?php
@@ -2127,4 +2116,13 @@ if (!$ilDB->tableColumnExists('xlas_corr_setting','anonymize_correctors')) {
     ));
 }
 ?>
-
+<#99>
+<?php
+// remove wrongly created columns
+if ($ilDB->tableColumnExists('xlas_essay','correction_authorized')) {
+    $ilDB->dropTableColumn('xlas_essay','correction_authorized');
+}
+if ($ilDB->tableColumnExists('xlas_essay','correction_authorized_by')) {
+    $ilDB->dropTableColumn('xlas_essay','correction_authorized_by');
+}
+?>

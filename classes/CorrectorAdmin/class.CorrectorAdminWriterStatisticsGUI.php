@@ -123,7 +123,7 @@ class CorrectorAdminWriterStatisticsGUI extends StatisticsGUI
                                          ->withAdditionalTransformation($this->refinery->to()->listOf($this->refinery->to()->int()))
                                          ->withValue([$this->object->getId()]),
             "finalized" => $this->uiFactory->input()->field()->numeric($this->plugin->txt("min_finalized_corrections"))
-                                         ->withAdditionalTransformation($this->refinery->int()->isGreaterThanOrEqual(0))
+                                         ->withAdditionalTransformation($this->refinery->int()->isGreaterThan(-1))
                                          ->withAdditionalTransformation($this->refinery->to()->int())
                                          ->withValue(1)
         ], [true, true], true, true);

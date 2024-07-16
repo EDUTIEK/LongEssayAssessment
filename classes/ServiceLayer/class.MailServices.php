@@ -21,6 +21,7 @@ class MailServices
         $this->plugin = $plugin;
         $this->task_repository = $task_repository;
         $this->ref_id = $ref_id;
+        $this->obj_id = \ilObject2::_lookupObjectId($ref_id);
     }
 
     /**
@@ -29,7 +30,7 @@ class MailServices
     public function reviewNotification(array $user_ids): MailNotification
     {
         $this->global_dic->logger()->xlas()->info("Send Review Notification to users: " . implode(', ', $user_ids));
-        $mail = new MailNotification($this->plugin, $this->task_repository->getTaskSettingsById($this->ref_id));
+        $mail = new MailNotification($this->plugin, $this->task_repository->getTaskSettingsById($this->obj_id));
         $mail->setRefId($this->ref_id);
         $mail->setType(MailNotification::REVIEW_NOTIFICATION);
         $mail->setRecipients($user_ids);

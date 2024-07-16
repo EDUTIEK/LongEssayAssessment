@@ -23,14 +23,10 @@ class MailNotification extends \ilMailNotification
         $this->setLangModules([$this->plugin->getPrefix()]);
     }
 
-    protected function getLanguageText(string $a_keyword, bool $plugin = false): string
+    protected function getLanguageTextPlugin(string $a_keyword): string
     {
-        $a_default_lang_fallback_mod = "";
-        if($plugin) {
-            $a_keyword = $this->plugin->getPrefix() . "_" . $a_keyword;
-            $a_default_lang_fallback_mod = $this->plugin->getPrefix();
-        }
-        return str_replace('\n', "\n", $this->getLanguage()->txt($a_keyword), $a_default_lang_fallback_mod);
+        $a_keyword = $this->plugin->getPrefix() . "_" . $a_keyword;
+        return str_replace('\n', "\n", $this->getLanguage()->txt($a_keyword));
     }
 
     public function send()
@@ -50,12 +46,12 @@ class MailNotification extends \ilMailNotification
     private function sendReviewMail(int $rcp)
     {
         $this->setSubject(
-            sprintf($this->getLanguageText("mail_review_notification_subject", true), $this->getObjectTitle())
+            sprintf($this->getLanguageTextPlugin("mail_review_notification_subject"), $this->getObjectTitle())
         );
 
         $this->setBody(ilMail::getSalutation($rcp, $this->getLanguage()));
         $this->appendBody("\n\n");
-        $this->appendBody($this->getLanguageText("mail_review_notification_body", true));
+        $this->appendBody($this->getLanguageTextPlugin("mail_review_notification_body"));
         $this->appendBody("\n\n");
 
         if(!empty($this->task_settings->getReviewNotificationText())) {
@@ -63,7 +59,7 @@ class MailNotification extends \ilMailNotification
             $this->appendBody("\n\n");
         }
 
-        $this->appendBody($this->getLanguageText("mail_permanent_link", true));
+        $this->appendBody($this->getLanguageTextPlugin("mail_permanent_link"));
         $this->appendBody("\n\n");
         $this->appendBody($this->createPermanentLink([], "_writer"));
 

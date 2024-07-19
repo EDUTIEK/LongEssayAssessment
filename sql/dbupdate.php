@@ -2116,7 +2116,7 @@ if (!$ilDB->tableColumnExists('xlas_corr_setting','anonymize_correctors')) {
     ));
 }
 ?>
-<#99>
+<#100>
 <?php
 // remove wrongly created columns
 if ($ilDB->tableColumnExists('xlas_essay','correction_authorized')) {

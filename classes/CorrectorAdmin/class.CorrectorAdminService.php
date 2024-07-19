@@ -53,6 +53,7 @@ class CorrectorAdminService extends BaseService
         $this->settings = $this->localDI->getTaskRepo()->getCorrectionSettingsById($this->task_id) ??
             new CorrectionSettings($this->task_id);
 
+        $this->objectRepo = $this->localDI->getObjectRepo();
         $this->writerRepo = $this->localDI->getWriterRepo();
         $this->correctorRepo = $this->localDI->getCorrectorRepo();
         $this->essayRepo = $this->localDI->getEssayRepo();
@@ -327,8 +328,15 @@ class CorrectorAdminService extends BaseService
         $minPoints = null;
         $maxPoints = null;
         foreach ($summaries as $summary) {
-            $minPoints = (isset($minPoints) ? min($minPoints, $summary->getPoints()) : $summary->getPoints());
-            $maxPoints = (isset($maxPoints) ? max($maxPoints, $summary->getPoints()) : $summary->getPoints());
+            if ($summary->getPoints() !== null) {
+                $minPoints = (isset($minPoints) ? min($minPoints, $summary->getPoints()) : $summary->getPoints());
+                $maxPoints = (isset($maxPoints) ? max($maxPoints, $summary->getPoints()) : $summary->getPoints());
+            }
+        }
+
+        // none of the correctors has given points
+        if ($minPoints === null && $maxPoints === null) {
+            return false;
         }
 
         if ($this->settings->getStitchWhenDistance()) {
@@ -405,11 +413,9 @@ class CorrectorAdminService extends BaseService
      */
     protected function getGradeLevelForPoints(float $points) : ?GradeLevel
     {
-        $objectRepo = $this->localDI->getObjectRepo();
-
         $level = null;
         $last_points = 0;
-        foreach ($objectRepo->getGradeLevelsByObjectId($this->task_id) as $levelCandidate) {
+        foreach ($this->objectRepo->getGradeLevelsByObjectId($this->task_id) as $levelCandidate) {
             if ($levelCandidate->getMinPoints() <= $points
                 && $levelCandidate->getMinPoints() >= $last_points
             ) {
@@ -432,16 +438,21 @@ class CorrectorAdminService extends BaseService
 
         if (!$this->isStitchDecisionNeededForSummaries($summaries)) {
             $average = $this->getAveragePointsOfSummaries($summaries);
-            if ($average !== null) {
+            if (empty($this->objectRepo->getGradeLevelsByObjectId($this->task_id))) {
+                // no grade levels defined => allow authorization without grade level
+                $essay->setFinalPoints($average);
+                $essay->setCorrectionFinalized($this->dataService->unixTimeToDb(time()));
+                $essay->setCorrectionFinalizedBy($user_id);
+                $this->essayRepo->save($essay);
+                return true;
+            }
+            elseif ($average !== null) {
                 if (!empty($level = $this->getGradeLevelForPoints($average))) {
                     $essay->setFinalPoints($average);
                     $essay->setFinalGradeLevelId($level->getId());
                     $essay->setCorrectionFinalized($this->dataService->unixTimeToDb(time()));
                     $essay->setCorrectionFinalizedBy($user_id);
-
-                    $essayRepo = $this->localDI->getEssayRepo();
-                    $essayRepo->save($essay);
-
+                    $this->essayRepo->save($essay);
                     return true;
                 }
             }
@@ -527,6 +538,8 @@ class CorrectorAdminService extends BaseService
         $forWriter = false
     ) : string
     {
+        $settings = $this->taskRepo->getCorrectionSettingsById($this->task_id);
+
         $context = new CorrectorContext();
         $context->init((string) $this->dic->user()->getId(), (string) $object->getRefId());
 
@@ -536,10 +549,12 @@ class CorrectorAdminService extends BaseService
             $writingTask = $writingTask->withWriterName($repoWriter->getPseudonym());
         }
         $writtenEssay = $context->getEssayOfItem((string) $repoWriter->getId());
+        if ($forWriter && $settings->getAnonymizeCorrectors()) {
+            $writtenEssay = $writtenEssay->withCorrectionFinalizedBy(null);
+        }
 
         $correctionSummaries = [];
 
-        $settings = $this->taskRepo->getCorrectionSettingsById($this->task_id);
 
         if (isset($repoCorrector)) {
             // summary of a single corrector might not yet be saved - then use preferences for inclusions

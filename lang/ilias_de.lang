@@ -572,3 +572,4 @@ min_finalized_corrections#:#Min. fertig bewertet
 export_statistics_writer_file#:#Teilnehmer Notenstatistik
 export_statistics_corrector_file#:#Korrektoren Notenstatistik
 export_statistics#:#Notenstatistik exportieren
+grade_levels_empty_notice#:#Es sind noch keine Notenstufen festgelegt. Damit können Abgaben auch ohne Bewertung korrigiert werden. Wenn Sie Notenstufen hinzufügen, müssen die Korrekturen mit einer Punktebewertung abgeschlossen werden. Anhand der Notenstufen wird daraus die Note und das Bestehen der Aufgabe ermittelt.

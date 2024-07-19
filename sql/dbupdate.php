@@ -2137,3 +2137,55 @@ if ($ilDB->tableColumnExists('xlas_essay','correction_authorized_by')) {
     $ilDB->dropTableColumn('xlas_essay','correction_authorized_by');
 }
 ?>
+<#101>
+<?php
+if (!$ilDB->tableColumnExists('xlas_corr_setting', 'fixed_inclusions')) {
+    $ilDB->addTableColumn('xlas_corr_setting', 'fixed_inclusions', [
+        'notnull' => '0',
+        'type' => 'integer',
+        'length' => '4',
+        'default' => '0'
+    ]);
+}
+if (!$ilDB->tableColumnExists('xlas_corr_setting', 'include_comments')) {
+    $ilDB->addTableColumn('xlas_corr_setting', 'include_comments', [
+        'notnull' => '0',
+        'type' => 'integer',
+        'length' => '4',
+        'default' => '0'
+    ]);
+}
+if (!$ilDB->tableColumnExists('xlas_corr_setting', 'include_comment_ratings')) {
+    $ilDB->addTableColumn('xlas_corr_setting', 'include_comment_ratings', [
+        'notnull' => '0',
+        'type' => 'integer',
+        'length' => '4',
+        'default' => '0'
+    ]);
+}
+if (!$ilDB->tableColumnExists('xlas_corr_setting', 'include_comment_points')) {
+    $ilDB->addTableColumn('xlas_corr_setting', 'include_comment_points', [
+        'notnull' => '0',
+        'type' => 'integer',
+        'length' => '4',
+        'default' => '0'
+    ]);
+}
+if (!$ilDB->tableColumnExists('xlas_corr_setting', 'include_criteria_points')) {
+    $ilDB->addTableColumn('xlas_corr_setting', 'include_criteria_points', [
+        'notnull' => '0',
+        'type' => 'integer',
+        'length' => '4',
+        'default' => '0'
+    ]);
+}
+?>
+<#102>
+<?php
+if (!$ilDB->tableColumnExists('xlas_corrector','correction_report')) {
+    $ilDB->addTableColumn('xlas_corrector', 'correction_report', array(
+        'type' => 'clob'
+    ));
+}
+?>
+

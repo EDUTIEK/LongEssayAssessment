@@ -2108,6 +2108,16 @@ if (!$ilDB->tableColumnExists('xlas_essay','review_notification')) {
 ?>
 <#98>
 <?php
+if (!$ilDB->tableColumnExists('xlas_task_settings','review_notif_text')) {
+    $ilDB->addTableColumn('xlas_task_settings', 'review_notif_text', [
+        'notnull' => '0',
+        'type' => 'clob',
+        'default' => null
+    ]);
+}
+?>
+<#99>
+<?php
 if (!$ilDB->tableColumnExists('xlas_corr_setting','anonymize_correctors')) {
     $ilDB->addTableColumn('xlas_corr_setting', 'anonymize_correctors', array(
         'notnull' => '1',
@@ -2117,7 +2127,7 @@ if (!$ilDB->tableColumnExists('xlas_corr_setting','anonymize_correctors')) {
     ));
 }
 ?>
-<#99>
+<#100>
 <?php
 // remove wrongly created columns
 if ($ilDB->tableColumnExists('xlas_essay','correction_authorized')) {
@@ -2125,15 +2135,5 @@ if ($ilDB->tableColumnExists('xlas_essay','correction_authorized')) {
 }
 if ($ilDB->tableColumnExists('xlas_essay','correction_authorized_by')) {
     $ilDB->dropTableColumn('xlas_essay','correction_authorized_by');
-}
-?>
-<#100>
-<?php
-if (!$ilDB->tableColumnExists('xlas_task_settings','review_notif_text')) {
-    $ilDB->addTableColumn('xlas_task_settings', 'review_notif_text', [
-        'notnull' => '0',
-        'type' => 'clob',
-        'default' => null
-    ]);
 }
 ?>

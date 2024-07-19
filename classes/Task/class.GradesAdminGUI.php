@@ -88,7 +88,7 @@ class GradesAdminGUI extends BaseGUI
      */
     protected function showItems()
     {
-
+        $item_data = $this->getItemData();
 
         $can_delete = true;
         $settings = $this->task_repo->getTaskSettingsById($this->object->getId());
@@ -104,14 +104,19 @@ class GradesAdminGUI extends BaseGUI
 
         if($settings->getCorrectionStart() !== null) {
             $correction_start = new \ilDateTime($settings->getCorrectionStart(), IL_CAL_DATETIME);
-
             $today = new \ilDateTime(time(), IL_CAL_UNIX);
-
             $can_delete = !\ilDate::_after($today, $correction_start);
         }
 
         if($authorized) {
             $this->tpl->setOnScreenMessage("info", $this->plugin->txt("grade_level_cannot_edit_used_info"));
+        }
+        elseif (empty($item_data)) {
+            $this->tpl->setOnScreenMessage("info", $this->plugin->txt("grade_levels_empty_notice"));
+        }
+
+        if (empty($item_data)) {
+            return;
         }
 
         $ptable = $this->uiFactory->table()->presentation(
@@ -163,7 +168,7 @@ class GradesAdminGUI extends BaseGUI
             }
         );
 
-        $this->tpl->setContent($this->renderer->render($ptable->withData($this->getItemData())));
+        $this->tpl->setContent($this->renderer->render($ptable->withData($item_data)));
     }
 
     protected function buildEditForm($data):\ILIAS\UI\Component\Input\Container\Form\Standard

@@ -408,11 +408,14 @@ class CorrectorAdminService extends BaseService
 
     /**
      * Get the resulting grade level for certain points
-     * @param float $points
+     * @param float|null $points
      * @return GradeLevel|null
      */
-    protected function getGradeLevelForPoints(float $points) : ?GradeLevel
+    protected function getGradeLevelForPoints(?float $points) : ?GradeLevel
     {
+        if (!isset($points)) {
+            return null;
+        }
         $level = null;
         $last_points = 0;
         foreach ($this->objectRepo->getGradeLevelsByObjectId($this->task_id) as $levelCandidate) {

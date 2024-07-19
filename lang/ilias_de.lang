@@ -565,6 +565,7 @@ min_finalized_corrections#:#Min. finalisierte Klausuren
 export_statistics_writer_file#:#Teilnehmer Notenstatistik
 export_statistics_corrector_file#:#Korrektoren Notenstatistik
 export_statistics#:#Notenstatistik exportieren
+grade_levels_empty_notice#:#Es sind noch keine Notenstufen festgelegt. Damit können Abgaben auch ohne Bewertung korrigiert werden. Wenn Sie Notenstufen hinzufügen, müssen die Korrekturen mit einer Punktebewertung abgeschlossen werden. Anhand der Notenstufen wird daraus die Note und das Bestehen der Aufgabe ermittelt.
 review_notification_text#:#Zusätzliche Informationen
 review_notification_text_info#:#Die Informationen werden dem Teilnehmer in der Mail-Benachrichtigung zur Einsichtsnahme angezeigt.
 writer_statistic#:#Teilnehmerstatistik

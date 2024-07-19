@@ -606,7 +606,7 @@ class CorrectorContext extends ServiceContext implements Context
                     $item_key,
                     $corrector_key,
                     $repoSummary->getSummaryText(),
-                    (float) $repoSummary->getPoints(),
+                    $repoSummary->getPoints(),
                     $repoSummary->getGradeLevelId() ? (string) $repoSummary->getGradeLevelId() : null,
                     $this->data->dbTimeToUnix($repoSummary->getLastChange()),
                     !empty($repoSummary->getCorrectionAuthorized()),

@@ -14,6 +14,21 @@ New features:
 - plugin: fix possibility to remove pdf version uploads
 - plugin: fix corrector assignment file upload error handling with required file
 - plugin: fix str_word_count on null in corrector assignment file export
+- plugin: adding the possibility to compare grade statistics over multiple plugin objects within the same repository context
+- plugin: adding writer and corrector statistics with a csv export
+- Allow correction without points if no grade level is defined
+
+
+## Version 2.2 (2024-06-24)
+New features in corrector:
+- allow multiple marks for one comment if drawn with shift key pressed
+- show warnings for empty summary or diverging points in authorization dialogue
+
+Bug fixes:
+- plugin: fix uninstallation problems
+- plugin: fix 40808: Blank pages occur when Text and PDF are submitted
+- plugin: fix corrector assignment file upload error handling with required file
+- plugin: fix str_word_count on null in corrector assignment file export
 - plugin: fix wrong display of correction status for corrector 1
 - plugin: fix error at correction start as admin, if object is not online
 - plugin: adding the possibility to compare grade statistics over multiple plugin objects within the same repository context

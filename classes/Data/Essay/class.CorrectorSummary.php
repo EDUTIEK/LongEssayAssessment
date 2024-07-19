@@ -5,6 +5,7 @@ namespace ILIAS\Plugin\LongEssayAssessment\Data\Essay;
 
 use ILIAS\Plugin\LongEssayAssessment\Data\RecordData;
 use ILIAS\Plugin\LongEssayAssessment\Data\Corrector\CorrectorPreferences;
+use ILIAS\Plugin\LongEssayAssessment\Data\Task\CorrectionSettings;
 
 /**
  * @author Fabian Wolf <wolf@ilias.de>
@@ -39,6 +40,7 @@ class CorrectorSummary extends RecordData
         'include_comment_ratings' => 'integer',
         'include_comment_points' => 'integer',
         'include_criteria_points' => 'integer',
+        // todo: remove from database and here
         'include_writer_notes' => 'integer',
     ];
     
@@ -55,8 +57,8 @@ class CorrectorSummary extends RecordData
     protected ?int $include_comment_ratings = null;
     protected ?int $include_comment_points = null;
     protected ?int $include_criteria_points = null;
+    // todo: remove from database and here
     protected ?int $include_writer_notes = null;
-
 
     public static function model()
     {
@@ -289,33 +291,23 @@ class CorrectorSummary extends RecordData
         $this->include_criteria_points = $include_criteria_points;
     }
 
-
     /**
-     * @return int|null
+     * Apply fixed settings or apply preferences for properties which are not yet set
      */
-    public function getIncludeWriterNotes(): ?int
+    public function applySettingsOrPreferences(CorrectionSettings $settings, CorrectorPreferences $preferences) : void
     {
-        return $this->include_writer_notes;
-    }
-
-    /**
-     * @param int|null $include_writer_notes
-     */
-    public function setIncludeWriterNotes(?int $include_writer_notes): void
-    {
-        $this->include_writer_notes = $include_writer_notes;
-    }
-
-    /**
-     * Apply preferences for properties which are not yet set
-     */
-    public function applyPreferences(CorrectorPreferences $preferences) : void
-    {
-        $this->include_comments = $this->include_comments ?? $preferences->getIncludeComments();
-        $this->include_comment_ratings = $this->include_comment_points ?? $preferences->getIncludeCommentPoints();
-        $this->include_comment_points = $this->include_comment_points ?? $preferences->getIncludeCommentPoints();
-        $this->include_criteria_points = $this->include_criteria_points ?? $preferences->getIncludeCriteriaPoints();
-        $this->include_writer_notes = $this->include_writer_notes ?? $preferences->getIncludeWriterNotes();
+        if ($settings->getFixedInclusions()) {
+            $this->include_comments = $settings->getIncludeComments();
+            $this->include_comment_ratings = $settings->getIncludeCommentRatings();
+            $this->include_comment_points = $settings->getIncludeCommentPoints();
+            $this->include_criteria_points = $settings->getIncludeCriteriaPoints();
+        }
+        else {
+            $this->include_comments = $this->include_comments ?? $preferences->getIncludeComments();
+            $this->include_comment_ratings = $this->include_comment_points ?? $preferences->getIncludeCommentPoints();
+            $this->include_comment_points = $this->include_comment_points ?? $preferences->getIncludeCommentPoints();
+            $this->include_criteria_points = $this->include_criteria_points ?? $preferences->getIncludeCriteriaPoints();
+        }
     }
 }
 

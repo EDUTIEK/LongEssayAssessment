@@ -27,6 +27,7 @@ class CorrectorPreferences extends RecordData
         'include_comment_ratings' => 'integer',
         'include_comment_points' => 'integer',
         'include_criteria_points' => 'integer',
+        // todo: remove from database and here
         'include_writer_notes' => 'integer',
     ];
 
@@ -38,6 +39,7 @@ class CorrectorPreferences extends RecordData
     protected int $include_comment_ratings = CorrectionSummary::INCLUDE_INFO;
     protected int $include_comment_points = CorrectionSummary::INCLUDE_INFO;
     protected int $include_criteria_points = CorrectionSummary::INCLUDE_INFO;
+    // todo: remove from database and here
     protected int $include_writer_notes = CorrectionSummary::INCLUDE_INFO;
     
     public function __construct(int $corrector_id)
@@ -184,23 +186,6 @@ class CorrectorPreferences extends RecordData
     public function setIncludeCriteriaPoints(int $include_criteria_points): CorrectorPreferences
     {
         $this->include_criteria_points = $include_criteria_points;
-        return $this;
-    }
-
-    /**
-     * Get how to  include writer notes in the authorized correction
-     */
-    public function getIncludeWriterNotes(): int
-    {
-        return $this->include_writer_notes;
-    }
-
-    /**
-     * Set how to include writer notes in the authorized correction
-     */
-    public function setIncludeWriterNotes(int $include_writer_notes): CorrectorPreferences
-    {
-        $this->include_writer_notes = $include_writer_notes;
         return $this;
     }
 }

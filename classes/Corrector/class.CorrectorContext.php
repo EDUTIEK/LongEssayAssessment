@@ -170,7 +170,12 @@ class CorrectorContext extends ServiceContext implements Context
             (bool) $repoCorrectionSettings->getStitchWhenDecimals(),
             (string) $repoCorrectionSettings->getPositiveRating(),
             (string) $repoCorrectionSettings->getNegativeRating(),
-            (string) $repoEditorSettings->getHeadlineScheme()
+            (string) $repoEditorSettings->getHeadlineScheme(),
+            (bool) $repoCorrectionSettings->getFixedInclusions(),
+            (int) $repoCorrectionSettings->getIncludeComments(),
+            (int) $repoCorrectionSettings->getIncludeCommentRatings(),
+            (int) $repoCorrectionSettings->getIncludeCommentPoints(),
+            (int) $repoCorrectionSettings->getIncludeCriteriaPoints()
         );
     }
 
@@ -189,7 +194,6 @@ class CorrectorContext extends ServiceContext implements Context
             $repoPrefs->getIncludeCommentRatings(),
             $repoPrefs->getIncludeCommentPoints(),
             $repoPrefs->getIncludeCriteriaPoints(),
-            $repoPrefs->getIncludeWriterNotes()
         );
     }
 
@@ -612,7 +616,6 @@ class CorrectorContext extends ServiceContext implements Context
                     $repoSummary->getIncludeCommentRatings(),
                     $repoSummary->getIncludeCommentPoints(),
                     $repoSummary->getIncludeCriteriaPoints(),
-                    $repoSummary->getIncludeWriterNotes(),
                     \ilObjUser::_lookupFullname($repoCorrector->getUserId()),
                     $this->localDI->getObjectRepo()->ifGradeLevelExistsById((int) $repoSummary->getGradeLevelId()) ?
                         $this->localDI->getObjectRepo()->getGradeLevelById((int) $repoSummary->getGradeLevelId())->getGrade() : ''
@@ -718,8 +721,7 @@ class CorrectorContext extends ServiceContext implements Context
         $repoPrefs->setIncludeCommentRatings($preferences->getIncludeCommentRatings());
         $repoPrefs->setIncludeCommentPoints($preferences->getIncludeCommentPoints());
         $repoPrefs->setIncludeCriteriaPoints($preferences->getIncludeCriteriaPoints());
-        $repoPrefs->setIncludeWriterNotes($preferences->getIncludeWriterNotes());
-        
+
         $this->localDI->getCorrectorRepo()->save($repoPrefs);
         return true;
     }
@@ -751,7 +753,6 @@ class CorrectorContext extends ServiceContext implements Context
             $repoSummary->setIncludeCommentRatings($summary->getIncludeCommentRatings());
             $repoSummary->setIncludeCommentPoints($summary->getIncludeCommentPoints());
             $repoSummary->setIncludeCriteriaPoints($summary->getIncludeCriteriaPoints());
-            $repoSummary->setIncludeWriterNotes($summary->getIncludeWriterNotes());
             $essayRepo->save($repoSummary);
             
             if ($summary->isAuthorized()) {

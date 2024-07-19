@@ -4,6 +4,8 @@
 namespace ILIAS\Plugin\LongEssayAssessment\Data\Task;
 
 use ILIAS\Plugin\LongEssayAssessment\Data\RecordData;
+use Edutiek\LongEssayAssessmentService\Data\CorrectionSummary;
+use ILIAS\Plugin\LongEssayAssessment\Data\Essay\CorrectorSummary;
 
 /**
  * @author Fabian Wolf <wolf@ilias.de>
@@ -33,7 +35,12 @@ class CorrectionSettings extends RecordData
         'criteria_mode' => 'text',
         'positive_rating' => 'text',
         'negative_rating' => 'text',
-        'anonymize_correctors' => 'integer'
+        'anonymize_correctors' => 'integer',
+        'fixed_inclusions' => 'integer',
+        'include_comments' => 'integer',
+        'include_comment_ratings' => 'integer',
+        'include_comment_points' => 'integer',
+        'include_criteria_points' => 'integer',
     ];
 
     protected int $task_id;
@@ -49,6 +56,11 @@ class CorrectionSettings extends RecordData
     protected string $positive_rating = "";
     protected string $negative_rating = "";
     protected int $anonymize_correctors = 0;
+    protected int $fixed_inclusions = 0;
+    protected int $include_comments = CorrectorSummary::INCLUDE_INFO;
+    protected int $include_comment_ratings = CorrectorSummary::INCLUDE_INFO;
+    protected int $include_comment_points = CorrectorSummary::INCLUDE_INFO;
+    protected int $include_criteria_points = CorrectorSummary::INCLUDE_INFO;
 
     public function __construct(int $task_id)
     {
@@ -266,6 +278,56 @@ class CorrectionSettings extends RecordData
     {
         $this->anonymize_correctors = (int) $anonymize_correctors;
         return $this;
+    }
+
+    public function getFixedInclusions() : bool
+    {
+        return (bool) $this->fixed_inclusions;
+    }
+
+    public function setFixedInclusions(bool $fixed_inclusions) : void
+    {
+        $this->fixed_inclusions = (int) $fixed_inclusions;
+    }
+
+    public function getIncludeComments() : int
+    {
+        return $this->include_comments;
+    }
+
+    public function setIncludeComments(int $include_comments) : void
+    {
+        $this->include_comments = $include_comments;
+    }
+
+    public function getIncludeCommentRatings() : int
+    {
+        return $this->include_comment_ratings;
+    }
+
+    public function setIncludeCommentRatings(int $include_comment_ratings) : void
+    {
+        $this->include_comment_ratings = $include_comment_ratings;
+    }
+
+    public function getIncludeCommentPoints() : int
+    {
+        return $this->include_comment_points;
+    }
+
+    public function setIncludeCommentPoints(int $include_comment_points) : void
+    {
+        $this->include_comment_points = $include_comment_points;
+    }
+
+    public function getIncludeCriteriaPoints() : int
+    {
+        return $this->include_criteria_points;
+    }
+
+    public function setIncludeCriteriaPoints(int $include_criteria_points) : void
+    {
+        $this->include_criteria_points = $include_criteria_points;
     }
 
 }

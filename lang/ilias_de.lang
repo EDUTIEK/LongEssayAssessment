@@ -475,15 +475,19 @@ filter_words_more_than#:#mehr als %d
 filter_words_less_than#:#weniger als %d
 yes#:#Ja
 no#:#Nein
+fixed_inclusions#:#Details festlegen
+fixed_inclusions_info#:#Für die Aufgabe wird vorgegeben, welche Details aus der Korrektur in die Dokumentation einbezogen werden. Falls dieser Schalter nicht gesetzt ist, bleibt die Entscheidung den Korrekturkräften überlassen. Bereits autorisierte Korrekturen werden durch eine Änderung hier nicht verändert.
 inclusions_label#:#Einbeziehen
 include_suffix_info#:#(i)
 include_suffix_relevant#:#(r)
 include_comments#:#Kommentare
 include_comment_ratings#:#"%s" und "%s"
-include_comment_points#:#Teilpunkte
-include_criteria_points#:#Bewertungsschema
-include_writer_notes#:#Nozizen
+include_comment_points#:#Punkte zu Kommentaren
+include_criteria_points#:#Punkte im Bewertungsschema
 include_nothing#:#Keine Detail-Informationen
+include_not#:#nicht einbeziehen
+include_info#:#informativ
+include_relevant#:#bewertungsrelevant
 grade_level_cannot_edit_used#:#Notenstufen dürfen in laufenden Aufgaben nicht verändert werden.
 grade_level_cannot_edit_used_info#:#Die Aufgabe enthält bereits autorisierte Korrekturen. Sie können die Notenstufen erst wieder bearbeiten, wenn Sie alle Korrektur-Autorisierungen zurücknehmen.
 comment_rating_negative#:#Negativbewertung

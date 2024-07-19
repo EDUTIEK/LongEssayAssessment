@@ -148,7 +148,7 @@ class CorrectorStartGUI extends BaseGUI
                         $writer->getId(),
                         $writer->getPseudonym() . ': ' . $dataService->formatCorrectionResult($summary),
                         $icon,
-                        $dataService->formatCorrectionInclusions($summary, $preferences, $this->settings)
+                        $dataService->formatCorrectionInclusions($summary, $preferences, $this->settings, $this->hasRatingCriteria())
                     )
                 ])->withActionButtonLabel('ok');
 
@@ -406,7 +406,6 @@ class CorrectorStartGUI extends BaseGUI
                 continue;
             }
             $valid = true;
-            $summary->applyPreferences($preferences);
             $this->service->authorizeCorrection($summary, $corrector->getUserId());
             if($this->service->tryFinalisation($essay, $corrector->getUserId())) {
                 $this->service->sendReviewNotification($this->object->getRefId(), $writer_id);
@@ -544,7 +543,7 @@ class CorrectorStartGUI extends BaseGUI
                     $writer->getId(),
                     $writer->getPseudonym() . ': ' . $dataService->formatCorrectionResult($summary),
                     $icon,
-                    $dataService->formatCorrectionInclusions($summary, $preferences, $this->settings)
+                    $dataService->formatCorrectionInclusions($summary, $preferences, $this->settings, $this->hasRatingCriteria())
                 );
             }
         }
@@ -595,5 +594,23 @@ class CorrectorStartGUI extends BaseGUI
         }
 
         return $ids;
+    }
+
+    protected function hasRatingCriteria() : bool
+    {
+        $object_repo = $this->localDI->getObjectRepo();
+        $corrector = $this->correctorRepo->getCorrectorByUserId($this->dic->user()->getId(), $this->settings->getTaskId());
+
+        switch ($this->settings->getCriteriaMode()) {
+            case CorrectionSettings::CRITERIA_MODE_FIXED:
+                return !empty($object_repo->getRatingCriteriaByObjectId($this->object->getId(), null));
+
+            case CorrectionSettings::CRITERIA_MODE_CORRECTOR:
+                return !empty($object_repo->getRatingCriteriaByObjectId($this->object->getId(), $corrector->getId()));
+
+            case CorrectionSettings::CRITERIA_MODE_NONE:
+            default:
+                return false;
+        }
     }
 }

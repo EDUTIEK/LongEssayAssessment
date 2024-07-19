@@ -575,8 +575,7 @@ class CorrectorAdminService extends BaseService
                 ->withIncludeComments($summary->getIncludeComments() ?? $preferences->getIncludeComments())
                 ->withIncludeCommentRatings($summary->getIncludeCommentRatings() ?? $preferences->getIncludeCommentRatings())
                 ->withIncludeCommentPoints($summary->getIncludeCommentPoints() ?? $preferences->getIncludeCommentPoints())
-                ->withIncludeCriteriaPoints($summary->getIncludeCriteriaPoints() ?? $preferences->getIncludeCriteriaPoints())
-                ->withIncludeWriterNotes($summary->getIncludeWriterNotes() ?? $preferences->getIncludeWriterNotes());
+                ->withIncludeCriteriaPoints($summary->getIncludeCriteriaPoints() ?? $preferences->getIncludeCriteriaPoints());
         }
         else {
             $assignments = $this->correctorRepo->getAssignmentsByWriterId($repoWriter->getId());
@@ -787,17 +786,14 @@ class CorrectorAdminService extends BaseService
 
     /**
      * Authorize a correction
-     * This also sets defaults for the correction inclusions
+     * This also applies settings or preferences for the correction inclusions
      */
     public function authorizeCorrection(CorrectorSummary $summary, int $user_id)
     {
+        $settings = $this->getSettings();
         $preferences = $this->correctorRepo->getCorrectorPreferences($summary->getCorrectorId());
-        $summary->setIncludeComments($summary->getIncludeComments() ?? $preferences->getIncludeComments());
-        $summary->setIncludeCommentRatings($summary->getIncludeCommentRatings() ?? $preferences->getIncludeCommentRatings());
-        $summary->setIncludeCommentPoints($summary->getIncludeCommentPoints() ?? $preferences->getIncludeCommentPoints());
-        $summary->setIncludeCriteriaPoints($summary->getIncludeCriteriaPoints() ?? $preferences->getIncludeCriteriaPoints());
-        $summary->setIncludeWriterNotes($summary->getIncludeWriterNotes() ?? $preferences->getIncludeWriterNotes());
-        
+        $summary->applySettingsOrPreferences($settings, $preferences);
+
         if (empty($summary->getCorrectionAuthorized())) {
             $summary->setCorrectionAuthorized($summary->getLastChange() ?? $this->dataService->unixTimeToDb(time()));
             $summary->setCorrectionAuthorizedBy($user_id);
@@ -806,7 +802,7 @@ class CorrectorAdminService extends BaseService
             $summary->setCorrectionAuthorizedBy($user_id);
         }
 
-        $this->localDI->getEssayRepo()->save($summary);
+        $this->essayRepo->save($summary);
     }
 
     public function removeOwnAuthorization(Writer $writer, Corrector $corrector) : bool

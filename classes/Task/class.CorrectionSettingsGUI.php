@@ -6,6 +6,7 @@ namespace ILIAS\Plugin\LongEssayAssessment\Task;
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\CorrectionSettings;
 use \ilUtil;
+use ILIAS\Plugin\LongEssayAssessment\Data\Essay\CorrectorSummary;
 
 /**
  * Settings for the correction
@@ -111,7 +112,28 @@ class CorrectionSettingsGUI extends BaseGUI
                                                 $this->plugin->txt('criteria_mode_corrector_info')
                                             )
                                            ->withValue($correctionSettings->getCriteriaMode());
-        
+
+        $options = [
+          CorrectorSummary::INCLUDE_NOT => $this->plugin->txt('include_not'),
+          CorrectorSummary::INCLUDE_INFO => $this->plugin->txt('include_info'),
+          CorrectorSummary::INCLUDE_RELEVANT => $this->plugin->txt('include_relevant'),
+        ];
+        $fields['fixed_inclusions'] = $factory->optionalGroup(
+            [
+                "include_comments" => $factory->select($this->plugin->txt('include_comments'), $options)->withValue($correctionSettings->getIncludeComments()),
+                "include_comment_ratings" => $factory->select(
+                    sprintf($this->plugin->txt('include_comment_ratings'), $correctionSettings->getPositiveRating(), $correctionSettings->getNegativeRating()), $options)->withValue($correctionSettings->getIncludeCommentRatings()),
+                "include_comment_points" => $factory->select($this->plugin->txt('include_comment_points'), $options)->withValue($correctionSettings->getIncludeCommentPoints()),
+                "include_criteria_points" => $factory->select($this->plugin->txt('include_criteria_points'), $options)->withValue($correctionSettings->getIncludeCriteriaPoints()),
+            ],
+            $this->plugin->txt('fixed_inclusions'),
+            $this->plugin->txt('fixed_inclusions_info')
+        );
+        // strange but effective
+        if (!$correctionSettings->getFixedInclusions()) {
+            $fields['fixed_inclusions'] = $fields['fixed_inclusions']->withValue(null);
+        }
+
         $sections['rating'] = $factory->section($fields, $this->plugin->txt('rating_settings'));
 
         // Stitch decision
@@ -153,6 +175,16 @@ class CorrectionSettingsGUI extends BaseGUI
             $correctionSettings->setNegativeRating((string) $data['rating']['negative_rating']);
             $correctionSettings->setMaxPoints((int) $data['rating']['max_points']);
             $correctionSettings->setCriteriaMode((string) $data['rating']['criteria_mode']);
+            if (isset($data['rating']['fixed_inclusions']) && is_array($data['rating']['fixed_inclusions'])) {
+                $correctionSettings->setFixedInclusions(true);
+                $correctionSettings->setIncludeComments((int) $data['rating']['fixed_inclusions']['include_comments']);
+                $correctionSettings->setIncludeCommentRatings((int) $data['rating']['fixed_inclusions']['include_comment_ratings']);
+                $correctionSettings->setIncludeCommentPoints((int) $data['rating']['fixed_inclusions']['include_comment_points']);
+                $correctionSettings->setIncludeCriteriaPoints((int) $data['rating']['fixed_inclusions']['include_criteria_points']);
+            } else {
+                $correctionSettings->setFixedInclusions(false);
+            }
+
             if (isset($data['stitch']['stitch_when_distance']) && is_array($data['stitch']['stitch_when_distance'])) {
                 $correctionSettings->setStitchWhenDistance(true);
                 $correctionSettings->setMaxAutoDistance((float) $data['stitch']['stitch_when_distance']['max_auto_distance']);

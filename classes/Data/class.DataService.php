@@ -530,26 +530,34 @@ class DataService extends BaseService
         return $grade($text);
     }
     
-    public function formatCorrectionInclusions(CorrectorSummary $summary, CorrectorPreferences $preferences, CorrectionSettings $settings)
+    public function formatCorrectionInclusions(
+        CorrectorSummary $summary,
+        CorrectorPreferences $preferences,
+        CorrectionSettings $settings,
+        bool $has_rating_criteria
+    )
     {
         $text = '';
+
+        $summary = clone($summary);
+        $summary->applySettingsOrPreferences($settings, $preferences);
         
-        if (($inclusion = $summary->getIncludeComments() ?? $preferences->getIncludeComments()) > CorrectorSummary::INCLUDE_NOT) {
+        if (($inclusion = $summary->getIncludeComments()) > CorrectorSummary::INCLUDE_NOT) {
             $text .= ($text ? ', ' : '')
                 . $this->plugin->txt('include_comments') . ' '
                 . $this->plugin->txt($inclusion == CorrectorSummary::INCLUDE_INFO ? 'include_suffix_info' : 'include_suffix_relevant');
         }
-        if (($inclusion = $summary->getIncludeCommentRatings() ?? $preferences->getIncludeCommentRatings()) > CorrectorSummary::INCLUDE_NOT) {
+        if (($inclusion = $summary->getIncludeCommentRatings()) > CorrectorSummary::INCLUDE_NOT) {
             $text .= ($text ? ', ' : '')
                 . sprintf($this->plugin->txt('include_comment_ratings'), $settings->getPositiveRating(), $settings->getNegativeRating()) . ' '
                 . $this->plugin->txt($inclusion == CorrectorSummary::INCLUDE_INFO ? 'include_suffix_info' : 'include_suffix_relevant');
         }
-        if (($inclusion = $summary->getIncludeCommentPoints() ?? $preferences->getIncludeCommentPoints()) > CorrectorSummary::INCLUDE_NOT) {
+        if (($inclusion = $summary->getIncludeCommentPoints()) > CorrectorSummary::INCLUDE_NOT) {
             $text .= ($text ? ', ' : '')
                 . $this->plugin->txt('include_comment_points') . ' '
                 . $this->plugin->txt($inclusion == CorrectorSummary::INCLUDE_INFO ? 'include_suffix_info' : 'include_suffix_relevant');
         }
-        if (($inclusion = $summary->getIncludeCriteriaPoints() ?? $preferences->getIncludeCriteriaPoints()) > CorrectorSummary::INCLUDE_NOT) {
+        if ($has_rating_criteria && ($inclusion = $summary->getIncludeCriteriaPoints()) > CorrectorSummary::INCLUDE_NOT) {
             $text .= ($text ? ', ' : '')
                 . $this->plugin->txt('include_criteria_points') . ' '
                 . $this->plugin->txt($inclusion == CorrectorSummary::INCLUDE_INFO ? 'include_suffix_info' : 'include_suffix_relevant');

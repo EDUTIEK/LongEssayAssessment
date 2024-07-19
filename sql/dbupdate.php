@@ -2152,7 +2152,7 @@ if (!$ilDB->tableColumnExists('xlas_corr_setting', 'include_comments')) {
         'notnull' => '0',
         'type' => 'integer',
         'length' => '4',
-        'default' => '0'
+        'default' => '1'
     ]);
 }
 if (!$ilDB->tableColumnExists('xlas_corr_setting', 'include_comment_ratings')) {
@@ -2160,7 +2160,7 @@ if (!$ilDB->tableColumnExists('xlas_corr_setting', 'include_comment_ratings')) {
         'notnull' => '0',
         'type' => 'integer',
         'length' => '4',
-        'default' => '0'
+        'default' => '1'
     ]);
 }
 if (!$ilDB->tableColumnExists('xlas_corr_setting', 'include_comment_points')) {
@@ -2168,7 +2168,7 @@ if (!$ilDB->tableColumnExists('xlas_corr_setting', 'include_comment_points')) {
         'notnull' => '0',
         'type' => 'integer',
         'length' => '4',
-        'default' => '0'
+        'default' => '1'
     ]);
 }
 if (!$ilDB->tableColumnExists('xlas_corr_setting', 'include_criteria_points')) {
@@ -2176,7 +2176,7 @@ if (!$ilDB->tableColumnExists('xlas_corr_setting', 'include_criteria_points')) {
         'notnull' => '0',
         'type' => 'integer',
         'length' => '4',
-        'default' => '0'
+        'default' => '1'
     ]);
 }
 ?>

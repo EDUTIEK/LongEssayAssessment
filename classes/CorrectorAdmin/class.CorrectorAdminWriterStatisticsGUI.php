@@ -3,8 +3,6 @@
 namespace ILIAS\Plugin\LongEssayAssessment\CorrectorAdmin;
 
 use ILIAS\UI\Component\Input\Container\Filter;
-use ILIAS\Plugin\LongEssayAssessment\Data\Essay\CorrectorSummary;
-use ILIAS\Plugin\LongEssayAssessment\Data\Corrector\Corrector;
 use ILIAS\Plugin\LongEssayAssessment\Data\Writer\Writer;
 use ILIAS\Plugin\LongEssayAssessment\Data\Essay\Essay;
 use ilFileDelivery;
@@ -66,23 +64,18 @@ class CorrectorAdminWriterStatisticsGUI extends StatisticsGUI
         }
         $this->loadUserdata();
 
+        $this->printGradeLevelConsistencyInfo();
+
         $filter_gui = $this->buildFilter() ;
         $filter_data = $this->ui_service->filter()->getData($filter_gui) ?? ['context' => null, 'finalized' => null];
 
-        $sections = array_filter(
-            $this->objects,
-            fn ($x) => $filter_data['context'] !== null
-                ? in_array($x['obj_id'], $filter_data['context'])
-                : (int)$x['obj_id'] === $this->object->getId()
-        );
-        $data = [];
-
-        $essay_statistics = $this->service->gradeStatistics(array_filter(array_merge(...$this->essays), fn (Essay $x) => in_array($x->getTaskId(), $filter_data['context'] ?? [$this->object->getId()])));
+        $filtered_essays = array_filter(array_merge(...$this->essays), fn (Essay $x) => in_array($x->getTaskId(), $filter_data['context'] ?? [$this->object->getId()]));
+        $essay_statistics = $this->getStatistic($filtered_essays);
 
         $data = [ ['title' => $this->plugin->txt("total_statistic")],
                   ['title' => $this->plugin->txt('essay_correction_finlized'), 'count' => $this->plugin->txt('essay_count'),
                   'final' => $this->plugin->txt('essay_final'), 'statistic' => $essay_statistics, 'grade_statistics' => $this->getGradeStatisticOverAll($essay_statistics)],
-                  ['title' => $this->plugin->txt("participants")]];
+                  ['title' => $this->plugin->txt("writer_statistic")]];
 
         $data = array_merge($data, $this->getItemData($filter_data['context'] ?? [$this->object->getId()], (int)$filter_data['finalized'] ?? 1));
 
@@ -105,7 +98,12 @@ class CorrectorAdminWriterStatisticsGUI extends StatisticsGUI
         $data = $this->getItemData($filter_data['context'] ?? [$this->object->getId()], (int)$filter_data['finalized'] ?? 1);
 
         $filename = ilFileDelivery::returnASCIIFilename($this->plugin->txt('export_statistics_writer_file')) . '.csv';
-        ilFileDelivery::deliverFileAttached($this->buildCSV($data, false), $filename, 'text/csv', false);
+        ilFileDelivery::deliverFileAttached($this->buildCSV(
+            $data,
+            $this->plugin->txt('essay_count'),
+            $this->plugin->txt('essay_final'),
+            false
+        ), $filename, 'text/csv', false);
     }
 
     protected function buildFilter() : Filter\Standard
@@ -119,7 +117,7 @@ class CorrectorAdminWriterStatisticsGUI extends StatisticsGUI
 
         $base_action = $this->ctrl->getFormAction($this, 'showStartPage');
         $filter_gui = $this->ui_service->filter()->standard("xlas_statistics", $base_action, [
-            "context" => $this->uiFactory->input()->field()->multiSelect($this->plugin->txt("objs_xlas"), $context)
+            "context" => $this->uiFactory->input()->field()->multiSelect($this->plugin->txt("statistic_context_filter"), $context)
                                          ->withAdditionalTransformation($this->refinery->to()->listOf($this->refinery->to()->int()))
                                          ->withValue([$this->object->getId()]),
             "finalized" => $this->uiFactory->input()->field()->numeric($this->plugin->txt("min_finalized_corrections"))
@@ -139,7 +137,7 @@ class CorrectorAdminWriterStatisticsGUI extends StatisticsGUI
             $writer = array_filter($writer_objs, fn (Writer $x) => $x->getUserId() === $wrtier_usr_id);
             $writer_ids = array_map(fn (Writer $x) => $x->getId(), $writer);
             $writer_essays = array_filter(array_merge(...$this->essays), fn (Essay $x) => in_array($x->getWriterId(), $writer_ids));
-            $statistics = $this->service->gradeStatistics($writer_essays);
+            $statistics = $this->getStatistic($writer_essays);
 
             if($statistics[CorrectorAdminService::STATISTIC_FINAL] < $min_finalized) {
                 continue;
@@ -156,14 +154,6 @@ class CorrectorAdminWriterStatisticsGUI extends StatisticsGUI
         return $rows;
     }
 
-    private function getItemDataOverall() : array
-    {
-        $essay_statistics = $this->service->gradeStatistics(array_merge(...$this->essays));
-
-        return [ ['title' => $this->plugin->txt("total_statistic")],
-                 ['title' => $this->plugin->txt('essay_correction_finlized'), 'count' => $this->plugin->txt('essay_count'),
-                  'final' => $this->plugin->txt('essay_final'), 'statistic' => $essay_statistics, 'grade_statistics' => $this->getGradeStatisticOverAll($essay_statistics)],];
-    }
     protected function loadWriterForObject($obj_id) : void
     {
         $this->writer[$obj_id] = $this->writer_repo->getWritersByTaskId($obj_id);

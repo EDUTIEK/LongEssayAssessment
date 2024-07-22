@@ -204,6 +204,12 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                         $this->ctrl->forwardCommand(new \ILIAS\Plugin\LongEssayAssessment\Corrector\CorrectorCriteriaGUI($this));
                     }
                     break;
+                case 'ilias\plugin\longessayassessment\corrector\correctionreportgui':
+                    if ($this->object->canViewCorrectorScreen()) {
+                        $this->activateTab('tab_corrector', 'tab_correction_report');
+                        $this->ctrl->forwardCommand(new \ILIAS\Plugin\LongEssayAssessment\Corrector\CorrectionReportGUI($this));
+                    }
+                    break;
                 case 'ilias\plugin\longessayassessment\writeradmin\writeradmingui':
                     if ($this->object->canMaintainWriters()) {
                         $this->activateTab('tab_writer_admin', 'tab_writer_admin');
@@ -422,17 +428,22 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                 'txt' => $this->plugin->txt('tab_corrector_start'),
                 'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessayassessment\corrector\correctorstartgui')
             ];
+            if($this->object->canEditOwnRatingCriteria()) {
+                $tabs[] = [
+                    'id' => 'tab_corrector_criteria',
+                    'txt' => $this->plugin->txt('tab_criteria'),
+                    'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessayassessment\corrector\correctorcriteriagui')
+                ];
+            }
             $tabs[] = [
                 'id' => 'tab_corrector_statistic',
                 'txt' => $this->plugin->txt('tab_corrector_statistic'),
                 'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessayassessment\corrector\correctorstatisticsgui')
             ];
-        }
-        if($this->object->canEditOwnRatingCriteria()) {
             $tabs[] = [
-                'id' => 'tab_corrector_criteria',
-                'txt' => $this->plugin->txt('tab_criteria'),
-                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessayassessment\corrector\correctorcriteriagui')
+                'id' => 'tab_correction_report',
+                'txt' => $this->plugin->txt('tab_correction_report'),
+                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessayassessment\corrector\correctionreportgui')
             ];
         }
         if (!empty($tabs)) {

@@ -25,6 +25,8 @@ use ILIAS\Plugin\LongEssayAssessment\Data\Writer\WriterRepository;
 use ILIAS\Plugin\LongEssayAssessment\Data\Corrector\CorrectorRepository;
 use ilFileDelivery;
 use Edutiek\LongEssayAssessmentService\Data\CorrectionSummary;
+use ILIAS\Plugin\LongEssayAssessment\Writer\WriterContext;
+use Edutiek\LongEssayAssessmentService\Data\PdfHtml;
 
 /**
  * Service for maintaining correctors (business logic)
@@ -614,6 +616,39 @@ class CorrectorAdminService extends BaseService
         return $service->getCorrectionAsPdf($item, $repoCorrector ? (string) $repoCorrector->getId() : null);
     }
 
+    /**
+     * Check if correctors have entered reports
+     */
+    public function hasCorrectionReports() : bool
+    {
+        foreach ($this->correctorRepo->getCorrectorsByTaskId($this->task_id) as $corrector) {
+            if (!empty($corrector->getCorrectionReport())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public function getCorrectionReportsAsPdf(\ilObjLongEssayAssessment $object) : string
+    {
+        $settings = $this->taskRepo->getCorrectionSettingsById($this->task_id);
+
+        $context = new CorrectorContext();
+        $context->init((string) $this->dic->user()->getId(), (string) $object->getRefId());
+        $service = new Service($context);
+
+        $elements = [];
+        foreach ($this->correctorRepo->getCorrectorsByTaskId($this->task_id) as $corrector) {
+            if (!empty($corrector->getCorrectionReport())) {
+                $elements[] = new PdfHtml($corrector->getCorrectionReport() . '<hr>');
+            }
+        }
+
+        return $service->getPdfGeneration()->generatePdf([$service->getStandardPdfPart($elements)],
+            '', '',
+        $object->getTitle(),
+        $this->plugin->txt('correction_reports'));
+    }
 
 
     public function createResultsExport() : string

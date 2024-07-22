@@ -39,6 +39,13 @@ abstract class StatisticsGUI extends BaseGUI
     {
         $grade_levels = array_unique(array_merge(...array_map(fn (array $x) => array_keys($x['grade_statistics']), $records)));
 
+        if($has_obj_id) {
+            $obj_titles = [];
+            foreach($this->objects as $obj) {
+                $obj_titles[(int)$obj['obj_id']] = $obj['title'];
+            }
+        }
+
         $csv = new \ilCSVWriter();
         $csv->setSeparator(';');
         $csv->setDelimiter('"');
@@ -74,7 +81,7 @@ abstract class StatisticsGUI extends BaseGUI
             $csv->addColumn(mb_convert_encoding($user->getLastname(), 'ISO-8859-1', 'UTF-8'));
             $csv->addColumn(mb_convert_encoding($user->getMatriculation(), 'ISO-8859-1', 'UTF-8'));
             if($has_obj_id) {
-                $csv->addColumn(mb_convert_encoding($this->objects[$record["obj_id"]]['title'], 'ISO-8859-1', 'UTF-8'));
+                $csv->addColumn(mb_convert_encoding($obj_titles[(int)$record["obj_id"]], 'ISO-8859-1', 'UTF-8'));
             }
             $csv->addColumn(mb_convert_encoding((string)$statistic[CorrectorAdminService::STATISTIC_COUNT], 'ISO-8859-1', 'UTF-8'));
             $csv->addColumn(mb_convert_encoding((string)$statistic[CorrectorAdminService::STATISTIC_FINAL], 'ISO-8859-1', 'UTF-8'));

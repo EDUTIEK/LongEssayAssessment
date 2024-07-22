@@ -3,15 +3,15 @@
 namespace ILIAS\Plugin\LongEssayAssessment\CorrectorAdmin;
 
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
-use ILIAS\Plugin\LongEssayAssessment\Data\Corrector\CorrectorRepository;
 use ILIAS\Plugin\LongEssayAssessment\Data\Essay\EssayRepository;
 use ILIAS\Plugin\LongEssayAssessment\Data\Object\ObjectRepository;
-use ILIAS\Plugin\LongEssayAssessment\CorrectorAdmin\CorrectorAdminService;
 use ILIAS\UI\Component\Table\PresentationRow;
-use ILIAS\Plugin\LongEssayAssessment\Data\Corrector\Corrector;
 use ILIAS\Data\UUID\Factory as UUID;
 use ilObjUser;
 use ILIAS\UI\Component\Table\Presentation;
+use ILIAS\Plugin\LongEssayAssessment\Data\Essay\CorrectorSummary;
+use ILIAS\Plugin\LongEssayAssessment\Data\Essay\Essay;
+use ILIAS\Plugin\LongEssayAssessment\Data\Object\GradeLevel;
 
 abstract class StatisticsGUI extends BaseGUI
 {
@@ -35,7 +35,7 @@ abstract class StatisticsGUI extends BaseGUI
         $this->access = $this->dic->access();
     }
 
-    protected function buildCSV(array $records, bool $has_obj_id = true) : string
+    protected function buildCSV(array $records, string $count_title, string $finalized_title, bool $has_obj_id = true) : string
     {
         $grade_levels = array_unique(array_merge(...array_map(fn (array $x) => array_keys($x['grade_statistics']), $records)));
 
@@ -49,11 +49,11 @@ abstract class StatisticsGUI extends BaseGUI
         if($has_obj_id) {
             $csv->addColumn($this->lng->txt('object'));
         }
-        $csv->addColumn($this->plugin->txt('count'));
-        $csv->addColumn($this->plugin->txt('finalized'));
-        $csv->addColumn($this->plugin->txt('essay_not_attended'));
-        $csv->addColumn($this->plugin->txt('essay_passed'));
-        $csv->addColumn($this->plugin->txt('essay_not_passed'));
+        $csv->addColumn($count_title);
+        $csv->addColumn($finalized_title);
+        $csv->addColumn($this->plugin->txt('statistic_not_attended'));
+        $csv->addColumn($this->plugin->txt('statistic_passed'));
+        $csv->addColumn($this->plugin->txt('statistic_not_passed'));
         $csv->addColumn($this->plugin->txt('essay_not_passed_quota'));
         $csv->addColumn($this->plugin->txt('essay_average_points'));
 
@@ -113,13 +113,14 @@ abstract class StatisticsGUI extends BaseGUI
                 $properties[$record['count']] = (string)$statistic[CorrectorAdminService::STATISTIC_COUNT];
                 $properties[$record['final']] = (string)$statistic[CorrectorAdminService::STATISTIC_FINAL];
                 if($statistic[CorrectorAdminService::STATISTIC_NOT_ATTENDED] !== null) {
-                    $properties[$this->plugin->txt('essay_not_attended')] = (string)$statistic[CorrectorAdminService::STATISTIC_NOT_ATTENDED];
+                    $properties[$this->plugin->txt('statistic_not_attended')] = (string)$statistic[CorrectorAdminService::STATISTIC_NOT_ATTENDED];
                 }
-                $properties[$this->plugin->txt('essay_passed')] = (string)$statistic[CorrectorAdminService::STATISTIC_PASSED];
-                $properties[$this->plugin->txt('essay_not_passed')] = (string)$statistic[CorrectorAdminService::STATISTIC_NOT_PASSED];
+                $properties[$this->plugin->txt('statistic_passed')] = (string)$statistic[CorrectorAdminService::STATISTIC_PASSED];
+                $properties[$this->plugin->txt('statistic_not_passed')] = (string)$statistic[CorrectorAdminService::STATISTIC_NOT_PASSED];
 
                 if($statistic[CorrectorAdminService::STATISTIC_NOT_PASSED_QUOTA] !== null) {
-                    $properties[$this->plugin->txt('essay_not_passed_quota')] = sprintf('%.2f', $statistic[CorrectorAdminService::STATISTIC_NOT_PASSED_QUOTA]);
+                    $perc = 100 * $statistic[CorrectorAdminService::STATISTIC_NOT_PASSED_QUOTA];
+                    $properties[$this->plugin->txt('essay_not_passed_quota')] = sprintf('%.1f', $perc) . '%';
                 }
 
                 if($statistic[CorrectorAdminService::STATISTIC_AVERAGE] !== null) {
@@ -131,7 +132,7 @@ abstract class StatisticsGUI extends BaseGUI
                 }
 
                 if(isset($record["pseudonym"])) {
-                    $pseudonym = [$this->plugin->txt("pseudonym") => implode(", ", $record["pseudonym"])];
+                    $pseudonym = [$this->plugin->txt("pseudonym") => implode(", ", array_unique($record["pseudonym"]))];
                 }
 
                 return $row
@@ -155,6 +156,39 @@ abstract class StatisticsGUI extends BaseGUI
         $this->summaries[$obj_id] = $this->essay_repo->getCorrectorSummariesByTaskId($obj_id);
         $this->grade_level[$obj_id] = $this->object_repo->getGradeLevelsByObjectId($obj_id);
         $this->essays[$obj_id] = $this->essay_repo->getEssaysByTaskId($obj_id);
+    }
+
+    protected function printGradeLevelConsistencyInfo() : void
+    {
+        if($this->checkGradeLevelsConsistency()){
+            $this->tpl->setOnScreenMessage('info', $this->plugin->txt('statistic_grade_level_inconsistency_info'));
+        }
+    }
+
+    protected function checkGradeLevelsConsistency(): bool
+    {
+        $context_levels = array_map(fn (array $x) => array_map(fn (GradeLevel $level) => strtolower($level->getGrade()), $x), $this->grade_level);
+        $exemplar = array_pop($context_levels);
+
+        if($exemplar === null) {
+            return true;
+        }
+
+        foreach($context_levels as $context_level) {
+            if(!empty(array_diff($exemplar, $context_level))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * @param CorrectorSummary[]|Essay[] $grading_objects
+     * @return array
+     */
+    protected function getStatistic(array $grading_objects): array
+    {
+        return $this->service->gradeStatistics($grading_objects, array_merge(...$this->grade_level));
     }
 
     protected function getGradeStatistic(array $statistic, int $obj_id) : array

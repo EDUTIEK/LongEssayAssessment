@@ -572,6 +572,10 @@ export_statistics_writer_file#:#Teilnehmer Notenstatistik
 export_statistics_corrector_file#:#Korrektoren Notenstatistik
 export_statistics#:#Notenstatistik exportieren
 grade_levels_empty_notice#:#Es sind noch keine Notenstufen festgelegt. Damit können Abgaben auch ohne Bewertung korrigiert werden. Wenn Sie Notenstufen hinzufügen, müssen die Korrekturen mit einer Punktebewertung abgeschlossen werden. Anhand der Notenstufen wird daraus die Note und das Bestehen der Aufgabe ermittelt.
+tab_correction_report#:#Korrekturbericht
+correction_report#:#Korrekturbericht
+correction_report_info#:#Ein Korrekturbericht, den Sie hier eingeben, wird zusammen mit den Berichten anderer Korrekturkräfte allen Teilnehmern anonymisiert zum Download angeboten. Bitte vermeiden Sie namentliche Erwähnungen.
+correction_report_saved#:#Der Korrekturbericht wurde gespeichert.
 writer_statistic#:#Teilnehmerstatistik
 statistic_passed#:#bestanden
 statistic_not_passed#:#nicht bestanden

@@ -22,7 +22,8 @@ class Corrector extends RecordData
     protected const otherTypes = [
         'user_id' => 'integer',
         'task_id' => 'integer',
-        'criterion_copy' => 'integer'
+        'criterion_copy' => 'integer',
+        'correction_report' => 'text'
     ];
 
     /**
@@ -42,6 +43,7 @@ class Corrector extends RecordData
      */
     protected int $task_id;
     protected int $criterion_copy = 0;
+    protected ?string $correction_report = null;
 
 
     public function __construct(int $id)
@@ -126,5 +128,15 @@ class Corrector extends RecordData
     {
         $this->criterion_copy = $criterion_copy ? 1 : 0;
         return $this;
+    }
+
+    public function getCorrectionReport() : ?string
+    {
+        return $this->correction_report;
+    }
+
+    public function setCorrectionReport(?string $correction_report) : void
+    {
+        $this->correction_report = $correction_report;
     }
 }

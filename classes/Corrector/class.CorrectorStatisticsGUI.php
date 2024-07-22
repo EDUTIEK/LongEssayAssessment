@@ -68,12 +68,12 @@ class CorrectorStatisticsGUI extends StatisticsGUI
 
     private function getItemDataForCorrector(Corrector $corrector) : array
     {
-        $corrector_service = $this->service;
+
         $obj_id = $this->object->getId();
         $corrector_id = $corrector->getId();
-        $summary_statistics = $corrector_service->gradeStatistics($this->summaries[$obj_id]);
+        $summary_statistics = $this->getStatistic($this->summaries[$obj_id]);
         $corrector_summaries = array_filter($this->summaries[$obj_id], fn (CorrectorSummary $x) => ($x->getCorrectorId() === $corrector_id));
-        $statistics = $corrector_service->gradeStatistics($corrector_summaries);
+        $statistics = $this->getStatistic($corrector_summaries);
 
         $grade_statistics = function (array $statistic) use ($obj_id) {
             $grade_statistics = [];

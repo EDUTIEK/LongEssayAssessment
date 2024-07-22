@@ -4,24 +4,9 @@
 namespace ILIAS\Plugin\LongEssayAssessment\CorrectorAdmin;
 
 use ILIAS\UI\Component\Input\Container\Filter;
-use Edutiek\LongEssayAssessmentService\Corrector\Service;
-use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
-use ILIAS\Plugin\LongEssayAssessment\Corrector\CorrectorContext;
-use ILIAS\Plugin\LongEssayAssessment\Data\Task\CorrectionSettings;
-use ILIAS\Plugin\LongEssayAssessment\Data\Writer\Writer;
-use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
-use ILIAS\Plugin\LongEssayAssessment\UI\Component\BlankForm;
-use ILIAS\Plugin\LongEssayAssessment\WriterAdmin\CorrectorAdminListGUI;
-use ILIAS\Plugin\LongEssayAssessment\WriterAdmin\CorrectorListGUI;
-use ILIAS\UI\Component\Input\Container\Form\Form;
-use \ilUtil;
 use ILIAS\Plugin\LongEssayAssessment\Data\Essay\CorrectorSummary;
 use ILIAS\Plugin\LongEssayAssessment\Data\Corrector\Corrector;
-use ILIAS\UI\Component\Table\PresentationRow;
-use ILIAS\Plugin\LongEssayAssessment\ServiceLayer\Object\IliasContext;
 use ILIAS\Plugin\LongEssayAssessment\Data\Corrector\CorrectorRepository;
-use ILIAS\Plugin\LongEssayAssessment\Data\Essay\EssayRepository;
-use ILIAS\Plugin\LongEssayAssessment\Data\Object\ObjectRepository;
 use ilFileDelivery;
 
 /**
@@ -79,6 +64,8 @@ class CorrectorAdminStatisticsGUI extends StatisticsGUI
             $this->loadCorrectorForObject($obj["obj_id"]);
         }
 
+        $this->printGradeLevelConsistencyInfo();
+
         $filter_gui = $this->buildFilter();
         $filter_data = $this->ui_service->filter()->getData($filter_gui) ?? ['context' => null, 'correctors' => null];
 
@@ -129,7 +116,12 @@ class CorrectorAdminStatisticsGUI extends StatisticsGUI
         }
 
         $filename = ilFileDelivery::returnASCIIFilename($this->plugin->txt('export_statistics_corrector_file')). '.csv';
-        ilFileDelivery::deliverFileAttached($this->buildCSV(array_merge(...$data), false), $filename, 'text/csv', false);
+        ilFileDelivery::deliverFileAttached($this->buildCSV(
+            array_merge(...$data),
+            $this->plugin->txt('correction_count'),
+            $this->plugin->txt('correction_final'),
+            true
+        ), $filename, 'text/csv', false);
     }
 
     protected function buildFilter() : Filter\Standard
@@ -149,7 +141,7 @@ class CorrectorAdminStatisticsGUI extends StatisticsGUI
 
         $base_action = $this->ctrl->getFormAction($this, 'showStartPage');
         $filter_gui = $this->ui_service->filter()->standard("xlas_statistics", $base_action, [
-            "context" => $this->uiFactory->input()->field()->multiSelect($this->plugin->txt("objs_xlas"), $context)
+            "context" => $this->uiFactory->input()->field()->multiSelect($this->plugin->txt("statistic_context_filter"), $context)
                                          ->withValue([$this->object->getId()]),
             "correctors" => $this->uiFactory->input()->field()->multiSelect($this->plugin->txt("correctors"), $corr)
         ], [true, true], true, true);
@@ -159,9 +151,8 @@ class CorrectorAdminStatisticsGUI extends StatisticsGUI
     private function getItemDataForObject($obj_id, $corrector_filter = null) : array
     {
         $corrector_service = $this->localDI->getCorrectorAdminService($obj_id);
-        $summary_statistics = $corrector_service->gradeStatistics($this->summaries[$obj_id]);
-        $essay_statistics = $corrector_service->gradeStatistics($this->essays[$obj_id]);
-
+        $summary_statistics = $corrector_service->gradeStatistics($this->summaries[$obj_id], $this->grade_level[$obj_id]);
+        $essay_statistics = $corrector_service->gradeStatistics($this->essays[$obj_id], $this->grade_level[$obj_id]);
 
         $rows = [['title' => $this->plugin->txt('essay_correction_finlized'), 'count' => $this->plugin->txt('essay_count'),
                   'final' => $this->plugin->txt('essay_final'), 'statistic' => $essay_statistics, 'grade_statistics' => $this->getGradeStatisticOverAll($essay_statistics)],
@@ -175,7 +166,7 @@ class CorrectorAdminStatisticsGUI extends StatisticsGUI
             }
             $corrector_id = $corrector->getId();
             $corrector_summaries = array_filter($this->summaries[$obj_id], fn (CorrectorSummary $x) => ($x->getCorrectorId() === $corrector_id));
-            $statistics = $corrector_service->gradeStatistics($corrector_summaries);
+            $statistics = $corrector_service->gradeStatistics($corrector_summaries, $this->grade_level[$obj_id]);
             $rows[] = ['usr_id' => $corrector->getUserId(),
                        'obj_id' => $obj_id,
                        'title' => $this->usernames[$obj_id][$corrector->getUserId()], 'count' => $this->plugin->txt('correction_count'),
@@ -199,8 +190,8 @@ class CorrectorAdminStatisticsGUI extends StatisticsGUI
             }
             return $grade_statistic;
         };
-        $essay_statistics = $this->service->gradeStatistics(array_merge(...$this->essays));
-        $summary_statistics = $this->service->gradeStatistics(array_merge(...$this->summaries));
+        $essay_statistics = $this->getStatistic(array_merge(...$this->essays));
+        $summary_statistics = $this->getStatistic(array_merge(...$this->summaries));
 
         return [ ['title' => $this->plugin->txt("total_statistic")],
                  ['title' => $this->plugin->txt('essay_correction_finlized'), 'count' => $this->plugin->txt('essay_count'),

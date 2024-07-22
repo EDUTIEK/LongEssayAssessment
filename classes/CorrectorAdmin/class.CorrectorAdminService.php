@@ -986,8 +986,8 @@ class CorrectorAdminService extends BaseService
 
     /**
      * @param CorrectorSummary[]|Essay[] $grading_objects
+     * @param null|GradeLevel[]                       $grade_level
      * @return array
-     *
      */
     public function gradeStatistics(array $grading_objects, $grade_level = null): array
     {

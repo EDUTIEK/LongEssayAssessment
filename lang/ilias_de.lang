@@ -445,18 +445,15 @@ download_written_pdf#:#Abgabe-PDF herunterladen
 download_corrected_pdf#:#Korrektur-PDF herunterladen
 tab_corrector_statistic#:#Notenstatistik
 statistic#:#Notenstatistik
-correction_count#:#Korrekturen insgesamt
-correction_final#:#Korrekturen fertig
-essay_count#:#bewertbare Klausuren
-essay_final#:#fertig bewertet
-essay_not_attended#:#nicht teilgenommen
-essay_passed#:#Bestanden
-essay_not_passed#:#nicht Bestanden
+correction_count#:#Korrekturen
+correction_final#:#davon autorisiert
+essay_count#:#Klausuren
+essay_final#:#davon finalisiert
 essay_not_passed_quota#:#Durchfallquote
 essay_average_points#:#Durchschnittspunkte
 grade_distribution#:#Notenverteilung
 corrections_all#:#Alle Korrekturen
-essay_correction_finlized#:#Finalisierte Korrekturen
+essay_correction_finlized#:#Korrekturen
 corrector_assignment_change_file_success#:#Die Zuweisungen aus der Datei wurden vorgenommen.
 corrector_assignment_change_file_failure#:#Die Datei konnte nicht korrekt ausgewertet werden. Es wurden keine Änderungen vorgenommen.
 assignment_excel#:#Korrektorzuweisung
@@ -570,10 +567,15 @@ review_notification_text_info#:#Die Informationen werden dem Teilnehmer in der M
 total_statistic#:#Gesamtstatistik
 tab_writer_statistic#:#Teilnehmer Notenstatistik
 tab_corrector_admin_statistic#:#Korrektoren Notenstatistik
-count#:#Anzahl
-finalized#:#Finalisiert
-min_finalized_corrections#:#Min. fertig bewertet
+min_finalized_corrections#:#Min. finalisierte Klausuren
 export_statistics_writer_file#:#Teilnehmer Notenstatistik
 export_statistics_corrector_file#:#Korrektoren Notenstatistik
 export_statistics#:#Notenstatistik exportieren
 grade_levels_empty_notice#:#Es sind noch keine Notenstufen festgelegt. Damit können Abgaben auch ohne Bewertung korrigiert werden. Wenn Sie Notenstufen hinzufügen, müssen die Korrekturen mit einer Punktebewertung abgeschlossen werden. Anhand der Notenstufen wird daraus die Note und das Bestehen der Aufgabe ermittelt.
+writer_statistic#:#Teilnehmerstatistik
+statistic_passed#:#bestanden
+statistic_not_passed#:#nicht bestanden
+statistic_not_attended#:#nicht abgegeben
+statistic_context_filter#:#Aufgaben
+statistic_grade_level_inconsistency_info#:#Die Notenstufen der ausgewählten Aufgaben variieren. Einige Teile der angezeigten Statistiken könnten daher weniger aussagekräftig sein.
+statistic_legend#:#

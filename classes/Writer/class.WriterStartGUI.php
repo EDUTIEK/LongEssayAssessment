@@ -11,6 +11,7 @@ use ILIAS\Plugin\LongEssayAssessment\Task\ResourceAdmin;
 use \ilUtil;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\TaskRepository;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\TaskSettings;
+use ILIAS\Plugin\LongEssayAssessment\CorrectorAdmin\CorrectorAdminService;
 
 /**
  * Start page for writers
@@ -20,11 +21,19 @@ use ILIAS\Plugin\LongEssayAssessment\Data\Task\TaskSettings;
  */
 class WriterStartGUI extends BaseGUI
 {
-    /** @var TaskRepository*/
-    protected $task_repo;
 
-    /** @var TaskSettings */
-    protected $task;
+    protected TaskRepository $task_repo;
+    protected TaskSettings $task;
+    protected CorrectorAdminService $corrector_admin_service;
+
+    public function __construct(\ilObjLongEssayAssessmentGUI $objectGUI)
+    {
+        parent::__construct($objectGUI);
+
+        $this->task_repo = $this->localDI->getTaskRepo();
+        $this->task = $this->task_repo->getTaskSettingsById($this->object->getId());
+        $this->corrector_admin_service = $this->localDI->getCorrectorAdminService($this->object->getId());
+    }
 
     /**
      * Execute a command
@@ -33,8 +42,6 @@ class WriterStartGUI extends BaseGUI
      */
     public function executeCommand()
     {
-        $this->task_repo = $this->localDI->getTaskRepo();
-        $this->task = $this->task_repo->getTaskSettingsById($this->object->getId());
 
         $cmd = $this->ctrl->getCmd('showStartPage');
         switch ($cmd) {
@@ -43,6 +50,7 @@ class WriterStartGUI extends BaseGUI
             case 'startWritingReview':
             case 'downloadWriterPdf':
             case 'downloadCorrectedPdf':
+            case 'downloadCorrectionReportsPdf':
             case 'downloadResourceFile':
             case 'viewDescription':
             case 'viewClosingMessage':
@@ -316,6 +324,14 @@ class WriterStartGUI extends BaseGUI
                 )->withLeadIcon($this->uiFactory->symbol()->icon()->standard('file', 'File', 'medium'));
             }
         }
+        if ($this->object->canReviewCorrectedEssay() && $this->corrector_admin_service->hasCorrectionReports()) {
+            $result_items[] = $this->uiFactory->item()->standard(
+                $this->uiFactory->link()->standard(
+                    $this->plugin->txt('download_correction_reports'),
+                    $this->ctrl->getLinkTarget($this, "downloadCorrectionReportsPdf")
+                )
+            )->withLeadIcon($this->uiFactory->symbol()->icon()->standard('file', 'File', 'medium'));
+        }
 
         $contents[] = $this->uiFactory->panel()->standard($this->plugin->txt('result'), $result_items);
 
@@ -408,6 +424,22 @@ class WriterStartGUI extends BaseGUI
 
             $filename = 'task' . $this->object->getId() . '_writer' . $repoWriter->getId(). '-correction.pdf';
             $this->common_services->fileHelper()->deliverData($service->getCorrectionAsPdf($this->object, $repoWriter, null, false, true), $filename, 'application/pdf');
+        } else {
+            $this->raisePermissionError();
+        }
+    }
+
+    /**
+     * Download a generated pdf from the processed written text
+     */
+    protected function downloadCorrectionReportsPdf()
+    {
+        if ($this->object->canReviewCorrectedEssay()) {
+            $service = $this->localDI->getCorrectorAdminService($this->object->getId());
+
+            $filename = 'task' . $this->object->getId() . '-reports.pdf';
+            $this->common_services->fileHelper()->deliverData(
+                $service->getCorrectionReportsAsPdf($this->object), $filename, 'application/pdf');
         } else {
             $this->raisePermissionError();
         }

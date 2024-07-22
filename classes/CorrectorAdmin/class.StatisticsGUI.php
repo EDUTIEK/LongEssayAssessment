@@ -40,6 +40,13 @@ abstract class StatisticsGUI extends BaseGUI
     {
         $grade_levels = array_unique(array_merge(...array_map(fn (array $x) => array_keys($x['grade_statistics']), $records)));
 
+        if($has_obj_id) {
+            $obj_titles = [];
+            foreach($this->objects as $obj) {
+                $obj_titles[(int)$obj['obj_id']] = $obj['title'];
+            }
+        }
+
         $csv = new \ilCSVWriter();
         $csv->setDoUTF8Decoding(true);
         $csv->setSeparator(';');
@@ -76,7 +83,7 @@ abstract class StatisticsGUI extends BaseGUI
             $csv->addColumn($user->getLastname());
             $csv->addColumn($user->getMatriculation());
             if($has_obj_id) {
-                $csv->addColumn($this->objects[$record["obj_id"]]['title']);
+                $csv->addColumn($obj_titles[(int)$record["obj_id"]]);
             }
             $csv->addColumn((string)$statistic[CorrectorAdminService::STATISTIC_COUNT]);
             $csv->addColumn((string)$statistic[CorrectorAdminService::STATISTIC_FINAL]);

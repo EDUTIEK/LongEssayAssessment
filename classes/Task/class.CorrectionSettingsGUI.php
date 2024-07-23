@@ -69,6 +69,22 @@ class CorrectionSettingsGUI extends BaseGUI
         $fields['anonymize_correctors'] = $factory->checkbox($this->plugin->txt('anonymize_correctors'), $this->plugin->txt('anonymize_correctors_info'))
             ->withValue($correctionSettings->getAnonymizeCorrectors());
 
+        $fields['reports_enabled'] = $factory->optionalGroup(
+            [
+                'reports_available_start' => $factory->dateTime(
+                    $this->plugin->txt("reports_available_start"),
+                    $this->plugin->txt("reports_available_start_info")
+                )->withUseTime(true)
+                 ->withValue((string) $correctionSettings->getReportsAvailableStart())
+            ],
+            $this->plugin->txt('reports_enabled'),
+            $this->plugin->txt('reports_enabled_info')
+        );
+        // strange but effective
+        if (!$correctionSettings->getReportsEnabled()) {
+            $fields['reports_enabled'] = $fields['reports_enabled']->withValue(null);
+        }
+
         $sections['correction'] = $factory->section($fields, $this->plugin->txt('correction_settings'));
 
         // Rating
@@ -170,6 +186,14 @@ class CorrectionSettingsGUI extends BaseGUI
             $correctionSettings->setAssignMode((string) $data['correction']['assign_mode']);
             $correctionSettings->setMutualVisibility((int) $data['correction']['mutual_visibility']);
             $correctionSettings->setAnonymizeCorrectors((int) $data['correction']['anonymize_correctors']);
+            if (isset($data['correction']['reports_enabled']) && is_array($data['correction']['reports_enabled'])) {
+                $correctionSettings->setReportsEnabled(true);
+                $date = $data['correction']['reports_enabled']['reports_available_start'];
+                $correctionSettings->setReportsAvailableStart($date instanceof \DateTimeInterface ? $date->format('Y-m-d H:i:s') : null);
+            } else {
+                $correctionSettings->setReportsEnabled(false);
+            }
+
             $correctionSettings->setPositiveRating((string) $data['rating']['positive_rating']);
             $correctionSettings->setNegativeRating((string) $data['rating']['negative_rating']);
             $correctionSettings->setMaxPoints((int) $data['rating']['max_points']);

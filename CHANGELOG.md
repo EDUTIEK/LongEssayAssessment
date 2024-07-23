@@ -16,7 +16,11 @@ New features:
 - plugin: fix str_word_count on null in corrector assignment file export
 - plugin: adding the possibility to compare grade statistics over multiple plugin objects within the same repository context
 - plugin: adding writer and corrector statistics with a csv export
-- Allow correction without points if no grade level is defined
+- allow correction without points if no grade level is defined
+- simplify the writer start screen when essay is authorized
+- write mail to selected writers and/or correctors
+- forced setting for inclusion of correction details
+- writing and download of correction reports
 
 
 ## Version 2.2 (2024-06-24)

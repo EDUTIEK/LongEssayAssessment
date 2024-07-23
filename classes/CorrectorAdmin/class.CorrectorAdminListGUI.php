@@ -85,6 +85,13 @@ class CorrectorAdminListGUI extends WriterListGUI
                 $actions[] = $this->uiFactory->button()->shy($this->plugin->txt('view_stitch_comment'), '')->withOnClick($sight_modal->getShowSignal());
             }
 
+            $mail_for_essay_modal = $this->uiFactory->modal()->roundtrip("", [])
+                  ->withAsyncRenderUrl($this->getMailForEssayAction($writer));
+
+            $modals[] = $mail_for_essay_modal;
+            $actions[] = $this->uiFactory->button()->shy($this->plugin->txt('mail_to_writer_or_corrector'), "")
+                 ->withOnClick($mail_for_essay_modal->getShowSignal());
+
             $change_corrector_modal = $this->uiFactory->modal()->roundtrip("", [])
                 ->withAsyncRenderUrl($this->getChangeCorrectorAction($writer));
 
@@ -181,7 +188,7 @@ class CorrectorAdminListGUI extends WriterListGUI
             $write_mail_signal
         );
         $form_actions[] = $resources->addDSModalTriggerToButton(
-            $this->uiFactory->button()->shy($this->plugin->txt("write_mail"), "#"),
+            $this->uiFactory->button()->shy($this->plugin->txt("mail_to_writers_or_correctors"), "#"),
             $write_mail_signal
         );
 
@@ -271,6 +278,12 @@ class CorrectorAdminListGUI extends WriterListGUI
     {
         $this->ctrl->setParameter($this->parent, "writer_id", $writer->getId());
         return $this->ctrl->getLinkTargetByClass(["ILIAS\Plugin\LongEssayAssessment\CorrectorAdmin\CorrectorAdminGUI"], "downloadCorrectedPdf");
+    }
+
+    private function getMailForEssayAction(Writer $writer): string
+    {
+        $this->ctrl->setParameter($this->parent, "writer_ids", $writer->getId());
+        return $this->ctrl->getLinkTarget($this->parent, "mailToSelectedAsync");
     }
 
     private function getChangeCorrectorAction(Writer $writer): string

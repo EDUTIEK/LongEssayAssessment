@@ -8,21 +8,15 @@ use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\Corrector\CorrectorContext;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\CorrectionSettings;
 use ILIAS\Plugin\LongEssayAssessment\Data\Writer\Writer;
-use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
 use ILIAS\Plugin\LongEssayAssessment\UI\Component\BlankForm;
 use ILIAS\Plugin\LongEssayAssessment\WriterAdmin\CorrectorAdminListGUI;
 use ILIAS\Plugin\LongEssayAssessment\WriterAdmin\CorrectorListGUI;
 use ILIAS\UI\Component\Input\Container\Form\Form;
 use ILIAS\Plugin\LongEssayAssessment\Data\Corrector\Corrector;
-use PhpOffice\PhpSpreadsheet\Style\ConditionalFormatting\Wizard;
-use ILIAS\Plugin\LongEssayAssessment\Task\ResourceUploadHandlerGUI;
 use ILIAS\Plugin\LongEssayAssessment\ilLongEssayAssessmentUploadTempFile;
-use ILIAS\Filesystem\Filesystem;
 use ILIAS\DI\Exceptions\Exception;
 use ilFileDelivery;
-use ilMailFormCall;
 use ilObjUser;
-use ilLink;
 use ILIAS\Plugin\LongEssayAssessment\Data\Corrector\CorrectorRepository;
 use ILIAS\Plugin\LongEssayAssessment\Data\Writer\WriterRepository;
 use ILIAS\Plugin\LongEssayAssessment\Data\Essay\EssayRepository;
@@ -468,32 +462,6 @@ class CorrectorAdminGUI extends BaseGUI
         $this->corrector_repo->deleteCorrector($corrector->getId());
         $this->tpl->setOnScreenMessage("success", $this->plugin->txt("remove_corrector_success"), true);
         $this->ctrl->redirect($this, "showCorrectors");
-    }
-
-
-    /**
-     * Open the mail form for sending a mail to accounts
-     * @see Services/Mail/README.md
-     */
-    private function openMailForm(array $logins, $current_command)
-    {
-        $sig = chr(13) . chr(10) . chr(13) . chr(10);
-        $sig .= $this->plugin->txt('link_to_object');
-        $sig .= chr(13) . chr(10);
-        $sig .= ilLink::_getStaticLink($get['ref_id'] ?? '');
-        $sig = rawurlencode(base64_encode($sig));
-
-        $get = $this->request->getQueryParams();
-        $this->ctrl->redirectToUrl(
-            \ilMailFormCall::getRedirectTarget(
-                $this, $current_command, ['ref_id' => $get['ref_id'] ?? ''],
-                [
-                    'type' => 'new', // Could also be 'reply' with an additional 'mail_id' paremter provided here
-                    'rcp_to' => implode(', ', $logins),
-                    ilMailFormCall::SIGNATURE_KEY => $sig
-                ],
-            )
-        );
     }
 
 

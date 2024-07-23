@@ -95,6 +95,7 @@ class CorrectorAdminGUI extends BaseGUI
                     case 'confirmRemoveAuthorizationsAsync':
                     case 'downloadWrittenPdf':
                     case 'downloadCorrectedPdf':
+                    case 'downloadReportsPdf':
                     case 'correctorAssignmentSpreadsheetExport':
                     case 'correctorAssignmentSpreadsheetImport':
                         $this->$cmd();
@@ -140,6 +141,7 @@ class CorrectorAdminGUI extends BaseGUI
         $export_corrections_action =  $this->ctrl->getLinkTarget($this, "exportCorrections");
         $export_results_action =  $this->ctrl->getLinkTarget($this, "exportResults");
         $stitch_decision_action =  $this->ctrl->getLinkTarget($this, "stitchDecision");
+        $download_reports_action = $this->ctrl->getLinkTarget($this, "downloadReportsPdf");
 
         $button = \ilLinkButton::getInstance();
         $button->setUrl($assign_writers_action);
@@ -191,6 +193,13 @@ class CorrectorAdminGUI extends BaseGUI
         $button->setUrl($export_results_action);
         $button->setCaption($this->plugin->txt("export_results"), false);
         $this->toolbar->addButtonInstance($button);
+
+        if ($this->settings->getReportsEnabled()) {
+            $button = \ilLinkButton::getInstance();
+            $button->setUrl($download_reports_action);
+            $button->setCaption($this->plugin->txt("download_correction_reports"), false);
+            $this->toolbar->addButtonInstance($button);
+        }
 
         $this->toolbar->addSeparator();
 
@@ -636,6 +645,19 @@ class CorrectorAdminGUI extends BaseGUI
         $filename = 'task' . $this->object->getId() . '_writer' . $repoWriter->getId(). '-correction.pdf';
         $this->common_services->fileHelper()->deliverData($service->getCorrectionAsPdf($this->object, $repoWriter), $filename, 'application/pdf');
     }
+
+    /**
+     * Download a generated pdf of the correction reports
+     */
+    protected function downloadReportsPdf()
+    {
+        if ($this->settings->getReportsEnabled()) {
+            $service = $this->localDI->getCorrectorAdminService($this->object->getId());
+            $filename = 'task' . $this->object->getId() . '-reports.pdf';
+            $this->common_services->fileHelper()->deliverData($service->getCorrectionReportsAsPdf($this->object), $filename, 'application/pdf');
+        }
+    }
+
 
     private function exportSteps()
     {

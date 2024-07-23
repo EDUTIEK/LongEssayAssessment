@@ -41,6 +41,8 @@ class CorrectionSettings extends RecordData
         'include_comment_ratings' => 'integer',
         'include_comment_points' => 'integer',
         'include_criteria_points' => 'integer',
+        'reports_enabled' => 'integer',
+        'reports_available_start' => 'datetime'
     ];
 
     protected int $task_id;
@@ -61,6 +63,8 @@ class CorrectionSettings extends RecordData
     protected int $include_comment_ratings = CorrectorSummary::INCLUDE_INFO;
     protected int $include_comment_points = CorrectorSummary::INCLUDE_INFO;
     protected int $include_criteria_points = CorrectorSummary::INCLUDE_INFO;
+    protected int $reports_enabled = 0;
+    protected ?string $reports_available_start = null;
 
     public function __construct(int $task_id)
     {
@@ -328,6 +332,26 @@ class CorrectionSettings extends RecordData
     public function setIncludeCriteriaPoints(int $include_criteria_points) : void
     {
         $this->include_criteria_points = $include_criteria_points;
+    }
+
+    public function getReportsEnabled() : bool
+    {
+        return (bool) $this->reports_enabled;
+    }
+
+    public function setReportsEnabled(bool $reports_enabled) : void
+    {
+        $this->reports_enabled = (int) $reports_enabled;
+    }
+
+    public function getReportsAvailableStart() : ?string
+    {
+        return $this->reports_available_start;
+    }
+
+    public function setReportsAvailableStart(?string $reports_available_start) : void
+    {
+        $this->reports_available_start = $reports_available_start;
     }
 
 }

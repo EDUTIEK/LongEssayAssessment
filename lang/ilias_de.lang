@@ -582,6 +582,10 @@ correction_reports#:#Korrekturberichte
 correction_report_info#:#Ein Korrekturbericht, den Sie hier eingeben, wird zusammen mit den Berichten anderer Korrekturkräfte allen Teilnehmern anonymisiert zum Download angeboten. Bitte vermeiden Sie namentliche Erwähnungen.
 correction_report_saved#:#Der Korrekturbericht wurde gespeichert.
 download_correction_reports#:#Korrekturberichte herunterladen
+reports_enabled#:#Korrekturberichte
+reports_enabled_info#:#Korrekturkräfte können zusammenfassende Berichte zur Korrektur der Aufgabe eingeben. Diese werden den Teilehmern gesammelt anonym als PDF-Datei zur Verfügung gestellt.
+reports_available_start#:#Verfügbar ab
+reports_available_start_info#:#Datum, ab dem die Korrekturberichte den Teilehmern zum Download bereitgestellt stehen. Wenn leer, werden verfügbare Berichte sofort angeboten.
 writer_statistic#:#Teilnehmerstatistik
 statistic_passed#:#bestanden
 statistic_not_passed#:#nicht bestanden

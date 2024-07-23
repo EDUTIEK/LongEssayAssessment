@@ -325,7 +325,7 @@ class WriterStartGUI extends BaseGUI
                 )->withLeadIcon($this->uiFactory->symbol()->icon()->standard('file', 'File', 'medium'));
             }
         }
-        if ($this->object->canReviewCorrectedEssay() && $this->corrector_admin_service->hasCorrectionReports()) {
+        if ($this->object->canDownloadCorrectionReports() && $this->corrector_admin_service->hasCorrectionReports()) {
             $result_items[] = $this->uiFactory->item()->standard(
                 $this->uiFactory->link()->standard(
                     $this->plugin->txt('download_correction_reports'),
@@ -435,7 +435,7 @@ class WriterStartGUI extends BaseGUI
      */
     protected function downloadCorrectionReportsPdf()
     {
-        if ($this->object->canReviewCorrectedEssay()) {
+        if ($this->object->canDownloadCorrectionReports()) {
             $service = $this->localDI->getCorrectorAdminService($this->object->getId());
 
             $filename = 'task' . $this->object->getId() . '-reports.pdf';

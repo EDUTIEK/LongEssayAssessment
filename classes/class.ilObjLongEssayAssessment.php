@@ -35,6 +35,10 @@ class ilObjLongEssayAssessment extends ilObjectPlugin
     /** @var \ILIAS\Plugin\LongEssayAssessment\Data\Task\TaskSettings */
     protected $taskSettings;
 
+    /** @var \ILIAS\Plugin\LongEssayAssessment\Data\Task\CorrectionSettings */
+    protected $correctionSettings;
+
+
     /** @var LongEssayAssessmentDI */
     protected $localDI;
 
@@ -78,9 +82,8 @@ class ilObjLongEssayAssessment extends ilObjectPlugin
      */
     protected function doCreate()
     {
-        $di = LongEssayAssessmentDI::getInstance();
-        $object_repo = $di->getObjectRepo();
-        $task_repo = $di->getTaskRepo();
+        $object_repo = $this->localDI->getObjectRepo();
+        $task_repo = $this->localDI->getTaskRepo();
 
         $new_correction_settings = (new CorrectionSettings($this->getId()))
             ->setPositiveRating($this->plugin->txt("comment_rating_positive_default"))
@@ -89,6 +92,7 @@ class ilObjLongEssayAssessment extends ilObjectPlugin
 
         $this->objectSettings = $object_repo->getObjectSettingsById($this->getId());
         $this->taskSettings = $task_repo->getTaskSettingsById($this->getId());
+        $this->correctionSettings = $task_repo->getCorrectionSettingsById($this->getId());
     }
 
     /**
@@ -99,6 +103,7 @@ class ilObjLongEssayAssessment extends ilObjectPlugin
         $this->data = $this->localDI->getDataService($this->getId());
         $this->objectSettings = $this->localDI->getObjectRepo()->getObjectSettingsById($this->getId());
         $this->taskSettings = $this->localDI->getTaskRepo()->getTaskSettingsById($this->getId());
+        $this->correctionSettings = $this->localDI->getTaskRepo()->getCorrectionSettingsById($this->getId());
     }
 
     /**
@@ -496,4 +501,47 @@ class ilObjLongEssayAssessment extends ilObjectPlugin
 
         return true;
     }
+
+    /**
+     * Check if the user can write a correction report
+     */
+    public function canWriteCorrectionReport() : bool
+    {
+        if (!$this->canViewCorrectorScreen()) {
+            return false;
+        }
+
+        return $this->correctionSettings->getReportsEnabled();
+
+        if (!$this->data->isInRange(
+            time(),
+            $this->data->dbTimeToUnix($this->taskSettings->getCorrectionStart()),
+            $this->data->dbTimeToUnix($this->taskSettings->getCorrectionEnd())
+        )) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Check if the user can download a correction report
+     */
+    public function canDownloadCorrectionReports() : bool
+    {
+        if (!$this->canViewWriterScreen()) {
+            return false;
+        }
+
+        if (!$this->correctionSettings->getReportsEnabled() || !$this->data->isInRange(
+                time(),
+                $this->data->dbTimeToUnix($this->correctionSettings->getReportsAvailableStart()),
+                null
+        )) {
+            return false;
+        }
+
+        return true;
+    }
+
 }

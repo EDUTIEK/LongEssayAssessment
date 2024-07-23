@@ -2141,7 +2141,7 @@ if ($ilDB->tableColumnExists('xlas_essay','correction_authorized_by')) {
 <?php
 if (!$ilDB->tableColumnExists('xlas_corr_setting', 'fixed_inclusions')) {
     $ilDB->addTableColumn('xlas_corr_setting', 'fixed_inclusions', [
-        'notnull' => '0',
+        'notnull' => '1',
         'type' => 'integer',
         'length' => '4',
         'default' => '0'
@@ -2149,7 +2149,7 @@ if (!$ilDB->tableColumnExists('xlas_corr_setting', 'fixed_inclusions')) {
 }
 if (!$ilDB->tableColumnExists('xlas_corr_setting', 'include_comments')) {
     $ilDB->addTableColumn('xlas_corr_setting', 'include_comments', [
-        'notnull' => '0',
+        'notnull' => '1',
         'type' => 'integer',
         'length' => '4',
         'default' => '1'
@@ -2157,7 +2157,7 @@ if (!$ilDB->tableColumnExists('xlas_corr_setting', 'include_comments')) {
 }
 if (!$ilDB->tableColumnExists('xlas_corr_setting', 'include_comment_ratings')) {
     $ilDB->addTableColumn('xlas_corr_setting', 'include_comment_ratings', [
-        'notnull' => '0',
+        'notnull' => '1',
         'type' => 'integer',
         'length' => '4',
         'default' => '1'
@@ -2165,7 +2165,7 @@ if (!$ilDB->tableColumnExists('xlas_corr_setting', 'include_comment_ratings')) {
 }
 if (!$ilDB->tableColumnExists('xlas_corr_setting', 'include_comment_points')) {
     $ilDB->addTableColumn('xlas_corr_setting', 'include_comment_points', [
-        'notnull' => '0',
+        'notnull' => '1',
         'type' => 'integer',
         'length' => '4',
         'default' => '1'
@@ -2173,7 +2173,7 @@ if (!$ilDB->tableColumnExists('xlas_corr_setting', 'include_comment_points')) {
 }
 if (!$ilDB->tableColumnExists('xlas_corr_setting', 'include_criteria_points')) {
     $ilDB->addTableColumn('xlas_corr_setting', 'include_criteria_points', [
-        'notnull' => '0',
+        'notnull' => '1',
         'type' => 'integer',
         'length' => '4',
         'default' => '1'
@@ -2196,4 +2196,22 @@ if (!$ilDB->tableColumnExists('xlas_corrector','correction_report')) {
 // new tasks will not activate the review by default
 $ilDB->manipulate("UPDATE xlas_task_settings SET review_enabled = 1");
 ?>
-
+<#104>
+<?php
+if (!$ilDB->tableColumnExists('xlas_corr_setting','reports_enabled')) {
+    $ilDB->addTableColumn('xlas_corr_setting', 'reports_enabled', array(
+        'notnull' => '1',
+        'type' => 'integer',
+        'length' => 4,
+        'default' => 0
+    ));
+}
+?>
+<#105>
+<?php
+if (!$ilDB->tableColumnExists('xlas_corr_setting','reports_available_start')) {
+    $ilDB->addTableColumn('xlas_corr_setting', 'reports_available_start', array(
+        'type' => 'timestamp'
+    ));
+}
+?>

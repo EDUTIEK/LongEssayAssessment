@@ -203,7 +203,7 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                     }
                     break;
                 case 'ilias\plugin\longessayassessment\corrector\correctionreportgui':
-                    if ($this->object->canViewCorrectorScreen()) {
+                    if ($this->object->canWriteCorrectionReport()) {
                         $this->activateTab('tab_corrector', 'tab_correction_report');
                         $this->ctrl->forwardCommand(new \ILIAS\Plugin\LongEssayAssessment\Corrector\CorrectionReportGUI($this));
                     }
@@ -422,6 +422,8 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                 'txt' => $this->plugin->txt('tab_corrector_statistic'),
                 'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessayassessment\corrector\correctorstatisticsgui')
             ];
+        }
+        if ($this->object->canWriteCorrectionReport()) {
             $tabs[] = [
                 'id' => 'tab_correction_report',
                 'txt' => $this->plugin->txt('tab_correction_report'),

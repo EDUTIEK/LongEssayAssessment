@@ -47,6 +47,9 @@ class WriterAdminListGUI extends WriterListGUI
                 $actions[] = $this->uiFactory->button()->shy($this->plugin->txt('export_steps'), $this->getExportStepsTarget($writer));
             }
 
+            $actions[] = $this->uiFactory->button()->shy($this->plugin->txt('mail_to_writer'),
+                $this->getWriteMailAction($writer));
+
             if($this->canGetAuthorized($writer)) {
                 $authorize_modal = $this->uiFactory->modal()->interruptive(
                     $this->plugin->txt("authorize_writing"),
@@ -183,6 +186,14 @@ class WriterAdminListGUI extends WriterListGUI
         $this->ctrl->setParameter($this->parent, "writer_id", "");
         $form_actions = [];
 
+        $mail_callback_signal = $resources->generateDSCallbackSignal();
+        $form_actions[] = $resources->addDSTriggerToButton(
+            $this->uiFactory->button()->shy($this->plugin->txt("mail_to_writers"), "#"),
+            $this->ctrl->getFormAction($this->parent, 'mailToWriters'),
+            'writer_ids',
+            $mail_callback_signal
+        );
+
         if($this->canChangeLocation()) {
             $location_callback_signal = $resources->generateDSCallbackSignal();
 
@@ -260,6 +271,12 @@ class WriterAdminListGUI extends WriterListGUI
     {
         $this->ctrl->setParameter($this->parent, "writer_id", $writer->getId());
         return $this->ctrl->getFormAction($this->parent, "		showEssay", "", true);
+    }
+
+    private function getWriteMailAction(Writer $writer): string
+    {
+        $this->ctrl->setParameter($this->parent, "writer_id", $writer->getId());
+        return $this->ctrl->getFormAction($this->parent, "mailToWriters");
     }
 
     private function canChangeLocation(): bool

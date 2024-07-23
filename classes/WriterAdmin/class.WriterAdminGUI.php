@@ -69,6 +69,7 @@ class WriterAdminGUI extends BaseGUI
                     case 'unauthorizeWriting':
                     case 'repealExclusion':
                     case 'deleteWriterData':
+                    case 'mailToWriters':
                     case 'removeWriter':
                     case 'exportSteps':
                     case 'editLocationMulti':
@@ -218,6 +219,19 @@ class WriterAdminGUI extends BaseGUI
 
         echo($this->renderer->renderAsync($remove_modal));
         exit();
+    }
+
+    private function mailToWriters()
+    {
+        $writer_repo = $this->localDI->getWriterRepo();
+        $user_ids = [];
+        foreach ($this->getWriterIds() as $id) {
+            if (!empty($writer = $writer_repo->getWriterById($id))) {
+                $user_ids[] = $writer->getUserId();
+            }
+        }
+        $logins = $this->localDI->services()->common()->userHelper()->getLoginsByIds(array_unique($user_ids));
+        $this->openMailForm($logins, 'showStartPage');
     }
 
     private function removeWriter()

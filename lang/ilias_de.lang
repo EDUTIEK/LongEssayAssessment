@@ -560,6 +560,10 @@ review_notification_info#:#Teilnehmer erhalten eine Mail-Benachrichtigung, wenn 
 mail_review_notification_subject#:#Die Einsichtnahme für die Klausur „%s“ hat begonnen
 mail_review_notification_body#:#Ihre Klausur wurde korrigiert und steht nun zur Einsichtnahme bereit.
 mail_permanent_link#:#Wählen Sie den folgenden Link, um auf den Klausurinhalt zuzugreifen:
+mail_to_writer#:#Mail an Teilnehmer
+mail_to_writers#:#Mail an Teilnehmer
+mail_to_writer_or_corrector#:#Mail an Teilnehmer/Korrektor(en)
+mail_to_writers_or_correctors#:#Mail an Teilnehmer/Korrektoren
 review_notification_cron_job#:#Benachrichtigung zur Einsichtnahme von Langtext-Aufgaben
 review_notification_cron_job_desc#:#Teilnehmer erhalten eine Mail-Benachrichtigung, wenn die Korrektur finalisiert, der Einsichtnahme-Zeitraum begonnen hat und Benachrichtigungen im Reiter Aufgabenstellungen > Organisation aktiviert sind.
 review_notification_text#:#Zusätzliche Informationen

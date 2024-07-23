@@ -160,4 +160,50 @@ class FormGroup extends Group implements \ILIAS\Plugin\LongEssayAssessment\UI\Co
         );
     }
 
+    /**
+     * Adds the datasource trigger to a button to directly call a url with selected ids as parameters
+     * todo: is there a more efficient way?
+     *
+     * @param Button $button
+     * @param string $target_url
+     * @param $param_name
+     * @param Signal $callback
+     * @return Button
+     */
+    public function addDSTriggerToButton(Button $button, $target_url, $param_name, Signal $callback): Button
+    {
+        $callback_id = $callback->getId();
+        $data_source_id = $this->list_data_source_signal->getId();
+
+        return $button->withOnLoadCode(
+            function ($id) use ($target_url, $param_name, $callback_id) {
+                return "
+					$( document ).on( '{$callback_id}', function( event, signalData ) {
+						ids = Object.keys(signalData['options']['data_list']);
+						if(ids.length == 0){
+							$('#{$id}').effect('shake');
+							return false;
+						}
+						
+						n_url = '{$target_url}' + '&{$param_name}=' + ids.join('/');
+						window.location.replace(n_url);
+
+						return false;
+   					 });";
+            }
+        )->withAdditionalOnLoadCode(
+            function ($id) use ($data_source_id, $callback_id) {
+                return "
+					$('#{$id}').click(function() {
+						$(document).trigger('{$data_source_id}',
+							{
+								'id' : '{$data_source_id}', 'event' : 'load_list_data_source',
+								'triggerer' : $('#{$id}'),
+								'options' : JSON.parse('{\"callback\":\"{$callback_id}\"}')
+							}
+						);
+						return false;
+					});";
+            });
+    }
 }

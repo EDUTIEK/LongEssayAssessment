@@ -13,6 +13,8 @@ use Psr\Http\Message\ServerRequestInterface;
 use ILIAS\Plugin\LongEssayAssessment\ServiceLayer\ObjectServices;
 use ILIAS\Plugin\LongEssayAssessment\ServiceLayer\CommonServices;
 use ILIAS\UI\Component\Modal\Modal;
+use ilLink;
+use ilMailFormCall;
 
 /**
  * Base class for GUI classes (except the plugin guis required by ILIAS)
@@ -236,4 +238,30 @@ abstract class BaseGUI
     {
         $this->tpl->setContent($content . $this->renderer->render($this->modals));
     }
+
+    /**
+     * Open the mail form for sending a mail to accounts
+     * @see Services/Mail/README.md
+     */
+    protected function openMailForm(array $logins, $current_command)
+    {
+        $sig = chr(13) . chr(10) . chr(13) . chr(10);
+        $sig .= $this->plugin->txt('link_to_object');
+        $sig .= chr(13) . chr(10);
+        $sig .= ilLink::_getStaticLink($get['ref_id'] ?? '');
+        $sig = rawurlencode(base64_encode($sig));
+
+        $get = $this->request->getQueryParams();
+        $this->ctrl->redirectToUrl(
+            ilMailFormCall::getRedirectTarget(
+                $this, $current_command, ['ref_id' => $get['ref_id'] ?? ''],
+                [
+                    'type' => 'new', // Could also be 'reply' with an additional 'mail_id' paremter provided here
+                    'rcp_to' => implode(', ', $logins),
+                    ilMailFormCall::SIGNATURE_KEY => $sig
+                ],
+            )
+        );
+    }
+
 }

@@ -456,12 +456,14 @@ class ilObjLongEssayAssessment extends ilObjectPlugin
             return false;
         }
 
-        if ($this->taskSettings->isReviewEnabled() &&
-            !$this->data->isInRange(
+        if (!$this->taskSettings->isReviewEnabled()) {
+            return false;
+        }
+        elseif (!$this->data->isInRange(
                 time(),
                 $this->data->dbTimeToUnix($this->taskSettings->getReviewStart()),
                 $this->data->dbTimeToUnix($this->taskSettings->getReviewEnd())
-            )) {
+        )) {
             return false;
         }
 

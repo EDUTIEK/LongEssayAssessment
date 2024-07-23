@@ -2188,4 +2188,12 @@ if (!$ilDB->tableColumnExists('xlas_corrector','correction_report')) {
     ));
 }
 ?>
+<#103>
+<?php
+// enable review for existing tasks
+// before adding the switch, the review was just controlled by the start and end date
+// if no dates were configured, the review was possible
+// new tasks will not activate the review by default
+$ilDB->manipulate("UPDATE xlas_task_settings SET review_enabled = 1");
+?>
 

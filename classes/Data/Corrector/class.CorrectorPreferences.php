@@ -4,7 +4,7 @@
 namespace ILIAS\Plugin\LongEssayAssessment\Data\Corrector;
 
 use ILIAS\Plugin\LongEssayAssessment\Data\RecordData;
-use Edutiek\LongEssayAssessmentService\Data\CorrectionSummary;
+use ILIAS\Plugin\LongEssayAssessment\Data\Essay\CorrectorSummary;
 
 /**
  * Corrector Preferences
@@ -27,21 +27,17 @@ class CorrectorPreferences extends RecordData
         'include_comment_ratings' => 'integer',
         'include_comment_points' => 'integer',
         'include_criteria_points' => 'integer',
-        // todo: remove from database and here
-        'include_writer_notes' => 'integer',
     ];
 
     protected int $corrector_id = 0;
     protected float $essay_page_zoom = 0.25;
     protected float $essay_text_zoom =  1;
     protected float $summary_text_zoom =  1;
-    protected int $include_comments = CorrectionSummary::INCLUDE_INFO;
-    protected int $include_comment_ratings = CorrectionSummary::INCLUDE_INFO;
-    protected int $include_comment_points = CorrectionSummary::INCLUDE_INFO;
-    protected int $include_criteria_points = CorrectionSummary::INCLUDE_INFO;
-    // todo: remove from database and here
-    protected int $include_writer_notes = CorrectionSummary::INCLUDE_INFO;
-    
+    protected int $include_comments = CorrectorSummary::INCLUDE_INFO;
+    protected int $include_comment_ratings = CorrectorSummary::INCLUDE_INFO;
+    protected int $include_comment_points = CorrectorSummary::INCLUDE_INFO;
+    protected int $include_criteria_points = CorrectorSummary::INCLUDE_INFO;
+
     public function __construct(int $corrector_id)
     {
         $this->corrector_id = $corrector_id;

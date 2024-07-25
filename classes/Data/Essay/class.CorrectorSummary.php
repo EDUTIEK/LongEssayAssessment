@@ -40,8 +40,6 @@ class CorrectorSummary extends RecordData
         'include_comment_ratings' => 'integer',
         'include_comment_points' => 'integer',
         'include_criteria_points' => 'integer',
-        // todo: remove from database and here
-        'include_writer_notes' => 'integer',
     ];
     
     protected int $id = 0;
@@ -57,8 +55,6 @@ class CorrectorSummary extends RecordData
     protected ?int $include_comment_ratings = null;
     protected ?int $include_comment_points = null;
     protected ?int $include_criteria_points = null;
-    // todo: remove from database and here
-    protected ?int $include_writer_notes = null;
 
     public static function model()
     {

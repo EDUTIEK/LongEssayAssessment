@@ -2204,3 +2204,12 @@ if (!$ilDB->tableColumnExists('xlas_corr_setting','reports_available_start')) {
     ));
 }
 ?>
+<#106>
+<?php
+if ($ilDB->tableColumnExists('xlas_corrector_summary','include_writer_notes')) {
+    $ilDB->dropTableColumn('xlas_corrector_summary', 'include_writer_notes');
+}
+if ($ilDB->tableColumnExists('xlas_corrector_prefs','include_writer_notes')) {
+    $ilDB->dropTableColumn('xlas_corrector_prefs', 'include_writer_notes');
+}
+?>

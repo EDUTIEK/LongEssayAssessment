@@ -167,7 +167,7 @@ abstract class StatisticsGUI extends BaseGUI
 
     protected function printGradeLevelConsistencyInfo() : void
     {
-        if($this->checkGradeLevelsConsistency()){
+        if(!$this->checkGradeLevelsConsistency()) {
             $this->tpl->setOnScreenMessage('info', $this->plugin->txt('statistic_grade_level_inconsistency_info'));
         }
     }

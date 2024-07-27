@@ -1,24 +1,28 @@
 # Change Log
 ## Upcoming version
 New features:
-- plugin: correction setting to anonymize the corrector names for the writers
-- plugin: add correction finalize date to results export
-- plugin: add correction finalize date to results export
-- plugin: general cron job support [cron job support](https://github.com/EDUTIEK/LongEssayAssessmentCron/)
-- plugin: disable correction reviews
-- plugin: send review notifications after finalization and within review period via cron job
-- plugin: fix huge user images in remove/repeal participant confirmation modal
-- plugin: fix double file error in pdf version upload, when nothing was changed
-- plugin: fix possibility to remove pdf version uploads
-- plugin: fix corrector assignment file upload error handling with required file
-- plugin: fix str_word_count on null in corrector assignment file export
-- plugin: adding the possibility to compare grade statistics over multiple plugin objects within the same repository context
-- plugin: adding writer and corrector statistics with a csv export
+- correction setting to anonymize the corrector names for the writers
+- add correction finalize date to results export
+- general cron job support [cron job support](https://github.com/EDUTIEK/LongEssayAssessmentCron/)
+- disable correction reviews 
+- send review notifications after finalization and within review period via cron job
+- compare grade statistics over multiple plugin objects within the same repository context
+- adding writer and corrector statistics with a csv export
 - allow correction without points if no grade level is defined
 - simplify the writer start screen when essay is authorized
 - write mail to selected writers and/or correctors
 - forced setting for inclusion of correction details
 - writing and download of correction reports
+
+- Bug fixes:
+- plugin: fix huge user images in remove/repeal participant confirmation modal
+- plugin: fix double file error in pdf version upload, when nothing was changed
+- plugin: fix possibility to remove pdf version uploads
+- plugin: fix corrector assignment file upload error handling with required file
+- plugin: fix str_word_count on null in corrector assignment file export
+- corrector: fix jumping in scrolled essay after autosave
+- crrector: fix orphaned data after quick navigation between writers
+- corrector: improve startup when sendings are open in local data
 
 
 ## Version 2.2 (2024-06-24)

@@ -2,11 +2,20 @@
 
 ## Upcoming version
 New features:
-- plugin: correction setting to anonymize the corrector names for the writers
-- plugin: add correction finalize date to results export
-- plugin: general cron job support [cron job support](https://github.com/EDUTIEK/LongEssayAssessmentCron/)
-- plugin: disable correction reviews
-- plugin: send review notifications after finalization and within review period via cron job
+- correction setting to anonymize the corrector names for the writers
+- add correction finalize date to results export
+- general cron job support [cron job support](https://github.com/EDUTIEK/LongEssayAssessmentCron/)
+- disable correction reviews 
+- send review notifications after finalization and within review period via cron job
+- compare grade statistics over multiple plugin objects within the same repository context
+- adding writer and corrector statistics with a csv export
+- allow correction without points if no grade level is defined
+- simplify the writer start screen when essay is authorized
+- write mail to selected writers and/or correctors
+- forced setting for inclusion of correction details
+- writing and download of correction reports
+
+- Bug fixes:
 - plugin: fix uninstallation problems
 - plugin: fix 40808: Blank pages occur when Text and PDF are submitted
 - plugin: fix huge user images in remove/repeal participant confirmation modal
@@ -14,13 +23,9 @@ New features:
 - plugin: fix possibility to remove pdf version uploads
 - plugin: fix corrector assignment file upload error handling with required file
 - plugin: fix str_word_count on null in corrector assignment file export
-- plugin: adding the possibility to compare grade statistics over multiple plugin objects within the same repository context
-- plugin: adding writer and corrector statistics with a csv export
-- allow correction without points if no grade level is defined
-- simplify the writer start screen when essay is authorized
-- write mail to selected writers and/or correctors
-- forced setting for inclusion of correction details
-- writing and download of correction reports
+- corrector: fix jumping in scrolled essay after autosave
+- crrector: fix orphaned data after quick navigation between writers
+- corrector: improve startup when sendings are open in local data
 
 
 ## Version 2.2 (2024-06-24)

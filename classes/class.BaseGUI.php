@@ -248,7 +248,7 @@ abstract class BaseGUI
         $sig = chr(13) . chr(10) . chr(13) . chr(10);
         $sig .= $this->plugin->txt('link_to_object');
         $sig .= chr(13) . chr(10);
-        $sig .= ilLink::_getStaticLink($get['ref_id'] ?? '');
+        $sig .= ilLink::_getStaticLink((int) ($get['ref_id'] ?? ''));
         $sig = rawurlencode(base64_encode($sig));
 
         $get = $this->request->getQueryParams();

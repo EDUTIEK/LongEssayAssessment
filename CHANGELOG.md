@@ -15,7 +15,7 @@ New features:
 - forced setting for inclusion of correction details
 - writing and download of correction reports
 
-- Bug fixes:
+Bug fixes:
 - plugin: fix uninstallation problems
 - plugin: fix 40808: Blank pages occur when Text and PDF are submitted
 - plugin: fix huge user images in remove/repeal participant confirmation modal

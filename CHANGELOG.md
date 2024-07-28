@@ -14,7 +14,7 @@ New features:
 - forced setting for inclusion of correction details
 - writing and download of correction reports
 
-- Bug fixes:
+Bug fixes:
 - plugin: fix huge user images in remove/repeal participant confirmation modal
 - plugin: fix double file error in pdf version upload, when nothing was changed
 - plugin: fix possibility to remove pdf version uploads

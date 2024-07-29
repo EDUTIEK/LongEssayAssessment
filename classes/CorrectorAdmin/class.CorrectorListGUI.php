@@ -31,6 +31,11 @@ class CorrectorListGUI extends WriterListGUI
         foreach ($this->correctors as $corrector) {
             $actions = [];
 
+            $this->ctrl->setParameter($this->parent, 'corrector_id', $corrector->getId());
+            $actions[] = $this->uiFactory->button()->shy($this->plugin->txt("write_mail"),
+                $this->ctrl->getLinkTarget($this->parent, 'mailToSingleCorrector')
+            );
+
             if($this->canGetRemoved($corrector)) {
                 $remove_modal = $this->uiFactory->modal()->interruptive(
                     $this->plugin->txt("remove_corrector"),
@@ -42,11 +47,6 @@ class CorrectorListGUI extends WriterListGUI
 
                 $actions[] = $this->uiFactory->button()->shy($this->plugin->txt("remove_corrector"), '')
                     ->withOnClick($remove_modal->getShowSignal());
-
-                $this->ctrl->setParameter($this->parent, 'corrector_id', $corrector->getId());
-                $actions[] = $this->uiFactory->button()->shy($this->plugin->txt("write_mail"),
-                    $this->ctrl->getLinkTarget($this->parent, 'mailToSingleCorrector')
-                );
 
                 $modals[] = $remove_modal;
             }

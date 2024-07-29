@@ -335,7 +335,7 @@ class CorrectorAdminGUI extends BaseGUI
         // Action
         $post = $this->request->getParsedBody();
         $correctors = [];
-        switch($post['form_input_1'] ?? '') {
+        switch($post['form/input_0'] ?? '') {
             case 'all':
                 $correctors = $all;
                 break;
@@ -384,11 +384,11 @@ class CorrectorAdminGUI extends BaseGUI
         $post = $this->request->getParsedBody();
         $to_writer = false;
         $to_correctors = [];
-        if (isset($post['form_input_1'])) {
+        if (isset($post['form/input_0'])) {
             $to_writer = true;
         }
         for ($i = 1; $i <= $this->settings->getRequiredCorrectors(); $i++) {
-            if (isset($post['form_input_' . ($i + 1)])) {
+            if (isset($post['form/input_' . ($i)])) {
                 $to_correctors[$i - 1] = true;
             }
         }

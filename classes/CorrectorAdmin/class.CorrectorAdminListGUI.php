@@ -59,6 +59,8 @@ class CorrectorAdminListGUI extends WriterListGUI
         $filter_gui = $this->filterForm();
         $filter_data = $this->ui_service->filter()->getData($filter_gui) ?? [];
 
+        $user_data = \ilUserUtil::getNamePresentation(array_unique(array_map(fn (Writer $x) => $x->getUserId(), $this->writers)), true, true, "", true);
+
         foreach ($this->writers as $writer) {
             if(!$this->filter($filter_data, $writer)) {
                 continue;
@@ -141,8 +143,7 @@ class CorrectorAdminListGUI extends WriterListGUI
                         $this->getRemoveAuthorisationsAction($writer)
                     )->withAffectedItems([ $this->uiFactory->modal()->interruptiveItem()->standard(
                         $writer->getId(),
-                        $this->getWriterNameText($writer) . ' [' . $writer->getPseudonym() . ']',
-                        $this->getUserImage($writer->getUserId())
+                        $user_data[$writer->getUserId()] . ' [' . $writer->getPseudonym() . ']'
                     )])->withActionButtonLabel($label);
 
                     $actions[] = $this->uiFactory->button()->shy($label, "")

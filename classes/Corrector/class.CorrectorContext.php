@@ -136,9 +136,9 @@ class CorrectorContext extends ServiceContext implements Context
     public function getReturnUrl(): string
     {
         if ($this->isReview() || $this->isStitchDecision()) {
-            return \ilLink::_getStaticLink($this->object->getRefId(), 'xlas', true, '_correctoradmin');
+            return \ilLink::_getStaticLink($this->object->getRefId(), 'xlas', true, 'correctoradmin');
         }
-        return \ilLink::_getStaticLink($this->object->getRefId(), 'xlas', true, '_corrector');
+        return \ilLink::_getStaticLink($this->object->getRefId(), 'xlas', true, 'corrector');
     }
 
     /**

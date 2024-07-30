@@ -1,6 +1,6 @@
 # Change Log
 
-## Version 2.2 (2024-07-30)
+## Version 2.3 (2024-07-30)
 New features:
 - correction setting to anonymize the corrector names for the writers
 - add correction finalize date to results export

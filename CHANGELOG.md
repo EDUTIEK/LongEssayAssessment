@@ -1,14 +1,13 @@
 # Change Log
 
-## Upcoming version
+## Version 1.8 (2024-07-30)
 New features:
 - correction setting to anonymize the corrector names for the writers
 - add correction finalize date to results export
-- general cron job support [cron job support](https://github.com/EDUTIEK/LongEssayAssessmentCron/)
-- disable correction reviews 
-- send review notifications after finalization and within review period via cron job
-- compare grade statistics over multiple plugin objects within the same repository context
+- possibility to disable correction reviews
+- send review notifications after finalization
 - adding writer and corrector statistics with a csv export
+- compare grade statistics over multiple plugin objects within the same repository context
 - allow correction without points if no grade level is defined
 - simplify the writer start screen when essay is authorized
 - write mail to selected writers and/or correctors
@@ -16,9 +15,9 @@ New features:
 - writing and download of correction reports
 
 Bug fixes:
-- Corrector: fix jumping in scrolled essay after autosave
-- Corrector: fix orphaned data after quick navigation between writers
-- Corrector: improve startup when sendings are open in local data
+- corrector: fix jumping in scrolled essay after autosave
+- corrector: fix orphaned data after quick navigation between writers
+- corrector: improve startup when sendings are open in local data
 
 ## Version 1.7 (2024-06-21)
 New features in corrector:

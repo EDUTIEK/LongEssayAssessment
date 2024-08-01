@@ -1,5 +1,9 @@
 # Change Log
 
+## Version 2.4 (2024-08-01)
+Bug fixes:
+- service: fix ignoring of sent partial points from corrector
+
 ## Version 2.3 (2024-07-30)
 New features:
 - correction setting to anonymize the corrector names for the writers

@@ -56,7 +56,7 @@ class UserDataUIHelper
         if ($row->public_profile) {
             $back = '';
             if ($profile_back_link != '') {
-                $back = '?back_url=' . rawurlencode($profile_back_link);
+                $back = '&back_url=' . rawurlencode($profile_back_link);
             }
             return $this->uiFactory->link()->standard($this->userDataHelper->getPresentation($user_id), $row->link . $back);
         }

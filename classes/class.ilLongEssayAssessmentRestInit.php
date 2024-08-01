@@ -22,10 +22,9 @@ class ilLongEssayAssessmentRestInit extends ilInitialisation
             };
         }
 
-        // Quick fix for UserDataHelper
-        self::initUIFramework($DIC);
-
         self::initAccessHandling();
+        // for UserDataHelper and sending notifications
+        self::initHTML();
         self::initLanguage();
     }
 }

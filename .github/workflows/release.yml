@@ -1,0 +1,55 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - '*'  # Trigger only when a tag is pushed
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.4'
+
+      - name: Install dependencies
+        run: composer install --no-dev --prefer-dist --optimize-autoloader
+
+      - name: Prepare application for packaging
+        run: |
+          mkdir -p build
+          rsync -av --exclude='vendor/' --exclude='.git/' ./ build/
+
+      - name: Create ZIP package
+        run: |
+          cd build
+          zip -r ../release.zip ./*
+        shell: bash
+
+      - name: Create TAR.GZ package
+        run: |
+          cd build
+          tar -czf ../release.tar.gz ./*
+        shell: bash
+
+      - name: Upload Release Assets
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./release.zip
+          asset_name: release.zip
+          asset_content_type: application/zip
+
+      - name: Upload TAR.GZ Asset
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./release.tar.gz
+          asset_name: release.tar.gz
+          asset_content_type: application/gzip

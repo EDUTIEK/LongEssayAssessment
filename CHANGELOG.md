@@ -1,5 +1,10 @@
 # Change Log
 
+## Upcoming version
+New features:
+- corrector: improved marking and summary views: separate switching of parts, show details where needed, remove details toggle
+- corrector: improved table for criteria related points entry: show sum of points for criteria, separate entry column
+
 ## Version 1.9 (2024-08-01)
 Bug fixes:
 - service: fix ignoring of sent partial points from corrector

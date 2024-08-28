@@ -1052,11 +1052,13 @@ class CorrectorAdminService extends BaseService
                     if($count_not_attended === null) {
                         $count_not_attended = 0;
                     } // if one essay is present, there could be not attended
-                    if(!$grading_object->getEditEnded() === null) {
+                    if(empty($grading_object->getWritingAuthorized())){
                         $count_not_attended++;
-                    } else {
+                    }
+                    if(!empty($grading_object->getEditStarted())) {
                         $count_all++;
                     }
+
                     break;
                 case ($grading_object instanceof CorrectorSummary):
                     $points = $grading_object->getPoints();

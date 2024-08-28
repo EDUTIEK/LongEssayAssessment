@@ -453,7 +453,7 @@ essay_not_passed_quota#:#Durchfallquote
 essay_average_points#:#Durchschnittspunkte
 grade_distribution#:#Notenverteilung
 corrections_all#:#Alle Korrekturen
-essay_correction_finlized#:#Korrekturen
+essay_correction_finlized#:#Alle Klausuren
 corrector_assignment_change_file_success#:#Die Zuweisungen aus der Datei wurden vorgenommen.
 corrector_assignment_change_file_failure#:#Die Datei konnte nicht korrekt ausgewertet werden. Es wurden keine Änderungen vorgenommen.
 assignment_excel#:#Korrektorzuweisung

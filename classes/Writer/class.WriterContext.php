@@ -17,6 +17,8 @@ use ILIAS\Plugin\LongEssayAssessment\ServiceContext;
 use Edutiek\LongEssayAssessmentService\Data\WrittenNote;
 use ILIAS\Plugin\LongEssayAssessment\Data\Essay\WriterNotice;
 use Edutiek\LongEssayAssessmentService\Data\WritingPreferences;
+use ILIAS\StaticURL\Builder\StandardURIBuilder;
+use ILIAS\Data\ReferenceId;
 
 class WriterContext extends ServiceContext implements Context
 {
@@ -64,7 +66,13 @@ class WriterContext extends ServiceContext implements Context
      */
     public function getReturnUrl(): string
     {
-        return \ilLink::_getStaticLink($this->object->getRefId(), 'xlas', true, 'writer');
+        $builder = new StandardURIBuilder(ILIAS_HTTP_PATH, true);
+
+        return (string) $builder->build(
+            'xlas',
+            new ReferenceId($this->object->getRefId()),
+            ['writer']
+        );
     }
     
 

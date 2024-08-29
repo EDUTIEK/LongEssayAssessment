@@ -121,7 +121,8 @@ class WriterStartGUI extends BaseGUI
                     $back_text = $this->plugin->txt('message_writing_authorized_link');
                     $message .= '<p><a href="'.$back_url.'">'.$back_text.'</a></p>';
 
-                    $this->tpl->setOnScreenMessage("success", $message);
+                    $contents[] = $this->uiFactory->legacy('<div class="alert alert-success" role="alert">' . $message . '</div>');
+                    // $this->tpl->setOnScreenMessage("success", $message);
 
                 } else {
                     $this->tpl->setOnScreenMessage("info", $this->plugin->txt('message_writing_authorized'));

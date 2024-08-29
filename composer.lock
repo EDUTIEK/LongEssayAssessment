@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b94d9aaa289b9f37283afa385e7a4ad4",
+    "content-hash": "13d62872517ed78798a315d8d382c41f",
     "packages": [
         {
             "name": "edutiek/long-essay-assessment-service",
-            "version": "dev-main",
+            "version": "dev-dev3_a11y",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EDUTIEK/long-essay-assessment-service.git",
-                "reference": "c0a30bb10ca69e734932ea9ea7e5e8c2c4e7a2ae"
+                "reference": "16133c17f243cb342ae7dfd68ea96efa29caf89c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EDUTIEK/long-essay-assessment-service/zipball/c0a30bb10ca69e734932ea9ea7e5e8c2c4e7a2ae",
-                "reference": "c0a30bb10ca69e734932ea9ea7e5e8c2c4e7a2ae",
+                "url": "https://api.github.com/repos/EDUTIEK/long-essay-assessment-service/zipball/16133c17f243cb342ae7dfd68ea96efa29caf89c",
+                "reference": "16133c17f243cb342ae7dfd68ea96efa29caf89c",
                 "shasum": ""
             },
             "require": {
@@ -35,7 +35,6 @@
                 "tecnickcom/tcpdf": "^6.3",
                 "yetanotherape/diff-match-patch": "^1.1"
             },
-            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
@@ -53,9 +52,9 @@
             ],
             "description": "Backend service for writing long essay assessments",
             "support": {
-                "source": "https://github.com/EDUTIEK/long-essay-assessment-service/tree/main"
+                "source": "https://github.com/EDUTIEK/long-essay-assessment-service/tree/dev3_a11y"
             },
-            "time": "2024-08-05T15:35:04+00:00"
+            "time": "2024-08-29T01:27:54+00:00"
         },
         {
             "name": "edutiek/long-essay-image-sketch",
@@ -583,16 +582,16 @@
         },
         {
             "name": "psr/log",
-            "version": "3.0.0",
+            "version": "3.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-fig/log.git",
-                "reference": "fe5ea303b0887d5caefd3d431c3e61ad47037001"
+                "reference": "79dff0b268932c640297f5208d6298f71855c03e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-fig/log/zipball/fe5ea303b0887d5caefd3d431c3e61ad47037001",
-                "reference": "fe5ea303b0887d5caefd3d431c3e61ad47037001",
+                "url": "https://api.github.com/repos/php-fig/log/zipball/79dff0b268932c640297f5208d6298f71855c03e",
+                "reference": "79dff0b268932c640297f5208d6298f71855c03e",
                 "shasum": ""
             },
             "require": {
@@ -627,9 +626,9 @@
                 "psr-3"
             ],
             "support": {
-                "source": "https://github.com/php-fig/log/tree/3.0.0"
+                "source": "https://github.com/php-fig/log/tree/3.0.1"
             },
-            "time": "2021-07-14T16:46:02+00:00"
+            "time": "2024-08-21T13:31:24+00:00"
         },
         {
             "name": "ralouphie/getallheaders",

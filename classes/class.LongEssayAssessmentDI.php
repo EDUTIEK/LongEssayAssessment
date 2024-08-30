@@ -141,7 +141,7 @@ class LongEssayAssessmentDI
         };
 
         $dic["xlas.ui_service"] = function (\ILIAS\DI\Container $dic) {
-            return new UIService($dic["lng"], $dic["refinery"]);
+            return new UIService($dic["xlas.plugin"], $dic["lng"], $dic["refinery"]);
         };
 
         $dic["xlas.services_factory"] = function (\ILIAS\DI\Container $dic) {

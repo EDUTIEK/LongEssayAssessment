@@ -55,6 +55,7 @@ class WriterStatisticsGUI extends StatisticsGUI
         return $this->ui_service->filter()->standard("xlas_statistics", $base_action, [
             "context" => $this->uiFactory->input()->field()->multiSelect($this->plugin->txt("objs_xlas"), $context)
                                          ->withValue([$this->object->getId()])
+                                         ->withAdditionalOnLoadCode($this->localDI->getUIService()->checkAllInMultiselectFilter())
         ], [true], true, true);
     }
 

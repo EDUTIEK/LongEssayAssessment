@@ -28,12 +28,13 @@ class UIService
             "h4","h5","h6","hr","li","ol","p",
             "pre","span","strike","strong","sub","sup","table","td",
             "tr","u","ul","ruby","rbc","rtc","rb","rt","rp", "i", "b", "gap"));
+    private \ilPlugin $plugin;
 
-
-    public function __construct(\ilLanguage $lng, Factory $refinery)
+    public function __construct(\ilPlugin $plugin, \ilLanguage $lng, Factory $refinery)
     {
         $this->lng = $lng;
         $this->refinery = $refinery;
+        $this->plugin = $plugin;
     }
 
     public function getMaxFileSizeString()
@@ -132,6 +133,39 @@ class UIService
     {
         return function ($id) {
             return "$('#{$id}').addClass('noRTEditor');";
+        };
+    }
+
+    public function checkAllInMultiselectFilter(): \Closure
+    {
+        $check_all = $this->plugin->txt("check_all");
+        $all_checked = $this->plugin->txt("all_checked");
+
+        return function($id) use ($check_all, $all_checked) {
+            return "
+                    $('#{$id}').prepend('<li><input id=\"{$id}_allcheck\" type=\"checkbox\"> <span class=\"hidden\">{$all_checked}</span>{$check_all}</li>');
+                    
+                    var {$id}_check = function myFunction() {
+                        if($('#{$id}').find('input[type=\"checkbox\"][name^=\"filter_input_\"]').length === $('#{$id}').find('input[type=\"checkbox\"][name^=\"filter_input_\"]:checked').length )
+                        {
+                            $('#{$id}_allcheck').prop('checked', true);
+                        } else {
+                            $('#{$id}_allcheck').prop('checked', false);
+                        }
+                    } 
+                    {$id}_check();
+                    
+                    $('#{$id}_allcheck').change(function() {
+                        if(this.checked) {
+                            $('#{$id}').find('input').prop('checked', true);
+                        }else{
+                            $('#{$id}').find('input').prop('checked', false);
+                        }
+                    });
+                    $('#{$id}').find('input[name^=\"filter_input_\"]').change(function() {
+                        setTimeout({$id}_check, 100);
+                    });
+                 ";
         };
     }
 }

@@ -10,6 +10,7 @@ use ILIAS\Plugin\LongEssayAssessment\UI\Implementation\ItemRenderer;
 use ILIAS\Plugin\LongEssayAssessment\UI\PluginRenderer;
 use ILIAS\Plugin\LongEssayAssessment\WriterAdmin\PDFVersionResourceStakeholder;
 use ILIAS\Plugin\LongEssayAssessment\WriterAdmin\EssayImageResourceStakeholder;
+use ILIAS\Plugin\LongEssayAssessment\UI\Implementation\StatisticRenderer;
 
 /**
  * Basic plugin file
@@ -262,6 +263,7 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
             return $renderer;
         }
 
+        $dic->language()->loadLanguageModule($this->getPrefix());
         //else return own renderer with origin as default
         //be aware that you can not provide the renderer itself for the closure since its state changes
         return function () use ($dic, $renderer) {
@@ -276,6 +278,14 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
                     $dic["ui.pathresolver"]
                 ),
                 new InputRenderer(
+                    $dic["ui.factory"],
+                    $dic["xlas.custom_template_factory"],
+                    $dic["lng"],
+                    $dic["ui.javascript_binding"],
+                    $dic["refinery"],
+                    $dic["ui.pathresolver"]
+                ),
+                new StatisticRenderer(
                     $dic["ui.factory"],
                     $dic["xlas.custom_template_factory"],
                     $dic["lng"],

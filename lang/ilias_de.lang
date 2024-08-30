@@ -592,4 +592,9 @@ statistic_not_passed#:#nicht bestanden
 statistic_not_attended#:#nicht abgegeben
 statistic_context_filter#:#Aufgaben
 statistic_grade_level_inconsistency_info#:#Die Notenstufen der ausgewählten Aufgaben variieren. Einige Teile der angezeigten Statistiken könnten daher weniger aussagekräftig sein.
-statistic_legend#:#
+result_available_review_error#:#Ergebnis zur Einsichtnahme kann nur ausgewählt werden, wenn die Einsichtnahme aktiviert ist.
+writer_statistics_enabled#:#Notenstatistik verfügbar
+writer_statistics_info#:#Sobald die Ergebnisse angezeigt werden, wird den Teilnehmern auch eine Notenstatistik angezeigt in der die Teilnehmernote im Zusammenhang mit dieser Klausur und weiteren Klausuren im gleichen Klausurkontext (dieser Kurs/Gruppe/Ordner/Kategorie) verglichen werden können.
+own_assessments#:#Eigene Klausuren
+final_result#:#Eigenes Ergebnis
+tab_statistic#:#Notenstatistik

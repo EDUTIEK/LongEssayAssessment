@@ -18,6 +18,7 @@ use ILIAS\Plugin\LongEssayAssessment\CorrectorAdmin\CorrectorAdminService;
  *
  * @package ILIAS\Plugin\LongEssayAssessment\Writer
  * @ilCtrl_isCalledBy ILIAS\Plugin\LongEssayAssessment\Writer\WriterStartGUI: ilObjLongEssayAssessmentGUI
+ * @ilCtrl_Calls ILIAS\Plugin\LongEssayAssessment\Writer\WriterStartGUI: ILIAS\Plugin\LongEssayAssessment\Writer\WriterStatisticsGUI
  */
 class WriterStartGUI extends BaseGUI
 {
@@ -43,27 +44,33 @@ class WriterStartGUI extends BaseGUI
     public function executeCommand()
     {
 
-        $cmd = $this->ctrl->getCmd('showStartPage');
-        switch ($cmd) {
-            case 'showStartPage':
-            case 'startWriter':
-            case 'startWritingReview':
-            case 'downloadWriterPdf':
-            case 'downloadCorrectedPdf':
-            case 'downloadCorrectionReportsPdf':
-            case 'downloadResourceFile':
-            case 'viewDescription':
-            case 'viewClosingMessage':
-            case 'viewInstructions':
-            case 'downloadInstructions':
-            case 'viewSolution':
-            case 'downloadSolution':
-                $this->$cmd();
-                break;
+        $next_class = $this->ctrl->getNextClass();
 
+        switch($next_class){
             default:
-                $this->tpl->setContent('unknown command: ' . $cmd);
+                $cmd = $this->ctrl->getCmd('showStartPage');
+                switch ($cmd) {
+                    case 'showStartPage':
+                    case 'startWriter':
+                    case 'startWritingReview':
+                    case 'downloadWriterPdf':
+                    case 'downloadCorrectedPdf':
+                    case 'downloadCorrectionReportsPdf':
+                    case 'downloadResourceFile':
+                    case 'viewDescription':
+                    case 'viewClosingMessage':
+                    case 'viewInstructions':
+                    case 'downloadInstructions':
+                    case 'viewSolution':
+                    case 'downloadSolution':
+                        $this->$cmd();
+                        break;
+
+                    default:
+                        $this->tpl->setContent('unknown command: ' . $cmd);
+                }
         }
+
     }
 
     /**
@@ -333,7 +340,6 @@ class WriterStartGUI extends BaseGUI
                 )
             )->withLeadIcon($this->uiFactory->symbol()->icon()->standard('file', 'File', 'medium'));
         }
-
         $contents[] = $this->uiFactory->panel()->standard($this->plugin->txt('result'), $result_items);
 
         // Solution

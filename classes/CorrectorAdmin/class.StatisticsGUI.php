@@ -12,6 +12,8 @@ use ILIAS\UI\Component\Table\Presentation;
 use ILIAS\Plugin\LongEssayAssessment\Data\Essay\CorrectorSummary;
 use ILIAS\Plugin\LongEssayAssessment\Data\Essay\Essay;
 use ILIAS\Plugin\LongEssayAssessment\Data\Object\GradeLevel;
+use ILIAS\UI\Component\Listing\Descriptive;
+use ILIAS\Plugin\LongEssayAssessment\UI\Implementation\Statistic;
 
 abstract class StatisticsGUI extends BaseGUI
 {
@@ -144,6 +146,11 @@ abstract class StatisticsGUI extends BaseGUI
                     $pseudonym = [$this->plugin->txt("pseudonym") => implode(", ", array_unique($record["pseudonym"]))];
                 }
 
+
+                if(isset($record["grade"])){
+                    $row = $row->withSubheadline($this->plugin->txt("final_result") . $record["grade"]);
+                }
+
                 return $row
                     ->withHeadline($record['title'])
                     ->withImportantFields($properties)
@@ -221,5 +228,37 @@ abstract class StatisticsGUI extends BaseGUI
 
         }
         return $grade_statistic;
+    }
+
+    protected function createStatisticItem(string $title, array $statistic, bool $is_essay = true): Statistic
+    {
+        $item =  $this->localDI->getUIFactory()->statistic()->statistic(
+            $title,
+            $statistic[CorrectorAdminService::STATISTIC_COUNT],
+            $is_essay ? $this->plugin->txt('essay_count') : $this->plugin->txt('correction_count'),
+            $statistic[CorrectorAdminService::STATISTIC_FINAL],
+            $is_essay ? $this->plugin->txt('essay_final') : $this->plugin->txt('correction_final'),
+        );
+
+        if($statistic[CorrectorAdminService::STATISTIC_NOT_ATTENDED] !== null) {
+            $item = $item->withNotAttended($statistic[CorrectorAdminService::STATISTIC_NOT_ATTENDED]);
+        }
+
+        if($statistic[CorrectorAdminService::STATISTIC_NOT_PASSED] !== null) {
+            $item = $item->withNotPassed($statistic[CorrectorAdminService::STATISTIC_NOT_PASSED]);
+        }
+
+        if($statistic[CorrectorAdminService::STATISTIC_PASSED] !== null) {
+            $item = $item->withPassed($statistic[CorrectorAdminService::STATISTIC_PASSED]);
+        }
+
+        if($statistic[CorrectorAdminService::STATISTIC_AVERAGE] !== null) {
+            $item = $item->withAveragePoints($statistic[CorrectorAdminService::STATISTIC_AVERAGE]);
+        }
+
+        if($statistic[CorrectorAdminService::STATISTIC_NOT_PASSED_QUOTA] !== null) {
+            $item = $item->withNotPassedQuota($statistic[CorrectorAdminService::STATISTIC_NOT_PASSED_QUOTA]);
+        }
+        return $item;
     }
 }

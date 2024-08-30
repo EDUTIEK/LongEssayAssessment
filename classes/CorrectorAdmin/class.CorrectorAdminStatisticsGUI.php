@@ -151,7 +151,8 @@ class CorrectorAdminStatisticsGUI extends StatisticsGUI
         $base_action = $this->ctrl->getFormAction($this, 'showStartPage');
         $filter_gui = $this->ui_service->filter()->standard("xlas_statistics", $base_action, [
             "context" => $this->uiFactory->input()->field()->multiSelect($this->plugin->txt("statistic_context_filter"), $context)
-                                         ->withValue([$this->object->getId()]),
+                                                           ->withAdditionalOnLoadCode($this->localDI->getUIService()->checkAllInMultiselectFilter())
+                                                           ->withValue([$this->object->getId()]),
             "correctors" => $this->uiFactory->input()->field()->multiSelect($this->plugin->txt("correctors"), $corr)
                                                               ->withAdditionalOnLoadCode($this->localDI->getUIService()->checkAllInMultiselectFilter())
         ], [true, true], true, true);

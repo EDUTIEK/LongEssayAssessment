@@ -152,6 +152,7 @@ class CorrectorAdminStatisticsGUI extends StatisticsGUI
             "context" => $this->uiFactory->input()->field()->multiSelect($this->plugin->txt("statistic_context_filter"), $context)
                                          ->withValue([$this->object->getId()]),
             "correctors" => $this->uiFactory->input()->field()->multiSelect($this->plugin->txt("correctors"), $corr)
+                                                              ->withAdditionalOnLoadCode($this->localDI->getUIService()->checkAllInMultiselectFilter())
         ], [true, true], true, true);
         return $filter_gui;
     }

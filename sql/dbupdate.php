@@ -2213,3 +2213,14 @@ if ($ilDB->tableColumnExists('xlas_corrector_prefs','include_writer_notes')) {
     $ilDB->dropTableColumn('xlas_corrector_prefs', 'include_writer_notes');
 }
 ?>
+<#107>
+<?php
+if (!$ilDB->tableColumnExists('xlas_task_settings','statistics_available')) {
+    $ilDB->addTableColumn('xlas_task_settings', 'statistics_available', [
+        'notnull' => '1',
+        'type' => 'integer',
+        'length' => 4,
+        'default' => 0
+    ]);
+}
+?>

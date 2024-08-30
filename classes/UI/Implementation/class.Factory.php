@@ -19,15 +19,18 @@ class Factory implements UI\Component\Factory
     private InputFactory $field_factory;
     private IconFactory $icon_factory;
     private ItemFactory $item_factory;
+    private StatisticFactory $statistic_factory;
 
     public function __construct(
         InputFactory $field_factory,
         IconFactory  $icon_factory,
-        ItemFactory  $item_factory
+        ItemFactory  $item_factory,
+        StatisticFactory $statistic_factory
     ) {
         $this->field_factory = $field_factory;
         $this->icon_factory = $icon_factory;
         $this->item_factory = $item_factory;
+        $this->statistic_factory = $statistic_factory;
     }
 
 
@@ -44,5 +47,10 @@ class Factory implements UI\Component\Factory
     public function item(): ItemFactory
     {
         return $this->item_factory;
+    }
+
+    public function statistic(): StatisticFactory
+    {
+        return $this->statistic_factory;
     }
 }

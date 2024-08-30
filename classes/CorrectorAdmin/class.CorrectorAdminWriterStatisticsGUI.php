@@ -77,7 +77,7 @@ class CorrectorAdminWriterStatisticsGUI extends StatisticsGUI
                   'final' => $this->plugin->txt('essay_final'), 'statistic' => $essay_statistics, 'grade_statistics' => $this->getGradeStatisticOverAll($essay_statistics)],
                   ['title' => $this->plugin->txt("writer_statistic")]];
 
-        $data = array_merge($data, $this->getItemData($filter_data['context'] ?? [$this->object->getId()], (int)$filter_data['finalized'] ?? 1));
+        $data = array_merge($data, $this->getItemData($filter_data['context'] ?? [$this->object->getId()], $filter_data['writer'] ?? "", (int)$filter_data['finalized'] ?? 1));
 
         $ptable = $this->buildPresentationTable();
 
@@ -95,7 +95,7 @@ class CorrectorAdminWriterStatisticsGUI extends StatisticsGUI
         $filter_gui = $this->buildFilter() ;
         $filter_data = $this->ui_service->filter()->getData($filter_gui) ?? ['context' => null, 'finalized' => null];
 
-        $data = $this->getItemData($filter_data['context'] ?? [$this->object->getId()], (int)$filter_data['finalized'] ?? 1);
+        $data = $this->getItemData($filter_data['context'] ?? [$this->object->getId()], $filter_data['writer'] ?? "", (int)$filter_data['finalized'] ?? 1);
 
         $filename = ilFileDelivery::returnASCIIFilename($this->plugin->txt('export_statistics_writer_file')) . '.csv';
         ilFileDelivery::deliverFileAttached($this->buildCSV(
@@ -120,17 +120,26 @@ class CorrectorAdminWriterStatisticsGUI extends StatisticsGUI
             "context" => $this->uiFactory->input()->field()->multiSelect($this->plugin->txt("statistic_context_filter"), $context)
                                          ->withAdditionalTransformation($this->refinery->to()->listOf($this->refinery->to()->int()))
                                          ->withValue([$this->object->getId()]),
+            "writer" => $this->uiFactory->input()->field()->text($this->plugin->txt("participants"))
+                                         ->withValue(""),
             "finalized" => $this->uiFactory->input()->field()->numeric($this->plugin->txt("min_finalized_corrections"))
                                          ->withAdditionalTransformation($this->refinery->int()->isGreaterThanOrEqual(0))
                                          ->withAdditionalTransformation($this->refinery->to()->int())
                                          ->withValue(1)
-        ], [true, true], true, true);
+        ], [true, true, true], true, true);
         return $filter_gui;
     }
 
-    private function getItemData(array $context_filter, int $min_finalized) : array
+    private function getItemData(array $context_filter, ?string $writer_filter, int $min_finalized) : array
     {
         $writer_objs = array_filter(array_merge(...$this->writer), fn (Writer $x) => in_array($x->getTaskId(), $context_filter));
+
+        if(!empty($writer_filter)) {
+            $writer_objs = array_filter($writer_objs, function (Writer $x) use ($writer_filter) {
+                $names = $x->getPseudonym() . $this->usernames[$x->getUserId()] ?? "";
+                return str_contains($names, $writer_filter);
+            });
+        }
 
         $rows = [];
         foreach(array_unique(array_map(fn (Writer $x) => $x->getUserId(), $writer_objs)) as $wrtier_usr_id) {

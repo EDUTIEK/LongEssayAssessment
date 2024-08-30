@@ -37,7 +37,8 @@ class TaskSettings extends RecordData
         'solution_available' => 'integer',
         'solution_available_date' => 'datetime',
         'result_available_type' => 'text',
-        'result_available_date' => 'datetime'
+        'result_available_date' => 'datetime',
+        'statistics_available' => 'integer'
     ];
 
 
@@ -60,6 +61,7 @@ class TaskSettings extends RecordData
     protected ?string $solution_available_date = null;
     protected string $result_available_type = self::RESULT_AVAILABLE_REVIEW;
     protected ?string $result_available_date = null;
+    protected int $statistics_available = 0;
 
 
     public function __construct(int $task_id)
@@ -406,4 +408,16 @@ class TaskSettings extends RecordData
         $this->review_notif_text = $review_notif_text;
         return $this;
     }
+
+    public function isStatisticsAvailable(): bool
+    {
+        return (bool) $this->statistics_available;
+    }
+
+    public function setStatisticsAvailable(bool $statistics_available): TaskSettings
+    {
+        $this->statistics_available = (int)$statistics_available;
+        return $this;
+    }
+
 }

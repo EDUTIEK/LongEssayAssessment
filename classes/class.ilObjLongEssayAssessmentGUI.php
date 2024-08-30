@@ -196,6 +196,12 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                         $this->ctrl->forwardCommand(new \ILIAS\Plugin\LongEssayAssessment\Writer\WriterStartGUI($this));
                     }
                     break;
+                case 'ilias\plugin\longessayassessment\writer\writerstatisticsgui':
+                    if ($this->object->canViewWriterStatistics()) {
+                        $this->activateTab('tab_writer', 'tab_writer_statistic');
+                        $this->ctrl->forwardCommand(new \ILIAS\Plugin\LongEssayAssessment\Writer\WriterStatisticsGUI($this));
+                    }
+                    break;
                 case 'ilias\plugin\longessayassessment\corrector\correctorstartgui':
                     if ($this->object->canViewCorrectorScreen()) {
                         $this->activateTab('tab_corrector', 'tab_corrector_start');
@@ -467,6 +473,15 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                 'txt' => $this->plugin->txt('tab_writer_start'),
                 'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessayassessment\writer\writerstartgui')
             ];
+
+        }
+        if ($this->object->canViewWriterStatistics()) {
+            $tabs[] = [
+                'id' => 'tab_writer_statistic',
+                'txt' => $this->plugin->txt('tab_statistic'),
+                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessayassessment\writer\writerstatisticsgui')
+            ];
+
         }
         if (!empty($tabs)) {
             $this->tabs->addTab('tab_writer', $this->plugin->txt('tab_writer'), $tabs[0]['url']);

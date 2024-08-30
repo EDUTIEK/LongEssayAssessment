@@ -99,6 +99,8 @@ class OrgaSettingsGUI extends BaseGUI
         }
         $a_task_settings->setSolutionAvailableDate($date instanceof \DateTimeInterface ? $date->format('Y-m-d H:i:s') : null);
 
+        $a_task_settings->setStatisticsAvailable((bool) ($a_data['task']['statistics_available']));
+
         $date = $a_data['task']['correction_start'];
         $a_task_settings->setCorrectionStart($date instanceof \DateTimeInterface ? $date->format('Y-m-d H:i:s') : null);
         $date = $a_data['task']['correction_end'];
@@ -256,7 +258,6 @@ class OrgaSettingsGUI extends BaseGUI
             ->withUseTime(true)
             ->withValue((string) $taskSettings->getCorrectionEnd());
 
-
         $fields_settings['result_available_type'] = $factory->switchableGroup(
             [
                 TaskSettings::RESULT_AVAILABLE_FINALISED => $factory->group(
@@ -283,6 +284,10 @@ class OrgaSettingsGUI extends BaseGUI
             $this->plugin->txt('result_available_type_info'),
         )->withValue($taskSettings->getResultAvailableType());
 
+        $fields_settings['statistics_available']  = $factory->checkbox(
+            $this->plugin->txt("writer_statistics_enabled"),
+            $this->plugin->txt("writer_statistics_info")
+        )->withValue($taskSettings->isStatisticsAvailable());
 
         $review_settings = [
             'review_start' =>  $factory->dateTime(
@@ -327,7 +332,15 @@ class OrgaSettingsGUI extends BaseGUI
 
         $sections['object'] = $factory->section($fields_object, $this->plugin->txt('object_settings'));
         $sections['content'] = $factory->section($fields_content, $this->plugin->txt('content'));
-        $sections['task'] = $factory->section($fields_settings, $this->plugin->txt('task_settings'));
+        $sections['task'] = $factory->section($fields_settings, $this->plugin->txt('task_settings'))->withAdditionalTransformation(
+            $this->refinery->custom()->constraint(function (array $var) {
+                if(($var['result_available_type'][0] ?? "") === TaskSettings::RESULT_AVAILABLE_REVIEW){
+                    return !empty($var['review']);
+                }
+                return true;
+
+            }, $this->plugin->txt("result_available_review_error"))
+        );
 
         return $this->uiFactory->input()->container()->form()->standard($this->ctrl->getFormAction($this), $sections);
     }

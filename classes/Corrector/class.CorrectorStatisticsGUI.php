@@ -57,18 +57,7 @@ class CorrectorStatisticsGUI extends StatisticsGUI
     protected function showStartPage() : void
     {
         $corrector = $this->localDI->getCorrectorRepo()->getCorrectorByUserId($this->dic->user()->getId(), $this->object->getId());
-
         $this->loadDataForObject($this->object->getId());
-
-        $data = $this->getItemDataForCorrector($corrector);
-
-        $ptable = $this->buildPresentationTable();
-        $this->tpl->setContent($this->renderer->render($ptable->withData($data)));
-    }
-
-    private function getItemDataForCorrector(Corrector $corrector) : array
-    {
-
         $obj_id = $this->object->getId();
         $corrector_id = $corrector->getId();
         $summary_statistics = $this->getStatistic($this->summaries[$obj_id]);
@@ -83,9 +72,15 @@ class CorrectorStatisticsGUI extends StatisticsGUI
             return $grade_statistics;
         };
 
-        return [['title' => $this->plugin->txt('corrections_all') , 'count' => $this->plugin->txt('correction_count'),
-                 'final' => $this->plugin->txt('correction_final'), 'statistic' => $summary_statistics, 'grade_statistics' => $grade_statistics($summary_statistics)],
-                ['title' => $this->plugin->txt('tab_corrector'), 'count' => $this->plugin->txt('correction_count'),
-                 'final' => $this->plugin->txt('correction_final'), 'statistic' => $statistics, 'grade_statistics' => $grade_statistics($statistics)]];
+        $summary = $this->createStatisticItem($this->plugin->txt('corrections_all'), $summary_statistics, false)
+                        ->withGrades($grade_statistics($summary_statistics));
+        $own = $this->createStatisticItem($this->plugin->txt('tab_corrector'), $statistics, false)
+                    ->withGrades($grade_statistics($statistics));
+
+        $group = $this->localDI->getUIFactory()->statistic()->graphStatisticGroup(
+            $this->plugin->txt('statistic'), [$summary, $own]
+        );
+
+        $this->tpl->setContent($this->renderer->render($group));
     }
 }

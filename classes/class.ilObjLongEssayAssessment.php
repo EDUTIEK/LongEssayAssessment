@@ -411,6 +411,14 @@ class ilObjLongEssayAssessment extends ilObjectPlugin
         );
     }
 
+    public function canViewWriterStatistics(): bool
+    {
+        if(!$this->canViewResult()){
+            return false;
+        }
+        return $this->taskSettings->isStatisticsAvailable();
+    }
+
     public function canViewResult() : bool
     {
         if (!$this->canViewWriterScreen()) {

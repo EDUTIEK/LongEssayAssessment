@@ -86,19 +86,28 @@ class CorrectorAdminStatisticsGUI extends StatisticsGUI
         $data = [];
 
         if($filter_data['context'] !== null && count($filter_data['context']) > 1) {
-            $data = [$this->getItemDataOverall()];
+            $data = $this->getItemDataOverall();
         }
 
         foreach($sections as $obj) {
             $rows = $this->getItemDataForObject($obj["obj_id"], $filter_data["correctors"]);
-            if($filter_data['context'] !== null && count($filter_data['context']) > 1) {
-                array_unshift($rows, ["title" => $obj["title"]]);
+
+            if(count($rows) === 2) {
+                continue;//Don't show object if no correctors are shown
             }
-            $data[] = $rows;
+
+            if($filter_data['context'] !== null && count($filter_data['context']) > 1) {
+                $data[] = $this->localDI->getUIFactory()->statistic()->statisticSection($obj["title"]);
+            }
+            foreach($rows as $row) {
+                $data[] = $row['item'];
+            }
         }
 
-        $ptable = $this->buildPresentationTable();
-        $this->tpl->setContent($this->renderer->render([$filter_gui, $ptable->withData(array_merge(...$data))]));
+
+
+        $ptable = $this->localDI->getUIFactory()->statistic()->extendableStatisticGroup($this->plugin->txt('statistic'), $data);
+        $this->tpl->setContent($this->renderer->render([$filter_gui, $ptable]));
     }
 
     protected function exportCSV() : void
@@ -163,10 +172,12 @@ class CorrectorAdminStatisticsGUI extends StatisticsGUI
         $summary_statistics = $corrector_service->gradeStatistics($this->summaries[$obj_id], $this->grade_level[$obj_id]);
         $essay_statistics = $corrector_service->gradeStatistics($this->essays[$obj_id], $this->grade_level[$obj_id]);
 
-        $rows = [['title' => $this->plugin->txt('essay_correction_finlized'), 'count' => $this->plugin->txt('essay_count'),
-                  'final' => $this->plugin->txt('essay_final'), 'statistic' => $essay_statistics, 'grade_statistics' => $this->getGradeStatisticOverAll($essay_statistics)],
-                 ['title' => $this->plugin->txt('corrections_all') , 'count' => $this->plugin->txt('correction_count'),
-                  'final' => $this->plugin->txt('correction_final'), 'statistic' => $summary_statistics, 'grade_statistics' => $this->getGradeStatisticOverAll($summary_statistics)]];
+        $rows =[
+            ["item" => $this->createStatisticItem($this->plugin->txt('essay_correction_finlized'), $essay_statistics, true)
+                 ->withGrades($this->getGradeStatisticOverAll($essay_statistics))],
+            ["item" =>$this->createStatisticItem($this->plugin->txt('corrections_all'), $summary_statistics, false)
+                 ->withGrades($this->getGradeStatisticOverAll($summary_statistics))]
+        ];
 
         foreach($this->correctors[$obj_id] as $corrector) {
 
@@ -176,10 +187,15 @@ class CorrectorAdminStatisticsGUI extends StatisticsGUI
             $corrector_id = $corrector->getId();
             $corrector_summaries = array_filter($this->summaries[$obj_id], fn (CorrectorSummary $x) => ($x->getCorrectorId() === $corrector_id));
             $statistics = $corrector_service->gradeStatistics($corrector_summaries, $this->grade_level[$obj_id]);
+
+            $statistic_item = $this->createStatisticItem($this->usernames[$obj_id][$corrector->getUserId()], $statistics, false)
+                                            ->withGrades($this->getGradeStatisticOverAll($statistics));
+
             $rows[] = ['usr_id' => $corrector->getUserId(),
                        'obj_id' => $obj_id,
                        'title' => $this->usernames[$obj_id][$corrector->getUserId()], 'count' => $this->plugin->txt('correction_count'),
-                       'final' => $this->plugin->txt('correction_final'), 'statistic' => $statistics, 'grade_statistics' => $this->getGradeStatisticOverAll($statistics)];
+                       'final' => $this->plugin->txt('correction_final'), 'statistic' => $statistics, 'grade_statistics' => $this->getGradeStatisticOverAll($statistics),
+                       'item' => $statistic_item];
         }
         return $rows;
     }
@@ -202,11 +218,13 @@ class CorrectorAdminStatisticsGUI extends StatisticsGUI
         $essay_statistics = $this->getStatistic(array_merge(...$this->essays));
         $summary_statistics = $this->getStatistic(array_merge(...$this->summaries));
 
-        return [ ['title' => $this->plugin->txt("total_statistic")],
-                 ['title' => $this->plugin->txt('essay_correction_finlized'), 'count' => $this->plugin->txt('essay_count'),
-                  'final' => $this->plugin->txt('essay_final'), 'statistic' => $essay_statistics, 'grade_statistics' => $grade_statistics($essay_statistics)],
-                 ['title' => $this->plugin->txt('corrections_all') , 'count' => $this->plugin->txt('correction_count'),
-                  'final' => $this->plugin->txt('correction_final'), 'statistic' => $summary_statistics, 'grade_statistics' => $grade_statistics($summary_statistics)]];
+        return [
+            $this->localDI->getUIFactory()->statistic()->statisticSection($this->plugin->txt("total_statistic")),
+            $this->createStatisticItem($this->plugin->txt('essay_correction_finlized'), $essay_statistics, true)
+                                   ->withGrades($grade_statistics($essay_statistics)),
+            $this->createStatisticItem($this->plugin->txt('corrections_all'), $summary_statistics, false)
+                 ->withGrades($grade_statistics($summary_statistics)),
+        ];
     }
 
     protected function loadCorrectorForObject($obj_id) : void

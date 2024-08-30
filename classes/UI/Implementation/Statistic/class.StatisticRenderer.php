@@ -160,7 +160,7 @@ class StatisticRenderer extends AbstractComponentRenderer
                     list($fproperties, $chart) = $this->buildGradesAndGraph($record);
 
                     if($record->getPseudonym() !== null) {
-                        $pseudonym = [$this->pluginTxt("pseudonym") => implode(", ", array_unique($record["pseudonym"]))];
+                        $pseudonym = [$this->pluginTxt("pseudonym") => implode(", ", array_unique($record->getPseudonym()))];
                     }
 
                     if($record->getOwnGrade() !== null){

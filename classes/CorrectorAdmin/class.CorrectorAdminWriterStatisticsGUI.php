@@ -72,16 +72,21 @@ class CorrectorAdminWriterStatisticsGUI extends StatisticsGUI
         $filtered_essays = array_filter(array_merge(...$this->essays), fn (Essay $x) => in_array($x->getTaskId(), $filter_data['context'] ?? [$this->object->getId()]));
         $essay_statistics = $this->getStatistic($filtered_essays);
 
-        $data = [ ['title' => $this->plugin->txt("total_statistic")],
-                  ['title' => $this->plugin->txt('essay_correction_finlized'), 'count' => $this->plugin->txt('essay_count'),
-                  'final' => $this->plugin->txt('essay_final'), 'statistic' => $essay_statistics, 'grade_statistics' => $this->getGradeStatisticOverAll($essay_statistics)],
-                  ['title' => $this->plugin->txt("writer_statistic")]];
+        $data = [
+            $this->localDI->getUIFactory()->statistic()->statisticSection($this->plugin->txt("total_statistic")),
+            $this->createStatisticItem($this->plugin->txt("total_statistic"), $essay_statistics)->withGrades($this->getGradeStatisticOverAll($essay_statistics)),
+            $this->localDI->getUIFactory()->statistic()->statisticSection($this->plugin->txt("writer_statistic"))
+        ];
 
-        $data = array_merge($data, $this->getItemData($filter_data['context'] ?? [$this->object->getId()], $filter_data['writer'] ?? "", (int)$filter_data['finalized'] ?? 1));
+        foreach($this->getItemData(
+            $filter_data['context'] ?? [$this->object->getId()],
+            $filter_data['writer'] ?? "",
+            (int) $filter_data['finalized'] ?? 1) as $writer_data){
+            $data[] = $writer_data['item'];
+        }
 
-        $ptable = $this->buildPresentationTable();
-
-        $this->tpl->setContent($this->renderer->render([$filter_gui, $ptable->withData($data)]));
+        $ptable = $this->localDI->getUIFactory()->statistic()->extendableStatisticGroup($this->plugin->txt('statistic'), $data);
+        $this->tpl->setContent($this->renderer->render([$filter_gui, $ptable]));
     }
 
     protected function exportCSV() : void
@@ -154,12 +159,18 @@ class CorrectorAdminWriterStatisticsGUI extends StatisticsGUI
             }
 
             $pseudonym = array_map(fn (Writer $x) => $x->getPseudonym(), $writer);
+
+            $statistic_item = $this->createStatisticItem($this->usernames[$wrtier_usr_id], $statistics)
+                                   ->withGrades($this->getGradeStatisticOverAll($statistics))
+                                   ->withPseudonym($pseudonym);
+
             $rows[] = ['usr_id' => $wrtier_usr_id,
                        'title' => $this->usernames[$wrtier_usr_id] ?? "",
                        'count' => $this->plugin->txt('essay_count'),
                        'final' => $this->plugin->txt('essay_final'), 'statistic' => $statistics,
                        'grade_statistics' => $this->getGradeStatisticOverAll($statistics),
-                       'pseudonym' => $pseudonym];
+                       'pseudonym' => $pseudonym,
+                       'item' => $statistic_item];
         }
         return $rows;
     }

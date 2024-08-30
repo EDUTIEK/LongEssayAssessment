@@ -118,6 +118,7 @@ class CorrectorAdminWriterStatisticsGUI extends StatisticsGUI
         $base_action = $this->ctrl->getFormAction($this, 'showStartPage');
         $filter_gui = $this->ui_service->filter()->standard("xlas_statistics", $base_action, [
             "context" => $this->uiFactory->input()->field()->multiSelect($this->plugin->txt("statistic_context_filter"), $context)
+                                         ->withAdditionalOnLoadCode($this->localDI->getUIService()->checkAllInMultiselectFilter())
                                          ->withAdditionalTransformation($this->refinery->to()->listOf($this->refinery->to()->int()))
                                          ->withValue([$this->object->getId()]),
             "writer" => $this->uiFactory->input()->field()->text($this->plugin->txt("participants"))

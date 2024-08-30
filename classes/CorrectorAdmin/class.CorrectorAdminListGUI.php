@@ -474,7 +474,8 @@ class CorrectorAdminListGUI extends WriterListGUI
                 $this->plugin->txt("filter_pdf_version"),
                 [self::FILTER_YES => $this->plugin->txt("yes"), self::FILTER_NO => $this->plugin->txt("no")]
             ),
-            "corrector" => $this->uiFactory->input()->field()->multiselect($this->plugin->txt("correctors"), $correctors),
+            "corrector" => $this->uiFactory->input()->field()->multiselect($this->plugin->txt("correctors"), $correctors)
+                                                             ->withAdditionalOnLoadCode($this->localDI->getUIService()->checkAllInMultiselectFilter()),
                 "corrected" => $this->uiFactory->input()->field()->select(
                     $this->plugin->txt("filter_corrected"),
                     [self::FILTER_YES => $this->plugin->txt("yes"), self::FILTER_NO => $this->plugin->txt("no")]

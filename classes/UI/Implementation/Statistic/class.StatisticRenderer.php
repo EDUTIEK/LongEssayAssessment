@@ -93,7 +93,7 @@ class StatisticRenderer extends AbstractComponentRenderer
 
         if(!empty($grades)) {
             $root = $root->withCard(
-                $this->getUIFactory()->card()->standard($this->pluginTxt('grade_distribution'))->withSections([
+                $this->getUIFactory()->card()->standard("<h5>" . $this->pluginTxt('grade_distribution') . "</h5>")->withSections([
                     $this->getUIFactory()->legacy($chart->getHTML() ?? ""),
                     $this->getUIFactory()->listing()->characteristicValue()->text($grades)
                 ])
@@ -130,13 +130,13 @@ class StatisticRenderer extends AbstractComponentRenderer
         return $default_renderer->render($this->getUIFactory()->table()->presentation(
             $component->getTitle(),
             [],
-            function (PresentationRow $row, StatisticItem $record, $ui_factory, $environment) { //mapping-closure
+            function (PresentationRow $row, StatisticItem $record, $ui_factory, $environment) use ($default_renderer){ //mapping-closure
                 $pseudonym = [];
                 $fproperties = [];
                 $properties = [];
 
                 if($record instanceof StatisticSection) {
-                    return [$ui_factory->divider()->horizontal()->withLabel("<h4>" . $record->getTitle() . "</h4>")];
+                    return [$ui_factory->legacy("<h4>" . $record->getTitle() . "</h4>")];
                 }elseif ($record instanceof Statistic) {
 
                     $properties[$record->getCountLabel()] = (string)$record->getCount();
@@ -171,20 +171,23 @@ class StatisticRenderer extends AbstractComponentRenderer
                 $chart_js = function ($id) use ($chart) {
                     $html = $chart->getHTML();
                     $js = 'var htmlContent = ' . json_encode($html) . ';
-                           $("#' . $id . '")
-                             .find(".il-table-presentation-fields")
-                             .prepend("<div style=\"width:100%\">"+htmlContent);';
-
+                           $("main").append("<div id=\"' . $id . '_chart\">" + htmlContent + "</div>");
+                           setTimeout(function(){$("#' . $id . '_chart").appendTo( $("#' . $id . '").find(".chart"));}, 50);
+                          ';
                     return $js;
                 };
-
                 return $row
                     ->withAdditionalOnLoadCode($chart_js)
                     ->withHeadline($record->getTitle())
                     ->withImportantFields($properties)
-                    ->withContent($ui_factory->listing()->descriptive(array_merge($pseudonym, $properties)))
-                    ->withFurtherFieldsHeadline($this->pluginTxt('grade_distribution'))
-                    ->withFurtherFields($fproperties);
+                    ->withContent($ui_factory->listing()->descriptive([
+                        "" => $this->getUIFactory()->listing()->characteristicValue()->text(array_merge($pseudonym, $properties))
+                    ]))
+                    ->withFurtherFieldsHeadline("<h5>" . $this->pluginTxt('grade_distribution') . "</h5>")
+                    ->withFurtherFields([
+                        "<span class='hidden'>1</span>" => "<div class='chart'></div>",
+                        "<span class='hidden'>2</span>" => $default_renderer->render($this->getUIFactory()->listing()->characteristicValue()->text($fproperties))
+                    ]);
             }
         )->withData($component->getStatistics()));
     }
@@ -204,7 +207,7 @@ class StatisticRenderer extends AbstractComponentRenderer
                 $label = '<b><span class="glyphicon glyphicon-star" aria-hidden="true"></span>' . $label . '</b>';
             }
 
-            $grades[$name . " "] = $count;
+            $grades[$name . " "] = " " . $count;
             $data = $chart->getDataInstance(\ilChartGrid::DATA_BARS);
             $data->setLabel($name);
             $data->setBarOptions(0.5, "center", false);
@@ -217,7 +220,7 @@ class StatisticRenderer extends AbstractComponentRenderer
         }
 
         $chart->setTicks($labels, false, true);
-        $chart->setSize(500, 200);
+        $chart->setSize("100%", 200);
         $chart->setAutoResize(true);
         $chart->setYAxisToInteger(true);
         $chart->setColors($this->getGraphColors());

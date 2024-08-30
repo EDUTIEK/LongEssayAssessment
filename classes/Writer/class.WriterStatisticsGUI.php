@@ -129,4 +129,17 @@ class WriterStatisticsGUI extends StatisticsGUI
         }
         return $item;
     }
+
+    protected function loadObjectsInContext(): void
+    {
+        $objects = $this->object_services->iliasContext()->getAllEssaysInThisContext();
+        $objects = array_filter($objects, fn ($object) => ($this->access->checkAccess("read", '', $object["ref_id"])));
+
+        $this->objects = array_filter($objects, function ($object){
+            $settings = $this->localDI->getTaskRepo()->getTaskSettingsById($object['obj_id']);
+            return $settings->isStatisticsAvailable();
+        });
+
+    }
+
 }

@@ -105,60 +105,6 @@ abstract class StatisticsGUI extends BaseGUI
         return $basedir . '/' . $file;
     }
 
-    protected function buildPresentationTable() : Presentation
-    {
-        return $this->uiFactory->table()->presentation(
-            $this->plugin->txt('statistic'), //title
-            [],
-            function (PresentationRow $row, $record, $ui_factory, $environment) { //mapping-closure
-                if(count($record) == 1) {
-                    return [$this->uiFactory->divider()->horizontal()->withLabel("<h4>" . $record["title"] . "</h4>")];
-                }
-
-                $statistic = $record["statistic"];
-                $properties = [];
-                $fproperties = [];
-                $pseudonym = [];
-                $properties[$record['count']] = (string)$statistic[CorrectorAdminService::STATISTIC_COUNT];
-                $properties[$record['final']] = (string)$statistic[CorrectorAdminService::STATISTIC_FINAL];
-                if($statistic[CorrectorAdminService::STATISTIC_NOT_ATTENDED] !== null) {
-                    $properties[$this->plugin->txt('statistic_not_attended')] = (string)$statistic[CorrectorAdminService::STATISTIC_NOT_ATTENDED];
-                }
-                $properties[$this->plugin->txt('statistic_passed')] = (string)$statistic[CorrectorAdminService::STATISTIC_PASSED];
-                $properties[$this->plugin->txt('statistic_not_passed')] = (string)$statistic[CorrectorAdminService::STATISTIC_NOT_PASSED];
-
-                if($statistic[CorrectorAdminService::STATISTIC_NOT_PASSED_QUOTA] !== null) {
-                    $perc = 100 * $statistic[CorrectorAdminService::STATISTIC_NOT_PASSED_QUOTA];
-                    $properties[$this->plugin->txt('essay_not_passed_quota')] = sprintf('%.1f', $perc) . '%';
-                }
-
-                if($statistic[CorrectorAdminService::STATISTIC_AVERAGE] !== null) {
-                    $properties[$this->plugin->txt('essay_average_points')] = sprintf('%.2f', $statistic[CorrectorAdminService::STATISTIC_AVERAGE]);
-                }
-
-                foreach($record['grade_statistics'] as $key => $value) {
-                    $fproperties[$key . " "/*Hack to ensure a string*/] = (string)$value;
-                }
-
-                if(isset($record["pseudonym"])) {
-                    $pseudonym = [$this->plugin->txt("pseudonym") => implode(", ", array_unique($record["pseudonym"]))];
-                }
-
-
-                if(isset($record["grade"])){
-                    $row = $row->withSubheadline($this->plugin->txt("final_result") . $record["grade"]);
-                }
-
-                return $row
-                    ->withHeadline($record['title'])
-                    ->withImportantFields($properties)
-                    ->withContent($ui_factory->listing()->descriptive(array_merge($pseudonym, $properties)))
-                    ->withFurtherFieldsHeadline($this->plugin->txt('grade_distribution'))
-                    ->withFurtherFields($fproperties);
-            }
-        );
-    }
-
     protected function loadObjectsInContext() : void
     {
         $objects = $this->object_services->iliasContext()->getAllEssaysInThisContext();

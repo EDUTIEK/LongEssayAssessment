@@ -72,7 +72,6 @@ class WriterStartGUI extends BaseGUI
     protected function showStartPage()
     {
         $contents = [];
-        $modals = [];
 
         $essay = $this->data->getOwnEssay(); // max be null
 
@@ -207,10 +206,12 @@ class WriterStartGUI extends BaseGUI
         }
         elseif (!$is_before_writing) {
             if (!empty($this->task->getInstructions())) {
-                $inst_parts[] = $this->uiFactory->button()->standard(
-                    $this->plugin->txt('view_instructions'),
-                    $this->ctrl->getLinkTarget($this, 'viewInstructions')
-                );
+                $inst_parts[] = $this->uiFactory->item()->standard(
+                    $this->uiFactory->link()->standard(
+                        $this->plugin->txt('view_instructions'),
+                        $this->ctrl->getLinkTarget($this, "viewInstructions")
+                    )
+                )->withLeadIcon($this->uiFactory->symbol()->icon()->standard('impr', '', 'medium'));
             }
             if (!empty($this->task_repo->getInstructionResource($this->object->getId()))) {
                 $inst_parts[] = $this->uiFactory->item()->standard(
@@ -218,7 +219,7 @@ class WriterStartGUI extends BaseGUI
                         $this->plugin->txt('download_instructions'),
                         $this->ctrl->getLinkTarget($this, "downloadInstructions")
                     )
-                )->withLeadIcon($this->uiFactory->symbol()->icon()->standard('file', 'File', 'medium'));
+                )->withLeadIcon($this->uiFactory->symbol()->icon()->standard('file', '', 'medium'));
             }
         }
 
@@ -248,7 +249,7 @@ class WriterStartGUI extends BaseGUI
                                 $this->ctrl->getLinkTarget($this, "downloadResourceFile")
                             )
                         )   ->withDescription((string) $resource->getDescription())
-                            ->withLeadIcon($this->uiFactory->symbol()->icon()->standard('file', 'File', 'medium'))
+                            ->withLeadIcon($this->uiFactory->symbol()->icon()->standard('file', '', 'medium'))
                             ->withProperties(
                                 array(
                                     $this->lng->txt("filename") => $revision->getInformation()->getTitle(),
@@ -259,7 +260,7 @@ class WriterStartGUI extends BaseGUI
                 } else {
                     $item = $this->uiFactory->item()->standard($this->uiFactory->link()->standard($resource->getTitle(), $resource->getUrl()))
                                             ->withDescription((string) $resource->getDescription())
-                                            ->withLeadIcon($this->uiFactory->symbol()->icon()->standard('webr', $this->lng->txt("link"), 'medium'))
+                                            ->withLeadIcon($this->uiFactory->symbol()->icon()->standard('webr', '', 'medium'))
                                             ->withProperties(array(
                                                 $this->plugin->txt("website") => $resource->getUrl(),
                                                 $this->plugin->txt("resource_availability") => $this->plugin->txt('resource_availability_' . $resource->getAvailability())));
@@ -314,7 +315,7 @@ class WriterStartGUI extends BaseGUI
                         $this->plugin->txt('download_written_submission'),
                         $this->ctrl->getLinkTarget($this, "downloadWriterPdf")
                     )
-                )->withLeadIcon($this->uiFactory->symbol()->icon()->standard('file', 'File', 'medium'));
+                )->withLeadIcon($this->uiFactory->symbol()->icon()->standard('file', '', 'medium'));
             }
             if ($this->object->canReviewCorrectedEssay()) {
                 $result_items[] = $this->uiFactory->item()->standard(
@@ -322,7 +323,7 @@ class WriterStartGUI extends BaseGUI
                         $this->plugin->txt('download_corrected_submission'),
                         $this->ctrl->getLinkTarget($this, "downloadCorrectedPdf")
                     )
-                )->withLeadIcon($this->uiFactory->symbol()->icon()->standard('file', 'File', 'medium'));
+                )->withLeadIcon($this->uiFactory->symbol()->icon()->standard('file', '', 'medium'));
             }
         }
         if ($this->object->canDownloadCorrectionReports() && $this->corrector_admin_service->hasCorrectionReports()) {
@@ -331,7 +332,7 @@ class WriterStartGUI extends BaseGUI
                     $this->plugin->txt('download_correction_reports'),
                     $this->ctrl->getLinkTarget($this, "downloadCorrectionReportsPdf")
                 )
-            )->withLeadIcon($this->uiFactory->symbol()->icon()->standard('file', 'File', 'medium'));
+            )->withLeadIcon($this->uiFactory->symbol()->icon()->standard('file', '', 'medium'));
         }
 
         $contents[] = $this->uiFactory->panel()->standard($this->plugin->txt('result'), $result_items);
@@ -340,10 +341,12 @@ class WriterStartGUI extends BaseGUI
         $solution_items = [];
         if ($this->object->canViewSolution()) {
             if (!empty($this->task->getSolution())) {
-                $solution_items[] = $this->uiFactory->button()->standard(
-                    $this->plugin->txt('view_solution'),
-                    $this->ctrl->getLinkTarget($this, 'viewSolution')
-                );
+                $solution_items[] = $this->uiFactory->item()->standard(
+                    $this->uiFactory->link()->standard(
+                        $this->plugin->txt('view_solution'),
+                        $this->ctrl->getLinkTarget($this, "viewSolution")
+                    )
+                )->withLeadIcon($this->uiFactory->symbol()->icon()->standard('impr', '', 'medium'));
             }
             if (!empty($this->localDI->getTaskRepo()->getSolutionResource($this->object->getId()))) {
                 $solution_items[] = $this->uiFactory->item()->standard(
@@ -351,7 +354,7 @@ class WriterStartGUI extends BaseGUI
                         $this->plugin->txt('download_solution'),
                         $this->ctrl->getLinkTarget($this, "downloadSolution")
                     )
-                )->withLeadIcon($this->uiFactory->symbol()->icon()->standard('file', 'File', 'medium'));
+                )->withLeadIcon($this->uiFactory->symbol()->icon()->standard('file', '', 'medium'));
             }
             $solution_items = array_merge($solution_items, $solution_resources);
 

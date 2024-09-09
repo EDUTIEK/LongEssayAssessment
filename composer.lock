@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "13d62872517ed78798a315d8d382c41f",
+    "content-hash": "2ec785ae6c14d8c9af0c2b0bb7f0e2c6",
     "packages": [
         {
             "name": "edutiek/long-essay-assessment-service",
-            "version": "dev-dev3_a11y",
+            "version": "dev-ally",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EDUTIEK/long-essay-assessment-service.git",
-                "reference": "2897946b3581da624dc58f640678f83dc3c5dae0"
+                "reference": "9a3f89b388ef77158040a25c8128b045b427f0ad"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EDUTIEK/long-essay-assessment-service/zipball/2897946b3581da624dc58f640678f83dc3c5dae0",
-                "reference": "2897946b3581da624dc58f640678f83dc3c5dae0",
+                "url": "https://api.github.com/repos/EDUTIEK/long-essay-assessment-service/zipball/9a3f89b388ef77158040a25c8128b045b427f0ad",
+                "reference": "9a3f89b388ef77158040a25c8128b045b427f0ad",
                 "shasum": ""
             },
             "require": {
@@ -52,9 +52,9 @@
             ],
             "description": "Backend service for writing long essay assessments",
             "support": {
-                "source": "https://github.com/EDUTIEK/long-essay-assessment-service/tree/dev3_a11y"
+                "source": "https://github.com/EDUTIEK/long-essay-assessment-service/tree/ally"
             },
-            "time": "2024-09-08T20:08:11+00:00"
+            "time": "2024-09-09T22:51:42+00:00"
         },
         {
             "name": "edutiek/long-essay-image-sketch",
@@ -874,20 +874,20 @@
         },
         {
             "name": "symfony/polyfill-php80",
-            "version": "v1.30.0",
+            "version": "v1.31.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-php80.git",
-                "reference": "77fa7995ac1b21ab60769b7323d600a991a90433"
+                "reference": "60328e362d4c2c802a54fcbf04f9d3fb892b4cf8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-php80/zipball/77fa7995ac1b21ab60769b7323d600a991a90433",
-                "reference": "77fa7995ac1b21ab60769b7323d600a991a90433",
+                "url": "https://api.github.com/repos/symfony/polyfill-php80/zipball/60328e362d4c2c802a54fcbf04f9d3fb892b4cf8",
+                "reference": "60328e362d4c2c802a54fcbf04f9d3fb892b4cf8",
                 "shasum": ""
             },
             "require": {
-                "php": ">=7.1"
+                "php": ">=7.2"
             },
             "type": "library",
             "extra": {
@@ -934,7 +934,7 @@
                 "shim"
             ],
             "support": {
-                "source": "https://github.com/symfony/polyfill-php80/tree/v1.30.0"
+                "source": "https://github.com/symfony/polyfill-php80/tree/v1.31.0"
             },
             "funding": [
                 {
@@ -950,7 +950,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-05-31T15:07:36+00:00"
+            "time": "2024-09-09T11:45:10+00:00"
         },
         {
             "name": "tecnickcom/tcpdf",

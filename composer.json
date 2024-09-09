@@ -15,7 +15,7 @@
   ],
   "require": {
     "php": ">=8.1 <8.3",
-    "edutiek/long-essay-assessment-service": "dev-dev3_a11y",
+    "edutiek/long-essay-assessment-service": "dev-ally",
     "edutiek/long-essay-pdf-converter": "dev-main",
     "edutiek/long-essay-image-sketch": "dev-main"
   },

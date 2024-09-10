@@ -1,5 +1,5 @@
 **PLEASE NOTE:** This version (release_3_ilias9) requires ILIAS 9.
-The version for ILIAS 7 is found in the branch release1_ilias7.
+The version for ILIAS 8 is found in the branch release2_ilias8.
 
 # LongEssayAssessment
 Plugin for the LMS ILIAS open source to realize exams with writing of long texts.

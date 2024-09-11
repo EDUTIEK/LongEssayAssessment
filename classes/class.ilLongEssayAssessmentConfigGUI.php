@@ -56,8 +56,6 @@ class ilLongEssayAssessmentConfigGUI extends ilPluginConfigGUI
         $this->tpl = $DIC->ui()->mainTemplate();
         $this->toolbar = $DIC->toolbar();
 
-        $this->setToolbar();
-
         switch ($this->dic->ctrl()->getNextClass()) {
             case 'ilpropertyformgui':
                 $this->dic->ctrl()->forwardCommand($this->initConfigForm());
@@ -67,37 +65,12 @@ class ilLongEssayAssessmentConfigGUI extends ilPluginConfigGUI
                 switch ($cmd) {
                     case "configure":
                     case "saveConfig":
-                    case "updateLanguages":
-                    case "generateDBUpdate":
-                    case 'reloadControlStructure':
                         $this->$cmd();
                         break;
                 }
         }
     }
 
-    /**
-     * Set the toolbar
-     */
-    protected function setToolbar()
-    {
-        $this->toolbar->setFormAction($this->ctrl->getFormAction($this));
-
-        $button = ilLinkButton::getInstance();
-        $button->setUrl($this->ctrl->getLinkTarget($this, 'updateLanguages'));
-        $button->setCaption($this->plugin->txt('update_languages'), false);
-        $this->toolbar->addButtonInstance($button);
-
-        $button = ilLinkButton::getInstance();
-        $button->setUrl($this->ctrl->getLinkTarget($this, 'reloadControlStructure'));
-        $button->setCaption($this->plugin->txt('reload_control_structure'), false);
-        $this->toolbar->addButtonInstance($button);
-
-        //        $button = ilLinkButton::getInstance();
-        //        $button->setUrl($this->ctrl->getLinkTarget($this, 'generateDBUpdate'));
-        //        $button->setCaption($this->plugin->txt('generate_db_update'), false);
-        //        $this->toolbar->addButtonInstance($button);
-    }
 
     /**
      * Show base configuration screen
@@ -174,38 +147,5 @@ class ilLongEssayAssessmentConfigGUI extends ilPluginConfigGUI
 
         $form->addCommandButton('saveConfig', $this->lng->txt('save'));
         return $form;
-    }
-
-
-    /**
-     * Update Languages
-     */
-    protected function updateLanguages()
-    {
-        $this->plugin->updateLanguages();
-        $this->ctrl->redirect($this, 'configure');
-    }
-
-    /**
-     * Generate the db update steps for an active record object
-     */
-    protected function generateDBUpdate()
-    {
-        $arBuilder = new arBuilder(new \ILIAS\Plugin\LongEssayAssessment\Data\Task\LogEntry());
-        $arBuilder->generateDBUpdateForInstallation();
-    }
-
-
-    /**
-     * Reload the plugin control structure
-     */
-    protected function reloadControlStructure()
-    {
-
-        ilGlobalCache::flushAll();
-        $this->plugin->reloadControlStructure();
-        ilGlobalCache::flushAll();
-
-        //        $this->ctrl->redirect($this, 'configure');
     }
 }

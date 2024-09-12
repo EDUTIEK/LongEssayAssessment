@@ -21,11 +21,13 @@ class WriterPreferences extends RecordData
 	protected const otherTypes = [
 		'instructions_zoom' => 'float',
 		'editor_zoom' => 'float',
+        'word_count_enabled' => 'integer'
 	];
 
     protected int $writer_id = 0;
     protected float $instructions_zoom = 1;            
-    protected float $editor_zoom =  1;              
+    protected float $editor_zoom =  1;
+    protected int $word_count_enabled = 0;
     
 	public function __construct(int $writer_id)
 	{
@@ -87,6 +89,22 @@ class WriterPreferences extends RecordData
     {
         $this->editor_zoom = $editor_zoom;
         return $this;
+    }
+
+    /**
+     * Get the enabling of the word counter
+     */
+    public function getWordCountEnabled(): bool
+    {
+        return (bool) $this->word_count_enabled;
+    }
+
+    /**
+     * Set the enabling of the word counter
+     */
+    public function setWordCountEnabled(bool $word_count_enabled): void
+    {
+        $this->word_count_enabled = (int) $word_count_enabled;
     }
 
 }

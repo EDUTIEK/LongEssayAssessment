@@ -27,6 +27,7 @@ use ilFileDelivery;
 use Edutiek\LongEssayAssessmentService\Data\CorrectionSummary;
 use ILIAS\Plugin\LongEssayAssessment\Writer\WriterContext;
 use Edutiek\LongEssayAssessmentService\Data\PdfHtml;
+use ILIAS\Plugin\LongEssayAssessment\Data\Object\ObjectRepository;
 
 /**
  * Service for maintaining correctors (business logic)
@@ -37,6 +38,7 @@ class CorrectorAdminService extends BaseService
     protected CorrectionSettings $settings;
     protected WriterRepository $writerRepo;
     protected CorrectorRepository $correctorRepo;
+    protected ObjectRepository $objectRepo;
     protected EssayRepository $essayRepo;
     protected TaskRepository $taskRepo;
     protected DataService $dataService;

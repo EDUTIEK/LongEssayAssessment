@@ -5,7 +5,7 @@
 $id = 'xlas';
 
 // code version; must be changed for all code changes
-$version = '3.2';
+$version = '3.3';
 // ilias min and max version; must always reflect the versions that should
 // run with the plugin
 $ilias_min_version = '9.4';

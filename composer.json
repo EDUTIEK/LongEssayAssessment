@@ -17,7 +17,10 @@
     "php": ">=8.1 <8.3",
     "edutiek/long-essay-assessment-service": "dev-ally",
     "edutiek/long-essay-pdf-converter": "dev-main",
-    "edutiek/long-essay-image-sketch": "dev-main"
+    "edutiek/long-essay-image-sketch": "dev-main",
+    "psr/container": "^1.0",
+    "psr/http-message": "^1.1",
+    "psr/log": "^2.0"
   },
   "autoload": {
     "psr-4" : { "ILIAS\\Plugin\\LongEssayAssessment\\" : "./classes" },

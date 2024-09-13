@@ -14,6 +14,7 @@ ilInitialisation::initILIAS();
 // Session expire is set for specific calls that indicate a user activity
 ilSession::enableWebAccessWithoutSession(true);
 
+ilLongEssayAssessmentPlugin::initAutoload();
 $context = new \ILIAS\Plugin\LongEssayAssessment\Writer\WriterContext();
 $service = new \Edutiek\LongEssayAssessmentService\Writer\Service($context);
 $service->handleRequest();

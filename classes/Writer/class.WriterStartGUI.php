@@ -132,17 +132,16 @@ class WriterStartGUI extends BaseGUI
         // Toolbar
 
         if ($this->object->canWrite()) {
-            $button = \ilLinkButton::getInstance();
-            $button->setUrl($this->ctrl->getLinkTarget($this, 'startWriter'));
-            $button->setCaption($this->plugin->txt(empty($essay) ? 'start_writing' : 'continue_writing'), false);
-            $button->setPrimary(true);
-            $this->toolbar->addButtonInstance($button);
+            $button = $this->uiFactory->button()->primary(
+                $this->plugin->txt(empty($essay) ? 'start_writing' : 'continue_writing'),
+                $this->ctrl->getLinkTarget($this, 'startWriter'));
+            $this->toolbar->addComponent($button);
 
         } elseif ($this->object->canReviewWrittenEssay() && isset($essay) && empty($essay->getWritingAuthorized())) {
-            $button = \ilLinkButton::getInstance();
-            $button->setUrl($this->ctrl->getLinkTarget($this, 'startWritingReview'));
-            $button->setCaption($this->plugin->txt('review_writing'), false);
-            $this->toolbar->addButtonInstance($button);
+            $button = $this->uiFactory->button()->standard(
+                $this->plugin->txt('review_writing'),
+                $this->ctrl->getLinkTarget($this, 'startWritingReview'));
+            $this->toolbar->addComponent($button);
         }
 
         // Instructions

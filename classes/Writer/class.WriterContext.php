@@ -236,7 +236,9 @@ class WriterContext extends ServiceContext implements Context
         $repoPreferences = $this->localDI->getWriterRepo()->getWriterPreferences($this->getRepoWriter()->getId());
         return new WritingPreferences(
             $repoPreferences->getInstructionsZoom(),
-            $repoPreferences->getEditorZoom()
+            $repoPreferences->getEditorZoom(),
+            $repoPreferences->getWordCountEnabled(),
+            $repoPreferences->getWordCountCharacters()
         );
     }
 
@@ -248,6 +250,8 @@ class WriterContext extends ServiceContext implements Context
         $repoPreferences = $this->localDI->getWriterRepo()->getWriterPreferences($this->getRepoWriter()->getId());
         $repoPreferences->setInstructionsZoom($preferences->getInstructionsZoom());
         $repoPreferences->setEditorZoom($preferences->getEditorZoom());
+        $repoPreferences->setWordCountEnabled($preferences->getWordCountEnabled());
+        $repoPreferences->setWordCountCharacters($preferences->getWordCountCharacters());
         $this->localDI->getWriterRepo()->save($repoPreferences);
     }
 

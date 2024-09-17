@@ -2213,3 +2213,25 @@ if ($ilDB->tableColumnExists('xlas_corrector_prefs','include_writer_notes')) {
     $ilDB->dropTableColumn('xlas_corrector_prefs', 'include_writer_notes');
 }
 ?>
+<#107>
+<?php
+if (!$ilDB->tableColumnExists('xlas_writer_prefs','word_count_enabled')) {
+    $ilDB->addTableColumn('xlas_writer_prefs', 'word_count_enabled', array(
+        'notnull' => '1',
+        'type' => 'integer',
+        'length' => 4,
+        'default' => 0
+    ));
+}
+?>
+<#108>
+<?php
+if (!$ilDB->tableColumnExists('xlas_writer_prefs','word_count_characters')) {
+    $ilDB->addTableColumn('xlas_writer_prefs', 'word_count_characters', array(
+        'notnull' => '1',
+        'type' => 'integer',
+        'length' => 4,
+        'default' => 0
+    ));
+}
+?>

@@ -2224,3 +2224,14 @@ if (!$ilDB->tableColumnExists('xlas_writer_prefs','word_count_enabled')) {
     ));
 }
 ?>
+<#108>
+<?php
+if (!$ilDB->tableColumnExists('xlas_writer_prefs','word_count_characters')) {
+    $ilDB->addTableColumn('xlas_writer_prefs', 'word_count_characters', array(
+        'notnull' => '1',
+        'type' => 'integer',
+        'length' => 4,
+        'default' => 0
+    ));
+}
+?>

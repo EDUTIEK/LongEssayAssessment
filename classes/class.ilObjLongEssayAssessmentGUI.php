@@ -15,6 +15,7 @@ require_once(__DIR__ . "/class.ilLongEssayAssessmentPlugin.php");
  */
 class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
 {
+    private ilHelpGUI $help;
     /** @var ilObjLongEssayAssessment */
     protected ?ilObject $object = null;
 
@@ -72,9 +73,11 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
      */
     protected function afterConstructor() : void
     {
+        global $DIC;
+        
         ilLongEssayAssessmentPlugin::initAutoload();
         $this->plugin = ilLongEssayAssessmentPlugin::getInstance();
-
+        $this->help = $DIC->help();
         // Description is not shown by ilObjectPluginGUI
         if (isset($this->object)) {
             $this->tpl->setDescription($this->object->getDescription());
@@ -355,6 +358,8 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
      */
     public function setTabs() : void
     {
+        $this->help->setScreenIdComponent($this->getPlugin()->getId());
+        
         $this->subtabs = [];
 
         // Task Definition Tab
@@ -556,10 +561,12 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
             foreach($this->subtabs[$a_tab_id] as $subtab) {
                 $this->tabs->addSubTab($subtab['id'], $subtab['txt'], $subtab['url']);
             }
+            $this->help->setScreenId(str_replace("tab_", "", $a_tab_id));
         }
 
         if (!empty($a_subtab_id)) {
             $this->tabs->activateSubTab($a_subtab_id);
+            $this->help->setSubScreenId(str_replace("tab_", "", $a_subtab_id));
         }
     }
 }

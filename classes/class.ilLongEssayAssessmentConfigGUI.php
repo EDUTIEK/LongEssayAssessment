@@ -14,6 +14,7 @@ use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
  */
 class ilLongEssayAssessmentConfigGUI extends ilPluginConfigGUI
 {
+    private ilHelpGUI $help;
     /** @var Container */
     protected $dic;
 
@@ -55,6 +56,7 @@ class ilLongEssayAssessmentConfigGUI extends ilPluginConfigGUI
         $this->ctrl = $DIC->ctrl();
         $this->tpl = $DIC->ui()->mainTemplate();
         $this->toolbar = $DIC->toolbar();
+        $this->help = $DIC->help();
 
         switch ($this->dic->ctrl()->getNextClass()) {
             case 'ilpropertyformgui':
@@ -77,6 +79,9 @@ class ilLongEssayAssessmentConfigGUI extends ilPluginConfigGUI
      */
     protected function configure()
     {
+        $this->help->setScreenIdComponent($this->getPluginObject()->getId());
+        $this->help->setScreenId("adm");
+
         $form = $this->initConfigForm();
         $this->tpl->setContent($form->getHtml());
     }

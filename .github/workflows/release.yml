@@ -1,0 +1,79 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - '*'  # Trigger only when a tag is pushed
+
+jobs:
+  build:
+    env:
+        ArchiveName: LongEssayAssessment_Release-
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Remove v prefix
+        id: removev
+        run: echo "::set-output name=ref_name::$(echo ${{ github.ref_name }} | perl -0777 -pe 's/^v//')"
+
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.4'
+
+      - name: Install dependencies
+        run: composer install --no-dev --prefer-dist --optimize-autoloader
+
+      - name: Prepare application for packaging
+        run: |
+          mkdir -p build
+          rsync -av --exclude='.github/' --exclude='.git/' ./ LongEssayAssessment/
+
+      - name: Create ZIP package
+        run: |
+          zip -r ./${{ env.ArchiveName }}${{ steps.removev.outputs.ref_name }}.zip ./LongEssayAssessment
+        shell: bash
+
+      - name: Create TAR.GZ package
+        run: |
+          tar -czf ./${{ env.ArchiveName }}${{ steps.removev.outputs.ref_name }}.tar.gz ./LongEssayAssessment
+        shell: bash
+      
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
+
+      - name: Upload Release Asset ZIP
+        id: upload-release-asset_zip
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+          asset_path: ./${{ env.ArchiveName }}${{ steps.removev.outputs.ref_name }}.zip
+          asset_name: ${{ env.ArchiveName }}${{ steps.removev.outputs.ref_name }}.zip
+          asset_content_type: application/zip
+
+      - name: Upload Release Asset TAR.GZ
+        id: upload-release-asset_tar
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+          asset_path: ./${{ env.ArchiveName }}${{ steps.removev.outputs.ref_name }}.tar.gz
+          asset_name: ${{ env.ArchiveName }}${{ steps.removev.outputs.ref_name }}.tar.gz
+          asset_content_type: application/gzip
+ 
+

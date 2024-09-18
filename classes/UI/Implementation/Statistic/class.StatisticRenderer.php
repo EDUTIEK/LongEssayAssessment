@@ -171,9 +171,7 @@ class StatisticRenderer extends AbstractComponentRenderer
                     }
 
                     $row = $row->withImportantFields($properties)
-                               ->withContent($ui_factory->listing()->descriptive([
-                        "" => $this->getUIFactory()->listing()->characteristicValue()->text(array_merge($pseudonym, $properties))
-                    ]));
+                               ->withContent($this->getUIFactory()->listing()->characteristicValue()->text(array_merge($pseudonym, $properties)));
 
                     if(!empty($fproperties)) {
                         $row = $row->withFurtherFieldsHeadline("<h5>" . $this->pluginTxt('grade_distribution') . "</h5>")

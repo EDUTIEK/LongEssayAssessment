@@ -11,6 +11,8 @@ use ILIAS\UI\Implementation\Component\Symbol\Glyph\Glyph;
 use ILIAS\UI\Implementation\Render\AbstractComponentRenderer;
 use ILIAS\UI\Component\Panel\Sub;
 use ILIAS\UI\Component\Chart\Bar\BarConfig;
+use ILIAS\UI\Component\Chart\Bar\XAxis;
+use ILIAS\UI\Component\Chart\Bar\YAxis;
 
 class StatisticRenderer extends AbstractComponentRenderer
 {
@@ -207,9 +209,13 @@ class StatisticRenderer extends AbstractComponentRenderer
             $i++;
         }
 
-        $bar_chart = $this->getUIFactory()->chart()->bar()->vertical("", $dataset)
+        $bars = [$this->pluginTxt("count") => (new BarConfig())->withColor($df->color("#d38000"))];
+        $bar_chart = $this->getUIFactory()->chart()->bar()->vertical("", $dataset, $bars)
                                                           ->withTitleVisible(false)
-                                                          ->withLegendVisible(false);
+                                                          ->withLegendVisible(false)
+                                                          ->withCustomYAxis((new YAxis())
+                                                              ->withBeginAtZero(true)
+                                                              ->withStepSize(10));
 
         return [$grades, $bar_chart];
     }

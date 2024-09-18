@@ -328,7 +328,8 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
                     $dic["lng"],
                     $dic["ui.javascript_binding"],
                     $dic["refinery"],
-                    $dic["ui.pathresolver"]
+                    $dic["ui.pathresolver"],
+                    $dic["ui.data_factory"]
                 )
             );
         };

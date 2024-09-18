@@ -24,7 +24,7 @@ class StatisticSection implements \ILIAS\Plugin\LongEssayAssessment\UI\Component
         return $this->title;
     }
 
-    public function getCanonicalName()
+    public function getCanonicalName(): string
     {
         return "Statistic Section";
     }

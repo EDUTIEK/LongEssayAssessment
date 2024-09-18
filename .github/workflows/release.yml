@@ -8,7 +8,7 @@ on:
 jobs:
   build:
     env:
-        ArchiveName: ${{ format('LongEssayAssessment_Release-{0}', github.ref_name ) }}
+        ArchiveName: ${{ format('LongEssayAssessment_Release-{0}', ${{ github.ref_name#v }} ) }}
         
     runs-on: ubuntu-latest
 
@@ -31,12 +31,12 @@ jobs:
 
       - name: Create ZIP package
         run: |
-          zip -r ../${{ env.ArchiveName }}.zip ./LongEssayAssessment
+          zip -r ./${{ env.ArchiveName }}.zip ./LongEssayAssessment
         shell: bash
 
       - name: Create TAR.GZ package
         run: |
-          tar -czf ../${{ env.ArchiveName }}.tar.gz ./LongEssayAssessment
+          tar -czf ./${{ env.ArchiveName }}.tar.gz ./LongEssayAssessment
         shell: bash
       
       - name: Create Release

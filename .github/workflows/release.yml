@@ -8,11 +8,15 @@ on:
 jobs:
   build:
     env:
-        ArchiveName: ${{ format('LongEssayAssessment_Release-{0}', ${{ github.ref_name#v }} ) }}
-        
+        ArchiveName: LongEssayAssessment_Release-
+
     runs-on: ubuntu-latest
 
     steps:
+      - name: Remove v prefix
+        id: removev
+        run: echo "::set-output name=ref_name::$(echo ${{ github.ref_name }} | perl -0777 -pe 's/^v//')"
+
       - name: Checkout code
         uses: actions/checkout@v3
 
@@ -31,12 +35,12 @@ jobs:
 
       - name: Create ZIP package
         run: |
-          zip -r ./${{ env.ArchiveName }}.zip ./LongEssayAssessment
+          zip -r ./${{ env.ArchiveName }}${{ steps.removev.outputs.ref_name }}.zip ./LongEssayAssessment
         shell: bash
 
       - name: Create TAR.GZ package
         run: |
-          tar -czf ./${{ env.ArchiveName }}.tar.gz ./LongEssayAssessment
+          tar -czf ./${{ env.ArchiveName }}${{ steps.removev.outputs.ref_name }}.tar.gz ./LongEssayAssessment
         shell: bash
       
       - name: Create Release
@@ -57,8 +61,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
-          asset_path: ./${{ env.ArchiveName }}.zip
-          asset_name: ${{ env.ArchiveName }}.zip
+          asset_path: ./${{ env.ArchiveName }}${{ steps.removev.outputs.ref_name }}.zip
+          asset_name: ${{ env.ArchiveName }}${{ steps.removev.outputs.ref_name }}.zip
           asset_content_type: application/zip
 
       - name: Upload Release Asset TAR.GZ
@@ -68,8 +72,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
-          asset_path: ./${{ env.ArchiveName }}.tar.gz
-          asset_name: ${{ env.ArchiveName }}.tar.gz
+          asset_path: ./${{ env.ArchiveName }}${{ steps.removev.outputs.ref_name }}.tar.gz
+          asset_name: ${{ env.ArchiveName }}${{ steps.removev.outputs.ref_name }}.tar.gz
           asset_content_type: application/gzip
  
 

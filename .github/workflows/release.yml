@@ -36,7 +36,6 @@ jobs:
 
       - name: Create TAR.GZ package
         run: |
-          cd build
           tar -czf ../${{ env.ArchiveName }}.tar.gz ./LongEssayAssessment
         shell: bash
       

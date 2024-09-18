@@ -7,6 +7,9 @@ on:
 
 jobs:
   build:
+    env:
+        ArchiveName: ${{ format('LongEssayAssessment_Release-{0}', github.ref ) }}
+        
     runs-on: ubuntu-latest
 
     steps:
@@ -24,18 +27,17 @@ jobs:
       - name: Prepare application for packaging
         run: |
           mkdir -p build
-          rsync -av --exclude='.github/' --exclude='.git/' ./ build/
+          rsync -av --exclude='.github/' --exclude='.git/' ./ LongEssayAssesment/
 
       - name: Create ZIP package
         run: |
-          cd build
-          zip -r ../release.zip ./*
+          zip -r ../${{ env.ArchiveName }}.zip ./LongEssayAssesment
         shell: bash
 
       - name: Create TAR.GZ package
         run: |
           cd build
-          tar -czf ../release.tar.gz ./*
+          tar -czf ../${{ env.ArchiveName }}.tar.gz ./LongEssayAssesment
         shell: bash
       
       - name: Create Release
@@ -56,8 +58,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
-          asset_path: ./release.zip
-          asset_name: release.zip
+          asset_path: ./${{ env.ArchiveName }}.zip
+          asset_name: ${{ env.ArchiveName }}.zip
           asset_content_type: application/zip
 
       - name: Upload Release Asset TAR.GZ
@@ -67,8 +69,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
-          asset_path: ./release.tar.gz
-          asset_name: release.tar.gz
+          asset_path: ./${{ env.ArchiveName }}.tar.gz
+          asset_name: ${{ env.ArchiveName }}.tar.gz
           asset_content_type: application/gzip
  
 

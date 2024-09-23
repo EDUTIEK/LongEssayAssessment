@@ -598,3 +598,6 @@ task_type_essay_editor#:#Online-Editor
 task_type_essay_editor_info#:#Die Teilnehmer schreiben ihren Text in einem Online-Editor. Unter "Technik" kann eingestellt werden, welche Möglichkeiten sie dort haben. Einzelne handschriftliche oder anderweitig erstellt Abgaben können in der Teilnehmerverwaltung als PDF-Dateien hochgeladen werden. Ihre Korrektur unterscheidet sich nur in den Markierungs-Optionen.
 task_type_pdf_upload#:#PDF-Upload
 task_type_pdf_upload_info#:#Die Texte werden von allen Teilnehmern einheitlich als PDF-Dateien zur Abgabe hochgeladen. Während der Bearbeitungszeit kann eine hochgeladene Datei ersetzt werden. Die Abgabe zur Korrektur muss bestätigt werden. Danach ist keine Änderung mehr möglich.
+writer_upload_pdf#:#PDF hochladen
+writer_replace_pdf#:#PDF ersetzen
+writer_review_pdf#:#Vorschau zur Abgabe

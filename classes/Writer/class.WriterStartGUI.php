@@ -13,6 +13,8 @@ use ILIAS\Plugin\LongEssayAssessment\Data\Task\TaskRepository;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\TaskSettings;
 use ILIAS\Plugin\LongEssayAssessment\CorrectorAdmin\CorrectorAdminService;
 
+use function ILIAS\UI\examples\Breadcrumbs\breadcrumbs;
+
 /**
  * Start page for writers
  *
@@ -131,17 +133,36 @@ class WriterStartGUI extends BaseGUI
 
         // Toolbar
 
-        if ($this->object->canWrite()) {
-            $button = $this->uiFactory->button()->primary(
-                $this->plugin->txt(empty($essay) ? 'start_writing' : 'continue_writing'),
-                $this->ctrl->getLinkTarget($this, 'startWriter'));
-            $this->toolbar->addComponent($button);
+        switch($this->task->getTaskType()) {
+            case TaskSettings::TYPE_ESSAY_EDITOR:
+                if ($this->object->canWrite()) {
+                    $button = $this->uiFactory->button()->primary(
+                        $this->plugin->txt(empty($essay) ? 'start_writing' : 'continue_writing'),
+                        $this->ctrl->getLinkTarget($this, 'startWriter'));
+                    $this->toolbar->addComponent($button);
 
-        } elseif ($this->object->canReviewWrittenEssay() && isset($essay) && empty($essay->getWritingAuthorized())) {
-            $button = $this->uiFactory->button()->standard(
-                $this->plugin->txt('review_writing'),
-                $this->ctrl->getLinkTarget($this, 'startWritingReview'));
-            $this->toolbar->addComponent($button);
+                } elseif ($this->object->canReviewWrittenEssay() && isset($essay) && empty($essay->getWritingAuthorized())) {
+                    $button = $this->uiFactory->button()->standard(
+                        $this->plugin->txt('review_writing'),
+                        $this->ctrl->getLinkTarget($this, 'startWritingReview'));
+                    $this->toolbar->addComponent($button);
+                }
+                break;
+
+            case TaskSettings::TYPE_PDF_UPLOAD:
+                if ($this->object->canWrite()) {
+                    $button = $this->uiFactory->button()->primary(
+                        $this->plugin->txt(empty($essay) || empty($essay->getPdfVersion()) ? 'writer_upload_pdf' : 'writer_replace_pdf'),
+                        $this->ctrl->getLinkTargetByClass('ilias\plugin\longessayassessment\writer\writeruploadgui', 'uploadPdf'));
+                    $this->toolbar->addComponent($button);
+
+                } elseif ($this->object->canReviewWrittenEssay() && isset($essay) && !empty($essay->getPdfVersion()) && empty($essay->getWritingAuthorized())) {
+                    $button = $this->uiFactory->button()->standard(
+                        $this->plugin->txt('writer_review_pdf'),
+                        $this->ctrl->getLinkTargetByClass('ilias\plugin\longessayassessment\writer\writeruploadgui', 'reviewPdf'));
+                    $this->toolbar->addComponent($button);
+                }
+                break;
         }
 
         // Instructions

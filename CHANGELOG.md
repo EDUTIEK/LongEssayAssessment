@@ -4,6 +4,9 @@
 New features:
 - corrector: improved marking and summary views: separate switching of parts, show details where needed, remove details toggle
 - corrector: improved table for criteria related points entry: show sum of points for criteria, separate entry column
+- plugin: activatable grade statistics for writers
+- plugin: adds a graph and general visual fixes to grade statistics
+- plugin: fix counting of not attended assessments in grade statistics
 
 ## Version 1.9 (2024-08-01)
 Bug fixes:

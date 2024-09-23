@@ -168,26 +168,31 @@ class StatisticRenderer extends AbstractComponentRenderer
                     }
                 }
 
-                $chart_js = function ($id) use ($chart) {
-                    $html = $chart->getHTML();
-                    $js = 'var htmlContent = ' . json_encode($html) . ';
+                if(!empty($fproperties)){
+
+                    $chart_js = function ($id) use ($chart) {
+                        $html = $chart->getHTML();
+                        $js = 'var htmlContent = ' . json_encode($html) . ';
                            $("main").append("<div id=\"' . $id . '_chart\">" + htmlContent + "</div>");
                            setTimeout(function(){$("#' . $id . '_chart").appendTo( $("#' . $id . '").find(".chart"));}, 50);
                           ';
-                    return $js;
-                };
+                        return $js;
+                    };
+
+                    $row = $row->withAdditionalOnLoadCode($chart_js)
+                               ->withFurtherFieldsHeadline("<h5>" . $this->pluginTxt('grade_distribution') . "</h5>")
+                               ->withFurtherFields([
+                                   "<span class='hidden'>1</span>" => "<div class='chart'></div>",
+                                   "<span class='hidden'>2</span>" => $default_renderer->render($this->getUIFactory()->listing()->characteristicValue()->text($fproperties))
+                               ]);
+                }
+
                 return $row
-                    ->withAdditionalOnLoadCode($chart_js)
                     ->withHeadline($record->getTitle())
                     ->withImportantFields($properties)
                     ->withContent($ui_factory->listing()->descriptive([
                         "" => $this->getUIFactory()->listing()->characteristicValue()->text(array_merge($pseudonym, $properties))
-                    ]))
-                    ->withFurtherFieldsHeadline("<h5>" . $this->pluginTxt('grade_distribution') . "</h5>")
-                    ->withFurtherFields([
-                        "<span class='hidden'>1</span>" => "<div class='chart'></div>",
-                        "<span class='hidden'>2</span>" => $default_renderer->render($this->getUIFactory()->listing()->characteristicValue()->text($fproperties))
-                    ]);
+                    ]));
             }
         )->withData($component->getStatistics()));
     }

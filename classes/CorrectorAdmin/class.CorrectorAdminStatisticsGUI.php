@@ -75,6 +75,8 @@ class CorrectorAdminStatisticsGUI extends StatisticsGUI
                 ? in_array($x['obj_id'], $filter_data['context'])
                 : (int)$x['obj_id'] === $this->object->getId()
         );
+        $this->grade_level = array_intersect_key($this->grade_level, array_flip($filter_data['context']?? [$this->object->getId()]));
+
         $data = [];
 
         if($filter_data['context'] !== null && count($filter_data['context']) > 1) {
@@ -120,6 +122,8 @@ class CorrectorAdminStatisticsGUI extends StatisticsGUI
                 ? in_array($x['obj_id'], $filter_data['context'])
                 : (int)$x['obj_id'] === $this->object->getId()
         );
+        $this->grade_level = array_intersect_key($this->grade_level, array_flip($filter_data['context']?? [$this->object->getId()]));
+
         foreach($sections as $obj) {
             $data[] = $this->getItemDataForObject($obj["obj_id"], $filter_data["correctors"], true);
         }

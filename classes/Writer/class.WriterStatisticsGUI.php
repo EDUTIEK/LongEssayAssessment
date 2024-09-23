@@ -77,6 +77,7 @@ class WriterStatisticsGUI extends StatisticsGUI
                 ? in_array($x['obj_id'], $filter_data['context'])
                 : (int)$x['obj_id'] === $this->object->getId()
         );
+        $this->grade_level = array_intersect_key($this->grade_level, array_flip($filter_data['context'] ?? [$this->object->getId()]));
 
         $writers = array_filter($writers,
             fn (Writer $x) => $filter_data['context'] !== null

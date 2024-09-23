@@ -70,6 +70,7 @@ class CorrectorAdminWriterStatisticsGUI extends StatisticsGUI
         $filter_data = $this->ui_service->filter()->getData($filter_gui) ?? ['context' => null, 'finalized' => null];
 
         $filtered_essays = array_filter(array_merge(...$this->essays), fn (Essay $x) => in_array($x->getTaskId(), $filter_data['context'] ?? [$this->object->getId()]));
+        $this->grade_level = array_intersect_key($this->grade_level, array_flip($filter_data['context'] ?? [$this->object->getId()]));
         $essay_statistics = $this->getStatistic($filtered_essays);
 
         $data = [
@@ -99,6 +100,7 @@ class CorrectorAdminWriterStatisticsGUI extends StatisticsGUI
         }
         $filter_gui = $this->buildFilter() ;
         $filter_data = $this->ui_service->filter()->getData($filter_gui) ?? ['context' => null, 'finalized' => null];
+        $this->grade_level = array_intersect_key($this->grade_level, array_flip($filter_data['context'] ?? [$this->object->getId()]));
 
         $data = $this->getItemData($filter_data['context'] ?? [$this->object->getId()], $filter_data['writer'] ?? "", (int)$filter_data['finalized'] ?? 1);
 

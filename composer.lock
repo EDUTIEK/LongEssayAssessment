@@ -12,12 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/EDUTIEK/long-essay-assessment-service.git",
-                "reference": "e3352f0afd2f839a0d675a57cc5fb8fe777fc15d"
+                "reference": "3863d2ad3518baeb5ff8df640ed5de6c3f11028c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EDUTIEK/long-essay-assessment-service/zipball/e3352f0afd2f839a0d675a57cc5fb8fe777fc15d",
-                "reference": "e3352f0afd2f839a0d675a57cc5fb8fe777fc15d",
+                "url": "https://api.github.com/repos/EDUTIEK/long-essay-assessment-service/zipball/3863d2ad3518baeb5ff8df640ed5de6c3f11028c",
+                "reference": "3863d2ad3518baeb5ff8df640ed5de6c3f11028c",
                 "shasum": ""
             },
             "require": {
@@ -54,7 +54,7 @@
             "support": {
                 "source": "https://github.com/EDUTIEK/long-essay-assessment-service/tree/ally"
             },
-            "time": "2024-09-20T12:59:54+00:00"
+            "time": "2024-09-24T02:18:48+00:00"
         },
         {
             "name": "edutiek/long-essay-image-sketch",

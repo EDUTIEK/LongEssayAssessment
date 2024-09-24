@@ -256,7 +256,7 @@ class Essay extends RecordData
     }
 
     /**
-     * @return int
+     * @return string
      */
     public function getPdfVersion(): ?string
     {

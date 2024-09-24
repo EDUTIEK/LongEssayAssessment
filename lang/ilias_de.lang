@@ -601,3 +601,4 @@ task_type_pdf_upload_info#:#Die Texte werden von allen Teilnehmern einheitlich a
 writer_upload_pdf#:#PDF hochladen
 writer_replace_pdf#:#PDF ersetzen
 writer_review_pdf#:#Vorschau zur Abgabe
+writer_authorize_pdf#:#Zur Korrektur abgeben

@@ -125,6 +125,7 @@ class WriterStartGUI extends BaseGUI
                             $this->data->formatPeriod($this->task->getReviewStart(), $this->task->getReviewEnd())
                         );
                     }
+
                     $back_url = \ilLink::_getLink($this->dic->repositoryTree()->getParentId($this->object->getRefId()));
                     $back_text = $this->plugin->txt('message_writing_authorized_link');
                     $message .= '<p><a href="'.$back_url.'">'.$back_text.'</a></p>';

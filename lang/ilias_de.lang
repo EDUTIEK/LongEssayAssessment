@@ -280,7 +280,7 @@ export_results#:#Ergebnisse exportieren
 export_results_file_prefix#:#Ergebnisse
 message_no_admin_writer_corrector#:#Sie können auf diese Aufgabe nicht zugreifen, da Sie weder zur Bearbeitung noch zur Korrektur vorgesehen sind.
 message_writing_excluded#:#Sie wurden von der Bearbeitung ausgeschlossen.
-message_writing_authorized#:#Sie haben Ihre Klausur erfolgreich abgegeben und für eine Korrektur autorisiert. Wir wünschen Ihnen im weiteren Fortgang viel Erfolg!
+message_writing_authorized#:#Sie haben Ihre Bearbeitung zur Korrektur abgegeben.
 message_writing_authorized_link#:#» Klausur verlassen
 message_writing_returned_interrupted#:#Sie haben Ihre Bearbeitung unterbrochen. Klicken Sie auf "Bearbeitung fortsetzen", um ihre Klausur weiter zu schreiben oder für die Korrektur zu autorisieren.
 continue_writing#:#Bearbeitung fortsetzen
@@ -605,3 +605,4 @@ writer_replace_pdf#:#PDF-Datei ersetzen
 writer_review_pdf#:#Vorschau zur Abgabe
 writer_authorize_pdf#:#Zur Korrektur abgeben
 writer_authorize_pdf_info#:#Bitte überprüfen Sie, ob Sie die Datei in dieser Form zur Bewertung abgeben möchten. Nach der Abgabe ist keine weitere Bearbeitung mehr möglich!
+writer_authorize_pdf_success#:#

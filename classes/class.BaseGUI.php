@@ -8,6 +8,7 @@ use ILIAS\Plugin\LongEssayAssessment\Data\DataService;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\EditorSettings;
 use ILIAS\UI\Factory;
 use ILIAS\UI\Renderer;
+use ILIAS\HTTP\Services as Http;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use ILIAS\Plugin\LongEssayAssessment\ServiceLayer\ObjectServices;
@@ -54,6 +55,9 @@ abstract class BaseGUI
     /** @var Renderer  */
     protected $renderer;
 
+    /** @var Http */
+    protected $http;
+
     /** @var RequestInterface|ServerRequestInterface  */
     protected $request;
 
@@ -94,6 +98,7 @@ abstract class BaseGUI
         $this->tpl = $this->dic->ui()->mainTemplate();
         $this->uiFactory = $this->dic->ui()->factory();
         $this->renderer = $this->dic->ui()->renderer();
+        $this->http = $this->dic->http();
         $this->request = $this->dic->http()->request();
         $this->refinery = $this->dic->refinery();
 

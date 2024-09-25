@@ -12,6 +12,7 @@ use ILIAS\Plugin\LongEssayAssessment\Data\Writer\Writer;
 use ILIAS\Plugin\LongEssayAssessment\WriterAdmin\WriterAdminService;
 use ilLongEssayAssessmentUploadHandlerGUI;
 use ilGlobalTemplateInterface as Tpl;
+use ILIAS\HTTP\StatusCode;
 
 /**
  * Upload page for writers
@@ -21,7 +22,6 @@ use ilGlobalTemplateInterface as Tpl;
  */
 class WriterUploadGUI extends BaseGUI
 {
-
     protected TaskRepository $task_repo;
     protected TaskSettings $task;
     protected ?Writer $writer;
@@ -74,7 +74,7 @@ class WriterUploadGUI extends BaseGUI
 
     protected function getBackLink()
     {
-        return $this->ctrl->getLinkTargetByClass('ilias\plugin\longessayassessment\writer\writerstartgui');
+        return $this->ctrl->getLinkTargetByClass(WriterStartGUI::class);
     }
 
     protected function uploadPdf()
@@ -174,19 +174,40 @@ class WriterUploadGUI extends BaseGUI
 
     protected function authorizePdf()
     {
-        $this->tpl->setContent('Authorize PDF');
+        if (!$this->object->canWrite() && !$this->object->canReviewWrittenEssay()) {
+            $this->tpl->setOnScreenMessage(Tpl::MESSAGE_TYPE_FAILURE, $this->lng->txt('permission_denied'), true);
+            $this->ctrl->redirectToURL($this->getBackLink());
+        }
+
+        $essay = $this->writer_admin_service->getEssayForWriter($this->writer);
+        if ($essay->getPdfVersion() === null) {
+            $this->tpl->setOnScreenMessage(Tpl::MESSAGE_TYPE_FAILURE, $this->plugin->txt('pdf_version_not_found'), true);
+            $this->ctrl->redirectToURL($this->getBackLink());
+        }
+
+        $this->writer_admin_service->authorizeWriting($essay, $this->writer->getUserId());
+        $this->writer_admin_service->createEssayImages($this->object, $essay, $this->writer);
+
+        $this->ctrl->setParameterByClass(WriterStartGUI::class, 'returned', '1');
+        $this->ctrl->redirectToURL($this->getBackLink());
     }
 
     protected function deliverPdf() {
-        $essay = $this->writer_admin_service->getOrCreateEssayForWriter($this->writer);
+         $essay = $this->writer_admin_service->getEssayForWriter($this->writer);
         if ($essay->getPdfVersion() !== null) {
             $this->localDI->services()->common()->fileHelper()->deliverResource($essay->getPdfVersion());
+        }
+        else {
+            $response = $this->http->response()->withStatus(StatusCode::HTTP_NOT_FOUND);
+            $this->http->saveResponse($response);
+            $this->http->sendResponse();
+            $this->http->close();
         }
     }
 
     protected function downloadPdf()
     {
-        $essay = $this->writer_admin_service->getOrCreateEssayForWriter($this->writer);
+        $essay = $this->writer_admin_service->getEssayForWriter($this->writer);
         if ($essay->getPdfVersion() !== null
             && ($identifier = $this->storage->manage()->find($essay->getPdfVersion()))) {
             $this->storage->consume()->download($identifier)->run();

@@ -3,21 +3,15 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\Writer;
 
-use Edutiek\LongEssayAssessmentService\Writer\Service;
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
-use ILIAS\Plugin\LongEssayAssessment\Data\Task\Resource;
-use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
-use ILIAS\Plugin\LongEssayAssessment\Task\ResourceAdmin;
-use \ilUtil;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\TaskRepository;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\TaskSettings;
 use ILIAS\Plugin\LongEssayAssessment\CorrectorAdmin\CorrectorAdminService;
 use ILIAS\Plugin\LongEssayAssessment\Data\Essay\Essay;
-use ILIAS\UI\Component\Input\Container\Form\Standard;
 use ILIAS\Plugin\LongEssayAssessment\Data\Writer\Writer;
 use ILIAS\Plugin\LongEssayAssessment\WriterAdmin\WriterAdminService;
 use ilLongEssayAssessmentUploadHandlerGUI;
-use ilFileDelivery;
+use ilGlobalTemplateInterface as Tpl;
 
 /**
  * Upload page for writers
@@ -59,7 +53,7 @@ class WriterUploadGUI extends BaseGUI
         );
 
         if (empty($this->writer = $this->data->getOwnWriter())) {
-            $this->tpl->setOnScreenMessage("failure", $this->lng->txt('permission denied'));
+            $this->tpl->setOnScreenMessage(Tpl::MESSAGE_TYPE_FAILURE, $this->lng->txt('permission denied'));
             return;
         }
 
@@ -85,7 +79,12 @@ class WriterUploadGUI extends BaseGUI
 
     protected function uploadPdf()
     {
-        $essay = $this->writer_admin_service->getOrCreateEssayForWriter($this->writer);
+        if (!$this->object->canWrite()) {
+            $this->tpl->setOnScreenMessage(Tpl::MESSAGE_TYPE_FAILURE, $this->lng->txt('permission_denied'), true);
+            $this->ctrl->redirectToURL($this->getBackLink());
+        }
+
+        $essay = $this->writer_admin_service->getEssayForWriter($this->writer); // may not yet be saved
 
         $download = $essay->getPdfVersion() !== null ?
             "</br>" . $this->renderer->render(
@@ -95,13 +94,13 @@ class WriterUploadGUI extends BaseGUI
                 )
             ) : "";
 
-        $fields = [];
-        $fields["pdf_version"] = $this->uiFactory->input()->field()->file(
+        $fields = ["pdf_version" => $this->uiFactory->input()->field()->file(
             new ilLongEssayAssessmentUploadHandlerGUI($this->storage, $this->localDI->getUploadTempFile()),
             $this->lng->txt("file"),
             $this->localDI->getUIService()->getMaxFileSizeString() . $download
         )->withAcceptedMimeTypes(['application/pdf'])
-         ->withValue($essay->getPdfVersion() !== null ? [$essay->getPdfVersion()] : []);
+         ->withValue($essay->getPdfVersion() !== null ? [$essay->getPdfVersion()] : [])
+        ];
 
         $form = $this->uiFactory->input()->container()->form()->standard(
             $this->ctrl->getFormAction($this, 'uploadPdf', '', true), $fields)
@@ -128,7 +127,7 @@ class WriterUploadGUI extends BaseGUI
                 } elseif ($essay->getPdfVersion() !== null) {
                     $this->ctrl->redirect($this, 'reviewPdf');
                 } else {
-                    $this->tpl->setOnScreenMessage("failure", $this->plugin->txt("pdf_version_upload_failure"), true);
+                    $this->tpl->setOnScreenMessage(Tpl::MESSAGE_TYPE_FAILURE, $this->plugin->txt("pdf_version_upload_failure"), true);
                     $this->ctrl->redirect($this, "uploadPdf");
                 }
             }
@@ -139,18 +138,24 @@ class WriterUploadGUI extends BaseGUI
 
     protected function reviewPdf()
     {
-        $essay = $this->writer_admin_service->getOrCreateEssayForWriter($this->writer);
+        if (!$this->object->canWrite() && !$this->object->canReviewWrittenEssay()) {
+            $this->tpl->setOnScreenMessage(Tpl::MESSAGE_TYPE_FAILURE, $this->lng->txt('permission_denied'), true);
+            $this->ctrl->redirectToURL($this->getBackLink());
+        }
+
         $resource = null;
+        $essay = $this->writer_admin_service->getEssayForWriter($this->writer);
+
         if ($essay->getPdfVersion() !== null) {
             $identifier = $this->storage->manage()->find($essay->getPdfVersion());
             $resource = $this->storage->manage()->getResource($identifier);
         }
         if (!isset($resource)) {
-            $this->tpl->setOnScreenMessage(\ilGlobalTemplateInterface::MESSAGE_TYPE_FAILURE, $this->plugin->txt('pdf_version_not_found'));
+            $this->tpl->setOnScreenMessage(Tpl::MESSAGE_TYPE_FAILURE, $this->plugin->txt('pdf_version_not_found'), true);
             $this->ctrl->redirectToURL($this->getBackLink());
         }
 
-        $this->tpl->setOnScreenMessage(\ilGlobalTemplateInterface::MESSAGE_TYPE_INFO, $this->plugin->txt('writer_authorize_pdf_info'));
+        $this->tpl->setOnScreenMessage(Tpl::MESSAGE_TYPE_INFO, $this->plugin->txt('writer_authorize_pdf_info'));
         $components = [];
         $components[]  = $this->uiFactory->panel()->standard($this->plugin->txt('writer_review_pdf'),
             [   $this->localDI->getUIFactory()->viewer()->pdf(
@@ -187,7 +192,7 @@ class WriterUploadGUI extends BaseGUI
             $this->storage->consume()->download($identifier)->run();
         }
         else {
-            $this->tpl->setOnScreenMessage("failure", $this->plugin->txt("pdf_version_not_found"), true);
+            $this->tpl->setOnScreenMessage(Tpl::MESSAGE_TYPE_FAILURE, $this->plugin->txt("pdf_version_not_found"), true);
             $this->ctrl->redirectToURL($this->getBackLink());
         }
     }

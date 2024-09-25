@@ -103,21 +103,33 @@ class WriterAdminService extends BaseService
     }
 
     /**
-     * Get an initialized essay for a writer
+     * Get an initialized essay for a writer which may not yet be saved
      * @param Writer $writer
      * @return Essay
      */
-    public function getOrCreateEssayForWriter(Writer $writer) : Essay
+    public function getEssayForWriter(Writer $writer) : Essay
     {
-        $repo = $this->localDI->getEssayRepo();
-        $essay = $repo->getEssayByWriterIdAndTaskId($writer->getId(), $writer->getTaskId());
+        $essay = $this->essayRepo->getEssayByWriterIdAndTaskId($writer->getId(), $writer->getTaskId());
         if (!isset($essay)) {
             $essay = new Essay();
             $essay->setWriterId($writer->getId())
                   ->setTaskId($writer->getTaskId())
                   ->setUuid($essay->generateUUID4())
                   ->setRawTextHash('');
-            $repo->save($essay);
+        }
+        return $essay;
+    }
+
+    /**
+     * Get an initialized and saved essay for a writer
+     * @param Writer $writer
+     * @return Essay
+     */
+    public function getOrCreateEssayForWriter(Writer $writer) : Essay
+    {
+        $essay = $this->getEssayForWriter($writer);
+        if (empty($essay->getId())) {
+            $this->essayRepo->save($essay);
         }
         return $essay;
     }

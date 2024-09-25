@@ -100,7 +100,8 @@ class WriterStartGUI extends BaseGUI
                 }
             } elseif (empty($essay->getWritingAuthorized())) {
                 if ($this->object->canReviewWrittenEssay()) {
-                    $this->tpl->setOnScreenMessage("failure", $this->plugin->txt('message_writing_to_authorize'));
+                    $this->tpl->setOnScreenMessage("failure", $this->plugin->txt(
+                        $this->task->getTaskType() == TaskSettings::TYPE_PDF_UPLOAD? 'message_writing_to_authorize_pdf' : 'message_writing_to_authorize'));
                 } else {
                     $this->tpl->setOnScreenMessage("failure", $this->plugin->txt('message_writing_not_authorized'));
                 }
@@ -156,10 +157,16 @@ class WriterStartGUI extends BaseGUI
                         $this->ctrl->getLinkTargetByClass('ilias\plugin\longessayassessment\writer\writeruploadgui', 'uploadPdf'));
                     $this->toolbar->addComponent($button);
 
-                } elseif ($this->object->canReviewWrittenEssay() && isset($essay) && !empty($essay->getPdfVersion()) && empty($essay->getWritingAuthorized())) {
+                }
+
+                if (($this->object->canWrite() || $this->object->canReviewWrittenEssay())
+                    && isset($essay) && !empty($essay->getPdfVersion()) && empty($essay->getWritingAuthorized())) {
                     $button = $this->uiFactory->button()->standard(
                         $this->plugin->txt('writer_review_pdf'),
-                        $this->ctrl->getLinkTargetByClass('ilias\plugin\longessayassessment\writer\writeruploadgui', 'reviewPdf'));
+                        $this->ctrl->getLinkTargetByClass(
+                            'ilias\plugin\longessayassessment\writer\writeruploadgui', 'reviewPdf'
+                        )
+                    );
                     $this->toolbar->addComponent($button);
                 }
                 break;

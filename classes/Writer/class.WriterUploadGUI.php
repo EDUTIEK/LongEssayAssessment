@@ -51,6 +51,8 @@ class WriterUploadGUI extends BaseGUI
      */
     public function executeCommand()
     {
+        $this->tabs->clearTargets();
+
         $this->tabs->setBackTarget(
             $this->lng->txt("back"),
             $this->getBackLink()
@@ -111,7 +113,7 @@ class WriterUploadGUI extends BaseGUI
             if ($data = $form->getData()) {
                 $file_id = $data["pdf_version"][0] ?? null;
 
-                if ($file_id != $essay->getPdfVersion()) {
+                if ($file_id !== $essay->getPdfVersion()) {
                     $this->writer_admin_service->handlePDFVersionInput($essay, $file_id);
                     $this->writer_admin_service->purgeCorrectorComments($essay);
 
@@ -123,6 +125,8 @@ class WriterUploadGUI extends BaseGUI
                         );
                         $this->ctrl->redirectToURL($this->getBackLink());
                     }
+                } elseif ($essay->getPdfVersion() !== null) {
+                    $this->ctrl->redirect($this, 'reviewPdf');
                 } else {
                     $this->tpl->setOnScreenMessage("failure", $this->plugin->txt("pdf_version_upload_failure"), true);
                     $this->ctrl->redirect($this, "uploadPdf");
@@ -146,23 +150,21 @@ class WriterUploadGUI extends BaseGUI
             $this->ctrl->redirectToURL($this->getBackLink());
         }
 
+        $this->tpl->setOnScreenMessage(\ilGlobalTemplateInterface::MESSAGE_TYPE_INFO, $this->plugin->txt('writer_authorize_pdf_info'));
         $components = [];
-        $components[] = $this->localDI->getUIFactory()->viewer()->pdf(
-            $this->ctrl->getLinkTarget($this, 'deliverPdf'),
-            $resource->getCurrentRevision()->getTitle());
-
+        $components[]  = $this->uiFactory->panel()->standard($this->plugin->txt('writer_review_pdf'),
+            [   $this->localDI->getUIFactory()->viewer()->pdf(
+                $this->ctrl->getLinkTarget($this, 'deliverPdf'),
+                $resource->getCurrentRevision()->getTitle())
+            ]
+        );
         $components[] = $this->uiFactory->button()->primary($this->plugin->txt('writer_authorize_pdf'),
             $this->ctrl->getLinkTarget($this, 'authorizePdf'));
-
         $components[] = $this->uiFactory->button()->standard($this->lng->txt('cancel'),
            $this->getBackLink());
 
-        $panel = $this->uiFactory->panel()->standard(
-            $this->plugin->txt('writer_review_pdf'),
-            $components
-        );
 
-        $this->tpl->setContent($this->renderer->render($panel));
+        $this->tpl->setContent($this->renderer->render($components));
     }
 
     protected function authorizePdf()

@@ -195,7 +195,7 @@ class CorrectorAdminStatisticsGUI extends StatisticsGUI
             $rows[] = ['usr_id' => $corrector->getUserId(),
                        'obj_id' => $obj_id,
                        'title' => $this->common_services->userDataHelper()->getPresentation($corrector->getUserId()), 'count' => $this->plugin->txt('correction_count'),
-                       'final' => $this->plugin->txt('correction_final'), 'statistic' => $statistics, 'grade_statistics' => $this->getGradeStatisticOverAll($statistics), 'statistic' => $statistics, 'grade_statistics' => $this->getGradeStatisticOverAll($statistics),
+                       'final' => $this->plugin->txt('correction_final'), 'statistic' => $statistics, 'grade_statistics' => $this->getGradeStatisticOverAll($statistics),
                        'item' => $statistic_item];
         }
         return $rows;

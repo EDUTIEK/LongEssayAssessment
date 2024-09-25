@@ -160,7 +160,7 @@ class CorrectorAdminWriterStatisticsGUI extends StatisticsGUI
 
             $pseudonym = array_map(fn (Writer $x) => $x->getPseudonym(), $writer);
 
-            $statistic_item = $this->createStatisticItem($this->usernames[$wrtier_usr_id], $statistics)
+            $statistic_item = $this->createStatisticItem($this->common_services->userDataHelper()->getPresentation($wrtier_usr_id), $statistics)
                                    ->withGrades($this->getGradeStatisticOverAll($statistics))
                                    ->withPseudonym($pseudonym);
 

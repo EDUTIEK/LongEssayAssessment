@@ -23,6 +23,9 @@ use ILIAS\Plugin\LongEssayAssessment\Task\LoggingService;
 use ILIAS\Plugin\LongEssayAssessment\Data\Corrector\CorrectorRepository;
 use ILIAS\Filesystem\Filesystem;
 use ILIAS\Plugin\LongEssayAssessment\ServiceLayer\Common\FileHelper;
+use ILIAS\BackgroundTasks\Implementation\Bucket\BasicBucket;
+use ILIAS\BackgroundTasks\Implementation\TaskManager\AsyncTaskManager;
+use ILIAS\ResourceStorage\Services;
 
 class WriterAdminService extends BaseService
 {
@@ -35,6 +38,7 @@ class WriterAdminService extends BaseService
 
     protected Filesystem $temp_fs;
     protected FileHelper $file_helper;
+    protected Services $resource_storage;
 
     protected int $task_id;
 
@@ -53,6 +57,7 @@ class WriterAdminService extends BaseService
         $this->dataService = $this->localDI->getDataService($this->task_id);
         $this->loggingService = $this->localDI->getLoggingService($this->task_id);
 
+        $this->resource_storage = $this->dic->resourceStorage();
         $this->temp_fs = $this->dic->filesystem()->temp();
         $this->file_helper = $this->localDI->services()->common()->fileHelper();
     }
@@ -344,14 +349,14 @@ class WriterAdminService extends BaseService
         $saved_file_id = $essay->getPdfVersion();
 
         if ($new_file_id === null && $saved_file_id !== null) {
-            $resource_id = $this->dic->resourceStorage()->manage()->find($essay->getPdfVersion());
-            $this->dic->resourceStorage()->manage()->remove($resource_id, new PDFVersionResourceStakeholder());
+            $resource_id = $this->resource_storage->manage()->find($essay->getPdfVersion());
+            $this->resource_storage->manage()->remove($resource_id, new PDFVersionResourceStakeholder());
             $essay->setPdfVersion(null);
         } elseif($new_file_id !== $saved_file_id) {
             if($saved_file_id == null) {
                 $resource_id = $temp_file->storeTempFileInResources($new_file_id, new PDFVersionResourceStakeholder());
             } else {
-                $resource_id =  $this->dic->resourceStorage()->manage()->find($essay->getPdfVersion());
+                $resource_id =  $this->resource_storage->manage()->find($essay->getPdfVersion());
                 if($resource_id !== null) {
                     $temp_file->replaceTempFileWithResource($new_file_id, $resource_id, new PDFVersionResourceStakeholder());
                 }
@@ -380,7 +385,7 @@ class WriterAdminService extends BaseService
         if (empty($essay->getPdfVersion()) && !empty($essay->getWrittenText())) {
             $content = $this->getWritingAsPdf($object, $writer, true, true);
             $stream = Streams::ofString($content);
-            $file_id = $this->dic->resourceStorage()->manage()->stream($stream, new PDFVersionResourceStakeholder(), $this->plugin->txt('pdf_from_text'));
+            $file_id = $this->resource_storage->manage()->stream($stream, new PDFVersionResourceStakeholder(), $this->plugin->txt('pdf_from_text'));
             $essay->setPdfVersion((string) $file_id);
             $essay_repo->save($essay);
             $this->authorizeWriting($essay, $this->dic->user()->getId());
@@ -389,13 +394,54 @@ class WriterAdminService extends BaseService
             $this->createEssayImages($object, $essay, $writer, false);
         }
     }
-    
-    public function createEssayImages(ilObjLongEssayAssessment $object, Essay $essay, Writer $writer, bool $with_text = true)
-    {
-        $essay_repo = LongEssayAssessmentDI::getInstance()->getEssayRepo();
 
-        $this->removeEssayImages($essay->getId());
-        
+    /**
+     * Get the page images of an essay with pdf version, create them if they don't yet exist
+     * @return EssayImage[]
+     */
+    public function getOrCreateEssayImages(ilObjLongEssayAssessment $object, Essay $essay): array
+    {
+        if ($essay->getPdfVersion() === null) {
+            return [];
+        }
+
+        $images = $this->essayRepo->getEssayImagesByEssayID($essay->getId());
+        if (empty($images)) {
+            $writer = $this->writerRepo->getWriterById($essay->getWriterId());
+            if ($writer !== null) {
+                $this->createEssayImages($object, $essay, $writer, !empty($essay->getWrittenText()));
+                $images = $this->essayRepo->getEssayImagesByEssayID($essay->getId());
+            }
+        }
+        return $images;
+    }
+
+    /**
+     * Run a background job to create images from the essay text or an uploaded PDF
+     * @param bool $with_text add the written text to the images
+     */
+    public function createEssayImagesInBackground(int $ref_id, int $task_id, int $writer_id, int $essay_id, bool $with_text): void
+    {
+        $factory = $this->dic->backgroundTasks()->taskFactory();
+        $manager = $this->dic->backgroundTasks()->taskManager();
+
+        $task = $factory->createTask(EssayImagesJob::class, [$ref_id, $task_id, $writer_id, $essay_id, $with_text]);
+
+        $bucket = new BasicBucket();
+        $bucket->setUserId($this->dic->user()->getId());
+        $bucket->setTitle("LongEssayAssessment page image creation");
+        $bucket->setTask($task);
+
+        $manager->run($bucket);
+    }
+
+    /**
+     * Create images from the essay text or an uploaded PDF
+     * @param bool $with_text add the written text to the images
+     * @return int  number of created images
+     */
+    public function createEssayImages(ilObjLongEssayAssessment $object, Essay $essay, Writer $writer, bool $with_text = true) : int
+    {
         $pdfs = [];
         if (!empty($essay->getPdfVersion())) {
 
@@ -406,9 +452,9 @@ class WriterAdminService extends BaseService
                 $pdfs[] = $fs->readStream($writing_pdf)->detach();
             }
             
-            $resource_id = $this->dic->resourceStorage()->manage()->find($essay->getPdfVersion());
+            $resource_id = $this->resource_storage->manage()->find($essay->getPdfVersion());
             if (!empty($resource_id)) {
-                $pdfs[] = $this->dic->resourceStorage()->consume()->stream($resource_id)->getStream()->detach();
+                $pdfs[] = $this->resource_storage->consume()->stream($resource_id)->getStream()->detach();
             }
         }
         
@@ -421,20 +467,21 @@ class WriterAdminService extends BaseService
             $this->temp_fs->createDir($relative_workdir);
             $absolute_workdir = $this->file_helper->getAbsoluteTempDir() . '/' . $relative_workdir;
 
-            $images = $service->createPageImagesFromPdfs($pdfs, PATH_TO_GHOSTSCRIPT, $absolute_workdir);
+            $page_images = $service->createPageImagesFromPdfs($pdfs, PATH_TO_GHOSTSCRIPT, $absolute_workdir);
+            $repo_images = [];
 
             $page = 1;
-            foreach ($images as $image) {
+            foreach ($page_images as $image) {
                 $stream = Streams::ofResource($image->getImage());
-                $file_id = $this->dic->resourceStorage()->manage()->stream($stream, new EssayImageResourceStakeholder());
+                $file_id = $this->resource_storage->manage()->stream($stream, new EssayImageResourceStakeholder());
                 
                 $thumb_id = null;
                 if (!empty($image->getThumbnail())) {
                     $thumb_stream = Streams::ofResource($image->getThumbnail());
-                    $thumb_id = $this->dic->resourceStorage()->manage()->stream($thumb_stream, new EssayImageResourceStakeholder());
+                    $thumb_id = $this->resource_storage->manage()->stream($thumb_stream, new EssayImageResourceStakeholder());
                 }
 
-                $repoImage = new EssayImage(
+                $repo_images[] = new EssayImage(
                     0,
                     $essay->getId(),
                     $page++,
@@ -447,22 +494,40 @@ class WriterAdminService extends BaseService
                     $image->getThumbWidth(),
                     $image->getThumbHeight(),
                 );
-                $essay_repo->save($repoImage);
+
             }
 
+            // this is an atomic operation to avoid race conditions between background task and creation on demand
+            $deleted = $this->essayRepo->replaceEssayImagesByEssayId($essay->getId(), $repo_images);
+
             $this->temp_fs->deleteDir($relative_workdir);
+            $this->purgeImageFiles($deleted);
+
+            return count($repo_images);
         }
+        return 0;
     }
-    
-    
+
     public function removeEssayImages(int $essay_id)
     {
-        $essay_repo = LongEssayAssessmentDI::getInstance()->getEssayRepo();
-        foreach ($essay_repo->getEssayImagesByEssayID($essay_id) as $essay_image) {
-            if($identifier = $this->dic->resourceStorage()->manage()->find($essay_image->getFileId())) {
-                $this->dic->resourceStorage()->manage()->remove($identifier, new EssayImageResourceStakeholder());
+        // this is an atomic operation to avoid race conditions between background task and deletion
+        $deleted = $this->essayRepo->replaceEssayImagesByEssayId($essay_id, []);
+        $this->purgeImageFiles($deleted);
+    }
+
+    /**
+     * Delete the file resources of deleted essay images
+     * @param EssayImage[] $images
+     */
+    protected function purgeImageFiles(array $images): void
+    {
+        foreach ($images as $image) {
+            if($identifier = $this->resource_storage->manage()->find($image->getFileId())) {
+                $this->resource_storage->manage()->remove($identifier, new EssayImageResourceStakeholder());
+            }
+            if($identifier = $this->resource_storage->manage()->find($image->getThumbId())) {
+                $this->resource_storage->manage()->remove($identifier, new EssayImageResourceStakeholder());
             }
         }
-        $essay_repo->deleteEssayImagesByEssayId($essay_id);
     }
 }

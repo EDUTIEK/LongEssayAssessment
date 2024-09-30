@@ -40,6 +40,9 @@ abstract class BaseGUI
     /** @var \ilToolbarGUI */
     protected $toolbar;
 
+    /** @var \ilObjUser */
+    protected $user;
+
     /** @var \ilObjLongEssayAssessmentGUI */
     protected $objectGUI;
 
@@ -94,6 +97,7 @@ abstract class BaseGUI
         $this->ctrl = $this->dic->ctrl();
         $this->tabs = $this->dic->tabs();
         $this->toolbar = $this->dic->toolbar();
+        $this->user = $this->dic->user();
         $this->lng = $this->dic->language();
         $this->tpl = $this->dic->ui()->mainTemplate();
         $this->uiFactory = $this->dic->ui()->factory();

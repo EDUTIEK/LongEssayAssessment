@@ -524,7 +524,7 @@ class CorrectorContext extends ServiceContext implements Context
             $this->task->getTaskId()
         ))
         ) {
-            foreach ($essay_repo->getEssayImagesByEssayID($repoEssay->getId()) as $repoImage) {
+            foreach ($this->writer_admin_service->getOrCreateEssayImages($this->object, $repoEssay) as $repoImage) {
                 $pages[] = new PageData(
                     (string) $repoImage->getId(),
                     $repoImage->getPageNo(),

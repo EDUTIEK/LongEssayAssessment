@@ -875,7 +875,7 @@ class WriterAdminGUI extends BaseGUI
                             $this->tpl->setOnScreenMessage("success", $this->plugin->txt("pdf_version_upload_successful_removed"), true);
                         }
 
-                        $service->handlePDFVersionInput($essay, $file_id);
+                        $service->handlePDFVersionInput($this->object->getRefId(), $essay, $file_id);
                         $service->createEssayImages($this->object, $essay, $writer);
                         $service->purgeCorrectorComments($essay);
                         

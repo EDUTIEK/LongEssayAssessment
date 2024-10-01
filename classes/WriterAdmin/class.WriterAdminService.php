@@ -26,6 +26,7 @@ use ILIAS\Plugin\LongEssayAssessment\ServiceLayer\Common\FileHelper;
 use ILIAS\BackgroundTasks\Implementation\Bucket\BasicBucket;
 use ILIAS\BackgroundTasks\Implementation\TaskManager\AsyncTaskManager;
 use ILIAS\ResourceStorage\Services;
+use ILIAS\BackgroundTasks\Implementation\Tasks\NotFoundUserInteraction;
 
 class WriterAdminService extends BaseService
 {
@@ -178,7 +179,7 @@ class WriterAdminService extends BaseService
 
         $storage = $this->dic->filesystem()->temp();
         $basedir = ILIAS_DATA_DIR . '/' . CLIENT_ID . '/temp';
-        $tempdir = 'xlas/'. (new UUID)->uuid4AsString();
+        $tempdir = 'xlas/'. (new UUID())->uuid4AsString();
         $zipdir = $tempdir . '/' . $dirname;
         $storage->createDir($zipdir);
 
@@ -343,27 +344,48 @@ class WriterAdminService extends BaseService
     }
 
 
-    public function handlePDFVersionInput(Essay $essay, ?string $new_file_id)
+    public function handlePDFVersionInput(int $ref_id, Essay $essay, ?string $new_file_id)
     {
         $temp_file = $this->localDI->getUploadTempFile();
         $saved_file_id = $essay->getPdfVersion();
 
-        if ($new_file_id === null && $saved_file_id !== null) {
-            $resource_id = $this->resource_storage->manage()->find($essay->getPdfVersion());
-            $this->resource_storage->manage()->remove($resource_id, new PDFVersionResourceStakeholder());
-            $essay->setPdfVersion(null);
-        } elseif($new_file_id !== $saved_file_id) {
-            if($saved_file_id == null) {
-                $resource_id = $temp_file->storeTempFileInResources($new_file_id, new PDFVersionResourceStakeholder());
-            } else {
-                $resource_id =  $this->resource_storage->manage()->find($essay->getPdfVersion());
-                if($resource_id !== null) {
-                    $temp_file->replaceTempFileWithResource($new_file_id, $resource_id, new PDFVersionResourceStakeholder());
-                }
-            }
-            $essay->setPdfVersion($resource_id !== null ? (string) $resource_id : null);
+        if ($new_file_id === $saved_file_id) {
+            return;
         }
+
+        $resource_id = $saved_file_id ? $this->resource_storage->manage()->find($saved_file_id) : null;
+
+        if ($resource_id === null && $new_file_id !== null) {
+            $resource_id = $temp_file->storeTempFileInResources($new_file_id, new PDFVersionResourceStakeholder());
+        }
+        elseif ($resource_id !== null && $new_file_id !== null) {
+            $temp_file->replaceTempFileWithResource($new_file_id, $resource_id, new PDFVersionResourceStakeholder());
+        }
+        elseif ($resource_id !== null && $new_file_id == null) {
+            $this->resource_storage->manage()->remove($resource_id, new PDFVersionResourceStakeholder());
+            $resource_id = null;
+        }
+
+        $essay->setPdfVersion($resource_id !== null ? (string) $resource_id : null);
         $this->essayRepo->save($essay);
+        $this->removeEssayImages($essay->getId());
+        $this->purgeCorrectorComments($essay);
+
+        // create page images in background task
+        if ($resource_id !== null) {
+            $factory = $this->dic->backgroundTasks()->taskFactory();
+            $manager = $this->dic->backgroundTasks()->taskManager();
+
+            $task = $factory->createTask(WriterPdfUploadBackgroundJob::class, [$ref_id, $essay->getId()]);
+            $interaction = $factory->createTask(WriterPdfUploadBackgroundInteraction::class, [$task, $ref_id, $essay->getId()]);
+
+            $bucket = new BasicBucket();
+            $bucket->setUserId($this->dic->user()->getId());
+            $bucket->setTitle($this->resource_storage->manage()->getResource($resource_id)->getCurrentRevision()->getTitle());
+            $bucket->setTask($interaction);
+
+            $manager->run($bucket);
+        }
     }
 
     public function hasCorrectorComments(Essay $essay) : bool
@@ -417,25 +439,6 @@ class WriterAdminService extends BaseService
     }
 
     /**
-     * Run a background job to create images from the essay text or an uploaded PDF
-     * @param bool $with_text add the written text to the images
-     */
-    public function createEssayImagesInBackground(int $ref_id, int $task_id, int $writer_id, int $essay_id, bool $with_text): void
-    {
-        $factory = $this->dic->backgroundTasks()->taskFactory();
-        $manager = $this->dic->backgroundTasks()->taskManager();
-
-        $task = $factory->createTask(EssayImagesJob::class, [$ref_id, $task_id, $writer_id, $essay_id, $with_text]);
-
-        $bucket = new BasicBucket();
-        $bucket->setUserId($this->dic->user()->getId());
-        $bucket->setTitle("LongEssayAssessment page image creation");
-        $bucket->setTask($task);
-
-        $manager->run($bucket);
-    }
-
-    /**
      * Create images from the essay text or an uploaded PDF
      * @param bool $with_text add the written text to the images
      * @return int  number of created images
@@ -447,7 +450,7 @@ class WriterAdminService extends BaseService
 
             if ($with_text && !empty($essay->getWrittenText())) {
                 $fs = $this->dic->filesystem()->temp();
-                $writing_pdf = 'xlas/' . (new UUID)->uuid4AsString() . '.pdf';
+                $writing_pdf = 'xlas/' . (new UUID())->uuid4AsString() . '.pdf';
                 $fs->put($writing_pdf, $this->getWritingAsPdf($object, $writer, true, true));
                 $pdfs[] = $fs->readStream($writing_pdf)->detach();
             }

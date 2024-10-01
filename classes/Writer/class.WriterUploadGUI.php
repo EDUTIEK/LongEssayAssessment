@@ -110,10 +110,7 @@ class WriterUploadGUI extends BaseGUI
                 $file_id = $data["pdf_version"][0] ?? null;
 
                 if ($file_id !== $essay->getPdfVersion()) {
-                    $this->writer_admin_service->handlePDFVersionInput($essay, $file_id);
-                    $this->writer_admin_service->removeEssayImages($essay->getId());
-                    $this->writer_admin_service->purgeCorrectorComments($essay);
-
+                    $this->writer_admin_service->handlePDFVersionInput($this->object->getRefId(), $essay, $file_id);
                     if ($file_id !== null) {
                         $this->ctrl->redirect($this, 'reviewPdf');
                     } else {
@@ -182,11 +179,7 @@ class WriterUploadGUI extends BaseGUI
             $this->tpl->setOnScreenMessage(Tpl::MESSAGE_TYPE_FAILURE, $this->plugin->txt('pdf_version_not_found'), true);
             $this->ctrl->redirectToURL($this->getBackLink());
         }
-
         $this->writer_admin_service->authorizeWriting($essay, $this->writer->getUserId());
-        $this->writer_admin_service->createEssayImagesInBackground(
-            $this->object->getRefId(), $essay->getTaskId(), $this->writer->getId(), $essay->getId(), false
-        );
 
         $this->ctrl->setParameterByClass(WriterStartGUI::class, 'returned', '1');
         $this->ctrl->redirectToURL($this->getBackLink());
@@ -208,9 +201,8 @@ class WriterUploadGUI extends BaseGUI
     protected function downloadPdf()
     {
         $essay = $this->writer_admin_service->getEssayForWriter($this->writer);
-        if ($essay->getPdfVersion() !== null
-            && ($identifier = $this->storage->manage()->find($essay->getPdfVersion()))) {
-            $this->storage->consume()->download($identifier)->run();
+        if ($essay->getPdfVersion() !== null) {
+            $this->localDI->services()->common()->fileHelper()->deliverResource($essay->getPdfVersion(), 'attachment');
         }
         else {
             $this->tpl->setOnScreenMessage(Tpl::MESSAGE_TYPE_FAILURE, $this->plugin->txt("pdf_version_not_found"), true);

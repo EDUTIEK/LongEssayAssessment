@@ -13,8 +13,9 @@ use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
 use ILIAS\BackgroundTasks\Implementation\Values\ScalarValues\BooleanValue;
 use ilObjectFactory;
 use ilObjLongEssayAssessment;
+use ILIAS\BackgroundTasks\Implementation\Bucket\State;
 
-class EssayImagesJob extends AbstractJob
+class WriterPdfUploadBackgroundJob extends AbstractJob
 {
     protected Container $dic;
     protected LongEssayAssessmentDI $local;
@@ -34,59 +35,54 @@ class EssayImagesJob extends AbstractJob
     public function run(array $input, Observer $observer): Value
     {
         $ref_id = (int) $input[0]->getValue();
-        $task_id = (int) $input[1]->getValue();
-        $writer_id = (int) $input[2]->getValue();
-        $essay_id = (int) $input[3]->getValue();
-        $with_text = (bool) $input[4]->getValue();
+        $essay_id = (int) $input[1]->getValue();
 
         $object = ilObjectFactory::getInstanceByRefId($ref_id);
-
-        $service = $this->local->getWriterAdminService($task_id);
-        $writer = $this->local->getWriterRepo()->getWriterById($writer_id);
         $essay = $this->local->getEssayRepo()->getEssayById($essay_id);
+        $writer = $this->local->getWriterRepo()->getWriterById($essay->getWriterId());
+        $service = $this->local->getWriterAdminService($essay->getTaskId());
 
-        $count = 0;
+        $success = new BooleanValue();
         if (!$object instanceof ilObjLongEssayAssessment) {
             $this->dic->logger()->root()->error(sprintf(
                 'LongEssayAssessment: object (ref_id %s) not found!',
                 $ref_id
+            ));
+        } elseif ($essay === null) {
+            $this->dic->logger()->root()->error(sprintf(
+                'LongEssayAssessment: %s (ref_id %s) essay (essay_id %s) not found!',
+                $object->getTitle(),
+                $ref_id,
+                $essay_id
             ));
         } elseif ($writer === null) {
             $this->dic->logger()->root()->error(sprintf(
                 'LongEssayAssessment: %s (ref_id %s) writer (writer_id %s) not found!',
                 $object->getTitle(),
                 $ref_id,
-                $writer_id
-            ));
-        } elseif ($essay === null) {
-            $this->dic->logger()->root()->error(sprintf(
-                'LongEssayAssessment: %s (ref_id %s) %s (writer_id %s) essay (essay_id %s) not found!',
-                $object->getTitle(),
-                $ref_id,
-                $writer->getPseudonym(),
-                $writer_id,
-                $essay_id
+                $essay->getId()
             ));
         } else {
-            $count = $service->createEssayImages($object, $essay, $writer, $with_text);
+            $count = $service->createEssayImages($object, $essay, $writer, !empty($essay->getWrittenText()));
             $this->dic->logger()->root()->info(sprintf(
                 'LongEssayAssessment %s (ref_id %s) %s (writer_id %s) %s page images created.',
                 $object->getTitle(),
                 $object->getRefId(),
                 $writer->getPseudonym(),
-                $writer_id,
+                $writer->getId(),
                 $count
             ));
+            $success->setValue(true);
         }
 
-        $output = new IntegerValue();
-        $output->setValue($count);
-        return $output;
+        $observer->notifyState(State::FINISHED);
+        $observer->notifyPercentage($this, 100);
+        return $success;
     }
 
     public function isStateless(): bool
     {
-        return false;
+        return true;
     }
 
     public function getExpectedTimeOfTaskInSeconds(): int
@@ -102,16 +98,13 @@ class EssayImagesJob extends AbstractJob
         return
             [
                 new SingleType(IntegerValue::class),  // ref id
-                new SingleType(IntegerValue::class),  // task id
-                new SingleType(IntegerValue::class),  // writer id
                 new SingleType(IntegerValue::class),  // essay id
-                new SingleType(BooleanValue::class),  // with text
             ];
 
     }
 
     public function getOutputType(): Type
     {
-        return new SingleType(IntegerValue::class);
+        return new SingleType(BooleanValue::class);
     }
 }

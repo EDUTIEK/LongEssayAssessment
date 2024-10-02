@@ -23,7 +23,6 @@ use function ILIAS\UI\examples\Breadcrumbs\breadcrumbs;
  */
 class WriterStartGUI extends BaseGUI
 {
-
     protected TaskRepository $task_repo;
     protected TaskSettings $task;
     protected CorrectorAdminService $corrector_admin_service;
@@ -95,17 +94,19 @@ class WriterStartGUI extends BaseGUI
 
                 $this->tpl->setOnScreenMessage("info", $this->plugin->txt('message_writing_excluded'));
 
-            } elseif (empty($essay->getWritingAuthorized())) {
+            } elseif (empty($essay->getWritingAuthorized()) && (!empty($essay->getWrittenText() || !empty($essay->getPdfVersion())))) {
 
                 if ($this->object->canReviewWrittenEssay()) {
                     $this->tpl->setOnScreenMessage("failure", $this->plugin->txt(
-                        $this->task->getTaskType() == TaskSettings::TYPE_PDF_UPLOAD ? 'message_writing_to_authorize_pdf' : 'message_writing_to_authorize'));
+                        $this->task->getTaskType() == TaskSettings::TYPE_PDF_UPLOAD ? 'message_writing_to_authorize_pdf' : 'message_writing_to_authorize'
+                    ));
                 } elseif ($this->object->canWrite()) {
                     if (isset($this->params['returned'])) {
                         $this->tpl->setOnScreenMessage("info", $this->plugin->txt('message_writing_returned_interrupted'));
                     } else {
                         $this->tpl->setOnScreenMessage("info", $this->plugin->txt(
-                            $this->task->getTaskType() == TaskSettings::TYPE_PDF_UPLOAD? 'message_writing_to_authorize_pdf' : 'message_writing_to_continue'));
+                            $this->task->getTaskType() == TaskSettings::TYPE_PDF_UPLOAD ? 'message_writing_to_authorize_pdf' : 'message_writing_to_continue'
+                        ));
                     }
                 } else {
                     $this->tpl->setOnScreenMessage("failure", $this->plugin->txt('message_writing_not_authorized'));
@@ -121,14 +122,14 @@ class WriterStartGUI extends BaseGUI
                     }
                     if (!empty($this->task->getReviewStart()) || !empty($this->task->getReviewEnd())) {
                         $message .= sprintf(
-                            '<p>'. $this->plugin->txt('message_review_period') . '</p>',
+                            '<p>' . $this->plugin->txt('message_review_period') . '</p>',
                             $this->data->formatPeriod($this->task->getReviewStart(), $this->task->getReviewEnd())
                         );
                     }
 
                     $back_url = \ilLink::_getLink($this->dic->repositoryTree()->getParentId($this->object->getRefId()));
                     $back_text = $this->plugin->txt('message_writing_authorized_link');
-                    $message .= '<p><a href="'.$back_url.'">'.$back_text.'</a></p>';
+                    $message .= '<p><a href="' . $back_url . '">' . $back_text . '</a></p>';
 
                     $contents[] = $this->uiFactory->legacy('<div class="alert alert-success" role="alert">' . $message . '</div>');
                     // $this->tpl->setOnScreenMessage("success", $message);
@@ -151,7 +152,7 @@ class WriterStartGUI extends BaseGUI
                     $this->toolbar->addComponent($button);
                 } elseif ($this->object->canReviewWrittenEssay() && isset($essay) && empty(
                     $essay->getWritingAuthorized()
-                    )) {
+                )) {
                     $button = $this->uiFactory->button()->standard(
                         $this->plugin->txt('review_writing'),
                         $this->ctrl->getLinkTarget($this, 'startWritingReview')
@@ -166,7 +167,8 @@ class WriterStartGUI extends BaseGUI
                     $button = $this->uiFactory->button()->primary(
                         $this->plugin->txt('writer_review_pdf'),
                         $this->ctrl->getLinkTargetByClass(
-                            'ilias\plugin\longessayassessment\writer\writeruploadgui', 'reviewPdf'
+                            'ilias\plugin\longessayassessment\writer\writeruploadgui',
+                            'reviewPdf'
                         )
                     );
                     $this->toolbar->addComponent($button);
@@ -175,7 +177,8 @@ class WriterStartGUI extends BaseGUI
                         $button = $this->uiFactory->button()->standard(
                             $this->plugin->txt('writer_replace_pdf'),
                             $this->ctrl->getLinkTargetByClass(
-                                'ilias\plugin\longessayassessment\writer\writeruploadgui', 'uploadPdf'
+                                'ilias\plugin\longessayassessment\writer\writeruploadgui',
+                                'uploadPdf'
                             )
                         );
                         $this->toolbar->addComponent($button);
@@ -185,7 +188,8 @@ class WriterStartGUI extends BaseGUI
                     $button = $this->uiFactory->button()->primary(
                         $this->plugin->txt('writer_upload_pdf'),
                         $this->ctrl->getLinkTargetByClass(
-                            'ilias\plugin\longessayassessment\writer\writeruploadgui', 'uploadPdf'
+                            'ilias\plugin\longessayassessment\writer\writeruploadgui',
+                            'uploadPdf'
                         )
                     );
                     $this->toolbar->addComponent($button);
@@ -251,8 +255,7 @@ class WriterStartGUI extends BaseGUI
                     $this->ctrl->getLinkTarget($this, 'downloadInstructions')
                 );
             }
-        }
-        elseif (!$is_before_writing) {
+        } elseif (!$is_before_writing) {
             if (!empty($this->task->getInstructions())) {
                 $inst_parts[] = $this->uiFactory->item()->standard(
                     $this->uiFactory->link()->standard(
@@ -328,11 +331,10 @@ class WriterStartGUI extends BaseGUI
             if ($is_after_writing) {
                 $popover = $this->uiFactory->popover()->listing($writing_resources)->withTitle($this->plugin->txt("tab_resources"));
                 $contents[] = $popover;
-                $button = $this->uiFactory->button()->shy($this->plugin->txt('show_resources'),'#')
+                $button = $this->uiFactory->button()->shy($this->plugin->txt('show_resources'), '#')
                                   ->withOnClick($popover->getShowSignal());
                 $contents[] = $this->uiFactory->panel()->standard($this->plugin->txt("tab_resources"), $button);
-            }
-            else {
+            } else {
                 $contents[] = $this->uiFactory->panel()->standard($this->plugin->txt("tab_resources"), $writing_resources);
 
             }
@@ -345,8 +347,7 @@ class WriterStartGUI extends BaseGUI
         if ($this->object->canViewResult()) {
             $result_items[] = $this->uiFactory->legacy($this->data->formatFinalResult($essay));
             $result_items[] = $this->uiFactory->divider()->horizontal();
-        }
-        else {
+        } else {
             $properties[$this->plugin->txt('label_available')] = $this->data->formatResultAvailability($this->task);
         }
 

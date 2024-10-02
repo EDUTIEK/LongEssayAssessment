@@ -381,7 +381,8 @@ class WriterAdminService extends BaseService
 
             $bucket = new BasicBucket();
             $bucket->setUserId($this->dic->user()->getId());
-            $bucket->setTitle($this->resource_storage->manage()->getResource($resource_id)->getCurrentRevision()->getTitle());
+            $bucket->setTitle(sprintf($this->plugin->txt('writer_upload_pdf_bt_processing'),
+                $this->resource_storage->manage()->getResource($resource_id)->getCurrentRevision()->getTitle()));
             $bucket->setTask($interaction);
 
             $manager->run($bucket);

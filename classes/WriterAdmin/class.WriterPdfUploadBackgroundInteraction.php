@@ -109,6 +109,7 @@ class WriterPdfUploadBackgroundInteraction extends AbstractUserInteraction
 
     public function canBeSkipped(array $input): bool
     {
-        return false;
+        $success = (bool) $input[0]->getValue();
+        return $success;
     }
 }

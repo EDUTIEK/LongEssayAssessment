@@ -2235,3 +2235,14 @@ if (!$ilDB->tableColumnExists('xlas_writer_prefs','word_count_characters')) {
     ));
 }
 ?>
+<#109>
+<?php
+if (!$ilDB->tableColumnExists('xlas_task_settings','task_type')) {
+    $ilDB->addTableColumn('xlas_task_settings', 'task_type', array(
+        'notnull' => '1',
+        'type' => 'text',
+        'length' => 50,
+        'default' => 'essay_editor'
+    ));
+}
+?>

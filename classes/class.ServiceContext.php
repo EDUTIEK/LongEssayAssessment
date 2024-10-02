@@ -20,6 +20,7 @@ use Edutiek\LongEssayAssessmentService\Data\PageImage;
 use Edutiek\LongEssayAssessmentService\Data\WritingSettings;
 use Edutiek\LongEssayAssessmentService\Data\PdfSettings;
 use ILIAS\Plugin\LongEssayAssessment\ServiceLayer\Common\FileHelper;
+use ILIAS\Plugin\LongEssayAssessment\WriterAdmin\WriterAdminService;
 
 abstract class ServiceContext implements BaseContext
 {
@@ -51,6 +52,9 @@ abstract class ServiceContext implements BaseContext
 
     /** @var DataService */
     protected $data;
+
+    /** @var WriterAdminService */
+    protected $writer_admin_service;
 
     protected FileHelper $file_helper;
 
@@ -105,6 +109,7 @@ abstract class ServiceContext implements BaseContext
 
         $this->task = $this->localDI->getTaskRepo()->getTaskSettingsById($this->object->getId());
         $this->data = $this->localDI->getDataService($this->object->getId());
+        $this->writer_admin_service = $this->localDI->getWriterAdminService($this->object->getId());
         $this->file_helper = $this->localDI->services()->common()->fileHelper();
     }
 

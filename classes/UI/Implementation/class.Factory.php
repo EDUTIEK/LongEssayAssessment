@@ -8,6 +8,7 @@ use ILIAS\Plugin\LongEssayAssessment\UI;
 use ILIAS\Plugin\LongEssayAssessment\UI\Component\InputFactory;
 use ILIAS\Plugin\LongEssayAssessment\UI\Component\IconFactory;
 use ILIAS\Plugin\LongEssayAssessment\UI\Component\ItemFactory;
+use ILIAS\Plugin\LongEssayAssessment\UI\Component\ViewerFactory;
 
 /**
  * Class Factory
@@ -19,15 +20,18 @@ class Factory implements UI\Component\Factory
     private InputFactory $field_factory;
     private IconFactory $icon_factory;
     private ItemFactory $item_factory;
+    private ViewerFactory $viewer_factory;
 
     public function __construct(
         InputFactory $field_factory,
         IconFactory  $icon_factory,
-        ItemFactory  $item_factory
+        ItemFactory  $item_factory,
+        ViewerFactory $viewer_factory
     ) {
         $this->field_factory = $field_factory;
         $this->icon_factory = $icon_factory;
         $this->item_factory = $item_factory;
+        $this->viewer_factory = $viewer_factory;
     }
 
 
@@ -44,5 +48,10 @@ class Factory implements UI\Component\Factory
     public function item(): ItemFactory
     {
         return $this->item_factory;
+    }
+
+    public function viewer(): ViewerFactory
+    {
+        return $this->viewer_factory;
     }
 }

@@ -14,17 +14,23 @@ use ILIAS\BackgroundTasks\Implementation\Values\ScalarValues\BooleanValue;
 use ilObjectFactory;
 use ilObjLongEssayAssessment;
 use ILIAS\BackgroundTasks\Implementation\Bucket\State;
+use ilLongEssayAssessmentPlugin;
+use ilLogger;
 
 class WriterPdfUploadBackgroundJob extends AbstractJob
 {
     protected Container $dic;
+    protected ilLogger $logger;
     protected LongEssayAssessmentDI $local;
+
 
     public function __construct()
     {
         global $DIC;
         $this->dic = $DIC;
+        $this->logger = $DIC->logger()->xlas();
         $this->local = LongEssayAssessmentDI::getInstance();
+        ilLongEssayAssessmentPlugin::initAutoload();
     }
 
     /**
@@ -43,20 +49,21 @@ class WriterPdfUploadBackgroundJob extends AbstractJob
         $service = $this->local->getWriterAdminService($essay->getTaskId());
 
         $success = new BooleanValue();
+        $success->setValue(false);
         if (!$object instanceof ilObjLongEssayAssessment) {
-            $this->dic->logger()->root()->error(sprintf(
+            $this->logger->error(sprintf(
                 'LongEssayAssessment: object (ref_id %s) not found!',
                 $ref_id
             ));
         } elseif ($essay === null) {
-            $this->dic->logger()->root()->error(sprintf(
+            $this->logger->error(sprintf(
                 'LongEssayAssessment: %s (ref_id %s) essay (essay_id %s) not found!',
                 $object->getTitle(),
                 $ref_id,
                 $essay_id
             ));
         } elseif ($writer === null) {
-            $this->dic->logger()->root()->error(sprintf(
+            $this->logger->error(sprintf(
                 'LongEssayAssessment: %s (ref_id %s) writer (writer_id %s) not found!',
                 $object->getTitle(),
                 $ref_id,
@@ -64,7 +71,7 @@ class WriterPdfUploadBackgroundJob extends AbstractJob
             ));
         } else {
             $count = $service->createEssayImages($object, $essay, $writer, !empty($essay->getWrittenText()));
-            $this->dic->logger()->root()->info(sprintf(
+            $this->logger->info(sprintf(
                 'LongEssayAssessment %s (ref_id %s) %s (writer_id %s) %s page images created.',
                 $object->getTitle(),
                 $object->getRefId(),

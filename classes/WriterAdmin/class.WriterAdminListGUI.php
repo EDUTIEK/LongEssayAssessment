@@ -7,6 +7,7 @@ use ILIAS\Plugin\LongEssayAssessment\Data\Writer\TimeExtension;
 use ILIAS\Plugin\LongEssayAssessment\Data\Writer\Writer;
 use ILIAS\UI\Component\Modal\RoundTrip;
 use ILIAS\UI\Implementation\Component\Modal\Modal;
+use ILIAS\Plugin\LongEssayAssessment\Data\Task\TaskSettings;
 
 class WriterAdminListGUI extends WriterListGUI
 {
@@ -262,15 +263,6 @@ class WriterAdminListGUI extends WriterListGUI
         $resources = array_merge([$resources], $modals);
 
         return $this->renderer->render([$filter_gui, $resources]);
-    }
-
-    private function canGetSight(Writer $writer)
-    {
-        if(isset($this->essays[$writer->getId()])) {
-            $essay = $this->essays[$writer->getId()];
-            return /*$essay->getEditEnded() === null &&*/ $essay->getEditStarted() !== null;
-        }
-        return false;
     }
 
     private function getSightAction(Writer $writer)

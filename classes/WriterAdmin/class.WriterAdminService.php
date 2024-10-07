@@ -27,6 +27,7 @@ use ILIAS\BackgroundTasks\Implementation\Bucket\BasicBucket;
 use ILIAS\BackgroundTasks\Implementation\TaskManager\AsyncTaskManager;
 use ILIAS\ResourceStorage\Services;
 use ILIAS\BackgroundTasks\Implementation\Tasks\NotFoundUserInteraction;
+use ilDateTime;
 
 class WriterAdminService extends BaseService
 {
@@ -367,6 +368,13 @@ class WriterAdminService extends BaseService
         }
 
         $essay->setPdfVersion($resource_id !== null ? (string) $resource_id : null);
+        $datetime = new ilDateTime(time(), IL_CAL_UNIX);
+        if ($resource_id !== null && $essay->getEditStarted() === null) {
+            $essay->setEditStarted($datetime->get(IL_CAL_DATETIME));
+        }
+        if ($resource_id !== null && $essay->getEditEnded() === null) {
+            $essay->setEditEnded($datetime->get(IL_CAL_DATETIME));
+        }
         $this->essayRepo->save($essay);
         $this->removeEssayImages($essay->getId());
         $this->purgeCorrectorComments($essay);

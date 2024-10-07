@@ -944,21 +944,13 @@ class WriterAdminGUI extends BaseGUI
 
     public function downloadPDFVersion()
     {
-        $writer_repo = $this->localDI->getWriterRepo();
         $essay_repo = $this->localDI->getEssayRepo();
 
-        if(($id = $this->getWriterId()) !== null
-            && ($writer = $writer_repo->getWriterById($id)) !== null
+        if (($id = $this->getWriterId()) !== null
             && ($essay = $essay_repo->getEssayByWriterIdAndTaskId($id, $this->object->getId()))
             && $essay->getPdfVersion() !== null
-            && ($identifier = $this->storage->manage()->find($essay->getPdfVersion()))) {
-            $name = ilFileDelivery::returnASCIIFilename(
-                $this->object->getTitle() . '_' .
-                $this->plugin->txt("pdf_version") . '_' .
-                $this->common_services->userDataHelper()->getFullname($writer->getUserId())
-            );
-
-            $this->storage->consume()->download($identifier)->overrideFileName($name . ".pdf")->run();
+        ) {
+            $this->localDI->services()->common()->fileHelper()->deliverResource($essay->getPdfVersion(), 'attachment');
         } else {
             $this->tpl->setOnScreenMessage("failure", $this->plugin->txt("pdf_version_not_found"), true);
         }

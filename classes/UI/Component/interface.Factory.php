@@ -11,4 +11,6 @@ interface Factory
     public function icon(): IconFactory;
 
     public function item(): ItemFactory;
+
+    public function viewer(): ViewerFactory;
 }

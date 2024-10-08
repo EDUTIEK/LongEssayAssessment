@@ -255,9 +255,6 @@ class Essay extends RecordData
         return $this;
     }
 
-    /**
-     * @return int
-     */
     public function getPdfVersion(): ?string
     {
         return $this->pdf_version;

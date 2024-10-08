@@ -196,6 +196,12 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                         $this->ctrl->forwardCommand(new \ILIAS\Plugin\LongEssayAssessment\Writer\WriterStartGUI($this));
                     }
                     break;
+                case 'ilias\plugin\longessayassessment\writer\writeruploadgui':
+                    if ($this->object->canViewWriterScreen()) {
+                        $this->activateTab('tab_writer', 'tab_writer_start');
+                        $this->ctrl->forwardCommand(new \ILIAS\Plugin\LongEssayAssessment\Writer\WriterUploadGUI($this));
+                    }
+                    break;
                 case 'ilias\plugin\longessayassessment\corrector\correctorstartgui':
                     if ($this->object->canViewCorrectorScreen()) {
                         $this->activateTab('tab_corrector', 'tab_corrector_start');

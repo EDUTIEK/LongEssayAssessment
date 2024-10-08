@@ -137,7 +137,7 @@ class WriterContext extends ServiceContext implements Context
         $pages = [];
         if (!empty($repoEssay = $essay_repo->getEssayByWriterIdAndTaskId($this->getRepoWriter()->getId(), $this->getRepoWriter()->getTaskId()))
         ) {
-            foreach ($essay_repo->getEssayImagesByEssayID($repoEssay->getId()) as $repoImage) {
+            foreach ($this->writer_admin_service->getOrCreateEssayImages($this->object, $repoEssay) as $repoImage) {
                 $pages[] = new PageData(
                     (string) $repoImage->getId(),
                     $repoImage->getPageNo(),

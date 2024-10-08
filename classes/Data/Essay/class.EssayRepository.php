@@ -5,6 +5,7 @@ namespace ILIAS\Plugin\LongEssayAssessment\Data\Essay;
 use ILIAS\Plugin\LongEssayAssessment\Data\RecordData;
 use ILIAS\Plugin\LongEssayAssessment\Data\RecordRepo;
 use Edutiek\LongEssayAssessmentService\Data\CorrectionComment;
+use ilDBInterface;
 
 /**
  * @author Fabian Wolf <wolf@ilias.de>
@@ -85,15 +86,52 @@ class EssayRepository extends RecordRepo
     
 
     /**
+     * Atomic query for essay images (not cached)
      * @param int $a_essay_id
      * @return EssayImage[]
      */
     public function getEssayImagesByEssayID(int $a_essay_id): array
     {
-        $query = "SELECT * FROM " . EssayImage::tableName() . " WHERE essay_id = " . $this->db->quote($a_essay_id, 'integer')
-            . ' ORDER BY page_no ASC';
-        return $this->queryRecords($query, EssayImage::model(), true, true, 'page_no');
+        $images = [];
+        $repo = $this;
 
+        $atom = $this->db->buildAtomQuery();
+        $atom->addTableLock('xlas_essay_image');
+        $atom->addTableLock('xlas_essay_image_seq');
+        $atom->addQueryCallable(function(ilDBInterface $ilDB) use ($a_essay_id, &$images, $repo) {
+            $query = "SELECT * FROM xlas_essay_image WHERE essay_id = " . $this->db->quote($a_essay_id, 'integer')
+                . ' ORDER BY page_no ASC';
+            $images = $repo->queryRecords($query, EssayImage::model(), false, true, 'page_no');
+        });
+        $atom->run();
+        return $images;
+    }
+
+    /**
+     * Atomic replacement of essay images
+     * @param int $a_essay_id
+     *  @param EssayImage $a_images new essay images
+     * @return EssayImage[] deleted essay images
+     */
+    public function replaceEssayImagesByEssayId(int $a_essay_id, array $a_images): array
+    {
+        $deleted = [];
+        $repo = $this;
+
+        $atom = $this->db->buildAtomQuery();
+        $atom->addTableLock('xlas_essay_image');
+        $atom->addTableLock('xlas_essay_image_seq');
+        $atom->addQueryCallable(function(ilDBInterface $ilDB) use ($a_essay_id, $a_images, &$deleted, $repo) {
+            $query = "SELECT * FROM xlas_essay_image WHERE essay_id = " . $this->db->quote($a_essay_id, 'integer');
+            $deleted = $repo->queryRecords($query, EssayImage::model(), false);
+            $repo->deleteEssayImagesByEssayId($a_essay_id);
+
+            foreach ($a_images as $image) {
+                $repo->save($image);
+            }
+        });
+        $atom->run();
+        return $deleted;
     }
 
     /**

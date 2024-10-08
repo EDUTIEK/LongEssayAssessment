@@ -11,12 +11,16 @@ use ILIAS\Plugin\LongEssayAssessment\Data\Task\Location;
 use ILIAS\UI\Component\Input\Container\Filter\Standard;
 use DOMDocument;
 use ILIAS\UI\Component\Image\Image;
+use ILIAS\Plugin\LongEssayAssessment\Data\Task\TaskSettings;
+use ILIAS\Plugin\LongEssayAssessment\ServiceLayer\CommonServices;
+use ILIAS\Plugin\LongEssayAssessment\Data\Task\TaskRepository;
 
 abstract class WriterListGUI
 {
     const FILTER_YES= "1";
     const FILTER_NO = "2";
-    protected \ILIAS\Plugin\LongEssayAssessment\ServiceLayer\CommonServices $common_services;
+    protected CommonServices $common_services;
+    protected TaskRepository $task_repo;
 
     /**
      * @var Essay[]
@@ -59,10 +63,23 @@ abstract class WriterListGUI
         $this->localDI = LongEssayAssessmentDI::getInstance();
         $this->ui_service = $DIC->uiService();
         $this->common_services = $this->localDI->services()->common();
+        $this->task_repo = $this->localDI->getTaskRepo();
     }
 
     abstract public function getContent():string;
 
+
+    protected function canGetSight(Writer $writer)
+    {
+        if(isset($this->essays[$writer->getId()])) {
+            $essay = $this->essays[$writer->getId()];
+            $task = $this->task_repo->getTaskSettingsById($essay->getTaskId());
+            if ($task->getTaskType() === TaskSettings::TYPE_ESSAY_EDITOR) {
+                return $essay->getEditStarted() !== null;
+            }
+        }
+        return false;
+    }
 
     /**
      * @return Essay[]

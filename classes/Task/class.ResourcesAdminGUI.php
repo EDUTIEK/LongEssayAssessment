@@ -57,11 +57,9 @@ class ResourcesAdminGUI extends BaseGUI
      */
     protected function showItems()
     {
-        $this->toolbar->setFormAction($this->ctrl->getFormAction($this));
-        $button = \ilLinkButton::getInstance();
-        $button->setUrl($this->ctrl->getLinkTarget($this, 'editItem'));
-        $button->setCaption($this->plugin->txt('add_resource'), false);
-        $this->toolbar->addButtonInstance($button);
+        $this->toolbar->addComponent($this->uiFactory->button()->primary(
+            $this->plugin->txt('add_resource'),
+            $this->ctrl->getLinkTarget($this, 'editItem')));
 
         $di = LongEssayAssessmentDI::getInstance();
         $task_repo = $di->getTaskRepo();

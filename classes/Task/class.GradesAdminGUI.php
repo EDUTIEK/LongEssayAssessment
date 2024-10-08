@@ -95,11 +95,9 @@ class GradesAdminGUI extends BaseGUI
         $authorized = $this->corrector_service->authorizedCorrectionsExists();
 
         if(!$authorized) {
-            $this->toolbar->setFormAction($this->ctrl->getFormAction($this));
-            $button = \ilLinkButton::getInstance();
-            $button->setUrl($this->ctrl->getLinkTarget($this, 'editItem'));
-            $button->setCaption($this->plugin->txt("add_grade_level"), false);
-            $this->toolbar->addButtonInstance($button);
+            $this->toolbar->addComponent($this->uiFactory->button()->primary(
+                $this->plugin->txt('add_grade_level'),
+                $this->ctrl->getLinkTarget($this, 'editItem')));
         }
 
         if($settings->getCorrectionStart() !== null) {

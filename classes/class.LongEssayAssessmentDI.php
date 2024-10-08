@@ -22,6 +22,7 @@ use ILIAS\Plugin\LongEssayAssessment\CorrectorAdmin\CorrectorAssignmentsService;
 use ILIAS\Plugin\LongEssayAssessment\ServiceLayer\ServicesFactory;
 use ILIAS\Plugin\LongEssayAssessment\Data\DataConstraints;
 use ILIAS\Plugin\LongEssayAssessment\UI\Implementation\StatisticFactory;
+use ILIAS\Plugin\LongEssayAssessment\UI\Implementation\ViewerFactory;
 
 /**
  * @author Fabian Wolf <wolf@ilias.de>
@@ -85,7 +86,8 @@ class LongEssayAssessmentDI
                     $dic["xlas.plugin"],
                     $dic["ui.signal_generator"]
                 ),
-                new StatisticFactory()
+                new StatisticFactory(),
+                new ViewerFactory()
             );
         };
 

@@ -2224,3 +2224,36 @@ if (!$ilDB->tableColumnExists('xlas_task_settings','statistics_available')) {
     ]);
 }
 ?>
+<#108>
+<?php
+if (!$ilDB->tableColumnExists('xlas_writer_prefs','word_count_enabled')) {
+    $ilDB->addTableColumn('xlas_writer_prefs', 'word_count_enabled', array(
+        'notnull' => '1',
+        'type' => 'integer',
+        'length' => 4,
+        'default' => 0
+    ));
+}
+?>
+<#109>
+<?php
+if (!$ilDB->tableColumnExists('xlas_writer_prefs','word_count_characters')) {
+    $ilDB->addTableColumn('xlas_writer_prefs', 'word_count_characters', array(
+        'notnull' => '1',
+        'type' => 'integer',
+        'length' => 4,
+        'default' => 0
+    ));
+}
+?>
+<#110>
+<?php
+if (!$ilDB->tableColumnExists('xlas_task_settings','task_type')) {
+    $ilDB->addTableColumn('xlas_task_settings', 'task_type', array(
+        'notnull' => '1',
+        'type' => 'text',
+        'length' => 50,
+        'default' => 'essay_editor'
+    ));
+}
+?>

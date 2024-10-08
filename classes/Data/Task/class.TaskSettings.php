@@ -10,6 +10,9 @@ use ILIAS\Plugin\LongEssayAssessment\Data\RecordData;
  */
 class TaskSettings extends RecordData
 {
+    const TYPE_ESSAY_EDITOR = 'essay_editor';
+    const TYPE_PDF_UPLOAD = 'pdf_upload';
+
     const RESULT_AVAILABLE_FINALISED = 'finalised';
     const RESULT_AVAILABLE_REVIEW = 'review';
     const RESULT_AVAILABLE_DATE = 'date';
@@ -20,6 +23,7 @@ class TaskSettings extends RecordData
         'task_id' => 'integer',
     ];
     protected const otherTypes = [
+        'task_type' => 'text',
         'description' => 'text',
         'instructions' => 'text',
         'solution' => 'text',
@@ -43,6 +47,7 @@ class TaskSettings extends RecordData
 
 
     protected int $task_id;
+    protected string $task_type = self::TYPE_ESSAY_EDITOR;
     protected ?string $description = null;
     protected ?string $instructions = null;
     protected ?string $solution = null;
@@ -89,6 +94,18 @@ class TaskSettings extends RecordData
     public function setTaskId(int $task_id): TaskSettings
     {
         $this->task_id = $task_id;
+        return $this;
+    }
+
+
+    public function getTaskType(): string
+    {
+        return $this->task_type;
+    }
+
+    public function setTaskType(string $task_type): TaskSettings
+    {
+        $this->task_type = $task_type;
         return $this;
     }
 

@@ -85,6 +85,9 @@ class OrgaSettingsGUI extends BaseGUI
         $this->object->setParticipationType($a_data['object']['participation_type']);
         $this->object->update();
 
+        $task_type = $a_data['object']['task_type'];
+        $a_task_settings->setTaskType((string) $task_type);
+
         $date = $a_data['task']['writing_start'];
         $a_task_settings->setWritingStart($date instanceof \DateTimeInterface ? $date->format('Y-m-d H:i:s') : null);
         $date = $a_data['task']['writing_end'];
@@ -183,6 +186,19 @@ class OrgaSettingsGUI extends BaseGUI
                 $this->plugin->txt('participation_type_instant_info')
             )
             ->withValue($this->object->getParticipationType());
+
+        $fields_object['task_type'] = $factory->radio($this->plugin->txt('task_type'))
+                                              ->withOption(
+                                                  TaskSettings::TYPE_ESSAY_EDITOR,
+                                                  $this->plugin->txt('task_type_essay_editor'),
+                                                  $this->plugin->txt('task_type_essay_editor_info')
+                                              )
+                                              ->withOption(
+                                                  TaskSettings::TYPE_PDF_UPLOAD,
+                                                  $this->plugin->txt('task_type_pdf_upload'),
+                                                  $this->plugin->txt('task_type_pdf_upload_info')
+                                              )
+                                              ->withValue($taskSettings->getTaskType());
 
         // Content
         $fields_content = [];

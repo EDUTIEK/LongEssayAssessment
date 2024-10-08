@@ -143,21 +143,21 @@ class CorrectorAdminGUI extends BaseGUI
         $stitch_decision_action =  $this->ctrl->getLinkTarget($this, "stitchDecision");
         $download_reports_action = $this->ctrl->getLinkTarget($this, "downloadReportsPdf");
 
-        $button = \ilLinkButton::getInstance();
-        $button->setUrl($assign_writers_action);
-        $button->setCaption($this->plugin->txt("assign_writers"), false);
-        $button->setPrimary(true);
-        $this->toolbar->addButtonInstance($button);
-        
-        $btn_export = $this->uiFactory->button()->standard(
+        $this->toolbar->addComponent($this->uiFactory->button()->primary(
+            $this->plugin->txt('assign_writers'),
+            $this->ctrl->getLinkTarget($this, $assign_writers_action)));
+
+        $this->toolbar->addText($this->plugin->txt("assignment_excel"));
+
+        $this->toolbar->addComponent($this->uiFactory->button()->standard(
             $this->plugin->txt("assignment_excel_export"),
-            $this->ctrl->getLinkTarget($this, "correctorAssignmentSpreadsheetExport")
-        );
-        $btn_import = $this->uiFactory->button()->standard(
+            $this->ctrl->getLinkTarget($this, "correctorAssignmentSpreadsheetExport")));
+
+        $this->toolbar->addComponent($this->uiFactory->button()->standard(
             $this->plugin->txt("assignment_excel_import"),
-            $this->ctrl->getLinkTarget($this, "correctorAssignmentSpreadsheetImport")
-        );
-        $btn_export_ass = $this->uiFactory->button()->toggle(
+            $this->ctrl->getLinkTarget($this, "correctorAssignmentSpreadsheetImport")));
+
+        $this->toolbar->addComponent($this->uiFactory->button()->toggle(
             $this->plugin->txt("assignment_excel_export_auth"),
             "#",
             "#",
@@ -166,42 +166,35 @@ class CorrectorAdminGUI extends BaseGUI
             function ($id) {
                 return "$('#{$id}').on( 'click', function() {  document.cookie = 'xlas_exass=' + ($( this ).hasClass('on') ? 'on' : 'off'); } );";
             }
-        );
+        ));
 
-        $this->toolbar->addText($this->plugin->txt("assignment_excel"));
-        $this->toolbar->addComponent($btn_import);
-        $this->toolbar->addComponent($btn_export);
-        /** @var \ILIAS\UI\Component\Component $btn_export_ass */
-        $this->toolbar->addComponent($btn_export_ass);
         $this->toolbar->addSeparator();
 
         if ($this->settings->getRequiredCorrectors() > 1) {
-            $button = \ilLinkButton::getInstance();
-            $button->setUrl(empty($stitches) ? '#' : $stitch_decision_action);
-            $button->setCaption($this->plugin->txt("do_stich_decision"), false);
-            $button->setDisabled(empty($stitches));
-            $this->toolbar->addButtonInstance($button);
-            $this->toolbar->addSeparator();
+            $this->toolbar->addComponent($this->uiFactory->button()->standard(
+                $this->plugin->txt("do_stich_decision"),
+                $stitch_decision_action
+            )->withUnavailableAction(empty($stitches)));
         }
-        
-        $button = \ilLinkButton::getInstance();
-        $button->setUrl($export_corrections_action);
-        $button->setCaption($this->plugin->txt("export_corrections"), false);
-        $this->toolbar->addButtonInstance($button);
 
-        $button = \ilLinkButton::getInstance();
-        $button->setUrl($export_results_action);
-        $button->setCaption($this->plugin->txt("export_results"), false);
-        $this->toolbar->addButtonInstance($button);
+        $this->toolbar->addComponent($this->uiFactory->button()->standard(
+            $this->plugin->txt("export_corrections"),
+            $export_corrections_action
+        ));
 
-        if ($this->settings->getReportsEnabled()) {
-            $button = \ilLinkButton::getInstance();
-            $button->setUrl($download_reports_action);
-            $button->setCaption($this->plugin->txt("download_correction_reports"), false);
-            $this->toolbar->addButtonInstance($button);
-        }
+        $this->toolbar->addComponent($this->uiFactory->button()->standard(
+            $this->plugin->txt("export_results"),
+            $export_results_action
+        ));
 
         $this->toolbar->addSeparator();
+
+        if ($this->settings->getReportsEnabled()) {
+            $this->toolbar->addComponent($this->uiFactory->button()->standard(
+                $this->plugin->txt("download_correction_reports"),
+                $download_reports_action
+            ));
+        }
 
         $list_gui = new CorrectorAdminListGUI($this, "showStartPage", $this->plugin, $this->settings);
         $list_gui->setWriters($writers);

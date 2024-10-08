@@ -453,11 +453,28 @@ class ilObjLongEssayAssessment extends ilObjectPlugin
             return false;
         }
 
-        // no review if writing is (still) possible
         if ($this->canWrite()) {
+            // no review if writing is (still) possible
             return false;
         }
-        return ($this->taskSettings->getKeepEssayAvailable()  && !empty($this->data->getOwnEssay()));
+
+        if (!$this->taskSettings->getKeepEssayAvailable()) {
+            return false;
+        }
+
+        $essay = $this->data->getOwnEssay();
+
+        switch ($this->taskSettings->getTaskType()) {
+            case TaskSettings::TYPE_ESSAY_EDITOR:
+                // writing has started, but text may still be completely offline in the writer app
+                return $essay !== null;
+
+            case TaskSettings::TYPE_PDF_UPLOAD:
+                // a pdf upload exists
+                return $essay !== null && $essay->getPdfVersion() !== null;
+        }
+
+        return false;
     }
 
 

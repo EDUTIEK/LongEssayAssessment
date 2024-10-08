@@ -104,6 +104,9 @@ class CorrectorAdminListGUI extends WriterListGUI
             if($this->hasCorrectionStatusStitch($writer)) {
                 $actions[] = $this->uiFactory->button()->shy($this->plugin->txt('draw_stitch_decision'), $this->getCorrectionStatusStitchAction($writer));
             }
+            if ($this->canGetSight($writer)) {
+                $actions[] = $this->uiFactory->button()->shy($this->plugin->txt('export_steps'), $this->getExportStepsTarget($writer));
+            }
 
             $properties = [
                 $this->plugin->txt("pseudonym") => $writer->getPseudonym(),
@@ -150,7 +153,6 @@ class CorrectorAdminListGUI extends WriterListGUI
                                                            ->withOnClick($confirm_remove_auth_modal->getShowSignal());
                 }
 
-                $actions[] = $this->uiFactory->button()->shy($this->plugin->txt('export_steps'), $this->getExportStepsTarget($writer));
                 $properties[$this->plugin->txt("word_count")]  = $this->word_count($writer);
                 $properties[$this->plugin->txt("final_grade")] = $this->localDI->getDataService($writer->getTaskId())->formatFinalResult($essay);
             }

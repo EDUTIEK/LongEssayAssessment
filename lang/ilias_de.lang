@@ -601,3 +601,6 @@ tab_statistic#:#Notenstatistik
 check_all#:#Alles auswählen
 all_checked#:#Alles ausgewählt
 count#:#Anzahl
+copy_grade_level#:#Notenstufen kopieren
+copy_grade_level_successful#:#Notenstufe erfolgreich kopiert.
+copy_grade_level_info#:#Beim Kopieren der Notenstufen werden die bestehenden Notenstufen ersetzt.

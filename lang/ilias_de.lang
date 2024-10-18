@@ -623,3 +623,6 @@ replace_file#:#Datei ersetzen
 delete_file#:#Datei löschen
 writer_upload_pdf_missing#:#Bitte laden Sie eine PDF-Datei hoch!
 writer_upload_pdf_deleted#:#Die PDF-Datei wurde erfolgreich entfernt.
+copy_grade_level#:#Notenstufen kopieren
+copy_grade_level_successful#:#Notenstufe erfolgreich kopiert.
+copy_grade_level_info#:#Beim Kopieren der Notenstufen werden die bestehenden Notenstufen ersetzt.

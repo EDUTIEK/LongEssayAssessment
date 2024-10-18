@@ -1,4 +1,11 @@
 # Change Log
+New features:
+- plugin: activatable grade statistics for writers
+- plugin: adds a graph and general visual fixes to grade stats
+- plugin: copy grade level from other essays in grade level organisation
+
+Bug fixes:
+- plugin: fix counting of not attended assessments in grade statistics
 
 ## Version 2.4 (2024-08-01)
 Bug fixes:

@@ -112,7 +112,7 @@ class GradesAdminGUI extends BaseGUI
             $this->toolbar->addButtonInstance($button);
 
             $modals[] = $modal = $this->getCopyGradeLevelModal();
-            $this->toolbar->addComponent($this->uiFactory->button()->standard("Notenstufen kopieren", "#")->withOnClick($modal->getShowSignal()));
+            $this->toolbar->addComponent($this->uiFactory->button()->standard($this->plugin->txt("copy_grade_level"), "#")->withOnClick($modal->getShowSignal()));
         }
 
         if ($settings->getCorrectionStart() !== null) {
@@ -496,7 +496,7 @@ class GradesAdminGUI extends BaseGUI
                 $new_grade_level->setId(0);
                 $this->object_repo->save($new_grade_level);
             }
-
+            $this->corrector_service->recalculateGradeLevel();
             $this->tpl->setOnScreenMessage("success", $this->plugin->txt('copy_grade_level_successful'), true);
             $this->ctrl->redirect($this, "showItems");
 

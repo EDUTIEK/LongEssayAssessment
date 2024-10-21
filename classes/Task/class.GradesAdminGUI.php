@@ -84,13 +84,11 @@ class GradesAdminGUI extends BaseGUI
         }
 
         switch ($cmd) {
-            case 'updateItem':
             case 'showItems':
-            case "editItem":
-            case 'deleteItem':
             case 'copyGradeLevelModalAsync':
             case 'copyGradeLevel':
             case 'deleteAsync':
+            case 'delete':
             case 'editAsync':
                 $this->$cmd();
                 break;
@@ -222,7 +220,7 @@ class GradesAdminGUI extends BaseGUI
     protected function delete()
     {
         $this->checkAuthorizedCorrections();
-        $ids = $this->query->retrieve("interruptive_items", $this->refinery->kindlyTo()->listOf($this->refinery->kindlyTo()->int()));
+        $ids = $this->dic->http()->wrapper()->post()->retrieve("interruptive_items", $this->refinery->kindlyTo()->listOf($this->refinery->kindlyTo()->int()));
 
         array_map(fn (int $x) => $this->getGradeLevel($x, true), $ids);//Permission check
 
@@ -433,16 +431,12 @@ class GradesAdminGUI extends BaseGUI
 
     protected function copyGradeLevelModalAsync()
     {
-        global $DIC;
-
         if($this->corrector_service->authorizedCorrectionsExists()) {
             exit();
         }
 
-        $query = $DIC->http()->wrapper()->query();
-
-        if ($query->has("xlas_return_signal")) {
-            $replace_signal_str = $query->retrieve("xlas_return_signal", $this->refinery->kindlyTo()->string());
+        if ($this->query->has("xlas_return_signal")) {
+            $replace_signal_str = $this->query->retrieve("xlas_return_signal", $this->refinery->kindlyTo()->string());
 
         } else {
             throw new \ilException("Missing xlas_return_signal query parameter.");
@@ -450,8 +444,8 @@ class GradesAdminGUI extends BaseGUI
 
         $replace_signal = new ReplaceSignal($replace_signal_str);
 
-        if ($query->has("xlas_copy_ref")) {
-            $ref_id = $query->retrieve("xlas_copy_ref", $this->refinery->kindlyTo()->int());
+        if ($this->query->has("xlas_copy_ref")) {
+            $ref_id = $this->query->retrieve("xlas_copy_ref", $this->refinery->kindlyTo()->int());
             $obj_id = \ilObject2::_lookupObjectId($ref_id);
             $this->ctrl->clearParameterByClass(get_class($this), "xlas_copy_ref");
             $items = [];
@@ -482,16 +476,12 @@ class GradesAdminGUI extends BaseGUI
 
     protected function copyGradeLevel()
     {
-        global $DIC;
-
         if ($this->corrector_service->authorizedCorrectionsExists()) {
             exit();
         }
 
-        $query = $DIC->http()->wrapper()->query();
-
-        if ($query->has("xlas_copy_ref")) {
-            $ref_id = $query->retrieve("xlas_copy_ref", $this->refinery->kindlyTo()->int());
+        if ($this->query->has("xlas_copy_ref")) {
+            $ref_id = $this->query->retrieve("xlas_copy_ref", $this->refinery->kindlyTo()->int());
             $new_grade_levels = $this->object_repo->getGradeLevelsByObjectId(\ilObject2::_lookupObjectId($ref_id));
             $this->object_repo->deleteGradeLevelByObjectId($this->object->getId());
 

@@ -9,7 +9,7 @@ use ILIAS\UI\Implementation\Component\Input\Container\Form\Form;
 use ILIAS\UI\Implementation\Component\JavaScriptBindable;
 use ILIAS\UI\Implementation\Component\SignalGeneratorInterface;
 
-class BlankForm extends Form implements \ILIAS\Plugin\LongEssayAssessment\UI\Component\BlankForm
+class AsyncForm extends Input\Container\Form\FormWithoutSubmitButton implements \ILIAS\Plugin\LongEssayAssessment\UI\Component\AsyncForm
 {
     use JavaScriptBindable;
 
@@ -17,11 +17,6 @@ class BlankForm extends Form implements \ILIAS\Plugin\LongEssayAssessment\UI\Com
      * @var SignalGeneratorInterface
      */
     protected SignalGeneratorInterface $signal_generator;
-
-    /**
-     * @var string
-     */
-    protected string $post_url;
 
     /**
      * @var Signal
@@ -34,19 +29,10 @@ class BlankForm extends Form implements \ILIAS\Plugin\LongEssayAssessment\UI\Com
 
     public function __construct(Input\Field\Factory $input_factory, $post_url, array $inputs, SignalGeneratorInterface $signal_generator)
     {
-        parent::__construct($input_factory, new Input\FormInputNameSource(), $inputs);
+        parent::__construct($signal_generator, $input_factory, new Input\FormInputNameSource(), $post_url, $inputs);
         $this->checkStringArg("post_url", $post_url);
-        $this->post_url = $post_url;
         $this->signal_generator = $signal_generator;
         $this->initSignals();
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getSubmitSignal(): Signal
-    {
-        return $this->submit_signal;
     }
 
     /**
@@ -57,7 +43,7 @@ class BlankForm extends Form implements \ILIAS\Plugin\LongEssayAssessment\UI\Com
         return $this->submit_async_signal;
     }
 
-    public function withAsyncOnEnter(): \ILIAS\Plugin\LongEssayAssessment\UI\Component\BlankForm
+    public function withAsyncOnEnter(): \ILIAS\Plugin\LongEssayAssessment\UI\Component\AsyncForm
     {
         $clone = clone $this;
         $clone->asyncOnEnter = true;
@@ -70,18 +56,8 @@ class BlankForm extends Form implements \ILIAS\Plugin\LongEssayAssessment\UI\Com
         return $this->asyncOnEnter;
     }
 
-
-    /**
-     * @inheritdoc
-     */
-    public function getPostURL(): string
-    {
-        return $this->post_url;
-    }
-
     public function initSignals()
     {
-        $this->submit_signal = $this->signal_generator->create();
         $this->submit_async_signal = $this->signal_generator->create();
     }
 }

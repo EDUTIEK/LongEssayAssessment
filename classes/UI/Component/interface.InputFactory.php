@@ -49,9 +49,9 @@ interface InputFactory
      *
      * @param string $post_url
      * @param array $inputs
-     * @return BlankForm
+     * @return AsyncForm
      */
-    public function blankForm(string $post_url, array $inputs): BlankForm;
+    public function asyncForm(string $post_url, array $inputs): AsyncForm;
 
     /**
      * ---

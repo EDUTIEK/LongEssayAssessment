@@ -6,7 +6,7 @@ use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\Data\Corrector\CorrectorRepository;
 use ILIAS\Plugin\LongEssayAssessment\Data\Object\ObjectRepository;
 use ILIAS\Plugin\LongEssayAssessment\Data\Object\RatingCriterion;
-use ILIAS\Plugin\LongEssayAssessment\UI\Component\BlankForm;
+use ILIAS\Plugin\LongEssayAssessment\UI\Component\AsyncForm;
 use ILIAS\Plugin\LongEssayAssessment\UI\Component\Factory as CustomFactory;
 use ILIAS\UI\Implementation\Component\Signal;
 
@@ -138,7 +138,7 @@ abstract class CriteriaGUI extends BaseGUI
         exit();
     }
 
-    protected function buildItemForm(RatingCriterion $item): BlankForm
+    protected function buildItemForm(RatingCriterion $item): AsyncForm
     {
         $fields = [
             'title' =>  $this->uiFactory->input()->field()->text($this->lng->txt("title"))
@@ -157,7 +157,7 @@ abstract class CriteriaGUI extends BaseGUI
                 ->withValue($item->getPoints())
         ];
 
-        return $this->custom_factory->field()->blankForm($this->ctrl->getFormAction($this, "saveItemAsync"), $fields);
+        return $this->custom_factory->field()->asyncForm($this->ctrl->getFormAction($this, "saveItemAsync"), $fields);
     }
 
 

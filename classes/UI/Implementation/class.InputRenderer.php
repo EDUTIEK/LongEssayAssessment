@@ -70,8 +70,8 @@ class InputRenderer extends \ILIAS\UI\Implementation\Component\Input\Field\Rende
                 return $this->renderCustomNumericField($component);
             case ($component instanceof F\ItemListInput):
                 return $this->renderItemListInput($component, $default_renderer);
-            case ($component instanceof F\BlankForm):
-                return $this->renderBlankForm($component, $default_renderer);
+            case ($component instanceof F\AsyncForm):
+                return $this->renderAsyncForm($component, $default_renderer);
             default:
                 throw new \LogicException("Cannot render '" . get_class($component) . "'");
         }
@@ -98,7 +98,7 @@ class InputRenderer extends \ILIAS\UI\Implementation\Component\Input\Field\Rende
         return $this->wrapInFormContext($component, $tpl->get(), $id);
     }
 
-    protected function renderBlankForm(F\BlankForm $form, RendererInterface $default_renderer)
+    protected function renderAsyncForm(F\AsyncForm $form, RendererInterface $default_renderer)
     {
         $tpl = $this->getTemplate("tpl.blank_form.html", true, true);
         $form = $this->registerBlankFormSignals($form);
@@ -164,7 +164,7 @@ class InputRenderer extends \ILIAS\UI\Implementation\Component\Input\Field\Rende
         return [
             F\ItemListInput::class,
             F\Numeric::class,
-            F\BlankForm::class
+            F\AsyncForm::class
         ];
     }
 
@@ -195,10 +195,10 @@ class InputRenderer extends \ILIAS\UI\Implementation\Component\Input\Field\Rende
     }
 
     /**
-     * @param BlankForm $form
-     * @return BlankForm
+     * @param AsyncForm $form
+     * @return AsyncForm
      */
-    protected function registerBlankFormSignals(BlankForm $form): BlankForm
+    protected function registerBlankFormSignals(AsyncForm $form): AsyncForm
     {
         $submit = $form->getSubmitSignal();
         $submit_async = $form->getSubmitAsyncSignal();

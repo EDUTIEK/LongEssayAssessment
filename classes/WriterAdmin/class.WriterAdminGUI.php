@@ -11,7 +11,7 @@ use ILIAS\Plugin\LongEssayAssessment\Data\Task\LogEntry;
 use ILIAS\Plugin\LongEssayAssessment\Data\Writer\TimeExtension;
 use ILIAS\Plugin\LongEssayAssessment\Data\Writer\Writer;
 use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
-use ILIAS\Plugin\LongEssayAssessment\UI\Component\BlankForm;
+use ILIAS\Plugin\LongEssayAssessment\UI\Component\AsyncForm;
 use ILIAS\ResourceStorage\Identification\ResourceIdentification;
 use ILIAS\UI\Component\Input\Container\Form\Standard;
 use ILIAS\UI\Component\Modal\RoundTrip;
@@ -321,7 +321,7 @@ class WriterAdminGUI extends BaseGUI
     }
 
 
-    protected function buildExtensionForm($value = null):BlankForm
+    protected function buildExtensionForm($value = null):AsyncForm
     {
         $settings = $this->localDI->getTaskRepo()->getTaskSettingsById($this->object->getId());
         $this->ctrl->saveParameter($this, "writer_id");
@@ -347,7 +347,7 @@ class WriterAdminGUI extends BaseGUI
             $extension_input = $extension_input->withValue($value);
         }
 
-        return $this->localDI->getUIFactory()->field()->blankForm(
+        return $this->localDI->getUIFactory()->field()->asyncForm(
             $this->ctrl->getFormAction($this, "updateExtension"),
             ['extension' => $extension_input]
         )->withAsyncOnEnter();
@@ -523,7 +523,7 @@ class WriterAdminGUI extends BaseGUI
         ilFileDelivery::deliverFileAttached($zipfile, $name . '.zip', 'application/zip', false);
     }
 
-    protected function buildLocationForm($value = null): BlankForm
+    protected function buildLocationForm($value = null): AsyncForm
     {
         $task_repo = $this->localDI->getTaskRepo();
         $locations = $task_repo->getLocationsByTaskId($this->object->getId());
@@ -536,7 +536,7 @@ class WriterAdminGUI extends BaseGUI
         if($value !== null) {
             $location_input = $location_input->withValue($value);
         }
-        return $this->localDI->getUIFactory()->field()->blankForm(
+        return $this->localDI->getUIFactory()->field()->asyncForm(
             $this->ctrl->getFormAction($this, "editLocation"),
             ["location" => $location_input]
         );

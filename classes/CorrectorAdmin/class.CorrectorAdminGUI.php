@@ -8,7 +8,7 @@ use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\Corrector\CorrectorContext;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\CorrectionSettings;
 use ILIAS\Plugin\LongEssayAssessment\Data\Writer\Writer;
-use ILIAS\Plugin\LongEssayAssessment\UI\Component\BlankForm;
+use ILIAS\Plugin\LongEssayAssessment\UI\Component\AsyncForm;
 use ILIAS\Plugin\LongEssayAssessment\WriterAdmin\CorrectorAdminListGUI;
 use ILIAS\Plugin\LongEssayAssessment\WriterAdmin\CorrectorListGUI;
 use ILIAS\UI\Component\Input\Container\Form\Form;
@@ -314,7 +314,7 @@ class CorrectorAdminGUI extends BaseGUI
                 ->withOption('open', $this->plugin->txt('correctors_with_open_corrections') . ' (' . count($open) . ')')
                 ->withValue('all')
             ];
-            $form = $this->localDI->getUIFactory()->field()->blankForm(
+            $form = $this->localDI->getUIFactory()->field()->asyncForm(
                 $this->ctrl->getFormAction($this, "mailToCorrectorsAsync"), $fields)->withAsyncOnEnter();
             $modal = $this->uiFactory->modal()->roundtrip(
                 $this->plugin->txt('mail_to_correctors'), $form)->withActionButtons([
@@ -362,7 +362,7 @@ class CorrectorAdminGUI extends BaseGUI
                     sprintf($this->plugin->txt('corrector_x'), $i));
             }
 
-            $form = $this->localDI->getUIFactory()->field()->blankForm(
+            $form = $this->localDI->getUIFactory()->field()->asyncForm(
                 $this->ctrl->getFormAction($this, "mailToSelectedAsync"), $fields)->withAsyncOnEnter();
             $modal = $this->uiFactory->modal()->roundtrip(
                 $this->plugin->txt('mail_for_selected_essays'), $form)->withActionButtons([
@@ -716,7 +716,7 @@ class CorrectorAdminGUI extends BaseGUI
 
     /**
      * @param array $writer_ids
-     * @return BlankForm
+     * @return AsyncForm
      */
     private function buildAssignmentForm(array $writer_ids): Form
     {
@@ -783,7 +783,7 @@ class CorrectorAdminGUI extends BaseGUI
             }
         }
 
-        return $custom_factory->field()->blankForm($this->ctrl->getFormAction($this, "editAssignmentsAsync"), $fields)
+        return $custom_factory->field()->asyncForm($this->ctrl->getFormAction($this, "editAssignmentsAsync"), $fields)
             ->withAdditionalTransformation($this->refinery->custom()->constraint(
                 function (array $var) {
                     if (!isset($var['second_corrector'])) {

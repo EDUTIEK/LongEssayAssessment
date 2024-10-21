@@ -3,6 +3,7 @@ namespace ILIAS\Plugin\LongEssayAssessment\UI\Implementation;
 
 use ILIAS\Data\Factory as DataFactory;
 use ILIAS\Refinery\Transformation;
+use ILIAS\UI\Implementation\Component\Input\Field\FormInput;
 
 /**
  * This implements the numeric input.
@@ -33,7 +34,7 @@ class Numeric extends \ILIAS\UI\Implementation\Component\Input\Field\Numeric imp
         $label,
         $byline
     ) {
-        parent::__construct($data_factory, $refinery, $label, $byline);
+        FormInput::__construct($data_factory, $refinery, $label, $byline);
 
         /**
          * @var $trafo_numericOrNull Transformation

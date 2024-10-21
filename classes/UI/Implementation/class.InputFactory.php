@@ -4,7 +4,7 @@ namespace ILIAS\Plugin\LongEssayAssessment\UI\Implementation;
 
 use ILIAS\Data;
 use ILIAS\Data\Factory as DataFactory;
-use ILIAS\Plugin\LongEssayAssessment\UI\Component\BlankForm;
+use ILIAS\Plugin\LongEssayAssessment\UI\Component\AsyncForm;
 use ILIAS\UI\Implementation\Component\Input\Field\Factory;
 use ILIAS\UI\Implementation\Component\Input\Field\FormInput;
 use ILIAS\UI\Implementation\Component\Input\Field\Textarea;
@@ -79,9 +79,9 @@ class InputFactory implements \ILIAS\Plugin\LongEssayAssessment\UI\Component\Inp
     /**
      * @inheritdoc
      */
-    public function blankForm(string $post_url, array $inputs): BlankForm
+    public function asyncForm(string $post_url, array $inputs): AsyncForm
     {
-        return new \ILIAS\Plugin\LongEssayAssessment\UI\Implementation\BlankForm(
+        return new \ILIAS\Plugin\LongEssayAssessment\UI\Implementation\AsyncForm(
             $this->input_factory,
             $post_url,
             $inputs,

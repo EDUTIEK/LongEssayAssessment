@@ -6,7 +6,7 @@ use ILIAS\UI\Component\Input\Container\Form\Form;
 use ILIAS\UI\Component\JavaScriptBindable;
 use ILIAS\UI\Component\Signal;
 
-interface BlankForm extends Form, JavaScriptBindable
+interface AsyncForm extends Form, JavaScriptBindable
 {
     /**
      * Get the URL this form posts its result to.
@@ -33,9 +33,9 @@ interface BlankForm extends Form, JavaScriptBindable
     /**
      * Prevent Form from getting submitted by pressing enter in form
      *
-     * @return BlankForm
+     * @return AsyncForm
      */
-    public function withAsyncOnEnter(): BlankForm;
+    public function withAsyncOnEnter(): AsyncForm;
 
     public function isAsyncOnEnter(): bool;
 }

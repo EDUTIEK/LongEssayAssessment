@@ -2,7 +2,7 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\UI;
 
-use ILIAS\Plugin\LongEssayAssessment\UI\Component\BlankForm;
+use ILIAS\Plugin\LongEssayAssessment\UI\Component\AsyncForm;
 use ILIAS\Plugin\LongEssayAssessment\UI\Component\FormGroup;
 use ILIAS\Plugin\LongEssayAssessment\UI\Component\FormItem;
 use ILIAS\Plugin\LongEssayAssessment\UI\Component\ItemListInput;
@@ -52,7 +52,7 @@ class PluginRenderer extends DecoratedRenderer
                 return $this->item_renderer->render($component, $root);
             case ($component instanceof ItemListInput):
             case ($component instanceof Numeric):
-            case ($component instanceof BlankForm):
+            case ($component instanceof AsyncForm):
                 return $this->field_render->render($component, $root);
             case ($component instanceof Statistic):
             case ($component instanceof GraphStatisticGroup):

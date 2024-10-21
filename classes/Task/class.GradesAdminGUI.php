@@ -19,6 +19,10 @@ use ILIAS\UI\Component\Table\DataRetrieval;
 use ILIAS\UI\Component\Table\DataRowBuilder;
 use ILIAS\UI\Implementation\Component\Table\Table;
 use ILIAS\Plugin\LongEssayAssessment\UI\CopyLongEssayAssessmentExplorer;
+use ILIAS\UI\URLBuilder;
+use ILIAS\UI\URLBuilderToken;
+use ILIAS\UI\Implementation\Component\Modal\RoundTrip;
+use JetBrains\PhpStorm\NoReturn;
 
 /**
  * Resources Administration
@@ -28,6 +32,10 @@ use ILIAS\Plugin\LongEssayAssessment\UI\CopyLongEssayAssessmentExplorer;
  */
 class GradesAdminGUI extends BaseGUI
 {
+    private \ILIAS\HTTP\Wrapper\ArrayBasedRequestWrapper $query;
+    private URLBuilder $url_builder;
+    private URLBuilderToken $action_parameter_token;
+    private URLBuilderToken $row_id_token;
     protected TaskRepository $task_repo;
     protected ObjectRepository $object_repo;
     protected CorrectorAdminService $corrector_service;
@@ -38,6 +46,20 @@ class GradesAdminGUI extends BaseGUI
         $this->corrector_service = $this->localDI->getCorrectorAdminService($this->object->getId());
         $this->object_repo = $this->localDI->getObjectRepo();
         $this->task_repo = $this->localDI->getTaskRepo();
+        $this->query = $this->dic->http()->wrapper()->query();
+
+        $df = new \ILIAS\Data\Factory();
+        $here_uri = $df->uri($this->request->getUri()->__toString());
+        $url_builder = new URLBuilder($here_uri);
+        $query_params_namespace = ["xlas", "actions"];
+
+        list($this->url_builder, $this->action_parameter_token, $this->row_id_token) =
+            $url_builder->acquireParameters(
+                $query_params_namespace,
+                "table_action",
+                "grade_level"
+            );
+
     }
 
     /**
@@ -48,6 +70,19 @@ class GradesAdminGUI extends BaseGUI
     public function executeCommand()
     {
         $cmd = $this->ctrl->getCmd('showItems');
+
+        if ($this->query->has($this->action_parameter_token->getName())) {
+            switch($this->query->retrieve($this->action_parameter_token->getName(), $this->refinery->to()->string())) {
+                case "edit":
+                    $this->editAsync();
+                    break;
+                case "delete":
+                    $this->deleteAsync();
+                    break;
+            }
+            return;
+        }
+
         switch ($cmd) {
             case 'updateItem':
             case 'showItems':
@@ -55,6 +90,8 @@ class GradesAdminGUI extends BaseGUI
             case 'deleteItem':
             case 'copyGradeLevelModalAsync':
             case 'copyGradeLevel':
+            case 'deleteAsync':
+            case 'editAsync':
                 $this->$cmd();
                 break;
             default:
@@ -102,11 +139,20 @@ class GradesAdminGUI extends BaseGUI
         $can_delete = true;
         $settings = $this->task_repo->getTaskSettingsById($this->object->getId());
         $authorized = $this->corrector_service->authorizedCorrectionsExists();
+        $modals = [];
 
         if (!$authorized) {
+            $modals[] = $modal = $this->uiFactory->modal()->roundtrip("", [])->withAsyncRenderUrl(
+                $this->ctrl->getLinkTarget($this, "editAsync", null, true)
+            );
+
             $this->toolbar->addComponent($this->uiFactory->button()->primary(
                 $this->plugin->txt('add_grade_level'),
-                $this->ctrl->getLinkTarget($this, 'editItem')));
+                ""
+            )->withOnClick($modal->getShowSignal()));
+
+            $modals[] = $modal = $this->getCopyGradeLevelModal();
+            $this->toolbar->addComponent($this->uiFactory->button()->standard("Notenstufen kopieren", "#")->withOnClick($modal->getShowSignal()));
         }
 
         if ($settings->getCorrectionStart() !== null) {
@@ -121,183 +167,150 @@ class GradesAdminGUI extends BaseGUI
             $this->tpl->setOnScreenMessage("info", $this->plugin->txt("grade_levels_empty_notice"));
         }
 
-        $modal = $this->getCopyGradeLevelModal();
-        $this->toolbar->addComponent($this->uiFactory->button()->standard("Notenstufen kopieren", "#")->withOnClick($modal->getShowSignal()));
+        $actions = [
+            'edit' => $this->uiFactory->table()->action()->single(
+                $this->lng->txt('edit'),
+                $this->url_builder->withParameter($this->action_parameter_token, "edit"),
+                $this->row_id_token
+            )->withAsync(),
+            'delete' =>
+                $this->uiFactory->table()->action()->standard( //in both
+                    $this->lng->txt('delete'),
+                    $this->url_builder->withParameter($this->action_parameter_token, "delete"),
+                    $this->row_id_token
+                )->withAsync()
+        ];
 
-        $ptable = $this->uiFactory->table()->presentation(
-            $this->plugin->txt('grade_levels'),
-            [],
-            function (
-                PresentationRow $row,
-                array $record,
-                Factory $ui_factory,
-                $environment
-            ) use ($authorized, $can_delete) {
+        $grade_levels = $this->object_repo->getGradeLevelsByObjectId($this->object->getId());
+        $table = $this->buildGradeLevelTable($grade_levels, $this->plugin->txt('grade_levels'), false)
+                      ->withActions($actions);
 
-                $this->setGradeLevelId($record["id"]);
-                $edit_link = $this->ctrl->getLinkTarget($this, "editItem");
-                $this->setGradeLevelId($record["id"]);
-                $delete_link = $this->ctrl->getLinkTarget($this, "deleteItem");
-
-                $approve_modal = $ui_factory->modal()->interruptive(
-                    $this->plugin->txt("delete_grade_level"),
-                    $this->plugin->txt("delete_grade_level_confirmation"),
-                    $delete_link
-                )->withAffectedItems([
-                    $ui_factory->modal()->interruptiveItem()->standard($record["id"], $record['headline'])
-                ]);
-
-                if ($can_delete) {
-                    $action = $ui_factory->dropdown()->standard([
-                        $ui_factory->button()->shy($this->lng->txt('edit'), $edit_link),
-                        $ui_factory->button()->shy($this->lng->txt('delete'), '')
-                            ->withOnClick($approve_modal->getShowSignal())
-                    ])->withLabel($this->lng->txt("actions"));
-                } else {
-                    $action = $ui_factory->button()->standard($this->lng->txt('edit'), $edit_link);
-                }
-
-                $row =  $row
-                    ->withHeadline($record['headline']. $this->renderer->render($approve_modal))
-                    //->withSubheadline($record['subheadline'])
-                    ->withImportantFields($record['important'])
-                    ->withContent($ui_factory->listing()->descriptive([$this->lng->txt("description")=> $record['subheadline']]))
-                    ->withFurtherFieldsHeadline('')
-                    ->withFurtherFields($record['important']);
-                
-                if ($authorized) {
-                    return $row;
-                } else {
-                    return $row->withAction($action);
-                }
-            }
-        );
-
-        $this->tpl->setContent($this->renderer->render([$ptable->withData($item_data), $modal]));
+        $this->tpl->setContent($this->renderer->render(array_merge([$table], $modals)));
     }
 
-    protected function buildEditForm($data):\ILIAS\UI\Component\Input\Container\Form\Standard
+    protected function deleteAsync()
     {
-        if ($id = $this->getGradeLevelId()) {
-            $section_title = $this->plugin->txt('edit_grade_level');
-            $this->setGradeLevelId($id);
+        $ids = $this->query->retrieve($this->row_id_token->getName(), $this->refinery->kindlyTo()->listOf($this->refinery->kindlyTo()->int()));
+        $items = [];
+        foreach ($ids as $id) {
+            $grade_level = $this->object_repo->getGradeLevelById($id);
+
+            if($this->checkRecordInObject($grade_level, false)) {
+                $items[] = $this->uiFactory->modal()->interruptiveItem()->standard(
+                    $id,
+                    $grade_level->getGrade() . (!empty($grade_level->getCode()) ? (" (" . $grade_level->getCode() . ")") : "")
+                );
+            }
+        }
+
+        if($this->corrector_service->authorizedCorrectionsExists() || empty($items)) {
+            exit();
+        }
+
+        echo($this->renderer->renderAsync([
+            $this->uiFactory->modal()->interruptive(
+                $this->plugin->txt("delete_grade_level"),
+                $this->plugin->txt("delete_grade_level_confirmation"),
+                $this->ctrl->getFormAction($this, "delete", null, true)
+            )->withAffectedItems($items)
+            ]));
+
+        echo("");
+        exit();
+    }
+
+    protected function delete()
+    {
+        $this->checkAuthorizedCorrections();
+        $ids = $this->query->retrieve("interruptive_items", $this->refinery->kindlyTo()->listOf($this->refinery->kindlyTo()->int()));
+
+        array_map(fn (int $x) => $this->getGradeLevel($x, true), $ids);//Permission check
+
+        foreach ($ids as $id) {
+            $this->object_repo->deleteGradeLevel($id);
+        }
+        $this->corrector_service->recalculateGradeLevel();
+        $this->tpl->setOnScreenMessage("success", $this->plugin->txt("delete_grade_level_successful"), true);
+        $this->ctrl->redirect($this, "showItems");
+    }
+
+    protected function editAsync()
+    {
+        if($this->corrector_service->authorizedCorrectionsExists()) {
+            exit();
+        }
+
+        $id = $this->getGradeLevelId(); // Try to initialize ID from query
+
+        if($this->query->has($this->row_id_token->getName())) { // Overwrite $id by table action
+            $ids = $this->query->retrieve($this->row_id_token->getName(), $this->refinery->kindlyTo()->listOf($this->refinery->kindlyTo()->int()));
+            $id = array_pop($ids);
+        }
+
+        if ($id === null) {
+            $title = $this->plugin->txt('add_grade_level');
+            $grade_level = GradeLevel::model();
+            $grade_level->setObjectId($this->object->getId());
         } else {
-            $section_title = $this->plugin->txt('add_grade_level');
+            $title = $this->plugin->txt('edit_grade_level');
+            $grade_level = $this->object_repo->getGradeLevelById($id);
+            $this->ctrl->setParameter($this, "grade_level", $id);
         }
 
         $factory = $this->uiFactory->input()->field();
-        $custom_factory = LongEssayAssessmentDI::getInstance()->getUIFactory();
-        $sections = [];
-
+        $link = $this->ctrl->getFormAction($this, 'editAsync', null, true);
         $fields = [];
         $fields['grade'] = $factory->text($this->plugin->txt("grade_level"))
-            ->withRequired(true)
-            ->withValue($data["grade"]);
+                                   ->withRequired(true)
+                                   ->withValue($grade_level->getGrade());
 
         $fields['code'] = $factory->text($this->plugin->txt("grade_level_code"), $this->plugin->txt("grade_level_code_caption"))
-            ->withRequired(false)
-            ->withValue($data["code"]!== null ? $data["code"] : "");
+                                  ->withRequired(false)
+                                  ->withValue(!empty($grade_level->getCode()) ? $grade_level->getCode() : "");
 
-        $fields['points'] = $custom_factory->field()->numeric($this->plugin->txt('min_points'), $this->plugin->txt("min_points_caption"))
-            ->withStep(0.01)
-            ->withRequired(true)
-            ->withValue((float)$data["points"]);
+        $fields['points'] = $this->localDI->getUIFactory()
+                                          ->field()
+                                          ->numeric($this->plugin->txt('min_points'), $this->plugin->txt("min_points_caption"))
+                                          ->withStep(0.01)
+                                          ->withRequired(true)
+                                          ->withValue($grade_level->getMinPoints());
 
         $fields['passed'] =$factory->checkbox($this->plugin->txt('passed'), $this->plugin->txt("passed_caption"))
-            ->withRequired(true)
-            ->withValue($data["passed"]);
+                                   ->withRequired(true)
+                                   ->withValue($grade_level->isPassed());
 
-        $sections['form'] = $factory->section($fields, $section_title);
+        $form = $this->localDI->getUIFactory()->field()->asyncForm($link, $fields);
 
-
-        return $this->uiFactory->input()->container()->form()->standard($this->ctrl->getFormAction($this, "updateItem"), $sections);
-    }
-
-    protected function updateItem()
-    {
-        $this->checkAuthorizedCorrections();
-        $this->tabs->setBackTarget($this->lng->txt("back"), $this->ctrl->getLinkTarget($this));
-
-        $form = $this->buildEditForm([
-            "grade" => "",
-            "points" => 0,
-            "code" => "",
-            "passed" => false
-        ]);
-
-        if ($this->request->getMethod() == "POST") {
+        if($this->request->getMethod() === "POST") {
             $form = $form->withRequest($this->request);
-            $data = $form->getData();
 
-            if ($id = $this->getGradeLevelId()) {
-                $record = $this->getGradeLevel($id);
-            } else {
-                $record = new GradeLevel();
-                $record->setObjectId($this->object->getId());
-            }
+            if(!empty($data = $form->getData())) {
+                $grade_level->setGrade($data['grade']);
+                $grade_level->setCode($data['code']);
+                $grade_level->setMinPoints($data['points']);
+                $grade_level->setPassed($data['passed']);
 
-            // inputs are ok => save data
-            if (isset($data)) {
-                $record->setGrade($data["form"]["grade"]);
-                $record->setMinPoints($data["form"]["points"]);
-                $record->setCode($data["form"]["code"]);
-                $record->setPassed($data["form"]["passed"]);
-                $this->object_repo->save($record);
-                $this->corrector_service->recalculateGradeLevel();
+                $this->object_repo->save($grade_level);
 
                 $this->tpl->setOnScreenMessage("success", $this->lng->txt("settings_saved"), true);
-                $this->ctrl->redirect($this, "showItems");
+                exit();
             } else {
-                // $this->tpl->setOnScreenMessage("failure", $this->lng->txt("validation_error"), false);
-                $this->editItem($form);
-            }
-        }
-    }
-
-
-    /**
-     * Edit and save the settings
-     */
-    protected function editItem($form = null)
-    {
-        $this->checkAuthorizedCorrections();
-        $this->tabs->setBackTarget($this->lng->txt("back"), $this->ctrl->getLinkTarget($this));
-
-        if ($form === null) {
-            if ($id = $this->getGradeLevelId()) {
-                $record = $this->getGradeLevel($id);
-                $form = $this->buildEditForm([
-                    "grade" => $record->getGrade(),
-                    "points" => $record->getMinPoints(),
-                    "code" => $record->getCode(),
-                    "passed" => $record->isPassed()
-                ]);
-            } else {
-                $form = $this->buildEditForm([
-                    "grade" => "",
-                    "points" => 0,
-                    "code" => "",
-                    "passed" => false
-                ]);
+                echo($this->renderer->render($form));
+                exit();
             }
         }
 
-        $this->tpl->setContent($this->renderer->render($form));
-    }
+        /**
+         * @var RoundTrip $modal
+         */
+        $modal = $this->uiFactory->modal()->roundtrip($title, [$form])->withActionButtons([
+                $this->uiFactory->button()->primary($this->lng->txt('submit'), "")->withOnClick($form->getSubmitAsyncSignal())
+            ]);
 
-    protected function deleteItem()
-    {
-        $this->checkAuthorizedCorrections();
-        // TODO: Zwischenfrage hinzufügen!
-        if (($id = $this->getGradeLevelId()) !== null) {
-            $this->getGradeLevel($id, true);//Permission check
-            $this->object_repo->deleteGradeLevel($id);
-            $this->corrector_service->recalculateGradeLevel();
-            $this->tpl->setOnScreenMessage("success", $this->plugin->txt("delete_grade_level_successful"), true);
-        } else {
-            $this->tpl->setOnScreenMessage("failure", $this->plugin->txt("delete_grade_level_failure"), true);
-        }
-        $this->ctrl->redirect($this, "showItems");
+        echo($this->renderer->renderAsync([
+            $modal
+        ]));
+        exit();
     }
 
     protected function checkRecordInObject(?GradeLevel $record, bool $throw_permission_error = true): bool
@@ -328,11 +341,6 @@ class GradesAdminGUI extends BaseGUI
             $this->checkRecordInObject($record, true);
         }
         return $record;
-    }
-
-    protected function setGradeLevelId(int $id)
-    {
-        $this->ctrl->setParameter($this, "grade_level", $id);
     }
 
     protected function getGradeLevelId(): ?int
@@ -414,7 +422,7 @@ class GradesAdminGUI extends BaseGUI
             $title,
             [
                 "title" => $tf->column()->text($this->plugin->txt('grade_level'))->withIsSortable($sortable),
-                "points" => $tf->column()->number($this->plugin->txt('min_points'))->withIsSortable($sortable),
+                "points" => $tf->column()->number($this->plugin->txt('min_points'))->withDecimals(2)->withIsSortable($sortable),
                 "passed" => $tf->column()->boolean($this->plugin->txt('passed'), $this->lng->txt('yes'), $this->lng->txt('no'))->withIsSortable($sortable),
                 "code" => $tf->column()->text($this->plugin->txt('grade_level_code'))->withIsSortable($sortable),
             ],
@@ -426,6 +434,11 @@ class GradesAdminGUI extends BaseGUI
     protected function copyGradeLevelModalAsync()
     {
         global $DIC;
+
+        if($this->corrector_service->authorizedCorrectionsExists()) {
+            exit();
+        }
+
         $query = $DIC->http()->wrapper()->query();
 
         if ($query->has("xlas_return_signal")) {

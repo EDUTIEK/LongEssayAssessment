@@ -102,6 +102,7 @@ class GradesAdminGUI extends BaseGUI
         $can_delete = true;
         $settings = $this->task_repo->getTaskSettingsById($this->object->getId());
         $authorized = $this->corrector_service->authorizedCorrectionsExists();
+        $modals = [];
 
         if (!$authorized) {
             $this->toolbar->setFormAction($this->ctrl->getFormAction($this));
@@ -109,6 +110,9 @@ class GradesAdminGUI extends BaseGUI
             $button->setUrl($this->ctrl->getLinkTarget($this, 'editItem'));
             $button->setCaption($this->plugin->txt("add_grade_level"), false);
             $this->toolbar->addButtonInstance($button);
+
+            $modals[] = $modal = $this->getCopyGradeLevelModal();
+            $this->toolbar->addComponent($this->uiFactory->button()->standard("Notenstufen kopieren", "#")->withOnClick($modal->getShowSignal()));
         }
 
         if ($settings->getCorrectionStart() !== null) {
@@ -122,9 +126,6 @@ class GradesAdminGUI extends BaseGUI
         } elseif (empty($item_data)) {
             $this->tpl->setOnScreenMessage("info", $this->plugin->txt("grade_levels_empty_notice"));
         }
-
-        $modal = $this->getCopyGradeLevelModal();
-        $this->toolbar->addComponent($this->uiFactory->button()->standard("Notenstufen kopieren", "#")->withOnClick($modal->getShowSignal()));
 
         $ptable = $this->uiFactory->table()->presentation(
             $this->plugin->txt('grade_levels'),
@@ -175,7 +176,7 @@ class GradesAdminGUI extends BaseGUI
             }
         );
 
-        $this->tpl->setContent($this->renderer->render([$ptable->withData($item_data), $modal]));
+        $this->tpl->setContent($this->renderer->render(array_merge([$ptable->withData($item_data)], $modals)));
     }
 
     protected function buildEditForm($data):\ILIAS\UI\Component\Input\Container\Form\Standard
@@ -428,6 +429,11 @@ class GradesAdminGUI extends BaseGUI
     protected function copyGradeLevelModalAsync()
     {
         global $DIC;
+
+        if ($this->corrector_service->authorizedCorrectionsExists()) {
+            exit();
+        }
+
         $query = $DIC->http()->wrapper()->query();
 
         if ($query->has("xlas_return_signal")) {
@@ -472,6 +478,11 @@ class GradesAdminGUI extends BaseGUI
     protected function copyGradeLevel()
     {
         global $DIC;
+
+        if ($this->corrector_service->authorizedCorrectionsExists()) {
+            exit();
+        }
+
         $query = $DIC->http()->wrapper()->query();
 
         if ($query->has("xlas_copy_ref")) {

@@ -494,7 +494,7 @@ class GradesAdminGUI extends BaseGUI
                 $new_grade_level->setId(0);
                 $this->object_repo->save($new_grade_level);
             }
-
+            $this->corrector_service->recalculateGradeLevel();
             $this->tpl->setOnScreenMessage("success", $this->plugin->txt('copy_grade_level_successful'), true);
             $this->ctrl->redirect($this, "showItems");
 

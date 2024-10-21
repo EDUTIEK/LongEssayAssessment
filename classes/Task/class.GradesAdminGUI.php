@@ -483,6 +483,11 @@ class GradesAdminGUI extends BaseGUI
     protected function copyGradeLevel()
     {
         global $DIC;
+
+        if ($this->corrector_service->authorizedCorrectionsExists()) {
+            exit();
+        }
+
         $query = $DIC->http()->wrapper()->query();
 
         if ($query->has("xlas_copy_ref")) {

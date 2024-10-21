@@ -110,7 +110,7 @@ class GradesAdminGUI extends BaseGUI
                 $this->ctrl->getLinkTarget($this, 'editItem')));
 
             $modals[] = $modal = $this->getCopyGradeLevelModal();
-            $this->toolbar->addComponent($this->uiFactory->button()->standard("Notenstufen kopieren", "#")->withOnClick($modal->getShowSignal()));
+            $this->toolbar->addComponent($this->uiFactory->button()->standard($this->plugin->txt("copy_grade_level"), "#")->withOnClick($modal->getShowSignal()));
         }
 
         if ($settings->getCorrectionStart() !== null) {

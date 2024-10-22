@@ -14,7 +14,8 @@
 	<div class="media">
 		<!-- BEGIN checkbox -->
 		<div class="media-left">
-			<input class="list_data_source_item" type="checkbox" name="cb[]" value="{CB_VALUE}" list_data_source_name="{LIST_DATA_SOURCE_NAME}">
+			<label class="sr-only" for="il-item-select-{CB_VALUE}">{TXT_SELECT}</label>
+			<input id="il-item-select-{CB_VALUE}" class="list_data_source_item" type="checkbox" name="cb[]" value="{CB_VALUE}" list_data_source_name="{LIST_DATA_SOURCE_NAME}">
 		</div>
 		<!-- END checkbox -->
 		<div class="media-left">

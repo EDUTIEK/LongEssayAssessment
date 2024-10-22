@@ -137,6 +137,7 @@ class ItemRenderer extends \ILIAS\UI\Implementation\Component\Item\Renderer
             $tpl->setCurrentBlock("checkbox");
             $tpl->setVariable("CB_VALUE", $component->getName());
             $tpl->setVariable("LIST_DATA_SOURCE_NAME", $title);
+            $tpl->setVariable("TXT_SELECT", $this->txt('select'));
             $tpl->parseCurrentBlock();
 
             if($lead == null) { // checkbox activates lead-block so lead_end has to be called

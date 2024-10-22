@@ -6,6 +6,7 @@ Plugin:
 - Activatable grade statistics for writers
 - Adds a graph and general visual fixes to grade stats
 - Copy grade level from other essays in grade level organisation
+- New submission type "PDF upload" for participants
 
 Writer and Corrector web apps:
 - Update of all frameworks and libraries 

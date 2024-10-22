@@ -1,6 +1,6 @@
 # Change Log
 
-## Version 3.3 (upcoming)
+## Version 3.3 (2024-10-23)
 Plugin:
 - GitHub workflow to create self-contained release packages
 - Activatable grade statistics for writers

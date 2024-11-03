@@ -143,8 +143,10 @@ class WriterAdminService extends BaseService
 
     /**
      * Get the writing of an essay as PDF string
-     */
-    public function getWritingAsPdf(ilObjLongEssayAssessment $object, Writer $repoWriter, bool $anonymous = false, bool $rawContent = false) : string
+     * @param bool $rawContent get the content without header/footer, for image creation or download by corrector
+     * @param bool $onlyText use just the written text of an essay. Don't use the uploaded PDF and don't create page images
+ */
+    public function getWritingAsPdf(ilObjLongEssayAssessment $object, Writer $repoWriter, bool $anonymous = false, bool $rawContent = false, bool $onlyText = false) : string
     {
         $context = new WriterContext();
         $context->init((string) $repoWriter->getUserId(), (string) $object->getRefId());
@@ -156,7 +158,7 @@ class WriterAdminService extends BaseService
         $writtenEssay = $context->getWrittenEssay();
 
         $service = new Service($context);
-        return $service->getWritingAsPdf($writingTask, $writtenEssay, $rawContent);
+        return $service->getWritingAsPdf($writingTask, $writtenEssay, $rawContent, $onlyText);
     }
 
 
@@ -414,7 +416,7 @@ class WriterAdminService extends BaseService
         $essay_repo = LongEssayAssessmentDI::getInstance()->getEssayRepo();
         
         if (empty($essay->getPdfVersion()) && !empty($essay->getWrittenText())) {
-            $content = $this->getWritingAsPdf($object, $writer, true, true);
+            $content = $this->getWritingAsPdf($object, $writer, true, true, true);
             $stream = Streams::ofString($content);
             $file_id = $this->resource_storage->manage()->stream($stream, new PDFVersionResourceStakeholder(), $this->plugin->txt('pdf_from_text'));
             $essay->setPdfVersion((string) $file_id);
@@ -460,7 +462,7 @@ class WriterAdminService extends BaseService
             if ($with_text && !empty($essay->getWrittenText())) {
                 $fs = $this->dic->filesystem()->temp();
                 $writing_pdf = 'xlas/' . (new UUID())->uuid4AsString() . '.pdf';
-                $fs->put($writing_pdf, $this->getWritingAsPdf($object, $writer, true, true));
+                $fs->put($writing_pdf, $this->getWritingAsPdf($object, $writer, true, true, true));
                 $pdfs[] = $fs->readStream($writing_pdf)->detach();
             }
             

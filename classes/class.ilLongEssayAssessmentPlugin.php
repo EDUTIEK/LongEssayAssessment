@@ -230,6 +230,23 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
         return $di->getSystemRepo()->getPluginConfig();
     }
 
+    /**
+     * Get the path to the ghostscript executable
+     */
+    public function getPathToGhostscript() : string
+    {
+        if (!empty($this->getConfig()->getPathToGhostscript())) {
+            $path = $this->getConfig()->getPathToGhostscript();
+        }
+        elseif (defined('PATH_TO_GHOSTSCRIPT') && !empty(PATH_TO_GHOSTSCRIPT)) {
+            $path = PATH_TO_GHOSTSCRIPT;
+        }
+        else {
+            $path = '/usr/bin/gs';
+        }
+
+        return (is_executable($path) ? $path : '');
+    }
 
     /**
      * Check if the current user has administrative access

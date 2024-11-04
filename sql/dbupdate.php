@@ -2257,3 +2257,14 @@ if (!$ilDB->tableColumnExists('xlas_task_settings','task_type')) {
     ));
 }
 ?>
+<#111>
+<?php
+if (!$ilDB->tableColumnExists('xlas_plugin_config', 'path_to_ghostscript')) {
+    $ilDB->addTableColumn('xlas_plugin_config', 'path_to_ghostscript', array(
+        'notnull' => '0',
+        'type' => 'text',
+        'length' => 100,
+        'default' => null
+    ));
+}
+?>

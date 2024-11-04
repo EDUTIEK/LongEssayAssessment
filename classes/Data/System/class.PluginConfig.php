@@ -26,7 +26,8 @@ class PluginConfig extends RecordData
         'eskript_key' => 'text',
         'primary_color' => 'text',
         'primary_text_color' => 'text',
-        'simulate_offline' => 'integer'
+        'simulate_offline' => 'integer',
+        'path_to_ghostscript' => 'text'
     ];
 
     protected int $id = 0;
@@ -37,6 +38,7 @@ class PluginConfig extends RecordData
     protected ?string $primary_color = '04427E';
     protected ?string $primary_text_color = 'FFFFFF';
     protected int $simulate_offline = 0;
+    protected ?string $path_to_ghostscript = null;
 
 
     public static function model()
@@ -117,5 +119,16 @@ class PluginConfig extends RecordData
     public function setSimulateOffline(bool $simulate_offline): void
     {
         $this->simulate_offline = (int) $simulate_offline;
+    }
+
+    public function getPathToGhostscript(): string
+    {
+        return (string) $this->path_to_ghostscript;
+    }
+
+    public function setPathToGhostscript(string $path_to_ghostscript): PluginConfig
+    {
+        $this->path_to_ghostscript = $path_to_ghostscript;
+        return $this;
     }
 }

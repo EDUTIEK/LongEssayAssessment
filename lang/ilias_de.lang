@@ -626,3 +626,7 @@ writer_upload_pdf_deleted#:#Die PDF-Datei wurde erfolgreich entfernt.
 copy_grade_level#:#Notenstufen kopieren
 copy_grade_level_successful#:#Notenstufe erfolgreich kopiert.
 copy_grade_level_info#:#Beim Kopieren der Notenstufen werden die bestehenden Notenstufen ersetzt.
+path_to_ghostscript#:#Pfad zu Ghostscript
+path_to_ghostscript_info#:#Ghostscript wird benötigt, um hochgeladene PDF-Dateien zu verarbeiten. Konfigurieren Sie hier den Pfad zum direkten Aufruf von ghostscript auf Ihrem Server. Als Fallback wird ein für die ILIAS-Vorschau konfigurierter Pfad oder '/usr/bin/gs' als Standard verwendet. Falls der Pfad nicht ausführbar ist, wird Ghostscript über die PHP-Erweiterung Imagick verwendet. Das kann bei großen PDF-Dateien zu Ressourcen-Problemen führen.
+ghostscript_used#:#Aktuell verwendet: %s
+ghostscript_imagick#:#PHP-Erweiterung Imagick

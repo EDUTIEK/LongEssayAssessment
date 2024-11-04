@@ -481,7 +481,7 @@ class WriterAdminService extends BaseService
             $this->temp_fs->createDir($relative_workdir);
             $absolute_workdir = $this->file_helper->getAbsoluteTempDir() . '/' . $relative_workdir;
 
-            $page_images = $service->createPageImagesFromPdfs($pdfs, PATH_TO_GHOSTSCRIPT, $absolute_workdir);
+            $page_images = $service->createPageImagesFromPdfs($pdfs, $this->plugin->getPathToGhostscript(), $absolute_workdir);
             $repo_images = [];
 
             $page = 1;

@@ -98,6 +98,7 @@ class ilLongEssayAssessmentConfigGUI extends ilPluginConfigGUI
             $this->config->setPrimaryColor((string) $form->getInput('primary_color'));
             $this->config->setPrimaryTextColor((string) $form->getInput('primary_text_color'));
             $this->config->setSimulateOffline((bool) $form->getInput('simulate_offline'));
+            $this->config->setPathToGhostscript((string) $form->getInput('path_to_ghostscript'));
 
             $di = LongEssayAssessmentDI::getInstance();
             $di->getSystemRepo()->save($this->config);
@@ -129,6 +130,15 @@ class ilLongEssayAssessmentConfigGUI extends ilPluginConfigGUI
         $primary_text_color->setInfo($this->plugin->txt('primary_text_color_info'));
         $primary_text_color->setValue($this->config->getPrimaryTextColor());
         $form->addItem($primary_text_color);
+
+        $ghostscript = $this->plugin->getPathToGhostscript();
+        $used_info = sprintf($this->plugin->txt('ghostscript_used'),
+            '<strong>' . (empty($ghostscript) ? $this->plugin->txt('ghostscript_imagick') : $ghostscript) . '</strong>');
+
+        $path_to_ghostscript = new ilTextInputGUI($this->plugin->txt('path_to_ghostscript'), 'path_to_ghostscript');
+        $path_to_ghostscript->setInfo($this->plugin->txt('path_to_ghostscript_info'). '<br>' . $used_info);
+        $path_to_ghostscript->setValue($this->config->getPathToGhostscript());
+        $form->addItem($path_to_ghostscript);
 
         $developer = new ilFormSectionHeaderGUI();
         $developer->setTitle($this->plugin->txt('developer_settings'));

@@ -63,13 +63,9 @@ A correct **time zone** must be configured in ILIAS for the processing of time i
 }
 ```
 
-ImageMagick may run into resource limits when uploading larger PDF files of participant submissions. A direct processing by **ghostscript** is better. To do this, the path to ghostscript must be set in the ILIAS setup via the `config.json` file:
+## Plugin Configuration
 
-```
-"preview" : {
-    "path_to_ghostscript" : "/usr/bin/gs"
-},
-```
+ImageMagick may run into resource limits when uploading larger PDF files of participant submissions. A direct processing by **ghostscript** is better. You can set the path to the ghostscript executable in the plugin configuration. The path used by ILIAS for file previews or `/usr/bin/gs` is used as default when this path is not configured. If ghostscript can't be used directly, the PDF file processing will use ImageMagick.
 
 
 ## Installation and Update

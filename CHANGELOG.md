@@ -1,5 +1,12 @@
 # Change Log
 
+## Version 3.4 (upcoming)
+Plugin:
+- Configure path to ghostscript in the plugin (with fallback)
+
+Bug fixes:
+- Avoid endless loop when PDF file is uploaded in addition to written text
+
 ## Version 3.3 (2024-10-23)
 Plugin:
 - GitHub workflow to create self-contained release packages

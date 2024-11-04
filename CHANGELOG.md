@@ -1,6 +1,6 @@
 # Change Log
 
-## Version 3.4 (upcoming)
+## Version 3.4 (2024-11-04)
 Plugin:
 - Configure path to ghostscript in the plugin (with fallback)
 

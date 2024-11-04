@@ -418,7 +418,7 @@ class WriterAdminService extends BaseService
         if (empty($essay->getPdfVersion()) && !empty($essay->getWrittenText())) {
             $content = $this->getWritingAsPdf($object, $writer, true, true, true);
             $stream = Streams::ofString($content);
-            $file_id = $this->resource_storage->manage()->stream($stream, new PDFVersionResourceStakeholder(), $this->plugin->txt('pdf_from_text'));
+            $file_id = $this->resource_storage->manage()->stream($stream, new PDFVersionResourceStakeholder(), $this->plugin->txt('pdf_from_text').'.pdf');
             $essay->setPdfVersion((string) $file_id);
             $essay_repo->save($essay);
             $this->authorizeWriting($essay, $this->dic->user()->getId());

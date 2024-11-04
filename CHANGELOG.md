@@ -1,5 +1,9 @@
 # Change Log
 
+## Upcoming version
+Bug fixes:
+- Fix missing download extension of converted text submission
+
 ## Version 3.4 (2024-11-04)
 Plugin:
 - Configure path to ghostscript in the plugin (with fallback)

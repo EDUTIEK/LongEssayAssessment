@@ -95,8 +95,7 @@ class WriterUploadGUI extends BaseGUI
                     $this->localDI->getUIService()->getMaxFileSizeString()
                 )->withAcceptedMimeTypes(['application/pdf'])
             ]
-        )
-         ->withSubmitLabel($this->lng->txt('upload'));
+        );
 
         $components = [$this->uiFactory->panel()->standard(
             $this->plugin->txt($essay->getPdfVersion() === null ? 'upload_file' : 'replace_file'),

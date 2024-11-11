@@ -70,6 +70,7 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
      */
     protected function afterConstructor()
     {
+        ilLongEssayAssessmentPlugin::initAutoload();
         $this->plugin = ilLongEssayAssessmentPlugin::getInstance();
 
         // Description is not shown by ilObjectPluginGUI
@@ -194,6 +195,12 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                     if ($this->object->canViewWriterStatistics()) {
                         $this->activateTab('tab_writer', 'tab_writer_statistic');
                         $this->ctrl->forwardCommand(new \ILIAS\Plugin\LongEssayAssessment\Writer\WriterStatisticsGUI($this));
+                    }
+                    break;
+                case 'ilias\plugin\longessayassessment\writer\writeruploadgui':
+                    if ($this->object->canViewWriterScreen()) {
+                        $this->activateTab('tab_writer', 'tab_writer_start');
+                        $this->ctrl->forwardCommand(new \ILIAS\Plugin\LongEssayAssessment\Writer\WriterUploadGUI($this));
                     }
                     break;
                 case 'ilias\plugin\longessayassessment\corrector\correctorstartgui':

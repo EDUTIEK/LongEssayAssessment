@@ -11,6 +11,7 @@ use ILIAS\Plugin\LongEssayAssessment\UI\PluginRenderer;
 use ILIAS\Plugin\LongEssayAssessment\WriterAdmin\PDFVersionResourceStakeholder;
 use ILIAS\Plugin\LongEssayAssessment\WriterAdmin\EssayImageResourceStakeholder;
 use ILIAS\Plugin\LongEssayAssessment\UI\Implementation\StatisticRenderer;
+use ILIAS\Plugin\LongEssayAssessment\UI\Implementation\ViewerRenderer;
 
 /**
  * Basic plugin file
@@ -302,6 +303,14 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
                     $dic["ui.pathresolver"]
                 ),
                 new StatisticRenderer(
+                    $dic["ui.factory"],
+                    $dic["xlas.custom_template_factory"],
+                    $dic["lng"],
+                    $dic["ui.javascript_binding"],
+                    $dic["refinery"],
+                    $dic["ui.pathresolver"]
+                ),
+                new ViewerRenderer(
                     $dic["ui.factory"],
                     $dic["xlas.custom_template_factory"],
                     $dic["lng"],

@@ -80,7 +80,7 @@ class WriterUploadGUI extends BaseGUI
     protected function uploadPdf()
     {
         if (!$this->object->canWrite()) {
-            $this->tpl->setOnScreenMessage(Tpl::MESSAGE_TYPE_FAILURE, $this->lng->txt('permission_denied'), true);
+            $this->tpl->setOnScreenMessage('failure', $this->lng->txt('permission_denied'), true);
             $this->ctrl->redirectToURL($this->getBackLink());
         }
 
@@ -130,7 +130,7 @@ class WriterUploadGUI extends BaseGUI
                 $this->writer_admin_service->handlePDFVersionInput($this->object->getRefId(), $essay, $file_id);
                 $this->ctrl->redirect($this, 'reviewPdf');
             } else {
-                $this->tpl->setOnScreenMessage(Tpl::MESSAGE_TYPE_FAILURE, $this->plugin->txt("writer_upload_pdf_missing"));
+                $this->tpl->setOnScreenMessage('failure', $this->plugin->txt("writer_upload_pdf_missing"));
             }
         }
 
@@ -152,7 +152,7 @@ class WriterUploadGUI extends BaseGUI
     protected function reviewPdf()
     {
         if (!$this->object->canWrite() && !$this->object->canReviewWrittenEssay()) {
-            $this->tpl->setOnScreenMessage(Tpl::MESSAGE_TYPE_FAILURE, $this->lng->txt('permission_denied'), true);
+            $this->tpl->setOnScreenMessage('failure', $this->lng->txt('permission_denied'), true);
             $this->ctrl->redirectToURL($this->getBackLink());
         }
 
@@ -164,11 +164,11 @@ class WriterUploadGUI extends BaseGUI
             $resource = $this->storage->manage()->getResource($identifier);
         }
         if (!isset($resource)) {
-            $this->tpl->setOnScreenMessage(Tpl::MESSAGE_TYPE_FAILURE, $this->plugin->txt('pdf_version_not_found'), true);
+            $this->tpl->setOnScreenMessage('failure', $this->plugin->txt('pdf_version_not_found'), true);
             $this->ctrl->redirectToURL($this->getBackLink());
         }
 
-        $this->tpl->setOnScreenMessage(Tpl::MESSAGE_TYPE_INFO, $this->plugin->txt('writer_authorize_pdf_info'));
+        $this->tpl->setOnScreenMessage('info', $this->plugin->txt('writer_authorize_pdf_info'));
         $components = [];
         $components[] = $this->uiFactory->panel()->standard(
             $this->plugin->txt('writer_review_pdf'),
@@ -194,13 +194,13 @@ class WriterUploadGUI extends BaseGUI
     protected function authorizePdf()
     {
         if (!$this->object->canWrite() && !$this->object->canReviewWrittenEssay()) {
-            $this->tpl->setOnScreenMessage(Tpl::MESSAGE_TYPE_FAILURE, $this->lng->txt('permission_denied'), true);
+            $this->tpl->setOnScreenMessage('failure', $this->lng->txt('permission_denied'), true);
             $this->ctrl->redirectToURL($this->getBackLink());
         }
 
         $essay = $this->writer_admin_service->getEssayForWriter($this->writer);
         if ($essay->getPdfVersion() === null) {
-            $this->tpl->setOnScreenMessage(Tpl::MESSAGE_TYPE_FAILURE, $this->plugin->txt('pdf_version_not_found'), true);
+            $this->tpl->setOnScreenMessage('failure', $this->plugin->txt('pdf_version_not_found'), true);
             $this->ctrl->redirectToURL($this->getBackLink());
         }
         $this->writer_admin_service->authorizeWriting($essay, $this->writer->getUserId());
@@ -228,7 +228,7 @@ class WriterUploadGUI extends BaseGUI
         if ($essay->getPdfVersion() !== null) {
             $this->localDI->services()->common()->fileHelper()->deliverResource($essay->getPdfVersion(), 'attachment');
         } else {
-            $this->tpl->setOnScreenMessage(Tpl::MESSAGE_TYPE_FAILURE, $this->plugin->txt("pdf_version_not_found"), true);
+            $this->tpl->setOnScreenMessage('failure', $this->plugin->txt("pdf_version_not_found"), true);
             $this->ctrl->redirectToURL($this->getBackLink());
         }
     }

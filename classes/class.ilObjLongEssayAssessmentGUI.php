@@ -72,6 +72,7 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
      */
     protected function afterConstructor() : void
     {
+        ilLongEssayAssessmentPlugin::initAutoload();
         $this->plugin = ilLongEssayAssessmentPlugin::getInstance();
 
         // Description is not shown by ilObjectPluginGUI

@@ -7,8 +7,9 @@ on:
 
 jobs:
   build:
+    permissions: write-all
     env:
-        ArchiveName: LongEssayAssessment_Release-
+      ArchiveName: LongEssayAssessment_Release-
 
     runs-on: ubuntu-latest
 

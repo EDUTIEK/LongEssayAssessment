@@ -11,6 +11,7 @@ use ILIAS\Plugin\LongEssayAssessment\UI\PluginRenderer;
 use ILIAS\Plugin\LongEssayAssessment\WriterAdmin\PDFVersionResourceStakeholder;
 use ILIAS\Plugin\LongEssayAssessment\WriterAdmin\EssayImageResourceStakeholder;
 use ILIAS\Plugin\LongEssayAssessment\UI\Implementation\StatisticRenderer;
+use ILIAS\Plugin\LongEssayAssessment\UI\Implementation\ViewerRenderer;
 
 /**
  * Basic plugin file
@@ -50,10 +51,26 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
     protected function init() : void
     {
         parent::init();
-        require_once __DIR__ . '/../vendor/autoload.php';
 
         $di = LongEssayAssessmentDI::getInstance();
         $di->init($this);
+    }
+
+    /**
+     * Init the local autoload of all external plugin dependencies
+     * This is separated from init() to avoid conflicts with other package versions in ILIAS
+     * Note: init() is called from the ilPlugin constructor in ILIAS initialisation
+     *
+     * The local autoload needs only to be initialized:
+     * - for the GUI of the plugin
+     * - for the entry points of REST calls
+     * - maybe later for a cron job
+     *
+     * @return void
+     */
+    public static function initAutoload() : void
+    {
+        require_once __DIR__ . '/../vendor/autoload.php';
     }
 
     /**
@@ -323,6 +340,15 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
                     $dic["ui.data_factory"]
                 ),
                 new StatisticRenderer(
+                    $dic["ui.factory"],
+                    $dic["xlas.custom_template_factory"],
+                    $dic["lng"],
+                    $dic["ui.javascript_binding"],
+                    $dic["refinery"],
+                    $dic["ui.pathresolver"],
+                    $dic["ui.data_factory"]
+                ),
+                new ViewerRenderer(
                     $dic["ui.factory"],
                     $dic["xlas.custom_template_factory"],
                     $dic["lng"],

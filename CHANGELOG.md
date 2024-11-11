@@ -1,11 +1,21 @@
 # Change Log
-New features:
-- plugin: activatable grade statistics for writers
-- plugin: adds a graph and general visual fixes to grade stats
-- plugin: copy grade level from other essays in grade level organisation
+
+## Version 2.5 (2024-11-11)
+Plugin:
+- GitHub workflow to create self-contained release packages
+- Activatable grade statistics for writers
+- Adds a graph and general visual fixes to grade stats
+- Copy grade level from other essays in grade level organisation
+- New submission type "PDF upload" for participants
+
+Writer and Corrector web apps:
+- Update of all frameworks and libraries
+- update of TinyMCE to version 7.3.0
+- Accessibility improvements (structure, tab sequence, hotkeys, labels)
+- Word / character counter in writer app
 
 Bug fixes:
-- plugin: fix counting of not attended assessments in grade statistics
+- Fix counting of not attended assessments in grade statistic
 
 ## Version 2.4 (2024-08-01)
 Bug fixes:

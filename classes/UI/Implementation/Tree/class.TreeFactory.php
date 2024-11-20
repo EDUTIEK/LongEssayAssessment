@@ -32,7 +32,6 @@ class TreeFactory
         ?int $start_ref_id,
         ?int $current_ref_id,
         bool $is_subtree
-
     ): RepositoryTree {
         return new RepositoryTree(
             $this->tree_factory,

@@ -18,7 +18,6 @@ use ILIAS\Data\Order;
 use ILIAS\UI\Component\Table\DataRetrieval;
 use ILIAS\UI\Component\Table\DataRowBuilder;
 use ILIAS\UI\Implementation\Component\Table\Table;
-use ILIAS\Plugin\LongEssayAssessment\UI\CopyLongEssayAssessmentExplorer;
 use ILIAS\Filesystem\Stream\Stream;
 use ILIAS\Filesystem\Stream\Streams;
 use ILIAS\UI\Component\Modal\RoundTrip;
@@ -355,11 +354,10 @@ class GradesAdminGUI extends BaseGUI
 
     protected function getCopyGradeLevelModal(
         ?int $start_ref_id = null,
-        ?int $current_ref_id = null,
         bool $is_subtree = false,
         ?ReplaceSignal $replace_signal = null
-    ): RoundTrip
-    {
+    ): RoundTrip {
+        $current_ref_id = $this->object->getRefId();
         $tree = $this->localDI->getUIFactory()->tree()->repository(
             $start_ref_id,
             $current_ref_id,
@@ -368,8 +366,8 @@ class GradesAdminGUI extends BaseGUI
         $tree->setVisibleTypes(array_merge(['xlas'], $tree->getRepoContainerTypes()));
         $tree->setClickableTypes(['xlas']);
 
-        $tree->setClickableCallback(function ($ref_id, $type) {
-            return $this->access->checkAccess('maintain_task', '', $ref_id, $type);
+        $tree->setClickableCallback(function ($ref_id, $type) use ($current_ref_id) {
+            return $this->access->checkAccess('maintain_task', '', $ref_id, $type) && $ref_id !== $current_ref_id;
         });
 
         $modal = $this->uiFactory->modal()->roundtrip($this->plugin->txt("copy_grade_level"), [
@@ -414,10 +412,11 @@ class GradesAdminGUI extends BaseGUI
             $replace_signal = new ReplaceSignal($replace_signal_str);
         }
 
-        $modal = $this->getCopyGradeLevelModal($start_ref_id, $current_ref_id, true, $replace_signal);
+        $modal = $this->getCopyGradeLevelModal($start_ref_id, true, $replace_signal);
 
         $this->http->saveResponse($this->http->response()->withBody(
-            Streams::ofString( $this->renderer->renderAsync([$modal->getContent()]))));
+            Streams::ofString($this->renderer->renderAsync([$modal->getContent()]))
+        ));
         $this->http->sendResponse();
         $this->http->close();
     }
@@ -535,7 +534,7 @@ class GradesAdminGUI extends BaseGUI
             if ($query->has("xlas_reload_ref")) {
                 $ref_id = $query->retrieve("xlas_reload_ref", $this->refinery->kindlyTo()->int());
             }
-            $modal = $this->getCopyGradeLevelModal(null, $ref_id, false, $replace_signal);
+            $modal = $this->getCopyGradeLevelModal(null, false, $replace_signal);
         }
 
         echo($this->renderer->renderAsync($modal));

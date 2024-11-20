@@ -11,7 +11,6 @@ use ILIAS\UI\Component\ReplaceSignal;
 use ILIAS\UI\Component\Tree\Tree;
 use ILIAS\UI\Component\Symbol\Icon\Icon;
 
-
 class RepositoryTree implements TreeRecursion
 {
     protected TreeFactory $tree_factory;
@@ -41,7 +40,6 @@ class RepositoryTree implements TreeRecursion
         \ilTree $repo_tree,
         \ilAccessHandler $access,
         \ilLanguage $lng,
-
         ?int $start_ref_id,
         ?int $current_ref_id,
         bool $is_subtree,
@@ -149,8 +147,7 @@ class RepositoryTree implements TreeRecursion
             }
             return $this->tree_factory->expandable('', $this)
                     ->withData($records)->withIsSubTree(true);
-        }
-        else {
+        } else {
             $record = $this->repo_tree->getNodeData($this->start_ref_id);
             return $this->tree_factory->expandable($record['title'], $this)
                     ->withData([$record]);
@@ -186,8 +183,7 @@ class RepositoryTree implements TreeRecursion
         NodeFactory $factory,
         $record,
         $environment = null
-    ): Node
-    {
+    ): Node {
         $ref_id = (int) $record['ref_id'];
         $obj_id = (int) $record['obj_id'];
         $type = (string) $record['type'];

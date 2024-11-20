@@ -10,7 +10,6 @@ jobs:
     permissions: write-all
     env:
       ArchiveName: LongEssayAssessment_Release-
-
     runs-on: ubuntu-latest
 
     steps:
@@ -31,7 +30,6 @@ jobs:
 
       - name: Prepare application for packaging
         run: |
-          mkdir -p build
           rsync -av --exclude='.github/' --exclude='.git/' ./ LongEssayAssessment/
 
       - name: Create ZIP package
@@ -41,7 +39,7 @@ jobs:
 
       - name: Create TAR.GZ package
         run: |
-          tar -czf ./${{ env.ArchiveName }}${{ steps.removev.outputs.ref_name }}.tar.gz ./LongEssayAssessment
+          tar -czf ./${{ env.ArchiveName }}${{ steps.removev.outputs.ref_name }}.tar.gz LongEssayAssessment
         shell: bash
 
       - name: Create Release
@@ -61,7 +59,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./${{ env.ArchiveName }}${{ steps.removev.outputs.ref_name }}.zip
           asset_name: ${{ env.ArchiveName }}${{ steps.removev.outputs.ref_name }}.zip
           asset_content_type: application/zip
@@ -72,7 +70,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./${{ env.ArchiveName }}${{ steps.removev.outputs.ref_name }}.tar.gz
           asset_name: ${{ env.ArchiveName }}${{ steps.removev.outputs.ref_name }}.tar.gz
           asset_content_type: application/gzip

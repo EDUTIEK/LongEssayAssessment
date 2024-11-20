@@ -25,6 +25,9 @@ abstract class BaseGUI
     /** @var Container */
     protected $dic;
 
+    /** @var \ilAccessHandler */
+    protected $access;
+
     /** @var \ilCtrl */
     protected $ctrl;
 
@@ -94,6 +97,7 @@ abstract class BaseGUI
 
         // ILIAS dependencies
         $this->dic = $DIC;
+        $this->access = $DIC->access();
         $this->ctrl = $this->dic->ctrl();
         $this->tabs = $this->dic->tabs();
         $this->toolbar = $this->dic->toolbar();

@@ -19,6 +19,9 @@ use ILIAS\UI\Component\Table\DataRetrieval;
 use ILIAS\UI\Component\Table\DataRowBuilder;
 use ILIAS\UI\Implementation\Component\Table\Table;
 use ILIAS\Plugin\LongEssayAssessment\UI\CopyLongEssayAssessmentExplorer;
+use ILIAS\Filesystem\Stream\Stream;
+use ILIAS\Filesystem\Stream\Streams;
+use ILIAS\UI\Component\Modal\RoundTrip;
 
 /**
  * Resources Administration
@@ -31,6 +34,7 @@ class GradesAdminGUI extends BaseGUI
     protected TaskRepository $task_repo;
     protected ObjectRepository $object_repo;
     protected CorrectorAdminService $corrector_service;
+    protected \ilTree $tree;
 
     public function __construct(\ilObjLongEssayAssessmentGUI $objectGUI)
     {
@@ -38,6 +42,7 @@ class GradesAdminGUI extends BaseGUI
         $this->corrector_service = $this->localDI->getCorrectorAdminService($this->object->getId());
         $this->object_repo = $this->localDI->getObjectRepo();
         $this->task_repo = $this->localDI->getTaskRepo();
+        $this->tree = $this->dic->repositoryTree();
     }
 
     /**
@@ -53,6 +58,7 @@ class GradesAdminGUI extends BaseGUI
             case 'showItems':
             case "editItem":
             case 'deleteItem':
+            case 'copyGradeLevelModalTree':
             case 'copyGradeLevelModalAsync':
             case 'copyGradeLevel':
                 $this->$cmd();
@@ -347,23 +353,76 @@ class GradesAdminGUI extends BaseGUI
         }
     }
 
-    protected function getCopyGradeLevelModal(?ReplaceSignal $replace_signal = null)
+    protected function getCopyGradeLevelModal(
+        ?int $start_ref_id = null,
+        ?int $current_ref_id = null,
+        bool $is_subtree = false,
+        ?ReplaceSignal $replace_signal = null
+    ): RoundTrip
     {
-        $explorer = new CopyLongEssayAssessmentExplorer($this, "showItems", $this->object);
-        $tree = $explorer->getTreeComponent();
-        $modal = $this->uiFactory->modal()->roundtrip($this->plugin->txt("copy_grade_level"), $tree);
+        $tree = $this->localDI->getUIFactory()->tree()->repository(
+            $start_ref_id,
+            $current_ref_id,
+            $is_subtree
+        );
+        $tree->setVisibleTypes(array_merge(['xlas'], $tree->getRepoContainerTypes()));
+        $tree->setClickableTypes(['xlas']);
 
+        $tree->setClickableCallback(function ($ref_id, $type) {
+            return $this->access->checkAccess('maintain_task', '', $ref_id, $type);
+        });
+
+        $modal = $this->uiFactory->modal()->roundtrip($this->plugin->txt("copy_grade_level"), [
+            $tree->getComponent()
+        ]);
         if ($replace_signal === null) {
             $replace_signal = $modal->getReplaceSignal();
         }
 
-        $explorer->setOnclick($replace_signal, function ($record) use ($replace_signal) {
-            $this->ctrl->setParameter($this, "xlas_copy_ref", $record["ref_id"]);
+        $tree->setExpandCallback(function ($ref_id) use ($replace_signal) {
+            $this->ctrl->setParameter($this, "xlas_start_ref", $ref_id);
+            $this->ctrl->setParameter($this, "xlas_return_signal", $replace_signal);
+            return $this->ctrl->getLinkTarget($this, "copyGradeLevelModalTree", null, true);
+        });
+
+        $tree->setOnclickCallback(function ($ref_id) use ($replace_signal) {
+            $this->ctrl->setParameter($this, "xlas_copy_ref", $ref_id);
             $this->ctrl->setParameter($this, "xlas_return_signal", $replace_signal);
             return $this->ctrl->getLinkTarget($this, "copyGradeLevelModalAsync", null, true);
         });
+
+        $tree->setOnclickSignal($replace_signal);
+
         return $modal;
     }
+
+
+    protected function copyGradeLevelModalTree()
+    {
+        $request_wrapper = $this->http->wrapper()->query();
+        $start_ref_id = null;
+        $current_ref_id = null;
+        if ($request_wrapper->has('xlas_start_ref')) {
+            $start_ref_id = $request_wrapper->retrieve('xlas_start_ref', $this->refinery->kindlyTo()->int());
+        }
+        if ($request_wrapper->has('xlas_current_ref')) {
+            $current_ref_id = $request_wrapper->retrieve('xlas_current_ref', $this->refinery->kindlyTo()->int());
+        }
+        $replace_signal = null;
+        if ($request_wrapper->has('xlas_return_signal')) {
+            $replace_signal_str = $request_wrapper->retrieve('xlas_return_signal', $this->refinery->kindlyTo()->string());
+            $replace_signal = new ReplaceSignal($replace_signal_str);
+        }
+
+        $modal = $this->getCopyGradeLevelModal($start_ref_id, $current_ref_id, true, $replace_signal);
+
+        $this->http->saveResponse($this->http->response()->withBody(
+            Streams::ofString( $this->renderer->renderAsync([$modal->getContent()]))));
+        $this->http->sendResponse();
+        $this->http->close();
+    }
+
+
 
     protected function buildGradeLevelTable(array $grade_levels, string $title = "", bool $small_view = true): \ILIAS\UI\Component\Table\Data
     {
@@ -449,11 +508,14 @@ class GradesAdminGUI extends BaseGUI
             $ref_id = $query->retrieve("xlas_copy_ref", $this->refinery->kindlyTo()->int());
             $obj_id = \ilObject2::_lookupObjectId($ref_id);
             $this->ctrl->clearParameterByClass(get_class($this), "xlas_copy_ref");
-            $items = [];
+
             $grade_levels = $this->object_repo->getGradeLevelsByObjectId($obj_id);
             $title = $this->plugin->txt("grade_levels") . ": " . \ilObject2::_lookupTitle($obj_id);
+
             $this->ctrl->saveParameter($this, "xlas_return_signal");
+            $this->ctrl->setParameter($this, "xlas_reload_ref", $ref_id);
             $reload = $this->ctrl->getLinkTarget($this, "copyGradeLevelModalAsync", null, true);
+
             $this->ctrl->clearParameterByClass(get_class($this), "xlas_return_signal");
             $this->ctrl->setParameter($this, "xlas_copy_ref", $ref_id);
             $copy = $this->ctrl->getLinkTarget($this, "copyGradeLevel");
@@ -468,7 +530,12 @@ class GradesAdminGUI extends BaseGUI
                 $this->uiFactory->button()->standard($this->lng->txt('back'), "#")->withOnClick($replace_signal->withAsyncRenderUrl($reload))
             ]);
         } else {
-            $modal = $this->getCopyGradeLevelModal($replace_signal);
+            // this should expand the tree up to the selected node
+            $ref_id = null;
+            if ($query->has("xlas_reload_ref")) {
+                $ref_id = $query->retrieve("xlas_reload_ref", $this->refinery->kindlyTo()->int());
+            }
+            $modal = $this->getCopyGradeLevelModal(null, $ref_id, false, $replace_signal);
         }
 
         echo($this->renderer->renderAsync($modal));

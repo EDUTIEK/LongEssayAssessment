@@ -13,6 +13,8 @@ class UIService
         "mini" => array("strong", "em", "u", "ol", "li", "ul", "blockquote", "a", "p", "span", "br"), // #13286/#17981
         "standard" => array("strong", "em", "u", "ol", "li", "ul", "p", "div",
             "i", "b", "code", "sup", "sub", "pre", "strike", "gap"),
+        "standard_headlines" => array("strong", "em", "u", "ol", "li", "ul", "p", "div",
+            "i", "b", "code", "sup", "sub", "pre", "strike", "gap", "h1", "h2", "h3", "h4", "h5", "h6"),
         "extended" => array(
             "a","blockquote","br","cite","code","div","em","h1","h2","h3",
             "h4","h5","h6","hr","li","ol","p",
@@ -81,7 +83,7 @@ class UIService
      * @param int $width
      * @return void
      */
-    public function addTinyMCEToTextareas(string $mode = "standard", int $width = 795): void
+    public function addTinyMCEToTextareas(string $mode = "standard_headlines", int $width = 795): void
     {
         if(!array_key_exists($mode, $this->rte_tag_set)) {
             return;
@@ -114,7 +116,7 @@ class UIService
      * @param string $mode
      * @return \ILIAS\Refinery\Transformation
      */
-    public function stringTransformationByRTETagSet(string $mode = "standard")
+    public function stringTransformationByRTETagSet(string $mode = "standard_headlines")
     {
         $allowed_tags = $this->rte_tag_set[$mode] ?? [];
         $allowed_tags[] = "span";//some styles are made with spans not with tags

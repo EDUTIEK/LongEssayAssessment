@@ -99,6 +99,18 @@ class LongEssayAssessmentDI
             );
         };
 
+        $dic["xlas.table_factory"] = function (\ILIAS\DI\Container $dic) {
+            return new \ILIAS\Plugin\LongEssayAssessment\UI\Table\Factory(
+                $dic->ui()->factory(),
+                $dic["xlas.custom_factory"],
+                $dic->uiService(),
+                $dic->ui()->renderer(),
+                $dic->refinery(),
+                $dic->http()->wrapper()->query(),
+                $dic->http()->request()
+            );
+        };
+
         $dic["xlas.system_repository"] = function (\ILIAS\DI\Container $dic) {
             return new SystemRepository($dic->database(), $dic->logger()->xlas());
         };
@@ -229,6 +241,11 @@ class LongEssayAssessmentDI
     public function getUIFactory(): Factory
     {
         return $this->container["xlas.custom_factory"];
+    }
+
+    public function getTableFactory(): \ILIAS\Plugin\LongEssayAssessment\UI\Table\Factory
+    {
+        return $this->container["xlas.table_factory"];
     }
 
     /**

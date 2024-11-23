@@ -350,7 +350,7 @@ abstract class Table
     protected function direct(Direct $action) : void
     {
         $ids = $this->currentIds();
-        $items = $this->parent->getTableItems($ids);
+        $items = iterator_to_array($this->parent->getTableItems($ids));
         $action->action($items);
     }
 }

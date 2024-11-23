@@ -30,7 +30,7 @@ abstract class Action
 
             $parameters = $reflection->getParameters();
 
-            if(count($parameters) > 1) {
+            if(count($parameters) < 1) {
                 throw new \Exception("Given callback needs at least one parameter of type array or Table\Item. " . var_export($parameters, true));
             }
 

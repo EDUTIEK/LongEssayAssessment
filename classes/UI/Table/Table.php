@@ -22,8 +22,8 @@ use ILIAS\Plugin\LongEssayAssessment\UI\Table\Action\Direct;
 abstract class Table
 {
     private string $title  = "";
-    private Filter\Standard $filter;
-    private Component\Component $table;
+    private ?Filter\Standard $filter = null;
+    private ?Component\Component $table = null;
     /**
      * @var Component\Modal\Modal
      */
@@ -71,7 +71,7 @@ abstract class Table
         }
     }
 
-    protected function getActionByName(string $name): Action
+    public function getActionByName(string $name): Action
     {
         if(array_key_exists($name, $this->actions)) {
             return $this->actions[$name];
@@ -239,6 +239,21 @@ abstract class Table
         return array_merge($components, $this->getModal());
     }
 
+    public function addActionToToolbar(\ilToolbarGUI $toolbar, Action $action, bool $primary = false) : void
+    {
+        $button = $primary ?
+            $this->ui_factory->button()->primary($action->label(), "") :
+            $this->ui_factory->button()->standard($action->label(), "");
+
+        switch (true) {
+            case $action instanceof Form:
+                $async_url = $this->url_builder->withParameter($this->action_parameter_token, $action->name())->withParameter($this->row_id_token, [0])->buildURI();
+                $this->addModal($modal = $this->ui_factory->modal()->roundtrip($action->label(), [])->withAsyncRenderUrl($async_url));
+                $toolbar->addComponent($button->withOnClick($modal->getShowSignal()));
+                break;
+        }
+    }
+
     protected function form(Form $action) : void
     {
         $ids  = $this->currentIds();
@@ -249,7 +264,7 @@ abstract class Table
         $fields = $action->fields($items);
         $content = $action->content($items);
 
-        $form = $this->local_factory->field()->asyncForm($link, $fields);
+        $form = $this->local_factory->field()->blankForm($link, $fields);
 
         if($this->request->getMethod() === "POST") {
             $form = $form->withRequest($this->request);

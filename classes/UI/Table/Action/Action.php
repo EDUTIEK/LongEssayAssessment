@@ -19,7 +19,7 @@ abstract class Action
 
     private function isMultiple($callback)
     {
-        if (is_callable($callback)) {
+        if (is_callable($callback) || (is_array($callback) && count($callback) == 2) && is_object($callback[0]) && is_string($callback[1])) {
             if (is_array($callback)) {
                 // For class methods
                 $reflection = new ReflectionMethod($callback[0], $callback[1]);
@@ -31,19 +31,16 @@ abstract class Action
             $parameters = $reflection->getParameters();
 
             if(count($parameters) > 1) {
-                throw new \Exception("Given callback needs at least one parameter of type array or Table\Item");
+                throw new \Exception("Given callback needs at least one parameter of type array or Table\Item. " . var_export($parameters, true));
             }
 
-            $fparameter_type = $type = $parameters[0]->getType();
+            $type = $parameters[0]->getType();
 
             if ($type instanceof ReflectionNamedType) {
                 $typeName = $type->getName();
-                if (! ($typeName === 'array' || is_a($typeName, 'ILIAS\Plugin\LongEssayAssessment\UI\Table2\Item'))) {
-                    throw new \Exception("Given callbacks first parameter need to be of type array or Table\Item");
-                }
                 return $typeName === 'array';
             } else {
-                throw new \Exception("Given callbacks first parameter need to be of type array or Table\Item");
+                throw new \Exception("Given callbacks first parameter need to be of type array or Table\Item. " . var_export($parameters[0], true));
             }
         } else {
             throw new \Exception("Given callback is not callable");
@@ -56,11 +53,7 @@ abstract class Action
             $args[0] = array_pop($args[0]); // unpack single item array
         }
 
-        if(is_array($callback)) {
-            return $callback[0]->$callback[1](...$args);
-        } else {
-            return $callback(...$args);
-        }
+        return $callback(...$args);
     }
 
     abstract public function enabled(Item $item) : bool;

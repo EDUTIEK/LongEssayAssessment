@@ -18,9 +18,11 @@ use ILIAS\UI\Renderer;
 use Psr\Http\Message\ServerRequestInterface;
 use ILIAS\Plugin\LongEssayAssessment\UI\Implementation as LocalUI;
 use ILIAS\Refinery;
+use ILIAS\Plugin\LongEssayAssessment\UI\Table\Helper\SmallView;
 
 class DataTable extends Table implements DataRetrieval
 {
+    use SmallView;
     public function __construct(
         string $ui_name,
         protected DataTableParent $dt_parent,
@@ -111,11 +113,6 @@ class DataTable extends Table implements DataRetrieval
     public function getTotalRowCount(?array $filter_data, ?array $additional_parameters) : ?int
     {
         return $this->dt_parent->getTotalRowCount($filter_data, $additional_parameters);
-    }
-
-    protected function smallView(?array $additional_parameters) : bool
-    {
-        return isset($additional_parameters["small_view"]) ? (bool)$additional_parameters["small_view"] : false;
     }
 
     protected function buildDataTabeActionByType(

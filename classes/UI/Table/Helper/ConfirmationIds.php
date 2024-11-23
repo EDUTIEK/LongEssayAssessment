@@ -1,6 +1,6 @@
 <?php
 
-namespace ILIAS\Plugin\LongEssayAssessment\UI\Table;
+namespace ILIAS\Plugin\LongEssayAssessment\UI\Table\Helper;
 
 use ILIAS\HTTP\Wrapper\ArrayBasedRequestWrapper;
 use ILIAS\Refinery;

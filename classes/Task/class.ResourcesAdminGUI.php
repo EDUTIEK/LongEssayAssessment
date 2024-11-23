@@ -7,6 +7,11 @@ use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\Resource;
 use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
 use ILIAS\Plugin\LongEssayAssessment\UI\UIService;
+use ILIAS\Plugin\LongEssayAssessment\UI\Table\DataTableParent;
+use ILIAS\Plugin\LongEssayAssessment\UI\Table\Action;
+use ILIAS\Plugin\LongEssayAssessment\UI\Table\Helper\ConfirmationIds;
+use ILIAS\Plugin\LongEssayAssessment\UI\Table\Item;
+use ILIAS\ResourceStorage\Resource\StorableResource;
 
 /**
  * Resources Administration
@@ -14,14 +19,20 @@ use ILIAS\Plugin\LongEssayAssessment\UI\UIService;
  * @package ILIAS\Plugin\LongEssayAssessment\Task
  * @ilCtrl_isCalledBy ILIAS\Plugin\LongEssayAssessment\Task\ResourcesAdminGUI: ilObjLongEssayAssessmentGUI
  */
-class ResourcesAdminGUI extends BaseGUI
+class ResourcesAdminGUI extends BaseGUI implements DataTableParent
 {
+    use ConfirmationIds;
+
+    private \ILIAS\Plugin\LongEssayAssessment\UI\Table\Factory $table_factory;
+    protected \ILIAS\Plugin\LongEssayAssessment\Data\Task\TaskRepository $task_repo;
     protected UIService $uiService;
 
     public function __construct(\ilObjLongEssayAssessmentGUI $objectGUI)
     {
         parent::__construct($objectGUI);
         $this->uiService = $this->localDI->getUIService();
+        $this->task_repo = $this->localDI->getTaskRepo();
+        $this->table_factory = $this->localDI->getTableFactory();
     }
 
 
@@ -52,69 +63,119 @@ class ResourcesAdminGUI extends BaseGUI
         }
     }
 
-    /**
-     * Show the items
-     */
-    protected function showItems()
+    public function getTableActions() : array
     {
-        $this->toolbar->addComponent($this->uiFactory->button()->primary(
-            $this->plugin->txt('add_resource'),
-            $this->ctrl->getLinkTarget($this, 'editItem')));
-
-        $di = LongEssayAssessmentDI::getInstance();
-        $task_repo = $di->getTaskRepo();
-        $resources = $task_repo->getResourceByTaskId($this->object->getId(), [Resource::RESOURCE_TYPE_URL, Resource::RESOURCE_TYPE_FILE]);
-
-        $list = new ResourceListGUI($this, $this->uiFactory, $this->renderer, $this->lng, $this->plugin);
-        $list->setItems($resources);
-
-        $this->tpl->setContent($list->render());
+        return [$this->openAction(), $this->previewAction(), $this->downloadAction(), $this->editAction(), $this->deleteAction(), $this->createAction()];
     }
 
-
-
-
-    /**
-     * Build Resource Form
-     * @param \ILIAS\Plugin\LongEssayAssessment\Data\Task\Resource $a_resource
-     * @return \ILIAS\UI\Component\Input\Container\Form\Standard
-     */
-    protected function buildResourceForm(Resource $a_resource): \ILIAS\UI\Component\Input\Container\Form\Standard
+    protected function deleteAction() : Action\Confirmation
     {
-        if ($this->getResourceId() != null) {
-            $section_title = $this->plugin->txt('resource_edit');
-        } else {
-            $section_title = $this->plugin->txt('resource_add');
-        }
+        return $this->table_factory->action()->confirmation(
+            "delete",
+            $this->lng->txt('delete'),
+            $this->lng->txt('delete'),
+            $this->plugin->txt('delete_resource_confirmation'),
+            $this->ctrl->getFormAction($this, 'delete'),
+            fn (ResourceItem $x) => $this->buildConfirmationNames($x)
+        );
+    }
+
+    protected function previewAction() : Action\Modal
+    {
+        return $this->table_factory->action()->modal(
+            "preview",
+            $this->lng->txt('preview'),
+            [$this, "previewModal"],
+            fn (ResourceItem $x) => $x->getType() === Resource::RESOURCE_TYPE_FILE,
+            Action\Type::Single
+        );
+    }
+
+    protected function downloadAction() : Action\Direct
+    {
+        return $this->table_factory->action()->direct(
+            "download",
+            $this->lng->txt('download'),
+            fn (ResourceItem $x) => $this->downloadResourceFile($x->getIdentifier()),
+            fn (ResourceItem $x) => $x->getType() === Resource::RESOURCE_TYPE_FILE,
+            Action\Type::Single
+        );
+    }
+
+    protected function openAction(): Action\Direct
+    {
+        return $this->table_factory->action()->direct(
+            "open",
+            $this->lng->txt('open'),
+            fn (ResourceItem $x) => $this->ctrl->redirectToURL($x->getUrl()),
+            fn (ResourceItem $x) => $x->getType() === Resource::RESOURCE_TYPE_URL,
+            Action\Type::Single
+        );
+    }
+
+    protected function editAction(): Action\Form
+    {
+        return $this->table_factory->action()->form(
+            "edit",
+            $this->lng->txt('edit'),
+            $this->plugin->txt('save'),
+            [$this, "buildFields"],
+            [$this, "save"],
+            fn (ResourceItem $item) => true,
+            Action\Type::Single
+        );
+    }
+
+    protected function createAction(): Action\Form
+    {
+        return $this->table_factory->action()->form(
+            "create",
+            $this->plugin->txt('add_resource'),
+            $this->plugin->txt('save'),
+            fn (ResourceItem $item) => $this->buildFields($item),
+            fn (ResourceItem $item, array $data) => $this->save($item, $data),
+            fn ($x) => true,
+            Action\Type::Global
+        );
+    }
+
+    public function buildConfirmationNames(ResourceItem $item): string
+    {
+        $type = $item->getType() === Resource::RESOURCE_TYPE_FILE
+            ? $this->lng->txt('file')
+            : $this->plugin->txt('resource_weblink');
+        return $item->getTitle() . " ({$type})";
+    }
+
+    public function buildFields(ResourceItem $item) : array
+    {
         $factory = $this->uiFactory->input()->field();
+        $fields = [];
 
         $title = $factory->text($this->plugin->txt("resource_title"))
-            ->withRequired(true)
-            ->withValue($a_resource->getTitle());
+                         ->withRequired(true)
+                         ->withValue($item->getTitle());
 
         $description = $factory->textarea($this->lng->txt("description"))
-            ->withValue((string) $a_resource->getDescription());
+                               ->withValue((string) $item->getDescription());
 
         $resource_file = $factory->file(new ResourceUploadHandlerGUI($this->storage, $this->localDI->getTaskRepo()), $this->lng->txt("file"))
-            ->withValue(!empty($a_resource->getFileId()) ? [$a_resource->getFileId()] : [])
-            ->withAcceptedMimeTypes(['application/pdf'])
-            ->withRequired(true)
-            ->withByline($this->plugin->txt("resource_file_description") . "<br>" . $this->uiService->getMaxFileSizeString());
+                                 ->withValue(!empty($item->getIdentifier()) ? [$item->getIdentifier()] : [])
+                                 ->withAcceptedMimeTypes(['application/pdf'])
+                                 ->withRequired(true)
+                                 ->withByline($this->plugin->txt("resource_file_description") . "<br>" . $this->uiService->getMaxFileSizeString());
 
-        $url = $factory->text($this->lng->txt('url'))
-            ->withRequired(true)
-            ->withValue($a_resource->getUrl());
+        $url = $factory->text($this->plugin->txt('resource_weblink'))
+                       ->withRequired(true)
+                       ->withValue($item->getUrl());
 
         $availability = $factory->radio($this->plugin->txt("resource_availability"))
-            ->withRequired(true)
-            ->withOption(Resource::RESOURCE_AVAILABILITY_BEFORE, $this->plugin->txt("resource_availability_before"))
-            ->withOption(Resource::RESOURCE_AVAILABILITY_DURING, $this->plugin->txt("resource_availability_during"))
-            ->withOption(Resource::RESOURCE_AVAILABILITY_AFTER, $this->plugin->txt("resource_availability_after"))
-            ->withValue($a_resource->getAvailability());
+                                ->withRequired(true)
+                                ->withOption(Resource::RESOURCE_AVAILABILITY_BEFORE, $this->plugin->txt("resource_availability_before"))
+                                ->withOption(Resource::RESOURCE_AVAILABILITY_DURING, $this->plugin->txt("resource_availability_during"))
+                                ->withOption(Resource::RESOURCE_AVAILABILITY_AFTER, $this->plugin->txt("resource_availability_after"))
+                                ->withValue($item->getAvailable());
 
-        $sections = [];
-        // Object
-        $fields = [];
         $fields['title'] = $title;
         $fields['description'] = $description;
 
@@ -125,20 +186,50 @@ class ResourcesAdminGUI extends BaseGUI
         $fields['type'] = $factory->switchableGroup([
             Resource::RESOURCE_TYPE_FILE => $group1,
             Resource::RESOURCE_TYPE_URL => $group2,
-        ], $this->lng->txt("type"))->withValue($a_resource->getType())
-            ->withAdditionalTransformation(
-                $this->refinery->custom()->constraint(
-                    function ($var) {
-                        return !($var[0] === Resource::RESOURCE_TYPE_FILE) || $var[1]["resource_file"] !== null;
-                    },
-                    $this->plugin->txt("missing_file")
-                )
-            );
+        ], $this->lng->txt("type"))->withValue($item->getType())
+                                  ->withAdditionalTransformation(
+                                      $this->refinery->custom()->constraint(
+                                          function ($var) {
+                                              return !($var[0] === Resource::RESOURCE_TYPE_FILE) || $var[1]["resource_file"] !== null;
+                                          },
+                                          $this->plugin->txt("missing_file")
+                                      )
+                                  );
         $fields['availability'] = $availability;
-        $sections['form'] = $factory->section($fields, $section_title);
-        $action = $this->ctrl->getFormAction($this, "editItem");
 
-        return $this->uiFactory->input()->container()->form()->standard($action, $sections);
+        return $fields;
+    }
+
+    public function save(ResourceItem $item, array $data)
+    {
+        if ($item->getId() === 0) {
+            $this->createResource($data);
+        } else {
+            $this->replaceResource($data, (int)$item->getId());
+        }
+        $resource_admin = new ResourceAdmin($this->object->getId());
+
+        $this->tpl->setOnScreenMessage("success", $this->lng->txt("settings_saved"), true);
+    }
+
+    /**
+     * Show the items
+     */
+    protected function showItems()
+    {
+
+
+        $di = LongEssayAssessmentDI::getInstance();
+        $task_repo = $di->getTaskRepo();
+        $resources = $task_repo->getResourceByTaskId($this->object->getId(), [Resource::RESOURCE_TYPE_URL, Resource::RESOURCE_TYPE_FILE]);
+
+        $table = $this->table_factory->dataTable("resources", $this);
+        $table->setTitle($this->plugin->txt('task_resources'));
+        $table->executeAction();
+
+        $table->addActionToToolbar($this->toolbar, $table->getActionByName("create"), true);
+
+        $this->setContent($this->renderer->render($table->getComponents()));
     }
 
     /**
@@ -199,102 +290,167 @@ class ResourcesAdminGUI extends BaseGUI
     }
 
     /**
-     * Edit and save the settings
-     */
-    protected function editItem()
-    {
-        $this->tabs->setBackTarget($this->lng->txt("back"), $this->ctrl->getLinkTarget($this));
-
-        $resource_admin = new ResourceAdmin($this->object->getId());
-        $resource_id = $this->getResourceId();
-        if ($resource_id != null) {
-            $this->ctrl->setParameter($this, 'resource_id', $resource_id);
-        }
-        $resource = $resource_admin->getResource($resource_id);
-
-        if ($resource_id != null && $resource->getTaskId() != $this->object->getId()) {
-            $this->raisePermissionError();
-        }
-
-        $form = $this->buildResourceForm($resource);
-
-        if($this->request->getMethod() === "POST") {
-            $form = $form->withRequest($this->request);
-
-            if (($data = $form->getData()) !== null) {
-                if ($resource_id == null) {
-                    $this->createResource($data["form"]);
-                } else {
-                    $this->replaceResource($data["form"], (int)$resource_id);
-                }
-                $this->tpl->setOnScreenMessage("success", $this->lng->txt("settings_saved"), true);
-                $this->ctrl->redirect($this, "showItems");
-            }
-        }
-
-        $this->tpl->setContent($this->renderer->render($form));
-    }
-
-    /**
      * Delete Resource items
      * @return void
      */
     protected function deleteItem()
     {
-        $identifier = "";
-        if(($resource_id = $this->getResourceId()) !== null) {
-            $resource_admin = new ResourceAdmin($this->object->getId());
-            $resource = $resource_admin->getResource($resource_id);
+        $resource_admin = new ResourceAdmin($this->object->getId());
+        $ids = $this->confirmationIds();
 
-            if($resource->getTaskId() == $this->object->getId()) {
-                $resource_admin->deleteResource($resource_id);
-                $this->tpl->setOnScreenMessage("success", $this->plugin->txt("resource_deleted"), true);
-            } else {
-                $this->tpl->setOnScreenMessage("failure", $this->lng->txt("permission_denied"), true);
-            }
-        } else {
-            // TODO: Error no resource ID in GET
+        foreach($ids as $id) {
+            $resource_admin->deleteResource($id);
         }
+        $this->tpl->setOnScreenMessage("success", $this->plugin->txt("resource_deleted"), true);
         $this->ctrl->redirect($this, "showItems");
     }
 
-    /**
-     * @return ?int
-     */
-    protected function getResourceId(): ?int
+    protected function downloadResourceFile(?string $identifier = null)
     {
-        if (isset($_GET["resource_id"]) && is_numeric($_GET["resource_id"])) {
-            return (int) $_GET["resource_id"];
+        if($identifier === null) {
+            if($this->http->wrapper()->query()->has("resource_id")) {
+                $id = $this->http->wrapper()->query()->retrieve("resource_id", $this->refinery->kindlyTo()->int());
+                /**
+                 * @var $resource Resource
+                 */
+                $resource = $this->task_repo->getResourceById($id);
+
+                if(
+                    $resource !== null &&
+                    $resource->getTaskId() === $this->object->getId() &&
+                    $resource->getType() === Resource::RESOURCE_TYPE_FILE) {
+                    $identifier = $resource->getFileId();
+                } else {
+                    throw new \Exception("Resource is invalid");
+                }
+            } else {
+                throw new \Exception("Resource not found");
+            }
         }
-        return null;
+
+        $resource_info = $this->getFileResource($identifier);
+        $this->storage->consume()->download($resource_info->getIdentification())->run();
     }
 
-    protected function downloadResourceFile()
+    public function getColumnMapping(Item $item, ?array $additional_parameters) : array
     {
+        /**
+         * @var ResourceItem $item
+         */
         global $DIC;
-        $identifier = "";
-        if(($resource_id = $this->getResourceId()) !== null) {
-            $resource_admin = new ResourceAdmin($this->object->getId());
-            $resource = $resource_admin->getResource($resource_id);
+        $type = "";
+        $info = null;
 
-            if ($resource->getType() == Resource::RESOURCE_TYPE_FILE && is_string($resource->getFileId())) {
-                $identifier = $resource->getFileId();
-            }
-
-            if ($resource->getTaskId() != $this->object->getId()) {
-                $this->tpl->setOnScreenMessage("failure", $this->lng->txt("permission_denied"), true);
-                $this->ctrl->redirect($this, "showItems");
-            }
-        } else {
-            // TODO: Error no resource ID in GET
+        switch ($item->getType()) {
+            case Resource::RESOURCE_TYPE_FILE:
+                try {
+                    $resource_info = $this->getFileResource($item->getIdentifier());
+                    $name = $resource_info->getCurrentRevision()->getTitle();
+                    $version = $resource_info->getCurrentRevision()->getVersionNumber();
+                    $size = $this->humanFileSize($resource_info->getFullSize());
+                    $info = $this->renderer->render($this->uiFactory->listing()->property()->withItems([
+                        [$this->lng->txt("name"), $name],
+                        [$this->lng->txt("version"), (string)$version],
+                        [$this->lng->txt("size"), $size],
+                    ]));
+                } catch(\Exception $e) {
+                    $info = "-- Broken File --";
+                }
+                $type = $this->lng->txt('file');
+                break;
+            case Resource::RESOURCE_TYPE_URL:
+                $info = $this->renderer->render($this->uiFactory->link()->standard($item->getUrl(), $item->getUrl()));
+                $type = $this->plugin->txt('resource_weblink');
         }
 
-        $resource = $DIC->resourceStorage()->manage()->find($identifier);
+        return [
+            "title" => $item->getTitle(),
+            "description" => nl2br($item->getDescription()),
+            "type" => $type,
+            "available" => $this->plugin->txt('resource_availability_'.$item->getAvailable()),
+            "info" => $info,
+        ];
+    }
 
-        if ($resource !== null) {
-            $DIC->resourceStorage()->consume()->download($resource)->run();
-        } else {
-            // TODO: Error resource not in Storage
+    public function getColumns(?array $additional_parameters) : array
+    {
+
+        $tf = $this->uiFactory->table();
+        return [
+            "title" => $tf->column()->text($this->lng->txt('title')),
+            "description" => $tf->column()->text($this->lng->txt('description')),
+            "type" => $tf->column()->status($this->lng->txt("type")),
+            "available" => $tf->column()->status($this->plugin->txt('resource_availability')),
+            "info" => $tf->column()->text($this->lng->txt("info"))->withIsSortable(false)
+        ];
+    }
+
+    public function getTotalRowCount(?array $filter_data, ?array $additional_parameters) : ?int
+    {
+        return -1;
+    }
+
+    protected function tableItemFromData(Resource $item): ResourceItem
+    {
+        return new ResourceItem($item->getId(), $item->getTitle(), $item->getType(), $item->getDescription(), $item->getAvailability(), $item->getUrl(), $item->getFileId());
+    }
+
+    public function getTableItem(int $id) : Item
+    {
+        $resource = $this->task_repo->getResourceById($id);
+
+        if($resource->getTaskId() === $this->object->getId()) {
+            return $this->tableItemFromData($resource);
         }
+        throw new \Exception("Resource does not belong to this task");
+    }
+
+    public function getTableItems(?array $ids = null, ?array $filter_data = []) : \Generator
+    {
+        if ($ids === [0]) {
+            yield $this->tableItemFromData(Resource::model());
+            return;
+        }
+
+        foreach ($this->task_repo->getResourceByTaskId($this->object->getId(), [Resource::RESOURCE_TYPE_URL,Resource::RESOURCE_TYPE_FILE]) as $resource) {
+            if((empty($ids) || in_array($resource->getId(), $ids)) && $resource->getTaskId() === $this->object->getId()) {
+                yield $this->tableItemFromData($resource);
+            }
+        }
+    }
+
+    protected function humanFileSize($size, $unit="")
+    {
+        if((!$unit && $size >= 1<<30) || $unit == "GB") {
+            return number_format($size/(1<<30), 2)."GB";
+        }
+        if((!$unit && $size >= 1<<20) || $unit == "MB") {
+            return number_format($size/(1<<20), 2)."MB";
+        }
+        if((!$unit && $size >= 1<<10) || $unit == "KB") {
+            return number_format($size/(1<<10), 2)."KB";
+        }
+        return number_format($size)." bytes";
+    }
+
+    public function previewModal(ResourceItem $item)
+    {
+        $this->ctrl->setParameter($this, "resource_id", $item->getId());
+        $link = $this->ctrl->getLinkTarget($this, "downloadResourceFile");
+        $pdf = $this->localDI->getUIFactory()->viewer()->pdf($link);
+        $title = $this->lng->txt("preview") . ": " . $item->getTitle();
+        return $this->uiFactory->modal()->lightbox([
+            $this->uiFactory->modal()->lightboxTextPage($this->renderer->render($pdf), $title)
+        ]);
+    }
+
+    protected function getFileResource(string $identifier) : StorableResource
+    {
+        $resource_id = $this->storage->manage()->find($identifier);
+        if($resource_id === null) {
+            throw new \ilException("no resource id found");
+        }
+
+        return  $this->storage->manage()->getResource($resource_id);
     }
 }

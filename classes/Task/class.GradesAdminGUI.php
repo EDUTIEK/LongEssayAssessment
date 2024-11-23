@@ -18,9 +18,14 @@ use ILIAS\Data\Order;
 use ILIAS\UI\Component\Table\DataRetrieval;
 use ILIAS\UI\Component\Table\DataRowBuilder;
 use ILIAS\UI\Implementation\Component\Table\Table;
-use ILIAS\Filesystem\Stream\Stream;
-use ILIAS\Filesystem\Stream\Streams;
-use ILIAS\UI\Component\Modal\RoundTrip;
+use ILIAS\Plugin\LongEssayAssessment\UI\Table\DataTableParent;
+use ILIAS\Plugin\LongEssayAssessment\UI\Table\Helper\ConfirmationIds;
+use ILIAS\Plugin\LongEssayAssessment\UI\Table\Item;
+use ILIAS\Plugin\LongEssayAssessment\UI\Table\Helper\SmallView;
+use Generator;
+use ILIAS\MetaData\Editor\Full\Services\Tables\TableFactory;
+use ILIAS\Plugin\LongEssayAssessment\UI\Table\Action;
+use ILIAS\UI\Implementation\Component\Modal\RoundTrip;
 
 /**
  * Resources Administration
@@ -28,12 +33,14 @@ use ILIAS\UI\Component\Modal\RoundTrip;
  * @package ILIAS\Plugin\LongEssayAssessment\Task
  * @ilCtrl_isCalledBy ILIAS\Plugin\LongEssayAssessment\Task\GradesAdminGUI: ilObjLongEssayAssessmentGUI
  */
-class GradesAdminGUI extends BaseGUI
+class GradesAdminGUI extends BaseGUI implements DataTableParent
 {
+    use ConfirmationIds, SmallView;
+
+    protected \ILIAS\Plugin\LongEssayAssessment\UI\Table\Factory $table_factory;
     protected TaskRepository $task_repo;
     protected ObjectRepository $object_repo;
     protected CorrectorAdminService $corrector_service;
-    protected \ilTree $tree;
 
     public function __construct(\ilObjLongEssayAssessmentGUI $objectGUI)
     {
@@ -41,7 +48,7 @@ class GradesAdminGUI extends BaseGUI
         $this->corrector_service = $this->localDI->getCorrectorAdminService($this->object->getId());
         $this->object_repo = $this->localDI->getObjectRepo();
         $this->task_repo = $this->localDI->getTaskRepo();
-        $this->tree = $this->dic->repositoryTree();
+        $this->table_factory = $this->localDI->getTableFactory();
     }
 
     /**
@@ -68,56 +75,13 @@ class GradesAdminGUI extends BaseGUI
     }
 
     /**
-     * Get the Table Data
-     */
-    protected function getItemData()
-    {
-        $records = $this->object_repo->getGradeLevelsByObjectId($this->object->getId());
-        $item_data = [];
-
-        foreach ($records as $record) {
-
-            $important = [
-                $this->plugin->txt('min_points').":" => $record->getMinPoints(),
-                $this->plugin->txt('passed').":" => $record->isPassed() ? $this->lng->txt('yes') : $this->lng->txt('no')
-            ];
-
-            if ($record->getCode() !== null && $record->getCode() !== "") {
-                $important[$this->plugin->txt('grade_level_code')] = $record->getCode();
-            }
-
-            $item_data[] = [
-                'id' => $record->getId(),
-                'headline' => $record->getGrade(),
-                'subheadline' => '',
-                'important' => $important,
-            ];
-        }
-
-        return $item_data;
-    }
-
-    /**
      * Show the items
      */
     protected function showItems()
     {
-        $item_data = $this->getItemData();
-
         $can_delete = true;
         $settings = $this->task_repo->getTaskSettingsById($this->object->getId());
         $authorized = $this->corrector_service->authorizedCorrectionsExists();
-        $modals = [];
-
-        if (!$authorized) {
-            $this->toolbar->addComponent($this->uiFactory->button()->primary(
-                $this->plugin->txt('add_grade_level'),
-                $this->ctrl->getLinkTarget($this, 'editItem')
-            ));
-
-            $modals[] = $modal = $this->getCopyGradeLevelModal();
-            $this->toolbar->addComponent($this->uiFactory->button()->standard($this->plugin->txt("copy_grade_level"), "#")->withOnClick($modal->getShowSignal()));
-        }
 
         if ($settings->getCorrectionStart() !== null) {
             $correction_start = new \ilDateTime($settings->getCorrectionStart(), IL_CAL_DATETIME);
@@ -127,183 +91,190 @@ class GradesAdminGUI extends BaseGUI
 
         if ($authorized) {
             $this->tpl->setOnScreenMessage("info", $this->plugin->txt("grade_level_cannot_edit_used_info"));
-        } elseif (empty($item_data)) {
+        } elseif (empty($this->getTableItems())) {
             $this->tpl->setOnScreenMessage("info", $this->plugin->txt("grade_levels_empty_notice"));
         }
+        $table = $this->table_factory->dataTable("grade_table", $this);
+        $table->setTitle($this->plugin->txt('grade_levels'));
 
-        $ptable = $this->uiFactory->table()->presentation(
-            $this->plugin->txt('grade_levels'),
-            [],
-            function (
-                PresentationRow $row,
-                array $record,
-                Factory $ui_factory,
-                $environment
-            ) use ($authorized, $can_delete) {
+        if (!$authorized) {
+            $table->addActionToToolbar($this->toolbar, $table->getActionByName("add_grade_level"), true);
 
-                $this->setGradeLevelId($record["id"]);
-                $edit_link = $this->ctrl->getLinkTarget($this, "editItem");
-                $this->setGradeLevelId($record["id"]);
-                $delete_link = $this->ctrl->getLinkTarget($this, "deleteItem");
-
-                $approve_modal = $ui_factory->modal()->interruptive(
-                    $this->plugin->txt("delete_grade_level"),
-                    $this->plugin->txt("delete_grade_level_confirmation"),
-                    $delete_link
-                )->withAffectedItems([
-                    $ui_factory->modal()->interruptiveItem()->standard($record["id"], $record['headline'])
-                ]);
-
-                if ($can_delete) {
-                    $action = $ui_factory->dropdown()->standard([
-                        $ui_factory->button()->shy($this->lng->txt('edit'), $edit_link),
-                        $ui_factory->button()->shy($this->lng->txt('delete'), '')
-                            ->withOnClick($approve_modal->getShowSignal())
-                    ])->withLabel($this->lng->txt("actions"));
-                } else {
-                    $action = $ui_factory->button()->standard($this->lng->txt('edit'), $edit_link);
-                }
-
-                $row =  $row
-                    ->withHeadline($record['headline']. $this->renderer->render($approve_modal))
-                    //->withSubheadline($record['subheadline'])
-                    ->withImportantFields($record['important'])
-                    ->withContent($ui_factory->listing()->descriptive([$this->lng->txt("description")=> $record['subheadline']]))
-                    ->withFurtherFieldsHeadline('')
-                    ->withFurtherFields($record['important']);
-                
-                if ($authorized) {
-                    return $row;
-                } else {
-                    return $row->withAction($action);
-                }
-            }
-        );
-
-        $this->tpl->setContent($this->renderer->render(array_merge([$ptable->withData($item_data)], $modals)));
-    }
-
-    protected function buildEditForm($data):\ILIAS\UI\Component\Input\Container\Form\Standard
-    {
-        if ($id = $this->getGradeLevelId()) {
-            $section_title = $this->plugin->txt('edit_grade_level');
-            $this->setGradeLevelId($id);
-        } else {
-            $section_title = $this->plugin->txt('add_grade_level');
+            $this->addModal($modal = $this->getCopyGradeLevelModal());
+            $this->toolbar->addComponent($this->uiFactory->button()->standard($this->plugin->txt("copy_grade_level"), "#")->withOnClick($modal->getShowSignal()));
         }
 
-        $factory = $this->uiFactory->input()->field();
-        $custom_factory = LongEssayAssessmentDI::getInstance()->getUIFactory();
-        $sections = [];
+        $table->executeAction();
 
+        $this->setContent($this->renderer->render($table->getComponents()));
+    }
+
+    public function getColumnMapping(Item $item, ?array $additional_parameters) : array
+    {
+        return [
+            "title" => $item->getGrade(),
+            "points" => $item->getMinPoints(),
+            "passed" => $item->isPassed(),
+            "code" =>$item->getCode()
+        ];
+    }
+
+    public function getColumns(?array $additional_parameters) : array
+    {
+        $tf = $this->uiFactory->table();
+
+        $small_view = $this->smallView($additional_parameters);
+        $sortable = !$small_view;
+
+        return [
+            "title" => $tf->column()->text($this->plugin->txt('grade_level'))->withIsSortable($sortable),
+            "points" => $tf->column()->number($this->plugin->txt('min_points'))->withDecimals(2)->withIsSortable($sortable),
+            "passed" => $tf->column()->boolean($this->plugin->txt('passed'), $this->lng->txt('yes'), $this->lng->txt('no'))->withIsSortable($sortable),
+            "code" => $tf->column()->text($this->plugin->txt('grade_level_code'))->withIsSortable($sortable),
+        ];
+    }
+
+    public function getTotalRowCount(?array $filter_data, ?array $additional_parameters) : ?int
+    {
+        return -1;
+    }
+
+    public function getTableActions() : array
+    {
+        return [
+            $this->editAction(),
+            $this->deleteAction(),
+            $this->createAction()
+        ];
+    }
+
+    protected function createAction()
+    {
+        return $this->table_factory->action()->form(
+            "add_grade_level",
+            $this->plugin->txt('add_grade_level'),
+            $this->lng->txt('save'),
+            [$this, "buildFields"],
+            [$this, "save"],
+            fn (GradeItem $x) => true,
+            Action\Type::Global
+        );
+    }
+
+    protected function deleteAction()
+    {
+        return $this->table_factory->action()->confirmation(
+            "delete_grade_level",
+            $this->lng->txt('delete'),
+            $this->lng->txt('delete'),
+            $this->plugin->txt('delete_grade_level_confirmation'),
+            $this->ctrl->getFormAction($this, 'delete'),
+            fn (GradeItem $item) => $item->getGrade(),
+            fn (GradeItem $x) => true,
+            Action\Type::Standard
+        );
+    }
+
+    protected function editAction()
+    {
+        return $this->table_factory->action()->form(
+            "edit_grade_level",
+            $this->lng->txt('edit'),
+            $this->lng->txt('save'),
+            [$this, "buildFields"],
+            [$this, "save"],
+            fn (GradeItem $x) => true,
+            Action\Type::Single
+        );
+    }
+
+    public function save(GradeItem $item, array $data)
+    {
+        if ($item->getId() === 0) {
+            $grade_level = GradeLevel::model();
+            $grade_level->setObjectId($this->object->getId());
+        } else {
+            $grade_level = $this->object_repo->getGradeLevelById($item->getId());
+        }
+        $grade_level->setGrade($data['grade'])
+                    ->setMinPoints($data['points'])
+                    ->setCode($data['code'])
+                    ->setPassed($data['passed']);
+
+        $this->object_repo->save($grade_level);
+        $this->tpl->setOnScreenMessage("success", $this->lng->txt("settings_saved"), true);
+    }
+
+    public function buildFields(GradeItem $item) : array
+    {
+        $factory = $this->uiFactory->input()->field();
         $fields = [];
         $fields['grade'] = $factory->text($this->plugin->txt("grade_level"))
-            ->withRequired(true)
-            ->withValue($data["grade"]);
+                                   ->withRequired(true)
+                                   ->withValue($item->getGrade());
 
         $fields['code'] = $factory->text($this->plugin->txt("grade_level_code"), $this->plugin->txt("grade_level_code_caption"))
-            ->withRequired(false)
-            ->withValue($data["code"]!== null ? $data["code"] : "");
+                                  ->withRequired(false)
+                                  ->withValue(!empty($item->getCode()) ? $item->getCode() : "");
 
-        $fields['points'] = $custom_factory->field()->numeric($this->plugin->txt('min_points'), $this->plugin->txt("min_points_caption"))
-            ->withStep(0.01)
-            ->withRequired(true)
-            ->withValue((float)$data["points"]);
+        $fields['points'] = $this->localDI->getUIFactory()
+                                          ->field()
+                                          ->numeric($this->plugin->txt('min_points'), $this->plugin->txt("min_points_caption"))
+                                          ->withStep(0.01)
+                                          ->withRequired(true)
+                                          ->withValue($item->getMinPoints());
 
         $fields['passed'] =$factory->checkbox($this->plugin->txt('passed'), $this->plugin->txt("passed_caption"))
-            ->withRequired(true)
-            ->withValue($data["passed"]);
-
-        $sections['form'] = $factory->section($fields, $section_title);
-
-
-        return $this->uiFactory->input()->container()->form()->standard($this->ctrl->getFormAction($this, "updateItem"), $sections);
+                                   ->withRequired(true)
+                                   ->withValue($item->isPassed());
+        return $fields;
     }
 
-    protected function updateItem()
+    protected function tableItemFromData(GradeLevel $item): GradeItem
     {
-        $this->checkAuthorizedCorrections();
-        $this->tabs->setBackTarget($this->lng->txt("back"), $this->ctrl->getLinkTarget($this));
+        return new GradeItem($item->getId(), $item->getGrade(), $item->getMinPoints(), $item->isPassed(), $item->getCode());
+    }
 
-        $form = $this->buildEditForm([
-            "grade" => "",
-            "points" => 0,
-            "code" => "",
-            "passed" => false
-        ]);
+    public function getTableItem(int $id) : Item
+    {
+        return $this->tableItemFromData($this->object_repo->getGradeLevelById($id));
+    }
 
-        if ($this->request->getMethod() == "POST") {
-            $form = $form->withRequest($this->request);
-            $data = $form->getData();
-
-            if ($id = $this->getGradeLevelId()) {
-                $record = $this->getGradeLevel($id);
-            } else {
-                $record = new GradeLevel();
-                $record->setObjectId($this->object->getId());
+    public function getTableItems(?array $ids = null, ?array $filter_data = []) : Generator
+    {
+        if ($this->http->wrapper()->query()->has("xlas_copy_ref")) {
+            $ref_id = $this->http->wrapper()->query()->retrieve("xlas_copy_ref", $this->refinery->kindlyTo()->int());
+            $obj_id = \ilObject2::_lookupObjectId($ref_id);
+            //check ref access_rights
+            foreach ($this->object_repo->getGradeLevelsByObjectId($obj_id) as $object) {
+                yield $this->tableItemFromData($object);
             }
+            return;
+        }
 
-            // inputs are ok => save data
-            if (isset($data)) {
-                $record->setGrade($data["form"]["grade"]);
-                $record->setMinPoints($data["form"]["points"]);
-                $record->setCode($data["form"]["code"]);
-                $record->setPassed($data["form"]["passed"]);
-                $this->object_repo->save($record);
-                $this->corrector_service->recalculateGradeLevel();
-
-                $this->tpl->setOnScreenMessage("success", $this->lng->txt("settings_saved"), true);
-                $this->ctrl->redirect($this, "showItems");
-            } else {
-                // $this->tpl->setOnScreenMessage("failure", $this->lng->txt("validation_error"), false);
-                $this->editItem($form);
+        if ($ids === [0]) {
+            yield $this->tableItemFromData(GradeLevel::model());
+            return;
+        }
+        foreach ($this->object_repo->getGradeLevelsByObjectId($this->object->getId()) as $object) {
+            if(empty($ids) || in_array($object->getId(), $ids)) {
+                yield $this->tableItemFromData($object);
             }
         }
     }
 
-
-    /**
-     * Edit and save the settings
-     */
-    protected function editItem($form = null)
+    protected function delete()
     {
         $this->checkAuthorizedCorrections();
-        $this->tabs->setBackTarget($this->lng->txt("back"), $this->ctrl->getLinkTarget($this));
+        $ids = $this->confirmationIds();
 
-        if ($form === null) {
-            if ($id = $this->getGradeLevelId()) {
-                $record = $this->getGradeLevel($id);
-                $form = $this->buildEditForm([
-                    "grade" => $record->getGrade(),
-                    "points" => $record->getMinPoints(),
-                    "code" => $record->getCode(),
-                    "passed" => $record->isPassed()
-                ]);
-            } else {
-                $form = $this->buildEditForm([
-                    "grade" => "",
-                    "points" => 0,
-                    "code" => "",
-                    "passed" => false
-                ]);
-            }
-        }
+        array_map(fn (int $x) => $this->getGradeLevel($x, true), $ids);//Permission check
 
-        $this->tpl->setContent($this->renderer->render($form));
-    }
-
-    protected function deleteItem()
-    {
-        $this->checkAuthorizedCorrections();
-        // TODO: Zwischenfrage hinzufügen!
-        if (($id = $this->getGradeLevelId()) !== null) {
-            $this->getGradeLevel($id, true);//Permission check
+        foreach ($ids as $id) {
             $this->object_repo->deleteGradeLevel($id);
-            $this->corrector_service->recalculateGradeLevel();
-            $this->tpl->setOnScreenMessage("success", $this->plugin->txt("delete_grade_level_successful"), true);
-        } else {
-            $this->tpl->setOnScreenMessage("failure", $this->plugin->txt("delete_grade_level_failure"), true);
         }
+        $this->corrector_service->recalculateGradeLevel();
+        $this->tpl->setOnScreenMessage("success", $this->plugin->txt("delete_grade_level_successful"), true);
         $this->ctrl->redirect($this, "showItems");
     }
 
@@ -335,11 +306,6 @@ class GradesAdminGUI extends BaseGUI
             $this->checkRecordInObject($record, true);
         }
         return $record;
-    }
-
-    protected function setGradeLevelId(int $id)
-    {
-        $this->ctrl->setParameter($this, "grade_level", $id);
     }
 
     protected function getGradeLevelId(): ?int

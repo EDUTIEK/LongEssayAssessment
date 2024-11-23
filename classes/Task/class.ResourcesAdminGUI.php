@@ -349,7 +349,7 @@ class ResourcesAdminGUI extends BaseGUI implements DataTableParent
                     $version = $resource_info->getCurrentRevision()->getVersionNumber();
                     $size = $this->humanFileSize($resource_info->getFullSize());
                     $info = $this->renderer->render($this->uiFactory->listing()->property()->withItems([
-                        [$this->lng->txt("name"), $name],
+                        [$this->lng->txt("filename"), $name],
                         [$this->lng->txt("version"), (string)$version],
                         [$this->lng->txt("size"), $size],
                     ]));

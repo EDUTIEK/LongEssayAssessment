@@ -101,8 +101,29 @@ class DataTable extends Table implements DataRetrieval
         ?array $filter_data,
         ?array $additional_parameters
     ): \Generator {
-        foreach ($this->parent->getTableItems(null, $filter_data) as $item) {
-            $row = $row_builder->buildDataRow($item->getId(), $this->getColumnMapping($item, $additional_parameters));
+
+        $data = array_map(
+            fn (Item $x) => [
+                "item" => $x,
+                "mapping" =>  $this->getColumnMapping($x, $additional_parameters)
+            ],
+            iterator_to_array($this->parent->getTableItems(null, $filter_data))
+        );
+
+        if($order) {
+            list($order_field, $order_direction) = $order->join([], fn ($ret, $key, $value) => [$key, $value]);
+            usort($data, fn ($a, $b) => $a["mapping"][$order_field] <=> $b["mapping"][$order_field]);
+            if ($order_direction === 'DESC') {
+                $data = array_reverse($data);
+            }
+        }
+
+        if ($range) {
+            $data = array_slice($data, $range->getStart(), $range->getLength());
+        }
+
+        foreach ($data as list("item" => $item, "mapping" => $mapping)) {
+            $row = $row_builder->buildDataRow($item->getId(), $mapping);
             foreach(array_filter($this->actions, fn (Action\Action $x) => in_array($x->type(), [Action\Type::Standard, Action\Type::Single])) as $action) {
                 $row = $row->withDisabledAction($action->name(), !$action->enabled($item));
             }

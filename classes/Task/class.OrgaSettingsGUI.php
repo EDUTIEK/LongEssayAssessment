@@ -93,6 +93,17 @@ class OrgaSettingsGUI extends BaseGUI
         $date = $a_data['task']['writing_end'];
         $a_task_settings->setWritingEnd($date instanceof \DateTimeInterface ? $date->format('Y-m-d H:i:s') : null);
 
+        $limit = null;
+        if (!empty($a_data['task']['writing_limit'])) {
+            $limit = (int) ($a_data['task']['writing_limit']['days'] ?? 0) * 24 * 60;
+            if ($a_data['task']['writing_limit']['hours_minutes'] instanceof \DateTimeInterface) {
+                list($hours, $minutes) = explode(':', $a_data['task']['writing_limit']['hours_minutes']->format('H:i'));
+                $limit += (int) $hours * 60 + (int) $minutes;
+            }
+
+        }
+        $a_task_settings->setWritingLimitMinutes($limit > 0 ? $limit : null);
+
         $a_task_settings->setKeepEssayAvailable((bool) ($a_data['task']['keep_essay_available']));
 
         $date = null;
@@ -227,6 +238,28 @@ class OrgaSettingsGUI extends BaseGUI
         )
             ->withUseTime(true)
             ->withValue((string) $taskSettings->getWritingEnd());
+
+        $limit = (int) $taskSettings->getWritingLimitMinutes();
+        $days = floor($limit / (24 * 60));
+        $hours = floor(($limit - $days * 24 * 60) / 60);
+        $minutes = $limit % 60;
+
+        $fields_settings['writing_limit'] = $factory->optionalGroup(
+            [
+                'days' => $factory->numeric(
+                    $this->plugin->txt("writing_limit_days"),
+                )->withValue($days > 0 ? $days: null),
+                'hours_minutes' => $factory->dateTime(
+                    $this->plugin->txt("writing_limit_hours_minutes"),
+                )->withTimeOnly(true)
+                ->withValue(new \DateTimeImmutable(sprintf('%02d:%02d:00', $hours, $minutes, 0), New \DateTimeZone($this->user->getTimeZone())))
+            ],
+            $this->plugin->txt('writing_limit'),
+            $this->plugin->txt('writing_limit_info')
+        );
+        if ($limit === 0) {
+            $fields_settings['writing_limit'] = $fields_settings['writing_limit']->withValue(null);
+        }
 
         $fields_settings['location'] =  $factory->tag(
             $this->plugin->txt("locations"),

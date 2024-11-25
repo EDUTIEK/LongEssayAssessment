@@ -73,10 +73,10 @@ participation_type_fixed_info#:#Die Teilnahme wird vorab über eine Liste festge
 participation_type_instant#:#Selbständig
 participation_type_instant_info#:#Für die Teilnahme genügt das Leserecht. Auch ohne Teilnahme ist damit der Abruf von Material und Lösungshinweisen ab den festgelegten Zeitpunkten möglich.
 task_settings#:#Ablauf-Organisation
-writing_start#:#Bearbeitungs-Start
-writing_start_info#:#Ab diesem Zeitpunkt wird die Schaltfläche "Bearbeitung starten" für die Teilnehmenden angezeigt und die Aufgabenstellung sowie das Material, das nach Start der Bearbeitung verfügbar ist, können abgerufen werden. Ohne festgelegten Start ist alles sofort verfügbar.
-writing_end#:#Bearbeitungs-Ende
-writing_end_info#:#Bis zu diesem Zeitpunkt getätigte Eingaben werden akzeptiert, danach ist die Eingabe gesperrt. Bei Verbindungsproblemen können die im Browser zwischengespeicherten Eingaben auch nachträglich gesendet oder autorisiert werden. Ohne festgelegtes Ende kann die Aufgabe beliebig lange bearbeitet werden.
+writing_start#:#Frühester Bearbeitungs-Start
+writing_start_info#:#Ab diesem Zeitpunkt wird die Schaltfläche "Bearbeitung starten" für die Teilnehmenden angezeigt. Mit Betätigung des Schalters startet die Bearbeitungsdauer und die Aufgabenstellung sowie das Material, das erst zur Bearbeitung verfügbar ist, können abgerufen werden.
+writing_end#:#Spätestes Bearbeitungs-Ende
+writing_end_info#:#Bis zu diesem Zeitpunkt getätigte Eingaben werden akzeptiert, danach ist die Eingabe gesperrt. Bei Verbindungsproblemen können die im Browser zwischengespeicherten Eingaben auch nachträglich gesendet oder autorisiert werden. Ohne festgelegtes Ende kann die Aufgabe beliebig spät bearbeitet werden.
 correction_start#:#Korrektur-Start
 correction_start_info#:#Ab diesem Zeitpunkt wird Korrekturkräften die Schaltfläche "Angezeigte Korrekturen starten" angezeigt und sie können die ihnen zugewiesenen und autorisierten Abgaben kommentieren und bewerten. Ohne festgelegten Start ist das für jede Abgabe möglich, sobald sie autorisiert wurde.
 correction_end#:#Korrektur-Ende
@@ -630,3 +630,7 @@ path_to_ghostscript#:#Pfad zu Ghostscript
 path_to_ghostscript_info#:#Ghostscript wird benötigt, um hochgeladene PDF-Dateien zu verarbeiten. Konfigurieren Sie hier den Pfad zum direkten Aufruf von ghostscript auf Ihrem Server. Als Fallback wird ein für die ILIAS-Vorschau konfigurierter Pfad oder '/usr/bin/gs' als Standard verwendet. Falls der Pfad nicht ausführbar ist, wird Ghostscript über die PHP-Erweiterung Imagick verwendet. Das kann bei großen PDF-Dateien zu Ressourcen-Problemen führen.
 ghostscript_used#:#Aktuell verwendet: %s
 ghostscript_imagick#:#PHP-Erweiterung Imagick
+writing_limit#:#Zeitbegrenzung
+writing_limit_info#:#Begrenzt die Dauer zur Bearbeitung ab dem Betätigen des Schalters "Bearbeitung starten". Nach dieser Dauer werden neue Eingaben nicht mehr akzeptiert, vorher getätigte können aber noch übertragen und autorisiert werden.
+writing_limit_days#:#Tage
+writing_limit_hours_minutes#:#Stunden, Minuten

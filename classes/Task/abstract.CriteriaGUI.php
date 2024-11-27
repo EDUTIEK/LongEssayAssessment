@@ -9,20 +9,30 @@ use ILIAS\Plugin\LongEssayAssessment\Data\Object\RatingCriterion;
 use ILIAS\Plugin\LongEssayAssessment\UI\Component\BlankForm;
 use ILIAS\Plugin\LongEssayAssessment\UI\Component\Factory as CustomFactory;
 use ILIAS\UI\Implementation\Component\Signal;
+use ILIAS\Plugin\LongEssayAssessment\UI\Table\DataTableParent;
+use ILIAS\Plugin\LongEssayAssessment\UI\Table\Item;
+use ILIAS\UI\Component\Table\Column\Column;
+use Generator;
+use ILIAS\Plugin\LongEssayAssessment\UI\Table\Helper\SmallView;
+use ILIAS\Plugin\LongEssayAssessment\UI\Table\Action;
+use ILIAS\Plugin\LongEssayAssessment\UI\Table\Helper\ConfirmationIds;
 
-abstract class CriteriaGUI extends BaseGUI
+abstract class CriteriaGUI extends BaseGUI implements DataTableParent
 {
+    use SmallView, ConfirmationIds;
     private CustomFactory $custom_factory;
     private ObjectRepository $object_repo;
     private CorrectorRepository $corrector_repo;
+    private \ILIAS\Plugin\LongEssayAssessment\UI\Table\Factory $table_factory;
 
     public function __construct(\ilObjLongEssayAssessmentGUI $objectGUI)
     {
         parent::__construct($objectGUI);
-
+        $this->post = $this->dic->http()->wrapper()->post();
         $this->custom_factory = $this->localDI->getUIFactory();
         $this->object_repo = $this->localDI->getObjectRepo();
         $this->corrector_repo = $this->localDI->getCorrectorRepo();
+        $this->table_factory = $this->localDI->getTableFactory();
     }
 
     public function executeCommand()
@@ -30,7 +40,6 @@ abstract class CriteriaGUI extends BaseGUI
         $cmd = $this->ctrl->getCmd('showItems');
         switch ($cmd) {
             case 'showItems':
-            case 'saveItemAsync':
             case 'deleteItems':
                 $this->$cmd();
                 break;
@@ -58,42 +67,14 @@ abstract class CriteriaGUI extends BaseGUI
 
     public function showItems()
     {
-        $criteria = $this->getRatingCriterionFromContext();
-        $create_modal = $this->uiFactory->modal()->roundtrip("", [])->withAsyncRenderUrl(
-            $this->ctrl->getLinkTarget($this, $this->ctrl->getLinkTarget($this, "saveItemAsync"))
-        );
-        $modals = [$create_modal];
+        $table = $this->table_factory->dataTable("criteria", $this);
+        $table->executeAction();
+        $table->setTitle($this->plugin->txt("criteria"));
 
-        $this->toolbar->addComponent(
-            $this->uiFactory->button()->primary($this->plugin->txt("criteria_add"), "")
-            ->withOnClick($create_modal->getShowSignal())
-        );
-
+        $table->addActionToToolbar($this->toolbar, $table->getActionByName("add_criteria"), true);
         $this->addCopyToolbar();
-        $items = [];
 
-        foreach ($criteria as $item) {
-            $this->ctrl->setParameter($this, "criterion_id", $item->getId());
-            $modals[] = $edit_modal = $this->uiFactory->modal()->roundtrip("", [])
-                ->withAsyncRenderUrl($this->ctrl->getLinkTarget($this, "saveItemAsync"));
-
-            $items[] = $this->custom_factory->item()->formItem($this->buildItemTitle($item))
-                ->withName($item->getId())
-                ->withNoLead()
-                ->withDescription(nl2br($item->getDescription()))
-                ->withActions($this->uiFactory->dropdown()->standard([
-                    $this->uiFactory->button()->shy($this->lng->txt("edit"), "")->withOnClick($edit_modal->getShowSignal()),
-                    $this->uiFactory->button()->shy($this->lng->txt("remove"), $this->ctrl->getLinkTarget($this, "deleteItems"))
-                ]));
-        }
-        $this->ctrl->clearParameters($this);
-
-        $form_group = $this->custom_factory->item()->formGroup(
-            $this->plugin->txt("criteria"),
-            $items,
-            $this->ctrl->getLinkTarget($this, "deleteItems")
-        )->withActionLabel($this->lng->txt('remove'));
-        $this->tpl->setContent($this->renderer->render(array_merge([$form_group], $modals)));
+        $this->tpl->setContent($this->renderer->render($table->getComponents()));
     }
 
     protected function buildItemTitle(RatingCriterion $item): string
@@ -101,70 +82,10 @@ abstract class CriteriaGUI extends BaseGUI
         return $item->getTitle() . " | " . $this->plugin->txt("criteria_max_point") . ": " . $item->getPoints();
     }
 
-    public function saveItemAsync()
-    {
-        $criteria_ids = array_map(fn (RatingCriterion $x) => $x->getId(), $this->getRatingCriterionFromContext());
-
-        if (($id = $this->getRatingCriterionId()) !== null && in_array($id, $criteria_ids)) {
-            $this->ctrl->saveParameter($this, "criterion_id");
-            $item = $this->object_repo->getRatingCriterionById($id);
-            $title = $this->plugin->txt('criteria_edit');
-        } else {
-            $item = $this->getRatingCriterionModelFromContext();
-            $title = $this->plugin->txt('criteria_add');
-        }
-        $form = $this->buildItemForm($item);
-
-        if($this->request->getMethod() === "POST") {
-            $form = $form->withRequest($this->request);
-
-            if(!empty($data = $form->getData())) {
-                $item->setTitle($data['title']);
-                $item->setDescription($data['description']);
-                $item->setPoints($data['points']);
-                $this->object_repo->save($item);
-
-                $this->tpl->setOnScreenMessage("success", $this->lng->txt("settings_saved"), true);
-                exit();
-            } else {
-                echo($this->renderer->render($form));
-                exit();
-            }
-        }
-        $modal = $this->uiFactory->modal()->roundtrip($title, $form)->withActionButtons([
-            $this->uiFactory->button()->primary($this->lng->txt('submit'), "")->withOnClick($form->getSubmitAsyncSignal())
-        ]);
-        echo($this->renderer->renderAsync($modal));
-        exit();
-    }
-
-    protected function buildItemForm(RatingCriterion $item): BlankForm
-    {
-        $fields = [
-            'title' =>  $this->uiFactory->input()->field()->text($this->lng->txt("title"))
-                ->withAdditionalTransformation($this->refinery->string()->hasMinLength(1))
-                ->withRequired(true)
-                ->withValue($item->getTitle()),
-            'description' =>  $this->uiFactory->input()->field()->textarea($this->lng->txt("description"))
-                ->withValue($item->getDescription() !== null ? $item->getDescription(): ""),
-            'points' => $this->custom_factory->field()->numeric(
-                $this->plugin->txt('criteria_max_point'),
-                $this->plugin->txt('criteria_max_point_desc')
-            )
-                ->withAdditionalTransformation($this->refinery->kindlyTo()->int())
-                ->withAdditionalTransformation($this->refinery->int()->isGreaterThan(0))
-                ->withRequired(true)
-                ->withValue($item->getPoints())
-        ];
-
-        return $this->custom_factory->field()->blankForm($this->ctrl->getFormAction($this, "saveItemAsync"), $fields);
-    }
-
-
     public function deleteItems()
     {
         $criteria_ids = array_map(fn (RatingCriterion $x) => $x->getId(), $this->getRatingCriterionFromContext());
-        $delete_ids = $this->getRatingCriterionIds();
+        $delete_ids = $this->confirmationIds();
         $success = false;
 
         if (!empty($delete_ids) !== null) {
@@ -183,38 +104,6 @@ abstract class CriteriaGUI extends BaseGUI
         }
         $this->ctrl->clearParameters($this);
         $this->ctrl->redirect($this, "showItems");
-    }
-
-
-    protected function getRatingCriterionId(): ?int
-    {
-        $params = $this->request->getQueryParams();
-
-        if (isset($params["criterion_id"])) {
-            return (int) $params["criterion_id"];
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * @return int[]
-     */
-    protected function getRatingCriterionIds(): array
-    {
-        $ids = [];
-        $query_params = $this->request->getQueryParams();
-        $post = $this->request->getParsedBody();
-        if(isset($post["cb"])) {
-            $ids = array_map(fn ($x) => (int)$x, $post["cb"]);
-        } elseif(isset($query_params["criterion_id"]) && $query_params["criterion_id"] !== "") {
-            $ids[] = (int) $query_params["criterion_id"];
-        } elseif (isset($query_params["criterion_ids"])) {
-            foreach(explode('/', $query_params["criterion_ids"]) as $value) {
-                $ids[] = (int) $value;
-            }
-        }
-        return $ids;
     }
 
     public function publishRatingCriterion()
@@ -395,6 +284,157 @@ abstract class CriteriaGUI extends BaseGUI
         $select = new \ilSelectInputGUI("", "criteria_group");
         $select->setOptions($items);
         return $select;
+    }
+
+    public function getColumnMapping(Item $item, ?array $additional_parameters) : array
+    {
+        /**
+         * @var CriteriaItem $item
+         */
+        return [
+            "title" => $item->getTitle(),
+            "description" => $item->getDescription(),
+            "points" => $item->getMaxPoints()
+        ];
+    }
+
+    public function getColumns(?array $additional_parameters) : array
+    {
+        $tf = $this->uiFactory->table();
+
+        $small_view = $this->smallView($additional_parameters);
+        $sortable = !$small_view;
+
+        return [
+            "title" => $tf->column()->text($this->plugin->txt('title'))->withIsSortable($sortable),
+            "description" => $tf->column()->text($this->plugin->txt('description'))->withIsSortable($sortable),
+            "points" => $tf->column()->number($this->plugin->txt('criteria_max_point'))->withIsSortable($sortable),
+        ];
+    }
+
+    public function getTotalRowCount(?array $filter_data, ?array $additional_parameters) : ?int
+    {
+        return -1;
+    }
+
+    public function getTableActions() : array
+    {
+        return [
+            $this->editAction(),
+            $this->deleteAction(),
+            $this->createAction()
+        ];
+    }
+
+    public function getTableItems(?array $ids = null, ?array $filter_data = null) : Generator
+    {
+        if ($this->dic->http()->wrapper()->query()->has("xlas_copy_ref")) {
+            $ref_id = $this->dic->http()->wrapper()->query()->retrieve("xlas_copy_ref", $this->refinery->kindlyTo()->int());
+            $obj_id = \ilObject2::_lookupObjectId($ref_id);
+            //check ref access_rights
+            foreach ($this->object_repo->getRatingCriteriaByObjectId($obj_id) as $object) {
+                yield $this->tableItemFromData($object);
+            }
+            return;
+        }
+        if ($ids === [0]) {
+            yield $this->tableItemFromData($this->getRatingCriterionModelFromContext());
+            return;
+        }
+        foreach ($this->getRatingCriterionFromContext() as $object) {
+            if(empty($ids) || in_array($object->getId(), $ids)) {
+                yield $this->tableItemFromData($object);
+            }
+        }
+    }
+
+    public function getTableItem(int $id) : Item
+    {
+        $item = $this->object_repo->getRatingCriterionById($id);
+        if($item->getObjectId() !== $this->object->getId() && $item->getCorrectorId() !== $this->getCorrectorIdFromContext()) {
+            throw new \Exception("Item is not allowed in this context.");
+        }
+        return $this->tableItemFromData($item);
+    }
+
+    protected function tableItemFromData(RatingCriterion $item): CriteriaItem
+    {
+        return new CriteriaItem($item->getId(), $item->getTitle(), $item->getDescription(), $item->getPoints());
+    }
+
+    protected function createAction() : Action\Form
+    {
+        return $this->table_factory->action()->form(
+            "add_criteria",
+            $this->plugin->txt('criteria_add'),
+            $this->lng->txt('save'),
+            fn (CriteriaItem $item) => $this->buildFields($item),
+            fn (CriteriaItem $item, array $data) => $this->save($item, $data),
+            fn (CriteriaItem $x) => true,
+            Action\Type::Global
+        );
+    }
+
+    protected function editAction() : Action\Form
+    {
+        return $this->table_factory->action()->form(
+            "edit_criteria",
+            $this->lng->txt('edit'),
+            $this->lng->txt('save'),
+            fn (CriteriaItem $item) => $this->buildFields($item),
+            fn (CriteriaItem $item, array $data) => $this->save($item, $data),
+            fn (CriteriaItem $x) => true,
+            Action\Type::Single
+        );
+    }
+
+    protected function deleteAction() : Action\Confirmation
+    {
+        return $this->table_factory->action()->confirmation(
+            "delete_criteria",
+            $this->lng->txt('delete'),
+            $this->lng->txt('delete'),
+            $this->plugin->txt('delete_criteria_confirmation'),
+            $this->ctrl->getFormAction($this, 'deleteItems'),
+            fn (CriteriaItem $item) => $item->getTitle(),
+            fn (CriteriaItem $x) => true,
+            Action\Type::Standard
+        );
+    }
+
+    protected function buildFields(CriteriaItem $item) : array
+    {
+        return [
+            'title' =>  $this->uiFactory->input()->field()->text($this->lng->txt("title"))
+                                        ->withAdditionalTransformation($this->refinery->string()->hasMinLength(1))
+                                        ->withRequired(true)
+                                        ->withValue($item->getTitle()),
+            'description' =>  $this->uiFactory->input()->field()->textarea($this->lng->txt("description"))
+                                              ->withValue($item->getDescription() !== null ? $item->getDescription(): ""),
+            'points' => $this->custom_factory->field()->numeric(
+                $this->plugin->txt('criteria_max_point'),
+                $this->plugin->txt('criteria_max_point_desc')
+            )
+                                             ->withAdditionalTransformation($this->refinery->kindlyTo()->int())
+                                             ->withAdditionalTransformation($this->refinery->int()->isGreaterThan(0))
+                                             ->withRequired(true)
+                                             ->withValue($item->getMaxPoints())
+        ];
+    }
+
+    protected function save(CriteriaItem $item, array $data) : void
+    {
+        if ($item->getId() === 0) {
+            $criterion = $this->getRatingCriterionModelFromContext();
+        } else {
+            $criterion = $this->object_repo->getRatingCriterionById($item->getId());
+        }
+        $criterion->setTitle($data['title'])
+                  ->setDescription($data['description'])
+                  ->setPoints($data['points']);
+
+        $this->object_repo->save($criterion);
+        $this->tpl->setOnScreenMessage("success", $this->lng->txt("settings_saved"), true);
     }
 
 }

@@ -91,6 +91,13 @@ class DataTable extends Table implements DataRetrieval, DataTableParent
         ?array $additional_parameters
     ): \Generator {
 
+        $content = function (mixed $item, bool $orderable = false) : mixed {
+            if(is_callable($item)) {
+                return $item($orderable);
+            }
+            return $item;
+        };
+
         $data = array_map(
             fn (Item $x) => [
                 "item" => $x,
@@ -101,7 +108,7 @@ class DataTable extends Table implements DataRetrieval, DataTableParent
 
         if($order) {
             list($order_field, $order_direction) = $order->join([], fn ($ret, $key, $value) => [$key, $value]);
-            usort($data, fn ($a, $b) => $a["mapping"][$order_field] <=> $b["mapping"][$order_field]);
+            usort($data, fn ($a, $b) => $content($a["mapping"][$order_field], true) <=> $content($b["mapping"][$order_field], true));
             if ($order_direction === 'DESC') {
                 $data = array_reverse($data);
             }
@@ -112,7 +119,7 @@ class DataTable extends Table implements DataRetrieval, DataTableParent
         }
 
         foreach ($data as list("item" => $item, "mapping" => $mapping)) {
-            $row = $row_builder->buildDataRow($item->getId(), $mapping);
+            $row = $row_builder->buildDataRow($item->getId(), array_map(fn (mixed $item) => $content($item), $mapping));
             foreach(array_filter($this->actions, fn (Action\Action $x) => in_array($x->type(), [Action\Type::Standard, Action\Type::Single])) as $action) {
                 $row = $row->withDisabledAction($action->name(), !$action->enabled($item));
             }

@@ -26,7 +26,8 @@ class FormGroup extends Table
         Renderer $renderer,
         Refinery\Factory $refinery,
         ArrayBasedRequestWrapper $query,
-        ServerRequestInterface $request
+        ServerRequestInterface $request,
+        protected \ilLanguage $lng
     ) {
         parent::__construct(
             $ui_name,
@@ -40,7 +41,8 @@ class FormGroup extends Table
             $renderer,
             $refinery,
             $query,
-            $request
+            $request,
+            $lng
         );
     }
 
@@ -61,7 +63,7 @@ class FormGroup extends Table
         $fbtn = $this->ui_factory->button();
         $fmod = $this->ui_factory->modal();
 
-        foreach(array_filter($this->actions, fn ($x) => in_array($x->type(), [ActionType::Multi, ActionType::Standard])) as $action) {
+        foreach(array_filter($this->actions, fn ($x) => in_array($x->type(), [Action\Type::Multi, Action\Type::Standard])) as $action) {
             switch (true) {
                 case $action instanceof Action\Form:
                 case $action instanceof Action\Confirmation:
@@ -101,7 +103,7 @@ class FormGroup extends Table
         $fbtn = $this->ui_factory->button();
         $fmod = $this->ui_factory->modal();
 
-        foreach(array_filter($this->actions, fn ($x) => $x->enabled($item) && in_array($x->type(), [ActionType::Single, ActionType::Standard])) as $action) {
+        foreach(array_filter($this->actions, fn ($x) => $x->enabled($item) && in_array($x->type(), [Action\Type::Single, Action\Type::Standard])) as $action) {
             switch (true) {
                 case $action instanceof Action\Form:
                 case $action instanceof Action\Confirmation:

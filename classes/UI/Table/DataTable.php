@@ -20,7 +20,7 @@ use ILIAS\Plugin\LongEssayAssessment\UI\Implementation as LocalUI;
 use ILIAS\Refinery;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\Helper\SmallView;
 
-class DataTable extends Table implements DataRetrieval
+class DataTable extends Table implements DataRetrieval, DataTableParent
 {
     use SmallView;
     public function __construct(
@@ -35,7 +35,8 @@ class DataTable extends Table implements DataRetrieval
         Renderer $renderer,
         Refinery\Factory $refinery,
         ArrayBasedRequestWrapper $query,
-        ServerRequestInterface $request
+        ServerRequestInterface $request,
+        protected \ilLanguage $lng
     ) {
         parent::__construct(
             $ui_name,
@@ -49,30 +50,18 @@ class DataTable extends Table implements DataRetrieval
             $renderer,
             $refinery,
             $query,
-            $request
+            $request,
+            $lng
         );
     }
 
     private array $additional_parameter = [];
 
-    private function getColumnMapping(Item $item, ?array $additional_parameters): array
-    {
-        return $this->dt_parent->getColumnMapping($item, $additional_parameters);
-    }
-
-    /**
-     * @return Column[]
-     */
-    private function getColumns(?array $additional_parameters): array
-    {
-        return $this->dt_parent->getColumns($additional_parameters);
-    }
-
     protected function buildTable(): \ILIAS\UI\Component\Component
     {
         $tf = $this->ui_factory->table();
 
-        $table = $tf->data($this->getTitle(), $this->dt_parent->getColumns($this->getAdditionalParameter()), $this)
+        $table = $tf->data($this->getTitle(), $this->getColumns($this->getAdditionalParameter()), $this)
                     ->withId($this->getUIName() . "_table")
                     ->withRequest($this->request)
                     ->withAdditionalParameters($this->getAdditionalParameter());
@@ -107,7 +96,7 @@ class DataTable extends Table implements DataRetrieval
                 "item" => $x,
                 "mapping" =>  $this->getColumnMapping($x, $additional_parameters)
             ],
-            iterator_to_array($this->parent->getTableItems(null, $filter_data))
+            iterator_to_array($this->getTableItems(null, $filter_data))
         );
 
         if($order) {
@@ -129,11 +118,6 @@ class DataTable extends Table implements DataRetrieval
             }
             yield $row;
         }
-    }
-
-    public function getTotalRowCount(?array $filter_data, ?array $additional_parameters) : ?int
-    {
-        return $this->dt_parent->getTotalRowCount($filter_data, $additional_parameters);
     }
 
     protected function buildDataTabeActionByType(
@@ -198,6 +182,25 @@ class DataTable extends Table implements DataRetrieval
     public function setAdditionalParameter(array $additional_parameter) : void
     {
         $this->additional_parameter = $additional_parameter;
+    }
+
+    # DATA TABLE PARENT fassade
+    public function getTotalRowCount(?array $filter_data, ?array $additional_parameters) : ?int
+    {
+        return $this->dt_parent->getTotalRowCount($filter_data, $additional_parameters);
+    }
+
+    public function getColumnMapping(Item $item, ?array $additional_parameters): array
+    {
+        return $this->dt_parent->getColumnMapping($item, $additional_parameters);
+    }
+
+    /**
+     * @return Column[]
+     */
+    public function getColumns(?array $additional_parameters): array
+    {
+        return $this->dt_parent->getColumns($additional_parameters);
     }
 
 }

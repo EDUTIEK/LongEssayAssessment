@@ -26,6 +26,7 @@ class Factory
         protected Refinery\Factory $refinery,
         protected ArrayBasedRequestWrapper $query,
         protected ServerRequestInterface $request,
+        protected \ilLanguage $lng
     ) {
         $this->action_factory = new Action\Factory();
         $this->data_factory = new \ILIAS\Data\Factory();
@@ -57,7 +58,7 @@ class Factory
                 $ui_name . "_item"
             );
 
-        return new DataTable($ui_name, $parent, $url_builder, $row_id_token, $action_parameter_token, $this->ui_factory, $this->local_factory, $this->ui_service, $this->renderer, $this->refinery, $this->query, $this->request);
+        return new DataTable($ui_name, $parent, $url_builder, $row_id_token, $action_parameter_token, $this->ui_factory, $this->local_factory, $this->ui_service, $this->renderer, $this->refinery, $this->query, $this->request, $this->lng);
     }
 
     public function formGroup(
@@ -81,6 +82,6 @@ class Factory
                 $ui_name . "_item"
             );
 
-        return new FormGroup($ui_name, $parent, $url_builder, $row_id_token, $action_parameter_token, $this->ui_factory, $this->local_factory, $this->ui_service, $this->renderer, $this->refinery, $this->query, $this->request);
+        return new FormGroup($ui_name, $parent, $url_builder, $row_id_token, $action_parameter_token, $this->ui_factory, $this->local_factory, $this->ui_service, $this->renderer, $this->refinery, $this->query, $this->request, $this->lng);
     }
 }

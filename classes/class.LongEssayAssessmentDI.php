@@ -107,7 +107,8 @@ class LongEssayAssessmentDI
                 $dic->ui()->renderer(),
                 $dic->refinery(),
                 $dic->http()->wrapper()->query(),
-                $dic->http()->request()
+                $dic->http()->request(),
+                $dic->language()
             );
         };
 

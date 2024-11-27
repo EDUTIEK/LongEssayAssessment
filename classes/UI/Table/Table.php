@@ -18,8 +18,9 @@ use ILIAS\Plugin\LongEssayAssessment\UI\Table\Action\Form;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\Action\Modal;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\Action\Confirmation;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\Action\Direct;
+use Generator;
 
-abstract class Table
+abstract class Table implements TableParent, FilterParent
 {
     private string $title  = "";
     private ?Filter\Standard $filter = null;
@@ -29,11 +30,15 @@ abstract class Table
      */
     private array $modal = [];
     /**
+     * @var Filter\FilterInput[]
+     */
+    private array $filter_inputs = [];
+    /**
      * @var Action[]
      */
     protected array $actions = [];
     public function __construct(
-        private readonly string $ui_name,
+        protected readonly string $ui_name,
         protected TableParent $parent,
         protected URLBuilder $url_builder,
         protected URLBuilderToken $row_id_token,
@@ -45,8 +50,12 @@ abstract class Table
         protected Refinery\Factory $refinery,
         protected ArrayBasedRequestWrapper $query,
         protected ServerRequestInterface $request,
+        protected \ilLanguage $lng
     ) {
-        $this->initActions();
+        $this->initActions($parent);
+        if($this->parent instanceof FilterParent) {
+            $this->initFilter($parent);
+        }
     }
 
     public function getUiName() : string
@@ -64,10 +73,19 @@ abstract class Table
         $this->title = $title;
     }
 
-    private function initActions()
+    protected function initActions(TableParent $parent)
     {
-        foreach ($this->parent->getTableActions() as $action) {
+        foreach ($parent->getTableActions() as $action) {
             $this->actions[$action->name()] = $action;
+        }
+    }
+
+    protected function initFilter(FilterParent $parent)
+    {
+        $this->filter_inputs = [];
+
+        foreach($parent->getFilterInputs() as $filter) {
+            $this->filter_inputs[] = $filter;
         }
     }
 
@@ -137,7 +155,7 @@ abstract class Table
                 $this->refinery->in()->series([
                     $this->refinery->custom()->transformation(function ($x) {
                         if(is_array($x) && $x[0] === "ALL_OBJECTS") {
-                            return array_map(fn ($x) => $x->getId(), iterator_to_array($this->parent->getTableItems()));
+                            return array_map(fn ($x) => $x->getId(), iterator_to_array($this->getTableItems()));
                         } else {
                             return $x;
                         }
@@ -182,22 +200,6 @@ abstract class Table
         );
     }
 
-    /**
-     * @return Filter\FilterInput[]
-     */
-    protected function getFilterInputs(): array
-    {
-        return [];
-    }
-
-    /**
-     * @return bool[]
-     */
-    protected function getFilterInputActivation(): array
-    {
-        return array_map(fn ($x) => true, $this->getFilterInputs());
-    }
-
     protected function addModal(Component\Modal\Modal $modal)
     {
         $this->modal[] = $modal;
@@ -230,7 +232,7 @@ abstract class Table
     {
         $components = [];
 
-        if(count($this->getFilterInputActivation()) > 0) {
+        if(count($this->getFilterInputs()) > 0) {
             $components[] = $this->getFilter();
         }
 
@@ -257,7 +259,7 @@ abstract class Table
     protected function form(Form $action) : void
     {
         $ids  = $this->currentIds();
-        $items = iterator_to_array($this->parent->getTableItems($ids));
+        $items = iterator_to_array($this->getTableItems($ids));
 
         $link = $this->getActionFormLink();
 
@@ -291,7 +293,7 @@ abstract class Table
     protected function modal(Modal $action) : void
     {
         $ids  = $this->currentIds();
-        $items = iterator_to_array($this->parent->getTableItems($ids));
+        $items = iterator_to_array($this->getTableItems($ids));
 
         $modal = $action->modal($items);
 
@@ -324,7 +326,7 @@ abstract class Table
     protected function confirmation(Confirmation $action) : void
     {
         $ids  = $this->currentIds();
-        $items = $this->parent->getTableItems($ids);
+        $items = $this->getTableItems($ids);
 
         $confirmation_items = [];
 
@@ -350,7 +352,45 @@ abstract class Table
     protected function direct(Direct $action) : void
     {
         $ids = $this->currentIds();
-        $items = iterator_to_array($this->parent->getTableItems($ids));
+        $items = iterator_to_array($this->getTableItems($ids));
         $action->action($items);
+    }
+
+
+    # Table Parent fassade
+    public function getTableActions() : array
+    {
+        return $this->actions;
+    }
+
+    public function getTableItems(?array $ids = null, ?array $filter_data = null) : Generator
+    {
+        return $this->parent->getTableItems($ids, $filter_data);
+    }
+
+    public function getTableItem(int $id) : Item
+    {
+        return $this->parent->getTableItem($id);
+    }
+
+    # FILTER PARENT fassade
+    /**
+     * @return Filter\FilterInput[]
+     */
+    public function getFilterInputs(): array
+    {
+        return $this->filter_inputs;
+    }
+
+    /**
+     * @return bool[]
+     */
+    public function getFilterInputActivation(): array
+    {
+        if($this->parent instanceof FilterParent && ($activation = $this->parent->getFilterInputActivation()) !== null) {
+            return $activation;
+        }
+
+        return array_map(fn ($x) => true, $this->getFilterInputs());
     }
 }

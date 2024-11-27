@@ -630,3 +630,10 @@ path_to_ghostscript#:#Pfad zu Ghostscript
 path_to_ghostscript_info#:#Ghostscript wird benötigt, um hochgeladene PDF-Dateien zu verarbeiten. Konfigurieren Sie hier den Pfad zum direkten Aufruf von ghostscript auf Ihrem Server. Als Fallback wird ein für die ILIAS-Vorschau konfigurierter Pfad oder '/usr/bin/gs' als Standard verwendet. Falls der Pfad nicht ausführbar ist, wird Ghostscript über die PHP-Erweiterung Imagick verwendet. Das kann bei großen PDF-Dateien zu Ressourcen-Problemen führen.
 ghostscript_used#:#Aktuell verwendet: %s
 ghostscript_imagick#:#PHP-Erweiterung Imagick
+corrector_single_assignments#:#Korrekturen
+corrector_first_assignments#:#Erstkorrekturen
+corrector_second_assignments#:#Zweitkorrekturen
+progress#:#Fortschritt
+corrector_show_assignments#:#Zeige Korrekturen
+corrector_no_assignments#:#Keine zugewiesen
+corrector_assignments#:#Korrekturen

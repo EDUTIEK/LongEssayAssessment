@@ -257,6 +257,14 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                         $this->ctrl->forwardCommand(new \ILIAS\Plugin\LongEssayAssessment\CorrectorAdmin\CorrectorAdminStatisticsGUI($this));
                     }
                     break;
+                case 'ilias\plugin\longessayassessment\correctoradmin\correctorgui':
+                    if ($this->object->canMaintainCorrectors()) {
+                        $cmd = $this->ctrl->getCmd('showItems');
+                        $active_sub = 'tab_corrector_list';
+                        $this->activateTab('tab_corrector_admin', $active_sub);
+                        $this->ctrl->forwardCommand(new \ILIAS\Plugin\LongEssayAssessment\CorrectorAdmin\CorrectorGUI($this));
+                    }
+                    break;
                 case 'ilias\plugin\longessayassessment\correctoradmin\correctoradminwriterstatisticsgui':
                     if ($this->object->canMaintainCorrectors()) {
                         $cmd = $this->ctrl->getCmd('showStartPage');
@@ -525,7 +533,7 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
             $tabs[] = [
                 'id' => 'tab_corrector_list',
                 'txt' => $this->plugin->txt('tab_corrector_list'),
-                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessayassessment\correctorAdmin\correctoradmingui', "showCorrectors")
+                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessayassessment\correctorAdmin\correctorgui', "showItems")
             ];
             $tabs[] = [
                 'id' => 'tab_corrector_adm_statistic',

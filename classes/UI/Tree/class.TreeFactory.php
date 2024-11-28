@@ -1,6 +1,6 @@
 <?php
 
-namespace ILIAS\Plugin\LongEssayAssessment\UI\Implementation\Tree;
+namespace ILIAS\Plugin\LongEssayAssessment\UI\Tree;
 
 use ILIAS\UI\Component\Tree\Factory as UiTreeFactory;
 use ILIAS\UI\Component\Symbol\Icon\Factory as UiIconFactory;
@@ -19,6 +19,10 @@ class TreeFactory
         \ilTree $repo_tree,
         \ilAccessHandler $access,
         \ilLanguage $lng,
+        protected \ILIAS\HTTP\Services $http,
+        protected \ILIAS\Refinery\Factory $refinery,
+        protected \ILIAS\UI\Factory $ui_factory,
+        protected \ILIAS\UI\Renderer $renderer,
     ) {
         $this->tree_factory = $tree_factory;
         $this->icon_factory = $icon_factory;
@@ -42,6 +46,23 @@ class TreeFactory
             $start_ref_id,
             $current_ref_id,
             $is_subtree
+        );
+    }
+
+    public function repositorySelect(int $ref_id, string $title, callable $view_callback, ?string $uri = null)
+    {
+        return new RepositorySelectModal(
+            $this->http,
+            $this->refinery,
+            $this->ui_factory,
+            $this->renderer,
+            $this->lng,
+            $this,
+            $this->access,
+            $ref_id,
+            $title,
+            $view_callback,
+            $uri,
         );
     }
 }

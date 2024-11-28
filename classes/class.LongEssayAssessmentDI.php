@@ -23,7 +23,7 @@ use ILIAS\Plugin\LongEssayAssessment\ServiceLayer\ServicesFactory;
 use ILIAS\Plugin\LongEssayAssessment\Data\DataConstraints;
 use ILIAS\Plugin\LongEssayAssessment\UI\Implementation\StatisticFactory;
 use ILIAS\Plugin\LongEssayAssessment\UI\Implementation\ViewerFactory;
-use ILIAS\Plugin\LongEssayAssessment\UI\Implementation\Tree\TreeFactory;
+use ILIAS\Plugin\LongEssayAssessment\UI\Tree\TreeFactory;
 
 /**
  * @author Fabian Wolf <wolf@ilias.de>
@@ -94,7 +94,11 @@ class LongEssayAssessmentDI
                     $dic["ui.factory.symbol.icon"],
                     $dic->repositoryTree(),
                     $dic->access(),
-                    $dic->language()
+                    $dic->language(),
+                    $dic->http(),
+                    $dic->refinery(),
+                    $dic->ui()->factory(),
+                    $dic->ui()->renderer()
                 )
             );
         };

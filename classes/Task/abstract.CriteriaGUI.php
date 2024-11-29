@@ -16,6 +16,9 @@ use Generator;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\Helper\SmallView;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\Action;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\Helper\ConfirmationIds;
+use ILIAS\Export\ImportStatus\Exception\ilException;
+use ILIAS\Plugin\LongEssayAssessment\UI\Tree\RepositorySelectModal;
+use ILIAS\UI\Component\Component;
 
 abstract class CriteriaGUI extends BaseGUI implements DataTableParent
 {
@@ -24,6 +27,7 @@ abstract class CriteriaGUI extends BaseGUI implements DataTableParent
     private ObjectRepository $object_repo;
     private CorrectorRepository $corrector_repo;
     private \ILIAS\Plugin\LongEssayAssessment\UI\Table\Factory $table_factory;
+    private ?int $copy_context = null;
 
     public function __construct(\ilObjLongEssayAssessmentGUI $objectGUI)
     {
@@ -41,6 +45,7 @@ abstract class CriteriaGUI extends BaseGUI implements DataTableParent
         switch ($cmd) {
             case 'showItems':
             case 'deleteItems':
+            case 'copyCriteria':
                 $this->$cmd();
                 break;
             case 'copyItems':
@@ -72,9 +77,16 @@ abstract class CriteriaGUI extends BaseGUI implements DataTableParent
         $table->setTitle($this->plugin->txt("criteria"));
 
         $table->addActionToToolbar($this->toolbar, $table->getActionByName("add_criteria"), true);
+        if($this->getCorrectorIdFromContext() === null) {
+            $select = $this->buildRepositorySelect();
+            list($btn, $modal) = $select->getToolbarComponents($this->plugin->txt("copy_criteria"));
+            $this->addModal($modal);
+            $this->toolbar->addComponent($btn);
+        }
+
         $this->addCopyToolbar();
 
-        $this->tpl->setContent($this->renderer->render($table->getComponents()));
+        $this->setContent($this->renderer->render($table->getComponents()));
     }
 
     protected function buildItemTitle(RatingCriterion $item): string
@@ -328,9 +340,8 @@ abstract class CriteriaGUI extends BaseGUI implements DataTableParent
 
     public function getTableItems(?array $ids = null, ?array $filter_data = null) : Generator
     {
-        if ($this->dic->http()->wrapper()->query()->has("xlas_copy_ref")) {
-            $ref_id = $this->dic->http()->wrapper()->query()->retrieve("xlas_copy_ref", $this->refinery->kindlyTo()->int());
-            $obj_id = \ilObject2::_lookupObjectId($ref_id);
+        if ($this->copy_context !== null) {
+            $obj_id = \ilObject2::_lookupObjectId($this->copy_context);
             //check ref access_rights
             foreach ($this->object_repo->getRatingCriteriaByObjectId($obj_id) as $object) {
                 yield $this->tableItemFromData($object);
@@ -435,6 +446,55 @@ abstract class CriteriaGUI extends BaseGUI implements DataTableParent
 
         $this->object_repo->save($criterion);
         $this->tpl->setOnScreenMessage("success", $this->lng->txt("settings_saved"), true);
+    }
+
+    protected function copyCriteria() : void
+    {
+        if($this->getCorrectorIdFromContext() !== null) {
+            throw new ilException("Operation not permitted");
+        }
+        $select = $this->buildRepositorySelect();
+
+        if($select->hasSelected()) {
+            $ref_id = $select->getSelectedId();
+
+            $criteria = $this->object_repo->getRatingCriteriaByObjectId(\ilObject2::_lookupObjectId($ref_id), null);
+            $this->object_repo->deleteRatingCriterionByObjectIdAndCorrectorId($this->object->getId(), null);
+
+            foreach ($criteria as $criterion) {
+                $new = clone $criterion;
+                $new->setId(0);
+                $new->setCorrectorId(null);
+                $new->setObjectId($this->object->getId());
+                $this->object_repo->save($new);
+            }
+
+            $this->tpl->setOnScreenMessage("success", $this->plugin->txt('copy_criteria_successful'), true);
+            $this->ctrl->redirect($this, "showItems");
+        } else {
+            $select->showAsync();
+        }
+    }
+
+    protected function buildRepositorySelect() : RepositorySelectModal
+    {
+        return $this->localDI->getUIFactory()->tree()->repositorySelect(
+            $this->object->getRefId(),
+            $this->plugin->txt("copy_criteria"),
+            [$this, "listCriterion"],
+            $this->ctrl->getLinkTarget($this, 'copyCriteria', null, true)
+        )->setPermission("maintain_task")
+         ->setMessage($this->plugin->txt('copy_criteria_info'));
+    }
+
+    public function listCriterion(int $ref_id) : Component
+    {
+        $this->copy_context = $ref_id;
+
+        $table = $this->table_factory->dataTable("copy_criteria", $this);
+        $table->setAdditionalParameter($this->setSmallView());
+
+        return $table->getTable();
     }
 
 }

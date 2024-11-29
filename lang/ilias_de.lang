@@ -639,3 +639,5 @@ corrector_no_assignments#:#Keine zugewiesen
 corrector_assignments#:#Korrekturen
 no_correctors#:#Keine Korrektoren
 copy_from_xlas#:#Korrektoren aus Langtext-Aufgabe
+copy_criteria#:#Kriterien kopieren
+copy_criteria_info#:#Beim Kopieren der Kriterien werden die bestehenden Kriterien ersetzt.

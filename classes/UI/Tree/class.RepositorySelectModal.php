@@ -20,6 +20,7 @@ class RepositorySelectModal
     private ?string $message = null;
     private string $permission = 'maintain_task';
     private array $selectable_types = ['xlas'];
+    private ?string $action_label = null;
     protected \ILIAS\HTTP\Wrapper\ArrayBasedRequestWrapper $query;
 
     public function __construct(
@@ -61,12 +62,12 @@ class RepositorySelectModal
         return $this->message;
     }
 
-    protected function getView(int $ref_id): array
+    protected function getView(int $ref_id): array|Component
     {
         return ($this->view_callback)($ref_id);
     }
 
-    protected function setPermission(string $permission): self
+    public function setPermission(string $permission): self
     {
         $this->permission = $permission;
         return $this;
@@ -77,7 +78,7 @@ class RepositorySelectModal
         return $this->permission;
     }
 
-    protected function setSelectableTypes(array $types) : self
+    public function setSelectableTypes(array $types) : self
     {
         $this->selectable_types = $types;
         return $this;
@@ -86,6 +87,17 @@ class RepositorySelectModal
     protected function getSelectableTypes(): array
     {
         return $this->selectable_types;
+    }
+
+    public function setActionLabel(string $label): self
+    {
+        $this->action_label = $label;
+        return $this;
+    }
+
+    protected function getActionLabel(): string
+    {
+        return $this->action_label ?? $this->lng->txt('copy');
     }
 
     public function hasSelected(): bool
@@ -163,7 +175,7 @@ class RepositorySelectModal
             $title,
             $components
         )->withActionButtons([
-            $this->ui_factory->button()->primary($this->lng->txt('copy'), $copy_link),
+            $this->ui_factory->button()->primary($this->getActionLabel(), $copy_link),
             $this->ui_factory->button()->standard($this->lng->txt('back'), "#")
                              ->withOnClick($replace_signal->withAsyncRenderUrl($back_link))
         ]);

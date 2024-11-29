@@ -61,12 +61,12 @@ class RepositorySelectModal
         return $this->message;
     }
 
-    protected function getView(int $ref_id): array
+    protected function getView(int $ref_id): array|Component
     {
         return ($this->view_callback)($ref_id);
     }
 
-    protected function setPermission(string $permission): self
+    public function setPermission(string $permission): self
     {
         $this->permission = $permission;
         return $this;
@@ -77,7 +77,7 @@ class RepositorySelectModal
         return $this->permission;
     }
 
-    protected function setSelectableTypes(array $types) : self
+    public function setSelectableTypes(array $types) : self
     {
         $this->selectable_types = $types;
         return $this;

@@ -4,6 +4,7 @@ namespace ILIAS\Plugin\LongEssayAssessment\UI\Tree;
 
 use ILIAS\UI\Component\Tree\Factory as UiTreeFactory;
 use ILIAS\UI\Component\Symbol\Icon\Factory as UiIconFactory;
+use ILIAS\Data\URI;
 
 class TreeFactory
 {
@@ -49,8 +50,12 @@ class TreeFactory
         );
     }
 
-    public function repositorySelect(int $ref_id, string $title, callable $view_callback, ?string $uri = null)
+    public function repositorySelect(int $ref_id, string $title, callable|array $view_callback, ?string $uri_or_target = null) : RepositorySelectModal
     {
+        if($uri_or_target !== null && !preg_match('/\Ahttp[s]?:\/\//', $uri_or_target)) {
+            $uri_or_target =  rtrim(ILIAS_HTTP_PATH, '/') . "/" . ltrim($uri_or_target, '/');
+        }
+
         return new RepositorySelectModal(
             $this->http,
             $this->refinery,
@@ -62,7 +67,7 @@ class TreeFactory
             $ref_id,
             $title,
             $view_callback,
-            $uri,
+            $uri_or_target,
         );
     }
 }

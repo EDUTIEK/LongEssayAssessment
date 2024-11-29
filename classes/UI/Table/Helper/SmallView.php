@@ -8,4 +8,11 @@ trait SmallView
     {
         return isset($additional_parameters["small_view"]) ? (bool)$additional_parameters["small_view"] : false;
     }
+
+    protected function setSmallView(?array $additional_parameters = null) : array
+    {
+        $additional_parameters = $additional_parameters ?? [];
+        $additional_parameters["small_view"] = true;
+        return $additional_parameters;
+    }
 }

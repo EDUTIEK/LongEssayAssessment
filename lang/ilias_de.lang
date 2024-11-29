@@ -637,3 +637,5 @@ progress#:#Fortschritt
 corrector_show_assignments#:#Zeige Korrekturen
 corrector_no_assignments#:#Keine zugewiesen
 corrector_assignments#:#Korrekturen
+no_correctors#:#Keine Korrektoren
+copy_from_xlas#:#Korrektoren aus Langtext-Aufgabe

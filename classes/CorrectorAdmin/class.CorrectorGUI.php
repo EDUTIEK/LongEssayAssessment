@@ -19,6 +19,10 @@ use ILIAS\Plugin\LongEssayAssessment\Data\Essay\CorrectorSummary;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\Action;
 use ILIAS\UI\Component\Modal\RoundTrip;
 use ILIAS\Plugin\LongEssayAssessment\Data\Writer\Writer;
+use ILIAS\UI\Component\Listing\Unordered;
+use ILIAS\UI\Component\Component;
+use ILIAS\HTTP\Wrapper\ArrayBasedRequestWrapper;
+use ILIAS\Plugin\LongEssayAssessment\UI\Tree\RepositorySelectModal;
 
 /**
  *Start page for corrector admins
@@ -40,6 +44,7 @@ class CorrectorGUI extends BaseGUI implements DataTableParent
     private \ILIAS\Plugin\LongEssayAssessment\UI\Table\Factory $table_factory;
     private \ILIAS\Plugin\LongEssayAssessment\Data\DataService $data_service;
     private CorrectorAdminService $service;
+    protected ArrayBasedRequestWrapper $post;
 
     public function __construct(\ilObjLongEssayAssessmentGUI $objectGUI)
     {
@@ -52,6 +57,7 @@ class CorrectorGUI extends BaseGUI implements DataTableParent
         $this->user_data = $this->localDI->services()->common()->userDataHelper();
         $this->table_factory = $this->localDI->getTableFactory();
         $this->data_service = $this->localDI->getDataService($this->object->getId());
+        $this->post = $this->http->wrapper()->post();
     }
 
     public function executeCommand()
@@ -74,6 +80,7 @@ class CorrectorGUI extends BaseGUI implements DataTableParent
                     case 'remove':
                     case 'addAllCourseTutors':
                     case 'mailToCorrectorsAsync':
+                    case 'copyCorrectors':
                         $this->$cmd();
                         break;
 
@@ -111,6 +118,11 @@ class CorrectorGUI extends BaseGUI implements DataTableParent
             $this->toolbar->addComponent($button);
             $this->addModal($add_tutors_modal);
         }
+
+        $select = $this->buildRepositorySelect();
+        list($btn, $modal) = $select->getToolbarComponents($this->plugin->txt("copy_from_xlas"));
+        $this->toolbar->addComponent($btn);
+        $this->addModal($modal);
 
         // spacer
         $this->toolbar->addSeparator();
@@ -476,4 +488,48 @@ class CorrectorGUI extends BaseGUI implements DataTableParent
         $this->openMailForm($logins, 'showItems');
     }
 
+    protected function buildRepositorySelect() : RepositorySelectModal
+    {
+        return $this->localDI->getUIFactory()->tree()->repositorySelect(
+            $this->object->getRefId(),
+            $this->plugin->txt("correctors"),
+            [$this, "listCorrectors"],
+            $this->ctrl->getLinkTarget($this, 'copyCorrectors', null, true)
+        )->setPermission("maintain_correctors");
+    }
+
+    protected function copyCorrectors()
+    {
+        $select = $this->buildRepositorySelect();
+
+        if($select->hasSelected()) {
+            $id = \ilObject2::_lookupObjectId($select->getSelectedId());
+            $correctors = $this->corrector_repo->getCorrectorsByTaskId($id);
+
+            foreach($correctors as $corrector) {
+                $this->service->getOrCreateCorrectorFromUserId($corrector->getUserId());
+            }
+
+            $this->tpl->setOnScreenMessage("success", $this->plugin->txt('assign_corrector_success'), true);
+            $this->ctrl->redirect($this, "showItems");
+        } else {
+            $select->showAsync();
+        }
+    }
+
+    public function listCorrectors(int $ref_id) : Component
+    {
+        $id = \ilObject2::_lookupObjectId($ref_id);
+        $correctors = $this->corrector_repo->getCorrectorsByTaskId($id);
+
+        if(empty($correctors)) {
+            return $this->uiFactory->legacy($this->plugin->txt("no_correctors"));
+        }
+
+        $this->user_data->preload(array_map(fn (Corrector $x) => $x->getUserId(), $correctors));
+
+        return $this->uiFactory->listing()->unordered(
+            array_map(fn (Corrector $x) => $this->user_data->getPresentation($x->getUserId()), $correctors)
+        );
+    }
 }

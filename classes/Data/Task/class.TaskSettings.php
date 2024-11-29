@@ -4,6 +4,8 @@
 namespace ILIAS\Plugin\LongEssayAssessment\Data\Task;
 
 use ILIAS\Plugin\LongEssayAssessment\Data\RecordData;
+use ILIAS\UI\Component\Input\Field\DateTime;
+use DateTimeInterface;
 
 /**
  * @author Fred Neumann <fred.neumann@ilias.de>
@@ -42,7 +44,8 @@ class TaskSettings extends RecordData
         'solution_available_date' => 'datetime',
         'result_available_type' => 'text',
         'result_available_date' => 'datetime',
-        'statistics_available' => 'integer'
+        'statistics_available' => 'integer',
+        'writing_limit_minutes' => 'integer'
     ];
 
 
@@ -67,6 +70,7 @@ class TaskSettings extends RecordData
     protected string $result_available_type = self::RESULT_AVAILABLE_REVIEW;
     protected ?string $result_available_date = null;
     protected int $statistics_available = 0;
+    protected ?int $writing_limit_minutes = 0;
 
 
     public function __construct(int $task_id)
@@ -437,4 +441,14 @@ class TaskSettings extends RecordData
         return $this;
     }
 
+    public function getWritingLimitMinutes(): ?int
+    {
+        return $this->writing_limit_minutes;
+    }
+
+    public function setWritingLimitMinutes(?int $writing_limit_minutes): TaskSettings
+    {
+        $this->writing_limit_minutes = $writing_limit_minutes;
+        return $this;
+    }
 }

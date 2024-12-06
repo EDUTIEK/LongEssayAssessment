@@ -2279,3 +2279,13 @@ if (!$ilDB->tableColumnExists('xlas_task_settings','writing_limit_minutes')) {
     ));
 }
 ?>
+<#113>
+<?php
+if (!$ilDB->tableColumnExists('xlas_time_extension','writing_start')) {
+    $ilDB->addTableColumn('xlas_time_extension', 'writing_start', array(
+        'notnull' => '0',
+        'type' => 'timestamp',
+        'default' => null
+    ));
+}
+?>

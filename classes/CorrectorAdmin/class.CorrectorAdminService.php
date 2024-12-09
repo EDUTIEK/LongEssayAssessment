@@ -443,23 +443,16 @@ class CorrectorAdminService extends BaseService
 
         if (!$this->isStitchDecisionNeededForSummaries($summaries)) {
             $average = $this->getAveragePointsOfSummaries($summaries);
-            if (empty($this->objectRepo->getGradeLevelsByObjectId($this->task_id))) {
-                // no grade levels defined => allow authorization without grade level
+            if ($average !== null) {
                 $essay->setFinalPoints($average);
+                // no fitting grade found => allow authorization without grade level
+                if (!empty($level = $this->getGradeLevelForPoints($average))) {
+                    $essay->setFinalGradeLevelId($level->getId());
+                }
                 $essay->setCorrectionFinalized($this->dataService->unixTimeToDb(time()));
                 $essay->setCorrectionFinalizedBy($user_id);
                 $this->essayRepo->save($essay);
                 return true;
-            }
-            elseif ($average !== null) {
-                if (!empty($level = $this->getGradeLevelForPoints($average))) {
-                    $essay->setFinalPoints($average);
-                    $essay->setFinalGradeLevelId($level->getId());
-                    $essay->setCorrectionFinalized($this->dataService->unixTimeToDb(time()));
-                    $essay->setCorrectionFinalizedBy($user_id);
-                    $this->essayRepo->save($essay);
-                    return true;
-                }
             }
         }
         return false;
@@ -723,6 +716,11 @@ class CorrectorAdminService extends BaseService
                     $csv->addColumn((string) $level->getGrade());
                     $csv->addColumn((string) $level->getCode());
                     $csv->addColumn((string) $level->isPassed());
+                }
+                else {
+                    $csv->addColumn((string) '');
+                    $csv->addColumn((string) '');
+                    $csv->addColumn((string) '');
                 }
             }
             $i = 1;

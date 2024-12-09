@@ -1,5 +1,9 @@
 # Change Log
 
+## Upcoming Version 
+Bug fixes:
+- Fault tolerance when no grade level is found for final points
+
 ## Version 2.5 (2024-11-11)
 Plugin:
 - GitHub workflow to create self-contained release packages

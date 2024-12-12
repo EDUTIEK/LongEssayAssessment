@@ -543,7 +543,10 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
             $this->subtabs['tab_corrector_admin'] = $tabs;
         }
 
-
+        // standard export tab
+        if ($this->object->canExportObject()) {
+            $this->addExportTab();
+        }
 
         // standard info screen tab
         if ($this->object->canViewInfoScreen()) {

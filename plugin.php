@@ -16,5 +16,5 @@ $responsible = 'Fred Neumann';
 $responsible_mail = 'fred.neumann@ilias.de';
 
 // features
-$supports_export = false;
+$supports_export = true;
 $learning_progress = false;

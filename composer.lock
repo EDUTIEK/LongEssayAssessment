@@ -4,20 +4,49 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1809e2ac14bcf10fb2b433f2cdc246ce",
+    "content-hash": "46f9a5c765b3b2b9a08b531dfc27729b",
     "packages": [
+        {
+            "name": "edutiek/assessment-service",
+            "version": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "git@github.com:EDUTIEK/assessment-service.git",
+                "reference": "4d3d2716c8a50ff6972a1fccb2d59e281c69c378"
+            },
+            "default-branch": true,
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Edutiek\\AssessmentService\\": "src/"
+                },
+                "classmap": [
+                    "./src"
+                ]
+            },
+            "license": [
+                "GPLv3"
+            ],
+            "authors": [
+                {
+                    "name": "Lukas Scharmer",
+                    "email": "lscharmer@databay.de"
+                }
+            ],
+            "time": "2024-12-16T12:02:56+00:00"
+        },
         {
             "name": "edutiek/long-essay-assessment-service",
             "version": "dev-ally",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EDUTIEK/long-essay-assessment-service.git",
-                "reference": "39288d99b66d7631abefb47d59aa52f03be0c78a"
+                "reference": "5392d1e556c0f68c21c0c0bc2dcba059b7104a18"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EDUTIEK/long-essay-assessment-service/zipball/39288d99b66d7631abefb47d59aa52f03be0c78a",
-                "reference": "39288d99b66d7631abefb47d59aa52f03be0c78a",
+                "url": "https://api.github.com/repos/EDUTIEK/long-essay-assessment-service/zipball/5392d1e556c0f68c21c0c0bc2dcba059b7104a18",
+                "reference": "5392d1e556c0f68c21c0c0bc2dcba059b7104a18",
                 "shasum": ""
             },
             "require": {
@@ -54,7 +83,7 @@
             "support": {
                 "source": "https://github.com/EDUTIEK/long-essay-assessment-service/tree/ally"
             },
-            "time": "2024-11-03T23:07:50+00:00"
+            "time": "2024-11-22T08:40:26+00:00"
         },
         {
             "name": "edutiek/long-essay-image-sketch",
@@ -887,8 +916,8 @@
             "type": "library",
             "extra": {
                 "thanks": {
-                    "name": "symfony/polyfill",
-                    "url": "https://github.com/symfony/polyfill"
+                    "url": "https://github.com/symfony/polyfill",
+                    "name": "symfony/polyfill"
                 }
             },
             "autoload": {
@@ -949,16 +978,16 @@
         },
         {
             "name": "tecnickcom/tcpdf",
-            "version": "6.7.7",
+            "version": "6.7.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/tecnickcom/TCPDF.git",
-                "reference": "cfbc0028cc23f057f2baf9e73bdc238153c22086"
+                "reference": "7956f5e37863c6a569d5ccfae826f353a12a2493"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tecnickcom/TCPDF/zipball/cfbc0028cc23f057f2baf9e73bdc238153c22086",
-                "reference": "cfbc0028cc23f057f2baf9e73bdc238153c22086",
+                "url": "https://api.github.com/repos/tecnickcom/TCPDF/zipball/7956f5e37863c6a569d5ccfae826f353a12a2493",
+                "reference": "7956f5e37863c6a569d5ccfae826f353a12a2493",
                 "shasum": ""
             },
             "require": {
@@ -1009,7 +1038,7 @@
             ],
             "support": {
                 "issues": "https://github.com/tecnickcom/TCPDF/issues",
-                "source": "https://github.com/tecnickcom/TCPDF/tree/6.7.7"
+                "source": "https://github.com/tecnickcom/TCPDF/tree/6.7.8"
             },
             "funding": [
                 {
@@ -1017,7 +1046,7 @@
                     "type": "custom"
                 }
             ],
-            "time": "2024-10-26T12:15:02+00:00"
+            "time": "2024-12-13T19:31:40+00:00"
         },
         {
             "name": "yetanotherape/diff-match-patch",
@@ -1084,7 +1113,8 @@
     "stability-flags": {
         "edutiek/long-essay-assessment-service": 20,
         "edutiek/long-essay-pdf-converter": 20,
-        "edutiek/long-essay-image-sketch": 20
+        "edutiek/long-essay-image-sketch": 20,
+        "edutiek/assessment-service": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,

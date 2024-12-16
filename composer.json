@@ -11,7 +11,8 @@
     {
       "type": "vcs",
       "url": "https://github.com/edutiek/long-essay-image-sketch"
-    }
+    },
+    {"type": "git", "url": "git@github.com:EDUTIEK/assessment-service.git"}
   ],
   "require": {
     "php": ">=8.1 <8.3",
@@ -20,7 +21,8 @@
     "edutiek/long-essay-image-sketch": "dev-main",
     "psr/container": "^1.0",
     "psr/http-message": "^1.1",
-    "psr/log": "^2.0"
+    "psr/log": "^2.0",
+    "edutiek/assessment-service": "dev-main"
   },
   "autoload": {
     "psr-4" : { "ILIAS\\Plugin\\LongEssayAssessment\\" : "./classes" },

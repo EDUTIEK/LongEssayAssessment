@@ -1,0 +1,212 @@
+<?php
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+declare(strict_types=1);
+
+namespace ILIAS\Plugin\LongEssayAssessment\Data;
+
+use ilDBInterface;
+use DateTime;
+use DateTimeImmutable;
+use Exception;
+
+/**
+ * @template A of object
+ * @implements Repository<A>
+ */
+class DatabaseRepository implements Repository
+{
+    public function __construct(
+        private readonly ilDBInterface $db,
+        private readonly array $model
+    ) {
+    }
+
+    public function all(): array
+    {
+        if (isset($GLOBALS['HEJ'])) {
+            var_dump('aerrr');exit;
+        }
+        $GLOBALS['HEJ'] = 'aaa';
+        return $this->queryAll('SELECT * FROM ' . $this->db->quoteIdentifier($this->table()));
+    }
+
+    public function queryAll(string $query): array
+    {
+        return array_map($this->fromRow(...), $this->queryAllRaw($query));
+    }
+
+    public function queryOne(string $query): ?object
+    {
+        $row = $this->db->fetchAssoc($this->db->query($query));
+        return $row ? $this->fromRow($row) : null;
+    }
+
+    public function insert(object $model): void
+    {
+        $this->updateSequence($model);
+        $this->db->insert($this->table(), $this->toRowWithTypes($model));
+    }
+
+    public function replace(object $model): void
+    {
+        $this->updateSequence($model);
+
+        $row = $this->toRowWithTypes($model);
+
+        $keys = array_column($this->keyFields(), 'db_name');
+        $keys = array_combine($keys, array_fill(0, count($keys), null));
+
+        $this->db->replace(
+            $this->table(),
+            array_intersect_key($row, $keys),
+            array_diff_key($row, $keys)
+        );
+    }
+
+    public function update(object $model): void
+    {
+        $row = $this->toRowWithTypes($model);
+
+        $keys = array_column($this->keyFields(), 'db_name');
+        $keys = array_combine($keys, array_fill(0, count($keys), null));
+
+        $this->db->update(
+            $this->table(),
+            array_diff_key($row, $keys),
+            array_intersect_key($row, $keys),
+        );
+    }
+
+    public function delete(object $model): void
+    {
+        $row = $this->toRowWithTypes($model);
+
+        $where = [];
+        foreach ($this->keyFields() as $field) {
+            $where[] = $this->db->quoteIdentifier($field['db_name']) . ' = ' . $this->db->quote(...array_reverse($row[$field['db_name']]));
+        }
+
+        $this->db->query(
+            'DELETE FROM ' . $this->db->quoteIdentifier($this->table()) . ' WHERE ' . join(' AND ', $where),
+        );
+    }
+
+    public function queryIntegers(string $query, string $key): array
+    {
+        return array_map(intval(...), array_column($this->queryAllRaw($query), $key));
+    }
+
+    public function fromRow(array $row): object
+    {
+        $instance = new $this->model['class']();
+        $set = (function ($key, $value) {
+            $this->$key = $value;
+        })->bindTo($instance, $instance);
+
+        foreach ($this->model['properties'] as $property_name => $field) {
+            if (isset($row[$field['db_name']])) {
+                $set($property_name, $this->stringTo((string) $row[$field['db_name']], $field['class_type']));
+            }
+        }
+        return $instance;
+    }
+
+    public function toRowWithTypes(object $instance): array
+    {
+        $get = (function (string $key) {
+            return $this->$key;
+        })->bindTo($instance, $instance);
+
+        $row = [];
+        foreach ($this->model['properties'] as $property_name => $field) {
+            $row[$field['db_name']] = [$field['db_type'], $this->stringFrom($get($property_name), $field['class_type'])];
+        }
+
+        return $row;
+    }
+
+    public function toRow(object $instance): array
+    {
+        $row = $this->toRowWithTypes($instance);
+        return array_combine(array_keys($row), array_column($row, 0));
+    }
+
+    public function table(): string
+    {
+        return $this->model['db_name'];
+    }
+
+    public function keyFields(): array
+    {
+        return array_filter($this->model['properties'], fn(array $p) => $p['key']);
+    }
+
+    /**
+     * @return array<int|string, mixed>[]
+     */
+    private function queryAllRaw(string $query): array
+    {
+        $result = $this->db->query($query);
+        return $this->db->fetchAll($result);
+    }
+
+    private function stringTo(string $value, string $type)
+    {
+        return match ($type) {
+            'string' => $value,
+            'int' => (int) $value,
+            'bool' => (bool) $value,
+            'float' => (float) $value,
+            'DateTime', 'DateTimeImmutable' => new $type($value),
+            default => throw new Exception('Unsupported type: ' . $type),
+        };
+    }
+
+    private function stringFrom($value, string $type): string
+    {
+        return match ($type) {
+            'string', 'int', 'bool', 'float' => (string) $value,
+            DateTime::class, DateTimeImmutable::class => $value->format('Y-m-d H:i:s'),
+            default => throw new Exception('Unsupported type: ' . $type),
+        };
+    }
+
+    /**
+     * @param A $model
+     */
+    private function updateSequence(object $model): void
+    {
+        $fields = array_filter($this->model['properties'], fn(array $field) => $field['sequence']);
+        if ($fields === []) {
+            return;
+        }
+
+        $property = key($fields);
+        $field = current($fields);
+        $table = $this->table();
+        $db = $this->db;
+        $convert = fn(int $val) => $this->stringFrom((string) $val, $field['class_type']);
+
+        (function () use ($db, $property, $table, $convert): void {
+            if (empty($this->$property)) {
+                $this->$property = $convert($db->nextId($table));
+            }
+        })->bindTo($model, $model)();
+    }
+}

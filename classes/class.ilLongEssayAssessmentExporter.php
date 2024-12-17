@@ -3,6 +3,7 @@
 use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
 use ILIAS\Plugin\LongEssayAssessment\Data\Object\ObjectRepository;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\TaskRepository;
+use ILIAS\Plugin\LongEssayAssessment\Data\RecordData;
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -23,7 +24,6 @@ use ILIAS\Plugin\LongEssayAssessment\Data\Task\TaskRepository;
 class ilLongEssayAssessmentExporter extends ilXmlExporter
 {
     private LongEssayAssessmentDI $localDI;
-    private ilLongEssayAssessmentPlugin $plugin;
 
     private ObjectRepository $object_repo;
     private TaskRepository $task_repo;
@@ -33,10 +33,9 @@ class ilLongEssayAssessmentExporter extends ilXmlExporter
     public function __construct()
     {
         $this->localDI = LongEssayAssessmentDI::getInstance();
-        $this->plugin = ilLongEssayAssessmentPlugin::getInstance();
 
-        $object_repo = $this->localDI->getObjectRepo();
-        $task_repo = $this->localDI->getTaskRepo();
+        $this->object_repo = $this->localDI->getObjectRepo();
+        $this->task_repo = $this->localDI->getTaskRepo();
     }
 
     public function getXmlExportTailDependencies(
@@ -55,7 +54,7 @@ class ilLongEssayAssessmentExporter extends ilXmlExporter
         return $deps;
     }
 
-    public function getXmlRepresentation(string $a_entity, string $a_schema_version, string $a_id) : string
+    public function getXmlRepresentation(string $a_entity, string $a_schema_version, string $a_id): string
     {
         if (ilObject::_lookupType((int) $a_id) !== 'xlas') {
             return '';
@@ -66,28 +65,26 @@ class ilLongEssayAssessmentExporter extends ilXmlExporter
         $this->object = new ilObjLongEssayAssessment($ref_id);
 
         $writer = new ilXmlWriter();
-        $writer->xmlStartTag("xlas");
+        $writer->xmlStartTag("LongEssayAssessment");
 
         // basic object data
-        $writer->xmlElement("title", null, $this->object->getTitle());
-        $writer->xmlElement("description", null, $this->object->getDescription());
+        $writer->xmlElement("Title", null, $this->object->getTitle());
+        $writer->xmlElement("Description", null, $this->object->getDescription());
 
-        // LOM meta data
-        $md2xml = new ilMD2XML($this->object->getId(), $this->object->getId(), 'xlas');
-        $md2xml->startExport();
-        $writer->appendXML($md2xml->getXML());
+        $this->addModelXml($writer, $this->object_repo->getObjectSettingsById($a_id));
+        $this->addModelXml($writer, $this->task_repo->getTaskSettingsById($a_id));
 
-        $writer->xmlEndTag("xlas");
+        $writer->xmlEndTag("LongEssayAssessment");
 
         return $writer->xmlDumpMem(false);
     }
 
-    public function init() : void
+    public function init(): void
     {
-        // TODO: Implement init() method.
+        // no initialisation needed at the moment
     }
 
-    public function getValidSchemaVersions(string $a_entity) : array
+    public function getValidSchemaVersions(string $a_entity): array
     {
         return array(
             "5.2.0" => array(
@@ -97,5 +94,19 @@ class ilLongEssayAssessmentExporter extends ilXmlExporter
                 "max" => ""
             )
         );
+    }
+
+    /**
+     * Add the xml of a RecordData model to the writer
+     */
+    private function addModelXml(ilXmlWriter $writer, RecordData $model): void
+    {
+        $reflect = new ReflectionClass($model);
+        $writer->xmlStartTag($reflect->getShortName());
+        foreach ($model->row() as $key => $value) {
+            $name = str_replace('_', '', ucwords($key, '_'));
+            $writer->xmlElement($name, null, (string) $value, true, true);
+        }
+        $writer->xmlEndTag($reflect->getShortName());
     }
 }

@@ -37,6 +37,7 @@ content#:#Inhalt
 copy#:#Kopieren
 edit#:#Bearbeiten
 export#:#Export
+imported#:#(importiert)
 configuration#:#Konfiguration
 update_languages#:#Sprachen aktualisieren
 reload_control_structure#:#Kontrollstruktur aktualisieren

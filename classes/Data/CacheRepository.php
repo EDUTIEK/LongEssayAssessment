@@ -29,6 +29,11 @@ class CacheRepository implements Repository
     private array $cache = [];
 
     /**
+     * @var CacheRepository[]
+     */
+    private array $others = [];
+
+    /**
      * @param Repository<A> $r
      */
     public function __construct(private readonly Repository $r)
@@ -106,7 +111,47 @@ class CacheRepository implements Repository
 
     public function clearCache(): void
     {
+        $this->clearExcept([]);
+    }
+
+    /**
+     * Call this method to connect another CacheRepository to this.
+     * This will clear the cache of all explicit and implicit connected caches whenever the cache is cleared for this or a connected repository.
+     *
+     * E.g.:
+     * $a->connectCache($b);
+     * $b->connectCache($c);
+     * $a->clearCache(); // This will clear all three caches.
+     * $c->clearCache(); // This will also clear all three caches.
+     *
+     * @param CacheRepository $other
+     */
+    public function connectCache(CacheRepository $other): void
+    {
+        if (!in_array($other, $this->others, true)) {
+            $this->others[] = $other;
+        }
+        if (!in_array($this, $other->others, true)) {
+            $other->others[] = $this;
+        }
+    }
+
+    /**
+     * @param CacheRepository[] $cleared
+     * @return CacheRepository[]
+     */
+    private function clearExcept(array $cleared): array
+    {
+        if (in_array($this, $cleared, true)) {
+            return $cleared;
+        }
         $this->cache = [];
+        $cleared[] = $this;
+        return array_reduce(
+            $this->others,
+            fn(array $cleared, CacheRepository $other) => $other->clearExcept($cleared),
+            $cleared
+        );
     }
 
     private function cache(string $method, array $args, ?array $cache = null)

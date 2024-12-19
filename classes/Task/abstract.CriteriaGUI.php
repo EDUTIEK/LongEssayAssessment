@@ -80,7 +80,7 @@ abstract class CriteriaGUI extends BaseGUI
             $items[] = $this->custom_factory->item()->formItem($this->buildItemTitle($item))
                 ->withName($item->getId())
                 ->withNoLead()
-                ->withDescription(nl2br($item->getDescription()))
+                ->withDescription(nl2br($item->getDescription() ?? ''))
                 ->withActions($this->uiFactory->dropdown()->standard([
                     $this->uiFactory->button()->shy($this->lng->txt("edit"), "")->withOnClick($edit_modal->getShowSignal()),
                     $this->uiFactory->button()->shy($this->lng->txt("remove"), $this->ctrl->getLinkTarget($this, "deleteItems"))

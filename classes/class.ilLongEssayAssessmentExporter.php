@@ -73,6 +73,19 @@ class ilLongEssayAssessmentExporter extends ilXmlExporter
 
         $this->addModelXml($writer, $this->object_repo->getObjectSettingsById($a_id));
         $this->addModelXml($writer, $this->task_repo->getTaskSettingsById($a_id));
+        $this->addModelXml($writer, $this->task_repo->getEditorSettingsById($a_id));
+        $this->addModelXml($writer, $this->task_repo->getCorrectionSettingsById($a_id));
+        $this->addModelXml($writer, $this->task_repo->getPdfSettingsById($a_id));
+        foreach ($this->object_repo->getGradeLevelsByObjectId($a_id) as $model) {
+            $this->addModelXml($writer, $model);
+        }
+        foreach ($this->object_repo->getRatingCriteriaByObjectId($a_id) as $model) {
+            $this->addModelXml($writer, $model);
+        }
+        foreach ($this->task_repo->getLocationsByTaskId($a_id) as $model) {
+            $this->addModelXml($writer, $model);
+        }
+        // todo: resources
 
         $writer->xmlEndTag("LongEssayAssessment");
 

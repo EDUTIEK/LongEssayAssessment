@@ -109,10 +109,11 @@ class ilLongEssayAssessmentExporter extends ilXmlExporter
                     $identification = $this->resource->manage()->find($file_id);
                     $resource = $this->resource->manage()->getResource($identification);
                     $file_name = $resource->getCurrentRevision()->getTitle();
-                    $export_fs->writeStream($files_path . '/' . $file_id,
-                        $this->resource->consume()->stream($identification)->getStream());
-                }
-                catch (Exception $e) {
+                    $export_fs->writeStream(
+                        $files_path . '/' . $file_id,
+                        $this->resource->consume()->stream($identification)->getStream()
+                    );
+                } catch (Exception $e) {
                     $this->logger->error(sprintf('LongEssayAssessment: EXPORT (ref_id %s): ', $ref_id)
                         . $e->getMessage());
                     $file_id = '';
@@ -122,8 +123,8 @@ class ilLongEssayAssessmentExporter extends ilXmlExporter
 
             /** @noinspection PhpParamsInspection */
             $row = $this->getModelRowForXml($model);
-            $row['FileId'] =  $file_id;
-            $row['FileName'] =  $file_name;
+            $row['FileId'] = $file_id;
+            $row['FileName'] = $file_name;
             $this->addRowXml($writer, 'Resource', $row);
         }
 

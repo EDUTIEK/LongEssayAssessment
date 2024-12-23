@@ -366,6 +366,14 @@ class ilObjLongEssayAssessment extends ilObjectPlugin
     }
 
     /**
+     * Check if the object can be exported
+     */
+    public function canExportObject(): bool
+    {
+        return $this->canEditOrgaSettings() && $this->canEditContentSettings() && $this->canEditTechnicalSettings();
+    }
+
+    /**
      * Check if the user can write the essay
      */
     public function canWrite() : bool

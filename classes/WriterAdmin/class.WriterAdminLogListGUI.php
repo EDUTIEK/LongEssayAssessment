@@ -87,8 +87,8 @@ class WriterAdminLogListGUI
             case LogEntry::CATEGORY_AUTHORIZE:
                 $icon = $custom_factory->icon()->appr('authorize', 'medium');
                 break;
-            case LogEntry::CATEGORY_EXTENSION:
-                $icon = $custom_factory->icon()->time('extension', 'medium');
+            case LogEntry::CATEGORY_WORKING_TIME:
+                $icon = $custom_factory->icon()->time('working_time', 'medium');
                 break;
             case LogEntry::CATEGORY_NOTE:
                 $icon = $custom_factory->icon()->nots('note', 'medium');
@@ -172,7 +172,7 @@ class WriterAdminLogListGUI
 
         $active = $this->getActualMode();
 
-        $modes = ["all", "alert", "note", "exclusion", "extension", "authorize"];
+        $modes = ["all", "alert", "note", "exclusion", "working_time", "authorize"];
         $actions = [];
 
         foreach($modes as $mode) {

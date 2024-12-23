@@ -39,9 +39,9 @@ class CorrectorAdminListGUI extends WriterListGUI
      */
     private array $correction_status_stitches = [];
 
-    public function __construct(object $parent, string $parent_cmd, \ilLongEssayAssessmentPlugin $plugin, CorrectionSettings $correction_settings)
+    public function __construct(object $parent, string $parent_cmd, int $obj_id, \ilLongEssayAssessmentPlugin $plugin, CorrectionSettings $correction_settings)
     {
-        parent::__construct($parent, $parent_cmd, $plugin);
+        parent::__construct($parent, $parent_cmd, $obj_id, $plugin);
         $this->correction_settings = $correction_settings;
     }
 
@@ -332,7 +332,7 @@ class CorrectorAdminListGUI extends WriterListGUI
             }
 
             if ($essay->getCorrectionFinalized() !== null) {
-                return $this->plugin->txt("writing_finalized_from") . " " .
+                return $this->plugin->txt("correction_finalized_from") . " " .
                     $this->getUsernameText($essay->getCorrectionFinalizedBy());
             }
 
@@ -348,13 +348,13 @@ class CorrectorAdminListGUI extends WriterListGUI
 
                 return $this->plugin->txt("writing_authorized_from") . " " .$name;
             }
-
-            if ($essay->getEditStarted() !== null) {
-                return $this->plugin->txt("writing_edit_started");
-            }
         }
 
-        return $this->plugin->txt("writing_not_started");
+        if ($writer->getWorkingStart() !== null) {
+            return $this->plugin->txt("working_started");
+        }
+
+        return $this->plugin->txt("working_not_started");
     }
 
     /**

@@ -28,6 +28,7 @@ use ILIAS\BackgroundTasks\Implementation\TaskManager\AsyncTaskManager;
 use ILIAS\ResourceStorage\Services;
 use ILIAS\BackgroundTasks\Implementation\Tasks\NotFoundUserInteraction;
 use ilDateTime;
+use ILIAS\Plugin\LongEssayAssessment\Data\WorkingTime;
 
 class WriterAdminService extends BaseService
 {
@@ -272,13 +273,6 @@ class WriterAdminService extends BaseService
     public function countPotentialAuthorizations() : array
     {
         $settings = $this->taskRepo->getTaskSettingsById($this->task_id);
-        $writing_end = $this->dataService->dbTimeToUnix($settings->getWritingEnd());
-
-        $extensions = [];
-        foreach ($this->writerRepo->getTimeExtensionsByTaskId($this->task_id) as $extension) {
-            $extensions[$extension->getWriterId()] = $extension;
-        }
-
         $writers = $this->getWritersByStatus();
 
         /** @var Writer[] $open */
@@ -289,23 +283,13 @@ class WriterAdminService extends BaseService
         $after = 0;
 
         foreach($open as $writer) {
-            $writing_over = false;
-            if (isset($writing_end)) {
-                $individual_end = $writing_end;
-                if (!empty($extension = ($extensions[$writer->getId()]) ?? null)) {
-                    $individual_end += 60 * $extension->getMinutes();
-                }
-
-                if ($individual_end <= time()) {
-                    $writing_over = true;
-                }
-            }
+            $working_time = new WorkingTime($settings, $writer);
 
             if (isset($writers[Essay::WRITING_STATUS_NOT_WRITTEN][$writer->getId()])) {
-                if (!$writing_over) {
+                if (!$working_time->isNowAfterAllowedTime()) {
                     $before++;
                 }
-            } elseif (!$writing_over) {
+            } elseif (!$working_time->isNowAfterAllowedTime()) {
                 $writing++;
             } else {
                 $after++;

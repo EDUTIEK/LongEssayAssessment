@@ -19,8 +19,9 @@ abstract class WriterListGUI
 {
     const FILTER_YES= "1";
     const FILTER_NO = "2";
+
     protected CommonServices $common_services;
-    protected TaskRepository $task_repo;
+    protected TaskSettings $task;
 
     /**
      * @var Essay[]
@@ -50,8 +51,7 @@ abstract class WriterListGUI
     /** @var LongEssayAssessmentDI  */
     protected $localDI;
 
-
-    public function __construct(object $parent, string $parent_cmd, \ilLongEssayAssessmentPlugin $plugin)
+    public function __construct(object $parent, string $parent_cmd, int $obj_id, \ilLongEssayAssessmentPlugin $plugin)
     {
         global $DIC;
         $this->parent = $parent;
@@ -63,7 +63,8 @@ abstract class WriterListGUI
         $this->localDI = LongEssayAssessmentDI::getInstance();
         $this->ui_service = $DIC->uiService();
         $this->common_services = $this->localDI->services()->common();
-        $this->task_repo = $this->localDI->getTaskRepo();
+
+        $this->task = $this->localDI->getTaskRepo()->getTaskSettingsById($obj_id);
     }
 
     abstract public function getContent():string;
@@ -73,8 +74,7 @@ abstract class WriterListGUI
     {
         if(isset($this->essays[$writer->getId()])) {
             $essay = $this->essays[$writer->getId()];
-            $task = $this->task_repo->getTaskSettingsById($essay->getTaskId());
-            if ($task->getTaskType() === TaskSettings::TYPE_ESSAY_EDITOR) {
+            if ($this->task->getTaskType() === TaskSettings::TYPE_ESSAY_EDITOR) {
                 return $essay->getEditStarted() !== null;
             }
         }

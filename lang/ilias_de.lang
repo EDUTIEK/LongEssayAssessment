@@ -131,7 +131,9 @@ allow_spellcheck_info#:#Beim Schreiben der Aufgabe wird eine Rechtschreibprüfun
 add_resource#:#Material hinzufügen
 lp_passed#:#Bestanden
 lp_passed_info#:#Für Lernfortschritt und Vorbedingungen gilt diese Notenstufe als bestanden.
-start_writing#:#Bearbeitung starten
+start_working#:#Bearbeitung starten
+start_working_time_unlimited#:#Nach dem Start können Sie die Aufgabenstellung sehen. Ihre Startzeit wird dokumentiert.
+start_working_time_limited#:#Nach dem Start können Sie die Aufgabenstellung sehen und Ihre begrenzte Bearbeitungszeit beginnt zu laufen. Ihre Startzeit wird dokumentiert.
 writing_period#:#Bearbeitungszeitraum
 not_specified#:#nicht festgelegt
 period_only_from#:#ab
@@ -184,19 +186,19 @@ grade_levels#:#Notenstufen
 edit_grade_level#:#Notenstufe bearbeiten
 delete_grade_level_successful#:#Notenstufe erfolgreich gelöscht.
 delete_grade_level_failure#:#Notenstufe konnte nicht gelöscht werden.
-writing_finalized_from#:#finalisiert von
+correction_finalized_from#:#finalisiert von
 writing_authorized_from#:#autorisiert von
-writing_edit_started#:#gestartet
-writing_not_started#:#nicht gestartet
-writing_none_extension#:#keine
+working_started#:#gestartet
+working_not_started#:#nicht gestartet
+no_working_time_change#:#keine
 participants#:#Teilnehmer
 exclude_participant#:#Von Bearbeitung ausschließen
-extent_time#:#Zeit verlängern
+change_working_time#:#Bearbeitungszeit anpassen
 authorize_writing#:#Abgabe autorisieren
 unauthorize_writing#:#Autorisierung zurücknehmen
 view_processing#:#Bearbeitung einsehen
 writing_last_save#:#Letzte Speicherung
-writing_time_extension#:#Zeitverlängerung
+working_time_change#:#Zeitanpassung
 essay_status#:#Abgabe-Status
 search_participants#:#Teilnehmer suchen
 assign_writer_success#:#Teilnehmer erfolgreich hinzugefügt.
@@ -207,9 +209,6 @@ grade_level#:#Notenstufe
 no_writer_set#:#Kein Teilnehmer angegeben.
 exclude_participant_confirmation#:#Wollen Sie den folgenden Teilnehmer wirklich von der Bearbeitung ausschließen?
 exclude#:#Ausschließen
-edit_time_extension#:#Zeitverlängerung bearbeiten
-add_time_extension#:#Zeitverlängerung hinzufügen
-time_extension_caption#:#Verlängerung des Bearbeitungs-Endes in Minuten
 authorize_writing_confirmation#:#Wollen Sie die Abgabe vom folgenden Teilnehmer wirklich autorisieren?
 unauthorize_writing_confirmation#:#Wollen Sie die Autorisierung der Abgabe vom folgenden Teilnehmer wirklich zurücknehmen?
 correctors#:#Korrektoren
@@ -229,12 +228,13 @@ log_type_alert#:#Benachrichtigung
 log_entry_entered#:#Eingetragen
 log_entries#:#Protokolleinträge
 log_entry_writing_post_authorized#:#Die Abgabe von %s wurde durch %s nachträglich autorisiert.
-log_entry_time_extension#:#Die Zeitverlängerung von %s wurde durch %s geändert.
-log_entry_time_extension_note#:#Verlängerung: %s Minuten
+log_entry_working_time_changed#:#Die Bearbeitungszeit von %s wurde durch %s angepasst.
+log_entry_working_time_deleted#:#Die Anpassung der Bearbeitungszeit von %s wurde durch %s entfernt.
+log_entry_working_time_note#:#Zeitanpassung: %s
 log_entry_writer_exclusion#:#Der Teilnehmer %s wurde durch %s ausgeschlossen.
 log_entry_writer_removal#:#Der Teilnehmer %s wurde durch %s entfernt.
 log_type_exclusion#:#Ausschluss
-log_type_extension#:#Zeitverlängerung
+log_type_working_time#:#Zeitanpassung
 log_type_authorize#:#Authorisierung
 log_type_note#:#Notiz
 log_type_all#:#Alle
@@ -329,7 +329,7 @@ log_title#:#Titel
 log_content#:#Inhalt
 log_cat_authorize#:#Autorisierung
 log_cat_note#:#Notiz
-log_cat_extension#:#Zeitverlängerung
+log_cat_working_time#:#Zeitanpassung
 log_cat_exclusion#:#Ausschluss
 log_cat_alert#:#Benachrichtigung
 correction_filter_not_started#:#fällig
@@ -470,7 +470,7 @@ filter_assigned#:#Korrektor(en) zugewiesen
 filter_stitch#:#Stichentscheid notwendig
 filter_corrected#:#Korrigiert
 filter_attended#:#Teilgenommen
-filter_with_extension#:#Zeitverlängerung
+filter_working_time_change#:#Zeitanpassung
 filter_pdf_version#:#PDF-Version
 filter_exclusion#:#Ausgeschlossen
 filter_words_more_than#:#mehr als %d
@@ -634,3 +634,20 @@ writing_limit#:#Zeitbegrenzung
 writing_limit_info#:#Begrenzt die Dauer zur Bearbeitung ab dem Betätigen des Schalters "Bearbeitung starten". Nach dieser Dauer werden neue Eingaben nicht mehr akzeptiert, vorher getätigte können aber noch übertragen und autorisiert werden.
 writing_limit_days#:#Tage
 writing_limit_hours_minutes#:#Stunden, Minuten
+label_general#:#Allgemein:
+one_day#:# 1 Tag
+one_hour#:# 1 Stunde
+one_minute#:#1 Minute
+one_second#:#1 Sekunde
+x_days#:#%s Tage
+x_hours#:#%s Stunden
+x_minutes#:#%s Minuten
+x_seconds#:#%s Sekunden
+message_form_not_saved#:#Ihre Eingaben sind noch nicht gespeichert.
+failure_form_validation:#Die Formulareingaben sind fehlerhaft
+failure_latest_end_before_earliest_start#:#Das späteste Bearbeitungs-Ende liegt vor dem frühesten Bearbeitungs-Start.
+failure_time_limit_too_long#:#Die begrenzte Bearbeitungsdauer überschreitet das verfügbare Zeitfenster.
+delete_individual_working_time#:#Anpassung entfernen
+one_working_time_deleted#:#Die Anpassung der Bearbeitungszeit wurde entfernt.
+x_working_times_deleted#:#%s Anpassungen der Bearbeitungszeit wurden entfernt.
+task_info#:#Hinweise zur Aufgabe

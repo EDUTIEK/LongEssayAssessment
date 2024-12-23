@@ -21,6 +21,7 @@ use Edutiek\LongEssayAssessmentService\Data\WritingSettings;
 use Edutiek\LongEssayAssessmentService\Data\PdfSettings;
 use ILIAS\Plugin\LongEssayAssessment\ServiceLayer\Common\FileHelper;
 use ILIAS\Plugin\LongEssayAssessment\WriterAdmin\WriterAdminService;
+use ILIAS\Plugin\LongEssayAssessment\Data\WorkingTime;
 
 abstract class ServiceContext implements BaseContext
 {
@@ -444,18 +445,14 @@ abstract class ServiceContext implements BaseContext
         $repoEssay = $this->localDI->getEssayRepo()->getEssayByWriterIdAndTaskId($writer_id, $this->task->getTaskId());
         $userDataHelper = $this->localDI->services()->common()->userDataHelper();
 
-        $writing_end = $this->data->dbTimeToUnix($this->task->getWritingEnd());
-        if (!empty($writing_end)
-            && !empty($timeExtension = $this->localDI->getWriterRepo()->getTimeExtensionByWriterId($writer_id, $this->task->getTaskId()))
-        ) {
-            $writing_end += $timeExtension->getMinutes() * 60;
-        }
+        $working_time = new WorkingTime($this->task, $repoWriter);
+        $deadline = $working_time->getWorkingDeadline();
 
         return new WritingTask(
             (string) $this->object->getTitle(),
             (string) $this->task->getInstructions(),
             isset($repoWriter) ? $userDataHelper->getFullname($repoWriter->getUserId()) : '',
-            $writing_end,
+            isset($deadline) ? $deadline->getTimestamp() : null,
             $this->data->dbTimeToUnix($repoEssay->getWritingExcluded())
         );
     }

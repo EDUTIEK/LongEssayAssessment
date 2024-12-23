@@ -12,11 +12,12 @@ class LogEntry extends RecordData
 {
     const CATEGORY_AUTHORIZE = "authorize";
     const CATEGORY_NOTE = "note";
-    const CATEGORY_EXTENSION = "extension";
+    const CATEGORY_WORKING_TIME = "working_time";
     const CATEGORY_EXCLUSION = "exclusion";
 
     const TYPE_NOTE = 'note';
-    const TYPE_TIME_EXTENSION = 'time_extension';
+    const TYPE_WORKING_TIME_CHANGE = 'working_time_change';
+    const TYPE_WORKING_TIME_DELETE = 'working_time_delete';
     const TYPE_WRITER_REMOVAL = 'writer_removal';
     const TYPE_WRITER_EXCLUSION = 'writer_exclusion';
     const TYPE_WRITER_REPEAL_EXCLUSION = 'writer_repeal_exclusion';
@@ -27,7 +28,8 @@ class LogEntry extends RecordData
 
     const CATEGORY_BY_TYPE = [
         self::TYPE_NOTE => self::CATEGORY_NOTE,
-        self::TYPE_TIME_EXTENSION => self::CATEGORY_EXTENSION,
+        self::TYPE_WORKING_TIME_CHANGE => self::CATEGORY_WORKING_TIME,
+        self::TYPE_WORKING_TIME_DELETE => self::CATEGORY_WORKING_TIME,
         self::TYPE_WRITER_REMOVAL => self::CATEGORY_EXCLUSION,
         self::TYPE_WRITER_EXCLUSION => self::CATEGORY_EXCLUSION,
         self::TYPE_WRITER_REPEAL_EXCLUSION => self::CATEGORY_EXCLUSION,

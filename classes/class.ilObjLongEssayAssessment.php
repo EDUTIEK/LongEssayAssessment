@@ -384,13 +384,7 @@ class ilObjLongEssayAssessment extends ilObjectPlugin
             }
         }
 
-        // check time in range
-        $start = $this->data->dbTimeToUnix($this->taskSettings->getWritingStart());
-        $end = $this->data->dbTimeToUnix($this->taskSettings->getWritingEnd());
-        if (!empty($end)) {
-            $end += $this->data->getOwnTimeExtensionSeconds();
-        }
-        return $this->data->isInRange(time(), $start, $end);
+        return $this->data->getOwnWorkingTime()->isNowInAllowedTime();
     }
 
     /**

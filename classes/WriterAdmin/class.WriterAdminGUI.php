@@ -8,7 +8,6 @@ use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\Data\Essay\Essay;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\Location;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\LogEntry;
-use ILIAS\Plugin\LongEssayAssessment\Data\Writer\TimeExtension;
 use ILIAS\Plugin\LongEssayAssessment\Data\Writer\Writer;
 use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
 use ILIAS\Plugin\LongEssayAssessment\UI\Component\BlankForm;
@@ -19,6 +18,11 @@ use ILIAS\UI\Implementation\Component\SignalGeneratorInterface;
 use ILIAS\Plugin\LongEssayAssessment\Writer\WriterContext;
 use ILIAS\Plugin\LongEssayAssessment\Task\LoggingService;
 use ilFileDelivery;
+use ILIAS\Plugin\LongEssayAssessment\Data\Task\TaskSettings;
+use ILIAS\Plugin\LongEssayAssessment\Data\Writer\WriterRepository;
+use ILIAS\Plugin\LongEssayAssessment\Data\WorkingTime;
+use DateTimeImmutable;
+use ILIAS\Filesystem\Stream\Streams;
 
 /**
  *Start page for corrector admins
@@ -31,12 +35,16 @@ class WriterAdminGUI extends BaseGUI
 {
     protected LoggingService $loggingService;
     protected WriterAdminService $writerAdminService;
+    protected TaskSettings $task;
+    protected WriterRepository $writer_repo;
 
     public function __construct(\ilObjLongEssayAssessmentGUI $objectGUI)
     {
         parent::__construct($objectGUI);
         $this->loggingService = $this->localDI->getLoggingService($this->object->getId());
         $this->writerAdminService = $this->localDI->getWriterAdminService($this->object->getId());
+        $this->writer_repo = $this->localDI->getWriterRepo();
+        $this->task = $this->localDI->getTaskRepo()->getTaskSettingsById($this->object->getId());
     }
 
     /**
@@ -65,8 +73,9 @@ class WriterAdminGUI extends BaseGUI
                     case 'showStartPage':
                     case 'addWriter':
                     case 'excludeWriter':
-                    case 'editExtension':
-                    case 'updateExtension':
+                    case 'editWorkingTime':
+                    case 'updateWorkingTime':
+                    case 'deleteWorkingTime':
                     case 'authorizeWriting':
                     case 'unauthorizeWriting':
                     case 'repealExclusion':
@@ -77,7 +86,7 @@ class WriterAdminGUI extends BaseGUI
                     case 'editLocationMulti':
                     case 'editLocation':
                     case 'showEssay':
-                    case 'editExtensionMulti':
+                    case 'editWorkingTimeMulti':
                     case 'removeWriterMultiConfirmation':
                     case 'changeTextToPdfMultiConfirmation':
                     case 'changeTextToPdf':
@@ -125,9 +134,8 @@ class WriterAdminGUI extends BaseGUI
         $essay_repo = LongEssayAssessmentDI::getInstance()->getEssayRepo();
         $task_repo = LongEssayAssessmentDI::getInstance()->getTaskRepo();
 
-        $list_gui = new WriterAdminListGUI($this, "showStartPage", $this->plugin);
+        $list_gui = new WriterAdminListGUI($this, "showStartPage", $this->object->getId(), $this->plugin);
         $list_gui->setWriters($writer_repo->getWritersByTaskId($this->object->getId()));
-        $list_gui->setExtensions($writer_repo->getTimeExtensionsByTaskId($this->object->getId()));
         $list_gui->setEssays($essay_repo->getEssaysByTaskId($this->object->getId()));
         $list_gui->setLocations($task_repo->getLocationsByTaskId($this->object->getId()));
 
@@ -321,100 +329,180 @@ class WriterAdminGUI extends BaseGUI
     }
 
 
-    protected function buildExtensionForm($value = null):BlankForm
+    protected function buildWorkingTimeForm(WorkingTime $working_time):BlankForm
     {
-        $settings = $this->localDI->getTaskRepo()->getTaskSettingsById($this->object->getId());
         $this->ctrl->saveParameter($this, "writer_id");
 
-        $extension_input = $this->uiFactory->input()->field()
-            ->numeric($this->lng->txt('minutes'), $this->plugin->txt("time_extension_caption"))
-            ->withRequired(true)
-            ->withAdditionalTransformation($this->refinery->int()->isGreaterThan(-1))
-            ->withAdditionalTransformation($this->refinery->custom()->constraint(function ($var) use ($settings) {
-                if($settings->getCorrectionStart() !== null
-                    && $settings->getWritingEnd() !== null) {
-                    $solution_available = new \ilDateTime($settings->getSolutionAvailableDate(), IL_CAL_DATETIME);
-                    $writing_end = new \ilDateTime($settings->getWritingEnd(), IL_CAL_DATETIME);
-                    $extension_date = clone $writing_end;
-                    $extension_date->increment(\ilDate::MINUTE, $var);
-                    return !\ilDate::_before($extension_date, $solution_available);
-                } else {
-                    return true;
-                }
-            }, $this->plugin->txt("time_exceeds_solution_availability")));
 
-        if($value !== null) {
-            $extension_input = $extension_input->withValue($value);
-        }
+        [$days, $hours, $minutes] = $working_time->getTimeLimitParts();
+
+        $fields = [];
+        $factory = $this->uiFactory->input()->field();
+
+        $fields['earliest_start'] = $factory->dateTime(
+            $this->plugin->txt("writing_start"),
+            $this->plugin->txt('label_general') . ' ' . $this->common_services->formatter()->formatDateTime(
+                $this->task->getWritingStart() == null ? null : new DateTimeImmutable($this->task->getWritingStart()), false)
+        )->withUseTime(true)->withValue($working_time->getEarliestStart()?->format('Y-m-d H:i:s'));
+
+        $fields['latest_end'] = $factory->dateTime(
+            $this->plugin->txt("writing_end"),
+            $this->plugin->txt('label_general') . ' ' . $this->common_services->formatter()->formatDateTime(
+                $this->task->getWritingEnd() == null ? null : new DateTimeImmutable($this->task->getWritingEnd()), false)
+        )->withUseTime(true)->withValue($working_time->getLatestEnd()?->format('Y-m-d H:i:s'));
+
+        $fields['writing_limit_days'] =
+            $factory->numeric(
+                $this->plugin->txt("writing_limit_days"),
+            )->withValue($days);
+
+        $fields['writing_limit_hours_minutes'] =
+            $factory->dateTime(
+                $this->plugin->txt("writing_limit_hours_minutes"),
+                $this->plugin->txt('label_general') . ' ' . $this->common_services->formatter()->formatDuration(
+                    $this->task->getWritingLimitMinutes() * 60
+                )
+            )->withTimeOnly(true)->withValue(
+                new \DateTimeImmutable(
+                    sprintf('%02d:%02d:00', $hours, $minutes), new \DateTimeZone($this->user->getTimeZone())
+                )
+            );
 
         return $this->localDI->getUIFactory()->field()->blankForm(
-            $this->ctrl->getFormAction($this, "updateExtension"),
-            ['extension' => $extension_input]
+            $this->ctrl->getFormAction($this, "updateWorkingTime"),
+            $fields
         )->withAsyncOnEnter();
     }
 
     /**
      * Edit and save the settings
      */
-    protected function editExtension($form = null)
+    protected function editWorkingTime($form = null)
     {
-        $writer_id = $this->getWriterId();
-        $extension = $this->getExtension($writer_id);
-        $value = $extension->getMinutes();
         $this->ctrl->saveParameter($this, "writer_id");
-        $form = $this->buildExtensionForm($value);
 
-        $modal = $this->uiFactory->modal()->roundtrip($this->plugin->txt("extent_time"), $form)->withActionButtons([
-            $this->uiFactory->button()->primary($this->lng->txt("submit"), "")->withOnClick($form->getSubmitAsyncSignal())
+        $writer = $this->writer_repo->getWriterById( $this->getWriterId());
+        $form = $this->buildWorkingTimeForm(new WorkingTime($this->task, $writer));
+
+        $modal = $this->uiFactory->modal()->roundtrip($this->plugin->txt("change_working_time"), $form)->withActionButtons([
+            $this->uiFactory->button()->primary($this->lng->txt("submit"), "")->withOnClick($form->getSubmitAsyncSignal()),
+            $this->uiFactory->button()->standard($this->plugin->txt("delete_individual_working_time"),
+                $this->ctrl->getLinkTarget($this, 'deleteWorkingTime'))
         ]);
         echo($this->renderer->renderAsync($modal));
         exit();
     }
 
-    protected function editExtensionMulti()
+    protected function editWorkingTimeMulti()
     {
         $this->ctrl->saveParameter($this, "writer_ids");
-        $form = $this->buildExtensionForm();
-        $modal = $this->uiFactory->modal()->roundtrip($this->plugin->txt("extent_time"), $form)->withActionButtons([
-            $this->uiFactory->button()->primary($this->lng->txt("submit"), "")->withOnClick($form->getSubmitAsyncSignal())
+        $form = $this->buildWorkingTimeForm(new WorkingTime($this->task));
+        $modal = $this->uiFactory->modal()->roundtrip($this->plugin->txt("change_working_time"), $form)->withActionButtons([
+            $this->uiFactory->button()->primary($this->lng->txt("submit"), "")->withOnClick($form->getSubmitAsyncSignal()),
+            $this->uiFactory->button()->standard($this->plugin->txt("delete_individual_working_time"),
+                $this->ctrl->getLinkTarget($this, 'deleteWorkingTime'))
         ]);
         echo($this->renderer->renderAsync($modal));
         exit();
     }
 
-    protected function updateExtension()
+    protected function updateWorkingTime()
     {
-        $form = $this->buildExtensionForm()->withRequest($this->request);
+        $current_writer = null;
+        if ($this->getWriterId() !== null) {
+            $current_writer = $this->writer_repo->getWriterById($this->getWriterId());
+        }
+        $form = $this->buildWorkingTimeForm(new WorkingTime($this->task, $current_writer))->withRequest($this->request);
 
+        $failures = [];
         if ($data = $form->getData()) {
-            $writer_repo = $this->localDI->getWriterRepo();
-            foreach ($this->getWriterIds() as $writer_id) {
-                $record = $this->getExtension($writer_id);
-                $record->setMinutes($data['extension']);
-                if ($record->getMinutes() === 0) {
-                    $writer_repo->deleteTimeExtension($record->getWriterId(), $record->getTaskId());
-                } else {
-                    $writer_repo->save($record);
-                }
 
-                $writer = $writer_repo->getWriterById($writer_id);
+            // dummy writer for validation
+            $data_writer = new Writer();
+            $data_writer->setEarliestStart($data['earliest_start'] ?? null);
+            $data_writer->setLatestEnd($data['latest_end'] ?? null);
+            $limit = null;
+            if (isset($data['writing_limit_days'])) {
+                $limit = (int) $data['writing_limit_days'] * 24 * 60;
+            }
+            if (isset($data['writing_limit_hours_minutes'])) {
+                [$hours, $minutes] = explode(':', $data['writing_limit_hours_minutes']->format('H:i'));
+                $limit = (int) $limit + (int) $hours * 60 + (int) $minutes;
+            }
+            $data_writer->setTimeLimitMinutes($limit);
+
+            $working_time = new WorkingTime($this->task, $data_writer);
+
+            // consistency checks
+            if ($working_time->isEndBeforeStart()) {
+                $failures[] = $this->plugin->txt("failure_latest_end_before_earliest_start");
+            }
+            if ($working_time->isTimeLimitTooLong()) {
+                $failures[] = $this->plugin->txt("failure_time_limit_too_long");
+            }
+            if ($this->task->getSolutionAvailableDate() !== null && $working_time->getWorkingDeadline() !== null) {
+                $available = (new DateTimeImmutable($this->task->getSolutionAvailableDate()))->getTimestamp();
+                $deadline = $working_time->getWorkingDeadline()->getTimestamp();
+                if ($deadline > $available) {
+                    $failures[] = $this->plugin->txt("time_exceeds_solution_availability");
+                }
+            }
+        }
+        else {
+            $failures[] = $this->plugin->txt("failure_form_validation");
+        }
+
+        if (empty($failures)) {
+            foreach ($this->getWriterIds() as $writer_id) {
+                $writer = $this->writer_repo->getWriterById($writer_id);
+                $writer->setEarliestStart($data_writer->getEarliestStart());
+                $writer->setLatestEnd($data_writer->getLatestEnd());
+                $writer->setTimeLimitMinutes($data_writer->getTimeLimitMinutes());
+                $this->writer_repo->save($writer);
                 $this->loggingService->addEntry(
-                    LogEntry::TYPE_TIME_EXTENSION,
+                    LogEntry::TYPE_WORKING_TIME_CHANGE,
                     $this->dic->user()->getId(),
                     $writer->getUserId(),
                     sprintf(
-                        $this->plugin->txt('log_entry_time_extension_note', $this->plugin->getDefaultLanguage()),
-                        $record->getMinutes()
+                        $this->plugin->txt('log_entry_working_time_note', $this->plugin->getDefaultLanguage()),
+                        $this->common_services->formatter()->formatWorkingTime($working_time)
                     )
                 );
             }
             $this->tpl->setOnScreenMessage("success", $this->lng->txt("settings_saved"), true);
-        } else {
-            echo($this->renderer->render($form));
         }
-        exit();
+        else {
+            $this->http->saveResponse($this->http->response()->withBody(
+                Streams::ofString($this->renderer->render([
+                        $this->uiFactory->messageBox()->failure(implode('<br>', $failures)),
+                        $form
+                    ]))));
+        }
+
+        $this->http->sendResponse();
+        $this->http->close();
     }
 
+
+    protected function deleteWorkingTime()
+    {
+        foreach ($this->getWriterIds() as $writer_id) {
+            $writer = $this->writer_repo->getWriterById($writer_id);
+            $writer->setEarliestStart(null);
+            $writer->setLatestEnd(null);
+            $writer->setTimeLimitMinutes(null);
+            $this->writer_repo->save($writer);
+            $this->loggingService->addEntry(
+                LogEntry::TYPE_WORKING_TIME_DELETE,
+                $this->dic->user()->getId(),
+                $writer->getUserId()
+            );
+        }
+        $this->tpl->setOnScreenMessage("success", $this->plugin->txt(
+            count($this->getWriterIds()) == 1 ? 'one_working_time_deleted' : 'x_working_times_deleted'
+        ), true);
+        $this->ctrl->redirect($this, 'showStartPage');
+    }
 
     protected function authorizeWriting()
     {
@@ -482,19 +570,7 @@ class WriterAdminGUI extends BaseGUI
         $this->tpl->setOnScreenMessage("success", $this->plugin->txt("delete_writer_data_success"), true);
         $this->ctrl->redirect($this, "showStartPage");
     }
-
-    protected function getExtension(int $writer_id): ?TimeExtension
-    {
-        $writer_repo  = LongEssayAssessmentDI::getInstance()->getWriterRepo();
-        $record = $writer_repo->getTimeExtensionByWriterId($writer_id, $this->object->getId());
-
-        if(!$record) {
-            return (new TimeExtension())->setWriterId($writer_id)->setTaskId($this->object->getId());
-        }
-
-        return $record;
-    }
-
+    
     private function buildDeleteWriterDataModal()
     {
         return $this->uiFactory->modal()->interruptive(

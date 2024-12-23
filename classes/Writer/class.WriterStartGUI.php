@@ -12,6 +12,8 @@ use ilUtil;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\TaskRepository;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\TaskSettings;
 use ILIAS\Plugin\LongEssayAssessment\CorrectorAdmin\CorrectorAdminService;
+use ILIAS\Plugin\LongEssayAssessment\WriterAdmin\WriterAdminService;
+use ILIAS\Plugin\LongEssayAssessment\Data\Writer\Writer;
 
 /**
  * Start page for writers
@@ -24,6 +26,7 @@ class WriterStartGUI extends BaseGUI
 {
     protected TaskRepository $task_repo;
     protected TaskSettings $task;
+    protected WriterAdminService $writer_admin_service;
     protected CorrectorAdminService $corrector_admin_service;
 
     public function __construct(\ilObjLongEssayAssessmentGUI $objectGUI)
@@ -32,6 +35,7 @@ class WriterStartGUI extends BaseGUI
 
         $this->task_repo = $this->localDI->getTaskRepo();
         $this->task = $this->task_repo->getTaskSettingsById($this->object->getId());
+        $this->writer_admin_service = $this->localDI->getWriterAdminService($this->object->getId());
         $this->corrector_admin_service = $this->localDI->getCorrectorAdminService($this->object->getId());
     }
 
@@ -50,6 +54,7 @@ class WriterStartGUI extends BaseGUI
                 $cmd = $this->ctrl->getCmd('showStartPage');
                 switch ($cmd) {
                     case 'showStartPage':
+                    case 'startWorking':
                     case 'startWriter':
                     case 'startWritingReview':
                     case 'downloadWriterPdf':
@@ -81,16 +86,10 @@ class WriterStartGUI extends BaseGUI
 
         $essay = $this->data->getOwnEssay(); // may be null
 
-        $writing_start = $this->task->getWritingStart();
-        $writing_end = null;
-        if (!empty($this->task->getWritingEnd())) {
-            $writing_end = $this->data->unixTimeToDb(
-                $this->data->dbTimeToUnix($this->task->getWritingEnd()) + $this->data->getOwnTimeExtensionSeconds()
-            );
-        }
+        $working_time = $this->data->getOwnWorkingTime();
+
         $is_written = isset($essay) && !empty($essay->getWritingAuthorized());
-        $is_before_writing = isset($writing_start) && time() < $this->data->dbTimeToUnix($writing_start);
-        $is_after_writing = $is_written || (isset($writing_end)  && time() > $this->data->dbTimeToUnix($writing_end));
+        $is_after_writing = $is_written || $working_time->isNowAfterAllowedTime();
 
         // Screen Message
 
@@ -147,40 +146,63 @@ class WriterStartGUI extends BaseGUI
 
         // Toolbar
 
-        switch ($this->task->getTaskType()) {
-            case TaskSettings::TYPE_ESSAY_EDITOR:
-                if ($this->object->canWrite()) {
-                    $button = $this->uiFactory->button()->primary(
-                        $this->plugin->txt(empty($essay) ? 'start_writing' : 'continue_writing'),
-                        $this->ctrl->getLinkTarget($this, 'startWriter')
-                    );
-                    $this->toolbar->addComponent($button);
-                } elseif ($this->object->canReviewWrittenEssay() && isset($essay) && empty(
-                    $essay->getWritingAuthorized()
-                )) {
-                    $button = $this->uiFactory->button()->standard(
-                        $this->plugin->txt('review_writing'),
-                        $this->ctrl->getLinkTarget($this, 'startWritingReview')
-                    );
-                    $this->toolbar->addComponent($button);
-                }
-                break;
-
-            case TaskSettings::TYPE_PDF_UPLOAD:
-                if (($this->object->canWrite() || $this->object->canReviewWrittenEssay())
-                    && isset($essay) && !empty($essay->getPdfVersion()) && empty($essay->getWritingAuthorized())) {
-                    $button = $this->uiFactory->button()->primary(
-                        $this->plugin->txt('writer_review_pdf'),
-                        $this->ctrl->getLinkTargetByClass(
-                            'ilias\plugin\longessayassessment\writer\writeruploadgui',
-                            'reviewPdf'
-                        )
-                    );
-                    $this->toolbar->addComponent($button);
-
+        if (!$working_time->isStarted()) {
+            if ($this->object->canWrite()) {
+                $contents[] = $start_modal = $this->uiFactory->modal()->interruptive(
+                    $this->plugin->txt('start_working'),
+                    $this->plugin->txt($working_time->hasTimeLimitFromStart() ? 'start_working_time_limited' : 'start_working_time_unlimited'),
+                    $this->ctrl->getLinkTarget($this, 'startWorking')
+                )->withActionButtonLabel($this->plugin->txt('start_working'));
+                $button = $this->uiFactory->button()->primary($this->plugin->txt('start_working'), '#')->withOnClick($start_modal->getShowSignal());
+                $this->toolbar->addComponent($button);
+            }
+        }
+        else {
+            switch ($this->task->getTaskType()) {
+                case TaskSettings::TYPE_ESSAY_EDITOR:
                     if ($this->object->canWrite()) {
+                        $button = $this->uiFactory->button()->primary(
+                            $this->plugin->txt('continue_writing'),
+                            $this->ctrl->getLinkTarget($this, 'startWriter')
+                        );
+                        $this->toolbar->addComponent($button);
+                    } elseif ($this->object->canReviewWrittenEssay() && isset($essay) && empty(
+                        $essay->getWritingAuthorized()
+                        )) {
                         $button = $this->uiFactory->button()->standard(
-                            $this->plugin->txt('writer_replace_pdf'),
+                            $this->plugin->txt('review_writing'),
+                            $this->ctrl->getLinkTarget($this, 'startWritingReview')
+                        );
+                        $this->toolbar->addComponent($button);
+                    }
+                    break;
+
+                case TaskSettings::TYPE_PDF_UPLOAD:
+                    if (($this->object->canWrite() || $this->object->canReviewWrittenEssay())
+                        && isset($essay) && !empty($essay->getPdfVersion()) && empty($essay->getWritingAuthorized())) {
+                        $button = $this->uiFactory->button()->primary(
+                            $this->plugin->txt('writer_review_pdf'),
+                            $this->ctrl->getLinkTargetByClass(
+                                'ilias\plugin\longessayassessment\writer\writeruploadgui',
+                                'reviewPdf'
+                            )
+                        );
+                        $this->toolbar->addComponent($button);
+
+                        if ($this->object->canWrite()) {
+                            $button = $this->uiFactory->button()->standard(
+                                $this->plugin->txt('writer_replace_pdf'),
+                                $this->ctrl->getLinkTargetByClass(
+                                    'ilias\plugin\longessayassessment\writer\writeruploadgui',
+                                    'uploadPdf'
+                                )
+                            );
+                            $this->toolbar->addComponent($button);
+                        }
+
+                    } elseif ($this->object->canWrite()) {
+                        $button = $this->uiFactory->button()->primary(
+                            $this->plugin->txt('writer_upload_pdf'),
                             $this->ctrl->getLinkTargetByClass(
                                 'ilias\plugin\longessayassessment\writer\writeruploadgui',
                                 'uploadPdf'
@@ -188,18 +210,8 @@ class WriterStartGUI extends BaseGUI
                         );
                         $this->toolbar->addComponent($button);
                     }
-
-                } elseif ($this->object->canWrite()) {
-                    $button = $this->uiFactory->button()->primary(
-                        $this->plugin->txt('writer_upload_pdf'),
-                        $this->ctrl->getLinkTargetByClass(
-                            'ilias\plugin\longessayassessment\writer\writeruploadgui',
-                            'uploadPdf'
-                        )
-                    );
-                    $this->toolbar->addComponent($button);
-                }
-                break;
+                    break;
+            }
         }
 
         // Instructions
@@ -211,16 +223,19 @@ class WriterStartGUI extends BaseGUI
             $inst_parts[] = $this->uiFactory->legacy($this->displayText($this->task->getDescription()));
         }
 
-        if ($is_before_writing) {
+        if ($working_time->isNowBeforeAllowedTime()) {
             $properties[$this->plugin->txt('writing_period')] = $this->uiFactory->button()->shy(
-                $this->data->formatPeriod($this->task->getWritingStart(), $writing_end)
+                $this->common_services->formatter()->formatWorkingTime($working_time)
                 . ' ' . $this->plugin->txt('refresh_page'),
                 $this->ctrl->getLinkTarget($this)
             );
         }
-        elseif (!$is_written) {
-            $properties[$this->plugin->txt('writing_period')] = $this->data->formatPeriod($this->task->getWritingStart(), $writing_end);
+        elseif ($working_time->isLimited() && !$is_written) {
+            $properties[$this->plugin->txt('writing_period')] = ($working_time->isStarted()) ?
+                $this->common_services->formatter()->formatPeriod($working_time->getWorkingStart(), $working_time->getWorkingDeadline()) :
+                $this->common_services->formatter()->formatWorkingTime($working_time);
         }
+
         if (isset($essay) && $essay->getLocation() !== null) {
             $properties[$this->plugin->txt("location")] = ($location = $this->task_repo->getLocationById($essay->getLocation())) !== null ? $location->getTitle() : " - ";
         }
@@ -260,7 +275,7 @@ class WriterStartGUI extends BaseGUI
                     $this->ctrl->getLinkTarget($this, 'downloadInstructions')
                 );
             }
-        } elseif (!$is_before_writing) {
+        } elseif ($working_time->isStarted()) {
             if (!empty($this->task->getInstructions())) {
                 $inst_parts[] = $this->uiFactory->item()->standard(
                     $this->uiFactory->link()->standard(
@@ -279,7 +294,7 @@ class WriterStartGUI extends BaseGUI
             }
         }
 
-        $contents[] = $this->uiFactory->panel()->standard($this->plugin->txt('task_instructions'), $inst_parts);
+        $contents[] = $this->uiFactory->panel()->standard($this->plugin->txt('task_info'), $inst_parts);
 
         // Resources
         $writing_resources = [];
@@ -291,7 +306,7 @@ class WriterStartGUI extends BaseGUI
         /** @var Resource $resource */
         foreach ($resources as $resource) {
             $item = null;
-            if ($this->data->isResourceAvailable($resource, $this->task)) {
+            if ($this->data->isResourceAvailable($resource)) {
 
                 if ($resource->getType() == Resource::RESOURCE_TYPE_FILE && $resource->getFileId() !== null) {
                     $resource_file = $this->dic->resourceStorage()->manage()->find($resource->getFileId());
@@ -420,6 +435,30 @@ class WriterStartGUI extends BaseGUI
         $this->tpl->setContent($this->renderer->render($contents));
     }
 
+    /**
+     * Set the working start
+     */
+    protected function startWorking()
+    {
+        if ($this->object->canWrite()) {
+            $writer = $this->writer_admin_service->getOrCreateWriterFromUserId($this->user->getId());
+            if ($writer->getWorkingStart() === null) {
+                $writer->setWorkingStart(\DateTimeImmutable::createFromFormat('U', (string) time()));
+                $this->localDI->getWriterRepo()->save($writer);
+            }
+
+            switch ($this->task->getTaskType()) {
+                case TaskSettings::TYPE_ESSAY_EDITOR:
+                    $this->ctrl->redirect($this, 'startWriter');
+
+                case TaskSettings::TYPE_PDF_UPLOAD:
+                    $this->ctrl->redirect($this, 'showStartPage');
+            }
+        }
+        else {
+            $this->raisePermissionError();
+        }
+    }
 
     /**
      * Start the Writer Web app
@@ -516,7 +555,6 @@ class WriterStartGUI extends BaseGUI
 
     protected function downloadResourceFile()
     {
-        $identifier = "";
         if (($resource_id = $this->getResourceId()) !== null) {
             $resource_admin = new ResourceAdmin($this->object->getId());
             $resource = $resource_admin->getResource($resource_id);
@@ -524,7 +562,7 @@ class WriterStartGUI extends BaseGUI
             if ($resource->getTaskId() != $this->object->getId()) {
                 $this->raisePermissionError();
             }
-            if (!$this->data->isResourceAvailable($resource, $this->task)) {
+            if (!$this->data->isResourceAvailable($resource)) {
                 $this->raisePermissionError();
             }
 

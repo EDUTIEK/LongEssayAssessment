@@ -18,6 +18,7 @@ use ilObjUser;
 use Throwable;
 use ILIAS\Plugin\LongEssayAssessment\Data\Corrector\CorrectorPreferences;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\CorrectionSettings;
+use ILIAS\Plugin\LongEssayAssessment\Data\Task\TaskRepository;
 
 /**
  * Service for handling data related to a task
@@ -26,6 +27,7 @@ use ILIAS\Plugin\LongEssayAssessment\Data\Task\CorrectionSettings;
 class DataService extends BaseService
 {
     private \ILIAS\Plugin\LongEssayAssessment\ServiceLayer\Common\UserDataBaseHelper $userDataHelper;
+    protected TaskRepository $taskRepo;
     protected WriterRepository $writerRepo;
     protected EssayRepository $essayRepo;
     protected CorrectorRepository $correctorRepo;
@@ -33,6 +35,8 @@ class DataService extends BaseService
     protected int $task_id;
 
     /* cached data objects */
+    private ?TaskSettings $task_settings = null;
+
     private $ownWriter = null;
     private $ownWriterLoaded = false;
 
@@ -41,9 +45,6 @@ class DataService extends BaseService
 
     private $ownCorrector = null;
     private $ownCorrectorLoaded = false;
-
-    private $ownTimeExtension = null;
-    private $ownTimeExtensionLoaded = false;
 
 
     const USER_PREF_STATUS = "xlas_correction_status";
@@ -65,10 +66,22 @@ class DataService extends BaseService
         parent::__construct();
         $this->task_id = $task_id;
 
+        $this->taskRepo = $this->localDI->getTaskRepo();
         $this->writerRepo = $this->localDI->getWriterRepo();
         $this->essayRepo = $this->localDI->getEssayRepo();
         $this->correctorRepo = $this->localDI->getCorrectorRepo();
         $this->userDataHelper = $this->localDI->services()->common()->userDataHelper();
+    }
+
+    /**
+     * Get the task settings
+     */
+    public function getTaskSettings(): TaskSettings
+    {
+        if ($this->task_settings == null) {
+            $this->task_settings = $this->taskRepo->getTaskSettingsById($this->task_id);
+        }
+        return $this->task_settings;
     }
 
     /**
@@ -100,21 +113,19 @@ class DataService extends BaseService
     }
 
     /**
-     * Get the time extension of the current user in seconds
-     * @return int
+     * Get the common working time calculation
      */
-    public function getOwnTimeExtensionSeconds() : int
+    public function getCommonWorkingTime(): WorkingTime
     {
-        if (!$this->ownTimeExtensionLoaded) {
-            if (!empty($writer = $this->getOwnWriter())) {
-                $this->ownTimeExtension = $this->writerRepo->getTimeExtensionByWriterId($writer->getId(), $this->task_id);
-            }
-            $this->ownTimeExtensionLoaded = true;
-        }
-        if (!empty($this->ownTimeExtension)) {
-            return (int) $this->ownTimeExtension->getMinutes() * 60;
-        }
-        return 0;
+        return new WorkingTime($this->getTaskSettings());
+    }
+
+    /**
+     * Get the working time calculation for the current user
+     */
+    public function getOwnWorkingTime(): WorkingTime
+    {
+        return new WorkingTime($this->getTaskSettings(), $this->getOwnWriter());
     }
 
     /**
@@ -584,20 +595,19 @@ class DataService extends BaseService
     /**
      * Check if a resource is already available
      */
-    public function isResourceAvailable(Resource $resource, TaskSettings $taskSettings) : bool
+    public function isResourceAvailable(Resource $resource) : bool
     {
         if ($resource->getAvailability() == Resource::RESOURCE_AVAILABILITY_BEFORE) {
             return true;
         }
 
-        if ($resource->getAvailability() == Resource::RESOURCE_AVAILABILITY_DURING
-            && $this->isInRange(time(), $this->dbTimeToUnix($taskSettings->getWritingStart()), null)) {
-            return true;
+        if ($resource->getAvailability() == Resource::RESOURCE_AVAILABILITY_DURING) {
+            return ($this->getOwnWriter()?->getWorkingStart() !== null);
         }
 
         if ($resource->getAvailability() == Resource::RESOURCE_AVAILABILITY_AFTER
-            && $taskSettings->isSolutionAvailable()
-            && $this->isInRange(time(), $this->dbTimeToUnix($taskSettings->getSolutionAvailableDate()), null)) {
+            && $this->getTaskSettings()->isSolutionAvailable()
+            && $this->isInRange(time(), $this->dbTimeToUnix($this->getTaskSettings()->getSolutionAvailableDate()), null)) {
             return true;
         }
 

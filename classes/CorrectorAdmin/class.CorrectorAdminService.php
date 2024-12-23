@@ -692,7 +692,7 @@ class CorrectorAdminService extends BaseService
             $csv->addColumn(mb_convert_encoding($user->getMatriculation(), 'ISO-8859-1', 'UTF-8'));
             if (!empty($repoEssay->getWritingAuthorized())) {
                 $csv->addColumn($this->plugin->txt('writing_status_authorized'));
-            } elseif (!empty($repoEssay->getEditStarted())) {
+            } elseif (!empty($repoWriter->getWorkingStart())) {
                 $csv->addColumn($this->plugin->txt('writing_status_not_authorized'));
             } else {
                 $csv->addColumn($this->plugin->txt('writing_status_not_written'));

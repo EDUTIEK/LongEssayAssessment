@@ -196,7 +196,7 @@ class CorrectorAdminGUI extends BaseGUI
             ));
         }
 
-        $list_gui = new CorrectorAdminListGUI($this, "showStartPage", $this->plugin, $this->settings);
+        $list_gui = new CorrectorAdminListGUI($this, "showStartPage", $this->object->getId(), $this->plugin, $this->settings);
         $list_gui->setWriters($writers);
         $list_gui->setCorrectors($correctors);
         $list_gui->setEssays($essays);
@@ -244,7 +244,7 @@ class CorrectorAdminGUI extends BaseGUI
         $this->addModal($modal);
         $this->toolbar->addComponent($button);
 
-        $list_gui = new CorrectorListGUI($this, "showCorrectors", $this->plugin);
+        $list_gui = new CorrectorListGUI($this, "showCorrectors", $this->object->getId(), $this->plugin);
         $list_gui->setWriters($this->writer_repo->getWritersByTaskId($this->object->getId()));
         $list_gui->setCorrectors($this->corrector_repo->getCorrectorsByTaskId($this->object->getId()));
         $list_gui->setAssignments($this->corrector_repo->getAssignmentsByTaskId($this->object->getId()));

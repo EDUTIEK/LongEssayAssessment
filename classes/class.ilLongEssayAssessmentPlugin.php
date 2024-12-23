@@ -166,7 +166,7 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
             'xlas_rating_crit',
             'xlas_resource',
             'xlas_task_settings',
-            'xlas_time_extension',
+            'xlas_time_extension', // todo: remove completely in ILIAS 10
             'xlas_writer',
             'xlas_writer_comment',
             'xlas_writer_history',

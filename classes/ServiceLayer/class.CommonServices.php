@@ -12,6 +12,7 @@ use ILIAS\ResourceStorage\StorageHandler\FileSystemBased\FileSystemStorageHandle
 use ILIAS\FileDelivery\Delivery;
 use ILIAS\Plugin\LongEssayAssessment\ServiceLayer\Common\UserDataUIHelper;
 use ILIAS\Plugin\LongEssayAssessment\ServiceLayer\Common\UserDataBaseHelper;
+use ILIAS\Plugin\LongEssayAssessment\ServiceLayer\Common\Formatter;
 
 /**
  * Container for common services
@@ -52,6 +53,10 @@ class CommonServices
             );
         };
 
+        $service_dic['formatter'] = function () {
+            return new Formatter($this->local_dic->getPlugin());
+        };
+
         $service_dic['user_data_base_helper'] = function () {
             return new UserDataBaseHelper();
         };
@@ -68,6 +73,11 @@ class CommonServices
     public function fileHelper() : FileHelper
     {
         return $this->service_dic['file_helper'];
+    }
+
+    public function formatter() : Formatter
+    {
+        return $this->service_dic['formatter'];
     }
 
     public function userDataHelper() : UserDataBaseHelper

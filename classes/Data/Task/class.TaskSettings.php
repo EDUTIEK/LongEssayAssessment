@@ -70,7 +70,7 @@ class TaskSettings extends RecordData
     protected string $result_available_type = self::RESULT_AVAILABLE_REVIEW;
     protected ?string $result_available_date = null;
     protected int $statistics_available = 0;
-    protected ?int $writing_limit_minutes = 0;
+    protected ?int $writing_limit_minutes = null;
 
 
     public function __construct(int $task_id)

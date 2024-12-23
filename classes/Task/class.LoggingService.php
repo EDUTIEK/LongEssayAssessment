@@ -55,11 +55,11 @@ class LoggingService extends BaseService
         $object = $names[$object_user_id] ?? $this->plugin->txt('unknown', $lang);
 
         switch ($type) {
-            case LogEntry::TYPE_TIME_EXTENSION:
-                $entry = sprintf($this->plugin->txt('log_entry_time_extension', $lang), $object, $subject);
+            case LogEntry::TYPE_WORKING_TIME_CHANGE:
+                $entry = sprintf($this->plugin->txt('log_entry_working_time_changed', $lang), $object, $subject);
                 break;
-            case LogEntry::TYPE_WRITER_REMOVAL:
-                $entry = sprintf(($this->plugin->txt('log_entry_writer_removal', $lang)), $object, $subject);
+            case LogEntry::TYPE_WORKING_TIME_DELETE:
+                $entry = sprintf(($this->plugin->txt('log_entry_working_time_deleted', $lang)), $object, $subject);
                 break;
             case LogEntry::TYPE_WRITER_EXCLUSION:
                 $entry = sprintf(($this->plugin->txt('log_entry_writer_exclusion', $lang)), $object, $subject);

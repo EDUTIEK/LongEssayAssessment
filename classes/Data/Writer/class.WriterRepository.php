@@ -29,7 +29,7 @@ class WriterRepository extends RecordRepo
 
 	/**
 	 * Save record data of an allowed type
-	 * @param Writer|WriterPreferences|TimeExtension $record
+	 * @param Writer|WriterPreferences $record
 	 */
 	public function save(RecordData $record)
 	{
@@ -109,39 +109,7 @@ class WriterRepository extends RecordRepo
 
 
     /**
-	 * @param int $a_id
-	 * @return TimeExtension|null
-	 */
-    public function getTimeExtensionById(int $a_id): ?RecordData
-    {
-		$query = "SELECT * FROM xlas_time_extension WHERE id = " . $this->db->quote($a_id, 'integer');
-		return $this->getSingleRecord($query, TimeExtension::model());
-    }
-
-	/**
-	 * @param int $a_writer_id
-	 * @param int $a_task_id
-	 * @return TimeExtension|null
-	 */
-    public function getTimeExtensionByWriterId(int $a_writer_id, int $a_task_id): ?RecordData
-    {
-		$query = "SELECT * FROM xlas_time_extension WHERE writer_id = " . $this->db->quote($a_writer_id, 'integer') .
-		" AND task_id = " . $this->db->quote($a_task_id, 'integer');
-		return $this->getSingleRecord($query, TimeExtension::model());
-    }
-
-	/**
-	 * @param int $a_task_id
-	 * @return TimeExtension[]
-	 */
-    public function getTimeExtensionsByTaskId(int $a_task_id): array
-    {
-		$query = "SELECT * FROM xlas_time_extension WHERE task_id = " . $this->db->quote($a_task_id, 'integer');
-		return $this->queryRecords($query, TimeExtension::model());
-    }
-
-    /**
-     * Deletes Writer, TimeExtension, CorrectorAssignment and Essay related datasets by WriterId
+     * Deletes Writer, CorrectorAssignment and Essay related datasets by WriterId
      *
      * @throws ilDatabaseException|Exception
      */
@@ -150,7 +118,6 @@ class WriterRepository extends RecordRepo
 		$this->db->manipulate("DELETE FROM xlas_writer" .
             " WHERE id = " . $this->db->quote($a_id, "integer"));
 
-        $this->deleteTimeExtensionByWriterId($a_id);
         $this->deleteWriterPreferencesByWriter($a_id);
         $this->corrector_repo->deleteCorrectorAssignmentByWriter($a_id);
         $this->essay_repo->deleteEssayByWriterId($a_id);
@@ -162,15 +129,8 @@ class WriterRepository extends RecordRepo
             " WHERE writer_id = " . $this->db->quote($a_writer_id, "integer"));
     }
 
-    
-    public function deleteTimeExtensionByWriterId(int $a_writer_id)
-    {
-		$this->db->manipulate("DELETE FROM xlas_time_extension" .
-            " WHERE writer_id = " . $this->db->quote($a_writer_id, "integer"));
-    }
-
     /**
-     * Deletes Writer and TimeExtension by Task Id
+     * Deletes Writer by Task Id
      *
      * @param int $a_task_id
      */
@@ -179,20 +139,9 @@ class WriterRepository extends RecordRepo
 		$this->db->manipulate("DELETE FROM xlas_writer" .
             " WHERE task_id = " . $this->db->quote($a_task_id, "integer"));
 
-		$this->db->manipulate("DELETE te FROM xlas_time_extension AS te"
-            . " LEFT JOIN xlas_writer AS writer ON (te.writer_id = writer.id)"
-            . " WHERE writer.task_id = " . $this->db->quote($a_task_id, "integer"));
-
 		$this->corrector_repo->deleteCorrectorAssignmentByTask($a_task_id);
 		$this->essay_repo->deleteEssayByTaskId($a_task_id);
 	}
-
-    public function deleteTimeExtension(int $a_writer_id, int $a_task_id)
-    {
-		$this->db->manipulate("DELETE FROM xlas_time_extension" .
-            " WHERE writer_id = " . $this->db->quote($a_writer_id, "integer") .
-            " AND task_id = " . $this->db->quote($a_task_id, "integer"));
-    }
 
 	/**
 	 * @param array $a_user_ids

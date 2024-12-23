@@ -10,6 +10,8 @@ use ILIAS\Plugin\LongEssayAssessment\Data\Task\TaskRepository;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\TaskSettings;
 use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
 use ILIAS\UI\Component\Input\Container\Form\Standard;
+use ILIAS\Plugin\LongEssayAssessment\Data\WorkingTime;
+use DateTimeImmutable;
 
 /**
  * Organisational Settings
@@ -56,9 +58,6 @@ class OrgaSettingsGUI extends BaseGUI
 
             if ($result->isOK()) {
                 $this->updateTaskSettings($data, $taskSettings, $locations);
-
-                $this->tpl->setOnScreenMessage("success", $this->lng->txt("settings_saved"), true);
-                $this->ctrl->redirect($this, "editSettings");
             }
         }
         $this->tpl->setContent($this->renderer->render($form));
@@ -83,7 +82,6 @@ class OrgaSettingsGUI extends BaseGUI
         $this->object->setDescription($a_data['object']['description']);
         $this->object->setOnline($a_data['object']['online']);
         $this->object->setParticipationType($a_data['object']['participation_type']);
-        $this->object->update();
 
         $task_type = $a_data['object']['task_type'];
         $a_task_settings->setTaskType((string) $task_type);
@@ -154,8 +152,38 @@ class OrgaSettingsGUI extends BaseGUI
         $closing_message = $a_data['content']['closing_message'];
         $a_task_settings->setClosingMessage((string)$this->data->trimRichText($closing_message));
 
-        $task_repo->save($a_task_settings);
-        $this->saveLocations($a_data['task']['location'], $locations);
+        // consistency checks
+        $failures = [];
+        $working_time = new WorkingTime($a_task_settings);
+
+        if ($working_time->isEndBeforeStart()) {
+            $failures[] = $this->plugin->txt("failure_latest_end_before_earliest_start");
+        }
+        if ($working_time->isTimeLimitTooLong()) {
+            $failures[] = $this->plugin->txt("failure_time_limit_too_long");
+        }
+        if ($a_task_settings->getSolutionAvailableDate() !== null && $working_time->getWorkingDeadline() !== null) {
+            $available = (new DateTimeImmutable($a_task_settings->getSolutionAvailableDate()))->getTimestamp();
+            $deadline = $working_time->getWorkingDeadline()->getTimestamp();
+            if ($deadline > $available) {
+                $failures[] = $this->plugin->txt("time_exceeds_solution_availability");
+            }
+        }
+
+        if (empty($failures)) {
+            $this->object->update();
+            $task_repo->save($a_task_settings);
+            $this->saveLocations($a_data['task']['location'], $locations);
+
+            $this->tpl->setOnScreenMessage("success", $this->lng->txt("settings_saved"), true);
+            $this->ctrl->redirect($this, "editSettings");
+        }
+
+        $failures[] = $this->plugin->txt('message_form_not_saved');
+        $this->tpl->setOnScreenMessage('failure', implode('<br>', $failures));
+        $form = $this->buildTaskSettings($a_task_settings, $locations);
+        $this->tpl->setContent($this->renderer->render($form));
+        $this->localDI->getUIService()->addTinyMCEToTextareas(); // Has to be called last for the noRTEditor Tags to be effective
     }
 
     /**

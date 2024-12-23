@@ -3,19 +3,14 @@
 namespace ILIAS\Plugin\LongEssayAssessment\WriterAdmin;
 
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\Location;
-use ILIAS\Plugin\LongEssayAssessment\Data\Writer\TimeExtension;
 use ILIAS\Plugin\LongEssayAssessment\Data\Writer\Writer;
 use ILIAS\UI\Component\Modal\RoundTrip;
 use ILIAS\UI\Implementation\Component\Modal\Modal;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\TaskSettings;
+use ILIAS\Plugin\LongEssayAssessment\Data\WorkingTime;
 
 class WriterAdminListGUI extends WriterListGUI
 {
-    /**
-     * @var TimeExtension[]
-     */
-    private array $extensions = [];
-
     private ?RoundTrip $multi_command_modal = null;
 
 
@@ -81,12 +76,12 @@ class WriterAdminListGUI extends WriterListGUI
                                              ->withOnClick($authorize_modal->getShowSignal());
             }
 
-            if($this->canGetExtension($writer)) {
-                $modals[] = $extension = $this->uiFactory->modal()->roundtrip("", [])->withAsyncRenderUrl(
-                    $this->getExtensionAction($writer)
+            if($this->canChangeWorkingTime($writer)) {
+                $modals[] = $working_modal = $this->uiFactory->modal()->roundtrip("", [])->withAsyncRenderUrl(
+                    $this->getWorkingTimeAction($writer)
                 );
-                $actions[] = $this->uiFactory->button()->shy($this->plugin->txt("extent_time"), '')
-                    ->withOnClick($extension->getShowSignal());
+                $actions[] = $this->uiFactory->button()->shy($this->plugin->txt("change_working_time"), '')
+                    ->withOnClick($working_modal->getShowSignal());
             }
 
             if($this->canChangeLocation()) {
@@ -154,10 +149,15 @@ class WriterAdminListGUI extends WriterListGUI
             $actions_dropdown = $this->uiFactory->dropdown()->standard($actions)
                 ->withLabel($this->plugin->txt("actions"));
 
+
+            $working_time = new WorkingTime($this->task, $writer);
+
             $properties = [
                 $this->plugin->txt("pseudonym") => $writer->getPseudonym(),
                 $this->plugin->txt("essay_status") => $this->essayStatus($writer),
-                $this->plugin->txt("writing_time_extension") => $this->extensionString($writer),
+                $this->plugin->txt("working_time_change") => $working_time->isIndividual() ?
+                    $this->common_services->formatter()->formatWorkingTime($working_time) :
+                    $this->plugin->txt("no_working_time_change")
             ];
             if (!empty($this->lastSave($writer))) {
                 $properties[ $this->plugin->txt("writing_last_save")] = $this->lastSave($writer);
@@ -216,18 +216,18 @@ class WriterAdminListGUI extends WriterListGUI
                 $location_callback_signal
             );
         }
-        $extension_callback_signal = $resources->generateDSCallbackSignal();
+        $working_time_callback_signal = $resources->generateDSCallbackSignal();
 
         $modals[] = $resources->addDSModalTriggerToModal(
             $this->uiFactory->modal()->roundtrip("", []),
-            $this->ctrl->getFormAction($this->parent, "editExtensionMulti", "", true),
+            $this->ctrl->getFormAction($this->parent, "editWorkingTimeMulti", "", true),
             "writer_ids",
-            $extension_callback_signal
+            $working_time_callback_signal
         );
 
         $form_actions[] = $resources->addDSModalTriggerToButton(
-            $this->uiFactory->button()->shy($this->plugin->txt("extent_time"), "#"),
-            $extension_callback_signal
+            $this->uiFactory->button()->shy($this->plugin->txt("change_working_time"), "#"),
+            $working_time_callback_signal
         );
 
         $remove_callback_signal = $resources->generateDSCallbackSignal();
@@ -294,7 +294,7 @@ class WriterAdminListGUI extends WriterListGUI
         if(isset($this->essays[$writer->getId()])) {
             $essay = $this->essays[$writer->getId()];
 
-            return $essay->getEditStarted() !== null
+            return $writer->getWorkingStart() !== null
                 /*&& $essay->getEditEnded() !== null*/
                 && $essay->getWritingAuthorized() === null;
         }
@@ -313,7 +313,7 @@ class WriterAdminListGUI extends WriterListGUI
         if(isset($this->essays[$writer->getId()])) {
             $essay = $this->essays[$writer->getId()];
 
-            return $essay->getEditStarted() !== null
+            return $writer->getWorkingStart() !== null
                 /*&& $essay->getEditEnded() !== null*/
                 && $essay->getWritingAuthorized() !== null;
         }
@@ -325,9 +325,9 @@ class WriterAdminListGUI extends WriterListGUI
         $this->ctrl->setParameter($this->parent, "writer_id", $writer->getId());
         return $this->ctrl->getFormAction($this->parent, "unauthorizeWriting");
     }
+    
 
-
-    private function canGetExtension(Writer $writer): bool
+    private function canChangeWorkingTime(Writer $writer): bool
     {
         if(isset($this->essays[$writer->getId()])) {
             $essay = $this->essays[$writer->getId()];
@@ -337,10 +337,10 @@ class WriterAdminListGUI extends WriterListGUI
         return true;
     }
 
-    private function getExtensionAction(Writer $writer): string
+    private function getWorkingTimeAction(Writer $writer): string
     {
         $this->ctrl->setParameter($this->parent, "writer_id", $writer->getId());
-        return $this->ctrl->getFormAction($this->parent, "editExtension");
+        return $this->ctrl->getFormAction($this->parent, "editWorkingTime");
     }
 
     private function canGetRepealed(Writer $writer): bool
@@ -395,18 +395,6 @@ class WriterAdminListGUI extends WriterListGUI
         return $essay !== null && $essay->getPdfVersion() !== null ? $this->plugin->txt("pdf_version_edit") : $this->plugin->txt("pdf_version_upload");
     }
 
-    /**
-     * @param \ILIAS\Plugin\LongEssayAssessment\Data\Writer\Writer $writer
-     * @return void
-     */
-    private function extensionString(Writer $writer): string
-    {
-        if(isset($this->extensions[$writer->getId()])) {
-            return $this->extensions[$writer->getId()]->getMinutes() . " " . $this->plugin->txt("min");
-        }
-        return $this->plugin->txt("writing_none_extension");
-    }
-
     private function essayStatus(Writer $writer): string
     {
         if(isset($this->essays[$writer->getId()])) {
@@ -425,13 +413,13 @@ class WriterAdminListGUI extends WriterListGUI
 
                 return $this->plugin->txt("writing_authorized_from") . " " . $name;
             }
-
-            if($essay->getEditStarted() !== null) {
-                return $this->plugin->txt("writing_edit_started");
-            }
         }
 
-        return $this->plugin->txt("writing_not_started");
+        if ($writer->getWorkingStart() !== null) {
+            return $this->plugin->txt("working_started");
+        }
+
+        return $this->plugin->txt("working_not_started");
     }
 
     private function lastSave(Writer $writer): string
@@ -446,24 +434,6 @@ class WriterAdminListGUI extends WriterListGUI
             }
         }
         return '';
-    }
-
-    /**
-     * @return TimeExtension[]
-     */
-    public function getExtensions(): array
-    {
-        return $this->extensions;
-    }
-
-    /**
-     * @param TimeExtension[] $extensions
-     */
-    public function setExtensions(array $extensions): void
-    {
-        foreach($extensions as $extension) {
-            $this->extensions[$extension->getWriterId()] = $extension;
-        }
     }
 
     public function getMultiCommandModal():Modal
@@ -481,7 +451,7 @@ class WriterAdminListGUI extends WriterListGUI
             [self::FILTER_YES => $this->plugin->txt("yes"), self::FILTER_NO => $this->plugin->txt("no")]
         ),
                 "assigned" => $this->uiFactory->input()->field()->select(
-                    $this->plugin->txt("filter_with_extension"),
+                    $this->plugin->txt("filter_working_time_change"),
                     [self::FILTER_YES => $this->plugin->txt("yes"), self::FILTER_NO => $this->plugin->txt("no")]
                 ),
                 "pdf_version" => $this->uiFactory->input()->field()->select(
@@ -503,31 +473,23 @@ class WriterAdminListGUI extends WriterListGUI
         $essay = $this->essays[$writer->getId()] ?? null;
 
         if(!empty($filter["attended"]) && $filter["attended"] == self::FILTER_YES) {
-            if($essay === null || $essay->getEditStarted() === null) {
+            if($writer->getWorkingStart() === null) {
                 return false;
             }
         }
         if(!empty($filter["attended"]) && $filter["attended"] == self::FILTER_NO) {
-            if($essay !== null && $essay->getEditStarted() !== null) {
+            if($writer->getWorkingStart() !== null) {
                 return false;
             }
         }
 
-        $extension = null;
-
-        if(array_key_exists($writer->getId(), $this->extensions)) {
-            $extension = $this->extensions[$writer->getId()];
-        }
+        $working_time = new WorkingTime($this->task, $writer);
 
         if(!empty($filter["assigned"]) && $filter["assigned"] == self::FILTER_YES) {
-            if($extension !== null) {
-                return false;
-            }
+            return $working_time->isIndividual();
         }
         if(!empty($filter["assigned"]) && $filter["assigned"] == self::FILTER_NO) {
-            if($extension === null) {
-                return false;
-            }
+            return !$working_time->isIndividual();
         }
 
         if(!empty($filter["pdf_version"]) && $filter["pdf_version"] == self::FILTER_YES) {

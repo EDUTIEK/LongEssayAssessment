@@ -2281,11 +2281,98 @@ if (!$ilDB->tableColumnExists('xlas_task_settings','writing_limit_minutes')) {
 ?>
 <#113>
 <?php
-if (!$ilDB->tableColumnExists('xlas_time_extension','writing_start')) {
-    $ilDB->addTableColumn('xlas_time_extension', 'writing_start', array(
+    //obsolete
+?>
+<#114>
+<?php
+if (!$ilDB->tableColumnExists('xlas_writer','earliest_start')) {
+    $ilDB->addTableColumn('xlas_writer', 'earliest_start', array(
         'notnull' => '0',
         'type' => 'timestamp',
         'default' => null
     ));
 }
 ?>
+<#115>
+<?php
+if (!$ilDB->tableColumnExists('xlas_writer','latest_end')) {
+    $ilDB->addTableColumn('xlas_writer', 'latest_end', array(
+        'notnull' => '0',
+        'type' => 'timestamp',
+        'default' => null
+    ));
+}
+?>
+<#116>
+<?php
+if (!$ilDB->tableColumnExists('xlas_writer','time_limit_minutes')) {
+    $ilDB->addTableColumn('xlas_writer', 'time_limit_minutes', array(
+        'notnull' => '0',
+        'type' => 'integer',
+        'length' => 4,
+        'default' => null
+    ));
+}
+?>
+<#117>
+<?php
+if ($ilDB->tableExists('xlas_time_extension')) {
+    $query = "
+        SELECT s.writing_end,  t.task_id, t.writer_id, t.minutes
+        FROM xlas_task_settings s
+        JOIN xlas_time_extension t ON t.task_id = s.task_id
+        WHERE s.writing_end IS NOT NULL AND t.minutes > 0
+    ";
+
+    $result = $ilDB->query($query);
+    while ($row = $ilDB->fetchAssoc($result)) {
+        $end = new DateTime($row['writing_end']);
+        $seconds = (int) $row['minutes'] * 60;
+        $end->setTimestamp($end->getTimestamp() + $seconds);
+
+        $ilDB->update('xlas_writer', [
+            'latest_end' => ['string', $end->format('Y-m-d H:i:s')]
+        ], [
+                'id' => ['integer', (int) $row['writer_id']],
+            ]
+        );
+    }
+}
+?>
+<#118>
+<?php
+if (!$ilDB->tableColumnExists('xlas_writer','working_start')) {
+
+    $ilDB->addTableColumn('xlas_writer', 'working_start', array(
+        'notnull' => '0',
+        'type' => 'timestamp',
+        'default' => null
+    ));
+
+    $query = "
+        SELECT e.writer_id, e.edit_started
+        FROM xlas_essay e
+        WHERE e.edit_started IS NOT NULL
+    ";
+
+    $result = $ilDB->query($query);
+    while ($row = $ilDB->fetchAssoc($result)) {
+        $ilDB->update('xlas_writer', [
+            'working_start' => ['string', $row['edit_started']]
+        ], [
+                'id' => ['integer', (int) $row['writer_id']],
+            ]
+        );
+    }
+}
+?>
+<#119>
+<?php
+    $query = "
+        UPDATE xlas_log_entry SET category = 'working_time' WHERE category = 'extension';
+    ";
+
+    $ilDB->manipulate($query);
+?>
+
+

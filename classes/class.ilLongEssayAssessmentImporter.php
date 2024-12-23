@@ -13,6 +13,15 @@ use ILIAS\Plugin\LongEssayAssessment\Data\Task\PdfSettings;
 use ILIAS\Plugin\LongEssayAssessment\Data\Object\GradeLevel;
 use ILIAS\Plugin\LongEssayAssessment\Data\Object\RatingCriterion;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\Location;
+use ILIAS\Plugin\LongEssayAssessment\Data\Task\Resource;
+use ILIAS\ResourceStorage\Services as ResourceStorage;
+use ILIAS\Filesystem\Util\LegacyPathHelper;
+use ILIAS\Plugin\LongEssayAssessment\Task\ResourceResourceStakeholder;
+use ILIAS\ResourceStorage\Information\FileInformation;
+use ILIAS\ResourceStorage\Resource\ResourceBuilder;
+use ILIAS\Filesystem\Filesystem;
+use ILIAS\ResourceStorage\Resource\InfoResolver\StreamInfoResolver;
+use ILIAS\ResourceStorage\Resource\ResourceType;
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -32,23 +41,51 @@ use ILIAS\Plugin\LongEssayAssessment\Data\Task\Location;
 
 class ilLongEssayAssessmentImporter extends ilXmlImporter
 {
+    private ResourceBuilder $resource_builder;
+    private ResourceResourceStakeholder $resource_stakeholder;
+    private ilComponentLogger $logger;
+
     private LongEssayAssessmentDI $localDI;
     private ilLongEssayAssessmentPlugin $plugin;
 
     private ObjectRepository $object_repo;
     private TaskRepository $task_repo;
     private DataService $data_service;
-
     private ilObjLongEssayAssessment $object;
 
+    private Filesystem $import_fs;
+    private string $files_path;
 
     public function __construct()
     {
+        global $DIC;
+
+        $this->resource_builder = new ResourceBuilder(
+            $DIC[InitResourceStorage::D_STORAGE_HANDLERS],
+            $DIC[InitResourceStorage::D_REPOSITORIES],
+            $DIC[InitResourceStorage::D_LOCK_HANDLER],
+            $DIC[InitResourceStorage::D_STREAM_ACCESS],
+            $DIC[InitResourceStorage::D_FILENAME_POLICY],
+        );
+        $this->resource_stakeholder = new ResourceResourceStakeholder($DIC->user()->getId());
+
+        $this->logger = $DIC->logger()->xlas();
+
         $this->localDI = LongEssayAssessmentDI::getInstance();
         $this->plugin = ilLongEssayAssessmentPlugin::getInstance();
 
         $this->object_repo = $this->localDI->getObjectRepo();
         $this->task_repo = $this->localDI->getTaskRepo();
+    }
+
+    /**
+     * Initialisations after import directory is set
+     */
+    public function init(): void
+    {
+        $import_path = LegacyPathHelper::createRelativePath($this->getImportDirectory());
+        $this->import_fs = LegacyPathHelper::deriveFilesystemFrom($this->getImportDirectory());
+        $this->files_path = $import_path . '/Plugins/xlas/set_1/expDir_1/Files';
     }
 
     public function importXmlRepresentation(
@@ -57,7 +94,6 @@ class ilLongEssayAssessmentImporter extends ilXmlImporter
         string $a_xml,
         ilImportMapping $a_mapping
     ): void {
-
         $this->object = new ilObjLongEssayAssessment();
         $this->object->create(true);
 
@@ -81,7 +117,8 @@ class ilLongEssayAssessmentImporter extends ilXmlImporter
                     break;
                 case 'TaskSettings':
                     $model = TaskSettings::from($row = $this->getRowFromXml($element, TaskSettings::model()));
-                    $this->object_repo->save($model->setTaskId($new_id)
+                    $this->object_repo->save(
+                        $model->setTaskId($new_id)
                         ->setDescription($data_service->cleanupRichText($row['Description'] ?? null))
                         ->setClosingMessage($data_service->cleanupRichText($row['ClosingMessage'] ?? null))
                         ->setInstructions($data_service->cleanupRichText($row['Instructions'] ?? null))
@@ -112,6 +149,19 @@ class ilLongEssayAssessmentImporter extends ilXmlImporter
                     $model = Location::from($row = $this->getRowFromXml($element, Location::model()));
                     $this->task_repo->save($model->setTaskId($new_id)->setId(0));
                     break;
+                case 'Resource':
+                    $model = Resource::from($row = $this->getRowFromXml($element, Resource::model()));
+                    $file_id = '';
+                    try {
+                        $file_id = $this->addResourceFile(
+                            ilUtil::secureString($row['FileId'] ?? ''),
+                            ilUtil::secureString($row['FileName'] ?? '')
+                        );
+                    } catch (Exception $e) {
+                        $this->logger->error(sprintf('LongEssayAssessment: IMPORT (obj_id %s): ', $new_id)
+                            . $e->getMessage());
+                    }
+                    $this->task_repo->save($model->setTaskId($new_id)->setFileId($file_id)->setId(0));
             }
         }
 
@@ -159,12 +209,42 @@ class ilLongEssayAssessmentImporter extends ilXmlImporter
                         break;
                     case 'string':
                     case '?string':
-                        $row[$property->getName()] = (string) $value;
+                        $row[$property->getName()] = ilUtil::secureString((string) $value);
                         break;
                 }
             }
         }
 
         return $row;
+    }
+
+    /**
+     * Add a file resource and return their id as string
+     * copied to set the file name
+     * @see ILIAS\ResourceStorage\Manager\BaseManager::newStreamBased
+     */
+    public function addResourceFile(string $export_file_id, string $export_file_name): string
+    {
+        $stream = $this->import_fs->readStream($this->files_path . '/' . $export_file_id);
+
+        $info_resolver = new StreamInfoResolver(
+            $stream,
+            1,
+            $this->resource_stakeholder->getOwnerOfNewResources(),
+            $export_file_name ?? $stream->getMetadata()['uri'],
+            $export_file_name
+        );
+
+        $resource = $this->resource_builder->newFromStream(
+            $stream,
+            $info_resolver,
+            true,
+            ResourceType::SINGLE_FILE
+        );
+        $resource->addStakeholder($this->resource_stakeholder);
+        $this->resource_builder->store($resource);
+
+        $stream->close();
+        return (string) $resource->getIdentification();
     }
 }

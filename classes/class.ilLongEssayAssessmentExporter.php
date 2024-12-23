@@ -4,6 +4,10 @@ use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
 use ILIAS\Plugin\LongEssayAssessment\Data\Object\ObjectRepository;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\TaskRepository;
 use ILIAS\Plugin\LongEssayAssessment\Data\RecordData;
+use ILIAS\Plugin\LongEssayAssessment\Data\Task\Resource;
+use ILIAS\Filesystem\Util\LegacyPathHelper;
+use ILIAS\DI\LoggingServices;
+use ILIAS\ResourceStorage\Services as ResourceStorage;
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -23,7 +27,8 @@ use ILIAS\Plugin\LongEssayAssessment\Data\RecordData;
 
 class ilLongEssayAssessmentExporter extends ilXmlExporter
 {
-    private LongEssayAssessmentDI $localDI;
+    private ResourceStorage $resource;
+    private ilComponentLogger $logger;
 
     private ObjectRepository $object_repo;
     private TaskRepository $task_repo;
@@ -32,10 +37,14 @@ class ilLongEssayAssessmentExporter extends ilXmlExporter
 
     public function __construct()
     {
-        $this->localDI = LongEssayAssessmentDI::getInstance();
+        global $DIC;
+        $this->resource = $DIC->resourceStorage();
+        $this->logger = $DIC->logger()->xlas();
 
-        $this->object_repo = $this->localDI->getObjectRepo();
-        $this->task_repo = $this->localDI->getTaskRepo();
+        $local_di = LongEssayAssessmentDI::getInstance();
+
+        $this->object_repo = $local_di->getObjectRepo();
+        $this->task_repo = $local_di->getTaskRepo();
     }
 
     public function getXmlExportTailDependencies(
@@ -59,6 +68,11 @@ class ilLongEssayAssessmentExporter extends ilXmlExporter
         if (ilObject::_lookupType((int) $a_id) !== 'xlas') {
             return '';
         }
+
+        $export_fs = LegacyPathHelper::deriveFilesystemFrom($this->getAbsoluteExportDirectory());
+        $export_path = LegacyPathHelper::createRelativePath($this->getAbsoluteExportDirectory());
+        $files_path = $export_path . '/Files';
+        $export_fs->createDir($files_path);
 
         $ref_ids = ilObject::_getAllReferences($a_id);
         $ref_id = array_shift($ref_ids);
@@ -85,7 +99,34 @@ class ilLongEssayAssessmentExporter extends ilXmlExporter
         foreach ($this->task_repo->getLocationsByTaskId($a_id) as $model) {
             $this->addModelXml($writer, $model);
         }
-        // todo: resources
+        foreach ($this->task_repo->getResourceByTaskId($a_id) as $model) {
+
+            /** @var Resource $model */
+            $file_id = $model->getFileId();
+            $file_name = '';
+            if (!empty($file_id)) {
+                try {
+                    $identification = $this->resource->manage()->find($file_id);
+                    $resource = $this->resource->manage()->getResource($identification);
+                    $file_name = $resource->getCurrentRevision()->getTitle();
+                    $export_fs->writeStream($files_path . '/' . $file_id,
+                        $this->resource->consume()->stream($identification)->getStream());
+                }
+                catch (Exception $e) {
+                    $this->logger->error(sprintf('LongEssayAssessment: EXPORT (ref_id %s): ', $ref_id)
+                        . $e->getMessage());
+                    $file_id = '';
+                    $file_name = '';
+                }
+            }
+
+            /** @noinspection PhpParamsInspection */
+            $row = $this->getModelRowForXml($model);
+            $row['FileId'] =  $file_id;
+            $row['FileName'] =  $file_name;
+            $this->addRowXml($writer, 'Resource', $row);
+        }
+
 
         $writer->xmlEndTag("LongEssayAssessment");
 
@@ -115,11 +156,31 @@ class ilLongEssayAssessmentExporter extends ilXmlExporter
     private function addModelXml(ilXmlWriter $writer, RecordData $model): void
     {
         $reflect = new ReflectionClass($model);
-        $writer->xmlStartTag($reflect->getShortName());
-        foreach ($model->row() as $key => $value) {
-            $name = str_replace('_', '', ucwords($key, '_'));
+        $this->addRowXml($writer, $reflect->getShortName(), $this->getModelRowForXml($model));
+    }
+
+    /**
+     * Add the xml of a row to the writer
+     */
+    private function addRowXml(ilXmlWriter $writer, string $tag, array $row): void
+    {
+        $writer->xmlStartTag($tag);
+        foreach ($row as $name => $value) {
             $writer->xmlElement($name, null, (string) $value, true, true);
         }
-        $writer->xmlEndTag($reflect->getShortName());
+        $writer->xmlEndTag($tag);
+    }
+
+    /**
+     * Get a model row with keys renamed for Xml
+     */
+    private function getModelRowForXml(RecordData $model): array
+    {
+        $row = [];
+        foreach ($model->row() as $key => $value) {
+            $name = str_replace('_', '', ucwords($key, '_'));
+            $row[$name] = $value;
+        }
+        return $row;
     }
 }

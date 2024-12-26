@@ -3,19 +3,20 @@
 namespace ILIAS\Plugin\LongEssayAssessment\ServiceLayer;
 
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\TaskRepository;
+use ilLongEssayAssessmentPlugin;
 
 /**
  * Service to create mail notifications
  */
 class MailServices
 {
-    private \ilPlugin $plugin;
+    private ilLongEssayAssessmentPlugin $plugin;
     private int $obj_id;
     private int $ref_id;
     private \ILIAS\DI\Container $global_dic;
     private TaskRepository $task_repository;
 
-    public function __construct(\ILIAS\DI\Container $global_dic, \ilPlugin $plugin, TaskRepository $task_repository, int $ref_id)
+    public function __construct(\ILIAS\DI\Container $global_dic, ilLongEssayAssessmentPlugin $plugin, TaskRepository $task_repository, int $ref_id)
     {
         $this->global_dic = $global_dic;
         $this->plugin = $plugin;

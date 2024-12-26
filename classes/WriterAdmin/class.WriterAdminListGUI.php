@@ -417,7 +417,8 @@ class WriterAdminListGUI extends WriterListGUI
                     $name = $this->getUsername($essay->getWritingAuthorizedBy(), true);
                 }
 
-                return $this->plugin->txt("writing_authorized_from") . " " . $name;
+                return $this->plugin->txt("writing_authorized_from") . " " . $name . ", "
+                    . $this->localDI->getDataService($essay->getTaskId())->formatDateTime($essay->getWritingAuthorized());
             }
 
             if($essay->getEditStarted() !== null) {

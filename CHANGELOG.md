@@ -1,9 +1,19 @@
 # Change Log
 
 ## Upcoming version
+Plugin:
+- Configure and adapt time limit
+- Export and import of long essay assessments
+
+Corrector Web app:
+- Replace layout table for paragraph numbers
+- Improve comment layout
+- Improve keyboard navigation between essay, comments and criteria points
+
 Bug fixes:
 - Fix missing download extension of converted text submission
 - Fault tolerance when no grade level is found for final points
+- Add authorization date to status info
 
 ## Version 3.4 (2024-11-04)
 Plugin:

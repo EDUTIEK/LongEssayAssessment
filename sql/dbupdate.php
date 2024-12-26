@@ -2374,5 +2374,15 @@ if (!$ilDB->tableColumnExists('xlas_writer','working_start')) {
 
     $ilDB->manipulate($query);
 ?>
-
+<#120>
+<?php
+if (!$ilDB->tableColumnExists('xlas_rating_crit','is_general')) {
+    $ilDB->addTableColumn('xlas_rating_crit', 'is_general', array(
+        'notnull' => '1',
+        'type' => 'integer',
+        'length' => 4,
+        'default' => '0'
+    ));
+}
+?>
 

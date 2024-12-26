@@ -2,8 +2,9 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\ServiceLayer;
 
+use ilLink;
+use ilLongEssayAssessmentPlugin;
 use ilMail;
-use ilPlugin;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\TaskSettings;
 
 /**
@@ -12,10 +13,10 @@ use ILIAS\Plugin\LongEssayAssessment\Data\Task\TaskSettings;
 class MailNotification extends \ilMailNotification
 {
     const REVIEW_NOTIFICATION = 1;
-    private ilPlugin $plugin;
+    private ilLongEssayAssessmentPlugin $plugin;
     private TaskSettings $task_settings;
 
-    public function __construct(ilPlugin $plugin, TaskSettings $task_settings)
+    public function __construct(ilLongEssayAssessmentPlugin $plugin, TaskSettings $task_settings)
     {
         parent::__construct(false);
         $this->plugin = $plugin;
@@ -38,7 +39,8 @@ class MailNotification extends \ilMailNotification
         foreach($this->getRecipients() as $rcp) {
             $this->initLanguage($rcp);
             $this->initMail();
-            $this->getMail()->appendInstallationSignature(true);
+            // the standard signature may have a false permanent link
+            $this->getMail()->appendInstallationSignature(false);
 
             switch($this->getType()) {
                 case self::REVIEW_NOTIFICATION: $this->sendReviewMail($rcp);
@@ -65,9 +67,17 @@ class MailNotification extends \ilMailNotification
 
         $this->appendBody($this->getLanguageText("mail_permanent_link", true));
         $this->appendBody("\n\n");
-        $this->appendBody($this->createPermanentLink([], "_writer"));
+        $this->appendBody($this->getWriterStartPermaLink());
 
         $this->sendMail([$rcp]);
     }
 
+
+    /**
+     * Get a permanent link to the writer start screen
+     */
+    protected function getWriterStartPermaLink()
+    {
+        return $this->plugin->getIliasHttpPath() . '/goto.php?target=xlas_' . $this->ref_id . '_writer';
+    }
 }

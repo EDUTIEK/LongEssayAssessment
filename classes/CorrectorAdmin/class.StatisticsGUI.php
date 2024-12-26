@@ -17,7 +17,6 @@ use ILIAS\Plugin\LongEssayAssessment\UI\Implementation\Statistic;
 
 abstract class StatisticsGUI extends BaseGUI
 {
-    protected \ilAccessHandler $access;
     protected \ilUIService $ui_service;
     protected EssayRepository $essay_repo;
     protected ObjectRepository $object_repo;
@@ -35,7 +34,6 @@ abstract class StatisticsGUI extends BaseGUI
         $this->ui_service = $this->dic->uiService();
         $this->essay_repo = $this->localDI->getEssayRepo();
         $this->object_repo = $this->localDI->getObjectRepo();
-        $this->access = $this->dic->access();
     }
 
     protected function buildCSV(array $records, string $count_title, string $finalized_title, bool $has_obj_id = true) : string

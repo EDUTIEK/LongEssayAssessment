@@ -346,7 +346,8 @@ class CorrectorAdminListGUI extends WriterListGUI
                     $name = $this->getUsernameText($essay->getWritingAuthorizedBy());
                 }
 
-                return $this->plugin->txt("writing_authorized_from") . " " .$name;
+                return $this->plugin->txt("writing_authorized_from") . " " . $name . ", "
+                    . $this->localDI->getDataService($this->task->getTaskId())->formatDateTime($essay->getWritingAuthorized());
             }
         }
 

@@ -249,6 +249,20 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
     }
 
     /**
+     * Get the ILIAS HTTP path that also works within the writer and admin service calls
+     */
+    public function getIliasHttpPath(): string
+    {
+        $path = ILIAS_HTTP_PATH;
+        $pos = strpos($path, $this->getPluginPath());
+        if ($pos !== false) {
+            return substr($path, 0, $pos - 1); // without slash
+        }
+        return $path;
+    }
+
+
+    /**
      * Check if the current user has administrative access
      * @return bool
      */

@@ -14,6 +14,7 @@ Bug fixes:
 - Fix missing download extension of converted text submission
 - Fault tolerance when no grade level is found for final points
 - Add authorization date to status info
+- Wrong permanent link in review notification
 
 ## Version 3.4 (2024-11-04)
 Plugin:

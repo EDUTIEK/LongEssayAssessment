@@ -652,3 +652,8 @@ delete_individual_working_time#:#Anpassung entfernen
 one_working_time_deleted#:#Die Anpassung der Bearbeitungszeit wurde entfernt.
 x_working_times_deleted#:#%s Anpassungen der Bearbeitungszeit wurden entfernt.
 task_info#:#Hinweise zur Aufgabe
+criterion_type#:#Typ
+criterion_type_general#:#übergreifend (Kopfnote)
+criterion_type_general_info#:#Jedes übergreifende Kriterium kann pro abgegebenem Text einmalig bewertet werden. Die Bewertung wird unabhängig von Textstellen eingegeben. Sie darf die maximalen Punkte nicht überschreiten.
+criterion_type_comment#:#stellenbezogen
+criterion_type_comment_info#:#Ein stellenbezogenes Kriterium wird immer in Verbindung mit einer markierten Textstelle bewertet. Es kann an mehreren Stellen bewertet werden. Die Summe der Punkte aller bewerteten Stellen darf die maximalen Punkte nicht überschreiten.

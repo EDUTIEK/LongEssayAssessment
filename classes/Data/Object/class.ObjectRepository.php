@@ -85,6 +85,8 @@ class ObjectRepository extends RecordRepo
             $query .= " AND corrector_id IS NULL";
         }
 
+        $query .= " ORDER BY is_general DESC, title ASC";
+
         return $this->queryRecords($query, RatingCriterion::model());
     }
 

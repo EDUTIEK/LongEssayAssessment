@@ -98,7 +98,9 @@ abstract class CriteriaGUI extends BaseGUI
 
     protected function buildItemTitle(RatingCriterion $item): string
     {
-        return $item->getTitle() . " | " . $this->plugin->txt("criteria_max_point") . ": " . $item->getPoints();
+        return $item->getTitle() . " | "
+            . ($item->getIsGeneral() ? $this->plugin->txt('criterion_type_general') : $this->plugin->txt('criterion_type_comment')) . " | "
+            . $this->plugin->txt("criteria_max_point") . ": " . $item->getPoints();
     }
 
     public function saveItemAsync()
@@ -119,6 +121,7 @@ abstract class CriteriaGUI extends BaseGUI
             $form = $form->withRequest($this->request);
 
             if(!empty($data = $form->getData())) {
+                $item->setIsGeneral($data['is_general']);
                 $item->setTitle($data['title']);
                 $item->setDescription($data['description']);
                 $item->setPoints($data['points']);
@@ -147,6 +150,11 @@ abstract class CriteriaGUI extends BaseGUI
                 ->withValue($item->getTitle()),
             'description' =>  $this->uiFactory->input()->field()->textarea($this->lng->txt("description"))
                 ->withValue($item->getDescription() !== null ? $item->getDescription(): ""),
+            'is_general' => $this->uiFactory->input()->field()->radio(
+                $this->plugin->txt('criterion_type'))
+                ->withOption('1', $this->plugin->txt('criterion_type_general'), $this->plugin->txt('criterion_type_general_info'))
+                ->withOption('0', $this->plugin->txt('criterion_type_comment'), $this->plugin->txt('criterion_type_comment_info'))
+                ->withValue( $item->getIsGeneral() ? '1' : '0'),
             'points' => $this->custom_factory->field()->numeric(
                 $this->plugin->txt('criteria_max_point'),
                 $this->plugin->txt('criteria_max_point_desc')

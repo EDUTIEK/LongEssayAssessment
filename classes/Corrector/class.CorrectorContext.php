@@ -255,10 +255,25 @@ class CorrectorContext extends ServiceContext implements Context
                             (string) $repoCriterion->getCorrectorId(),
                             $repoCriterion->getTitle(),
                             $repoCriterion->getDescription(),
-                            $repoCriterion->getPoints()
+                            $repoCriterion->getPoints(),
+                            $repoCriterion->getIsGeneral()
                         );
                     }
                 }
+
+                usort($criteria, static function (CorrectionRatingCriterion $a, CorrectionRatingCriterion $b) {
+                   if ($a->getIsGeneral() < $b->getIsGeneral()) {
+                       return 1;
+                   } elseif ($a->getIsGeneral() > $b->getIsGeneral()) {
+                       return -1;
+                   } elseif ($a->getTitle() < $b->getTitle()) {
+                       return -1;
+                   } elseif ($a->getTitle() > $b->getTitle()) {
+                       return 1;
+                   } else {
+                       return 0;
+                   }
+                });
                 return $criteria;
                 
             case PluginCorrectionSettings::CRITERIA_MODE_FIXED:
@@ -268,7 +283,8 @@ class CorrectorContext extends ServiceContext implements Context
                         (string) $repoCriterion->getCorrectorId(),
                         $repoCriterion->getTitle(),
                         $repoCriterion->getDescription(),
-                        $repoCriterion->getPoints()
+                        $repoCriterion->getPoints(),
+                        $repoCriterion->getIsGeneral()
                     );
                 }
                 return $criteria;

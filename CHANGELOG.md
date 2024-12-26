@@ -3,6 +3,7 @@
 ## Upcoming Version 
 Bug fixes:
 - Fault tolerance when no grade level is found for final points
+- Add authorization date to status info
 
 ## Version 2.5 (2024-11-11)
 Plugin:

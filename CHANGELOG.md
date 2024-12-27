@@ -1,6 +1,6 @@
 # Change Log
 
-## Upcoming Version 
+## Version 1.11 (2024-12-27)
 Bug fixes:
 - Fault tolerance when no grade level is found for final points
 - Add authorization date to status info

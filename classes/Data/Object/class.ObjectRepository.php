@@ -140,7 +140,7 @@ class ObjectRepository extends RecordRepo
         $this->db->manipulate("DELETE FROM xlas_rating_crit" .
             " WHERE id = " . $this->db->quote($a_id, "integer"));
 
-        $this->essay_repo->deleteCriterionPointsByRatingId($a_id);
+        $this->essay_repo->deleteCorrectorPointsByRatingId($a_id);
     }
 
     public function getRatingCriterionGroupForCopy(int $object_id): array

@@ -4,7 +4,6 @@ namespace ILIAS\Plugin\LongEssayAssessment\Data\Essay;
 
 use ILIAS\Plugin\LongEssayAssessment\Data\RecordData;
 use ILIAS\Plugin\LongEssayAssessment\Data\RecordRepo;
-use Edutiek\LongEssayAssessmentService\Data\CorrectionComment;
 use ilDBInterface;
 
 /**
@@ -19,7 +18,7 @@ class EssayRepository extends RecordRepo
 
     /**
      * Save record data of an allowed type
-     * @param AccessToken|CorrectorComment|CorrectorSummary|CriterionPoints|Essay|WriterNotice|EssayImage|WriterComment|WriterHistory $record
+     * @param AccessToken|CorrectorComment|CorrectorSummary|CorrectorPoints|Essay|WriterNotice|EssayImage|WriterComment|WriterHistory $record
      */
     public function save(RecordData $record)
     {
@@ -289,28 +288,26 @@ class EssayRepository extends RecordRepo
 
     /**
      * @param int $id
-     * @return CriterionPoints|null
+     * @return CorrectorPoints|null
      */
-    public function getCriterionPointsById(int $id) : ?RecordData
+    public function getCorrectorPointsById(int $id) : ?RecordData
     {
-        $query = "SELECT * FROM " . CriterionPoints::tableName() . " WHERE id = ". $this->db->quote($id, 'integer');
-        return $this->getSingleRecord($query, CriterionPoints::model());
+        $query = "SELECT * FROM " . CorrectorPoints::tableName() . " WHERE id = ". $this->db->quote($id, 'integer');
+        return $this->getSingleRecord($query, CorrectorPoints::model());
     }
 
 
     /**
      * @param int $essay_id
      * @param int $corrector_id
-     * @return CriterionPoints[]
+     * @return CorrectorPoints[]
      */
-    public function getCriterionPointsByEssayIdAndCorrectorId(int $essay_id, int $corrector_id): array
+    public function getCorrectorPointsByEssayIdAndCorrectorId(int $essay_id, int $corrector_id): array
     {
-        $query = "SELECT * FROM " . CriterionPoints::tableName() . " WHERE corr_comment_id IN ("
-            . "SELECT id FROM " . CorrectorComment::tableName()
+        $query = "SELECT * FROM " . CorrectorPoints::tableName()
             . " WHERE essay_id = " . $this->db->quote($essay_id, 'integer')
-            . " AND corrector_id = ". $this->db->quote($corrector_id, 'integer')
-            . ")";
-        return $this->queryRecords($query, CriterionPoints::model());
+            . " AND corrector_id = ". $this->db->quote($corrector_id, 'integer');
+        return $this->queryRecords($query, CorrectorPoints::model());
     }
 
     /**
@@ -328,27 +325,6 @@ class EssayRepository extends RecordRepo
         return $this->getSingleRecord($query, AccessToken::model());
     }
 
-    public function deleteEssay(int $a_id)
-    {
-        $this->db->manipulate("DELETE FROM xlas_essay" .
-            " WHERE id = " . $this->db->quote($a_id, "integer"));
-
-        $this->db->manipulate("DELETE FROM xlas_writer_notice" .
-            " WHERE essay_id = " . $this->db->quote($a_id, "integer"));
-        $this->db->manipulate("DELETE FROM xlas_access_token" .
-            " WHERE essay_id = " . $this->db->quote($a_id, "integer"));
-        $this->db->manipulate("DELETE FROM xlas_corrector_summary" .
-            " WHERE essay_id = " . $this->db->quote($a_id, "integer"));
-        $this->db->manipulate("DELETE FROM xlas_corrector_comment" .
-            " WHERE essay_id = " . $this->db->quote($a_id, "integer"));
-
-        $this->db->manipulate("DELETE cp FROM xlas_crit_points AS cp"
-            . " LEFT JOIN xlas_corrector_comment AS cc ON (cp.corr_comment_id = cc.id)"
-            . " WHERE cc.essay_id = " . $this->db->quote($a_id, "integer"));
-
-        $this->db->manipulate("DELETE FROM xlas_writer_history" .
-            " WHERE essay_id = " . $this->db->quote($a_id, "integer"));
-    }
 
     public function deleteEssayByTaskId(int $a_task_id)
     {
@@ -374,9 +350,8 @@ class EssayRepository extends RecordRepo
             . " LEFT JOIN xlas_essay AS essay ON (corrector_comment.essay_id = essay.id)"
             . " WHERE essay.task_id = " . $this->db->quote($a_task_id, "integer"));
 
-        $this->db->manipulate("DELETE crit_points FROM xlas_crit_points AS crit_points"
-            . " LEFT JOIN xlas_corrector_comment AS corrector_comment ON (crit_points.corr_comment_id = corrector_comment.id)"
-            . " LEFT JOIN xlas_essay AS essay ON (corrector_comment.essay_id = essay.id)"
+        $this->db->manipulate("DELETE corrector_points FROM xlas_corrector_points AS corrector_points"
+            . " LEFT JOIN xlas_essay AS essay ON (corrector_points.essay_id = essay.id)"
             . " WHERE essay.task_id = " . $this->db->quote($a_task_id, "integer"));
     }
 
@@ -401,9 +376,8 @@ class EssayRepository extends RecordRepo
             . " LEFT JOIN xlas_essay AS essay ON (corrector_comment.essay_id = essay.id)"
             . " WHERE essay.writer_id = " . $this->db->quote($a_writer_id, "integer"));
 
-        $this->db->manipulate("DELETE crit_points FROM xlas_crit_points AS crit_points"
-            . " LEFT JOIN xlas_corrector_comment AS corrector_comment ON (crit_points.corr_comment_id = corrector_comment.id)"
-            . " LEFT JOIN xlas_essay AS essay ON (corrector_comment.essay_id = essay.id)"
+        $this->db->manipulate("DELETE corrector_points FROM xlas_corrector_points AS corrector_points"
+            . " LEFT JOIN xlas_essay AS essay ON (corrector_points.essay_id = essay.id)"
             . " WHERE essay.writer_id = " . $this->db->quote($a_writer_id, "integer"));
     }
     
@@ -437,29 +411,29 @@ class EssayRepository extends RecordRepo
         $this->db->manipulate("DELETE FROM xlas_corrector_comment" .
             " WHERE id = " . $this->db->quote($a_id, "integer"));
 
-        $this->db->manipulate("DELETE FROM xlas_crit_points" .
+        $this->db->manipulate("DELETE FROM xlas_corrector_points" .
             " WHERE corr_comment_id = " . $this->db->quote($a_id, "integer"));
     }
 
-    public function deleteCorrectorCommentByCorrectorId(int $a_user_id)
+    public function deleteCorrectorCommentByCorrectorId(int $a_corrector_id)
     {
-        $this->db->manipulate("DELETE FROM xlas_corrector_comment" .
-            " WHERE corrector_id = " . $this->db->quote($a_user_id, "integer"));
-
-        $this->db->manipulate("DELETE cp FROM xlas_crit_points AS cp"
+        $this->db->manipulate("DELETE cp FROM xlas_corrector_points AS cp"
             . " LEFT JOIN xlas_corrector_comment AS cc ON (cp.corr_comment_id = cc.id)"
-            . " WHERE cc.corrector_id = " . $this->db->quote($a_user_id, "integer"));
+            . " WHERE cc.corrector_id = " . $this->db->quote($a_corrector_id, "integer"));
+
+        $this->db->manipulate("DELETE FROM xlas_corrector_comment" .
+            " WHERE corrector_id = " . $this->db->quote($a_corrector_id, "integer"));
     }
 
-    public function deleteCriterionPoints(int $a_id)
+    public function deleteCorrectorPoints(int $a_id)
     {
-        $this->db->manipulate("DELETE FROM xlas_crit_points" .
+        $this->db->manipulate("DELETE FROM xlas_corrector_points" .
             " WHERE id = " . $this->db->quote($a_id, "integer"));
     }
 
-    public function deleteCriterionPointsByRatingId(int $a_rating_id)
+    public function deleteCorrectorPointsByRatingId(int $a_rating_id)
     {
-        $this->db->manipulate("DELETE FROM xlas_crit_points" .
+        $this->db->manipulate("DELETE FROM xlas_corrector_points" .
             " WHERE criterion_id = " . $this->db->quote($a_rating_id, "integer"));
     }
 
@@ -573,43 +547,35 @@ class EssayRepository extends RecordRepo
 
     public function deleteCorrectorSummaryByCorrectorIdAndEssayId(int $a_corrector_id, int $a_essay_id)
     {
-        $this->db->manipulate("DELETE FROM xlas_corrector_summary" .
-            " WHERE corrector_id = " . $this->db->quote($a_corrector_id, "integer")) .
-            " AND essay_id = " . $this->db->quote($a_essay_id, "integer");
+        $this->db->manipulate("DELETE FROM xlas_corrector_summary"
+            . " WHERE corrector_id = " . $this->db->quote($a_corrector_id, "integer")
+            . " AND essay_id = " . $this->db->quote($a_essay_id, "integer"));
     }
 
     public function deleteCorrectorCommentByCorrectorIdAndEssayId(int $a_corrector_id, int $a_essay_id)
     {
-        $this->db->manipulate("DELETE FROM xlas_corrector_comment" .
-            " WHERE corrector_id = " . $this->db->quote($a_corrector_id, "integer")).
-        " AND essay_id = " . $this->db->quote($a_essay_id, "integer");
-
-        $this->deleteCriterionPointsByCorrectorIdAndEssayId($a_corrector_id, $a_essay_id);
+        $this->db->manipulate("DELETE FROM xlas_corrector_comment"
+            . " WHERE corrector_id = " . $this->db->quote($a_corrector_id, "integer")
+            . " AND essay_id = " . $this->db->quote($a_essay_id, "integer"));
     }
 
-    public function deleteCriterionPointsByCorrectorIdAndEssayId(int $a_corrector_id, int $a_essay_id)
+    public function deleteCorrectorPointsByCorrectorIdAndEssayId(int $a_corrector_id, int $a_essay_id)
     {
-
-        $this->db->manipulate("DELETE cp FROM xlas_crit_points AS cp"
-            . " LEFT JOIN xlas_corrector_comment AS cc ON (cp.corr_comment_id = cc.id)"
-            . " WHERE cc.corrector_id = " . $this->db->quote($a_corrector_id, "integer"))
-        . " AND cc.essay_id = " . $this->db->quote($a_essay_id, "integer");
+        $this->db->manipulate("DELETE FROM xlas_corrector_points"
+            . " WHERE corrector_id = " . $this->db->quote($a_corrector_id, "integer")
+            . " AND essay_id = " . $this->db->quote($a_essay_id, "integer"));
     }
 
     public function deleteCorrectorCommentByEssayId(int $a_essay_id)
     {
-        $this->db->manipulate("DELETE FROM xlas_corrector_comment" .
-        " WHERE essay_id = " . $this->db->quote($a_essay_id, "integer"));
-
-        $this->deleteCriterionPointsByEssayId($a_essay_id);
+        $this->db->manipulate("DELETE FROM xlas_corrector_comment"
+            . " WHERE essay_id = " . $this->db->quote($a_essay_id, "integer"));
     }
 
-    public function deleteCriterionPointsByEssayId(int $a_essay_id)
+    public function deleteCorrectorPointsByEssayId(int $a_essay_id)
     {
-
-        $this->db->manipulate("DELETE cp FROM xlas_crit_points AS cp"
-            . " LEFT JOIN xlas_corrector_comment AS cc ON (cp.corr_comment_id = cc.id)"
-        . " WHERE cc.essay_id = " . $this->db->quote($a_essay_id, "integer"));
+        $this->db->manipulate("DELETE FROM xlas_corrector_points"
+            . " WHERE essay_id = " . $this->db->quote($a_essay_id, "integer"));
     }
 
 }

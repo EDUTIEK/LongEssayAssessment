@@ -974,7 +974,7 @@ class CorrectorAdminService extends BaseService
             return;
         }//Prevent removal of criterion points and useless queries if nothing has changed
         $this->essayRepo->moveCorrectorSummaries($from_corrector, $to_corrector, $essay_id);
-        $this->essayRepo->deleteCriterionPointsByCorrectorIdAndEssayId($from_corrector, $essay_id);
+        $this->essayRepo->deleteCorrectorPointsByCorrectorIdAndEssayId($from_corrector, $essay_id);
         $this->essayRepo->moveCorrectorComments($from_corrector, $to_corrector, $essay_id);
     }
 
@@ -982,6 +982,7 @@ class CorrectorAdminService extends BaseService
     {
         $this->essayRepo->deleteCorrectorSummaryByCorrectorIdAndEssayId($corrector, $essay_id);
         $this->essayRepo->deleteCorrectorCommentByCorrectorIdAndEssayId($corrector, $essay_id);
+        $this->essayRepo->deleteCorrectorPointsByCorrectorIdAndEssayId($corrector, $essay_id);
     }
 
     private function assign(int $writer_id, int $corrector, ?CorrectorAssignment &$assignment, ?CorrectorSummary $summary, int $position) : bool

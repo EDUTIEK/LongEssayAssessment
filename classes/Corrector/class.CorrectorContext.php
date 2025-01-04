@@ -20,7 +20,7 @@ use Edutiek\LongEssayAssessmentService\Data\CorrectionRatingCriterion;
 use Edutiek\LongEssayAssessmentService\Data\CorrectionComment;
 use Edutiek\LongEssayAssessmentService\Data\CorrectionPoints;
 use ILIAS\Plugin\LongEssayAssessment\Data\Essay\CorrectorComment;
-use ILIAS\Plugin\LongEssayAssessment\Data\Essay\CriterionPoints;
+use ILIAS\Plugin\LongEssayAssessment\Data\Essay\CorrectorPoints;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\CorrectionSettings as PluginCorrectionSettings;
 use Edutiek\LongEssayAssessmentService\Data\PageData;
 use Edutiek\LongEssayAssessmentService\Data\CorrectionMark;
@@ -668,7 +668,6 @@ class CorrectorContext extends ServiceContext implements Context
                     $repoComment->getParentNumber(),
                     $repoComment->getComment(),
                     $repoComment->getRating(),
-                    $repoComment->getPoints(),
                     CorrectionMark::multiFromArray((array) json_decode($repoComment->getMarksJson()))
                 );
             }
@@ -687,7 +686,8 @@ class CorrectorContext extends ServiceContext implements Context
         $essayRepo = $this->localDI->getEssayRepo();
         $objectRepo = $this->localDI->getObjectRepo();
         $taskRepo = $this->localDI->getTaskRepo();
-        
+
+        // get the relevant rating criteria for the corrector
         $criteria_ids = [];
         $settings = $taskRepo->getCorrectionSettingsById($this->task->getTaskId());
         if (!isset($settings) || $settings->getCriteriaMode() == PluginCorrectionSettings::CRITERIA_MODE_NONE) {
@@ -703,18 +703,18 @@ class CorrectorContext extends ServiceContext implements Context
         
         $points = [];
         if (!empty($repoEssay = $essayRepo->getEssayByWriterIdAndTaskId((int) $item_key, $this->task->getTaskId()))) {
-            foreach ($essayRepo->getCriterionPointsByEssayIdAndCorrectorId(
+            foreach ($essayRepo->getCorrectorPointsByEssayIdAndCorrectorId(
                 $repoEssay->getId(),
                 $repoCorrector->getId()
             ) as $repoPoints) {
-                if (in_array($repoPoints->getCriterionId(), $criteria_ids)
-                    && ($comment_key == null || $repoPoints->getCorrCommentId() == (int) $comment_key)
+                if (($repoPoints->getCriterionId() == null || in_array($repoPoints->getCriterionId(), $criteria_ids))
+                    && ($comment_key == null || $repoPoints->getCommentId() == (int) $comment_key)
                 ) {
                     $points[] = new CorrectionPoints(
                         (string) $repoPoints->getId(),
                         $item_key,
                         $corrector_key,
-                        (string) $repoPoints->getCorrCommentId(),
+                        (string) $repoPoints->getCommentId(),
                         (string) $repoPoints->getCriterionId(),
                         $repoPoints->getPoints()
                     );
@@ -843,7 +843,6 @@ class CorrectorContext extends ServiceContext implements Context
             ->setParentNumber($comment->getParentNumber())
             ->setComment($comment->getComment())
             ->setRating($comment->getRating())
-            ->setPoints($comment->getPoints())
             ->setMarksJson(json_encode(CorrectionMark::multiToArray($comment->getMarks())));
         
         $essayRepo->save($repoComment);
@@ -874,26 +873,53 @@ class CorrectorContext extends ServiceContext implements Context
     public function saveCorrectionPoints(CorrectionPoints $points): ?string
     {
         $essayRepo = $this->localDI->getEssayRepo();
-        $repoComment = $essayRepo->getCorrectorCommentById((int) $points->getCommentKey());
-        if (!isset($repoComment) || $repoComment->getCorrectorId() != (int) $points->getCorrectorKey()) {
-            return null;
-        }
-        
         $objectRepo = $this->localDI->getObjectRepo();
-        $repoCriterion = $objectRepo->getRatingCriterionById((int) $points->getCriterionKey());
-        if (!isset($repoCriterion) || $repoCriterion->getObjectId() != $this->object->getId()) {
+        $correctorRepo = $this->localDI->getCorrectorRepo();
+
+        // points must be assigned to comment, criterion or both
+        if (empty($points->getCommentKey()) && empty($points->getCriterionKey())) {
             return null;
+        }
+
+        // essay must exist
+        $repoEssay = $essayRepo->getEssayByWriterIdAndTaskId($points->getItemKey(), $this->task->getTaskId());
+        if ($repoEssay === null) {
+            return null;
+        }
+
+        // corrector must be assigned
+        if (!$correctorRepo->ifCorrectorIsAssigned((int) $points->getItemKey(), (int) $points->getCorrectorKey())) {
+            return null;
+        }
+
+        // related comment must fit
+        if (!empty($points->getCommentKey())) {
+            $repoComment = $essayRepo->getCorrectorCommentById((int) $points->getCommentKey());
+            if ($repoComment === null ||
+                $repoComment->getEssayId() != $repoEssay->getId() ||
+                $repoComment->getCorrectorId() != (int) $points->getCorrectorKey()
+            ) {
+                return null;
+            }
+        }
+
+        // related criterion must fit
+        if (!empty($points->getCriterionKey())) {
+            $repoCriterion = $objectRepo->getRatingCriterionById((int) $points->getCriterionKey());
+            if ($repoCriterion === null ||
+                $repoCriterion->getObjectId() != $this->object->getId() ||
+                ($repoCriterion->getCorrectorId() !== null && $repoCriterion->getCorrectorId() !== (int) $points->getCorrectorKey())
+            ) {
+                return null;
+            }
         }
         
-        $repoPoints = $essayRepo->getCriterionPointsById((int) $points->getKey());
-        if (!isset($repoPoints)) {
-            $repoPoints = CriterionPoints::model();
-        } elseif ($repoPoints->getCorrCommentId() != (int) $points->getCommentKey()) {
-            return null;
-        }
+        $repoPoints = $essayRepo->getCorrectorPointsById((int) $points->getKey()) ?? CorrectorPoints::model();
         $repoPoints
-            ->setCriterionId((int) $points->getCriterionKey())
-            ->setCorrCommentId((int) $points->getCommentKey())
+            ->setEssayId($repoEssay->getId())
+            ->setCorrectorId((int) $points->getCorrectorKey())
+            ->setCriterionId($points->getCriterionKey() ? (int) $points->getCriterionKey() : null)
+            ->setCommentId((int) $points->getCommentKey() ? (int) $points->getCriterionKey() : null)
             ->setPoints($points->getPoints());
 
         $essayRepo->save($repoPoints);
@@ -907,15 +933,16 @@ class CorrectorContext extends ServiceContext implements Context
     public function deleteCorrectionPoints(string $points_key, string $corrector_key): bool
     {
         $essayRepo = $this->localDI->getEssayRepo();
-        $repoPoints = $essayRepo->getCriterionPointsById((int) $points_key);
-        if (!isset($repoPoints)) {
+        $repoPoints = $essayRepo->getCorrectorPointsById((int) $points_key);
+
+        if ($repoPoints === null) {
             return true; // already deleted
         }
-        $repoComment = $essayRepo->getCorrectorCommentById($repoPoints->getCorrCommentId());
-        if (isset($repoComment) && (string) $repoComment->getCorrectorId() != $corrector_key) {
-            return false;   // given corrector is not the owner of that comment
+        if ($repoPoints->getCorrectorId() != (int) $corrector_key) {
+            return false;  // given corrector is not the owner of the points
         }
-        $essayRepo->deleteCriterionPoints($repoPoints->getId());
+
+        $essayRepo->deleteCorrectorPoints($repoPoints->getId());
         return true;
     }
 }

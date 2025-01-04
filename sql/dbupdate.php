@@ -2385,4 +2385,64 @@ if (!$ilDB->tableColumnExists('xlas_rating_crit','is_general')) {
     ));
 }
 ?>
+<#121>
+<?php
+if ($ilDB->tableExists('xlas_crit_points')) {
+    // simplify column name
+    if ($ilDB->tableColumnExists('xlas_crit_points', 'corr_comment_id')) {
+        $ilDB->renameTableColumn('xlas_crit_points', 'corr_comment_id', 'comment_id');
+    }
+
+    // cleanup orphaned data
+    $ilDB->manipulate("DELETE FROM xlas_crit_points WHERE criterion_id NOT IN (SELECT id FROM xlas_rating_crit)");
+    $ilDB->manipulate("DELETE FROM xlas_crit_points WHERE comment_id NOT IN (SELECT id FROM xlas_corrector_comment)");
+
+    // prepare storing pure comment points in this table
+    // prepare storing points for general criteria
+    $ilDB->manipulate("ALTER TABLE `xlas_crit_points` MODIFY `criterion_id` INT NULL DEFAULT NULL");
+    $ilDB->manipulate("ALTER TABLE `xlas_crit_points` MODIFY `comment_id` INT NULL DEFAULT NULL");
+
+    // add essay_id for quicker access
+    if (!$ilDB->tableColumnExists('xlas_crit_points', 'essay_id')) {
+        $ilDB->manipulate("ALTER TABLE `xlas_crit_points` ADD COLUMN `essay_id` INT NULL DEFAULT '0' AFTER `id`;");
+        $ilDB->manipulate("UPDATE xlas_crit_points INNER JOIN xlas_corrector_comment ON xlas_crit_points.comment_id = xlas_corrector_comment.id 
+                            SET xlas_crit_points.essay_id = xlas_corrector_comment.essay_id");
+        $ilDB->manipulate("ALTER TABLE `xlas_crit_points` MODIFY `essay_id` INT NOT NULL;");
+        $ilDB->addIndex('xlas_crit_points', ['essay_id'], 'i3');
+    }
+    // add corrector_id for quicker access
+    if (!$ilDB->tableColumnExists('xlas_crit_points', 'corrector_id')) {
+        $ilDB->manipulate("ALTER TABLE `xlas_crit_points` ADD COLUMN `corrector_id` INT NULL DEFAULT '0' AFTER `essay_id`;");
+        $ilDB->manipulate("UPDATE xlas_crit_points INNER JOIN xlas_corrector_comment ON xlas_crit_points.comment_id = xlas_corrector_comment.id 
+                            SET xlas_crit_points.corrector_id = xlas_corrector_comment.corrector_id");
+        $ilDB->manipulate("ALTER TABLE `xlas_crit_points` MODIFY `corrector_id` INT NOT NULL;");
+        $ilDB->addIndex('xlas_crit_points', ['corrector_id'], 'i4');
+    }
+
+    //
+    $ilDB->manipulate("ALTER TABLE `xlas_crit_points` MODIFY `points` DOUBLE NOT NULL;");
+
+    $ilDB->renameTable('xlas_crit_points', 'xlas_corrector_points');
+}
+?>
+<#122>
+<?php
+    if ($ilDB->tableColumnExists('xlas_corrector_comment', 'points')) {
+        $result = $ilDB->query("SELECT c.essay_id, c.corrector_id, c.id AS comment_id, c.points FROM xlas_corrector_comment c WHERE c.points > 0");
+        while ($row = $ilDB->fetchAssoc($result)) {
+            $id = $ilDB->nextId('xlas_corrector_points');
+            $ilDB->insert('xlas_corrector_points', [
+                'id' => ['integer', $id],
+                'essay_id' => ['integer', $row['essay_id']],
+                'corrector_id' => ['integer', $row['corrector_id']],
+                'comment_id' => ['integer', $row['comment_id']],
+                'points' => ['float', $row['points']]
+            ]);
+
+            $ilDB->manipulate("UPDATE xlas_corrector_comment SET points = 0 where id = " . $ilDB->quote('integer', $row['comment_id']));
+        }
+
+        $ilDB->dropTableColumn('xlas_corrector_comment', 'points');
+    }
+?>
 

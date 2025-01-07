@@ -412,13 +412,13 @@ class EssayRepository extends RecordRepo
             " WHERE id = " . $this->db->quote($a_id, "integer"));
 
         $this->db->manipulate("DELETE FROM xlas_corrector_points" .
-            " WHERE corr_comment_id = " . $this->db->quote($a_id, "integer"));
+            " WHERE comment_id = " . $this->db->quote($a_id, "integer"));
     }
 
     public function deleteCorrectorCommentByCorrectorId(int $a_corrector_id)
     {
         $this->db->manipulate("DELETE cp FROM xlas_corrector_points AS cp"
-            . " LEFT JOIN xlas_corrector_comment AS cc ON (cp.corr_comment_id = cc.id)"
+            . " LEFT JOIN xlas_corrector_comment AS cc ON (cp.comment_id = cc.id)"
             . " WHERE cc.corrector_id = " . $this->db->quote($a_corrector_id, "integer"));
 
         $this->db->manipulate("DELETE FROM xlas_corrector_comment" .

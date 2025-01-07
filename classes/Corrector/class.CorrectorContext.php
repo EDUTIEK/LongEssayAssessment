@@ -713,7 +713,7 @@ class CorrectorContext extends ServiceContext implements Context
                     $points[] = new CorrectionPoints(
                         (string) $repoPoints->getId(),
                         $item_key,
-                        $corrector_key,
+                        (string) $repoPoints->getCorrectorId(),
                         (string) $repoPoints->getCommentId(),
                         (string) $repoPoints->getCriterionId(),
                         $repoPoints->getPoints()
@@ -919,7 +919,7 @@ class CorrectorContext extends ServiceContext implements Context
             ->setEssayId($repoEssay->getId())
             ->setCorrectorId((int) $points->getCorrectorKey())
             ->setCriterionId($points->getCriterionKey() ? (int) $points->getCriterionKey() : null)
-            ->setCommentId((int) $points->getCommentKey() ? (int) $points->getCriterionKey() : null)
+            ->setCommentId($points->getCommentKey() ? (int) $points->getCommentKey() : null)
             ->setPoints($points->getPoints());
 
         $essayRepo->save($repoPoints);

@@ -5,6 +5,7 @@ Bug fixes:
 - Fault tolerance when no grade level is found for final points
 - Add authorization date to status info
 - Wrong permanent link in review notification
+- Prevent automated generation of lists when typing a numbering in writer
 
 ## Version 2.5 (2024-11-11)
 Plugin:

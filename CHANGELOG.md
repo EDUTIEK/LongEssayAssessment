@@ -1,5 +1,9 @@
 # Change Log
 
+## Upcoming version 
+Bug fixes:
+- Prevent automated generation of lists when typing a numbering in writer
+
 ## Version 1.11 (2024-12-27)
 Bug fixes:
 - Fault tolerance when no grade level is found for final points

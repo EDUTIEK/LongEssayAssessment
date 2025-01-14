@@ -18,23 +18,25 @@
 
 declare(strict_types=1);
 
-namespace ILIAS\Plugin\LongEssayAssessment\Data;
+namespace ILIAS\Plugin\LongEssayAssessment\Data\RecordRepo;
 
-use Edutiek\AssessmentService\Attribute\Table;
-use Edutiek\AssessmentService\Attribute\Column;
-use Edutiek\AssessmentService\Attribute\Sequence;
-use Edutiek\AssessmentService\Attribute\Key;
+use DateTimeImmutable;
+use ILIAS\Plugin\LongEssayAssessment\Data\RecordRepo\Attribute\Column;
+use ILIAS\Plugin\LongEssayAssessment\Data\RecordRepo\Attribute\Key;
+use ILIAS\Plugin\LongEssayAssessment\Data\RecordRepo\Attribute\Sequence;
+use ILIAS\Plugin\LongEssayAssessment\Data\RecordRepo\Attribute\Table;
+use ILIAS\UI\Implementation\Component\Input\Field\DateTime;
 use ilDBConstants;
+use Exception;
 use LogicException;
 use ReflectionClass;
 use ReflectionProperty;
-use DateTime;
-use DateTimeImmutable;
-use Exception;
 
 class Generate
 {
-    public const DIR = __DIR__ . '/Generated';
+    public function __construct(
+        private string $artifact_directory
+    ) {}
 
     public function readModelFromClass(string $model): array
     {
@@ -92,8 +94,8 @@ class Generate
 
     public function writeArtifact(string $key, $content): void
     {
-        if (!is_dir(self::DIR)) {
-            mkdir(self::DIR);
+        if (!is_dir($this->artifact_directory)) {
+            mkdir($this->artifact_directory);
         }
 
         file_put_contents($this->artifactPath($key), '<?php return ' . var_export($content, true) . ';');
@@ -111,16 +113,16 @@ class Generate
 
     public function artifactPath(string $key): string
     {
-        return self::DIR . '/' . md5($key) . '.php';
+        return $this->artifact_directory . '/' . md5($key) . '.php';
     }
 
     public function inferDBType(string $php_type): string
     {
         return match ($php_type) {
-            'string' => ilDBConstants::T_TEXT,
-            'float' => ilDBConstants::T_FLOAT,
-            'int' => ilDBConstants::T_INTEGER,
-            'bool' => ilDBConstants::T_INTEGER,
+            'string', '?string' => ilDBConstants::T_TEXT,
+            'float', '?float' => ilDBConstants::T_FLOAT,
+            'int', '?int' => ilDBConstants::T_INTEGER,
+            'bool', '?bool' => ilDBConstants::T_INTEGER,
             DateTime::class, DateTimeImmutable::class => ilDBConstants::T_TIMESTAMP,
             default => throw new Exception('Cannot infer db type for: ' . var_export($php_type, true)),
         };

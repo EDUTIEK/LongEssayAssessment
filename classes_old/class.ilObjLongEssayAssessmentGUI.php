@@ -3,7 +3,6 @@
 
 use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
 
-require_once(__DIR__ . "/class.ilLongEssayAssessmentPlugin.php");
 
 /**
  * Plugin GUI Class

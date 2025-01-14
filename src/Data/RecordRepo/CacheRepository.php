@@ -18,13 +18,13 @@
 
 declare(strict_types=1);
 
-namespace ILIAS\Plugin\LongEssayAssessment\Data;
+namespace ILIAS\Plugin\LongEssayAssessment\Data\RecordRepo;
 
 /**
  * @template A of object
- * @implements Repository<A>
+ * @implements RepositoryInterface<A>
  */
-class CacheRepository implements Repository
+class CacheRepository implements RepositoryInterface
 {
     private array $cache = [];
 
@@ -34,9 +34,9 @@ class CacheRepository implements Repository
     private array $others = [];
 
     /**
-     * @param Repository<A> $r
+     * @param RepositoryInterface<A> $r
      */
-    public function __construct(private readonly Repository $r)
+    public function __construct(private readonly RepositoryInterface $r)
     {
     }
 
@@ -55,27 +55,27 @@ class CacheRepository implements Repository
         return $this->cache(__FUNCTION__, func_get_args());
     }
 
-    public function insert(object $record): void
+    public function insert(object $model): void
     {
-        $this->r->insert($record);
+        $this->r->insert($model);
         $this->clearCache();
     }
 
-    public function replace(object $record): void
+    public function replace(object $model): void
     {
-        $this->r->replace($record);
+        $this->r->replace($model);
         $this->clearCache();
     }
 
-    public function update(object $record): void
+    public function update(object $model): void
     {
-        $this->r->update($record);
+        $this->r->update($model);
         $this->clearCache();
     }
 
-    public function delete(object $record): void
+    public function delete(object $model): void
     {
-        $this->r->delete($record);
+        $this->r->delete($model);
         $this->clearCache();
     }
 
@@ -89,14 +89,14 @@ class CacheRepository implements Repository
         return $this->r->fromRow($row);
     }
 
-    public function toRowWithTypes(object $instance): array
+    public function toRowWithTypes(object $model): array
     {
-        return $this->r->toRowWithTypes($instance);
+        return $this->r->toRowWithTypes($model);
     }
 
-    public function toRow(object $instance): array
+    public function toRow(object $model): array
     {
-        return $this->r->toRow($instance);
+        return $this->r->toRow($model);
     }
 
     public function table(): string

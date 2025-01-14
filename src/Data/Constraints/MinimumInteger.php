@@ -2,18 +2,16 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\Data\Constraints;
 
-use ILIAS\Refinery\Constraint;
 use ILIAS\Data;
+use ILIAS\Refinery\Constraint;
 use ILIAS\Refinery\Custom\Constraint as CustomConstraint;
+use ilLanguage;
 
 class MinimumInteger extends CustomConstraint implements Constraint
 {
-    /**
-     * @var int
-     */
-    protected $min;
+    protected int $min;
 
-    public function __construct(int $min, Data\Factory $data_factory, \ilLanguage $lng)
+    public function __construct(int $min, Data\Factory $data_factory, ilLanguage $lng)
     {
         $this->min = $min;
         parent::__construct(

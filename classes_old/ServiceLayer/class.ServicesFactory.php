@@ -3,12 +3,12 @@
 namespace ILIAS\Plugin\LongEssayAssessment\ServiceLayer;
 
 use ILIAS\DI\Container;
-use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
+use ILIAS\Plugin\LongEssayAssessment\LocalDIC;
 
 class ServicesFactory
 {
     protected Container $global_dic;
-    protected LongEssayAssessmentDI $local_dic;
+    protected LocalDIC $local_dic;
 
     protected array $common_services = [];
     protected array $object_services = [];
@@ -21,7 +21,7 @@ class ServicesFactory
      */
     public function __construct(
         Container $global_dic,
-        LongEssayAssessmentDI $local_dic
+        LocalDIC $local_dic
     ) {
         $this->global_dic = $global_dic;
         $this->local_dic = $local_dic;

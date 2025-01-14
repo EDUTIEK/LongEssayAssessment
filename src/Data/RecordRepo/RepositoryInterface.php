@@ -18,12 +18,12 @@
 
 declare(strict_types=1);
 
-namespace ILIAS\Plugin\LongEssayAssessment\Data;
+namespace ILIAS\Plugin\LongEssayAssessment\Data\RecordRepo;
 
 /**
  * @template A of object
  */
-interface Repository
+interface  RepositoryInterface
 {
     /**
      * @return A[]

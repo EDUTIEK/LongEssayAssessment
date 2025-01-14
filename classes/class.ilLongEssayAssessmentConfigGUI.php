@@ -1,9 +1,9 @@
 <?php
 /* Copyright (c) 2021 ILIAS open source, Extended GPL, see docs/LICENSE */
 
+use Edutiek\AssessmentService\System\Config\Service as ConfigService;
 use ILIAS\DI\Container;
-use ILIAS\Plugin\LongEssayAssessment\Data\System\PluginConfig;
-use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
+use ILIAS\Plugin\LongEssayAssessment\Data\System\Config\Config;
 
 /**
  * Plugin Configuration GUI
@@ -15,29 +15,15 @@ use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
 class ilLongEssayAssessmentConfigGUI extends ilPluginConfigGUI
 {
     private ilHelpGUI $help;
-    /** @var Container */
-    protected $dic;
 
-    /** @var ilLongEssayAssessmentPlugin  */
-    protected $plugin;
-
-    /** @var \ILIAS\Plugin\LongEssayAssessment\Data\System\PluginConfig  */
-    protected $config;
-
-    /** @var ilTabsGUI  */
-    protected $tabs;
-
-    /** @var ilCtrl  */
-    protected $ctrl;
-
-    /** @var ilLanguage  */
-    protected $lng;
-
-    /** @var ilGlobalTemplateInterface  */
-    protected $tpl;
-
-    /** @var  ilToolbarGUI  */
-    protected $toolbar;
+    private Container $dic;
+    private ilLongEssayAssessmentPlugin $plugin;
+    protected ilCtrl $ctrl;
+    protected ilLanguage $lng;
+    protected ilGlobalTemplateInterface $tpl;
+    protected ilToolbarGUI $toolbar;
+    protected ConfigService $service;
+    private Config $config;
 
     /**
      * Handles all commands, default is "configure"
@@ -49,14 +35,16 @@ class ilLongEssayAssessmentConfigGUI extends ilPluginConfigGUI
 
         // this can't be in the constructor
         $this->dic = $DIC;
-        $this->plugin = $this->getPluginObject();
-        $this->config = $this->plugin->getConfig();
+        $this->plugin = ilLongEssayAssessmentPlugin::getInstance();
         $this->lng = $DIC->language();
-        $this->tabs = $DIC->tabs();
         $this->ctrl = $DIC->ctrl();
         $this->tpl = $DIC->ui()->mainTemplate();
         $this->toolbar = $DIC->toolbar();
         $this->help = $DIC->help();
+
+        $this->service = $this->plugin->dic()->system()->config();
+        $this->config = $this->service->readConfig();
+
 
         switch ($this->dic->ctrl()->getNextClass()) {
             case 'ilpropertyformgui':
@@ -100,8 +88,7 @@ class ilLongEssayAssessmentConfigGUI extends ilPluginConfigGUI
             $this->config->setSimulateOffline((bool) $form->getInput('simulate_offline'));
             $this->config->setPathToGhostscript((string) $form->getInput('path_to_ghostscript'));
 
-            $di = LongEssayAssessmentDI::getInstance();
-            $di->getSystemRepo()->save($this->config);
+            $this->service->writeConfig($this->config);
 
             $this->tpl->setOnScreenMessage("success", $this->lng->txt("settings_saved"), true);
             $this->ctrl->redirect($this, 'configure');

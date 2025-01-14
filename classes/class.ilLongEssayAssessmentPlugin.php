@@ -1,33 +1,29 @@
 <?php
 /* Copyright (c) 2021 ILIAS open source, Extended GPL, see docs/LICENSE */
 
+use Edutiek\AssessmentService\System\Config\Config;
 use ILIAS\DI\Container;
-use ILIAS\Plugin\LongEssayAssessment\Data\System\PluginConfig;
-use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
+use ILIAS\Plugin\LongEssayAssessment\Dependencies\PluginDic;
 use ILIAS\Plugin\LongEssayAssessment\Task\ResourceResourceStakeholder;
+use ILIAS\Plugin\LongEssayAssessment\UI\PluginTemplateFactory;
 use ILIAS\Plugin\LongEssayAssessment\UI\Implementation\InputRenderer;
 use ILIAS\Plugin\LongEssayAssessment\UI\Implementation\ItemRenderer;
-use ILIAS\Plugin\LongEssayAssessment\UI\PluginRenderer;
-use ILIAS\Plugin\LongEssayAssessment\WriterAdmin\PDFVersionResourceStakeholder;
-use ILIAS\Plugin\LongEssayAssessment\WriterAdmin\EssayImageResourceStakeholder;
 use ILIAS\Plugin\LongEssayAssessment\UI\Implementation\StatisticRenderer;
 use ILIAS\Plugin\LongEssayAssessment\UI\Implementation\ViewerRenderer;
+use ILIAS\Plugin\LongEssayAssessment\UI\PluginRenderer;
+use ILIAS\Plugin\LongEssayAssessment\WriterAdmin\EssayImageResourceStakeholder;
+use ILIAS\Plugin\LongEssayAssessment\WriterAdmin\PDFVersionResourceStakeholder;
 
 /**
  * Basic plugin file
- * @author Fred Neumann <fred.neumann@ilias.de>
  */
 class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
 {
     const ID = "xlas";
-
-    /** @var string[] List of supported languages */
     const LANGUAGES = ['de'];
 
-    /** @var Container */
-    protected $dic;
 
-    /** @var self */
+    protected Container $dic;
     protected static $instance;
 
 
@@ -46,41 +42,19 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
     }
 
     /**
-     * @inheritdoc
-     */
-    protected function init() : void
-    {
-        parent::init();
-
-        $di = LongEssayAssessmentDI::getInstance();
-        $di->init($this);
-    }
-
-    /**
+     * Get the dependency injection container of the plugin
      * Init the local autoload of all external plugin dependencies
-     * This is separated from init() to avoid conflicts with other package versions in ILIAS
-     * Note: init() is called from the ilPlugin constructor in ILIAS initialisation
+     *  This is separated from init() to avoid conflicts with other package versions in ILIAS
+     *  Note: init() is called from the ilPlugin constructor in ILIAS initialisation
      *
-     * The local autoload needs only to be initialized:
-     * - for the GUI of the plugin
-     * - for the entry points of REST calls
-     * - maybe later for a cron job
+     *  The local autoload needs only to be initialized:
+     *  - for the GUI of the plugin
+     *  - for the entry points of REST calls
+     *  - maybe later for a cron job
      *
-     * @return void
      */
-    public static function initAutoload() : void
-    {
-        require_once __DIR__ . '/../vendor/autoload.php';
-    }
-
-    /**
-     * Get the Plugin name
-     * must correspond to the plugin subdirectory
-     * @return string
-     */
-    public function getPluginName() : string
-    {
-        return 'LongEssayAssessment';
+    public function dic() {
+        return PluginDic::getInstance($this->dic, $this);
     }
 
     /**
@@ -90,14 +64,6 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
     public function getPluginPath(): string
     {
         return 'Customizing/global/plugins/Services/Repository/RepositoryObject/LongEssayAssessment';
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getParentTypes() : array
-    {
-        return array("cat", "crs", "grp", "fold");
     }
 
     /**
@@ -206,7 +172,6 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
                 $this->dic->database()->dropTable($table);
             }
         }
-        //TODO RBAC?
     }
 
     /**
@@ -224,10 +189,9 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
     /**
      * Get the plugin configuration with loaded values
      */
-    public function getConfig(): PluginConfig
+    public function getConfig(): Config
     {
-        $di = LongEssayAssessmentDI::getInstance();
-        return $di->getSystemRepo()->getPluginConfig();
+        return $this->dic()->system()->config()->readConfig();
     }
 
     /**
@@ -298,32 +262,12 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
     }
 
 
-    public function reloadControlStructure()
-    {
-//        // load control structure
-//        $structure_reader = new ilCtrlStructureReader();
-//        $structure_reader->readStructure(
-//            true,
-//            "./" . $this->getDirectory(),
-//            $this->getPrefix(),
-//            $this->getDirectory()
-//        );
-//
-//        // add config gui to the ctrl calls
-//        $this->dic->ctrl()->insertCtrlCalls(
-//            "ilobjcomponentsettingsgui",
-//            ilPlugin::getConfigureClassName(["name" => $this->getPluginName()]),
-//            $this->getPrefix()
-//        );
-//
-//        $this->readEventListening();
-    }
-
 
     public function exchangeUIRendererAfterInitialization(Container $dic): Closure
     {
+        return $dic->raw('ui.renderer');
+
         $this->init();
-        $custom_dic =
         //Safe the origin renderer closure
         $renderer = $dic->raw('ui.renderer');
 
@@ -340,10 +284,9 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
                 $renderer($dic),
                 new ItemRenderer(
                     $dic["ui.factory"],
-                    $dic["xlas.custom_template_factory"],
+                    $dic[PluginTemplateFactory::class],
                     $dic["lng"],
                     $dic["ui.javascript_binding"],
-                    $dic["refinery"],
                     $dic["ui.pathresolver"],
                     $dic["ui.data_factory"],
                     $dic["help.text_retriever"],
@@ -351,10 +294,9 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
                 ),
                 new InputRenderer(
                     $dic["ui.factory"],
-                    $dic["xlas.custom_template_factory"],
+                    $dic[PluginTemplateFactory::class],
                     $dic["lng"],
                     $dic["ui.javascript_binding"],
-                    $dic["refinery"],
                     $dic["ui.pathresolver"],
                     $dic["ui.data_factory"],
                     $dic["help.text_retriever"],
@@ -362,10 +304,9 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
                 ),
                 new StatisticRenderer(
                     $dic["ui.factory"],
-                    $dic["xlas.custom_template_factory"],
+                    $dic[PluginTemplateFactory::class],
                     $dic["lng"],
                     $dic["ui.javascript_binding"],
-                    $dic["refinery"],
                     $dic["ui.pathresolver"],
                     $dic["ui.data_factory"],
                     $dic["help.text_retriever"],
@@ -373,10 +314,9 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
                 ),
                 new ViewerRenderer(
                     $dic["ui.factory"],
-                    $dic["xlas.custom_template_factory"],
+                    $dic[PluginTemplateFactory::class],
                     $dic["lng"],
                     $dic["ui.javascript_binding"],
-                    $dic["refinery"],
                     $dic["ui.pathresolver"],
                     $dic["ui.data_factory"],
                     $dic["help.text_retriever"],
@@ -394,15 +334,16 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
      */
     public function handleEvent($a_component, $a_event, $a_parameter)
     {
-        if ('Services/User' == $a_component && 'deleteUser' == $a_event) {
-            $usr_id = $a_parameter['usr_id'];
-            $di = LongEssayAssessmentDI::getInstance();
-            $writer_repo = $di->getWriterRepo();
-            $writer = $writer_repo->getWritersByUserId($usr_id);
-            foreach ($writer as $w) {
-                $writer_repo->deleteWriter($w->getId());
-            }
-        }
+        // todo refacoring
+//        if ('Services/User' == $a_component && 'deleteUser' == $a_event) {
+//            $usr_id = $a_parameter['usr_id'];
+//            $di = LongEssayAssessmentDI::getInstance();
+//            $writer_repo = $di->getWriterRepo();
+//            $writer = $writer_repo->getWritersByUserId($usr_id);
+//            foreach ($writer as $w) {
+//                $writer_repo->deleteWriter($w->getId());
+//            }
+//        }
     }
 
 }

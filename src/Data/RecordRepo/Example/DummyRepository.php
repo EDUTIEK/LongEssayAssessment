@@ -18,9 +18,8 @@
 
 declare(strict_types=1);
 
-namespace ILIAS\Plugin\LongEssayAssessment\Data;
+namespace ILIAS\Plugin\LongEssayAssessment\Data\RecordRepo\Example;
 
-use ilDBInterface;
 use Edutiek\AssessmentService\Model\Dummy;
 
 require_once __DIR__ . '/../../vendor/autoload.php';

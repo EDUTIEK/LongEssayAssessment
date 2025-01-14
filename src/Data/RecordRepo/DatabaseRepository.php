@@ -18,18 +18,18 @@
 
 declare(strict_types=1);
 
-namespace ILIAS\Plugin\LongEssayAssessment\Data;
+namespace ILIAS\Plugin\LongEssayAssessment\Data\RecordRepo;
 
-use ilDBInterface;
 use DateTime;
 use DateTimeImmutable;
 use Exception;
+use ilDBInterface;
 
 /**
  * @template A of object
- * @implements Repository<A>
+ * @implements RepositoryInterface<A>
  */
-class DatabaseRepository implements Repository
+class DatabaseRepository implements RepositoryInterface
 {
     public function __construct(
         private readonly ilDBInterface $db,
@@ -121,17 +121,17 @@ class DatabaseRepository implements Repository
 
         foreach ($this->model['properties'] as $property_name => $field) {
             if (isset($row[$field['db_name']])) {
-                $set($property_name, $this->stringTo((string) $row[$field['db_name']], $field['class_type']));
+                $set($property_name, $this->stringTo($row[$field['db_name']], $field['class_type']));
             }
         }
         return $instance;
     }
 
-    public function toRowWithTypes(object $instance): array
+    public function toRowWithTypes(object $model): array
     {
         $get = (function (string $key) {
             return $this->$key;
-        })->bindTo($instance, $instance);
+        })->bindTo($model, $model);
 
         $row = [];
         foreach ($this->model['properties'] as $property_name => $field) {
@@ -141,9 +141,9 @@ class DatabaseRepository implements Repository
         return $row;
     }
 
-    public function toRow(object $instance): array
+    public function toRow(object $model): array
     {
-        $row = $this->toRowWithTypes($instance);
+        $row = $this->toRowWithTypes($model);
         return array_combine(array_keys($row), array_column($row, 0));
     }
 
@@ -166,14 +166,19 @@ class DatabaseRepository implements Repository
         return $this->db->fetchAll($result);
     }
 
-    private function stringTo(string $value, string $type)
+    private function stringTo($value, string $type)
     {
         return match ($type) {
-            'string' => $value,
+            'string' => (string) $value,
             'int' => (int) $value,
             'bool' => (bool) $value,
             'float' => (float) $value,
             'DateTime', 'DateTimeImmutable' => new $type($value),
+            '?string' => $value ? (string) $value : null,
+            '?int' => $value === null ? null : (int) $value,
+            '?bool' => $value === null ? null : (bool) $value,
+            '?float' => $value === null ? null : (float) $value,
+            '?DateTime', '?DateTimeImmutable' => $value === null ? null : new $type($value),
             default => throw new Exception('Unsupported type: ' . $type),
         };
     }
@@ -181,8 +186,10 @@ class DatabaseRepository implements Repository
     private function stringFrom($value, string $type): string
     {
         return match ($type) {
-            'string', 'int', 'bool', 'float' => (string) $value,
+            'string', 'int', 'bool', 'float',  => (string) $value,
+            '?string', '?int', '?bool', '?float' => $value === null ? null : (string) $value,
             DateTime::class, DateTimeImmutable::class => $value->format('Y-m-d H:i:s'),
+            '?DateTime', '?DateTimeImmutable' => $value?->format('Y-m-d H:i:s'),
             default => throw new Exception('Unsupported type: ' . $type),
         };
     }

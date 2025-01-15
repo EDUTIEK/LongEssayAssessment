@@ -18,13 +18,13 @@
 
 declare(strict_types=1);
 
-namespace ILIAS\Plugin\LongEssayAssessment\Data\Task\Data;
+namespace ILIAS\Plugin\LongEssayAssessment\Task\Data;
 
 use ILIAS\Plugin\LongEssayAssessment\Data\RecordRepo\Attribute\Key;
 use ILIAS\Plugin\LongEssayAssessment\Data\RecordRepo\Attribute\Table;
 
 #[Table(name: 'xlas_ta_writer_comment')]
-class WriterComment
+class WriterComment extends \Edutiek\AssessmentService\Task\Data\WriterComment
 {
     #[Key]
     private int $id;

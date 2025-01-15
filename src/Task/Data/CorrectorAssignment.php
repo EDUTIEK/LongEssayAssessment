@@ -18,13 +18,13 @@
 
 declare(strict_types=1);
 
-namespace ILIAS\Plugin\LongEssayAssessment\Data\Task\Data;
+namespace ILIAS\Plugin\LongEssayAssessment\Task\Data;
 
 use ILIAS\Plugin\LongEssayAssessment\Data\RecordRepo\Attribute\Key;
 use ILIAS\Plugin\LongEssayAssessment\Data\RecordRepo\Attribute\Table;
 
 #[Table(name: 'xlas_ta_corr_assign')]
-class CorrectorAssignment
+class CorrectorAssignment extends \Edutiek\AssessmentService\Task\Data\CorrectorAssignment
 {
     #[Key]
     private int $id;

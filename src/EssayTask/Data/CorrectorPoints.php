@@ -18,21 +18,19 @@
 
 declare(strict_types=1);
 
-namespace ILIAS\Plugin\LongEssayAssessment\Data\EssayTask\Data;
+namespace ILIAS\Plugin\LongEssayAssessment\EssayTask\Data;
 
 use ILIAS\Plugin\LongEssayAssessment\Data\RecordRepo\Attribute\Key;
 use ILIAS\Plugin\LongEssayAssessment\Data\RecordRepo\Attribute\Table;
 
-#[Table(name: 'xlas_et_rating_crit')]
-class RatingCriteria
+#[Table(name: 'xlas_et_corr_points')]
+class CorrectorPoints extends \Edutiek\AssessmentService\EssayTask\Data\CorrectorPoints
 {
     #[Key]
     private int $id;
-    private string $title;
-    private ?string $description;
+    private int $criterion_id;
+    private int $corr_comment_id;
     private int $points;
-    private ?int $corrector_id;
-    private int $task_id;
 
     public function getId(): int
     {
@@ -42,21 +40,21 @@ class RatingCriteria
     {
         $this->id = $id;
     }
-    public function getTitle(): string
+    public function getCriterionId(): int
     {
-        return $this->title;
+        return $this->criterion_id;
     }
-    public function setTitle(string $title): void
+    public function setCriterionId(int $criterion_id): void
     {
-        $this->title = $title;
+        $this->criterion_id = $criterion_id;
     }
-    public function getDescription(): ?string
+    public function getCorrCommentId(): int
     {
-        return $this->description;
+        return $this->corr_comment_id;
     }
-    public function setDescription(?string $description): void
+    public function setCorrCommentId(int $corr_comment_id): void
     {
-        $this->description = $description;
+        $this->corr_comment_id = $corr_comment_id;
     }
     public function getPoints(): int
     {
@@ -65,21 +63,5 @@ class RatingCriteria
     public function setPoints(int $points): void
     {
         $this->points = $points;
-    }
-    public function getCorrectorId(): ?int
-    {
-        return $this->corrector_id;
-    }
-    public function setCorrectorId(?int $corrector_id): void
-    {
-        $this->corrector_id = $corrector_id;
-    }
-    public function getTaskId(): int
-    {
-        return $this->task_id;
-    }
-    public function setTaskId(int $task_id): void
-    {
-        $this->task_id = $task_id;
     }
 }

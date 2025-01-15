@@ -18,12 +18,12 @@
 
 declare(strict_types=1);
 
-namespace ILIAS\Plugin\LongEssayAssessment\Data\EssayTask\Data;
+namespace ILIAS\Plugin\LongEssayAssessment\EssayTask\Data;
 
 use ILIAS\Plugin\LongEssayAssessment\Data\RecordRepo\Attribute\Table;
 
 #[Table(name: 'xlas_et_corr_task_pref')]
-class CorrectorTaskPreference
+class CorrectorTaskPreference extends \Edutiek\AssessmentService\EssayTask\Data\CorrectorTaskPreference
 {
     private int $task_id;
     private bool $criterion_copy;

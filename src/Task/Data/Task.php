@@ -18,32 +18,30 @@
 
 declare(strict_types=1);
 
-namespace ILIAS\Plugin\LongEssayAssessment\Data\EssayTask\Data;
+namespace ILIAS\Plugin\LongEssayAssessment\Task\Data;
 
-use ILIAS\Plugin\LongEssayAssessment\Data\RecordRepo\Attribute\Key;
 use ILIAS\Plugin\LongEssayAssessment\Data\RecordRepo\Attribute\Table;
 
-#[Table(name: 'xlas_et_task_setting')]
-class TaskSetting
+#[Table(name: 'xlas_ta_task')]
+class Task extends \Edutiek\AssessmentService\Task\Data\Task
 {
-    #[Key]
-    private int $task_id;
-    private int $max_points;
+    private ?string $instructions;
+    private ?string $solution;
 
-    public function getTaskId(): int
+    public function getInstructions(): ?string
     {
-        return $this->task_id;
+        return $this->instructions;
     }
-    public function setTaskId(int $task_id): void
+    public function setInstructions(?string $instructions): void
     {
-        $this->task_id = $task_id;
+        $this->instructions = $instructions;
     }
-    public function getMaxPoints(): int
+    public function getSolution(): ?string
     {
-        return $this->max_points;
+        return $this->solution;
     }
-    public function setMaxPoints(int $max_points): void
+    public function setSolution(?string $solution): void
     {
-        $this->max_points = $max_points;
+        $this->solution = $solution;
     }
 }

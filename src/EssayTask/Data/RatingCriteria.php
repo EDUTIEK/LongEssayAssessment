@@ -18,23 +18,21 @@
 
 declare(strict_types=1);
 
-namespace ILIAS\Plugin\LongEssayAssessment\Data\Task\Data;
+namespace ILIAS\Plugin\LongEssayAssessment\EssayTask\Data;
 
 use ILIAS\Plugin\LongEssayAssessment\Data\RecordRepo\Attribute\Key;
 use ILIAS\Plugin\LongEssayAssessment\Data\RecordRepo\Attribute\Table;
 
-#[Table(name: 'xlas_ta_resource')]
-class Resource
+#[Table(name: 'xlas_et_rating_crit')]
+class RatingCriteria extends \Edutiek\AssessmentService\EssayTask\Data\RatingCriteria
 {
     #[Key]
     private int $id;
-    private int $task_id;
     private string $title;
     private ?string $description;
-    private string $url;
-    private string $type;
-    private string $availability;
-    private ?string $file_id;
+    private int $points;
+    private ?int $corrector_id;
+    private int $task_id;
 
     public function getId(): int
     {
@@ -43,14 +41,6 @@ class Resource
     public function setId(int $id): void
     {
         $this->id = $id;
-    }
-    public function getTaskId(): int
-    {
-        return $this->task_id;
-    }
-    public function setTaskId(int $task_id): void
-    {
-        $this->task_id = $task_id;
     }
     public function getTitle(): string
     {
@@ -68,36 +58,28 @@ class Resource
     {
         $this->description = $description;
     }
-    public function getUrl(): string
+    public function getPoints(): int
     {
-        return $this->url;
+        return $this->points;
     }
-    public function setUrl(string $url): void
+    public function setPoints(int $points): void
     {
-        $this->url = $url;
+        $this->points = $points;
     }
-    public function getType(): string
+    public function getCorrectorId(): ?int
     {
-        return $this->type;
+        return $this->corrector_id;
     }
-    public function setType(string $type): void
+    public function setCorrectorId(?int $corrector_id): void
     {
-        $this->type = $type;
+        $this->corrector_id = $corrector_id;
     }
-    public function getAvailability(): string
+    public function getTaskId(): int
     {
-        return $this->availability;
+        return $this->task_id;
     }
-    public function setAvailability(string $availability): void
+    public function setTaskId(int $task_id): void
     {
-        $this->availability = $availability;
-    }
-    public function getFileId(): ?string
-    {
-        return $this->file_id;
-    }
-    public function setFileId(?string $file_id): void
-    {
-        $this->file_id = $file_id;
+        $this->task_id = $task_id;
     }
 }

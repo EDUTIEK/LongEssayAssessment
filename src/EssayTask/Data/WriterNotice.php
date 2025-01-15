@@ -18,14 +18,14 @@
 
 declare(strict_types=1);
 
-namespace ILIAS\Plugin\LongEssayAssessment\Data\EssayTask\Data;
+namespace ILIAS\Plugin\LongEssayAssessment\EssayTask\Data;
 
 use DateTimeImmutable;
 use ILIAS\Plugin\LongEssayAssessment\Data\RecordRepo\Attribute\Key;
 use ILIAS\Plugin\LongEssayAssessment\Data\RecordRepo\Attribute\Table;
 
 #[Table(name: 'xlas_et_writer_notice')]
-class WriterNotice
+class WriterNotice extends \Edutiek\AssessmentService\EssayTask\Data\WriterNotice
 {
     #[Key]
     private int $id;

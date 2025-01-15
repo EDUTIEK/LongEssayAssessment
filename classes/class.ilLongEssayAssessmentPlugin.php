@@ -1,7 +1,7 @@
 <?php
 /* Copyright (c) 2021 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-use Edutiek\AssessmentService\System\Config\Config;
+use Edutiek\AssessmentService\System\Data\Config;
 use ILIAS\DI\Container;
 use ILIAS\Plugin\LongEssayAssessment\Dependencies\PluginDic;
 use ILIAS\Plugin\LongEssayAssessment\Task\ResourceResourceStakeholder;

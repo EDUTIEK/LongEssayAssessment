@@ -1,17 +1,16 @@
 <?php
 
-namespace ILIAS\Plugin\LongEssayAssessment\Data\System\Config;
+namespace ILIAS\Plugin\LongEssayAssessment\System\Data;
 
-use Edutiek\AssessmentService\System\Config\Config;
+use Edutiek\AssessmentService\System\Data\Config;
 use ilDBInterface;
 use ILIAS\Plugin\LongEssayAssessment\Data\RecordRepo\CacheRepository;
 use ILIAS\Plugin\LongEssayAssessment\Data\RecordRepo\DatabaseRepository;
 use ILIAS\Plugin\LongEssayAssessment\Data\RecordRepo\Generate;
 use ILIAS\Plugin\LongEssayAssessment\Data\RecordRepo\RepositoryInterface;
-use ILIAS\Plugin\LongEssayAssessment\Data\System\Config\Config as Model;
+use ILIAS\Plugin\LongEssayAssessment\System\Data\Config as Model;
 
-
-class Repository implements \Edutiek\AssessmentService\System\Config\Repository
+class SystemRepo implements \Edutiek\AssessmentService\System\Data\Repository
 {
     private RepositoryInterface $config_repo;
 

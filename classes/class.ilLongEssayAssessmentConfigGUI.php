@@ -3,7 +3,7 @@
 
 use Edutiek\AssessmentService\System\Config\Service as ConfigService;
 use ILIAS\DI\Container;
-use ILIAS\Plugin\LongEssayAssessment\Data\System\Config\Config;
+use ILIAS\Plugin\LongEssayAssessment\System\Data\Config;
 
 /**
  * Plugin Configuration GUI

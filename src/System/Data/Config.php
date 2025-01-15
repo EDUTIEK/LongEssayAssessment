@@ -1,14 +1,14 @@
 <?php
 
-namespace ILIAS\Plugin\LongEssayAssessment\Data\System\Config;
+namespace ILIAS\Plugin\LongEssayAssessment\System\Data;
 
 use ILIAS\Plugin\LongEssayAssessment\Data\RecordData;
 use ILIAS\Plugin\LongEssayAssessment\Data\RecordRepo\Attribute\Key;
 use ILIAS\Plugin\LongEssayAssessment\Data\RecordRepo\Attribute\Sequence;
 use ILIAS\Plugin\LongEssayAssessment\Data\RecordRepo\Attribute\Table;
 
-#[Table(name: 'xlas_plugin_config')]
-class Config extends \Edutiek\AssessmentService\System\Config\Config
+#[Table(name: 'xlas_sy_config')]
+class Config extends \Edutiek\AssessmentService\System\Data\Config
 {
     #[Key]
     private int $id = 0;

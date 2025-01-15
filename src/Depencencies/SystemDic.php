@@ -3,11 +3,11 @@
 namespace ILIAS\Plugin\LongEssayAssessment\Dependencies;
 
 use ILIAS\Plugin\LongEssayAssessment\Data\RecordRepo\Generate;
-use ILIAS\Plugin\LongEssayAssessment\Data\System\Config\Repository;
+use ILIAS\Plugin\LongEssayAssessment\System\Data\SystemRepo;
 use ILIAS\DI\Container;
 
 /**
- * Depency Container for the System Api
+ * Dependency Container for the System Api
  */
 class SystemDic implements \Edutiek\AssessmentService\System\Api\Dependencies
 {
@@ -15,13 +15,13 @@ class SystemDic implements \Edutiek\AssessmentService\System\Api\Dependencies
         protected Container $dic
     )
     {
-        $dic[Repository::class] = function (Container $dic) {
-            return new Repository($dic->database(), $dic[Generate::class]);
+        $dic[SystemRepo::class] = function (Container $dic) {
+            return new SystemRepo($dic->database(), $dic[Generate::class]);
         };
     }
 
-    public function configRepo() : Repository
+    public function configRepo() : SystemRepo
     {
-        return  $this->dic[Repository::class];
+        return $this->dic[SystemRepo::class];
     }
 }

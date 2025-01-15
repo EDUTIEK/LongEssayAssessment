@@ -98,7 +98,7 @@ class PluginDic
         };
 
         $dic[Generate::class] = function (Container $dic) {
-            return new Generate(__DIR__ . '/artifacts');
+            return new Generate(__DIR__ . '/../../artifacts');
         };
 
         $dic[SystemDic::class] = function (Container $dic) {

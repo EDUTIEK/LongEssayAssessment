@@ -27,14 +27,14 @@ use ILIAS\Plugin\LongEssayAssessment\Data\RecordRepo\Attribute\Table;
 class CorrectorAssignmentPreference extends \Edutiek\AssessmentService\EssayTask\Data\CorrectorAssignmentPreference
 {
     #[Key]
-    private int $corrector_id;
-    private float $essay_page_zoom;
-    private float $essay_text_zoom;
-    private float $summary_text_zoom;
-    private int $include_comments;
-    private int $include_comment_ratings;
-    private int $include_comment_points;
-    private int $include_criteria_points;
+    private int $corrector_id = 0;
+    private float $essay_page_zoom = 0;
+    private float $essay_text_zoom = 0;
+    private float $summary_text_zoom = 0;
+    private int $include_comments = 0;
+    private int $include_comment_ratings = 0;
+    private int $include_comment_points = 0;
+    private int $include_criteria_points = 0;
 
     public function getCorrectorId(): int
     {

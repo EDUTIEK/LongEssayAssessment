@@ -183,7 +183,7 @@ class DatabaseRepository implements RepositoryInterface
         };
     }
 
-    private function stringFrom($value, string $type): string
+    private function stringFrom($value, string $type): ?string
     {
         return match ($type) {
             'string', 'int', 'bool', 'float',  => (string) $value,

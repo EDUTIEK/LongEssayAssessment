@@ -27,11 +27,11 @@ use ILIAS\Plugin\LongEssayAssessment\Data\RecordRepo\Attribute\Table;
 class WriterPrefs extends \Edutiek\AssessmentService\EssayTask\Data\WriterPrefs
 {
     #[Key]
-    private int $writer_id;
-    private float $instructions_zoom;
-    private float $editor_zoom;
-    private int $word_count_enabled;
-    private int $word_count_characters;
+    private int $writer_id = 0;
+    private float $instructions_zoom = 0;
+    private float $editor_zoom = 0;
+    private int $word_count_enabled = 0;
+    private int $word_count_characters = 0;
 
     public function getWriterId(): int
     {

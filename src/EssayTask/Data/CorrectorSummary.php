@@ -28,18 +28,18 @@ use ILIAS\Plugin\LongEssayAssessment\Data\RecordRepo\Attribute\Table;
 class CorrectorSummary extends \Edutiek\AssessmentService\EssayTask\Data\CorrectorSummary
 {
     #[Key]
-    private int $id;
-    private int $essay_id;
-    private int $corrector_id;
-    private ?string $summary_text;
-    private ?float $points;
-    private ?DateTimeImmutable $last_change;
-    private ?int $include_comments;
-    private ?int $include_comment_ratings;
-    private ?int $include_comment_points;
-    private ?int $include_criteria_points;
-    private ?DateTimeImmutable $corection_authorized;
-    private ?int $correction_authorized_by;
+    private int $id = 0;
+    private int $essay_id = 0;
+    private int $corrector_id = 0;
+    private ?string $summary_text = null;
+    private ?float $points = null;
+    private ?DateTimeImmutable $last_change = null;
+    private ?int $include_comments = null;
+    private ?int $include_comment_ratings = null;
+    private ?int $include_comment_points = null;
+    private ?int $include_criteria_points = null;
+    private ?DateTimeImmutable $corection_authorized = null;
+    private ?int $correction_authorized_by = null;
 
     public function getId(): int
     {

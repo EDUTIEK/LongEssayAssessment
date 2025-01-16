@@ -27,11 +27,11 @@ use ILIAS\Plugin\LongEssayAssessment\Data\RecordRepo\Attribute\Table;
 class WriterComment extends \Edutiek\AssessmentService\Task\Data\WriterComment
 {
     #[Key]
-    private int $id;
-    private int $task_id;
-    private ?string $comment;
-    private int $start_position;
-    private int $end_position;
+    private int $id = 0;
+    private int $task_id = 0;
+    private ?string $comment = null;
+    private int $start_position = 0;
+    private int $end_position = 0;
 
     public function getId(): int
     {

@@ -27,14 +27,14 @@ use ILIAS\Plugin\LongEssayAssessment\Data\RecordRepo\Attribute\Table;
 class Resource extends \Edutiek\AssessmentService\Task\Data\Resource
 {
     #[Key]
-    private int $id;
-    private int $task_id;
-    private string $title;
-    private ?string $description;
-    private string $url;
-    private string $type;
-    private string $availability;
-    private ?string $file_id;
+    private int $id = 0;
+    private int $task_id = 0;
+    private string $title = '';
+    private ?string $description = null;
+    private string $url = '';
+    private string $type = '';
+    private string $availability = '';
+    private ?string $file_id = null;
 
     public function getId(): int
     {

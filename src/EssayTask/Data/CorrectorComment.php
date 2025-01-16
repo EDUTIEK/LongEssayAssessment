@@ -27,17 +27,15 @@ use ILIAS\Plugin\LongEssayAssessment\Data\RecordRepo\Attribute\Table;
 class CorrectorComment extends \Edutiek\AssessmentService\EssayTask\Data\CorrectorComment
 {
     #[Key]
-    private int $id;
-    private int $essay_id;
-    private ?string $comment;
-    private int $start_position;
-    private int $end_position;
-    private string $rating;
-    private int $corrector_id;
-    private int $parent_number;
-    private int $points;
-    private ?string $mark;
-    private ?string $marks;
+    private int $id = 0;
+    private int $essay_id = 0;
+    private ?string $comment = null;
+    private int $start_position = 0;
+    private int $end_position = 0;
+    private string $rating = '';
+    private int $corrector_id = 0;
+    private int $parent_number = 0;
+    private ?string $marks = null;
 
     public function getId(): int
     {
@@ -102,22 +100,6 @@ class CorrectorComment extends \Edutiek\AssessmentService\EssayTask\Data\Correct
     public function setParentNumber(int $parent_number): void
     {
         $this->parent_number = $parent_number;
-    }
-    public function getPoints(): int
-    {
-        return $this->points;
-    }
-    public function setPoints(int $points): void
-    {
-        $this->points = $points;
-    }
-    public function getMark(): ?string
-    {
-        return $this->mark;
-    }
-    public function setMark(?string $mark): void
-    {
-        $this->mark = $mark;
     }
     public function getMarks(): ?string
     {

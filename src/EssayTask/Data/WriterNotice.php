@@ -28,11 +28,11 @@ use ILIAS\Plugin\LongEssayAssessment\Data\RecordRepo\Attribute\Table;
 class WriterNotice extends \Edutiek\AssessmentService\EssayTask\Data\WriterNotice
 {
     #[Key]
-    private int $id;
-    private int $essay_id;
-    private int $note_no;
-    private ?string $note_text;
-    private ?DateTimeImmutable $last_change;
+    private int $id = 0;
+    private int $essay_id = 0;
+    private int $note_no = 0;
+    private ?string $note_text = null;
+    private ?DateTimeImmutable $last_change = null;
 
     public function getId(): int
     {

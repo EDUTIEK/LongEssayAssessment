@@ -18,32 +18,41 @@
 
 declare(strict_types=1);
 
-namespace ILIAS\Plugin\LongEssayAssessment\EssayTask\Data;
+namespace ILIAS\Plugin\LongEssayAssessment\Assessment\Data;
 
 use ILIAS\Plugin\LongEssayAssessment\Data\RecordRepo\Attribute\Key;
 use ILIAS\Plugin\LongEssayAssessment\Data\RecordRepo\Attribute\Table;
 
-#[Table(name: 'xlas_et_task_setting')]
-class TaskSetting extends \Edutiek\AssessmentService\EssayTask\Data\TaskSetting
+#[Table(name: 'xlas_as_location')]
+class Location extends \Edutiek\AssessmentService\Assessment\Data\Location
 {
     #[Key]
-    private int $task_id = 0;
-    private int $max_points = 0;
+    private int $id = 0;
+    private string $title = '';
+    private int $ass_id = 0;
 
-    public function getTaskId(): int
+    public function getId(): int
     {
-        return $this->task_id;
+        return $this->id;
     }
-    public function setTaskId(int $task_id): void
+    public function setId(int $id): void
     {
-        $this->task_id = $task_id;
+        $this->id = $id;
     }
-    public function getMaxPoints(): int
+    public function getTitle(): string
     {
-        return $this->max_points;
+        return $this->title;
     }
-    public function setMaxPoints(int $max_points): void
+    public function setTitle(string $title): void
     {
-        $this->max_points = $max_points;
+        $this->title = $title;
+    }
+    public function getAssId(): int
+    {
+        return $this->ass_id;
+    }
+    public function setAssId(int $ass_id): void
+    {
+        $this->ass_id = $ass_id;
     }
 }

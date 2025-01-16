@@ -28,16 +28,16 @@ use ILIAS\Plugin\LongEssayAssessment\Data\RecordRepo\Attribute\Table;
 class Essay extends \Edutiek\AssessmentService\EssayTask\Data\Essay
 {
     #[Key]
-    private int $id;
-    private string $uuid;
-    private int $writer_id;
-    private ?string $written_text;
-    private string $raw_text_hash;
-    private ?string $pdf_version;
-    private int $task_id;
-    private ?DateTimeImmutable $last_change;
-    private int $service_version;
-    private ?DateTimeImmutable $first_change;
+    private int $id = 0;
+    private string $uuid = '';
+    private int $writer_id = 0;
+    private ?string $written_text = null;
+    private string $raw_text_hash = '';
+    private ?string $pdf_version = null;
+    private int $task_id = 0;
+    private ?DateTimeImmutable $last_change = null;
+    private int $service_version = 0;
+    private ?DateTimeImmutable $first_change = null;
 
     public function getId(): int
     {

@@ -27,11 +27,11 @@ use ILIAS\Plugin\LongEssayAssessment\Data\RecordRepo\Attribute\Table;
 class CorrectorAssignment extends \Edutiek\AssessmentService\Task\Data\CorrectorAssignment
 {
     #[Key]
-    private int $id;
-    private int $writer_id;
-    private int $corrector_id;
-    private int $position;
-    private int $task_id;
+    private int $id = 0;
+    private int $writer_id = 0;
+    private int $corrector_id = 0;
+    private int $position = 0;
+    private int $task_id = 0;
 
     public function getId(): int
     {

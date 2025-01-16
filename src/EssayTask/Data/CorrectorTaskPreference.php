@@ -25,8 +25,8 @@ use ILIAS\Plugin\LongEssayAssessment\Data\RecordRepo\Attribute\Table;
 #[Table(name: 'xlas_et_corr_task_pref')]
 class CorrectorTaskPreference extends \Edutiek\AssessmentService\EssayTask\Data\CorrectorTaskPreference
 {
-    private int $task_id;
-    private bool $criterion_copy;
+    private int $task_id = 0;
+    private bool $criterion_copy = false;
 
     public function getTaskId(): int
     {

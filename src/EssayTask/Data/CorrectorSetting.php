@@ -27,15 +27,15 @@ use ILIAS\Plugin\LongEssayAssessment\Data\RecordRepo\Attribute\Table;
 class CorrectorSetting extends \Edutiek\AssessmentService\EssayTask\Data\CorrectorSetting
 {
     #[Key]
-    private int $ass_id;
-    private string $criteria_mode;
-    private string $positive_rating;
-    private string $negative_rating;
-    private int $fixed_inclusions;
-    private int $include_comments;
-    private int $include_comment_ratings;
-    private int $include_comment_points;
-    private int $include_criteria_points;
+    private int $ass_id = 0;
+    private string $criteria_mode = '';
+    private string $positive_rating = '';
+    private string $negative_rating = '';
+    private int $fixed_inclusions = 0;
+    private int $include_comments = 0;
+    private int $include_comment_ratings = 0;
+    private int $include_comment_points = 0;
+    private int $include_criteria_points = 0;
 
     public function getAssId(): int
     {

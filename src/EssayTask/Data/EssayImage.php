@@ -27,17 +27,17 @@ use ILIAS\Plugin\LongEssayAssessment\Data\RecordRepo\Attribute\Table;
 class EssayImage extends \Edutiek\AssessmentService\EssayTask\Data\EssayImage
 {
     #[Key]
-    private int $id;
-    private int $essay_id;
-    private int $page_no;
-    private int $width;
-    private int $height;
-    private string $mime;
-    private ?int $thumb_width;
-    private ?int $thumb_height;
-    private ?string $thumb_mime;
-    private string $file_id;
-    private ?string $thumb_id;
+    private int $id = 0;
+    private int $essay_id = 0;
+    private int $page_no = 0;
+    private int $width = 0;
+    private int $height = 0;
+    private string $mime = '';
+    private ?int $thumb_width = null;
+    private ?int $thumb_height = null;
+    private ?string $thumb_mime = null;
+    private string $file_id = '';
+    private ?string $thumb_id = null;
 
     public function getId(): int
     {

@@ -28,13 +28,13 @@ use ILIAS\Plugin\LongEssayAssessment\Data\RecordRepo\Attribute\Table;
 class WriterHistory extends \Edutiek\AssessmentService\EssayTask\Data\WriterHistory
 {
     #[Key]
-    private int $id;
-    private int $essay_id;
-    private ?DateTimeImmutable $timestamp;
-    private ?string $content;
-    private int $is_delta;
-    private ?string $hash_before;
-    private ?string $hash_after;
+    private int $id = 0;
+    private int $essay_id = 0;
+    private ?DateTimeImmutable $timestamp = null;
+    private ?string $content = null;
+    private int $is_delta = 0;
+    private ?string $hash_before = null;
+    private ?string $hash_after = null;
 
     public function getId(): int
     {

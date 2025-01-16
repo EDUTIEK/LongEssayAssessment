@@ -27,12 +27,13 @@ use ILIAS\Plugin\LongEssayAssessment\Data\RecordRepo\Attribute\Table;
 class RatingCriteria extends \Edutiek\AssessmentService\EssayTask\Data\RatingCriteria
 {
     #[Key]
-    private int $id;
-    private string $title;
-    private ?string $description;
-    private int $points;
-    private ?int $corrector_id;
-    private int $task_id;
+    private int $id = 0;
+    private string $title = '';
+    private ?string $description = null;
+    private int $points = 0;
+    private ?int $corrector_id = null;
+    private int $task_id = 0;
+    private int $general = 0;
 
     public function getId(): int
     {
@@ -81,5 +82,13 @@ class RatingCriteria extends \Edutiek\AssessmentService\EssayTask\Data\RatingCri
     public function setTaskId(int $task_id): void
     {
         $this->task_id = $task_id;
+    }
+    public function getGeneral(): int
+    {
+        return $this->general;
+    }
+    public function setGeneral(int $general): void
+    {
+        $this->general = $general;
     }
 }

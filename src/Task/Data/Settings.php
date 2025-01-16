@@ -20,14 +20,34 @@ declare(strict_types=1);
 
 namespace ILIAS\Plugin\LongEssayAssessment\Task\Data;
 
+use ILIAS\Plugin\LongEssayAssessment\Data\RecordRepo\Attribute\Key;
 use ILIAS\Plugin\LongEssayAssessment\Data\RecordRepo\Attribute\Table;
 
-#[Table(name: 'xlas_ta_task')]
-class Task extends \Edutiek\AssessmentService\Task\Data\Task
+#[Table(name: 'xlas_ta_settings')]
+class Settings extends \Edutiek\AssessmentService\Task\Data\Settings
 {
-    private ?string $instructions;
-    private ?string $solution;
+    #[Key]
+    private int $task_id = 0;
+    private int $ass_id = 0;
+    private ?string $instructions = null;
+    private ?string $solution = null;
 
+    public function getTaskId(): int
+    {
+        return $this->task_id;
+    }
+    public function setTaskId(int $task_id): void
+    {
+        $this->task_id = $task_id;
+    }
+    public function getAssId(): int
+    {
+        return $this->ass_id;
+    }
+    public function setAssId(int $ass_id): void
+    {
+        $this->ass_id = $ass_id;
+    }
     public function getInstructions(): ?string
     {
         return $this->instructions;

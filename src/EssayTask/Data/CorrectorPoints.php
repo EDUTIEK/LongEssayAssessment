@@ -27,10 +27,12 @@ use ILIAS\Plugin\LongEssayAssessment\Data\RecordRepo\Attribute\Table;
 class CorrectorPoints extends \Edutiek\AssessmentService\EssayTask\Data\CorrectorPoints
 {
     #[Key]
-    private int $id;
-    private int $criterion_id;
-    private int $corr_comment_id;
-    private int $points;
+    private int $id = 0;
+    private ?int $comment_id = null;
+    private ?int $criterion_id = null;
+    private int $essay_id = 0;
+    private int $corrector_id = 0;
+    private float $points = 0;
 
     public function getId(): int
     {
@@ -40,27 +42,43 @@ class CorrectorPoints extends \Edutiek\AssessmentService\EssayTask\Data\Correcto
     {
         $this->id = $id;
     }
-    public function getCriterionId(): int
+    public function getCommentId(): ?int
+    {
+        return $this->comment_id;
+    }
+    public function setCommentId(?int $comment_id): void
+    {
+        $this->comment_id = $comment_id;
+    }
+    public function getCriterionId(): ?int
     {
         return $this->criterion_id;
     }
-    public function setCriterionId(int $criterion_id): void
+    public function setCriterionId(?int $criterion_id): void
     {
         $this->criterion_id = $criterion_id;
     }
-    public function getCorrCommentId(): int
+    public function getEssayId(): int
     {
-        return $this->corr_comment_id;
+        return $this->essay_id;
     }
-    public function setCorrCommentId(int $corr_comment_id): void
+    public function setEssayId(int $essay_id): void
     {
-        $this->corr_comment_id = $corr_comment_id;
+        $this->essay_id = $essay_id;
     }
-    public function getPoints(): int
+    public function getCorrectorId(): int
+    {
+        return $this->corrector_id;
+    }
+    public function setCorrectorId(int $corrector_id): void
+    {
+        $this->corrector_id = $corrector_id;
+    }
+    public function getPoints(): float
     {
         return $this->points;
     }
-    public function setPoints(int $points): void
+    public function setPoints(float $points): void
     {
         $this->points = $points;
     }

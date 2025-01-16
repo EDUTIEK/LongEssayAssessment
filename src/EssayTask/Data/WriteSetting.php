@@ -26,18 +26,18 @@ use ILIAS\Plugin\LongEssayAssessment\Data\RecordRepo\Attribute\Table;
 #[Table(name: 'xlas_et_write_setting')]
 class WriteSetting extends \Edutiek\AssessmentService\EssayTask\Data\WriteSetting
 {
-    private string $headline_scheme;
-    private string $formatting_options;
-    private int $notice_boards;
-    private int $copy_allowed;
-    private int $add_paragraph_numbers;
-    private int $add_correction_margin;
-    private int $left_correction_margin;
-    private int $right_correction_margin;
-    private int $allow_spellcheck;
+    private string $headline_scheme = '';
+    private string $formatting_options = '';
+    private int $notice_boards = 0;
+    private int $copy_allowed = 0;
+    private int $add_paragraph_numbers = 0;
+    private int $add_correction_margin = 0;
+    private int $left_correction_margin = 0;
+    private int $right_correction_margin = 0;
+    private int $allow_spellcheck = 0;
     #[Key]
-    private int $ass_id;
-    private string $writing_type;
+    private int $ass_id = 0;
+    private string $writing_type = '';
 
     public function getHeadlineScheme(): string
     {

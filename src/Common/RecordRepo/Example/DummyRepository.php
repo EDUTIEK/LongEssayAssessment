@@ -18,7 +18,7 @@
 
 declare(strict_types=1);
 
-namespace ILIAS\Plugin\LongEssayAssessment\Data\RecordRepo\Example;
+namespace ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Example;
 
 use Edutiek\AssessmentService\Model\Dummy;
 

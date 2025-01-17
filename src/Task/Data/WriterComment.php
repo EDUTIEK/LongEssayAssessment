@@ -37,40 +37,45 @@ class WriterComment extends \Edutiek\AssessmentService\Task\Data\WriterComment
     {
         return $this->id;
     }
-    public function setId(int $id): void
+    public function setId(int $id): self
     {
         $this->id = $id;
+        return $this;
     }
     public function getTaskId(): int
     {
         return $this->task_id;
     }
-    public function setTaskId(int $task_id): void
+    public function setTaskId(int $task_id): self
     {
         $this->task_id = $task_id;
+        return $this;
     }
     public function getComment(): ?string
     {
         return $this->comment;
     }
-    public function setComment(?string $comment): void
+    public function setComment(?string $comment): self
     {
         $this->comment = $comment;
+        return $this;
     }
     public function getStartPosition(): int
     {
         return $this->start_position;
     }
-    public function setStartPosition(int $start_position): void
+    public function setStartPosition(int $start_position): self
     {
         $this->start_position = $start_position;
+        return $this;
     }
     public function getEndPosition(): int
     {
         return $this->end_position;
     }
-    public function setEndPosition(int $end_position): void
+    public function setEndPosition(int $end_position): self
     {
         $this->end_position = $end_position;
+        return $this;
     }
 }

@@ -36,32 +36,36 @@ class Corrector extends \Edutiek\AssessmentService\Assessment\Data\Corrector
     {
         return $this->id;
     }
-    public function setId(int $id): void
+    public function setId(int $id): self
     {
         $this->id = $id;
+        return $this;
     }
     public function getUserId(): int
     {
         return $this->user_id;
     }
-    public function setUserId(int $user_id): void
+    public function setUserId(int $user_id): self
     {
         $this->user_id = $user_id;
+        return $this;
     }
     public function getCorrectionReport(): ?string
     {
         return $this->correction_report;
     }
-    public function setCorrectionReport(?string $correction_report): void
+    public function setCorrectionReport(?string $correction_report): self
     {
         $this->correction_report = $correction_report;
+        return $this;
     }
     public function getAssId(): int
     {
         return $this->ass_id;
     }
-    public function setAssId(int $ass_id): void
+    public function setAssId(int $ass_id): self
     {
         $this->ass_id = $ass_id;
+        return $this;
     }
 }

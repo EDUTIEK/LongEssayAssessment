@@ -1,6 +1,6 @@
 <?php
 
-namespace ILIAS\Plugin\LongEssayAssessment\Data\Constraints;
+namespace ILIAS\Plugin\LongEssayAssessment\Common\Constraints;
 
 use ILIAS\Data\Factory;
 use ilLanguage;

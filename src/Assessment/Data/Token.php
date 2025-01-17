@@ -40,56 +40,63 @@ class Token extends \Edutiek\AssessmentService\Assessment\Data\Token
     {
         return $this->id;
     }
-    public function setId(int $id): void
+    public function setId(int $id): self
     {
         $this->id = $id;
+        return $this;
     }
     public function getUserId(): int
     {
         return $this->user_id;
     }
-    public function setUserId(int $user_id): void
+    public function setUserId(int $user_id): self
     {
         $this->user_id = $user_id;
+        return $this;
     }
     public function getToken(): string
     {
         return $this->token;
     }
-    public function setToken(string $token): void
+    public function setToken(string $token): self
     {
         $this->token = $token;
+        return $this;
     }
     public function getIp(): string
     {
         return $this->ip;
     }
-    public function setIp(string $ip): void
+    public function setIp(string $ip): self
     {
         $this->ip = $ip;
+        return $this;
     }
     public function getPurpose(): string
     {
         return $this->purpose;
     }
-    public function setPurpose(string $purpose): void
+    public function setPurpose(string $purpose): self
     {
         $this->purpose = $purpose;
+        return $this;
     }
     public function getAssId(): int
     {
         return $this->ass_id;
     }
-    public function setAssId(int $ass_id): void
+    public function setAssId(int $ass_id): self
     {
         $this->ass_id = $ass_id;
+        return $this;
     }
     public function getValidUntil(): ?DateTimeImmutable
     {
         return $this->valid_until;
     }
-    public function setValidUntil(?DateTimeImmutable $valid_until): void
+    public function setValidUntil(?DateTimeImmutable $valid_until): self
     {
         $this->valid_until = $valid_until;
+        return $this;
     }
 }

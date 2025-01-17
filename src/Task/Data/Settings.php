@@ -36,32 +36,36 @@ class Settings extends \Edutiek\AssessmentService\Task\Data\Settings
     {
         return $this->task_id;
     }
-    public function setTaskId(int $task_id): void
+    public function setTaskId(int $task_id): self
     {
         $this->task_id = $task_id;
+        return $this;
     }
     public function getAssId(): int
     {
         return $this->ass_id;
     }
-    public function setAssId(int $ass_id): void
+    public function setAssId(int $ass_id): self
     {
         $this->ass_id = $ass_id;
+        return $this;
     }
     public function getInstructions(): ?string
     {
         return $this->instructions;
     }
-    public function setInstructions(?string $instructions): void
+    public function setInstructions(?string $instructions): self
     {
         $this->instructions = $instructions;
+        return $this;
     }
     public function getSolution(): ?string
     {
         return $this->solution;
     }
-    public function setSolution(?string $solution): void
+    public function setSolution(?string $solution): self
     {
         $this->solution = $solution;
+        return $this;
     }
 }

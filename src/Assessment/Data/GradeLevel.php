@@ -38,48 +38,54 @@ class GradeLevel extends \Edutiek\AssessmentService\Assessment\Data\GradeLevel
     {
         return $this->id;
     }
-    public function setId(int $id): void
+    public function setId(int $id): self
     {
         $this->id = $id;
+        return $this;
     }
     public function getMinPoints(): float
     {
         return $this->min_points;
     }
-    public function setMinPoints(float $min_points): void
+    public function setMinPoints(float $min_points): self
     {
         $this->min_points = $min_points;
+        return $this;
     }
     public function getGrade(): string
     {
         return $this->grade;
     }
-    public function setGrade(string $grade): void
+    public function setGrade(string $grade): self
     {
         $this->grade = $grade;
+        return $this;
     }
     public function getCode(): ?string
     {
         return $this->code;
     }
-    public function setCode(?string $code): void
+    public function setCode(?string $code): self
     {
         $this->code = $code;
+        return $this;
     }
     public function getPassed(): bool
     {
         return $this->passed;
     }
-    public function setPassed(bool $passed): void
+    public function setPassed(bool $passed): self
     {
         $this->passed = $passed;
+        return $this;
     }
     public function getAssId(): int
     {
         return $this->ass_id;
     }
-    public function setAssId(int $ass_id): void
+    public function setAssId(int $ass_id): self
     {
         $this->ass_id = $ass_id;
+        return $this;
     }
 }

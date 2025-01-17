@@ -18,26 +18,11 @@
 
 declare(strict_types=1);
 
-namespace ILIAS\Plugin\LongEssayAssessment\Data\RecordRepo\Attribute;
+namespace ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute;
 
 use Attribute;
 
 #[Attribute]
-class Column
+class Sequence
 {
-    public function __construct(
-        private readonly ?string $type = null,
-        private readonly ?string $name = null
-    ) {
-    }
-
-    public function type(): ?string
-    {
-        return $this->type;
-    }
-
-    public function name(): ?string
-    {
-        return $this->name;
-    }
 }

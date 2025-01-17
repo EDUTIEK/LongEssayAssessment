@@ -39,56 +39,63 @@ class RatingCriteria extends \Edutiek\AssessmentService\EssayTask\Data\RatingCri
     {
         return $this->id;
     }
-    public function setId(int $id): void
+    public function setId(int $id): self
     {
         $this->id = $id;
+        return $this;
     }
     public function getTitle(): string
     {
         return $this->title;
     }
-    public function setTitle(string $title): void
+    public function setTitle(string $title): self
     {
         $this->title = $title;
+        return $this;
     }
     public function getDescription(): ?string
     {
         return $this->description;
     }
-    public function setDescription(?string $description): void
+    public function setDescription(?string $description): self
     {
         $this->description = $description;
+        return $this;
     }
     public function getPoints(): int
     {
         return $this->points;
     }
-    public function setPoints(int $points): void
+    public function setPoints(int $points): self
     {
         $this->points = $points;
+        return $this;
     }
     public function getCorrectorId(): ?int
     {
         return $this->corrector_id;
     }
-    public function setCorrectorId(?int $corrector_id): void
+    public function setCorrectorId(?int $corrector_id): self
     {
         $this->corrector_id = $corrector_id;
+        return $this;
     }
     public function getTaskId(): int
     {
         return $this->task_id;
     }
-    public function setTaskId(int $task_id): void
+    public function setTaskId(int $task_id): self
     {
         $this->task_id = $task_id;
+        return $this;
     }
     public function getGeneral(): int
     {
         return $this->general;
     }
-    public function setGeneral(int $general): void
+    public function setGeneral(int $general): self
     {
         $this->general = $general;
+        return $this;
     }
 }

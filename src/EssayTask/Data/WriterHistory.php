@@ -40,56 +40,63 @@ class WriterHistory extends \Edutiek\AssessmentService\EssayTask\Data\WriterHist
     {
         return $this->id;
     }
-    public function setId(int $id): void
+    public function setId(int $id): self
     {
         $this->id = $id;
+        return $this;
     }
     public function getEssayId(): int
     {
         return $this->essay_id;
     }
-    public function setEssayId(int $essay_id): void
+    public function setEssayId(int $essay_id): self
     {
         $this->essay_id = $essay_id;
+        return $this;
     }
     public function getTimestamp(): ?DateTimeImmutable
     {
         return $this->timestamp;
     }
-    public function setTimestamp(?DateTimeImmutable $timestamp): void
+    public function setTimestamp(?DateTimeImmutable $timestamp): self
     {
         $this->timestamp = $timestamp;
+        return $this;
     }
     public function getContent(): ?string
     {
         return $this->content;
     }
-    public function setContent(?string $content): void
+    public function setContent(?string $content): self
     {
         $this->content = $content;
+        return $this;
     }
     public function getIsDelta(): int
     {
         return $this->is_delta;
     }
-    public function setIsDelta(int $is_delta): void
+    public function setIsDelta(int $is_delta): self
     {
         $this->is_delta = $is_delta;
+        return $this;
     }
     public function getHashBefore(): ?string
     {
         return $this->hash_before;
     }
-    public function setHashBefore(?string $hash_before): void
+    public function setHashBefore(?string $hash_before): self
     {
         $this->hash_before = $hash_before;
+        return $this;
     }
     public function getHashAfter(): ?string
     {
         return $this->hash_after;
     }
-    public function setHashAfter(?string $hash_after): void
+    public function setHashAfter(?string $hash_after): self
     {
         $this->hash_after = $hash_after;
+        return $this;
     }
 }

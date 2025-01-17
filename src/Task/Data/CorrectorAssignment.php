@@ -37,40 +37,45 @@ class CorrectorAssignment extends \Edutiek\AssessmentService\Task\Data\Corrector
     {
         return $this->id;
     }
-    public function setId(int $id): void
+    public function setId(int $id): self
     {
         $this->id = $id;
+        return $this;
     }
     public function getWriterId(): int
     {
         return $this->writer_id;
     }
-    public function setWriterId(int $writer_id): void
+    public function setWriterId(int $writer_id): self
     {
         $this->writer_id = $writer_id;
+        return $this;
     }
     public function getCorrectorId(): int
     {
         return $this->corrector_id;
     }
-    public function setCorrectorId(int $corrector_id): void
+    public function setCorrectorId(int $corrector_id): self
     {
         $this->corrector_id = $corrector_id;
+        return $this;
     }
     public function getPosition(): int
     {
         return $this->position;
     }
-    public function setPosition(int $position): void
+    public function setPosition(int $position): self
     {
         $this->position = $position;
+        return $this;
     }
     public function getTaskId(): int
     {
         return $this->task_id;
     }
-    public function setTaskId(int $task_id): void
+    public function setTaskId(int $task_id): self
     {
         $this->task_id = $task_id;
+        return $this;
     }
 }

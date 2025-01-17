@@ -37,40 +37,45 @@ class WriterPrefs extends \Edutiek\AssessmentService\EssayTask\Data\WriterPrefs
     {
         return $this->writer_id;
     }
-    public function setWriterId(int $writer_id): void
+    public function setWriterId(int $writer_id): self
     {
         $this->writer_id = $writer_id;
+        return $this;
     }
     public function getInstructionsZoom(): float
     {
         return $this->instructions_zoom;
     }
-    public function setInstructionsZoom(float $instructions_zoom): void
+    public function setInstructionsZoom(float $instructions_zoom): self
     {
         $this->instructions_zoom = $instructions_zoom;
+        return $this;
     }
     public function getEditorZoom(): float
     {
         return $this->editor_zoom;
     }
-    public function setEditorZoom(float $editor_zoom): void
+    public function setEditorZoom(float $editor_zoom): self
     {
         $this->editor_zoom = $editor_zoom;
+        return $this;
     }
     public function getWordCountEnabled(): int
     {
         return $this->word_count_enabled;
     }
-    public function setWordCountEnabled(int $word_count_enabled): void
+    public function setWordCountEnabled(int $word_count_enabled): self
     {
         $this->word_count_enabled = $word_count_enabled;
+        return $this;
     }
     public function getWordCountCharacters(): int
     {
         return $this->word_count_characters;
     }
-    public function setWordCountCharacters(int $word_count_characters): void
+    public function setWordCountCharacters(int $word_count_characters): self
     {
         $this->word_count_characters = $word_count_characters;
+        return $this;
     }
 }

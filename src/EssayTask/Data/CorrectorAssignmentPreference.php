@@ -40,64 +40,72 @@ class CorrectorAssignmentPreference extends \Edutiek\AssessmentService\EssayTask
     {
         return $this->corrector_id;
     }
-    public function setCorrectorId(int $corrector_id): void
+    public function setCorrectorId(int $corrector_id): self
     {
         $this->corrector_id = $corrector_id;
+        return $this;
     }
     public function getEssayPageZoom(): float
     {
         return $this->essay_page_zoom;
     }
-    public function setEssayPageZoom(float $essay_page_zoom): void
+    public function setEssayPageZoom(float $essay_page_zoom): self
     {
         $this->essay_page_zoom = $essay_page_zoom;
+        return $this;
     }
     public function getEssayTextZoom(): float
     {
         return $this->essay_text_zoom;
     }
-    public function setEssayTextZoom(float $essay_text_zoom): void
+    public function setEssayTextZoom(float $essay_text_zoom): self
     {
         $this->essay_text_zoom = $essay_text_zoom;
+        return $this;
     }
     public function getSummaryTextZoom(): float
     {
         return $this->summary_text_zoom;
     }
-    public function setSummaryTextZoom(float $summary_text_zoom): void
+    public function setSummaryTextZoom(float $summary_text_zoom): self
     {
         $this->summary_text_zoom = $summary_text_zoom;
+        return $this;
     }
     public function getIncludeComments(): int
     {
         return $this->include_comments;
     }
-    public function setIncludeComments(int $include_comments): void
+    public function setIncludeComments(int $include_comments): self
     {
         $this->include_comments = $include_comments;
+        return $this;
     }
     public function getIncludeCommentRatings(): int
     {
         return $this->include_comment_ratings;
     }
-    public function setIncludeCommentRatings(int $include_comment_ratings): void
+    public function setIncludeCommentRatings(int $include_comment_ratings): self
     {
         $this->include_comment_ratings = $include_comment_ratings;
+        return $this;
     }
     public function getIncludeCommentPoints(): int
     {
         return $this->include_comment_points;
     }
-    public function setIncludeCommentPoints(int $include_comment_points): void
+    public function setIncludeCommentPoints(int $include_comment_points): self
     {
         $this->include_comment_points = $include_comment_points;
+        return $this;
     }
     public function getIncludeCriteriaPoints(): int
     {
         return $this->include_criteria_points;
     }
-    public function setIncludeCriteriaPoints(int $include_criteria_points): void
+    public function setIncludeCriteriaPoints(int $include_criteria_points): self
     {
         $this->include_criteria_points = $include_criteria_points;
+        return $this;
     }
 }

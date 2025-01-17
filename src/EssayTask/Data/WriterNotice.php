@@ -38,40 +38,45 @@ class WriterNotice extends \Edutiek\AssessmentService\EssayTask\Data\WriterNotic
     {
         return $this->id;
     }
-    public function setId(int $id): void
+    public function setId(int $id): self
     {
         $this->id = $id;
+        return $this;
     }
     public function getEssayId(): int
     {
         return $this->essay_id;
     }
-    public function setEssayId(int $essay_id): void
+    public function setEssayId(int $essay_id): self
     {
         $this->essay_id = $essay_id;
+        return $this;
     }
     public function getNoteNo(): int
     {
         return $this->note_no;
     }
-    public function setNoteNo(int $note_no): void
+    public function setNoteNo(int $note_no): self
     {
         $this->note_no = $note_no;
+        return $this;
     }
     public function getNoteText(): ?string
     {
         return $this->note_text;
     }
-    public function setNoteText(?string $note_text): void
+    public function setNoteText(?string $note_text): self
     {
         $this->note_text = $note_text;
+        return $this;
     }
     public function getLastChange(): ?DateTimeImmutable
     {
         return $this->last_change;
     }
-    public function setLastChange(?DateTimeImmutable $last_change): void
+    public function setLastChange(?DateTimeImmutable $last_change): self
     {
         $this->last_change = $last_change;
+        return $this;
     }
 }

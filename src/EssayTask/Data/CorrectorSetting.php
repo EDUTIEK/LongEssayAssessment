@@ -41,72 +41,81 @@ class CorrectorSetting extends \Edutiek\AssessmentService\EssayTask\Data\Correct
     {
         return $this->ass_id;
     }
-    public function setAssId(int $ass_id): void
+    public function setAssId(int $ass_id): self
     {
         $this->ass_id = $ass_id;
+        return $this;
     }
     public function getCriteriaMode(): string
     {
         return $this->criteria_mode;
     }
-    public function setCriteriaMode(string $criteria_mode): void
+    public function setCriteriaMode(string $criteria_mode): self
     {
         $this->criteria_mode = $criteria_mode;
+        return $this;
     }
     public function getPositiveRating(): string
     {
         return $this->positive_rating;
     }
-    public function setPositiveRating(string $positive_rating): void
+    public function setPositiveRating(string $positive_rating): self
     {
         $this->positive_rating = $positive_rating;
+        return $this;
     }
     public function getNegativeRating(): string
     {
         return $this->negative_rating;
     }
-    public function setNegativeRating(string $negative_rating): void
+    public function setNegativeRating(string $negative_rating): self
     {
         $this->negative_rating = $negative_rating;
+        return $this;
     }
     public function getFixedInclusions(): int
     {
         return $this->fixed_inclusions;
     }
-    public function setFixedInclusions(int $fixed_inclusions): void
+    public function setFixedInclusions(int $fixed_inclusions): self
     {
         $this->fixed_inclusions = $fixed_inclusions;
+        return $this;
     }
     public function getIncludeComments(): int
     {
         return $this->include_comments;
     }
-    public function setIncludeComments(int $include_comments): void
+    public function setIncludeComments(int $include_comments): self
     {
         $this->include_comments = $include_comments;
+        return $this;
     }
     public function getIncludeCommentRatings(): int
     {
         return $this->include_comment_ratings;
     }
-    public function setIncludeCommentRatings(int $include_comment_ratings): void
+    public function setIncludeCommentRatings(int $include_comment_ratings): self
     {
         $this->include_comment_ratings = $include_comment_ratings;
+        return $this;
     }
     public function getIncludeCommentPoints(): int
     {
         return $this->include_comment_points;
     }
-    public function setIncludeCommentPoints(int $include_comment_points): void
+    public function setIncludeCommentPoints(int $include_comment_points): self
     {
         $this->include_comment_points = $include_comment_points;
+        return $this;
     }
     public function getIncludeCriteriaPoints(): int
     {
         return $this->include_criteria_points;
     }
-    public function setIncludeCriteriaPoints(int $include_criteria_points): void
+    public function setIncludeCriteriaPoints(int $include_criteria_points): self
     {
         $this->include_criteria_points = $include_criteria_points;
+        return $this;
     }
 }

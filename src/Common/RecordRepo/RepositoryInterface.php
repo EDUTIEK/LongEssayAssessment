@@ -18,7 +18,7 @@
 
 declare(strict_types=1);
 
-namespace ILIAS\Plugin\LongEssayAssessment\Data\RecordRepo;
+namespace ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo;
 
 /**
  * @template A of object

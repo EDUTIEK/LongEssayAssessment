@@ -34,16 +34,18 @@ class TaskSetting extends \Edutiek\AssessmentService\EssayTask\Data\TaskSetting
     {
         return $this->task_id;
     }
-    public function setTaskId(int $task_id): void
+    public function setTaskId(int $task_id): self
     {
         $this->task_id = $task_id;
+        return $this;
     }
     public function getMaxPoints(): int
     {
         return $this->max_points;
     }
-    public function setMaxPoints(int $max_points): void
+    public function setMaxPoints(int $max_points): self
     {
         $this->max_points = $max_points;
+        return $this;
     }
 }

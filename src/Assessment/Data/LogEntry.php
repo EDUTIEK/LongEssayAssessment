@@ -38,40 +38,45 @@ class LogEntry extends \Edutiek\AssessmentService\Assessment\Data\LogEntry
     {
         return $this->id;
     }
-    public function setId(int $id): void
+    public function setId(int $id): self
     {
         $this->id = $id;
+        return $this;
     }
     public function getTimestamp(): ?DateTimeImmutable
     {
         return $this->timestamp;
     }
-    public function setTimestamp(?DateTimeImmutable $timestamp): void
+    public function setTimestamp(?DateTimeImmutable $timestamp): self
     {
         $this->timestamp = $timestamp;
+        return $this;
     }
     public function getCategory(): string
     {
         return $this->category;
     }
-    public function setCategory(string $category): void
+    public function setCategory(string $category): self
     {
         $this->category = $category;
+        return $this;
     }
     public function getEntry(): ?string
     {
         return $this->entry;
     }
-    public function setEntry(?string $entry): void
+    public function setEntry(?string $entry): self
     {
         $this->entry = $entry;
+        return $this;
     }
     public function getAssId(): int
     {
         return $this->ass_id;
     }
-    public function setAssId(int $ass_id): void
+    public function setAssId(int $ass_id): self
     {
         $this->ass_id = $ass_id;
+        return $this;
     }
 }

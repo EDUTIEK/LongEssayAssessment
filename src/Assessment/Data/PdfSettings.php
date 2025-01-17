@@ -39,56 +39,63 @@ class PdfSettings extends \Edutiek\AssessmentService\Assessment\Data\PdfSettings
     {
         return $this->add_header;
     }
-    public function setAddHeader(int $add_header): void
+    public function setAddHeader(int $add_header): self
     {
         $this->add_header = $add_header;
+        return $this;
     }
     public function getAddFooter(): int
     {
         return $this->add_footer;
     }
-    public function setAddFooter(int $add_footer): void
+    public function setAddFooter(int $add_footer): self
     {
         $this->add_footer = $add_footer;
+        return $this;
     }
     public function getTopMargin(): int
     {
         return $this->top_margin;
     }
-    public function setTopMargin(int $top_margin): void
+    public function setTopMargin(int $top_margin): self
     {
         $this->top_margin = $top_margin;
+        return $this;
     }
     public function getBottomMargin(): int
     {
         return $this->bottom_margin;
     }
-    public function setBottomMargin(int $bottom_margin): void
+    public function setBottomMargin(int $bottom_margin): self
     {
         $this->bottom_margin = $bottom_margin;
+        return $this;
     }
     public function getLeftMargin(): int
     {
         return $this->left_margin;
     }
-    public function setLeftMargin(int $left_margin): void
+    public function setLeftMargin(int $left_margin): self
     {
         $this->left_margin = $left_margin;
+        return $this;
     }
     public function getRightMargin(): int
     {
         return $this->right_margin;
     }
-    public function setRightMargin(int $right_margin): void
+    public function setRightMargin(int $right_margin): self
     {
         $this->right_margin = $right_margin;
+        return $this;
     }
     public function getAssId(): int
     {
         return $this->ass_id;
     }
-    public function setAssId(int $ass_id): void
+    public function setAssId(int $ass_id): self
     {
         $this->ass_id = $ass_id;
+        return $this;
     }
 }

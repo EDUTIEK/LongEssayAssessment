@@ -18,11 +18,20 @@
 
 declare(strict_types=1);
 
-namespace ILIAS\Plugin\LongEssayAssessment\Data\RecordRepo\Attribute;
+namespace ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute;
 
 use Attribute;
 
 #[Attribute]
-class Key
+class Table
 {
+    public function __construct(
+        private readonly string $name
+    ) {
+    }
+
+    public function name(): string
+    {
+        return $this->name;
+    }
 }

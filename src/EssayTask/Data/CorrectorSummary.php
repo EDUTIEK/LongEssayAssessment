@@ -45,96 +45,108 @@ class CorrectorSummary extends \Edutiek\AssessmentService\EssayTask\Data\Correct
     {
         return $this->id;
     }
-    public function setId(int $id): void
+    public function setId(int $id): self
     {
         $this->id = $id;
+        return $this;
     }
     public function getEssayId(): int
     {
         return $this->essay_id;
     }
-    public function setEssayId(int $essay_id): void
+    public function setEssayId(int $essay_id): self
     {
         $this->essay_id = $essay_id;
+        return $this;
     }
     public function getCorrectorId(): int
     {
         return $this->corrector_id;
     }
-    public function setCorrectorId(int $corrector_id): void
+    public function setCorrectorId(int $corrector_id): self
     {
         $this->corrector_id = $corrector_id;
+        return $this;
     }
     public function getSummaryText(): ?string
     {
         return $this->summary_text;
     }
-    public function setSummaryText(?string $summary_text): void
+    public function setSummaryText(?string $summary_text): self
     {
         $this->summary_text = $summary_text;
+        return $this;
     }
     public function getPoints(): ?float
     {
         return $this->points;
     }
-    public function setPoints(?float $points): void
+    public function setPoints(?float $points): self
     {
         $this->points = $points;
+        return $this;
     }
     public function getLastChange(): ?DateTimeImmutable
     {
         return $this->last_change;
     }
-    public function setLastChange(?DateTimeImmutable $last_change): void
+    public function setLastChange(?DateTimeImmutable $last_change): self
     {
         $this->last_change = $last_change;
+        return $this;
     }
     public function getIncludeComments(): ?int
     {
         return $this->include_comments;
     }
-    public function setIncludeComments(?int $include_comments): void
+    public function setIncludeComments(?int $include_comments): self
     {
         $this->include_comments = $include_comments;
+        return $this;
     }
     public function getIncludeCommentRatings(): ?int
     {
         return $this->include_comment_ratings;
     }
-    public function setIncludeCommentRatings(?int $include_comment_ratings): void
+    public function setIncludeCommentRatings(?int $include_comment_ratings): self
     {
         $this->include_comment_ratings = $include_comment_ratings;
+        return $this;
     }
     public function getIncludeCommentPoints(): ?int
     {
         return $this->include_comment_points;
     }
-    public function setIncludeCommentPoints(?int $include_comment_points): void
+    public function setIncludeCommentPoints(?int $include_comment_points): self
     {
         $this->include_comment_points = $include_comment_points;
+        return $this;
     }
     public function getIncludeCriteriaPoints(): ?int
     {
         return $this->include_criteria_points;
     }
-    public function setIncludeCriteriaPoints(?int $include_criteria_points): void
+    public function setIncludeCriteriaPoints(?int $include_criteria_points): self
     {
         $this->include_criteria_points = $include_criteria_points;
+        return $this;
     }
     public function getCorectionAuthorized(): ?DateTimeImmutable
     {
         return $this->corection_authorized;
     }
-    public function setCorectionAuthorized(?DateTimeImmutable $corection_authorized): void
+    public function setCorectionAuthorized(?DateTimeImmutable $corection_authorized): self
     {
         $this->corection_authorized = $corection_authorized;
+        return $this;
     }
     public function getCorrectionAuthorizedBy(): ?int
     {
         return $this->correction_authorized_by;
     }
-    public function setCorrectionAuthorizedBy(?int $correction_authorized_by): void
+    public function setCorrectionAuthorizedBy(?int $correction_authorized_by): self
     {
         $this->correction_authorized_by = $correction_authorized_by;
+        return $this;
     }
 }

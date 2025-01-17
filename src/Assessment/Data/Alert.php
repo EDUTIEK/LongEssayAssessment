@@ -40,56 +40,63 @@ class Alert extends \Edutiek\AssessmentService\Assessment\Data\Alert
     {
         return $this->id;
     }
-    public function setId(int $id): void
+    public function setId(int $id): self
     {
         $this->id = $id;
+        return $this;
     }
     public function getTitle(): ?string
     {
         return $this->title;
     }
-    public function setTitle(?string $title): void
+    public function setTitle(?string $title): self
     {
         $this->title = $title;
+        return $this;
     }
     public function getMessage(): string
     {
         return $this->message;
     }
-    public function setMessage(string $message): void
+    public function setMessage(string $message): self
     {
         $this->message = $message;
+        return $this;
     }
     public function getWriterId(): ?int
     {
         return $this->writer_id;
     }
-    public function setWriterId(?int $writer_id): void
+    public function setWriterId(?int $writer_id): self
     {
         $this->writer_id = $writer_id;
+        return $this;
     }
     public function getAssId(): int
     {
         return $this->ass_id;
     }
-    public function setAssId(int $ass_id): void
+    public function setAssId(int $ass_id): self
     {
         $this->ass_id = $ass_id;
+        return $this;
     }
     public function getShownFrom(): ?DateTimeImmutable
     {
         return $this->shown_from;
     }
-    public function setShownFrom(?DateTimeImmutable $shown_from): void
+    public function setShownFrom(?DateTimeImmutable $shown_from): self
     {
         $this->shown_from = $shown_from;
+        return $this;
     }
     public function getShownUntil(): ?DateTimeImmutable
     {
         return $this->shown_until;
     }
-    public function setShownUntil(?DateTimeImmutable $shown_until): void
+    public function setShownUntil(?DateTimeImmutable $shown_until): self
     {
         $this->shown_until = $shown_until;
+        return $this;
     }
 }

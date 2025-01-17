@@ -32,16 +32,18 @@ class CorrectorTaskPreference extends \Edutiek\AssessmentService\EssayTask\Data\
     {
         return $this->task_id;
     }
-    public function setTaskId(int $task_id): void
+    public function setTaskId(int $task_id): self
     {
         $this->task_id = $task_id;
+        return $this;
     }
     public function getCriterionCopy(): bool
     {
         return $this->criterion_copy;
     }
-    public function setCriterionCopy(bool $criterion_copy): void
+    public function setCriterionCopy(bool $criterion_copy): self
     {
         $this->criterion_copy = $criterion_copy;
+        return $this;
     }
 }

@@ -38,48 +38,54 @@ class CorrectorPoints extends \Edutiek\AssessmentService\EssayTask\Data\Correcto
     {
         return $this->id;
     }
-    public function setId(int $id): void
+    public function setId(int $id): self
     {
         $this->id = $id;
+        return $this;
     }
     public function getCommentId(): ?int
     {
         return $this->comment_id;
     }
-    public function setCommentId(?int $comment_id): void
+    public function setCommentId(?int $comment_id): self
     {
         $this->comment_id = $comment_id;
+        return $this;
     }
     public function getCriterionId(): ?int
     {
         return $this->criterion_id;
     }
-    public function setCriterionId(?int $criterion_id): void
+    public function setCriterionId(?int $criterion_id): self
     {
         $this->criterion_id = $criterion_id;
+        return $this;
     }
     public function getEssayId(): int
     {
         return $this->essay_id;
     }
-    public function setEssayId(int $essay_id): void
+    public function setEssayId(int $essay_id): self
     {
         $this->essay_id = $essay_id;
+        return $this;
     }
     public function getCorrectorId(): int
     {
         return $this->corrector_id;
     }
-    public function setCorrectorId(int $corrector_id): void
+    public function setCorrectorId(int $corrector_id): self
     {
         $this->corrector_id = $corrector_id;
+        return $this;
     }
     public function getPoints(): float
     {
         return $this->points;
     }
-    public function setPoints(float $points): void
+    public function setPoints(float $points): self
     {
         $this->points = $points;
+        return $this;
     }
 }

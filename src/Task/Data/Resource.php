@@ -40,64 +40,72 @@ class Resource extends \Edutiek\AssessmentService\Task\Data\Resource
     {
         return $this->id;
     }
-    public function setId(int $id): void
+    public function setId(int $id): self
     {
         $this->id = $id;
+        return $this;
     }
     public function getTaskId(): int
     {
         return $this->task_id;
     }
-    public function setTaskId(int $task_id): void
+    public function setTaskId(int $task_id): self
     {
         $this->task_id = $task_id;
+        return $this;
     }
     public function getTitle(): string
     {
         return $this->title;
     }
-    public function setTitle(string $title): void
+    public function setTitle(string $title): self
     {
         $this->title = $title;
+        return $this;
     }
     public function getDescription(): ?string
     {
         return $this->description;
     }
-    public function setDescription(?string $description): void
+    public function setDescription(?string $description): self
     {
         $this->description = $description;
+        return $this;
     }
     public function getUrl(): string
     {
         return $this->url;
     }
-    public function setUrl(string $url): void
+    public function setUrl(string $url): self
     {
         $this->url = $url;
+        return $this;
     }
     public function getType(): string
     {
         return $this->type;
     }
-    public function setType(string $type): void
+    public function setType(string $type): self
     {
         $this->type = $type;
+        return $this;
     }
     public function getAvailability(): string
     {
         return $this->availability;
     }
-    public function setAvailability(string $availability): void
+    public function setAvailability(string $availability): self
     {
         $this->availability = $availability;
+        return $this;
     }
     public function getFileId(): ?string
     {
         return $this->file_id;
     }
-    public function setFileId(?string $file_id): void
+    public function setFileId(?string $file_id): self
     {
         $this->file_id = $file_id;
+        return $this;
     }
 }

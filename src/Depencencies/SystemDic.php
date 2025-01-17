@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace ILIAS\Plugin\LongEssayAssessment\Dependencies;
 
 use ILIAS\Plugin\LongEssayAssessment\Data\RecordRepo\Generate;

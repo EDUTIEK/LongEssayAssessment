@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace ILIAS\Plugin\LongEssayAssessment\System\Data;
 
 use Edutiek\AssessmentService\System\Data\Config;

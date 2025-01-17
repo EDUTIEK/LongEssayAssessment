@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace ILIAS\Plugin\LongEssayAssessment\Common\Constraints;
 
 use ILIAS\Data;

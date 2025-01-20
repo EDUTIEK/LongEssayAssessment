@@ -43,8 +43,7 @@ class ilLongEssayAssessmentConfigGUI extends ilPluginConfigGUI
         $this->help = $DIC->help();
 
         $this->service = $this->plugin->dic()->system()->config();
-        $this->config = $this->service->readConfig();
-
+        $this->config = $this->service->getConfig();
 
         switch ($this->dic->ctrl()->getNextClass()) {
             case 'ilpropertyformgui':
@@ -88,7 +87,7 @@ class ilLongEssayAssessmentConfigGUI extends ilPluginConfigGUI
             $this->config->setSimulateOffline((bool) $form->getInput('simulate_offline'));
             $this->config->setPathToGhostscript((string) $form->getInput('path_to_ghostscript'));
 
-            $this->service->writeConfig($this->config);
+            $this->service->saveConfig($this->config);
 
             $this->tpl->setOnScreenMessage("success", $this->lng->txt("settings_saved"), true);
             $this->ctrl->redirect($this, 'configure');
@@ -118,7 +117,7 @@ class ilLongEssayAssessmentConfigGUI extends ilPluginConfigGUI
         $primary_text_color->setValue($this->config->getPrimaryTextColor());
         $form->addItem($primary_text_color);
 
-        $ghostscript = $this->plugin->getPathToGhostscript();
+        $ghostscript = $this->config->getPathToGhostscript();
         $used_info = sprintf($this->plugin->txt('ghostscript_used'),
             '<strong>' . (empty($ghostscript) ? $this->plugin->txt('ghostscript_imagick') : $ghostscript) . '</strong>');
 

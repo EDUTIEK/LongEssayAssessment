@@ -21,10 +21,10 @@ declare(strict_types=1);
 namespace ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo;
 
 use DateTimeImmutable;
-use ILIAS\Plugin\LongEssayAssessment\Data\RecordRepo\Attribute\Column;
-use ILIAS\Plugin\LongEssayAssessment\Data\RecordRepo\Attribute\Key;
-use ILIAS\Plugin\LongEssayAssessment\Data\RecordRepo\Attribute\Sequence;
-use ILIAS\Plugin\LongEssayAssessment\Data\RecordRepo\Attribute\Table;
+use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Column;
+use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Key;
+use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Sequence;
+use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Table;
 use ILIAS\UI\Implementation\Component\Input\Field\DateTime;
 use ilDBConstants;
 use Exception;

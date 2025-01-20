@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace ILIAS\Plugin\LongEssayAssessment\Dependencies;
 
-use ILIAS\Plugin\LongEssayAssessment\Data\RecordRepo\Generate;
+use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Generate;
 use ILIAS\Plugin\LongEssayAssessment\System\Data\SystemRepo;
 use ILIAS\DI\Container;
 

@@ -20,8 +20,8 @@ declare(strict_types=1);
 
 namespace ILIAS\Plugin\LongEssayAssessment\System\Data;
 
-use ILIAS\Plugin\LongEssayAssessment\Data\RecordRepo\Attribute\Key;
-use ILIAS\Plugin\LongEssayAssessment\Data\RecordRepo\Attribute\Table;
+use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Key;
+use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Table;
 
 #[Table(name: 'xlas_sy_config')]
 class Config extends \Edutiek\AssessmentService\System\Data\Config
@@ -80,22 +80,32 @@ class Config extends \Edutiek\AssessmentService\System\Data\Config
         $this->primary_text_color = $primary_text_color;
         return $this;
     }
-    public function getSimulateOffline(): int
+    public function getSimulateOffline(): bool
     {
         return $this->simulate_offline;
     }
-    public function setSimulateOffline(int $simulate_offline): self
+    public function setSimulateOffline(bool $simulate_offline): self
     {
         $this->simulate_offline = $simulate_offline;
         return $this;
     }
     public function getPathToGhostscript(): ?string
     {
-        return $this->path_to_ghostscript;
+        return $this->path_to_ghostscript ?? $this->getDefaultPathToGhostscript();
     }
     public function setPathToGhostscript(?string $path_to_ghostscript): self
     {
         $this->path_to_ghostscript = $path_to_ghostscript;
         return $this;
+    }
+
+    private function getDefaultPathToGhostscript() : ?string
+    {
+        if (defined('PATH_TO_GHOSTSCRIPT') && !empty(PATH_TO_GHOSTSCRIPT)) {
+            $path = PATH_TO_GHOSTSCRIPT;
+        } else {
+            $path = '/usr/bin/gs';
+        }
+        return (is_executable($path) ? $path : null);
     }
 }

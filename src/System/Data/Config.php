@@ -91,21 +91,11 @@ class Config extends \Edutiek\AssessmentService\System\Data\Config
     }
     public function getPathToGhostscript(): ?string
     {
-        return $this->path_to_ghostscript ?? $this->getDefaultPathToGhostscript();
+        return $this->path_to_ghostscript;
     }
     public function setPathToGhostscript(?string $path_to_ghostscript): self
     {
         $this->path_to_ghostscript = $path_to_ghostscript;
         return $this;
-    }
-
-    private function getDefaultPathToGhostscript() : ?string
-    {
-        if (defined('PATH_TO_GHOSTSCRIPT') && !empty(PATH_TO_GHOSTSCRIPT)) {
-            $path = PATH_TO_GHOSTSCRIPT;
-        } else {
-            $path = '/usr/bin/gs';
-        }
-        return (is_executable($path) ? $path : null);
     }
 }

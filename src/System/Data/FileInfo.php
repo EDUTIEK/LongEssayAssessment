@@ -1,0 +1,54 @@
+<?php
+
+namespace ILIAS\Plugin\LongEssayAssessment\System\Data;
+
+class FileInfo extends \Edutiek\AssessmentService\System\Data\FileInfo
+{
+    private ?string $id;
+    private ?string $mime;
+    private ?string $name;
+    private ?int $size;
+
+    public function getId(): ?string
+    {
+        return $this->id;
+    }
+
+    public function setId(?string $id): FileInfo
+    {
+        $this->id = $id;
+        return $this;
+    }
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
+
+    public function setName(?string $name): FileInfo
+    {
+        $this->name = $name;
+        return $this;
+    }
+
+    public function getMime(): ?string
+    {
+        return $this->mime;
+    }
+
+    public function setMime(?string $mime): FileInfo
+    {
+        $this->mime = $mime;
+        return $this;
+    }
+
+    public function getSize(): ?int
+    {
+        return $this->size;
+    }
+
+    public function setSize(?int $size): FileInfo
+    {
+        $this->size = $size;
+        return $this;
+    }
+}

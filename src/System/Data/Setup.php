@@ -26,6 +26,7 @@ class Setup extends \Edutiek\AssessmentService\System\Data\Setup
         private readonly string $system_name,
         private readonly string $frontends_base_url,
         private readonly string $backend_url,
+        private readonly string $default_path_to_ghostscript,
         private readonly string $absolute_temp_path,
         private readonly string $relative_temp_path
     ) {
@@ -56,4 +57,8 @@ class Setup extends \Edutiek\AssessmentService\System\Data\Setup
         return $this->relative_temp_path;
     }
 
+    public function getDefaultPathToGhostscript(): ?string
+    {
+        return $this->default_path_to_ghostscript;
+    }
 }

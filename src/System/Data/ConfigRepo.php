@@ -54,6 +54,7 @@ class ConfigRepo implements \Edutiek\AssessmentService\System\Data\ConfigRepo
                 $this->client_ini->readVariable('client', 'name'),
                 $this->getPluginHttpPath() . '/vendor/edutiek/assessment-service/node_modules',
                 $this->getPluginHttpPath() . '/rest.php',
+                $this->getDefaultPathToGhostscript(),
                 ILIAS_ABSOLUTE_PATH . '/' . ILIAS_WEB_DIR . '/' . CLIENT_ID . '/temp',
                 ILIAS_WEB_DIR . '/' . CLIENT_ID . '/temp'
             );
@@ -77,5 +78,19 @@ class ConfigRepo implements \Edutiek\AssessmentService\System\Data\ConfigRepo
         } else {
             return ILIAS_HTTP_PATH . '/' . $plugin_path;
         }
+    }
+
+    /**
+     * Get the default path of the ghostscript executable
+     * This is taken, if Config::getPathToGhostscript is not set
+     */
+    private function getDefaultPathToGhostscript() : ?string
+    {
+        if (defined('PATH_TO_GHOSTSCRIPT') && !empty(PATH_TO_GHOSTSCRIPT)) {
+            $path = PATH_TO_GHOSTSCRIPT;
+        } else {
+            $path = '/usr/bin/gs';
+        }
+        return (is_executable($path) ? $path : null);
     }
 }

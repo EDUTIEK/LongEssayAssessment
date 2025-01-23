@@ -121,7 +121,7 @@ class DatabaseRepository implements RepositoryInterface
 
         foreach ($this->model['properties'] as $property_name => $field) {
             if (isset($row[$field['db_name']])) {
-                $set($property_name, $this->stringTo($row[$field['db_name']], $field['class_type']));
+                $set($property_name, $this->dbToClassValue($row[$field['db_name']], $field['class_type']));
             }
         }
         return $instance;
@@ -135,7 +135,7 @@ class DatabaseRepository implements RepositoryInterface
 
         $row = [];
         foreach ($this->model['properties'] as $property_name => $field) {
-            $row[$field['db_name']] = [$field['db_type'], $this->stringFrom($get($property_name), $field['class_type'])];
+            $row[$field['db_name']] = [$field['db_type'], $this->classToDbValue($get($property_name), $field['class_type'])];
         }
 
         return $row;
@@ -166,30 +166,24 @@ class DatabaseRepository implements RepositoryInterface
         return $this->db->fetchAll($result);
     }
 
-    private function stringTo($value, string $type)
+    private function dbToClassValue($value, string $type)
     {
-        return match ($type) {
+        return match ($this->handleNullable($type)) {
+            null => null,
             'string' => (string) $value,
             'int' => (int) $value,
             'bool' => (bool) $value,
             'float' => (float) $value,
-            'DateTime', 'DateTimeImmutable' => new $type($value),
-            '?string' => $value ? (string) $value : null,
-            '?int' => $value === null ? null : (int) $value,
-            '?bool' => $value === null ? null : (bool) $value,
-            '?float' => $value === null ? null : (float) $value,
-            '?DateTime', '?DateTimeImmutable' => $value === null ? null : new $type($value),
+            DateTime::class, DateTimeImmutable::class => new $type($value),
             default => throw new Exception('Unsupported type: ' . $type),
         };
     }
 
-    private function stringFrom($value, string $type): ?string
+    private function classToDbValue($value, string $type): ?string
     {
-        return match ($type) {
+        return match ($this->handleNullable($type)) {
             'string', 'int', 'bool', 'float',  => (string) $value,
-            '?string', '?int', '?bool', '?float' => $value === null ? null : (string) $value,
             DateTime::class, DateTimeImmutable::class => $value->format('Y-m-d H:i:s'),
-            '?DateTime', '?DateTimeImmutable' => $value?->format('Y-m-d H:i:s'),
             default => throw new Exception('Unsupported type: ' . $type),
         };
     }
@@ -208,12 +202,23 @@ class DatabaseRepository implements RepositoryInterface
         $field = current($fields);
         $table = $this->table();
         $db = $this->db;
-        $convert = fn(int $val) => $this->stringFrom((string) $val, $field['class_type']);
+        $convert = fn(int $val) => $this->dbToClassValue((string) $val, $field['class_type']);
 
         (function () use ($db, $property, $table, $convert): void {
             if (empty($this->$property)) {
                 $this->$property = $convert($db->nextId($table));
             }
         })->bindTo($model, $model)();
+    }
+
+    private function handleNullable(string $type): ?string
+    {
+        if ($type[0] === '?') {
+            if ($value === null) {
+                return null;
+            }
+            return substr($type, 1);
+        }
+        return $type;
     }
 }

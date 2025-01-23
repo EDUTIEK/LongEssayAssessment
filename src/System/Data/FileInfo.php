@@ -19,23 +19,23 @@ class FileInfo extends \Edutiek\AssessmentService\System\Data\FileInfo
         $this->id = $id;
         return $this;
     }
-    public function getName(): ?string
+    public function getFileName(): ?string
     {
         return $this->name;
     }
 
-    public function setName(?string $name): FileInfo
+    public function setFileName(?string $name): FileInfo
     {
         $this->name = $name;
         return $this;
     }
 
-    public function getMime(): ?string
+    public function getMimeType(): ?string
     {
         return $this->mime;
     }
 
-    public function setMime(?string $mime): FileInfo
+    public function setMimeType(?string $mime): FileInfo
     {
         $this->mime = $mime;
         return $this;

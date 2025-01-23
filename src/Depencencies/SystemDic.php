@@ -10,11 +10,10 @@ use ILIAS\DI\Container;
 use ilLongEssayAssessmentPlugin;
 use Edutiek\AssessmentService\System\File\Storage;
 use Edutiek\AssessmentService\System\File\Delivery;
-use ILIAS\Plugin\LongEssayAssessment\Common\DeliveryWrapper;
-use ILIAS\ResourceStorage\StorageHandler\StorageHandlerFactory;
-use ILIAS\ResourceStorage\StorageHandler\FileSystemBased\MaxNestingFileSystemStorageHandler;
-use ILIAS\FileUpload\Location;
-use ILIAS\ResourceStorage\StorageHandler\FileSystemBased\FileSystemStorageHandler;
+use ILIAS\Plugin\LongEssayAssessment\System\File\DeliveryAdapter;
+use ILIAS\Plugin\LongEssayAssessment\System\File\StorageAdapter;
+use ILIAS\Plugin\LongEssayAssessment\System\File\Stakeholder;
+use InitResourceStorage;
 
 /**
  * Dependency Container for the System Api
@@ -34,19 +33,20 @@ class SystemDic implements \Edutiek\AssessmentService\System\Api\Dependencies
             );
         };
 
-        $dic[DeliveryWrapper::class] = function(Container $dic) {
-            return new DeliveryWrapper(
+        $dic[DeliveryAdapter::class] = function (Container $dic) {
+            return new DeliveryAdapter(
                 $dic->resourceStorage()->manage(),
-                new StorageHandlerFactory(
-                    [
-                        new MaxNestingFileSystemStorageHandler($dic->filesystem()->storage(), Location::STORAGE),
-                        new FileSystemStorageHandler($dic->filesystem()->storage(), Location::STORAGE)
-                    ],
-                    (defined('ILIAS_DATA_DIR') && defined('CLIENT_ID'))
-                        ? rtrim(ILIAS_DATA_DIR, "/") . "/" . CLIENT_ID
-                        : '-'
-                ),
+                $dic[InitResourceStorage::D_STORAGE_HANDLERS],
                 $dic->http()
+            );
+        };
+
+        $dic[StorageAdapter::class] = function (Container $dic) {
+            return new StorageAdapter(
+                $dic->resourceStorage()->manage(),
+                $dic->resourceStorage()->consume(),
+                $dic[InitResourceStorage::D_RESOURCE_BUILDER],
+                new Stakeholder(SYSTEM_USER_ID)
             );
         };
     }
@@ -58,11 +58,11 @@ class SystemDic implements \Edutiek\AssessmentService\System\Api\Dependencies
 
     public function fileStorage(): Storage
     {
-        // TODO: Implement fileStorage() method.
+        return $this->dic[StorageAdapter::class];
     }
 
     public function fileDelivery(): Delivery
     {
-        return $this->dic[DeliveryWrapper::class];
+        return $this->dic[DeliveryAdapter::class];
     }
 }

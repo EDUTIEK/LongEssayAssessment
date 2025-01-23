@@ -1,49 +1,30 @@
 <?php
 
-namespace ILIAS\Plugin\LongEssayAssessment\Common;
+namespace ILIAS\Plugin\LongEssayAssessment\System\File;
 
-use ILIAS\Plugin\LongEssayAssessment\BaseService;
 use ILIAS\ResourceStorage\Manager\Manager;
 use ILIAS\ResourceStorage\StorageHandler\StorageHandlerFactory;
 use ILIAS\FileDelivery\Delivery;
-use ILIAS\HTTP\GlobalHttpState;
+use ILIAS\HTTP\Services as HttpServices;
 use ILIAS\DI\Exceptions\Exception;
 use ILIAS\Filesystem\Stream\Streams;
-use ILIAS\FileDelivery\FileDeliveryTypes\DeliveryMethod;
-use ilUtil;
 use Edutiek\AssessmentService\System\File\Disposition;
 use Edutiek\AssessmentService\System\Data\FileInfo;
 
 /**
- * Wrapper of the ILIAS delivery functions for the assessment-service
+ * Adapter of the ILIAS delivery functions for the assessment-service
+ * Hides the complexity of the ILIAS IRSS
+ * Uses performance advantage of an activated XSenfile
  */
-class DeliveryWrapper implements \Edutiek\AssessmentService\System\File\Delivery
+readonly class DeliveryAdapter implements \Edutiek\AssessmentService\System\File\Delivery
 {
-    protected Manager $manager;
-    protected StorageHandlerFactory $handler_factory;
-    protected GlobalHttpState $http;
-
-    /**
-     * Constructor
-     */
     public function __construct(
-        Manager $manager,
-        StorageHandlerFactory $handler_factory,
-        GlobalHttpState $http
+        private Manager $manager,
+        private StorageHandlerFactory $handler_factory,
+        private HttpServices $http
     ) {
-        $this->manager = $manager;
-        $this->handler_factory = $handler_factory;
-        $this->http = $http;
     }
 
-    /**
-     * Deliver a file resource given by its id
-     * The file is delivered by the FileDelivery service
-     * This implementation takes advantage of an activated XSenfile instead of the streaming of the ResourceStorage service
-     *
-     * @param string $unique_id  the uuid of the resource
-     * @param string $disposition 'inline' or 'attachment'
-     */
     public function sendFile(string $id, Disposition $disposition): void
     {
         try {
@@ -56,10 +37,10 @@ class DeliveryWrapper implements \Edutiek\AssessmentService\System\File\Delivery
 
             $delivery = new Delivery($absolute_path, $this->http);
             $delivery->setDownloadFileName($resource->getCurrentRevision()->getTitle());
-            $delivery->setDisposition($disposition);
+            $delivery->setMimeType($resource->getCurrentRevision()->getInformation()->getMimeType());
+            $delivery->setDisposition($disposition->value);
             $delivery->deliver();
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             $response = $this->http->response()->withStatus(500);
             $stream = $response->getBody();
             $stream->write($e->getMessage());
@@ -70,26 +51,19 @@ class DeliveryWrapper implements \Edutiek\AssessmentService\System\File\Delivery
         }
     }
 
-
-    /**
-     * Deliver data as a file
-     * Wrapper for the deprecated ilUtil::deliverData
-     * @see ilUtil::deliverData()
-     */
     public function sendData(string $data, Disposition $disposition, ?FileInfo $info): void
     {
         try {
             $delivery = new Delivery(Delivery::DIRECT_PHP_OUTPUT, $this->http);
-            $delivery->setMimeType($info?->getMime() ?? 'application/octet-stream');
+            $delivery->setMimeType($info?->getMimeType() ?? 'application/octet-stream');
             $delivery->setSendMimeType(true);
-            $delivery->setDisposition(Delivery::DISP_ATTACHMENT);
-            $delivery->setDownloadFileName($info?->getName() ?? '');
+            $delivery->setDisposition($disposition->value);
+            $delivery->setDownloadFileName($info?->getFileName() ?? '');
             $delivery->setConvertFileNameToAsci(true);
-            $reponse = $this->http->response()->withBody(Streams::ofString($data));
-            $this->http->saveResponse($reponse);
+            $response = $this->http->response()->withBody(Streams::ofString($data));
+            $this->http->saveResponse($response);
             $delivery->deliver();
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             $response = $this->http->response()->withStatus(500);
             $stream = $response->getBody();
             $stream->write($e->getMessage());

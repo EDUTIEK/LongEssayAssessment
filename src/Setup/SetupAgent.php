@@ -10,10 +10,8 @@ use ILIAS\Setup\Objective;
 use ILIAS\Refinery\Transformation;
 use ILIAS\Setup\Metrics;
 use ILIAS\Setup\ObjectiveConstructor;
-use ILIAS\Refinery\Factory as Refinery;
 use ILIAS\Setup\NullConfig;
 use LogicException;
-use ILIAS\Setup\Environment;
 
 /**
  * New SetupAgent for the plugin LongEssayAssessment
@@ -80,7 +78,11 @@ class SetupAgent implements Agent
      */
     public function getBuildObjective(): Objective
     {
-        return new Objective\NullObjective();
+        return new Setup\ObjectiveCollection(
+            'ILIAS\Plugin\LongEssayAssessment',
+            true,
+            new EndpointsBuildObjective()
+        );
     }
 
     /**

@@ -23,6 +23,8 @@ namespace ILIAS\Plugin\LongEssayAssessment\Setup;
 use ILIAS\Setup\Objective;
 use ILIAS\Setup\Environment;
 use ilDBConstants;
+use ILIAS\Plugin\LongEssayAssessment\System\File\Stakeholder;
+use ILIAS\ResourceStorage\Stakeholder\Repository\StakeholderDBRepository;
 
 class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
 {
@@ -89,6 +91,27 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
         }
         $drop_me = array_unique($drop_me);
         array_map($this->db->dropTable(...), $drop_me);
+    }
+
+    public function step_4(): void
+    {
+        $stakeholder = new Stakeholder();
+        $qname = $stakeholder->getFullyQualifiedClassName();
+        $id = $stakeholder->getId();
+        $old_stkh = ['xlas_essay_image', 'xlas_essay', 'xlas_resource'];
+
+        // create new stakeholder if it does not exists
+        $this->db->manipulateF("REPLACE INTO " . StakeholderDBRepository::TABLE_NAME_REL . " VALUES (%s, %s)", ['text', 'text'], [$id, $qname]);
+
+        // migrate all files from stakeholder xlas_essay_image, xlas_essay, xlas_resource to the new stakeholder
+        $this->db->manipulate(
+            "UPDATE " . StakeholderDBRepository::TABLE_NAME
+            . " SET stakeholder_id = " . $this->db->quote($id, 'text')
+            . " WHERE " . $this->db->in('stakeholder_id', $old_stkh, false, 'text')
+        );
+
+        // remove old stakeholder xlas_essay_image, xlas_essay, xlas_resource
+        $this->db->manipulate("DELETE FROM " . StakeholderDBRepository::TABLE_NAME_REL . " WHERE " . $this->db->in('id', $old_stkh, false, 'text'));
     }
 
     private function dbType(string $type): string

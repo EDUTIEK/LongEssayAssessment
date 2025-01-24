@@ -103,7 +103,13 @@ class SetupAgent implements Agent
      */
     public function getMigrations(): array
     {
-        return [];
+        return [
+            #new StorageStakeholderMigration()
+            // This is not the way to migrate to the new Resource Stakeholder at the moment
+            // I want to keep this for now to demonstrate the difference between DBUpdateStep and Migration as I think a
+            // migration was originally intendet for a chenge in Stakholder.
+
+        ];
     }
 
     /**

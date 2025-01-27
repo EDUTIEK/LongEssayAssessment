@@ -15,6 +15,8 @@ use ILIAS\Plugin\LongEssayAssessment\System\Data\Config as ConfigModel;
 use ILIAS\Plugin\LongEssayAssessment\System\Data\Setup as SetupModel;
 use ilIniFile;
 use ilLongEssayAssessmentPlugin;
+use ilLanguage;
+use DateTimeZone;
 
 class ConfigRepo implements \Edutiek\AssessmentService\System\Data\ConfigRepo
 {
@@ -26,7 +28,8 @@ class ConfigRepo implements \Edutiek\AssessmentService\System\Data\ConfigRepo
         Generate $g,
         private readonly ilIniFile $client_ini,
         private readonly ilLongEssayAssessmentPlugin $plugin,
-        private readonly \ILIAS\Filesystem\Filesystem $web_fs
+        private readonly \ILIAS\Filesystem\Filesystem $web_fs,
+        private readonly ilLanguage $lng
     ) {
         $this->config_repo = new CacheRepository(new DatabaseRepository($db, $g->readModel(ConfigModel::class)));
     }
@@ -56,7 +59,9 @@ class ConfigRepo implements \Edutiek\AssessmentService\System\Data\ConfigRepo
                 $this->getPluginHttpPath() . '/rest.php',
                 $this->getDefaultPathToGhostscript(),
                 ILIAS_ABSOLUTE_PATH . '/' . ILIAS_WEB_DIR . '/' . CLIENT_ID . '/temp',
-                ILIAS_WEB_DIR . '/' . CLIENT_ID . '/temp'
+                ILIAS_WEB_DIR . '/' . CLIENT_ID . '/temp',
+                $this->lng->getDefaultLanguage(),
+                new DateTimeZone(date_default_timezone_get())
             );
         }
 
@@ -84,7 +89,7 @@ class ConfigRepo implements \Edutiek\AssessmentService\System\Data\ConfigRepo
      * Get the default path of the ghostscript executable
      * This is taken, if Config::getPathToGhostscript is not set
      */
-    private function getDefaultPathToGhostscript() : ?string
+    private function getDefaultPathToGhostscript(): ?string
     {
         if (defined('PATH_TO_GHOSTSCRIPT') && !empty(PATH_TO_GHOSTSCRIPT)) {
             $path = PATH_TO_GHOSTSCRIPT;

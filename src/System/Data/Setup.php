@@ -20,6 +20,8 @@ declare(strict_types=1);
 
 namespace ILIAS\Plugin\LongEssayAssessment\System\Data;
 
+use DateTimeZone;
+
 class Setup extends \Edutiek\AssessmentService\System\Data\Setup
 {
     public function __construct(
@@ -28,7 +30,9 @@ class Setup extends \Edutiek\AssessmentService\System\Data\Setup
         private readonly string $backend_url,
         private readonly string $default_path_to_ghostscript,
         private readonly string $absolute_temp_path,
-        private readonly string $relative_temp_path
+        private readonly string $relative_temp_path,
+        private readonly string $default_language,
+        private readonly DateTimeZone $default_timezone
     ) {
     }
 
@@ -60,5 +64,15 @@ class Setup extends \Edutiek\AssessmentService\System\Data\Setup
     public function getDefaultPathToGhostscript(): ?string
     {
         return $this->default_path_to_ghostscript;
+    }
+
+    public function getDefaultLanguage(): string
+    {
+        return $this->default_language;
+    }
+
+    public function getDefaultTimezone(): DateTimeZone
+    {
+        return $this->default_timezone;
     }
 }

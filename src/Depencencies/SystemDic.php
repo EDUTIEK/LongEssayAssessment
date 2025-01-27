@@ -6,6 +6,7 @@ namespace ILIAS\Plugin\LongEssayAssessment\Dependencies;
 
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Generate;
 use ILIAS\Plugin\LongEssayAssessment\System\Data\ConfigRepo;
+use ILIAS\Plugin\LongEssayAssessment\System\Data\UserRepo;
 use ILIAS\DI\Container;
 use ilLongEssayAssessmentPlugin;
 use Edutiek\AssessmentService\System\File\Storage;
@@ -14,6 +15,7 @@ use ILIAS\Plugin\LongEssayAssessment\System\File\DeliveryAdapter;
 use ILIAS\Plugin\LongEssayAssessment\System\File\StorageAdapter;
 use ILIAS\Plugin\LongEssayAssessment\System\File\Stakeholder;
 use InitResourceStorage;
+use ilUserQuery;
 
 /**
  * Dependency Container for the System Api
@@ -29,7 +31,17 @@ class SystemDic implements \Edutiek\AssessmentService\System\Api\Dependencies
                 $dic[Generate::class],
                 $dic->clientIni(),
                 $dic[ilLongEssayAssessmentPlugin::class],
-                $dic->filesystem()->web()
+                $dic->filesystem()->web(),
+                $dic->language()
+            );
+        };
+
+        $dic[UserRepo::class] = function (Container $dic) {
+            return new UserRepo(
+                $dic->database(),
+                $dic->language(),
+                $dic->user(),
+                new ilUserQuery()
             );
         };
 
@@ -64,5 +76,10 @@ class SystemDic implements \Edutiek\AssessmentService\System\Api\Dependencies
     public function fileDelivery(): Delivery
     {
         return $this->dic[DeliveryAdapter::class];
+    }
+
+    public function userRepo(): UserRepo
+    {
+        return $this->dic[UserRepo::class];
     }
 }

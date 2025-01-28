@@ -12,6 +12,7 @@ use PHPUnit\Exception;
 use DateTimeZone;
 use ilObjUser;
 use ilLanguage;
+use ilUserUtil;
 
 class UserRepo implements \Edutiek\AssessmentService\System\Data\UserRepo
 {
@@ -19,7 +20,8 @@ class UserRepo implements \Edutiek\AssessmentService\System\Data\UserRepo
         private ilDBInterface $db,
         private readonly ilLanguage $lng,
         private ilObjUser $user,
-        private ilUserQuery $user_query
+        private ilUserQuery $user_query,
+        private ilUserUtil $user_util
     ) {
     }
 
@@ -47,6 +49,51 @@ class UserRepo implements \Edutiek\AssessmentService\System\Data\UserRepo
             $this->user->getLanguage(),
             new DateTimeZone($this->user->getTimeZone())
         );
+    }
+
+    public function getUserDisplay(int $id, ?string $back_link): UserDisplay
+    {
+        $result = $this->user_util::getNamePresentation(
+            $id,
+            true,
+            true,
+            (string) $back_link,
+            false,
+            false,
+            false,
+            true
+        );
+
+        return new UserDisplay(
+            $id,
+            $data['img'] ?? null,
+            $data['link'] ?? null
+        );
+    }
+
+    public function getUserDisplaysByIds(array $ids, ?string $back_link): array
+    {
+        $result = $this->user_util::getNamePresentation(
+            $ids,
+            true,
+            true,
+            (string) $back_link,
+            false,
+            false,
+            false,
+            true
+        );
+
+        $displays = [];
+        foreach ($ids as $id) {
+            $displays[$id] = new UserDisplay(
+                $id,
+                $data[$id]['img'] ?? null,
+                $data[$id]['link'] ?? null
+            );
+        }
+
+        return $displays;
     }
 
     /**

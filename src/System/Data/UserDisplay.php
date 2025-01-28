@@ -9,8 +9,7 @@ readonly class UserDisplay extends \Edutiek\AssessmentService\System\Data\UserDi
     public function __construct(
         private int $id,
         private ?string $image_url = null,
-        private ?string $embedded_profile_url = null,
-        private ?string $linked_profile_url = null
+        private ?string $profile_url = null
     ) {
     }
 
@@ -24,13 +23,8 @@ readonly class UserDisplay extends \Edutiek\AssessmentService\System\Data\UserDi
         return $this->image_url;
     }
 
-    public function getEmbeddedProfileUrl(): ?string
+    public function getProfileUrl(string $return_url): ?string
     {
-        return $this->embedded_profile_url;
-    }
-
-    public function getLinkedProfileUrl(string $return_url): ?string
-    {
-        return $this->linked_profile_url;
+        return $this->profile_url;
     }
 }

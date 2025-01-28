@@ -794,17 +794,18 @@ class CorrectorAdminService extends BaseService
 
     public function removeAuthorizations(Writer $writer) : bool
     {
-        global $DIC;
-
         if (empty($essay = $this->essayRepo->getEssayByWriterIdAndTaskId($writer->getId(), $writer->getTaskId()))) {
             return false;
         }
+
+        $changed = false;
 
         // remove finalized status
         if (!empty($essay->getCorrectionFinalized())) {
             $essay->setCorrectionFinalized(null);
             $essay->setCorrectionFinalizedBy(null);
             $this->essayRepo->save($essay);
+            $changed = true;
         }
 
         // remove authorizations
@@ -812,10 +813,14 @@ class CorrectorAdminService extends BaseService
             $summary->setCorrectionAuthorized(null);
             $summary->setCorrectionAuthorizedBy(null);
             $this->essayRepo->save($summary);
+            $changed = true;
         }
 
-        $this->loggingService->addEntry(LogEntry::TYPE_CORRECTION_REMOVE_AUTHORIZATION, $this->dic->user()->getId(), $writer->getUserId());
-        return true;
+        if ($changed) {
+            $this->loggingService->addEntry(LogEntry::TYPE_CORRECTION_REMOVE_AUTHORIZATION, $this->dic->user()->getId(), $writer->getUserId());
+        }
+
+        return $changed;
     }
 
     /**

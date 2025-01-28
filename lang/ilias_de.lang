@@ -384,7 +384,10 @@ criteria_mode_none_info#:#Es werden zur Bewertung keine Kriterien vorgegeben. Te
 criteria_mode_fixed#:#einheitliche Bewertungskriterien
 criteria_mode_fixed_info#:#Die Bewertungskriterien werden für alle Korrekturkräfte einheitlich vorgegeben. Teilpunkte werden nach Kriterium aufgeschlüsselt eingegeben.
 criteria_mode_corrector#:#persönliche Bewertungskriterien
-criteria_mode_corrector_info#:#Die Bewertungskriterien können von der Korrekturkraft selbst erstellt und mit anderen geteilt werden. Im Bereich »Bewertungskriterien« kann eine Vorlage für alle Korrekturkräfte erstellt werden. Teilpunkte werden nach Kriterium aufgeschlüsselt eingegeben.
+criteria_mode_corrector_info#:#Die Bewertungskriterien können von der Korrekturkraft selbst erstellt und mit anderen geteilt werden. Es können zentrale Kriterien als Vorlage für alle Korrekturkräfte erstellt werden. Teilpunkte werden nach Kriterium aufgeschlüsselt eingegeben.
+criteria_mode_change_from_none_message#:#Wenn Sie die Einstellung ändern, werden bereits vergebene Punkte verworfen und alle Korrektur-Autorisierungen zurückgenommen.
+criteria_mode_change_from_fixed_message#:#Wenn Sie die Einstellung auf "Keine Bewertungskriterien" ändern, werden Punkte bei Anmerkungen zusammengefasst und Punkte zu Kopfnoten verworfen. Alle Korrektur-Autorisierungen werden zurückgenommen. Wenn Sie die Einstellung auf "persönliche Bewerungskriterien ändern" werden die bisherigen Kriterien für alle Korrektoren übernommen.
+criteria_mode_change_from_corrector_message#:#Wenn Sie die Einstellung auf "Keine Bewertungskriterien" ändern, werden Punkte bei Anmerkungen zusammengefasst und Punkte zu Kopfnoten verworfen. Wenn Sie die Einstellung auf "einheitliche Bewertungskriterien" ändern, werden alle Punkte verworfen. Alle Korrektur-Autorisierungen werden zurückgenommen.
 criteria#:#Bewertungskriterien
 criteria_add#:#Kriterium hinzufügen
 criteria_edit#:#Kriterium bearbeiten

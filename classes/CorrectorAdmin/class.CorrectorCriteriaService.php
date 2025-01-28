@@ -7,37 +7,47 @@ use ILIAS\Plugin\LongEssayAssessment\Data\Object\ObjectRepository;
 use ILIAS\Plugin\LongEssayAssessment\Data\Essay\EssayRepository;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\CorrectionSettings;
 use ILIAS\Plugin\LongEssayAssessment\Data\Essay\CorrectorPoints;
+use ILIAS\Plugin\LongEssayAssessment\BaseService;
 
-class CorrectorCriteriaService
+class CorrectorCriteriaService extends BaseService
 {
-    public function __construct(
-        private ObjectRepository $object_repo,
-        private CorrectorRepository $corrector_repo,
-        private EssayRepository $essay_repo
-    ) {
+    private ObjectRepository $object_repo;
+    private CorrectorRepository $corrector_repo;
+    private EssayRepository $essay_repo;
+
+    private int $task_id;
+
+    public function __construct(int $task_id)
+    {
+        parent::__construct();
+        $this->task_id = $task_id;
+        
+        $this->object_repo = $this->localDI->getObjectRepo();
+        $this->corrector_repo = $this->localDI->getCorrectorRepo();
+        $this->essay_repo = $this->localDI->getEssayRepo();
     }
 
-    public function changeCriteriaMode(int $task_id, string $old_mode, string $new_mode)
+    public function changeCriteriaMode(string $old_mode, string $new_mode)
     {
         switch ($old_mode. '->' . $new_mode) {
             case CorrectionSettings::CRITERIA_MODE_NONE . '->' . CorrectionSettings::CRITERIA_MODE_FIXED:
             case CorrectionSettings::CRITERIA_MODE_NONE . '->' . CorrectionSettings::CRITERIA_MODE_CORRECTOR:
-                $this->purgeAllPoints($task_id);
+                $this->purgeAllPoints();
                 break;
 
             case CorrectionSettings::CRITERIA_MODE_FIXED . '->' . CorrectionSettings::CRITERIA_MODE_NONE:
             case CorrectionSettings::CRITERIA_MODE_CORRECTOR . '->' . CorrectionSettings::CRITERIA_MODE_NONE:
-                $this->purgeCriteriaInPoints($task_id);
-                $this->deleteAllCriteria($task_id);
+                $this->purgeCriteriaInPoints();
+                $this->deleteAllCriteria();
                 break;
 
             case CorrectionSettings::CRITERIA_MODE_FIXED . '->' . CorrectionSettings::CRITERIA_MODE_CORRECTOR:
-                $this->distributeFixedCriteriaWithPoints($task_id);
+                $this->distributeFixedCriteriaWithPoints();
                 break;
 
             case CorrectionSettings::CRITERIA_MODE_CORRECTOR . '->' . CorrectionSettings::CRITERIA_MODE_FIXED:
-                $this->purgeAllPoints($task_id);
-                $this->deletePersonalCriteria($task_id);
+                $this->purgeAllPoints();
+                $this->deletePersonalCriteria();
                 break;
         }
     }
@@ -45,9 +55,9 @@ class CorrectorCriteriaService
     /**
      * Purge all points given by correctors in the task
      */
-    private function purgeAllPoints(int $task_id)
+    private function purgeAllPoints()
     {
-        foreach ($this->essay_repo->getEssaysByTaskId($task_id) as $essay) {
+        foreach ($this->essay_repo->getEssaysByTaskId($this->task_id) as $essay) {
             $this->essay_repo->deleteCorrectorPointsByEssayId($essay->getId());
         }
     }
@@ -55,17 +65,17 @@ class CorrectorCriteriaService
     /**
      * Copy general criteria to the correctors and re-assign the points
      */
-    private function distributeFixedCriteriaWithPoints(int $task_id)
+    private function distributeFixedCriteriaWithPoints()
     {
 
         $fixed_criteria = [];
-        foreach ($this->object_repo->getRatingCriteriaByObjectId($task_id) as $criterion) {
+        foreach ($this->object_repo->getRatingCriteriaByObjectId($this->task_id) as $criterion) {
             if ($criterion->getCorrectorId() === null) {
                 $fixed_criteria[$criterion->getId()] = $criterion;
             }
         }
 
-        foreach ($this->corrector_repo->getCorrectorsByTaskId($task_id) as $corrector) {
+        foreach ($this->corrector_repo->getCorrectorsByTaskId($this->task_id) as $corrector) {
 
             $matching = [];
             foreach ($fixed_criteria as $criterion) {
@@ -76,7 +86,7 @@ class CorrectorCriteriaService
                 $matching[$criterion->getId()] = $corr_criterion->getId();
             }
 
-            foreach ($this->essay_repo->getEssaysByTaskId($task_id) as $essay) {
+            foreach ($this->essay_repo->getEssaysByTaskId($this->task_id) as $essay) {
                 foreach ($this->essay_repo->getCorrectorPointsByEssayIdAndCorrectorId(
                     $essay->getId(), $corrector->getId()) as $points) {
                     if (isset($matching[$points->getCriterionId()])) {
@@ -96,10 +106,10 @@ class CorrectorCriteriaService
      * Sum up criteria points that are assigned to comments
      * Delete the points that are only assigned to criteria
      */
-    private function purgeCriteriaInPoints(int $task_id)
+    private function purgeCriteriaInPoints()
     {
-        foreach ($this->corrector_repo->getCorrectorsByTaskId($task_id) as $corrector) {
-            foreach ($this->essay_repo->getEssaysByTaskId($task_id) as $essay) {
+        foreach ($this->corrector_repo->getCorrectorsByTaskId($this->task_id) as $corrector) {
+            foreach ($this->essay_repo->getEssaysByTaskId($this->task_id) as $essay) {
 
                 $comment_points = [];
                 foreach ($this->essay_repo->getCorrectorPointsByEssayIdAndCorrectorId(
@@ -126,18 +136,18 @@ class CorrectorCriteriaService
     /**
      * Delete all general and personal rating criteria
      */
-    private function deleteAllCriteria($task_id)
+    private function deleteAllCriteria()
     {
-        $this->object_repo->deleteRatingCriterionByObjectId($task_id);
+        $this->object_repo->deleteRatingCriterionByObjectId($this->task_id);
     }
 
     /**
      * Delete the individual rating criteria of correctors
      */
-    private function deletePersonalCriteria($task_id)
+    private function deletePersonalCriteria()
     {
-        foreach ($this->corrector_repo->getCorrectorsByTaskId($task_id) as $corrector) {
-            $this->object_repo->deleteRatingCriterionByObjectIdAndCorrectorId($task_id, $corrector->getId());
+        foreach ($this->corrector_repo->getCorrectorsByTaskId($this->task_id) as $corrector) {
+            $this->object_repo->deleteRatingCriterionByObjectIdAndCorrectorId($this->task_id, $corrector->getId());
         }
     }
 }

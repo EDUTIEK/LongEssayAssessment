@@ -4,11 +4,17 @@
 Plugin:
 - Configure and adapt time limit
 - Export and import of long essay assessments
+- Support general rating criteria which are not assigned to comments
+- Move settings for rating criteria to the criteria tab
+- Prevent editing of criteria when authorized corrections exist
+- Handle existing points when mode for rating criteria is changed
 
 Corrector Web app:
 - Replace layout table for paragraph numbers
 - Improve comment layout
 - Improve keyboard navigation between essay, comments and criteria points
+- Support general rating criteria which are not assigned to comments
+- Improve sum of partial points and authorization warning
 
 Bug fixes:
 - Fix missing download extension of converted text submission

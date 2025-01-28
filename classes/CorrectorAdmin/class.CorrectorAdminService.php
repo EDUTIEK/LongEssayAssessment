@@ -460,16 +460,42 @@ class CorrectorAdminService extends BaseService
         return false;
     }
 
-    public function authorizedCorrectionsExists(): bool
+    /**
+     * Check if finalized corrections exist either for a corrector or for the whole task
+     */
+    public function finalizedCorrectionsExist($corrector_id = null): bool
     {
-        $c_auth = 0;
-
-        foreach($this->essayRepo->getCorrectorSummariesByTaskId($this->task_id) as $summary) {
-            if($summary->getCorrectionAuthorized() !== null) {
-                $c_auth++;
+        $writer_ids = null;
+        if ($corrector_id !== null) {
+            $writer_ids = [];
+            foreach ($this->correctorRepo->getAssignmentsByCorrectorId($corrector_id) as $assignment) {
+                $writer_ids[] = $assignment->getWriterId();
             }
         }
-        return $c_auth > 0;
+
+        $count = 0;
+        foreach($this->essayRepo->getEssaysByTaskId($this->task_id) as $essay) {
+            if($essay->getCorrectionFinalized() !== null
+                && ($writer_ids === null || in_array($essay->getWriterId(), $writer_ids))) {
+                $count++;
+            }
+        }
+        return $count > 0;
+    }
+
+    /**
+     * Check if authorized corrections exist either for a corrector or for the whole task
+     */
+    public function authorizedCorrectionsExists($corrector_id = null): bool
+    {
+        $count = 0;
+        foreach($this->essayRepo->getCorrectorSummariesByTaskId($this->task_id) as $summary) {
+            if ($summary->getCorrectionAuthorized() !== null
+            && ($corrector_id === null || $summary->getCorrectorId() == $corrector_id)) {
+                $count++;
+            }
+        }
+        return $count > 0;
     }
 
     public function recalculateGradeLevel()

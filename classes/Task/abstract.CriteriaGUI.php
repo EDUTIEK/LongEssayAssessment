@@ -47,31 +47,38 @@ abstract class CriteriaGUI extends BaseGUI
     public function executeCommand()
     {
         $cmd = $this->ctrl->getCmd('showItems');
-        switch ($cmd) {
-            case 'showItems':
-            case 'saveItemAsync':
-            case 'deleteItems':
-                $this->$cmd();
-                break;
-            case 'copyItems':
-            case 'publishRatingCriterion':
-            case 'previewItemsAsync':
-                if($this->allowCopyInContext()) {
-                    $this->$cmd();
-                } else {
-                    $this->tpl->setContent('not allowed command: ' . $cmd);
-                }
-                break;
-            case 'settingsAsync':
-                if($this->allowSettingsInContext()) {
-                    $this->$cmd();
-                } else {
-                    $this->tpl->setContent('not allowed command: ' . $cmd);
-                }
-                break;
 
-            default:
-                $this->tpl->setContent('unknown command: ' . $cmd);
+        if (!in_array($cmd, ['showItems', 'publishRatingCriterion', 'previewItemsAsync']) &&
+            $this->admin_service->authorizedCorrectionsExists($this->getCorrectorIdFromContext())) {
+            $this->tpl->setContent('not allowed command: ' . $cmd);
+        }
+        else {
+            switch ($cmd) {
+                case 'showItems':
+                case 'saveItemAsync':
+                case 'deleteItems':
+                    $this->$cmd();
+                    break;
+                case 'copyItems':
+                case 'publishRatingCriterion':
+                case 'previewItemsAsync':
+                    if($this->allowCopyInContext()) {
+                        $this->$cmd();
+                    } else {
+                        $this->tpl->setContent('not allowed command: ' . $cmd);
+                    }
+                    break;
+                case 'settingsAsync':
+                    if($this->allowSettingsInContext()) {
+                        $this->$cmd();
+                    } else {
+                        $this->tpl->setContent('not allowed command: ' . $cmd);
+                    }
+                    break;
+
+                default:
+                    $this->tpl->setContent('unknown command: ' . $cmd);
+            }
         }
     }
 
@@ -86,9 +93,27 @@ abstract class CriteriaGUI extends BaseGUI
 
     public function showItems()
     {
+        $changes_allowed = true;
+        if (!empty($corrector_id = $this->getCorrectorIdFromContext())) {
+            if ($this->admin_service->finalizedCorrectionsExist($corrector_id)) {
+                $this->tpl->setOnScreenMessage(ilGlobalTemplate::MESSAGE_TYPE_INFO, $this->plugin->txt('criteria_corrector_finalized_message'));
+                $changes_allowed = false;
+            }
+            elseif($this->admin_service->authorizedCorrectionsExists($corrector_id)) {
+                $this->tpl->setOnScreenMessage(ilGlobalTemplate::MESSAGE_TYPE_INFO, $this->plugin->txt('criteria_corrector_authorized_message'));
+                $changes_allowed = false;
+            }
+        }
+        else {
+            if ($this->admin_service->authorizedCorrectionsExists()) {
+                $this->tpl->setOnScreenMessage(ilGlobalTemplate::MESSAGE_TYPE_INFO, $this->plugin->txt('criteria_admin_authorized_message'));
+                $changes_allowed = false;
+            }
+        }
+
         $components = [];
 
-        if ($this->settings->getCriteriaMode() !== CorrectionSettings::CRITERIA_MODE_NONE) {
+        if ($this->settings->getCriteriaMode() !== CorrectionSettings::CRITERIA_MODE_NONE && $changes_allowed) {
             $components[] = $create_modal = $this->uiFactory->modal()->roundtrip("", [])->withAsyncRenderUrl(
                 $this->ctrl->getLinkTarget($this, $this->ctrl->getLinkTarget($this, "saveItemAsync"))
             );
@@ -101,28 +126,33 @@ abstract class CriteriaGUI extends BaseGUI
         if ($this->allowSettingsInContext()) {
             switch($this->settings->getCriteriaMode()) {
                 case CorrectionSettings::CRITERIA_MODE_NONE:
-                    $this->tpl->setOnScreenMessage(ilGlobalTemplate::MESSAGE_TYPE_INFO, $this->plugin->txt('criteria_mode_none_info'));
+                    $mode_message = $this->plugin->txt('criteria_mode_none_info');
                     break;
                 case CorrectionSettings::CRITERIA_MODE_FIXED:
-                    $this->tpl->setOnScreenMessage(ilGlobalTemplate::MESSAGE_TYPE_INFO, $this->plugin->txt('criteria_mode_fixed_info'));
+                    $mode_message = $this->plugin->txt('criteria_mode_fixed_info');
                     break;
                 case CorrectionSettings::CRITERIA_MODE_CORRECTOR:
-                    $this->tpl->setOnScreenMessage(ilGlobalTemplate::MESSAGE_TYPE_INFO, $this->plugin->txt('criteria_mode_corrector_info'));
+                    $mode_message = $this->plugin->txt('criteria_mode_corrector_info');
                     break;
             }
+            $components[] = $this->uiFactory->panel()->standard($this->plugin->txt('criteria_mode'), $this->uiFactory->legacy($mode_message));
 
-            $components[] = $settings_modal = $this->uiFactory->modal()->roundtrip("", [])->withAsyncRenderUrl(
-                $this->ctrl->getLinkTarget($this, $this->ctrl->getLinkTarget($this, "settingsAsync"))
-            );
 
-            $this->toolbar->addComponent(
-                $this->uiFactory->button()->standard($this->lng->txt("settings"), "")
-                                ->withOnClick($settings_modal->getShowSignal())
-            );
+            if ($changes_allowed) {
+                $components[] = $settings_modal = $this->uiFactory->modal()->roundtrip("", [])->withAsyncRenderUrl(
+                    $this->ctrl->getLinkTarget($this, $this->ctrl->getLinkTarget($this, "settingsAsync"))
+                );
+
+                $this->toolbar->addComponent(
+                    $this->uiFactory->button()->standard($this->lng->txt("settings"), "")
+                                    ->withOnClick($settings_modal->getShowSignal())
+                );
+            }
+
         }
 
         if ($this->settings->getCriteriaMode() !== CorrectionSettings::CRITERIA_MODE_NONE) {
-            $this->addCopyToolbar();
+            $this->addCopyToolbar($changes_allowed);
 
             $items = [];
             foreach ($this->getRatingCriterionFromContext() as $criterion) {
@@ -130,22 +160,40 @@ abstract class CriteriaGUI extends BaseGUI
                 $components[] = $edit_modal = $this->uiFactory->modal()->roundtrip("", [])
                                                               ->withAsyncRenderUrl($this->ctrl->getLinkTarget($this, "saveItemAsync"));
 
-                $items[] = $this->custom_factory->item()->formItem($this->buildItemTitle($criterion))
-                                                ->withName($criterion->getId())
-                                                ->withNoLead()
-                                                ->withDescription(nl2br($criterion->getDescription() ?? ''))
-                                                ->withActions($this->uiFactory->dropdown()->standard([
-                                                    $this->uiFactory->button()->shy($this->lng->txt("edit"), "")->withOnClick($edit_modal->getShowSignal()),
-                                                    $this->uiFactory->button()->shy($this->lng->txt("remove"), $this->ctrl->getLinkTarget($this, "deleteItems"))
-                                                ]));
+
+                if ($changes_allowed) {
+                    $item = $this->custom_factory->item()->formItem($this->buildItemTitle($criterion))
+                                                 ->withName($criterion->getId())
+                                                 ->withNoLead()
+                                                 ->withDescription(nl2br($criterion->getDescription() ?? ''))
+                                                 ->withActions($this->uiFactory->dropdown()->standard([
+                                                     $this->uiFactory->button()->shy($this->lng->txt("edit"), "")->withOnClick($edit_modal->getShowSignal()),
+                                                     $this->uiFactory->button()->shy($this->lng->txt("remove"), $this->ctrl->getLinkTarget($this, "deleteItems"))
+                                                 ]));
+                }
+                else {
+                    $item = $this->uiFactory->item()->standard($this->buildItemTitle($criterion))
+                        ->withNoLead()
+                        ->withDescription(nl2br($criterion->getDescription() ?? ''));
+                }
+
+                $items[] = $item;
+
             }
             $this->ctrl->clearParameters($this);
 
-            $components[] = $this->custom_factory->item()->formGroup(
-                $this->plugin->txt("criteria"),
-                $items,
-                $this->ctrl->getLinkTarget($this, "deleteItems")
-            )->withActionLabel($this->lng->txt('remove'));
+            if (!empty($items)) {
+                if ($changes_allowed) {
+                    $components[] = $this->custom_factory->item()->formGroup(
+                        $this->plugin->txt("criteria"),
+                        $items,
+                        $this->ctrl->getLinkTarget($this, "deleteItems")
+                    )->withActionLabel($this->lng->txt('remove'));
+                }
+                else {
+                    $components[] = $this->uiFactory->item()->group($this->plugin->txt("criteria"), $items);
+                }
+            }
         }
 
         $this->tpl->setContent($this->renderer->render($components));
@@ -252,7 +300,7 @@ abstract class CriteriaGUI extends BaseGUI
             $form = $form->withRequest($this->request);
 
             if(!empty($data = $form->getData())) {
-                if (!empty($item->getId())) {
+                if (empty($item->getId())) {
                     $item->setIsGeneral($data['is_general']);
                 }
                 $item->setTitle($data['title']);
@@ -459,12 +507,12 @@ abstract class CriteriaGUI extends BaseGUI
         $this->ctrl->redirect($this, "showItems");
     }
 
-    protected function addCopyToolbar()
+    protected function addCopyToolbar(bool $changes_allowed)
     {
         if($this->allowCopyInContext() && $this->getCorrectorIdFromContext() !== null) {
             $corrector = $this->corrector_repo->getCorrectorById($this->getCorrectorIdFromContext());
             $select = $this->copyGroupSelect();
-            if(!empty($select->getOptions())) {
+            if($changes_allowed && !empty($select->getOptions())) {
                 $modal = $this->uiFactory->modal()->roundtrip("", [])->withAsyncRenderUrl("#");
                 $signal = new Signal(str_replace(".", "_", uniqid('il_signal_', true)));
                 $preview_link = $this->ctrl->getLinkTarget($this, "previewItemsAsync", "", true);

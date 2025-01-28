@@ -27,6 +27,9 @@ class CorrectorCriteriaService extends BaseService
         $this->essay_repo = $this->localDI->getEssayRepo();
     }
 
+    /**
+     * Do the neccessary cleanup if the criteria mode is changed
+     */
     public function changeCriteriaMode(string $old_mode, string $new_mode)
     {
         switch ($old_mode. '->' . $new_mode) {
@@ -42,7 +45,7 @@ class CorrectorCriteriaService extends BaseService
                 break;
 
             case CorrectionSettings::CRITERIA_MODE_FIXED . '->' . CorrectionSettings::CRITERIA_MODE_CORRECTOR:
-                $this->distributeFixedCriteriaWithPoints();
+                $this->copyFixedCriteriaWithPoints();
                 break;
 
             case CorrectionSettings::CRITERIA_MODE_CORRECTOR . '->' . CorrectionSettings::CRITERIA_MODE_FIXED:
@@ -65,7 +68,7 @@ class CorrectorCriteriaService extends BaseService
     /**
      * Copy general criteria to the correctors and re-assign the points
      */
-    private function distributeFixedCriteriaWithPoints()
+    private function copyFixedCriteriaWithPoints()
     {
 
         $fixed_criteria = [];
@@ -95,10 +98,6 @@ class CorrectorCriteriaService extends BaseService
                     }
                 }
             }
-        }
-
-        foreach ($fixed_criteria as $criterion) {
-            $this->object_repo->deleteRatingCriterion($criterion->getId());
         }
     }
 

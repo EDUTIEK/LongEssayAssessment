@@ -16,6 +16,7 @@ use ILIAS\Plugin\LongEssayAssessment\System\File\StorageAdapter;
 use ILIAS\Plugin\LongEssayAssessment\System\File\Stakeholder;
 use InitResourceStorage;
 use ilUserQuery;
+use ilUserUtil;
 
 /**
  * Dependency Container for the System Api
@@ -41,7 +42,8 @@ class SystemDic implements \Edutiek\AssessmentService\System\Api\Dependencies
                 $dic->database(),
                 $dic->language(),
                 $dic->user(),
-                new ilUserQuery()
+                new ilUserQuery(),
+                new ilUserUtil()
             );
         };
 

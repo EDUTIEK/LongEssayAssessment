@@ -6,6 +6,10 @@ namespace ILIAS\Plugin\LongEssayAssessment\Dependencies;
 
 use Edutiek\AssessmentService\System\Api\Factory as SystemFactory;
 use Edutiek\AssessmentService\System\Api\ForClients as SystemApi;
+use Edutiek\AssessmentService\Assessment\Api\Factory as AssessmentFactory;
+use Edutiek\AssessmentService\Assessment\Api\ForClients as AssessmentApi;
+use Edutiek\AssessmentService\Assessment\Api\ForRest as RestApi;
+
 use ILIAS\DI\Container;
 use ILIAS\Plugin\LongEssayAssessment\Common\Constraints\DataConstraints;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Generate;
@@ -107,9 +111,18 @@ class PluginDic
             return new SystemDic($dic);
         };
 
-        $dic[SystemApi::class] = function (Container $dic) {
-            return (new SystemFactory($dic[SystemDic::class]))->forClients();
+        $dic[SystemFactory::class] = function (Container $dic) {
+            return (new SystemFactory($dic[SystemDic::class]));
         };
+
+        $dic[AssessmentDic::class] = function (Container $dic) {
+            return new AssessmentDic($dic);
+        };
+
+        $dic[AssessmentFactory::class] = function (Container $dic) {
+            return (new AssessmentFactory($dic[AssessmentDic::class]));
+        };
+
     }
 
     public function constraints() : DataConstraints
@@ -139,7 +152,16 @@ class PluginDic
 
     public function system(): SystemApi
     {
-        return $this->dic[SystemApi::class];
+        return ($this->dic[SystemFactory::class])->forClients();
     }
 
+    public function assessment(int $ass_id, int $context_id): AssessmentApi
+    {
+        return ($this->dic[AssessmentFactory::class])->forClients($ass_id, $context_id);
+    }
+
+    public function rest(int $ass_id, int $context_id): RestApi
+    {
+        return ($this->dic[AssessmentFactory::class])->forClients($ass_id, $context_id);
+    }
 }

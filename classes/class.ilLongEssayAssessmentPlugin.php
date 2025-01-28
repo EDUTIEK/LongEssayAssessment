@@ -153,7 +153,7 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
             'xlas_corrector_prefs',
             'xlas_corrector_summary',
             'xlas_corr_setting',
-            'xlas_crit_points',
+            'xlas_corrector_points',
             'xlas_editor_settings',
             'xlas_essay',
             'xlas_essay_image',

@@ -36,4 +36,9 @@ class CriteriaAdminGUI extends CriteriaGUI
     {
         return false;
     }
+
+    protected function allowSettingsInContext(): bool
+    {
+        return true;
+    }
 }

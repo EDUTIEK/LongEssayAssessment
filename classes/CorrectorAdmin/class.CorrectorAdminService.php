@@ -460,16 +460,42 @@ class CorrectorAdminService extends BaseService
         return false;
     }
 
-    public function authorizedCorrectionsExists(): bool
+    /**
+     * Check if finalized corrections exist either for a corrector or for the whole task
+     */
+    public function finalizedCorrectionsExist($corrector_id = null): bool
     {
-        $c_auth = 0;
-
-        foreach($this->essayRepo->getCorrectorSummariesByTaskId($this->task_id) as $summary) {
-            if($summary->getCorrectionAuthorized() !== null) {
-                $c_auth++;
+        $writer_ids = null;
+        if ($corrector_id !== null) {
+            $writer_ids = [];
+            foreach ($this->correctorRepo->getAssignmentsByCorrectorId($corrector_id) as $assignment) {
+                $writer_ids[] = $assignment->getWriterId();
             }
         }
-        return $c_auth > 0;
+
+        $count = 0;
+        foreach($this->essayRepo->getEssaysByTaskId($this->task_id) as $essay) {
+            if($essay->getCorrectionFinalized() !== null
+                && ($writer_ids === null || in_array($essay->getWriterId(), $writer_ids))) {
+                $count++;
+            }
+        }
+        return $count > 0;
+    }
+
+    /**
+     * Check if authorized corrections exist either for a corrector or for the whole task
+     */
+    public function authorizedCorrectionsExists($corrector_id = null): bool
+    {
+        $count = 0;
+        foreach($this->essayRepo->getCorrectorSummariesByTaskId($this->task_id) as $summary) {
+            if ($summary->getCorrectionAuthorized() !== null
+            && ($corrector_id === null || $summary->getCorrectorId() == $corrector_id)) {
+                $count++;
+            }
+        }
+        return $count > 0;
     }
 
     public function recalculateGradeLevel()
@@ -794,17 +820,18 @@ class CorrectorAdminService extends BaseService
 
     public function removeAuthorizations(Writer $writer) : bool
     {
-        global $DIC;
-
         if (empty($essay = $this->essayRepo->getEssayByWriterIdAndTaskId($writer->getId(), $writer->getTaskId()))) {
             return false;
         }
+
+        $changed = false;
 
         // remove finalized status
         if (!empty($essay->getCorrectionFinalized())) {
             $essay->setCorrectionFinalized(null);
             $essay->setCorrectionFinalizedBy(null);
             $this->essayRepo->save($essay);
+            $changed = true;
         }
 
         // remove authorizations
@@ -812,10 +839,14 @@ class CorrectorAdminService extends BaseService
             $summary->setCorrectionAuthorized(null);
             $summary->setCorrectionAuthorizedBy(null);
             $this->essayRepo->save($summary);
+            $changed = true;
         }
 
-        $this->loggingService->addEntry(LogEntry::TYPE_CORRECTION_REMOVE_AUTHORIZATION, $this->dic->user()->getId(), $writer->getUserId());
-        return true;
+        if ($changed) {
+            $this->loggingService->addEntry(LogEntry::TYPE_CORRECTION_REMOVE_AUTHORIZATION, $this->dic->user()->getId(), $writer->getUserId());
+        }
+
+        return $changed;
     }
 
     /**
@@ -974,7 +1005,7 @@ class CorrectorAdminService extends BaseService
             return;
         }//Prevent removal of criterion points and useless queries if nothing has changed
         $this->essayRepo->moveCorrectorSummaries($from_corrector, $to_corrector, $essay_id);
-        $this->essayRepo->deleteCriterionPointsByCorrectorIdAndEssayId($from_corrector, $essay_id);
+        $this->essayRepo->deleteCorrectorPointsByCorrectorIdAndEssayId($from_corrector, $essay_id);
         $this->essayRepo->moveCorrectorComments($from_corrector, $to_corrector, $essay_id);
     }
 
@@ -982,6 +1013,7 @@ class CorrectorAdminService extends BaseService
     {
         $this->essayRepo->deleteCorrectorSummaryByCorrectorIdAndEssayId($corrector, $essay_id);
         $this->essayRepo->deleteCorrectorCommentByCorrectorIdAndEssayId($corrector, $essay_id);
+        $this->essayRepo->deleteCorrectorPointsByCorrectorIdAndEssayId($corrector, $essay_id);
     }
 
     private function assign(int $writer_id, int $corrector, ?CorrectorAssignment &$assignment, ?CorrectorSummary $summary, int $position) : bool

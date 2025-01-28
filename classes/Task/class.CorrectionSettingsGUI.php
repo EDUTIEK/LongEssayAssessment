@@ -109,25 +109,6 @@ class CorrectionSettingsGUI extends BaseGUI
                                              ->withAdditionalTransformation($this->refinery->string()->hasMaxLength(50))
                                              ->withValue($correctionSettings->getNegativeRating());
 
-        $fields['criteria_mode'] = $factory->radio($this->plugin->txt('criteria_mode'))
-                                           ->withRequired(true)
-                                           ->withOption(
-                                               CorrectionSettings::CRITERIA_MODE_NONE,
-                                               $this->plugin->txt('criteria_mode_none'),
-                                               $this->plugin->txt('criteria_mode_none_info')
-                                           )
-                                           ->withOption(
-                                               CorrectionSettings::CRITERIA_MODE_FIXED,
-                                               $this->plugin->txt('criteria_mode_fixed'),
-                                               $this->plugin->txt('criteria_mode_fixed_info')
-                                           )
-                                            ->withOption(
-                                                CorrectionSettings::CRITERIA_MODE_CORRECTOR,
-                                                $this->plugin->txt('criteria_mode_corrector'),
-                                                $this->plugin->txt('criteria_mode_corrector_info')
-                                            )
-                                           ->withValue($correctionSettings->getCriteriaMode());
-
         $options = [
           CorrectorSummary::INCLUDE_NOT => $this->plugin->txt('include_not'),
           CorrectorSummary::INCLUDE_INFO => $this->plugin->txt('include_info'),
@@ -197,7 +178,6 @@ class CorrectionSettingsGUI extends BaseGUI
             $correctionSettings->setPositiveRating((string) $data['rating']['positive_rating']);
             $correctionSettings->setNegativeRating((string) $data['rating']['negative_rating']);
             $correctionSettings->setMaxPoints((int) $data['rating']['max_points']);
-            $correctionSettings->setCriteriaMode((string) $data['rating']['criteria_mode']);
             if (isset($data['rating']['fixed_inclusions']) && is_array($data['rating']['fixed_inclusions'])) {
                 $correctionSettings->setFixedInclusions(true);
                 $correctionSettings->setIncludeComments((int) $data['rating']['fixed_inclusions']['include_comments']);

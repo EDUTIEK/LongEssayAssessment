@@ -52,4 +52,9 @@ class CorrectorCriteriaGUI extends CriteriaGUI
     {
         return true;
     }
+
+    protected function allowSettingsInContext(): bool
+    {
+        return false;
+    }
 }

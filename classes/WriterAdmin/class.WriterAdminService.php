@@ -393,6 +393,7 @@ class WriterAdminService extends BaseService
     {
         $essay_repo = LongEssayAssessmentDI::getInstance()->getEssayRepo();
         $essay_repo->deleteCorrectorCommentByEssayId($essay->getId());
+        $essay_repo->deleteCorrectorPointsByEssayId($essay->getId());
     }
     
     public function createPdfFromText(ilObjLongEssayAssessment $object, Essay $essay, Writer $writer)

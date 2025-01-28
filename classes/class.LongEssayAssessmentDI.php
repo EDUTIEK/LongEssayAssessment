@@ -24,6 +24,7 @@ use ILIAS\Plugin\LongEssayAssessment\Data\DataConstraints;
 use ILIAS\Plugin\LongEssayAssessment\UI\Implementation\StatisticFactory;
 use ILIAS\Plugin\LongEssayAssessment\UI\Implementation\ViewerFactory;
 use ILIAS\Plugin\LongEssayAssessment\UI\Implementation\Tree\TreeFactory;
+use ILIAS\Plugin\LongEssayAssessment\CorrectorAdmin\CorrectorCriteriaService;
 
 /**
  * @author Fabian Wolf <wolf@ilias.de>
@@ -38,6 +39,7 @@ class LongEssayAssessmentDI
     protected $writerAdminServices = [];
     protected $correctorAdminServices = [];
     protected $correctorAssignmentServices = [];
+    protected $correctorCriteriaServices = [];
 
     protected \ILIAS\DI\Container $container;
 
@@ -287,6 +289,14 @@ class LongEssayAssessmentDI
             $this->correctorAssignmentServices[$task_id] = new CorrectorAssignmentsService($task_id);
         }
         return $this->correctorAssignmentServices[$task_id];
+    }
+
+    public function getCorrectorCriteriaService(int $task_id) : CorrectorCriteriaService
+    {
+        if (!isset($this->correctorCriteriaServices[$task_id])) {
+            $this->correctorCriteriaServices[$task_id] = new CorrectorCriteriaService($task_id);
+        }
+        return $this->correctorCriteriaServices[$task_id];
     }
 
     public function getPlugin() : \ilLongEssayAssessmentPlugin

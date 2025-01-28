@@ -384,7 +384,13 @@ criteria_mode_none_info#:#Es werden zur Bewertung keine Kriterien vorgegeben. Te
 criteria_mode_fixed#:#einheitliche Bewertungskriterien
 criteria_mode_fixed_info#:#Die Bewertungskriterien werden für alle Korrekturkräfte einheitlich vorgegeben. Teilpunkte werden nach Kriterium aufgeschlüsselt eingegeben.
 criteria_mode_corrector#:#persönliche Bewertungskriterien
-criteria_mode_corrector_info#:#Die Bewertungskriterien können von der Korrekturkraft selbst erstellt und mit anderen geteilt werden. Im Bereich »Bewertungskriterien« kann eine Vorlage für alle Korrekturkräfte erstellt werden. Teilpunkte werden nach Kriterium aufgeschlüsselt eingegeben.
+criteria_mode_corrector_info#:#Die Bewertungskriterien können von der Korrekturkraft selbst erstellt und mit anderen geteilt werden. Es können zentrale Kriterien als Vorlage für alle Korrekturkräfte erstellt werden. Teilpunkte werden nach Kriterium aufgeschlüsselt eingegeben.
+criteria_mode_change_from_none_message#:#Wenn Sie die Einstellung ändern, werden bereits vergebene Punkte verworfen.
+criteria_mode_change_from_fixed_message#:#<p>Wenn Sie die Einstellung auf "Keine Bewertungskriterien" ändern, werden Punkte bei Anmerkungen zusammengefasst und Punkte zu Kopfnoten verworfen.</p><p>Wenn Sie die Einstellung auf "persönliche Bewerungskriterien ändern" werden die bisherigen Kriterien für alle Korrektoren übernommen.</p>
+criteria_mode_change_from_corrector_message#:#<p>Wenn Sie die Einstellung auf "Keine Bewertungskriterien" ändern, werden Punkte bei Anmerkungen zusammengefasst und Punkte zu Kopfnoten verworfen.</p><p>Wenn Sie die Einstellung auf "einheitliche Bewertungskriterien" ändern, werden alle Punkte verworfen.</p>
+criteria_admin_authorized_message#:#Es gibt bereits autorisierte Korrekturen. Ziehen Sie diese in der Korrekturverwaltung zurück, wenn Sie hier etwas ändern müssen.
+criteria_corrector_finalized_message#:#Sie haben bereits komplett abgeschlossene Korrekturen. Wenden Sie sich an die Korrekturverwaltung, wenn Sie hier etwas ändern müssen.
+criteria_corrector_authorized_message#:#Sie haben bereits autorisierte Korrekturen. Ziehen Sie diese unter "Abgaben" zurück, wenn Sie hier etwas ändern müssen.
 criteria#:#Bewertungskriterien
 criteria_add#:#Kriterium hinzufügen
 criteria_edit#:#Kriterium bearbeiten
@@ -652,3 +658,8 @@ delete_individual_working_time#:#Anpassung entfernen
 one_working_time_deleted#:#Die Anpassung der Bearbeitungszeit wurde entfernt.
 x_working_times_deleted#:#%s Anpassungen der Bearbeitungszeit wurden entfernt.
 task_info#:#Hinweise zur Aufgabe
+criterion_type#:#Typ
+criterion_type_general#:#allgemein (Kopfnote)
+criterion_type_general_info#:#Das Kriterium kann pro abgegebenem Text einmalig bewertet werden. Die Bewertung wird unabhängig von Textstellen eingegeben. Sie darf die maximalen Punkte nicht überschreiten.
+criterion_type_comment#:#zu Anmerkungen
+criterion_type_comment_info#:#Das Kriterium wird bei der Anmerkung zu einer Textstelle bewertet. Es kann an mehreren Stellen bewertet werden. Die Summe der Punkte aller bewerteten Stellen darf die maximalen Punkte nicht überschreiten.

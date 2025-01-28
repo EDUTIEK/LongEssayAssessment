@@ -21,7 +21,8 @@ class RatingCriterion extends RecordData
         'corrector_id' => 'integer',
         'title'=> 'text',
         'description' => 'text',
-        'points' => 'integer'
+        'points' => 'integer',
+        'is_general' => 'integer'
     ];
 
 
@@ -31,6 +32,7 @@ class RatingCriterion extends RecordData
     protected string $title = "";
     protected ?string $description = null;
     protected int $points = 0;
+    protected int $is_general = 0;
 
 
     public static function model()
@@ -124,6 +126,17 @@ class RatingCriterion extends RecordData
     public function setPoints(int $points): RatingCriterion
     {
         $this->points = $points;
+        return $this;
+    }
+
+    public function getIsGeneral(): bool
+    {
+        return (bool) $this->is_general;
+    }
+
+    public function setIsGeneral(bool $is_general): RatingCriterion
+    {
+        $this->is_general = (int) $is_general;
         return $this;
     }
 }

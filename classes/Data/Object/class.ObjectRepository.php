@@ -85,6 +85,8 @@ class ObjectRepository extends RecordRepo
             $query .= " AND corrector_id IS NULL";
         }
 
+        $query .= " ORDER BY is_general DESC, title ASC";
+
         return $this->queryRecords($query, RatingCriterion::model());
     }
 
@@ -138,7 +140,7 @@ class ObjectRepository extends RecordRepo
         $this->db->manipulate("DELETE FROM xlas_rating_crit" .
             " WHERE id = " . $this->db->quote($a_id, "integer"));
 
-        $this->essay_repo->deleteCriterionPointsByRatingId($a_id);
+        $this->essay_repo->deleteCorrectorPointsByRatingId($a_id);
     }
 
     public function getRatingCriterionGroupForCopy(int $object_id): array

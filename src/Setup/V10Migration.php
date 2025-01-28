@@ -59,6 +59,7 @@ class V10Migration
             $this->db->createTable($table, $fields);
             if ($primary_fields !== []) {
                 $this->db->addPrimaryKey($table, $primary_fields);
+                $this->db->createSequence($table);
             }
             foreach ($indices[$table] ?? [] as $i => $index) {
                 $this->db->addIndex($table, $index, 'i' . ($i + 1));
@@ -70,6 +71,7 @@ class V10Migration
     {
         foreach ($this->tableInfo() as $table => $fields) {
             $this->migrateTable($table, $fields);
+            $this->updateSequence($table, $fields);
         }
     }
 
@@ -144,7 +146,6 @@ class V10Migration
         $fields = array_keys($field_info);
         $quote_id = $this->db->quoteIdentifier(...);
         $quote = $this->db->quote(...);
-        $sprintf_id = fn(string $format, ...$args): string => sprintf($format, ...array_map($quote_id, $args));
 
         $join = [];
         $what = [];
@@ -156,7 +157,7 @@ class V10Migration
                 $what[] = sprintf('%s AS %s', $quote($this->dbDefault($info['Type'] ?? 'int(11)')), $quote_id($field));
             } else {
                 $join[] = $info['src_table'];
-                $what[] = $sprintf_id('%s.%s AS %s', $info['src_table'], $info['Field'], $field);
+                $what[] = $this->sprintfId('%s.%s AS %s', $info['src_table'], $info['Field'], $field);
             }
         }
 
@@ -164,15 +165,32 @@ class V10Migration
         $main_src = $join[0];
         // Create join parts, with the corresponding join fields from $foreign_keys.
         $join = array_map(
-            function (string $join_me) use ($main_src, $sprintf_id): string {
+            function (string $join_me) use ($main_src): string {
                 [$root_field, $join_field] = $this->foreignKeys()[$main_src][$join_me];
-                return $sprintf_id('LEFT JOIN %s ON %s.%s = %s.%s', $join_me, $main_src, $root_field, $join_me, $join_field);
+                return $this->sprintfId('LEFT JOIN %s ON %s.%s = %s.%s', $join_me, $main_src, $root_field, $join_me, $join_field);
             },
             array_slice($join, 1) // Drop $main_src
         );
 
         $select = sprintf('SELECT %s FROM %s %s', join(', ', $what), $quote_id($main_src), join('', $join));
         $this->db->manipulate(sprintf('INSERT INTO %s (%s) %s', $quote_id($name), join(', ', array_map($quote_id, $fields)), $select));
+    }
+
+    private function updateSequence(string $table, array $field_info): void
+    {
+        if (!$this->db->sequenceExists($table)) {
+            return;
+        }
+        $primary_field = key(array_filter($field_info, fn($a) => $a['Key'] ?? null === 'PRI'));
+        $this->db->manipulate($this->sprintfId('INSERT INTO %s (sequence) SELECT MAX(%s) FROM %s', $table . '_seq', $primary_field, $table));
+    }
+
+    /**
+     * Like sprintf but each value is quoted with $this->db->quoteIdentifier(...).
+     */
+    private function sprintfId(string $format, ...$args): string
+    {
+        return sprintf($format, ...array_map($this->db->quoteIdentifier(...), $args));
     }
 
     /**

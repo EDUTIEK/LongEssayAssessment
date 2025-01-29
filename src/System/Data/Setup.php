@@ -22,17 +22,17 @@ namespace ILIAS\Plugin\LongEssayAssessment\System\Data;
 
 use DateTimeZone;
 
-class Setup extends \Edutiek\AssessmentService\System\Data\Setup
+readonly class Setup extends \Edutiek\AssessmentService\System\Data\Setup
 {
     public function __construct(
-        private readonly string $system_name,
-        private readonly string $frontends_base_url,
-        private readonly string $backend_url,
-        private readonly string $default_path_to_ghostscript,
-        private readonly string $absolute_temp_path,
-        private readonly string $relative_temp_path,
-        private readonly string $default_language,
-        private readonly DateTimeZone $default_timezone
+        private string $system_name,
+        private string $frontends_base_url,
+        private string $backend_url,
+        private string $default_path_to_ghostscript,
+        private string $absolute_temp_path,
+        private string $relative_temp_path,
+        private string $default_language,
+        private DateTimeZone $default_timezone
     ) {
     }
 

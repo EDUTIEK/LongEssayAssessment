@@ -54,7 +54,7 @@ class ResourceAdmin
      * @param string $a_url
      * @return int
      */
-    public function saveURLResource(string $a_title, string $a_description, string $a_availability, string $a_url): int
+    public function saveURLResource(string $a_title, string $a_description, string $a_availability, string $a_url, bool $a_embedded): int
     {
         $resource = new Resource();
         $resource->setType(Resource::RESOURCE_TYPE_URL);
@@ -63,6 +63,7 @@ class ResourceAdmin
         $resource->setAvailability($this->validateAvailability($a_availability));
         $resource->setTaskId($this->getTaskId());
         $resource->setUrl($this->normalizeUrl($a_url));
+        $resource->setEmbedded($a_embedded);
 
         $let_dic = LongEssayAssessmentDI::getInstance();
         $task_repo = $let_dic->getTaskRepo();

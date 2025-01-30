@@ -105,6 +105,9 @@ class ResourcesAdminGUI extends BaseGUI
             ->withRequired(true)
             ->withValue($a_resource->getUrl());
 
+        $embedded = $factory->checkbox($this->plugin->txt('resource_embedded'), $this->plugin->txt('resource_embedded_info'))
+            ->withValue($a_resource->getEmbedded());
+
         $availability = $factory->radio($this->plugin->txt("resource_availability"))
             ->withRequired(true)
             ->withOption(Resource::RESOURCE_AVAILABILITY_BEFORE, $this->plugin->txt("resource_availability_before"))
@@ -119,7 +122,7 @@ class ResourcesAdminGUI extends BaseGUI
         $fields['description'] = $description;
 
         $group1 = $factory->group(["resource_file" => $resource_file,], $this->lng->txt("file"));
-        $group2 = $factory->group(["url" => $url, ], $this->plugin->txt("resource_weblink"));
+        $group2 = $factory->group(["url" => $url, "embedded" => $embedded], $this->plugin->txt("resource_weblink"));
 
 
         $fields['type'] = $factory->switchableGroup([
@@ -165,7 +168,8 @@ class ResourcesAdminGUI extends BaseGUI
                     $a_data["title"],
                     $a_data["description"],
                     $a_data["availability"],
-                    $a_data["type"][1]["url"]
+                    $a_data["type"][1]["url"],
+                    $a_data["type"][1]["embedded"]
                 );
                 break;
         }

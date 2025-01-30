@@ -31,7 +31,8 @@ class Resource extends RecordData
         'file_id' => 'text',
         'url' => 'text',
         'type' => 'text',
-        'availability' => 'text'
+        'availability' => 'text',
+        'embedded' => 'integer'
     ];
 
     protected int $id = 0;
@@ -42,6 +43,7 @@ class Resource extends RecordData
     protected string $url = "";
     protected string $type = self::RESOURCE_TYPE_URL;
     protected string $availability = self::RESOURCE_AVAILABILITY_BEFORE;
+    protected int $embedded;
 
     public static function model()
     {
@@ -190,6 +192,17 @@ class Resource extends RecordData
     public function setAvailability(string $availability): Resource
     {
         $this->availability = $availability;
+        return $this;
+    }
+
+    public function getEmbedded(): bool
+    {
+        return (bool) $this->embedded;
+    }
+
+    public function setEmbedded(bool $embedded): Resource
+    {
+        $this->embedded = (int) $embedded;
         return $this;
     }
 }

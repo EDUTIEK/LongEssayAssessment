@@ -2445,4 +2445,14 @@ if ($ilDB->tableExists('xlas_crit_points')) {
         $ilDB->dropTableColumn('xlas_corrector_comment', 'points');
     }
 ?>
-
+<#123>
+<?php
+    if (!$ilDB->tableColumnExists('xlas_resource', 'embedded')) {
+        $ilDB->addTableColumn('xlas_resource', 'embedded', [
+            'notnull' => '1',
+            'type' => 'integer',
+            'length' => 4,
+            'default' => '0'
+        ]);
+    }
+?>

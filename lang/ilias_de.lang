@@ -258,6 +258,8 @@ exclude_writer_repeal_success#:#Teilnehmerausschluss erfolgreich aufgehoben.
 resource_availability_before#:#Vorab
 resource_availability_during#:#Nach Start der Bearbeitung
 resource_availability_after#:#Mit Verfügbarkeit der Lösungshinweise
+resource_embedded#:#Eingebettet
+resource_embedded_info#:#Der Weblink wird in der Schreiboberfläche eingebettet angezeigt. Bitte beachten Sie, dass viele Websites das nicht erlauben.
 resource_file_description#:#Die Datei kann vorab, während der Bearbeitung oder ab Verfügbarkeit der Lösungshinweise angesehen oder heruntergeladen werden.
 resource_weblink#:#Weblink
 resource_edit#:#Material bearbeiten

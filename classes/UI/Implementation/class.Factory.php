@@ -9,7 +9,7 @@ use ILIAS\Plugin\LongEssayAssessment\UI\Component\InputFactory;
 use ILIAS\Plugin\LongEssayAssessment\UI\Component\IconFactory;
 use ILIAS\Plugin\LongEssayAssessment\UI\Component\ItemFactory;
 use ILIAS\Plugin\LongEssayAssessment\UI\Component\ViewerFactory;
-use ILIAS\Plugin\LongEssayAssessment\UI\Implementation\Tree\TreeFactory;
+use ILIAS\Plugin\LongEssayAssessment\UI\Tree\TreeFactory;
 
 /**
  * Class Factory

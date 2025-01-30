@@ -70,8 +70,7 @@ abstract class BaseGUI
     /** @var RequestInterface|ServerRequestInterface  */
     protected $request;
 
-    /** @var \ILIAS\Refinery\Factory  */
-    protected $refinery;
+    protected \ILIAS\Refinery\Factory $refinery;
 
     /** @var LongEssayAssessmentDI */
     protected $localDI;

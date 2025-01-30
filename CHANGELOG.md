@@ -8,6 +8,7 @@ Plugin:
 - Move settings for rating criteria to the criteria tab
 - Prevent editing of criteria when authorized corrections exist
 - Handle existing points when mode for rating criteria is changed
+- Support embedded resources (showed in iframe)
 
 Corrector Web app:
 - Replace layout table for paragraph numbers

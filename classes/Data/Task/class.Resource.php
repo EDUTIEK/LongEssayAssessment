@@ -43,7 +43,7 @@ class Resource extends RecordData
     protected string $url = "";
     protected string $type = self::RESOURCE_TYPE_URL;
     protected string $availability = self::RESOURCE_AVAILABILITY_BEFORE;
-    protected int $embedded;
+    protected int $embedded = 0;
 
     public static function model()
     {

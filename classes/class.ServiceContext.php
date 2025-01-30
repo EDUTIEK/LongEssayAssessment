@@ -309,6 +309,7 @@ abstract class ServiceContext implements BaseContext
                     (string) $resource->getId(),
                     $title,
                     $resource->getType(),
+                    $resource->getEmbedded(),
                     $source,
                     $mimetype,
                     $size

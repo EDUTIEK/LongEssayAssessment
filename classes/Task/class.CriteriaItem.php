@@ -10,6 +10,7 @@ class CriteriaItem extends Item
         int $id,
         protected string $title,
         protected ?string $description,
+        protected bool $is_general,
         protected int $max_points
     ) {
         parent::__construct($id);
@@ -28,5 +29,10 @@ class CriteriaItem extends Item
     public function getMaxPoints() : int
     {
         return $this->max_points;
+    }
+
+    public function isGeneral() : bool
+    {
+        return $this->is_general;
     }
 }

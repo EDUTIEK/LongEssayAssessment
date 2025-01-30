@@ -23,7 +23,7 @@ use ILIAS\Plugin\LongEssayAssessment\ServiceLayer\ServicesFactory;
 use ILIAS\Plugin\LongEssayAssessment\Data\DataConstraints;
 use ILIAS\Plugin\LongEssayAssessment\UI\Implementation\StatisticFactory;
 use ILIAS\Plugin\LongEssayAssessment\UI\Implementation\ViewerFactory;
-use ILIAS\Plugin\LongEssayAssessment\UI\Implementation\Tree\TreeFactory;
+use ILIAS\Plugin\LongEssayAssessment\UI\Tree\TreeFactory;
 use ILIAS\Plugin\LongEssayAssessment\CorrectorAdmin\CorrectorCriteriaService;
 
 /**
@@ -96,8 +96,25 @@ class LongEssayAssessmentDI
                     $dic["ui.factory.symbol.icon"],
                     $dic->repositoryTree(),
                     $dic->access(),
-                    $dic->language()
+                    $dic->language(),
+                    $dic->http(),
+                    $dic->refinery(),
+                    $dic->ui()->factory(),
+                    $dic->ui()->renderer()
                 )
+            );
+        };
+
+        $dic["xlas.table_factory"] = function (\ILIAS\DI\Container $dic) {
+            return new \ILIAS\Plugin\LongEssayAssessment\UI\Table\Factory(
+                $dic->ui()->factory(),
+                $dic["xlas.custom_factory"],
+                $dic->uiService(),
+                $dic->ui()->renderer(),
+                $dic->refinery(),
+                $dic->http()->wrapper()->query(),
+                $dic->http()->request(),
+                $dic->language()
             );
         };
 
@@ -231,6 +248,11 @@ class LongEssayAssessmentDI
     public function getUIFactory(): Factory
     {
         return $this->container["xlas.custom_factory"];
+    }
+
+    public function getTableFactory(): \ILIAS\Plugin\LongEssayAssessment\UI\Table\Factory
+    {
+        return $this->container["xlas.table_factory"];
     }
 
     /**

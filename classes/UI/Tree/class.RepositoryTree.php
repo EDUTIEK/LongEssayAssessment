@@ -1,6 +1,6 @@
 <?php
 
-namespace ILIAS\Plugin\LongEssayAssessment\UI\Implementation\Tree;
+namespace ILIAS\Plugin\LongEssayAssessment\UI\Tree;
 
 use ILIAS\UI\Component\Tree\TreeRecursion;
 use ILIAS\UI\Component\Tree\Factory as TreeFactory;

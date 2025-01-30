@@ -10,7 +10,6 @@ use ILIAS\Plugin\LongEssayAssessment\Data\Task\CorrectionSettings;
 use ILIAS\Plugin\LongEssayAssessment\Data\Writer\Writer;
 use ILIAS\Plugin\LongEssayAssessment\UI\Component\BlankForm;
 use ILIAS\Plugin\LongEssayAssessment\WriterAdmin\CorrectorAdminListGUI;
-use ILIAS\Plugin\LongEssayAssessment\WriterAdmin\CorrectorListGUI;
 use ILIAS\UI\Component\Input\Container\Form\Form;
 use ILIAS\Plugin\LongEssayAssessment\Data\Corrector\Corrector;
 use ILIAS\Plugin\LongEssayAssessment\ilLongEssayAssessmentUploadTempFile;
@@ -58,52 +57,33 @@ class CorrectorAdminGUI extends BaseGUI
      */
     public function executeCommand()
     {
-        $next_class = $this->ctrl->getNextClass();
-
-        switch ($next_class) {
-            case 'ilrepositorysearchgui':
-                $this->tabs->activateSubTab('tab_corrector_list');
-                $rep_search = new \ilRepositorySearchGUI();
-                $rep_search->addUserAccessFilterCallable([$this, 'addCorrectorsFilter']);
-                $rep_search->setCallback($this, "addCorrectorsCallback");
-                $this->ctrl->setReturn($this, 'showCorrectors');
-                $ret = $this->ctrl->forwardCommand($rep_search);
+        $cmd = $this->ctrl->getCmd('showStartPage');
+        if(in_array($cmd, ["remove", "change", "add", "ok", "confirm"])) { // Workaround to use fallback cmd for generic cmds from interruptive modals
+            $cmd = $this->request->getQueryParams()["fallbackCmd"] ?? $cmd;
+        }
+        switch ($cmd) {
+            case 'showStartPage':
+            case 'confirmAssignWriters':
+            case 'mailToSelectedAsync':
+            case 'assignWriters':
+            case 'exportCorrections':
+            case 'exportResults':
+            case 'viewCorrections':
+            case 'stitchDecision':
+            case 'exportSteps':
+            case 'removeAuthorizations':
+            case 'editAssignmentsAsync':
+            case 'confirmRemoveAuthorizationsAsync':
+            case 'downloadWrittenPdf':
+            case 'downloadCorrectedPdf':
+            case 'downloadReportsPdf':
+            case 'correctorAssignmentSpreadsheetExport':
+            case 'correctorAssignmentSpreadsheetImport':
+                $this->$cmd();
                 break;
-            default:
-                $cmd = $this->ctrl->getCmd('showStartPage');
-                if(in_array($cmd, ["remove", "change", "add", "ok", "confirm"])) { // Workaround to use fallback cmd for generic cmds from interruptive modals
-                    $cmd = $this->request->getQueryParams()["fallbackCmd"] ?? $cmd;
-                }
-                switch ($cmd) {
-                    case 'showStartPage':
-                    case 'showCorrectors':
-                    case 'confirmAssignWriters':
-                    case 'addAllCourseTutors':
-                    case 'mailToCorrectorsAsync':
-                    case 'mailToSelectedAsync':
-                    case 'mailToSingleCorrector':
-                    case 'assignWriters':
-                    case 'changeCorrector':
-                    case 'removeCorrector':
-                    case 'exportCorrections':
-                    case 'exportResults':
-                    case 'viewCorrections':
-                    case 'stitchDecision':
-                    case 'exportSteps':
-                    case 'removeAuthorizations':
-                    case 'editAssignmentsAsync':
-                    case 'confirmRemoveAuthorizationsAsync':
-                    case 'downloadWrittenPdf':
-                    case 'downloadCorrectedPdf':
-                    case 'downloadReportsPdf':
-                    case 'correctorAssignmentSpreadsheetExport':
-                    case 'correctorAssignmentSpreadsheetImport':
-                        $this->$cmd();
-                        break;
 
-                    default:
-                        $this->tpl->setContent('unknown command: ' . $cmd);
-                }
+            default:
+                $this->tpl->setContent('unknown command: ' . $cmd);
         }
     }
 
@@ -145,17 +125,20 @@ class CorrectorAdminGUI extends BaseGUI
 
         $this->toolbar->addComponent($this->uiFactory->button()->primary(
             $this->plugin->txt('assign_writers'),
-            $this->ctrl->getLinkTarget($this, $assign_writers_action)));
+            $this->ctrl->getLinkTarget($this, $assign_writers_action)
+        ));
 
         $this->toolbar->addText($this->plugin->txt("assignment_excel"));
 
         $this->toolbar->addComponent($this->uiFactory->button()->standard(
             $this->plugin->txt("assignment_excel_export"),
-            $this->ctrl->getLinkTarget($this, "correctorAssignmentSpreadsheetExport")));
+            $this->ctrl->getLinkTarget($this, "correctorAssignmentSpreadsheetExport")
+        ));
 
         $this->toolbar->addComponent($this->uiFactory->button()->standard(
             $this->plugin->txt("assignment_excel_import"),
-            $this->ctrl->getLinkTarget($this, "correctorAssignmentSpreadsheetImport")));
+            $this->ctrl->getLinkTarget($this, "correctorAssignmentSpreadsheetImport")
+        ));
 
         $this->toolbar->addComponent($this->uiFactory->button()->toggle(
             $this->plugin->txt("assignment_excel_export_auth"),
@@ -208,142 +191,6 @@ class CorrectorAdminGUI extends BaseGUI
         $this->tpl->setContent($list_gui->getContent());
     }
 
-    protected function showCorrectors()
-    {
-        $this->toolbar->setFormAction($this->ctrl->getFormAction($this));
-
-        \ilRepositorySearchGUI::fillAutoCompleteToolbar(
-            $this,
-            $this->toolbar,
-            array(
-                'auto_complete_name' => $this->lng->txt('user'),
-                'submit_name' => $this->lng->txt('add'),
-                'add_search' => true,
-                'add_from_container' => $this->object->getRefId()
-            )
-        );
-
-        // spacer
-        $this->toolbar->addSeparator();
-
-        // add all course tutors
-        if ($this->object_services->iliasContext()->isInCourse()) {
-            $add_tutors_modal = $this->uiFactory->modal()->interruptive('', '', '')
-                                     ->withAsyncRenderUrl($this->ctrl->getLinkTarget($this, 'addAllCourseTutors'));
-            $button = $this->uiFactory->button()->standard($this->plugin->txt("add_all_course_tutors"), '')
-                                      ->withOnClick($add_tutors_modal->getShowSignal());
-            $this->toolbar->addComponent($button);
-            $this->addModal($add_tutors_modal);
-        }
-
-        // mail to correctors
-        $modal = $this->uiFactory->modal()->roundtrip('', [])
-                                 ->withAsyncRenderUrl($this->ctrl->getFormAction($this, 'mailToCorrectorsAsync'));
-        $button = $this->uiFactory->button()->standard($this->plugin->txt("mail_to_correctors"), '')
-                                  ->withOnClick($modal->getShowSignal());
-        $this->addModal($modal);
-        $this->toolbar->addComponent($button);
-
-        $list_gui = new CorrectorListGUI($this, "showCorrectors", $this->object->getId(), $this->plugin);
-        $list_gui->setWriters($this->writer_repo->getWritersByTaskId($this->object->getId()));
-        $list_gui->setCorrectors($this->corrector_repo->getCorrectorsByTaskId($this->object->getId()));
-        $list_gui->setAssignments($this->corrector_repo->getAssignmentsByTaskId($this->object->getId()));
-
-        $this->setContent($list_gui->getContent());
-    }
-
-    /**
-     * @return void
-     */
-    public function addAllCourseTutors()
-    {
-        $user_ids = $this->object_services->iliasContext()->getCourseTutors();
-        $this->common_services->userDataHelper()->preload($user_ids);
-        // Confirmation
-        if ($this->request->getMethod() != 'POST') {
-            ;
-            $items =[];
-            foreach ($user_ids as $user_id) {
-                $items[] = $this->uiFactory->modal()->interruptiveItem()->standard(
-                    $user_id,
-                    $this->common_services->userDataHelper()->getPresentation($user_id)
-                );
-            }
-            $modal = $this->uiFactory->modal()->interruptive(
-                $this->plugin->txt('add_all_course_tutors'),
-                $this->plugin->txt('confirm_add_all_course_tutors'),
-                $this->ctrl->getLinkTarget($this, 'addAllCourseTutors')
-            )->withAffectedItems($items)
-            ->withActionButtonLabel($this->lng->txt('add'));
-            echo $this->renderer->render($modal);
-            exit;
-        }
-
-        // Action
-        foreach($user_ids as $id) {
-            $this->service->getOrCreateCorrectorFromUserId($id);
-        }
-
-
-        $this->tpl->setOnScreenMessage("success", $this->plugin->txt('tutors_added'), true);
-        $this->ctrl->redirect($this, 'showCorrectors');
-    }
-
-    private function mailToSingleCorrector()
-    {
-        $corrector = $this->getCorrectorFromRequest();
-        if (!empty($login = ilObjUser::_lookupLogin($corrector->getUserId()))) {
-            $this->openMailForm([$login], 'showCorrectors');
-        }
-        $this->ctrl->redirect($this, 'showCorrectors');
-    }
-
-    /**
-     * Choose in a modal which correctors will be addressed
-     * @see Services/Mail/README.md
-     */
-    private function mailToCorrectorsAsync()
-    {
-        $all = $this->service->getCorrectors();
-        $open = $this->service->getCorrectorsWithOpenAuthorizations();
-
-        // Selection Modal
-        if ($this->request->getMethod() != 'POST') {
-            $fields= ['selection' => $this->uiFactory->input()->field()->radio($this->lng->txt('select'))
-                ->withOption('all', $this->plugin->txt('all_correctors') . ' (' . count($all) . ')')
-                ->withOption('open', $this->plugin->txt('correctors_with_open_corrections') . ' (' . count($open) . ')')
-                ->withValue('all')
-            ];
-            $form = $this->localDI->getUIFactory()->field()->blankForm(
-                $this->ctrl->getFormAction($this, "mailToCorrectorsAsync"), $fields)->withAsyncOnEnter();
-            $modal = $this->uiFactory->modal()->roundtrip(
-                $this->plugin->txt('mail_to_correctors'), $form)->withActionButtons([
-                    $this->uiFactory->button()->primary($this->plugin->txt('write_mail'), "")
-                                              ->withOnClick($form->getSubmitSignal())
-            ]);
-            echo $this->renderer->renderAsync($modal);
-            exit;
-        }
-
-        // Action
-        $post = $this->request->getParsedBody();
-        $correctors = [];
-        switch($post['form/input_0'] ?? '') {
-            case 'all':
-                $correctors = $all;
-                break;
-            case 'open':
-                $correctors = $open;
-                break;
-        }
-        $user_ids = [];
-        foreach ($correctors as $corrector) {
-            $user_ids[] = $corrector->getUserId();
-        }
-        $logins = $this->localDI->services()->common()->userDataHelper()->getLogins($user_ids);
-        $this->openMailForm($logins, 'showCorrectors');
-    }
-
     /**
      * Choose in a modal which correctors will be addressed
      * @see Services/Mail/README.md
@@ -359,13 +206,18 @@ class CorrectorAdminGUI extends BaseGUI
             ];
             for ($i = 1; $i <= $this->settings->getRequiredCorrectors(); $i++) {
                 $fields['corrector' . $i] =  $this->uiFactory->input()->field()->checkbox(
-                    sprintf($this->plugin->txt('corrector_x'), $i));
+                    sprintf($this->plugin->txt('corrector_x'), $i)
+                );
             }
 
             $form = $this->localDI->getUIFactory()->field()->blankForm(
-                $this->ctrl->getFormAction($this, "mailToSelectedAsync"), $fields)->withAsyncOnEnter();
+                $this->ctrl->getFormAction($this, "mailToSelectedAsync"),
+                $fields
+            )->withAsyncOnEnter();
             $modal = $this->uiFactory->modal()->roundtrip(
-                $this->plugin->txt('mail_for_selected_essays'), $form)->withActionButtons([
+                $this->plugin->txt('mail_for_selected_essays'),
+                $form
+            )->withActionButtons([
                 $this->uiFactory->button()->primary($this->plugin->txt('write_mail'), "")
                                 ->withOnClick($form->getSubmitSignal())
             ]);
@@ -408,64 +260,6 @@ class CorrectorAdminGUI extends BaseGUI
         $logins = $this->localDI->services()->common()->userDataHelper()->getLogins(array_unique($user_ids));
         $this->openMailForm($logins, 'showStartPage');
     }
-
-
-    /**
-     * Callback for adding correctors by ilRepositorySearchGUI
-     */
-    public function addCorrectorsCallback(array $a_usr_ids, $a_type = null)
-    {
-        if (count($a_usr_ids) <= 0) {
-            $this->tpl->setOnScreenMessage("failure", $this->plugin->txt('missing_corrector_id'), true);
-            $this->ctrl->redirect($this, "showCorrectors");
-        }
-
-        foreach($a_usr_ids as $id) {
-            $this->service->getOrCreateCorrectorFromUserId($id);
-        }
-
-        $this->tpl->setOnScreenMessage("success", $this->plugin->txt('assign_corrector_success'), true);
-        $this->ctrl->redirect($this, "showCorrectors");
-    }
-
-    /**
-     * Filter for searching correctors by lRepositorySearchGUI
-     */
-    public function addCorrectorsFilter($a_user_ids)
-    {
-        $user_ids = [];
-        $writers = array_map(fn ($row) => $row->getUserId(), $this->corrector_repo->getCorrectorsByTaskId($this->object->getId()));
-
-        foreach ($a_user_ids as $user_id) {
-            if(!in_array((int)$user_id, $writers)) {
-                $user_ids[] = $user_id;
-            }
-        }
-
-        return $user_ids;
-    }
-
-    private function removeCorrector()
-    {
-        $corrector = $this->getCorrectorFromRequest();
-
-        if($corrector === null || $corrector->getTaskId() !== $this->object->getId()) {
-            $this->tpl->setOnScreenMessage("failure", $this->plugin->txt('missing_corrector'), true);
-            $this->ctrl->redirect($this, "showCorrectors");
-        }
-        $ass = $this->corrector_repo->getAssignmentsByCorrectorId($corrector->getId());
-
-        if(count($ass) > 0) {
-            $this->tpl->setOnScreenMessage("failure", $this->plugin->txt('remove_writer_pending_assignments'), true);
-            $this->ctrl->redirect($this, "showCorrectors");
-        }
-
-        $this->corrector_repo->deleteCorrector($corrector->getId());
-        $this->tpl->setOnScreenMessage("success", $this->plugin->txt("remove_corrector_success"), true);
-        $this->ctrl->redirect($this, "showCorrectors");
-    }
-
-
 
     protected function confirmAssignWriters()
     {
@@ -670,22 +464,6 @@ class CorrectorAdminGUI extends BaseGUI
         }
 
         ilFileDelivery::deliverFileAttached($zipfile, $name . '.zip', 'application/zip', false);
-    }
-
-    private function getCorrectorFromRequest(): Corrector
-    {
-        $query = $this->request->getQueryParams();
-        if((empty($id = $query["corrector_id"]) ?? null)) {
-            $this->tpl->setOnScreenMessage("failure", $this->plugin->txt("missing_corrector_id"), true);
-            $this->ctrl->redirect($this, "showCorrectors");
-        }
-        $corrector = $this->corrector_repo->getCorrectorById((int) $id);
-
-        if($corrector === null || $corrector->getTaskId() !== $this->object->getId()) {
-            $this->tpl->setOnScreenMessage("failure", $this->plugin->txt("missing_corrector"), true);
-            $this->ctrl->redirect($this, "showCorrectors");
-        }
-        return $corrector;
     }
 
     private function getWriterId(): ?int

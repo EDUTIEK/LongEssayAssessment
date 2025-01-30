@@ -663,3 +663,14 @@ criterion_type_general#:#allgemein (Kopfnote)
 criterion_type_general_info#:#Das Kriterium kann pro abgegebenem Text einmalig bewertet werden. Die Bewertung wird unabhängig von Textstellen eingegeben. Sie darf die maximalen Punkte nicht überschreiten.
 criterion_type_comment#:#zu Anmerkungen
 criterion_type_comment_info#:#Das Kriterium wird bei der Anmerkung zu einer Textstelle bewertet. Es kann an mehreren Stellen bewertet werden. Die Summe der Punkte aller bewerteten Stellen darf die maximalen Punkte nicht überschreiten.
+corrector_single_assignments#:#Korrekturen
+corrector_first_assignments#:#Erstkorrekturen
+corrector_second_assignments#:#Zweitkorrekturen
+progress#:#Fortschritt
+corrector_show_assignments#:#Zeige Korrekturen
+corrector_no_assignments#:#Keine zugewiesen
+corrector_assignments#:#Korrekturen
+no_correctors#:#Keine Korrektoren
+copy_from_xlas#:#Korrektoren aus Langtext-Aufgabe
+copy_criteria#:#Kriterien kopieren
+copy_criteria_info#:#Beim Kopieren der Kriterien werden die bestehenden Kriterien ersetzt.

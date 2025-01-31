@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace ILIAS\Plugin\LongEssayAssessment\System\Data;
 
-use Edutiek\AssessmentService\System\Data\Setup;
-use ILIAS\Plugin\LongEssayAssessment\System\Data\Setup as SetupModel;
 use ilIniFile;
 use ilLongEssayAssessmentPlugin;
 use ilLanguage;
@@ -13,7 +11,7 @@ use DateTimeZone;
 
 class SetupRepo implements \Edutiek\AssessmentService\System\Data\SetupRepo
 {
-    private SetupModel $setup;
+    private Setup $setup;
 
     public function __construct(
         private readonly ilIniFile $client_ini,
@@ -23,13 +21,13 @@ class SetupRepo implements \Edutiek\AssessmentService\System\Data\SetupRepo
     ) {
     }
 
-    public function get(): Setup
+    public function one(): Setup
     {
         if ($this->setup === null) {
             if ($this->web_fs->hasDir('temp')) {
                 $this->web_fs->createDir('temp');
             }
-            $this->setup = new SetupModel(
+            $this->setup = new Setup(
                 $this->client_ini->readVariable('client', 'name'),
                 $this->getPluginHttpPath() . '/vendor/edutiek/assessment-service/node_modules',
                 $this->getPluginHttpPath() . '/rest.php',

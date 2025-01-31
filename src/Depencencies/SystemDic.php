@@ -34,7 +34,14 @@ class SystemDic implements \Edutiek\AssessmentService\System\Api\Dependencies
 
     public function configRepo(): ConfigRepo
     {
-        return new ConfigRepo($this->dic[RepoFactory::class]->repository(Config::class));
+        return new ConfigRepo(
+            new CacheRepository(
+                new DatabaseRepository(
+                    $this->dic->database(),
+                    $this->dic[Generate::class]->readModel(Config::class)
+                )
+            )
+        );
     }
 
     public function setupRepo(): SetupRepo
@@ -43,7 +50,7 @@ class SystemDic implements \Edutiek\AssessmentService\System\Api\Dependencies
             $this->dic->clientIni(),
             $this->dic[ilLongEssayAssessmentPlugin::class],
             $this->dic->filesystem()->web(),
-           $this->dic->language()
+            $this->dic->language()
         );
     }
 

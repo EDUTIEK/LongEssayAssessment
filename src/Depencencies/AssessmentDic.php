@@ -7,8 +7,9 @@ namespace ILIAS\Plugin\LongEssayAssessment\Dependencies;
 use ILIAS\DI\Container;
 use Edutiek\AssessmentService\System\Api\Factory as SystemFactory;
 use Edutiek\AssessmentService\System\Api\ForServices as SystemApi;
-use ILIAS\Plugin\LongEssayAssessment\Assessment\Data\ObjectRepo;
 use ilObjectFactory;
+use ILIAS\Plugin\LongEssayAssessment\Assessment\Data\RepositoryFactory;
+use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Generate;
 
 class AssessmentDic implements \Edutiek\AssessmentService\Assessment\Api\Dependencies
 {
@@ -19,8 +20,10 @@ class AssessmentDic implements \Edutiek\AssessmentService\Assessment\Api\Depende
             return $dic[SystemFactory::class]->forServices();
         };
 
-        $dic[ObjectRepo::class] = function (Container $dic) {
-            return new ObjectRepo(
+        $dic[RepositoryFactory::class] = function (Container $dic) {
+            return new RepositoryFactory(
+                $dic[Generate::class],
+                $dic->database(),
                 $dic->access(),
                 $dic["ilObjDataCache"],
                 new ilObjectFactory()
@@ -33,8 +36,8 @@ class AssessmentDic implements \Edutiek\AssessmentService\Assessment\Api\Depende
         return $this->dic[SystemApi::class];
     }
 
-    public function objectRepo(): ObjectRepo
+    public function repositories(): RepositoryFactory
     {
-        return $this->dic[ObjectRepo::class];
+        return $this->dic[RepositoryFactory::class];
     }
 }

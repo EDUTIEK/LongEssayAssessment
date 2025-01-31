@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace ILIAS\Plugin\LongEssayAssessment\Assessment\Data;
 
-class ObjectProperties extends \Edutiek\AssessmentService\Assessment\Data\ObjectProperties
+class Properties extends \Edutiek\AssessmentService\Assessment\Data\Properties
 {
     private string $title;
     private string $description;
@@ -13,7 +13,7 @@ class ObjectProperties extends \Edutiek\AssessmentService\Assessment\Data\Object
     {
     }
 
-    public function getAssessmentId(): int
+    public function getAssId(): int
     {
         return $this->ass_id;
     }
@@ -23,7 +23,7 @@ class ObjectProperties extends \Edutiek\AssessmentService\Assessment\Data\Object
         return $this->title;
     }
 
-    public function setTitle(string $title): ObjectProperties
+    public function setTitle(string $title): Properties
     {
         $this->title = $title;
         return $this;
@@ -34,7 +34,7 @@ class ObjectProperties extends \Edutiek\AssessmentService\Assessment\Data\Object
         return $this->description;
     }
 
-    public function setDescription(string $description): ObjectProperties
+    public function setDescription(string $description): Properties
     {
         $this->description = $description;
         return $this;

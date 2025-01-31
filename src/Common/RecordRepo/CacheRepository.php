@@ -40,6 +40,11 @@ class CacheRepository implements RepositoryInterface
     {
     }
 
+    public function new(): object
+    {
+        return $this->r->new();
+    }
+
     public function all(): array
     {
         return $this->cache(__FUNCTION__, []);

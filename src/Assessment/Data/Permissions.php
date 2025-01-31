@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace ILIAS\Plugin\LongEssayAssessment\Assessment\Data;
 
-readonly class ObjectPermissions extends \Edutiek\AssessmentService\Assessment\Data\ObjectPermissions
+readonly class Permissions extends \Edutiek\AssessmentService\Assessment\Data\Permissions
 {
     public function __construct(
         private int $ass_id,
@@ -19,7 +19,7 @@ readonly class ObjectPermissions extends \Edutiek\AssessmentService\Assessment\D
     ) {
     }
 
-    public function getAssessmentId(): int
+    public function getAssId(): int
     {
         return $this->ass_id;
     }

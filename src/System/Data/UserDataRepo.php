@@ -5,8 +5,7 @@ declare(strict_types=1);
 namespace ILIAS\Plugin\LongEssayAssessment\System\Data;
 
 use ilDBInterface;
-use ILIAS\Plugin\LongEssayAssessment\System\Data\UserData as UserModel;
-use Edutiek\AssessmentService\System\Data\UserData;
+use ILIAS\Plugin\LongEssayAssessment\System\Data\UserData;
 use ilUserQuery;
 use PHPUnit\Exception;
 use DateTimeZone;
@@ -15,8 +14,6 @@ use ilLanguage;
 
 readonly class UserDataRepo implements \Edutiek\AssessmentService\System\Data\UserDataRepo
 {
-
-
     public function __construct(
         private ilDBInterface $db,
         private ilLanguage $lng,
@@ -25,7 +22,7 @@ readonly class UserDataRepo implements \Edutiek\AssessmentService\System\Data\Us
     ) {
     }
 
-    public function getOne(int $id): ?UserData
+    public function one(int $id): ?UserData
     {
         foreach ($this->queryUsers([$id]) as $user) {
             return $user;
@@ -33,14 +30,14 @@ readonly class UserDataRepo implements \Edutiek\AssessmentService\System\Data\Us
         return null;
     }
 
-    public function getSome(array $ids): array
+    public function some(array $ids): array
     {
         return $this->queryUsers($ids);
     }
 
-    public function getCurrent(): ?UserData
+    public function current(): ?UserData
     {
-        return new UserModel(
+        return new UserData(
             $this->user->getId(),
             $this->user->getLogin(),
             empty($this->user->getTitle()) ? null : $this->user->getTitle(),
@@ -92,7 +89,7 @@ readonly class UserDataRepo implements \Edutiek\AssessmentService\System\Data\Us
 
         $result = $query->query();
         foreach ($result['set'] ?? [] as $row) {
-            $users = new UserModel(
+            $users = new UserData(
                 (int) $row['usr_id'],
                 (string) $row['login'],
                 !empty($row['title']) ? (string) $row['title'] : null,

@@ -13,7 +13,7 @@ class UserDisplayRepo implements \Edutiek\AssessmentService\System\Data\UserDisp
     ) {
     }
 
-    public function getOne(int $id, ?string $back_link): UserDisplay
+    public function one(int $id, ?string $back_link): UserDisplay
     {
         $result = $this->user_util::getNamePresentation(
             $id,
@@ -34,7 +34,7 @@ class UserDisplayRepo implements \Edutiek\AssessmentService\System\Data\UserDisp
 
     }
 
-    public function getSome(array $ids, ?string $back_link): array
+    public function some(array $ids, ?string $back_link): array
     {
         $result = $this->user_util::getNamePresentation(
             $ids,

@@ -9,11 +9,9 @@ use Edutiek\AssessmentService\System\Api\ForClients as SystemApi;
 use Edutiek\AssessmentService\Assessment\Api\Factory as AssessmentFactory;
 use Edutiek\AssessmentService\Assessment\Api\ForClients as AssessmentApi;
 use Edutiek\AssessmentService\Assessment\Api\ForRest as RestApi;
-
 use ILIAS\DI\Container;
 use ILIAS\Plugin\LongEssayAssessment\Common\Constraints\DataConstraints;
-use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Generate as RepoGenerate;
-use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Factory as RepoFactory;
+use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Generate;
 use ILIAS\Plugin\LongEssayAssessment\ilLongEssayAssessmentUploadTempFile;
 use ILIAS\Plugin\LongEssayAssessment\UI\Implementation\Factory;
 use ILIAS\Plugin\LongEssayAssessment\UI\Implementation\IconFactory;
@@ -45,7 +43,7 @@ class PluginDic
      *  - for the entry points of REST calls
      *  - maybe later for a cron job
      */
-    public static function getInstance(Container $dic, ilLongEssayAssessmentPlugin $plugin) : self
+    public static function getInstance(Container $dic, ilLongEssayAssessmentPlugin $plugin): self
     {
         require_once __DIR__ . '/../../vendor/autoload.php';
         return self::$instance ??= new self($dic, $plugin);
@@ -68,7 +66,8 @@ class PluginDic
             return new PluginTemplateFactory(
                 $dic["ui.template_factory"],
                 $dic[ilLongEssayAssessmentPlugin::class],
-                $dic->ui()->mainTemplate());
+                $dic->ui()->mainTemplate()
+            );
         };
 
         $dic[Factory::class] = function (Container $dic) {
@@ -104,12 +103,8 @@ class PluginDic
             return new UIService($dic[ilLongEssayAssessmentPlugin::class], $dic["lng"], $dic["refinery"]);
         };
 
-        $dic[RepoGenerate::class] = function (Container $dic) {
-            return new RepoGenerate(__DIR__ . '/../../artifacts');
-        };
-
-        $dic[RepoFactory::class] = function (Container $dic) {
-            return new RepoFactory($dic->database(), $dic[RepoGenerate::class]);
+        $dic[Generate::class] = function (Container $dic) {
+            return new Generate(__DIR__ . '/../../artifacts');
         };
 
         $dic[SystemDic::class] = function (Container $dic) {
@@ -127,30 +122,29 @@ class PluginDic
         $dic[AssessmentFactory::class] = function (Container $dic) {
             return (new AssessmentFactory($dic[AssessmentDic::class]));
         };
-
     }
 
-    public function constraints() : DataConstraints
+    public function constraints(): DataConstraints
     {
         return $this->dic[DataConstraints::class];
     }
 
-    public function plugin() : ilLongEssayAssessmentPlugin
+    public function plugin(): ilLongEssayAssessmentPlugin
     {
         return $this->dic[ilLongEssayAssessmentPlugin::class];
     }
 
-    public function uiFactory() : Factory
+    public function uiFactory(): Factory
     {
         return $this->dic[Factory::class];
     }
 
-    public function uiService() : UIService
+    public function uiService(): UIService
     {
         return $this->dic[UIService::class];
     }
 
-    public function uploadTempFile() : ilLongEssayAssessmentUploadTempFile
+    public function uploadTempFile(): ilLongEssayAssessmentUploadTempFile
     {
         return $this->dic[ilLongEssayAssessmentUploadTempFile::class];
     }

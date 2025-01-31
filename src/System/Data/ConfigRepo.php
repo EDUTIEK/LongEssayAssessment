@@ -4,31 +4,25 @@ declare(strict_types=1);
 
 namespace ILIAS\Plugin\LongEssayAssessment\System\Data;
 
-use Edutiek\AssessmentService\System\Data\Config;
-use ilDBInterface;
-use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\CacheRepository;
-use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\DatabaseRepository;
-use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Generate;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\RepositoryInterface;
-use ILIAS\Plugin\LongEssayAssessment\System\Data\Config as ConfigModel;
+use Edutiek\AssessmentService\System\Data\Config as ConfigInterface;
 
 readonly class ConfigRepo implements \Edutiek\AssessmentService\System\Data\ConfigRepo
 {
-
     public function __construct(
         private RepositoryInterface $repo
     ) {
     }
 
-    public function get(): Config
+    public function one(): Config
     {
         foreach ($this->repo->all() as $config) {
             return $config;
         }
-        return new ConfigModel();
+        return new Config();
     }
 
-    public function save(Config $config): void
+    public function save(ConfigInterface $config): void
     {
         $this->repo->replace($config);
     }

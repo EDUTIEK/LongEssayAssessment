@@ -23,8 +23,13 @@ namespace ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo;
 /**
  * @template A of object
  */
-interface  RepositoryInterface
+interface RepositoryInterface
 {
+    /**
+     * @return A
+     */
+    public function new(): ?object;
+
     /**
      * @return A[]
      */

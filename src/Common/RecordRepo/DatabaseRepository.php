@@ -37,6 +37,11 @@ class DatabaseRepository implements RepositoryInterface
     ) {
     }
 
+    public function new(): object
+    {
+        return new $this->model['class']();
+    }
+
     public function all(): array
     {
         return $this->queryAll('SELECT * FROM ' . $this->db->quoteIdentifier($this->table()));
@@ -178,7 +183,7 @@ class DatabaseRepository implements RepositoryInterface
     private function classToDbValue($value, string $type): ?string
     {
         return match ($this->handleNullable($type, $value)) {
-            'string', 'int', 'bool', 'float',  => (string) $value,
+            'string', 'int', 'bool', 'float', => (string) $value,
             DateTime::class, DateTimeImmutable::class => $value->format('Y-m-d H:i:s'),
             default => throw new Exception('Unsupported type: ' . $type),
         };

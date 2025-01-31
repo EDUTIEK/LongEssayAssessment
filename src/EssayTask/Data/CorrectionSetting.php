@@ -24,7 +24,7 @@ use ILIAS\Plugin\LongEssayAssessment\Data\RecordRepo\Attribute\Key;
 use ILIAS\Plugin\LongEssayAssessment\Data\RecordRepo\Attribute\Table;
 
 #[Table(name: 'xlas_et_corr_setting')]
-class CorrectorSetting extends \Edutiek\AssessmentService\EssayTask\Data\CorrectorSetting
+class CorrectionSetting extends \Edutiek\AssessmentService\EssayTask\Data\CorrectionSetting
 {
     #[Key]
     private int $ass_id = 0;

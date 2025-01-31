@@ -633,29 +633,17 @@ abstract class CriteriaGUI extends BaseGUI implements DataTableParent
 
     public function saveSettings(array $data)
     {
-        $form = $this->buildSettingsForm();
-        if($this->request->getMethod() === "POST") {
-            $form = $form->withRequest($this->request);
+        $old_mode = $this->settings->getCriteriaMode();
+        $new_mode = (string) $data['criteria_mode'];
+        if ($old_mode !== $new_mode && $this->isChangeAllowed()) {
+            $this->settings->setCriteriaMode($new_mode);
+            $this->task_repo->save($this->settings);
 
-            if(!empty($data = $form->getData())) {
-                $old_mode = $this->settings->getCriteriaMode();
-                $new_mode = (string) $data['criteria_mode'];
-                if ($old_mode !== $new_mode) {
-                    $this->settings->setCriteriaMode($new_mode);
-                    $this->task_repo->save($this->settings);
-
-                    $this->criteria_service->changeCriteriaMode($old_mode, $new_mode);
-                    foreach ($this->writer_repo->getWritersByTaskId($this->object->getId()) as $writer) {
-                        $this->admin_service->removeAuthorizations($writer);
-                    }
-
-                    $this->tpl->setOnScreenMessage("success", $this->lng->txt("settings_saved"), true);
-                }
-                exit();
-            } else {
-                echo($this->renderer->render($form));
-                exit();
+            $this->criteria_service->changeCriteriaMode($old_mode, $new_mode);
+            foreach ($this->writer_repo->getWritersByTaskId($this->object->getId()) as $writer) {
+                $this->admin_service->removeAuthorizations($writer);
             }
+            $this->tpl->setOnScreenMessage("success", $this->lng->txt("settings_saved"), true);
         }
     }
 

@@ -1,7 +1,7 @@
 <?php
+
 /* Copyright (c) 2021 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-use Edutiek\AssessmentService\System\Data\Config;
 use ILIAS\DI\Container;
 use ILIAS\Plugin\LongEssayAssessment\Dependencies\PluginDic;
 use ILIAS\Plugin\LongEssayAssessment\Task\ResourceResourceStakeholder;
@@ -19,24 +19,25 @@ use ILIAS\Plugin\LongEssayAssessment\WriterAdmin\PDFVersionResourceStakeholder;
  */
 class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
 {
-    const ID = "xlas";
-    const LANGUAGES = ['de'];
+    public const ID = "xlas";   // must be public for GUI and List GUI
+    private const LANGUAGES = ['de'];
 
+    protected Container $ilias_dic;
+    protected ilLanguage $lng;
+    protected ilDBInterface $db;
 
-    protected Container $dic;
     protected static $instance;
 
-
-    /**
-     * Constructor.
-     */
     public function __construct(
         \ilDBInterface $db,
         \ilComponentRepositoryWrite $component_repository,
         string $id
     ) {
         global $DIC;
-        $this->dic = $DIC;
+
+        $this->ilias_dic = $DIC;
+        $this->lng = $DIC->language();
+        $this->db = $DIC->database();
 
         parent::__construct($db, $component_repository, $id);
     }
@@ -44,17 +45,17 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
     /**
      * Get the dependency injection container of the plugin
      * Init the local autoload of all external plugin dependencies
-     *  This is separated from init() to avoid conflicts with other package versions in ILIAS
+     *  This is not done in init() to avoid conflicts with other package versions in ILIAS
      *  Note: init() is called from the ilPlugin constructor in ILIAS initialisation
      *
      *  The local autoload needs only to be initialized:
      *  - for the GUI of the plugin
      *  - for the entry points of REST calls
-     *  - maybe later for a cron job
-     *
+     *  - for a cron job
      */
-    public function dic() {
-        return PluginDic::getInstance($this->dic, $this);
+    public function dic()
+    {
+        return PluginDic::getInstance($this->ilias_dic, $this);
     }
 
     /**
@@ -66,10 +67,7 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
         return 'Customizing/global/plugins/Services/Repository/RepositoryObject/LongEssayAssessment';
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function allowCopy() : bool
+    public function allowCopy(): bool
     {
         return true;
     }
@@ -79,19 +77,15 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
      * Overridden from ilPlugin::uninstall to catch an exception
      * that would be thrown by ilRepositoryObjectPlugin::beforeUninstall
      * if the last uninstall went wrong
-     *
-     * @return bool
      */
-    public function uninstall() : bool
+    public function uninstall(): bool
     {
         try {
             $rep_util = new ilRepUtil();
             $rep_util->deleteObjectType($this->getId());
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             // repo object type may already be deleted
             // if the uninstallCustom went wrong in the last call
-
             // do nothing here
             // to try the uninstallCustom again
         }
@@ -99,16 +93,15 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
         $this->uninstallCustom();
 
         $this->getLanguageHandler()->uninstall();
-        //$this->clearEventListening();
         $this->component_repository->removeStateInformationOf($this->getId());
-        $this->afterUninstall();
         return true;
     }
 
     /**
      * Uninstall custom data of this plugin
+     * @todo: refactor
      */
-    protected function uninstallCustom() : void
+    protected function uninstallCustom(): void
     {
         $tables = [
             'xlas_access_token',
@@ -140,43 +133,40 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
             'xlas_writer_prefs'
         ];
 
-        if ($this->dic->database()->tableExists('xlas_resource')) {
+        if ($this->db->tableExists('xlas_resource')) {
             $result = $this->db->query("SELECT file_id FROM xlas_resource WHERE file_id IS NOT NULL");
             while ($row = $this->db->fetchAssoc($result)) {
-                if($identifier = $this->dic->resourceStorage()->manage()->find($row["file_id"])) {
-                    $this->dic->resourceStorage()->manage()->remove($identifier, new ResourceResourceStakeholder());
+                if ($identifier = $this->ilias_dic->resourceStorage()->manage()->find($row["file_id"])) {
+                    $this->ilias_dic->resourceStorage()->manage()->remove($identifier, new ResourceResourceStakeholder());
                 }
             }
         }
 
-        if ($this->dic->database()->tableExists('xlas_essay')) {
+        if ($this->db->tableExists('xlas_essay')) {
             $result = $this->db->query("SELECT pdf_version FROM xlas_essay WHERE pdf_version IS NOT NULL");
             while ($row = $this->db->fetchAssoc($result)) {
-                if($identifier = $this->dic->resourceStorage()->manage()->find($row["pdf_version"])) {
-                    $this->dic->resourceStorage()->manage()->remove($identifier, new PDFVersionResourceStakeholder());
+                if ($identifier = $this->ilias_dic->resourceStorage()->manage()->find($row["pdf_version"])) {
+                    $this->ilias_dic->resourceStorage()->manage()->remove($identifier, new PDFVersionResourceStakeholder());
                 }
             }
         }
 
-        if ($this->dic->database()->tableExists('xlas_essay_image')) {
+        if ($this->db->tableExists('xlas_essay_image')) {
             $result = $this->db->query("SELECT file_id FROM xlas_essay_image");
             while ($row = $this->db->fetchAssoc($result)) {
-                if ($identifier = $this->dic->resourceStorage()->manage()->find($row["file_id"])) {
-                    $this->dic->resourceStorage()->manage()->remove($identifier, new EssayImageResourceStakeholder());
+                if ($identifier = $this->ilias_dic->resourceStorage()->manage()->find($row["file_id"])) {
+                    $this->ilias_dic->resourceStorage()->manage()->remove($identifier, new EssayImageResourceStakeholder());
                 }
             }
         }
 
-        foreach($tables as $table) {
-            if ($this->dic->database()->tableExists($table)) {
-                $this->dic->database()->dropTable($table);
+        foreach ($tables as $table) {
+            if ($this->db->tableExists($table)) {
+                $this->db->dropTable($table);
             }
         }
     }
 
-    /**
-     * Get the plugin instance
-     */
     public static function getInstance(): self
     {
         if (!isset(self::$instance)) {
@@ -187,45 +177,33 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
     }
 
     /**
-     * Check if the current user has administrative access
-     * @return bool
-     */
-    public function hasAdminAccess()
-    {
-        return $this->dic->rbac()->system()->checkAccess("visible", SYSTEM_FOLDER_ID);
-    }
-
-    /**
      * Check if the plugin supports a language
      */
-    public function hasLanguage($a_lang_code) : bool
+    public function hasLanguage($a_lang_code): bool
     {
         return in_array($a_lang_code, self::LANGUAGES);
     }
 
     /**
-     * Get the default Language
+     * Get the default Language with fallback to a supported langguage
      */
-    public function getDefaultLanguage() : string
+    public function getDefaultLanguage(): string
     {
-        if ($this->hasLanguage($this->dic->language()->getDefaultLanguage())) {
-            return $this->dic->language()->getDefaultLanguage();
+        if ($this->hasLanguage($this->lng->getDefaultLanguage())) {
+            return $this->lng->getDefaultLanguage();
         }
         return self::LANGUAGES[0];
     }
 
     /**
      * Get a plugin text and use the variable, if not translated, take the current language
-     * @param string $a_var
-     * @param ?string $a_lang_code
-     * @return string
      */
-    public function txt(string $a_var, ?string $a_lang_code = null) : string
+    public function txt(string $a_var, ?string $a_lang_code = null): string
     {
         if (isset($a_lang_code)) {
-            $txt = $this->dic->language()->txtlng($this->getPrefix(), $this->getPrefix() . "_" . $a_var, $a_lang_code);
-        }
-        else {
+            $txt = $this->lng->txtlng($this->getPrefix(), $this->getPrefix()
+                . "_" . $a_var, $a_lang_code);
+        } else {
             $txt = parent::txt($a_var);
         }
 
@@ -234,8 +212,6 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
         }
         return $txt;
     }
-
-
 
     public function exchangeUIRendererAfterInitialization(Container $dic): Closure
     {
@@ -302,22 +278,21 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
 
     /**
      * Handle an event
-     * @param string	$a_component
-     * @param string	$a_event
-     * @param mixed		$a_parameter
+     * @deprecated - needs refactoring
+     * @todo: refactor
      */
     public function handleEvent($a_component, $a_event, $a_parameter)
     {
         // todo refacoring
-//        if ('Services/User' == $a_component && 'deleteUser' == $a_event) {
-//            $usr_id = $a_parameter['usr_id'];
-//            $di = LongEssayAssessmentDI::getInstance();
-//            $writer_repo = $di->getWriterRepo();
-//            $writer = $writer_repo->getWritersByUserId($usr_id);
-//            foreach ($writer as $w) {
-//                $writer_repo->deleteWriter($w->getId());
-//            }
-//        }
+        //        if ('Services/User' == $a_component && 'deleteUser' == $a_event) {
+        //            $usr_id = $a_parameter['usr_id'];
+        //            $di = LongEssayAssessmentDI::getInstance();
+        //            $writer_repo = $di->getWriterRepo();
+        //            $writer = $writer_repo->getWritersByUserId($usr_id);
+        //            foreach ($writer as $w) {
+        //                $writer_repo->deleteWriter($w->getId());
+        //            }
+        //        }
     }
 
 }

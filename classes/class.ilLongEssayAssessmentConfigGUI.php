@@ -1,9 +1,9 @@
 <?php
 /* Copyright (c) 2021 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-use Edutiek\AssessmentService\System\Config\Service as ConfigService;
+use Edutiek\AssessmentService\System\Config\Service;
+use Edutiek\AssessmentService\System\Data\Config;
 use ILIAS\DI\Container;
-use ILIAS\Plugin\LongEssayAssessment\System\Data\Config;
 
 /**
  * Plugin Configuration GUI
@@ -22,7 +22,8 @@ class ilLongEssayAssessmentConfigGUI extends ilPluginConfigGUI
     protected ilLanguage $lng;
     protected ilGlobalTemplateInterface $tpl;
     protected ilToolbarGUI $toolbar;
-    protected ConfigService $service;
+
+    protected Service $service;
     private Config $config;
 
     /**
@@ -59,7 +60,6 @@ class ilLongEssayAssessmentConfigGUI extends ilPluginConfigGUI
                 }
         }
     }
-
 
     /**
      * Show base configuration screen

@@ -86,7 +86,7 @@ class ResourcesAdminGUI extends BaseGUI implements DataTableParent
             "preview",
             $this->lng->txt('preview'),
             [$this, "previewModal"],
-            fn (ResourceItem $x) => $x->getType() === Resource::RESOURCE_TYPE_FILE,
+            fn (ResourceItem $x) => ($x->getType() === Resource::RESOURCE_TYPE_FILE || ($x->isEmbedded() && $x->getType() === Resource::RESOURCE_TYPE_URL)),
             Action\Type::Single
         );
     }
@@ -165,12 +165,18 @@ class ResourcesAdminGUI extends BaseGUI implements DataTableParent
                                  ->withRequired(true)
                                  ->withByline($this->plugin->txt("resource_file_description") . "<br>" . $this->uiService->getMaxFileSizeString());
 
-        $url = $factory->text($this->plugin->txt('resource_weblink'))
+        $url = $factory->url($this->plugin->txt('resource_weblink'))
                        ->withRequired(true)
-                       ->withValue($item->getUrl());
+                       ->withValue($item->getUrl())
+        ->withAdditionalTransformation(
+            $this->refinery->custom()->constraint(
+                fn(string $x) => preg_match('/^https?:\/\//', $x) === 1 ,
+                $this->plugin->txt("not_a_weburl")
+            )
+        );
 
         $embedded = $factory->checkbox($this->plugin->txt('resource_embedded'), $this->plugin->txt('resource_embedded_info'))
-            ->withValue($a_resource->getEmbedded());
+            ->withValue($item->isEmbedded());
 
         $availability = $factory->radio($this->plugin->txt("resource_availability"))
                                 ->withRequired(true)
@@ -259,7 +265,7 @@ class ResourcesAdminGUI extends BaseGUI implements DataTableParent
                     $a_data["title"],
                     $a_data["description"],
                     $a_data["availability"],
-                    $a_data["type"][1]["url"],
+                    (string)$a_data["type"][1]["url"],
                     $a_data["type"][1]["embedded"]
                 );
                 break;
@@ -364,6 +370,10 @@ class ResourcesAdminGUI extends BaseGUI implements DataTableParent
                 break;
             case Resource::RESOURCE_TYPE_URL:
                 $info = $this->renderer->render($this->uiFactory->link()->standard($item->getUrl(), $item->getUrl()));
+
+                if($item->isEmbedded()) {
+                    $info .= " (" . $this->plugin->txt("resource_embedded") . ")";
+                }
                 $type = $this->plugin->txt('resource_weblink');
         }
 
@@ -396,7 +406,7 @@ class ResourcesAdminGUI extends BaseGUI implements DataTableParent
 
     protected function tableItemFromData(Resource $item): ResourceItem
     {
-        return new ResourceItem($item->getId(), $item->getTitle(), $item->getType(), $item->getDescription(), $item->getAvailability(), $item->getUrl(), $item->getFileId());
+        return new ResourceItem($item->getId(), $item->getTitle(), $item->getType(), $item->getDescription(), $item->getAvailability(), $item->getUrl(), $item->getFileId(), $item->getEmbedded());
     }
 
     public function getTableItem(int $id) : Item
@@ -439,12 +449,19 @@ class ResourcesAdminGUI extends BaseGUI implements DataTableParent
 
     public function previewModal(ResourceItem $item)
     {
-        $this->ctrl->setParameter($this, "resource_id", $item->getId());
-        $link = $this->ctrl->getLinkTarget($this, "downloadResourceFile");
-        $pdf = $this->localDI->getUIFactory()->viewer()->pdf($link);
+        if($item->getType() === Resource::RESOURCE_TYPE_FILE)
+        {
+            $this->ctrl->setParameter($this, "resource_id", $item->getId());
+            $link = $this->ctrl->getLinkTarget($this, "downloadResourceFile");
+            $component = $this->localDI->getUIFactory()->viewer()->pdf($link);
+        } elseif($item->isEmbedded() && $item->getType() === Resource::RESOURCE_TYPE_URL) {
+            $url = $item->getUrl();
+            $component = $this->uiFactory->legacy("<iframe src=\"$url\" width=\"100%\" height=\"500px\"></iframe>");
+        }
+
         $title = $this->lng->txt("preview") . ": " . $item->getTitle();
         return $this->uiFactory->modal()->lightbox([
-            $this->uiFactory->modal()->lightboxTextPage($this->renderer->render($pdf), $title)
+            $this->uiFactory->modal()->lightboxTextPage($this->renderer->render($component), $title)
         ]);
     }
 

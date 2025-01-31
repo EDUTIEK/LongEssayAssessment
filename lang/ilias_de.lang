@@ -676,3 +676,4 @@ no_correctors#:#Keine Korrektoren
 copy_from_xlas#:#Korrektoren aus Langtext-Aufgabe
 copy_criteria#:#Kriterien kopieren
 copy_criteria_info#:#Beim Kopieren der Kriterien werden die bestehenden Kriterien ersetzt.
+not_a_weburl#:#Keine Web URL beginnend mit http(s)://

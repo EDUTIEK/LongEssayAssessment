@@ -13,7 +13,8 @@ class ResourceItem extends Item
         protected ?string $description = null,
         protected ?string $available = null,
         protected ?string $url = null,
-        protected ?string $identifier = null
+        protected ?string $identifier = null,
+        protected bool $is_embedded = false,
     ) {
         parent::__construct($id);
     }
@@ -46,5 +47,10 @@ class ResourceItem extends Item
     public function getIdentifier() : ?string
     {
         return $this->identifier;
+    }
+
+    public function isEmbedded() : bool
+    {
+        return $this->is_embedded;
     }
 }

@@ -12,20 +12,17 @@ use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Generate;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\RepositoryInterface;
 use ILIAS\Plugin\LongEssayAssessment\System\Data\Config as ConfigModel;
 
-class ConfigRepo implements \Edutiek\AssessmentService\System\Data\ConfigRepo
+readonly class ConfigRepo implements \Edutiek\AssessmentService\System\Data\ConfigRepo
 {
-    private RepositoryInterface $config_repo;
 
     public function __construct(
-        ilDBInterface $db,
-        Generate $g,
+        private RepositoryInterface $repo
     ) {
-        $this->config_repo = new CacheRepository(new DatabaseRepository($db, $g->readModel(ConfigModel::class)));
     }
 
     public function get(): Config
     {
-        foreach ($this->config_repo->all() as $config) {
+        foreach ($this->repo->all() as $config) {
             return $config;
         }
         return new ConfigModel();
@@ -33,7 +30,7 @@ class ConfigRepo implements \Edutiek\AssessmentService\System\Data\ConfigRepo
 
     public function save(Config $config): void
     {
-        $this->config_repo->replace($config);
+        $this->repo->replace($config);
     }
 
 }

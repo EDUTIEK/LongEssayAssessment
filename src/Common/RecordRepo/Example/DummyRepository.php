@@ -20,7 +20,7 @@ declare(strict_types=1);
 
 namespace ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Example;
 
-use Edutiek\AssessmentService\Model\Dummy;
+use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Example\Dummy;
 
 require_once __DIR__ . '/../../vendor/autoload.php';
 

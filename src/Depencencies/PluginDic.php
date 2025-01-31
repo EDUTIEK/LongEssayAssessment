@@ -12,7 +12,8 @@ use Edutiek\AssessmentService\Assessment\Api\ForRest as RestApi;
 
 use ILIAS\DI\Container;
 use ILIAS\Plugin\LongEssayAssessment\Common\Constraints\DataConstraints;
-use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Generate;
+use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Generate as RepoGenerate;
+use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Factory as RepoFactory;
 use ILIAS\Plugin\LongEssayAssessment\ilLongEssayAssessmentUploadTempFile;
 use ILIAS\Plugin\LongEssayAssessment\UI\Implementation\Factory;
 use ILIAS\Plugin\LongEssayAssessment\UI\Implementation\IconFactory;
@@ -103,8 +104,12 @@ class PluginDic
             return new UIService($dic[ilLongEssayAssessmentPlugin::class], $dic["lng"], $dic["refinery"]);
         };
 
-        $dic[Generate::class] = function (Container $dic) {
-            return new Generate(__DIR__ . '/../../artifacts');
+        $dic[RepoGenerate::class] = function (Container $dic) {
+            return new RepoGenerate(__DIR__ . '/../../artifacts');
+        };
+
+        $dic[RepoFactory::class] = function (Container $dic) {
+            return new RepoFactory($dic->database(), $dic[RepoGenerate::class]);
         };
 
         $dic[SystemDic::class] = function (Container $dic) {

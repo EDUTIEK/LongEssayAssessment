@@ -39,10 +39,6 @@ class DatabaseRepository implements RepositoryInterface
 
     public function all(): array
     {
-        if (isset($GLOBALS['HEJ'])) {
-            var_dump('aerrr');exit;
-        }
-        $GLOBALS['HEJ'] = 'aaa';
         return $this->queryAll('SELECT * FROM ' . $this->db->quoteIdentifier($this->table()));
     }
 
@@ -168,7 +164,7 @@ class DatabaseRepository implements RepositoryInterface
 
     private function dbToClassValue($value, string $type)
     {
-        return match ($this->handleNullable($type)) {
+        return match ($this->handleNullable($type, $value)) {
             null => null,
             'string' => (string) $value,
             'int' => (int) $value,
@@ -181,7 +177,7 @@ class DatabaseRepository implements RepositoryInterface
 
     private function classToDbValue($value, string $type): ?string
     {
-        return match ($this->handleNullable($type)) {
+        return match ($this->handleNullable($type, $value)) {
             'string', 'int', 'bool', 'float',  => (string) $value,
             DateTime::class, DateTimeImmutable::class => $value->format('Y-m-d H:i:s'),
             default => throw new Exception('Unsupported type: ' . $type),
@@ -211,7 +207,7 @@ class DatabaseRepository implements RepositoryInterface
         })->bindTo($model, $model)();
     }
 
-    private function handleNullable(string $type): ?string
+    private function handleNullable(string $type, $value): ?string
     {
         if ($type[0] === '?') {
             if ($value === null) {

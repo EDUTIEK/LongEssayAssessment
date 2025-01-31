@@ -12,20 +12,20 @@ use PHPUnit\Exception;
 use DateTimeZone;
 use ilObjUser;
 use ilLanguage;
-use ilUserUtil;
 
-class UserRepo implements \Edutiek\AssessmentService\System\Data\UserRepo
+readonly class UserDataRepo implements \Edutiek\AssessmentService\System\Data\UserDataRepo
 {
+
+
     public function __construct(
         private ilDBInterface $db,
-        private readonly ilLanguage $lng,
+        private ilLanguage $lng,
         private ilObjUser $user,
-        private ilUserQuery $user_query,
-        private ilUserUtil $user_util
+        private ilUserQuery $user_query
     ) {
     }
 
-    public function getUser(int $id): ?UserData
+    public function getOne(int $id): ?UserData
     {
         foreach ($this->queryUsers([$id]) as $user) {
             return $user;
@@ -33,12 +33,12 @@ class UserRepo implements \Edutiek\AssessmentService\System\Data\UserRepo
         return null;
     }
 
-    public function getUsersByIds(array $ids): array
+    public function getSome(array $ids): array
     {
         return $this->queryUsers($ids);
     }
 
-    public function getCurrentUser(): ?UserData
+    public function getCurrent(): ?UserData
     {
         return new UserModel(
             $this->user->getId(),
@@ -51,56 +51,12 @@ class UserRepo implements \Edutiek\AssessmentService\System\Data\UserRepo
         );
     }
 
-    public function getUserDisplay(int $id, ?string $back_link): UserDisplay
-    {
-        $result = $this->user_util::getNamePresentation(
-            $id,
-            true,
-            true,
-            (string) $back_link,
-            false,
-            false,
-            false,
-            true
-        );
-
-        return new UserDisplay(
-            $id,
-            $data['img'] ?? null,
-            $data['link'] ?? null
-        );
-    }
-
-    public function getUserDisplaysByIds(array $ids, ?string $back_link): array
-    {
-        $result = $this->user_util::getNamePresentation(
-            $ids,
-            true,
-            true,
-            (string) $back_link,
-            false,
-            false,
-            false,
-            true
-        );
-
-        $displays = [];
-        foreach ($ids as $id) {
-            $displays[$id] = new UserDisplay(
-                $id,
-                $data[$id]['img'] ?? null,
-                $data[$id]['link'] ?? null
-            );
-        }
-
-        return $displays;
-    }
 
     /**
      * @param int[] $ids
      * @return UserData[] indexed by usr_id
      */
-    public function queryUsers(array $ids): array
+    private function queryUsers(array $ids): array
     {
         $default_language = $this->lng->getDefaultLanguage();
         $default_timezone = new DateTimeZone(date_default_timezone_get());
@@ -115,11 +71,11 @@ class UserRepo implements \Edutiek\AssessmentService\System\Data\UserRepo
         while ($row = $this->db->fetchAssoc($result)) {
             switch ($row['keyword']) {
                 case 'language':
-                    $this->languages[$row['usr_id']] = $row['value'];
+                    $languages[$row['usr_id']] = $row['value'];
                     break;
                 case 'usr_tz':
                     try {
-                        $this->timezones[$row['usr_id']] = new DateTimeZone($row['uset_tz']);
+                        $timezones[$row['usr_id']] = new DateTimeZone($row['value']);
                     } catch (Exception) {
                     }
                     break;

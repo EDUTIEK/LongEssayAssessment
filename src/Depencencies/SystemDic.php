@@ -6,14 +6,14 @@ namespace ILIAS\Plugin\LongEssayAssessment\Dependencies;
 
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Generate;
 use ILIAS\Plugin\LongEssayAssessment\System\Data\ConfigRepo;
-use ILIAS\Plugin\LongEssayAssessment\System\Data\UserRepo;
-use ILIAS\DI\Container;
-use ilLongEssayAssessmentPlugin;
-use Edutiek\AssessmentService\System\File\Storage;
-use Edutiek\AssessmentService\System\File\Delivery;
+use ILIAS\Plugin\LongEssayAssessment\System\Data\SetupRepo;
+use ILIAS\Plugin\LongEssayAssessment\System\Data\UserDataRepo;
+use ILIAS\Plugin\LongEssayAssessment\System\Data\UserDisplayRepo;
 use ILIAS\Plugin\LongEssayAssessment\System\File\DeliveryAdapter;
 use ILIAS\Plugin\LongEssayAssessment\System\File\StorageAdapter;
 use ILIAS\Plugin\LongEssayAssessment\System\File\Stakeholder;
+use ILIAS\DI\Container;
+use ilLongEssayAssessmentPlugin;
 use InitResourceStorage;
 use ilUserQuery;
 use ilUserUtil;
@@ -30,6 +30,11 @@ class SystemDic implements \Edutiek\AssessmentService\System\Api\Dependencies
             return new ConfigRepo(
                 $dic->database(),
                 $dic[Generate::class],
+            );
+        };
+
+        $dic[SetupRepo::class] = function (Container $dic) {
+            return new SetupRepo(
                 $dic->clientIni(),
                 $dic[ilLongEssayAssessmentPlugin::class],
                 $dic->filesystem()->web(),
@@ -37,12 +42,17 @@ class SystemDic implements \Edutiek\AssessmentService\System\Api\Dependencies
             );
         };
 
-        $dic[UserRepo::class] = function (Container $dic) {
-            return new UserRepo(
+        $dic[UserDataRepo::class] = function (Container $dic) {
+            return new UserDataRepo(
                 $dic->database(),
                 $dic->language(),
                 $dic->user(),
-                new ilUserQuery(),
+                new ilUserQuery()
+            );
+        };
+
+        $dic[UserDisplayRepo::class] = function (Container $dic) {
+            return new UserDisplayRepo(
                 new ilUserUtil()
             );
         };
@@ -70,18 +80,28 @@ class SystemDic implements \Edutiek\AssessmentService\System\Api\Dependencies
         return $this->dic[ConfigRepo::class];
     }
 
-    public function fileStorage(): Storage
+    public function setupRepo(): SetupRepo
+    {
+        return $this->dic[SetupRepo::class];
+    }
+
+    public function fileStorage(): StorageAdapter
     {
         return $this->dic[StorageAdapter::class];
     }
 
-    public function fileDelivery(): Delivery
+    public function fileDelivery(): DeliveryAdapter
     {
         return $this->dic[DeliveryAdapter::class];
     }
 
-    public function userRepo(): UserRepo
+    public function userDataRepo(): UserDataRepo
     {
-        return $this->dic[UserRepo::class];
+        return $this->dic[UserDataRepo::class];
+    }
+
+    public function userDisplayRepo(): UserDisplayRepo
+    {
+        return $this->dic[UserDisplayRepo::class];
     }
 }

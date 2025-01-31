@@ -164,18 +164,6 @@ class CorrectorGUI extends BaseGUI implements DataTableParent
         $columns["not_started"] = $item->getNotStarted();
         $columns["open"] = $item->getOpen();
         $columns["authorized"] = $item->getAuthorized();
-        $columns["progress"] = function (bool $orderable) use ($item) {
-            $all = $item->getFirst() + ($item->getSecond() ?? 0);
-            $complete = $item->getAuthorized();
-            $all = $all > 0 ? $all : 1;
-
-            if($orderable) {
-                return $complete / $all;
-            }
-
-            $progress = $this->uiFactory->chart()->progressMeter()->mini($all, $complete);
-            return $this->renderer->render($progress);
-        };
 
         return $columns;
     }
@@ -199,7 +187,6 @@ class CorrectorGUI extends BaseGUI implements DataTableParent
         $columns["not_started"] = $tf->column()->text($this->plugin->txt('grading_not_started'))->withIsSortable($sortable);
         $columns["open"] = $tf->column()->text($this->plugin->txt('grading_open'))->withIsSortable($sortable);
         $columns["authorized"] = $tf->column()->text($this->plugin->txt('grading_authorized'))->withIsSortable($sortable);
-        $columns["progress"] = $tf->column()->text($this->plugin->txt('progress'))->withIsSortable($sortable);
         return $columns;
     }
 

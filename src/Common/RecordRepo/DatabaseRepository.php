@@ -222,4 +222,21 @@ class DatabaseRepository implements RepositoryInterface
         }
         return $type;
     }
+
+    public function queryAllBy(array $conditions): array
+    {
+        // TODO: Implement queryAllBy() method.
+        return [];
+    }
+
+    public function queryOneBy(array $conditions): ?object
+    {
+        // TODO: Implement queryOneBy() method.
+        return null;
+    }
+
+    public function deleteAllBy(array $conditions): void
+    {
+        // TODO: Implement deleteAllBy() method.
+    }
 }

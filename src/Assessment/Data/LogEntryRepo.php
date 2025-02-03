@@ -31,9 +31,9 @@ readonly class LogEntryRepo implements \Edutiek\AssessmentService\Assessment\Dat
         return $this->repo->queryAllBy(['ass_id' => $ass_id]);
     }
 
-    public function create(LogEntry $alert): void
+    public function create(LogEntry $entity): void
     {
-        $this->repo->insert($alert);
+        $this->repo->insert($entity);
     }
 
     public function delete($id): void

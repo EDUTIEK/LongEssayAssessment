@@ -28,12 +28,12 @@ class RepositoryFactory implements \Edutiek\AssessmentService\Assessment\Data\Re
 
     public function alert(): AlertRepo
     {
-        return $this->instances[AlertRepo::class] ??= new AlertRepo($this->add(Alert::class), $this->db);
+        return $this->instances[AlertRepo::class] ??= new AlertRepo($this->add(Alert::class));
     }
 
     public function logEntry(): LogEntryRepo
     {
-        return $this->instances[LogEntryRepo::class] ??= new LogEntryRepo($this->add(LogEntry::class), $this->db);
+        return $this->instances[LogEntryRepo::class] ??= new LogEntryRepo($this->add(LogEntry::class));
     }
 
     public function permissions(): PermissionsRepo

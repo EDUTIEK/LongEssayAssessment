@@ -20,6 +20,7 @@ declare(strict_types=1);
 
 namespace ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo;
 
+use ilDBConstants;
 use DateTime;
 use DateTimeImmutable;
 use Exception;
@@ -44,7 +45,7 @@ class DatabaseRepository implements RepositoryInterface
 
     public function all(): array
     {
-        return $this->queryAll('SELECT * FROM ' . $this->db->quoteIdentifier($this->table()));
+        return $this->queryAll($this->sqlSelect());
     }
 
     public function queryAll(string $query): array
@@ -103,9 +104,7 @@ class DatabaseRepository implements RepositoryInterface
             $where[] = $this->db->quoteIdentifier($field['db_name']) . ' = ' . $this->db->quote(...array_reverse($row[$field['db_name']]));
         }
 
-        $this->db->query(
-            'DELETE FROM ' . $this->db->quoteIdentifier($this->table()) . ' WHERE ' . join(' AND ', $where),
-        );
+        $this->db->manipulate($this->sqlDelete(join(' AND ', $where)));
     }
 
     public function queryIntegers(string $query, string $key): array
@@ -158,6 +157,51 @@ class DatabaseRepository implements RepositoryInterface
         return array_filter($this->model['properties'], fn(array $p) => $p['key']);
     }
 
+    public function queryAllBy(array $conditions): array
+    {
+        return $this->queryAll($this->sqlSelect($this->where($conditions)));
+    }
+
+    public function queryOneBy(array $conditions): ?object
+    {
+        return $this->queryOne($this->sqlSelect($this->where($conditions)));
+    }
+
+    public function deleteAllBy(array $conditions): void
+    {
+        $this->db->manipulate($this->sqlDelete($this->where($conditions)));
+    }
+
+    private function where(array $conditions): string
+    {
+        return join(' AND ', array_map($this->equals(...), array_keys($conditions), array_values($conditions)));
+    }
+
+    /**
+     * @param array|string|int|bool|float|null $right
+     */
+    private function equals(string $left, $right): string
+    {
+        $quote_id = $this->db->quoteIdentifier(...);
+        return match (gettype($right)) {
+            'integer', 'string', 'float' => $quote_id($left) . ' = ' . $this->db->quote($right, ilDBConstants::T_TEXT),
+            'boolean' => $quote_id($left) . ' = ' . $this->db->quote((int) $right, ilDBConstants::T_INTEGER),
+            'array' => $this->db->in($left, array_map(fn($x) => is_bool($x) ? (int) $x : $x, $right), false, ilDBConstants::T_TEXT),
+            'NULL' => $quote_id($left) . ' IS NULL',
+            default => throw new Exception('Unsupported type: ' . gettype($right)),
+        };
+    }
+
+    private function sqlSelect(string $where = '1'): string
+    {
+        return 'SELECT * FROM ' . $this->db->quoteIdentifier($this->table()) . ' WHERE ' . $where;
+    }
+
+    private function sqlDelete(string $where): string
+    {
+        return 'DELETE FROM ' . $this->db->quoteIdentifier($this->table()) . ' WHERE ' . $where;
+    }
+
     /**
      * @return array<int|string, mixed>[]
      */
@@ -183,6 +227,7 @@ class DatabaseRepository implements RepositoryInterface
     private function classToDbValue($value, string $type): ?string
     {
         return match ($this->handleNullable($type, $value)) {
+            null => null,
             'string', 'int', 'bool', 'float', => (string) $value,
             DateTime::class, DateTimeImmutable::class => $value->format('Y-m-d H:i:s'),
             default => throw new Exception('Unsupported type: ' . $type),
@@ -221,22 +266,5 @@ class DatabaseRepository implements RepositoryInterface
             return substr($type, 1);
         }
         return $type;
-    }
-
-    public function queryAllBy(array $conditions): array
-    {
-        // TODO: Implement queryAllBy() method.
-        return [];
-    }
-
-    public function queryOneBy(array $conditions): ?object
-    {
-        // TODO: Implement queryOneBy() method.
-        return null;
-    }
-
-    public function deleteAllBy(array $conditions): void
-    {
-        // TODO: Implement deleteAllBy() method.
     }
 }

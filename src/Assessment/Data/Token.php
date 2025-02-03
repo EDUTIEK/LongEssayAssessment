@@ -21,8 +21,8 @@ declare(strict_types=1);
 namespace ILIAS\Plugin\LongEssayAssessment\Assessment\Data;
 
 use DateTimeImmutable;
-use ILIAS\Plugin\LongEssayAssessment\Data\RecordRepo\Attribute\Key;
-use ILIAS\Plugin\LongEssayAssessment\Data\RecordRepo\Attribute\Table;
+use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Key;
+use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Table;
 
 #[Table(name: 'xlas_as_token')]
 class Token extends \Edutiek\AssessmentService\Assessment\Data\Token

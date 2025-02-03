@@ -20,7 +20,7 @@ declare(strict_types=1);
 
 namespace ILIAS\Plugin\LongEssayAssessment\EssayTask\Data;
 
-use ILIAS\Plugin\LongEssayAssessment\Data\RecordRepo\Attribute\Table;
+use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Table;
 
 #[Table(name: 'xlas_et_corr_task_pref')]
 class CorrectorTaskPreference extends \Edutiek\AssessmentService\EssayTask\Data\CorrectorTaskPreference

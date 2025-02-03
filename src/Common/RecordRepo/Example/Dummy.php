@@ -20,10 +20,10 @@ declare(strict_types=1);
 
 namespace ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Example;
 
-use ILIAS\Plugin\LongEssayAssessment\Data\RecordRepo\Attribute\Table;
-use ILIAS\Plugin\LongEssayAssessment\Data\RecordRepo\Attribute\Column;
-use ILIAS\Plugin\LongEssayAssessment\Data\RecordRepo\Attribute\Sequence;
-use ILIAS\Plugin\LongEssayAssessment\Data\RecordRepo\Attribute\Key;
+use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Table;
+use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Column;
+use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Sequence;
+use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Key;
 use DateTimeImmutable;
 
 #[Table(name: 'dummy')]

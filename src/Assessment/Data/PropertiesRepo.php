@@ -27,13 +27,13 @@ class PropertiesRepo implements \Edutiek\AssessmentService\Assessment\Data\Prope
             ->setDescription($this->data_cache->lookupDescription($ass_id));
     }
 
-    public function save(Properties $properties): void
+    public function save(Properties $entity): void
     {
-        $object = $this->factory::getInstanceByObjId($properties->getAssId());
-        $object->setTitle($properties->getTitle());
-        $object->setDescription($properties->getDescription());
+        $object = $this->factory::getInstanceByObjId($entity->getAssId());
+        $object->setTitle($entity->getTitle());
+        $object->setDescription($entity->getDescription());
         $object->update();
 
-        $this->data_cache->deleteCachedEntry($properties->getAssId());
+        $this->data_cache->deleteCachedEntry($entity->getAssId());
     }
 }

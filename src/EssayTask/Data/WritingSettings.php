@@ -24,7 +24,7 @@ use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Key;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Table;
 
 #[Table(name: 'xlas_et_write_settings')]
-class WriteSettings extends \Edutiek\AssessmentService\EssayTask\Data\WriteSettings
+class WritingSettings extends \Edutiek\AssessmentService\EssayTask\Data\WritingSettings
 {
     private string $headline_scheme = '';
     private string $formatting_options = '';

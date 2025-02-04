@@ -131,11 +131,11 @@ class CorrectorSummary extends \Edutiek\AssessmentService\EssayTask\Data\Correct
         $this->include_criteria_points = $include_criteria_points;
         return $this;
     }
-    public function getCorectionAuthorized(): ?DateTimeImmutable
+    public function getCorrectionAuthorized(): ?DateTimeImmutable
     {
         return $this->corection_authorized;
     }
-    public function setCorectionAuthorized(?DateTimeImmutable $corection_authorized): self
+    public function setCorrectionAuthorized(?DateTimeImmutable $corection_authorized): self
     {
         $this->corection_authorized = $corection_authorized;
         return $this;

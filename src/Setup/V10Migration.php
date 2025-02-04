@@ -1580,7 +1580,7 @@ class V10Migration
                             'src_table' => 'xlas_corrector_comment',
                         ),
                 ),
-            'xles_et_corr_ass_pref' =>
+            'xlas_et_corr_prefs' =>
                 array(
                     'corrector_id' =>
                         array(
@@ -1958,7 +1958,7 @@ class V10Migration
                             'src_table' => 'xlas_corrector_summary',
                         ),
                 ),
-            'xlas_et_corr_task_pref' =>
+            'xlas_et_corr_task_prefs' =>
                 array(
                     'task_id' =>
                         array(
@@ -1969,6 +1969,17 @@ class V10Migration
                             'Default' => null,
                             'Extra' => '',
                             'comment' => 'Nur für eine Task',
+                            'src_table' => 'xlas_corrector',
+                        ),
+                    'corrector_id' =>
+                        array(
+                            'Field' => 'id',
+                            'Type' => 'int(11)',
+                            'Null' => 'NO',
+                            'Key' => 'MUL',
+                            'Default' => null,
+                            'Extra' => '',
+                            'comment' => '',
                             'src_table' => 'xlas_corrector',
                         ),
                     'criterion_copy' =>

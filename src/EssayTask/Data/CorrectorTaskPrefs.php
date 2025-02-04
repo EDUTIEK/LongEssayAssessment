@@ -22,10 +22,11 @@ namespace ILIAS\Plugin\LongEssayAssessment\EssayTask\Data;
 
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Table;
 
-#[Table(name: 'xlas_et_corr_task_pref')]
-class CorrectorTaskPreference extends \Edutiek\AssessmentService\EssayTask\Data\CorrectorTaskPreference
+#[Table(name: 'xlas_et_corr_task_prefs')]
+class CorrectorTaskPrefs extends \Edutiek\AssessmentService\EssayTask\Data\CorrectorTaskPrefs
 {
     private int $task_id = 0;
+    private int $corrector_id = 0;
     private bool $criterion_copy = false;
 
     public function getTaskId(): int
@@ -35,6 +36,15 @@ class CorrectorTaskPreference extends \Edutiek\AssessmentService\EssayTask\Data\
     public function setTaskId(int $task_id): self
     {
         $this->task_id = $task_id;
+        return $this;
+    }
+    public function getCorrectorId(): int
+    {
+        return $this->corrector_id;
+    }
+    public function setCorrectorId(int $corrector_id): self
+    {
+        $this->corrector_id = $corrector_id;
         return $this;
     }
     public function getCriterionCopy(): bool

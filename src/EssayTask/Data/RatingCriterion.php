@@ -24,7 +24,7 @@ use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Key;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Table;
 
 #[Table(name: 'xlas_et_rating_crit')]
-class RatingCriteria extends \Edutiek\AssessmentService\EssayTask\Data\RatingCriteria
+class RatingCriterion extends \Edutiek\AssessmentService\EssayTask\Data\RatingCriterion
 {
     #[Key]
     private int $id = 0;

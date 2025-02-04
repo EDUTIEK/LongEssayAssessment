@@ -23,8 +23,8 @@ namespace ILIAS\Plugin\LongEssayAssessment\EssayTask\Data;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Key;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Table;
 
-#[Table(name: 'xles_et_corr_ass_pref')]
-class CorrectorAssignmentPreference extends \Edutiek\AssessmentService\EssayTask\Data\CorrectorAssignmentPreference
+#[Table(name: 'xlas_et_corr_prefs')]
+class CorrectorPrefs extends \Edutiek\AssessmentService\EssayTask\Data\CorrectorPrefs
 {
     #[Key]
     private int $corrector_id = 0;

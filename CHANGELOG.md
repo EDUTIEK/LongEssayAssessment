@@ -9,6 +9,7 @@ Plugin:
 - Prevent editing of criteria when authorized corrections exist
 - Handle existing points when mode for rating criteria is changed
 - Support embedded resources (showed in iframe)
+- Add Log entry for writer in writer administration
 
 Corrector Web app:
 - Replace layout table for paragraph numbers

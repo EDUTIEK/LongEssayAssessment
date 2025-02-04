@@ -67,6 +67,10 @@ class LoggingService extends BaseService
             case LogEntry::TYPE_WRITER_REPEAL_EXCLUSION:
                 $entry = sprintf($this->plugin->txt('log_entry_writer_repealed_exclusion', $lang), $object, $subject);
                 break;
+            case LogEntry::TYPE_WRITER_REMOVAL:
+                $entry = sprintf(($this->plugin->txt('log_entry_writer_removal', $lang)), $object, $subject);
+                break;
+
             case LogEntry::TYPE_WRITING_POST_AUTHORIZED:
                 $entry = sprintf($this->plugin->txt('log_entry_writing_post_authorized', $lang), $object, $subject);
                 break;
@@ -78,6 +82,9 @@ class LoggingService extends BaseService
                 break;
             case LogEntry::TYPE_CORRECTION_REMOVE_OWN_AUTHORIZATION:
                 $entry = sprintf($this->plugin->txt('log_entry_removed_own_authorization', $lang), $object, $subject);
+                break;
+            case LogEntry::TYPE_WRITER_NOTE:
+                $entry = sprintf($this->plugin->txt('log_entry_writer_note', $lang), $object, $subject);
                 break;
             case LogEntry::TYPE_NOTE:
                 $entry = sprintf($this->plugin->txt('log_entry_note', $lang), $subject);

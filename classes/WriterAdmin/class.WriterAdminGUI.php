@@ -71,6 +71,7 @@ class WriterAdminGUI extends BaseGUI
                 }
                 switch ($cmd) {
                     case 'showStartPage':
+                    case 'addLogEntry':
                     case 'addWriter':
                     case 'excludeWriter':
                     case 'editWorkingTime':
@@ -483,7 +484,6 @@ class WriterAdminGUI extends BaseGUI
         $this->http->close();
     }
 
-
     protected function deleteWorkingTime()
     {
         foreach ($this->getWriterIds() as $writer_id) {
@@ -638,6 +638,41 @@ class WriterAdminGUI extends BaseGUI
             }
             $essay_repo->save($essay->setLocation($location));
         }
+    }
+
+    protected function addLogEntry()
+    {
+        $this->ctrl->saveParameter($this, "writer_id");
+
+        $form = $this->localDI->getUIFactory()->field()->blankForm(
+            $this->ctrl->getFormAction($this, "addLogEntry"),
+            [
+                "entry" => $this->uiFactory->input()->field()->textarea($this->plugin->txt("log_entry_text"))->withRequired(true)
+            ]
+        );
+
+        if($this->request->getMethod() === "POST") {
+            $form = $form->withRequest($this->request);
+
+            // inputs are ok => save data
+            if (is_array($data = $form->getData()) && !empty($data['entry'])) {
+                $writer = $this->writer_repo->getWriterById($this->getWriterId());
+                $this->loggingService->addEntry(LogEntry::TYPE_WRITER_NOTE, $this->dic->user()->getId(), $writer->getUserId(), $data['entry']);
+
+                $this->tpl->setOnScreenMessage("success", $this->plugin->txt("log_entry_created"), true);
+                exit();
+            }
+            else {
+                echo($this->renderer->render($form));
+                exit();
+            }
+        }
+
+        $modal = $this->uiFactory->modal()->roundtrip($this->plugin->txt("add_log_entry_for writer"), $form)->withActionButtons([
+            $this->uiFactory->button()->primary($this->lng->txt("submit"), "")->withOnClick($form->getSubmitAsyncSignal())
+        ]);
+        echo($this->renderer->renderAsync($modal));
+        exit();
     }
 
     protected function editLocationMulti()

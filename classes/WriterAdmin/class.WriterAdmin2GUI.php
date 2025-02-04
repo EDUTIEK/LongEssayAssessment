@@ -33,7 +33,7 @@ use ILIAS\Plugin\LongEssayAssessment\UI\Table\FilterParent;
  * @ilCtrl_isCalledBy ILIAS\Plugin\LongEssayAssessment\WriterAdmin\WriterAdminGUI: ilObjLongEssayAssessmentGUI
  * @ilCtrl_Calls ILIAS\Plugin\LongEssayAssessment\WriterAdmin\WriterAdminGUI: ilRepositorySearchGUI
  */
-class WriterAdminGUI extends BaseGUI implements DataTableParent, FilterParent
+class WriterAdmin2GUI extends BaseGUI implements DataTableParent, FilterParent
 {
     protected LoggingService $loggingService;
     protected WriterAdminService $writerAdminService;

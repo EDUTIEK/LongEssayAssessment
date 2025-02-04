@@ -43,6 +43,12 @@ class WriterAdminListGUI extends WriterListGUI
                 $actions[] = $this->uiFactory->button()->shy($this->plugin->txt('export_steps'), $this->getExportStepsTarget($writer));
             }
 
+            $modals[] = $log_modal = $this->uiFactory->modal()->roundtrip("", [])->withAsyncRenderUrl(
+                $this->getAddLogEntryAction($writer)
+            );
+            $actions[] = $this->uiFactory->button()->shy($this->plugin->txt('add_log_entry_for writer'),'')
+                ->withOnClick($log_modal->getShowSignal());
+
             $actions[] = $this->uiFactory->button()->shy($this->plugin->txt('mail_to_writer'),
                 $this->getWriteMailAction($writer));
 
@@ -275,6 +281,12 @@ class WriterAdminListGUI extends WriterListGUI
     {
         $this->ctrl->setParameter($this->parent, "writer_id", $writer->getId());
         return $this->ctrl->getFormAction($this->parent, "mailToWriters");
+    }
+
+    private function getAddLogEntryAction(Writer $writer): string
+    {
+        $this->ctrl->setParameter($this->parent, "writer_id", $writer->getId());
+        return $this->ctrl->getFormAction($this->parent, "addLogEntry", "", true);
     }
 
     private function canChangeLocation(): bool

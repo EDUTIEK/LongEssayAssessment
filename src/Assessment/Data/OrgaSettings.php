@@ -27,7 +27,7 @@ use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Table;
 #[Table(name: 'xlas_as_orga_settings')]
 class OrgaSettings extends \Edutiek\AssessmentService\Assessment\Data\OrgaSettings
 {
-    private int $online = 0;
+    private bool $online = false;
     private string $participation_type = '';
     #[Key]
     private int $ass_id = 0;
@@ -50,11 +50,11 @@ class OrgaSettings extends \Edutiek\AssessmentService\Assessment\Data\OrgaSettin
     private ?string $review_notif_text = null;
     private int $statistics_available = 0;
 
-    public function getOnline(): int
+    public function getOnline(): bool
     {
         return $this->online;
     }
-    public function setOnline(int $online): self
+    public function setOnline(bool $online): self
     {
         $this->online = $online;
         return $this;

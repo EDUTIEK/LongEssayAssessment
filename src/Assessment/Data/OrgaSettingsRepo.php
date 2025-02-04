@@ -20,42 +20,31 @@ declare(strict_types=1);
 
 namespace ILIAS\Plugin\LongEssayAssessment\Assessment\Data;
 
-use Edutiek\AssessmentService\Assessment\Data\LogEntry;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\RepositoryInterface;
+use Edutiek\AssessmentService\Assessment\Data\OrgaSettings;
 
-readonly class LogEntryRepo implements \Edutiek\AssessmentService\Assessment\Data\LogEntryRepo
+class OrgaSettingsRepo implements \Edutiek\AssessmentService\Assessment\Data\OrgaSettingsRepo
 {
-    public function __construct(
-        private RepositoryInterface $repo
-    ) {
+    public function __construct(private readonly RepositoryInterface $repo)
+    {
     }
 
-    public function new(): LogEntry
+    public function new(): OrgaSettings
     {
         return $this->repo->new();
     }
 
-    public function one(int $id): ?LogEntry
+    public function one(int $ass_id): ?OrgaSettings
     {
-        return $this->repo->queryOneBy(['id' => $id]);
+        return $this->repo->queryOneBy(['ass_id' => $ass_id]);
     }
 
-    public function allByAssId(int $ass_id): array
+    public function save(OrgaSettings $entity): void
     {
-        return $this->repo->queryAllBy(['ass_id' => $ass_id]);
+        $this->repo->replace($entity);
     }
 
-    public function create(LogEntry $entity): void
-    {
-        $this->repo->insert($entity);
-    }
-
-    public function delete($id): void
-    {
-        $this->repo->deleteAllBy(['id' => $id]);
-    }
-
-    public function deleteByAssId(int $ass_id): void
+    public function delete(int $ass_id): void
     {
         $this->repo->deleteAllBy(['ass_id' => $ass_id]);
     }

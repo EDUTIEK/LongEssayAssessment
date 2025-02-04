@@ -20,37 +20,36 @@ declare(strict_types=1);
 
 namespace ILIAS\Plugin\LongEssayAssessment\Assessment\Data;
 
-use Edutiek\AssessmentService\Assessment\Data\LogEntry;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\RepositoryInterface;
+use Edutiek\AssessmentService\Assessment\Data\Location;
 
-readonly class LogEntryRepo implements \Edutiek\AssessmentService\Assessment\Data\LogEntryRepo
+class LocationRepo implements \Edutiek\AssessmentService\Assessment\Data\LocationRepo
 {
-    public function __construct(
-        private RepositoryInterface $repo
-    ) {
+    public function __construct(private readonly RepositoryInterface $repo)
+    {
     }
 
-    public function new(): LogEntry
+    public function new(): Location
     {
         return $this->repo->new();
     }
 
-    public function one(int $id): ?LogEntry
+    public function one(int $id): ?Location
     {
-        return $this->repo->queryOneBy(['id' => $id]);
+        return $this->queryOneBy(['id' => $id]);
     }
 
     public function allByAssId(int $ass_id): array
     {
-        return $this->repo->queryAllBy(['ass_id' => $ass_id]);
+        return $this->queryAllBy(['ass_id' => $ass_id]);
     }
 
-    public function create(LogEntry $entity): void
+    public function save(Location $entity): void
     {
-        $this->repo->insert($entity);
+        $this->repo->replace($entity);
     }
 
-    public function delete($id): void
+    public function delete(int $id): void
     {
         $this->repo->deleteAllBy(['id' => $id]);
     }
@@ -58,5 +57,12 @@ readonly class LogEntryRepo implements \Edutiek\AssessmentService\Assessment\Dat
     public function deleteByAssId(int $ass_id): void
     {
         $this->repo->deleteAllBy(['ass_id' => $ass_id]);
+    }
+
+    public function examples(): array
+    {
+        // @TODO: Not sure if this is what is intended here.
+
+        return $this->repo->queryAll('SELECT *, DISTINCT(title) FROM ' . $this->repo->table() . ' ORDER BY title LIMIT 0, 100');
     }
 }

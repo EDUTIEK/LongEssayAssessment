@@ -20,37 +20,36 @@ declare(strict_types=1);
 
 namespace ILIAS\Plugin\LongEssayAssessment\Assessment\Data;
 
-use Edutiek\AssessmentService\Assessment\Data\LogEntry;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\RepositoryInterface;
+use Edutiek\AssessmentService\Assessment\Data\GradeLevel;
 
-readonly class LogEntryRepo implements \Edutiek\AssessmentService\Assessment\Data\LogEntryRepo
+class GradeLevelRepo implements \Edutiek\AssessmentService\Assessment\Data\GradeLevelRepo
 {
-    public function __construct(
-        private RepositoryInterface $repo
-    ) {
+    public function __construct(private readonly RepositoryInterface $repo)
+    {
     }
 
-    public function new(): LogEntry
+    public function new(): GradeLevel
     {
         return $this->repo->new();
     }
 
-    public function one(int $id): ?LogEntry
+    public function one(int $id): ?GradeLevel
     {
         return $this->repo->queryOneBy(['id' => $id]);
     }
 
     public function allByAssId(int $ass_id): array
     {
-        return $this->repo->queryAllBy(['ass_id' => $ass_id]);
+        return $this->repo->queryOneBy(['ass_id' => $ass_id]);
     }
 
-    public function create(LogEntry $entity): void
+    public function save(GradeLevel $entity): void
     {
-        $this->repo->insert($entity);
+        $this->repo->save($entity);
     }
 
-    public function delete($id): void
+    public function delete(int $id): void
     {
         $this->repo->deleteAllBy(['id' => $id]);
     }

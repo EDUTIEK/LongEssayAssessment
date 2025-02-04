@@ -36,7 +36,8 @@ class Generate
 {
     public function __construct(
         private string $artifact_directory
-    ) {}
+    ) {
+    }
 
     public function readModelFromClass(string $model): array
     {

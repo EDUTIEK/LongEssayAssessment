@@ -18,45 +18,44 @@
 
 declare(strict_types=1);
 
-namespace ILIAS\Plugin\LongEssayAssessment\Assessment\Data;
+namespace ILIAS\Plugin\LongEssayAssessment\EssayTask\Data;
 
-use Edutiek\AssessmentService\Assessment\Data\LogEntry;
+use Edutiek\AssessmentService\EssayTask\Data\RatingCriterion;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\RepositoryInterface;
 
-readonly class LogEntryRepo implements \Edutiek\AssessmentService\Assessment\Data\LogEntryRepo
+class RatingCriterionRepo implements \Edutiek\AssessmentService\EssayTask\Data\RatingCriterionRepo
 {
-    public function __construct(
-        private RepositoryInterface $repo
-    ) {
+    public function __construct(private readonly RepositoryInterface $repo)
+    {
     }
 
-    public function new(): LogEntry
+    public function new(): RatingCriterion
     {
         return $this->repo->new();
     }
 
-    public function one(int $id): ?LogEntry
+    public function one(int $id): ?RatingCriterion
     {
         return $this->repo->queryOneBy(['id' => $id]);
     }
 
-    public function allByAssId(int $ass_id): array
+    public function allByTaskIdAndCorrectorId(int $task_id, ?int $corrector_id): array
     {
-        return $this->repo->queryAllBy(['ass_id' => $ass_id]);
+        return $this->queryAllBy(['task_id' => $task_id, 'corrector_id' => $corrector_id]);
     }
 
-    public function create(LogEntry $entity): void
+    public function save(RatingCriterion $entity): void
     {
-        $this->repo->insert($entity);
+        $this->repo->replace($entity);
     }
 
-    public function delete($id): void
+    public function delete(int $id): void
     {
         $this->repo->deleteAllBy(['id' => $id]);
     }
 
-    public function deleteByAssId(int $ass_id): void
+    public function deleteByTaskId(int $task_id): void
     {
-        $this->repo->deleteAllBy(['ass_id' => $ass_id]);
+        $this->repo->deleteAllBy(['task_id' => $task_id]);
     }
 }

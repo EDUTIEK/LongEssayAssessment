@@ -23,8 +23,8 @@ namespace ILIAS\Plugin\LongEssayAssessment\EssayTask\Data;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Key;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Table;
 
-#[Table(name: 'xlas_et_task_setting')]
-class TaskSetting extends \Edutiek\AssessmentService\EssayTask\Data\TaskSetting
+#[Table(name: 'xlas_et_task_settings')]
+class TaskSettings extends \Edutiek\AssessmentService\EssayTask\Data\TaskSettings
 {
     #[Key]
     private int $task_id = 0;

@@ -23,8 +23,8 @@ namespace ILIAS\Plugin\LongEssayAssessment\EssayTask\Data;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Key;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Table;
 
-#[Table(name: 'xlas_et_write_setting')]
-class WriteSetting extends \Edutiek\AssessmentService\EssayTask\Data\WriteSetting
+#[Table(name: 'xlas_et_write_settings')]
+class WriteSettings extends \Edutiek\AssessmentService\EssayTask\Data\WriteSettings
 {
     private string $headline_scheme = '';
     private string $formatting_options = '';

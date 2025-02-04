@@ -391,7 +391,7 @@ class V10Migration
                             'src_table' => 'xlas_corrector',
                         ),
                 ),
-            'xlas_as_corr_setting' =>
+            'xlas_as_corr_settings' =>
                 array(
                     'ass_id' =>
                         array(
@@ -730,7 +730,7 @@ class V10Migration
                             'src_table' => 'xlas_pdf_settings',
                         ),
                 ),
-            'xlas_as_settings' =>
+            'xlas_as_orga_settings' =>
                 array(
                     'online' =>
                         array(
@@ -1731,7 +1731,7 @@ class V10Migration
                             'src_table' => 'xlas_corrector_points',
                         ),
                 ),
-            'xlas_et_corr_setting' =>
+            'xlas_et_corr_settings' =>
                 array(
                     'ass_id' =>
                         array(
@@ -2163,7 +2163,7 @@ class V10Migration
                             'src_table' => 'xlas_rating_crit',
                         ),
                 ),
-            'xlas_et_task_setting' =>
+            'xlas_et_task_settings' =>
                 array(
                     'task_id' =>
                         array(
@@ -2188,7 +2188,7 @@ class V10Migration
                             'src_table' => 'xlas_corr_setting',
                         ),
                 ),
-            'xlas_et_write_setting' =>
+            'xlas_et_write_settings' =>
                 array(
                     'headline_scheme' =>
                         array(

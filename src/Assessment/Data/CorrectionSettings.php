@@ -24,7 +24,7 @@ use DateTimeImmutable;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Key;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Table;
 
-#[Table(name: 'xlas_as_corr_setting')]
+#[Table(name: 'xlas_as_corr_settings')]
 class CorrectionSettings extends \Edutiek\AssessmentService\Assessment\Data\CorrectionSettings
 {
     #[Key]

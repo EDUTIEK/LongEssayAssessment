@@ -1436,11 +1436,31 @@ class V10Migration
                             'Extra' => '',
                             'src_table' => 'xlas_writer_comment',
                         ),
+                    'writer_id' =>
+                        array(
+                            'Field' => 'writer_id',
+                            'Type' => 'int(11)',
+                            'Null' => 'NO',
+                            'Key' => 'MUL',
+                            'Default' => null,
+                            'Extra' => '',
+                            'src_table' => 'xlas_writer_comment',
+                        ),
                     'comment' =>
                         array(
                             'Field' => 'comment',
                             'Type' => 'longtext',
                             'Null' => 'YES',
+                            'Key' => '',
+                            'Default' => null,
+                            'Extra' => '',
+                            'src_table' => 'xlas_writer_comment',
+                        ),
+                    'parent_number' =>
+                        array(
+                            'Field' => 'parent_number',
+                            'Type' => 'int(11)',
+                            'Null' => 'NO',
                             'Key' => '',
                             'Default' => null,
                             'Extra' => '',

@@ -29,7 +29,9 @@ class WriterComment extends \Edutiek\AssessmentService\Task\Data\WriterComment
     #[Key]
     private int $id = 0;
     private int $task_id = 0;
+    private int $writer_id = 0;
     private ?string $comment = null;
+    private int $parent_number = 0;
     private int $start_position = 0;
     private int $end_position = 0;
 
@@ -51,6 +53,16 @@ class WriterComment extends \Edutiek\AssessmentService\Task\Data\WriterComment
         $this->task_id = $task_id;
         return $this;
     }
+    public function getWriterId(): int
+    {
+        return $this->writer_id;
+    }
+
+    public function setWriterId(int $writer_id): self
+    {
+        $this->writer_id = $writer_id;
+        return $this;
+    }
     public function getComment(): ?string
     {
         return $this->comment;
@@ -58,6 +70,16 @@ class WriterComment extends \Edutiek\AssessmentService\Task\Data\WriterComment
     public function setComment(?string $comment): self
     {
         $this->comment = $comment;
+        return $this;
+    }
+    public function getParentNumber(): int
+    {
+        return $this->parent_number;
+    }
+
+    public function setParentNumber(int $parent_number): self
+    {
+        $this->parent_number = $parent_number;
         return $this;
     }
     public function getStartPosition(): int

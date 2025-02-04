@@ -2456,3 +2456,23 @@ if ($ilDB->tableExists('xlas_crit_points')) {
         ]);
     }
 ?>
+<#124>
+<?php
+if (!$ilDB->tableColumnExists('xlas_writer_comment', 'writer_id')) {
+    $ilDB->addTableColumn('xlas_writer_comment', 'writer_id', [
+        'notnull' => '1',
+        'type' => 'integer',
+        'length' => 4
+    ]);
+}
+?>
+<#125>
+<?php
+if (!$ilDB->tableColumnExists('xlas_writer_comment', 'parent_number')) {
+    $ilDB->addTableColumn('xlas_writer_comment', 'parent_number', [
+        'notnull' => '1',
+        'type' => 'integer',
+        'length' => 4
+    ]);
+}
+?>

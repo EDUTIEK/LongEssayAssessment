@@ -45,17 +45,16 @@ interface RepositoryInterface
 
     /**
      * Query all entities based on an array of conditions
-     * - Conditions are an array [ (string) property_name => (string|array|null) property_value(s), ...]
-     * - property_name must be the name of a model's property which is mapped to a database field
-     * - property_value must be a scalar value, an array of values or null
-     * - A value is directly compared
-     * - An array is used for an IN clause
-     * - null creates an IS NULL clause
-     * - All given conditions are AND combined
-     * - values are automatically cast and quoted accounting their database field type
      * @return A[]
+     * @see where
      */
     public function queryAllBy(array $conditions): array;
+
+    /**
+     * Do a raw database query and return the assoc record arrays
+     * @return array[]
+     */
+    public function queryAllRaw(string $query): array;
 
     /**
      * Get the first entity found by an SQL query
@@ -66,7 +65,7 @@ interface RepositoryInterface
     /**
      * Get the first entity found by an array of conditions
      * @return ?A
-     * @see queryAll
+     * @see where
      */
     public function queryOneBy(array $conditions): ?object;
 
@@ -102,6 +101,7 @@ interface RepositoryInterface
     /**
      * Delete all entities by an array of conditions
      * @param A $model
+     * @see where
      */
     public function deleteAllBy(array $conditions): void;
 
@@ -141,4 +141,17 @@ interface RepositoryInterface
      * @return array{db_name: string, class_name: string, db_type: string, class_type: string, sequence: bool, key: true}[]
      */
     public function keyFields(): array;
+
+    /**
+     * Build an SQL condition (without WHERE) based on an array of conditions
+     *  - Conditions are an array [ (string) property_name => (string|array|null) property_value(s), ...]
+     *  - property_name must be the name of a model's property which is mapped to a database field
+     *  - property_value must be a scalar value, an array of values or null
+     *  - A value is directly compared
+     *  - An array is used for an IN clause
+     *  - null creates an IS NULL clause
+     *  - All given conditions are AND combined
+     *  - values are automatically cast and quoted accounting their database field type
+     */
+    public function where(array $conditions): string;
 }

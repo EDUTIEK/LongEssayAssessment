@@ -46,22 +46,38 @@ class CorrectorSummaryRepo implements \Edutiek\AssessmentService\EssayTask\Data\
 
     public function allByTaskId(int $task_id): array
     {
-        return $this->queryAllBy(['task_id' => $task_id]);
+        return $this->repo->queryAllBy(['task_id' => $task_id]);
     }
 
+    /**
+     * Get the corrector summaries for a task and selected writer ids
+     * Result is indexed by writer_id and corrector_id
+     * @return CorrectorSummary[][]
+     */
     public function allByTaskIdAndWriterIds(int $task_id, array $writer_ids): array
     {
-        return $this->queryAllBy(['task_id' => $task_id]); // @TODO: CorrectorSummary doesn't have a writer_id
+        $query = "
+            SELECT summary.*, essay.writer_id AS writer_id
+            FROM xlas_et_corr_summary AS summary
+            JOIN xlas_et_essay AS essay ON summary.essay_id = essay.id 
+            WHERE "
+            . $this->repo->where(['essay.task_id' => $task_id, 'essay.writer_id' => $writer_ids]);
+
+        $summaries = [];
+        foreach ($this->repo->queryAllRaw($query) as $row) {
+            $summaries[$row['writer_id']][$row['corrector_id']] = $this->repo->fromRow($row);
+        }
+        return $summaries;
     }
 
     public function allByTaskIdAndCorrectorId(int $task_id, int $corrector_id): array
     {
-        return $this->queryAllBy(['task_id' => $task_id, 'corrector_id' => $corrector_id]);
+        return $this->repo->queryAllBy(['task_id' => $task_id, 'corrector_id' => $corrector_id]);
     }
 
     public function allByEssayIdAndCorrectorId(int $essay_id, int $corrector_id): array
     {
-        return $this->queryAllBy(['essay_id' => $essay_id, 'corrector_id' => $corrector_id]);
+        return $this->repo->queryAllBy(['essay_id' => $essay_id, 'corrector_id' => $corrector_id]);
     }
 
     public function save(CorrectorSummary $entity): void

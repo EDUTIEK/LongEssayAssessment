@@ -36,12 +36,12 @@ class LocationRepo implements \Edutiek\AssessmentService\Assessment\Data\Locatio
 
     public function one(int $id): ?Location
     {
-        return $this->queryOneBy(['id' => $id]);
+        return $this->repo->queryOneBy(['id' => $id]);
     }
 
     public function allByAssId(int $ass_id): array
     {
-        return $this->queryAllBy(['ass_id' => $ass_id]);
+        return $this->repo->queryAllBy(['ass_id' => $ass_id]);
     }
 
     public function save(Location $entity): void
@@ -61,8 +61,6 @@ class LocationRepo implements \Edutiek\AssessmentService\Assessment\Data\Locatio
 
     public function examples(): array
     {
-        // @TODO: Not sure if this is what is intended here.
-
-        return $this->repo->queryAll('SELECT *, DISTINCT(title) FROM ' . $this->repo->table() . ' ORDER BY title LIMIT 0, 100');
+        return $this->repo->queryStrings('SELECT DISTINCT title FROM ' . $this->repo->table() . ' ORDER BY title LIMIT 0, 100', 'title');
     }
 }

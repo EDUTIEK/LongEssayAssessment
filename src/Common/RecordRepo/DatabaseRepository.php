@@ -112,6 +112,11 @@ class DatabaseRepository implements RepositoryInterface
         return array_map(intval(...), array_column($this->queryAllRaw($query), $key));
     }
 
+    public function queryStrings(string $query, string $key): array
+    {
+        return array_map(strval(...), array_column($this->queryAllRaw($query), $key));
+    }
+
     public function fromRow(array $row): object
     {
         $instance = new $this->model['class']();
@@ -172,7 +177,7 @@ class DatabaseRepository implements RepositoryInterface
         $this->db->manipulate($this->sqlDelete($this->where($conditions)));
     }
 
-    private function where(array $conditions): string
+    public function where(array $conditions): string
     {
         return join(' AND ', array_map($this->equals(...), array_keys($conditions), array_values($conditions)));
     }
@@ -205,7 +210,7 @@ class DatabaseRepository implements RepositoryInterface
     /**
      * @return array<int|string, mixed>[]
      */
-    private function queryAllRaw(string $query): array
+    public function queryAllRaw(string $query): array
     {
         $result = $this->db->query($query);
         return $this->db->fetchAll($result);

@@ -36,22 +36,22 @@ class WriterHistoryRepo implements \Edutiek\AssessmentService\EssayTask\Data\Wri
 
     public function one(int $id): ?WriterHistory
     {
-        return $this->queryOneBy(['id' => $id]);
+        return $this->repo->queryOneBy(['id' => $id]);
     }
 
     public function hasByEssayIdAndHashAfter(int $essay_id, string $hash_after): bool
     {
-        return null !== $this->queryOneBy(['essay_id' => $essay_id, 'hash_after' => $hash_after]);
+        return null !== $this->repo->queryOneBy(['essay_id' => $essay_id, 'hash_after' => $hash_after]);
     }
 
     public function allByEssayId(int $essay_id): array
     {
-        return $this->queryAllBy(['essay_id' => $essay_id]);
+        return $this->repo->queryAllBy(['essay_id' => $essay_id]);
     }
 
     public function create(WriterHistory $entity): void
     {
-        $this->repo->create($entity);
+        $this->repo->insert($entity);
     }
 
     public function deleteByEssayId(int $essay_id): void

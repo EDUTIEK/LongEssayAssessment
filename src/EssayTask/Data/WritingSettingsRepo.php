@@ -36,7 +36,7 @@ class WritingSettingsRepo implements \Edutiek\AssessmentService\EssayTask\Data\W
 
     public function one(int $ass_id): ?WritingSettings
     {
-        return $this->queryOneBy(['ass_id' => $ass_id]);
+        return $this->repo->queryOneBy(['ass_id' => $ass_id]);
     }
 
     public function save(WritingSettings $entity): void

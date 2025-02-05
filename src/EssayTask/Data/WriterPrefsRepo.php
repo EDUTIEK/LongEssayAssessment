@@ -36,7 +36,7 @@ class WriterPrefsRepo implements \Edutiek\AssessmentService\EssayTask\Data\Write
 
     public function one(int $writer_id): ?WriterPrefs
     {
-        return $this->queryOneBy(['writer_id' => $writer_id]);
+        return $this->repo->queryOneBy(['writer_id' => $writer_id]);
     }
 
     public function save(WriterPrefs $entity): void

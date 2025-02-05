@@ -34,18 +34,28 @@ class EssayImageRepo implements \Edutiek\AssessmentService\EssayTask\Data\EssayI
         return $this->repo->new();
     }
 
-    public function oneByCorrectorIdAndTaskId(int $corrector_id, int $task_id): ?CorrectorTaskPrefs
+    public function one(int $id): ?EssayImage
     {
-        return $this->repo->queryOneBy(['corrector_id' => $corrector_id, 'task_id' => $task_id]);
+        return $this->repo->queryOneBy(['id' => $id]);
     }
 
-    public function save(CorrectorTaskPrefs $entity): void
+    public function allByEssayId(int $essay_id): array
+    {
+        return $this->repo->queryAllBy(['essay_id' => $essay_id]);
+    }
+
+    public function save(EssayImage $entity): void
     {
         $this->repo->replace($entity);
     }
 
-    public function deleteByCorrectorIdAndTaskId(int $corrector_id, int $task_id): void
+    public function delete(int $id): void
     {
-        $this->repo->deleteAllBy(['corrector_id' => $corrector_id, 'task_id' => $task_id]);
+        $this->repo->deleteAllBy(['id' => $id]);
+    }
+
+    public function deleteByEssayId(int $essay_id): void
+    {
+        $this->repo->deleteAllBy(['essay_id' => $essay_id]);
     }
 }

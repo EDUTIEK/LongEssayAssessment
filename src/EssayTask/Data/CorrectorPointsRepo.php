@@ -46,7 +46,7 @@ class CorrectorPointsRepo implements \Edutiek\AssessmentService\EssayTask\Data\C
 
     public function allByEssayIdAndCorrectorId(int $essay_id, int $corrector_id): array
     {
-        return $this->queryAllBy(['essay_id' => $essay_id, 'corrector_id' => $corrector_id]);
+        return $this->repo->queryAllBy(['essay_id' => $essay_id, 'corrector_id' => $corrector_id]);
     }
 
     public function save(CorrectorPoints $entity): void

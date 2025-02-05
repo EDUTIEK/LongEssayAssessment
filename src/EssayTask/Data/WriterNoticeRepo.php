@@ -36,12 +36,12 @@ class WriterNoticeRepo implements \Edutiek\AssessmentService\EssayTask\Data\Writ
 
     public function oneByEssayIdAndNo(int $id): ?WriterNotice
     {
-        return $this->queryOneBy(['id' => $id, 'note_no' => true]);
+        return $this->repo->queryOneBy(['id' => $id, 'note_no' => true]);
     }
 
     public function allByEssayId(int $essay_id): array
     {
-        return $this->queryAllBy(['essay_id' => $essay_id]);
+        return $this->repo->queryAllBy(['essay_id' => $essay_id]);
     }
 
     public function save(WriterNotice $entity): void

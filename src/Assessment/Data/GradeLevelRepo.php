@@ -46,7 +46,7 @@ class GradeLevelRepo implements \Edutiek\AssessmentService\Assessment\Data\Grade
 
     public function save(GradeLevel $entity): void
     {
-        $this->repo->save($entity);
+        $this->repo->replace($entity);
     }
 
     public function delete(int $id): void

@@ -36,7 +36,7 @@ class CorrectionSettingsRepo implements \Edutiek\AssessmentService\Assessment\Da
 
     public function one(int $ass_id): ?CorrectionSettings
     {
-        return $this->repo->one($ass_id);
+        return $this->repo->queryOneBy(['ass_id' => $ass_id]);
     }
 
     public function save(CorrectionSettings $entity): void

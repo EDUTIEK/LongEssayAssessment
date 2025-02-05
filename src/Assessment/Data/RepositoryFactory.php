@@ -14,6 +14,9 @@ use ilObjectFactory;
 
 class RepositoryFactory implements \Edutiek\AssessmentService\Assessment\Data\Repositories
 {
+    private array $instances = [];
+    private ?CacheRepository $last_added;
+
     public function __construct(
         private readonly Generate $g,
         private readonly ilDBInterface $db,
@@ -22,9 +25,6 @@ class RepositoryFactory implements \Edutiek\AssessmentService\Assessment\Data\Re
         private readonly ilObjectFactory $object_factory
     ) {
     }
-
-    private array $instances = [];
-    private ?CacheRepository $last_added;
 
     public function alert(): AlertRepo
     {

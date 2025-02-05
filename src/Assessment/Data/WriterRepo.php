@@ -36,27 +36,27 @@ class WriterRepo implements \Edutiek\AssessmentService\Assessment\Data\WriterRep
 
     public function one(int $id): ?Writer
     {
-        return $this->queryOneBy(['id' => $id]);
+        return $this->repo->queryOneBy(['id' => $id]);
     }
 
     public function oneByUserIdAndAssId(int $user_id, int $ass_id): ?Writer
     {
-        return $this->queryOneBy(['user_id' => $id, 'ass_id' => $ass_id]);
+        return $this->repo->queryOneBy(['user_id' => $user_id, 'ass_id' => $ass_id]);
     }
 
     public function allByUserIdsAndAssId(array $user_ids, int $ass_id): array
     {
-        return $this->queryAllBy(['user_id' => $user_ids, 'ass_id' => $ass_id]);
+        return $this->repo->queryAllBy(['user_id' => $user_ids, 'ass_id' => $ass_id]);
     }
 
     public function allByWriterIdsAndAssId(array $writer_ids, int $ass_id): array
     {
-        return $this->queryAllBy(['id' => $writer_ids, 'ass_id' => $ass_id]);
+        return $this->repo->queryAllBy(['id' => $writer_ids, 'ass_id' => $ass_id]);
     }
 
     public function allByAssId(int $ass_id): array
     {
-        return $this->queryAllBy(['ass_id' => $ass_id]);
+        return $this->repo->queryAllBy(['ass_id' => $ass_id]);
     }
 
     public function save(Writer $entity): void

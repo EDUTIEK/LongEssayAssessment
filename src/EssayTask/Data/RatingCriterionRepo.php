@@ -41,7 +41,7 @@ class RatingCriterionRepo implements \Edutiek\AssessmentService\EssayTask\Data\R
 
     public function allByTaskIdAndCorrectorId(int $task_id, ?int $corrector_id): array
     {
-        return $this->queryAllBy(['task_id' => $task_id, 'corrector_id' => $corrector_id]);
+        return $this->repo->queryAllBy(['task_id' => $task_id, 'corrector_id' => $corrector_id]);
     }
 
     public function save(RatingCriterion $entity): void

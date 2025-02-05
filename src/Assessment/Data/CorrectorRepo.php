@@ -23,7 +23,6 @@ namespace ILIAS\Plugin\LongEssayAssessment\Assessment\Data;
 use Edutiek\AssessmentService\Assessment\Data\Corrector;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\RepositoryInterface;
 
-
 class CorrectorRepo implements \Edutiek\AssessmentService\Assessment\Data\CorrectorRepo
 {
     public function __construct(private readonly RepositoryInterface $repo)
@@ -37,7 +36,7 @@ class CorrectorRepo implements \Edutiek\AssessmentService\Assessment\Data\Correc
 
     public function one(int $id): ?Corrector
     {
-        return $this->repo->one($id);
+        return $this->repo->queryOneBy(['id' => $id]);
     }
 
     public function oneByUserIdAndAssId(int $user_id, int $ass_id): ?Corrector
@@ -60,8 +59,8 @@ class CorrectorRepo implements \Edutiek\AssessmentService\Assessment\Data\Correc
         $this->repo->deleteAllBy(['id' => $id]);
     }
 
-    public function deleteByAssId(int $id): void
+    public function deleteByAssId(int $ass_id): void
     {
-        $this->repo->deleteAllBy(['ass_id' => $id]);
+        $this->repo->deleteAllBy(['ass_id' => $ass_id]);
     }
 }

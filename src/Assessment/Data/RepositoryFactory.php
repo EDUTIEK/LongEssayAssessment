@@ -6,24 +6,24 @@ namespace ILIAS\Plugin\LongEssayAssessment\Assessment\Data;
 
 use ilDBInterface;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Generate;
-use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\CacheRepository;
-use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\DatabaseRepository;
+use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\RepositoryFactory as FactoryTrait;
 use ilAccessHandler;
 use ilObjectDataCache;
 use ilObjectFactory;
 
 class RepositoryFactory implements \Edutiek\AssessmentService\Assessment\Data\Repositories
 {
-    private array $instances = [];
-    private ?CacheRepository $last_added;
+    use FactoryTrait;
 
     public function __construct(
-        private readonly Generate $g,
-        private readonly ilDBInterface $db,
+        Generate $g,
+        ilDBInterface $db,
         private readonly ilAccessHandler $access,
         private readonly ilObjectDataCache $data_cache,
         private readonly ilObjectFactory $object_factory
     ) {
+        $this->g = $g;
+        $this->db = $db;
     }
 
     public function alert(): AlertRepo
@@ -84,31 +84,5 @@ class RepositoryFactory implements \Edutiek\AssessmentService\Assessment\Data\Re
     public function writer(): WriterRepo
     {
         return $this->repo(WriterRepo::class, Writer::class);
-    }
-
-    /**
-     * @template R
-     *
-     * @param class-string<R> $repo
-     * @return R
-     */
-    private function repo(string $repo, string $model): object
-    {
-        return $this->instances[$repo] ??= new $repo($this->add($model));
-    }
-
-    /**
-     * @template M
-     *
-     * @param class-string<M> $model
-     * @return CacheRepository<M>
-     */
-    private function add(string $model): CacheRepository
-    {
-        $cached = new CacheRepository(new DatabaseRepository($this->db, $this->g->readModel($model)));
-        if ($this->last_added !== null) {
-            $cached->connectCache($this->last_added);
-        }
-        return $this->last_added = $cached;
     }
 }

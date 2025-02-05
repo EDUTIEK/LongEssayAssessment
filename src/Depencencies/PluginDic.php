@@ -9,6 +9,10 @@ use Edutiek\AssessmentService\System\Api\ForClients as SystemApi;
 use Edutiek\AssessmentService\Assessment\Api\Factory as AssessmentFactory;
 use Edutiek\AssessmentService\Assessment\Api\ForClients as AssessmentApi;
 use Edutiek\AssessmentService\Assessment\Api\ForRest as RestApi;
+use Edutiek\AssessmentService\EssayTask\Api\Factory as EssayTaskFactory;
+use Edutiek\AssessmentService\EssayTask\Api\ForClients as EssayTaskApi;
+use Edutiek\AssessmentService\Task\Api\Factory as TaskFactory;
+use Edutiek\AssessmentService\Task\Api\ForClients as TaskApi;
 use ILIAS\DI\Container;
 use ILIAS\Plugin\LongEssayAssessment\Common\Constraints\DataConstraints;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Generate;
@@ -122,6 +126,22 @@ class PluginDic
         $dic[AssessmentFactory::class] = function (Container $dic) {
             return (new AssessmentFactory($dic[AssessmentDic::class]));
         };
+
+        $dic[EssayTaskDic::class] = function (Container $dic) {
+            return new EssayTaskDic($dic);
+        };
+
+        $dic[EssayTaskFactory::class] = function (Container $dic) {
+            return (new EssayTaskFactory($dic[AssessmentDic::class]));
+        };
+
+        $dic[TaskDic::class] = function (Container $dic) {
+            return new TaskDic($dic);
+        };
+
+        $dic[TaskFactory::class] = function (Container $dic) {
+            return (new TaskFactory($dic[AssessmentDic::class]));
+        };
     }
 
     public function constraints(): DataConstraints
@@ -162,5 +182,15 @@ class PluginDic
     public function rest(int $ass_id, int $context_id): RestApi
     {
         return ($this->dic[AssessmentFactory::class])->forClients($ass_id, $context_id);
+    }
+
+    public function task(int $task_id, int $context_id): TaskApi
+    {
+        return ($this->dic[TaskFactory::class])->forClients($task_id);
+    }
+
+    public function essayTask(int $task_id, int $context_id): EssayTaskApi
+    {
+        return ($this->dic[EssayTaskFactory::class])->forClients($task_id);
     }
 }

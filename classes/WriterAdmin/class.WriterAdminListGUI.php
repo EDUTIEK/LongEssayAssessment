@@ -8,6 +8,7 @@ use ILIAS\UI\Component\Modal\RoundTrip;
 use ILIAS\UI\Implementation\Component\Modal\Modal;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\TaskSettings;
 use ILIAS\Plugin\LongEssayAssessment\Data\WorkingTime;
+use ILIAS\Plugin\LongEssayAssessment\UI\Component\FormGroup;
 
 class WriterAdminListGUI extends WriterListGUI
 {
@@ -208,67 +209,45 @@ class WriterAdminListGUI extends WriterListGUI
         );
 
         if($this->canChangeLocation()) {
-            $location_callback_signal = $resources->generateDSCallbackSignal();
-
-            $modals[] = $resources->addDSModalTriggerToModal(
-                $this->getMultiCommandModal(),
-                $this->ctrl->getFormAction($this->parent, "editLocationMulti", "", true),
-                "writer_ids",
-                $location_callback_signal
-            );
-
-            $form_actions[] = $resources->addDSModalTriggerToButton(
-                $this->uiFactory->button()->shy($this->plugin->txt("assign_location"), "#"),
-                $location_callback_signal
-            );
+            $this->addMultiAction($resources, $modals, $form_actions, 'editLocationMulti',
+                $this->plugin->txt('assign_location'));
         }
-        $working_time_callback_signal = $resources->generateDSCallbackSignal();
 
-        $modals[] = $resources->addDSModalTriggerToModal(
-            $this->uiFactory->modal()->roundtrip("", []),
-            $this->ctrl->getFormAction($this->parent, "editWorkingTimeMulti", "", true),
-            "writer_ids",
-            $working_time_callback_signal
-        );
+        $this->addMultiAction($resources, $modals, $form_actions, 'editWorkingTimeMulti',
+            $this->plugin->txt('change_working_time'));
 
-        $form_actions[] = $resources->addDSModalTriggerToButton(
-            $this->uiFactory->button()->shy($this->plugin->txt("change_working_time"), "#"),
-            $working_time_callback_signal
-        );
+        $this->addMultiAction($resources, $modals, $form_actions, 'authorizeWritingMultiConfirmation',
+            $this->plugin->txt('authorize_writings'));
 
-        $remove_callback_signal = $resources->generateDSCallbackSignal();
+        $this->addMultiAction($resources, $modals, $form_actions, 'unauthorizeWritingMultiConfirmation',
+            $this->plugin->txt('unauthorize_writings'));
 
-        $modals[] = $resources->addDSModalTriggerToModal(
-            $this->uiFactory->modal()->interruptive("", "", ""),
-            $this->ctrl->getFormAction($this->parent, "removeWriterMultiConfirmation", "", true),
-            "writer_ids",
-            $remove_callback_signal
-        );
+        $this->addMultiAction($resources, $modals, $form_actions, 'removeWriterMultiConfirmation',
+            $this->plugin->txt('remove_writer'));
 
-        $form_actions[] = $resources->addDSModalTriggerToButton(
-            $this->uiFactory->button()->shy($this->plugin->txt("remove_writer"), "#"),
-            $remove_callback_signal
-        );
-
-        $remove_callback_signal = $resources->generateDSCallbackSignal();
-
-        $modals[] = $resources->addDSModalTriggerToModal(
-            $this->uiFactory->modal()->interruptive("", "", ""),
-            $this->ctrl->getFormAction($this->parent, "changeTextToPdfMultiConfirmation", "", true),
-            "writer_ids",
-            $remove_callback_signal
-        );
-
-        $form_actions[] = $resources->addDSModalTriggerToButton(
-            $this->uiFactory->button()->shy($this->plugin->txt("change_text_to_pdf"), "#"),
-            $remove_callback_signal
-        );
+        $this->addMultiAction($resources, $modals, $form_actions, 'changeTextToPdfMultiConfirmation',
+            $this->plugin->txt('change_text_to_pdf'));
 
         $resources = $resources->withActions($this->uiFactory->dropdown()->standard($form_actions));
 
-        $resources = array_merge([$resources], $modals);
+        return $this->renderer->render([$filter_gui, $resources, $modals]);
+    }
 
-        return $this->renderer->render([$filter_gui, $resources]);
+    private function addMultiAction(FormGroup $group, array &$modals, array &$actions, string $command, string $label)
+    {
+        $signal = $group->generateDSCallbackSignal();
+
+        $modals[] = $group->addDSModalTriggerToModal(
+            $this->getMultiCommandModal(),
+            $this->ctrl->getFormAction($this->parent, $command, "", true),
+            "writer_ids",
+            $signal
+        );
+
+        $actions[] = $group->addDSModalTriggerToButton(
+            $this->uiFactory->button()->shy($label, "#"),
+            $signal
+        );
     }
 
     private function getSightAction(Writer $writer)

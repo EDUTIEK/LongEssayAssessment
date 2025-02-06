@@ -23,6 +23,8 @@ use ILIAS\Plugin\LongEssayAssessment\Data\Writer\WriterRepository;
 use ILIAS\Plugin\LongEssayAssessment\Data\WorkingTime;
 use DateTimeImmutable;
 use ILIAS\Filesystem\Stream\Streams;
+use ILIAS\Plugin\LongEssayAssessment\CorrectorAdmin\CorrectorAdminService;
+use ILIAS\Plugin\LongEssayAssessment\Data\Essay\EssayRepository;
 
 /**
  *Start page for corrector admins
@@ -35,15 +37,19 @@ class WriterAdminGUI extends BaseGUI
 {
     protected LoggingService $loggingService;
     protected WriterAdminService $writerAdminService;
+    protected CorrectorAdminService $correctorAdminService;
     protected TaskSettings $task;
     protected WriterRepository $writer_repo;
+    protected EssayRepository $essay_repo;
 
     public function __construct(\ilObjLongEssayAssessmentGUI $objectGUI)
     {
         parent::__construct($objectGUI);
         $this->loggingService = $this->localDI->getLoggingService($this->object->getId());
         $this->writerAdminService = $this->localDI->getWriterAdminService($this->object->getId());
+        $this->correctorAdminService = $this->localDI->getCorrectorAdminService($this->object->getId());
         $this->writer_repo = $this->localDI->getWriterRepo();
+        $this->essay_repo = $this->localDI->getEssayRepo();
         $this->task = $this->localDI->getTaskRepo()->getTaskSettingsById($this->object->getId());
     }
 
@@ -78,7 +84,9 @@ class WriterAdminGUI extends BaseGUI
                     case 'updateWorkingTime':
                     case 'deleteWorkingTime':
                     case 'authorizeWriting':
+                    case 'authorizeWritingMultiConfirmation':
                     case 'unauthorizeWriting':
+                    case 'unauthorizeWritingMultiConfirmation':
                     case 'repealExclusion':
                     case 'deleteWriterData':
                     case 'mailToWriters':
@@ -504,45 +512,118 @@ class WriterAdminGUI extends BaseGUI
         $this->ctrl->redirect($this, 'showStartPage');
     }
 
+    protected function authorizeWritingMultiConfirmation()
+    {
+        $writer_ids = $this->getWriterIds();
+        $writers = $this->writer_repo->getWritersByTaskId($this->object->getId());
+        $user_data = $this->common_services->userDataHelper()->getNames(array_map(fn (Writer $x) => $x->getUserId(), $writers));
+
+        $items = [];
+        foreach ($writer_ids as $writer_id) {
+            if(array_key_exists($writer_id, $writers)) {
+                $writer = $writers[$writer_id];
+                $essay = $this->essay_repo->getEssayByWriterIdAndTaskId($writer->getId(), $writer->getTaskId());
+                if ($essay !== null && $essay->getWritingAuthorized() === null) {
+                    $items[] = $this->uiFactory->modal()->interruptiveItem()->standard(
+                        $writer->getId(),
+                        $user_data[$writer->getUserId()]
+                    );
+                }
+            }
+        }
+
+        if(empty($items)) {
+            $change_modal = $this->uiFactory->modal()->roundtrip(
+                $this->plugin->txt("authorize_writings"),
+                $this->uiFactory->legacy($this->plugin->txt("authorize_writings_none_possible")),
+            );
+        } else {
+            $change_modal = $this->uiFactory->modal()->interruptive(
+                $this->plugin->txt("authorize_writings"),
+                $this->plugin->txt("authorize_writings_confirmation"),
+                $this->ctrl->getFormAction($this, "authorizeWriting")
+            )->withAffectedItems($items)->withActionButtonLabel($this->lng->txt('change'));
+        }
+
+        echo($this->renderer->renderAsync($change_modal));
+        exit();
+    }
+
+    protected function unauthorizeWritingMultiConfirmation()
+    {
+        $writer_ids = $this->getWriterIds();
+        $writers = $this->writer_repo->getWritersByTaskId($this->object->getId());
+        $user_data = $this->common_services->userDataHelper()->getNames(array_map(fn (Writer $x) => $x->getUserId(), $writers));
+
+        $items = [];
+        foreach ($writer_ids as $writer_id) {
+            if(array_key_exists($writer_id, $writers)) {
+                $writer = $writers[$writer_id];
+                $essay = $this->essay_repo->getEssayByWriterIdAndTaskId($writer->getId(), $writer->getTaskId());
+                if( $essay?->getWritingAuthorized() !== null && empty($this->correctorAdminService->getAuthorizedSummaries($essay))
+                ) {
+                    $items[] = $this->uiFactory->modal()->interruptiveItem()->standard(
+                        $writer->getId(),
+                        $user_data[$writer->getUserId()]
+                    );
+                }
+            }
+        }
+
+        if(empty($items)) {
+            $change_modal = $this->uiFactory->modal()->roundtrip(
+                $this->plugin->txt("unauthorize_writings"),
+                $this->uiFactory->legacy($this->plugin->txt("unauthorize_writings_none_possible")),
+            );
+        } else {
+            $change_modal = $this->uiFactory->modal()->interruptive(
+                $this->plugin->txt("unauthorize_writings"),
+                $this->plugin->txt("unauthorize_writings_confirmation"),
+                $this->ctrl->getFormAction($this, "unauthorizeWriting")
+            )->withAffectedItems($items)->withActionButtonLabel($this->lng->txt('change'));
+        }
+
+        echo($this->renderer->renderAsync($change_modal));
+        exit();
+    }
+
     protected function authorizeWriting()
     {
-
-        if (($id = $this->getWriterId()) === null) {
-            $this->tpl->setOnScreenMessage("success", $this->plugin->txt("writing_autorized"), true);
-            $this->ctrl->redirect($this, "showStartPage");
+        $writer_ids = $this->getWriterIds();
+        $count = 0;
+        foreach($writer_ids as $id) {
+            $essay = $this->essay_repo->getEssayByWriterIdAndTaskId($id, $this->object->getId());
+            if ($essay !== null) {
+                $this->writerAdminService->authorizeWriting($essay, $this->dic->user()->getId());
+                $count++;
+            }
         }
-
-        $essay_repo = LongEssayAssessmentDI::getInstance()->getEssayRepo();
-        $essay = $essay_repo->getEssayByWriterIdAndTaskId($id, $this->object->getId());
-
-        if($essay === null) {
-            throw new Exception("No Essay found for writer.");
+        if ($count > 0) {
+            $this->tpl->setOnScreenMessage("success", $this->plugin->txt($count == 1 ? "writing_authorized" : "writings_authorized"), true);
+        } else {
+            $this->tpl->setOnScreenMessage("failure", $this->plugin->txt("authorize_writings_none_possible"), true);
         }
-
-        $this->localDI->getWriterAdminService($this->object->getId())->authorizeWriting($essay, $this->dic->user()->getId());
-        $this->tpl->setOnScreenMessage("success", $this->plugin->txt("writing_authorized"), true);
-        $this->ctrl->redirect($this, "showStartPage", "writer_" . $id);
+        $this->ctrl->redirect($this, "showStartPage", count($writer_ids) == 1 ? "writer_" . $writer_ids[0] : '');
     }
 
     protected function unauthorizeWriting()
     {
-
-        if (($id = $this->getWriterId()) === null) {
-            $this->tpl->setOnScreenMessage("success", $this->plugin->txt("writing_unautorized"), true);
-            $this->ctrl->redirect($this, "showStartPage");
+        $writer_ids = $this->getWriterIds();
+        $count = 0;
+        foreach($writer_ids as $id) {
+            $essay = $this->essay_repo->getEssayByWriterIdAndTaskId($id, $this->object->getId());
+            if ($essay !== null) {
+                $this->writerAdminService->removeAuthorizationWriting($essay, $this->dic->user()->getId());
+                $count++;
+            }
         }
-
-        $essay_repo = LongEssayAssessmentDI::getInstance()->getEssayRepo();
-        $essay = $essay_repo->getEssayByWriterIdAndTaskId($id, $this->object->getId());
-
-        if($essay === null) {
-            throw new Exception("No Essay found for writer.");
+        if ($count > 0) {
+            $this->tpl->setOnScreenMessage("success", $this->plugin->txt($count == 1 ? "writing_unauthorized" : "writings_unauthorized"), true);
+        } else {
+            $this->tpl->setOnScreenMessage("failure", $this->plugin->txt("unauthorize_writings_none_possible"), true);
         }
-
-        $this->localDI->getWriterAdminService($this->object->getId())->removeAuthorizationWriting($essay, $this->dic->user()->getId());
-        $this->tpl->setOnScreenMessage("success", $this->plugin->txt("writing_unautorized"), true);
-        $this->ctrl->redirect($this, "showStartPage", "writer_" . $id);
-    }
+        $this->ctrl->redirect($this, "showStartPage", count($writer_ids) == 1 ? "writer_" . $writer_ids[0] : '');
+   }
 
 
     protected function deleteWriterData()
@@ -738,9 +819,14 @@ class WriterAdminGUI extends BaseGUI
             foreach(explode('/', $query_params["writer_ids"]) as $value) {
                 $ids[] = (int) $value;
             }
+        } elseif(is_array($items = $this->request->getParsedBody()) && array_key_exists("interruptive_items", $items)) {
+            foreach($items["interruptive_items"] as $item) {
+                $ids[] = (int) $item;
+            }
         }
         return $ids;
     }
+
 
     /**
      * @return Essay[]
@@ -849,6 +935,7 @@ class WriterAdminGUI extends BaseGUI
 
         return $this->uiFactory->input()->container()->form()->standard($link, $fields, "");
     }
+
 
     protected function changeTextToPdfMultiConfirmation()
     {

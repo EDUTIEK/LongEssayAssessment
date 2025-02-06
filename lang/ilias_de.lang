@@ -196,7 +196,9 @@ participants#:#Teilnehmer
 exclude_participant#:#Von Bearbeitung ausschließen
 change_working_time#:#Bearbeitungszeit anpassen
 authorize_writing#:#Abgabe autorisieren
+authorize_writings#:#Abgaben autorisieren
 unauthorize_writing#:#Autorisierung zurücknehmen
+unauthorize_writings#:#Autorisierungen zurücknehmen
 view_processing#:#Bearbeitung einsehen
 writing_last_save#:#Letzte Speicherung
 working_time_change#:#Zeitanpassung
@@ -211,7 +213,11 @@ no_writer_set#:#Kein Teilnehmer angegeben.
 exclude_participant_confirmation#:#Wollen Sie den folgenden Teilnehmer wirklich von der Bearbeitung ausschließen?
 exclude#:#Ausschließen
 authorize_writing_confirmation#:#Wollen Sie die Abgabe vom folgenden Teilnehmer wirklich autorisieren?
+authorize_writings_confirmation#:#Wollen Sie die Abgabe von den folgenden Teilnehmern wirklich autorisieren?
 unauthorize_writing_confirmation#:#Wollen Sie die Autorisierung der Abgabe vom folgenden Teilnehmer wirklich zurücknehmen?
+unauthorize_writings_confirmation#:#Wollen Sie die Autorisierung der Abgaben von den folgenden Teilnehmern wirklich zurücknehmen?
+authorize_writings_none_possible#:#Ihre Auswahl enthält keine Abgaben, die autorisiert werden können.
+unauthorize_writings_none_possible#:#Ihre Auswahl enthält keine Abgaben, deren Autorisierung entfernt werden kann.
 correctors#:#Korrektoren
 tab_corrector_list#:#Korrektoren
 search_correctors#:#Korrektoren suchen
@@ -272,7 +278,9 @@ pseudonym#:#Pseudonym
 icon_label#:#Profilbild von
 time_exceeds_solution_availability#:#Die Lösungshinweise wären in der Bearbeitungszeit verfügbar!
 writing_authorized#:#Die Abgabe wurde autorisiert.
+writings_authorized#:#Die Abgaben wurden autorisiert.
 writing_unauthorized#:#Die Autorisierung der Abgabe wurde entfernt.
+writings_unauthorized#:#Die Autorisierungen der Abgaben wurden entfernt.
 grade_level_code#:#Code
 grade_level_code_caption#:#Interner Code zum Abgleich der Notenstufe mit internen Systemen
 passed#:#Bestanden

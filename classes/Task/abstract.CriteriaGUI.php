@@ -173,7 +173,11 @@ abstract class CriteriaGUI extends BaseGUI implements DataTableParent
         $table->executeAction();
         $table->setTitle($this->plugin->txt("criteria"));
 
-        $table->addActionToToolbar($this->toolbar, $table->getActionByName("add_criteria"), true);
+        if($this->isChangeAllowed()) {
+            $table->addActionToToolbar($this->toolbar, $table->getActionByName("add_criteria"), true);
+        } else {
+            $table->disableAction(true);
+        }
 
         if ($this->allowSettingsInContext()) {
             switch($this->settings->getCriteriaMode()) {
@@ -195,7 +199,7 @@ abstract class CriteriaGUI extends BaseGUI implements DataTableParent
             }
         }
 
-        if($this->getCorrectorIdFromContext() === null) {
+        if($this->getCorrectorIdFromContext() === null && $this->isChangeAllowed()) {
             $select = $this->buildRepositorySelect();
             list($btn, $modal) = $select->getToolbarComponents($this->plugin->txt("copy_criteria"));
             $this->addModal($modal);

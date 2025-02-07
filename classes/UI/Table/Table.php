@@ -33,6 +33,7 @@ abstract class Table implements TableParent, FilterParent
      * @var Filter\FilterInput[]
      */
     private array $filter_inputs = [];
+    private bool $action_enabled = true;
     /**
      * @var Action[]
      */
@@ -337,6 +338,12 @@ abstract class Table implements TableParent, FilterParent
         }
 
         if(empty($confirmation_items)) {
+            echo($this->renderer->renderAsync([
+                $this->ui_factory->modal()->roundtrip(
+                    $action->label(),
+                    [$this->ui_factory->messageBox()->failure($this->lng->txt("no_items"))]
+                )
+            ]));
             exit();
         }
         echo($this->renderer->renderAsync([
@@ -392,5 +399,15 @@ abstract class Table implements TableParent, FilterParent
         }
 
         return array_map(fn ($x) => true, $this->getFilterInputs());
+    }
+
+    public function disableAction(bool $disable)
+    {
+        $this->action_enabled = !$disable;
+    }
+
+    public function isActionEnabled(): bool
+    {
+        return $this->action_enabled;
     }
 }

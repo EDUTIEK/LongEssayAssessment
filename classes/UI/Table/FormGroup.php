@@ -157,7 +157,7 @@ class FormGroup extends Table
             ""
         );
         $actions = $this->getActionsForTable($table);
-        if(!empty($actions)) {
+        if(!empty($actions) && $this->isActionEnabled()) {
             $table = $table->withActions($this->ui_factory->dropdown()->standard($actions));
         }
         return $table;

@@ -68,7 +68,7 @@ class DataTable extends Table implements DataRetrieval, DataTableParent
 
         $small_view = $this->smallView($this->getAdditionalParameter());
 
-        if(!empty($this->actions) && ! $small_view) {
+        if(!empty($this->actions) && !$small_view && $this->isActionEnabled()) {
             $actions = $this->getDataTableActions();
             $table = $table->withActions($actions);
         }

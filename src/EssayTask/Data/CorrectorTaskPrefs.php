@@ -22,7 +22,7 @@ namespace ILIAS\Plugin\LongEssayAssessment\EssayTask\Data;
 
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Table;
 
-#[Table(name: 'xlas_et_corr_task_prefs')]
+#[Table(name: 'xlas_et_corr_ta_prefs')]
 class CorrectorTaskPrefs extends \Edutiek\AssessmentService\EssayTask\Data\CorrectorTaskPrefs
 {
     private int $task_id = 0;

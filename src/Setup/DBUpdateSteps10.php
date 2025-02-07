@@ -23,6 +23,15 @@ namespace ILIAS\Plugin\LongEssayAssessment\Setup;
 use ILIAS\Plugin\LongEssayAssessment\System\File\Stakeholder;
 use ILIAS\ResourceStorage\Stakeholder\Repository\StakeholderDBRepository;
 
+/**
+ * TODO: Failed update should be repetable
+ * - it should be possible to execute steps 1 to 3 again
+ * - drop tables before creation in step 1 (done)
+ * - catch errors in step 1 to 3 and
+ *      - delete entries for step 1 to 3 in il_db_steps
+ *      - throw a runtime exception to abort the plugin update with explaining error message
+ * - override ilPlugin::isActive to check if steps are executed
+ */
 class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
 {
     private \ilDBInterface $db;
@@ -39,7 +48,6 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
         $this->v10_migration->createNewTables();
     }
 
-
     public function step_2(): void
     {
         $this->v10_migration->migrateTables();
@@ -47,27 +55,17 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
 
     public function step_3(): void
     {
-        $this->v10_migration->removeOldTables();
+        $this->v10_migration->migrateStakeholders();
     }
 
+    /**
+     * TODO: postpone the removing
+     * - give admins a chance to check interactively if everything is ok
+     * - eventually just rename the tables
+     * - provide a migration step to drop them
+    */
     public function step_4(): void
     {
-        $stakeholder = new Stakeholder();
-        $qname = $stakeholder->getFullyQualifiedClassName();
-        $id = $stakeholder->getId();
-        $old_stkh = ['xlas_essay_image', 'xlas_essay', 'xlas_resource'];
-
-        // create new stakeholder if it does not exists
-        $this->db->manipulateF("REPLACE INTO " . StakeholderDBRepository::TABLE_NAME_REL . " VALUES (%s, %s)", ['text', 'text'], [$id, $qname]);
-
-        // migrate all files from stakeholder xlas_essay_image, xlas_essay, xlas_resource to the new stakeholder
-        $this->db->manipulate(
-            "UPDATE " . StakeholderDBRepository::TABLE_NAME
-            . " SET stakeholder_id = " . $this->db->quote($id, 'text')
-            . " WHERE " . $this->db->in('stakeholder_id', $old_stkh, false, 'text')
-        );
-
-        // remove old stakeholder xlas_essay_image, xlas_essay, xlas_resource
-        $this->db->manipulate("DELETE FROM " . StakeholderDBRepository::TABLE_NAME_REL . " WHERE " . $this->db->in('id', $old_stkh, false, 'text'));
+        $this->v10_migration->removeOldTables();
     }
 }

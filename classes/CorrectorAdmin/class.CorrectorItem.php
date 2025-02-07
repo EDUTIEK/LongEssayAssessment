@@ -12,7 +12,7 @@ class CorrectorItem extends Item
         private readonly string $name,
         private readonly string $login,
         private readonly int $first,
-        private readonly ?int $second = null,
+        private readonly ?int $second,
         private readonly int $not_started,
         private readonly int $open,
         private readonly int $authorized

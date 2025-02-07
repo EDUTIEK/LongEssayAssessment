@@ -42,6 +42,7 @@ class GradesAdminGUI extends BaseGUI implements DataTableParent
     use ConfirmationIds, SmallView;
 
     private ?int $copy_context = null;
+    private ?bool $is_change_allowed = null;
     protected \ILIAS\Plugin\LongEssayAssessment\UI\Table\Factory $table_factory;
     protected TaskRepository $task_repo;
     protected ObjectRepository $object_repo;
@@ -84,7 +85,7 @@ class GradesAdminGUI extends BaseGUI implements DataTableParent
     {
         $can_delete = true;
         $settings = $this->task_repo->getTaskSettingsById($this->object->getId());
-        $authorized = $this->corrector_service->authorizedCorrectionsExists();
+        $is_change_allowed = $this->isChangeAllowed();
 
         if ($settings->getCorrectionStart() !== null) {
             $correction_start = new \ilDateTime($settings->getCorrectionStart(), IL_CAL_DATETIME);
@@ -92,26 +93,37 @@ class GradesAdminGUI extends BaseGUI implements DataTableParent
             $can_delete = !\ilDate::_after($today, $correction_start);
         }
 
-        if ($authorized) {
-            $this->tpl->setOnScreenMessage("info", $this->plugin->txt("grade_level_cannot_edit_used_info"));
-        } elseif (empty($this->getTableItems())) {
-            $this->tpl->setOnScreenMessage("info", $this->plugin->txt("grade_levels_empty_notice"));
-        }
         $table = $this->table_factory->dataTable("grade_table", $this);
         $table->setTitle($this->plugin->txt('grade_levels'));
 
-        if (!$authorized) {
+        if ($is_change_allowed) {
             $table->addActionToToolbar($this->toolbar, $table->getActionByName("add_grade_level"), true);
 
             $select = $this->buildRepositorySelect();
             list($btn, $modal) = $select->getToolbarComponents($this->plugin->txt("copy_grade_level"));
             $this->addModal($modal);
             $this->toolbar->addComponent($btn);
+
+            $table->executeAction();
+        } else {
+            $this->tpl->setOnScreenMessage("info", $this->plugin->txt("grade_level_cannot_edit_used_info"));
+            $table->disableAction(true);
         }
 
-        $table->executeAction();
+        if (empty($this->getTableItems())) {
+            $this->tpl->setOnScreenMessage("info", $this->plugin->txt("grade_levels_empty_notice"));
+        }
 
         $this->setContent($this->renderer->render($table->getComponents()));
+    }
+
+    private function isChangeAllowed()
+    {
+        if($this->is_change_allowed !== null) {
+            return $this->is_change_allowed;
+        }
+
+        return $this->is_change_allowed = !$this->corrector_service->authorizedCorrectionsExists();
     }
 
     public function getColumnMapping(Item $item, ?array $additional_parameters) : array
@@ -175,7 +187,7 @@ class GradesAdminGUI extends BaseGUI implements DataTableParent
             $this->plugin->txt('delete_grade_level_confirmation'),
             $this->ctrl->getFormAction($this, 'delete'),
             fn (GradeItem $item) => $item->getGrade(),
-            fn (GradeItem $x) => true,
+            fn (GradeItem $x) => $this->isChangeAllowed(),
             Action\Type::Standard
         );
     }
@@ -188,7 +200,7 @@ class GradesAdminGUI extends BaseGUI implements DataTableParent
             $this->lng->txt('save'),
             [$this, "buildFields"],
             [$this, "save"],
-            fn (GradeItem $x) => true,
+            fn (GradeItem $x) => $this->isChangeAllowed(),
             Action\Type::Single
         );
     }

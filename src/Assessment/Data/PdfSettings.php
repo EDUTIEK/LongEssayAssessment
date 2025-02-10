@@ -26,8 +26,8 @@ use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Table;
 #[Table(name: 'xlas_as_pdf_settings')]
 class PdfSettings extends \Edutiek\AssessmentService\Assessment\Data\PdfSettings
 {
-    private int $add_header = 0;
-    private int $add_footer = 0;
+    private bool $add_header = false;
+    private bool $add_footer = false;
     private int $top_margin = 0;
     private int $bottom_margin = 0;
     private int $left_margin = 0;
@@ -35,20 +35,20 @@ class PdfSettings extends \Edutiek\AssessmentService\Assessment\Data\PdfSettings
     #[Key]
     private int $ass_id = 0;
 
-    public function getAddHeader(): int
+    public function getAddHeader(): bool
     {
         return $this->add_header;
     }
-    public function setAddHeader(int $add_header): self
+    public function setAddHeader(bool $add_header): self
     {
         $this->add_header = $add_header;
         return $this;
     }
-    public function getAddFooter(): int
+    public function getAddFooter(): bool
     {
         return $this->add_footer;
     }
-    public function setAddFooter(int $add_footer): self
+    public function setAddFooter(bool $add_footer): self
     {
         $this->add_footer = $add_footer;
         return $this;

@@ -6,6 +6,7 @@ namespace ILIAS\Plugin\LongEssayAssessment\Corrector;
 use ILIAS\Plugin\LongEssayAssessment\Data\Corrector\Corrector;
 use ILIAS\Plugin\LongEssayAssessment\Data\Object\RatingCriterion;
 use ILIAS\Plugin\LongEssayAssessment\Task\CriteriaGUI;
+use ILIAS\Plugin\LongEssayAssessment\Data\Task\CorrectionSettings;
 
 /**
  * Cretiera page for correctors
@@ -33,9 +34,16 @@ class CorrectorCriteriaGUI extends CriteriaGUI
     }
 
 
-    protected function getRatingCriterionFromContext(): array
+    protected function getRatingCriteriaFromContext(): array
     {
-        return $this->localDI->getObjectRepo()->getRatingCriteriaByObjectId($this->object->getId(), $this->getCorrectorIdFromContext());
+        switch ($this->settings->getCriteriaMode()) {
+            case CorrectionSettings::CRITERIA_MODE_CORRECTOR:
+                return $this->object_repo->getRatingCriteriaByObjectId($this->object->getId(), $this->getCorrectorIdFromContext());
+            case CorrectionSettings::CRITERIA_MODE_FIXED:
+                return $this->object_repo->getRatingCriteriaByObjectId($this->object->getId(), null);
+            default:
+                return [];
+        }
     }
 
     protected function getRatingCriterionModelFromContext(): RatingCriterion
@@ -48,13 +56,21 @@ class CorrectorCriteriaGUI extends CriteriaGUI
         return $this->corrector->getId();
     }
 
-    protected function allowCopyInContext(): bool
+    protected function allowChangeInContext(): bool
     {
-        return true;
+        return $this->settings->getCriteriaMode() == CorrectionSettings::CRITERIA_MODE_CORRECTOR && !$this->hasAuthorizedCorrections();
     }
 
-    protected function allowSettingsInContext(): bool
+   protected function allowSettingsInContext(): bool
     {
         return false;
     }
+
+    protected function allowShareInContext(): bool
+    {
+        return $this->settings->getCriteriaMode() == CorrectionSettings::CRITERIA_MODE_CORRECTOR;
+    }
+
+
+
 }

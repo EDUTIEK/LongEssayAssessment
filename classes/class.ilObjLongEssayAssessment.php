@@ -302,43 +302,17 @@ class ilObjLongEssayAssessment extends ilObjectPlugin
     }
 
     /**
-     *Check if the user can edit the fixed rating criteria
+     *Check if a corrector can view the screen with rating criteria
      */
-    public function canEditFixedRatingCriteria() : bool
-    {
-        if ($this->canEditContentSettings()) {
-            $repo = $this->localDI->getTaskRepo();
-            $settings = $repo->getCorrectionSettingsById($this->getId()) ?? new CorrectionSettings($this->getId());
-            return in_array($settings->getCriteriaMode(), [CorrectionSettings::CRITERIA_MODE_FIXED, CorrectionSettings::CRITERIA_MODE_CORRECTOR]);
-        }
-        return false;
-    }
-
-    public function canEditOwnRatingCriteria() : bool
+    public function canViewRatingCriteria() : bool
     {
         if ($this->canViewCorrectorScreen()) {
             $repo = $this->localDI->getTaskRepo();
             $settings = $repo->getCorrectionSettingsById($this->getId()) ?? new CorrectionSettings($this->getId());
-            return ($settings->getCriteriaMode() == CorrectionSettings::CRITERIA_MODE_CORRECTOR);
+            return ($settings->getCriteriaMode() == CorrectionSettings::CRITERIA_MODE_FIXED ||
+                $settings->getCriteriaMode() == CorrectionSettings::CRITERIA_MODE_CORRECTOR);
         }
         return false;
-    }
-
-
-    /**
-     *Check if the user can edit the grades
-     */
-    public function canEditGrades() : bool
-    {
-        return $this->access->checkAccess('maintain_task', '', $this->getRefId());
-    }
-
-    /**
-     *Check if the user can edit the criteria
-     */
-    public function canEditCriteria() : bool
-    {
-        return $this->access->checkAccess('maintain_task', '', $this->getRefId());
     }
 
     /**

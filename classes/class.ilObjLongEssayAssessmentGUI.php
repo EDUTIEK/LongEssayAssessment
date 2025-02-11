@@ -215,7 +215,7 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                     }
                     break;
                 case 'ilias\plugin\longessayassessment\corrector\correctorcriteriagui':
-                    if ($this->object->canEditOwnRatingCriteria()) {
+                    if ($this->object->canViewRatingCriteria()) {
                         $this->activateTab('tab_corrector', 'tab_corrector_criteria');
                         $this->ctrl->forwardCommand(new \ILIAS\Plugin\LongEssayAssessment\Corrector\CorrectorCriteriaGUI($this));
                     }
@@ -454,7 +454,7 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                 'txt' => $this->plugin->txt('tab_corrector_start'),
                 'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessayassessment\corrector\correctorstartgui')
             ];
-            if($this->object->canEditOwnRatingCriteria()) {
+            if($this->object->canViewRatingCriteria()) {
                 $tabs[] = [
                     'id' => 'tab_corrector_criteria',
                     'txt' => $this->plugin->txt('tab_criteria'),

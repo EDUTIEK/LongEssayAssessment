@@ -29,16 +29,18 @@ use ILIAS\UI\Component\Component;
 abstract class CriteriaGUI extends BaseGUI implements DataTableParent
 {
     use SmallView, ConfirmationIds;
-    private CustomFactory $custom_factory;
-    private ObjectRepository $object_repo;
-    private WriterRepository $writer_repo;
-    private CorrectorRepository $corrector_repo;
-    private TaskRepository $task_repo;
-    private CorrectionSettings $settings;
-    private CorrectorAdminService $admin_service;
-    private CorrectorCriteriaService $criteria_service;
-    private \ILIAS\Plugin\LongEssayAssessment\UI\Table\Factory $table_factory;
-    private ?int $copy_context = null;
+    protected CustomFactory $custom_factory;
+    protected ObjectRepository $object_repo;
+    protected WriterRepository $writer_repo;
+    protected CorrectorRepository $corrector_repo;
+    protected TaskRepository $task_repo;
+    protected CorrectionSettings $settings;
+    protected CorrectorAdminService $admin_service;
+    protected CorrectorCriteriaService $criteria_service;
+    protected \ILIAS\Plugin\LongEssayAssessment\UI\Table\Factory $table_factory;
+    protected ?int $copy_context = null;
+
+    private ?bool $has_authorized_corrections = null;
 
     public function __construct(\ilObjLongEssayAssessmentGUI $objectGUI)
     {
@@ -61,154 +63,98 @@ abstract class CriteriaGUI extends BaseGUI implements DataTableParent
     {
         $cmd = $this->ctrl->getCmd('showItems');
 
-        if (!in_array($cmd, ['showItems', 'publishRatingCriterion', 'previewItemsAsync']) &&
-            $this->admin_service->authorizedCorrectionsExists($this->getCorrectorIdFromContext())) {
-            $this->tpl->setContent('not allowed command: ' . $cmd);
-        }
-        else {
-            switch ($cmd) {
-                case 'showItems':
-                case 'deleteItems':
-                case 'copyCriteria':
-                    $this->$cmd();
-                    break;
-                case 'copyItems':
-                case 'publishRatingCriterion':
-                case 'previewItemsAsync':
-                    if($this->allowCopyInContext()) {
-                        $this->$cmd();
-                    } else {
-                        $this->tpl->setContent('not allowed command: ' . $cmd);
-                    }
-                    break;
-                case 'settingsAsync':
-                    if($this->allowSettingsInContext()) {
-                        $this->$cmd();
-                    } else {
-                        $this->tpl->setContent('not allowed command: ' . $cmd);
-                    }
-                    break;
+        switch ($cmd) {
+            case 'showItems':
+                $this->$cmd();
+                break;
 
-                default:
-                    $this->tpl->setContent('unknown command: ' . $cmd);
-            }
+            case 'publishRatingCriterion':
+                $this->allowShareInContext() ? $this->$cmd() : $this->tpl->setContent('not allowed command: ' . $cmd);
+                break;
+
+            case 'deleteItems':
+            case 'copyCriteria':
+            case 'copyItems':
+            case 'previewItemsAsync':
+                $this->allowChangeInContext() ? $this->$cmd() : $this->tpl->setContent('not allowed command: ' . $cmd);
+                break;
+
+            case 'settingsAsync':
+                $this->allowSettingsInContext() ? $this->$cmd() : $this->tpl->setContent('not allowed command: ' . $cmd);
+                break;
+
+            default:
+                $this->tpl->setContent('unknown command: ' . $cmd);
         }
     }
 
     /**
      * @return RatingCriterion[]
      */
-    abstract protected function getRatingCriterionFromContext():array;
+    abstract protected function getRatingCriteriaFromContext():array;
     abstract protected function getRatingCriterionModelFromContext(): RatingCriterion;
     abstract protected function getCorrectorIdFromContext(): ?int;
-    abstract protected function allowCopyInContext(): bool;
+    abstract protected function allowChangeInContext(): bool;
+    abstract protected function allowShareInContext(): bool;
     abstract protected function allowSettingsInContext(): bool;
 
-
-    private ?bool $has_corrector_finalized = null;
-    private function hasCorrectorFinalized(): bool
+    protected function hasAuthorizedCorrections(): bool
     {
-        if($this->has_corrector_finalized !== null) {
-            return $this->has_corrector_finalized;
-        }
-
-        if( !empty($corrector_id = $this->getCorrectorIdFromContext()) ) {
-            return $this->has_corrector_finalized = $this->admin_service->finalizedCorrectionsExist($corrector_id);
-        } else {
-            $this->has_corrector_finalized = false;
-        }
-        return $this->has_corrector_finalized;
-    }
-
-    private ?bool $has_corrector_authorized_corrections = null;
-
-    private function hasCorrectorAuthorizedCorrections(): bool
-    {
-        if($this->has_corrector_authorized_corrections !== null) {
-            return $this->has_corrector_authorized_corrections;
-        }
-
-        if( !empty($corrector_id = $this->getCorrectorIdFromContext()) ) {
-            return $this->has_corrector_authorized_corrections = $this->admin_service->authorizedCorrectionsExists($corrector_id);
-        } else {
-            $this->has_corrector_authorized_corrections = false;
-        }
-        return $this->has_corrector_authorized_corrections;
-    }
-
-    private ?bool $has_authorized_corrections = null;
-
-    private function hasAuthorizedCorrections(): bool
-    {
-        if($this->has_authorized_corrections !== null) {
-            return $this->has_authorized_corrections;
-        }
-
-        if( empty($this->getCorrectorIdFromContext()) ) {
-            return $this->has_authorized_corrections = $this->admin_service->authorizedCorrectionsExists();
-        } else {
-            $this->has_authorized_corrections = false;
-        }
-        return $this->has_authorized_corrections;
-    }
-
-    private function isChangeAllowed(): bool
-    {
-        return !($this->hasCorrectorFinalized() || $this->hasCorrectorFinalized() || $this->hasAuthorizedCorrections());
+        return $this->has_authorized_corrections ??= $this->admin_service->authorizedCorrectionsExists();
     }
 
     public function showItems()
     {
-        if ($this->hasCorrectorFinalized()) {
-            $this->tpl->setOnScreenMessage(ilGlobalTemplate::MESSAGE_TYPE_INFO, $this->plugin->txt('criteria_corrector_finalized_message'));
+        $components = [];
+
+        // message if change woulds be possible, but is blocked by authorized corrections
+        if (!$this->allowChangeInContext()) {
+            if ($this->getCorrectorIdFromContext() === null && $this->settings->getCriteriaMode() !== CorrectionSettings::CRITERIA_MODE_NONE) {
+                if ($this->hasAuthorizedCorrections()) {
+                    $this->tpl->setOnScreenMessage(ilGlobalTemplate::MESSAGE_TYPE_INFO, $this->plugin->txt('criteria_admin_authorized_message'));
+                }
+            }
+            if ($this->getCorrectorIdFromContext() !== null && $this->settings->getCriteriaMode() == CorrectionSettings::CRITERIA_MODE_CORRECTOR) {
+                if ($this->admin_service->finalizedCorrectionsExist($this->getCorrectorIdFromContext())) {
+                    $this->tpl->setOnScreenMessage(ilGlobalTemplate::MESSAGE_TYPE_INFO, $this->plugin->txt('criteria_corrector_finalized_message'));
+                }
+                elseif ($this->hasAuthorizedCorrections()) {
+                    $this->tpl->setOnScreenMessage(ilGlobalTemplate::MESSAGE_TYPE_INFO, $this->plugin->txt('criteria_corrector_authorized_message'));
+                }
+            }
         }
-        if ($this->hasCorrectorFinalized()) {
-            $this->tpl->setOnScreenMessage(ilGlobalTemplate::MESSAGE_TYPE_INFO, $this->plugin->txt('criteria_corrector_authorized_message'));
+
+        // panel showing an explanation of the criteria mode
+        switch($this->settings->getCriteriaMode()) {
+            case CorrectionSettings::CRITERIA_MODE_NONE:
+                $mode_message = $this->plugin->txt('criteria_mode_none_info');
+                break;
+            case CorrectionSettings::CRITERIA_MODE_FIXED:
+                $mode_message = $this->plugin->txt('criteria_mode_fixed_info');
+                break;
+            case CorrectionSettings::CRITERIA_MODE_CORRECTOR:
+                $mode_message = $this->plugin->txt('criteria_mode_corrector_info');
+                break;
         }
-        if ($this->hasAuthorizedCorrections()) {
-            $this->tpl->setOnScreenMessage(ilGlobalTemplate::MESSAGE_TYPE_INFO, $this->plugin->txt('criteria_admin_authorized_message'));
-        }
+        $components[] = $this->uiFactory->panel()->standard($this->plugin->txt('criteria_mode'), $this->uiFactory->legacy($mode_message));
 
         $table = $this->table_factory->dataTable("criteria", $this);
         $table->executeAction();
         $table->setTitle($this->plugin->txt("criteria"));
 
-        if($this->isChangeAllowed()) {
+        if($this->allowChangeInContext()) {
             $table->addActionToToolbar($this->toolbar, $table->getActionByName("add_criteria"), true);
         } else {
             $table->disableAction(true);
         }
 
         if ($this->allowSettingsInContext()) {
-            switch($this->settings->getCriteriaMode()) {
-                case CorrectionSettings::CRITERIA_MODE_NONE:
-                    $mode_message = $this->plugin->txt('criteria_mode_none_info');
-                    break;
-                case CorrectionSettings::CRITERIA_MODE_FIXED:
-                    $mode_message = $this->plugin->txt('criteria_mode_fixed_info');
-                    break;
-                case CorrectionSettings::CRITERIA_MODE_CORRECTOR:
-                    $mode_message = $this->plugin->txt('criteria_mode_corrector_info');
-                    break;
-            }
-            $mode = [$this->uiFactory->panel()->standard($this->plugin->txt('criteria_mode'), $this->uiFactory->legacy($mode_message))];
-
-            if($this->isChangeAllowed())
-            {
-                $table->addActionToToolbar($this->toolbar, $table->getActionByName("criteria_settings"), false);
-            }
+            $table->addActionToToolbar($this->toolbar, $table->getActionByName("criteria_settings"));
         }
-
-        if($this->getCorrectorIdFromContext() === null && $this->isChangeAllowed()) {
-            $select = $this->buildRepositorySelect();
-            list($btn, $modal) = $select->getToolbarComponents($this->plugin->txt("copy_criteria"));
-            $this->addModal($modal);
-            $this->toolbar->addComponent($btn);
-        }
-
+        
         $this->addCopyToolbar();
 
-        $this->setContent($this->renderer->render(array_merge($mode ?? [], $table->getComponents())));
+        $this->setContent($this->renderer->render(array_merge($components, $table->getComponents())));
     }
 
     protected function buildItemTitle(RatingCriterion $item): string
@@ -220,7 +166,7 @@ abstract class CriteriaGUI extends BaseGUI implements DataTableParent
 
     public function deleteItems()
     {
-        $criteria_ids = array_map(fn (RatingCriterion $x) => $x->getId(), $this->getRatingCriterionFromContext());
+        $criteria_ids = array_map(fn (RatingCriterion $x) => $x->getId(), $this->getRatingCriteriaFromContext());
         $delete_ids = $this->confirmationIds();
         $success = false;
 
@@ -245,7 +191,7 @@ abstract class CriteriaGUI extends BaseGUI implements DataTableParent
     public function publishRatingCriterion()
     {
         $param = $this->request->getQueryParams();
-        if(isset($param["publish"]) && $this->allowCopyInContext() && $this->getCorrectorIdFromContext() !== null) {
+        if(isset($param["publish"]) && $this->allowShareInContext()) {
             $toggle = $param["publish"] == "on";
             $corrector = $this->corrector_repo->getCorrectorById($this->getCorrectorIdFromContext());
 
@@ -302,6 +248,9 @@ abstract class CriteriaGUI extends BaseGUI implements DataTableParent
         exit();
     }
 
+    /**
+     * Copy criteria from another corrector or from the default criteria 
+     */
     public function copyItems()
     {
         $query = $this->request->getQueryParams();
@@ -341,12 +290,24 @@ abstract class CriteriaGUI extends BaseGUI implements DataTableParent
         $this->ctrl->redirect($this, "showItems");
     }
 
+    /**
+     * Add toolbar for sharing and copy of criteria between correctors
+     */
     protected function addCopyToolbar()
     {
-        if($this->allowCopyInContext() && $this->getCorrectorIdFromContext() !== null) {
+        // add button to copy criteria from other object
+        if($this->getCorrectorIdFromContext() === null && $this->allowChangeInContext()) {
+            $select = $this->buildRepositorySelect();
+            list($btn, $modal) = $select->getToolbarComponents($this->plugin->txt("copy_criteria"));
+            $this->addModal($modal);
+            $this->toolbar->addComponent($btn);
+        }
+
+        // add button to copy criteria from other corrector
+        if ($this->getCorrectorIdFromContext() !== null && $this->allowChangeInContext()) {
             $corrector = $this->corrector_repo->getCorrectorById($this->getCorrectorIdFromContext());
             $select = $this->copyGroupSelect();
-            if($this->isChangeAllowed() && !empty($select->getOptions())) {
+            if(!empty($select->getOptions())) {
                 $modal = $this->uiFactory->modal()->roundtrip("", [])->withAsyncRenderUrl("#");
                 $signal = new Signal(str_replace(".", "_", uniqid('il_signal_', true)));
                 $preview_link = $this->ctrl->getLinkTarget($this, "previewItemsAsync", "", true);
@@ -365,7 +326,6 @@ abstract class CriteriaGUI extends BaseGUI implements DataTableParent
                 $copy_action = $this->ctrl->getFormAction($this, "copyItems");
 
                 $this->toolbar->addComponent($modal);
-                $this->toolbar->addSeparator();
                 $this->toolbar->addText($this->plugin->txt('copy_rating_criterion_from'));
                 $this->toolbar->addInputItem($select);
                 $this->toolbar->addComponent(
@@ -380,18 +340,20 @@ abstract class CriteriaGUI extends BaseGUI implements DataTableParent
                     $this->uiFactory->button()->standard($this->lng->txt('preview'), "#")->withOnClick($signal)
                 );
             }
-            $this->ctrl->setParameter($this, "publish", "on");
-            $on_action = $this->ctrl->getFormAction($this, "publishRatingCriterion");
 
-            $this->ctrl->setParameter($this, "publish", "off");
-            $off_action = $this->ctrl->getFormAction($this, "publishRatingCriterion");
+            if ($this->allowShareInContext()) {
+                $this->ctrl->setParameter($this, "publish", "on");
+                $on_action = $this->ctrl->getFormAction($this, "publishRatingCriterion");
 
-            $this->ctrl->clearParameters($this);
-            $this->toolbar->addSeparator();
-            $this->toolbar->addText($this->plugin->txt("publish_rating_criterion"));
-            $this->toolbar->addComponent(
-                $this->uiFactory->button()->toggle("", $on_action, $off_action, $corrector->isCriterionCopyEnabled())
-            );
+                $this->ctrl->setParameter($this, "publish", "off");
+                $off_action = $this->ctrl->getFormAction($this, "publishRatingCriterion");
+
+                $this->ctrl->clearParameters($this);
+                $this->toolbar->addText($this->plugin->txt("publish_rating_criterion"));
+                $this->toolbar->addComponent(
+                    $this->uiFactory->button()->toggle("", $on_action, $off_action, $corrector->isCriterionCopyEnabled())
+                );
+            }
         }
     }
 
@@ -479,7 +441,7 @@ abstract class CriteriaGUI extends BaseGUI implements DataTableParent
             yield $this->tableItemFromData($this->getRatingCriterionModelFromContext());
             return;
         }
-        foreach ($this->getRatingCriterionFromContext() as $object) {
+        foreach ($this->getRatingCriteriaFromContext() as $object) {
             if(empty($ids) || in_array($object->getId(), $ids)) {
                 yield $this->tableItemFromData($object);
             }
@@ -508,7 +470,7 @@ abstract class CriteriaGUI extends BaseGUI implements DataTableParent
             $this->lng->txt('save'),
             fn (CriteriaItem $item) => $this->buildFields($item),
             fn (CriteriaItem $item, array $data) => $this->save($item, $data),
-            fn (CriteriaItem $x) => $this->settings->getCriteriaMode() !== CorrectionSettings::CRITERIA_MODE_NONE && $this->isChangeAllowed(),
+            fn (CriteriaItem $x) => $this->allowChangeInContext(),
             Action\Type::Global
         );
     }
@@ -521,7 +483,7 @@ abstract class CriteriaGUI extends BaseGUI implements DataTableParent
             $this->lng->txt('save'),
             fn (CriteriaItem $item) => $this->buildSettingsFields(),
             fn (CriteriaItem $item, array $data) => $this->saveSettings($data),
-            fn (CriteriaItem $x) => $this->settings->getCriteriaMode() !== CorrectionSettings::CRITERIA_MODE_NONE && $this->isChangeAllowed(),
+            fn (CriteriaItem $x) => $this->allowChangeInContext(),
             Action\Type::Global
         );
         switch ($this->settings->getCriteriaMode()) {
@@ -548,7 +510,7 @@ abstract class CriteriaGUI extends BaseGUI implements DataTableParent
             $this->lng->txt('save'),
             fn (CriteriaItem $item) => $this->buildFields($item),
             fn (CriteriaItem $item, array $data) => $this->save($item, $data),
-            fn (CriteriaItem $x) => $this->isChangeAllowed(),
+            fn (CriteriaItem $x) => $this->allowChangeInContext(),
             Action\Type::Single
         );
     }
@@ -562,7 +524,7 @@ abstract class CriteriaGUI extends BaseGUI implements DataTableParent
             $this->plugin->txt('delete_criteria_confirmation'),
             $this->ctrl->getFormAction($this, 'deleteItems'),
             fn (CriteriaItem $item) => $item->getTitle(),
-            fn (CriteriaItem $x) => $this->isChangeAllowed(),
+            fn (CriteriaItem $x) => $this->allowChangeInContext(),
             Action\Type::Standard
         );
     }
@@ -639,7 +601,7 @@ abstract class CriteriaGUI extends BaseGUI implements DataTableParent
     {
         $old_mode = $this->settings->getCriteriaMode();
         $new_mode = (string) $data['criteria_mode'];
-        if ($old_mode !== $new_mode && $this->isChangeAllowed()) {
+        if ($old_mode !== $new_mode && $this->allowSettingsInContext()) {
             $this->settings->setCriteriaMode($new_mode);
             $this->task_repo->save($this->settings);
 
@@ -651,6 +613,9 @@ abstract class CriteriaGUI extends BaseGUI implements DataTableParent
         }
     }
 
+    /**
+     * Copy criteria from another object                 
+     */
     protected function copyCriteria() : void
     {
         if($this->getCorrectorIdFromContext() !== null) {

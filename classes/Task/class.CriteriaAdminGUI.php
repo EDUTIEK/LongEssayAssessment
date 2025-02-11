@@ -7,6 +7,7 @@ use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\Data\Object\RatingCriterion;
 use ILIAS\UI\Component\Table\PresentationRow;
 use ILIAS\UI\Factory;
+use ILIAS\Plugin\LongEssayAssessment\Data\Task\CorrectionSettings;
 
 /**
  * Resources Administration
@@ -17,9 +18,9 @@ use ILIAS\UI\Factory;
 class CriteriaAdminGUI extends CriteriaGUI
 {
 
-    protected function getRatingCriterionFromContext(): array
+    protected function getRatingCriteriaFromContext(): array
     {
-        return $this->localDI->getObjectRepo()->getRatingCriteriaByObjectId($this->object->getId());
+        return $this->object_repo->getRatingCriteriaByObjectId($this->object->getId());
     }
 
     protected function getRatingCriterionModelFromContext(): RatingCriterion
@@ -32,13 +33,25 @@ class CriteriaAdminGUI extends CriteriaGUI
         return null;
     }
 
-    protected function allowCopyInContext(): bool
+    protected function allowChangeInContext(): bool
     {
+        switch ($this->settings->getCriteriaMode()) {
+            case CorrectionSettings::CRITERIA_MODE_NONE:
+                return false;
+            case CorrectionSettings::CRITERIA_MODE_FIXED:
+            case CorrectionSettings::CRITERIA_MODE_CORRECTOR:
+                return !$this->hasAuthorizedCorrections();
+        }
         return false;
     }
 
     protected function allowSettingsInContext(): bool
     {
-        return true;
+        return !$this->hasAuthorizedCorrections();
+    }
+
+    protected function allowShareInContext(): bool
+    {
+        return false;
     }
 }

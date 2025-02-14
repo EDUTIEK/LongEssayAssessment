@@ -31,4 +31,16 @@ interface FormItem extends Standard
      * @return string|null
      */
     public function getName(): ?string;
+
+    /**
+     * Set an individual label for the checkbox
+     * Accessibility: otherwise checkboxes can't be distinguished in reader
+     */
+    public function withLabel(string $label);
+
+    /**
+     * Get the optional label for the checkbox
+     * Accessibility: otherwise checkboxes can't be distinguished in reader
+     */
+    public function getLabel(): ?string;
 }

@@ -9,6 +9,7 @@ use ILIAS\UI\Implementation\Component\Item\Standard;
 class FormItem extends Standard implements \ILIAS\Plugin\LongEssayAssessment\UI\Component\FormItem
 {
     protected ?string $name = null;
+    protected ?string $label = null;
 
     /**
      * @ineritdoc
@@ -27,5 +28,17 @@ class FormItem extends Standard implements \ILIAS\Plugin\LongEssayAssessment\UI\
     public function getName(): ?string
     {
         return $this->name;
+    }
+
+    public function withLabel(string $label)
+    {
+        $clone = clone $this;
+        $clone->label = $label;
+        return $clone;
+    }
+
+    public function getLabel(): ?string
+    {
+        return $this->label;
     }
 }

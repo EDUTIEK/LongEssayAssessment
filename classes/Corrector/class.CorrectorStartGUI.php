@@ -308,6 +308,7 @@ class CorrectorStartGUI extends BaseGUI
 
             $object = $this->localDI->getUIFactory()->item()->formItem($item["title"])
                 ->withName($item["writer_id"])
+                ->withLabel(sprintf($this->plugin->txt('select_x'), $item["pseudonym"]))
                 ->withLeadIcon($this->uiFactory->symbol()->icon()->standard('adve', 'user', 'medium'))
                 ->withProperties($item["properties"]);
             if (!empty($item['actions'])) {

@@ -15,12 +15,15 @@ use ILIAS\UI\Renderer as RendererInterface;
 class ItemRenderer extends \ILIAS\UI\Implementation\Component\Item\Renderer
 {
     private ?array $files_cache = null;
+    private \ilLongEssayAssessmentPlugin $plugin;
 
     /**
      * @inheritdoc
      */
     public function render(Component $component, RendererInterface $default_renderer) : string
     {
+        $this->plugin = \ilLongEssayAssessmentPlugin::getInstance();
+
         /**
          * @var $component FormInput
          */
@@ -137,7 +140,7 @@ class ItemRenderer extends \ILIAS\UI\Implementation\Component\Item\Renderer
             $tpl->setCurrentBlock("checkbox");
             $tpl->setVariable("CB_VALUE", $component->getName());
             $tpl->setVariable("LIST_DATA_SOURCE_NAME", $title);
-            $tpl->setVariable("TXT_SELECT", $this->txt('select'));
+            $tpl->setVariable("TXT_SELECT", $component->getLabel() ?? $this->txt("select"));
             $tpl->parseCurrentBlock();
 
             if($lead == null) { // checkbox activates lead-block so lead_end has to be called

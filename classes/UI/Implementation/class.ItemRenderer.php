@@ -15,15 +15,12 @@ use ILIAS\UI\Renderer as RendererInterface;
 class ItemRenderer extends \ILIAS\UI\Implementation\Component\Item\Renderer
 {
     private ?array $files_cache = null;
-    private \ilLongEssayAssessmentPlugin $plugin;
 
     /**
      * @inheritdoc
      */
     public function render(Component $component, RendererInterface $default_renderer) : string
     {
-        $this->plugin = \ilLongEssayAssessmentPlugin::getInstance();
-
         /**
          * @var $component FormInput
          */

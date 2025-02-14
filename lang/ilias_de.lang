@@ -388,7 +388,9 @@ remove_own_authorization_done#:#Ihre Korrektur-Autorisierungen wurden zurückgez
 remove_own_authorization_failed#:#Ihre Korrektur-Autorisierung für %s konnte nicht zurücckgezogen werden.
 log_entry_removed_own_authorization#:#Die Autorisierung der eigenen Korrektur für %s wurde durch %s zurückgezogen.
 own_position#:#Funktion
+filter_own_position#:#Nach Korrekturfunktion filtern
 own_correction#:#Eigene Korrekturen
+filter_own_correction#:#Nach Korrekturstatus filtern
 count_x_of_y#:#%s von %s
 count_x_total#:#%s gesamt
 criteria_mode#:#Bewertungskriterien verwenden

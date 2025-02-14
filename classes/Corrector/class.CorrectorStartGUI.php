@@ -208,29 +208,31 @@ class CorrectorStartGUI extends BaseGUI
             $fcorr = DataService::ALL;
         }
 
-        $correction_aria_label = "change_the_currently_displayed_mode";
-        $view_control_correction = $this->uiFactory->viewControl()->mode($this->prepareActionList($correction_actions, "fcorr"), $correction_aria_label)
+        $view_control_correction = $this->uiFactory->viewControl()->mode(
+            $this->prepareActionList($correction_actions, "fcorr"),
+            "rep_robj_xlas_filter_own_correction")
             ->withActive($correction_actions[$fcorr]);
         $ctrl->setParameter($this, "fcorr", $fcorr);//Reset ctrl saved parameter
 
         if ($this->settings->getRequiredCorrectors() > 1) {
-            $position_aria_label = "change_the_currently_displayed_mode";
             $position_actions = [
                 DataService::ALL => $this->lng->txt("all"),
                 "1" => $this->plugin->txt('assignment_pos_first'),
                 "2" => $this->plugin->txt('assignment_pos_second'),
             ];
-            $view_control_position = $this->uiFactory->viewControl()->mode($this->prepareActionList($position_actions, "fpos"), $position_aria_label)
-                                                     ->withActive($position_actions[$fpos]);
+            $view_control_position = $this->uiFactory->viewControl()->mode(
+                $this->prepareActionList($position_actions, "fpos"),
+                "rep_robj_xlas_filter_own_position")
+                ->withActive($position_actions[$fpos]);
             $ctrl->setParameter($this, "fpos", $fpos);//Reset ctrl saved parameter
         }
         
-        $this->toolbar->addText($this->plugin->txt("own_correction") . ":");
+        $this->toolbar->addText($this->displayAcc($this->plugin->txt("own_correction") . ":", null));
         $this->toolbar->addComponent($view_control_correction);
         $this->toolbar->addSeparator();
 
         if ($this->settings->getRequiredCorrectors() > 1) {
-            $this->toolbar->addText($this->plugin->txt("own_position") . ":");
+            $this->toolbar->addText($this->displayAcc($this->plugin->txt("own_position") . ":", null));
             $this->toolbar->addComponent($view_control_position);
             $this->toolbar->addSeparator();
         }

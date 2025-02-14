@@ -156,6 +156,21 @@ abstract class BaseGUI
     }
 
     /**
+     * Display an inline HTML with view and screen reader variants
+     */
+    public function displayAcc(?string $view, ?string $read) : string
+    {
+        $all = '';
+        if (!empty($view)) {
+            $all .= '<span aria-hidden="true">' . $view . '</span>';
+        }
+        if (!empty($read)) {
+            $all .= '<span class="sr-only">' . $read . '</span>';
+        }
+        return $all;
+    }
+
+    /**
      * Display an HTML text in readable width
      */
     public function displayText(?string $html) : string

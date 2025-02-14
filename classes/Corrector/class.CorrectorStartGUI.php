@@ -110,12 +110,12 @@ class CorrectorStartGUI extends BaseGUI
             $actions[] = $this->uiFactory->button()->shy(
                 $this->plugin->txt('download_written_pdf'),
                 $this->ctrl->getLinkTarget($this, 'downloadWrittenPdf')
-            );
+            )->withAriaLabel(sprintf($this->plugin->txt('download_written_pdf_for'), $writer->getPseudonym()));
 
             $actions[] = $this->uiFactory->button()->shy(
                 $this->plugin->txt('download_corrected_pdf'),
                 $this->ctrl->getLinkTarget($this, 'downloadCorrectedPdf')
-            );
+            )->withAriaLabel(sprintf($this->plugin->txt('download_corrected_pdf_for'), $writer->getPseudonym()));;
 
             if ($this->service->canRemoveCorrectionAuthorize($essay, $summary)) {
                 $this->ctrl->setParameter($this, 'writer_id', $essay->getWriterId());
@@ -133,7 +133,8 @@ class CorrectorStartGUI extends BaseGUI
                 ])->withActionButtonLabel($this->plugin->txt('remove_own_authorization'));
 
                 $actions[] = $this->uiFactory->button()->shy($this->plugin->txt('remove_own_authorization'), "")
-                    ->withOnClick($remove_auth_modal->getShowSignal());
+                    ->withOnClick($remove_auth_modal->getShowSignal())
+                    ->withAriaLabel(sprintf($this->plugin->txt('remove_own_authorization_for'), $writer->getPseudonym()));
             }
 
             if ($this->service->canAuthorizeCorrection($essay, $summary)) {
@@ -153,7 +154,8 @@ class CorrectorStartGUI extends BaseGUI
                 ])->withActionButtonLabel($this->plugin->txt('authorize_correction'));
 
                 $actions[] = $this->uiFactory->button()->shy($this->plugin->txt('authorize_correction'), "")
-                    ->withOnClick($auth_modal->getShowSignal());
+                    ->withOnClick($auth_modal->getShowSignal())
+                    ->withAriaLabel(sprintf($this->plugin->txt('authorize_correction_for'), $writer->getPseudonym()));
             }
 
 
@@ -312,7 +314,9 @@ class CorrectorStartGUI extends BaseGUI
                 ->withLeadIcon($this->uiFactory->symbol()->icon()->standard('adve', 'user', 'medium'))
                 ->withProperties($item["properties"]);
             if (!empty($item['actions'])) {
-                $object = $object->withActions($this->uiFactory->dropdown()->standard($item['actions'])->withLabel($this->plugin->txt("actions")));
+                $object = $object->withActions($this->uiFactory->dropdown()->standard($item['actions'])
+                    ->withLabel($this->plugin->txt("actions"))
+                    ->withAriaLabel(sprintf($this->plugin->txt("actions_for"), $item["pseudonym"])));
             }
             if(!empty($item["modals"])) {
                 $modals = array_merge($modals, $item["modals"]);

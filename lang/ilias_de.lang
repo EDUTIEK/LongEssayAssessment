@@ -382,6 +382,7 @@ remove_authorizations_for_done#:#Die Korrektur-Autorisierungen für %s wurden zu
 remove_authorizations_for_failed#:#Die Korrektur-Autorisierungen für %s konnten nicht zurückgenommen werden.
 log_entry_removed_authorization#:#Die Autorisierung der Korrekturen für %s wurde durch %s zurückgezogen.
 remove_own_authorization#:#Autorisierung zurückziehen
+remove_own_authorization_for#:#Autorisierung für %s zurückziehen
 confirm_remove_own_authorization#:#Möchten Sie folgende Korrektur-Autorisierungen zurücknehmen? Diese Aktion wird protokolliert.
 remove_own_authorization_done#:#Ihre Korrektur-Autorisierungen wurden zurückgezogen.
 remove_own_authorization_failed#:#Ihre Korrektur-Autorisierung für %s konnte nicht zurücckgezogen werden.
@@ -439,6 +440,7 @@ remove_authorizations_confirmation#:#Möchten Sie die Autorisierung für die Kor
 remove_authorizations_no_valid_essays#:#In der Auswahl gab es keine Korrektur(en), die zurückgenommen werden können.
 change_corrector_info#:#Bitte beachten Sie folgendes, wenn es bereits Korrekturen gibt: <ul><li>Korrekturen werden auf neuen Korrektor übretragen</li><li>Korrektoren von bereits autorisierten Korrekturen können nicht geändert werden</li><li>An Bewertungskriterien vergebene Punkte werden beim Übertragen entfernt</li><li>Korrekturen entfernter Korrektoren werden ebenfalls permanent entfernt</li></ul>
 authorize_correction#:#Korrektur autorisieren
+authorize_correction_for#:#Korrektur für %s autorisieren
 confirm_authorize_correction#:#Möchten Sie die folgenden Korrekturen autorisieren?
 authorize_correction_done#:#Ihre Korrektur wurde autorisiert.
 no_authorizations_to_remove#:#In Ihrer Auswahl waren keine Korrektur-Autorisierungen, die zurückgenommen werden können.
@@ -463,7 +465,9 @@ pdf_version_upload_successful_no_auth#:#Die PDF-Version wurde erfolgreich hochge
 pdf_version_upload_failure#:#Bitte laden Sie eine PDF-Version hoch.
 pdf_version_not_found#:#Es konnte keine PDF-Version gefunden werden.
 download_written_pdf#:#Abgabe-PDF herunterladen
+download_written_pdf_for#:#Abgabe-PDF von %s herunterladen
 download_corrected_pdf#:#Korrektur-PDF herunterladen
+download_corrected_pdf_for#:#Korrektur-PDF von %s herunterladen
 tab_corrector_statistic#:#Notenstatistik
 statistic#:#Notenstatistik
 correction_count#:#Korrekturen
@@ -688,3 +692,4 @@ copy_criteria#:#Kriterien kopieren
 copy_criteria_info#:#Beim Kopieren der Kriterien werden die bestehenden Kriterien ersetzt.
 not_a_weburl#:#Keine Web URL beginnend mit http(s)://
 select_x#:#%s auswählen
+actions_for#:#Aktionen für %s

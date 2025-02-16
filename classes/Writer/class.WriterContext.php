@@ -66,7 +66,7 @@ class WriterContext extends ServiceContext implements Context
      */
     public function getReturnUrl(): string
     {
-        $builder = new StandardURIBuilder(ILIAS_HTTP_PATH, true);
+        $builder = new StandardURIBuilder(ILIAS_HTTP_PATH, false);
 
         return (string) $builder->build(
             'xlas',

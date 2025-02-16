@@ -24,6 +24,7 @@ Bug fixes:
 - Add authorization date to status info
 - Wrong permanent link in review notification
 - Prevent automated generation of lists when typing a numbering in writer
+- Don't use short url for return from writer or corrector (may not be configured) 
 
 ## Version 3.4 (2024-11-04)
 Plugin:

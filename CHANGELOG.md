@@ -10,6 +10,7 @@ Plugin:
 - Handle existing points when mode for rating criteria is changed
 - Support embedded resources (showed in iframe)
 - Add Log entry for writer in writer administration
+- Add writing authorization date to excel export of corrector assignments
 
 Corrector Web app:
 - Replace layout table for paragraph numbers
@@ -25,6 +26,7 @@ Bug fixes:
 - Wrong permanent link in review notification
 - Prevent automated generation of lists when typing a numbering in writer
 - Don't use short url for return from writer or corrector (may not be configured) 
+- PhpSpreadsheet error at export of corrector assignments
 
 ## Version 3.4 (2024-11-04)
 Plugin:

@@ -3,6 +3,8 @@
 namespace ILIAS\Plugin\LongEssayAssessment\CorrectorAdmin;
 
 use PhpOffice\PhpSpreadsheet\Cell\DataValidation;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use PhpOffice\PhpSpreadsheet\Cell\CellAddress;
 
 class CorrectorAssignmentExcel extends \ilExcel
 {
@@ -21,7 +23,9 @@ class CorrectorAssignmentExcel extends \ilExcel
         //$objValidation->setPromptTitle('Pick from list');
         //$objValidation->setPrompt('Please pick a value from the drop-down list.');
         $objValidation->setFormula1($a_target_formula);
-        $this->workbook->getActiveSheet()->getCellByColumnAndRow($a_row, $a_col)->setDataValidation(clone $objValidation);
+
+        $address = CellAddress::fromColumnAndRow($a_col,$a_row) ;
+        $this->workbook->getActiveSheet()->getCell($address)->setDataValidation(clone $objValidation);
     }
 
     /**

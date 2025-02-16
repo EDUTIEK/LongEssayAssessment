@@ -103,8 +103,9 @@ class CorrectorAssignmentsService extends BaseService
         $spreadsheet->setCell(1, 4, 'Pseudonym');
         $spreadsheet->setCell(1, 5, 'Location');
         $spreadsheet->setCell(1, 6, 'Words');
+        $spreadsheet->setCell(1, 7, 'Authorized');
         foreach(range(0, $this->settings->getRequiredCorrectors() -1 ) as $pos) {
-            $spreadsheet->setCell(1, 7 + $pos, 'Corrector ' . ($pos + 1));
+            $spreadsheet->setCell(1, 8 + $pos, 'Corrector ' . ($pos + 1));
         }
 
         foreach($writer as $w) {
@@ -123,15 +124,16 @@ class CorrectorAssignmentsService extends BaseService
             $spreadsheet->setCell($r, 4, $w->getPseudonym());
             $spreadsheet->setCell($r, 5, $location_text);
             $spreadsheet->setCell($r, 6, str_word_count($written_text ?? ""));
+            $spreadsheet->setCell($r, 7, $essay->getWritingAuthorized());
 
             foreach(range(0, $this->settings->getRequiredCorrectors()-1) as $pos) {
-                $spreadsheet->addDropdownCol($r, 7 + $pos, '=\''.$corrector_title.'\'!$A$2:$A$'.(count($corrector)+1));
+                $spreadsheet->addDropdownCol($r, 8 + $pos, '=\''.$corrector_title.'\'!$A$2:$A$'.(count($corrector)+1));
             }
 
             foreach ($ass as $a) {
                 $c = $corrector[$a->getCorrectorId()] ?? null;
                 $login = $c !== null && isset($users[$c->getUserId()]) ? $users[$c->getUserId()]['login'] ?? '' : '';
-                $spreadsheet->setCell($r, 7+$a->getPosition(), $login);
+                $spreadsheet->setCell($r, 8+$a->getPosition(), $login);
             }
             $r++;
         }

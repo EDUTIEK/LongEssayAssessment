@@ -26,6 +26,8 @@ use Edutiek\LongEssayAssessmentService\Data\PageData;
 use Edutiek\LongEssayAssessmentService\Data\CorrectionMark;
 use Edutiek\LongEssayAssessmentService\Data\CorrectionPreferences;
 use ILIAS\Plugin\LongEssayAssessment\Data\Corrector\CorrectorPreferences;
+use ILIAS\StaticURL\Builder\StandardURIBuilder;
+use ILIAS\Data\ReferenceId;
 
 class CorrectorContext extends ServiceContext implements Context
 {
@@ -135,10 +137,13 @@ class CorrectorContext extends ServiceContext implements Context
      */
     public function getReturnUrl(): string
     {
-        if ($this->isReview() || $this->isStitchDecision()) {
-            return \ilLink::_getStaticLink($this->object->getRefId(), 'xlas', true, 'correctoradmin');
-        }
-        return \ilLink::_getStaticLink($this->object->getRefId(), 'xlas', true, 'corrector');
+        $builder = new StandardURIBuilder(ILIAS_HTTP_PATH, false);
+
+        return (string) $builder->build(
+            'xlas',
+            new ReferenceId($this->object->getRefId()),
+            [$this->isReview() || $this->isStitchDecision() ? 'correctoradmin': 'corrector']
+        );
     }
 
     /**

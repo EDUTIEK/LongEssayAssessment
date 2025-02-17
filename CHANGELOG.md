@@ -13,6 +13,8 @@ Plugin:
 - Support embedded resources (showed in iframe)
 - Add Log entry for writer in writer administration
 - Add writing authorization date to excel export of corrector assignments
+- Support copy of correctors and rating criteria from other assessments
+- Use table view for resources, rating criteria, grade levels and correctors
 
 Corrector Web app:
 - Replace layout table for paragraph numbers

@@ -20,16 +20,18 @@ declare(strict_types=1);
 
 namespace ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Example;
 
-use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Example\Dummy;
-
-require_once __DIR__ . '/../../vendor/autoload.php';
+use ilDBInterface;
+use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\CacheRepository;
+use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\DatabaseRepository;
+use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Generate;
+use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\RepositoryInterface;
 
 class DummyRepository
 {
     /**
-     * @var Repository<Dummy> $repo
+     * @var RepositoryInterface<Dummy> $repo
      */
-    private readonly Repository $repo;
+    private readonly RepositoryInterface $repo;
 
     public function __construct(ilDBInterface $db, Generate $g)
     {

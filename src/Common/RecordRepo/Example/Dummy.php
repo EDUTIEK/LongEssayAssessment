@@ -20,11 +20,11 @@ declare(strict_types=1);
 
 namespace ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Example;
 
-use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Table;
-use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Column;
-use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Sequence;
-use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Key;
 use DateTimeImmutable;
+use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Column;
+use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Key;
+use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Sequence;
+use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Table;
 
 #[Table(name: 'dummy')]
 class Dummy
@@ -43,34 +43,34 @@ class Dummy
     #[Column(name: 'hu')] // Specify db field name explicitly.
     private string $ho = 'huhuhu';
 
-    public function getSomeDay() : DateTimeImmutable
+    public function getSomeDay(): DateTimeImmutable
     {
         return $this->some_day;
     }
 
-    public function setSomeDay(DateTimeImmutable $some_day) : Dummy
+    public function setSomeDay(DateTimeImmutable $some_day): Dummy
     {
         $this->some_day = $some_day;
         return $this;
     }
 
-    public function getHej() : string
+    public function getHej(): string
     {
         return $this->hej;
     }
 
-    public function setHej(string $hej) : Dummy
+    public function setHej(string $hej): Dummy
     {
         $this->hej = $hej;
         return $this;
     }
 
-    public function getHo() : string
+    public function getHo(): string
     {
         return $this->ho;
     }
 
-    public function setHo(string $ho) : Dummy
+    public function setHo(string $ho): Dummy
     {
         $this->ho = $ho;
         return $this;

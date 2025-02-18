@@ -21,6 +21,7 @@ declare(strict_types=1);
 namespace ILIAS\Plugin\LongEssayAssessment\Assessment\Data;
 
 use DateTimeImmutable;
+use Edutiek\AssessmentService\Assessment\Data\TokenPurpose;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Key;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Table;
 
@@ -72,13 +73,13 @@ class Token extends \Edutiek\AssessmentService\Assessment\Data\Token
         $this->ip = $ip;
         return $this;
     }
-    public function getPurpose(): string
+    public function getPurpose(): TokenPurpose
     {
-        return $this->purpose;
+        return TokenPurpose::from($this->purpose);
     }
-    public function setPurpose(string $purpose): self
+    public function setPurpose(TokenPurpose $purpose): self
     {
-        $this->purpose = $purpose;
+        $this->purpose = $purpose->value;
         return $this;
     }
     public function getAssId(): int

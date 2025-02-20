@@ -7,7 +7,7 @@ use ILIAS\Setup\Environment;
 
 class EndpointsBuildObjective implements Setup\Objective
 {
-    const ILIAS_ROOT = __DIR__ . "/../../../../../../../..";
+    public const ILIAS_ROOT = __DIR__ . "/../../../../../../../..";
 
     public function getHash(): string
     {
@@ -36,8 +36,8 @@ class EndpointsBuildObjective implements Setup\Objective
         $root = self::ILIAS_ROOT;
         $public_path = "$root/public";
         $plugin_path = "$public_path/Customizing/plugins/Repository/RepositoryObject/LongEssayAssessment";
-        copy("$plugin_path/writer_service.php", "$public_path/writer_service.php");
-        copy("$plugin_path/corrector_service.php", "$public_path/corrector_service.php");
+        copy("$plugin_path/xlas_rest.php", "$public_path/xlas_rest.php");
+
         return $environment;
     }
 

@@ -7,6 +7,7 @@ namespace ILIAS\Plugin\LongEssayAssessment\Assessment\Data;
 use Edutiek\AssessmentService\Assessment\Data\Properties;
 use ILIAS\Plugin\LongEssayAssessment\Assessment\Data\Properties as PropertiesModel;
 use ilAccessHandler;
+use ilObject;
 use ilObjectDataCache;
 use ilObjectFactory;
 
@@ -18,6 +19,12 @@ class PropertiesRepo implements \Edutiek\AssessmentService\Assessment\Data\Prope
         private readonly ilObjectDataCache $data_cache,
         private readonly ilObjectFactory $factory
     ) {
+    }
+
+    public function exists(int $ass_id, int $context_id): bool
+    {
+        return ilObject::_exists($context_id, true, 'xlas')
+            && !ilObject::_isInTrash($context_id);
     }
 
     public function one(int $ass_id): Properties

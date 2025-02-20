@@ -10,6 +10,7 @@ use Edutiek\AssessmentService\System\Api\ForServices as SystemApi;
 use ilObjectFactory;
 use ILIAS\Plugin\LongEssayAssessment\Assessment\Data\RepositoryFactory;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Generate;
+use ILIAS\Plugin\LongEssayAssessment\Assessment\Rest\RestContext;
 
 class AssessmentDic implements \Edutiek\AssessmentService\Assessment\Api\Dependencies
 {
@@ -29,6 +30,14 @@ class AssessmentDic implements \Edutiek\AssessmentService\Assessment\Api\Depende
                 new ilObjectFactory()
             );
         };
+
+        $dic[RestContext::class] = function (Container $dic) {
+            return new RestContext(
+                $dic["ilClientIniFile"],
+                $dic->database(),
+                $dic->http()
+            );
+        };
     }
 
     public function systemApi(): SystemApi
@@ -39,5 +48,10 @@ class AssessmentDic implements \Edutiek\AssessmentService\Assessment\Api\Depende
     public function repositories(): RepositoryFactory
     {
         return $this->dic[RepositoryFactory::class];
+    }
+
+    public function restContext(): RestContext
+    {
+        return $this->dic[RestContext::class];
     }
 }

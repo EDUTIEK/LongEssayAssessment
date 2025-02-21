@@ -12,12 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/EDUTIEK/assessment-service.git",
-                "reference": "366b21764513e5cbdcc8e9f2c6925989a7cd519c"
+                "reference": "19f59726851fe01fc5663e4d6451dd9c8db82490"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EDUTIEK/assessment-service/zipball/366b21764513e5cbdcc8e9f2c6925989a7cd519c",
-                "reference": "366b21764513e5cbdcc8e9f2c6925989a7cd519c",
+                "url": "https://api.github.com/repos/EDUTIEK/assessment-service/zipball/19f59726851fe01fc5663e4d6451dd9c8db82490",
+                "reference": "19f59726851fe01fc5663e4d6451dd9c8db82490",
                 "shasum": ""
             },
             "require": {
@@ -37,7 +37,7 @@
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "Edutiek\\LongEssayAssessmentService\\": "src"
+                    "Edutiek\\AssessmentService\\": "src"
                 }
             },
             "license": [
@@ -58,7 +58,7 @@
                 "source": "https://github.com/EDUTIEK/assessment-service/tree/main",
                 "issues": "https://github.com/EDUTIEK/assessment-service/issues"
             },
-            "time": "2025-02-10T21:40:28+00:00"
+            "time": "2025-02-21T09:29:42+00:00"
         },
         {
             "name": "fig/http-message-util",
@@ -932,16 +932,16 @@
         },
         {
             "name": "yetanotherape/diff-match-patch",
-            "version": "v1.1.0",
+            "version": "v1.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/yetanotherape/diff-match-patch.git",
-                "reference": "e93beb95bea67d2a9f2a662434ca7fbf90b0b172"
+                "reference": "a0c37bc694c27ddccbd4989f72908ce524261bd1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/yetanotherape/diff-match-patch/zipball/e93beb95bea67d2a9f2a662434ca7fbf90b0b172",
-                "reference": "e93beb95bea67d2a9f2a662434ca7fbf90b0b172",
+                "url": "https://api.github.com/repos/yetanotherape/diff-match-patch/zipball/a0c37bc694c27ddccbd4989f72908ce524261bd1",
+                "reference": "a0c37bc694c27ddccbd4989f72908ce524261bd1",
                 "shasum": ""
             },
             "require": {
@@ -984,9 +984,9 @@
             ],
             "support": {
                 "issues": "https://github.com/yetanotherape/diff-match-patch/issues",
-                "source": "https://github.com/yetanotherape/diff-match-patch/tree/v1.1.0"
+                "source": "https://github.com/yetanotherape/diff-match-patch/tree/v1.1.1"
             },
-            "time": "2020-12-20T17:28:39+00:00"
+            "time": "2025-02-16T18:49:39+00:00"
         }
     ],
     "packages-dev": [],

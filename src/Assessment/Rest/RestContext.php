@@ -25,7 +25,7 @@ use ilIniFile;
 use ilSession;
 use ILIAS\HTTP\Services;
 
-readonly class RestContext implements \Edutiek\AssessmentService\Assessment\RestHandler\RestContext
+readonly class RestContext implements \Edutiek\AssessmentService\Assessment\Apps\RestContext
 {
     public function __construct(
         private ilIniFile $client_ini,
@@ -69,7 +69,7 @@ readonly class RestContext implements \Edutiek\AssessmentService\Assessment\Rest
      * We cannot determine the session because the service does not provide its session_id
      * So continue all active sessions, and try to filter them by ip if the ip is stored in ilias
      */
-    public function setAlive(int $user_id)
+    public function setAlive(int $user_id): void
     {
         if ($this->client_ini->readVariable("session", "save_ip")) {
             $session_ids = $this->getActiveSessionIds((int) $user_id, (string) $_SERVER["REMOTE_ADDR"]);
@@ -85,7 +85,7 @@ readonly class RestContext implements \Edutiek\AssessmentService\Assessment\Rest
     /**
      * Send a response to the application
      */
-    public function sendResponse(int $status_code, string $body)
+    public function sendResponse(int $status_code, string $body): never
     {
         $response = $this->http->response()->withStatus($status_code);
         $stream = $response->getBody();
@@ -94,6 +94,7 @@ readonly class RestContext implements \Edutiek\AssessmentService\Assessment\Rest
         $this->http->saveResponse($response);
         $this->http->sendResponse();
         $this->http->close();
+        exit;
     }
 
     /**

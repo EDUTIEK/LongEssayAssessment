@@ -39,7 +39,8 @@ readonly class RestContext implements \Edutiek\AssessmentService\Assessment\Apps
      */
     public function getRoute(): string
     {
-        return (string) $_SERVER['PATH_INFO'];
+        $params = $this->http->request()->getServerParams();
+        return $params['PATH_INFO'];
     }
 
     /**

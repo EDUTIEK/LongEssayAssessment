@@ -31,12 +31,12 @@ class CorrectionSettings extends \Edutiek\AssessmentService\Assessment\Data\Corr
     private int $ass_id = 0;
     private int $required_correctors = 0;
     private float $max_auto_distance = 0;
-    private int $mutual_visibility = 0;
+    private bool $mutual_visibility = false;
     private string $assign_mode = '';
-    private int $stitch_when_distance = 0;
-    private int $stitch_when_decimals = 0;
-    private int $anonymize_correctors = 0;
-    private int $reports_enabled = 0;
+    private bool $stitch_when_distance = false;
+    private bool $stitch_when_decimals = false;
+    private bool $anonymize_correctors = false;
+    private bool $reports_enabled = false;
     private ?DateTimeImmutable $reports_available_start = null;
 
     public function getAssId(): int
@@ -66,11 +66,11 @@ class CorrectionSettings extends \Edutiek\AssessmentService\Assessment\Data\Corr
         $this->max_auto_distance = $max_auto_distance;
         return $this;
     }
-    public function getMutualVisibility(): int
+    public function getMutualVisibility(): bool
     {
         return $this->mutual_visibility;
     }
-    public function setMutualVisibility(int $mutual_visibility): self
+    public function setMutualVisibility(bool $mutual_visibility): self
     {
         $this->mutual_visibility = $mutual_visibility;
         return $this;
@@ -84,38 +84,38 @@ class CorrectionSettings extends \Edutiek\AssessmentService\Assessment\Data\Corr
         $this->assign_mode = $assign_mode;
         return $this;
     }
-    public function getStitchWhenDistance(): int
+    public function getStitchWhenDistance(): bool
     {
         return $this->stitch_when_distance;
     }
-    public function setStitchWhenDistance(int $stitch_when_distance): self
+    public function setStitchWhenDistance(bool $stitch_when_distance): self
     {
         $this->stitch_when_distance = $stitch_when_distance;
         return $this;
     }
-    public function getStitchWhenDecimals(): int
+    public function getStitchWhenDecimals(): bool
     {
         return $this->stitch_when_decimals;
     }
-    public function setStitchWhenDecimals(int $stitch_when_decimals): self
+    public function setStitchWhenDecimals(bool $stitch_when_decimals): self
     {
         $this->stitch_when_decimals = $stitch_when_decimals;
         return $this;
     }
-    public function getAnonymizeCorrectors(): int
+    public function getAnonymizeCorrectors(): bool
     {
         return $this->anonymize_correctors;
     }
-    public function setAnonymizeCorrectors(int $anonymize_correctors): self
+    public function setAnonymizeCorrectors(bool $anonymize_correctors): self
     {
         $this->anonymize_correctors = $anonymize_correctors;
         return $this;
     }
-    public function getReportsEnabled(): int
+    public function getReportsEnabled(): bool
     {
         return $this->reports_enabled;
     }
-    public function setReportsEnabled(int $reports_enabled): self
+    public function setReportsEnabled(bool $reports_enabled): self
     {
         $this->reports_enabled = $reports_enabled;
         return $this;

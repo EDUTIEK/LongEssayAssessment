@@ -33,7 +33,7 @@ class PermissionsRepo implements \Edutiek\AssessmentService\Assessment\Data\Perm
     ) {
     }
 
-    public function one(int $ass_id, int $context_id, int $user_id): ?Permissions
+    public function one(int $ass_id, int $context_id, int $user_id): Permissions
     {
         return $this->instances[Permissions::class][$ass_id][$context_id][$user_id] ??= new PermissionsModel(
             $ass_id,

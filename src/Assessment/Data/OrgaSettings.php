@@ -21,6 +21,7 @@ declare(strict_types=1);
 namespace ILIAS\Plugin\LongEssayAssessment\Assessment\Data;
 
 use DateTimeImmutable;
+use Edutiek\AssessmentService\Assessment\Data\ParticipationType;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Key;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Table;
 
@@ -40,15 +41,15 @@ class OrgaSettings extends \Edutiek\AssessmentService\Assessment\Data\OrgaSettin
     private ?DateTimeImmutable $correction_end = null;
     private ?DateTimeImmutable $review_start = null;
     private ?DateTimeImmutable $review_end = null;
-    private int $keep_available = 0;
+    private bool $keep_available = false;
     private ?DateTimeImmutable $solution_available_date = null;
     private string $result_available_type = '';
     private ?DateTimeImmutable $result_available_date = null;
-    private int $solution_available = 0;
-    private int $review_enabled = 0;
-    private int $review_notification = 0;
+    private bool $solution_available = false;
+    private bool $review_enabled = false;
+    private bool $review_notification = false;
     private ?string $review_notif_text = null;
-    private int $statistics_available = 0;
+    private bool $statistics_available = false;
 
     public function getOnline(): bool
     {
@@ -59,13 +60,13 @@ class OrgaSettings extends \Edutiek\AssessmentService\Assessment\Data\OrgaSettin
         $this->online = $online;
         return $this;
     }
-    public function getParticipationType(): string
+    public function getParticipationType(): ParticipationType
     {
-        return $this->participation_type;
+        return ParticipationType::from($this->participation_type);
     }
-    public function setParticipationType(string $participation_type): self
+    public function setParticipationType(ParticipationType $participation_type): self
     {
-        $this->participation_type = $participation_type;
+        $this->participation_type = $participation_type->value;
         return $this;
     }
     public function getAssId(): int
@@ -158,11 +159,11 @@ class OrgaSettings extends \Edutiek\AssessmentService\Assessment\Data\OrgaSettin
         $this->review_end = $review_end;
         return $this;
     }
-    public function getKeepAvailable(): int
+    public function getKeepAvailable(): bool
     {
         return $this->keep_available;
     }
-    public function setKeepAvailable(int $keep_available): self
+    public function setKeepAvailable(bool $keep_available): self
     {
         $this->keep_available = $keep_available;
         return $this;
@@ -194,29 +195,29 @@ class OrgaSettings extends \Edutiek\AssessmentService\Assessment\Data\OrgaSettin
         $this->result_available_date = $result_available_date;
         return $this;
     }
-    public function getSolutionAvailable(): int
+    public function getSolutionAvailable(): bool
     {
         return $this->solution_available;
     }
-    public function setSolutionAvailable(int $solution_available): self
+    public function setSolutionAvailable(bool $solution_available): self
     {
         $this->solution_available = $solution_available;
         return $this;
     }
-    public function getReviewEnabled(): int
+    public function getReviewEnabled(): bool
     {
         return $this->review_enabled;
     }
-    public function setReviewEnabled(int $review_enabled): self
+    public function setReviewEnabled(bool $review_enabled): self
     {
         $this->review_enabled = $review_enabled;
         return $this;
     }
-    public function getReviewNotification(): int
+    public function getReviewNotification(): bool
     {
         return $this->review_notification;
     }
-    public function setReviewNotification(int $review_notification): self
+    public function setReviewNotification(bool $review_notification): self
     {
         $this->review_notification = $review_notification;
         return $this;
@@ -230,11 +231,11 @@ class OrgaSettings extends \Edutiek\AssessmentService\Assessment\Data\OrgaSettin
         $this->review_notif_text = $review_notif_text;
         return $this;
     }
-    public function getStatisticsAvailable(): int
+    public function getStatisticsAvailable(): bool
     {
         return $this->statistics_available;
     }
-    public function setStatisticsAvailable(int $statistics_available): self
+    public function setStatisticsAvailable(bool $statistics_available): self
     {
         $this->statistics_available = $statistics_available;
         return $this;

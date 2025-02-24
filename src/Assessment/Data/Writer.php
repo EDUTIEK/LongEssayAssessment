@@ -40,6 +40,7 @@ class Writer extends \Edutiek\AssessmentService\Assessment\Data\Writer
     private ?int $final_grade_level_id = null;
     private ?DateTimeImmutable $writing_authorized = null;
     private ?int $writing_authorized_by = null;
+    private ?DateTimeImmutable $correction_finalized = null;
     private ?int $correction_finalized_by = null;
     private ?DateTimeImmutable $writing_excluded = null;
     private ?int $writing_excluded_by = null;
@@ -153,6 +154,15 @@ class Writer extends \Edutiek\AssessmentService\Assessment\Data\Writer
     public function setWritingAuthorizedBy(?int $writing_authorized_by): self
     {
         $this->writing_authorized_by = $writing_authorized_by;
+        return $this;
+    }
+    public function getCorrectionFinalized(): ?DateTimeImmutable
+    {
+        return $this->correction_finalized;
+    }
+    public function setCorrectionFinalized(?DateTimeImmutable $correction_finalized): self
+    {
+        $this->correction_finalized = $correction_finalized;
         return $this;
     }
     public function getCorrectionFinalizedBy(): ?int

@@ -2633,6 +2633,79 @@ class V10Migration
                             'src_table' => 'xlas_writer_prefs',
                         ),
                 ),
+            'xlas_sy_config' =>
+                array(
+                    'id' =>
+                        array(
+                            'Field' => 'id',
+                            'Type' => 'int(11)',
+                            'Null' => 'NO',
+                            'Key' => 'PRI',
+                            'Default' => null,
+                            'Extra' => '',
+                            'src_table' => 'xlas_plugin_config',
+                        ),
+                    'writer_url' =>
+                        array(
+                            'Field' => 'writer_url',
+                            'Type' => 'varchar(255)',
+                            'Null' => 'YES',
+                            'Key' => '',
+                            'Default' => null,
+                            'Extra' => '',
+                            'src_table' => 'xlas_plugin_config',
+                        ),
+                    'corrector_url' =>
+                        array(
+                            'Field' => 'writer_url',
+                            'Type' => 'varchar(255)',
+                            'Null' => 'YES',
+                            'Key' => '',
+                            'Default' => null,
+                            'Extra' => '',
+                            'src_table' => 'xlas_plugin_config',
+                        ),
+                    'primary_color' =>
+                        array(
+                            'Field' => 'primary_color',
+                            'Type' => 'varchar(255)',
+                            'Null' => 'YES',
+                            'Key' => '',
+                            'Default' => null,
+                            'Extra' => '',
+                            'src_table' => 'xlas_plugin_config',
+                        ),
+                    'primary_text_color' =>
+                        array(
+                            'Field' => 'primary_text_color',
+                            'Type' => 'varchar(255)',
+                            'Null' => 'YES',
+                            'Key' => '',
+                            'Default' => null,
+                            'Extra' => '',
+                            'src_table' => 'xlas_plugin_config',
+                        ),
+                    'simulate_offline' =>
+                        array(
+                            'Field' => 'simulate_offline',
+                            'Type' => 'int(11)',
+                            'Null' => 'NO',
+                            'Key' => '',
+                            'Default' => 0,
+                            'Extra' => '',
+                            'src_table' => 'xlas_plugin_config',
+                        ),
+                    'path_to_ghostscript' =>
+                        array(
+                            'Field' => 'path_to_ghostscript',
+                            'Type' => 'varchar(255)',
+                            'Null' => 'YES',
+                            'Key' => '',
+                            'Default' => null,
+                            'Extra' => '',
+                            'src_table' => 'xlas_plugin_config',
+                        ),
+                )
         );
     }
 }

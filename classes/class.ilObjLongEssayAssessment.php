@@ -20,7 +20,7 @@ use ILIAS\Plugin\LongEssayAssessment\WriterAdmin\PDFVersionResourceStakeholder;
 class ilObjLongEssayAssessment extends ilObjectPlugin
 {
     /** @var ilLongEssayAssessmentPlugin */
-    protected ?ilPlugin $plugin;
+    protected ?ilPlugin $plugin = null;
 
 
     public function __construct($a_ref_id = 0)

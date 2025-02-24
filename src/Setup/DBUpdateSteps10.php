@@ -50,7 +50,11 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
 
     public function step_2(): void
     {
-        $this->v10_migration->migrateTables();
+        if ($this->db->tableExists('xlas_plugin_config')) {
+            // old tables still exist, habe been updated in DBUpdateSteps9 to latest state for ILIAS 9
+            // now copy their content to the new tables
+            $this->v10_migration->migrateTables();
+        }
     }
 
     public function step_3(): void

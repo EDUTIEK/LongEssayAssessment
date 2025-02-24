@@ -88,8 +88,9 @@ class V10Migration
                 }
             }
         }
-        $drop_me = array_unique($drop_me);
-        array_map($this->db->dropTable(...), $drop_me);
+        foreach (array_unique($drop_me) as $table) {
+            $this->db->dropTable($table, false);
+        }
     }
 
     public function migrateStakeholders(): void

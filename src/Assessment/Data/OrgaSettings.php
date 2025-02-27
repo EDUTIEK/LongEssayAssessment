@@ -29,7 +29,7 @@ use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Table;
 class OrgaSettings extends \Edutiek\AssessmentService\Assessment\Data\OrgaSettings
 {
     private bool $online = false;
-    private string $participation_type = '';
+    private string $participation_type = ParticipationType::INSTANT->value;
     #[Key]
     private int $ass_id = 0;
     private ?string $description = null;

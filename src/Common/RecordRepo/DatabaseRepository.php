@@ -162,6 +162,15 @@ class DatabaseRepository implements RepositoryInterface
         return array_filter($this->model['properties'], fn(array $p) => $p['key']);
     }
 
+    public function countBy(array $conditions): int
+    {
+        $result = $this->db->query($this->sqlCount($this->where($conditions)));
+        if ($row = $this->db->fetchAssoc($result)) {
+            return (int) $row['count'];
+        }
+        return 0;
+    }
+
     public function queryAllBy(array $conditions): array
     {
         return $this->queryAll($this->sqlSelect($this->where($conditions)));
@@ -195,6 +204,11 @@ class DatabaseRepository implements RepositoryInterface
             'NULL' => $quote_id($left) . ' IS NULL',
             default => throw new Exception('Unsupported type: ' . gettype($right)),
         };
+    }
+
+    private function sqlCount(string $where = '1'): string
+    {
+        return 'SELECT COUNT(*) FROM ' . $this->db->quoteIdentifier($this->table()) . ' WHERE ' . $where;
     }
 
     private function sqlSelect(string $where = '1'): string

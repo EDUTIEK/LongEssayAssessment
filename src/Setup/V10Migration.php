@@ -250,6 +250,7 @@ class V10Migration
             'xlas_writer' => ['xlas_essay' => ['id', 'writer_id']],
             'xlas_editor_settings' => ['xlas_task_settings' => ['task_id', 'task_id']],
             'xlas_object_settings' => ['xlas_task_settings' => ['obj_id', 'task_id']],
+            'xlas_task_settings' => ['object_data' => ['task_id', 'obj_id']],
         ];
     }
 
@@ -1415,6 +1416,38 @@ class V10Migration
                             'Extra' => '',
                             'comment' => 'Bisher gleich, jetzt mehrere Tasks pro Assessment',
                             'src_table' => 'xlas_task_settings',
+                        ),
+                    'position' =>
+                        array(
+                            'Field' => 'position',
+                            'Type' => 'int(11)',
+                            'Null' => 'NO',
+                            'Key' => '',
+                            'Default' => 0,
+                            'Extra' => '',
+                            'src_table' => null,
+                        ),
+                    'title' =>
+                        array(
+                            'Field' => 'title',
+                            'Type' => 'varchar(250)',
+                            'Null' => 'NO',
+                            'Key' => '',
+                            'Default' => 'essay',
+                            'Extra' => '',
+                            'comment' => '',
+                            'src_table' => 'object_data',
+                        ),
+                    'task_type' =>
+                        array(
+                            'Field' => 'task_type',
+                            'Type' => 'varchar(50)',
+                            'Null' => 'NO',
+                            'Key' => '',
+                            'Default' => 'essay',
+                            'Extra' => '',
+                            'comment' => '',
+                            'src_table' => null,
                         ),
                     'instructions' =>
                         array(

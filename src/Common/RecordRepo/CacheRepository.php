@@ -50,6 +50,11 @@ class CacheRepository implements RepositoryInterface
         return $this->cache(__FUNCTION__, []);
     }
 
+    public function countBy(array $conditions) : int
+    {
+        return $this->cache(__FUNCTION__, func_get_args());
+    }
+
     public function queryAllRaw(string $query): array
     {
         return $this->cache(__FUNCTION__, func_get_args());

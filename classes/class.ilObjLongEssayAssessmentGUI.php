@@ -158,7 +158,7 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                     }
                     break;
                 case 'ilias\plugin\longessayassessment\task\resourceuploadhandlergui':
-                    if ($this->object->canEditMaterial()) {
+                    if ($this->object->canEditContentSettings()) {
                         $task_repo = LongEssayAssessmentDI::getInstance()->getTaskRepo();
                         $this->ctrl->forwardCommand(
                             new \ILIAS\Plugin\LongEssayAssessment\Task\ResourceUploadHandlerGUI($DIC->resourceStorage(), $task_repo)

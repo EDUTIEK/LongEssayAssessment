@@ -38,6 +38,11 @@ interface RepositoryInterface
     public function all(): array;
 
     /**
+     * Get the number of records found by conditions
+     */
+    public function countBy(array $conditions): int;
+
+    /**
      * Get all entities found by an SQL query
      * @return A[]
      */

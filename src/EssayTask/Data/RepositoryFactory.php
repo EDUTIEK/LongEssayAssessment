@@ -20,12 +20,12 @@ class RepositoryFactory implements \Edutiek\AssessmentService\EssayTask\Data\Rep
         $this->db = $db;
     }
 
-    public function correctionSettingsRepo(): CorrectionSettingsRepo
+    public function correctionSettings(): CorrectionSettingsRepo
     {
         return $this->repo(CorrectionSettingsRepo::class, CorrectionSettings::class);
     }
 
-    public function correctorCommentRepo(): CorrectorCommentRepo
+    public function correctorComment(): CorrectorCommentRepo
     {
         return $this->repo(CorrectorCommentRepo::class, CorrectorComment::class);
     }
@@ -35,57 +35,57 @@ class RepositoryFactory implements \Edutiek\AssessmentService\EssayTask\Data\Rep
         return $this->repo(CorrectorPointsRepo::class, CorrectorPoints::class);
     }
 
-    public function correctorPrefsRepo(): CorrectorPrefsRepo
+    public function correctorPrefs(): CorrectorPrefsRepo
     {
         return $this->repo(CorrectorPrefsRepo::class, CorrectorPrefs::class);
     }
 
-    public function correctorSummaryRepo(): CorrectorSummaryRepo
+    public function correctorSummary(): CorrectorSummaryRepo
     {
         return $this->repo(CorrectorSummaryRepo::class, CorrectorSummary::class);
     }
 
-    public function correctorTaskPrefsRepo(): CorrectorTaskPrefsRepo
+    public function correctorTaskPrefs(): CorrectorTaskPrefsRepo
     {
         return $this->repo(CorrectorTaskPrefsRepo::class, CorrectorTaskPrefs::class);
     }
 
-    public function essayRepo(): EssayRepo
+    public function essay(): EssayRepo
     {
         return $this->repo(EssayRepo::class, Essay::class);
     }
 
-    public function essayImageRepo(): EssayImageRepo
+    public function essayImage(): EssayImageRepo
     {
         return $this->repo(EssayImageRepo::class, EssayImage::class);
     }
 
-    public function ratingCriterionRepo(): RatingCriterionRepo
+    public function ratingCriterion(): RatingCriterionRepo
     {
         return $this->repo(RatingCriterionRepo::class, RatingCriterion::class);
     }
 
-    public function taskSettingsRepo(): TaskSettingsRepo
+    public function taskSettings(): TaskSettingsRepo
     {
         return $this->repo(TaskSettingsRepo::class, TaskSettings::class);
     }
 
-    public function writerHistoryRepo(): WriterHistoryRepo
+    public function writerHistory(): WriterHistoryRepo
     {
         return $this->repo(WriterHistoryRepo::class, WriterHistory::class);
     }
 
-    public function writerNoticeRepo(): WriterNoticeRepo
+    public function writerNotice(): WriterNoticeRepo
     {
         return $this->repo(WriterNoticeRepo::class, WriterNotice::class);
     }
 
-    public function writerPrefsRepo(): WriterPrefsRepo
+    public function writerPrefs(): WriterPrefsRepo
     {
         return $this->repo(WriterPrefsRepo::class, WriterPrefs::class);
     }
 
-    public function writingSetingsRepo(): WritingSettingsRepo
+    public function writingSetings(): WritingSettingsRepo
     {
         return $this->repo(WritingSettingsRepo::class, WritingSettings::class);
     }

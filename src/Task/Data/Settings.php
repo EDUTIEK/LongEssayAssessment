@@ -20,6 +20,7 @@ declare(strict_types=1);
 
 namespace ILIAS\Plugin\LongEssayAssessment\Task\Data;
 
+use Edutiek\AssessmentService\Assessment\TaskInterfaces\TaskType;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Key;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Table;
 
@@ -29,8 +30,11 @@ class Settings extends \Edutiek\AssessmentService\Task\Data\Settings
     #[Key]
     private int $task_id = 0;
     private int $ass_id = 0;
+    private string $title = '';
+    private string $task_type = TaskType::ESSAY->value;
     private ?string $instructions = null;
     private ?string $solution = null;
+    private int $position = 0;
 
     public function getTaskId(): int
     {
@@ -48,6 +52,33 @@ class Settings extends \Edutiek\AssessmentService\Task\Data\Settings
     public function setAssId(int $ass_id): self
     {
         $this->ass_id = $ass_id;
+        return $this;
+    }
+    public function getPosition() : int
+    {
+        return $this->position;
+    }
+    public function setPosition(int $position) : self
+    {
+        $this->position = $position;
+        return $this;
+    }
+    public function getTitle(): string
+    {
+        return $this->title;
+    }
+    public function setTitle(string $title): self
+    {
+        $this->title = $title;
+        return $this;
+    }
+    public function getTaskType() : TaskType
+    {
+        return TaskType::from($this->task_type);
+    }
+    public function setTaskType(TaskType $type) : self
+    {
+        $this->task_type = $type->value;
         return $this;
     }
     public function getInstructions(): ?string

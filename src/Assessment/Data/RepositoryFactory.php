@@ -31,6 +31,11 @@ class RepositoryFactory implements \Edutiek\AssessmentService\Assessment\Data\Re
         return $this->repo(AlertRepo::class, Alert::class);
     }
 
+    public function location(): LocationRepo
+    {
+        return $this->repo(LocationRepo::class, Location::class);
+    }
+
     public function logEntry(): LogEntryRepo
     {
         return $this->repo(LogEntryRepo::class, LogEntry::class);
@@ -59,11 +64,6 @@ class RepositoryFactory implements \Edutiek\AssessmentService\Assessment\Data\Re
     public function gradeLevel(): GradeLevelRepo
     {
         return $this->repo(GradeLevelRepo::class, GradeLevel::class);
-    }
-
-    public function location(): LocationRepo
-    {
-        return $this->repo(LocationRepo::class, Location::class);
     }
 
     public function orgaSettings(): OrgaSettingsRepo

@@ -20,22 +20,22 @@ class RepositoryFactory implements \Edutiek\AssessmentService\Task\Data\Reposito
         $this->db = $db;
     }
 
-    public function correctorAssignmentRepo(): CorrectorAssignmentRepo
+    public function correctorAssignment(): CorrectorAssignmentRepo
     {
         return $this->repo(CorrectorAssignmentRepo::class, CorrectorAssignment::class);
     }
 
-    public function resourceRepo(): ResourceRepo
+    public function resource(): ResourceRepo
     {
         return $this->repo(ResourceRepo::class, Resource::class);
     }
 
-    public function settingsRepo(): SettingsRepo
+    public function settings(): SettingsRepo
     {
         return $this->repo(SettingsRepo::class, Settings::class);
     }
 
-    public function writerCommentRepo(): WriterCommentRepo
+    public function writerComment(): WriterCommentRepo
     {
         return $this->repo(WriterCommentRepo::class, WriterComment::class);
     }

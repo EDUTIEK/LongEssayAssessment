@@ -18,7 +18,7 @@
 
 declare(strict_types=1);
 
-use Edutiek\AssessmentService\Assessment\Lifecycle\FullService as LifecycleService;
+use Edutiek\AssessmentService\Assessment\Manager\FullService as Manager;
 /**
  * Repository object
  */
@@ -26,13 +26,13 @@ class ilObjLongEssayAssessment extends ilObjectPlugin
 {
     /** @var ilLongEssayAssessmentPlugin */
     protected ?ilPlugin $plugin = null;
-    private LifecycleService $lifecycle;
+    private Manager $manager;
 
     public function __construct($a_ref_id = 0)
     {
         parent::__construct($a_ref_id);
 
-        $this->lifecycle = $this->plugin->dic()->assessment($this->id, $this->ref_id)->lifecycle();
+        $this->manager = $this->plugin->dic()->assessment($this->id, $this->ref_id)->manager();
     }
 
     final public function initType(): void
@@ -42,16 +42,16 @@ class ilObjLongEssayAssessment extends ilObjectPlugin
 
     protected function doCreate(bool $clone_mode = false): void
     {
-        $this->lifecycle->create();
+        $this->manager->create();
     }
 
     protected function doDelete(): void
     {
-        $this->lifecycle->delete();
+        $this->manager->delete();
     }
 
     protected function doCloneObject($new_obj, $a_target_id, $a_copy_id = null): void
     {
-        $this->lifecycle->clone($new_obj->getId());
+        $this->manager->clone($new_obj->getId());
     }
 }

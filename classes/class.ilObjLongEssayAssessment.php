@@ -19,6 +19,7 @@
 declare(strict_types=1);
 
 use Edutiek\AssessmentService\Assessment\Manager\FullService as Manager;
+
 /**
  * Repository object
  */
@@ -32,7 +33,9 @@ class ilObjLongEssayAssessment extends ilObjectPlugin
     {
         parent::__construct($a_ref_id);
 
-        $this->manager = $this->plugin->dic()->assessment($this->id, $this->ref_id)->manager();
+        $this->manager = $this->plugin->dic()
+            ->assessment($this->id, $this->ref_id, $this->user->getId())
+            ->manager();
     }
 
     final public function initType(): void

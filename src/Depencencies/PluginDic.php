@@ -1,5 +1,21 @@
 <?php
 
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
 declare(strict_types=1);
 
 namespace ILIAS\Plugin\LongEssayAssessment\Dependencies;
@@ -111,36 +127,34 @@ class PluginDic
             return new Generate(__DIR__ . '/../../artifacts');
         };
 
+        // Deendencies of the assessment service components
+
         $dic[SystemDic::class] = function (Container $dic) {
             return new SystemDic($dic);
         };
-
-        $dic[SystemFactory::class] = function (Container $dic) {
-            return (new SystemFactory($dic[SystemDic::class]));
-        };
-
         $dic[AssessmentDic::class] = function (Container $dic) {
             return new AssessmentDic($dic);
         };
-
-        $dic[AssessmentFactory::class] = function (Container $dic) {
-            return (new AssessmentFactory($dic[AssessmentDic::class]));
-        };
-
         $dic[EssayTaskDic::class] = function (Container $dic) {
             return new EssayTaskDic($dic);
         };
-
-        $dic[EssayTaskFactory::class] = function (Container $dic) {
-            return (new EssayTaskFactory($dic[AssessmentDic::class]));
-        };
-
         $dic[TaskDic::class] = function (Container $dic) {
             return new TaskDic($dic);
         };
 
+        // Factories of hte assessment service components
+
+        $dic[SystemFactory::class] = function (Container $dic) {
+            return (new SystemFactory($dic[SystemDic::class]));
+        };
+        $dic[AssessmentFactory::class] = function (Container $dic) {
+            return (new AssessmentFactory($dic[AssessmentDic::class]));
+        };
+        $dic[EssayTaskFactory::class] = function (Container $dic) {
+            return (new EssayTaskFactory($dic[EssayTaskDic::class]));
+        };
         $dic[TaskFactory::class] = function (Container $dic) {
-            return (new TaskFactory($dic[AssessmentDic::class]));
+            return (new TaskFactory($dic[TaskDic::class]));
         };
     }
 
@@ -174,9 +188,9 @@ class PluginDic
         return ($this->dic[SystemFactory::class])->forClients();
     }
 
-    public function assessment(int $ass_id, int $context_id): AssessmentApi
+    public function assessment(int $ass_id, int $context_id, int $user_id): AssessmentApi
     {
-        return ($this->dic[AssessmentFactory::class])->forClients($ass_id, $context_id);
+        return ($this->dic[AssessmentFactory::class])->forClients($ass_id, $context_id, $user_id);
     }
 
     public function rest(): RestApi

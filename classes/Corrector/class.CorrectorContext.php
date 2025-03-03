@@ -382,7 +382,7 @@ class CorrectorContext extends ServiceContext implements Context
             foreach ($correctorRepo->getAssignmentsByCorrectorId($repoCorrector->getId()) as $repoAssignment) {
                 if (!empty($repoWriter = $writerRepo->getWriterById($repoAssignment->getWriterId()))) {
                     $repoEssay = $essayRepo->getEssayByWriterIdAndTaskId($repoAssignment->getWriterId(), $this->task->getTaskId());
-                    if (empty($repoEssay)) {
+                    if (empty($repoEssay) || empty($repoEssay->getWritingAuthorized()) || !empty($repoEssay->getWritingExcluded())) {
                         continue;
                     }
 
@@ -399,11 +399,6 @@ class CorrectorContext extends ServiceContext implements Context
                         }
                     }
 
-                    $title = $repoWriter->getPseudonym();
-                    if (empty($repoEssay->getWritingAuthorized()) || !empty($repoEssay->getWritingExcluded())) {
-                        $title .= ' - ' . $this->data->formatWritingStatus($repoEssay, false);
-                    }
-
                     $summary = $this->localDI->getEssayRepo()->getCorrectorSummaryByEssayIdAndCorrectorId(
                         $repoEssay->getId(),
                         $repoCorrector->getId()
@@ -412,7 +407,7 @@ class CorrectorContext extends ServiceContext implements Context
                     $sort_list[] = [
                         'item' => new CorrectionItem(
                             (string) $repoWriter->getId(),
-                            $title,
+                            $repoWriter->getPseudonym(),
                             true,
                             $authorization_allowed
                         ),

@@ -4,6 +4,7 @@
 
 Bug fixes:
 - Deletion of material
+- Prevent correction of unauthorized essays
 
 ## Version 3.5 (2025-02-17)
 Plugin:

@@ -2,6 +2,9 @@
 
 ## Upcoming Version
 
+Bug fixes:
+- Deletion of material
+
 ## Version 3.5 (2025-02-17)
 Plugin:
 - Configure and adapt time limit

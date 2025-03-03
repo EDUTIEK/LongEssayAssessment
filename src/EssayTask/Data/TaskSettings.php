@@ -28,6 +28,7 @@ class TaskSettings extends \Edutiek\AssessmentService\EssayTask\Data\TaskSetting
 {
     #[Key]
     private int $task_id = 0;
+    private int $ass_id = 0;
     private int $max_points = 0;
 
     public function getTaskId(): int
@@ -37,6 +38,15 @@ class TaskSettings extends \Edutiek\AssessmentService\EssayTask\Data\TaskSetting
     public function setTaskId(int $task_id): self
     {
         $this->task_id = $task_id;
+        return $this;
+    }
+    public function getAssId(): int
+    {
+        return $this->ass_id;
+    }
+    public function setAssId(int $ass_id): self
+    {
+        $this->ass_id = $ass_id;
         return $this;
     }
     public function getMaxPoints(): int

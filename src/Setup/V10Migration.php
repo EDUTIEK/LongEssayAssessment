@@ -2245,6 +2245,17 @@ class V10Migration
                             'comment' => 'Neue Tabelle für den Task-Typ EssayTask',
                             'src_table' => 'xlas_corr_setting',
                         ),
+                    'ass_id' =>
+                        array(
+                            'Field' => 'task_id',
+                            'Type' => 'int(11)',
+                            'Null' => 'NO',
+                            'Key' => '',
+                            'Default' => null,
+                            'Extra' => '',
+                            'comment' => 'Bisher gleich, jetzt mehrere Tasks pro Assessment',
+                            'src_table' => 'xlas_corr_setting',
+                        ),
                     'max_points' =>
                         array(
                             'Field' => 'max_points',

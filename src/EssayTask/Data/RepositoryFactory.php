@@ -30,7 +30,7 @@ class RepositoryFactory implements \Edutiek\AssessmentService\EssayTask\Data\Rep
         return $this->repo(CorrectorCommentRepo::class, CorrectorComment::class);
     }
 
-    public function correctorPointsRepo(): CorrectorPointsRepo
+    public function correctorPoints(): CorrectorPointsRepo
     {
         return $this->repo(CorrectorPointsRepo::class, CorrectorPoints::class);
     }
@@ -85,7 +85,7 @@ class RepositoryFactory implements \Edutiek\AssessmentService\EssayTask\Data\Rep
         return $this->repo(WriterPrefsRepo::class, WriterPrefs::class);
     }
 
-    public function writingSetings(): WritingSettingsRepo
+    public function writingSettings(): WritingSettingsRepo
     {
         return $this->repo(WritingSettingsRepo::class, WritingSettings::class);
     }

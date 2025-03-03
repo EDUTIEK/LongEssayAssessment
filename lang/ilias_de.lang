@@ -695,3 +695,4 @@ copy_criteria_info#:#Beim Kopieren der Kriterien werden die bestehenden Kriterie
 not_a_weburl#:#Keine Web URL beginnend mit http(s)://
 select_x#:#%s auswählen
 actions_for#:#Aktionen für %s
+delete_resource_confirmation#:#Möchten Sie die folgenden Materialien löschen?

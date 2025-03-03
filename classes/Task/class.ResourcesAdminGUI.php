@@ -30,6 +30,7 @@ class ResourcesAdminGUI extends BaseGUI implements DataTableParent
     public function __construct(\ilObjLongEssayAssessmentGUI $objectGUI)
     {
         parent::__construct($objectGUI);
+        $this->post = $this->dic->http()->wrapper()->post();
         $this->uiService = $this->localDI->getUIService();
         $this->task_repo = $this->localDI->getTaskRepo();
         $this->table_factory = $this->localDI->getTableFactory();
@@ -75,7 +76,7 @@ class ResourcesAdminGUI extends BaseGUI implements DataTableParent
             $this->lng->txt('delete'),
             $this->lng->txt('delete'),
             $this->plugin->txt('delete_resource_confirmation'),
-            $this->ctrl->getFormAction($this, 'delete'),
+            $this->ctrl->getFormAction($this, 'deleteItem'),
             fn (ResourceItem $x) => $this->buildConfirmationNames($x)
         );
     }

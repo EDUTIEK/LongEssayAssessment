@@ -11,7 +11,7 @@ use DateTimeZone;
 
 class SetupRepo implements \Edutiek\AssessmentService\System\Data\SetupRepo
 {
-    private Setup $setup;
+    private ?Setup $setup = null;
 
     public function __construct(
         private readonly ilIniFile $client_ini,

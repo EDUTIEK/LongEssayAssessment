@@ -34,7 +34,7 @@ class ilObjLongEssayAssessment extends ilObjectPlugin
         parent::__construct($a_ref_id);
 
         $this->manager = $this->plugin->dic()
-            ->assessment($this->id, $this->ref_id, $this->user->getId())
+            ->assessment($this->getId(), $this->getRefId(), $this->user->getId())
             ->manager();
     }
 

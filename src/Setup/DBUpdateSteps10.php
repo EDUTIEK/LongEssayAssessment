@@ -20,6 +20,8 @@ declare(strict_types=1);
 
 namespace ILIAS\Plugin\LongEssayAssessment\Setup;
 
+use ilDBStepExecutionDB;
+use ilDBStepReader;
 use ILIAS\Plugin\LongEssayAssessment\System\File\Stakeholder;
 use ILIAS\ResourceStorage\Stakeholder\Repository\StakeholderDBRepository;
 
@@ -34,6 +36,8 @@ use ILIAS\ResourceStorage\Stakeholder\Repository\StakeholderDBRepository;
  */
 class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
 {
+    public const PREFIX = 'step_';
+
     private \ilDBInterface $db;
     private V10Migration $v10_migration;
 
@@ -41,6 +45,43 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
     {
         $this->db = $db;
         $this->v10_migration = new V10Migration($db);
+    }
+
+    /**
+     * Install the plugin
+     * This can be called from the Plugin Administration GUI
+     * @see \ilDatabaseUpdateStepsExecutedObjective::achieve
+     */
+    public function install(\ilDBInterface $db): void
+    {
+        $this->prepare($db);
+
+        $execution_log = new ilDBStepExecutionDB($this->db, fn() => new \DateTime());
+        $step_reader = new ilDBStepReader();
+
+        $last_started_step = $execution_log->getLastStartedStep(self::class);
+        $last_finished_step = $execution_log->getLastFinishedStep(self::class);
+
+        foreach ($step_reader->readStepNumbers(self::class, self::PREFIX) as $step) {
+            if ($step <= $last_finished_step) {
+                continue;
+            }
+            $execution_log->started(self::class, $step);
+            $method = self::PREFIX . $step;
+            $this->$method();
+            $execution_log->finished(self::class, $step);
+        }
+    }
+
+    /**
+     * Uninstall the plugin
+     * This can be called from the Plugin Administration GUI
+     */
+    public function uninstall(\ilDBInterface $db): void
+    {
+        $this->prepare($db);
+        $this->v10_migration->removeNewTables();
+        $this->db->manipulate("DELETE FROM il_db_steps WHERE `class` = " . $this->db->quote(self::class));
     }
 
     public function step_1(): void

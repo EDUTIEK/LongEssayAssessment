@@ -4,6 +4,7 @@
 
 use ILIAS\DI\Container;
 use ILIAS\Plugin\LongEssayAssessment\Dependencies\PluginDic;
+use ILIAS\Plugin\LongEssayAssessment\Setup\DBUpdateSteps10;
 use ILIAS\Plugin\LongEssayAssessment\Task\ResourceResourceStakeholder;
 use ILIAS\Plugin\LongEssayAssessment\UI\PluginTemplateFactory;
 use ILIAS\Plugin\LongEssayAssessment\UI\Implementation\InputRenderer;
@@ -47,11 +48,6 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
      * Init the local autoload of all external plugin dependencies
      *  This is not done in init() to avoid conflicts with other package versions in ILIAS
      *  Note: init() is called from the ilPlugin constructor in ILIAS initialisation
-     *
-     *  The local autoload needs only to be initialized:
-     *  - for the GUI of the plugin
-     *  - for the entry points of REST calls
-     *  - for a cron job
      */
     public function dic()
     {
@@ -73,6 +69,17 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
     }
 
     /**
+     * Install the plugin
+     */
+    public function install(): void
+    {
+        parent::install();
+
+        (new DBUpdateSteps10())->install($this->db);
+    }
+
+
+    /**
      * Uninstall the plugin
      * Overridden from ilPlugin::uninstall to catch an exception
      * that would be thrown by ilRepositoryObjectPlugin::beforeUninstall
@@ -84,10 +91,8 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
             $rep_util = new ilRepUtil();
             $rep_util->deleteObjectType($this->getId());
         } catch (Exception $e) {
-            // repo object type may already be deleted
-            // if the uninstallCustom went wrong in the last call
-            // do nothing here
-            // to try the uninstallCustom again
+            // repo object type may already be deleted if the uninstall went wrong in the last call
+            // do nothing here to try the uninstall again
         }
 
         $this->uninstallCustom();
@@ -99,72 +104,10 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
 
     /**
      * Uninstall custom data of this plugin
-     * @todo: refactor
      */
     protected function uninstallCustom(): void
     {
-        $tables = [
-            'xlas_access_token',
-            'xlas_alert',
-            'xlas_corrector',
-            'xlas_corrector_ass',
-            'xlas_corrector_comment',
-            'xlas_corrector_prefs',
-            'xlas_corrector_summary',
-            'xlas_corr_setting',
-            'xlas_crit_points',
-            'xlas_editor_settings',
-            'xlas_essay',
-            'xlas_essay_image',
-            'xlas_grade_level',
-            'xlas_location',
-            'xlas_log_entry',
-            'xlas_object_settings',
-            'xlas_pdf_settings',
-            'xlas_plugin_config',
-            'xlas_rating_crit',
-            'xlas_resource',
-            'xlas_task_settings',
-            'xlas_time_extension',
-            'xlas_writer',
-            'xlas_writer_comment',
-            'xlas_writer_history',
-            'xlas_writer_notice',
-            'xlas_writer_prefs'
-        ];
-
-        if ($this->db->tableExists('xlas_resource')) {
-            $result = $this->db->query("SELECT file_id FROM xlas_resource WHERE file_id IS NOT NULL");
-            while ($row = $this->db->fetchAssoc($result)) {
-                if ($identifier = $this->ilias_dic->resourceStorage()->manage()->find($row["file_id"])) {
-                    $this->ilias_dic->resourceStorage()->manage()->remove($identifier, new ResourceResourceStakeholder());
-                }
-            }
-        }
-
-        if ($this->db->tableExists('xlas_essay')) {
-            $result = $this->db->query("SELECT pdf_version FROM xlas_essay WHERE pdf_version IS NOT NULL");
-            while ($row = $this->db->fetchAssoc($result)) {
-                if ($identifier = $this->ilias_dic->resourceStorage()->manage()->find($row["pdf_version"])) {
-                    $this->ilias_dic->resourceStorage()->manage()->remove($identifier, new PDFVersionResourceStakeholder());
-                }
-            }
-        }
-
-        if ($this->db->tableExists('xlas_essay_image')) {
-            $result = $this->db->query("SELECT file_id FROM xlas_essay_image");
-            while ($row = $this->db->fetchAssoc($result)) {
-                if ($identifier = $this->ilias_dic->resourceStorage()->manage()->find($row["file_id"])) {
-                    $this->ilias_dic->resourceStorage()->manage()->remove($identifier, new EssayImageResourceStakeholder());
-                }
-            }
-        }
-
-        foreach ($tables as $table) {
-            if ($this->db->tableExists($table)) {
-                $this->db->dropTable($table);
-            }
-        }
+        (new DBUpdateSteps10())->uninstall($this->db);
     }
 
     public static function getInstance(): self

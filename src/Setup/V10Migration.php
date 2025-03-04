@@ -93,6 +93,13 @@ class V10Migration
         }
     }
 
+    public function removeNewTables(): void
+    {
+        foreach ($this->tableInfo() as $table => $fields) {
+            $this->db->dropTable($table, false);
+        }
+    }
+
     public function migrateStakeholders(): void
     {
         $stakeholder = new Stakeholder();
@@ -249,8 +256,7 @@ class V10Migration
         return [
             'xlas_writer' => ['xlas_essay' => ['id', 'writer_id']],
             'xlas_editor_settings' => ['xlas_task_settings' => ['task_id', 'task_id']],
-            'xlas_object_settings' => ['xlas_task_settings' => ['obj_id', 'task_id']],
-            'xlas_task_settings' => ['object_data' => ['task_id', 'obj_id']],
+            'xlas_object_settings' => ['xlas_task_settings' => ['obj_id', 'task_id']]
         ];
     }
 
@@ -1433,10 +1439,10 @@ class V10Migration
                             'Type' => 'varchar(250)',
                             'Null' => 'NO',
                             'Key' => '',
-                            'Default' => 'essay',
+                            'Default' => 'Teilaufgabe 1',
                             'Extra' => '',
                             'comment' => '',
-                            'src_table' => 'object_data',
+                            'src_table' => null,
                         ),
                     'task_type' =>
                         array(

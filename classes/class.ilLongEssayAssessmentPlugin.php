@@ -45,9 +45,6 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
 
     /**
      * Get the dependency injection container of the plugin
-     * Init the local autoload of all external plugin dependencies
-     *  This is not done in init() to avoid conflicts with other package versions in ILIAS
-     *  Note: init() is called from the ilPlugin constructor in ILIAS initialisation
      */
     public function dic()
     {
@@ -60,7 +57,7 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
      */
     public function getPluginPath(): string
     {
-        return 'Customizing/global/plugins/Services/Repository/RepositoryObject/LongEssayAssessment';
+        return 'Customizing/plugins/Repository/RepositoryObject/LongEssayAssessment';
     }
 
     public function allowCopy(): bool
@@ -69,7 +66,7 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
     }
 
     /**
-     * Install the plugin
+     * Install the plugin with custom data
      */
     public function install(): void
     {

@@ -422,7 +422,7 @@ change_corrector_info#:#Bitte beachten Sie folgendes, wenn es bereits Korrekture
 authorize_correction#:#Korrektur autorisieren
 confirm_authorize_correction#:#Möchten Sie die folgenden Korrekturen autorisieren?
 authorize_correction_done#:#Ihre Korrektur wurde autorisiert.
-no_authorizations_to_remove#:#In Ihrer Auswahl waren keine Korrektur-Autorisierungen, die zurückgenommen werden können.
+no_authorizations_to_remove#:#In Ihrer Auswahl waren keine Korrektur-Autorisierungen, die zurückgenommen werden können. Das Zurücknehmen ist nur möglich, wenn die Korrektur einer Abgabe noch nicht abgeschlossen ist.
 no_corrections_to_authorize#:#In Ihrer Auswahl waren keine Korrekturen, die autorisiert werden können.
 download_instructions#:#Aufgabenstellung herunterladen
 download_solution#:#Lösungshinweise herunterladen

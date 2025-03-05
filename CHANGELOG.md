@@ -6,6 +6,7 @@ Bug fixes:
 - Add authorization date to status info
 - Wrong permanent link in review notification
 - Prevent automated generation of lists when typing a numbering in writer
+- Fix table commands on corrector page
 
 ## Version 2.5 (2024-11-11)
 Plugin:

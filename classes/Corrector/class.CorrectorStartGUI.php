@@ -53,6 +53,10 @@ class CorrectorStartGUI extends BaseGUI
     public function executeCommand()
     {
         $cmd = $this->ctrl->getCmd('showStartPage');
+        if ($cmd == 'ok') {
+            $cmd = $this->request->getQueryParams()['fallbackCmd'] ?? 'ok';
+        }
+
         switch ($cmd) {
             case 'showStartPage':
             case 'startCorrector':
@@ -554,7 +558,7 @@ class CorrectorStartGUI extends BaseGUI
                 $this->plugin->txt('confirm_authorize_correction'),
                 $this->ctrl->getFormAction($this, "authorizeCorrection")
             )->withAffectedItems($items)
-            ->withActionButtonLabel("ok")));
+            ->withActionButtonLabel('ok')));
         } else {
             echo($this->renderer->render($this->uiFactory->modal()->roundtrip(
                 "",

@@ -371,7 +371,7 @@ class WriterStartGUI extends BaseGUI
             $properties[$this->plugin->txt('label_available')] = $this->data->formatResultAvailability($this->task);
         }
 
-        if(!empty($this->task->getReviewStart()) || !empty($this->task->getReviewEnd())) {
+        if($this->task->isReviewEnabled() && (!empty($this->task->getReviewStart()) || !empty($this->task->getReviewEnd()))) {
             $properties[$this->plugin->txt('review_period')] =
                 $this->data->formatPeriod($this->task->getReviewStart(), $this->task->getReviewEnd());
         }

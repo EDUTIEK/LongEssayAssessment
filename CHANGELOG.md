@@ -5,6 +5,7 @@
 Bug fixes:
 - Deletion of material
 - Prevent correction of unauthorized essays
+- Hide review time on writer screen if review is not enabled
 
 ## Version 3.5 (2025-02-17)
 Plugin:

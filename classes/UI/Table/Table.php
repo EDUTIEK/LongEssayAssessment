@@ -19,6 +19,8 @@ use ILIAS\Plugin\LongEssayAssessment\UI\Table\Action\Modal;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\Action\Confirmation;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\Action\Direct;
 use Generator;
+use ILIAS\UI\Implementation\Component\Signal;
+use ILIAS\Plugin\LongEssayAssessment\UI\Table\Action\Type;
 
 abstract class Table implements TableParent, FilterParent
 {
@@ -249,6 +251,7 @@ abstract class Table implements TableParent, FilterParent
             $this->ui_factory->button()->standard($action->label(), "");
 
         switch (true) {
+            case $action instanceof Modal:
             case $action instanceof Form:
                 $async_url = $this->url_builder->withParameter($this->action_parameter_token, $action->name())->withParameter($this->row_id_token, [0])->buildURI();
                 $this->addModal($modal = $this->ui_factory->modal()->roundtrip($action->label(), [])->withAsyncRenderUrl($async_url));
@@ -267,23 +270,36 @@ abstract class Table implements TableParent, FilterParent
         $fields = $action->fields($items);
         $content = $action->content($items);
 
-        $form = $this->local_factory->field()->blankForm($link, $fields);
 
-        if($this->request->getMethod() === "POST") {
-            $form = $form->withRequest($this->request);
+        $modal = $this->ui_factory->modal()->roundtrip($action->label(), $content, $fields, $link);
 
-            if(!empty($data = $form->getData())) {
-                $action->save($items, $data);
-                exit();
-            } else {
-                echo($this->renderer->render(array_merge($content, [$form])));
-                exit();
-            }
+        if($this->request->getMethod() === "POST" || $action->type() === Type::Global) {
+            // Reload Page when closing a modal to deter side effects:
+            // 1) because of the reload warning after a POST
+            // 2) a bug which breaks form modal if a form modal of type global was opened before
+
+            $ret = $this->url_builder->buildURI()
+                                     ->withParameter($this->action_parameter_token, null)
+                                     ->withParameter($this->row_id_token, null)
+                                     ->__toString();
+            $close = new Signal((new \ILIAS\Data\UUID\Factory())->uuid4AsString());
+            $modal = $modal->withOnClose($close)
+                           ->withAdditionalOnLoadCode(fn ($id) => "$(document).on('$close', function() {window.location.replace('$ret');});");
         }
 
-        $modal = $this->ui_factory->modal()->roundtrip($action->label(), array_merge($content, [$form]))->withActionButtons([
-            $this->ui_factory->button()->primary($action->actionLabel(), "")->withOnClick($form->getSubmitAsyncSignal())
-        ]);
+        //$form = $this->local_factory->field()->blankForm($link, $fields);
+
+        if($this->request->getMethod() === "POST" && $action->name() == $this->currentAction()->name()) {
+            $modal = $modal->withOnLoad($modal->getShowSignal())
+                         ->withRequest($this->request);
+
+            if($modal->getData() !== null) {
+                $action->save($items, $modal->getData());
+            } else {
+                $this->addModal($modal);
+            }
+            return;
+        }
 
         echo($this->renderer->renderAsync([
             $modal
@@ -298,7 +314,7 @@ abstract class Table implements TableParent, FilterParent
 
         $modal = $action->modal($items);
 
-        if($modal instanceof RoundTrip) {
+        if($modal instanceof RoundTrip && $action->hasUpdateButton()) {
             $link = $this->getActionFormLink();
             $reload_button = $this->ui_factory->button()->standard($this->lng->txt("refresh"), "")
                                              ->withLoadingAnimationOnClick(true)

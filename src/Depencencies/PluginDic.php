@@ -42,6 +42,7 @@ use ILIAS\Plugin\LongEssayAssessment\UI\Implementation\ViewerFactory;
 use ILIAS\Plugin\LongEssayAssessment\UI\PluginTemplateFactory;
 use ILIAS\Plugin\LongEssayAssessment\UI\UIService;
 use ilLongEssayAssessmentPlugin;
+use ILIAS\Plugin\LongEssayAssessment\Setup\ModelObjective;
 
 /**
  * Local Dependency Injection Container of the Plugin
@@ -124,7 +125,7 @@ class PluginDic
         };
 
         $dic[Generate::class] = function (Container $dic) {
-            return new Generate(__DIR__ . '/../../artifacts');
+            return new Generate(ModelObjective::PATH());
         };
 
         // Deendencies of the assessment service components

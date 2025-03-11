@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 namespace ILIAS\Plugin\LongEssayAssessment\Setup;
 
 use ILIAS\Setup;
@@ -81,7 +82,9 @@ class SetupAgent implements Agent
         return new Setup\ObjectiveCollection(
             'ILIAS\Plugin\LongEssayAssessment',
             true,
-            new EndpointsBuildObjective()
+            new EndpointsBuildObjective(),
+            new LanguageFileObjective(),
+            new ModelObjective(),
         );
     }
 

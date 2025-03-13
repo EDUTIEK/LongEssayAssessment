@@ -2,11 +2,12 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\CorrectorAdmin;
 
-use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
+use ILIAS\Plugin\LongEssayAssessment\Common\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\Data\Essay\EssayRepository;
 use ILIAS\Plugin\LongEssayAssessment\Data\Object\ObjectRepository;
 use ILIAS\UI\Component\Table\PresentationRow;
 use ILIAS\Data\UUID\Factory as UUID;
+use ilObjLongEssayAssessment;
 use ilObjUser;
 use ILIAS\UI\Component\Table\Presentation;
 use ILIAS\Plugin\LongEssayAssessment\Data\Essay\CorrectorSummary;
@@ -27,9 +28,9 @@ abstract class StatisticsGUI extends BaseGUI
     protected array $essays = [];
     protected array $objects = [];
 
-    public function __construct(\ilObjLongEssayAssessmentGUI $objectGUI)
+    public function __construct(ilObjLongEssayAssessment $object)
     {
-        parent::__construct($objectGUI);
+        parent::__construct($object);
         $this->service = $this->localDI->getCorrectorAdminService($this->object->getId());
         $this->ui_service = $this->dic->uiService();
         $this->essay_repo = $this->localDI->getEssayRepo();

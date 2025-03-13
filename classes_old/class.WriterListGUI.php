@@ -56,7 +56,7 @@ abstract class WriterListGUI
         global $DIC;
         $this->parent = $parent;
         $this->parent_cmd = $parent_cmd;
-        $this->uiFactory = $DIC->ui()->factory();
+        $this->ui_factory = $DIC->ui()->factory();
         $this->ctrl = $DIC->ctrl();
         $this->plugin = $plugin;
         $this->renderer = $DIC->ui()->renderer();
@@ -177,7 +177,7 @@ abstract class WriterListGUI
      */
     protected function getUserIcon(int $user_id): Icon
     {
-        return $this->common_services->userDataUIHelper()->getUserIcon($user_id, $this->uiFactory->symbol()->icon()->standard("usr", "", "medium"));
+        return $this->common_services->userDataUIHelper()->getUserIcon($user_id, $this->ui_factory->symbol()->icon()->standard("usr", "", "medium"));
     }
 
     /**
@@ -314,13 +314,13 @@ abstract class WriterListGUI
         };
 
         $filter = [];
-        $filter["name"] = $this->uiFactory->input()->field()->text($this->plugin->txt("participants"));
-        $filter["location"] = $this->uiFactory->input()->field()->multiselect($this->plugin->txt("locations"), $locations);
-        $filter["authorized"] = $this->uiFactory->input()->field()->select(
+        $filter["name"] = $this->ui_factory->input()->field()->text($this->plugin->txt("participants"));
+        $filter["location"] = $this->ui_factory->input()->field()->multiselect($this->plugin->txt("locations"), $locations);
+        $filter["authorized"] = $this->ui_factory->input()->field()->select(
             $this->plugin->txt("filter_authorized"),
             [self::FILTER_YES => $this->plugin->txt("yes"), self::FILTER_NO => $this->plugin->txt("no")]
         );
-        $filter["words"] = $this->uiFactory->input()->field()->select(
+        $filter["words"] = $this->ui_factory->input()->field()->select(
             $this->plugin->txt("filter_words"),
             ["m100" => $more_than(100), "m50" => $more_than(50), "m10" => $more_than(10),
              "l10" => $less_than(10), "l50" => $less_than(50), "l100" => $less_than(100)]

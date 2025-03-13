@@ -3,7 +3,7 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\Task;
 
-use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
+use ILIAS\Plugin\LongEssayAssessment\Common\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\Data\Object\RatingCriterion;
 use ILIAS\UI\Component\Table\PresentationRow;
 use ILIAS\UI\Factory;

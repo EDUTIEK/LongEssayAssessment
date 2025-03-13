@@ -40,7 +40,7 @@ class WriterAdminLogListGUI
         global $DIC;
         $this->parent = $parent;
         $this->parent_cmd = $parent_cmd;
-        $this->uiFactory = $DIC->ui()->factory();
+        $this->ui_factory = $DIC->ui()->factory();
         $this->ctrl = $DIC->ctrl();
         $this->plugin = $plugin;
         $this->renderer = $DIC->ui()->renderer();
@@ -67,7 +67,7 @@ class WriterAdminLogListGUI
             $recipient = $this->plugin->txt("alert_recipient_all");
         }
 
-        return $this->uiFactory->item()->standard(nl2br($alert->getMessage()))
+        return $this->ui_factory->item()->standard(nl2br($alert->getMessage()))
             ->withLeadIcon($custom_factory->icon()->appr('alert', 'medium'))
             ->withProperties(array(
                 $this->plugin->txt("log_type") => $this->plugin->txt("log_type_alert"),
@@ -94,11 +94,11 @@ class WriterAdminLogListGUI
                 $icon = $custom_factory->icon()->nots('note', 'medium');
                 break;
             default:
-                $icon = $this->uiFactory->symbol()->icon()->standard('nots', 'notes', 'medium');
+                $icon = $this->ui_factory->symbol()->icon()->standard('nots', 'notes', 'medium');
                 break;
         }
 
-        return $this->uiFactory->item()->standard(nl2br($this->replaceUserIDs($log_entry->getEntry())))
+        return $this->ui_factory->item()->standard(nl2br($this->replaceUserIDs($log_entry->getEntry())))
             ->withLeadIcon($icon)
             ->withProperties(array(
                 $this->plugin->txt("log_type") => $this->plugin->txt("log_type_" . $log_entry->getCategory()),
@@ -131,10 +131,10 @@ class WriterAdminLogListGUI
             }
         }
 
-        $resources = $this->uiFactory->item()->group($this->plugin->txt("log_entries"), $items);
+        $resources = $this->ui_factory->item()->group($this->plugin->txt("log_entries"), $items);
 
         return $this->renderer->render(array_merge(
-            [$this->buildModeControl(), $this->uiFactory->legacy("</br></br>")],
+            [$this->buildModeControl(), $this->ui_factory->legacy("</br></br>")],
             $this->surroundWithPagination($resources)
         ));
     }
@@ -144,7 +144,7 @@ class WriterAdminLogListGUI
 
         if (count($this->entries) > self::PAGE_SIZE) {
             $uis = [];
-            $pagination = $this->uiFactory->viewControl()->pagination()
+            $pagination = $this->ui_factory->viewControl()->pagination()
                 ->withTargetURL($this->ctrl->getLinkTarget($this->parent, $this->parent_cmd), self::PAGE_ATTR)
                 ->withTotalEntries(count($this->entries))
                 ->withPageSize(self::PAGE_SIZE)
@@ -180,7 +180,7 @@ class WriterAdminLogListGUI
         }
 
         $aria_label = "change_the_currently_displayed_mode";
-        return $this->uiFactory->viewControl()->mode($actions, $aria_label)->withActive($this->plugin->txt("log_type_" . $active));
+        return $this->ui_factory->viewControl()->mode($actions, $aria_label)->withActive($this->plugin->txt("log_type_" . $active));
     }
 
     /**
@@ -282,7 +282,7 @@ class WriterAdminLogListGUI
     protected function getUsername($user_id, $strip_img = false)
     {
         $back = $this->ctrl->getLinkTarget($this->parent);
-        $no_user = $this->uiFactory->legacy(" - ");
+        $no_user = $this->ui_factory->legacy(" - ");
         if($strip_img) {
             return $this->renderer->render([$this->user_data_ui_helper->getUserProfileLink($user_id, $back, false, $no_user)]);
         }

@@ -4,7 +4,7 @@
 namespace ILIAS\Plugin\LongEssayAssessment\WriterAdmin;
 
 use ILIAS\DI\Exceptions\Exception;
-use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
+use ILIAS\Plugin\LongEssayAssessment\Common\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\Data\Essay\Essay;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\Location;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\LogEntry;
@@ -19,6 +19,7 @@ use ILIAS\UI\Implementation\Component\SignalGeneratorInterface;
 use ILIAS\Plugin\LongEssayAssessment\Writer\WriterContext;
 use ILIAS\Plugin\LongEssayAssessment\Task\LoggingService;
 use ilFileDelivery;
+use ilObjLongEssayAssessment;
 
 /**
  *Start page for corrector admins
@@ -32,9 +33,9 @@ class WriterAdminGUI extends BaseGUI
     protected LoggingService $loggingService;
     protected WriterAdminService $writerAdminService;
 
-    public function __construct(\ilObjLongEssayAssessmentGUI $objectGUI)
+    public function __construct(ilObjLongEssayAssessment $object)
     {
-        parent::__construct($objectGUI);
+        parent::__construct($object);
         $this->loggingService = $this->localDI->getLoggingService($this->object->getId());
         $this->writerAdminService = $this->localDI->getWriterAdminService($this->object->getId());
     }
@@ -107,7 +108,7 @@ class WriterAdminGUI extends BaseGUI
         );
 
         // search button
-        $delete_writer_data_button = $this->uiFactory->button()->standard(
+        $delete_writer_data_button = $this->ui_factory->button()->standard(
             $this->plugin->txt("search_participants"),
             $this->ctrl->getLinkTargetByClass('ilRepositorySearchGUI', 'start')
         );
@@ -117,7 +118,7 @@ class WriterAdminGUI extends BaseGUI
         $this->toolbar->addSeparator();
 
         $delete_writer_data_modal = $this->buildDeleteWriterDataModal();
-        $delete_writer_data_button = $this->uiFactory->button()->standard($this->plugin->txt("delete_writer_data"), "#")
+        $delete_writer_data_button = $this->ui_factory->button()->standard($this->plugin->txt("delete_writer_data"), "#")
             ->withOnClick($delete_writer_data_modal->getShowSignal());
         $this->toolbar->addComponent($delete_writer_data_button);
 
@@ -205,14 +206,14 @@ class WriterAdminGUI extends BaseGUI
         foreach ($writer_ids as $writer_id) {
             if(array_key_exists($writer_id, $writers)) {
                 $writer = $writers[$writer_id];
-                $items[] = $this->uiFactory->modal()->interruptiveItem()->standard(
+                $items[] = $this->ui_factory->modal()->interruptiveItem()->standard(
                     $writer->getId(),
                     $user_data[$writer->getUserId()]
                 );
             }
         }
 
-        $remove_modal = $this->uiFactory->modal()->interruptive(
+        $remove_modal = $this->ui_factory->modal()->interruptive(
             $this->plugin->txt("remove_writer"),
             $this->plugin->txt("remove_writer_confirmation"),
             $this->ctrl->getFormAction($this, "removeWriter")
@@ -326,7 +327,7 @@ class WriterAdminGUI extends BaseGUI
         $settings = $this->localDI->getTaskRepo()->getTaskSettingsById($this->object->getId());
         $this->ctrl->saveParameter($this, "writer_id");
 
-        $extension_input = $this->uiFactory->input()->field()
+        $extension_input = $this->ui_factory->input()->field()
             ->numeric($this->lng->txt('minutes'), $this->plugin->txt("time_extension_caption"))
             ->withRequired(true)
             ->withAdditionalTransformation($this->refinery->int()->isGreaterThan(-1))
@@ -364,8 +365,8 @@ class WriterAdminGUI extends BaseGUI
         $this->ctrl->saveParameter($this, "writer_id");
         $form = $this->buildExtensionForm($value);
 
-        $modal = $this->uiFactory->modal()->roundtrip($this->plugin->txt("extent_time"), $form)->withActionButtons([
-            $this->uiFactory->button()->primary($this->lng->txt("submit"), "")->withOnClick($form->getSubmitAsyncSignal())
+        $modal = $this->ui_factory->modal()->roundtrip($this->plugin->txt("extent_time"), $form)->withActionButtons([
+            $this->ui_factory->button()->primary($this->lng->txt("submit"), "")->withOnClick($form->getSubmitAsyncSignal())
         ]);
         echo($this->renderer->renderAsync($modal));
         exit();
@@ -375,8 +376,8 @@ class WriterAdminGUI extends BaseGUI
     {
         $this->ctrl->saveParameter($this, "writer_ids");
         $form = $this->buildExtensionForm();
-        $modal = $this->uiFactory->modal()->roundtrip($this->plugin->txt("extent_time"), $form)->withActionButtons([
-            $this->uiFactory->button()->primary($this->lng->txt("submit"), "")->withOnClick($form->getSubmitAsyncSignal())
+        $modal = $this->ui_factory->modal()->roundtrip($this->plugin->txt("extent_time"), $form)->withActionButtons([
+            $this->ui_factory->button()->primary($this->lng->txt("submit"), "")->withOnClick($form->getSubmitAsyncSignal())
         ]);
         echo($this->renderer->renderAsync($modal));
         exit();
@@ -497,7 +498,7 @@ class WriterAdminGUI extends BaseGUI
 
     private function buildDeleteWriterDataModal()
     {
-        return $this->uiFactory->modal()->interruptive(
+        return $this->ui_factory->modal()->interruptive(
             $this->plugin->txt("delete_writer_data"),
             $this->plugin->txt("delete_writer_data_confirmation"),
             $this->ctrl->getLinkTarget($this, "deleteWriterData")
@@ -531,7 +532,7 @@ class WriterAdminGUI extends BaseGUI
         foreach ($locations as $location) {
             $options[$location->getId()] = $location->getTitle();
         }
-        $location_input = $this->uiFactory->input()->field()->select($this->plugin->txt("location"), $options);
+        $location_input = $this->ui_factory->input()->field()->select($this->plugin->txt("location"), $options);
 
         if($value !== null) {
             $location_input = $location_input->withValue($value);
@@ -582,8 +583,8 @@ class WriterAdminGUI extends BaseGUI
             }
         }
 
-        $modal = $this->uiFactory->modal()->roundtrip($this->plugin->txt("assign_location"), $form)->withActionButtons([
-            $this->uiFactory->button()->primary($this->lng->txt("submit"), "")->withOnClick($form->getSubmitAsyncSignal())
+        $modal = $this->ui_factory->modal()->roundtrip($this->plugin->txt("assign_location"), $form)->withActionButtons([
+            $this->ui_factory->button()->primary($this->lng->txt("submit"), "")->withOnClick($form->getSubmitAsyncSignal())
         ]);
         echo($this->renderer->renderAsync($modal));
         exit();
@@ -609,8 +610,8 @@ class WriterAdminGUI extends BaseGUI
             }
         }
 
-        $modal = $this->uiFactory->modal()->roundtrip($this->plugin->txt("change_location"), $form)->withActionButtons([
-            $this->uiFactory->button()->primary($this->lng->txt("submit"), "")->withOnClick($form->getSubmitAsyncSignal())
+        $modal = $this->ui_factory->modal()->roundtrip($this->plugin->txt("change_location"), $form)->withActionButtons([
+            $this->ui_factory->button()->primary($this->lng->txt("submit"), "")->withOnClick($form->getSubmitAsyncSignal())
         ]);
         echo($this->renderer->renderAsync($modal));
         exit();
@@ -669,21 +670,21 @@ class WriterAdminGUI extends BaseGUI
         $this->ctrl->saveParameter($this, "writer_id");
         $link = $this->ctrl->getFormAction($this, "showEssay", "", true);
 
-        $content = [$this->uiFactory->legacy($value)];
+        $content = [$this->ui_factory->legacy($value)];
 
         if(isset($essay) && !empty($essay->getPdfVersion())) {
             $this->ctrl->saveParameter($this, "writer_id");
-            $content[] = $this->uiFactory->button()->standard(
+            $content[] = $this->ui_factory->button()->standard(
                 $this->plugin->txt('pdf_version_download'),
                 $this->ctrl->getFormAction($this, "downloadPDFVersion")
             );
         }
 
-        $sight_modal = $this->uiFactory->modal()->roundtrip(
+        $sight_modal = $this->ui_factory->modal()->roundtrip(
             $this->plugin->txt("submission"),
             $content
         );
-        $reload_button = $this->uiFactory->button()->standard($this->lng->txt("refresh"), "")
+        $reload_button = $this->ui_factory->button()->standard($this->lng->txt("refresh"), "")
             ->withLoadingAnimationOnClick(true)
             ->withOnLoadCode(
                 function ($id) use ($link) {
@@ -711,7 +712,7 @@ class WriterAdminGUI extends BaseGUI
         $link = $this->ctrl->getFormAction($this, "uploadPDFVersion", "", true);
         $download = $essay->getPdfVersion() !== null ?
             "</br>" . $this->renderer->render(
-                $this->uiFactory->link()->standard(
+                $this->ui_factory->link()->standard(
                     $this->plugin->txt("download"),
                     $this->ctrl->getFormAction($this, "downloadPDFVersion", "", true)
                 )
@@ -719,24 +720,24 @@ class WriterAdminGUI extends BaseGUI
 
 
         $fields = [];
-        $fields["pdf_version"] = $this->uiFactory->input()->field()->file(
+        $fields["pdf_version"] = $this->ui_factory->input()->field()->file(
             new \ilLongEssayAssessmentUploadHandlerGUI($this->storage, $this->localDI->getUploadTempFile()),
             $this->lng->txt("file"),
             $this->localDI->getUIService()->getMaxFileSizeString() . $download
         )->withAcceptedMimeTypes(['application/pdf'])
          ->withValue($essay->getPdfVersion() !== null ? [$essay->getPdfVersion()]: []);
 
-        //		$fields["edit_time"] = $this->uiFactory->input()->field()->optionalGroup([
-        //			"edit_start" => $this->uiFactory->input()->field()->dateTime($this->plugin->txt("edit_start"))->withValue($essay->getEditStarted() ?? ""),
-        //			"edit_end" => $this->uiFactory->input()->field()->dateTime($this->plugin->txt("edit_end"))->withValue($essay->getEditEnded() ?? "")
+        //		$fields["edit_time"] = $this->ui_factory->input()->field()->optionalGroup([
+        //			"edit_start" => $this->ui_factory->input()->field()->dateTime($this->plugin->txt("edit_start"))->withValue($essay->getEditStarted() ?? ""),
+        //			"edit_end" => $this->ui_factory->input()->field()->dateTime($this->plugin->txt("edit_end"))->withValue($essay->getEditEnded() ?? "")
         //		], "Schreibzeitraum")
         //			->withByline($this->plugin->txt("edit_time_info")/*"Optional: Schreibzeitrum mit Protokollieren"*/);
 
-        $fields["authorize"] = $this->uiFactory->input()->field()->checkbox($this->plugin->txt("authorize_writing"))
+        $fields["authorize"] = $this->ui_factory->input()->field()->checkbox($this->plugin->txt("authorize_writing"))
             ->withByline($this->plugin->txt("authorize_pdf_version_info"))
             ->withValue($essay->getWritingAuthorized() !== null && $essay->getWritingAuthorizedBy() === $this->dic->user()->getId());
 
-        return $this->uiFactory->input()->container()->form()->standard($link, $fields, "");
+        return $this->ui_factory->input()->container()->form()->standard($link, $fields, "");
     }
 
     protected function changeTextToPdfMultiConfirmation()
@@ -763,7 +764,7 @@ class WriterAdminGUI extends BaseGUI
                     continue;
                 }
                 
-                $items[] = $this->uiFactory->modal()->interruptiveItem()->standard(
+                $items[] = $this->ui_factory->modal()->interruptiveItem()->standard(
                     $writer->getId(),
                     $user_data[$writer->getUserId()]
                 );
@@ -771,12 +772,12 @@ class WriterAdminGUI extends BaseGUI
         }
 
         if(empty($items)) {
-            $change_modal = $this->uiFactory->modal()->roundtrip(
+            $change_modal = $this->ui_factory->modal()->roundtrip(
                 $this->plugin->txt("change_text_to_pdf"),
-                $this->uiFactory->legacy($this->plugin->txt("change_text_to_pdf_none_possible")),
+                $this->ui_factory->legacy($this->plugin->txt("change_text_to_pdf_none_possible")),
             );
         } else {
-            $change_modal = $this->uiFactory->modal()->interruptive(
+            $change_modal = $this->ui_factory->modal()->interruptive(
                 $this->plugin->txt("change_text_to_pdf"),
                 $this->plugin->txt("change_text_to_pdf_confirmation"),
                 $this->ctrl->getFormAction($this, "changeTextToPdf")
@@ -907,11 +908,11 @@ class WriterAdminGUI extends BaseGUI
             }
             $user_properties[$this->plugin->txt("writing_status")] = $this->localDI->getDataService($task_id)->formatWritingStatus($essay, false);
 
-            $user_info = $this->uiFactory->card()->standard($this->plugin->txt("participant"))
-                ->withSections([$this->uiFactory->listing()->descriptive($user_properties)]);
+            $user_info = $this->ui_factory->card()->standard($this->plugin->txt("participant"))
+                ->withSections([$this->ui_factory->listing()->descriptive($user_properties)]);
 
             $subs = [
-                $this->uiFactory->panel()->sub($essay->getPdfVersion() !== null
+                $this->ui_factory->panel()->sub($essay->getPdfVersion() !== null
                     ? $this->plugin->txt("pdf_version_edit")
                     : $this->plugin->txt("pdf_version_upload"), $form)->withFurtherInformation($user_info)
             ];
@@ -928,13 +929,13 @@ class WriterAdminGUI extends BaseGUI
                 }
 
                 $this->addContentCss();
-                $subs[] = $this->uiFactory->panel()->sub(
+                $subs[] = $this->ui_factory->panel()->sub(
                     $this->plugin->txt("pdf_version_header_writing"),
-                    $this->uiFactory->legacy($this->displayContent($this->localDI->getDataService($task_id)->cleanupRichText($essay->getWrittenText())))
+                    $this->ui_factory->legacy($this->displayContent($this->localDI->getDataService($task_id)->cleanupRichText($essay->getWrittenText())))
                 );
             }
 
-            $panel = $this->uiFactory->panel()->standard("", $subs);
+            $panel = $this->ui_factory->panel()->standard("", $subs);
 
             $this->tpl->setContent($this->renderer->render([$panel]));
         } else {

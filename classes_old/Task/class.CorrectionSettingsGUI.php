@@ -3,7 +3,7 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\Task;
 
-use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
+use ILIAS\Plugin\LongEssayAssessment\Common\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\CorrectionSettings;
 use ILIAS\Plugin\LongEssayAssessment\Data\Essay\CorrectorSummary;
 
@@ -41,7 +41,7 @@ class CorrectionSettingsGUI extends BaseGUI
         $task_repo = $this->localDI->getTaskRepo();
         $correctionSettings = $task_repo->getCorrectionSettingsById($this->object->getId());
 
-        $factory = $this->uiFactory->input()->field();
+        $factory = $this->ui_factory->input()->field();
 
         $sections = [];
 
@@ -172,7 +172,7 @@ class CorrectionSettingsGUI extends BaseGUI
 
         $sections['stitch'] = $factory->section($fields, $this->plugin->txt('settings_stitch_required'));
 
-        $form = $this->uiFactory->input()->container()->form()->standard($this->ctrl->getFormAction($this), $sections);
+        $form = $this->ui_factory->input()->container()->form()->standard($this->ctrl->getFormAction($this), $sections);
 
         // apply inputs
         if ($this->request->getMethod() == "POST") {

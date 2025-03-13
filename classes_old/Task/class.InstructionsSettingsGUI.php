@@ -3,7 +3,7 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\Task;
 
-use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
+use ILIAS\Plugin\LongEssayAssessment\Common\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\Data\Object\ObjectSettings;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\Resource;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\TaskSettings;
@@ -102,7 +102,7 @@ class InstructionsSettingsGUI extends BaseGUI
      */
     protected function buildInstructionsSettings(TaskSettings $taskSettings, ?Resource $resource): Form
     {
-        $factory = $this->uiFactory->input()->field();
+        $factory = $this->ui_factory->input()->field();
         $ui_service = $this->localDI->getUIService();
 
         $sections = [];
@@ -128,6 +128,6 @@ class InstructionsSettingsGUI extends BaseGUI
 
         $ui_service->addTinyMCEToTextareas();
 
-        return $this->uiFactory->input()->container()->form()->standard($this->ctrl->getFormAction($this), $sections);
+        return $this->ui_factory->input()->container()->form()->standard($this->ctrl->getFormAction($this), $sections);
     }
 }

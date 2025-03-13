@@ -25,8 +25,6 @@ use Edutiek\AssessmentService\Assessment\Manager\FullService as Manager;
  */
 class ilObjLongEssayAssessment extends ilObjectPlugin
 {
-    /** @var ilLongEssayAssessmentPlugin */
-    protected ?ilPlugin $plugin = null;
     private Manager $manager;
 
     public function __construct($a_ref_id = 0)
@@ -34,8 +32,24 @@ class ilObjLongEssayAssessment extends ilObjectPlugin
         parent::__construct($a_ref_id);
 
         $this->manager = $this->plugin->dic()
-            ->assessment($this->getId(), $this->getRefId(), $this->user->getId())
+            ->assessment($this->getAssId(), $this->getContextId(), $this->user->getId())
             ->manager();
+    }
+
+    /**
+     * Get the assessment id for the assessment services
+     */
+    public function getAssId(): int
+    {
+        return $this->getId();
+    }
+
+    /**
+     * Get the context id for the assessment services
+     */
+    public function getContextId(): int
+    {
+        return $this->getRefId();
     }
 
     final public function initType(): void

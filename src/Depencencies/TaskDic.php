@@ -28,6 +28,9 @@ use ILIAS\Plugin\LongEssayAssessment\Task\Data\RepositoryFactory;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Generate;
 use Edutiek\AssessmentService\EssayTask\Api\Factory as EssayTaskFactory;
 
+/**
+ * Dependencies of the assessment services component "Task"
+ */
 class TaskDic implements \Edutiek\AssessmentService\Task\Api\Dependencies
 {
     public function __construct(

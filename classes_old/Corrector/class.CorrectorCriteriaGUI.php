@@ -6,6 +6,7 @@ namespace ILIAS\Plugin\LongEssayAssessment\Corrector;
 use ILIAS\Plugin\LongEssayAssessment\Data\Corrector\Corrector;
 use ILIAS\Plugin\LongEssayAssessment\Data\Object\RatingCriterion;
 use ILIAS\Plugin\LongEssayAssessment\Task\CriteriaGUI;
+use ilObjLongEssayAssessment;
 
 /**
  * Cretiera page for correctors
@@ -17,9 +18,9 @@ class CorrectorCriteriaGUI extends CriteriaGUI
 {
     protected ?Corrector $corrector;
 
-    public function __construct(\ilObjLongEssayAssessmentGUI $objectGUI)
+    public function __construct(ilObjLongEssayAssessment $object)
     {
-        parent::__construct($objectGUI);
+        parent::__construct($object);
         $this->corrector = $this->localDI->getCorrectorRepo()->getCorrectorByUserId($this->dic->user()->getId(), $this->object->getId());
     }
 

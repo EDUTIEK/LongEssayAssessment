@@ -3,7 +3,7 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\Task;
 
-use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
+use ILIAS\Plugin\LongEssayAssessment\Common\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\Data\Object\GradeLevel;
 use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
 use ILIAS\UI\Component\Table\PresentationRow;
@@ -19,6 +19,7 @@ use ILIAS\UI\Component\Table\DataRetrieval;
 use ILIAS\UI\Component\Table\DataRowBuilder;
 use ILIAS\UI\Implementation\Component\Table\Table;
 use ILIAS\Plugin\LongEssayAssessment\UI\CopyLongEssayAssessmentExplorer;
+use ilObjLongEssayAssessment;
 
 /**
  * Resources Administration
@@ -32,9 +33,9 @@ class GradesAdminGUI extends BaseGUI
     protected ObjectRepository $object_repo;
     protected CorrectorAdminService $corrector_service;
 
-    public function __construct(\ilObjLongEssayAssessmentGUI $objectGUI)
+    public function __construct(ilObjLongEssayAssessment $object)
     {
-        parent::__construct($objectGUI);
+        parent::__construct($object);
         $this->corrector_service = $this->localDI->getCorrectorAdminService($this->object->getId());
         $this->object_repo = $this->localDI->getObjectRepo();
         $this->task_repo = $this->localDI->getTaskRepo();
@@ -105,12 +106,12 @@ class GradesAdminGUI extends BaseGUI
         $modals = [];
 
         if (!$authorized) {
-            $this->toolbar->addComponent($this->uiFactory->button()->primary(
+            $this->toolbar->addComponent($this->ui_factory->button()->primary(
                 $this->plugin->txt('add_grade_level'),
                 $this->ctrl->getLinkTarget($this, 'editItem')));
 
             $modals[] = $modal = $this->getCopyGradeLevelModal();
-            $this->toolbar->addComponent($this->uiFactory->button()->standard($this->plugin->txt("copy_grade_level"), "#")->withOnClick($modal->getShowSignal()));
+            $this->toolbar->addComponent($this->ui_factory->button()->standard($this->plugin->txt("copy_grade_level"), "#")->withOnClick($modal->getShowSignal()));
         }
 
         if ($settings->getCorrectionStart() !== null) {
@@ -125,7 +126,7 @@ class GradesAdminGUI extends BaseGUI
             $this->tpl->setOnScreenMessage("info", $this->plugin->txt("grade_levels_empty_notice"));
         }
 
-        $ptable = $this->uiFactory->table()->presentation(
+        $ptable = $this->ui_factory->table()->presentation(
             $this->plugin->txt('grade_levels'),
             [],
             function (
@@ -186,7 +187,7 @@ class GradesAdminGUI extends BaseGUI
             $section_title = $this->plugin->txt('add_grade_level');
         }
 
-        $factory = $this->uiFactory->input()->field();
+        $factory = $this->ui_factory->input()->field();
         $custom_factory = LongEssayAssessmentDI::getInstance()->getUIFactory();
         $sections = [];
 
@@ -211,7 +212,7 @@ class GradesAdminGUI extends BaseGUI
         $sections['form'] = $factory->section($fields, $section_title);
 
 
-        return $this->uiFactory->input()->container()->form()->standard($this->ctrl->getFormAction($this, "updateItem"), $sections);
+        return $this->ui_factory->input()->container()->form()->standard($this->ctrl->getFormAction($this, "updateItem"), $sections);
     }
 
     protected function updateItem()
@@ -349,7 +350,7 @@ class GradesAdminGUI extends BaseGUI
     {
         $explorer = new CopyLongEssayAssessmentExplorer($this, "showItems", $this->object);
         $tree = $explorer->getTreeComponent();
-        $modal = $this->uiFactory->modal()->roundtrip($this->plugin->txt("copy_grade_level"), $tree);
+        $modal = $this->ui_factory->modal()->roundtrip($this->plugin->txt("copy_grade_level"), $tree);
 
         if ($replace_signal === null) {
             $replace_signal = $modal->getReplaceSignal();
@@ -365,7 +366,7 @@ class GradesAdminGUI extends BaseGUI
 
     protected function buildGradeLevelTable(array $grade_levels, string $title = "", bool $small_view = true): \ILIAS\UI\Component\Table\Data
     {
-        $tf = $this->uiFactory->table();
+        $tf = $this->ui_factory->table();
 
         $data_retrieval = new class($grade_levels, $small_view) implements DataRetrieval {
             /**
@@ -456,14 +457,14 @@ class GradesAdminGUI extends BaseGUI
             $this->ctrl->setParameter($this, "xlas_copy_ref", $ref_id);
             $copy = $this->ctrl->getLinkTarget($this, "copyGradeLevel");
 
-            $message = $this->uiFactory->messageBox()->info($this->plugin->txt('copy_grade_level_info'));
+            $message = $this->ui_factory->messageBox()->info($this->plugin->txt('copy_grade_level_info'));
 
-            $modal = $this->uiFactory->modal()->roundtrip(
+            $modal = $this->ui_factory->modal()->roundtrip(
                 $this->plugin->txt('copy_grade_level'),
                 [$message, $this->buildGradeLevelTable($grade_levels, $title)]
             )->withActionButtons([
-                $this->uiFactory->button()->primary($this->lng->txt('copy'), $copy),
-                $this->uiFactory->button()->standard($this->lng->txt('back'), "#")->withOnClick($replace_signal->withAsyncRenderUrl($reload))
+                $this->ui_factory->button()->primary($this->lng->txt('copy'), $copy),
+                $this->ui_factory->button()->standard($this->lng->txt('back'), "#")->withOnClick($replace_signal->withAsyncRenderUrl($reload))
             ]);
         } else {
             $modal = $this->getCopyGradeLevelModal($replace_signal);

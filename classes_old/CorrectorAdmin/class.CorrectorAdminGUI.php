@@ -4,7 +4,7 @@
 namespace ILIAS\Plugin\LongEssayAssessment\CorrectorAdmin;
 
 use Edutiek\LongEssayAssessmentService\Corrector\Service;
-use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
+use ILIAS\Plugin\LongEssayAssessment\Common\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\Corrector\CorrectorContext;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\CorrectionSettings;
 use ILIAS\Plugin\LongEssayAssessment\Data\Writer\Writer;
@@ -16,6 +16,7 @@ use ILIAS\Plugin\LongEssayAssessment\Data\Corrector\Corrector;
 use ILIAS\Plugin\LongEssayAssessment\ilLongEssayAssessmentUploadTempFile;
 use ILIAS\DI\Exceptions\Exception;
 use ilFileDelivery;
+use ilObjLongEssayAssessment;
 use ilObjUser;
 use ILIAS\Plugin\LongEssayAssessment\Data\Corrector\CorrectorRepository;
 use ILIAS\Plugin\LongEssayAssessment\Data\Writer\WriterRepository;
@@ -39,9 +40,9 @@ class CorrectorAdminGUI extends BaseGUI
     protected EssayRepository $essay_repo;
     protected TaskRepository $task_repo;
 
-    public function __construct(\ilObjLongEssayAssessmentGUI $objectGUI)
+    public function __construct(ilObjLongEssayAssessment $object)
     {
-        parent::__construct($objectGUI);
+        parent::__construct($object);
         $this->service = $this->localDI->getCorrectorAdminService($this->object->getId());
         $this->assignment_service = $this->localDI->getCorrectorAssignmentService($this->object->getId());
         $this->settings = $this->localDI->getTaskRepo()->getCorrectionSettingsById($this->object->getId());
@@ -143,21 +144,21 @@ class CorrectorAdminGUI extends BaseGUI
         $stitch_decision_action =  $this->ctrl->getLinkTarget($this, "stitchDecision");
         $download_reports_action = $this->ctrl->getLinkTarget($this, "downloadReportsPdf");
 
-        $this->toolbar->addComponent($this->uiFactory->button()->primary(
+        $this->toolbar->addComponent($this->ui_factory->button()->primary(
             $this->plugin->txt('assign_writers'),
             $this->ctrl->getLinkTarget($this, $assign_writers_action)));
 
         $this->toolbar->addText($this->plugin->txt("assignment_excel"));
 
-        $this->toolbar->addComponent($this->uiFactory->button()->standard(
+        $this->toolbar->addComponent($this->ui_factory->button()->standard(
             $this->plugin->txt("assignment_excel_export"),
             $this->ctrl->getLinkTarget($this, "correctorAssignmentSpreadsheetExport")));
 
-        $this->toolbar->addComponent($this->uiFactory->button()->standard(
+        $this->toolbar->addComponent($this->ui_factory->button()->standard(
             $this->plugin->txt("assignment_excel_import"),
             $this->ctrl->getLinkTarget($this, "correctorAssignmentSpreadsheetImport")));
 
-        $this->toolbar->addComponent($this->uiFactory->button()->toggle(
+        $this->toolbar->addComponent($this->ui_factory->button()->toggle(
             $this->plugin->txt("assignment_excel_export_auth"),
             "#",
             "#",
@@ -171,18 +172,18 @@ class CorrectorAdminGUI extends BaseGUI
         $this->toolbar->addSeparator();
 
         if ($this->settings->getRequiredCorrectors() > 1) {
-            $this->toolbar->addComponent($this->uiFactory->button()->standard(
+            $this->toolbar->addComponent($this->ui_factory->button()->standard(
                 $this->plugin->txt("do_stich_decision"),
                 $stitch_decision_action
             )->withUnavailableAction(empty($stitches)));
         }
 
-        $this->toolbar->addComponent($this->uiFactory->button()->standard(
+        $this->toolbar->addComponent($this->ui_factory->button()->standard(
             $this->plugin->txt("export_corrections"),
             $export_corrections_action
         ));
 
-        $this->toolbar->addComponent($this->uiFactory->button()->standard(
+        $this->toolbar->addComponent($this->ui_factory->button()->standard(
             $this->plugin->txt("export_results"),
             $export_results_action
         ));
@@ -190,7 +191,7 @@ class CorrectorAdminGUI extends BaseGUI
         $this->toolbar->addSeparator();
 
         if ($this->settings->getReportsEnabled()) {
-            $this->toolbar->addComponent($this->uiFactory->button()->standard(
+            $this->toolbar->addComponent($this->ui_factory->button()->standard(
                 $this->plugin->txt("download_correction_reports"),
                 $download_reports_action
             ));
@@ -228,18 +229,18 @@ class CorrectorAdminGUI extends BaseGUI
 
         // add all course tutors
         if ($this->object_services->iliasContext()->isInCourse()) {
-            $add_tutors_modal = $this->uiFactory->modal()->interruptive('', '', '')
+            $add_tutors_modal = $this->ui_factory->modal()->interruptive('', '', '')
                                      ->withAsyncRenderUrl($this->ctrl->getLinkTarget($this, 'addAllCourseTutors'));
-            $button = $this->uiFactory->button()->standard($this->plugin->txt("add_all_course_tutors"), '')
+            $button = $this->ui_factory->button()->standard($this->plugin->txt("add_all_course_tutors"), '')
                                       ->withOnClick($add_tutors_modal->getShowSignal());
             $this->toolbar->addComponent($button);
             $this->addModal($add_tutors_modal);
         }
 
         // mail to correctors
-        $modal = $this->uiFactory->modal()->roundtrip('', [])
+        $modal = $this->ui_factory->modal()->roundtrip('', [])
                                  ->withAsyncRenderUrl($this->ctrl->getFormAction($this, 'mailToCorrectorsAsync'));
-        $button = $this->uiFactory->button()->standard($this->plugin->txt("mail_to_correctors"), '')
+        $button = $this->ui_factory->button()->standard($this->plugin->txt("mail_to_correctors"), '')
                                   ->withOnClick($modal->getShowSignal());
         $this->addModal($modal);
         $this->toolbar->addComponent($button);
@@ -264,12 +265,12 @@ class CorrectorAdminGUI extends BaseGUI
             ;
             $items =[];
             foreach ($user_ids as $user_id) {
-                $items[] = $this->uiFactory->modal()->interruptiveItem()->standard(
+                $items[] = $this->ui_factory->modal()->interruptiveItem()->standard(
                     $user_id,
                     $this->common_services->userDataHelper()->getPresentation($user_id)
                 );
             }
-            $modal = $this->uiFactory->modal()->interruptive(
+            $modal = $this->ui_factory->modal()->interruptive(
                 $this->plugin->txt('add_all_course_tutors'),
                 $this->plugin->txt('confirm_add_all_course_tutors'),
                 $this->ctrl->getLinkTarget($this, 'addAllCourseTutors')
@@ -309,16 +310,16 @@ class CorrectorAdminGUI extends BaseGUI
 
         // Selection Modal
         if ($this->request->getMethod() != 'POST') {
-            $fields= ['selection' => $this->uiFactory->input()->field()->radio($this->lng->txt('select'))
+            $fields= ['selection' => $this->ui_factory->input()->field()->radio($this->lng->txt('select'))
                 ->withOption('all', $this->plugin->txt('all_correctors') . ' (' . count($all) . ')')
                 ->withOption('open', $this->plugin->txt('correctors_with_open_corrections') . ' (' . count($open) . ')')
                 ->withValue('all')
             ];
             $form = $this->localDI->getUIFactory()->field()->blankForm(
                 $this->ctrl->getFormAction($this, "mailToCorrectorsAsync"), $fields)->withAsyncOnEnter();
-            $modal = $this->uiFactory->modal()->roundtrip(
+            $modal = $this->ui_factory->modal()->roundtrip(
                 $this->plugin->txt('mail_to_correctors'), $form)->withActionButtons([
-                    $this->uiFactory->button()->primary($this->plugin->txt('write_mail'), "")
+                    $this->ui_factory->button()->primary($this->plugin->txt('write_mail'), "")
                                               ->withOnClick($form->getSubmitSignal())
             ]);
             echo $this->renderer->renderAsync($modal);
@@ -355,18 +356,18 @@ class CorrectorAdminGUI extends BaseGUI
         // Selection Modal
         if ($this->request->getMethod() != 'POST') {
             $fields = [
-                'writer' => $this->uiFactory->input()->field()->checkbox($this->plugin->txt('participant'))
+                'writer' => $this->ui_factory->input()->field()->checkbox($this->plugin->txt('participant'))
             ];
             for ($i = 1; $i <= $this->settings->getRequiredCorrectors(); $i++) {
-                $fields['corrector' . $i] =  $this->uiFactory->input()->field()->checkbox(
+                $fields['corrector' . $i] =  $this->ui_factory->input()->field()->checkbox(
                     sprintf($this->plugin->txt('corrector_x'), $i));
             }
 
             $form = $this->localDI->getUIFactory()->field()->blankForm(
                 $this->ctrl->getFormAction($this, "mailToSelectedAsync"), $fields)->withAsyncOnEnter();
-            $modal = $this->uiFactory->modal()->roundtrip(
+            $modal = $this->ui_factory->modal()->roundtrip(
                 $this->plugin->txt('mail_for_selected_essays'), $form)->withActionButtons([
-                $this->uiFactory->button()->primary($this->plugin->txt('write_mail'), "")
+                $this->ui_factory->button()->primary($this->plugin->txt('write_mail'), "")
                                 ->withOnClick($form->getSubmitSignal())
             ]);
             echo $this->renderer->renderAsync($modal);
@@ -721,7 +722,7 @@ class CorrectorAdminGUI extends BaseGUI
     private function buildAssignmentForm(array $writer_ids): Form
     {
         $service = $this->localDI->getCorrectorAdminService($this->object->getId());
-        $factory = $this->uiFactory;
+        $factory = $this->ui_factory;
         $custom_factory = $this->localDI->getUIFactory();
         $corrector_list = [
             CorrectorAdminService::UNCHANGED_CORRECTOR_ASSIGNMENT => $this->plugin->txt("unchanged"),
@@ -838,13 +839,13 @@ class CorrectorAdminGUI extends BaseGUI
                 exit();
             }
         }
-        $message_box = $this->uiFactory->messageBox()->info($this->plugin->txt("change_corrector_info"));
+        $message_box = $this->ui_factory->messageBox()->info($this->plugin->txt("change_corrector_info"));
         echo($this->renderer->renderAsync(
-            $this->uiFactory->modal()->roundtrip(
+            $this->ui_factory->modal()->roundtrip(
                 $this->plugin->txt("change_corrector"),
                 [$message_box, $form]
             )
-            ->withActionButtons([$this->uiFactory->button()->primary($this->lng->txt("submit"), "")->withOnClick($form->getSubmitAsyncSignal())])
+            ->withActionButtons([$this->ui_factory->button()->primary($this->lng->txt("submit"), "")->withOnClick($form->getSubmitAsyncSignal())])
         ));
         exit();
     }
@@ -867,7 +868,7 @@ class CorrectorAdminGUI extends BaseGUI
                 || !empty($this->localDI->getCorrectorAdminService($essay->getTaskId())->getAuthorizedSummaries($essay)))
                 && array_key_exists($writer_id, $writers)) {
                 $writer = $writers[$writer_id];
-                $items[] = $this->uiFactory->modal()->interruptiveItem()->standard(
+                $items[] = $this->ui_factory->modal()->interruptiveItem()->standard(
                     $writer->getId(),
                     $user_data[$writer->getUserId()] . ' [' . $writer->getPseudonym() . ']'
                 );
@@ -875,15 +876,15 @@ class CorrectorAdminGUI extends BaseGUI
         }
 
         if(count($items) > 0) {
-            $confirm_modal = $this->uiFactory->modal()->interruptive(
+            $confirm_modal = $this->ui_factory->modal()->interruptive(
                 $this->plugin->txt("remove_authorizations"),
                 $this->plugin->txt("remove_authorizations_confirmation"),
                 $this->ctrl->getFormAction($this, "removeAuthorizations")
             )->withAffectedItems($items)->withActionButtonLabel($this->lng->txt("ok"));
         } else {
-            $confirm_modal = $this->uiFactory->modal()->roundtrip(
+            $confirm_modal = $this->ui_factory->modal()->roundtrip(
                 $this->plugin->txt("remove_authorizations"),
-                $this->uiFactory->messageBox()->failure($this->plugin->txt("remove_authorizations_no_valid_essays"))
+                $this->ui_factory->messageBox()->failure($this->plugin->txt("remove_authorizations_no_valid_essays"))
             )
                 ->withCancelButtonLabel("ok");
         }
@@ -896,9 +897,9 @@ class CorrectorAdminGUI extends BaseGUI
     {
         $tempfile = new ilLongEssayAssessmentUploadTempFile($this->storage, $this->dic->filesystem(), $this->dic->upload());
 
-        $form = $this->uiFactory->input()->container()->form()->standard(
+        $form = $this->ui_factory->input()->container()->form()->standard(
             $this->ctrl->getFormAction($this, "correctorAssignmentSpreadsheetImport"),
-            ["excel" => $this->uiFactory->input()->field()->file(
+            ["excel" => $this->ui_factory->input()->field()->file(
                 new \ilLongEssayAssessmentUploadHandlerGUI(
                     $this->storage,
                     $tempfile

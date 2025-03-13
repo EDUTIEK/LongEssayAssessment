@@ -23,7 +23,7 @@ use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\CacheRepository;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\DatabaseRepository;
 
 /**
- * Dependency Container for the System Api
+ *  Dependencies of the assessment services component "System"
  */
 class SystemDic implements \Edutiek\AssessmentService\System\Api\Dependencies
 {

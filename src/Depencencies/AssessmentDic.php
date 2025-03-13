@@ -30,6 +30,9 @@ use ILIAS\Plugin\LongEssayAssessment\Assessment\Data\RepositoryFactory;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Generate;
 use ILIAS\Plugin\LongEssayAssessment\Assessment\Rest\RestContext;
 
+/**
+ * Dependencies of the assessment service component "Assessment"
+ */
 class AssessmentDic implements \Edutiek\AssessmentService\Assessment\Api\Dependencies
 {
     public function __construct(

@@ -4,13 +4,14 @@
 namespace ILIAS\Plugin\LongEssayAssessment\Corrector;
 
 use Edutiek\LongEssayAssessmentService\Corrector\Service;
-use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
+use ILIAS\Plugin\LongEssayAssessment\Common\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\CorrectorAdmin\CorrectorAdminService;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\CorrectionSettings;
 use ILIAS\Plugin\LongEssayAssessment\Data\Corrector\CorrectorRepository;
 use ILIAS\Plugin\LongEssayAssessment\Data\Essay\CorrectorSummary;
 use ILIAS\Plugin\LongEssayAssessment\Data\DataService;
 use ILIAS\Plugin\LongEssayAssessment\Data\Writer\Writer;
+use ilObjLongEssayAssessment;
 use \ilUtil;
 
 /**
@@ -34,9 +35,9 @@ class CorrectorStartGUI extends BaseGUI
     private int $ready_items = 0;
 
 
-    public function __construct(\ilObjLongEssayAssessmentGUI $objectGUI)
+    public function __construct(ilObjLongEssayAssessment $object)
     {
-        parent::__construct($objectGUI);
+        parent::__construct($object);
         $this->service = $this->localDI->getCorrectorAdminService($this->object->getId());
         $this->settings = $this->service->getSettings();
         $this->correctorRepo = $this->localDI->getCorrectorRepo();
@@ -80,7 +81,7 @@ class CorrectorStartGUI extends BaseGUI
         $corrector = $this->localDI->getCorrectorRepo()->getCorrectorByUserId($this->dic->user()->getId(), $this->settings->getTaskId());
         $preferences = $this->correctorRepo->getCorrectorPreferences($corrector->getId());
         $dataService = $this->localDI->getDataService($this->settings->getTaskId());
-        $icon = $this->uiFactory->image()->responsive('./templates/default/images/icon_wiki.svg', '');
+        $icon = $this->ui_factory->image()->responsive('./templates/default/images/icon_wiki.svg', '');
 
         foreach ($this->localDI->getCorrectorRepo()->getAssignmentsByCorrectorId($corrector->getId()) as $assignment) {
             $writer = $this->localDI->getWriterRepo()->getWriterById($assignment->getWriterId());
@@ -107,12 +108,12 @@ class CorrectorStartGUI extends BaseGUI
             }
 
             $this->ctrl->setParameter($this, 'writer_id', $writer->getId());
-            $actions[] = $this->uiFactory->button()->shy(
+            $actions[] = $this->ui_factory->button()->shy(
                 $this->plugin->txt('download_written_pdf'),
                 $this->ctrl->getLinkTarget($this, 'downloadWrittenPdf')
             );
 
-            $actions[] = $this->uiFactory->button()->shy(
+            $actions[] = $this->ui_factory->button()->shy(
                 $this->plugin->txt('download_corrected_pdf'),
                 $this->ctrl->getLinkTarget($this, 'downloadCorrectedPdf')
             );
@@ -120,31 +121,31 @@ class CorrectorStartGUI extends BaseGUI
             if ($this->service->canRemoveCorrectionAuthorize($essay, $summary)) {
                 $this->ctrl->setParameter($this, 'writer_id', $essay->getWriterId());
 
-                $modals[] = $remove_auth_modal = $this->uiFactory->modal()->interruptive(
+                $modals[] = $remove_auth_modal = $this->ui_factory->modal()->interruptive(
                     $this->plugin->txt('remove_own_authorization'),
                     $this->plugin->txt('confirm_remove_own_authorization'),
                     $this->ctrl->getLinkTarget($this, 'removeAuthorization')
                 )->withAffectedItems([
-                    $this->uiFactory->modal()->interruptiveItem()->standard(
+                    $this->ui_factory->modal()->interruptiveItem()->standard(
                         $writer->getId(),
                         $writer->getPseudonym() . ': ' . $dataService->formatCorrectionResult($summary),
                         $icon
                     )
                 ])->withActionButtonLabel($this->plugin->txt('remove_own_authorization'));
 
-                $actions[] = $this->uiFactory->button()->shy($this->plugin->txt('remove_own_authorization'), "")
+                $actions[] = $this->ui_factory->button()->shy($this->plugin->txt('remove_own_authorization'), "")
                     ->withOnClick($remove_auth_modal->getShowSignal());
             }
 
             if ($this->service->canAuthorizeCorrection($essay, $summary)) {
                 $this->ctrl->setParameter($this, 'writer_id', $essay->getWriterId());
 
-                $modals[] = $auth_modal = $this->uiFactory->modal()->interruptive(
+                $modals[] = $auth_modal = $this->ui_factory->modal()->interruptive(
                     $this->plugin->txt('authorize_correction'),
                     $this->plugin->txt('confirm_authorize_correction'),
                     $this->ctrl->getLinkTarget($this, 'authorizeCorrection')
                 )->withAffectedItems([
-                    $this->uiFactory->modal()->interruptiveItem()->standard(
+                    $this->ui_factory->modal()->interruptiveItem()->standard(
                         $writer->getId(),
                         $writer->getPseudonym() . ': ' . $dataService->formatCorrectionResult($summary),
                         $icon,
@@ -152,7 +153,7 @@ class CorrectorStartGUI extends BaseGUI
                     )
                 ])->withActionButtonLabel($this->plugin->txt('authorize_correction'));
 
-                $actions[] = $this->uiFactory->button()->shy($this->plugin->txt('authorize_correction'), "")
+                $actions[] = $this->ui_factory->button()->shy($this->plugin->txt('authorize_correction'), "")
                     ->withOnClick($auth_modal->getShowSignal());
             }
 
@@ -161,7 +162,7 @@ class CorrectorStartGUI extends BaseGUI
             if ($this->can_correct && $this->service->isCorrectionPossible($essay, $summary)) {
                 $this->ready_items++;
                 $this->ctrl->setParameter($this, 'writer_id', $assignment->getWriterId());
-                $title = $this->uiFactory->link()->standard($title, $this->ctrl->getLinkTarget($this, 'startCorrector'));
+                $title = $this->ui_factory->link()->standard($title, $this->ctrl->getLinkTarget($this, 'startCorrector'));
             }
 
             $items[] = [
@@ -207,7 +208,7 @@ class CorrectorStartGUI extends BaseGUI
         }
 
         $correction_aria_label = "change_the_currently_displayed_mode";
-        $view_control_correction = $this->uiFactory->viewControl()->mode($this->prepareActionList($correction_actions, "fcorr"), $correction_aria_label)
+        $view_control_correction = $this->ui_factory->viewControl()->mode($this->prepareActionList($correction_actions, "fcorr"), $correction_aria_label)
             ->withActive($correction_actions[$fcorr]);
         $ctrl->setParameter($this, "fcorr", $fcorr);//Reset ctrl saved parameter
 
@@ -218,7 +219,7 @@ class CorrectorStartGUI extends BaseGUI
                 "1" => $this->plugin->txt('assignment_pos_first'),
                 "2" => $this->plugin->txt('assignment_pos_second'),
             ];
-            $view_control_position = $this->uiFactory->viewControl()->mode($this->prepareActionList($position_actions, "fpos"), $position_aria_label)
+            $view_control_position = $this->ui_factory->viewControl()->mode($this->prepareActionList($position_actions, "fpos"), $position_aria_label)
                                                      ->withActive($position_actions[$fpos]);
             $ctrl->setParameter($this, "fpos", $fpos);//Reset ctrl saved parameter
         }
@@ -292,7 +293,7 @@ class CorrectorStartGUI extends BaseGUI
 
         if ($this->can_correct && $this->ready_items > 0) {
             $this->ctrl->clearParameters($this);
-            $button = $this->uiFactory->button()->primary(
+            $button = $this->ui_factory->button()->primary(
                 $this->plugin->txt('start_correction'),
                 !$is_empty_after_filter ? $this->ctrl->getLinkTarget($this, "startCorrector") : "#"
             );
@@ -308,10 +309,10 @@ class CorrectorStartGUI extends BaseGUI
 
             $object = $this->localDI->getUIFactory()->item()->formItem($item["title"])
                 ->withName($item["writer_id"])
-                ->withLeadIcon($this->uiFactory->symbol()->icon()->standard('adve', 'user', 'medium'))
+                ->withLeadIcon($this->ui_factory->symbol()->icon()->standard('adve', 'user', 'medium'))
                 ->withProperties($item["properties"]);
             if (!empty($item['actions'])) {
-                $object = $object->withActions($this->uiFactory->dropdown()->standard($item['actions'])->withLabel($this->plugin->txt("actions")));
+                $object = $object->withActions($this->ui_factory->dropdown()->standard($item['actions'])->withLabel($this->plugin->txt("actions")));
             }
             if(!empty($item["modals"])) {
                 $modals = array_merge($modals, $item["modals"]);
@@ -333,32 +334,32 @@ class CorrectorStartGUI extends BaseGUI
             $auth_callback_signal = $essays->generateDSCallbackSignal();
 
             $modals[] = $essays->addDSModalTriggerToModal(
-                $this->uiFactory->modal()->interruptive("", "", ""),
+                $this->ui_factory->modal()->interruptive("", "", ""),
                 $this->ctrl->getFormAction($this, "authorizationConfirmationAsync", "", true),
                 "writer_ids",
                 $auth_callback_signal
             );
 
             $form_actions[] = $essays->addDSModalTriggerToButton(
-                $this->uiFactory->button()->shy($this->plugin->txt("authorize_correction"), "#"),
+                $this->ui_factory->button()->shy($this->plugin->txt("authorize_correction"), "#"),
                 $auth_callback_signal
             );
 
             $deauth_callback_signal = $essays->generateDSCallbackSignal();
 
             $modals[] = $essays->addDSModalTriggerToModal(
-                $this->uiFactory->modal()->interruptive("", "", ""),
+                $this->ui_factory->modal()->interruptive("", "", ""),
                 $this->ctrl->getFormAction($this, "removeAuthorizationConfirmationAsync", "", true),
                 "writer_ids",
                 $deauth_callback_signal
             );
 
             $form_actions[] = $essays->addDSModalTriggerToButton(
-                $this->uiFactory->button()->shy($this->plugin->txt("remove_own_authorization"), "#"),
+                $this->ui_factory->button()->shy($this->plugin->txt("remove_own_authorization"), "#"),
                 $deauth_callback_signal
             );
 
-            $essays = $essays->withActions($this->uiFactory->dropdown()->standard($form_actions));
+            $essays = $essays->withActions($this->ui_factory->dropdown()->standard($form_actions));
 
             $this->tpl->setContent($this->renderer->render(array_merge([$essays], $modals)));
             $taskSettings = $this->localDI->getTaskRepo()->getTaskSettingsById($this->settings->getTaskId());
@@ -494,21 +495,21 @@ class CorrectorStartGUI extends BaseGUI
             $summary = $this->localDI->getEssayRepo()->getCorrectorSummaryByEssayIdAndCorrectorId($essay->getId(), $corrector->getId());
 
             if($this->service->canRemoveCorrectionAuthorize($essay, $summary)) {
-                $items[] = $this->uiFactory->modal()->interruptiveItem()->standard($writer->getId(), $writer->getPseudonym());
+                $items[] = $this->ui_factory->modal()->interruptiveItem()->standard($writer->getId(), $writer->getPseudonym());
             }
         }
 
         if(count($items) > 0) {
-            echo($this->renderer->render($this->uiFactory->modal()->interruptive(
+            echo($this->renderer->render($this->ui_factory->modal()->interruptive(
                 $this->plugin->txt('remove_own_authorization'),
                 $this->plugin->txt('confirm_remove_own_authorization'),
                 $this->ctrl->getFormAction($this, "removeAuthorization")
             )->withAffectedItems($items)
                 ->withActionButtonLabel($this->lng->txt("ok"))));
         } else {
-            echo($this->renderer->render($this->uiFactory->modal()->roundtrip(
+            echo($this->renderer->render($this->ui_factory->modal()->roundtrip(
                 "",
-                $this->uiFactory->messageBox()->failure($this->plugin->txt("no_authorizations_to_remove"))
+                $this->ui_factory->messageBox()->failure($this->plugin->txt("no_authorizations_to_remove"))
             )));
         }
 
@@ -521,7 +522,7 @@ class CorrectorStartGUI extends BaseGUI
         $corrector = $this->correctorRepo->getCorrectorByUserId($this->dic->user()->getId(), $this->settings->getTaskId());
         $preferences = $this->correctorRepo->getCorrectorPreferences($corrector->getId());
         $dataService = $this->localDI->getDataService($this->settings->getTaskId());
-        $icon = $this->uiFactory->image()->responsive('./templates/default/images/icon_wiki.svg', '');
+        $icon = $this->ui_factory->image()->responsive('./templates/default/images/icon_wiki.svg', '');
 
         $items = [];
 
@@ -539,7 +540,7 @@ class CorrectorStartGUI extends BaseGUI
 
             $summary = $this->localDI->getEssayRepo()->getCorrectorSummaryByEssayIdAndCorrectorId($essay->getId(), $corrector->getId());
             if($this->service->canAuthorizeCorrection($essay, $summary)) {
-                $items[] = $this->uiFactory->modal()->interruptiveItem()->standard(
+                $items[] = $this->ui_factory->modal()->interruptiveItem()->standard(
                     $writer->getId(),
                     $writer->getPseudonym() . ': ' . $dataService->formatCorrectionResult($summary),
                     $icon,
@@ -549,16 +550,16 @@ class CorrectorStartGUI extends BaseGUI
         }
 
         if(count($items) > 0) {
-            echo($this->renderer->render($this->uiFactory->modal()->interruptive(
+            echo($this->renderer->render($this->ui_factory->modal()->interruptive(
                 $this->plugin->txt('authorize_correction'),
                 $this->plugin->txt('confirm_authorize_correction'),
                 $this->ctrl->getFormAction($this, "authorizeCorrection")
             )->withAffectedItems($items)
             ->withActionButtonLabel($this->lng->txt("ok"))));
         } else {
-            echo($this->renderer->render($this->uiFactory->modal()->roundtrip(
+            echo($this->renderer->render($this->ui_factory->modal()->roundtrip(
                 "",
-                $this->uiFactory->messageBox()->failure($this->plugin->txt("no_corrections_to_authorize"))
+                $this->ui_factory->messageBox()->failure($this->plugin->txt("no_corrections_to_authorize"))
             )));
         }
 

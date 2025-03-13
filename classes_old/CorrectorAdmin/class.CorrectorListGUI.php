@@ -32,24 +32,24 @@ class CorrectorListGUI extends WriterListGUI
             $actions = [];
 
             $this->ctrl->setParameter($this->parent, 'corrector_id', $corrector->getId());
-            $actions[] = $this->uiFactory->button()->shy($this->plugin->txt("write_mail"),
+            $actions[] = $this->ui_factory->button()->shy($this->plugin->txt("write_mail"),
                 $this->ctrl->getLinkTarget($this->parent, 'mailToSingleCorrector')
             );
 
             if($this->canGetRemoved($corrector)) {
-                $remove_modal = $this->uiFactory->modal()->interruptive(
+                $remove_modal = $this->ui_factory->modal()->interruptive(
                     $this->plugin->txt("remove_corrector"),
                     $this->plugin->txt("remove_corrector_confirmation"),
                     $this->getRemoveCorrectorAction($corrector)
                 )->withAffectedItems([
-                    $this->uiFactory->modal()->interruptiveItem()->standard(
+                    $this->ui_factory->modal()->interruptiveItem()->standard(
                         $corrector->getUserId(),
                         $this->getUsernameText($corrector->getUserId()),
                         $this->getUserImage($corrector->getUserId())
                     )
                 ])->withActionButtonLabel($this->plugin->txt("remove_corrector"));
 
-                $actions[] = $this->uiFactory->button()->shy($this->plugin->txt("remove_corrector"), '')
+                $actions[] = $this->ui_factory->button()->shy($this->plugin->txt("remove_corrector"), '')
                     ->withOnClick($remove_modal->getShowSignal());
                 $modals[] = $remove_modal;
             }
@@ -68,12 +68,12 @@ class CorrectorListGUI extends WriterListGUI
             $assigned = [];
 
             if(count($writers) > 0) {
-                $assigned = $this->uiFactory->listing()->characteristicValue()->text($writers);
+                $assigned = $this->ui_factory->listing()->characteristicValue()->text($writers);
             }
-            $item = $this->uiFactory->panel()->sub($this->getUsernameText($corrector->getUserId()), $assigned);
+            $item = $this->ui_factory->panel()->sub($this->getUsernameText($corrector->getUserId()), $assigned);
 
             if(count($actions) > 0) {
-                $actions_dropdown = $this->uiFactory->dropdown()->standard($actions)
+                $actions_dropdown = $this->ui_factory->dropdown()->standard($actions)
                     ->withLabel($this->plugin->txt("actions"));
                 $item =  $item->withActions($actions_dropdown);
             }
@@ -81,7 +81,7 @@ class CorrectorListGUI extends WriterListGUI
             $items[] = $item;
         }
 
-        return $this->renderer->render(array_merge([$this->uiFactory->panel()->standard(
+        return $this->renderer->render(array_merge([$this->ui_factory->panel()->standard(
             $this->plugin->txt("correctors") . $this->localDI->getDataService(0)->formatCounterSuffix(count($this->correctors)),
             $items
         )], $modals));

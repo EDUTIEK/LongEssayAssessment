@@ -2,13 +2,14 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\Task;
 
-use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
+use ILIAS\Plugin\LongEssayAssessment\Common\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\Data\Corrector\CorrectorRepository;
 use ILIAS\Plugin\LongEssayAssessment\Data\Object\ObjectRepository;
 use ILIAS\Plugin\LongEssayAssessment\Data\Object\RatingCriterion;
 use ILIAS\Plugin\LongEssayAssessment\UI\Component\BlankForm;
 use ILIAS\Plugin\LongEssayAssessment\UI\Component\Factory as CustomFactory;
 use ILIAS\UI\Implementation\Component\Signal;
+use ilObjLongEssayAssessment;
 
 abstract class CriteriaGUI extends BaseGUI
 {
@@ -16,9 +17,9 @@ abstract class CriteriaGUI extends BaseGUI
     private ObjectRepository $object_repo;
     private CorrectorRepository $corrector_repo;
 
-    public function __construct(\ilObjLongEssayAssessmentGUI $objectGUI)
+    public function __construct(ilObjLongEssayAssessment $object)
     {
-        parent::__construct($objectGUI);
+        parent::__construct($object);
 
         $this->custom_factory = $this->localDI->getUIFactory();
         $this->object_repo = $this->localDI->getObjectRepo();
@@ -59,13 +60,13 @@ abstract class CriteriaGUI extends BaseGUI
     public function showItems()
     {
         $criteria = $this->getRatingCriterionFromContext();
-        $create_modal = $this->uiFactory->modal()->roundtrip("", [])->withAsyncRenderUrl(
+        $create_modal = $this->ui_factory->modal()->roundtrip("", [])->withAsyncRenderUrl(
             $this->ctrl->getLinkTarget($this, $this->ctrl->getLinkTarget($this, "saveItemAsync"))
         );
         $modals = [$create_modal];
 
         $this->toolbar->addComponent(
-            $this->uiFactory->button()->primary($this->plugin->txt("criteria_add"), "")
+            $this->ui_factory->button()->primary($this->plugin->txt("criteria_add"), "")
             ->withOnClick($create_modal->getShowSignal())
         );
 
@@ -74,16 +75,16 @@ abstract class CriteriaGUI extends BaseGUI
 
         foreach ($criteria as $item) {
             $this->ctrl->setParameter($this, "criterion_id", $item->getId());
-            $modals[] = $edit_modal = $this->uiFactory->modal()->roundtrip("", [])
+            $modals[] = $edit_modal = $this->ui_factory->modal()->roundtrip("", [])
                 ->withAsyncRenderUrl($this->ctrl->getLinkTarget($this, "saveItemAsync"));
 
             $items[] = $this->custom_factory->item()->formItem($this->buildItemTitle($item))
                 ->withName($item->getId())
                 ->withNoLead()
                 ->withDescription(nl2br($item->getDescription()))
-                ->withActions($this->uiFactory->dropdown()->standard([
-                    $this->uiFactory->button()->shy($this->lng->txt("edit"), "")->withOnClick($edit_modal->getShowSignal()),
-                    $this->uiFactory->button()->shy($this->lng->txt("remove"), $this->ctrl->getLinkTarget($this, "deleteItems"))
+                ->withActions($this->ui_factory->dropdown()->standard([
+                    $this->ui_factory->button()->shy($this->lng->txt("edit"), "")->withOnClick($edit_modal->getShowSignal()),
+                    $this->ui_factory->button()->shy($this->lng->txt("remove"), $this->ctrl->getLinkTarget($this, "deleteItems"))
                 ]));
         }
         $this->ctrl->clearParameters($this);
@@ -131,8 +132,8 @@ abstract class CriteriaGUI extends BaseGUI
                 exit();
             }
         }
-        $modal = $this->uiFactory->modal()->roundtrip($title, $form)->withActionButtons([
-            $this->uiFactory->button()->primary($this->lng->txt('submit'), "")->withOnClick($form->getSubmitAsyncSignal())
+        $modal = $this->ui_factory->modal()->roundtrip($title, $form)->withActionButtons([
+            $this->ui_factory->button()->primary($this->lng->txt('submit'), "")->withOnClick($form->getSubmitAsyncSignal())
         ]);
         echo($this->renderer->renderAsync($modal));
         exit();
@@ -141,11 +142,11 @@ abstract class CriteriaGUI extends BaseGUI
     protected function buildItemForm(RatingCriterion $item): BlankForm
     {
         $fields = [
-            'title' =>  $this->uiFactory->input()->field()->text($this->lng->txt("title"))
+            'title' =>  $this->ui_factory->input()->field()->text($this->lng->txt("title"))
                 ->withAdditionalTransformation($this->refinery->string()->hasMinLength(1))
                 ->withRequired(true)
                 ->withValue($item->getTitle()),
-            'description' =>  $this->uiFactory->input()->field()->textarea($this->lng->txt("description"))
+            'description' =>  $this->ui_factory->input()->field()->textarea($this->lng->txt("description"))
                 ->withValue($item->getDescription() !== null ? $item->getDescription(): ""),
             'points' => $this->custom_factory->field()->numeric(
                 $this->plugin->txt('criteria_max_point'),
@@ -256,7 +257,7 @@ abstract class CriteriaGUI extends BaseGUI
                 $group = $this->object_repo->getRatingCriteriaByObjectId($this->object->getId(), $from_corrector_id);
                 $items = [];
                 foreach ($group as $criterion) {
-                    $items[] = $this->uiFactory->item()->standard($this->buildItemTitle($criterion))
+                    $items[] = $this->ui_factory->item()->standard($this->buildItemTitle($criterion))
                         ->withDescription(nl2br($criterion->getDescription()));
                 }
                 if($from_corrector_id !== null) {
@@ -269,10 +270,10 @@ abstract class CriteriaGUI extends BaseGUI
                     $title = $this->plugin->txt('criteria_template');
                 }
 
-                $content[] = $this->uiFactory->item()->group("", $items);
+                $content[] = $this->ui_factory->item()->group("", $items);
             }
         }
-        $modal = $this->uiFactory->modal()->roundtrip($title, $content);
+        $modal = $this->ui_factory->modal()->roundtrip($title, $content);
         echo($this->renderer->renderAsync($modal));
         exit();
     }
@@ -322,7 +323,7 @@ abstract class CriteriaGUI extends BaseGUI
             $corrector = $this->corrector_repo->getCorrectorById($this->getCorrectorIdFromContext());
             $select = $this->copyGroupSelect();
             if(!empty($select->getOptions())) {
-                $modal = $this->uiFactory->modal()->roundtrip("", [])->withAsyncRenderUrl("#");
+                $modal = $this->ui_factory->modal()->roundtrip("", [])->withAsyncRenderUrl("#");
                 $signal = new Signal(str_replace(".", "_", uniqid('il_signal_', true)));
                 $preview_link = $this->ctrl->getLinkTarget($this, "previewItemsAsync", "", true);
 
@@ -344,7 +345,7 @@ abstract class CriteriaGUI extends BaseGUI
                 $this->toolbar->addText($this->plugin->txt('copy_rating_criterion_from'));
                 $this->toolbar->addInputItem($select);
                 $this->toolbar->addComponent(
-                    $this->uiFactory->button()->standard($this->lng->txt('copy'), "")
+                    $this->ui_factory->button()->standard($this->lng->txt('copy'), "")
                     ->withOnLoadCode(function ($id) use ($copy_action) {
                         return "$('#$id').on( 'click', function() {
   							location.href='$copy_action&criteria_group=' + $('#criteria_group').val();
@@ -352,7 +353,7 @@ abstract class CriteriaGUI extends BaseGUI
                     })
                 );
                 $this->toolbar->addComponent(
-                    $this->uiFactory->button()->standard($this->lng->txt('preview'), "#")->withOnClick($signal)
+                    $this->ui_factory->button()->standard($this->lng->txt('preview'), "#")->withOnClick($signal)
                 );
             }
             $this->ctrl->setParameter($this, "publish", "on");
@@ -365,7 +366,7 @@ abstract class CriteriaGUI extends BaseGUI
             $this->toolbar->addSeparator();
             $this->toolbar->addText($this->plugin->txt("publish_rating_criterion"));
             $this->toolbar->addComponent(
-                $this->uiFactory->button()->toggle("", $on_action, $off_action, $corrector->isCriterionCopyEnabled())
+                $this->ui_factory->button()->toggle("", $on_action, $off_action, $corrector->isCriterionCopyEnabled())
             );
         }
     }

@@ -3,10 +3,11 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\WriterAdmin;
 
-use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
+use ILIAS\Plugin\LongEssayAssessment\Common\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\Alert;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\LogEntry;
 use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
+use ilObjLongEssayAssessment;
 use \ilUtil;
 use ILIAS\Plugin\LongEssayAssessment\Task\LoggingService;
 use ilFileDelivery;
@@ -24,9 +25,9 @@ class WriterAdminLogGUI extends BaseGUI
     /** @var LoggingService */
     protected $service;
 
-    public function __construct(\ilObjLongEssayAssessmentGUI $objectGUI)
+    public function __construct(ilObjLongEssayAssessment $object)
     {
-        parent::__construct($objectGUI);
+        parent::__construct($object);
         $this->service = $this->localDI->getLoggingService($this->object->getId());
     }
 
@@ -58,19 +59,19 @@ class WriterAdminLogGUI extends BaseGUI
     protected function showStartPage()
     {
         $modal_log_entry = $this->buildFormModalLogEntry();
-        $button_log_entry = $this->uiFactory->button()->primary($this->plugin->txt("create_log_entry"), '#')
+        $button_log_entry = $this->ui_factory->button()->primary($this->plugin->txt("create_log_entry"), '#')
             ->withOnClick($modal_log_entry->getShowSignal());
         $this->toolbar->addComponent($button_log_entry);
         $this->addModal($modal_log_entry);
 
         $modal_writer_notice = $this->buildFormModalWriterNotice();
-        $button_writer_notice = $this->uiFactory->button()->standard($this->plugin->txt("create_alert"), '#')
+        $button_writer_notice = $this->ui_factory->button()->standard($this->plugin->txt("create_alert"), '#')
             ->withOnClick($modal_writer_notice->getShowSignal());
         $this->toolbar->addComponent($button_writer_notice);
         $this->addModal($modal_writer_notice);
 
         $this->toolbar->addSeparator();
-        $button_export = $this->uiFactory->button()->standard(
+        $button_export = $this->ui_factory->button()->standard(
             $this->plugin->txt("export_log"),
             $this->ctrl->getLinkTarget($this, 'exportLog')
         );
@@ -148,20 +149,20 @@ class WriterAdminLogGUI extends BaseGUI
         );
 
         $inputs = [
-            "recipient" => $this->uiFactory->input()->field()->select($this->plugin->txt("alert_recipient"), $options)->withRequired(true),
-            "text" => $this->uiFactory->input()->field()->textarea($this->plugin->txt("alert_text"))->withRequired(true)
+            "recipient" => $this->ui_factory->input()->field()->select($this->plugin->txt("alert_recipient"), $options)->withRequired(true),
+            "text" => $this->ui_factory->input()->field()->textarea($this->plugin->txt("alert_text"))->withRequired(true)
         ];
-        return $this->uiFactory->modal()->roundtrip($this->plugin->txt("create_alert"), [], $inputs, $this->ctrl->getFormAction($this, "createAlert"))->withSubmitLabel($this->lng->txt("send"));
+        return $this->ui_factory->modal()->roundtrip($this->plugin->txt("create_alert"), [], $inputs, $this->ctrl->getFormAction($this, "createAlert"))->withSubmitLabel($this->lng->txt("send"));
     }
 
     private function buildFormModalLogEntry(): \ILIAS\UI\Component\Modal\RoundTrip
     {
 
         $inputs = [
-            "entry" => $this->uiFactory->input()->field()->textarea($this->plugin->txt("log_entry_text"))->withRequired(true)
+            "entry" => $this->ui_factory->input()->field()->textarea($this->plugin->txt("log_entry_text"))->withRequired(true)
         ];
 
-        return $this->uiFactory->modal()->roundtrip($this->plugin->txt("create_log_entry"), [], $inputs, $this->ctrl->getFormAction($this, "createLogEntry"))->withSubmitLabel($this->lng->txt("save"));
+        return $this->ui_factory->modal()->roundtrip($this->plugin->txt("create_log_entry"), [], $inputs, $this->ctrl->getFormAction($this, "createLogEntry"))->withSubmitLabel($this->lng->txt("save"));
     }
 
     private function getWriterNameOptions(): array

@@ -10,6 +10,9 @@ use Edutiek\AssessmentService\System\Api\ForServices as SystemApi;
 use ILIAS\Plugin\LongEssayAssessment\EssayTask\Data\RepositoryFactory;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Generate;
 
+/**
+ * Dependencies of the assessment services component "EssayTask"
+ */
 class EssayTaskDic implements \Edutiek\AssessmentService\EssayTask\Api\Dependencies
 {
     public function __construct(

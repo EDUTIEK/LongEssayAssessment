@@ -3,7 +3,7 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\Task;
 
-use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
+use ILIAS\Plugin\LongEssayAssessment\Common\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\EditorSettings;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\TaskSettings;
 
@@ -46,7 +46,7 @@ class EditorSettingsGUI extends BaseGUI
         $pdf_settings = $task_repo->getPdfSettingsById($this->object->getId());
         $has_comments = $essay_repo->hasCorrectorCommentsByTaskId($this->object->getId());
 
-        $factory = $this->uiFactory->input()->field();
+        $factory = $this->ui_factory->input()->field();
 
         $sections = [];
 
@@ -191,7 +191,7 @@ class EditorSettingsGUI extends BaseGUI
             $this->plugin->txt('pdf_settings_info')
         );
 
-        $form = $this->uiFactory->input()->container()->form()->standard($this->ctrl->getFormAction($this), $sections);
+        $form = $this->ui_factory->input()->container()->form()->standard($this->ctrl->getFormAction($this), $sections);
 
         // apply inputs
         if ($this->request->getMethod() == "POST") {

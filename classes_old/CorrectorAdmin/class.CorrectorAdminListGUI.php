@@ -68,44 +68,44 @@ class CorrectorAdminListGUI extends WriterListGUI
             $count_filtered++;
 
             $actions = [];
-            $actions[] = $this->uiFactory->button()->shy($this->plugin->txt('view_correction'), $this->getViewCorrectionAction($writer));
+            $actions[] = $this->ui_factory->button()->shy($this->plugin->txt('view_correction'), $this->getViewCorrectionAction($writer));
 
             if($this->canDownloadWrittenPdf($writer)) {
-                $actions[] = $this->uiFactory->button()->shy($this->plugin->txt('download_written_pdf'), $this->getDownloadWrittenPdfAction($writer));
+                $actions[] = $this->ui_factory->button()->shy($this->plugin->txt('download_written_pdf'), $this->getDownloadWrittenPdfAction($writer));
             }
 
             if($this->canDownloadCorrectedPdf($writer)) {
-                $actions[] = $this->uiFactory->button()->shy($this->plugin->txt('download_corrected_pdf'), $this->getDownloadCorrectedPdfAction($writer));
+                $actions[] = $this->ui_factory->button()->shy($this->plugin->txt('download_corrected_pdf'), $this->getDownloadCorrectedPdfAction($writer));
             }
             
             if ($this->hasCorrectionStatusStitchDecided($writer)) {
-                $sight_modal = $this->uiFactory->modal()->lightbox($this->uiFactory->modal()->lightboxTextPage(
+                $sight_modal = $this->ui_factory->modal()->lightbox($this->ui_factory->modal()->lightboxTextPage(
                     $this->localDI->getDataService($writer->getTaskId())->cleanupRichText($this->essays[$writer->getId()]->getStitchComment()),
                     $this->getWriterNameText($writer),
                 ));
                 $modals[] = $sight_modal;
-                $actions[] = $this->uiFactory->button()->shy($this->plugin->txt('view_stitch_comment'), '')->withOnClick($sight_modal->getShowSignal());
+                $actions[] = $this->ui_factory->button()->shy($this->plugin->txt('view_stitch_comment'), '')->withOnClick($sight_modal->getShowSignal());
             }
 
-            $mail_for_essay_modal = $this->uiFactory->modal()->roundtrip("", [])
+            $mail_for_essay_modal = $this->ui_factory->modal()->roundtrip("", [])
                   ->withAsyncRenderUrl($this->getMailForEssayAction($writer));
 
             $modals[] = $mail_for_essay_modal;
-            $actions[] = $this->uiFactory->button()->shy($this->plugin->txt('mail_to_writer_or_corrector'), "")
+            $actions[] = $this->ui_factory->button()->shy($this->plugin->txt('mail_to_writer_or_corrector'), "")
                  ->withOnClick($mail_for_essay_modal->getShowSignal());
 
-            $change_corrector_modal = $this->uiFactory->modal()->roundtrip("", [])
+            $change_corrector_modal = $this->ui_factory->modal()->roundtrip("", [])
                 ->withAsyncRenderUrl($this->getChangeCorrectorAction($writer));
 
             $modals[] = $change_corrector_modal;
-            $actions[] = $this->uiFactory->button()->shy($this->plugin->txt('change_corrector'), "")
+            $actions[] = $this->ui_factory->button()->shy($this->plugin->txt('change_corrector'), "")
                 ->withOnClick($change_corrector_modal->getShowSignal());
 
             if($this->hasCorrectionStatusStitch($writer)) {
-                $actions[] = $this->uiFactory->button()->shy($this->plugin->txt('draw_stitch_decision'), $this->getCorrectionStatusStitchAction($writer));
+                $actions[] = $this->ui_factory->button()->shy($this->plugin->txt('draw_stitch_decision'), $this->getCorrectionStatusStitchAction($writer));
             }
             if ($this->canGetSight($writer)) {
-                $actions[] = $this->uiFactory->button()->shy($this->plugin->txt('export_steps'), $this->getExportStepsTarget($writer));
+                $actions[] = $this->ui_factory->button()->shy($this->plugin->txt('export_steps'), $this->getExportStepsTarget($writer));
             }
 
             $properties = [
@@ -138,18 +138,18 @@ class CorrectorAdminListGUI extends WriterListGUI
                         ? $this->plugin->txt('remove_authorization')
                         : $this->plugin->txt('remove_authorizations');
 
-                    $modals[] = $confirm_remove_auth_modal = $this->uiFactory->modal()->interruptive(
+                    $modals[] = $confirm_remove_auth_modal = $this->ui_factory->modal()->interruptive(
                         $this->correction_settings->getRequiredCorrectors() == 1
                             ? $this->plugin->txt('remove_authorization')
                             : $this->plugin->txt('remove_authorizations'),
                         $this->plugin->txt("remove_authorizations_confirmation"),
                         $this->getRemoveAuthorisationsAction($writer)
-                    )->withAffectedItems([ $this->uiFactory->modal()->interruptiveItem()->standard(
+                    )->withAffectedItems([ $this->ui_factory->modal()->interruptiveItem()->standard(
                         $writer->getId(),
                         $user_data[$writer->getUserId()] . ' [' . $writer->getPseudonym() . ']'
                     )])->withActionButtonLabel($label);
 
-                    $actions[] = $this->uiFactory->button()->shy($label, "")
+                    $actions[] = $this->ui_factory->button()->shy($label, "")
                                                            ->withOnClick($confirm_remove_auth_modal->getShowSignal());
                 }
 
@@ -161,7 +161,7 @@ class CorrectorAdminListGUI extends WriterListGUI
                 $properties[$this->plugin->txt("location")] = $this->location($writer);
             }
 
-            $actions_dropdown = $this->uiFactory->dropdown()->standard($actions)
+            $actions_dropdown = $this->ui_factory->dropdown()->standard($actions)
                 ->withLabel($this->plugin->txt("actions"));
 
             $item = $this->localDI->getUIFactory()->item()->formItem($this->getWriterNameLink($writer))
@@ -184,42 +184,42 @@ class CorrectorAdminListGUI extends WriterListGUI
         $write_mail_signal = $resources->generateDSCallbackSignal();
         $this->ctrl->clearParameters($this->parent);
         $modals[] = $resources->addDSModalTriggerToModal(
-            $this->uiFactory->modal()->roundtrip("", []),
+            $this->ui_factory->modal()->roundtrip("", []),
             $this->ctrl->getFormAction($this->parent, "mailToSelectedAsync", "", true),
             "writer_ids",
             $write_mail_signal
         );
         $form_actions[] = $resources->addDSModalTriggerToButton(
-            $this->uiFactory->button()->shy($this->plugin->txt("mail_to_writers_or_correctors"), "#"),
+            $this->ui_factory->button()->shy($this->plugin->txt("mail_to_writers_or_correctors"), "#"),
             $write_mail_signal
         );
 
         $assign_callback_signal = $resources->generateDSCallbackSignal();
         $this->ctrl->clearParameters($this->parent);
         $modals[] = $resources->addDSModalTriggerToModal(
-            $this->uiFactory->modal()->roundtrip("", []),
+            $this->ui_factory->modal()->roundtrip("", []),
             $this->ctrl->getFormAction($this->parent, "editAssignmentsAsync", "", true),
             "writer_ids",
             $assign_callback_signal
         );
         $form_actions[] = $resources->addDSModalTriggerToButton(
-            $this->uiFactory->button()->shy($this->plugin->txt("change_corrector"), "#"),
+            $this->ui_factory->button()->shy($this->plugin->txt("change_corrector"), "#"),
             $assign_callback_signal
         );
 
         $remove_auth_callback_signal = $resources->generateDSCallbackSignal();
         $modals[] = $resources->addDSModalTriggerToModal(
-            $this->uiFactory->modal()->interruptive("", "", ""),
+            $this->ui_factory->modal()->interruptive("", "", ""),
             $this->ctrl->getFormAction($this->parent, "confirmRemoveAuthorizationsAsync", "", true),
             "writer_ids",
             $remove_auth_callback_signal
         );
         $form_actions[] = $resources->addDSModalTriggerToButton(
-            $this->uiFactory->button()->shy($this->plugin->txt("remove_authorizations"), "#"),
+            $this->ui_factory->button()->shy($this->plugin->txt("remove_authorizations"), "#"),
             $remove_auth_callback_signal
         );
 
-        return $this->renderer->render(array_merge([$filter_gui], [$resources->withActions($this->uiFactory->dropdown()->standard($form_actions))], $modals));
+        return $this->renderer->render(array_merge([$filter_gui], [$resources->withActions($this->ui_factory->dropdown()->standard($form_actions))], $modals));
     }
 
     private function getAssignedCorrectorName(Writer $writer, int $pos): string
@@ -473,21 +473,21 @@ class CorrectorAdminListGUI extends WriterListGUI
         }
 
         return [
-            "pdf_version" => $this->uiFactory->input()->field()->select(
+            "pdf_version" => $this->ui_factory->input()->field()->select(
                 $this->plugin->txt("filter_pdf_version"),
                 [self::FILTER_YES => $this->plugin->txt("yes"), self::FILTER_NO => $this->plugin->txt("no")]
             ),
-            "corrector" => $this->uiFactory->input()->field()->multiselect($this->plugin->txt("correctors"), $correctors)
+            "corrector" => $this->ui_factory->input()->field()->multiselect($this->plugin->txt("correctors"), $correctors)
                                                              ->withAdditionalOnLoadCode($this->localDI->getUIService()->checkAllInMultiselectFilter()),
-                "corrected" => $this->uiFactory->input()->field()->select(
+                "corrected" => $this->ui_factory->input()->field()->select(
                     $this->plugin->txt("filter_corrected"),
                     [self::FILTER_YES => $this->plugin->txt("yes"), self::FILTER_NO => $this->plugin->txt("no")]
                 ),
-                "stitch" => $this->uiFactory->input()->field()->select(
+                "stitch" => $this->ui_factory->input()->field()->select(
                     $this->plugin->txt("filter_stitch"),
                     [self::FILTER_YES => $this->plugin->txt("yes"), self::FILTER_NO => $this->plugin->txt("no")]
                 ),
-                "assigned" => $this->uiFactory->input()->field()->select(
+                "assigned" => $this->ui_factory->input()->field()->select(
                     $this->plugin->txt("filter_assigned"),
                     [self::FILTER_YES => $this->plugin->txt("yes"), self::FILTER_NO => $this->plugin->txt("no")]
                 )

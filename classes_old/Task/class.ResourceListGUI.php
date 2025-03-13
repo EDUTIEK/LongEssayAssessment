@@ -42,7 +42,7 @@ class ResourceListGUI
     public function __construct(object $target_class, Factory $uiFactory, Renderer $renderer, \ilLanguage $lng, \ilPlugin $plugin)
     {
         global $DIC;
-        $this->uiFactory = $uiFactory;
+        $this->ui_factory = $uiFactory;
         $this->renderer = $renderer;
         $this->lng = $lng;
         $this->ctrl = $DIC->ctrl();
@@ -57,7 +57,7 @@ class ResourceListGUI
     {
         $data = $this->getItemData();
 
-        $ptable = $this->uiFactory->table()->presentation(
+        $ptable = $this->ui_factory->table()->presentation(
             $this->plugin->txt('task_resources'),
             [],
             function (
@@ -140,7 +140,7 @@ class ResourceListGUI
                 'subheadline' => $resource->getDescription() ?? "",
                 'important' => [
                     $this->plugin->txt('resource_available') => $this->plugin->txt('resource_availability_'.$resource->getAvailability()),
-                    $this->renderer->render($this->uiFactory->link()->standard($label, $action))
+                    $this->renderer->render($this->ui_factory->link()->standard($label, $action))
                 ],
                 'edit_action' => $edit_action,
                 'delete_action' => $delete_action,

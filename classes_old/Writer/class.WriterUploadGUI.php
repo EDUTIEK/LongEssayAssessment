@@ -4,7 +4,7 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\Writer;
 
-use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
+use ILIAS\Plugin\LongEssayAssessment\Common\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\TaskRepository;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\TaskSettings;
 use ILIAS\Plugin\LongEssayAssessment\CorrectorAdmin\CorrectorAdminService;
@@ -15,6 +15,7 @@ use ilLongEssayAssessmentUploadHandlerGUI;
 use ilGlobalTemplateInterface as Tpl;
 use ILIAS\HTTP\StatusCode;
 use ILIAS\Data\DataSize;
+use ilObjLongEssayAssessment;
 
 /**
  * Upload page for writers
@@ -31,9 +32,9 @@ class WriterUploadGUI extends BaseGUI
     protected WriterAdminService $writer_admin_service;
     protected CorrectorAdminService $corrector_admin_service;
 
-    public function __construct(\ilObjLongEssayAssessmentGUI $objectGUI)
+    public function __construct(ilObjLongEssayAssessment $object)
     {
-        parent::__construct($objectGUI);
+        parent::__construct($object);
 
         $this->task_repo = $this->localDI->getTaskRepo();
         $this->task = $this->task_repo->getTaskSettingsById($this->object->getId());
@@ -86,10 +87,10 @@ class WriterUploadGUI extends BaseGUI
 
         $essay = $this->writer_admin_service->getEssayForWriter($this->writer); // may not yet be saved
 
-        $form = $this->uiFactory->input()->container()->form()->standard(
+        $form = $this->ui_factory->input()->container()->form()->standard(
             $this->ctrl->getFormAction($this, 'uploadPdf', '', true),
             [
-                'pdf_version' => $this->uiFactory->input()->field()->file(
+                'pdf_version' => $this->ui_factory->input()->field()->file(
                     new ilLongEssayAssessmentUploadHandlerGUI($this->storage, $this->localDI->getUploadTempFile()),
                     $this->plugin->txt("new_file"),
                     $this->localDI->getUIService()->getMaxFileSizeString()
@@ -98,7 +99,7 @@ class WriterUploadGUI extends BaseGUI
         )
          ->withSubmitLabel($this->lng->txt('upload'));
 
-        $components = [$this->uiFactory->panel()->standard(
+        $components = [$this->ui_factory->panel()->standard(
             $this->plugin->txt($essay->getPdfVersion() === null ? 'upload_file' : 'replace_file'),
             [$form]
         )];
@@ -107,17 +108,17 @@ class WriterUploadGUI extends BaseGUI
             !empty($identifier = $this->storage->manage()->find($essay->getPdfVersion())) &&
             !empty($resource = $this->storage->manage()->getResource($identifier))) {
 
-            $components[] = $this->uiFactory->panel()->standard($this->plugin->txt('existing_file'), [
-                $this->uiFactory->item()->standard(
-                    $this->uiFactory->link()->standard(
+            $components[] = $this->ui_factory->panel()->standard($this->plugin->txt('existing_file'), [
+                $this->ui_factory->item()->standard(
+                    $this->ui_factory->link()->standard(
                         $resource->getCurrentRevision()->getTitle(),
                         $this->ctrl->getLinkTarget($this, "downloadPdf")
                     )
-                )->withLeadIcon($this->uiFactory->symbol()->icon()->standard('file', '', 'medium'))
+                )->withLeadIcon($this->ui_factory->symbol()->icon()->standard('file', '', 'medium'))
                 ->withProperties([$this->lng->txt('filesize') => (string) (new DataSize($resource->getCurrentRevision()->getInformation()->getSize(), DataSize::Byte))])
             ]);
 
-            $components[] = $this->uiFactory->button()->standard(
+            $components[] = $this->ui_factory->button()->standard(
                 $this->plugin->txt('delete_file'),
                 $this->ctrl->getLinkTarget($this, 'deletePdf')
             );
@@ -171,7 +172,7 @@ class WriterUploadGUI extends BaseGUI
 
         $this->tpl->setOnScreenMessage(Tpl::MESSAGE_TYPE_INFO, $this->plugin->txt('writer_authorize_pdf_info'));
         $components = [];
-        $components[] = $this->uiFactory->panel()->standard(
+        $components[] = $this->ui_factory->panel()->standard(
             $this->plugin->txt('writer_review_pdf'),
             [   $this->localDI->getUIFactory()->viewer()->pdf(
                 $this->ctrl->getLinkTarget($this, 'deliverPdf'),
@@ -179,11 +180,11 @@ class WriterUploadGUI extends BaseGUI
             )
             ]
         );
-        $components[] = $this->uiFactory->button()->primary(
+        $components[] = $this->ui_factory->button()->primary(
             $this->plugin->txt('writer_authorize_pdf'),
             $this->ctrl->getLinkTarget($this, 'authorizePdf')
         );
-        $components[] = $this->uiFactory->button()->standard(
+        $components[] = $this->ui_factory->button()->standard(
             $this->lng->txt('cancel'),
             $this->getBackLink()
         );

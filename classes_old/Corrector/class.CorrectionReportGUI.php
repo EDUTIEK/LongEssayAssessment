@@ -3,12 +3,13 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\Corrector;
 
-use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
+use ILIAS\Plugin\LongEssayAssessment\Common\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\CorrectorAdmin\CorrectorAdminService;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\CorrectionSettings;
 use ILIAS\Plugin\LongEssayAssessment\Data\Corrector\CorrectorRepository;
 use ILIAS\Plugin\LongEssayAssessment\Data\Corrector\Corrector;
 use ILIAS\Plugin\LongEssayAssessment\UI\UIService;
+use ilObjLongEssayAssessment;
 
 /**
  * Report given by corrector
@@ -26,9 +27,9 @@ class CorrectionReportGUI extends BaseGUI
     private bool $can_correct;
 
 
-    public function __construct(\ilObjLongEssayAssessmentGUI $objectGUI)
+    public function __construct(ilObjLongEssayAssessment $object)
     {
-        parent::__construct($objectGUI);
+        parent::__construct($object);
 
         $this->ui_service = $this->localDI->getUIService();
         $this->corrector_repo = $this->localDI->getCorrectorRepo();
@@ -64,9 +65,9 @@ class CorrectionReportGUI extends BaseGUI
         $components = [];
 
         if (!$this->can_correct) {
-            $components[] = $this->uiFactory->panel()->standard(
+            $components[] = $this->ui_factory->panel()->standard(
                     $this->plugin->txt("correction_report"),
-                    $this->uiFactory->legacy($this->displayContent($this->corrector->getCorrectionReport() ?? ""))
+                    $this->ui_factory->legacy($this->displayContent($this->corrector->getCorrectionReport() ?? ""))
             );
         }
         else {
@@ -77,7 +78,7 @@ class CorrectionReportGUI extends BaseGUI
                  ->withDisabled(!$this->can_correct)
                  ->withValue($this->corrector->getCorrectionReport() ?? "")
                  ->withAdditionalTransformation($this->ui_service->stringTransformationByRTETagSet());
-            $form = $this->uiFactory->input()->container()->form()->standard($this->ctrl->getFormAction($this), $fields);
+            $form = $this->ui_factory->input()->container()->form()->standard($this->ctrl->getFormAction($this), $fields);
             $components[] = $form;
 
             // apply inputs

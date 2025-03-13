@@ -25,6 +25,10 @@ use Edutiek\AssessmentService\EssayTask\Api\ForTask as EssayTaskTypeApi;
 use Edutiek\AssessmentService\Task\TypeInterfaces\Api as TypeApi;
 use Edutiek\AssessmentService\Task\TypeInterfaces\ApiFactory as TypeApiFactory;
 
+/**
+ * Factory for APIs of task types
+ * Currently only an EssayTask API
+ */
 readonly class TypeApis implements TypeApiFactory
 {
     public function __construct(

@@ -18,7 +18,7 @@ class UserDataUIHelper
         UserDataBaseHelper $userDataHelper
     ) {
         $this->lng = $lng;
-        $this->uiFactory = $uiFactory;
+        $this->ui_factory = $uiFactory;
         $this->userDataHelper = $userDataHelper;
     }
 
@@ -30,7 +30,7 @@ class UserDataUIHelper
             return $default;
         }
 
-        return $this->uiFactory->symbol()->icon()->custom($row->img, $this->lng->txt('icon') . ' ' . $this->lng->txt('user_picture'), "medium");
+        return $this->ui_factory->symbol()->icon()->custom($row->img, $this->lng->txt('icon') . ' ' . $this->lng->txt('user_picture'), "medium");
 
     }
 
@@ -42,7 +42,7 @@ class UserDataUIHelper
             return $default;
         }
 
-        return $this->uiFactory->image()->standard($row->img, $this->lng->txt('icon') . ' ' . $this->lng->txt('user_picture'));
+        return $this->ui_factory->image()->standard($row->img, $this->lng->txt('icon') . ' ' . $this->lng->txt('user_picture'));
     }
 
     public function getUserProfileLink(int $user_id, string $profile_back_link = '', bool $use_legacy = true, ?Component $default = null) : ?Component
@@ -58,8 +58,8 @@ class UserDataUIHelper
             if ($profile_back_link != '') {
                 $back = '&back_url=' . rawurlencode($profile_back_link);
             }
-            return $this->uiFactory->link()->standard($this->userDataHelper->getPresentation($user_id), $row->link . $back);
+            return $this->ui_factory->link()->standard($this->userDataHelper->getPresentation($user_id), $row->link . $back);
         }
-        return $use_legacy ? $this->uiFactory->legacy($this->userDataHelper->getPresentation($user_id)) : $default;
+        return $use_legacy ? $this->ui_factory->legacy($this->userDataHelper->getPresentation($user_id)) : $default;
     }
 }

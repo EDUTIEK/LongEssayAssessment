@@ -3,7 +3,7 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\Task;
 
-use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
+use ILIAS\Plugin\LongEssayAssessment\Common\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\Data\Object\ObjectSettings;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\Location;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\TaskRepository;
@@ -156,7 +156,7 @@ class OrgaSettingsGUI extends BaseGUI
      */
     protected function buildTaskSettings(TaskSettings $taskSettings, array $locations): Standard
     {
-        $factory = $this->uiFactory->input()->field();
+        $factory = $this->ui_factory->input()->field();
         $ui_service = $this->localDI->getUIService();
 
         $sections = [];
@@ -358,7 +358,7 @@ class OrgaSettingsGUI extends BaseGUI
             }, $this->plugin->txt("result_available_review_error"))
         );
 
-        return $this->uiFactory->input()->container()->form()->standard($this->ctrl->getFormAction($this), $sections);
+        return $this->ui_factory->input()->container()->form()->standard($this->ctrl->getFormAction($this), $sections);
     }
 
     private function getLocationStrList(array $locations)

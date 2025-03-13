@@ -3,10 +3,11 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\Task;
 
-use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
+use ILIAS\Plugin\LongEssayAssessment\Common\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\Resource;
 use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
 use ILIAS\Plugin\LongEssayAssessment\UI\UIService;
+use ilObjLongEssayAssessment;
 
 /**
  * Resources Administration
@@ -18,9 +19,9 @@ class ResourcesAdminGUI extends BaseGUI
 {
     protected UIService $uiService;
 
-    public function __construct(\ilObjLongEssayAssessmentGUI $objectGUI)
+    public function __construct(ilObjLongEssayAssessment $object)
     {
-        parent::__construct($objectGUI);
+        parent::__construct($object);
         $this->uiService = $this->localDI->getUIService();
     }
 
@@ -57,7 +58,7 @@ class ResourcesAdminGUI extends BaseGUI
      */
     protected function showItems()
     {
-        $this->toolbar->addComponent($this->uiFactory->button()->primary(
+        $this->toolbar->addComponent($this->ui_factory->button()->primary(
             $this->plugin->txt('add_resource'),
             $this->ctrl->getLinkTarget($this, 'editItem')));
 
@@ -65,7 +66,7 @@ class ResourcesAdminGUI extends BaseGUI
         $task_repo = $di->getTaskRepo();
         $resources = $task_repo->getResourceByTaskId($this->object->getId(), [Resource::RESOURCE_TYPE_URL, Resource::RESOURCE_TYPE_FILE]);
 
-        $list = new ResourceListGUI($this, $this->uiFactory, $this->renderer, $this->lng, $this->plugin);
+        $list = new ResourceListGUI($this, $this->ui_factory, $this->renderer, $this->lng, $this->plugin);
         $list->setItems($resources);
 
         $this->tpl->setContent($list->render());
@@ -86,7 +87,7 @@ class ResourcesAdminGUI extends BaseGUI
         } else {
             $section_title = $this->plugin->txt('resource_add');
         }
-        $factory = $this->uiFactory->input()->field();
+        $factory = $this->ui_factory->input()->field();
 
         $title = $factory->text($this->plugin->txt("resource_title"))
             ->withRequired(true)
@@ -138,7 +139,7 @@ class ResourcesAdminGUI extends BaseGUI
         $sections['form'] = $factory->section($fields, $section_title);
         $action = $this->ctrl->getFormAction($this, "editItem");
 
-        return $this->uiFactory->input()->container()->form()->standard($action, $sections);
+        return $this->ui_factory->input()->container()->form()->standard($action, $sections);
     }
 
     /**

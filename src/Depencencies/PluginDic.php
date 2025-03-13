@@ -205,13 +205,13 @@ class PluginDic
         return ($this->dic[AssessmentFactory::class])->forRest();
     }
 
-    public function task(int $task_id, int $context_id): TaskApi
+    public function task(int $ass_id, int $user_id): TaskApi
     {
-        return ($this->dic[TaskFactory::class])->forClients($task_id);
+        return ($this->dic[TaskFactory::class])->forClients($ass_id, $user_id);
     }
 
-    public function essayTask(int $task_id, int $context_id): EssayTaskApi
+    public function essayTask(int $ass_id, int $user_id): EssayTaskApi
     {
-        return ($this->dic[EssayTaskFactory::class])->forClients($task_id);
+        return ($this->dic[EssayTaskFactory::class])->forClients($ass_id, $user_id);
     }
 }

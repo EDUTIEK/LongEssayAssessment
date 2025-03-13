@@ -41,117 +41,117 @@ class WriterAdminListGUI extends WriterListGUI
 
             $actions = [];
             if($this->canGetSight($writer)) {
-                $sight_modal = $this->uiFactory->modal()->roundtrip("", [])
+                $sight_modal = $this->ui_factory->modal()->roundtrip("", [])
                     ->withAsyncRenderUrl($this->getSightAction($writer));
                 $modals[] = $sight_modal;
-                $actions[] = $this->uiFactory->button()->shy($this->plugin->txt('view_processing'), '')->withOnClick($sight_modal->getShowSignal());
-                $actions[] = $this->uiFactory->button()->shy($this->plugin->txt('export_steps'), $this->getExportStepsTarget($writer));
+                $actions[] = $this->ui_factory->button()->shy($this->plugin->txt('view_processing'), '')->withOnClick($sight_modal->getShowSignal());
+                $actions[] = $this->ui_factory->button()->shy($this->plugin->txt('export_steps'), $this->getExportStepsTarget($writer));
             }
 
-            $actions[] = $this->uiFactory->button()->shy($this->plugin->txt('mail_to_writer'),
+            $actions[] = $this->ui_factory->button()->shy($this->plugin->txt('mail_to_writer'),
                 $this->getWriteMailAction($writer));
 
             if($this->canGetAuthorized($writer)) {
-                $authorize_modal = $this->uiFactory->modal()->interruptive(
+                $authorize_modal = $this->ui_factory->modal()->interruptive(
                     $this->plugin->txt("authorize_writing"),
                     $this->plugin->txt("authorize_writing_confirmation"),
                     $this->getAuthorizeAction($writer)
                 )->withAffectedItems([
-                    $this->uiFactory->modal()->interruptiveItem()->standard($writer->getUserId(),
+                    $this->ui_factory->modal()->interruptiveItem()->standard($writer->getUserId(),
                         $this->renderer->render($this->getUserIcon($writer->getUserId())) . $this->getUsernameText($writer->getUserId()))
                 ])->withActionButtonLabel($this->plugin->txt('authorize_writing'));
 
                 $modals[] = $authorize_modal;
-                $actions[] = $this->uiFactory->button()->shy($this->plugin->txt('authorize_writing'), "", )
+                $actions[] = $this->ui_factory->button()->shy($this->plugin->txt('authorize_writing'), "", )
                     ->withOnClick($authorize_modal->getShowSignal());
             }
 
             if($this->canGetUnauthorized($writer)) {
-                $authorize_modal = $this->uiFactory->modal()->interruptive(
+                $authorize_modal = $this->ui_factory->modal()->interruptive(
                     $this->plugin->txt("unauthorize_writing"),
                     $this->plugin->txt("unauthorize_writing_confirmation"),
                     $this->getUnauthorizeAction($writer)
                 )->withAffectedItems([
-                    $this->uiFactory->modal()->interruptiveItem()->standard($writer->getUserId(),
+                    $this->ui_factory->modal()->interruptiveItem()->standard($writer->getUserId(),
                         $this->renderer->render($this->getUserIcon($writer->getUserId())) . $this->getUsernameText($writer->getUserId()))
                 ])->withActionButtonLabel($this->plugin->txt('unauthorize_writing'));
 
                 $modals[] = $authorize_modal;
-                $actions[] = $this->uiFactory->button()->shy($this->plugin->txt('unauthorize_writing'), "", )
+                $actions[] = $this->ui_factory->button()->shy($this->plugin->txt('unauthorize_writing'), "", )
                                              ->withOnClick($authorize_modal->getShowSignal());
             }
 
             if($this->canGetExtension($writer)) {
-                $modals[] = $extension = $this->uiFactory->modal()->roundtrip("", [])->withAsyncRenderUrl(
+                $modals[] = $extension = $this->ui_factory->modal()->roundtrip("", [])->withAsyncRenderUrl(
                     $this->getExtensionAction($writer)
                 );
-                $actions[] = $this->uiFactory->button()->shy($this->plugin->txt("extent_time"), '')
+                $actions[] = $this->ui_factory->button()->shy($this->plugin->txt("extent_time"), '')
                     ->withOnClick($extension->getShowSignal());
             }
 
             if($this->canChangeLocation()) {
-                $modals[] = $location_modal = $this->uiFactory->modal()->roundtrip("", [])->withAsyncRenderUrl(
+                $modals[] = $location_modal = $this->ui_factory->modal()->roundtrip("", [])->withAsyncRenderUrl(
                     $this->getChangeLocationAction($writer)
                 );
-                $actions[] = $this->uiFactory->button()->shy($this->plugin->txt("change_location"), '')
+                $actions[] = $this->ui_factory->button()->shy($this->plugin->txt("change_location"), '')
                     ->withOnClick($location_modal->getShowSignal());
             }
 
-            $actions[] = $this->uiFactory->button()->shy($this->getPDFVersionLinkText($writer), $this->getPDFVersionLink($writer));
+            $actions[] = $this->ui_factory->button()->shy($this->getPDFVersionLinkText($writer), $this->getPDFVersionLink($writer));
 
             if($this->canDownloadPDFVersion($writer)) {
                 $link = $this->getPDFDownloadLink($writer);
-                $actions[] = $this->uiFactory->button()->shy(
+                $actions[] = $this->ui_factory->button()->shy(
                     $this->plugin->txt("pdf_version_download"),
                     $link
                 );
             }
 
             if($this->canGetRepealed($writer)) {
-                $repeal_modal = $this->uiFactory->modal()->interruptive(
+                $repeal_modal = $this->ui_factory->modal()->interruptive(
                     $this->plugin->txt("repeal_exclude_participant"),
                     $this->plugin->txt("repeal_exclude_participant_confirmation"),
                     $this->getRepealExclusionAction($writer)
                 )->withAffectedItems([
-                    $this->uiFactory->modal()->interruptiveItem()->standard($writer->getUserId(),
+                    $this->ui_factory->modal()->interruptiveItem()->standard($writer->getUserId(),
                         $this->renderer->render($this->getUserIcon($writer->getUserId())) . $this->getUsernameText($writer->getUserId()))
                 ])->withActionButtonLabel($this->plugin->txt("repeal_exclude_participant"));
 
 
-                $actions[] = $this->uiFactory->button()->shy($this->plugin->txt("repeal_exclude_participant"), '')
+                $actions[] = $this->ui_factory->button()->shy($this->plugin->txt("repeal_exclude_participant"), '')
                     ->withOnClick($repeal_modal->getShowSignal());
 
                 $modals[] = $repeal_modal;
             } else {
-                $exclusion_modal = $this->uiFactory->modal()->interruptive(
+                $exclusion_modal = $this->ui_factory->modal()->interruptive(
                     $this->plugin->txt("exclude_participant"),
                     $this->plugin->txt("exclude_participant_confirmation"),
                     $this->getExclusionAction($writer)
                 )->withAffectedItems([
-                    $this->uiFactory->modal()->interruptiveItem()->standard($writer->getUserId(),
+                    $this->ui_factory->modal()->interruptiveItem()->standard($writer->getUserId(),
                         $this->renderer->render($this->getUserIcon($writer->getUserId())) . $this->getUsernameText($writer->getUserId()))
                 ])->withActionButtonLabel($this->plugin->txt("exclude_participant"));
 
-                $actions[] = $this->uiFactory->button()->shy($this->plugin->txt("exclude_participant"), '')
+                $actions[] = $this->ui_factory->button()->shy($this->plugin->txt("exclude_participant"), '')
                     ->withOnClick($exclusion_modal->getShowSignal());
 
                 $modals[] = $exclusion_modal;
             }
 
-            $remove_modal = $this->uiFactory->modal()->interruptive(
+            $remove_modal = $this->ui_factory->modal()->interruptive(
                 $this->plugin->txt("remove_writer"),
                 $this->plugin->txt("remove_writer_confirmation"),
                 $this->getRemoveAction($writer)
             )->withAffectedItems([
-                $this->uiFactory->modal()->interruptiveItem()->standard($writer->getUserId(),
+                $this->ui_factory->modal()->interruptiveItem()->standard($writer->getUserId(),
                     $this->renderer->render($this->getUserIcon($writer->getUserId())) . $this->getUsernameText($writer->getUserId()))
             ])->withActionButtonLabel($this->plugin->txt("remove_writer"));
 
-            $actions[] = $this->uiFactory->button()->shy($this->plugin->txt("remove_writer"), '')
+            $actions[] = $this->ui_factory->button()->shy($this->plugin->txt("remove_writer"), '')
                 ->withOnClick($remove_modal->getShowSignal());
             $modals[] = $remove_modal;
 
-            $actions_dropdown = $this->uiFactory->dropdown()->standard($actions)
+            $actions_dropdown = $this->ui_factory->dropdown()->standard($actions)
                 ->withLabel($this->plugin->txt("actions"));
 
             $properties = [
@@ -170,7 +170,7 @@ class WriterAdminListGUI extends WriterListGUI
 
             if($this->canDownloadPDFVersion($writer)) {
                 $link = $this->getPDFDownloadLink($writer);
-                $properties[$this->plugin->txt("pdf_version")] = $this->uiFactory->button()->shy(
+                $properties[$this->plugin->txt("pdf_version")] = $this->ui_factory->button()->shy(
                     $this->plugin->txt("download"),
                     $link
                 );
@@ -195,7 +195,7 @@ class WriterAdminListGUI extends WriterListGUI
 
         $mail_callback_signal = $resources->generateDSCallbackSignal();
         $form_actions[] = $resources->addDSTriggerToButton(
-            $this->uiFactory->button()->shy($this->plugin->txt("mail_to_writers"), "#"),
+            $this->ui_factory->button()->shy($this->plugin->txt("mail_to_writers"), "#"),
             $this->ctrl->getFormAction($this->parent, 'mailToWriters'),
             'writer_ids',
             $mail_callback_signal
@@ -212,53 +212,53 @@ class WriterAdminListGUI extends WriterListGUI
             );
 
             $form_actions[] = $resources->addDSModalTriggerToButton(
-                $this->uiFactory->button()->shy($this->plugin->txt("assign_location"), "#"),
+                $this->ui_factory->button()->shy($this->plugin->txt("assign_location"), "#"),
                 $location_callback_signal
             );
         }
         $extension_callback_signal = $resources->generateDSCallbackSignal();
 
         $modals[] = $resources->addDSModalTriggerToModal(
-            $this->uiFactory->modal()->roundtrip("", []),
+            $this->ui_factory->modal()->roundtrip("", []),
             $this->ctrl->getFormAction($this->parent, "editExtensionMulti", "", true),
             "writer_ids",
             $extension_callback_signal
         );
 
         $form_actions[] = $resources->addDSModalTriggerToButton(
-            $this->uiFactory->button()->shy($this->plugin->txt("extent_time"), "#"),
+            $this->ui_factory->button()->shy($this->plugin->txt("extent_time"), "#"),
             $extension_callback_signal
         );
 
         $remove_callback_signal = $resources->generateDSCallbackSignal();
 
         $modals[] = $resources->addDSModalTriggerToModal(
-            $this->uiFactory->modal()->interruptive("", "", ""),
+            $this->ui_factory->modal()->interruptive("", "", ""),
             $this->ctrl->getFormAction($this->parent, "removeWriterMultiConfirmation", "", true),
             "writer_ids",
             $remove_callback_signal
         );
 
         $form_actions[] = $resources->addDSModalTriggerToButton(
-            $this->uiFactory->button()->shy($this->plugin->txt("remove_writer"), "#"),
+            $this->ui_factory->button()->shy($this->plugin->txt("remove_writer"), "#"),
             $remove_callback_signal
         );
 
         $remove_callback_signal = $resources->generateDSCallbackSignal();
 
         $modals[] = $resources->addDSModalTriggerToModal(
-            $this->uiFactory->modal()->interruptive("", "", ""),
+            $this->ui_factory->modal()->interruptive("", "", ""),
             $this->ctrl->getFormAction($this->parent, "changeTextToPdfMultiConfirmation", "", true),
             "writer_ids",
             $remove_callback_signal
         );
 
         $form_actions[] = $resources->addDSModalTriggerToButton(
-            $this->uiFactory->button()->shy($this->plugin->txt("change_text_to_pdf"), "#"),
+            $this->ui_factory->button()->shy($this->plugin->txt("change_text_to_pdf"), "#"),
             $remove_callback_signal
         );
 
-        $resources = $resources->withActions($this->uiFactory->dropdown()->standard($form_actions));
+        $resources = $resources->withActions($this->ui_factory->dropdown()->standard($form_actions));
 
         $resources = array_merge([$resources], $modals);
 
@@ -469,26 +469,26 @@ class WriterAdminListGUI extends WriterListGUI
     public function getMultiCommandModal():Modal
     {
         if($this->multi_command_modal === null) {
-            return $this->uiFactory->modal()->roundtrip("", []);
+            return $this->ui_factory->modal()->roundtrip("", []);
         }
         return $this->multi_command_modal;
     }
 
     protected function filterInputs(): array
     {
-        return ["attended" => $this->uiFactory->input()->field()->select(
+        return ["attended" => $this->ui_factory->input()->field()->select(
             $this->plugin->txt("filter_attended"),
             [self::FILTER_YES => $this->plugin->txt("yes"), self::FILTER_NO => $this->plugin->txt("no")]
         ),
-                "assigned" => $this->uiFactory->input()->field()->select(
+                "assigned" => $this->ui_factory->input()->field()->select(
                     $this->plugin->txt("filter_with_extension"),
                     [self::FILTER_YES => $this->plugin->txt("yes"), self::FILTER_NO => $this->plugin->txt("no")]
                 ),
-                "pdf_version" => $this->uiFactory->input()->field()->select(
+                "pdf_version" => $this->ui_factory->input()->field()->select(
                     $this->plugin->txt("filter_pdf_version"),
                     [self::FILTER_YES => $this->plugin->txt("yes"), self::FILTER_NO => $this->plugin->txt("no")]
                 ),
-                "exclusion" => $this->uiFactory->input()->field()->select(
+                "exclusion" => $this->ui_factory->input()->field()->select(
                     $this->plugin->txt("filter_exclusion"),
                     [self::FILTER_YES => $this->plugin->txt("yes"), self::FILTER_NO => $this->plugin->txt("no")]
                 )];

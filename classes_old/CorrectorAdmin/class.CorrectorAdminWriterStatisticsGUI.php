@@ -6,6 +6,7 @@ use ILIAS\UI\Component\Input\Container\Filter;
 use ILIAS\Plugin\LongEssayAssessment\Data\Writer\Writer;
 use ILIAS\Plugin\LongEssayAssessment\Data\Essay\Essay;
 use ilFileDelivery;
+use ilObjLongEssayAssessment;
 
 /**
  *Start page for corrector admins
@@ -18,9 +19,9 @@ class CorrectorAdminWriterStatisticsGUI extends StatisticsGUI
     private \ILIAS\Plugin\LongEssayAssessment\Data\Writer\WriterRepository $writer_repo;
     private array $writer = [];
 
-    public function __construct(\ilObjLongEssayAssessmentGUI $objectGUI)
+    public function __construct(ilObjLongEssayAssessment $object)
     {
-        parent::__construct($objectGUI);
+        parent::__construct($object);
         $this->writer_repo = $this->localDI->getWriterRepo();
 
     }
@@ -51,7 +52,7 @@ class CorrectorAdminWriterStatisticsGUI extends StatisticsGUI
 
     protected function showStartPage() : void
     {
-        $this->toolbar->addComponent($this->uiFactory->button()->primary(
+        $this->toolbar->addComponent($this->ui_factory->button()->primary(
             $this->plugin->txt("export_statistics"),
             $this->ctrl->getLinkTarget($this, "exportCSV")
         ));
@@ -122,13 +123,13 @@ class CorrectorAdminWriterStatisticsGUI extends StatisticsGUI
 
         $base_action = $this->ctrl->getFormAction($this, 'showStartPage');
         $filter_gui = $this->ui_service->filter()->standard("xlas_statistics", $base_action, [
-            "context" => $this->uiFactory->input()->field()->multiSelect($this->plugin->txt("statistic_context_filter"), $context)
+            "context" => $this->ui_factory->input()->field()->multiSelect($this->plugin->txt("statistic_context_filter"), $context)
                                          ->withAdditionalOnLoadCode($this->localDI->getUIService()->checkAllInMultiselectFilter())
                                          ->withAdditionalTransformation($this->refinery->to()->listOf($this->refinery->to()->int()))
                                          ->withValue([$this->object->getId()]),
-            "writer" => $this->uiFactory->input()->field()->text($this->plugin->txt("participants"))
+            "writer" => $this->ui_factory->input()->field()->text($this->plugin->txt("participants"))
                                          ->withValue(""),
-            "finalized" => $this->uiFactory->input()->field()->numeric($this->plugin->txt("min_finalized_corrections"))
+            "finalized" => $this->ui_factory->input()->field()->numeric($this->plugin->txt("min_finalized_corrections"))
                                          ->withAdditionalTransformation($this->refinery->int()->isGreaterThanOrEqual(0))
                                          ->withAdditionalTransformation($this->refinery->to()->int())
                                          ->withValue(1)

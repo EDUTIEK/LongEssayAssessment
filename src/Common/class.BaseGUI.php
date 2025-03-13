@@ -3,92 +3,66 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\Common;
 
+use ilCtrl;
+use ilGlobalTemplateInterface;
 use ILIAS\DI\Container;
-use ILIAS\Plugin\LongEssayAssessment\Data\DataService;
-use ILIAS\Plugin\LongEssayAssessment\Data\Task\EditorSettings;
-use ILIAS\UI\Factory;
-use ILIAS\UI\Renderer;
 use ILIAS\HTTP\Services as Http;
+use ILIAS\Plugin\LongEssayAssessment\Data\Task\EditorSettings;
+use ILIAS\Refinery\Factory as RefineryFactory;
+use ILIAS\UI\Component\Modal\Modal;
+use ILIAS\UI\Factory as UiFactory;
+use ILIAS\UI\Renderer;
+use ilLanguage;
+use ilLink;
+use ilLongEssayAssessmentPlugin;
+use ilMailFormCall;
+use ilObjLongEssayAssessment;
+use ilObjLongEssayAssessmentGUI;
+use ilObjUser;
+use ilTabsGUI;
+use ilToolbarGUI;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use ILIAS\Plugin\LongEssayAssessment\ServiceLayer\ObjectServices;
-use ILIAS\Plugin\LongEssayAssessment\ServiceLayer\CommonServices;
-use ILIAS\UI\Component\Modal\Modal;
-use ilLink;
-use ilMailFormCall;
+
+use Edutiek\AssessmentService\Assessment\Api\ForClients as AssessmentApi;
+use Edutiek\AssessmentService\EssayTask\Api\ForClients as EssayTaskApi;
+use Edutiek\AssessmentService\Task\Api\ForClients as TaskApi;
 
 /**
  * Base class for GUI classes (except the plugin guis required by ILIAS)
- * @author Fred Neumann <fred.neumann@ilias.de>
  */
 abstract class BaseGUI
 {
+    protected Container $dic;
+    protected ilCtrl $ctrl;
+    protected ilTabsGUI $tabs;
+    protected ilGlobalTemplateInterface $tpl;
+    protected ilLanguage $lng;
+    protected ilToolbarGUI $toolbar;
+    protected ilObjUser $user;
+    protected UiFactory $ui_factory;
+    protected Renderer $renderer;
+    protected Http $http;
+    /** @var RequestInterface|ServerRequestInterface */
+    protected RequestInterface $request;
+    protected RefineryFactory $refinery;
+
+    protected ilObjLongEssayAssessment $object;
+    protected ilLongEssayAssessmentPlugin $plugin;
+    protected AssessmentApi $assessment_api;
+    protected EssayTaskApi $essay_task_api;
+    protected TaskApi $task_api;
+
     /** @var Modal[] */
     private array $modals = [];
-    /** @var Container */
-    protected $dic;
-
-    /** @var \ilCtrl */
-    protected $ctrl;
-
-    /** @var  \ilTabsGUI */
-    protected $tabs;
-
-    /** @var \ilGlobalTemplateInterface */
-    protected $tpl;
-
-    /** @var \ilLanguage */
-    protected $lng;
-
-    /** @var \ilToolbarGUI */
-    protected $toolbar;
-
-    /** @var \ilObjUser */
-    protected $user;
-
-    /** @var \ilObjLongEssayAssessmentGUI */
-    protected $objectGUI;
-
-    /** @var  \ilObjLongEssayAssessment */
-    protected $object;
-
-    /** @var  \ilLongEssayAssessmentPlugin */
-    protected $plugin;
-
-    /** @var Factory  */
-    protected $uiFactory;
-
-    /** @var Renderer  */
-    protected $renderer;
-
-    /** @var Http */
-    protected $http;
-
-    /** @var RequestInterface|ServerRequestInterface  */
-    protected $request;
-
-    /** @var \ILIAS\Refinery\Factory  */
-    protected $refinery;
-
-
-    /** @var DataService */
-    protected $data;
 
     /** @var array query params */
-    protected $params;
+    protected array $params = [];
 
-    /** @var string[] placeholder => html */
-    protected array $placeholders = [];
-
-    /**
-     * Constructor
-     * @param \ilObjLongEssayAssessmentGUI  $objectGUI
-     */
-    public function __construct(\ilObjLongEssayAssessmentGUI $objectGUI)
+    public function __construct(ilObjLongEssayAssessment $object)
     {
         global $DIC;
 
-        // ILIAS dependencies
         $this->dic = $DIC;
         $this->ctrl = $this->dic->ctrl();
         $this->tabs = $this->dic->tabs();
@@ -96,17 +70,19 @@ abstract class BaseGUI
         $this->user = $this->dic->user();
         $this->lng = $this->dic->language();
         $this->tpl = $this->dic->ui()->mainTemplate();
-        $this->uiFactory = $this->dic->ui()->factory();
+        $this->ui_factory = $this->dic->ui()->factory();
         $this->renderer = $this->dic->ui()->renderer();
         $this->http = $this->dic->http();
         $this->request = $this->dic->http()->request();
         $this->refinery = $this->dic->refinery();
 
+        $this->object = $object;
+        $this->plugin = ilLongEssayAssessmentPlugin::getInstance();
 
-        // Plugin dependencies
-        $this->objectGUI = $objectGUI;
-        $this->object = $this->objectGUI->getObject();
-        $this->plugin = \ilLongEssayAssessmentPlugin::getInstance();
+        $this->assessment_api = $this->plugin->dic()->assessment($this->object->getAssId(), $this->object->getContextId(), $this->user->getId());
+        $this->task_api = $this->plugin->dic()->task($this->object->getAssId(),$this->user->getId());
+        $this->essay_task_api = $this->plugin->dic()->essayTask($this->object->getAssId(), $this->user->getId());
+
         $this->params = $this->request->getQueryParams();
     }
 
@@ -117,8 +93,8 @@ abstract class BaseGUI
     public function raisePermissionError()
     {
         $this->tpl->setOnScreenMessage("failure", $this->lng->txt("permission_denied"), true);
-        $this->ctrl->clearParameters($this->objectGUI);
-        $this->ctrl->redirect($this->objectGUI);
+        $this->ctrl->clearParametersByClass(ilObjLongEssayAssessmentGUI::class);
+        $this->ctrl->redirectByClass(ilObjLongEssayAssessmentGUI::class);
     }
 
     /**
@@ -134,7 +110,8 @@ abstract class BaseGUI
      */
     public function displayContent(?string $html) : string
     {
-        if (!empty($settings = $this->localDI->getTaskRepo()->getEditorSettingsById($this->object->getId()))) {
+        $headline_class = "";
+        if (!empty($settings = $this->essay_task_api->writingSettings()->get())) {
             switch ($settings->getHeadlineScheme()) {
                 case EditorSettings::HEADLINE_SCHEME_SINGLE:
                     $headline_class = "headlines-single";
@@ -160,7 +137,7 @@ abstract class BaseGUI
     {
         $this->tpl->addCss($this->plugin->getDirectory() .'/templates/css/content.css');
 
-        if (!empty($settings = $this->localDI->getTaskRepo()->getEditorSettingsById($this->object->getId()))) {
+        if (!empty($settings = $settings = $this->essay_task_api->writingSettings()->get())) {
             switch ($settings->getHeadlineScheme()) {
                 case EditorSettings::HEADLINE_SCHEME_SINGLE:
                     $this->tpl->addCss($this->plugin->getDirectory() .'/templates/css/headlines-single.css');
@@ -176,29 +153,6 @@ abstract class BaseGUI
                     break;
             }
         }
-    }
-
-    /**
-     * Add HTML code for later replacement and get a placeholder value
-     * This is a workaround to use to html in UI elements where it would be quoted by the rendering
-     */
-    protected function createPlaceholder(string $html) : string
-    {
-        $key = '[HTML]' . md5($html) . '[/HTML]';
-        $this->placeholders[$key] = $html;
-        return $key;
-    }
-
-    /**
-     * Replace the placeholders with their remembered html content
-     * This is a workaround to use to html in UI elements where it would be quoted by the rendering
-     */
-    protected function fillPlaceholders(string $content) : string
-    {
-        foreach ($this->placeholders as $key => $value) {
-            $content = str_replace($key, $value, $content);
-        }
-        return $content;
     }
 
     /**
@@ -241,5 +195,4 @@ abstract class BaseGUI
             )
         );
     }
-
 }

@@ -5,7 +5,7 @@ namespace ILIAS\Plugin\LongEssayAssessment\CorrectorAdmin;
 
 use ILIAS\UI\Component\Input\Container\Filter;
 use Edutiek\LongEssayAssessmentService\Corrector\Service;
-use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
+use ILIAS\Plugin\LongEssayAssessment\Common\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\Corrector\CorrectorContext;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\CorrectionSettings;
 use ILIAS\Plugin\LongEssayAssessment\Data\Writer\Writer;
@@ -18,6 +18,7 @@ use ILIAS\Plugin\LongEssayAssessment\Data\Essay\CorrectorSummary;
 use ILIAS\Plugin\LongEssayAssessment\Data\Corrector\Corrector;
 use ILIAS\Plugin\LongEssayAssessment\Data\Corrector\CorrectorRepository;
 use ilFileDelivery;
+use ilObjLongEssayAssessment;
 
 /**
  *Start page for corrector admins
@@ -30,9 +31,9 @@ class CorrectorAdminStatisticsGUI extends StatisticsGUI
     protected CorrectorRepository $corrector_repo;
     protected array $correctors = [];
 
-    public function __construct(\ilObjLongEssayAssessmentGUI $objectGUI)
+    public function __construct(ilObjLongEssayAssessment $object)
     {
-        parent::__construct($objectGUI);
+        parent::__construct($object);
         $this->corrector_repo = $this->localDI->getCorrectorRepo();
     }
 
@@ -62,7 +63,7 @@ class CorrectorAdminStatisticsGUI extends StatisticsGUI
 
     protected function showStartPage() : void
     {
-        $this->toolbar->addComponent($this->uiFactory->button()->primary(
+        $this->toolbar->addComponent($this->ui_factory->button()->primary(
             $this->plugin->txt("export_statistics"),
             $this->ctrl->getLinkTarget($this, "exportCSV")
         ));
@@ -158,10 +159,10 @@ class CorrectorAdminStatisticsGUI extends StatisticsGUI
 
         $base_action = $this->ctrl->getFormAction($this, 'showStartPage');
         $filter_gui = $this->ui_service->filter()->standard("xlas_statistics", $base_action, [
-            "context" => $this->uiFactory->input()->field()->multiSelect($this->plugin->txt("statistic_context_filter"), $context)
+            "context" => $this->ui_factory->input()->field()->multiSelect($this->plugin->txt("statistic_context_filter"), $context)
                                                            ->withAdditionalOnLoadCode($this->localDI->getUIService()->checkAllInMultiselectFilter())
                                                            ->withValue([$this->object->getId()]),
-            "correctors" => $this->uiFactory->input()->field()->multiSelect($this->plugin->txt("correctors"), $corr)
+            "correctors" => $this->ui_factory->input()->field()->multiSelect($this->plugin->txt("correctors"), $corr)
                                                               ->withAdditionalOnLoadCode($this->localDI->getUIService()->checkAllInMultiselectFilter())
         ], [true, true], true, true);
         return $filter_gui;

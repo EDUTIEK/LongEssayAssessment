@@ -48,7 +48,8 @@ class ilObjLongEssayAssessmentAccess extends ilObjectPluginAccess
         global $DIC;
         $db = $DIC->database();
 
-        $result = $db->query("SELECT online FROM xlas_as_settings WHERE ass_id = "
+        // avoids initialisation of the plugin dependencies
+        $result = $db->query("SELECT online FROM xlas_as_orga_settings WHERE ass_id = "
             . $db->quote($obj_id, ilDBConstants::T_INTEGER));
 
         if ($row = $db->fetchAssoc($result)) {

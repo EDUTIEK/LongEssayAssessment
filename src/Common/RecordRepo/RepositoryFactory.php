@@ -12,7 +12,7 @@ trait RepositoryFactory
     private readonly ilDBInterface $db;
 
     private array $instances = [];
-    private ?CacheRepository $last_added;
+    private ?CacheRepository $last_added = null;
 
     /**
      * @template R

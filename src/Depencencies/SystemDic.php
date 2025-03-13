@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace ILIAS\Plugin\LongEssayAssessment\Dependencies;
 
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Generate;
-use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Factory as RepoFactory;
 use ILIAS\Plugin\LongEssayAssessment\System\Data\Config;
 use ILIAS\Plugin\LongEssayAssessment\System\Data\ConfigRepo;
 use ILIAS\Plugin\LongEssayAssessment\System\Data\SetupRepo;
@@ -15,6 +14,7 @@ use ILIAS\Plugin\LongEssayAssessment\System\File\DeliveryAdapter;
 use ILIAS\Plugin\LongEssayAssessment\System\File\StorageAdapter;
 use ILIAS\Plugin\LongEssayAssessment\System\File\Stakeholder;
 use ILIAS\DI\Container;
+use ILIAS\ResourceStorage\Resource\ResourceBuilder;
 use ilLongEssayAssessmentPlugin;
 use InitResourceStorage;
 use ilUserQuery;
@@ -59,7 +59,13 @@ class SystemDic implements \Edutiek\AssessmentService\System\Api\Dependencies
         return new StorageAdapter(
             $this->dic->resourceStorage()->manage(),
             $this->dic->resourceStorage()->consume(),
-            $this->dic[InitResourceStorage::D_RESOURCE_BUILDER],
+            new ResourceBuilder(
+                $this->dic[InitResourceStorage::D_STORAGE_HANDLERS],
+                $this->dic[InitResourceStorage::D_REPOSITORIES],
+                $this->dic[InitResourceStorage::D_LOCK_HANDLER],
+                $this->dic[InitResourceStorage::D_STREAM_ACCESS],
+                $this->dic[InitResourceStorage::D_FILENAME_POLICY],
+            ),
             new Stakeholder(SYSTEM_USER_ID)
         );
     }

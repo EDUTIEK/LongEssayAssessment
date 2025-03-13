@@ -15,10 +15,6 @@ class EssayTaskDic implements \Edutiek\AssessmentService\EssayTask\Api\Dependenc
     public function __construct(
         protected Container $dic
     ) {
-        $dic[SystemApi::class] = function (Container $dic) {
-            return $dic[SystemFactory::class]->forServices();
-        };
-
         $dic[RepositoryFactory::class] = function (Container $dic) {
             return new RepositoryFactory(
                 $dic[Generate::class],

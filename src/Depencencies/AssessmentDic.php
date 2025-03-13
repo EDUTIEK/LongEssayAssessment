@@ -20,7 +20,8 @@ declare(strict_types=1);
 
 namespace ILIAS\Plugin\LongEssayAssessment\Dependencies;
 
-use Edutiek\AssessmentService\Assessment\TaskInterfaces\Api as TaskApi;
+use Edutiek\AssessmentService\Task\Api\Factory as TaskFactory;
+use Edutiek\AssessmentService\Task\Api\ForAssessment as TaskApi;
 use ILIAS\DI\Container;
 use Edutiek\AssessmentService\System\Api\Factory as SystemFactory;
 use Edutiek\AssessmentService\System\Api\ForServices as SystemApi;
@@ -34,12 +35,8 @@ class AssessmentDic implements \Edutiek\AssessmentService\Assessment\Api\Depende
     public function __construct(
         protected Container $dic
     ) {
-        $dic[SystemApi::class] = function (Container $dic) {
-            return $dic[SystemFactory::class]->forServices();
-        };
-
         $dic[TaskApi::class] = function (Container $dic) {
-            return $dic[TaskApi::class]->forServices();
+            return $dic[TaskFactory::class]->forAssessment();
         };
 
         $dic[RepositoryFactory::class] = function (Container $dic) {

@@ -33,9 +33,6 @@ class TaskDic implements \Edutiek\AssessmentService\Task\Api\Dependencies
     public function __construct(
         protected Container $dic
     ) {
-        $dic[SystemApi::class] = function (Container $dic) {
-            return $dic[SystemFactory::class]->forServices();
-        };
 
         $dic[TypeApis::class] = function (Container $dic) {
             return new TypeApis(

@@ -21,7 +21,8 @@ declare(strict_types=1);
 namespace ILIAS\Plugin\LongEssayAssessment\Dependencies;
 
 use Edutiek\AssessmentService\System\Api\Factory as SystemFactory;
-use Edutiek\AssessmentService\System\Api\ForClients as SystemApi;
+use Edutiek\AssessmentService\System\Api\ForClients as SystemClientApi;
+use Edutiek\AssessmentService\System\Api\ForServices as SystemServicesApi;
 use Edutiek\AssessmentService\Assessment\Api\Factory as AssessmentFactory;
 use Edutiek\AssessmentService\Assessment\Api\ForClients as AssessmentApi;
 use Edutiek\AssessmentService\Assessment\Api\ForRest as RestApi;
@@ -143,19 +144,24 @@ class PluginDic
             return new TaskDic($dic);
         };
 
-        // Factories of hte assessment service components
+        // Factories of the assessment service components
 
         $dic[SystemFactory::class] = function (Container $dic) {
-            return (new SystemFactory($dic[SystemDic::class]));
+            return new SystemFactory($dic[SystemDic::class]);
         };
         $dic[AssessmentFactory::class] = function (Container $dic) {
-            return (new AssessmentFactory($dic[AssessmentDic::class]));
+            return new AssessmentFactory($dic[AssessmentDic::class]);
         };
         $dic[EssayTaskFactory::class] = function (Container $dic) {
-            return (new EssayTaskFactory($dic[EssayTaskDic::class]));
+            return new EssayTaskFactory($dic[EssayTaskDic::class]);
         };
         $dic[TaskFactory::class] = function (Container $dic) {
-            return (new TaskFactory($dic[TaskDic::class]));
+            return new TaskFactory($dic[TaskDic::class]);
+        };
+
+        // Sub factories for assessment service components
+        $dic[SystemServicesApi::class] = function (Container $dic) {
+            return $dic[SystemFactory::class]->forServices();
         };
     }
 
@@ -184,7 +190,7 @@ class PluginDic
         return $this->dic[ilLongEssayAssessmentUploadTempFile::class];
     }
 
-    public function system(): SystemApi
+    public function system(): SystemClientApi
     {
         return ($this->dic[SystemFactory::class])->forClients();
     }

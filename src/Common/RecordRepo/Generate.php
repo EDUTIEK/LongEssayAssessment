@@ -45,9 +45,7 @@ class Generate
     {
         $this->models ??= require $this->artifact_file;
         $this->models[$model] ??= static::readModelFromClass($model);
-
-
-        return static::$models[$model];
+        return $this->models[$model];
     }
 
     public static function readModelFromClass(string $model): array

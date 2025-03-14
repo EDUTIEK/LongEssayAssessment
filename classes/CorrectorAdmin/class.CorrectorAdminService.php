@@ -1063,10 +1063,12 @@ class CorrectorAdminService extends BaseService
         $sum = 0;
         $count_authorized = 0;
         $count_by_level = [];
+        $count_by_point = [];
         $count_passed = 0;
         $count_not_attended = null;
         $count_all = 0;
         $passed_levels = [];
+        $max_points = $this->getSettings()->getMaxPoints();
 
         foreach($grade_level ?? $this->localDI->getObjectRepo()->getGradeLevelsByObjectId($this->task_id) as $level) {
             if($level->isPassed()) {
@@ -1074,6 +1076,10 @@ class CorrectorAdminService extends BaseService
             }
 
             $count_by_level[$level->getId()] = 0;
+        }
+
+        foreach(range(0, $max_points) as $point){
+            $count_by_point[$point] = 0;
         }
 
         foreach($grading_objects as $grading_object) {
@@ -1107,6 +1113,7 @@ class CorrectorAdminService extends BaseService
                 $sum += $points;
                 $count_authorized++;
                 $count_by_level[$grade] = ($count_by_level[$grade] ?? 0) + 1;
+                $count_by_point[(int)ceil($points)] = ($count_by_point[$points] ?? 0) + 1;
                 if (in_array($grade, $passed_levels)) {
                     $count_passed++;
                 }
@@ -1115,6 +1122,7 @@ class CorrectorAdminService extends BaseService
 
         return [
             self::STATISTIC_COUNT_BY_LEVEL => $count_by_level,
+            self::STATISTIC_COUNT_BY_POINT => $count_by_point,
             self::STATISTIC_COUNT => $count_all,
             self::STATISTIC_FINAL => $count_authorized,
             self::STATISTIC_TODO => $count_all - $count_authorized,
@@ -1126,6 +1134,7 @@ class CorrectorAdminService extends BaseService
         ];
     }
     const STATISTIC_COUNT_BY_LEVEL = 0;
+    const STATISTIC_COUNT_BY_POINT = 9;
     const STATISTIC_COUNT = 1;
     const STATISTIC_FINAL = 2;
     const STATISTIC_TODO = 3;

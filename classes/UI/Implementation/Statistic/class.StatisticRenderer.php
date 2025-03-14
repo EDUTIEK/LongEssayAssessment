@@ -13,6 +13,8 @@ use ILIAS\UI\Component\Panel\Sub;
 use ILIAS\UI\Component\Chart\Bar\BarConfig;
 use ILIAS\UI\Component\Chart\Bar\XAxis;
 use ILIAS\UI\Component\Chart\Bar\YAxis;
+use ILIAS\UI\Implementation\Component\Signal;
+use ILIAS\UI\Implementation\Component\SignalGenerator;
 
 class StatisticRenderer extends AbstractComponentRenderer
 {
@@ -214,6 +216,27 @@ class StatisticRenderer extends AbstractComponentRenderer
                                                           ->withCustomYAxis((new YAxis())
                                                               ->withBeginAtZero(true)
                                                               ->withStepSize(10));
+
+        if($component->getPoints() !== null) {
+            $df = new \ILIAS\Data\Factory();
+            $c_dimension = $df->dimension()->cardinal();
+            $dataset = $df->dataset([$this->pluginTxt("count") => $c_dimension]);
+
+            foreach($component->getPoints() as $name => $count) {
+                $dataset = $dataset->withPoint((string)$name, [$this->pluginTxt("count") => $count]);
+            }
+
+            $bars = [$this->pluginTxt("count") => (new BarConfig())->withColor($df->color("#d38000"))];
+            $point_bar_chart = $this->getUIFactory()->chart()->bar()->vertical("", $dataset, $bars)
+                              ->withTitleVisible(false)
+                              ->withLegendVisible(false)
+                              ->withCustomYAxis((new YAxis())
+                                  ->withBeginAtZero(true)
+                                  ->withStepSize(10));
+
+            $bar_chart = new ComponentSwitch($bar_chart, $point_bar_chart, $this->pluginTxt("point_graph"), new SignalGenerator());
+        }
+
 
         return [$grades, $bar_chart];
     }

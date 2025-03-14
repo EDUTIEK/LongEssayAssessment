@@ -172,6 +172,16 @@ abstract class StatisticsGUI extends BaseGUI
         return $grade_statistic;
     }
 
+    protected function getPointStatisticOverAll(array $statistic) : array
+    {
+        $point_statistic = [];
+        $max = max(array_keys($statistic[CorrectorAdminService::STATISTIC_COUNT_BY_POINT]));
+        foreach(range(0, $max) as $point) {
+            $point_statistic[(string)$point] = $statistic[CorrectorAdminService::STATISTIC_COUNT_BY_POINT][$point] ?? 0;
+        }
+        return $point_statistic;
+    }
+
     protected function createStatisticItem(string $title, array $statistic, bool $is_essay = true): Statistic
     {
         $item =  $this->localDI->getUIFactory()->statistic()->statistic(

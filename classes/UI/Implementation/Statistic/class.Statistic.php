@@ -12,6 +12,7 @@ class Statistic implements \ILIAS\Plugin\LongEssayAssessment\UI\Component\Statis
     private ?float $not_passed_quota = null;
     private ?float $average_points = null;
     private ?array $grades = null;
+    private ?array $points = null;
     private string $title;
     private ?string $description = null;
     private string $count_label;
@@ -131,6 +132,17 @@ class Statistic implements \ILIAS\Plugin\LongEssayAssessment\UI\Component\Statis
         return $clone;
     }
 
+    /**
+     * @inheritDoc
+     */
+    public function withPoints(array $points): \ILIAS\Plugin\LongEssayAssessment\UI\Component\Statistic
+    {
+        $clone = clone $this;
+        $clone->points = $points;
+
+        return $clone;
+    }
+
     public function getCount(): int
     {
         return $this->count;
@@ -169,6 +181,11 @@ class Statistic implements \ILIAS\Plugin\LongEssayAssessment\UI\Component\Statis
     public function getGrades(): ?array
     {
         return $this->grades;
+    }
+
+    public function getPoints(): ?array
+    {
+        return $this->points;
     }
 
     public function getTitle(): string

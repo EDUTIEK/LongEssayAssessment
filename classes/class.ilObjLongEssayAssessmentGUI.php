@@ -80,7 +80,7 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
 
         // Description is not shown by ilObjectPluginGUI
         if (isset($this->object)) {
-            $assessment = $this->plugin->dic()->assessment($this->object->getId(), $this->object->getRefId(), $DIC->user()->getId());
+            $assessment = $this->plugin->dic()->assessment($this->object->getAssId(), $this->object->getContextId(), $DIC->user()->getId());
             $this->permissions = $assessment->permissions();
 
             $this->tpl->setDescription($this->object->getDescription());

@@ -1,13 +1,17 @@
 <?php
+
 /* Copyright (c) 2021 ILIAS open source, Extended GPL, see docs/LICENSE */
 
 namespace ILIAS\Plugin\LongEssayAssessment\Common;
 
+use Edutiek\AssessmentService\System\Api\ForClients as SystemApi;
 use ilCtrl;
 use ilGlobalTemplateInterface;
 use ILIAS\DI\Container;
 use ILIAS\HTTP\Services as Http;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\EditorSettings;
+use ILIAS\Plugin\LongEssayAssessment\UI\Implementation\Factory as PluginUiFactory;
+use ILIAS\Plugin\LongEssayAssessment\UI\UIService as PluginUIService;
 use ILIAS\Refinery\Factory as RefineryFactory;
 use ILIAS\UI\Component\Modal\Modal;
 use ILIAS\UI\Factory as UiFactory;
@@ -23,7 +27,6 @@ use ilTabsGUI;
 use ilToolbarGUI;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ServerRequestInterface;
-
 use Edutiek\AssessmentService\Assessment\Api\ForClients as AssessmentApi;
 use Edutiek\AssessmentService\EssayTask\Api\ForClients as EssayTaskApi;
 use Edutiek\AssessmentService\Task\Api\ForClients as TaskApi;
@@ -49,15 +52,19 @@ abstract class BaseGUI
 
     protected ilObjLongEssayAssessment $object;
     protected ilLongEssayAssessmentPlugin $plugin;
+    protected SystemApi $system_api;
     protected AssessmentApi $assessment_api;
     protected EssayTaskApi $essay_task_api;
     protected TaskApi $task_api;
+    protected PluginUiFactory $plugin_ui_factory;
+    protected PluginUIService $plugin_ui_service;
 
     /** @var Modal[] */
     private array $modals = [];
 
     /** @var array query params */
     protected array $params = [];
+
 
     public function __construct(ilObjLongEssayAssessment $object)
     {
@@ -79,9 +86,12 @@ abstract class BaseGUI
         $this->object = $object;
         $this->plugin = ilLongEssayAssessmentPlugin::getInstance();
 
+        $this->system_api = $this->plugin->dic()->system();
         $this->assessment_api = $this->plugin->dic()->assessment($this->object->getAssId(), $this->object->getContextId(), $this->user->getId());
-        $this->task_api = $this->plugin->dic()->task($this->object->getAssId(),$this->user->getId());
+        $this->task_api = $this->plugin->dic()->task($this->object->getAssId(), $this->user->getId());
         $this->essay_task_api = $this->plugin->dic()->essayTask($this->object->getAssId(), $this->user->getId());
+        $this->plugin_ui_factory = $this->plugin->dic()->uiFactory();
+        $this->plugin_ui_service = $this->plugin->dic()->uiService();
 
         $this->params = $this->request->getQueryParams();
     }
@@ -100,7 +110,7 @@ abstract class BaseGUI
     /**
      * Display an HTML text in readable width
      */
-    public function displayText(?string $html) : string
+    public function displayText(?string $html): string
     {
         return '<div style="max-width: 60em;">' . $html . '</div>';
     }
@@ -108,7 +118,7 @@ abstract class BaseGUI
     /**
      * Display an essay content
      */
-    public function displayContent(?string $html) : string
+    public function displayContent(?string $html): string
     {
         $headline_class = "";
         if (!empty($settings = $this->essay_task_api->writingSettings()->get())) {
@@ -127,29 +137,29 @@ abstract class BaseGUI
                     break;
             }
         }
-        return '<div class="long-essay-content '. $headline_class.' ">' . $html . '</div>';
+        return '<div class="long-essay-content ' . $headline_class . ' ">' . $html . '</div>';
     }
 
     /**
      * Add the css for displaying essay content
      */
-    public function addContentCss() : void
+    public function addContentCss(): void
     {
-        $this->tpl->addCss($this->plugin->getDirectory() .'/templates/css/content.css');
+        $this->tpl->addCss($this->plugin->getDirectory() . '/templates/css/content.css');
 
         if (!empty($settings = $settings = $this->essay_task_api->writingSettings()->get())) {
             switch ($settings->getHeadlineScheme()) {
                 case EditorSettings::HEADLINE_SCHEME_SINGLE:
-                    $this->tpl->addCss($this->plugin->getDirectory() .'/templates/css/headlines-single.css');
+                    $this->tpl->addCss($this->plugin->getDirectory() . '/templates/css/headlines-single.css');
                     break;
                 case EditorSettings::HEADLINE_SCHEME_THREE:
-                    $this->tpl->addCss($this->plugin->getDirectory() .'/templates/css/headlines-three.css');
+                    $this->tpl->addCss($this->plugin->getDirectory() . '/templates/css/headlines-three.css');
                     break;
                 case EditorSettings::HEADLINE_SCHEME_EDUTIEK:
-                    $this->tpl->addCss($this->plugin->getDirectory() .'/templates/css/headlines-edutiek.css');
+                    $this->tpl->addCss($this->plugin->getDirectory() . '/templates/css/headlines-edutiek.css');
                     break;
                 case EditorSettings::HEADLINE_SCHEME_NUMERIC:
-                    $this->tpl->addCss($this->plugin->getDirectory() .'/templates/css/headlines-numeric.css');
+                    $this->tpl->addCss($this->plugin->getDirectory() . '/templates/css/headlines-numeric.css');
                     break;
             }
         }
@@ -186,7 +196,9 @@ abstract class BaseGUI
         $get = $this->request->getQueryParams();
         $this->ctrl->redirectToUrl(
             ilMailFormCall::getRedirectTarget(
-                $this, $current_command, ['ref_id' => $get['ref_id'] ?? ''],
+                $this,
+                $current_command,
+                ['ref_id' => $get['ref_id'] ?? ''],
                 [
                     'type' => 'new', // Could also be 'reply' with an additional 'mail_id' paremter provided here
                     'rcp_to' => implode(', ', $logins),

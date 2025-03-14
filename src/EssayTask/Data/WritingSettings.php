@@ -20,6 +20,8 @@ declare(strict_types=1);
 
 namespace ILIAS\Plugin\LongEssayAssessment\EssayTask\Data;
 
+use Edutiek\AssessmentService\EssayTask\Data\HeadlineScheme;
+use Edutiek\AssessmentService\EssayTask\Data\WritingType;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Key;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Table;
 
@@ -39,13 +41,13 @@ class WritingSettings extends \Edutiek\AssessmentService\EssayTask\Data\WritingS
     private int $ass_id = 0;
     private string $writing_type = '';
 
-    public function getHeadlineScheme(): string
+    public function getHeadlineScheme(): HeadlineScheme
     {
-        return $this->headline_scheme;
+        return HeadlineScheme::from($this->headline_scheme) ;
     }
-    public function setHeadlineScheme(string $headline_scheme): self
+    public function setHeadlineScheme(HeadlineScheme $headline_scheme): self
     {
-        $this->headline_scheme = $headline_scheme;
+        $this->headline_scheme = $headline_scheme->value;
         return $this;
     }
     public function getFormattingOptions(): string
@@ -129,13 +131,13 @@ class WritingSettings extends \Edutiek\AssessmentService\EssayTask\Data\WritingS
         $this->ass_id = $ass_id;
         return $this;
     }
-    public function getWritingType(): string
+    public function getWritingType(): WritingType
     {
-        return $this->writing_type;
+        return WritingType::from($this->writing_type);
     }
-    public function setWritingType(string $writing_type): self
+    public function setWritingType(WritingType $writing_type): self
     {
-        $this->writing_type = $writing_type;
+        $this->writing_type = $writing_type->value;
         return $this;
     }
 }

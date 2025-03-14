@@ -4,11 +4,16 @@ declare(strict_types=1);
 
 namespace ILIAS\Plugin\LongEssayAssessment\Assessment;
 
+use Edutiek\AssessmentService\Assessment\Data\Location;
 use Edutiek\AssessmentService\Assessment\Data\OrgaSettings;
+use Edutiek\AssessmentService\Assessment\Location\FullService as LocationService;
 use Edutiek\AssessmentService\Assessment\OrgaSettings\FullService as OrgaSettingsService;
+use Edutiek\AssessmentService\EssayTask\Data\WritingType;
+use Edutiek\AssessmentService\EssayTask\WritingSettings\FullService as WritingSettingsService;
 use ILIAS\Plugin\LongEssayAssessment\Common\BaseGUI;
 use ILIAS\UI\Component\Input\Container\Form\Standard;
 use ilObjLongEssayAssessment;
+use ilGlobalTemplateInterface as Gti;
 
 /**
  * Organisational Settings
@@ -18,11 +23,15 @@ use ilObjLongEssayAssessment;
 class OrgaSettingsGUI extends BaseGUI
 {
     private OrgaSettingsService $orga_settings_service;
+    private LocationService $location_service;
+    private WritingSettingsService $writing_settings_service;
 
     public function __construct(ilObjLongEssayAssessment $object) {
         parent::__construct($object);
         
         $this->orga_settings_service = $this->assessment_api->orgaSettings();
+        $this->writing_settings_service = $this->essay_task_api->writingSettings();
+        $this->location_service = $this->assessment_api->location();
     }
 
     /**
@@ -49,8 +58,8 @@ class OrgaSettingsGUI extends BaseGUI
     protected function editSettings()
     {
         $orga_settings = $this->orga_settings_service->get();
-        $locations = $task_repo->getLocationsByTaskId($this->object->getId());
-        $form = $this->buildTaskSettings($orga_settings, $locations);
+        $writing_settings = $this->writing_settings_service->get();
+        $form = $this->buildForm();
 
         // apply inputs
         if ($this->request->getMethod() == "POST") {
@@ -59,11 +68,11 @@ class OrgaSettingsGUI extends BaseGUI
             $result = $form->getInputGroup()->getContent();
 
             if ($result->isOK()) {
-                $this->updateSettings($data, $orga_settings, $locations);
+                $this->updateSettings($data);
             }
         }
         $this->tpl->setContent($this->renderer->render($form));
-        $this->localDI->getUIService()->addTinyMCEToTextareas(); // Has to be called last for the noRTEditor Tags to be effective
+        $this->plugin_ui_service->addTinyMCEToTextareas(); // Has to be called last for the noRTEditor Tags to be effective
     }
 
     /**
@@ -74,19 +83,17 @@ class OrgaSettingsGUI extends BaseGUI
      * @param Location[] $locations
      * @return void
      */
-    private function updateSettings(array $a_data, Orga_settings $orga_settings, array $locations)
+    private function updateSettings(array $a_data): bool
     {
-        // $this->tpl->setOnScreenMessage("info", '<pre>'.print_r($a_data, true) .'<pre>', true);
-        $di = LongEssayAssessmentDI::getInstance();
-        $task_repo = $di->getTaskRepo();
-
+        $orga_settings = $this->orga_settings_service->get();
+        $writing_settings = $this->writing_settings_service->get();
+        
         $this->object->setTitle($a_data['object']['title']);
         $this->object->setDescription($a_data['object']['description']);
         $this->object->setOnline($a_data['object']['online']);
-        $this->object->setParticipationType($a_data['object']['participation_type']);
 
-        $task_type = $a_data['object']['task_type'];
-        $orga_settings->setTaskType((string) $task_type);
+        $orga_settings->setParticipationType($a_data['object']['participation_type']);
+        $writing_settings->setWritingType(WritingType::from((string) $a_data['object']['writing_type']));
 
         $date = $a_data['task']['writing_start'];
         $orga_settings->setWritingStart($date instanceof \DateTimeInterface ? $date->format('Y-m-d H:i:s') : null);
@@ -138,7 +145,7 @@ class OrgaSettingsGUI extends BaseGUI
 
             if(!empty($a_data['task']['review']['review_notification'])) {
                 $orga_settings->setReviewNotification(true);
-                $orga_settings->setReviewNotificationText($a_data['task']['review']['review_notification']['review_notification_text']);
+                $orga_settings->setReviewNotifText($a_data['task']['review']['review_notification']['review_notification_text']);
             } else {
                 $orga_settings->setReviewNotification(false);
             }
@@ -155,47 +162,31 @@ class OrgaSettingsGUI extends BaseGUI
         $orga_settings->setClosingMessage((string)$this->data->trimRichText($closing_message));
 
         // consistency checks
-        $failures = [];
-        $working_time = new WorkingTime($orga_settings);
-
-        if ($working_time->isEndBeforeStart()) {
-            $failures[] = $this->plugin->txt("failure_latest_end_before_earliest_start");
-        }
-        if ($working_time->isTimeLimitTooLong()) {
-            $failures[] = $this->plugin->txt("failure_time_limit_too_long");
-        }
-        if ($orga_settings->getSolutionAvailableDate() !== null && $working_time->getWorkingDeadline() !== null) {
-            $available = (new DateTimeImmutable($orga_settings->getSolutionAvailableDate()))->getTimestamp();
-            $deadline = $working_time->getWorkingDeadline()->getTimestamp();
-            if ($deadline > $available) {
-                $failures[] = $this->plugin->txt("time_exceeds_solution_availability");
-            }
-        }
+        $failures = $this->orga_settings_service->validate($orga_settings);
 
         if (empty($failures)) {
             $this->object->update();
-            $task_repo->save($orga_settings);
-            $this->saveLocations($a_data['task']['location'], $locations);
+            $this->orga_settings_service->save($orga_settings);
+            $this->location_service->saveTitles((array) ($a_data['task']['location'] ?? []));
 
-            $this->tpl->setOnScreenMessage("success", $this->lng->txt("settings_saved"), true);
+            $this->tpl->setOnScreenMessage(Gti::MESSAGE_TYPE_SUCCESS, $this->lng->txt("settings_saved"), true);
             $this->ctrl->redirect($this, "editSettings");
         }
 
+
         $failures[] = $this->plugin->txt('message_form_not_saved');
-        $this->tpl->setOnScreenMessage('failure', implode('<br>', $failures));
-        $form = $this->buildTaskSettings($orga_settings, $locations);
-        $this->tpl->setContent($this->renderer->render($form));
-        $this->localDI->getUIService()->addTinyMCEToTextareas(); // Has to be called last for the noRTEditor Tags to be effective
+        $this->tpl->setOnScreenMessage(Gti::MESSAGE_TYPE_FAILURE, implode('<br>', $failures));
+        return false;
     }
 
     /**
      * Build TaskSettings Form
-     * @param Location[] $locations
      */
-    private function buildForm(OrgaSettings $taskSettings, array $locations): Standard
+    private function buildForm(): Standard
     {
+        $orga_settings = $this->orga_settings_service->get();
+        $writing_settings = $this->writing_settings_service->get();
         $factory = $this->ui_factory->input()->field();
-        $ui_service = $this->localDI->getUIService();
 
         $sections = [];
 
@@ -207,7 +198,7 @@ class OrgaSettingsGUI extends BaseGUI
 
         $fields_object['description'] = $factory->textarea($this->lng->txt("description"))
             ->withValue($this->object->getDescription())
-            ->withAdditionalOnLoadCode($ui_service->noRTEOnloadCode());// Exclude from RTE
+            ->withAdditionalOnLoadCode($this->plugin_ui_service->noRTEOnloadCode());// Exclude from RTE
 
         $fields_object['online'] = $factory->checkbox($this->lng->txt('online'))
             ->withValue($this->object->isOnline());
@@ -225,30 +216,30 @@ class OrgaSettingsGUI extends BaseGUI
             )
             ->withValue($this->object->getParticipationType());
 
-        $fields_object['task_type'] = $factory->radio($this->plugin->txt('task_type'))
+        $fields_object['writing_type'] = $factory->radio($this->plugin->txt('writing_type'))
             ->withOption(
-                TaskSettings::TYPE_ESSAY_EDITOR,
-                $this->plugin->txt('task_type_essay_editor'),
-                $this->plugin->txt('task_type_essay_editor_info')
+                WritingType::ESSAY_EDITOR->value,
+                $this->plugin->txt('writing_type_essay_editor'),
+                $this->plugin->txt('writing_type_essay_editor_info')
             )
             ->withOption(
-                TaskSettings::TYPE_PDF_UPLOAD,
-                $this->plugin->txt('task_type_pdf_upload'),
-                $this->plugin->txt('task_type_pdf_upload_info')
+                WritingType::PDF_UPLOAD->value,
+                $this->plugin->txt('writing_type_pdf_upload'),
+                $this->plugin->txt('writing_type_pdf_upload_info')
             )
-            ->withValue($taskSettings->getTaskType());
+            ->withValue($writing_settings->getWritingType()->value);
 
         // Content
         $fields_content = [];
-        $fields_content['task_description'] = $this->localDI->getUIFactory()->field()
+        $fields_content['task_description'] = $this->plugin_ui_factory->field()
             ->textareaModified($this->plugin->txt("task_description"), $this->plugin->txt("task_description_info"))
-            ->withValue($taskSettings->getDescription() ?? "")
-            ->withAdditionalTransformation($ui_service->stringTransformationByRTETagSet());
+            ->withValue($orga_settings->getDescription() ?? "")
+            ->withAdditionalTransformation($this->plugin_ui_service->stringTransformationByRTETagSet());
 
-        $fields_content['closing_message'] = $this->localDI->getUIFactory()->field()
+        $fields_content['closing_message'] = $this->plugin_ui_factory->field()
             ->textareaModified($this->plugin->txt("closing_message"), $this->plugin->txt("closing_message_info"))
-            ->withValue($taskSettings->getClosingMessage() ?? "")
-            ->withAdditionalTransformation($ui_service->stringTransformationByRTETagSet());
+            ->withValue($orga_settings->getClosingMessage() ?? "")
+            ->withAdditionalTransformation($this->plugin_ui_service->stringTransformationByRTETagSet());
 
         // Task
         $fields_settings = [];
@@ -257,16 +248,16 @@ class OrgaSettingsGUI extends BaseGUI
             $this->plugin->txt("writing_start_info")
         )
             ->withUseTime(true)
-            ->withValue((string) $taskSettings->getWritingStart());
+            ->withValue((string) $orga_settings->getWritingStart());
 
         $fields_settings['writing_end'] = $factory->dateTime(
             $this->plugin->txt("writing_end"),
             $this->plugin->txt("writing_end_info")
         )
             ->withUseTime(true)
-            ->withValue((string) $taskSettings->getWritingEnd());
+            ->withValue((string) $orga_settings->getWritingEnd());
 
-        $limit = (int) $taskSettings->getWritingLimitMinutes();
+        $limit = (int) $orga_settings->getWritingLimitMinutes();
         $days = floor($limit / (24 * 60));
         $hours = floor(($limit - $days * 24 * 60) / 60);
         $minutes = $limit % 60;
@@ -290,18 +281,17 @@ class OrgaSettingsGUI extends BaseGUI
 
         $fields_settings['location'] =  $factory->tag(
             $this->plugin->txt("locations"),
-            $this->localDI->getTaskRepo()->getLocationExamples(),
+            $this->location_service->exampleTitles(),
             $this->plugin->txt("locations_info")
         )
             ->withTagMaxLength(255)
-            ->withValue($this->getLocationStrList($locations));
+            ->withValue($this->location_service->allTitles());
 
         $fields_settings['keep_essay_available'] = $factory->checkbox(
             $this->plugin->txt('keep_essay_available'),
             $this->plugin->txt('keep_essay_available_info')
         )
-            ->withValue($taskSettings->getKeepEssayAvailable());
-
+            ->withValue($orga_settings->getKeepAvailable());
 
         $fields_settings['solution_available'] = $factory->optionalGroup(
             [
@@ -310,13 +300,13 @@ class OrgaSettingsGUI extends BaseGUI
                     $this->plugin->txt("solution_available_date_info")
                 )
                     ->withUseTime(true)
-                    ->withValue((string) $taskSettings->getSolutionAvailableDate())
+                    ->withValue((string) $orga_settings->getSolutionAvailableDate())
             ],
             $this->plugin->txt('solution_available'),
             $this->plugin->txt('solution_available_info')
         );
         // strange but effective
-        if (!$taskSettings->isSolutionAvailable()) {
+        if (!$orga_settings->isSolutionAvailable()) {
             $fields_settings['solution_available'] = $fields_settings['solution_available']->withValue(null);
         }
 
@@ -325,14 +315,14 @@ class OrgaSettingsGUI extends BaseGUI
             $this->plugin->txt("correction_start_info")
         )
             ->withUseTime(true)
-            ->withValue((string) $taskSettings->getCorrectionStart());
+            ->withValue((string) $orga_settings->getCorrectionStart());
 
         $fields_settings['correction_end'] = $factory->dateTime(
             $this->plugin->txt("correction_end"),
             $this->plugin->txt("correction_end_info")
         )
             ->withUseTime(true)
-            ->withValue((string) $taskSettings->getCorrectionEnd());
+            ->withValue((string) $orga_settings->getCorrectionEnd());
 
         $fields_settings['result_available_type'] = $factory->switchableGroup(
             [
@@ -351,19 +341,19 @@ class OrgaSettingsGUI extends BaseGUI
                             $this->plugin->txt('result_available_date_info')
                         )
                             ->withUseTime(true)
-                            ->withValue((string) $taskSettings->getResultAvailableDate())
+                            ->withValue((string) $orga_settings->getResultAvailableDate())
                     ],
                     $this->plugin->txt('result_available_after')
                 )
             ],
             $this->plugin->txt('result_available_type'),
             $this->plugin->txt('result_available_type_info'),
-        )->withValue($taskSettings->getResultAvailableType());
+        )->withValue($orga_settings->getResultAvailableType());
 
         $fields_settings['statistics_available']  = $factory->checkbox(
             $this->plugin->txt("writer_statistics_enabled"),
             $this->plugin->txt("writer_statistics_info")
-        )->withValue($taskSettings->isStatisticsAvailable());
+        )->withValue($orga_settings->getStatisticsAvailable());
 
         $review_settings = [
             'review_start' =>  $factory->dateTime(
@@ -371,28 +361,28 @@ class OrgaSettingsGUI extends BaseGUI
                 $this->plugin->txt("review_start_info")
             )
                 ->withUseTime(true)
-                ->withValue((string) $taskSettings->getReviewStart()),
+                ->withValue((string) $orga_settings->getReviewStart()),
             'review_end' =>  $factory->dateTime(
                 $this->plugin->txt("review_end"),
                 $this->plugin->txt("review_end_info")
             )
                 ->withUseTime(true)
-                ->withValue((string) $taskSettings->getReviewEnd()),
+                ->withValue((string) $orga_settings->getReviewEnd()),
             'review_notification' => $factory->optionalGroup(
                 [
                     "review_notification_text" => $factory->textarea(
                         $this->plugin->txt("review_notification_text"),
                         $this->plugin->txt("review_notification_text_info")
                     )
-                        ->withAdditionalOnLoadCode($ui_service->noRTEOnloadCode())
-                        ->withValue($taskSettings->getReviewNotificationText() ?? ""),
+                        ->withAdditionalOnLoadCode($this->plugin_ui_service->noRTEOnloadCode())
+                        ->withValue($orga_settings->getReviewNotifText() ?? ""),
                 ],
                 $this->plugin->txt("review_notification_enabled"),
                 $this->plugin->txt("review_notification_info")
             )
         ];
 
-        if(!$taskSettings->isReviewNotification()) {
+        if(!$orga_settings->getReviewNotification()) {
             $review_settings['review_notification'] = $review_settings['review_notification']->withValue(null);
         }
 
@@ -402,7 +392,7 @@ class OrgaSettingsGUI extends BaseGUI
             $this->plugin->txt("review_info")
         );
 
-        if(!$taskSettings->isReviewEnabled()) {
+        if(!$orga_settings->isReviewEnabled()) {
             $fields_settings['review'] = $fields_settings['review']->withValue(null);
         }
 
@@ -419,28 +409,5 @@ class OrgaSettingsGUI extends BaseGUI
         );
 
         return $this->ui_factory->input()->container()->form()->standard($this->ctrl->getFormAction($this), $sections);
-    }
-
-    private function getLocationStrList(array $locations)
-    {
-        return array_values(array_map(fn (Location $x) => $x->getTitle(), $locations));
-    }
-
-    private function saveLocations(array $input_strs, array $saved_objs)
-    {
-        $task_repo = LongEssayAssessmentDI::getInstance()->getTaskRepo();
-        $saved_strs = $this->getLocationStrList($saved_objs);
-
-        foreach($saved_objs as $saved) {
-            if(!in_array($saved->getTitle(), $input_strs)) {
-                $task_repo->deleteLocation($saved->getId());
-            }
-        }
-
-        foreach($input_strs as $input) {
-            if(!in_array($input, $saved_strs)) {
-                $task_repo->save(Location::model()->setTaskId($this->object->getId())->setTitle($input));
-            }
-        }
     }
 }

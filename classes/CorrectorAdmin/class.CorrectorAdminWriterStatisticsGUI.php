@@ -77,7 +77,9 @@ class CorrectorAdminWriterStatisticsGUI extends StatisticsGUI
 
         $data = [
             $this->localDI->getUIFactory()->statistic()->statisticSection($this->plugin->txt("total_statistic")),
-            $this->createStatisticItem($this->plugin->txt("total_statistic"), $essay_statistics)->withGrades($this->getGradeStatisticOverAll($essay_statistics)),
+            $this->createStatisticItem($this->plugin->txt("total_statistic"), $essay_statistics)
+                 ->withGrades($this->getGradeStatisticOverAll($essay_statistics))
+                 ->withPoints($this->getPointStatisticOverAll($essay_statistics)),
             $this->localDI->getUIFactory()->statistic()->statisticSection($this->plugin->txt("writer_statistic"))
         ];
 
@@ -169,6 +171,7 @@ class CorrectorAdminWriterStatisticsGUI extends StatisticsGUI
 
             $statistic_item = $this->createStatisticItem($this->common_services->userDataHelper()->getPresentation($wrtier_usr_id), $statistics)
                                    ->withGrades($this->getGradeStatisticOverAll($statistics))
+                                   ->withPoints($this->getPointStatisticOverAll($statistics))
                                    ->withPseudonym($pseudonym);
 
             $rows[] = ['usr_id' => $wrtier_usr_id,

@@ -161,7 +161,11 @@ abstract class StatisticsGUI extends BaseGUI
     protected function getGradeStatisticOverAll(array $statistic) : array
     {
         $grade_statistic = [];
-        foreach(array_merge(...$this->grade_level) as $level) {
+
+        $grades = array_merge(...$this->grade_level);
+        usort($grades, fn (GradeLevel $a, GradeLevel $b) => $a->getMinPoints() <=> $b->getMinPoints());
+
+        foreach($grades as $level) {
             if(isset($grade_statistic[$level->getGrade()])) {
                 $grade_statistic[$level->getGrade()] += $statistic[CorrectorAdminService::STATISTIC_COUNT_BY_LEVEL][$level->getId()] ?? 0;
             } else {

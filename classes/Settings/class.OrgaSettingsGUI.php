@@ -2,15 +2,18 @@
 
 declare(strict_types=1);
 
-namespace ILIAS\Plugin\LongEssayAssessment\Assessment;
+namespace ILIAS\Plugin\LongEssayAssessment\Settings;
 
 use Edutiek\AssessmentService\Assessment\Data\Location;
 use Edutiek\AssessmentService\Assessment\Data\OrgaSettings;
+use Edutiek\AssessmentService\Assessment\Data\ParticipationType;
+use Edutiek\AssessmentService\Assessment\Data\ResultAvailableType;
 use Edutiek\AssessmentService\Assessment\Location\FullService as LocationService;
 use Edutiek\AssessmentService\Assessment\OrgaSettings\FullService as OrgaSettingsService;
+use Edutiek\AssessmentService\Assessment\Properties\FullService as PropertiesService;
 use Edutiek\AssessmentService\EssayTask\Data\WritingType;
 use Edutiek\AssessmentService\EssayTask\WritingSettings\FullService as WritingSettingsService;
-use ILIAS\Plugin\LongEssayAssessment\Common\BaseGUI;
+use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\UI\Component\Input\Container\Form\Standard;
 use ilObjLongEssayAssessment;
 use ilGlobalTemplateInterface as Gti;
@@ -18,17 +21,19 @@ use ilGlobalTemplateInterface as Gti;
 /**
  * Organisational Settings
  *
- * @ilCtrl_isCalledBy ILIAS\Plugin\LongEssayAssessment\Assessment\OrgaSettingsGUI: ilObjLongEssayAssessmentGUI
+ * @ilCtrl_isCalledBy ILIAS\Plugin\LongEssayAssessment\Settings\OrgaSettingsGUI: ilObjLongEssayAssessmentGUI
  */
 class OrgaSettingsGUI extends BaseGUI
 {
     private OrgaSettingsService $orga_settings_service;
     private LocationService $location_service;
     private WritingSettingsService $writing_settings_service;
+    private PropertiesService $properties_service;
 
     public function __construct(ilObjLongEssayAssessment $object) {
         parent::__construct($object);
-        
+
+        $this->properties_service = $this->assessment_api->properties();
         $this->orga_settings_service = $this->assessment_api->orgaSettings();
         $this->writing_settings_service = $this->essay_task_api->writingSettings();
         $this->location_service = $this->assessment_api->location();
@@ -57,11 +62,7 @@ class OrgaSettingsGUI extends BaseGUI
      */
     protected function editSettings()
     {
-        $orga_settings = $this->orga_settings_service->get();
-        $writing_settings = $this->writing_settings_service->get();
         $form = $this->buildForm();
-
-        // apply inputs
         if ($this->request->getMethod() == "POST") {
             $form = $form->withRequest($this->request);
             $data = $form->getData();
@@ -76,23 +77,20 @@ class OrgaSettingsGUI extends BaseGUI
     }
 
     /**
-     * Update TaskSettings
-     *
-     * @param array $a_data
-     * @param OrgaSettings $orga_settings
-     * @param Location[] $locations
-     * @return void
+     * Update Settings
      */
-    private function updateSettings(array $a_data): bool
+    private function updateSettings(array $a_data): void
     {
+        $properties = $this->properties_service->get();
         $orga_settings = $this->orga_settings_service->get();
         $writing_settings = $this->writing_settings_service->get();
         
-        $this->object->setTitle($a_data['object']['title']);
-        $this->object->setDescription($a_data['object']['description']);
-        $this->object->setOnline($a_data['object']['online']);
+        $properties->setTitle($a_data['object']['title']);
+        $properties->setDescription($a_data['object']['description']);
 
-        $orga_settings->setParticipationType($a_data['object']['participation_type']);
+        $orga_settings->setOnline($a_data['object']['online']);
+        $orga_settings->setParticipationType(ParticipationType::tryFrom(
+            $a_data['object']['participation_type']) ?? ParticipationType::INSTANT);
         $writing_settings->setWritingType(WritingType::from((string) $a_data['object']['writing_type']));
 
         $date = $a_data['task']['writing_start'];
@@ -107,7 +105,6 @@ class OrgaSettingsGUI extends BaseGUI
                 list($hours, $minutes) = explode(':', $a_data['task']['writing_limit']['hours_minutes']->format('H:i'));
                 $limit += (int) $hours * 60 + (int) $minutes;
             }
-
         }
         $orga_settings->setWritingLimitMinutes($limit > 0 ? $limit : null);
 
@@ -128,8 +125,9 @@ class OrgaSettingsGUI extends BaseGUI
         $orga_settings->setCorrectionEnd($date instanceof \DateTimeInterface ? $date->format('Y-m-d H:i:s') : null);
 
         $date = null;
-        $orga_settings->setResultAvailableType((string) ($a_data['task']['result_available_type'][0] ?? TaskSettings::RESULT_AVAILABLE_REVIEW));
-        if ($orga_settings->getResultAvailableType() == TaskSettings::RESULT_AVAILABLE_DATE) {
+        $orga_settings->setResultAvailableType(ResultAvailableType::tryFrom((
+            $a_data['task']['result_available_type'][0] )?? ResultAvailableType::REVIEW));
+        if ($orga_settings->getResultAvailableType() == ResultAvailableType::DATE) {
             // note: the type differs from the other dates due to the nesting in the selectable group
             $date = $a_data['task']['result_available_type'][1]['result_available_date'];
         }
@@ -176,7 +174,6 @@ class OrgaSettingsGUI extends BaseGUI
 
         $failures[] = $this->plugin->txt('message_form_not_saved');
         $this->tpl->setOnScreenMessage(Gti::MESSAGE_TYPE_FAILURE, implode('<br>', $failures));
-        return false;
     }
 
     /**
@@ -184,37 +181,38 @@ class OrgaSettingsGUI extends BaseGUI
      */
     private function buildForm(): Standard
     {
+        $properties = $this->properties_service->get();
         $orga_settings = $this->orga_settings_service->get();
         $writing_settings = $this->writing_settings_service->get();
-        $factory = $this->ui_factory->input()->field();
 
+        $factory = $this->ui_factory->input()->field();
         $sections = [];
 
         // Object
         $fields_object = [];
         $fields_object['title'] = $factory->text($this->lng->txt("title"))
             ->withRequired(true)
-            ->withValue($this->object->getTitle());
+            ->withValue($properties->getTitle());
 
         $fields_object['description'] = $factory->textarea($this->lng->txt("description"))
-            ->withValue($this->object->getDescription())
+            ->withValue($properties->getDescription())
             ->withAdditionalOnLoadCode($this->plugin_ui_service->noRTEOnloadCode());// Exclude from RTE
 
         $fields_object['online'] = $factory->checkbox($this->lng->txt('online'))
-            ->withValue($this->object->isOnline());
+            ->withValue($orga_settings->getOnline());
 
         $fields_object['participation_type'] = $factory->radio($this->plugin->txt('participation_type'))
             ->withOption(
-                ObjectSettings::PARTICIPATION_TYPE_FIXED,
+                ParticipationType::FIXED->value,
                 $this->plugin->txt('participation_type_fixed'),
                 $this->plugin->txt('participation_type_fixed_info')
             )
             ->withOption(
-                ObjectSettings::PARTICIPATION_TYPE_INSTANT,
+                ParticipationType::INSTANT->value,
                 $this->plugin->txt('participation_type_instant'),
                 $this->plugin->txt('participation_type_instant_info')
             )
-            ->withValue($this->object->getParticipationType());
+            ->withValue($orga_settings->getParticipationType()->value);
 
         $fields_object['writing_type'] = $factory->radio($this->plugin->txt('writing_type'))
             ->withOption(
@@ -306,7 +304,7 @@ class OrgaSettingsGUI extends BaseGUI
             $this->plugin->txt('solution_available_info')
         );
         // strange but effective
-        if (!$orga_settings->isSolutionAvailable()) {
+        if (!$orga_settings->getSolutionAvailable()) {
             $fields_settings['solution_available'] = $fields_settings['solution_available']->withValue(null);
         }
 
@@ -326,15 +324,15 @@ class OrgaSettingsGUI extends BaseGUI
 
         $fields_settings['result_available_type'] = $factory->switchableGroup(
             [
-                TaskSettings::RESULT_AVAILABLE_FINALISED => $factory->group(
+                ResultAvailableType::FINALISED->value => $factory->group(
                     [],
                     $this->plugin->txt('result_available_finalised'),
                 ),
-                TaskSettings::RESULT_AVAILABLE_REVIEW => $factory->group(
+                ResultAvailableType::REVIEW->value => $factory->group(
                     [],
                     $this->plugin->txt('result_available_review'),
                 ),
-                TaskSettings::RESULT_AVAILABLE_DATE => $factory->group(
+                ResultAvailableType::DATE->value => $factory->group(
                     [
                         'result_available_date' =>  $factory->dateTime(
                             $this->plugin->txt("result_available_date"),
@@ -348,7 +346,7 @@ class OrgaSettingsGUI extends BaseGUI
             ],
             $this->plugin->txt('result_available_type'),
             $this->plugin->txt('result_available_type_info'),
-        )->withValue($orga_settings->getResultAvailableType());
+        )->withValue($orga_settings->getResultAvailableType()->value);
 
         $fields_settings['statistics_available']  = $factory->checkbox(
             $this->plugin->txt("writer_statistics_enabled"),
@@ -392,7 +390,7 @@ class OrgaSettingsGUI extends BaseGUI
             $this->plugin->txt("review_info")
         );
 
-        if(!$orga_settings->isReviewEnabled()) {
+        if(!$orga_settings->getReviewEnabled()) {
             $fields_settings['review'] = $fields_settings['review']->withValue(null);
         }
 
@@ -400,7 +398,7 @@ class OrgaSettingsGUI extends BaseGUI
         $sections['content'] = $factory->section($fields_content, $this->plugin->txt('content'));
         $sections['task'] = $factory->section($fields_settings, $this->plugin->txt('task_settings'))->withAdditionalTransformation(
             $this->refinery->custom()->constraint(function (array $var) {
-                if(($var['result_available_type'][0] ?? "") === TaskSettings::RESULT_AVAILABLE_REVIEW){
+                if(($var['result_available_type'][0] ?? "") === ResultAvailableType::REVIEW->value) {
                     return !empty($var['review']);
                 }
                 return true;

@@ -2,7 +2,7 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\CorrectorAdmin;
 
-use ILIAS\Plugin\LongEssayAssessment\Common\BaseGUI;
+use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\Data\Essay\EssayRepository;
 use ILIAS\Plugin\LongEssayAssessment\Data\Object\ObjectRepository;
 use ILIAS\UI\Component\Table\PresentationRow;

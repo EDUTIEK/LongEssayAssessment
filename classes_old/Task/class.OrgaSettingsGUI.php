@@ -3,7 +3,7 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\Task;
 
-use ILIAS\Plugin\LongEssayAssessment\Common\BaseGUI;
+use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\Data\Object\ObjectSettings;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\Location;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\TaskRepository;

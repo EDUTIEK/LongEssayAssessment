@@ -4,7 +4,7 @@
 namespace ILIAS\Plugin\LongEssayAssessment\CorrectorAdmin;
 
 use Edutiek\LongEssayAssessmentService\Corrector\Service;
-use ILIAS\Plugin\LongEssayAssessment\Common\BaseGUI;
+use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\Corrector\CorrectorContext;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\CorrectionSettings;
 use ILIAS\Plugin\LongEssayAssessment\Data\Writer\Writer;

@@ -4,7 +4,7 @@
 namespace ILIAS\Plugin\LongEssayAssessment\WriterAdmin;
 
 use ILIAS\DI\Exceptions\Exception;
-use ILIAS\Plugin\LongEssayAssessment\Common\BaseGUI;
+use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\Data\Essay\Essay;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\Location;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\LogEntry;

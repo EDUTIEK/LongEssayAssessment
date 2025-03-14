@@ -2,7 +2,7 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\Task;
 
-use ILIAS\Plugin\LongEssayAssessment\Common\BaseGUI;
+use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\Data\Corrector\CorrectorRepository;
 use ILIAS\Plugin\LongEssayAssessment\Data\Object\ObjectRepository;
 use ILIAS\Plugin\LongEssayAssessment\Data\Object\RatingCriterion;

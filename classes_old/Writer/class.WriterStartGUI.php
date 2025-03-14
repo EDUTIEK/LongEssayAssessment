@@ -4,7 +4,7 @@
 namespace ILIAS\Plugin\LongEssayAssessment\Writer;
 
 use Edutiek\LongEssayAssessmentService\Writer\Service;
-use ILIAS\Plugin\LongEssayAssessment\Common\BaseGUI;
+use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\Resource;
 use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
 use ILIAS\Plugin\LongEssayAssessment\Task\ResourceAdmin;

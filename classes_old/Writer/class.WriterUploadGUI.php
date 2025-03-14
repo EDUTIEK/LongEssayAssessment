@@ -4,7 +4,7 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\Writer;
 
-use ILIAS\Plugin\LongEssayAssessment\Common\BaseGUI;
+use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\TaskRepository;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\TaskSettings;
 use ILIAS\Plugin\LongEssayAssessment\CorrectorAdmin\CorrectorAdminService;

@@ -22,6 +22,7 @@ namespace ILIAS\Plugin\LongEssayAssessment\Assessment\Data;
 
 use DateTimeImmutable;
 use Edutiek\AssessmentService\Assessment\Data\ParticipationType;
+use Edutiek\AssessmentService\Assessment\Data\ResultAvailableType;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Key;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Table;
 
@@ -177,13 +178,13 @@ class OrgaSettings extends \Edutiek\AssessmentService\Assessment\Data\OrgaSettin
         $this->solution_available_date = $solution_available_date;
         return $this;
     }
-    public function getResultAvailableType(): string
+    public function getResultAvailableType(): ResultAvailableType
     {
-        return $this->result_available_type;
+        return ResultAvailableType::from($this->result_available_type);
     }
-    public function setResultAvailableType(string $result_available_type): self
+    public function setResultAvailableType(ResultAvailableType $result_available_type): self
     {
-        $this->result_available_type = $result_available_type;
+        $this->result_available_type = $result_available_type->value;
         return $this;
     }
     public function getResultAvailableDate(): ?DateTimeImmutable

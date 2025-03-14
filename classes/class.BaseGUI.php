@@ -2,7 +2,7 @@
 
 /* Copyright (c) 2021 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-namespace ILIAS\Plugin\LongEssayAssessment\Common;
+namespace ILIAS\Plugin\LongEssayAssessment;
 
 use Edutiek\AssessmentService\System\Api\ForClients as SystemApi;
 use ilCtrl;

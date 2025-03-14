@@ -3,7 +3,7 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\Corrector;
 
-use ILIAS\Plugin\LongEssayAssessment\Common\BaseGUI;
+use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\CorrectorAdmin\CorrectorAdminService;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\CorrectionSettings;
 use ILIAS\Plugin\LongEssayAssessment\Data\Corrector\CorrectorRepository;

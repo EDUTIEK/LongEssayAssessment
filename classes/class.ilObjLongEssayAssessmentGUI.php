@@ -3,7 +3,7 @@
 /* Copyright (c) 2021 ILIAS open source, Extended GPL, see docs/LICENSE */
 
 use Edutiek\AssessmentService\Assessment\Permissions;
-use ILIAS\Plugin\LongEssayAssessment\Assessment\OrgaSettingsGUI;
+use ILIAS\Plugin\LongEssayAssessment\Settings\OrgaSettingsGUI;
 use ilGlobalTemplateInterface as Gti;
 
 /**

@@ -3,7 +3,7 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\WriterAdmin;
 
-use ILIAS\Plugin\LongEssayAssessment\Common\BaseGUI;
+use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\Alert;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\LogEntry;
 use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;

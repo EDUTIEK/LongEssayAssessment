@@ -57,8 +57,14 @@ class CorrectorAdminWriterStatisticsGUI extends StatisticsGUI
         ));
 
         $this->loadObjectsInContext();
+        $filter_gui = $this->buildFilter() ;
+        $filter_data = $this->ui_service->filter()->getData($filter_gui) ?? ['context' => [], 'finalized' => null];
 
-        foreach($this->objects as $obj) {
+        if (empty($filter_data['context'])) {
+            $filter_data['context'] = [$this->object->getId()];
+        }
+
+        foreach (array_filter($this->objects, fn ($x) => in_array($x['obj_id'], $filter_data['context'])) as $obj) {
             $this->loadDataForObject($obj["obj_id"]);
             $this->loadWriterForObject($obj["obj_id"]);
         }
@@ -66,10 +72,7 @@ class CorrectorAdminWriterStatisticsGUI extends StatisticsGUI
 
         $this->printGradeLevelConsistencyInfo();
 
-        $filter_gui = $this->buildFilter() ;
-        $filter_data = $this->ui_service->filter()->getData($filter_gui) ?? ['context' => null, 'finalized' => null];
-
-        $filtered_essays = array_filter(array_merge(...$this->essays), fn (Essay $x) => in_array($x->getTaskId(), $filter_data['context'] ?? [$this->object->getId()]));
+        $filtered_essays = array_merge(...$this->essays);
         $essay_statistics = $this->getStatistic($filtered_essays);
 
         $data = [
@@ -92,15 +95,19 @@ class CorrectorAdminWriterStatisticsGUI extends StatisticsGUI
     protected function exportCSV() : void
     {
         $this->loadObjectsInContext();
+        $filter_gui = $this->buildFilter() ;
+        $filter_data = $this->ui_service->filter()->getData($filter_gui) ?? ['context' => [], 'finalized' => null];
 
-        foreach($this->objects as $obj) {
+        if (empty($filter_data['context'])) {
+            $filter_data['context'] = [$this->object->getId()];
+        }
+
+        foreach (array_filter($this->objects, fn ($x) => in_array($x['obj_id'], $filter_data['context'])) as $obj) {
             $this->loadDataForObject($obj["obj_id"]);
             $this->loadWriterForObject($obj["obj_id"]);
         }
-        $filter_gui = $this->buildFilter() ;
-        $filter_data = $this->ui_service->filter()->getData($filter_gui) ?? ['context' => null, 'finalized' => null];
 
-        $data = $this->getItemData($filter_data['context'] ?? [$this->object->getId()], $filter_data['writer'] ?? "", (int)$filter_data['finalized'] ?? 1);
+        $data = $this->getItemData($filter_data['context'], $filter_data['writer'] ?? "", (int)$filter_data['finalized'] ?? 1);
 
         $filename = ilFileDelivery::returnASCIIFilename($this->plugin->txt('export_statistics_writer_file')) . '.csv';
         ilFileDelivery::deliverFileAttached($this->buildCSV(
@@ -117,7 +124,7 @@ class CorrectorAdminWriterStatisticsGUI extends StatisticsGUI
         $corr = [];
 
         foreach($this->objects as $node) {
-            $context[$node["obj_id"]] = $node["title"];
+            $context[(int) $node["obj_id"]] = $node["title"];
         }
 
         $base_action = $this->ctrl->getFormAction($this, 'showStartPage');

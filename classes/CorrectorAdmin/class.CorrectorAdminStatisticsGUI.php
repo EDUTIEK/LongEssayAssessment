@@ -69,13 +69,21 @@ class CorrectorAdminStatisticsGUI extends StatisticsGUI
 
         $this->loadObjectsInContext();
 
-        foreach($this->objects as $obj) {
-            $this->loadDataForObject($obj["obj_id"]);
+        foreach ($this->objects as $obj) {
             $this->loadCorrectorForObject($obj["obj_id"]);
+            // Load Corrector before filtering because otherwise they are missing in the corrector input formular
         }
 
-        $filter_gui = $this->buildFilter();
-        $filter_data = $this->ui_service->filter()->getData($filter_gui) ?? ['context' => null, 'correctors' => null];
+        $filter_gui = $this->buildFilter() ;
+        $filter_data = $this->ui_service->filter()->getData($filter_gui) ?? ['context' => [], 'finalized' => null];
+
+        if (empty($filter_data['context'])) {
+            $filter_data['context'] = [$this->object->getId()];
+        }
+
+        foreach (array_filter($this->objects, fn ($x) => in_array($x['obj_id'], $filter_data['context'])) as $obj) {
+            $this->loadDataForObject($obj["obj_id"]);
+        }
 
         $sections = array_filter(
             $this->objects,
@@ -113,13 +121,17 @@ class CorrectorAdminStatisticsGUI extends StatisticsGUI
     protected function exportCSV() : void
     {
         $this->loadObjectsInContext();
+        $filter_gui = $this->buildFilter() ;
+        $filter_data = $this->ui_service->filter()->getData($filter_gui) ?? ['context' => [], 'finalized' => null];
 
-        foreach($this->objects as $obj) {
+        if (empty($filter_data['context'])) {
+            $filter_data['context'] = [$this->object->getId()];
+        }
+
+        foreach (array_filter($this->objects, fn ($x) => in_array($x['obj_id'], $filter_data['context'])) as $obj) {
             $this->loadDataForObject($obj["obj_id"]);
             $this->loadCorrectorForObject($obj["obj_id"]);
         }
-        $filter_gui = $this->buildFilter() ;
-        $filter_data = $this->ui_service->filter()->getData($filter_gui) ?? ['context' => null, 'finalized' => null];
 
         $data = [];
         $sections = array_filter(

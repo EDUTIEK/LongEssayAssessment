@@ -61,14 +61,19 @@ class WriterStatisticsGUI extends StatisticsGUI
     protected function showStatistics() : void
     {
         $writers = $this->localDI->getWriterRepo()->getWritersByUserId($this->dic->user()->getId());
-        $this->loadObjectsInContext();
 
-        foreach($this->objects as $obj) {
+        $this->loadObjectsInContext();
+        $filter_gui = $this->buildFilter() ;
+        $filter_data = $this->ui_service->filter()->getData($filter_gui) ?? ['context' => []];
+
+        if (empty($filter_data['context'])) {
+            $filter_data['context'] = [$this->object->getId()];
+        }
+
+        foreach (array_filter($this->objects, fn ($x) => in_array($x['obj_id'], $filter_data['context'])) as $obj) {
             $this->loadDataForObject($obj["obj_id"]);
         }
 
-        $filter_gui = $this->buildFilter();
-        $filter_data = $this->ui_service->filter()->getData($filter_gui) ?? ['context' => null];
 
         $sections = array_filter(
             $this->objects,

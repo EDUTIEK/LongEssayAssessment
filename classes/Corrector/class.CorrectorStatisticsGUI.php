@@ -64,18 +64,12 @@ class CorrectorStatisticsGUI extends StatisticsGUI
         $corrector_summaries = array_filter($this->summaries[$obj_id], fn (CorrectorSummary $x) => ($x->getCorrectorId() === $corrector_id));
         $statistics = $this->getStatistic($corrector_summaries);
 
-        $grade_statistics = function (array $statistic) use ($obj_id) {
-            $grade_statistics = [];
-            foreach($this->grade_level[$obj_id] as $level) {
-                $grade_statistics[$level->getGrade()] = $statistic[CorrectorAdminService::STATISTIC_COUNT_BY_LEVEL][$level->getId()] ?? 0;
-            }
-            return $grade_statistics;
-        };
-
         $summary = $this->createStatisticItem($this->plugin->txt('corrections_all'), $summary_statistics, false)
-                        ->withGrades($grade_statistics($summary_statistics));
+                        ->withGrades($this->getGradeStatisticOverAll($summary_statistics))
+                        ->withPoints($this->getPointStatisticOverAll($summary_statistics));
         $own = $this->createStatisticItem($this->plugin->txt('tab_corrector'), $statistics, false)
-                    ->withGrades($grade_statistics($statistics));
+                    ->withGrades($this->getGradeStatisticOverAll($statistics))
+                    ->withPoints($this->getPointStatisticOverAll($statistics));
 
         $group = $this->localDI->getUIFactory()->statistic()->graphStatisticGroup(
             $this->plugin->txt('statistic'), [$summary, $own]

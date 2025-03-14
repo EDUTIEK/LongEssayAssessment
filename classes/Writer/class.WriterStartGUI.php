@@ -20,7 +20,6 @@ use ILIAS\Plugin\LongEssayAssessment\Data\Writer\Writer;
  *
  * @package ILIAS\Plugin\LongEssayAssessment\Writer
  * @ilCtrl_isCalledBy ILIAS\Plugin\LongEssayAssessment\Writer\WriterStartGUI: ilObjLongEssayAssessmentGUI
- * @ilCtrl_Calls ILIAS\Plugin\LongEssayAssessment\Writer\WriterStartGUI: ILIAS\Plugin\LongEssayAssessment\Writer\WriterStatisticsGUI
  */
 class WriterStartGUI extends BaseGUI
 {

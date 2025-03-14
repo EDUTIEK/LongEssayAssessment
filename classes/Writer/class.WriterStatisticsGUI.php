@@ -14,7 +14,7 @@ use ILIAS\Plugin\LongEssayAssessment\UI\Component\Statistic;
  *Start page for corrector admins
  *
  * @package ILIAS\Plugin\LongEssayAssessment\Corrector
- * @ilCtrl_isCalledBy ILIAS\Plugin\LongEssayAssessment\Writer\WriterStatisticsGUI: ilObjLongEssayAssessmentGUI, ILIAS\Plugin\LongEssayAssessment\Writer\WriterStartGUI
+ * @ilCtrl_isCalledBy ILIAS\Plugin\LongEssayAssessment\Writer\WriterStatisticsGUI: ilObjLongEssayAssessmentGUI
  */
 class WriterStatisticsGUI extends StatisticsGUI
 {
@@ -33,7 +33,6 @@ class WriterStatisticsGUI extends StatisticsGUI
                 $cmd = $this->ctrl->getCmd('showStatistics');
                 switch ($cmd) {
                     case 'showStatistics':
-                    case 'showStatistics2':
                         $this->$cmd();
                         break;
 
@@ -94,10 +93,16 @@ class WriterStatisticsGUI extends StatisticsGUI
             $overall_own_statistic = $this->service->gradeStatistics(array_filter(array_merge(...$this->essays),fn (Essay $x) => in_array($x->getWriterId(), $writer_ids)));
             $overall_grade_distribution = $this->getGradeStatisticOverAll($overall_statistic);
             $overall_own_grade_distribution = $this->getGradeStatisticOverAll($overall_own_statistic);
+            $overall_point_distribution = $this->getPointStatisticOverAll($overall_statistic);
+            $overall_own_point_distribution = $this->getPointStatisticOverAll($overall_own_statistic);
 
             $items = [
-                $this->createStatisticItem($this->plugin->txt("total_statistic"), $overall_statistic)->withGrades($overall_grade_distribution),
-                $this->createStatisticItem($this->plugin->txt("own_assessments"), $overall_own_statistic)->withGrades($overall_own_grade_distribution),
+                $this->createStatisticItem($this->plugin->txt("total_statistic"), $overall_statistic)
+                     ->withGrades($overall_grade_distribution)
+                     ->withPoints($overall_point_distribution),
+                $this->createStatisticItem($this->plugin->txt("own_assessments"), $overall_own_statistic)
+                     ->withGrades($overall_own_grade_distribution)
+                     ->withPoints($overall_own_point_distribution),
                 $this->localDI->getUIFactory()->statistic()->statisticSection("Klausuren")
             ];
 
@@ -120,10 +125,13 @@ class WriterStatisticsGUI extends StatisticsGUI
         $corrector_service = $this->localDI->getCorrectorAdminService($obj_id);
         $own_essays = array_filter($this->essays[$obj_id],fn (Essay $x) => $x->getWriterId() === $writer_ids[$this->object->getId()] ?? -1);
         $own_grade = ($essay = array_pop($own_essays)) !== null ? $this->data->formatFinalResult($essay) : null;
-        $section_statistic = $corrector_service->gradeStatistics($this->essays[$obj_id]);;
+        $section_statistic = $corrector_service->gradeStatistics($this->essays[$obj_id]);
         $section_grade_distribution = $this->getGradeStatisticOverAll($section_statistic);
+        $section_point_distribution = $this->getPointStatisticOverAll($section_statistic);
+
         $item = $this->createStatisticItem($section['title'], $section_statistic)
-                     ->withGrades($section_grade_distribution);
+                     ->withGrades($section_grade_distribution)
+                     ->withPoints($section_point_distribution);
         if($own_grade !== null){
             $item = $item->withOwnGrade($own_grade);
         }

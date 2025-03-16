@@ -20,6 +20,7 @@ declare(strict_types=1);
 
 namespace ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo;
 
+use DateTimeZone;
 use ilDBConstants;
 use DateTime;
 use DateTimeImmutable;
@@ -32,10 +33,13 @@ use ilDBInterface;
  */
 class DatabaseRepository implements RepositoryInterface
 {
+    private DateTimeZone $time_zone;
+
     public function __construct(
         private readonly ilDBInterface $db,
         private readonly array $model
     ) {
+        $this->time_zone = new DateTimeZone(date_default_timezone_get());
     }
 
     public function new(): object
@@ -238,7 +242,7 @@ class DatabaseRepository implements RepositoryInterface
             'int' => (int) $value,
             'bool' => (bool) $value,
             'float' => (float) $value,
-            DateTime::class, DateTimeImmutable::class => new $type($value),
+            DateTime::class, DateTimeImmutable::class => new $type($value, $this->time_zone),
             default => throw new Exception('Unsupported type: ' . $type),
         };
     }
@@ -248,7 +252,7 @@ class DatabaseRepository implements RepositoryInterface
         return match ($this->handleNullable($type, $value)) {
             null => null,
             'string', 'int', 'bool', 'float', => (string) $value,
-            DateTime::class, DateTimeImmutable::class => $value->format('Y-m-d H:i:s'),
+            DateTime::class, DateTimeImmutable::class => $value->setTimezone($this->time_zone)->format('Y-m-d H:i:s'),
             default => throw new Exception('Unsupported type: ' . $type),
         };
     }

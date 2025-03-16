@@ -18,7 +18,7 @@ class CorrectorCriteriaGUI extends CriteriaGUI
 {
     protected ?Corrector $corrector;
 
-    public function __construct(ilObjLongEssayAssessment $object)
+    public function __construct(BaseObjectData $object)
     {
         parent::__construct($object);
         $this->corrector = $this->localDI->getCorrectorRepo()->getCorrectorByUserId($this->dic->user()->getId(), $this->object->getId());

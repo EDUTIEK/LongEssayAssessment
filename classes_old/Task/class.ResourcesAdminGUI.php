@@ -19,7 +19,7 @@ class ResourcesAdminGUI extends BaseGUI
 {
     protected UIService $uiService;
 
-    public function __construct(ilObjLongEssayAssessment $object)
+    public function __construct(BaseObjectData $object)
     {
         parent::__construct($object);
         $this->uiService = $this->localDI->getUIService();

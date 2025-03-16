@@ -43,7 +43,7 @@ class WritingSettings extends \Edutiek\AssessmentService\EssayTask\Data\WritingS
 
     public function getHeadlineScheme(): HeadlineScheme
     {
-        return HeadlineScheme::from($this->headline_scheme) ;
+        return HeadlineScheme::tryFrom($this->headline_scheme) ?? HeadlineScheme::NUMERIC;
     }
     public function setHeadlineScheme(HeadlineScheme $headline_scheme): self
     {
@@ -133,7 +133,7 @@ class WritingSettings extends \Edutiek\AssessmentService\EssayTask\Data\WritingS
     }
     public function getWritingType(): WritingType
     {
-        return WritingType::from($this->writing_type);
+        return WritingType::tryFrom($this->writing_type) ?? WritingType::ESSAY_EDITOR;
     }
     public function setWritingType(WritingType $writing_type): self
     {

@@ -20,6 +20,7 @@ use ilLanguage;
 use ilLink;
 use ilLongEssayAssessmentPlugin;
 use ilMailFormCall;
+use ilObject;
 use ilObjLongEssayAssessment;
 use ilObjLongEssayAssessmentGUI;
 use ilObjUser;
@@ -50,7 +51,6 @@ abstract class BaseGUI
     protected RequestInterface $request;
     protected RefineryFactory $refinery;
 
-    protected ilObjLongEssayAssessment $object;
     protected ilLongEssayAssessmentPlugin $plugin;
     protected SystemApi $system_api;
     protected AssessmentApi $assessment_api;
@@ -66,7 +66,7 @@ abstract class BaseGUI
     protected array $params = [];
 
 
-    public function __construct(ilObjLongEssayAssessment $object)
+    public function __construct(protected BaseObjectData $object)
     {
         global $DIC;
 
@@ -82,8 +82,6 @@ abstract class BaseGUI
         $this->http = $this->dic->http();
         $this->request = $this->dic->http()->request();
         $this->refinery = $this->dic->refinery();
-
-        $this->object = $object;
         $this->plugin = ilLongEssayAssessmentPlugin::getInstance();
 
         $this->system_api = $this->plugin->dic()->system();

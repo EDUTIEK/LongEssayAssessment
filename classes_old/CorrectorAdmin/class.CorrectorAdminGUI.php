@@ -40,7 +40,7 @@ class CorrectorAdminGUI extends BaseGUI
     protected EssayRepository $essay_repo;
     protected TaskRepository $task_repo;
 
-    public function __construct(ilObjLongEssayAssessment $object)
+    public function __construct(BaseObjectData $object)
     {
         parent::__construct($object);
         $this->service = $this->localDI->getCorrectorAdminService($this->object->getId());

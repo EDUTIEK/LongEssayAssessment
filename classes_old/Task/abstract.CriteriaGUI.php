@@ -17,7 +17,7 @@ abstract class CriteriaGUI extends BaseGUI
     private ObjectRepository $object_repo;
     private CorrectorRepository $corrector_repo;
 
-    public function __construct(ilObjLongEssayAssessment $object)
+    public function __construct(BaseObjectData $object)
     {
         parent::__construct($object);
 

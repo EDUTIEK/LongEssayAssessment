@@ -27,7 +27,7 @@ class WriterStartGUI extends BaseGUI
     protected TaskSettings $task;
     protected CorrectorAdminService $corrector_admin_service;
 
-    public function __construct(ilObjLongEssayAssessment $object)
+    public function __construct(BaseObjectData $object)
     {
         parent::__construct($object);
 

@@ -33,7 +33,7 @@ class GradesAdminGUI extends BaseGUI
     protected ObjectRepository $object_repo;
     protected CorrectorAdminService $corrector_service;
 
-    public function __construct(ilObjLongEssayAssessment $object)
+    public function __construct(BaseObjectData $object)
     {
         parent::__construct($object);
         $this->corrector_service = $this->localDI->getCorrectorAdminService($this->object->getId());

@@ -32,7 +32,7 @@ class WriterUploadGUI extends BaseGUI
     protected WriterAdminService $writer_admin_service;
     protected CorrectorAdminService $corrector_admin_service;
 
-    public function __construct(ilObjLongEssayAssessment $object)
+    public function __construct(BaseObjectData $object)
     {
         parent::__construct($object);
 

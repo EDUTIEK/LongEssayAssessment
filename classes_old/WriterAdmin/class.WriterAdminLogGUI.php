@@ -25,7 +25,7 @@ class WriterAdminLogGUI extends BaseGUI
     /** @var LoggingService */
     protected $service;
 
-    public function __construct(ilObjLongEssayAssessment $object)
+    public function __construct(BaseObjectData $object)
     {
         parent::__construct($object);
         $this->service = $this->localDI->getLoggingService($this->object->getId());

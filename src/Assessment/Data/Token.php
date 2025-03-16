@@ -75,7 +75,7 @@ class Token extends \Edutiek\AssessmentService\Assessment\Data\Token
     }
     public function getPurpose(): TokenPurpose
     {
-        return TokenPurpose::from($this->purpose);
+        return TokenPurpose::tryFrom($this->purpose) ?? TokenPurpose::DATA;
     }
     public function setPurpose(TokenPurpose $purpose): self
     {

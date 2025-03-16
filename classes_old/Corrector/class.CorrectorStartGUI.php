@@ -35,7 +35,7 @@ class CorrectorStartGUI extends BaseGUI
     private int $ready_items = 0;
 
 
-    public function __construct(ilObjLongEssayAssessment $object)
+    public function __construct(BaseObjectData $object)
     {
         parent::__construct($object);
         $this->service = $this->localDI->getCorrectorAdminService($this->object->getId());

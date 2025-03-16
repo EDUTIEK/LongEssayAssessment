@@ -33,7 +33,7 @@ class WriterAdminGUI extends BaseGUI
     protected LoggingService $loggingService;
     protected WriterAdminService $writerAdminService;
 
-    public function __construct(ilObjLongEssayAssessment $object)
+    public function __construct(BaseObjectData $object)
     {
         parent::__construct($object);
         $this->loggingService = $this->localDI->getLoggingService($this->object->getId());

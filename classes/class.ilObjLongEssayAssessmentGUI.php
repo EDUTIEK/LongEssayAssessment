@@ -129,7 +129,7 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                 case strtolower(OrgaSettingsGUI::class):
                     if ($this->permissions->canEditOrgaSettings()) {
                         $this->activateTab('tab_assessment', 'tab_orga_settings');
-                        $this->ctrl->forwardCommand(new OrgaSettingsGUI($this));
+                        $this->ctrl->forwardCommand(new OrgaSettingsGUI($this->object));
                     }
                     break;
                     //                case 'ilias\plugin\longessayassessment\task\instructionssettingsgui':

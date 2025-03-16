@@ -19,7 +19,7 @@ class CorrectorAdminWriterStatisticsGUI extends StatisticsGUI
     private \ILIAS\Plugin\LongEssayAssessment\Data\Writer\WriterRepository $writer_repo;
     private array $writer = [];
 
-    public function __construct(ilObjLongEssayAssessment $object)
+    public function __construct(BaseObjectData $object)
     {
         parent::__construct($object);
         $this->writer_repo = $this->localDI->getWriterRepo();

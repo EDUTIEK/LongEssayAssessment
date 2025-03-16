@@ -27,7 +27,7 @@ class CorrectionReportGUI extends BaseGUI
     private bool $can_correct;
 
 
-    public function __construct(ilObjLongEssayAssessment $object)
+    public function __construct(BaseObjectData $object)
     {
         parent::__construct($object);
 

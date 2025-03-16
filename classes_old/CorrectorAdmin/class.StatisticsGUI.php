@@ -28,7 +28,7 @@ abstract class StatisticsGUI extends BaseGUI
     protected array $essays = [];
     protected array $objects = [];
 
-    public function __construct(ilObjLongEssayAssessment $object)
+    public function __construct(BaseObjectData $object)
     {
         parent::__construct($object);
         $this->service = $this->localDI->getCorrectorAdminService($this->object->getId());

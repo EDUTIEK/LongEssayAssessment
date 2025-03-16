@@ -63,7 +63,7 @@ class OrgaSettings extends \Edutiek\AssessmentService\Assessment\Data\OrgaSettin
     }
     public function getParticipationType(): ParticipationType
     {
-        return ParticipationType::from($this->participation_type);
+        return ParticipationType::tryFrom($this->participation_type) ?? ParticipationType::INSTANT;
     }
     public function setParticipationType(ParticipationType $participation_type): self
     {
@@ -180,7 +180,7 @@ class OrgaSettings extends \Edutiek\AssessmentService\Assessment\Data\OrgaSettin
     }
     public function getResultAvailableType(): ResultAvailableType
     {
-        return ResultAvailableType::from($this->result_available_type);
+        return ResultAvailableType::tryFrom($this->result_available_type) ?? ResultAvailableType::REVIEW;
     }
     public function setResultAvailableType(ResultAvailableType $result_available_type): self
     {

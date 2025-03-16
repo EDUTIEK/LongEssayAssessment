@@ -31,7 +31,7 @@ class CorrectorAdminStatisticsGUI extends StatisticsGUI
     protected CorrectorRepository $corrector_repo;
     protected array $correctors = [];
 
-    public function __construct(ilObjLongEssayAssessment $object)
+    public function __construct(BaseObjectData $object)
     {
         parent::__construct($object);
         $this->corrector_repo = $this->localDI->getCorrectorRepo();

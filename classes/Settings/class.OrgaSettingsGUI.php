@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace ILIAS\Plugin\LongEssayAssessment\Settings;
 
+use DateTimeImmutable;
+use DateTimeInterface;
+use DateTimeZone;
 use Edutiek\AssessmentService\Assessment\Data\Location;
 use Edutiek\AssessmentService\Assessment\Data\OrgaSettings;
 use Edutiek\AssessmentService\Assessment\Data\ParticipationType;
@@ -13,6 +16,7 @@ use Edutiek\AssessmentService\Assessment\OrgaSettings\FullService as OrgaSetting
 use Edutiek\AssessmentService\Assessment\Properties\FullService as PropertiesService;
 use Edutiek\AssessmentService\EssayTask\Data\WritingType;
 use Edutiek\AssessmentService\EssayTask\WritingSettings\FullService as WritingSettingsService;
+use Edutiek\AssessmentService\System\Transform\FullService as TransformService;
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\UI\Component\Input\Container\Form\Standard;
 use ilObjLongEssayAssessment;
@@ -29,6 +33,8 @@ class OrgaSettingsGUI extends BaseGUI
     private LocationService $location_service;
     private WritingSettingsService $writing_settings_service;
     private PropertiesService $properties_service;
+    private TransformService $transform_service;
+    private DateTimeZone $user_timezone;
 
     public function __construct(ilObjLongEssayAssessment $object) {
         parent::__construct($object);
@@ -37,6 +43,8 @@ class OrgaSettingsGUI extends BaseGUI
         $this->orga_settings_service = $this->assessment_api->orgaSettings();
         $this->writing_settings_service = $this->essay_task_api->writingSettings();
         $this->location_service = $this->assessment_api->location();
+        $this->transform_service = $this->system_api->transform();
+        $this->user_timezone = new DateTimeZone($this->user->getTimeZone());
     }
 
     /**
@@ -94,7 +102,7 @@ class OrgaSettingsGUI extends BaseGUI
         $writing_settings->setWritingType(WritingType::from((string) $a_data['object']['writing_type']));
 
         $date = $a_data['task']['writing_start'];
-        $orga_settings->setWritingStart($date instanceof \DateTimeInterface ? $date->format('Y-m-d H:i:s') : null);
+        $orga_settings->setWritingStart($date instanceof DateTimeInterface ? $date->format('Y-m-d H:i:s') : null);
         $date = $a_data['task']['writing_end'];
         $orga_settings->setWritingEnd($date instanceof \DateTimeInterface ? $date->format('Y-m-d H:i:s') : null);
 
@@ -154,10 +162,10 @@ class OrgaSettingsGUI extends BaseGUI
 
 
         $task_description = $a_data['content']['task_description'];
-        $orga_settings->setDescription((string) $this->data->trimRichText($task_description));
+        $orga_settings->setDescription($this->transform_service->trimRichText($task_description));
 
         $closing_message = $a_data['content']['closing_message'];
-        $orga_settings->setClosingMessage((string)$this->data->trimRichText($closing_message));
+        $orga_settings->setClosingMessage($this->transform_service->trimRichText($closing_message));
 
         // consistency checks
         $failures = $this->orga_settings_service->validate($orga_settings);
@@ -246,14 +254,14 @@ class OrgaSettingsGUI extends BaseGUI
             $this->plugin->txt("writing_start_info")
         )
             ->withUseTime(true)
-            ->withValue((string) $orga_settings->getWritingStart());
+            ->withValue($orga_settings->getWritingStart()?->setTimezone($this->user_timezone));
 
         $fields_settings['writing_end'] = $factory->dateTime(
             $this->plugin->txt("writing_end"),
             $this->plugin->txt("writing_end_info")
         )
             ->withUseTime(true)
-            ->withValue((string) $orga_settings->getWritingEnd());
+            ->withValue($orga_settings->getWritingEnd()?->setTimezone($this->user_timezone));
 
         $limit = (int) $orga_settings->getWritingLimitMinutes();
         $days = floor($limit / (24 * 60));
@@ -268,7 +276,7 @@ class OrgaSettingsGUI extends BaseGUI
                 'hours_minutes' => $factory->dateTime(
                     $this->plugin->txt("writing_limit_hours_minutes"),
                 )->withTimeOnly(true)
-                    ->withValue(new \DateTimeImmutable(sprintf('%02d:%02d:00', $hours, $minutes, 0), New \DateTimeZone($this->user->getTimeZone())))
+                    ->withValue(new DateTimeImmutable(sprintf('%02d:%02d:00', $hours, $minutes), $this->user_timezone))
             ],
             $this->plugin->txt('writing_limit'),
             $this->plugin->txt('writing_limit_info')
@@ -298,7 +306,7 @@ class OrgaSettingsGUI extends BaseGUI
                     $this->plugin->txt("solution_available_date_info")
                 )
                     ->withUseTime(true)
-                    ->withValue((string) $orga_settings->getSolutionAvailableDate())
+                    ->withValue($orga_settings->getSolutionAvailableDate()?->setTimezone($this->user_timezone))
             ],
             $this->plugin->txt('solution_available'),
             $this->plugin->txt('solution_available_info')
@@ -313,14 +321,14 @@ class OrgaSettingsGUI extends BaseGUI
             $this->plugin->txt("correction_start_info")
         )
             ->withUseTime(true)
-            ->withValue((string) $orga_settings->getCorrectionStart());
+            ->withValue($orga_settings->getCorrectionStart()?->setTimezone($this->user_timezone));
 
         $fields_settings['correction_end'] = $factory->dateTime(
             $this->plugin->txt("correction_end"),
             $this->plugin->txt("correction_end_info")
         )
             ->withUseTime(true)
-            ->withValue((string) $orga_settings->getCorrectionEnd());
+            ->withValue($orga_settings->getCorrectionEnd()?->setTimezone($this->user_timezone));
 
         $fields_settings['result_available_type'] = $factory->switchableGroup(
             [
@@ -339,7 +347,7 @@ class OrgaSettingsGUI extends BaseGUI
                             $this->plugin->txt('result_available_date_info')
                         )
                             ->withUseTime(true)
-                            ->withValue((string) $orga_settings->getResultAvailableDate())
+                            ->withValue($orga_settings->getResultAvailableDate()?->setTimezone($this->user_timezone))
                     ],
                     $this->plugin->txt('result_available_after')
                 )
@@ -359,13 +367,13 @@ class OrgaSettingsGUI extends BaseGUI
                 $this->plugin->txt("review_start_info")
             )
                 ->withUseTime(true)
-                ->withValue((string) $orga_settings->getReviewStart()),
+                ->withValue($orga_settings->getReviewStart()?->setTimezone($this->user_timezone)),
             'review_end' =>  $factory->dateTime(
                 $this->plugin->txt("review_end"),
                 $this->plugin->txt("review_end_info")
             )
                 ->withUseTime(true)
-                ->withValue((string) $orga_settings->getReviewEnd()),
+                ->withValue($orga_settings->getReviewEnd()?->setTimezone($this->user_timezone)),
             'review_notification' => $factory->optionalGroup(
                 [
                     "review_notification_text" => $factory->textarea(

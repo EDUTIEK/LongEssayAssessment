@@ -19,12 +19,12 @@
 declare(strict_types=1);
 
 use Edutiek\AssessmentService\Assessment\Manager\FullService as Manager;
+use ILIAS\Plugin\LongEssayAssessment\BaseObjectData;
 
 /**
  * Repository object
  */
-class ilObjLongEssayAssessment extends ilObjectPlugin
-{
+class ilObjLongEssayAssessment extends ilObjectPlugin implements BaseObjectData {
     private Manager $manager;
 
     public function __construct($a_ref_id = 0)
@@ -52,7 +52,7 @@ class ilObjLongEssayAssessment extends ilObjectPlugin
         return $this->getRefId();
     }
 
-    final public function initType(): void
+    protected function initType(): void
     {
         $this->setType(ilLongEssayAssessmentPlugin::ID);
     }

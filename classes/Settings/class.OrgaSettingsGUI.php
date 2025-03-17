@@ -21,6 +21,7 @@ use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\UI\Component\Input\Container\Form\Standard;
 use ilObjLongEssayAssessment;
 use ilGlobalTemplateInterface as Gti;
+use ILIAS\Plugin\LongEssayAssessment\BaseObjectData;
 
 /**
  * Organisational Settings
@@ -36,7 +37,7 @@ class OrgaSettingsGUI extends BaseGUI
     private TransformService $transform_service;
     private DateTimeZone $user_timezone;
 
-    public function __construct(ilObjLongEssayAssessment $object) {
+    public function __construct(BaseObjectData $object) {
         parent::__construct($object);
 
         $this->properties_service = $this->assessment_api->properties();
@@ -68,7 +69,7 @@ class OrgaSettingsGUI extends BaseGUI
     /**
      * Edit and save the settings
      */
-    protected function editSettings()
+    private function editSettings()
     {
         $form = $this->buildForm();
         if ($this->request->getMethod() == "POST") {

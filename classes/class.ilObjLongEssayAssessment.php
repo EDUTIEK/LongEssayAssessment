@@ -24,16 +24,14 @@ use ILIAS\Plugin\LongEssayAssessment\BaseObjectData;
 /**
  * Repository object
  */
-class ilObjLongEssayAssessment extends ilObjectPlugin implements BaseObjectData {
+class ilObjLongEssayAssessment extends ilObjectPlugin implements BaseObjectData
+{
     private Manager $manager;
 
     public function __construct($a_ref_id = 0)
     {
         parent::__construct($a_ref_id);
-
-        $this->manager = $this->plugin->dic()
-            ->assessment($this->getAssId(), $this->getContextId(), $this->user->getId())
-            ->manager();
+        $this->initServices();
     }
 
     /**
@@ -59,6 +57,7 @@ class ilObjLongEssayAssessment extends ilObjectPlugin implements BaseObjectData 
 
     protected function doCreate(bool $clone_mode = false): void
     {
+        $this->initServices();  // now the new id is available
         $this->manager->create();
     }
 
@@ -70,5 +69,12 @@ class ilObjLongEssayAssessment extends ilObjectPlugin implements BaseObjectData 
     protected function doCloneObject($new_obj, $a_target_id, $a_copy_id = null): void
     {
         $this->manager->clone($new_obj->getId());
+    }
+
+    private function initServices()
+    {
+        $this->manager = $this->plugin->dic()
+            ->assessment($this->getAssId(), $this->getContextId(), $this->user->getId())
+            ->manager();
     }
 }

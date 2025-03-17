@@ -23,11 +23,13 @@ namespace ILIAS\Plugin\LongEssayAssessment\Task\Data;
 use Edutiek\AssessmentService\Assessment\TaskInterfaces\TaskType;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Key;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Table;
+use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Sequence;
 
 #[Table(name: 'xlas_ta_settings')]
 class Settings extends \Edutiek\AssessmentService\Task\Data\Settings
 {
     #[Key]
+    #[Sequence]
     private int $task_id = 0;
     private int $ass_id = 0;
     private string $title = '';
@@ -54,11 +56,11 @@ class Settings extends \Edutiek\AssessmentService\Task\Data\Settings
         $this->ass_id = $ass_id;
         return $this;
     }
-    public function getPosition() : int
+    public function getPosition(): int
     {
         return $this->position;
     }
-    public function setPosition(int $position) : self
+    public function setPosition(int $position): self
     {
         $this->position = $position;
         return $this;
@@ -72,11 +74,11 @@ class Settings extends \Edutiek\AssessmentService\Task\Data\Settings
         $this->title = $title;
         return $this;
     }
-    public function getTaskType() : TaskType
+    public function getTaskType(): TaskType
     {
         return TaskType::from($this->task_type);
     }
-    public function setTaskType(TaskType $type) : self
+    public function setTaskType(TaskType $type): self
     {
         $this->task_type = $type->value;
         return $this;

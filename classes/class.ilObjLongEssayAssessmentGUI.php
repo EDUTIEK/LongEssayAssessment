@@ -4,6 +4,7 @@
 
 use Edutiek\AssessmentService\Assessment\Permissions;
 use ILIAS\Plugin\LongEssayAssessment\Settings\OrgaSettingsGUI;
+use ILIAS\Plugin\LongEssayAssessment\Settings\InstructionSettingsGUI;
 use ilGlobalTemplateInterface as Gti;
 
 /**
@@ -132,12 +133,12 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                         $this->ctrl->forwardCommand(new OrgaSettingsGUI($this->object));
                     }
                     break;
-                    //                case 'ilias\plugin\longessayassessment\task\instructionssettingsgui':
-                    //                    if ($this->permissions->canEditContentSettings()) {
-                    //                        $this->activateTab('tab_task', 'tab_instructions_settings');
-                    //                        $this->ctrl->forwardCommand(new \ILIAS\Plugin\LongEssayAssessment\Task\InstructionsSettingsGUI($this));
-                    //                    }
-                    //                    break;
+                case strtolower(InstructionSettingsGUI::class):
+                    if ($this->permissions->canEditContentSettings()) {
+                        $this->activateTab('tab_assessment', 'tab_instructions_settings');
+                        $this->ctrl->forwardCommand(new InstructionSettingsGUI($this->object));
+                    }
+                    break;
                     //                case 'ilias\plugin\longessayassessment\task\solutionsettingsgui':
                     //                    if ($this->permissions->canEditContentSettings()) {
                     //                        $this->activateTab('tab_task', 'tab_solution_settings');
@@ -372,13 +373,13 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                 'url' => $this->ctrl->getLinkTargetByClass(OrgaSettingsGUI::class)
             ];
         }
-        //        if ($this->permissions->canEditContentSettings()) {
-        //            $tabs[] = [
-        //                'id' => 'tab_instructions_settings',
-        //                'txt' => $this->plugin->txt('tab_instructions_settings'),
-        //                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessayassessment\task\instructionssettingsgui')
-        //            ];
-        //        }
+        if ($this->permissions->canEditContentSettings()) {
+            $tabs[] = [
+                'id' => 'tab_instructions_settings',
+                'txt' => $this->plugin->txt('tab_instructions_settings'),
+                'url' => $this->ctrl->getLinkTargetByClass(InstructionSettingsGUI::class)
+            ];
+        }
         //        if ($this->permissions->canEditContentSettings()) {
         //            $tabs[] = [
         //                'id' => 'tab_solution_settings',

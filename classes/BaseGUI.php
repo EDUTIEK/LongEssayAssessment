@@ -31,6 +31,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Edutiek\AssessmentService\Assessment\Api\ForClients as AssessmentApi;
 use Edutiek\AssessmentService\EssayTask\Api\ForClients as EssayTaskApi;
 use Edutiek\AssessmentService\Task\Api\ForClients as TaskApi;
+use ILIAS\Plugin\LongEssayAssessment\Common\Http\RequestVariables;
 
 /**
  * Base class for GUI classes (except the plugin guis required by ILIAS)
@@ -59,12 +60,11 @@ abstract class BaseGUI
     protected PluginUiFactory $plugin_ui_factory;
     protected PluginUIService $plugin_ui_service;
 
+    protected RequestVariables $get;
+    protected RequestVariables $post;
+
     /** @var Modal[] */
     private array $modals = [];
-
-    /** @var array query params */
-    protected array $params = [];
-
 
     public function __construct(protected BaseObjectData $object)
     {
@@ -91,7 +91,8 @@ abstract class BaseGUI
         $this->plugin_ui_factory = $this->plugin->dic()->uiFactory();
         $this->plugin_ui_service = $this->plugin->dic()->uiService();
 
-        $this->params = $this->request->getQueryParams();
+        $this->get = new RequestVariables($DIC->http()->wrapper()->query(), $this->dic->refinery());
+        $this->post = new RequestVariables($DIC->http()->wrapper()->post(), $this->dic->refinery());
     }
 
     /**

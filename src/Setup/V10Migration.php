@@ -1417,7 +1417,7 @@ class V10Migration
                             'Field' => 'task_id',
                             'Type' => 'int(11)',
                             'Null' => 'NO',
-                            'Key' => 'PRI',
+                            'Key' => '',
                             'Default' => null,
                             'Extra' => '',
                             'comment' => 'Bisher gleich, jetzt mehrere Tasks pro Assessment',

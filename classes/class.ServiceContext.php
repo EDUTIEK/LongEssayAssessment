@@ -159,6 +159,7 @@ abstract class ServiceContext implements BaseContext
     public function getAbsoluteTempPath(): string
     {
         $this->createTempWebDir();
+        $this->cleanupTempWebDir();
         return ILIAS_ABSOLUTE_PATH . '/' . ILIAS_WEB_DIR . '/' . CLIENT_ID . '/temp';
     }
 
@@ -173,6 +174,33 @@ abstract class ServiceContext implements BaseContext
             $fs->createDir('temp');
         }
     }
+
+    /**
+     * Delete all temporary files that are older than 1 hour
+     * Don't delete more than 1000 files at once
+     */
+    protected function cleanupTempWebDir()
+    {
+        global $DIC;
+        $fs = $DIC->filesystem()->web();
+        if ($fs->hasDir('temp')) {
+            $data = $fs->listContents('temp', false);
+            $deleted = 0;
+            foreach ($data as $file) {
+                if (substr(basename($file->getPath()), 0, 3) == 'LAS') {
+                    $ts = $fs->getTimestamp($file->getPath());
+                    if ($ts->getTimestamp() < (time() - 3600)) {
+                        $fs->delete($file->getPath());
+                    }
+                    $deleted++;
+                    if ($deleted > 1000) {
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
 
     /**
      * @inheritDoc

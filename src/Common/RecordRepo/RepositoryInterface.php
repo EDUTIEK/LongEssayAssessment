@@ -50,10 +50,11 @@ interface RepositoryInterface
 
     /**
      * Query all entities based on an array of conditions
+     * @param array<string, 'asc'|'desc' $order
      * @return A[]
      * @see where
      */
-    public function queryAllBy(array $conditions): array;
+    public function queryAllBy(array $conditions, array $order): array;
 
     /**
      * Do a raw database query and return the assoc record arrays

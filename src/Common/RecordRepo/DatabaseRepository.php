@@ -175,9 +175,9 @@ class DatabaseRepository implements RepositoryInterface
         return 0;
     }
 
-    public function queryAllBy(array $conditions): array
+    public function queryAllBy(array $conditions, array $order): array
     {
-        return $this->queryAll($this->sqlSelect($this->where($conditions)));
+        return $this->queryAll($this->sqlSelect($this->where($conditions), $this->order($order)));
     }
 
     public function queryOneBy(array $conditions): ?object
@@ -215,9 +215,9 @@ class DatabaseRepository implements RepositoryInterface
         return 'SELECT COUNT(*) FROM ' . $this->db->quoteIdentifier($this->table()) . ' WHERE ' . $where;
     }
 
-    private function sqlSelect(string $where = '1'): string
+    private function sqlSelect(string $where = '1', string $order = ''): string
     {
-        return 'SELECT * FROM ' . $this->db->quoteIdentifier($this->table()) . ' WHERE ' . $where;
+        return 'SELECT * FROM ' . $this->db->quoteIdentifier($this->table()) . ' WHERE ' . ($where ?: '1') . ($order ? ' ORDER BY ' . $order : '');
     }
 
     private function sqlDelete(string $where): string
@@ -289,5 +289,22 @@ class DatabaseRepository implements RepositoryInterface
             return substr($type, 1);
         }
         return $type;
+    }
+
+    /**
+     * @param array<string, 'asc'|'desc'> $order
+     */
+    private function order(array $order): string
+    {
+        if ([] !== array_filter($order, fn($dir) => !in_array(strtolower($dir), ['asc', 'desc'], true))) {
+            throw new Exception('Invalid order key given. Only ASC and DESC are allowed');
+        }
+
+        $parts = [];
+        foreach ($order as $key => $dir) {
+            $parts[] = $this->db->quoteIdentifier($key) . ' ' . $dir;
+        }
+
+        return join(', ', $parts);
     }
 }

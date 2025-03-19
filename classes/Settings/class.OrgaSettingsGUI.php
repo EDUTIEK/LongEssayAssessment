@@ -239,9 +239,8 @@ class OrgaSettingsGUI extends BaseGUI
         // Content
         $fields_content = [];
         $fields_content['task_description'] = $this->plugin_ui_factory->field()
-            ->textareaModified($this->plugin->txt("task_description"), $this->plugin->txt("task_description_info"))
-            ->withValue($orga_settings->getDescription() ?? "")
-            ->withAdditionalTransformation($this->plugin_ui_service->stringTransformationByRTETagSet());
+            ->tinyMCE($this->plugin->txt("task_description"), $this->plugin->txt("task_description_info"))
+            ->withValue($orga_settings->getDescription() ?? "");
 
         $fields_content['closing_message'] = $this->plugin_ui_factory->field()
             ->textareaModified($this->plugin->txt("closing_message"), $this->plugin->txt("closing_message_info"))

@@ -175,7 +175,7 @@ class DatabaseRepository implements RepositoryInterface
         return 0;
     }
 
-    public function queryAllBy(array $conditions, array $order): array
+    public function queryAllBy(array $conditions, array $order = []): array
     {
         return $this->queryAll($this->sqlSelect($this->where($conditions), $this->order($order)));
     }

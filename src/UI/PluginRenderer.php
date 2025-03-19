@@ -17,6 +17,7 @@ use ILIAS\Plugin\LongEssayAssessment\UI\Implementation\Statistic;
 use ILIAS\Plugin\LongEssayAssessment\UI\Implementation\GraphStatisticGroup;
 use ILIAS\Plugin\LongEssayAssessment\UI\Implementation\ExtendableStatisticGroup;
 use ILIAS\Plugin\LongEssayAssessment\UI\Component\PdfViewer;
+use ILIAS\Plugin\LongEssayAssessment\UI\Input\TinyMCE;
 
 //inherit from DecoratedRender to align your renderer with other potential renders in ILIAS to allow manipulations from
 //different sources to be chained behind each other.
@@ -53,6 +54,7 @@ class PluginRenderer extends DecoratedRenderer
             case ($component instanceof ItemListInput):
             case ($component instanceof Numeric):
             case ($component instanceof BlankForm):
+            case ($component instanceof TinyMCE):
                 return $this->field_render->render($component, $root);
             case ($component instanceof Statistic):
             case ($component instanceof GraphStatisticGroup):

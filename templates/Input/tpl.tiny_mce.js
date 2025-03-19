@@ -1,0 +1,33 @@
+$(document).ready(function () {
+  tinymce.init({
+    license_key: 'gpl',
+    selector: "textarea#{ID}",
+    branding: false,
+    language: "{LANG}",
+    block_formats: { BLOCKFORMATS },
+    plugins: "{ADDITIONAL_PLUGINS}",
+    menubar: false,
+    toolbar: "{BUTTONS_1} {BUTTONS_2} {BUTTONS_3}",
+    toolbar_persist: true,
+    toolbar_mode: 'wrap',
+    valid_elements: "{VALID_ELEMENTS}",
+    image_advtab: false,
+    image_title: true,
+    images_file_types: "gif, jpg, jpeg, png",
+    file_picker_types: "image",
+    automatic_uploads: true,
+    importcss_append: true,
+    plugin_insertdate_dateFormat: "%d.%m.%Y",
+    plugin_insertdate_timeFormat: "%H:%M:%S",
+    image_caption: true,
+    quickbars_selection_toolbar: '',
+    noneditable_noneditable_class: 'mceNonEditable',
+    contextmenu: '{CONTEXT_MENU_ITEMS}',
+    skin: 'oxide',
+    entities: "60,lt,62,gt,38,amp",
+    content_css: "{STYLESHEET_LOCATION}",
+    content_style: 'html { overflow: initial; }',
+    fix_list_elements: true,
+  });
+});
+

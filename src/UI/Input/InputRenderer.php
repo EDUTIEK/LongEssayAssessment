@@ -60,7 +60,6 @@ class InputRenderer extends \ILIAS\UI\Implementation\Component\Input\Field\Rende
     public function render(Component $component, RendererInterface $default_renderer): string
     {
         if($component instanceof Input) {
-            //$this->checkComponent($component);
             $component = $this->setSignals($component);
         }
 
@@ -71,6 +70,8 @@ class InputRenderer extends \ILIAS\UI\Implementation\Component\Input\Field\Rende
                 return $this->renderItemListInput($component, $default_renderer);
             case ($component instanceof BlankForm):
                 return $this->renderBlankForm($component, $default_renderer);
+            case ($component instanceof TinyMCE):
+                return $this->renderTinyMCE($component, $default_renderer);
             default:
                 throw new \LogicException("Cannot render '" . get_class($component) . "'");
         }
@@ -144,6 +145,25 @@ class InputRenderer extends \ILIAS\UI\Implementation\Component\Input\Field\Rende
         return $tpl->get();
     }
 
+    protected function renderTinyMCE(TinyMCE $component, RendererInterface $default_renderer)
+    {
+        /** @var TinyMCE $component */
+        $component = $component->withAdditionalOnLoadCode(
+            static function ($id): string {
+                return "
+                    taId = document.querySelector('#$id .c-input__field textarea')?.id;
+                    il.UI.Input.textarea.init(taId);
+                ";
+            }
+        );
+        $component = $this->initTinyMCE($component);
+        $tpl = $this->getPreparedTextareaTemplate($component);
+
+        $label_id = $this->createId();
+        $tpl->setVariable('ID', $label_id);
+        return $this->wrapInFormContext($component, $component->getLabel(), $tpl->get(), $label_id);
+    }
+
     protected function renderItemListInput(ItemListInput $component, RendererInterface $default_renderer): string
     {
         $tpl = $this->getTemplate("tpl.item_list_input.html", true, true);
@@ -163,7 +183,8 @@ class InputRenderer extends \ILIAS\UI\Implementation\Component\Input\Field\Rende
         return [
             ItemListInput::class,
             Numeric::class,
-            BlankForm::class
+            BlankForm::class,
+            TinyMCE::class,
         ];
     }
 
@@ -254,5 +275,38 @@ class InputRenderer extends \ILIAS\UI\Implementation\Component\Input\Field\Rende
             }
         );
         return $input;
+    }
+
+    protected function initTinyMCE(TinyMCE $component) : TinyMCE
+    {
+        $this->tpl->addJavaScript('node_modules/tinymce/tinymce.min.js');//once
+
+        $tiny = new \ilTinyMCE();
+
+        $tpl = $this->getTemplate("tpl.item_list_input.html", true, true);
+        $tpl->setVariable("STYLESHEET_LOCATION", \ilUtil::getNewContentStyleSheetLocation() . ',' . \ilUtil::getStyleSheetLocation('output', 'delos.css'));
+        $tpl->setVariable("ADDITIONAL_PLUGINS", implode(' ', $component->getPlugins()));
+        $tpl->setVariable("LANG", is_file("./node_modules/tinymce/langs/de.js") ? "de" : "en"); // as we only have de right now this is sufficient
+        $buttons_1 = $tiny->_buildAdvancedButtonsFromHTMLTags(1, $component->getElements());
+        $buttons_2 = $tiny->_buildAdvancedButtonsFromHTMLTags(2, $component->getElements())
+            . ',' . $tiny->_buildAdvancedTableButtonsFromHTMLTags($component->getElements())
+            . ($tiny->getStyleSelect() ? ',styleselect' : '');
+        $buttons_3 = $tiny->_buildAdvancedButtonsFromHTMLTags(3, $component->getElements());
+        $tpl->setVariable('BUTTONS_1', $tiny->removeRedundantSeparators($buttons_1));
+        $tpl->setVariable('BUTTONS_2', $tiny->removeRedundantSeparators($buttons_2));
+        $tpl->setVariable('BUTTONS_3', $tiny->removeRedundantSeparators($buttons_3));
+        $tpl->setVariable("VALID_ELEMENTS", $tiny->_getValidElementsFromHTMLTags($component->getElements()));
+        $tpl->setVariable("CONTEXT_MENU_ITEMS", "");
+
+        /**
+         * @var TinyMCE $component
+         */
+        $component = $component->withAdditionalOnLoadCode(
+            function ($id) use ($component, $tpl) {
+                $tpl->setVariable("ID", $id);
+                return $tpl->get();
+            }
+        );
+        return $component;
     }
 }

@@ -1,12 +1,11 @@
 <?php
 
-namespace ILIAS\Plugin\LongEssayAssessment\UI\Implementation;
+namespace ILIAS\Plugin\LongEssayAssessment\UI;
 
 use ILIAS\UI\Implementation\Component\Symbol\Icon\Factory as ILIASIconFactory;
-use \ILIAS\Plugin\LongEssayAssessment\UI\Component\IconFactory as PluginIconFactory;
 use ILIAS\UI\Implementation\Component\Symbol\Icon\Icon;
 
-class IconFactory implements PluginIconFactory
+class IconFactory
 {
     private ILIASIconFactory $factory;
     private \ilPlugin $plugin;

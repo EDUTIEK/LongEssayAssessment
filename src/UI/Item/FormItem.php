@@ -2,11 +2,11 @@
 
 /* Copyright (c) 2017 Alex Killing <killing@leifos.de> Extended GPL, see docs/LICENSE */
 
-namespace ILIAS\Plugin\LongEssayAssessment\UI\Implementation;
+namespace ILIAS\Plugin\LongEssayAssessment\UI\Item;
 
 use ILIAS\UI\Implementation\Component\Item\Standard;
 
-class FormItem extends Standard implements \ILIAS\Plugin\LongEssayAssessment\UI\Component\FormItem
+class FormItem extends Standard
 {
     protected ?string $name = null;
 

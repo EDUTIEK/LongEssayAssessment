@@ -1,8 +1,8 @@
 <?php
 
-namespace ILIAS\Plugin\LongEssayAssessment\UI\Implementation;
+namespace ILIAS\Plugin\LongEssayAssessment\UI\Statistic;
 
-class StatisticSection implements \ILIAS\Plugin\LongEssayAssessment\UI\Component\StatisticSection
+class StatisticSection
 {
     private string $title;
 
@@ -11,7 +11,7 @@ class StatisticSection implements \ILIAS\Plugin\LongEssayAssessment\UI\Component
         $this->title = $title;
     }
 
-    public function withTitle(string $title): \ILIAS\Plugin\LongEssayAssessment\UI\Component\Statistic
+    public function withTitle(string $title): StatisticSection
     {
         $clone = clone $this;
         $clone->title = $title;

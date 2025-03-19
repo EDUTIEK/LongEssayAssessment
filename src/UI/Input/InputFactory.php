@@ -1,16 +1,15 @@
 <?php
 
-namespace ILIAS\Plugin\LongEssayAssessment\UI\Implementation;
+namespace ILIAS\Plugin\LongEssayAssessment\UI\Input;
 
 use ILIAS\Data;
 use ILIAS\Data\Factory as DataFactory;
-use ILIAS\Plugin\LongEssayAssessment\UI\Component\BlankForm;
 use ILIAS\UI\Implementation\Component\Input\Field\Factory;
 use ILIAS\UI\Implementation\Component\Input\Field\FormInput;
 use ILIAS\UI\Implementation\Component\Input\Field\Textarea;
 use ILIAS\UI\Implementation\Component\SignalGeneratorInterface;
 
-class InputFactory implements \ILIAS\Plugin\LongEssayAssessment\UI\Component\InputFactory
+class InputFactory
 {
     /**
      * @var    Data\Factory
@@ -63,7 +62,7 @@ class InputFactory implements \ILIAS\Plugin\LongEssayAssessment\UI\Component\Inp
     /**
      * @inheritdoc
      */
-    public function numeric($label, $byline = null) : \ILIAS\Plugin\LongEssayAssessment\UI\Implementation\Numeric
+    public function numeric($label, $byline = null) : Numeric
     {
         return new Numeric($this->data_factory, $this->refinery, $label, $byline);
     }
@@ -71,7 +70,7 @@ class InputFactory implements \ILIAS\Plugin\LongEssayAssessment\UI\Component\Inp
     /**
      * @inheritdoc
      */
-    public function itemList($label, $byline = null) : \ILIAS\Plugin\LongEssayAssessment\UI\Implementation\ItemListInput
+    public function itemList($label, $byline = null) : ItemListInput
     {
         return new ItemListInput($this->data_factory, $this->refinery, $label, $byline, $this->signal_generator);
     }
@@ -81,7 +80,7 @@ class InputFactory implements \ILIAS\Plugin\LongEssayAssessment\UI\Component\Inp
      */
     public function blankForm(string $post_url, array $inputs): BlankForm
     {
-        return new \ILIAS\Plugin\LongEssayAssessment\UI\Implementation\BlankForm(
+        return new BlankForm(
             $this->input_factory,
             $post_url,
             $inputs,

@@ -1,21 +1,19 @@
 <?php
 
-namespace ILIAS\Plugin\LongEssayAssessment\UI\Implementation;
+namespace ILIAS\Plugin\LongEssayAssessment\UI\Statistic;
 
-use ILIAS\Plugin\LongEssayAssessment\UI\Component\StatisticGroup as IStatisticGroup;
-
-abstract class StatisticGroup implements IStatisticGroup
+abstract class StatisticGroup
 {
 
     private string $title;
     /**
-     * @var array|\ILIAS\Plugin\LongEssayAssessment\UI\Component\StatisticItem[]
+     * @var Statistic[]
      */
     private array $items;
 
     /**
      * @param string $title
-     * @param \ILIAS\Plugin\LongEssayAssessment\UI\Component\StatisticItem[]  $items
+     * @param Statistic[]  $items
      */
     public function __construct(string $title, array $items)
     {
@@ -33,7 +31,7 @@ abstract class StatisticGroup implements IStatisticGroup
         return "StatisticGroup";
     }
 
-    public function withTitle(string $title): IStatisticGroup
+    public function withTitle(string $title): StatisticGroup
     {
         $clone = clone $this;
         $clone->title = $title;
@@ -44,7 +42,7 @@ abstract class StatisticGroup implements IStatisticGroup
     /**
      * @inheritDoc
      */
-    public function withStatistics(array $items): IStatisticGroup
+    public function withStatistics(array $items): StatisticGroup
     {
         $clone = clone $this;
         $clone->items = $items;

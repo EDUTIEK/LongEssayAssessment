@@ -1,6 +1,6 @@
 <?php
 
-namespace ILIAS\Plugin\LongEssayAssessment\UI\Implementation;
+namespace ILIAS\Plugin\LongEssayAssessment\UI\Input;
 
 use ILIAS\Data\Factory as DataFactory;
 use ILIAS\Refinery\Factory;
@@ -12,7 +12,7 @@ use ILIAS\UI\Implementation\Component\SignalGenerator;
 use ILIAS\UI\Implementation\Component\SignalGeneratorInterface;
 use ILIAS\UI\Implementation\Component\Triggerer;
 
-class ItemListInput extends FormInput implements \ILIAS\Plugin\LongEssayAssessment\UI\Component\ItemListInput
+class ItemListInput extends FormInput
 {
     use Triggerer;
     use ComponentHelper;
@@ -85,7 +85,7 @@ class ItemListInput extends FormInput implements \ILIAS\Plugin\LongEssayAssessme
     public function getListDataSource(): ?Signal
     {
         $signals = $this->getTriggeredSignals();
-        if(count($signals) > 0) {
+        if (count($signals) > 0) {
             return $signals[0]->getSignal();
         }
         return null;

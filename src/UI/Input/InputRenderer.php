@@ -1,6 +1,6 @@
 <?php
 
-namespace ILIAS\Plugin\LongEssayAssessment\UI\Implementation;
+namespace ILIAS\Plugin\LongEssayAssessment\UI\Input;
 
 use ILIAS\UI\Component\Component;
 use ILIAS\UI\Component\Test\JSTestComponent;
@@ -44,7 +44,6 @@ use ILIAS\UI\Implementation\Component\Tree\Node\Node;
 use ILIAS\UI\Implementation\Component\ViewControl\Pagination;
 use ILIAS\UI\Implementation\Component\ViewControl\Sortation;
 use ILIAS\UI\Implementation\Render\Template;
-use \ILIAS\Plugin\LongEssayAssessment\UI\Component as F;
 use ILIAS\UI\Renderer as RendererInterface;
 
 class InputRenderer extends \ILIAS\UI\Implementation\Component\Input\Field\Renderer
@@ -66,11 +65,11 @@ class InputRenderer extends \ILIAS\UI\Implementation\Component\Input\Field\Rende
         }
 
         switch (true) {
-            case ($component instanceof F\Numeric):
+            case ($component instanceof Numeric):
                 return $this->renderCustomNumericField($component);
-            case ($component instanceof F\ItemListInput):
+            case ($component instanceof ItemListInput):
                 return $this->renderItemListInput($component, $default_renderer);
-            case ($component instanceof F\BlankForm):
+            case ($component instanceof BlankForm):
                 return $this->renderBlankForm($component, $default_renderer);
             default:
                 throw new \LogicException("Cannot render '" . get_class($component) . "'");
@@ -87,7 +86,7 @@ class InputRenderer extends \ILIAS\UI\Implementation\Component\Input\Field\Rende
         return $step;
     }
 
-    protected function renderCustomNumericField(F\Numeric $component) : string
+    protected function renderCustomNumericField(Numeric $component) : string
     {
         $tpl = $this->getTemplate("tpl.numeric.html", true, true);
         $this->applyName($component, $tpl);
@@ -98,7 +97,7 @@ class InputRenderer extends \ILIAS\UI\Implementation\Component\Input\Field\Rende
         return $this->wrapInFormContext($component, $tpl->get(), $id);
     }
 
-    protected function renderBlankForm(F\BlankForm $form, RendererInterface $default_renderer)
+    protected function renderBlankForm(BlankForm $form, RendererInterface $default_renderer)
     {
         $tpl = $this->getTemplate("tpl.blank_form.html", true, true);
         $form = $this->registerBlankFormSignals($form);
@@ -145,7 +144,7 @@ class InputRenderer extends \ILIAS\UI\Implementation\Component\Input\Field\Rende
         return $tpl->get();
     }
 
-    protected function renderItemListInput(F\ItemListInput $component, RendererInterface $default_renderer): string
+    protected function renderItemListInput(ItemListInput $component, RendererInterface $default_renderer): string
     {
         $tpl = $this->getTemplate("tpl.item_list_input.html", true, true);
         $component = $this->registerItemListInputSignals($component);
@@ -162,9 +161,9 @@ class InputRenderer extends \ILIAS\UI\Implementation\Component\Input\Field\Rende
     protected function getComponentInterfaceName(): array
     {
         return [
-            F\ItemListInput::class,
-            F\Numeric::class,
-            F\BlankForm::class
+            ItemListInput::class,
+            Numeric::class,
+            BlankForm::class
         ];
     }
 
@@ -239,8 +238,8 @@ class InputRenderer extends \ILIAS\UI\Implementation\Component\Input\Field\Rende
     {
         $trigger_load = $input->getTriggerLoadSignal();
         $data_source = $input->getListDataSource();
-
-        return $input->withAdditionalOnLoadCode(
+        /** @var ItemListInput $input */
+        $input = $input->withAdditionalOnLoadCode(
             function ($id) use ($trigger_load, $data_source) {
                 return "$(document).on('{$trigger_load}', function() {
 				 			$(document).trigger('{$data_source}',
@@ -254,5 +253,6 @@ class InputRenderer extends \ILIAS\UI\Implementation\Component\Input\Field\Rende
 					});";
             }
         );
+        return $input;
     }
 }

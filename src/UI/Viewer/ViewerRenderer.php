@@ -1,11 +1,10 @@
 <?php
 
-namespace ILIAS\Plugin\LongEssayAssessment\UI\Implementation;
+namespace ILIAS\Plugin\LongEssayAssessment\UI\Viewer;
 
 use ILIAS\UI\Implementation\Render\AbstractComponentRenderer;
 use ILIAS\UI\Renderer;
 use ILIAS\UI\Component\Component;
-use ILIAS\Plugin\LongEssayAssessment\UI\Component\PdfViewer;
 use LogicException;
 
 class ViewerRenderer extends AbstractComponentRenderer

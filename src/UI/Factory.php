@@ -2,20 +2,21 @@
 
 declare(strict_types=1);
 
-namespace ILIAS\Plugin\LongEssayAssessment\UI\Implementation;
+namespace ILIAS\Plugin\LongEssayAssessment\UI;
 
 use ILIAS\Plugin\LongEssayAssessment\UI;
-use ILIAS\Plugin\LongEssayAssessment\UI\Component\InputFactory;
-use ILIAS\Plugin\LongEssayAssessment\UI\Component\IconFactory;
-use ILIAS\Plugin\LongEssayAssessment\UI\Component\ItemFactory;
-use ILIAS\Plugin\LongEssayAssessment\UI\Component\ViewerFactory;
+use ILIAS\Plugin\LongEssayAssessment\UI\Input\InputFactory;
+use ILIAS\Plugin\LongEssayAssessment\UI\IconFactory;
+use ILIAS\Plugin\LongEssayAssessment\UI\Item\ItemFactory;
+use ILIAS\Plugin\LongEssayAssessment\UI\Viewer\ViewerFactory;
+use ILIAS\Plugin\LongEssayAssessment\UI\Statistic\StatisticFactory;
 
 /**
  * Class Factory
  *
- * @package ILIAS\Plugin\LongEssayAssessment\UI\Implementation
+ * @package ILIAS\Plugin\LongEssayAssessment\UI\Input
  */
-class Factory implements UI\Component\Factory
+class Factory
 {
     private InputFactory $field_factory;
     private IconFactory $icon_factory;

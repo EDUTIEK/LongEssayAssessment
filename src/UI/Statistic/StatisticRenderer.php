@@ -1,6 +1,6 @@
 <?php
 
-namespace ILIAS\Plugin\LongEssayAssessment\UI\Implementation;
+namespace ILIAS\Plugin\LongEssayAssessment\UI\Statistic;
 
 use ILIAS\UI\Component\Component;
 use ILIAS\UI\Renderer;

@@ -1,5 +1,5 @@
 <?php
-namespace ILIAS\Plugin\LongEssayAssessment\UI\Implementation;
+namespace ILIAS\Plugin\LongEssayAssessment\UI\Viewer;
 
 use ILIAS\Data\Factory as DataFactory;
 use ILIAS\Refinery\Transformation;
@@ -8,7 +8,7 @@ use ILIAS\UI\Implementation\Component\ComponentHelper;
 /**
  * Implementation of the viewer for PDF files
  */
-class PdfViewer implements \ILIAS\Plugin\LongEssayAssessment\UI\Component\PdfViewer
+class PdfViewer
 {
     use ComponentHelper;
 

@@ -1,5 +1,5 @@
 <?php
-namespace ILIAS\Plugin\LongEssayAssessment\UI\Implementation;
+namespace ILIAS\Plugin\LongEssayAssessment\UI\Input;
 
 use ILIAS\Data\Factory as DataFactory;
 use ILIAS\Refinery\Transformation;
@@ -7,7 +7,7 @@ use ILIAS\Refinery\Transformation;
 /**
  * This implements the numeric input.
  */
-class Numeric extends \ILIAS\UI\Implementation\Component\Input\Field\Numeric implements \ILIAS\Plugin\LongEssayAssessment\UI\Component\Numeric
+class Numeric extends \ILIAS\UI\Implementation\Component\Input\Field\Numeric
 {
     /**
      * @var bool

@@ -1,6 +1,6 @@
 <?php
 
-namespace ILIAS\Plugin\LongEssayAssessment\UI\Implementation;
+namespace ILIAS\Plugin\LongEssayAssessment\UI\Item;
 
 use ILIAS\UI\Component\Button\Shy;
 use ILIAS\UI\Component\Component;
@@ -217,7 +217,8 @@ class ItemRenderer extends \ILIAS\UI\Implementation\Component\Item\Renderer
         $submit = $form->getSubmitSignal();
         $list_data_source = $form->getListDataSourceSignal();
 
-        return $form->withAdditionalOnLoadCode(function ($id) use ($list_data_source) {
+        /** @var FormGroup $form */
+        $form = $form->withAdditionalOnLoadCode(function ($id) use ($list_data_source) {
             return "$(document).on('{$list_data_source}', function(event, signalData) {
 					var data_list = [];
 					$('#{$id}').find('.list_data_source_item:checked').map(function() {
@@ -240,6 +241,7 @@ class ItemRenderer extends \ILIAS\UI\Implementation\Component\Item\Renderer
         })->withAdditionalOnLoadCode(function ($id) use ($submit) {
             return "$(document).on('{$submit}', function() { document.forms['{$id}'].submit(); return false; });";
         });
+        return $form;
     }
 
 }

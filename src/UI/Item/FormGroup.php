@@ -1,6 +1,6 @@
 <?php
 
-namespace ILIAS\Plugin\LongEssayAssessment\UI\Implementation;
+namespace ILIAS\Plugin\LongEssayAssessment\UI\Item;
 
 use ILIAS\UI\Component\Button\Button;
 use ILIAS\UI\Component\Modal\Modal;
@@ -10,7 +10,7 @@ use ILIAS\UI\Implementation\Component\JavaScriptBindable;
 use ILIAS\UI\Implementation\Component\Modal\RoundTrip;
 use ILIAS\UI\Implementation\Component\SignalGeneratorInterface;
 
-class FormGroup extends Group implements \ILIAS\Plugin\LongEssayAssessment\UI\Component\FormGroup
+class FormGroup extends Group
 {
     use JavaScriptBindable;
 
@@ -30,7 +30,7 @@ class FormGroup extends Group implements \ILIAS\Plugin\LongEssayAssessment\UI\Co
     }
 
 
-    public function withFormAction(string $link): \ILIAS\Plugin\LongEssayAssessment\UI\Component\FormGroup
+    public function withFormAction(string $link): FormGroup
     {
         $clone = clone $this;
         $clone->form_action = $link;
@@ -43,7 +43,7 @@ class FormGroup extends Group implements \ILIAS\Plugin\LongEssayAssessment\UI\Co
         return $this->form_action;
     }
 
-    public function withActionLabel(string $label): \ILIAS\Plugin\LongEssayAssessment\UI\Component\FormGroup
+    public function withActionLabel(string $label): FormGroup
     {
         $clone = clone $this;
         $clone->action_label = $label;

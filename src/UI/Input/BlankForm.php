@@ -1,6 +1,6 @@
 <?php
 
-namespace ILIAS\Plugin\LongEssayAssessment\UI\Implementation;
+namespace ILIAS\Plugin\LongEssayAssessment\UI\Input;
 
 use ILIAS\UI\Component as C;
 use ILIAS\UI\Component\Signal;
@@ -9,7 +9,7 @@ use ILIAS\UI\Implementation\Component\Input\Container\Form\Form;
 use ILIAS\UI\Implementation\Component\JavaScriptBindable;
 use ILIAS\UI\Implementation\Component\SignalGeneratorInterface;
 
-class BlankForm extends Form implements \ILIAS\Plugin\LongEssayAssessment\UI\Component\BlankForm
+class BlankForm extends Form
 {
     use JavaScriptBindable;
 
@@ -57,7 +57,7 @@ class BlankForm extends Form implements \ILIAS\Plugin\LongEssayAssessment\UI\Com
         return $this->submit_async_signal;
     }
 
-    public function withAsyncOnEnter(): \ILIAS\Plugin\LongEssayAssessment\UI\Component\BlankForm
+    public function withAsyncOnEnter(): BlankForm
     {
         $clone = clone $this;
         $clone->asyncOnEnter = true;

@@ -1,8 +1,8 @@
 <?php
 
-namespace ILIAS\Plugin\LongEssayAssessment\UI\Implementation;
+namespace ILIAS\Plugin\LongEssayAssessment\UI\Statistic;
 
-class Statistic implements \ILIAS\Plugin\LongEssayAssessment\UI\Component\Statistic
+class Statistic
 {
     private ?int $count = null;
     private ?int $final = null;
@@ -32,7 +32,7 @@ class Statistic implements \ILIAS\Plugin\LongEssayAssessment\UI\Component\Statis
         $this->final_label = $final_label;
     }
 
-    public function withTitle(string $title): \ILIAS\Plugin\LongEssayAssessment\UI\Component\Statistic
+    public function withTitle(string $title): Statistic
     {
         $clone = clone $this;
         $clone->title = $title;
@@ -40,7 +40,7 @@ class Statistic implements \ILIAS\Plugin\LongEssayAssessment\UI\Component\Statis
         return $clone;
     }
 
-    public function withDescription(string $description): \ILIAS\Plugin\LongEssayAssessment\UI\Component\Statistic
+    public function withDescription(string $description): Statistic
     {
         $clone = clone $this;
         $clone->description = $description;
@@ -48,7 +48,7 @@ class Statistic implements \ILIAS\Plugin\LongEssayAssessment\UI\Component\Statis
         return $clone;
     }
 
-    public function withCountLabel(string $count_label): \ILIAS\Plugin\LongEssayAssessment\UI\Component\Statistic
+    public function withCountLabel(string $count_label): Statistic
     {
         $clone = clone $this;
         $clone->count_label = $count_label;
@@ -56,7 +56,7 @@ class Statistic implements \ILIAS\Plugin\LongEssayAssessment\UI\Component\Statis
         return $clone;
     }
 
-    public function withFinalLabel(string $final_label): \ILIAS\Plugin\LongEssayAssessment\UI\Component\Statistic
+    public function withFinalLabel(string $final_label): Statistic
     {
         $clone = clone $this;
         $clone->final_label = $final_label;
@@ -64,7 +64,7 @@ class Statistic implements \ILIAS\Plugin\LongEssayAssessment\UI\Component\Statis
         return $clone;
     }
 
-    public function withCount(int $count): \ILIAS\Plugin\LongEssayAssessment\UI\Component\Statistic
+    public function withCount(int $count): Statistic
     {
         $clone = clone $this;
         $clone->count = $count;
@@ -72,7 +72,7 @@ class Statistic implements \ILIAS\Plugin\LongEssayAssessment\UI\Component\Statis
         return $clone;
     }
 
-    public function withFinal(int $final): \ILIAS\Plugin\LongEssayAssessment\UI\Component\Statistic
+    public function withFinal(int $final): Statistic
     {
         $clone = clone $this;
         $clone->final = $final;
@@ -80,7 +80,7 @@ class Statistic implements \ILIAS\Plugin\LongEssayAssessment\UI\Component\Statis
         return $clone;
     }
 
-    public function withNotAttended(int $not_attended): \ILIAS\Plugin\LongEssayAssessment\UI\Component\Statistic
+    public function withNotAttended(int $not_attended): Statistic
     {
         $clone = clone $this;
         $clone->not_attended = $not_attended;
@@ -88,7 +88,7 @@ class Statistic implements \ILIAS\Plugin\LongEssayAssessment\UI\Component\Statis
         return $clone;
     }
 
-    public function withPassed(int $passed): \ILIAS\Plugin\LongEssayAssessment\UI\Component\Statistic
+    public function withPassed(int $passed): Statistic
     {
         $clone = clone $this;
         $clone->passed = $passed;
@@ -96,7 +96,7 @@ class Statistic implements \ILIAS\Plugin\LongEssayAssessment\UI\Component\Statis
         return $clone;
     }
 
-    public function withNotPassed(int $not_passed): \ILIAS\Plugin\LongEssayAssessment\UI\Component\Statistic
+    public function withNotPassed(int $not_passed): Statistic
     {
         $clone = clone $this;
         $clone->not_passed = $not_passed;
@@ -105,14 +105,14 @@ class Statistic implements \ILIAS\Plugin\LongEssayAssessment\UI\Component\Statis
     }
 
     public function withNotPassedQuota(float $not_passed_quota
-    ): \ILIAS\Plugin\LongEssayAssessment\UI\Component\Statistic {
+    ): Statistic {
         $clone = clone $this;
         $clone->not_passed_quota = $not_passed_quota;
 
         return $clone;
     }
 
-    public function withAveragePoints(float $average_points): \ILIAS\Plugin\LongEssayAssessment\UI\Component\Statistic
+    public function withAveragePoints(float $average_points): Statistic
     {
         $clone = clone $this;
         $clone->average_points = $average_points;
@@ -123,7 +123,7 @@ class Statistic implements \ILIAS\Plugin\LongEssayAssessment\UI\Component\Statis
     /**
      * @inheritDoc
      */
-    public function withGrades(array $grades): \ILIAS\Plugin\LongEssayAssessment\UI\Component\Statistic
+    public function withGrades(array $grades): Statistic
     {
         $clone = clone $this;
         $clone->grades = $grades;
@@ -196,7 +196,7 @@ class Statistic implements \ILIAS\Plugin\LongEssayAssessment\UI\Component\Statis
         return $this->count_label;
     }
 
-    public function withPseudonym(array $pseudonym): \ILIAS\Plugin\LongEssayAssessment\UI\Component\Statistic
+    public function withPseudonym(array $pseudonym): Statistic
     {
         $clone = clone $this;
         $clone->pseudonym = $pseudonym;
@@ -204,7 +204,7 @@ class Statistic implements \ILIAS\Plugin\LongEssayAssessment\UI\Component\Statis
         return $clone;
     }
 
-    public function withOwnGrade(string $own_grade): \ILIAS\Plugin\LongEssayAssessment\UI\Component\Statistic
+    public function withOwnGrade(string $own_grade): Statistic
     {
         $clone = clone $this;
         $clone->own_grade = $own_grade;

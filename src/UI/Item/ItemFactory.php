@@ -1,15 +1,13 @@
 <?php
 
-namespace ILIAS\Plugin\LongEssayAssessment\UI\Implementation;
+namespace ILIAS\Plugin\LongEssayAssessment\UI\Item;
 
-use ILIAS\Plugin\LongEssayAssessment\UI\Component\FormGroup;
-use ILIAS\Plugin\LongEssayAssessment\UI\Component\FormItem;
 use ILIAS\UI\Component\Button\Shy;
 use ILIAS\UI\Component\Link\Link;
 use ILIAS\UI\Implementation\Component\SignalGeneratorInterface;
 use ILIAS\UI\Implementation\Component\Symbol\Icon\Factory as ILIASIconFactory;
 
-class ItemFactory implements \ILIAS\Plugin\LongEssayAssessment\UI\Component\ItemFactory
+class ItemFactory
 {
     private ILIASIconFactory $factory;
     private \ilPlugin $plugin;
@@ -24,7 +22,7 @@ class ItemFactory implements \ILIAS\Plugin\LongEssayAssessment\UI\Component\Item
 
     public function formGroup(string $title, array $items, string $form_action): FormGroup
     {
-        return new \ILIAS\Plugin\LongEssayAssessment\UI\Implementation\FormGroup(
+        return new FormGroup(
             $title,
             $items,
             $form_action,
@@ -38,6 +36,6 @@ class ItemFactory implements \ILIAS\Plugin\LongEssayAssessment\UI\Component\Item
      */
     public function formItem($title): FormItem
     {
-        return new \ILIAS\Plugin\LongEssayAssessment\UI\Implementation\FormItem($title);
+        return new FormItem($title);
     }
 }

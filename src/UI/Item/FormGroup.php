@@ -10,7 +10,7 @@ use ILIAS\UI\Implementation\Component\JavaScriptBindable;
 use ILIAS\UI\Implementation\Component\Modal\RoundTrip;
 use ILIAS\UI\Implementation\Component\SignalGeneratorInterface;
 
-class FormGroup extends Group
+class FormGroup extends Group implements \ILIAS\UI\Component\JavaScriptBindable
 {
     use JavaScriptBindable;
 
@@ -204,6 +204,7 @@ class FormGroup extends Group
 						);
 						return false;
 					});";
-            });
+            }
+        );
     }
 }

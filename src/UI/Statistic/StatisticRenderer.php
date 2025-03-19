@@ -6,7 +6,6 @@ use ILIAS\UI\Component\Component;
 use ILIAS\UI\Renderer;
 use ILIAS\Plugin\LongEssayAssessment\CorrectorAdmin\CorrectorAdminService;
 use ILIAS\UI\Component\Table\PresentationRow;
-use ILIAS\Plugin\LongEssayAssessment\UI\Component\StatisticItem;
 use ILIAS\UI\Implementation\Component\Symbol\Glyph\Glyph;
 use ILIAS\UI\Implementation\Render\AbstractComponentRenderer;
 use ILIAS\UI\Component\Panel\Sub;
@@ -18,13 +17,8 @@ class StatisticRenderer extends AbstractComponentRenderer
 {
     private ?array $files_cache = null;
 
-    /**
-     * @inheritdoc
-     */
     public function render(Component $component, Renderer $default_renderer): string
     {
-        $this->checkComponent($component);
-
         switch (true) {
             case ($component instanceof Statistic):
                 return $this->renderStatistic($component, $default_renderer);
@@ -76,18 +70,18 @@ class StatisticRenderer extends AbstractComponentRenderer
         $items[$component->getCountLabel()] = (string)$component->getCount();
         $items[$component->getFinalLabel()] = (string)$component->getFinal();
 
-        if($component->getNotAttended() !== null) {
+        if ($component->getNotAttended() !== null) {
             $items[$this->pluginTxt('statistic_not_attended')] = (string)$component->getNotAttended();
         }
         $items[$this->pluginTxt('statistic_passed')] = (string)$component->getPassed();
         $items[$this->pluginTxt('statistic_not_passed')] = (string)$component->getNotPassed();
 
-        if($component->getNotPassedQuota() !== null) {
+        if ($component->getNotPassedQuota() !== null) {
             $perc = 100 * $component->getNotPassedQuota();
             $items[$this->pluginTxt('essay_not_passed_quota')] = sprintf('%.1f', $perc) . '%';
         }
 
-        if($component->getAveragePoints() !== null) {
+        if ($component->getAveragePoints() !== null) {
             $items[$this->pluginTxt('essay_average_points')] = sprintf('%.2f', $component->getAveragePoints());
         }
 
@@ -95,7 +89,7 @@ class StatisticRenderer extends AbstractComponentRenderer
 
         $root = $this->getUIFactory()->panel()->sub($component->getTitle(), $this->getUIFactory()->listing()->characteristicValue()->text($items));
 
-        if(!empty($grades)) {
+        if (!empty($grades)) {
             $root = $root->withFurtherInformation(
                 $this->getUIFactory()->card()->standard("<h5>" . $this->pluginTxt('grade_distribution') . "</h5>")->withSections([
                     $chart,
@@ -115,8 +109,8 @@ class StatisticRenderer extends AbstractComponentRenderer
     {
         $panels = [];
 
-        foreach($component->getStatistics() as $statistic) {
-            if($statistic instanceof Statistic) {
+        foreach ($component->getStatistics() as $statistic) {
+            if ($statistic instanceof Statistic) {
                 $panels[] = $this->buildStatistic($statistic);
             } else {
                 $panels[] = $this->getUIFactory()->panel()->sub($statistic->getTitle(), []);
@@ -133,47 +127,47 @@ class StatisticRenderer extends AbstractComponentRenderer
         return $default_renderer->render($this->getUIFactory()->table()->presentation(
             $component->getTitle(),
             [],
-            function (PresentationRow $row, StatisticItem $record, $ui_factory, $environment) use ($default_renderer) { //mapping-closure
+            function (PresentationRow $row, Statistic $record, $ui_factory, $environment) use ($default_renderer) { //mapping-closure
                 $pseudonym = [];
                 $fproperties = [];
                 $properties = [];
 
-                if($record instanceof StatisticSection) {
+                if ($record instanceof StatisticSection) {
                     return [$ui_factory->legacy("<h4>" . $record->getTitle() . "</h4>")];
                 } elseif ($record instanceof Statistic) {
 
                     $properties[$record->getCountLabel()] = (string)$record->getCount();
                     $properties[$record->getFinalLabel()] = (string)$record->getFinal();
 
-                    if($record->getNotAttended() !== null) {
+                    if ($record->getNotAttended() !== null) {
                         $properties[$this->pluginTxt('statistic_not_attended')] = (string)$record->getNotAttended();
                     }
                     $properties[$this->pluginTxt('statistic_passed')] = (string)$record->getPassed();
                     $properties[$this->pluginTxt('statistic_not_passed')] = (string)$record->getNotPassed();
 
-                    if($record->getNotPassedQuota() !== null) {
+                    if ($record->getNotPassedQuota() !== null) {
                         $perc = 100 * $record->getNotPassedQuota();
                         $properties[$this->pluginTxt('essay_not_passed_quota')] = sprintf('%.1f', $perc) . '%';
                     }
 
-                    if($record->getAveragePoints() !== null) {
+                    if ($record->getAveragePoints() !== null) {
                         $properties[$this->pluginTxt('essay_average_points')] = sprintf('%.2f', $record->getAveragePoints());
                     }
 
                     list($fproperties, $chart) = $this->buildGradesAndGraph($record);
 
-                    if($record->getPseudonym() !== null) {
+                    if ($record->getPseudonym() !== null) {
                         $pseudonym = [$this->pluginTxt("pseudonym") => implode(", ", array_unique($record->getPseudonym()))];
                     }
 
-                    if($record->getOwnGrade() !== null) {
+                    if ($record->getOwnGrade() !== null) {
                         $row = $row->withSubheadline($this->pluginTxt("final_result") . ": " . $record->getOwnGrade());
                     }
 
                     $row = $row->withImportantFields($properties)
                                ->withContent($this->getUIFactory()->listing()->characteristicValue()->text(array_merge($pseudonym, $properties)));
 
-                    if(!empty($fproperties)) {
+                    if (!empty($fproperties)) {
                         $row = $row->withFurtherFieldsHeadline("<h5>" . $this->pluginTxt('grade_distribution') . "</h5>")
                                    ->withFurtherFields([
                                        "<span class='hidden'>1</span>" => $default_renderer->render($chart),
@@ -195,9 +189,9 @@ class StatisticRenderer extends AbstractComponentRenderer
         $dataset = $df->dataset([$this->pluginTxt("count") => $c_dimension]);
         $i=0;
 
-        foreach($component->getGrades() as $name => $count) {
+        foreach ($component->getGrades() as $name => $count) {
             $label = \ilStr::shortenTextExtended((string) $name, 50, true);
-            if($component->getOwnGrade() !== null && str_starts_with($component->getOwnGrade(), $label)) {
+            if ($component->getOwnGrade() !== null && str_starts_with($component->getOwnGrade(), $label)) {
                 $name = '<b><span class="glyphicon glyphicon-star" aria-hidden="true"></span>' . $name . '</b>';
                 $label = '<b><span class="glyphicon glyphicon-star" aria-hidden="true"></span>' . $label . '</b>';
             }

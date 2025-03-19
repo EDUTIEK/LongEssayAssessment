@@ -48,18 +48,17 @@ use ILIAS\UI\Renderer as RendererInterface;
 
 class InputRenderer extends \ILIAS\UI\Implementation\Component\Input\Field\Renderer
 {
+    private \ilGlobalTemplate $tpl; // if this is not defined and lead to arrow use $this->setGlobalTemplate after init
+    private bool $tiny_mce_js_included = false;
 
     /**
      * @var array
      */
     protected $files_cache;
 
-    /**
-     * @inheritdoc
-     */
     public function render(Component $component, RendererInterface $default_renderer): string
     {
-        if($component instanceof Input) {
+        if ($component instanceof Input) {
             $component = $this->setSignals($component);
         }
 
@@ -80,7 +79,7 @@ class InputRenderer extends \ILIAS\UI\Implementation\Component\Input\Field\Rende
     protected function applyStep(Numeric $component, Template $tpl) : ?string
     {
         $step = $component->getStep();
-        if($step != 1.) {
+        if ($step != 1.) {
             $tpl->setVariable("STEP", $step);
         }
 
@@ -93,7 +92,7 @@ class InputRenderer extends \ILIAS\UI\Implementation\Component\Input\Field\Rende
         $this->applyName($component, $tpl);
         $this->applyValue($component, $tpl, $this->escapeSpecialChars());
         $this->applyStep($component, $tpl);
-        $this->maybeDisable($component, $tpl);
+        # $this->maybeDisable($component, $tpl);
         $id = $this->bindJSandApplyId($component, $tpl);
         return $this->wrapInFormContext($component, $tpl->get(), $id);
     }
@@ -103,7 +102,7 @@ class InputRenderer extends \ILIAS\UI\Implementation\Component\Input\Field\Rende
         $tpl = $this->getTemplate("tpl.blank_form.html", true, true);
         $form = $this->registerBlankFormSignals($form);
 
-        if($form->isAsyncOnEnter()) {
+        if ($form->isAsyncOnEnter()) {
             $async_submit = $form->getSubmitAsyncSignal();
             $form = $form->withAdditionalOnLoadCode(
                 function ($id) use ($async_submit) {
@@ -173,7 +172,7 @@ class InputRenderer extends \ILIAS\UI\Implementation\Component\Input\Field\Rende
         $tpl->setVariable('ID', $id);
         $this->applyName($component, $tpl);
         $this->applyValue($component, $tpl, $this->escapeSpecialChars());
-        $this->maybeDisable($component, $tpl);
+        # $this->maybeDisable($component, $tpl);
         $id = $this->bindJSandApplyId($component, $tpl);
         return $this->wrapInFormContext($component, $tpl->get(), $id);
     }
@@ -194,7 +193,7 @@ class InputRenderer extends \ILIAS\UI\Implementation\Component\Input\Field\Rende
      */
     protected function getTemplatePath($name) : string
     {
-        if(in_array($name, $this->getPluginTemplateFiles())) {
+        if (in_array($name, $this->getPluginTemplateFiles())) {
             return "Input/$name";
         }
 
@@ -203,7 +202,7 @@ class InputRenderer extends \ILIAS\UI\Implementation\Component\Input\Field\Rende
 
     protected function getPluginTemplateFiles(): array
     {
-        if($this->files_cache === null) {
+        if ($this->files_cache === null) {
 
             $this->files_cache =  array_filter(scandir(dirname(__FILE__). "/../../../templates/Input"), function ($item) {
                 return str_starts_with($item, "tpl.");
@@ -277,9 +276,17 @@ class InputRenderer extends \ILIAS\UI\Implementation\Component\Input\Field\Rende
         return $input;
     }
 
+    public function setGlobalTemplate(\ilGlobalTemplate $template) : InputRenderer
+    {
+        $this->tpl = $template;
+        return $this;
+    }
+
     protected function initTinyMCE(TinyMCE $component) : TinyMCE
     {
-        $this->tpl->addJavaScript('node_modules/tinymce/tinymce.min.js');//once
+        if (!$this->tiny_mce_js_included) {
+            $this->tpl->addJavaScript('node_modules/tinymce/tinymce.min.js');
+        }
 
         $tiny = new \ilTinyMCE();
 

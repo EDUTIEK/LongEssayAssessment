@@ -82,7 +82,6 @@ class OrgaSettingsGUI extends BaseGUI
             }
         }
         $this->tpl->setContent($this->renderer->render($form));
-        $this->plugin_ui_service->addTinyMCEToTextareas(); // Has to be called last for the noRTEditor Tags to be effective
     }
 
     /**
@@ -204,8 +203,7 @@ class OrgaSettingsGUI extends BaseGUI
             ->withValue($properties->getTitle());
 
         $fields_object['description'] = $factory->textarea($this->lng->txt("description"))
-            ->withValue($properties->getDescription())
-            ->withAdditionalOnLoadCode($this->plugin_ui_service->noRTEOnloadCode());// Exclude from RTE
+            ->withValue($properties->getDescription());// Exclude from RTE
 
         $fields_object['online'] = $factory->checkbox($this->lng->txt('online'))
             ->withValue($orga_settings->getOnline());
@@ -243,9 +241,8 @@ class OrgaSettingsGUI extends BaseGUI
             ->withValue($orga_settings->getDescription() ?? "");
 
         $fields_content['closing_message'] = $this->plugin_ui_factory->field()
-            ->textareaModified($this->plugin->txt("closing_message"), $this->plugin->txt("closing_message_info"))
-            ->withValue($orga_settings->getClosingMessage() ?? "")
-            ->withAdditionalTransformation($this->plugin_ui_service->stringTransformationByRTETagSet());
+            ->tinyMCE($this->plugin->txt("closing_message"), $this->plugin->txt("closing_message_info"))
+            ->withValue($orga_settings->getClosingMessage() ?? "");
 
         // Task
         $fields_settings = [];
@@ -380,7 +377,6 @@ class OrgaSettingsGUI extends BaseGUI
                         $this->plugin->txt("review_notification_text"),
                         $this->plugin->txt("review_notification_text_info")
                     )
-                        ->withAdditionalOnLoadCode($this->plugin_ui_service->noRTEOnloadCode())
                         ->withValue($orga_settings->getReviewNotifText() ?? ""),
                 ],
                 $this->plugin->txt("review_notification_enabled"),

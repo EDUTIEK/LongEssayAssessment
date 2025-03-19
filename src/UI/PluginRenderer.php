@@ -2,22 +2,22 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\UI;
 
-use ILIAS\Plugin\LongEssayAssessment\UI\Component\BlankForm;
-use ILIAS\Plugin\LongEssayAssessment\UI\Component\FormGroup;
-use ILIAS\Plugin\LongEssayAssessment\UI\Component\FormItem;
-use ILIAS\Plugin\LongEssayAssessment\UI\Component\ItemListInput;
-use ILIAS\Plugin\LongEssayAssessment\UI\Component\Numeric;
-use ILIAS\Plugin\LongEssayAssessment\UI\Implementation\InputRenderer;
-use ILIAS\Plugin\LongEssayAssessment\UI\Implementation\ItemRenderer;
-use ILIAS\Plugin\LongEssayAssessment\UI\Implementation\ViewerRenderer;
 use ILIAS\UI\Implementation\Render\DecoratedRenderer;
 use ILIAS\UI\Renderer;
-use ILIAS\Plugin\LongEssayAssessment\UI\Implementation\StatisticRenderer;
-use ILIAS\Plugin\LongEssayAssessment\UI\Implementation\Statistic;
-use ILIAS\Plugin\LongEssayAssessment\UI\Implementation\GraphStatisticGroup;
-use ILIAS\Plugin\LongEssayAssessment\UI\Implementation\ExtendableStatisticGroup;
-use ILIAS\Plugin\LongEssayAssessment\UI\Component\PdfViewer;
 use ILIAS\Plugin\LongEssayAssessment\UI\Input\TinyMCE;
+use ILIAS\Plugin\LongEssayAssessment\UI\Viewer\PdfViewer;
+use ILIAS\Plugin\LongEssayAssessment\UI\Statistic\ExtendableStatisticGroup;
+use ILIAS\Plugin\LongEssayAssessment\UI\Statistic\GraphStatisticGroup;
+use ILIAS\Plugin\LongEssayAssessment\UI\Statistic\Statistic;
+use ILIAS\Plugin\LongEssayAssessment\UI\Input\BlankForm;
+use ILIAS\Plugin\LongEssayAssessment\UI\Input\Numeric;
+use ILIAS\Plugin\LongEssayAssessment\UI\Input\ItemListInput;
+use ILIAS\Plugin\LongEssayAssessment\UI\Item\FormGroup;
+use ILIAS\Plugin\LongEssayAssessment\UI\Item\FormItem;
+use ILIAS\Plugin\LongEssayAssessment\UI\Item\ItemRenderer;
+use ILIAS\Plugin\LongEssayAssessment\UI\Viewer\ViewerRenderer;
+use ILIAS\Plugin\LongEssayAssessment\UI\Input\InputRenderer;
+use ILIAS\Plugin\LongEssayAssessment\UI\Statistic\StatisticRenderer;
 
 //inherit from DecoratedRender to align your renderer with other potential renders in ILIAS to allow manipulations from
 //different sources to be chained behind each other.
@@ -34,8 +34,7 @@ class PluginRenderer extends DecoratedRenderer
         InputRenderer $field_render,
         StatisticRenderer $statistic_renderer,
         ViewerRenderer $viewer_render,
-    )
-    {
+    ) {
         parent::__construct($default);
         $this->item_renderer = $item_renderer;
         $this->field_render = $field_render;
@@ -47,7 +46,7 @@ class PluginRenderer extends DecoratedRenderer
     //define your manipulations. This example add an "A" before every button in ILIAS
     protected function manipulateRendering($component, Renderer $root): ?string
     {
-        switch(true) {
+        switch (true) {
             case ($component instanceof FormItem):
             case ($component instanceof FormGroup):
                 return $this->item_renderer->render($component, $root);

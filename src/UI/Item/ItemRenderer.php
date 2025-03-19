@@ -48,7 +48,7 @@ class ItemRenderer extends \ILIAS\UI\Implementation\Component\Item\Renderer
      */
     protected function getTemplatePath($name) : string
     {
-        if(in_array($name, $this->getPluginTemplateFiles())) {
+        if (in_array($name, $this->getPluginTemplateFiles())) {
             return "Item/$name";
         }
 
@@ -57,7 +57,7 @@ class ItemRenderer extends \ILIAS\UI\Implementation\Component\Item\Renderer
 
     protected function getPluginTemplateFiles(): array
     {
-        if($this->files_cache === null) {
+        if ($this->files_cache === null) {
 
             $this->files_cache =  array_filter(scandir(dirname(__FILE__). "/../../../templates/Item"), function ($item) {
                 return str_starts_with($item, "tpl.");
@@ -133,14 +133,14 @@ class ItemRenderer extends \ILIAS\UI\Implementation\Component\Item\Renderer
         // lead
         $lead = $component->getLead();
 
-        if($component->getName() !== null) {
+        if ($component->getName() !== null) {
             $tpl->setCurrentBlock("checkbox");
             $tpl->setVariable("CB_VALUE", $component->getName());
             $tpl->setVariable("LIST_DATA_SOURCE_NAME", $title);
             $tpl->setVariable("TXT_SELECT", $this->txt('select'));
             $tpl->parseCurrentBlock();
 
-            if($lead == null) { // checkbox activates lead-block so lead_end has to be called
+            if ($lead == null) { // checkbox activates lead-block so lead_end has to be called
                 $tpl->touchBlock("lead_end");
             }
         }

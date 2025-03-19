@@ -7,10 +7,10 @@ use ILIAS\Plugin\LongEssayAssessment\Dependencies\PluginDic;
 use ILIAS\Plugin\LongEssayAssessment\Setup\DBUpdateSteps10;
 use ILIAS\Plugin\LongEssayAssessment\Task\ResourceResourceStakeholder;
 use ILIAS\Plugin\LongEssayAssessment\UI\PluginTemplateFactory;
-use ILIAS\Plugin\LongEssayAssessment\UI\Implementation\InputRenderer;
-use ILIAS\Plugin\LongEssayAssessment\UI\Implementation\ItemRenderer;
-use ILIAS\Plugin\LongEssayAssessment\UI\Implementation\StatisticRenderer;
-use ILIAS\Plugin\LongEssayAssessment\UI\Implementation\ViewerRenderer;
+use ILIAS\Plugin\LongEssayAssessment\UI\Input\InputRenderer;
+use ILIAS\Plugin\LongEssayAssessment\UI\Item\ItemRenderer;
+use ILIAS\Plugin\LongEssayAssessment\UI\Statistic\StatisticRenderer;
+use ILIAS\Plugin\LongEssayAssessment\UI\Viewer\ViewerRenderer;
 use ILIAS\Plugin\LongEssayAssessment\UI\PluginRenderer;
 use ILIAS\Plugin\LongEssayAssessment\WriterAdmin\EssayImageResourceStakeholder;
 use ILIAS\Plugin\LongEssayAssessment\WriterAdmin\PDFVersionResourceStakeholder;
@@ -182,7 +182,7 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
                     $dic["help.text_retriever"],
                     $dic["ui.upload_limit_resolver"]
                 ),
-                new InputRenderer(
+                (new InputRenderer(
                     $dic["ui.factory"],
                     $dic[PluginTemplateFactory::class],
                     $dic["lng"],
@@ -191,7 +191,7 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
                     $dic["ui.data_factory"],
                     $dic["help.text_retriever"],
                     $dic["ui.upload_limit_resolver"]
-                ),
+                ))->setGlobalTemplate($dic["ui.template"]),//ugly but the constructor is final :(
                 new StatisticRenderer(
                     $dic["ui.factory"],
                     $dic[PluginTemplateFactory::class],

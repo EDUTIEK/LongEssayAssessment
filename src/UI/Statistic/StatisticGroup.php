@@ -2,7 +2,9 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\UI\Statistic;
 
-abstract class StatisticGroup
+use ILIAS\UI\Component\Component;
+
+abstract class StatisticGroup implements Component
 {
 
     private string $title;

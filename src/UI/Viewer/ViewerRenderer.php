@@ -17,7 +17,6 @@ class ViewerRenderer extends AbstractComponentRenderer
 
     public function render(Component $component, Renderer $default_renderer): string
     {
-        $this->checkComponent($component);
         switch (true) {
             case ($component instanceof PdfViewer):
                 return $this->renderPdfViewer($component, $default_renderer);

@@ -2,7 +2,9 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\UI\Statistic;
 
-class Statistic
+use ILIAS\UI\Component\Component;
+
+class Statistic implements Component
 {
     private ?int $count = null;
     private ?int $final = null;
@@ -104,8 +106,8 @@ class Statistic
         return $clone;
     }
 
-    public function withNotPassedQuota(float $not_passed_quota
-    ): Statistic {
+    public function withNotPassedQuota(float $not_passed_quota): Statistic
+    {
         $clone = clone $this;
         $clone->not_passed_quota = $not_passed_quota;
 

@@ -80,10 +80,11 @@ class UIService
      * @param string $mode (mini|standard|extended|extended_table|full)
      * @param int $width
      * @return void
+     * @deprecated
      */
     public function addTinyMCEToTextareas(string $mode = "standard", int $width = 795): void
     {
-        if(!array_key_exists($mode, $this->rte_tag_set)) {
+        if (!array_key_exists($mode, $this->rte_tag_set)) {
             return;
         }
 
@@ -91,7 +92,7 @@ class UIService
         $rte->setInitialWidth($width);
         $rte->addPlugin("emoticons");
 
-        if($mode === "mini") {
+        if ($mode === "mini") {
             $rte->removeAllPlugins();
             $rte->addPlugin("paste");
             $rte->addPlugin("lists");
@@ -113,6 +114,7 @@ class UIService
      *
      * @param string $mode
      * @return \ILIAS\Refinery\Transformation
+     * @deprecated
      */
     public function stringTransformationByRTETagSet(string $mode = "standard")
     {
@@ -128,6 +130,7 @@ class UIService
      * attention: this onloadcode needs to be called before RTE initialisiation!
      *
      * @return \Closure
+     * @deprecated
      */
     public function noRTEOnloadCode()
     {
@@ -141,7 +144,7 @@ class UIService
         $check_all = $this->plugin->txt("check_all");
         $all_checked = $this->plugin->txt("all_checked");
 
-        return function($id) use ($check_all, $all_checked) {
+        return function ($id) use ($check_all, $all_checked) {
             return "
                     $('#{$id}').prepend('<li><input id=\"{$id}_allcheck\" type=\"checkbox\"> <span class=\"hidden\">{$all_checked}</span>{$check_all}</li>');
                     

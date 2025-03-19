@@ -4,18 +4,20 @@ namespace ILIAS\Plugin\LongEssayAssessment\UI\Viewer;
 use ILIAS\Data\Factory as DataFactory;
 use ILIAS\Refinery\Transformation;
 use ILIAS\UI\Implementation\Component\ComponentHelper;
+use ILIAS\UI\Component\Component;
 
 /**
  * Implementation of the viewer for PDF files
  */
-class PdfViewer
+class PdfViewer implements Component
 {
     use ComponentHelper;
 
     private string $url;
     private ?string $caption;
 
-    public function __construct(string $url, ?string $caption = null) {
+    public function __construct(string $url, ?string $caption = null)
+    {
         $this->url = $url;
         $this->caption = $caption;
     }

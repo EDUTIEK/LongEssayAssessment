@@ -2,7 +2,9 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\UI\Statistic;
 
-class StatisticSection
+use ILIAS\UI\Component\Component;
+
+class StatisticSection implements Component
 {
     private string $title;
 

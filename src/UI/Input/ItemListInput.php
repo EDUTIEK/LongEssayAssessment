@@ -32,7 +32,7 @@ class ItemListInput extends FormInput
     /**
      * @inheritdoc
      */
-    public function isClientSideValueOk($value) : bool
+    protected function isClientSideValueOk($value) : bool
     {
         return is_array($value) || $value === null;
     }

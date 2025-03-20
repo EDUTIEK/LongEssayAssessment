@@ -41,7 +41,6 @@ class InstructionSettingsGUI extends BaseGUI
         );
         if ($this->task_info === null) {
             $this->setContent('wrong parameter task_id');
-            $this->dic->globalScreen()->tool()->context()->current()->getAdditionalData()->add(ToolProvider::NAME, true);
             return;
         }
 

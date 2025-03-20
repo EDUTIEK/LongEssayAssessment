@@ -10,7 +10,7 @@ use ilGlobalTemplateInterface;
 use ILIAS\DI\Container;
 use ILIAS\HTTP\Services as Http;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\EditorSettings;
-use ILIAS\Plugin\LongEssayAssessment\UI\Implementation\Factory as PluginUiFactory;
+use ILIAS\Plugin\LongEssayAssessment\UI\Factory as PluginUiFactory;
 use ILIAS\Plugin\LongEssayAssessment\UI\UIService as PluginUIService;
 use ILIAS\Refinery\Factory as RefineryFactory;
 use ILIAS\UI\Component\Modal\Modal;

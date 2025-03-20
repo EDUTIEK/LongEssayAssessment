@@ -8,6 +8,7 @@ use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\BaseObjectData;
 use Edutiek\AssessmentService\Assessment\TaskInterfaces\Manager as TaskManagerService;
 use Edutiek\AssessmentService\Assessment\TaskInterfaces\TaskInfo;
+use ILIAS\Plugin\LongEssayAssessment\Provider\ToolProvider;
 
 /**
  * Settings GUI for task instructions
@@ -31,7 +32,7 @@ class InstructionSettingsGUI extends BaseGUI
      * This should be overridden in the child classes
      * note: permissions are already checked in the object gui
      */
-    public function executeCommand()
+    public function executeCommand(): void
     {
         $this->task_info = (
             $this->get->has('task_id') ?
@@ -40,7 +41,12 @@ class InstructionSettingsGUI extends BaseGUI
         );
         if ($this->task_info === null) {
             $this->setContent('wrong parameter task_id');
+            $this->dic->globalScreen()->tool()->context()->current()->getAdditionalData()->add(ToolProvider::NAME, true);
             return;
+        }
+
+        if ($this->plugin->dic()->task($this->object->getAssId(), $this->user->getId())->manager()->count() > 1) {
+            $this->dic->globalScreen()->tool()->context()->current()->getAdditionalData()->add(ToolProvider::NAME, true);
         }
 
         $this->ctrl->setParameter($this, 'task_id', $this->task_info->getId());

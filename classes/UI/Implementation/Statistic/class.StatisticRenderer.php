@@ -198,14 +198,14 @@ class StatisticRenderer extends AbstractComponentRenderer
         $i=0;
 
         foreach($component->getGrades() as $name => $count) {
-            $label = \ilStr::shortenTextExtended((string) $name, 50, true);
-            if($component->getOwnGrade() !== null && str_starts_with($component->getOwnGrade(), $label)) {
+            $graph_label =  \ilStr::shortenTextExtended((string) $name, 15, true);
+
+            if($component->getOwnGrade() !== null && str_starts_with($component->getOwnGrade(), $name)) {
                 $name = '<b><span class="glyphicon glyphicon-star" aria-hidden="true"></span>' . $name . '</b>';
-                $label = '<b><span class="glyphicon glyphicon-star" aria-hidden="true"></span>' . $label . '</b>';
             }
 
             $grades[$name . " "] = " " . $count;
-            $dataset = $dataset->withPoint($name, [$this->pluginTxt("count") => $count]);
+            $dataset = $dataset->withPoint($graph_label, [$this->pluginTxt("count") => $count]);
             $i++;
         }
 

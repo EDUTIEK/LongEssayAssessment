@@ -2,7 +2,11 @@
 
 ## Upcoming Version
 
+Plugin:
+-  Switch between grade based and point based graph in grade statistic
+
 Bug fixes:
+- Increased performance of grade statistics in larger essay environments
 - Deletion of material
 - Prevent correction of unauthorized essays
 - Hide review time on writer screen if review is not enabled

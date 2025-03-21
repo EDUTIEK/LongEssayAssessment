@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b2aac2d784a310e955a81e68aa448d48",
+    "content-hash": "276269a6956975aceb60810a08bc5056",
     "packages": [
         {
             "name": "edutiek/long-essay-assessment-service",
-            "version": "dev-main",
+            "version": "dev-dev3-pdf-annotate",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EDUTIEK/long-essay-assessment-service.git",
-                "reference": "6156af56057b529346f0326c5dbd37ab74045010"
+                "reference": "d8de663d31bd0e76070179299cbebcbb4d23e522"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EDUTIEK/long-essay-assessment-service/zipball/6156af56057b529346f0326c5dbd37ab74045010",
-                "reference": "6156af56057b529346f0326c5dbd37ab74045010",
+                "url": "https://api.github.com/repos/EDUTIEK/long-essay-assessment-service/zipball/d8de663d31bd0e76070179299cbebcbb4d23e522",
+                "reference": "d8de663d31bd0e76070179299cbebcbb4d23e522",
                 "shasum": ""
             },
             "require": {
@@ -35,7 +35,6 @@
                 "tecnickcom/tcpdf": "^6.3",
                 "yetanotherape/diff-match-patch": "^1.1"
             },
-            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
@@ -53,9 +52,9 @@
             ],
             "description": "Backend service for writing long essay assessments",
             "support": {
-                "source": "https://github.com/EDUTIEK/long-essay-assessment-service/tree/main"
+                "source": "https://github.com/EDUTIEK/long-essay-assessment-service/tree/dev3-pdf-annotate"
             },
-            "time": "2025-02-17T15:07:16+00:00"
+            "time": "2025-03-21T16:25:27+00:00"
         },
         {
             "name": "edutiek/long-essay-image-sketch",
@@ -1023,16 +1022,16 @@
         },
         {
             "name": "yetanotherape/diff-match-patch",
-            "version": "v1.1.0",
+            "version": "v1.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/yetanotherape/diff-match-patch.git",
-                "reference": "e93beb95bea67d2a9f2a662434ca7fbf90b0b172"
+                "reference": "a0c37bc694c27ddccbd4989f72908ce524261bd1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/yetanotherape/diff-match-patch/zipball/e93beb95bea67d2a9f2a662434ca7fbf90b0b172",
-                "reference": "e93beb95bea67d2a9f2a662434ca7fbf90b0b172",
+                "url": "https://api.github.com/repos/yetanotherape/diff-match-patch/zipball/a0c37bc694c27ddccbd4989f72908ce524261bd1",
+                "reference": "a0c37bc694c27ddccbd4989f72908ce524261bd1",
                 "shasum": ""
             },
             "require": {
@@ -1075,9 +1074,9 @@
             ],
             "support": {
                 "issues": "https://github.com/yetanotherape/diff-match-patch/issues",
-                "source": "https://github.com/yetanotherape/diff-match-patch/tree/v1.1.0"
+                "source": "https://github.com/yetanotherape/diff-match-patch/tree/v1.1.1"
             },
-            "time": "2020-12-20T17:28:39+00:00"
+            "time": "2025-02-16T18:49:39+00:00"
         }
     ],
     "packages-dev": [],

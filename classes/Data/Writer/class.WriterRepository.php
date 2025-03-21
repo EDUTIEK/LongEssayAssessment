@@ -29,7 +29,7 @@ class WriterRepository extends RecordRepo
 
 	/**
 	 * Save record data of an allowed type
-	 * @param Writer|WriterPreferences $record
+	 * @param Writer|WriterPreferences|WriterAnnotation $record
 	 */
 	public function save(RecordData $record)
 	{
@@ -119,6 +119,7 @@ class WriterRepository extends RecordRepo
             " WHERE id = " . $this->db->quote($a_id, "integer"));
 
         $this->deleteWriterPreferencesByWriter($a_id);
+        $this->deleteWriterAnnotationsByWriterId($a_id);
         $this->corrector_repo->deleteCorrectorAssignmentByWriter($a_id);
         $this->essay_repo->deleteEssayByWriterId($a_id);
     }
@@ -139,6 +140,7 @@ class WriterRepository extends RecordRepo
 		$this->db->manipulate("DELETE FROM xlas_writer" .
             " WHERE task_id = " . $this->db->quote($a_task_id, "integer"));
 
+        $this->deleteWriterAnnotationsByTaskId( $a_task_id);
 		$this->corrector_repo->deleteCorrectorAssignmentByTask($a_task_id);
 		$this->essay_repo->deleteEssayByTaskId($a_task_id);
 	}
@@ -158,4 +160,46 @@ class WriterRepository extends RecordRepo
 			" AND " . $this->db->in('user_id', $a_user_ids, false, 'integer');
 		return $this->queryRecords($query, Writer::model());
 	}
+
+    /**
+     * @return WriterAnnotation[]
+     */
+    public function getWriterAnnotations(int $writer_id, int $task_id): array
+    {
+        $query = "SELECT * FROM xlas_writer_annotation WHERE writer_id = " . $this->db->quote($writer_id, "integer") .
+            " AND task_id = " . $this->db->quote($task_id, "integer");
+        return $this->queryRecords($query, WriterAnnotation::model());
+    }
+
+    /**
+     * @return WriterAnnotation|null
+     */
+    public function getWriterAnnotationByKey(int $task_id, int $writer_id, int $resource_id, string $mark_key): ?RecordData
+    {
+        $query = "SELECT * FROM xlas_writer_annotation WHERE task_id = " . $this->db->quote($task_id, "integer") .
+            " AND writer_id = " . $this->db->quote($writer_id, "integer") .
+            " AND resource_id = " . $this->db->quote($resource_id, "integer") .
+            " AND mark_key = " . $this->db->quote($mark_key, "string");
+        return $this->getSingleRecord($query, WriterAnnotation::model());
+    }
+
+    public function deleteWriterAnnotationByKey(int $task_id, int $writer_id, int $resource_id, string $mark_key): void
+    {
+        $record = $this->getWriterAnnotationByKey($task_id, $writer_id, $resource_id, $mark_key);
+        if ($record !== null) {
+            $this->deleteRecord($record);
+        }
+    }
+
+    public function deleteWriterAnnotationsByWriterId(int $writer_id): void
+    {
+        $query = "DELETE FROM xlas_writer_annotation WHERE writer_id = " . $this->db->quote($writer_id, "integer");
+        $this->db->manipulate($query);
+    }
+
+    public function deleteWriterAnnotationsByTaskId(int $task_id): void
+    {
+        $query = "DELETE FROM xlas_writer_annotation WHERE task_id = " . $this->db->quote($task_id, "integer");
+        $this->db->manipulate($query);
+    }
 }

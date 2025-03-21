@@ -36,7 +36,7 @@ class PluginTemplateFactory implements TemplateFactory
      */
     public function getTemplate($path, $purge_unfilled_vars, $purge_unused_blocks) : \ILIAS\UI\Implementation\Render\Template
     {
-        if (!str_starts_with($path, "src/UI/templates/")) {
+        if (!str_starts_with($path, "components/ILIAS/UI/src/templates/")) {
             if (file_exists($this->plugin->getDirectory() . "/templates/" . $path)) {
                 $tpl = $this->plugin->getTemplate($path, $purge_unfilled_vars, $purge_unused_blocks);
                 return new ilTemplateWrapper($this->global_tpl, $tpl);

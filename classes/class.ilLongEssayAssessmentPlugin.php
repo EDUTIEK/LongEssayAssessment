@@ -51,13 +51,15 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
         return PluginDic::getInstance($this->ilias_dic, $this);
     }
 
+    private const PLUGIN_PATH = "public/Customizing/plugins/Repository/RepositoryObject/LongEssayAssessment"; // Temporary because of issues in the core with paths
+
     /**
      * Get the plugin path
      * must be relative to the ILIAS directory without leading and trailing slash
      */
     public function getPluginPath(): string
     {
-        return 'Customizing/plugins/Repository/RepositoryObject/LongEssayAssessment';
+        return "../" . self::PLUGIN_PATH;
     }
 
     public function allowCopy(): bool
@@ -155,7 +157,7 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
 
     public function exchangeUIRendererAfterInitialization(Container $dic): Closure
     {
-        return $dic->raw('ui.renderer');
+        #return $dic->raw('ui.renderer');
 
         $this->init();
         //Safe the origin renderer closure
@@ -165,7 +167,7 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
         if (!$this->isActive()) {
             return $renderer;
         }
-
+        $this->dic(); // init plugin dic
         $dic->language()->loadLanguageModule($this->getPrefix());
         //else return own renderer with origin as default
         //be aware that you can not provide the renderer itself for the closure since its state changes
@@ -191,7 +193,7 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
                     $dic["ui.data_factory"],
                     $dic["help.text_retriever"],
                     $dic["ui.upload_limit_resolver"]
-                ))->setGlobalTemplate($dic["ui.template"]),//ugly but the constructor is final :(
+                ))->setGlobalTemplate($dic["tpl"]),//ugly but the constructor is final :(
                 new StatisticRenderer(
                     $dic["ui.factory"],
                     $dic[PluginTemplateFactory::class],
@@ -233,6 +235,30 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
         //                $writer_repo->deleteWriter($w->getId());
         //            }
         //        }
+    }
+
+    /**
+     * Temporary override because of issues in the core with paths
+     * @return string
+     */
+    public function getDirectory(): string
+    {
+        return $this->getPluginPath();
+    }
+
+    /**
+     * Temporary override because of issues in the core with paths
+     *
+     * @param string $a_template
+     * @param bool   $a_par1
+     * @param bool   $a_par2
+     * @return ilTemplate
+     * @throws ilSystemStyleException
+     * @throws ilTemplateException
+     */
+    public function getTemplate(string $a_template, bool $a_par1 = true, bool $a_par2 = true): ilTemplate
+    {
+        return new ilTemplate(self::PLUGIN_PATH . "/templates/" . $a_template, $a_par1, $a_par2);
     }
 
 }

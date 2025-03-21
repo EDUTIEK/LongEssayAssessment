@@ -48,7 +48,7 @@ use ILIAS\UI\Renderer as RendererInterface;
 
 class InputRenderer extends \ILIAS\UI\Implementation\Component\Input\Field\Renderer
 {
-    private \ilGlobalTemplate $tpl; // if this is not defined and lead to arrow use $this->setGlobalTemplate after init
+    private \ilGlobalPageTemplate $tpl; // if this is not defined and lead to arrow use $this->setGlobalTemplate after init
     private bool $tiny_mce_js_included = false;
 
     /**
@@ -155,11 +155,12 @@ class InputRenderer extends \ILIAS\UI\Implementation\Component\Input\Field\Rende
                 ";
             }
         );
-        $component = $this->initTinyMCE($component);
+
         $tpl = $this->getPreparedTextareaTemplate($component);
 
         $label_id = $this->createId();
         $tpl->setVariable('ID', $label_id);
+        $component = $this->initTinyMCE($component, $label_id);
         return $this->wrapInFormContext($component, $component->getLabel(), $tpl->get(), $label_id);
     }
 
@@ -197,7 +198,7 @@ class InputRenderer extends \ILIAS\UI\Implementation\Component\Input\Field\Rende
             return "Input/$name";
         }
 
-        return "src/UI/templates/default/Input/$name";
+        return "components/ILIAS/UI/src/templates/default/Input/$name";
     }
 
     protected function getPluginTemplateFiles(): array
@@ -276,13 +277,13 @@ class InputRenderer extends \ILIAS\UI\Implementation\Component\Input\Field\Rende
         return $input;
     }
 
-    public function setGlobalTemplate(\ilGlobalTemplate $template) : InputRenderer
+    public function setGlobalTemplate(\ilGlobalPageTemplate $template) : InputRenderer
     {
         $this->tpl = $template;
         return $this;
     }
 
-    protected function initTinyMCE(TinyMCE $component) : TinyMCE
+    protected function initTinyMCE(TinyMCE $component, string $form_id) : TinyMCE
     {
         if (!$this->tiny_mce_js_included) {
             $this->tpl->addJavaScript('node_modules/tinymce/tinymce.min.js');
@@ -290,7 +291,7 @@ class InputRenderer extends \ILIAS\UI\Implementation\Component\Input\Field\Rende
 
         $tiny = new \ilTinyMCE();
 
-        $tpl = $this->getTemplate("tpl.item_list_input.html", true, true);
+        $tpl = $this->getTemplate("tpl.tiny_mce.js", true, true);
         $tpl->setVariable("STYLESHEET_LOCATION", \ilUtil::getNewContentStyleSheetLocation() . ',' . \ilUtil::getStyleSheetLocation('output', 'delos.css'));
         $tpl->setVariable("ADDITIONAL_PLUGINS", implode(' ', $component->getPlugins()));
         $tpl->setVariable("LANG", is_file("./node_modules/tinymce/langs/de.js") ? "de" : "en"); // as we only have de right now this is sufficient
@@ -303,14 +304,16 @@ class InputRenderer extends \ILIAS\UI\Implementation\Component\Input\Field\Rende
         $tpl->setVariable('BUTTONS_2', $tiny->removeRedundantSeparators($buttons_2));
         $tpl->setVariable('BUTTONS_3', $tiny->removeRedundantSeparators($buttons_3));
         $tpl->setVariable("VALID_ELEMENTS", $tiny->_getValidElementsFromHTMLTags($component->getElements()));
+        $tpl->setVariable('BLOCKFORMATS', $tiny->_buildAdvancedBlockformatsFromHTMLTags($component->getElements()));
+
         $tpl->setVariable("CONTEXT_MENU_ITEMS", "");
 
         /**
          * @var TinyMCE $component
          */
         $component = $component->withAdditionalOnLoadCode(
-            function ($id) use ($component, $tpl) {
-                $tpl->setVariable("ID", $id);
+            function ($id) use ($component, $tpl, $form_id) {
+                $tpl->setVariable("ID", $form_id);
                 return $tpl->get();
             }
         );

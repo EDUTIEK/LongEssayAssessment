@@ -1,10 +1,62 @@
 $(document).ready(function () {
+
+  function ilTinyMCETranslateFormats() {
+    var block_formats = "{BLOCKFORMATS}";
+    var block_array = block_formats.split(',');
+    var translated_formats = [];
+    for (var format in block_array) {
+      var title = "";
+      switch (block_array[format]) {
+        case "p":
+          title = 'Paragraph';
+          break;
+        case "div":
+          title = 'Div';
+          break;
+        case "pre":
+          title = 'Preformatted';
+          break;
+        case "code":
+          title = 'Code';
+          break;
+        case "h1":
+          title = 'Heading 1';
+          break;
+        case "h2":
+          title = 'Heading 2';
+          break;
+        case "h3":
+          title = 'Heading 3';
+          break;
+        case "h4":
+          title = 'Heading 4';
+          break;
+        case "h5":
+          title = 'Heading 5';
+          break;
+        case "h6":
+          title = 'Heading 6';
+          break
+        case "":
+          continue;
+        default:
+        //Do nothing
+      }
+      var title_translation = tinymce.translate(title);
+      if (title_translation === undefined) {
+        title_translation = title;
+      }
+      translated_formats.push(title_translation + '=' + block_array[format]);
+    }
+    return translated_formats.join(';');
+  }
+
   tinymce.init({
     license_key: 'gpl',
     selector: "textarea#{ID}",
     branding: false,
     language: "{LANG}",
-    block_formats: { BLOCKFORMATS },
+    block_formats: ilTinyMCETranslateFormats(),
     plugins: "{ADDITIONAL_PLUGINS}",
     menubar: false,
     toolbar: "{BUTTONS_1} {BUTTONS_2} {BUTTONS_3}",

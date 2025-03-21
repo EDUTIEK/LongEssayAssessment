@@ -212,7 +212,7 @@ class DatabaseRepository implements RepositoryInterface
 
     private function sqlCount(string $where = '1'): string
     {
-        return 'SELECT COUNT(*) FROM ' . $this->db->quoteIdentifier($this->table()) . ' WHERE ' . $where;
+        return 'SELECT COUNT(*) as count FROM ' . $this->db->quoteIdentifier($this->table()) . ' WHERE ' . $where;
     }
 
     private function sqlSelect(string $where = '1', string $order = ''): string

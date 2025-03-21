@@ -34,26 +34,17 @@ class InstructionSettingsGUI extends BaseGUI
      */
     public function executeCommand(): void
     {
-        $this->task_info = (
-            $this->get->has('task_id') ?
-            $this->manager_service->one($this->get->integer('task_id')) :
-            $this->manager_service->first()
-        );
-        if ($this->task_info === null) {
-            $this->setContent('wrong parameter task_id');
-            return;
-        }
-
-        if ($this->plugin->dic()->task($this->object->getAssId(), $this->user->getId())->manager()->count() > 1) {
+        if ($this->plugin->dic()->task($this->object->getAssId(), $this->user->getId())->manager()->count() >= 1) { // Change to count() > 1 later.
             $this->dic->globalScreen()->tool()->context()->current()->getAdditionalData()->add(ToolProvider::NAME, true);
         }
-
-        $this->ctrl->setParameter($this, 'task_id', $this->task_info->getId());
 
         $cmd = $this->ctrl->getCmd('editSettings');
         switch ($cmd) {
             case "editSettings":
                 $this->$cmd();
+                break;
+            case 'create':
+                $this->create();
                 break;
 
             default:
@@ -63,6 +54,23 @@ class InstructionSettingsGUI extends BaseGUI
 
     protected function editSettings()
     {
+        $this->task_info = (
+            $this->get->has('task_id') ?
+                $this->manager_service->one($this->get->integer('task_id')) :
+                $this->manager_service->first()
+        );
+        if ($this->task_info === null) {
+            $this->setContent('wrong parameter task_id');
+            return;
+        }
+
+        $this->ctrl->setParameter($this, 'task_id', $this->task_info->getId());
+
         $this->setContent("task_id: {$this->task_info->getId()}");
+    }
+
+    private function create(): void
+    {
+        $this->setContent('Creating new one');
     }
 }

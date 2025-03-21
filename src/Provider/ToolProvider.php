@@ -23,6 +23,9 @@ namespace ILIAS\Plugin\LongEssayAssessment\Provider;
 use ILIAS\GlobalScreen\Scope\Tool\Provider\AbstractDynamicToolProvider;
 use ILIAS\GlobalScreen\ScreenContext\Stack\ContextCollection;
 use ILIAS\GlobalScreen\ScreenContext\Stack\CalledContexts;
+use ILIAS\Plugin\LongEssayAssessment\Settings\InstructionSettingsGUI;
+use Edutiek\AssessmentService\Assessment\TaskInterfaces\TaskInfo;
+use ILIAS\Data\URI;
 
 class ToolProvider extends AbstractDynamicToolProvider
 {
@@ -39,19 +42,43 @@ class ToolProvider extends AbstractDynamicToolProvider
             return [];
         }
 
+        $glyph = $this->dic->ui()->factory()->symbol()->glyph();
+        $icon = $glyph->link();
+        $link = $this->dic->ui()->factory()->link()->bulky(...);
         $plugin = $this->dic['component.factory']->getPlugin('xlas');
+
+        $ref_id = $this->dic->http()->wrapper()->query()->retrieve('ref_id', $this->dic->refinery()->kindlyTo()->int());
+        $obj_id = \ilObject::_lookupObjId($ref_id);
+
         $all = $plugin->dic()->task(
-            $this->dic->http()->wrapper()->query()->retrieve('ref_id', $this->dic->refinery()->kindlyTo()->int()),
+            $obj_id,
             $this->dic->user()->getId()
         )->manager()->all();
 
+        $this->dic->ctrl()->setParameterByClass(InstructionSettingsGUI::class, 'ref_id', (string) $ref_id);
+        $links = array_map(
+            fn(TaskInfo $t) => $link($icon, $t->getTitle(), $this->uriToTask($t)),
+            $all
+        );
+
+        $add_button = $link($glyph->add(), $this->dic->language()->txt('add'), $this->uriToClass(InstructionSettingsGUI::class, 'create'));
+
         $tool = $this->factory
             ->tool($this->identification_provider->contextAwareIdentifier('xlas_tool'))
-            ->withTitle('Huhu')
-            ->withContentWrapper(fn () => $this->dic->ui()->factory()->legacy(
-                join('<br/>', array_map(fn($x) => (string) $x->getId(), $all))
-            ));
+            ->withTitle($plugin->txt('tab_instructions_settings'))
+            ->withContent($this->dic->ui()->factory()->legacy($this->dic->ui()->renderer()->render(array_merge($links, [$add_button]))));
 
         return [$tool];
+    }
+
+    private function uriToTask(TaskInfo $task): URI
+    {
+        $this->dic->ctrl()->setParameterByClass(InstructionSettingsGUI::class, 'task_id', (string) $task->getId());
+        return $this->uriToClass(InstructionSettingsGUI::class);
+    }
+
+    private function uriToClass(string $class, string $cmd = ''): URI
+    {
+        return new URI(ILIAS_HTTP_PATH . '/' . $this->dic->ctrl()->getLinkTargetByClass($class, $cmd));
     }
 }

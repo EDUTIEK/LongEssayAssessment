@@ -950,16 +950,16 @@
         },
         {
             "name": "tecnickcom/tcpdf",
-            "version": "6.8.2",
+            "version": "6.9.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/tecnickcom/TCPDF.git",
-                "reference": "f7a781073e1645062f163e058139e2f89355d420"
+                "reference": "f67b761b61f2370a9000d98c3b9111284544f722"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tecnickcom/TCPDF/zipball/f7a781073e1645062f163e058139e2f89355d420",
-                "reference": "f7a781073e1645062f163e058139e2f89355d420",
+                "url": "https://api.github.com/repos/tecnickcom/TCPDF/zipball/f67b761b61f2370a9000d98c3b9111284544f722",
+                "reference": "f67b761b61f2370a9000d98c3b9111284544f722",
                 "shasum": ""
             },
             "require": {
@@ -972,8 +972,6 @@
                     "config",
                     "include",
                     "tcpdf.php",
-                    "tcpdf_parser.php",
-                    "tcpdf_import.php",
                     "tcpdf_barcodes_1d.php",
                     "tcpdf_barcodes_2d.php",
                     "include/tcpdf_colors.php",
@@ -1011,7 +1009,7 @@
             ],
             "support": {
                 "issues": "https://github.com/tecnickcom/TCPDF/issues",
-                "source": "https://github.com/tecnickcom/TCPDF/tree/6.8.2"
+                "source": "https://github.com/tecnickcom/TCPDF/tree/6.9.0"
             },
             "funding": [
                 {
@@ -1019,20 +1017,20 @@
                     "type": "custom"
                 }
             ],
-            "time": "2025-01-26T14:03:12+00:00"
+            "time": "2025-03-30T16:56:09+00:00"
         },
         {
             "name": "yetanotherape/diff-match-patch",
-            "version": "v1.1.0",
+            "version": "v1.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/yetanotherape/diff-match-patch.git",
-                "reference": "e93beb95bea67d2a9f2a662434ca7fbf90b0b172"
+                "reference": "a0c37bc694c27ddccbd4989f72908ce524261bd1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/yetanotherape/diff-match-patch/zipball/e93beb95bea67d2a9f2a662434ca7fbf90b0b172",
-                "reference": "e93beb95bea67d2a9f2a662434ca7fbf90b0b172",
+                "url": "https://api.github.com/repos/yetanotherape/diff-match-patch/zipball/a0c37bc694c27ddccbd4989f72908ce524261bd1",
+                "reference": "a0c37bc694c27ddccbd4989f72908ce524261bd1",
                 "shasum": ""
             },
             "require": {
@@ -1075,9 +1073,9 @@
             ],
             "support": {
                 "issues": "https://github.com/yetanotherape/diff-match-patch/issues",
-                "source": "https://github.com/yetanotherape/diff-match-patch/tree/v1.1.0"
+                "source": "https://github.com/yetanotherape/diff-match-patch/tree/v1.1.1"
             },
-            "time": "2020-12-20T17:28:39+00:00"
+            "time": "2025-02-16T18:49:39+00:00"
         }
     ],
     "packages-dev": [],

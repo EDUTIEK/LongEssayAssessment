@@ -1,6 +1,6 @@
 # Change Log
 
-## Upcoming Version
+## Version 3.6 (2025-04-01)
 
 Plugin:
 -  Switch between grade based and point based graph in grade statistic
@@ -11,6 +11,7 @@ Bug fixes:
 - Prevent correction of unauthorized essays
 - Hide review time on writer screen if review is not enabled
 - cleanup old temporary files
+- Export of corrector assignments with empty essays
 
 ## Version 3.5 (2025-02-17)
 Plugin:

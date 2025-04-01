@@ -124,7 +124,7 @@ class CorrectorAssignmentsService extends BaseService
             $spreadsheet->setCell($r, 4, $w->getPseudonym());
             $spreadsheet->setCell($r, 5, $location_text);
             $spreadsheet->setCell($r, 6, str_word_count($written_text ?? ""));
-            $spreadsheet->setCell($r, 7, $essay->getWritingAuthorized());
+            $spreadsheet->setCell($r, 7, $essay?->getWritingAuthorized() ?? null);
 
             foreach(range(0, $this->settings->getRequiredCorrectors()-1) as $pos) {
                 $spreadsheet->addDropdownCol($r, 8 + $pos, '=\''.$corrector_title.'\'!$A$2:$A$'.(count($corrector)+1));

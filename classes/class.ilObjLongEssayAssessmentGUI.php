@@ -6,6 +6,7 @@ use Edutiek\AssessmentService\Assessment\Permissions;
 use ILIAS\Plugin\LongEssayAssessment\Settings\OrgaSettingsGUI;
 use ILIAS\Plugin\LongEssayAssessment\Settings\InstructionSettingsGUI;
 use ilGlobalTemplateInterface as Gti;
+use ILIAS\UI\Component\Input\Container\Form\Standard as StandardForm;
 
 /**
  * Plugin GUI Class
@@ -287,12 +288,38 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
         }
     }
 
+    protected function initCreateForm(string $new_type): StandardForm
+    {
+        $form = parent::initCreateForm($new_type);
+        $inputs = $form->getInputs();
+        $inputs['multi_tasks'] = $this->ui_factory->input()->field()->checkbox(
+            $this->plugin->txt('multi_tasks'),
+            $this->plugin->txt('multi_tasks_info')
+        );
+        return $this->ui_factory->input()->container()->form()->standard(
+            $this->ctrl->getFormAction($this, 'save'),
+            $inputs
+        )->withSubmitLabel($this->plugin->txt($new_type . '_add'));
+    }
+
     /**
      * Redirect after a new object is saves
      * Here: use illongessayassessmentdispatchgui instead of ilobjplugindispatchgui
+     * @param ilObjLongEssayAssessment $new_object
      */
     protected function afterSave(ilObject $new_object): void
     {
+        $form = $this
+            ->initCreateForm($this->requested_new_type)
+            ->withRequest($this->request);
+        $data = $form->getData();
+
+        // save the 'multi tasks' setting
+        $assessment = $this->plugin->dic()->assessment($new_object->getAssId(), $new_object->getContextId(), $this->user->getId());
+        $orga_settings = $assessment->orgaSettings()->get();
+        $orga_settings->setMultiTasks(!empty($data['multi_tasks']));
+        $assessment->orgaSettings()->save($orga_settings);
+
         // always send a message
         $this->tpl->setOnScreenMessage(Gti::MESSAGE_TYPE_SUCCESS, $this->lng->txt("object_added"), true);
 

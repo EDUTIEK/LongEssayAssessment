@@ -34,6 +34,11 @@ class ilObjLongEssayAssessment extends ilObjectPlugin implements BaseObjectData
         $this->initServices();
     }
 
+    public static function getIconForType(string $type): string
+    {
+        return './Customizing/plugins/Repository/RepositoryObject/LongEssayAssessment/templates/images/icon_xlas.svg';
+    }
+
     /**
      * Get the assessment id for the assessment services
      */
@@ -48,6 +53,13 @@ class ilObjLongEssayAssessment extends ilObjectPlugin implements BaseObjectData
     public function getContextId(): int
     {
         return $this->getRefId();
+    }
+
+    public function getMultiTasks() : bool
+    {
+       return $this->plugin->dic()
+           ->assessment($this->getAssId(), $this->getContextId(), $this->user->getId())
+           ->orgaSettings()->get()->getMultiTasks();
     }
 
     protected function initType(): void

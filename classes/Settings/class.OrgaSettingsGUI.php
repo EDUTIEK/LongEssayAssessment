@@ -177,6 +177,11 @@ class OrgaSettingsGUI extends BaseGUI
         $fields_object['online'] = $factory->checkbox($this->lng->txt('online'))
             ->withValue($orga_settings->getOnline());
 
+        $fields_object['multi_tasks'] = $factory->checkbox($this->plugin->txt('multi_tasks'),
+            $this->plugin->txt('multi_tasks_info'))
+            ->withValue($orga_settings->getMultiTasks())
+            ->withDisabled(true);
+
         $fields_object['participation_type'] = $factory->radio($this->plugin->txt('participation_type'))
             ->withOption(
                 ParticipationType::FIXED->value,

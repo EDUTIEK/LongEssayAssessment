@@ -18,4 +18,6 @@ interface BaseObjectData
 
     public function getTitle(): string;
     public function getDescription(): string;
+
+    public function getMultiTasks(): bool;
 }

@@ -30,6 +30,7 @@ use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Table;
 class OrgaSettings extends \Edutiek\AssessmentService\Assessment\Data\OrgaSettings
 {
     private bool $online = false;
+    private bool $multi_tasks = false;
     private string $participation_type = ParticipationType::INSTANT->value;
     #[Key]
     private int $ass_id = 0;
@@ -44,7 +45,7 @@ class OrgaSettings extends \Edutiek\AssessmentService\Assessment\Data\OrgaSettin
     private ?DateTimeImmutable $review_end = null;
     private bool $keep_available = false;
     private ?DateTimeImmutable $solution_available_date = null;
-    private string $result_available_type = '';
+    private string $result_available_type = ResultAvailableType::FINALISED->value;
     private ?DateTimeImmutable $result_available_date = null;
     private bool $solution_available = false;
     private bool $review_enabled = false;
@@ -61,6 +62,18 @@ class OrgaSettings extends \Edutiek\AssessmentService\Assessment\Data\OrgaSettin
         $this->online = $online;
         return $this;
     }
+
+    public function getMultiTasks() : bool
+    {
+        return $this->multi_tasks;
+    }
+
+    public function setMultiTasks(bool $multi) : self
+    {
+        $this->multi_tasks = $multi;
+        return $this;
+    }
+
     public function getParticipationType(): ParticipationType
     {
         return ParticipationType::tryFrom($this->participation_type) ?? ParticipationType::INSTANT;
@@ -241,4 +254,5 @@ class OrgaSettings extends \Edutiek\AssessmentService\Assessment\Data\OrgaSettin
         $this->statistics_available = $statistics_available;
         return $this;
     }
+
 }

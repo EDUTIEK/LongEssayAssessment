@@ -774,6 +774,16 @@ class V10Migration
                             'Extra' => '',
                             'src_table' => 'xlas_object_settings',
                         ),
+                    'multi_tasks' =>
+                        array(
+                            'Field' => 'multi_tasks',
+                            'Type' => 'int(11)',
+                            'Null' => 'NO',
+                            'Key' => '',
+                            'Default' => 0,
+                            'Extra' => '',
+                            'src_table' => '',
+                        ),
                     'participation_type' =>
                         array(
                             'Field' => 'participation_type',

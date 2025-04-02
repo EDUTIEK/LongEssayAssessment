@@ -27,14 +27,9 @@ class InstructionSettingsGUI extends BaseGUI
         $this->manager_service = $this->task_api->manager();
     }
 
-    /**
-     * Execute a command
-     * This should be overridden in the child classes
-     * note: permissions are already checked in the object gui
-     */
     public function executeCommand(): void
     {
-        if ($this->plugin->dic()->task($this->object->getAssId(), $this->user->getId())->manager()->count() >= 1) { // Change to count() > 1 later.
+        if ($this->object->getMultiTasks()) {
             $this->dic->globalScreen()->tool()->context()->current()->getAdditionalData()->add(ToolProvider::NAME, true);
         }
 

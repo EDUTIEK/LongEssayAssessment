@@ -242,7 +242,8 @@ class DatabaseRepository implements RepositoryInterface
             'int' => (int) $value,
             'bool' => (bool) $value,
             'float' => (float) $value,
-            DateTime::class, DateTimeImmutable::class => new $type($value, $this->time_zone),
+            DateTime::class => new DateTime($value, $this->time_zone),
+            DateTimeImmutable::class => new DateTimeImmutable($value, $this->time_zone),
             default => throw new Exception('Unsupported type: ' . $type),
         };
     }

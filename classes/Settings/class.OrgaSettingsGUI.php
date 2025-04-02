@@ -9,6 +9,7 @@ use DateTimeInterface;
 use DateTimeZone;
 use Edutiek\AssessmentService\Assessment\Data\Location;
 use Edutiek\AssessmentService\Assessment\Data\OrgaSettings;
+use Edutiek\AssessmentService\Assessment\Data\OrgaSettingsError;
 use Edutiek\AssessmentService\Assessment\Data\ParticipationType;
 use Edutiek\AssessmentService\Assessment\Data\ResultAvailableType;
 use Edutiek\AssessmentService\Assessment\Location\FullService as LocationService;
@@ -99,12 +100,14 @@ class OrgaSettingsGUI extends BaseGUI
         $orga_settings->setOnline($a_data['object']['online']);
         $orga_settings->setParticipationType(ParticipationType::tryFrom(
             $a_data['object']['participation_type']) ?? ParticipationType::INSTANT);
+
         $writing_settings->setWritingType(WritingType::from((string) $a_data['object']['writing_type']));
 
-        $date = $a_data['task']['writing_start'];
-        $orga_settings->setWritingStart($date instanceof DateTimeInterface ? $date->format('Y-m-d H:i:s') : null);
-        $date = $a_data['task']['writing_end'];
-        $orga_settings->setWritingEnd($date instanceof \DateTimeInterface ? $date->format('Y-m-d H:i:s') : null);
+        $orga_settings->setDescription($this->transform_service->trimRichText($a_data['content']['task_description']));
+        $orga_settings->setClosingMessage($this->transform_service->trimRichText($a_data['content']['closing_message']));
+
+        $orga_settings->setWritingStart($a_data['task']['writing_start']);
+        $orga_settings->setWritingEnd($date = $a_data['task']['writing_end']);
 
         $limit = null;
         if (!empty($a_data['task']['writing_limit'])) {
@@ -115,62 +118,28 @@ class OrgaSettingsGUI extends BaseGUI
             }
         }
         $orga_settings->setWritingLimitMinutes($limit > 0 ? $limit : null);
-
-        $orga_settings->setKeepAvailable((bool) ($a_data['task']['keep_essay_available']));
-
-        $date = null;
+        $orga_settings->setKeepAvailable(!empty($a_data['task']['keep_essay_available']));
         $orga_settings->setSolutionAvailable(!empty($a_data['task']['solution_available']));
-        if ($orga_settings->getSolutionAvailable()) {
-            $date = $a_data['task']['solution_available']['solution_available_date'];
-        }
-        $orga_settings->setSolutionAvailableDate($date instanceof \DateTimeInterface ? $date->format('Y-m-d H:i:s') : null);
+        $orga_settings->setSolutionAvailableDate($a_data['task']['solution_available']['solution_available_date'] ?? null);
+        $orga_settings->setStatisticsAvailable(!empty($a_data['task']['statistics_available']));
+        $orga_settings->setCorrectionStart($a_data['task']['correction_start'] ?? null);
+        $orga_settings->setCorrectionEnd($a_data['task']['correction_end'] ?? null);
 
-        $orga_settings->setStatisticsAvailable((bool) ($a_data['task']['statistics_available']));
-
-        $date = $a_data['task']['correction_start'];
-        $orga_settings->setCorrectionStart($date instanceof \DateTimeInterface ? $date->format('Y-m-d H:i:s') : null);
-        $date = $a_data['task']['correction_end'];
-        $orga_settings->setCorrectionEnd($date instanceof \DateTimeInterface ? $date->format('Y-m-d H:i:s') : null);
-
-        $date = null;
         $orga_settings->setResultAvailableType(ResultAvailableType::tryFrom((
             $a_data['task']['result_available_type'][0] )?? ResultAvailableType::REVIEW));
-        if ($orga_settings->getResultAvailableType() == ResultAvailableType::DATE) {
-            // note: the type differs from the other dates due to the nesting in the selectable group
-            $date = $a_data['task']['result_available_type'][1]['result_available_date'];
-        }
-        $orga_settings->setResultAvailableDate($date instanceof \DateTimeInterface ? $date->format('Y-m-d H:i:s') : null);
+        $orga_settings->setResultAvailableDate($a_data['task']['result_available_type'][1]['result_available_date'] ?? null);
 
-
-        if(!empty($a_data['task']['review'])) {
-            $orga_settings->setReviewEnabled(true);
-            $date = $a_data['task']['review']['review_start'];
-            $orga_settings->setReviewStart($date instanceof \DateTimeInterface ? $date->format('Y-m-d H:i:s') : null);
-            $date = $a_data['task']['review']['review_end'];
-            $orga_settings->setReviewEnd($date instanceof \DateTimeInterface ? $date->format('Y-m-d H:i:s') : null);
-
-            if(!empty($a_data['task']['review']['review_notification'])) {
-                $orga_settings->setReviewNotification(true);
-                $orga_settings->setReviewNotifText($a_data['task']['review']['review_notification']['review_notification_text']);
-            } else {
-                $orga_settings->setReviewNotification(false);
+        $orga_settings->setReviewEnabled(!empty($a_data['task']['review']));
+        if ($orga_settings->getReviewEnabled()) {
+            $orga_settings->setReviewStart($a_data['task']['review']['review_start'] ?? null);
+            $orga_settings->setReviewEnd($a_data['task']['review']['review_end'] ?? null);
+            $orga_settings->setReviewNotification(!empty($a_data['task']['review']['review_notification']));
+            if ($orga_settings->getReviewNotification()) {
+                $orga_settings->setReviewNotifText($a_data['task']['review']['review_notification']['review_notification_text'] ?? null);
             }
-
-        } else {
-            $orga_settings->setReviewEnabled(false);
         }
 
-
-        $task_description = $a_data['content']['task_description'];
-        $orga_settings->setDescription($this->transform_service->trimRichText($task_description));
-
-        $closing_message = $a_data['content']['closing_message'];
-        $orga_settings->setClosingMessage($this->transform_service->trimRichText($closing_message));
-
-        // consistency checks
-        $failures = $this->orga_settings_service->validate($orga_settings);
-
-        if (empty($failures)) {
+        if ($this->orga_settings_service->validate($orga_settings)) {
             $this->object->update();
             $this->orga_settings_service->save($orga_settings);
             $this->location_service->saveTitles((array) ($a_data['task']['location'] ?? []));
@@ -179,9 +148,9 @@ class OrgaSettingsGUI extends BaseGUI
             $this->ctrl->redirect($this, "editSettings");
         }
 
-
-        $failures[] = $this->plugin->txt('message_form_not_saved');
-        $this->tpl->setOnScreenMessage(Gti::MESSAGE_TYPE_FAILURE, implode('<br>', $failures));
+        $this->tpl->setOnScreenMessage(Gti::MESSAGE_TYPE_FAILURE, implode('<br>',
+            array_map(fn(OrgaSettingsError $error) => $this->plugin->txt('failure_'. $error->value),
+            $orga_settings->getValidationErrors())));
     }
 
     /**

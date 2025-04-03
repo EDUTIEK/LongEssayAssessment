@@ -573,7 +573,7 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
         }
 
         // standard export tab
-        // $this->addExportTab();
+        $this->addExportTab();
 
         // standard permission tab
         $this->addPermissionTab();

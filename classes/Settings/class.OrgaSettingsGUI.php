@@ -140,7 +140,7 @@ class OrgaSettingsGUI extends BaseGUI
         }
 
         if ($this->orga_settings_service->validate($orga_settings)) {
-            $this->object->update();
+            $this->properties_service->save($properties);
             $this->orga_settings_service->save($orga_settings);
             $this->location_service->saveTitles((array) ($a_data['task']['location'] ?? []));
 

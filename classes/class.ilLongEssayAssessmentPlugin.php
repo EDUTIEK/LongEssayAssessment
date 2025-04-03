@@ -21,6 +21,8 @@ use ILIAS\Plugin\LongEssayAssessment\WriterAdmin\PDFVersionResourceStakeholder;
 class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
 {
     public const ID = "xlas";   // must be public for GUI and List GUI
+    public const IMAGES_PATH = "./Customizing/plugins/Repository/RepositoryObject/LongEssayAssessment/templates/images";
+    private const PLUGIN_PATH = "public/Customizing/plugins/Repository/RepositoryObject/LongEssayAssessment"; // Temporary because of issues in the core with paths
     private const LANGUAGES = ['de'];
 
     protected Container $ilias_dic;
@@ -51,7 +53,6 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
         return PluginDic::getInstance($this->ilias_dic, $this);
     }
 
-    private const PLUGIN_PATH = "public/Customizing/plugins/Repository/RepositoryObject/LongEssayAssessment"; // Temporary because of issues in the core with paths
 
     /**
      * Get the plugin path

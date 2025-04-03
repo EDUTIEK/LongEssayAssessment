@@ -19,6 +19,10 @@ class ilObjLongEssayAssessmentListGUI extends ilObjectPluginListGUI
         $this->setType(ilLongEssayAssessmentPlugin::ID);
     }
 
+    public function getTypeIcon(): string
+    {
+        return ilLongEssayAssessmentPlugin::IMAGES_PATH . '/icon_xlas.svg';
+    }
     /**
      * Get name of gui class handling the commands
      */

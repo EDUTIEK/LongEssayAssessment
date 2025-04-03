@@ -2,6 +2,7 @@
 
 /* Copyright (c) 2021 ILIAS open source, Extended GPL, see docs/LICENSE */
 
+use Edutiek\AssessmentService\Assessment\Api\ForClients as Assessment;
 use Edutiek\AssessmentService\Assessment\Permissions;
 use ILIAS\Plugin\LongEssayAssessment\Settings\OrgaSettingsGUI;
 use ILIAS\Plugin\LongEssayAssessment\Settings\InstructionSettingsGUI;
@@ -29,6 +30,7 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
 
     private ilHelpGUI $help;
     private Permissions\ReadService $permissions;
+    private Assessment $assessment;
 
     /**
      * Definition of the plugin specific sub tabs
@@ -36,6 +38,7 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
      * @see setTabs()
      */
     private $subtabs = [];
+
 
     /**
      * Redirection for goto links
@@ -82,18 +85,8 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
 
         // Description is not shown by ilObjectPluginGUI
         if (isset($this->object)) {
-            $assessment = $this->plugin->dic()->assessment($this->object->getAssId(), $this->object->getContextId(), $DIC->user()->getId());
-            $this->permissions = $assessment->permissions();
-
-            $this->tpl->setDescription($this->object->getDescription());
-            $alerts = [];
-            if (!$assessment->orgaSettings()->get()->getOnline()) {
-                $alert[] = [
-                    'property' => $this->plugin->txt('status'),
-                    'value' => $this->plugin->txt('offline')
-                ];
-            }
-            $this->tpl->setAlertProperties($alerts);
+            $this->assessment = $this->plugin->dic()->assessment($this->object->getAssId(), $this->object->getContextId(), $DIC->user()->getId());
+            $this->permissions = $this->assessment->permissions();
         }
     }
 
@@ -113,6 +106,20 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
     public function performCommand($cmd): void
     {
         global $DIC;
+
+
+        //$this->prepareOutput();
+        $this->tpl->setDescription($this->object->getDescription());
+        $this->tpl->setTitleIcon(ilLongEssayAssessmentPlugin::IMAGES_PATH . '/icon_xlas.svg');
+        $alerts = [];
+        if (!$this->assessment->orgaSettings()->get()->getOnline()) {
+            $alert[] = [
+                'property' => $this->plugin->txt('status'),
+                'value' => $this->plugin->txt('offline')
+            ];
+        }
+        $this->tpl->setAlertProperties($alerts);
+
 
         $next_class = $this->ctrl->getNextClass();
         if (!empty($next_class)) {

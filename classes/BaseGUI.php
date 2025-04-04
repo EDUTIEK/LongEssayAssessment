@@ -4,15 +4,20 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment;
 
+use Edutiek\AssessmentService\Assessment\Api\ForClients as AssessmentApi;
+use Edutiek\AssessmentService\EssayTask\Api\ForClients as EssayTaskApi;
+use Edutiek\AssessmentService\System\Api\ForClients as SystemApi;
+use Edutiek\AssessmentService\Task\Api\ForClients as TaskApi;
 use ilCtrl;
 use ilGlobalTemplateInterface;
 use ILIAS\DI\Container;
 use ILIAS\HTTP\Services as Http;
+use ILIAS\Plugin\LongEssayAssessment\Common\Http\RequestVariables;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\EditorSettings;
 use ILIAS\Plugin\LongEssayAssessment\UI\Factory as PluginUiFactory;
 use ILIAS\Plugin\LongEssayAssessment\UI\UIService as PluginUIService;
 use ILIAS\Refinery\Factory as RefineryFactory;
-use ILIAS\UI\Component\Modal\Modal;
+use ILIAS\UI\Component\Component as UiComponent;
 use ILIAS\UI\Factory as UiFactory;
 use ILIAS\UI\Renderer;
 use ilLanguage;
@@ -25,11 +30,6 @@ use ilTabsGUI;
 use ilToolbarGUI;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Edutiek\AssessmentService\System\Api\ForClients as SystemApi;
-use Edutiek\AssessmentService\Assessment\Api\ForClients as AssessmentApi;
-use Edutiek\AssessmentService\EssayTask\Api\ForClients as EssayTaskApi;
-use Edutiek\AssessmentService\Task\Api\ForClients as TaskApi;
-use ILIAS\Plugin\LongEssayAssessment\Common\Http\RequestVariables;
 
 /**
  * Base class for GUI classes (except the plugin guis required by ILIAS)
@@ -61,8 +61,8 @@ abstract class BaseGUI
     protected RequestVariables $get;
     protected RequestVariables $post;
 
-    /** @var Modal[] */
-    private array $modals = [];
+    /** @var UiComponent[] */
+    private array $components = [];
 
     public function __construct(protected BaseObjectData $object)
     {
@@ -91,6 +91,37 @@ abstract class BaseGUI
 
         $this->get = new RequestVariables($DIC->http()->wrapper()->query(), $this->dic->refinery());
         $this->post = new RequestVariables($DIC->http()->wrapper()->post(), $this->dic->refinery());
+    }
+
+    /**
+     * Add a components to to be shown
+     */
+    protected function add(UiComponent $component)
+    {
+        $this->components[] = $component;
+    }
+
+    /**
+     * Show the added components
+     */
+    protected function show()
+    {
+        $this->tpl->setContent($this->renderer->render($this->components));
+    }
+
+    protected function success(string $message, bool $keep = false)
+    {
+        $this->tpl->setOnScreenMessage(ilGlobalTemplateInterface::MESSAGE_TYPE_SUCCESS, $message, $keep);
+    }
+
+    protected function failure(string $message, bool $keep = false)
+    {
+        $this->tpl->setOnScreenMessage(ilGlobalTemplateInterface::MESSAGE_TYPE_FAILURE, $message, $keep);
+    }
+
+    protected function info(string $message, bool $keep = false)
+    {
+        $this->tpl->setOnScreenMessage(ilGlobalTemplateInterface::MESSAGE_TYPE_FAILURE, $message, $keep);
     }
 
     /**
@@ -162,21 +193,9 @@ abstract class BaseGUI
         }
     }
 
-    /**
-     * Add Modals which gets rendered later by calling $this->setContent(html)
-     *
-     * @param Modal $modal
-     * @return void
-     */
-    public function addModal(Modal $modal)
-    {
-        $this->modals[] = $modal;
-    }
 
-    protected function setContent($content)
-    {
-        $this->tpl->setContent($content . $this->renderer->render($this->modals));
-    }
+
+
 
     /**
      * Open the mail form for sending a mail to accounts

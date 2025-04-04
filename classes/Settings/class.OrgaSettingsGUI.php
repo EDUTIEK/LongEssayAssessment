@@ -5,10 +5,7 @@ declare(strict_types=1);
 namespace ILIAS\Plugin\LongEssayAssessment\Settings;
 
 use DateTimeImmutable;
-use DateTimeInterface;
 use DateTimeZone;
-use Edutiek\AssessmentService\Assessment\Data\Location;
-use Edutiek\AssessmentService\Assessment\Data\OrgaSettings;
 use Edutiek\AssessmentService\Assessment\Data\OrgaSettingsError;
 use Edutiek\AssessmentService\Assessment\Data\ParticipationType;
 use Edutiek\AssessmentService\Assessment\Data\ResultAvailableType;
@@ -19,10 +16,8 @@ use Edutiek\AssessmentService\EssayTask\Data\WritingType;
 use Edutiek\AssessmentService\EssayTask\WritingSettings\FullService as WritingSettingsService;
 use Edutiek\AssessmentService\System\Transform\FullService as TransformService;
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
-use ILIAS\UI\Component\Input\Container\Form\Standard;
-use ilObjLongEssayAssessment;
-use ilGlobalTemplateInterface as Gti;
 use ILIAS\Plugin\LongEssayAssessment\BaseObjectData;
+use ILIAS\UI\Component\Input\Container\Form\Standard;
 
 /**
  * Organisational Settings
@@ -67,9 +62,6 @@ class OrgaSettingsGUI extends BaseGUI
         }
     }
 
-    /**
-     * Edit and save the settings
-     */
     private function editSettings()
     {
         $form = $this->buildForm();
@@ -82,80 +74,75 @@ class OrgaSettingsGUI extends BaseGUI
                 $this->updateSettings($data);
             }
         }
-        $this->tpl->setContent($this->renderer->render($form));
+        $this->add($form);
+        $this->show();
     }
 
-    /**
-     * Update Settings
-     */
-    private function updateSettings(array $a_data): void
+    private function updateSettings(array $data): void
     {
         $properties = $this->properties_service->get();
         $orga_settings = $this->orga_settings_service->get();
         $writing_settings = $this->writing_settings_service->get();
         
-        $properties->setTitle($a_data['object']['title']);
-        $properties->setDescription($a_data['object']['description']);
+        $properties->setTitle($data['object']['title']);
+        $properties->setDescription($data['object']['description']);
 
-        $orga_settings->setOnline($a_data['object']['online']);
+        $orga_settings->setOnline($data['object']['online']);
         $orga_settings->setParticipationType(ParticipationType::tryFrom(
-            $a_data['object']['participation_type']) ?? ParticipationType::INSTANT);
+            $data['object']['participation_type']) ?? ParticipationType::INSTANT);
 
-        $writing_settings->setWritingType(WritingType::from((string) $a_data['object']['writing_type']));
+        $writing_settings->setWritingType(WritingType::from((string) $data['object']['writing_type']));
 
-        $orga_settings->setDescription($this->transform_service->trimRichText($a_data['content']['task_description']));
-        $orga_settings->setClosingMessage($this->transform_service->trimRichText($a_data['content']['closing_message']));
+        $orga_settings->setDescription($this->transform_service->trimRichText($data['content']['task_description']));
+        $orga_settings->setClosingMessage($this->transform_service->trimRichText($data['content']['closing_message']));
 
-        $orga_settings->setWritingStart($a_data['task']['writing_start']);
-        $orga_settings->setWritingEnd($date = $a_data['task']['writing_end']);
+        $orga_settings->setWritingStart($data['task']['writing_start']);
+        $orga_settings->setWritingEnd($date = $data['task']['writing_end']);
 
         $limit = null;
-        if (!empty($a_data['task']['writing_limit'])) {
-            $limit = (int) ($a_data['task']['writing_limit']['days'] ?? 0) * 24 * 60;
-            if ($a_data['task']['writing_limit']['hours_minutes'] instanceof \DateTimeInterface) {
-                list($hours, $minutes) = explode(':', $a_data['task']['writing_limit']['hours_minutes']->format('H:i'));
+        if (!empty($data['task']['writing_limit'])) {
+            $limit = (int) ($data['task']['writing_limit']['days'] ?? 0) * 24 * 60;
+            if ($data['task']['writing_limit']['hours_minutes'] instanceof \DateTimeInterface) {
+                list($hours, $minutes) = explode(':', $data['task']['writing_limit']['hours_minutes']->format('H:i'));
                 $limit += (int) $hours * 60 + (int) $minutes;
             }
         }
         $orga_settings->setWritingLimitMinutes($limit > 0 ? $limit : null);
-        $orga_settings->setKeepAvailable(!empty($a_data['task']['keep_essay_available']));
-        $orga_settings->setSolutionAvailable(!empty($a_data['task']['solution_available']));
-        $orga_settings->setSolutionAvailableDate($a_data['task']['solution_available']['solution_available_date'] ?? null);
-        $orga_settings->setStatisticsAvailable(!empty($a_data['task']['statistics_available']));
-        $orga_settings->setCorrectionStart($a_data['task']['correction_start'] ?? null);
-        $orga_settings->setCorrectionEnd($a_data['task']['correction_end'] ?? null);
+        $orga_settings->setKeepAvailable(!empty($data['task']['keep_essay_available']));
+        $orga_settings->setSolutionAvailable(!empty($data['task']['solution_available']));
+        $orga_settings->setSolutionAvailableDate($data['task']['solution_available']['solution_available_date'] ?? null);
+        $orga_settings->setStatisticsAvailable(!empty($data['task']['statistics_available']));
+        $orga_settings->setCorrectionStart($data['task']['correction_start'] ?? null);
+        $orga_settings->setCorrectionEnd($data['task']['correction_end'] ?? null);
 
         $orga_settings->setResultAvailableType(ResultAvailableType::tryFrom((
-            $a_data['task']['result_available_type'][0] )?? ResultAvailableType::REVIEW));
-        $orga_settings->setResultAvailableDate($a_data['task']['result_available_type'][1]['result_available_date'] ?? null);
+            $data['task']['result_available_type'][0] )?? ResultAvailableType::REVIEW));
+        $orga_settings->setResultAvailableDate($data['task']['result_available_type'][1]['result_available_date'] ?? null);
 
-        $orga_settings->setReviewEnabled(!empty($a_data['task']['review']));
+        $orga_settings->setReviewEnabled(!empty($data['task']['review']));
         if ($orga_settings->getReviewEnabled()) {
-            $orga_settings->setReviewStart($a_data['task']['review']['review_start'] ?? null);
-            $orga_settings->setReviewEnd($a_data['task']['review']['review_end'] ?? null);
-            $orga_settings->setReviewNotification(!empty($a_data['task']['review']['review_notification']));
+            $orga_settings->setReviewStart($data['task']['review']['review_start'] ?? null);
+            $orga_settings->setReviewEnd($data['task']['review']['review_end'] ?? null);
+            $orga_settings->setReviewNotification(!empty($data['task']['review']['review_notification']));
             if ($orga_settings->getReviewNotification()) {
-                $orga_settings->setReviewNotifText($a_data['task']['review']['review_notification']['review_notification_text'] ?? null);
+                $orga_settings->setReviewNotifText($data['task']['review']['review_notification']['review_notification_text'] ?? null);
             }
         }
 
         if ($this->orga_settings_service->validate($orga_settings)) {
             $this->properties_service->save($properties);
             $this->orga_settings_service->save($orga_settings);
-            $this->location_service->saveTitles((array) ($a_data['task']['location'] ?? []));
+            $this->location_service->saveTitles((array) ($data['task']['location'] ?? []));
 
-            $this->tpl->setOnScreenMessage(Gti::MESSAGE_TYPE_SUCCESS, $this->lng->txt("settings_saved"), true);
+            $this->success( $this->lng->txt("settings_saved"), true);
             $this->ctrl->redirect($this, "editSettings");
         }
 
-        $this->tpl->setOnScreenMessage(Gti::MESSAGE_TYPE_FAILURE, implode('<br>',
+        $this->failure(implode('<br>',
             array_map(fn(OrgaSettingsError $error) => $this->plugin->txt('failure_'. $error->value),
             $orga_settings->getValidationErrors())));
     }
 
-    /**
-     * Build TaskSettings Form
-     */
     private function buildForm(): Standard
     {
         $properties = $this->properties_service->get();
@@ -165,7 +152,6 @@ class OrgaSettingsGUI extends BaseGUI
         $factory = $this->ui_factory->input()->field();
         $sections = [];
 
-        // Object
         $fields_object = [];
         $fields_object['title'] = $factory->text($this->lng->txt("title"))
             ->withRequired(true)
@@ -208,7 +194,6 @@ class OrgaSettingsGUI extends BaseGUI
             )
             ->withValue($writing_settings->getWritingType()->value);
 
-        // Content
         $fields_content = [];
         $fields_content['task_description'] = $this->plugin_ui_factory->field()
             ->tinyMCE($this->plugin->txt("task_description"), $this->plugin->txt("task_description_info"))
@@ -218,7 +203,6 @@ class OrgaSettingsGUI extends BaseGUI
             ->tinyMCE($this->plugin->txt("closing_message"), $this->plugin->txt("closing_message_info"))
             ->withValue($orga_settings->getClosingMessage() ?? "");
 
-        // Task
         $fields_settings = [];
         $fields_settings['writing_start'] = $factory->dateTime(
             $this->plugin->txt("writing_start"),

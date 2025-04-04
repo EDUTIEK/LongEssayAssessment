@@ -110,7 +110,7 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
 
         //$this->prepareOutput();
         $this->tpl->setDescription($this->object->getDescription());
-        $this->tpl->setTitleIcon(ilLongEssayAssessmentPlugin::IMAGES_PATH . '/icon_xlas.svg');
+        $this->tpl->setTitleIcon($this->plugin->getIconURL('icon_xlas.svg'));
         $alerts = [];
         if (!$this->assessment->orgaSettings()->get()->getOnline()) {
             $alert[] = [

@@ -61,7 +61,7 @@ class InstructionSettingsGUI extends BaseGUI
 
         $this->ctrl->setParameter($this, 'task_id', $this->task_info->getId());
 
-        $this->setContent("task_id: {$this->task_info->getId()}");
+        $this->setContent(ILIAS_HTTP_PATH . " task_id: {$this->task_info->getId()}");
     }
 
     private function create(): void

@@ -15,7 +15,6 @@ class SetupRepo implements \Edutiek\AssessmentService\System\Data\SetupRepo
 
     public function __construct(
         private readonly ilIniFile $client_ini,
-        private readonly ilLongEssayAssessmentPlugin $plugin,
         private readonly \ILIAS\Filesystem\Filesystem $web_fs,
         private readonly ilLanguage $lng
     ) {
@@ -29,8 +28,10 @@ class SetupRepo implements \Edutiek\AssessmentService\System\Data\SetupRepo
             }
             $this->setup = new Setup(
                 $this->client_ini->readVariable('client', 'name'),
-                $this->getPluginHttpPath() . '/vendor/edutiek/assessment-service/node_modules',
-                $this->getPluginHttpPath() . '/rest.php',
+                ILIAS_HTTP_PATH
+                    . '/Customizing/global/plugins/Services/Repository/RepositoryObject/LongEssayAssessment'
+                    .'/vendor/edutiek/assessment-service/node_modules',
+                ILIAS_HTTP_PATH . '/xlas_rest.php',
                 $this->getDefaultPathToGhostscript(),
                 ILIAS_ABSOLUTE_PATH . '/' . ILIAS_WEB_DIR . '/' . CLIENT_ID . '/temp',
                 ILIAS_WEB_DIR . '/' . CLIENT_ID . '/temp',
@@ -42,22 +43,6 @@ class SetupRepo implements \Edutiek\AssessmentService\System\Data\SetupRepo
         return $this->setup;
     }
 
-    /**
-     * Get the HTTP path to the plugin directory
-     * Helper function to handle a different ILIAS_HTTP_PATH
-     * when being called from ilias.php or from the rest end points
-     */
-    private function getPluginHttpPath(): string
-    {
-        $plugin_path = $this->plugin->getPluginPath();
-        $pos = strpos(ILIAS_HTTP_PATH, $plugin_path);
-
-        if ($pos !== false) {
-            return substr(ILIAS_HTTP_PATH, 0, $pos + strlen($plugin_path));
-        } else {
-            return ILIAS_HTTP_PATH . '/' . $plugin_path;
-        }
-    }
 
     /**
      * Get the default path of the ghostscript executable

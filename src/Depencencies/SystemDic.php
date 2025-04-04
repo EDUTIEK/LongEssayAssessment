@@ -48,7 +48,6 @@ class SystemDic implements \Edutiek\AssessmentService\System\Api\Dependencies
     {
         return new SetupRepo(
             $this->dic->clientIni(),
-            $this->dic[ilLongEssayAssessmentPlugin::class],
             $this->dic->filesystem()->web(),
             $this->dic->language()
         );

@@ -83,6 +83,7 @@ class SetupAgent implements Agent
             'ILIAS\Plugin\LongEssayAssessment',
             true,
             new EndpointsBuildObjective(),
+            new ResourcesCopiedObjective(),
             new ModelObjective(),
         );
     }

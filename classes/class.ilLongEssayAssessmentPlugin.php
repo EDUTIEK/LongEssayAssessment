@@ -21,9 +21,10 @@ use ILIAS\Plugin\LongEssayAssessment\WriterAdmin\PDFVersionResourceStakeholder;
 class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
 {
     public const ID = "xlas";   // must be public for GUI and List GUI
-    public const IMAGES_PATH = "Customizing/global/plugins/Services/Repository/RepositoryObject/LongEssayAssessment/resources/images";
-    private const PLUGIN_PATH = "public/Customizing/global/plugins/Services/Repository/RepositoryObject/LongEssayAssessment"; // Temporary because of issues in the core with paths
+
     private const LANGUAGES = ['de'];
+    private const PLUGIN_PATH = "public/Customizing/global/plugins/Services/Repository/RepositoryObject/LongEssayAssessment";
+    private const ICON_PATH = '/Customizing/global/plugins/Services/Repository/RepositoryObject/LongEssayAssessment/resources//images';
 
     protected Container $ilias_dic;
     protected ilLanguage $lng;
@@ -53,15 +54,6 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
         return PluginDic::getInstance($this->ilias_dic, $this);
     }
 
-
-    /**
-     * Get the plugin path
-     * must be relative to the ILIAS directory without leading and trailing slash
-     */
-    public function getPluginPath(): string
-    {
-        return "../" . self::PLUGIN_PATH;
-    }
 
     public function allowCopy(): bool
     {
@@ -238,14 +230,10 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
         //        }
     }
 
-//    /**
-//     * Temporary override because of issues in the core with paths
-//     * @return string
-//     */
-//    public function getDirectory(): string
-//    {
-//        return $this->getPluginPath();
-//    }
+    public function getIconURL(string $name): string
+    {
+        return  ILIAS_HTTP_PATH . '/' . self::ICON_PATH . '/' . $name;
+    }
 
     /**
      * Temporary override because of issues in the core with paths

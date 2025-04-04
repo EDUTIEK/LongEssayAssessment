@@ -21,7 +21,7 @@ class ilObjLongEssayAssessmentListGUI extends ilObjectPluginListGUI
 
     public function getTypeIcon(): string
     {
-        return $this->plugin->getIconUrl('icon_xlas.svg');
+        return 'components/EDUTIEK/LongEssayAssessment/images/icon_xlas.svg';
     }
     /**
      * Get name of gui class handling the commands

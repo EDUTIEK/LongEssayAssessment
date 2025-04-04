@@ -31,20 +31,20 @@ class ResourcesCopiedObjective implements Setup\Objective
         ];
     }
 
-    /**
-     * todo: use non-conflicting names
-     */
     public function achieve(Environment $environment): Environment
     {
         $root = self::ILIAS_ROOT;
-        $public_path = "$root/public";
-        $plugin_path = "$public_path/Customizing/global/plugins/Services/Repository/RepositoryObject/LongEssayAssessment";
-        copy("$plugin_path/resources/images/icon_xlas.svg", "$public_path/assets/images/standard/icon_xlas.svg");
-        copy("$plugin_path/resources/images/icon_appr.svg", "$public_path/assets/images/standard/icon_appr.svg");
-        copy("$plugin_path/resources/images/icon_disq.svg", "$public_path/assets/images/standard/icon_disq.svg");
-        copy("$plugin_path/resources/images/icon_nota.svg", "$public_path/assets/images/standard/icon_nota.svg");
-        copy("$plugin_path/resources/images/icon_nots.svg", "$public_path/assets/images/standard/icon_nots.svg");
-        copy("$plugin_path/resources/images/icon_time.svg", "$public_path/assets/images/standard/icon_time.svg");
+        $source_path = "$root/public/Customizing/global/plugins/Services/Repository/RepositoryObject/LongEssayAssessment/resources";
+        $dest_path = "$root/public/components/EDUTIEK/LongEssayAssessment";
+
+        foreach (glob("$source_path/*") as $folder) {
+            if (is_dir($folder)) {
+                mkdir("$dest_path/" . basename($folder) , 0777, true);
+                foreach (glob("$folder/*") as $file) {
+                    copy($file, $dest_path . '/' . basename($folder) . '/'. basename($file));
+                };
+            }
+        }
 
 
         return $environment;

@@ -20,15 +20,13 @@ use ILIAS\Plugin\LongEssayAssessment\WriterAdmin\PDFVersionResourceStakeholder;
  */
 class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
 {
-    public const ID = "xlas";   // must be public for GUI and List GUI
+    public const ID = 'xlas';   // must be public for GUI and List GUI
 
     private const LANGUAGES = ['de'];
-    private const PLUGIN_PATH = "public/Customizing/global/plugins/Services/Repository/RepositoryObject/LongEssayAssessment";
-    private const ICON_PATH = '/Customizing/global/plugins/Services/Repository/RepositoryObject/LongEssayAssessment/resources//images';
+    private const PLUGIN_PATH = 'public/Customizing/global/plugins/Services/Repository/RepositoryObject/LongEssayAssessment';
 
     protected Container $ilias_dic;
-    protected ilLanguage $lng;
-    protected ilDBInterface $db;
+    protected ilLanguage $lng;    protected ilDBInterface $db;
 
     protected static $instance;
 
@@ -54,7 +52,6 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
         return PluginDic::getInstance($this->ilias_dic, $this);
     }
 
-
     public function allowCopy(): bool
     {
         return true;
@@ -69,7 +66,6 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
 
         (new DBUpdateSteps10())->install($this->db);
     }
-
 
     /**
      * Uninstall the plugin
@@ -228,11 +224,6 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
         //                $writer_repo->deleteWriter($w->getId());
         //            }
         //        }
-    }
-
-    public function getIconURL(string $name): string
-    {
-        return  ILIAS_HTTP_PATH . '/' . self::ICON_PATH . '/' . $name;
     }
 
     /**

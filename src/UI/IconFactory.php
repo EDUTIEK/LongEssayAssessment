@@ -8,16 +8,14 @@ use ILIAS\UI\Implementation\Component\Symbol\Icon\Icon;
 class IconFactory
 {
     private ILIASIconFactory $factory;
-    private \ilPlugin $plugin;
-    public function __construct(ILIASIconFactory $factory, \ilPlugin $plugin)
+    public function __construct(ILIASIconFactory $factory)
     {
         $this->factory = $factory;
-        $this->plugin = $plugin;
     }
 
     private function icon_path(string $name): string
     {
-        return $this->plugin->getDirectory() . "/templates/images/icon_". $name . ".svg";
+        return "components/EDUTIEK/LongEssayAssessment/images/icon_". $name . ".svg";
     }
 
     /**

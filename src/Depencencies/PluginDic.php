@@ -104,8 +104,7 @@ class PluginDic
                     $dic->language()
                 ),
                 new IconFactory(
-                    $dic->ui()->factory()->symbol()->icon(),
-                    $this->plugin()
+                    $dic->ui()->factory()->symbol()->icon()
                 ),
                 new ItemFactory(
                     $dic->ui()->factory()->symbol()->icon(),

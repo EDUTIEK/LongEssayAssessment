@@ -205,7 +205,7 @@ class InputRenderer extends \ILIAS\UI\Implementation\Component\Input\Field\Rende
     {
         if ($this->files_cache === null) {
 
-            $this->files_cache =  array_filter(scandir(dirname(__FILE__). "/../../../templates/Input"), function ($item) {
+            $this->files_cache =  array_filter(scandir(dirname(__FILE__). "/../../../templates/default/Input"), function ($item) {
                 return str_starts_with($item, "tpl.");
             });
 

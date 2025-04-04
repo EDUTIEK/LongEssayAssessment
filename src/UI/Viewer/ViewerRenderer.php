@@ -37,7 +37,7 @@ class ViewerRenderer extends AbstractComponentRenderer
 
     protected function getTemplatePath($name) : string
     {
-        return __DIR__ . '/../../../templates/Viewer/' . $name;
+        return __DIR__ . '/../../../templates/default/Viewer/' . $name;
     }
 
 }

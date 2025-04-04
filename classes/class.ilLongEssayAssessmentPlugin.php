@@ -21,8 +21,8 @@ use ILIAS\Plugin\LongEssayAssessment\WriterAdmin\PDFVersionResourceStakeholder;
 class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
 {
     public const ID = "xlas";   // must be public for GUI and List GUI
-    public const IMAGES_PATH = "./Customizing/plugins/Repository/RepositoryObject/LongEssayAssessment/templates/images";
-    private const PLUGIN_PATH = "public/Customizing/plugins/Repository/RepositoryObject/LongEssayAssessment"; // Temporary because of issues in the core with paths
+    public const IMAGES_PATH = "Customizing/global/plugins/Services/Repository/RepositoryObject/LongEssayAssessment/resources/images";
+    private const PLUGIN_PATH = "public/Customizing/global/plugins/Services/Repository/RepositoryObject/LongEssayAssessment"; // Temporary because of issues in the core with paths
     private const LANGUAGES = ['de'];
 
     protected Container $ilias_dic;
@@ -238,14 +238,14 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
         //        }
     }
 
-    /**
-     * Temporary override because of issues in the core with paths
-     * @return string
-     */
-    public function getDirectory(): string
-    {
-        return $this->getPluginPath();
-    }
+//    /**
+//     * Temporary override because of issues in the core with paths
+//     * @return string
+//     */
+//    public function getDirectory(): string
+//    {
+//        return $this->getPluginPath();
+//    }
 
     /**
      * Temporary override because of issues in the core with paths
@@ -259,7 +259,7 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
      */
     public function getTemplate(string $a_template, bool $a_par1 = true, bool $a_par2 = true): ilTemplate
     {
-        return new ilTemplate(self::PLUGIN_PATH . "/templates/" . $a_template, $a_par1, $a_par2);
+        return new ilTemplate( $a_template, $a_par1, $a_par2, self::PLUGIN_PATH);
     }
 
 }

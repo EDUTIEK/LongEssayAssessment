@@ -54,7 +54,7 @@ class StatisticRenderer extends AbstractComponentRenderer
     {
         if ($this->files_cache === null) {
             $this->files_cache = array_filter(
-                scandir(dirname(__FILE__) . "/../../../templates/Item"),
+                scandir(dirname(__FILE__) . "/../../../templates/default/Item"),
                 function ($item) {
                     return str_starts_with($item, "tpl.");
                 }

@@ -59,7 +59,7 @@ class ItemRenderer extends \ILIAS\UI\Implementation\Component\Item\Renderer
     {
         if ($this->files_cache === null) {
 
-            $this->files_cache =  array_filter(scandir(dirname(__FILE__). "/../../../templates/Item"), function ($item) {
+            $this->files_cache =  array_filter(scandir(dirname(__FILE__). "/../../../templates/default/Item"), function ($item) {
                 return str_starts_with($item, "tpl.");
             });
 

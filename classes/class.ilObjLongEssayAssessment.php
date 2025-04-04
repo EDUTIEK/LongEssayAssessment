@@ -34,11 +34,6 @@ class ilObjLongEssayAssessment extends ilObjectPlugin implements BaseObjectData
         $this->initServices();
     }
 
-    public static function getIconForType(string $type): string
-    {
-        return './Customizing/plugins/Repository/RepositoryObject/LongEssayAssessment/templates/images/icon_xlas.svg';
-    }
-
     /**
      * Get the assessment id for the assessment services
      */

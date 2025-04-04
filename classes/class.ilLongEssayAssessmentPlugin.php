@@ -30,6 +30,16 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
 
     protected static $instance;
 
+    /**
+     * Get the title icon
+     * Used for object list, creation, gui
+     * used by info, export and permission tabe
+     */
+    public static function _getIcon(string $a_type): string
+    {
+        return 'components/EDUTIEK/LongEssayAssessment/images/icon_xlas.svg';
+    }
+
     public function __construct(
         \ilDBInterface $db,
         \ilComponentRepositoryWrite $component_repository,
@@ -146,9 +156,6 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
 
     public function exchangeUIRendererAfterInitialization(Container $dic): Closure
     {
-        #return $dic->raw('ui.renderer');
-
-        $this->init();
         //Safe the origin renderer closure
         $renderer = $dic->raw('ui.renderer');
 
@@ -227,14 +234,8 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
     }
 
     /**
-     * Temporary override because of issues in the core with paths
-     *
+     * Get a template of the plugin
      * @param string $a_template
-     * @param bool   $a_par1
-     * @param bool   $a_par2
-     * @return ilTemplate
-     * @throws ilSystemStyleException
-     * @throws ilTemplateException
      */
     public function getTemplate(string $a_template, bool $a_par1 = true, bool $a_par2 = true): ilTemplate
     {

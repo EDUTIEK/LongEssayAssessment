@@ -83,10 +83,18 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
         $this->plugin = ilLongEssayAssessmentPlugin::getInstance();
         $this->help = $DIC->help();
 
-        // Description is not shown by ilObjectPluginGUI
         if (isset($this->object)) {
             $this->assessment = $this->plugin->dic()->assessment($this->object->getAssId(), $this->object->getContextId(), $DIC->user()->getId());
             $this->permissions = $this->assessment->permissions();
+
+            $this->tpl->setDescription($this->object->getDescription());
+
+            if (!$this->assessment->orgaSettings()->get()->getOnline()) {
+                $this->tpl->setAlertProperties([[
+                    'property' => $this->plugin->txt('status'),
+                    'value' => $this->plugin->txt('offline')
+                ]]);
+            }
         }
     }
 
@@ -105,20 +113,6 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
      */
     public function performCommand($cmd): void
     {
-        global $DIC;
-
-        $this->tpl->setDescription($this->object->getDescription());
-        $this->tpl->setTitleIcon('components/EDUTIEK/LongEssayAssessment/images/icon_xlas.svg');
-        $alerts = [];
-        if (!$this->assessment->orgaSettings()->get()->getOnline()) {
-            $alert[] = [
-                'property' => $this->plugin->txt('status'),
-                'value' => $this->plugin->txt('offline')
-            ];
-        }
-        $this->tpl->setAlertProperties($alerts);
-
-
         $next_class = $this->ctrl->getNextClass();
         if (!empty($next_class)) {
             switch ($next_class) {
@@ -357,9 +351,9 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
         if ($this->permissions->canEditOrgaSettings()) {
             $this->ctrl->redirectByClass(OrgaSettingsGUI::class);
         }
-        //        if ($this->permissions->canEditContentSettings()) {
-        //            $this->ctrl->redirectByClass('ilias\plugin\longessayassessment\task\solutionsettingsgui');
-        //        }
+        if ($this->permissions->canEditContentSettings()) {
+            $this->ctrl->redirectByClass(InstructionSettingsGUI::class);
+        }
         //        if ($this->permissions->canMaintainWriters()) {
         //            $this->ctrl->redirectByClass('ilias\plugin\longessayassessment\writerAdmin\writeradmingui');
         //        }

@@ -20,6 +20,8 @@ declare(strict_types=1);
 
 namespace ILIAS\Plugin\LongEssayAssessment\Task\Data;
 
+use Edutiek\AssessmentService\Task\Data\ResourceAvailability;
+use Edutiek\AssessmentService\Task\Data\ResourceType;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Key;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Table;
 
@@ -81,22 +83,22 @@ class Resource extends \Edutiek\AssessmentService\Task\Data\Resource
         $this->url = $url;
         return $this;
     }
-    public function getType(): string
+    public function getType(): ResourceType
     {
-        return $this->type;
+        return ResourceType::tryFrom($this->type) ?? ResourceType::FILE;
     }
-    public function setType(string $type): self
+    public function setType(ResourceType $type): self
     {
-        $this->type = $type;
+        $this->type = $type->value;
         return $this;
     }
-    public function getAvailability(): string
+    public function getAvailability(): ResourceAvailability
     {
-        return $this->availability;
+        return ResourceAvailability::tryFrom($this->availability) ?? ResourceAvailability::DURING;
     }
-    public function setAvailability(string $availability): self
+    public function setAvailability(ResourceAvailability $availability): self
     {
-        $this->availability = $availability;
+        $this->availability = $availability->value;
         return $this;
     }
     public function getFileId(): ?string

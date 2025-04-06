@@ -20,6 +20,7 @@ declare(strict_types=1);
 
 namespace ILIAS\Plugin\LongEssayAssessment\Task\Data;
 
+use Edutiek\AssessmentService\Task\Data\ResourceType;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\RepositoryInterface;
 use Edutiek\AssessmentService\Task\Data\Resource;
 
@@ -39,9 +40,9 @@ class ResourceRepo implements \Edutiek\AssessmentService\Task\Data\ResourceRepo
         return $this->repo->queryOneBy(['id' => $id]);
     }
 
-    public function oneByTaskIdAndType(int $task_id, string $type): ?Resource
+    public function oneByTaskIdAndType(int $task_id, ResourceType $type): ?Resource
     {
-        return $this->repo->queryOneBy(['task_id' => $task_id, 'type' => $type]);
+        return $this->repo->queryOneBy(['task_id' => $task_id, 'type' => $type->value]);
     }
 
     public function oneByFileId(string $file_id): ?Resource

@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace ILIAS\Plugin\LongEssayAssessment\Settings;
 
+use Edutiek\AssessmentService\System\File\Storage as FileStorage;
+use Edutiek\AssessmentService\Task\Data\ResourceType;
+use Edutiek\AssessmentService\Task\Resource\FullService as ResourceService;
 use Edutiek\AssessmentService\Task\Settings\FullService as SettingsService;
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\BaseObjectData;
@@ -11,6 +14,7 @@ use Edutiek\AssessmentService\Assessment\TaskInterfaces\Manager as TaskManagerSe
 use Edutiek\AssessmentService\Assessment\TaskInterfaces\TaskInfo;
 use ILIAS\Plugin\LongEssayAssessment\Provider\ToolProvider;
 use ILIAS\UI\Component\Input\Container\Form\Standard;
+use ilLongEssayAssessmentUploadHandlerGUI;
 
 /**
  * Settings GUI for task instructions
@@ -22,23 +26,28 @@ class InstructionSettingsGUI extends BaseGUI
     private TaskManagerService $manager_service;
     private ?TaskInfo $task_info;
     private SettingsService $settings_service;
+    private ResourceService $resource_service;
+    private ilLongEssayAssessmentUploadHandlerGUI $upload_handler;
+    private FileStorage $file_storage;
 
     public function __construct(BaseObjectData $object)
     {
         parent::__construct($object);
+
+        $this->upload_handler = new ilLongEssayAssessmentUploadHandlerGUI(
+            $this->plugin->dic()->uploadTempFile());
     }
 
     public function executeCommand(): void
     {
         $this->initTask();
         $this->settings_service = $this->task_api->settings($this->task_info->getId());
+        $this->resource_service = $this->task_api->resource($this->task_info->getId());
+        $this->file_storage = $this->system_api->fileStorage();
 
         $cmd = $this->ctrl->getCmd('editSettings');
         switch ($cmd) {
             case 'create':
-                $this->create();
-                break;
-
             case "editSettings":
                 $this->$cmd();
                 break;
@@ -102,6 +111,8 @@ class InstructionSettingsGUI extends BaseGUI
     private function buildForm(): Standard
     {
         $settings = $this->settings_service->get();
+        $resource = $this->resource_service->oneByType(ResourceType::INSTRUCTIONS);
+        $this->upload_handler->setFileInfo($this->file_storage->getFileInfo($resource->getFileId() ?? ''));
 
         $factory = $this->ui_factory->input()->field();
         $sections = [];
@@ -111,22 +122,16 @@ class InstructionSettingsGUI extends BaseGUI
             ->tinyMCE($this->plugin->txt("task_description"), $this->plugin->txt("task_description_info"))
             ->withValue($settings->getInstructions() ?? "");
 
-
-//        $fields['resource_file'] = $factory->file(
-//            new ResourceUploadHandlerGUI(
-//                $this->dic->resourceStorage(),
-//                $this->localDI->getTaskRepo()
-//            ),
-//            "",
-//            $this->plugin->txt("task_instructions_file_info") . "<br>" . $ui_service->getMaxFileSizeString()
-//        )
-//            ->withAcceptedMimeTypes(['application/pdf'])
-//            ->withValue($resource !== null && $resource->getFileId() !== null ? [$resource->getFileId()] : []);
+        $fields['resource_file'] = $factory->file($this->upload_handler,
+            $this->plugin->txt("task_instructions"),
+            $this->plugin->txt("task_instructions_file_info")
+            . "<br>" . $this->plugin_ui_service->getMaxFileSizeString()
+        )
+            ->withAcceptedMimeTypes(['application/pdf'])
+            ->withValue($resource !== null && $resource->getFileId() !== null ? [$resource->getFileId()] : []);
 
         $sections["form"] = $factory->section($fields, $this->plugin->txt('tab_instructions_settings'));
 
         return $this->ui_factory->input()->container()->form()->standard($this->ctrl->getFormAction($this), $sections);
-
     }
-
 }

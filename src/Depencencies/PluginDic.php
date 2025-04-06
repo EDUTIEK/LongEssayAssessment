@@ -42,6 +42,7 @@ use ILIAS\Plugin\LongEssayAssessment\UI\Statistic\StatisticFactory;
 use ILIAS\Plugin\LongEssayAssessment\UI\Viewer\ViewerFactory;
 use ILIAS\Plugin\LongEssayAssessment\UI\PluginTemplateFactory;
 use ILIAS\Plugin\LongEssayAssessment\UI\UIService;
+use ILIAS\Plugin\LongEssayAssessment\UploadTempFile;
 use ilLongEssayAssessmentPlugin;
 use ILIAS\Plugin\LongEssayAssessment\Setup\ModelObjective;
 
@@ -116,8 +117,8 @@ class PluginDic
             );
         };
 
-        $dic[ilLongEssayAssessmentUploadTempFile::class] = function (Container $dic) {
-            return new ilLongEssayAssessmentUploadTempFile($dic->resourceStorage(), $dic->filesystem(), $dic->upload());
+        $dic[UploadTempFile::class] = function (Container $dic) {
+            return new UploadTempFile($dic->filesystem(), $dic->upload());
         };
 
         $dic[UIService::class] = function (Container $dic) {
@@ -184,9 +185,9 @@ class PluginDic
         return $this->dic[UIService::class];
     }
 
-    public function uploadTempFile(): ilLongEssayAssessmentUploadTempFile
+    public function uploadTempFile(): UploadTempFile
     {
-        return $this->dic[ilLongEssayAssessmentUploadTempFile::class];
+        return $this->dic[UploadTempFile::class];
     }
 
     public function system(): SystemClientApi

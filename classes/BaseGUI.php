@@ -5,6 +5,8 @@
 namespace ILIAS\Plugin\LongEssayAssessment;
 
 use Edutiek\AssessmentService\Assessment\Api\ForClients as AssessmentApi;
+use Edutiek\AssessmentService\Assessment\TaskInterfaces\Manager as TaskManagerService;
+use Edutiek\AssessmentService\Assessment\TaskInterfaces\TaskInfo;
 use Edutiek\AssessmentService\EssayTask\Api\ForClients as EssayTaskApi;
 use Edutiek\AssessmentService\System\Api\ForClients as SystemApi;
 use Edutiek\AssessmentService\Task\Api\ForClients as TaskApi;
@@ -14,6 +16,7 @@ use ILIAS\DI\Container;
 use ILIAS\HTTP\Services as Http;
 use ILIAS\Plugin\LongEssayAssessment\Common\Http\RequestVariables;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\EditorSettings;
+use ILIAS\Plugin\LongEssayAssessment\Provider\ToolProvider;
 use ILIAS\Plugin\LongEssayAssessment\UI\Factory as PluginUiFactory;
 use ILIAS\Plugin\LongEssayAssessment\UI\UIService as PluginUIService;
 use ILIAS\Refinery\Factory as RefineryFactory;
@@ -61,6 +64,9 @@ abstract class BaseGUI
     protected RequestVariables $get;
     protected RequestVariables $post;
 
+    protected TaskManagerService $manager_service;
+    protected ?TaskInfo $task_info;
+
     /** @var UiComponent[] */
     private array $components = [];
 
@@ -83,7 +89,8 @@ abstract class BaseGUI
         $this->plugin = ilLongEssayAssessmentPlugin::getInstance();
 
         $this->system_api = $this->plugin->dic()->system();
-        $this->assessment_api = $this->plugin->dic()->assessment($this->object->getAssId(), $this->object->getContextId(), $this->user->getId());
+        $this->assessment_api = $this->plugin->dic()->assessment($this->object->getAssId(),
+            $this->object->getContextId(), $this->user->getId());
         $this->task_api = $this->plugin->dic()->task($this->object->getAssId(), $this->user->getId());
         $this->essay_task_api = $this->plugin->dic()->essayTask($this->object->getAssId(), $this->user->getId());
         $this->plugin_ui_factory = $this->plugin->dic()->uiFactory();
@@ -96,9 +103,10 @@ abstract class BaseGUI
     /**
      * Add a components to to be shown
      */
-    protected function add(UiComponent $component)
+    protected function add(UiComponent $component) : static
     {
         $this->components[] = $component;
+        return $this;
     }
 
     /**
@@ -136,9 +144,36 @@ abstract class BaseGUI
     }
 
     /**
+     * Init the GUI to handle an assessment task
+     * The task is identified by the query parameter task_id
+     * Basic information of the task is loaded to the variable task_info
+     */
+    protected function initTask()
+    {
+        $this->manager_service = $this->task_api->manager();
+
+        $this->task_info = ($this->get->has('task_id') ?
+            $this->manager_service->one($this->get->integer('task_id')) :
+            $this->manager_service->first()
+        );
+        if ($this->task_info === null) {
+            $this->tpl->setContent('wrong parameter task_id');
+            return;
+        }
+
+        $this->tpl->setTitle($this->object->getTitle() . ' | ' . $this->task_info->getTitle());
+        $this->ctrl->setParameter($this, 'task_id', $this->task_info->getId());
+
+        if ($this->object->getMultiTasks()) {
+            $this->dic->globalScreen()->tool()->context()->current()->getAdditionalData()->add(ToolProvider::NAME,
+                true);
+        }
+    }
+
+    /**
      * Display an HTML text in readable width
      */
-    public function displayText(?string $html): string
+    public function displayText(?string $html) : string
     {
         return '<div style="max-width: 60em;">' . $html . '</div>';
     }
@@ -146,7 +181,7 @@ abstract class BaseGUI
     /**
      * Display an essay content
      */
-    public function displayContent(?string $html): string
+    public function displayContent(?string $html) : string
     {
         $headline_class = "";
         if (!empty($settings = $this->essay_task_api->writingSettings()->get())) {
@@ -171,7 +206,7 @@ abstract class BaseGUI
     /**
      * Add the css for displaying essay content
      */
-    public function addContentCss(): void
+    public function addContentCss() : void
     {
         $this->tpl->addCss($this->plugin->getDirectory() . '/templates/css/content.css');
 
@@ -192,9 +227,6 @@ abstract class BaseGUI
             }
         }
     }
-
-
-
 
 
     /**

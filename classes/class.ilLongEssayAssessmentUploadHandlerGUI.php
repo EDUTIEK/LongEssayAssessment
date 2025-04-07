@@ -1,6 +1,9 @@
 <?php
 
+use Edutiek\AssessmentService\System\File\Storage as FileStorage;
 use Edutiek\AssessmentService\System\Data\FileInfo;
+use ILIAS\Plugin\LongEssayAssessment\System\Data\FileInfo as FileInfoModel;
+use ILIAS\Filesystem\Stream\FileStream;
 use ILIAS\FileUpload\DTO\UploadResult;
 use ILIAS\FileUpload\Handler\AbstractCtrlAwareUploadHandler;
 use ILIAS\FileUpload\Handler\BasicFileInfoResult;
@@ -16,34 +19,47 @@ use ILIAS\Plugin\LongEssayAssessment\UploadTempFile;
  *  It stores the asynchronous upload in a tempory file
  *  It deletes an uploaded temporary file asynchronously
  *
- *  The info about a stored file has to be injected by the calling class with setFileInfo
- *  If no temporary file is uploaded yet, then this info is shown
+ *  If no temporary file is uploaded yet, then the existing file info is shown
  *  When a temorary file is uploaded asynchronoursly then its file info is shown
  *
  *  A stored file has to be created, replaced or deleted in the calling GUI when the UI form is saved
- *  The value of the Input\File component may be the identifier of a stored or temporary file
+ *  The value of the Input\File component may be the identifier of a stored or a temporary file
  *  The parent GUI has to compare this value with the stored value and decide on the action
- *  The
  *
  * @ilCtrl_isCalledBy ilLongEssayAssessmentUploadHandlerGUI: ilObjLongEssayAssessmentGUI
  */
 class ilLongEssayAssessmentUploadHandlerGUI extends AbstractCtrlAwareUploadHandler
 {
-    private ?FileInfo $file_info = null;
-
     public function __construct(
+        private readonly FileStorage $file_storage,
         private readonly UploadTempFile $temp_file
     ) {
         parent::__construct();
     }
 
     /**
-     * Set the info about an already stored file, not the temp file
+     * Get the info about the file for the assesment services system api
      */
-    public function setFileInfo(?FileInfo $file_info): self
+    public function getApiInfo($identifier): ?FileInfo
     {
-        $this->file_info = $file_info;
-        return $this;
+        if ($this->temp_file->has($identifier)) {
+            return (new FileInfoModel())
+                ->setId(null)
+                ->setFileName($this->temp_file->getName($identifier))
+                ->setMimeType($this->temp_file->getMimeType($identifier))
+                ->setSize(
+                    $this->temp_file->getSize($identifier)
+                );
+        }
+        return $this->file_storage->getFileInfo($identifier);
+    }
+
+    /**
+     * Get the stream of an uploaded file for the assesment services system api
+     */
+    public function getApiStream(string $identifier): mixed
+    {
+        return $this->temp_file->stream($identifier)->detach();
     }
 
     public function getUploadURL(): string
@@ -109,13 +125,15 @@ class ilLongEssayAssessmentUploadHandlerGUI extends AbstractCtrlAwareUploadHandl
                 $this->temp_file->getMimeType($identifier)
             );
         }
-        if ($this->file_info !== null && $this->file_info->getId() === $identifier) {
+        $info = $this->file_storage->getFileInfo($identifier);
+
+        if ($info !== null) {
             return new BasicFileInfoResult(
                 $this->getFileIdentifierParameterName(),
                 $identifier,
-                $this->file_info->getFileName(),
-                $this->file_info->getSize(),
-                $this->file_info->getMimeType()
+                $info->getFileName(),
+                $info->getSize(),
+                $info->getMimeType()
             );
         }
 

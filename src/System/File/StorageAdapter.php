@@ -12,7 +12,7 @@ use ILIAS\ResourceStorage\Resource\InfoResolver\StreamInfoResolver;
 use ILIAS\ResourceStorage\Resource\ResourceBuilder;
 
 /**
- * Adapter of the ILIAs resource storage (IRSS) service for the assessment-service
+ * Adapter of the ILIAS resource storage (IRSS) service for the assessment-service
  * Hides the complexity of the ILIAS IRSS
  */
 readonly class StorageAdapter implements Storage
@@ -20,14 +20,13 @@ readonly class StorageAdapter implements Storage
     public function __construct(
         private Manager $manager,
         private Consumers $consumers,
-        private ResourceBuilder $resource_builder,
         private Stakeholder $stakeholder
     ) {
     }
 
-    public function getFileInfo(string $id): ?FileInfo
+    public function getFileInfo(?string $id): ?FileInfo
     {
-        $resource_id = $this->manager->find($id);
+        $resource_id = $this->manager->find($id ?? '');
         if ($resource_id !== null) {
             $resource = $this->manager->getResource($resource_id);
 
@@ -40,9 +39,9 @@ readonly class StorageAdapter implements Storage
         return null;
     }
 
-    public function getFileStream(string $id): mixed
+    public function getFileStream(?string $id): mixed
     {
-        $resource_id = $this->manager->find($id);
+        $resource_id = $this->manager->find($id ?? '');
         if ($resource_id !== null) {
             $resource = $this->manager->getResource($resource_id);
             return $this->consumers->stream($resource_id)->getStream()->detach();
@@ -50,56 +49,34 @@ readonly class StorageAdapter implements Storage
         return null;
     }
 
-    public function saveFile(mixed $stream, ?FileInfo $info): ?FileInfo
+    public function saveFile(mixed $stream_resource, ?FileInfo $info = null): ?FileInfo
     {
-        $stream_object = Streams::ofResource($stream);
+        $stream_object = Streams::ofResource($stream_resource);
         $info = $info ?? new FileInfoModel();
 
         $resource_id = $this->manager->find($info->getId() ?? '');
         if ($resource_id === null) {
-            $info_resolver = new WrappedInfoResolver($info, new StreamInfoResolver(
+            $resource_id = $this->manager->stream(
                 $stream_object,
-                1,
-                $this->stakeholder->getOwnerOfNewResources(),
-                '',
-                null
-            ));
-
-            $resource = $this->resource_builder->newFromStream(
-                $stream,
-                $info_resolver
+                $this->stakeholder,
+                $info->getFileName()
             );
-
-            $resource->addStakeholder($this->stakeholder);
-            $this->resource_builder->store($resource);
-            $resource_id = $resource->getIdentification();
         } else {
             $resource = $this->manager->getResource($resource_id);
-
-            $info_resolver = new WrappedInfoResolver($info, new StreamInfoResolver(
+            $this->manager->replaceWithStream(
+                $resource_id,
                 $stream_object,
-                $resource->getMaxRevision(true) + 1,
-                $this->stakeholder->getOwnerOfNewResources(),
-                $resource->getCurrentRevision()->getTitle(),
-                null
-            ));
-
-            $this->resource_builder->replaceWithStream(
-                $resource,
-                $stream,
-                $info_resolver
+                $this->stakeholder,
+                $info->getFileName()
             );
-
-            $resource->addStakeholder($this->stakeholder);
-            $this->resource_builder->store($resource);
         }
 
         return $this->getFileInfo((string) $resource_id);
     }
 
-    public function deleteFile(string $id): void
+    public function deleteFile(?string $id): void
     {
-        $resource_id = $this->manager->find($id);
+        $resource_id = $this->manager->find($id ?? '');
         if ($resource_id !== null) {
             $this->manager->remove($resource_id, $this->stakeholder);
         }

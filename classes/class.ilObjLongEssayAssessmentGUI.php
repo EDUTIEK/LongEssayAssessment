@@ -116,17 +116,14 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
         $next_class = $this->ctrl->getNextClass();
         if (!empty($next_class)) {
             switch ($next_class) {
-                //                case 'illongessayassessmentuploadhandlergui':
-                //                    // No permission check needed because it only stores temp files
-                //                    $this->ctrl->forwardCommand(new ilLongEssayAssessmentUploadHandlerGUI(
-                //                        $DIC->resourceStorage(),
-                //                        new \ILIAS\Plugin\LongEssayAssessment\ilLongEssayAssessmentUploadTempFile(
-                //                            $DIC->resourceStorage(),
-                //                            $DIC->filesystem(),
-                //                            $DIC->upload()
-                //                        )
-                //                    ));
-                //                    break;
+                case strtolower(ilLongEssayAssessmentUploadHandlerGUI::class):
+                    if ($this->permissions->canUploadFiles()) {
+                        $this->ctrl->forwardCommand(new ilLongEssayAssessmentUploadHandlerGUI(
+                            $this->plugin->dic()->system()->fileStorage(),
+                            $this->plugin->dic()->uploadTempFile()
+                        ));
+                    }
+                    break;
                 case strtolower(OrgaSettingsGUI::class):
                     if ($this->permissions->canEditOrgaSettings()) {
                         $this->activateTab('tab_assessment', 'tab_orga_settings');

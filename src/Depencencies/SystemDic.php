@@ -58,13 +58,6 @@ class SystemDic implements \Edutiek\AssessmentService\System\Api\Dependencies
         return new StorageAdapter(
             $this->dic->resourceStorage()->manage(),
             $this->dic->resourceStorage()->consume(),
-            new ResourceBuilder(
-                $this->dic[InitResourceStorage::D_STORAGE_HANDLERS],
-                $this->dic[InitResourceStorage::D_REPOSITORIES],
-                $this->dic[InitResourceStorage::D_LOCK_HANDLER],
-                $this->dic[InitResourceStorage::D_STREAM_ACCESS],
-                $this->dic[InitResourceStorage::D_FILENAME_POLICY],
-            ),
             new Stakeholder(SYSTEM_USER_ID)
         );
     }

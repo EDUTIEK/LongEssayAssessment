@@ -74,8 +74,7 @@ class OrgaSettingsGUI extends BaseGUI
                 $this->updateSettings($data);
             }
         }
-        $this->add($form);
-        $this->show();
+        $this->add($form)->show();
     }
 
     private function updateSettings(array $data): void

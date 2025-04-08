@@ -51,6 +51,8 @@ class OrgaSettingsGUI extends BaseGUI
      */
     public function executeCommand()
     {
+        $this->initNonTaskSettings();
+
         $cmd = $this->ctrl->getCmd('editSettings');
         switch ($cmd) {
             case "editSettings":

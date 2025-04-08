@@ -30,6 +30,9 @@ use ILIAS\Data\URI;
 class ToolProvider extends AbstractDynamicToolProvider
 {
     final public const NAME = 'xlas_tool';
+    final public const GUI_CLASS = 'gui_class';
+
+    private string $gui_class;
 
     public function isInterestedInContexts(): ContextCollection
     {
@@ -38,9 +41,12 @@ class ToolProvider extends AbstractDynamicToolProvider
 
     public function getToolsForContextStack(CalledContexts $called_contexts): array
     {
-        if (!$called_contexts->getLast()->getAdditionalData()->is(self::NAME, true)) {
+        $additional_data = $called_contexts->getLast()->getAdditionalData();
+
+        if (!$additional_data->is(self::NAME, true)) {
             return [];
         }
+        $this->gui_class = $additional_data->get(self::GUI_CLASS);
 
         $glyph = $this->dic->ui()->factory()->symbol()->glyph();
         $icon = $glyph->link();
@@ -55,7 +61,8 @@ class ToolProvider extends AbstractDynamicToolProvider
             $this->dic->user()->getId()
         )->manager()->all();
 
-        $this->dic->ctrl()->setParameterByClass(InstructionSettingsGUI::class, 'ref_id', (string) $ref_id);
+        $this->dic->ctrl()->setParameterByClass($this->gui_class, 'ref_id', (string) $ref_id);
+
         $links = array_map(
             fn(TaskInfo $t) => $link($icon, $t->getTitle(), $this->uriToTask($t)),
             $all
@@ -65,7 +72,7 @@ class ToolProvider extends AbstractDynamicToolProvider
 
         $tool = $this->factory
             ->tool($this->identification_provider->contextAwareIdentifier('xlas_tool'))
-            ->withTitle($plugin->txt('tab_instructions_settings'))
+            ->withTitle($plugin->txt('tab_task'))
             ->withContent($this->dic->ui()->factory()->legacy($this->dic->ui()->renderer()->render(array_merge($links, [$add_button]))));
 
         return [$tool];
@@ -73,8 +80,8 @@ class ToolProvider extends AbstractDynamicToolProvider
 
     private function uriToTask(TaskInfo $task): URI
     {
-        $this->dic->ctrl()->setParameterByClass(InstructionSettingsGUI::class, 'task_id', (string) $task->getId());
-        return $this->uriToClass(InstructionSettingsGUI::class);
+        $this->dic->ctrl()->setParameterByClass($this->gui_class, 'task_id', (string) $task->getId());
+        return $this->uriToClass($this->gui_class);
     }
 
     private function uriToClass(string $class, string $cmd = ''): URI

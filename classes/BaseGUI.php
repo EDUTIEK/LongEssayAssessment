@@ -18,6 +18,7 @@ use ILIAS\Plugin\LongEssayAssessment\Common\Http\RequestVariables;
 use ILIAS\Plugin\LongEssayAssessment\Common\Session\SessionValues;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\EditorSettings;
 use ILIAS\Plugin\LongEssayAssessment\Provider\ToolProvider;
+use ILIAS\Plugin\LongEssayAssessment\Settings\InstructionSettingsGUI;
 use ILIAS\Plugin\LongEssayAssessment\UI\Factory as PluginUiFactory;
 use ILIAS\Plugin\LongEssayAssessment\UI\UIService as PluginUIService;
 use ILIAS\Refinery\Factory as RefineryFactory;
@@ -92,8 +93,11 @@ abstract class BaseGUI
         $this->plugin = ilLongEssayAssessmentPlugin::getInstance();
 
         $this->system_api = $this->plugin->dic()->system();
-        $this->assessment_api = $this->plugin->dic()->assessment($this->object->getAssId(),
-            $this->object->getContextId(), $this->user->getId());
+        $this->assessment_api = $this->plugin->dic()->assessment(
+            $this->object->getAssId(),
+            $this->object->getContextId(),
+            $this->user->getId()
+        );
         $this->task_api = $this->plugin->dic()->task($this->object->getAssId(), $this->user->getId());
         $this->essay_task_api = $this->plugin->dic()->essayTask($this->object->getAssId(), $this->user->getId());
         $this->plugin_ui_factory = $this->plugin->dic()->uiFactory();
@@ -107,7 +111,7 @@ abstract class BaseGUI
     /**
      * Add a components to to be shown
      */
-    protected function add(UiComponent $component) : static
+    protected function add(UiComponent $component): static
     {
         $this->components[] = $component;
         return $this;
@@ -152,11 +156,11 @@ abstract class BaseGUI
      * The task is identified by the query parameter task_id
      * Basic information of the task is loaded to the variable task_info
      */
-    protected function initTask()
+    protected function initTaskSettings()
     {
         $this->manager_service = $this->task_api->manager();
 
-        $task_id = $this->get->integer('task_id', null ) ?? (int) $this->session->get('task_id');
+        $task_id = $this->get->integer('task_id', null) ?? (int) $this->session->get('task_id');
         $this->task_info = $this->manager_service->one($task_id) ?? $this->manager_service->first();
 
         if ($this->task_info === null) {
@@ -169,15 +173,25 @@ abstract class BaseGUI
         $this->ctrl->setParameter($this, 'task_id', $this->task_info->getId());
 
         if ($this->object->getMultiTasks()) {
-            $this->dic->globalScreen()->tool()->context()->current()->getAdditionalData()->add(ToolProvider::NAME,
-                true);
+            $tools_data = $this->dic->globalScreen()->tool()->context()->current()->getAdditionalData();
+            $tools_data->add(ToolProvider::NAME, true);
+            $tools_data->add(ToolProvider::GUI_CLASS, static::class);
+        }
+    }
+
+    protected function initNonTaskSettings()
+    {
+        if ($this->object->getMultiTasks()) {
+            $tools_data = $this->dic->globalScreen()->tool()->context()->current()->getAdditionalData();
+            $tools_data->add(ToolProvider::NAME, true);
+            $tools_data->add(ToolProvider::GUI_CLASS, InstructionSettingsGUI::class);
         }
     }
 
     /**
      * Display an HTML text in readable width
      */
-    public function displayText(?string $html) : string
+    public function displayText(?string $html): string
     {
         return '<div style="max-width: 60em;">' . $html . '</div>';
     }
@@ -185,7 +199,7 @@ abstract class BaseGUI
     /**
      * Display an essay content
      */
-    public function displayContent(?string $html) : string
+    public function displayContent(?string $html): string
     {
         $headline_class = "";
         if (!empty($settings = $this->essay_task_api->writingSettings()->get())) {
@@ -210,7 +224,7 @@ abstract class BaseGUI
     /**
      * Add the css for displaying essay content
      */
-    public function addContentCss() : void
+    public function addContentCss(): void
     {
         $this->tpl->addCss($this->plugin->getDirectory() . '/templates/css/content.css');
 

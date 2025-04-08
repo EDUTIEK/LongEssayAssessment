@@ -104,8 +104,10 @@ task_definition#:#Aufgaben-Beschreibung
 task_description#:#Vorab-Beschreibung
 task_description_info#:#Die Vorab-Beschreibung wird dem Teilnehmer vor dem Bearbeitungszeitraum angezeigt.
 task_instructions#:#Aufgabenstellung
+task_instructions_text#:#Aufgabenstellung als Text
 task_instructions_info#:#Die Aufgabenstellung wird mit Start der Bearbeitung angezeigt.
 task_solution#:#Lösungshinweise
+task_solution_text#:#Lösungshinweise als Text
 task_solution_info#:#Die Lösungshinweise werden erst ab einem festgelegten Zeitpunkt oder am Ende angezeigt. Dieser wird unter „Organisation ► Lösungshinweise verfügbar“ aktiviert und konfiguriert. Zusätzliche Hinweise können als Datei oder Weblink unter "Material" bereitgestellt werden.
 editor_settings#:#Schreiben der Aufgabe
 headline_scheme#:#Überschriften-Schema
@@ -432,7 +434,9 @@ location_assigned#:#Teilnahmeort erfolgreich zugewiesen.
 closing_message#:#Abschlussmeldung
 closing_message_info#:#Die Abschlussmeldung wird dem Teilnehmer nach der Abgabe im Klausuren-Reiter angezeigt.
 solution_is_not_available#:#Die Lösungshinweise werden aktuell nicht angezeigt. Sie können unter „Organisation ► Lösungshinweise verfügbar“ aktiviert werden.
+task_instructions_file#:#Aufgabenstellung als PDF
 task_instructions_file_info#:#Die Aufgabenstellung kann auch als PDF-Datei hochgeladen werden. Sie wird wie der Text mit Start der Bearbeitung angezeigt.
+task_solution_file#:#Lösungshinweise als PDF
 task_solution_file_info#:#Die Lösungshinweise können auch als PDF-Datei hochgeladen werden. Sie werden erst ab einem festgelegten Zeitpunkt angezeigt.
 missing_file#:#Die Datei muss hochgeladen werden."
 unchanged#:#nicht Ändern

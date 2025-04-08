@@ -15,6 +15,7 @@ use ilGlobalTemplateInterface;
 use ILIAS\DI\Container;
 use ILIAS\HTTP\Services as Http;
 use ILIAS\Plugin\LongEssayAssessment\Common\Http\RequestVariables;
+use ILIAS\Plugin\LongEssayAssessment\Common\Session\SessionValues;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\EditorSettings;
 use ILIAS\Plugin\LongEssayAssessment\Provider\ToolProvider;
 use ILIAS\Plugin\LongEssayAssessment\UI\Factory as PluginUiFactory;
@@ -67,8 +68,10 @@ abstract class BaseGUI
     protected TaskManagerService $manager_service;
     protected ?TaskInfo $task_info;
 
+
     /** @var UiComponent[] */
     private array $components = [];
+    private SessionValues $session;
 
     public function __construct(protected BaseObjectData $object)
     {
@@ -95,6 +98,7 @@ abstract class BaseGUI
         $this->essay_task_api = $this->plugin->dic()->essayTask($this->object->getAssId(), $this->user->getId());
         $this->plugin_ui_factory = $this->plugin->dic()->uiFactory();
         $this->plugin_ui_service = $this->plugin->dic()->uiService();
+        $this->session = $this->plugin->dic()->sessionValues(self::class, $this->object->getAssId());
 
         $this->get = new RequestVariables($DIC->http()->wrapper()->query(), $this->dic->refinery());
         $this->post = new RequestVariables($DIC->http()->wrapper()->post(), $this->dic->refinery());
@@ -152,16 +156,16 @@ abstract class BaseGUI
     {
         $this->manager_service = $this->task_api->manager();
 
-        $this->task_info = ($this->get->has('task_id') ?
-            $this->manager_service->one($this->get->integer('task_id')) :
-            $this->manager_service->first()
-        );
+        $task_id = $this->get->integer('task_id', null ) ?? (int) $this->session->get('task_id');
+        $this->task_info = $this->manager_service->one($task_id) ?? $this->manager_service->first();
+
         if ($this->task_info === null) {
-            $this->tpl->setContent('wrong parameter task_id');
+            $this->tpl->setContent('task not found');
             return;
         }
 
         $this->tpl->setTitle($this->object->getTitle() . ' | ' . $this->task_info->getTitle());
+        $this->session->set('task_id', $this->task_info->getId());
         $this->ctrl->setParameter($this, 'task_id', $this->task_info->getId());
 
         if ($this->object->getMultiTasks()) {

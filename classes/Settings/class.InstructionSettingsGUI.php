@@ -4,19 +4,17 @@ declare(strict_types=1);
 
 namespace ILIAS\Plugin\LongEssayAssessment\Settings;
 
-use Edutiek\AssessmentService\Assessment\TaskInterfaces\Manager as TaskManagerService;
 use Edutiek\AssessmentService\Assessment\TaskInterfaces\TaskInfo;
+use Edutiek\AssessmentService\Assessment\TaskInterfaces\TaskType;
 use Edutiek\AssessmentService\System\File\Storage as FileStorage;
 use Edutiek\AssessmentService\System\Transform\FullService as TransformService;
 use Edutiek\AssessmentService\Task\Data\Resource;
-use Edutiek\AssessmentService\Task\Data\ResourceAvailability;
 use Edutiek\AssessmentService\Task\Data\ResourceType;
 use Edutiek\AssessmentService\Task\Data\Settings;
 use Edutiek\AssessmentService\Task\Resource\FullService as ResourceService;
 use Edutiek\AssessmentService\Task\Settings\FullService as SettingsService;
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\BaseObjectData;
-use ILIAS\Plugin\LongEssayAssessment\Provider\ToolProvider;
 use ILIAS\UI\Component\Input\Container\Form\Standard;
 use ilLongEssayAssessmentUploadHandlerGUI;
 
@@ -59,6 +57,7 @@ class InstructionSettingsGUI extends BaseGUI
                 $cmd = $this->ctrl->getCmd('editSettings');
                 switch ($cmd) {
                     case 'create':
+                    case 'delete':
                     case "editSettings":
                         $this->$cmd();
                         break;
@@ -71,11 +70,48 @@ class InstructionSettingsGUI extends BaseGUI
 
     private function create(): void
     {
-        $this->tpl->setContent('Creating new one');
+        $this->tpl->setTitle($this->object->getTitle());
+
+        $factory = $this->ui_factory->input()->field();
+        $fields = ['title' => $factory->text($this->lng->txt("title"))
+            ->withRequired(true)];
+        $sections = ['form' => $factory->section($fields, $this->plugin->txt('create_task'))];
+        $form = $this->ui_factory->input()->container()->form()->standard(
+            $this->ctrl->getFormAction($this, 'create'), $sections);
+
+        if ($this->request->getMethod() == "POST") {
+            $form = $form->withRequest($this->request);
+            $data = $form->getData();
+            $result = $form->getInputGroup()->getContent();
+            if ($result->isOK()) {
+                $task_id = $this->manager_service->create(new TaskInfo(
+                    $data['form']['title'],
+                    TaskType::ESSAY
+                ));
+
+                $this->ctrl->setParameter($this, 'task_id', $task_id);
+                $this->ctrl->redirect($this, 'editSettings');
+            }
+        }
+
+        $this->add($form)->show();
     }
 
-    protected function editSettings()
+    private function delete(): void
     {
+        if ($this->manager_service->count() < 2) {
+            $this->raisePermissionError();
+        }
+        $this->manager_service->delete($this->task_info->getId());
+        $this->success('tak_deleted', true);
+        $this->ctrl->redirect($this, 'editSettings');
+
+    }
+
+    protected function editSettings(): void
+    {
+        $this->addDeleteButton();
+
         $form = $this->buildForm();
         if ($this->request->getMethod() == "POST") {
             $form = $form->withRequest($this->request);
@@ -91,6 +127,7 @@ class InstructionSettingsGUI extends BaseGUI
 
     private function updateSettings(array $data): void
     {
+        $this->settings->setTitle($data['form']['title']);
         $this->settings->setInstructions(
             $this->transform_service->trimRichText(
                 $this->transform_service->cleanupRichText($data['form']['task_instructions'])));
@@ -129,6 +166,9 @@ class InstructionSettingsGUI extends BaseGUI
         $sections = [];
         $fields = [];
 
+        $fields['title'] = $factory->text($this->lng->txt("title"))
+            ->withValue($this->settings->getTitle());
+
         $fields['task_instructions'] = $this->plugin_ui_factory->field()
             ->tinyMCE($this->plugin->txt("description"), $this->plugin->txt("task_description_info"))
             ->withValue($this->settings->getInstructions() ?? "");
@@ -143,5 +183,20 @@ class InstructionSettingsGUI extends BaseGUI
         $sections["form"] = $factory->section($fields, $this->plugin->txt('tab_instructions_settings'));
 
         return $this->ui_factory->input()->container()->form()->standard($this->ctrl->getFormAction($this), $sections);
+    }
+
+    private function addDeleteButton(): void
+    {
+        $this->add($modal = $this->ui_factory->modal()->interruptive(
+            $this->plugin->txt("delete_task"),
+            $this->plugin->txt("delete_task_confirmation"),
+            $this->ctrl->getLinkTarget($this, "delete")
+            )->withActionButtonLabel($this->plugin->txt("delete_task")));
+
+        $this->toolbar->addComponent($this->ui_factory->button()->standard(
+            $this->plugin->txt("delete_task"), "#"
+            )->withOnClick($modal->getShowSignal())->withUnavailableAction(
+                $this->manager_service->count() < 2
+        ));
     }
 }

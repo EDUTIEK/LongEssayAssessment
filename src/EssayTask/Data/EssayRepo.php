@@ -46,12 +46,12 @@ class EssayRepo implements \Edutiek\AssessmentService\EssayTask\Data\EssayRepo
 
     public function allByTaskId(int $task_id): array
     {
-        return $this->queryAllBy(['task_id' => $task_id]);
+        return $this->repo->queryallBy(['task_id' => $task_id]);
     }
 
     public function allByWriterId(int $writer_id): array
     {
-        return $this->queryAllBy(['writer_id' => $writer_id]);
+        return $this->repo->queryAllBy(['writer_id' => $writer_id]);
     }
 
     public function save(Essay $entity): void

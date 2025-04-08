@@ -20,31 +20,32 @@ declare(strict_types=1);
 
 namespace ILIAS\Plugin\LongEssayAssessment\Dependencies;
 
-use Edutiek\AssessmentService\System\Api\Factory as SystemFactory;
-use Edutiek\AssessmentService\System\Api\ForClients as SystemClientApi;
-use Edutiek\AssessmentService\System\Api\ForServices as SystemServicesApi;
 use Edutiek\AssessmentService\Assessment\Api\Factory as AssessmentFactory;
 use Edutiek\AssessmentService\Assessment\Api\ForClients as AssessmentApi;
 use Edutiek\AssessmentService\Assessment\Api\ForRest as RestApi;
 use Edutiek\AssessmentService\EssayTask\Api\Factory as EssayTaskFactory;
 use Edutiek\AssessmentService\EssayTask\Api\ForClients as EssayTaskApi;
+use Edutiek\AssessmentService\System\Api\Factory as SystemFactory;
+use Edutiek\AssessmentService\System\Api\ForClients as SystemClientApi;
+use Edutiek\AssessmentService\System\Api\ForServices as SystemServicesApi;
 use Edutiek\AssessmentService\Task\Api\Factory as TaskFactory;
 use Edutiek\AssessmentService\Task\Api\ForClients as TaskApi;
 use ILIAS\DI\Container;
+use ILIAS\Data\UUID\Factory as UUIDFactory;
 use ILIAS\Plugin\LongEssayAssessment\Common\Constraints\DataConstraints;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Generate;
-use ILIAS\Plugin\LongEssayAssessment\ilLongEssayAssessmentUploadTempFile;
+use ILIAS\Plugin\LongEssayAssessment\Common\Session\SessionValues;
+use ILIAS\Plugin\LongEssayAssessment\Common\Upload\UploadTempFile;
+use ILIAS\Plugin\LongEssayAssessment\Setup\ModelObjective;
 use ILIAS\Plugin\LongEssayAssessment\UI\Factory;
 use ILIAS\Plugin\LongEssayAssessment\UI\IconFactory;
 use ILIAS\Plugin\LongEssayAssessment\UI\Input\InputFactory;
 use ILIAS\Plugin\LongEssayAssessment\UI\Item\ItemFactory;
-use ILIAS\Plugin\LongEssayAssessment\UI\Statistic\StatisticFactory;
-use ILIAS\Plugin\LongEssayAssessment\UI\Viewer\ViewerFactory;
 use ILIAS\Plugin\LongEssayAssessment\UI\PluginTemplateFactory;
+use ILIAS\Plugin\LongEssayAssessment\UI\Statistic\StatisticFactory;
 use ILIAS\Plugin\LongEssayAssessment\UI\UIService;
-use ILIAS\Plugin\LongEssayAssessment\UploadTempFile;
+use ILIAS\Plugin\LongEssayAssessment\UI\Viewer\ViewerFactory;
 use ilLongEssayAssessmentPlugin;
-use ILIAS\Plugin\LongEssayAssessment\Setup\ModelObjective;
 
 /**
  * Local Dependency Injection Container of the Plugin
@@ -118,7 +119,9 @@ class PluginDic
         };
 
         $dic[UploadTempFile::class] = function (Container $dic) {
-            return new UploadTempFile($dic->filesystem(), $dic->upload());
+            return new UploadTempFile($dic->filesystem(), $dic->upload(),
+            $this->sessionValues(UploadTempFile::class),
+            new UUIDFactory());
         };
 
         $dic[UIService::class] = function (Container $dic) {
@@ -183,6 +186,11 @@ class PluginDic
     public function uiService(): UIService
     {
         return $this->dic[UIService::class];
+    }
+
+    public function sessionValues(string $class, ?int $ass_id = null, ?int $task_id = null): SessionValues
+    {
+        return new SessionValues($class, $ass_id, $task_id);
     }
 
     public function uploadTempFile(): UploadTempFile

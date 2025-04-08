@@ -1,6 +1,8 @@
 <?php
 
-namespace ILIAS\Plugin\LongEssayAssessment;
+declare(strict_types=1);
+
+namespace ILIAS\Plugin\LongEssayAssessment\Common\Upload;
 
 use ILIAS\Data\DataSize;
 use ILIAS\Data\UUID\Factory as UUIDFactory;
@@ -9,27 +11,24 @@ use ILIAS\Filesystem\Stream\FileStream;
 use ILIAS\FileUpload\DTO\UploadResult;
 use ILIAS\FileUpload\FileUpload;
 use ILIAS\FileUpload\Location;
+use ILIAS\Plugin\LongEssayAssessment\Common\Session\SessionValues;
 use ilSession;
 
 class UploadTempFile
 {
-    private const SESSION_PREFIX = 'XLAS_TEMP_FILE_';
-    private UUIDFactory $uuid_factory;
-
     public function __construct(
         private Filesystems $filesystems,
-        private FileUpload $upload
+        private FileUpload $upload,
+        private SessionValues $session_values,
+        private UUIDFactory $uuid_factory
     ) {
-        $this->upload = $upload;
-        $this->filesystems = $filesystems;
-        $this->uuid_factory = new UUIDFactory();
     }
 
     public function store(UploadResult $result): string
     {
         $identifier = $this->uuid_factory->uuid4AsString();
         $this->upload->moveOneFileTo($result, "", Location::TEMPORARY, $identifier);
-        ilSession::set(self::SESSION_PREFIX . $identifier, $result->getName());
+        $this->session_values->set($identifier, $result->getName());
         return $identifier;
     }
 
@@ -37,14 +36,14 @@ class UploadTempFile
     {
         if ($this->has($identifier)) {
             $this->filesystems->temp()->delete($identifier);
-            ilSession::clear(self::SESSION_PREFIX . $identifier);
+            $this->session_values->unset($identifier);
         }
     }
 
     public function getName(string $identifier): ?string
     {
         if ($this->has($identifier)) {
-            return ilSession::get(self::SESSION_PREFIX . $identifier) ?? null;
+            return $this->session_values->get($identifier);
         }
         return null;
     }
@@ -60,7 +59,7 @@ class UploadTempFile
     public function getSize(string $identifier): ?int
     {
         if ($this->has($identifier)) {
-            return $this->filesystems->temp()->getSize($identifier, DataSize::Byte)->getSize();
+            return (int) $this->filesystems->temp()->getSize($identifier, DataSize::Byte)->getSize();
         }
         return null;
     }

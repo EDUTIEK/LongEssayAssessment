@@ -2,6 +2,7 @@
 
 use Edutiek\AssessmentService\System\File\Storage as FileStorage;
 use Edutiek\AssessmentService\System\Data\FileInfo;
+use ILIAS\Plugin\LongEssayAssessment\Common\Upload\UploadTempFile;
 use ILIAS\Plugin\LongEssayAssessment\System\Data\FileInfo as FileInfoModel;
 use ILIAS\Filesystem\Stream\FileStream;
 use ILIAS\FileUpload\DTO\UploadResult;
@@ -10,7 +11,6 @@ use ILIAS\FileUpload\Handler\BasicFileInfoResult;
 use ILIAS\FileUpload\Handler\BasicHandlerResult;
 use ILIAS\FileUpload\Handler\FileInfoResult;
 use ILIAS\FileUpload\Handler\HandlerResult as HandlerResultInterface;
-use ILIAS\Plugin\LongEssayAssessment\UploadTempFile;
 
 /**
  *  Handler for file uploads

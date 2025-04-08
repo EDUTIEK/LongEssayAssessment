@@ -698,3 +698,7 @@ actions_for#:#Aktionen für %s
 delete_resource_confirmation#:#Möchten Sie die folgenden Materialien löschen?
 multi_tasks#:#Teilaufgaben
 multi_tasks_info#:#Mehrere Teilaufgaben ermöglichen. Jede Teilaufgabe kann nur einen Korrektor haben. Für das Gesamtergebnis werden die Punkte der Teilaufgaben addiert. Diese Einstellung ist nicht änderbar.
+create_task#:#Teilaufgabe hinzufügen
+delete_task#:#Teilaufgabe löschen
+delete_task_confirmation#:#Möchten Sie diese Teilaufgabe mit allen Daten löschen?
+task_deleted#:#Die Teilaufgabe wurde gelöscht.

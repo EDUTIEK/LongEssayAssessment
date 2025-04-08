@@ -21,12 +21,14 @@ declare(strict_types=1);
 namespace ILIAS\Plugin\LongEssayAssessment\Assessment\Data;
 
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Key;
+use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Sequence;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Table;
 
 #[Table(name: 'xlas_as_corrector')]
 class Corrector extends \Edutiek\AssessmentService\Assessment\Data\Corrector
 {
     #[Key]
+    #[Sequence]
     private int $id = 0;
     private int $user_id = 0;
     private ?string $correction_report = null;

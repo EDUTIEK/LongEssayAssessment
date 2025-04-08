@@ -21,12 +21,14 @@ declare(strict_types=1);
 namespace ILIAS\Plugin\LongEssayAssessment\Task\Data;
 
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Key;
+use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Sequence;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Table;
 
 #[Table(name: 'xlas_ta_writer_comment')]
 class WriterComment extends \Edutiek\AssessmentService\Task\Data\WriterComment
 {
     #[Key]
+    #[Sequence]
     private int $id = 0;
     private int $task_id = 0;
     private int $writer_id = 0;

@@ -23,12 +23,14 @@ namespace ILIAS\Plugin\LongEssayAssessment\Task\Data;
 use Edutiek\AssessmentService\Task\Data\ResourceAvailability;
 use Edutiek\AssessmentService\Task\Data\ResourceType;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Key;
+use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Sequence;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Table;
 
 #[Table(name: 'xlas_ta_resource')]
 class Resource extends \Edutiek\AssessmentService\Task\Data\Resource
 {
     #[Key]
+    #[Sequence]
     private int $id = 0;
     private int $task_id = 0;
     private string $title = '';

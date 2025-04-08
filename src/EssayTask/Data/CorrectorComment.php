@@ -21,12 +21,14 @@ declare(strict_types=1);
 namespace ILIAS\Plugin\LongEssayAssessment\EssayTask\Data;
 
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Key;
+use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Sequence;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Table;
 
 #[Table(name: 'xlas_et_corr_comm')]
 class CorrectorComment extends \Edutiek\AssessmentService\EssayTask\Data\CorrectorComment
 {
     #[Key]
+    #[Sequence]
     private int $id = 0;
     private int $essay_id = 0;
     private ?string $comment = null;

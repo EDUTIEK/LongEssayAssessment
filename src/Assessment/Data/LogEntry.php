@@ -22,12 +22,14 @@ namespace ILIAS\Plugin\LongEssayAssessment\Assessment\Data;
 
 use DateTimeImmutable;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Key;
+use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Sequence;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Table;
 
 #[Table(name: 'xlas_as_log_entry')]
 class LogEntry extends \Edutiek\AssessmentService\Assessment\Data\LogEntry
 {
     #[Key]
+    #[Sequence]
     private int $id = 0;
     private ?DateTimeImmutable $timestamp = null;
     private string $category = '';

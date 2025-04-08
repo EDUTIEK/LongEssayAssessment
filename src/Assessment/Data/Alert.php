@@ -22,12 +22,14 @@ namespace ILIAS\Plugin\LongEssayAssessment\Assessment\Data;
 
 use DateTimeImmutable;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Key;
+use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Sequence;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Table;
 
 #[Table(name: 'xlas_as_alert')]
 class Alert extends \Edutiek\AssessmentService\Assessment\Data\Alert
 {
     #[Key]
+    #[Sequence]
     private int $id = 0;
     private ?string $title = null;
     private string $message = '';

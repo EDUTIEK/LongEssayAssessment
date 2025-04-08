@@ -21,12 +21,14 @@ declare(strict_types=1);
 namespace ILIAS\Plugin\LongEssayAssessment\EssayTask\Data;
 
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Key;
+use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Sequence;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Table;
 
 #[Table(name: 'xlas_et_rating_crit')]
 class RatingCriterion extends \Edutiek\AssessmentService\EssayTask\Data\RatingCriterion
 {
     #[Key]
+    #[Sequence]
     private int $id = 0;
     private string $title = '';
     private ?string $description = null;

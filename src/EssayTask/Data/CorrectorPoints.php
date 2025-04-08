@@ -21,12 +21,14 @@ declare(strict_types=1);
 namespace ILIAS\Plugin\LongEssayAssessment\EssayTask\Data;
 
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Key;
+use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Sequence;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Table;
 
 #[Table(name: 'xlas_et_corr_points')]
 class CorrectorPoints extends \Edutiek\AssessmentService\EssayTask\Data\CorrectorPoints
 {
     #[Key]
+    #[Sequence]
     private int $id = 0;
     private ?int $comment_id = null;
     private ?int $criterion_id = null;

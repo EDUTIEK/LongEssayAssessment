@@ -22,12 +22,14 @@ namespace ILIAS\Plugin\LongEssayAssessment\EssayTask\Data;
 
 use DateTimeImmutable;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Key;
+use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Sequence;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Table;
 
 #[Table(name: 'xlas_et_writer_notice')]
 class WriterNotice extends \Edutiek\AssessmentService\EssayTask\Data\WriterNotice
 {
     #[Key]
+    #[Sequence]
     private int $id = 0;
     private int $essay_id = 0;
     private int $note_no = 0;

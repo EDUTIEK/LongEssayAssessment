@@ -21,12 +21,14 @@ declare(strict_types=1);
 namespace ILIAS\Plugin\LongEssayAssessment\Task\Data;
 
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Key;
+use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Sequence;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Table;
 
 #[Table(name: 'xlas_ta_corr_assign')]
 class CorrectorAssignment extends \Edutiek\AssessmentService\Task\Data\CorrectorAssignment
 {
     #[Key]
+    #[Sequence]
     private int $id = 0;
     private int $writer_id = 0;
     private int $corrector_id = 0;

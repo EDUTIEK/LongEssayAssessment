@@ -21,12 +21,14 @@ declare(strict_types=1);
 namespace ILIAS\Plugin\LongEssayAssessment\Assessment\Data;
 
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Key;
+use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Sequence;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Table;
 
 #[Table(name: 'xlas_as_grade_level')]
 class GradeLevel extends \Edutiek\AssessmentService\Assessment\Data\GradeLevel
 {
     #[Key]
+    #[Sequence]
     private int $id = 0;
     private float $min_points = 0;
     private string $grade = '';

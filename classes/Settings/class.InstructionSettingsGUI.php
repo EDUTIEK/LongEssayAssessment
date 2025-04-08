@@ -103,7 +103,7 @@ class InstructionSettingsGUI extends BaseGUI
             $this->raisePermissionError();
         }
         $this->manager_service->delete($this->task_info->getId());
-        $this->success('tak_deleted', true);
+        $this->success($this->plugin->txt('tak_deleted'), true);
         $this->ctrl->redirect($this, 'editSettings');
 
     }

@@ -2476,3 +2476,70 @@ if (!$ilDB->tableColumnExists('xlas_writer_comment', 'parent_number')) {
     ]);
 }
 ?>
+<#126>
+<?php
+if ($ilDB->tableExists('xlas_writer_comment')) {
+    $ilDB->dropTable('xlas_writer_comment');
+}
+?>
+<#127>
+<?php
+$fields = array(
+    'id' => array(
+        'notnull' => '1',
+        'type' => 'integer',
+        'length' => '4',
+    ),
+    'task_id' => array(
+        'notnull' => '1',
+        'type' => 'integer',
+        'length' => '4',
+    ),
+    'writer_id' => array(
+        'notnull' => '1',
+        'type' => 'integer',
+        'length' => '4',
+    ),
+    'resource_id' => array(
+        'notnull' => '1',
+        'type' => 'integer',
+        'length' => '4',
+    ),
+    'mark_key' => array(
+        'notnull' => '1',
+        'type' => 'text',
+        'length' => '50',
+    ),
+    'mark_value' => array(
+        'type' => 'clob',
+    ),
+    'parent_number' => array(
+        'notnull' => '1',
+        'type' => 'integer',
+        'length' => '4',
+    ),
+    'start_position' => array(
+        'notnull' => '1',
+        'type' => 'integer',
+        'length' => '4',
+    ),
+    'end_position' => array(
+        'notnull' => '1',
+        'type' => 'integer',
+        'length' => '4',
+    ),
+    'comment' => array(
+        'type' => 'clob',
+    )
+);
+if (!$ilDB->tableExists('xlas_writer_annotation')) {
+    $ilDB->createTable('xlas_writer_annotation', $fields);
+    $ilDB->addPrimaryKey('xlas_writer_annotation', array( 'id' ));
+    $ilDB->addIndex("xlas_writer_annotation", array("task_id"), "i1");
+    $ilDB->addIndex("xlas_writer_annotation", array("resource_id"), "i2");
+
+    if (! $ilDB->sequenceExists('xlas_writer_annotation')) {
+        $ilDB->createSequence('xlas_writer_annotation');
+    }
+}
+?>

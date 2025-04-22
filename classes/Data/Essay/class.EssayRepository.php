@@ -18,7 +18,7 @@ class EssayRepository extends RecordRepo
 
     /**
      * Save record data of an allowed type
-     * @param AccessToken|CorrectorComment|CorrectorSummary|CorrectorPoints|Essay|WriterNotice|EssayImage|WriterComment|WriterHistory $record
+     * @param AccessToken|CorrectorComment|CorrectorSummary|CorrectorPoints|Essay|WriterNotice|EssayImage|WriterHistory $record
      */
     public function save(RecordData $record)
     {

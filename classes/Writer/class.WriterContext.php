@@ -19,6 +19,8 @@ use ILIAS\Plugin\LongEssayAssessment\Data\Essay\WriterNotice;
 use Edutiek\LongEssayAssessmentService\Data\WritingPreferences;
 use ILIAS\StaticURL\Builder\StandardURIBuilder;
 use ILIAS\Data\ReferenceId;
+use Edutiek\LongEssayAssessmentService\Data\WritingAnnotation;
+use ILIAS\Plugin\LongEssayAssessment\Data\Writer\WriterAnnotation;
 
 class WriterContext extends ServiceContext implements Context
 {
@@ -255,6 +257,55 @@ class WriterContext extends ServiceContext implements Context
         $this->localDI->getWriterRepo()->save($repoPreferences);
     }
 
+    public function getWritingAnnotations(): array
+    {
+        $annotations = [];
+        foreach ($this->localDI->getWriterRepo()->getWriterAnnotations(
+            $this->getRepoWriter()->getId(), $this->task->getTaskId()) as $repoAnnotation) {
+            $annotations[] = new WritingAnnotation(
+                (string) $repoAnnotation->getResourceId(),
+                $repoAnnotation->getMarkKey(),
+                $repoAnnotation->getMarkValue(),
+                $repoAnnotation->getParentNumber(),
+                $repoAnnotation->getStartPosition(),
+                $repoAnnotation->getEndPosition(),
+                $repoAnnotation->getComment()
+            );
+        }
+        return $annotations;
+    }
+
+    public function setWritingAnnotation(WritingAnnotation $annotation): void
+    {
+        $repoAnnotation = $this->localDI->getWriterRepo()->getWriterAnnotationByKey(
+            $this->task->getTaskId(),
+            $this->getRepoWriter()->getId(),
+            (int) $annotation->getResourceKey(),
+            $annotation->getMarkKey()
+        ) ?? (new WriterAnnotation())
+            ->setTaskId($this->task->getTaskId())
+            ->setWriterId($this->getRepoWriter()->getId());
+
+        $repoAnnotation->setResourceId((int) $annotation->getResourceKey());
+        $repoAnnotation->setMarkKey($annotation->getMarkKey());
+        $repoAnnotation->setMarkValue($annotation->getMarkValue());
+        $repoAnnotation->setParentNumber($annotation->getParentNumber());
+        $repoAnnotation->setStartPosition($annotation->getStartPosition());
+        $repoAnnotation->setEndPosition($annotation->getEndPosition());
+        $repoAnnotation->setComment($annotation->getComment());
+
+        $this->localDI->getWriterRepo()->save($repoAnnotation);
+    }
+
+    public function deleteWritingAnnotation(string $resource_key, string $mark_key): void
+    {
+        $this->localDI->getWriterRepo()->deleteWriterAnnotationByKey(
+            $this->task->getTaskId(),
+            $this->getRepoWriter()->getId(),
+            (int) $resource_key,
+            $mark_key
+        );
+    }
 
     /**
      * @inheritDoc
@@ -327,4 +378,5 @@ class WriterContext extends ServiceContext implements Context
         return $this->localDI->getWriterAdminService($this->task->getTaskId())
             ->getOrCreateWriterFromUserId($this->user->getId());
     }
+
 }

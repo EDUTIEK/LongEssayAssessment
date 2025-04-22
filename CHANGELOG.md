@@ -1,5 +1,11 @@
 # Change Log
 
+## Upcoming version
+
+Writer web app:
+- Support marking in PDF instructions and resources
+- Automatically show first resource if no instructions are given
+
 ## Version 3.6 (2025-04-01)
 
 Plugin:

@@ -46,6 +46,7 @@ use ILIAS\Plugin\LongEssayAssessment\UI\Statistic\StatisticFactory;
 use ILIAS\Plugin\LongEssayAssessment\UI\UIService;
 use ILIAS\Plugin\LongEssayAssessment\UI\Viewer\ViewerFactory;
 use ilLongEssayAssessmentPlugin;
+use ILIAS\Plugin\LongEssayAssessment\UI\Table\Factory as TableFactory;
 
 /**
  * Local Dependency Injection Container of the Plugin
@@ -114,7 +115,17 @@ class PluginDic
                     $dic["ui.signal_generator"]
                 ),
                 new StatisticFactory(),
-                new ViewerFactory()
+                new ViewerFactory(),
+                new TableFactory(
+                    $this,
+                    $dic->ui()->factory(),
+                    $dic->uiService(),
+                    $dic->ui()->renderer(),
+                    $dic->refinery(),
+                    $dic->http()->wrapper()->query(),
+                    $dic->http()->request(),
+                    $dic->language()
+                )
             );
         };
 

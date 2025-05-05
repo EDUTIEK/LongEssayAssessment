@@ -98,9 +98,9 @@ abstract class CriteriaGUI extends BaseGUI implements DataTableParent
     abstract protected function allowShareInContext(): bool;
     abstract protected function allowSettingsInContext(): bool;
 
-    protected function hasAuthorizedCorrections(): bool
+    protected function hasAuthorizedCorrections(?int $corrector_id = null): bool
     {
-        return $this->has_authorized_corrections ??= $this->admin_service->authorizedCorrectionsExists();
+        return $this->has_authorized_corrections ??= $this->admin_service->authorizedCorrectionsExists($corrector_id);
     }
 
     public function showItems()

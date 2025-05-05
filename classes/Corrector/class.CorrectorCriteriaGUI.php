@@ -58,7 +58,8 @@ class CorrectorCriteriaGUI extends CriteriaGUI
 
     protected function allowChangeInContext(): bool
     {
-        return $this->settings->getCriteriaMode() == CorrectionSettings::CRITERIA_MODE_CORRECTOR && !$this->hasAuthorizedCorrections();
+        return $this->settings->getCriteriaMode() == CorrectionSettings::CRITERIA_MODE_CORRECTOR
+            && !$this->hasAuthorizedCorrections($this->getCorrectorIdFromContext());
     }
 
    protected function allowSettingsInContext(): bool

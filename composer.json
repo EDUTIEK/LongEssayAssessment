@@ -20,7 +20,7 @@
     "edutiek/long-essay-image-sketch": "dev-main",
     "psr/container": "^1.0",
     "psr/http-message": "^1.1",
-    "psr/log": "^2.0"
+    "psr/log": "^3.0"
   },
   "autoload": {
     "psr-4" : { "ILIAS\\Plugin\\LongEssayAssessment\\" : "./classes" },

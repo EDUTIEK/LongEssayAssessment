@@ -18,20 +18,20 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+use ILIAS\Filesystem\Util\LegacyPathHelper;
+use ILIAS\DI\LoggingServices;
+
 use Edutiek\AssessmentService\System\Api\ForClients as SystemApi;
 use Edutiek\AssessmentService\Assessment\Api\ForClients as AssessmentApi;
 use Edutiek\AssessmentService\EssayTask\Api\ForClients as EssayTaskApi;
 use Edutiek\AssessmentService\Task\Api\ForClients as TaskApi;
-use ILIAS\Filesystem\Util\LegacyPathHelper;
-use ILIAS\DI\LoggingServices;
-use ILIAS\ResourceStorage\Services as ResourceStorage;
 use Edutiek\AssessmentService\System\Entity\KeyCase;
 use Edutiek\AssessmentService\Assessment\Data\OrgaSettings;
+
 
 class ilLongEssayAssessmentExporter extends ilXmlExporter
 {
     private ilObjUser $user;
-    private ResourceStorage $resource;
     private ilComponentLogger $logger;
 
     private ilLongEssayAssessmentPlugin $plugin;
@@ -46,12 +46,11 @@ class ilLongEssayAssessmentExporter extends ilXmlExporter
         global $DIC;
 
         $this->user = $DIC->user();
-        $this->resource = $DIC->resourceStorage();
         $this->logger = $DIC->logger()->xlas();
         $this->plugin = ilLongEssayAssessmentPlugin::getInstance();
     }
 
-    public function initApis(int $obj_id): void
+    public function initObject(int $obj_id): void
     {
         $ref_ids = ilObject::_getAllReferences($obj_id);
         $ref_id = array_shift($ref_ids);
@@ -59,7 +58,7 @@ class ilLongEssayAssessmentExporter extends ilXmlExporter
         $this->object = new ilObjLongEssayAssessment($ref_id);
 
         $this->system_api = $this->plugin->dic()->system();
-        $this->assessment_api = $this->plugin->dic()->assessment($this->object->getAssId(), $this->object->getContextId(), $this->user->getId());
+        $this->assessment_api = $this->plugin->dic()->assessment($this->object->getAssId(), $this->user->getId());
         $this->task_api = $this->plugin->dic()->task($this->object->getAssId(), $this->user->getId());
         $this->essay_task_api = $this->plugin->dic()->essayTask($this->object->getAssId(), $this->user->getId());
     }
@@ -86,7 +85,7 @@ class ilLongEssayAssessmentExporter extends ilXmlExporter
             return '';
         }
 
-        $this->initApis((int) $a_id);
+        $this->initObject((int) $a_id);
 
         $export_fs = LegacyPathHelper::deriveFilesystemFrom($this->getAbsoluteExportDirectory());
         $export_path = LegacyPathHelper::createRelativePath($this->getAbsoluteExportDirectory());
@@ -184,7 +183,7 @@ class ilLongEssayAssessmentExporter extends ilXmlExporter
     {
         $writer->xmlStartTag($tag);
         foreach ($row as $name => $value) {
-            $writer->xmlElement($name, ['type' => gettype($value)], (string) $value, true, true);
+            $writer->xmlElement($name, ['type' => strtolower(gettype($value))], (string) $value, true, true);
         }
         $writer->xmlEndTag($tag);
     }

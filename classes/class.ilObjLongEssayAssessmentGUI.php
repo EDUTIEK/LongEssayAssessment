@@ -85,8 +85,8 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
         $this->help = $DIC->help();
 
         if (isset($this->object)) {
-            $this->assessment = $this->plugin->dic()->assessment($this->object->getAssId(), $this->object->getContextId(), $DIC->user()->getId());
-            $this->permissions = $this->assessment->permissions();
+            $this->assessment = $this->plugin->dic()->assessment($this->object->getAssId(), $DIC->user()->getId());
+            $this->permissions = $this->assessment->permissions($this->object->getContextId());
 
             $this->tpl->setDescription($this->object->getDescription());
 

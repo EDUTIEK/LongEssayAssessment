@@ -214,9 +214,9 @@ class PluginDic
         return ($this->dic[SystemFactory::class])->forClients();
     }
 
-    public function assessment(int $ass_id, int $context_id, int $user_id): AssessmentApi
+    public function assessment(int $ass_id, int $user_id): AssessmentApi
     {
-        return ($this->dic[AssessmentFactory::class])->forClients($ass_id, $context_id, $user_id);
+        return ($this->dic[AssessmentFactory::class])->forClients($ass_id, $user_id);
     }
 
     public function rest(): RestApi

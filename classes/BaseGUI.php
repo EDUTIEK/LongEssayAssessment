@@ -93,11 +93,7 @@ abstract class BaseGUI
         $this->plugin = ilLongEssayAssessmentPlugin::getInstance();
 
         $this->system_api = $this->plugin->dic()->system();
-        $this->assessment_api = $this->plugin->dic()->assessment(
-            $this->object->getAssId(),
-            $this->object->getContextId(),
-            $this->user->getId()
-        );
+        $this->assessment_api = $this->plugin->dic()->assessment($this->object->getAssId(), $this->user->getId());
         $this->task_api = $this->plugin->dic()->task($this->object->getAssId(), $this->user->getId());
         $this->essay_task_api = $this->plugin->dic()->essayTask($this->object->getAssId(), $this->user->getId());
         $this->plugin_ui_factory = $this->plugin->dic()->uiFactory();

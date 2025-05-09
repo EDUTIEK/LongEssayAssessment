@@ -94,8 +94,8 @@ class WriterStatisticsGUI extends StatisticsGUI
         }
 
         if(count($sections) > 1){
-            $overall_statistic = $this->service->gradeStatistics(array_merge(...$this->essays));
-            $overall_own_statistic = $this->service->gradeStatistics(array_filter(array_merge(...$this->essays),fn (Essay $x) => in_array($x->getWriterId(), $writer_ids)));
+            $overall_statistic = $this->getStatistic(array_merge(...$this->essays));
+            $overall_own_statistic = $this->getStatistic(array_filter(array_merge(...$this->essays),fn (Essay $x) => in_array($x->getWriterId(), $writer_ids)));
             $overall_grade_distribution = $this->getGradeStatisticOverAll($overall_statistic);
             $overall_own_grade_distribution = $this->getGradeStatisticOverAll($overall_own_statistic);
             $overall_point_distribution = $this->getPointStatisticOverAll($overall_statistic);

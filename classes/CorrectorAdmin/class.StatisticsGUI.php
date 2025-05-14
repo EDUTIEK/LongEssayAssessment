@@ -37,7 +37,7 @@ abstract class StatisticsGUI extends BaseGUI
 
     protected function buildCSV(array $records, string $count_title, string $finalized_title, bool $has_obj_id = true) : string
     {
-        $grade_levels = array_unique(array_merge(...array_map(fn (array $x) => array_keys($x['grade_statistics']), $records)));
+        $grade_levels = array_unique(array_merge(...array_map(fn (array $x) => array_keys($x['grade_statistics'] ?? []), $records)));
 
         if($has_obj_id) {
             $obj_titles = [];
@@ -69,7 +69,7 @@ abstract class StatisticsGUI extends BaseGUI
         }
 
         foreach($records as $record) {
-            if(!isset($record["usr_id"])) {
+            if(!isset($record["usr_id"]) || ! ilObjUser::_exists($record["usr_id"])) {
                 continue;
             }
             $csv->addRow();

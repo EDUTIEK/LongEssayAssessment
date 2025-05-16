@@ -6,6 +6,7 @@ namespace ILIAS\Plugin\LongEssayAssessment\Settings;
 
 use Edutiek\AssessmentService\Assessment\TaskInterfaces\TaskInfo;
 use Edutiek\AssessmentService\Assessment\TaskInterfaces\TaskType;
+use Edutiek\AssessmentService\System\Entity\FullService as EntityService;
 use Edutiek\AssessmentService\System\File\Storage as FileStorage;
 use Edutiek\AssessmentService\System\Transform\FullService as TransformService;
 use Edutiek\AssessmentService\Task\Data\Resource;
@@ -26,6 +27,7 @@ use ilLongEssayAssessmentUploadHandlerGUI;
  */
 class InstructionSettingsGUI extends BaseGUI
 {
+    private EntityService $entity_service;
     private SettingsService $settings_service;
     private ResourceService $resource_service;
     private TransformService $transform_service;
@@ -34,9 +36,11 @@ class InstructionSettingsGUI extends BaseGUI
     private Settings $settings;
     private ?Resource $resource;
 
+
     public function __construct(BaseObjectData $object) {
         parent::__construct($object);
 
+        $this->entity_service = $this->system_api->entity();
         $this->transform_service = $this->system_api->transform();
         $this->file_storage = $this->system_api->fileStorage();
         $this->upload_handler = new ilLongEssayAssessmentUploadHandlerGUI(
@@ -46,7 +50,7 @@ class InstructionSettingsGUI extends BaseGUI
 
     public function executeCommand(): void
     {
-        $this->initTaskSettings();
+        $this->initForTask();
         $this->settings_service = $this->task_api->settings($this->task_info->getId());
         $this->resource_service = $this->task_api->resource($this->task_info->getId());
         $this->settings = $this->settings_service->get();
@@ -129,8 +133,8 @@ class InstructionSettingsGUI extends BaseGUI
     {
         $this->settings->setTitle($data['form']['title']);
         $this->settings->setInstructions(
-            $this->transform_service->trimRichText(
-                $this->transform_service->cleanupRichText($data['form']['task_instructions'])));
+            $this->transform_service->trimRichText($data['form']['task_instructions']));
+        $this->entity_service->secure($this->settings, Settings::class);
         $this->settings_service->save($this->settings);
 
         $id = $data['form']['resource_file'][0] ?? null;

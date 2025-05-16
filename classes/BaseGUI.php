@@ -152,7 +152,7 @@ abstract class BaseGUI
      * The task is identified by the query parameter task_id
      * Basic information of the task is loaded to the variable task_info
      */
-    protected function initTaskSettings()
+    protected function initForTask()
     {
         $this->manager_service = $this->task_api->manager();
 
@@ -175,7 +175,10 @@ abstract class BaseGUI
         }
     }
 
-    protected function initNonTaskSettings()
+    /**
+     * Init the GUI to handle generic screen that are not bound to an assessment task
+     */
+    protected function initForNonTask()
     {
         if ($this->object->getMultiTasks()) {
             $tools_data = $this->dic->globalScreen()->tool()->context()->current()->getAdditionalData();

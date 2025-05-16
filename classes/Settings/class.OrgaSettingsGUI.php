@@ -6,6 +6,7 @@ namespace ILIAS\Plugin\LongEssayAssessment\Settings;
 
 use DateTimeImmutable;
 use DateTimeZone;
+use Edutiek\AssessmentService\Assessment\Data\OrgaSettings;
 use Edutiek\AssessmentService\Assessment\Data\OrgaSettingsError;
 use Edutiek\AssessmentService\Assessment\Data\ParticipationType;
 use Edutiek\AssessmentService\Assessment\Data\ResultAvailableType;
@@ -14,6 +15,7 @@ use Edutiek\AssessmentService\Assessment\OrgaSettings\FullService as OrgaSetting
 use Edutiek\AssessmentService\Assessment\Properties\FullService as PropertiesService;
 use Edutiek\AssessmentService\EssayTask\Data\WritingType;
 use Edutiek\AssessmentService\EssayTask\WritingSettings\FullService as WritingSettingsService;
+use Edutiek\AssessmentService\System\Entity\FullService as EntityService;
 use Edutiek\AssessmentService\System\Transform\FullService as TransformService;
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\BaseObjectData;
@@ -30,6 +32,7 @@ class OrgaSettingsGUI extends BaseGUI
     private LocationService $location_service;
     private WritingSettingsService $writing_settings_service;
     private PropertiesService $properties_service;
+    private EntityService $entity_service;
     private TransformService $transform_service;
     private DateTimeZone $user_timezone;
 
@@ -40,6 +43,7 @@ class OrgaSettingsGUI extends BaseGUI
         $this->orga_settings_service = $this->assessment_api->orgaSettings();
         $this->writing_settings_service = $this->essay_task_api->writingSettings();
         $this->location_service = $this->assessment_api->location();
+        $this->entity_service = $this->system_api->entity();
         $this->transform_service = $this->system_api->transform();
         $this->user_timezone = new DateTimeZone($this->user->getTimeZone());
     }
@@ -51,7 +55,7 @@ class OrgaSettingsGUI extends BaseGUI
      */
     public function executeCommand()
     {
-        $this->initNonTaskSettings();
+        $this->initForNonTask();
 
         $cmd = $this->ctrl->getCmd('editSettings');
         switch ($cmd) {
@@ -132,6 +136,7 @@ class OrgaSettingsGUI extends BaseGUI
 
         if ($this->orga_settings_service->validate($orga_settings)) {
             $this->properties_service->save($properties);
+            $this->entity_service->secure($orga_settings, OrgaSettings::class);
             $this->orga_settings_service->save($orga_settings);
             $this->location_service->saveTitles((array) ($data['task']['location'] ?? []));
 

@@ -6,6 +6,7 @@ namespace ILIAS\Plugin\LongEssayAssessment\Settings;
 
 use Edutiek\AssessmentService\Assessment\TaskInterfaces\TaskInfo;
 use Edutiek\AssessmentService\Assessment\TaskInterfaces\TaskType;
+use Edutiek\AssessmentService\System\Entity\FullService as EntityService;
 use Edutiek\AssessmentService\System\File\Storage as FileStorage;
 use Edutiek\AssessmentService\System\Transform\FullService as TransformService;
 use Edutiek\AssessmentService\Task\Data\Resource;
@@ -26,6 +27,7 @@ use ilLongEssayAssessmentUploadHandlerGUI;
  */
 class SolutionSettingsGUI extends BaseGUI
 {
+    private EntityService $entity_service;
     private SettingsService $settings_service;
     private ResourceService $resource_service;
     private TransformService $transform_service;
@@ -37,6 +39,7 @@ class SolutionSettingsGUI extends BaseGUI
     public function __construct(BaseObjectData $object) {
         parent::__construct($object);
 
+        $this->entity_service = $this->system_api->entity();
         $this->transform_service = $this->system_api->transform();
         $this->file_storage = $this->system_api->fileStorage();
         $this->upload_handler = new ilLongEssayAssessmentUploadHandlerGUI(
@@ -46,7 +49,7 @@ class SolutionSettingsGUI extends BaseGUI
 
     public function executeCommand(): void
     {
-        $this->initTaskSettings();
+        $this->initForTask();
         $this->settings_service = $this->task_api->settings($this->task_info->getId());
         $this->resource_service = $this->task_api->resource($this->task_info->getId());
         $this->settings = $this->settings_service->get();
@@ -84,8 +87,8 @@ class SolutionSettingsGUI extends BaseGUI
     private function updateSettings(array $data): void
     {
         $this->settings->setSolution(
-            $this->transform_service->trimRichText(
-                $this->transform_service->cleanupRichText($data['form']['task_solution'])));
+            $this->transform_service->trimRichText($data['form']['task_solution']));
+        $this->entity_service->secure($this->settings, Settings::class);
         $this->settings_service->save($this->settings);
 
         $id = $data['form']['resource_file'][0] ?? null;

@@ -1408,6 +1408,16 @@ class V10Migration
                             'comment' => 'ist eine resourcen-id aus ILIAS ',
                             'src_table' => 'xlas_resource',
                         ),
+                    'embedded' =>
+                        array(
+                            'Field' => 'embedded',
+                            'Type' => 'int(11)',
+                            'Null' => 'NO',
+                            'Key' => '',
+                            'Default' => '0',
+                            'Extra' => '',
+                            'src_table' => 'xlas_resource',
+                        ),
                 ),
             'xlas_ta_settings' =>
                 array(

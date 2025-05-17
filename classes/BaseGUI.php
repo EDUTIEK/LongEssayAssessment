@@ -69,7 +69,6 @@ abstract class BaseGUI
     protected TaskManagerService $manager_service;
     protected ?TaskInfo $task_info;
 
-
     /** @var UiComponent[] */
     private array $components = [];
     private SessionValues $session;
@@ -105,11 +104,16 @@ abstract class BaseGUI
     }
 
     /**
-     * Add a components to to be shown
+     * Add a component(s) to to be shown
+     * @param UiComponent|UiComponent[] $component
      */
-    protected function add(UiComponent $component): static
+    protected function add(UiComponent|array $component): static
     {
-        $this->components[] = $component;
+        if (is_array($component)) {
+            $this->components = array_merge($this->components, $component);
+        } else {
+            $this->components[] = $component;
+        }
         return $this;
     }
 

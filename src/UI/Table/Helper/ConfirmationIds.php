@@ -16,8 +16,8 @@ trait ConfirmationIds
      */
     protected function confirmationIds() : array
     {
-        if($this->post->has("interruptive_items")) {
-            return $this->post->retrieve(
+        if($this->http->wrapper()->post()->has("interruptive_items")) {
+            return $this->http->wrapper()->post()->retrieve(
                 "interruptive_items",
                 $this->refinery->kindlyTo()->listOf($this->refinery->kindlyTo()->int())
             );

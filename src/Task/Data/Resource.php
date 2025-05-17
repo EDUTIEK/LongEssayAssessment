@@ -39,6 +39,7 @@ class Resource extends \Edutiek\AssessmentService\Task\Data\Resource
     private string $type = '';
     private string $availability = '';
     private ?string $file_id = null;
+    private bool $embedded = false;
 
     public function getId(): int
     {
@@ -110,6 +111,15 @@ class Resource extends \Edutiek\AssessmentService\Task\Data\Resource
     public function setFileId(?string $file_id): self
     {
         $this->file_id = $file_id;
+        return $this;
+    }
+    public function getEmbedded() : bool
+    {
+        return $this->embedded;
+    }
+    public function setEmbedded(bool $embedded) : self
+    {
+        $this->embedded = $embedded;
         return $this;
     }
 }

@@ -56,10 +56,11 @@ class ilLongEssayAssessmentUploadHandlerGUI extends AbstractCtrlAwareUploadHandl
 
     /**
      * Get the stream of an uploaded file for the assesment services system api
+     * @return resource|null
      */
     public function getApiStream(string $identifier): mixed
     {
-        return $this->temp_file->stream($identifier)->detach();
+        return $this->temp_file->stream($identifier)?->detach();
     }
 
     public function getUploadURL(): string

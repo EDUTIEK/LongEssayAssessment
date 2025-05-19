@@ -19,20 +19,30 @@ declare(strict_types=1);
  *********************************************************************/
 
 use ILIAS\Filesystem\Util\LegacyPathHelper;
-use ILIAS\DI\LoggingServices;
-
 use Edutiek\AssessmentService\System\Api\ForClients as SystemApi;
 use Edutiek\AssessmentService\Assessment\Api\ForClients as AssessmentApi;
 use Edutiek\AssessmentService\EssayTask\Api\ForClients as EssayTaskApi;
 use Edutiek\AssessmentService\Task\Api\ForClients as TaskApi;
 use Edutiek\AssessmentService\System\Entity\KeyCase;
-use Edutiek\AssessmentService\Assessment\Data\OrgaSettings;
 
+use Edutiek\AssessmentService\Assessment\Data\CorrectionSettings;
+use Edutiek\AssessmentService\Assessment\Data\OrgaSettings;
+use Edutiek\AssessmentService\Assessment\Data\PdfSettings;
+use Edutiek\AssessmentService\Assessment\Data\Location;
+use Edutiek\AssessmentService\Assessment\Data\GradeLevel;
+use Edutiek\AssessmentService\Task\Data\Settings as TaskSettings;
+use Edutiek\AssessmentService\EssayTask\Data\CorrectionSettings as EssayCorrectionSettings;
+use Edutiek\AssessmentService\EssayTask\Data\TaskSettings as EssayTaskSettings;
+use Edutiek\AssessmentService\EssayTask\Data\RatingCriterion;
+use Edutiek\AssessmentService\EssayTask\Data\WritingSettings as EssayWritingSettings;
+use ILIAS\Filesystem\Stream\Streams;
+use Edutiek\AssessmentService\Task\Data\Resource;
 
 class ilLongEssayAssessmentExporter extends ilXmlExporter
 {
+    private const FilesPath = 'XlasFiles';
+
     private ilObjUser $user;
-    private ilComponentLogger $logger;
 
     private ilLongEssayAssessmentPlugin $plugin;
     private ilObjLongEssayAssessment $object;
@@ -46,7 +56,6 @@ class ilLongEssayAssessmentExporter extends ilXmlExporter
         global $DIC;
 
         $this->user = $DIC->user();
-        $this->logger = $DIC->logger()->xlas();
         $this->plugin = ilLongEssayAssessmentPlugin::getInstance();
     }
 
@@ -79,6 +88,14 @@ class ilLongEssayAssessmentExporter extends ilXmlExporter
         return $deps;
     }
 
+    /**
+     * Get the xml string with all entity data of the assessment definition
+     *
+     * Important:
+     * entities are added in sequence of mutual dependency
+     * They will be imported in the same sequence and referenced ids will be mapped
+     * @see ilLongEssayAssessmentImporter::importXmlRepresentation()
+     */
     public function getXmlRepresentation(string $a_entity, string $a_schema_version, string $a_id): string
     {
         if (ilObject::_lookupType((int) $a_id) !== ilLongEssayAssessmentPlugin::ID) {
@@ -89,7 +106,7 @@ class ilLongEssayAssessmentExporter extends ilXmlExporter
 
         $export_fs = LegacyPathHelper::deriveFilesystemFrom($this->getAbsoluteExportDirectory());
         $export_path = LegacyPathHelper::createRelativePath($this->getAbsoluteExportDirectory());
-        $files_path = $export_path . '/Files';
+        $files_path = $export_path . '/' . self::FilesPath;
         $export_fs->createDir($files_path);
 
         $writer = new ilXmlWriter();
@@ -99,51 +116,56 @@ class ilLongEssayAssessmentExporter extends ilXmlExporter
         $writer->xmlElement("Title", null, $this->object->getTitle());
         $writer->xmlElement("Description", null, $this->object->getDescription());
 
-        $this->assessment_api->orgaSettings()->get();
+        $this->addEntityXml($writer, 'AssessmentOrgaSettings',
+            $this->assessment_api->orgaSettings()->get(), OrgaSettings::class);
 
-        $this->addEntityXml($writer, $this->assessment_api->orgaSettings()->get(), OrgaSettings::class);
-        //        $this->addModelXml($writer, $this->task_repo->getTaskSettingsById($a_id));
-        //        $this->addModelXml($writer, $this->task_repo->getEditorSettingsById($a_id));
-        //        $this->addModelXml($writer, $this->task_repo->getCorrectionSettingsById($a_id));
-        //        $this->addModelXml($writer, $this->task_repo->getPdfSettingsById($a_id));
-        //        foreach ($this->object_repo->getGradeLevelsByObjectId($a_id) as $model) {
-        //            $this->addModelXml($writer, $model);
-        //        }
-        //        foreach ($this->object_repo->getRatingCriteriaByObjectId($a_id) as $model) {
-        //            $this->addModelXml($writer, $model);
-        //        }
-        //        foreach ($this->task_repo->getLocationsByTaskId($a_id) as $model) {
-        //            $this->addModelXml($writer, $model);
-        //        }
-        //        foreach ($this->task_repo->getResourceByTaskId($a_id) as $model) {
-        //
-        //            /** @var Resource $model */
-        //            $file_id = $model->getFileId();
-        //            $file_name = '';
-        //            if (!empty($file_id)) {
-        //                try {
-        //                    $identification = $this->resource->manage()->find($file_id);
-        //                    $resource = $this->resource->manage()->getResource($identification);
-        //                    $file_name = $resource->getCurrentRevision()->getTitle();
-        //                    $export_fs->writeStream(
-        //                        $files_path . '/' . $file_id,
-        //                        $this->resource->consume()->stream($identification)->getStream()
-        //                    );
-        //                } catch (Exception $e) {
-        //                    $this->logger->error(sprintf('LongEssayAssessment: EXPORT (ref_id %s): ', $ref_id)
-        //                        . $e->getMessage());
-        //                    $file_id = '';
-        //                    $file_name = '';
-        //                }
-        //            }
-        //
-        //            /** @noinspection PhpParamsInspection */
-        //            $row = $this->getModelRowForXml($model);
-        //            $row['FileId'] = $file_id;
-        //            $row['FileName'] = $file_name;
-        //            $this->addRowXml($writer, 'Resource', $row);
-        //        }
+        $this->addEntityXml($writer, 'AssessmentPdfSettings',
+            $this->assessment_api->pdfSettings()->get(), PdfSettings::class);
 
+        $this->addEntityXml($writer, 'AssessmentCorrectionSettings',
+            $this->assessment_api->correctionSettings()->get(), CorrectionSettings::class);
+
+        foreach ($this->assessment_api->location()->all() as $location) {
+            $this->addEntityXml($writer, 'AssessmentLocation', $location, Location::class);
+        }
+
+        foreach ($this->assessment_api->gradLevel()->all() as $level) {
+            $this->addEntityXml($writer, 'AssessmentGradeLevel', $level, GradeLevel::class);
+        }
+
+        $this->addEntityXml($writer, 'EssayTaskCorrectionSettings',
+            $this->essay_task_api->correctionSettings()->get(), EssayCorrectionSettings::class);
+
+        $this->addEntityXml($writer, 'EssayTaskWritingSettings',
+            $this->essay_task_api->writingSettings()->get(), EssayWritingSettings::class);
+
+        foreach ($this->task_api->manager()->all() as $task_info) {
+
+            $this->addEntityXml($writer, 'TaskSettings',
+                $this->task_api->settings($task_info->getId())->get(), TaskSettings::class);
+
+            $this->addEntityXml($writer, 'EssayTaskSettings',
+                $this->essay_task_api->taskSettings($task_info->getId())->get(), EssayTaskSettings::class);
+
+            foreach ($this->essay_task_api->ratingCriterion($task_info->getId())->allByCorrectorId(null) as $criterion) {
+                $this->addEntityXml($writer, 'EssayTaskRatingCriterion', $criterion, RatingCriterion::class);
+            }
+
+            foreach ($this->task_api->resource($task_info->getId())->all() as $resource) {
+                $file_id = $resource->getFileId();
+                $file_name = '';
+                if (!empty($file_id)) {
+                    $file_name = $this->system_api->fileStorage()->getFileInfo($file_id)->getFileName() ?? '';
+                    $export_fs->writeStream($files_path . '/' . $file_id,
+                        Streams::ofResource( $this->system_api->fileStorage()->getFileStream($resource->getFileId()))
+                    );
+                }
+                $row = $this->system_api->entity()->toPrimitives($resource, Resource::class, KeyCase::PASCAL_CASE);
+                $row['FileId'] = $file_id;
+                $row['FileName'] = $file_name;
+                $this->addRowXml($writer, 'TaskResource', $row);
+            }
+        }
 
         $writer->xmlEndTag("LongEssayAssessment");
 
@@ -168,16 +190,16 @@ class ilLongEssayAssessmentExporter extends ilXmlExporter
     }
 
     /**
-     * Add the xml of a RecordData model to the writer
+     * Add the xml of an assessment service entity to the writer
      */
-    private function addEntityXml(ilXmlWriter $writer, object $entity, string $class): void
+    private function addEntityXml(ilXmlWriter $writer, string $tag, object $entity, string $class): void
     {
         $row = $this->system_api->entity()->toPrimitives($entity, $class, KeyCase::PASCAL_CASE);
-        $this->addRowXml($writer, $this->getShortName($class), $row);
+        $this->addRowXml($writer, $tag, $row);
     }
 
     /**
-     * Add the xml of a row to the writer
+     * Add the xml of a primitives data string values to the writer
      */
     private function addRowXml(ilXmlWriter $writer, string $tag, array $row): void
     {
@@ -186,14 +208,5 @@ class ilLongEssayAssessmentExporter extends ilXmlExporter
             $writer->xmlElement($name, ['type' => strtolower(gettype($value))], (string) $value, true, true);
         }
         $writer->xmlEndTag($tag);
-    }
-
-    /**
-     * Get the shortname of a class
-     */
-    private function getShortname(string $class): string
-    {
-        $parts = explode("\\", $class);
-        return end($parts);
     }
 }

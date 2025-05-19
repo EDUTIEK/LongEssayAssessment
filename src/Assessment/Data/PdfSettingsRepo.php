@@ -36,7 +36,7 @@ class PdfSettingsRepo implements \Edutiek\AssessmentService\Assessment\Data\PdfS
 
     public function one(int $ass_id): ?PdfSettings
     {
-        $this->repo->queryOneBy(['ass_id' => $ass_id]);
+        return $this->repo->queryOneBy(['ass_id' => $ass_id]);
     }
 
     public function save(PdfSettings $entity): void
@@ -45,6 +45,6 @@ class PdfSettingsRepo implements \Edutiek\AssessmentService\Assessment\Data\PdfS
     }
     public function delete(int $ass_id): void
     {
-        $this->repo->deleteAllBy(['ass_id' => $id]);
+        $this->repo->deleteAllBy(['ass_id' => $ass_id]);
     }
 }

@@ -41,7 +41,7 @@ class GradeLevelRepo implements \Edutiek\AssessmentService\Assessment\Data\Grade
 
     public function allByAssId(int $ass_id): array
     {
-        return $this->repo->queryOneBy(['ass_id' => $ass_id]);
+        return $this->repo->queryAllBy(['ass_id' => $ass_id]);
     }
 
     public function save(GradeLevel $entity): void

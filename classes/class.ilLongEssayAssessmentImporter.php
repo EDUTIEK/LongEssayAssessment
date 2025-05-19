@@ -20,19 +20,31 @@ declare(strict_types=1);
 
 use ILIAS\Filesystem\Filesystem;
 use ILIAS\Filesystem\Util\LegacyPathHelper;
-use ILIAS\DI\LoggingServices;
-
 use Edutiek\AssessmentService\System\Api\ForClients as SystemApi;
 use Edutiek\AssessmentService\Assessment\Api\ForClients as AssessmentApi;
 use Edutiek\AssessmentService\EssayTask\Api\ForClients as EssayTaskApi;
 use Edutiek\AssessmentService\Task\Api\ForClients as TaskApi;
 use Edutiek\AssessmentService\System\Entity\KeyCase;
+use Edutiek\AssessmentService\Assessment\Data\CorrectionSettings;
 use Edutiek\AssessmentService\Assessment\Data\OrgaSettings;
+use Edutiek\AssessmentService\Assessment\Data\PdfSettings;
+use Edutiek\AssessmentService\Assessment\Data\Location as Location;
+use Edutiek\AssessmentService\Assessment\Data\GradeLevel as GradeLevel;
+use Edutiek\AssessmentService\Assessment\TaskInterfaces\TaskInfo;
+use Edutiek\AssessmentService\Assessment\TaskInterfaces\TaskType;
+use Edutiek\AssessmentService\Task\Data\Settings as TaskSettings;
+use Edutiek\AssessmentService\EssayTask\Data\CorrectionSettings as EssayCorrectionSettings;
+use Edutiek\AssessmentService\EssayTask\Data\WritingSettings as EssayWritingSettings;
+use Edutiek\AssessmentService\EssayTask\Data\RatingCriterion;
+use Edutiek\AssessmentService\EssayTask\Data\TaskSettings as EssayTaskSettings;
+use Edutiek\AssessmentService\Task\Data\Resource;
+use ILIAS\Plugin\LongEssayAssessment\System\Data\FileInfo as FileInfoModel;
 
 class ilLongEssayAssessmentImporter extends ilXmlImporter
 {
+    private const FilesPath = 'XlasFiles';
+
     private ilObjUser $user;
-    private ilComponentLogger $logger;
 
     private ilLongEssayAssessmentPlugin $plugin;
     private ilObjLongEssayAssessment $object;
@@ -43,14 +55,15 @@ class ilLongEssayAssessmentImporter extends ilXmlImporter
 
     private Filesystem $import_fs;
     private string $files_path;
+    private ilFileServicesPolicy $file_policy;
 
     public function __construct()
     {
         global $DIC;
 
         $this->user = $DIC->user();
-        $this->logger = $DIC->logger()->xlas();
         $this->plugin = ilLongEssayAssessmentPlugin::getInstance();
+        $this->file_policy = new ilFileServicesPolicy($DIC->fileServiceSettings());
     }
 
     /**
@@ -58,9 +71,10 @@ class ilLongEssayAssessmentImporter extends ilXmlImporter
      */
     public function init(): void
     {
+        $directory = $this->getImportDirectory();
         $import_path = LegacyPathHelper::createRelativePath($this->getImportDirectory());
         $this->import_fs = LegacyPathHelper::deriveFilesystemFrom($this->getImportDirectory());
-        $this->files_path = $import_path . '/Plugins/xlas/set_1/expDir_1/Files';
+        $this->files_path = $import_path . '/' . self::FilesPath;
     }
 
     /**
@@ -88,75 +102,103 @@ class ilLongEssayAssessmentImporter extends ilXmlImporter
         string $a_xml,
         ilImportMapping $a_mapping
     ): void {
+
         $xml = new SimpleXMLElement($a_xml);
 
-        $new_id = $this->initObject($a_id,
+        $ass_id = $this->initObject($a_id,
             $xml->Title . ' ' . $this->plugin->txt('imported'),
             (string) $xml->Description);
+        
+        /** @var array<int, int> $task_match */
+        $task_id_match = [];
 
         foreach ($xml->children() as $name => $element) {
 
             switch ($element->getName()) {
-                case 'OrgaSettings':
+
+                case 'AssessmentOrgaSettings':
                     $entity =  $this->assessment_api->orgaSettings()->get();
                     $this->applyRow($row = $this->getRow($element), $entity, OrgaSettings::class);
-                    $this->assessment_api->orgaSettings()->save($entity->setAssId($new_id));
+                    $this->assessment_api->orgaSettings()->save($entity->setAssId($ass_id));
                     break;
-//                case 'TaskSettings':
-//                    $model = TaskSettings::from($row = $this->getRowFromXml($element, TaskSettings::model()));
-//                    $this->object_repo->save(
-//                        $model->setTaskId($new_id)
-//                        ->setDescription($data_service->cleanupRichText($row['Description'] ?? null))
-//                        ->setClosingMessage($data_service->cleanupRichText($row['ClosingMessage'] ?? null))
-//                        ->setInstructions($data_service->cleanupRichText($row['Instructions'] ?? null))
-//                        ->setSolution($data_service->cleanupRichText($row['Solution'] ?? null))
-//                    );
-//                    break;
-//                case 'EditorSettings':
-//                    $model = EditorSettings::from($row = $this->getRowFromXml($element, EditorSettings::model()));
-//                    $this->task_repo->save($model->setTaskId($new_id));
-//                    break;
-//                case 'CorrectionSettings':
-//                    $model = CorrectionSettings::from($row = $this->getRowFromXml($element, CorrectionSettings::model()));
-//                    $this->task_repo->save($model->setTaskId($new_id));
-//                    break;
-//                case 'PdfSettings':
-//                    $model = PdfSettings::from($row = $this->getRowFromXml($element, PdfSettings::model()));
-//                    $this->task_repo->save($model->setTaskId($new_id));
-//                    break;
-//                case 'GradeLevel':
-//                    $model = GradeLevel::from($row = $this->getRowFromXml($element, GradeLevel::model()));
-//                    $this->object_repo->save($model->setObjectId($new_id)->setId(0));
-//                    break;
-//                case 'RatingCriterion':
-//                    $model = RatingCriterion::from($row = $this->getRowFromXml($element, RatingCriterion::model()));
-//                    $this->object_repo->save($model->setObjectId($new_id)->setId(0));
-//                    break;
-//                case 'Location':
-//                    $model = Location::from($row = $this->getRowFromXml($element, Location::model()));
-//                    $this->task_repo->save($model->setTaskId($new_id)->setId(0));
-//                    break;
-//                case 'Resource':
-//                    $model = Resource::from($row = $this->getRowFromXml($element, Resource::model()));
-//                    $file_id = '';
-//                    try {
-//                        $file_id = $this->addResourceFile(
-//                            ilUtil::secureString($row['FileId'] ?? ''),
-//                            ilUtil::secureString($row['FileName'] ?? '')
-//                        );
-//                    } catch (Exception $e) {
-//                        $this->logger->error(sprintf('LongEssayAssessment: IMPORT (obj_id %s): ', $new_id)
-//                            . $e->getMessage());
-//                    }
-//                    $this->task_repo->save($model->setTaskId($new_id)->setFileId($file_id)->setId(0));
+
+                case 'AssessmentPdfSettings':
+                    $entity =  $this->assessment_api->pdfSettings()->get();
+                    $this->applyRow($row = $this->getRow($element), $entity, PdfSettings::class);
+                    $this->assessment_api->pdfSettings()->save($entity->setAssId($ass_id));
+                    break;
+
+                case 'AssessmentCorrectionSettings':
+                    $entity =  $this->assessment_api->correctionSettings()->get();
+                    $this->applyRow($row = $this->getRow($element), $entity, CorrectionSettings::class);
+                    $this->assessment_api->correctionSettings()->save($entity->setAssId($ass_id));
+                    break;
+
+                case 'AssessmentLocation':
+                    $entity = $this->assessment_api->location()->new();
+                    $this->applyRow($row = $this->getRow($element), $entity, Location::class);
+                    $this->assessment_api->location()->save($entity->setAssId($ass_id)->setId(0));
+                    break;
+
+                case 'AssessmentGradeLevel':
+                    $entity = $this->assessment_api->gradLevel()->new();
+                    $this->applyRow($row = $this->getRow($element), $entity, GradeLevel::class);
+                    $this->assessment_api->gradLevel()->save($entity->setAssId($ass_id)->setId(0));
+                    break;
+
+                case 'EssayTaskCorrectionSettings':
+                    $entity =  $this->essay_task_api->correctionSettings()->get();
+                    $this->applyRow($row = $this->getRow($element), $entity, EssayCorrectionSettings::class);
+                    $this->essay_task_api->correctionSettings()->save($entity->setAssId($ass_id));
+                    break;
+
+                case 'EssayTaskWritingSettings':
+                    $entity =  $this->essay_task_api->writingSettings()->get();
+                    $this->applyRow($row = $this->getRow($element), $entity, EssayWritingSettings::class);
+                    $this->essay_task_api->writingSettings()->save($entity->setAssId($ass_id));
+                    break;
+                    
+                case 'TaskSettings':
+                    $task_id = empty($task_id_match) ? $this->task_api->manager()->first()->getId() : null;
+                    $task_id ??= $this->task_api->manager()->create(new TaskInfo('', TaskType::ESSAY));
+                    $entity = $this->task_api->settings($task_id)->get();
+                    $this->applyRow($row = $this->getRow($element), $entity, TaskSettings::class);
+                    $task_id_match[$entity->getTaskId()] = $task_id;
+                    $this->task_api->settings($task_id)->save($entity->setAssId($ass_id)->setTaskId($task_id));
+                    break;
+
+                case 'EssayTaskSettings':
+                    $entity = $this->essay_task_api->taskSettings(0)->get();
+                    $this->applyRow($row = $this->getRow($element), $entity, EssayTaskSettings::class);
+                    $task_id = $task_id_match[$entity->getTaskId()];
+                    $this->essay_task_api->taskSettings($task_id)->save($entity->setAssId($ass_id)->setTaskId($task_id));
+                    break;
+
+                case 'EssayTaskRatingCriterion':
+                    $entity = $this->essay_task_api->ratingCriterion(0)->new();
+                    $this->applyRow($row = $this->getRow($element), $entity, RatingCriterion::class);
+                    $task_id = $task_id_match[$entity->getTaskId()];
+                    $this->essay_task_api->ratingCriterion($task_id)->save($entity->setTaskId($task_id)->setCorrectorId(null));
+                    break;
+
+                case 'TaskResource':
+                    $entity = $this->task_api->resource(0)->new();
+                    $this->applyRow($row = $this->getRow($element), $entity, Resource::class);
+                    $task_id = $task_id_match[$entity->getTaskId()];
+                    $file_id = $row['FileId'] ?? null;
+                    $file_name = $row['FileName'] ?? null;
+                    if ($file_id !== null) {
+                        $file_id = $this->addFile($file_id, $file_name);
+                    }
+                    $this->task_api->resource($task_id)->save($entity->setTaskId($task_id)->setFileId($file_id));
             }
         }
 
-        $a_mapping->addMapping('Plugins/xlas', 'xlas', $a_id, (string) $new_id);
+        $a_mapping->addMapping('Plugins/xlas', 'xlas', $a_id, (string) $ass_id);
     }
 
     /**
-     * Apply an imported row array to an entity
+     * Apply an imported array of scalar values to an entity
      */
     private function applyRow(array $row, object $entity, string $class)
     {
@@ -164,13 +206,12 @@ class ilLongEssayAssessmentImporter extends ilXmlImporter
         $this->system_api->entity()->secure($entity, $class);
     }
 
-
     /**
      * Get a row array from the xml representation
      * Names of the sub elements are taken as keys
      * Contents of the sub elements are taken as values
      * The values are cast by the types given in the 'type' attributes
-     * Only scalar types and null are supported see
+     * Only scalar types and null are supported
      *
      * @see ilLongEssayAssessmentExporter::addRowXml()
      * @see gettype()
@@ -200,5 +241,20 @@ class ilLongEssayAssessmentImporter extends ilXmlImporter
             }
         }
         return $row;
+    }
+
+    /**
+     * Add a file and return its id as string
+     */
+    public function addFile(string $export_file_id, ?string $export_file_name): ?string
+    {
+        $export_file_id = $this->file_policy->ascii($export_file_id);
+        if ($export_file_name !== null) {
+            $export_file_name =  $this->file_policy->prepareFileNameForConsumer($export_file_name);
+        }
+
+        $stream = $this->import_fs->readStream($this->files_path . '/' . $export_file_id);
+        $info = (new FileInfoModel())->setId(null)->setFileName($export_file_name);
+        return $this->system_api->fileStorage()->saveFile($stream->detach(), $info)->getId();
     }
 }

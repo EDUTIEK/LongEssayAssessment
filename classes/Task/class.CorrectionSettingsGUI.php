@@ -92,7 +92,7 @@ class CorrectionSettingsGUI extends BaseGUI
         $fields = [];
 
         $fields['max_points'] = $factory->numeric($this->plugin->txt('max_points'))
-            ->withAdditionalTransformation($this->refinery->int()->isGreaterThan(0))
+            ->withAdditionalTransformation($this->refinery->int()->isGreaterThanOrEqual(0))
             ->withAdditionalTransformation($this->refinery->to()->int())
             ->withRequired(true)
             ->withValue($correctionSettings->getMaxPoints());

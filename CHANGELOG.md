@@ -2,9 +2,17 @@
 
 ## Upcoming version
 
+Plugin:
+- Allow zero maximum points in correction settings
+
 Writer web app:
-- Support marking in PDF instructions and resources
+- Support marking and comments for instructions and resources
 - Automatically show first resource if no instructions are given
+
+Bug fixes:
+- fix version conflict with ILIAS logger
+- fix deletion of grades
+- fix export of grade statistics (Mantis #45080)
 
 ## Version 3.6 (2025-04-01)
 

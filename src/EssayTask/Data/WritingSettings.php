@@ -20,6 +20,7 @@ declare(strict_types=1);
 
 namespace ILIAS\Plugin\LongEssayAssessment\EssayTask\Data;
 
+use Edutiek\AssessmentService\EssayTask\Data\FormattingOptions;
 use Edutiek\AssessmentService\EssayTask\Data\HeadlineScheme;
 use Edutiek\AssessmentService\EssayTask\Data\WritingType;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Key;
@@ -50,13 +51,13 @@ class WritingSettings extends \Edutiek\AssessmentService\EssayTask\Data\WritingS
         $this->headline_scheme = $headline_scheme->value;
         return $this;
     }
-    public function getFormattingOptions(): string
+    public function getFormattingOptions(): FormattingOptions
     {
-        return $this->formatting_options;
+        return FormattingOptions::tryFrom($this->formatting_options) ?? FormattingOptions::FULL;
     }
-    public function setFormattingOptions(string $formatting_options): self
+    public function setFormattingOptions(FormattingOptions $formatting_options): self
     {
-        $this->formatting_options = $formatting_options;
+        $this->formatting_options = $formatting_options->value;
         return $this;
     }
     public function getNoticeBoards(): int
@@ -68,31 +69,31 @@ class WritingSettings extends \Edutiek\AssessmentService\EssayTask\Data\WritingS
         $this->notice_boards = $notice_boards;
         return $this;
     }
-    public function getCopyAllowed(): int
+    public function getCopyAllowed(): bool
     {
-        return $this->copy_allowed;
+        return (bool) $this->copy_allowed;
     }
-    public function setCopyAllowed(int $copy_allowed): self
+    public function setCopyAllowed(bool $copy_allowed): self
     {
-        $this->copy_allowed = $copy_allowed;
+        $this->copy_allowed = (int) $copy_allowed;
         return $this;
     }
-    public function getAddParagraphNumbers(): int
+    public function getAddParagraphNumbers(): bool
     {
-        return $this->add_paragraph_numbers;
+        return (bool) $this->add_paragraph_numbers;
     }
-    public function setAddParagraphNumbers(int $add_paragraph_numbers): self
+    public function setAddParagraphNumbers(bool $add_paragraph_numbers): self
     {
-        $this->add_paragraph_numbers = $add_paragraph_numbers;
+        $this->add_paragraph_numbers = (int) $add_paragraph_numbers;
         return $this;
     }
-    public function getAddCorrectionMargin(): int
+    public function getAddCorrectionMargin(): bool
     {
-        return $this->add_correction_margin;
+        return (bool) $this->add_correction_margin;
     }
-    public function setAddCorrectionMargin(int $add_correction_margin): self
+    public function setAddCorrectionMargin(bool $add_correction_margin): self
     {
-        $this->add_correction_margin = $add_correction_margin;
+        $this->add_correction_margin = (int) $add_correction_margin;
         return $this;
     }
     public function getLeftCorrectionMargin(): int
@@ -113,13 +114,13 @@ class WritingSettings extends \Edutiek\AssessmentService\EssayTask\Data\WritingS
         $this->right_correction_margin = $right_correction_margin;
         return $this;
     }
-    public function getAllowSpellcheck(): int
+    public function getAllowSpellcheck(): bool
     {
-        return $this->allow_spellcheck;
+        return (bool) $this->allow_spellcheck;
     }
-    public function setAllowSpellcheck(int $allow_spellcheck): self
+    public function setAllowSpellcheck(bool $allow_spellcheck): self
     {
-        $this->allow_spellcheck = $allow_spellcheck;
+        $this->allow_spellcheck = (int) $allow_spellcheck;
         return $this;
     }
     public function getAssId(): int

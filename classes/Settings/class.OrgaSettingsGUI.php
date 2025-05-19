@@ -36,7 +36,8 @@ class OrgaSettingsGUI extends BaseGUI
     private TransformService $transform_service;
     private DateTimeZone $user_timezone;
 
-    public function __construct(BaseObjectData $object) {
+    public function __construct(BaseObjectData $object)
+    {
         parent::__construct($object);
 
         $this->properties_service = $this->assessment_api->properties();

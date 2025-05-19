@@ -9,6 +9,7 @@ use ILIAS\Plugin\LongEssayAssessment\Settings\InstructionSettingsGUI;
 use ilGlobalTemplateInterface as Gti;
 use ILIAS\Plugin\LongEssayAssessment\Settings\ResourcesAdminGUI;
 use ILIAS\Plugin\LongEssayAssessment\Settings\SolutionSettingsGUI;
+use ILIAS\Plugin\LongEssayAssessment\Settings\TechnicalSettingsGUI;
 use ILIAS\UI\Component\Input\Container\Form\Standard as StandardForm;
 
 /**
@@ -150,20 +151,12 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                         $this->ctrl->forwardCommand(new ResourcesAdminGUI($this->object));
                     }
                     break;
-                    //                case 'ilias\plugin\longessayassessment\task\resourceuploadhandlergui':
-                    //                    if ($this->permissions->canEditContentSettings()) {
-                    //                        $task_repo = LongEssayAssessmentDI::getInstance()->getTaskRepo();
-                    //                        $this->ctrl->forwardCommand(
-                    //                            new \ILIAS\Plugin\LongEssayAssessment\Task\ResourceUploadHandlerGUI($DIC->resourceStorage(), $task_repo)
-                    //                        );
-                    //                    }
-                    //                    break;
-                    //                case 'ilias\plugin\longessayassessment\task\editorsettingsgui':
-                    //                    if ($this->permissions->canEditTechnicalSettings()) {
-                    //                        $this->activateTab('tab_task', 'tab_technical_settings');
-                    //                        $this->ctrl->forwardCommand(new \ILIAS\Plugin\LongEssayAssessment\Task\EditorSettingsGUI($this));
-                    //                    }
-                    //                    break;
+                case strtolower(TechnicalSettingsGUI::class):
+                    if ($this->permissions->canEditTechnicalSettings()) {
+                        $this->activateTab('tab_assessment', 'tab_technical_settings');
+                        $this->ctrl->forwardCommand(new TechnicalSettingsGUI($this->object));
+                    }
+                    break;
                     //                case 'ilias\plugin\longessayassessment\task\correctionsettingsgui':
                     //                    if ($this->permissions->canEditTechnicalSettings()) {
                     //                        $this->activateTab('tab_task', 'tab_correction_settings');
@@ -419,13 +412,13 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                 'url' => $this->ctrl->getLinkTargetByClass(ResourcesAdminGUI::class)
             ];
         }
-        //        if ($this->permissions->canEditTechnicalSettings()) {
-        //            $tabs[] = [
-        //                'id' => 'tab_technical_settings',
-        //                'txt' => $this->plugin->txt('tab_technical_settings'),
-        //                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessayassessment\task\editorsettingsgui')
-        //            ];
-        //        }
+        if ($this->permissions->canEditTechnicalSettings()) {
+            $tabs[] = [
+                'id' => 'tab_technical_settings',
+                'txt' => $this->plugin->txt('tab_technical_settings'),
+                'url' => $this->ctrl->getLinkTargetByClass(TechnicalSettingsGUI::class)
+            ];
+        }
         //        if ($this->permissions->canEditTechnicalSettings()) {
         //            $tabs[] = [
         //                'id' => 'tab_correction_settings',

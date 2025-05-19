@@ -28,10 +28,10 @@ class PdfSettings extends \Edutiek\AssessmentService\Assessment\Data\PdfSettings
 {
     private bool $add_header = false;
     private bool $add_footer = false;
-    private int $top_margin = 0;
-    private int $bottom_margin = 0;
-    private int $left_margin = 0;
-    private int $right_margin = 0;
+    private int $top_margin = 10;
+    private int $bottom_margin = 10;
+    private int $left_margin = 10;
+    private int $right_margin = 10;
     #[Key]
     private int $ass_id = 0;
 

@@ -16,6 +16,7 @@ use ILIAS\DI\Container;
 use ILIAS\HTTP\Services as Http;
 use ILIAS\Plugin\LongEssayAssessment\Common\Http\RequestVariables;
 use ILIAS\Plugin\LongEssayAssessment\Common\Session\SessionValues;
+use ILIAS\Plugin\LongEssayAssessment\Common\Constraints\DataConstraints;
 use ILIAS\Plugin\LongEssayAssessment\Data\Task\EditorSettings;
 use ILIAS\Plugin\LongEssayAssessment\Provider\ToolProvider;
 use ILIAS\Plugin\LongEssayAssessment\Settings\InstructionSettingsGUI;
@@ -62,6 +63,7 @@ abstract class BaseGUI
     protected TaskApi $task_api;
     protected PluginUiFactory $plugin_ui_factory;
     protected PluginUIService $plugin_ui_service;
+    protected DataConstraints $constraints;
 
     protected RequestVariables $get;
     protected RequestVariables $post;
@@ -72,6 +74,7 @@ abstract class BaseGUI
     /** @var UiComponent[] */
     private array $components = [];
     private SessionValues $session;
+
 
     public function __construct(protected BaseObjectData $object)
     {
@@ -97,6 +100,7 @@ abstract class BaseGUI
         $this->essay_task_api = $this->plugin->dic()->essayTask($this->object->getAssId(), $this->user->getId());
         $this->plugin_ui_factory = $this->plugin->dic()->uiFactory();
         $this->plugin_ui_service = $this->plugin->dic()->uiService();
+        $this->constraints = $this->plugin->dic()->constraints();
         $this->session = $this->plugin->dic()->sessionValues(self::class, $this->object->getAssId());
 
         $this->get = new RequestVariables($DIC->http()->wrapper()->query(), $this->dic->refinery());

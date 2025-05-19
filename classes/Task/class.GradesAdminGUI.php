@@ -51,6 +51,7 @@ class GradesAdminGUI extends BaseGUI implements DataTableParent
     public function __construct(\ilObjLongEssayAssessmentGUI $objectGUI)
     {
         parent::__construct($objectGUI);
+        $this->post = $this->dic->http()->wrapper()->post();
         $this->corrector_service = $this->localDI->getCorrectorAdminService($this->object->getId());
         $this->object_repo = $this->localDI->getObjectRepo();
         $this->task_repo = $this->localDI->getTaskRepo();
@@ -69,7 +70,7 @@ class GradesAdminGUI extends BaseGUI implements DataTableParent
             case 'updateItem':
             case 'showItems':
             case "editItem":
-            case 'deleteItem':
+            case 'delete':
             case 'copyGrades':
                 $this->$cmd();
                 break;

@@ -145,6 +145,12 @@ class OrgaSettingsGUI extends BaseGUI
             $a_task_settings->setReviewEnabled(false);
         }
 
+        if(!empty($a_data['task']['forwarding'])) {
+            $a_task_settings->setForwardingUrl($a_data['task']['forwarding']['url']);
+        } else {
+            $a_task_settings->setForwardingUrl(null);
+        }
+
 
         $task_description = $a_data['content']['task_description'];
         $a_task_settings->setDescription((string) $this->data->trimRichText($task_description));
@@ -405,6 +411,24 @@ class OrgaSettingsGUI extends BaseGUI
 
         if(!$taskSettings->isReviewEnabled()) {
             $fields_settings['review'] = $fields_settings['review']->withValue(null);
+        }
+
+        $forwarding = [
+            "url" => $factory->url(
+                $this->plugin->txt("forwarding_url"),
+                $this->plugin->txt("forwarding_url_info")
+            )->withValue($taskSettings->getForwardingUrl() ?? "")
+            ->withRequired(true)
+        ];
+
+        $fields_settings['forwarding'] = $factory->optionalGroup(
+            $forwarding,
+            $this->plugin->txt("forwarding_enabled"),
+            $this->plugin->txt("forwarding_info")
+        );
+
+        if(empty($taskSettings->getForwardingUrl())) {
+            $fields_settings['forwarding'] = $fields_settings['forwarding']->withValue(null);
         }
 
         $sections['object'] = $factory->section($fields_object, $this->plugin->txt('object_settings'));

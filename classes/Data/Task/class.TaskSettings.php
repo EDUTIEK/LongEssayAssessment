@@ -45,7 +45,8 @@ class TaskSettings extends RecordData
         'result_available_type' => 'text',
         'result_available_date' => 'datetime',
         'statistics_available' => 'integer',
-        'writing_limit_minutes' => 'integer'
+        'writing_limit_minutes' => 'integer',
+        'forwarding_url' => 'text'
     ];
 
 
@@ -71,6 +72,7 @@ class TaskSettings extends RecordData
     protected ?string $result_available_date = null;
     protected int $statistics_available = 0;
     protected ?int $writing_limit_minutes = null;
+    protected ?string $forwarding_url = null;
 
 
     public function __construct(int $task_id)
@@ -449,6 +451,17 @@ class TaskSettings extends RecordData
     public function setWritingLimitMinutes(?int $writing_limit_minutes): TaskSettings
     {
         $this->writing_limit_minutes = $writing_limit_minutes;
+        return $this;
+    }
+
+    public function getForwardingUrl() : ?string
+    {
+        return $this->forwarding_url;
+    }
+
+    public function setForwardingUrl(?string $forwarding_url) : TaskSettings
+    {
+        $this->forwarding_url = $forwarding_url;
         return $this;
     }
 }

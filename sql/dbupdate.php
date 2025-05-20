@@ -2543,3 +2543,13 @@ if (!$ilDB->tableExists('xlas_writer_annotation')) {
     }
 }
 ?>
+<#128>
+<?php
+if (!$ilDB->tableColumnExists('xlas_task_settings', 'forwarding_url')) {
+    $ilDB->addTableColumn('xlas_task_settings', 'forwarding_url', [
+        'type' => 'text',
+        'length' => '250',
+        'default' => null
+    ]);
+}
+?>

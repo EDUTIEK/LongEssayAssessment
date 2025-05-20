@@ -93,6 +93,12 @@ class WriterStartGUI extends BaseGUI
         // Screen Message
 
         if (isset($essay)) {
+
+            if(!empty($this->task->getForwardingUrl()) && !empty($essay->getWritingAuthorized()) && isset($this->params['returned'])) {
+                $this->ctrl->redirectToURL($this->task->getForwardingUrl());
+                return;
+            }
+
             if (!empty($essay->getWritingExcluded())) {
 
                 $this->tpl->setOnScreenMessage("info", $this->plugin->txt('message_writing_excluded'));

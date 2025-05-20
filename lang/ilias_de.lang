@@ -95,7 +95,7 @@ result_available_finalised#:#wenn Abgabe korrigiert ist
 result_available_review#:#zur Einsichtnahme
 result_available_after#:#ab festem Datum
 result_available_date#:#Datum
-result_available_date_info#:#Das Ergebnis wird ab diesem Zeitpunkt angezeigt, sofern die Korrektur ihrer Abgabe abgeschlossen wurde. Bitte beachten Sie, das das Ergebnis bei aktiver Einsichtnahme auch im PDF der korrigierten Abgabe erscheint.
+result_available_date_info#:#Das Ergebnis wird ab diesem Zeitpunkt angezeigt, sofern die Korrektur ihrer Abgabe abgeschlossen wurde. Bitte beachten Sie, dass das Ergebnis bei aktiver Einsichtnahme auch im PDF der korrigierten Abgabe erscheint.
 task_definition#:#Aufgaben-Beschreibung
 task_description#:#Vorab-Beschreibung
 task_description_info#:#Die Vorab-Beschreibung wird den Teilnehmenden vor dem Bearbeitungszeitraum angezeigt.
@@ -692,3 +692,7 @@ select_x#:#%s auswählen
 actions_for#:#Aktionen für %s
 delete_resource_confirmation#:#Möchten Sie die folgenden Hilfsmittel löschen?
 point_graph#:#Punkte
+forwarding_enabled#:#Weiterleitung
+forwarding_info#:#Nach der Abgabe werden Teilnehmende automatisch zu einer definierten Webseite weitergeleitet. Bitte beachten Sie, dass den Teilnehmenden eine Abschlussmeldung erst nach Rückkehr zu „Meine Aufgabe” angezeigt wird.
+forwarding_url#:#URL Zielseite
+forwarding_url_info#:#Geben Sie die vollständige URL ein, einschließlich "https://", wenn Sie die Adresse einer externen Webseite eingeben möchten. Für Weiterleitungen zu einem Objekt in ILIAS verwenden Sie bitte den Permalink, den Sie in der Fußzeile des betreffenden Objekts finden.

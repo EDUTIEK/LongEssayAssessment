@@ -41,10 +41,13 @@ class CorrectorCommentRepo implements \Edutiek\AssessmentService\EssayTask\Data\
 
     public function hasByAssId(int $ass_id): bool
     {
-        $sql = "SELECT c.id FROM xlas_et_corr_comm c
-                JOIN xlas_as_corrector a ON c.corrector_id = a.id
-                WHERE a.ass_id = $ass_id
-                LIMIT 1";
+        $sql = "
+            SELECT c.id FROM xlas_et_corr_comm c
+            JOIN xlas_et_essay e ON e.id = c.essay_id
+            JOIN xlas_et_task_settings s ON s.task_id = e.task_id
+            WHERE s.ass_id = $ass_id
+            LIMIT 1
+        ";
 
         return null != $this->repo->queryIntegers($sql, 'id');
     }

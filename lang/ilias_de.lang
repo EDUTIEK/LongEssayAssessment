@@ -1,7 +1,7 @@
 //
 // Copyright (c) 2021 ILIAS open source, Extended GPL, see docs/LICENSE */
 //
-// @author Fred Neumann <fred.neumann@fau.de>
+// @author Fred Neumann <fred.neumann@fau.de>, Fabian Wolf <wolf@ilias.de>
 // @version $Id$
 //
 
@@ -42,54 +42,50 @@ configuration#:#Konfiguration
 update_languages#:#Sprachen aktualisieren
 reload_control_structure#:#Kontrollstruktur aktualisieren
 generate_db_update#:#DB-Update generieren
-writer_url#:#Adresse zur Writer Web App
-writer_url_info#:#Die Writer Web App ist im Plugin integriert. Wenn Sie zur Entwicklung eine separate verwenden, tragen Sie deren Adresse hier ein.
-corrector_url#:#Adresse zur Corrector Web App
-corrector_url_info#:#Die Corrector Web App ist im Plugin integriert. Wenn Sie zur Entwicklung eine separate verwenden, tragen Sie deren Adresse hier ein.
-eskript_url#:#HTTP-Adresse zu eSkript
-eskript_url_info#:#Bitte geben Sie die URL zu eSkript ein. Z.B.: http://www.ilias_installation.de/eskript/
-eskript_key#:#ILIAS-Token
-eskript_key_info#:#Bitte tragen Sie dieses ILIAS-Token in der Datei eskript/inc.var.php ein.
+writer_url#:#Adresse zur Schreiboberfläche
+writer_url_info#:#Die Webapp zur Schreiboberfläche ist im Plugin integriert. Wenn Sie zur Entwicklung eine separate verwenden, tragen Sie deren Adresse hier ein.
+corrector_url#:#Adresse zur Korrekturoberfläche
+corrector_url_info#:#Die Webapp zur Korrekturoberfläche ist im Plugin integriert. Wenn Sie zur Entwicklung eine separate verwenden, tragen Sie deren Adresse hier ein.
 tab_task#:#Aufgabenerstellung
 tab_orga_settings#:#Organisation
 tab_content_settings#:#Inhalt
 tab_instructions_settings#:#Aufgabenstellung
 tab_solution_settings#:#Lösungshinweise
-tab_resources#:#Material
+tab_resources#:#Hilfsmittel
 tab_technical_settings#:#Technik
 tab_criteria#:#Bewertungskriterien
 tab_grades#:#Notenstufen
-tab_writer#:#Meine Klausur
+tab_writer#:#Meine Aufgabe
 tab_writer_start#:#Meine Aufgabe
 tab_corrector#:#Meine Korrektur
 tab_corrector_start#:#Abgaben
-tab_writer_admin#:#Teilnehmerverwaltung
+tab_writer_admin#:#Teilnahmeverwaltung
 tab_writer_admin_log#:#Aufsichtsprotokoll
-tab_corrector_admin#:#Korrektorenverwaltung
+tab_corrector_admin#:#Korrekturverwaltung
 tab_corrector_export#:#Abgaben exportieren
 object_settings#:#Objekt-Einstellungen
 participation_type#:#Teilnahme
 participation_type_fixed#:#Vorgegeben
-participation_type_fixed_info#:#Die Teilnahme wird vorab über eine Liste festgelegt. Andere Benutzer können weder auf das Material noch auf die Lösungshinweise zugreifen.
+participation_type_fixed_info#:#Die Teilnahme wird vorab über eine Liste festgelegt. Andere Benutzer können weder auf die Hilfsmittel noch auf die Lösungshinweise zugreifen.
 participation_type_instant#:#Selbständig
-participation_type_instant_info#:#Für die Teilnahme genügt das Leserecht. Auch ohne Teilnahme ist damit der Abruf von Material und Lösungshinweisen ab den festgelegten Zeitpunkten möglich.
+participation_type_instant_info#:#Für die Teilnahme genügt das Leserecht. Auch ohne Teilnahme ist damit der Abruf von Hilfsmitteln und Lösungshinweisen ab den festgelegten Zeitpunkten möglich.
 task_settings#:#Ablauf-Organisation
 writing_start#:#Frühester Bearbeitungs-Start
-writing_start_info#:#Ab diesem Zeitpunkt wird die Schaltfläche "Bearbeitung starten" für die Teilnehmenden angezeigt. Mit Betätigung des Schalters startet die Bearbeitungsdauer und die Aufgabenstellung sowie das Material, das erst zur Bearbeitung verfügbar ist, können abgerufen werden.
+writing_start_info#:#Ab diesem Zeitpunkt wird die Schaltfläche „Bearbeitung starten” für die Teilnehmenden angezeigt. Mit Betätigung des Schalters startet die Bearbeitungsdauer und die Aufgabenstellung sowie die Hilfsmittel, die erst zur Bearbeitung verfügbar sind, können abgerufen werden.
 writing_end#:#Spätestes Bearbeitungs-Ende
-writing_end_info#:#Bis zu diesem Zeitpunkt getätigte Eingaben werden akzeptiert, danach ist die Eingabe gesperrt. Bei Verbindungsproblemen können die im Browser zwischengespeicherten Eingaben auch nachträglich gesendet oder autorisiert werden. Ohne festgelegtes Ende kann die Aufgabe beliebig spät bearbeitet werden.
+writing_end_info#:#Bis zu diesem Zeitpunkt getätigte Eingaben werden akzeptiert, danach ist die Eingabe gesperrt. Bei Verbindungsproblemen können die im Browser zwischengespeicherten Eingaben auch nachträglich gesendet oder freigegeben werden. Ohne festgelegtes Ende kann die Aufgabe beliebig spät bearbeitet werden.
 correction_start#:#Korrektur-Start
-correction_start_info#:#Ab diesem Zeitpunkt wird Korrekturkräften die Schaltfläche "Angezeigte Korrekturen starten" angezeigt und sie können die ihnen zugewiesenen und autorisierten Abgaben kommentieren und bewerten. Ohne festgelegten Start ist das für jede Abgabe möglich, sobald sie autorisiert wurde.
+correction_start_info#:#Ab diesem Zeitpunkt wird unter „Meine Korrektur” die Schaltfläche „Angezeigte Korrekturen starten” angezeigt und sie können die ihnen zugewiesenen und freigegebenen Abgaben kommentieren und bewerten. Ohne festgelegten Start ist das für jede Abgabe möglich, sobald sie freigegeben wurde.
 correction_end#:#Korrektur-Ende
-correction_end_info#:#Nach diesem Zeitpunkt wird die Schaltfläche "Angezeigte Korrekturen starten" nicht mehr angezeigt und es werden keine Korrektur-Eingaben mehr akzeptiert. Sollten einzelne Korrekturen noch nicht abgeschlossen sein, müssen Sie den Zeitraum für alle verlängern. Ohne festgelegtes Ende werden Korrektur-Eingaben beliebig lange akzeptiert.
+correction_end_info#:#Nach diesem Zeitpunkt wird unter „Meine Korrektur” die Schaltfläche „Angezeigte Korrekturen starten” nicht mehr angezeigt und es werden keine Korrektur-Eingaben mehr akzeptiert. Sollten einzelne Korrekturen noch nicht abgeschlossen sein, müssen Sie den Zeitraum für alle verlängern. Ohne festgelegtes Ende werden Korrektur-Eingaben beliebig lange akzeptiert.
 review_start#:#Einsichtnahme-Start
-review_start_info#:#Ab diesem Zeitpunkt können die Teilnehmenden ein PDF mit ihrer korrigierten Abgabe herunterladen, sofern ihre Korrektur finalisiert wurde und das Ergebnis feststeht. Ohne festgelegten Start ist das PDF sofort nach der Finalisierung verfügbar.
+review_start_info#:#Ab diesem Zeitpunkt können die Teilnehmenden ein PDF mit ihrer korrigierten Abgabe herunterladen, sofern ihre Korrektur abgeschlossen ist und das Ergebnis feststeht. Ohne festgelegten Start ist das PDF sofort nach dem Abschluss der Korrektur verfügbar.
 review_end#:#Einsichtnahme-Ende
-review_end_info#:#Bis zu diesem Zeitpunkt können die Teilnehmenden das PDF mit ihrer korrigierten Abgabe herunterladen. Ohne festgelegtes Ende ist das PDF beliebig lange herunterladbar.
+review_end_info#:#Bis zu diesem Zeitpunkt können die Teilnehmenden das PDF mit ihrer korrigierten Abgabe herunterladen. Ohne festgelegtes Ende wird das PDF beliebig lange zum Herunterladen angeboten.
 keep_essay_available#:#Abgabe weiter verfügbar
-keep_essay_available_info#:#Teilnehmende können nach Bearbeitungs-Ende ihren eigenen Text nachträglich schreibgeschützt einsehen und als PDF herunterladen. Diesen Schalter können Sie auch setzen, wenn es zur Abgabe Verbindungsprobleme gab und Teilnehmende ihre letzten Änderungen nachträglich noch übertragen oder autorisieren müssen.
+keep_essay_available_info#:#Teilnehmende können nach Bearbeitungs-Ende ihren eigenen Text nachträglich schreibgeschützt einsehen und als PDF herunterladen. Diesen Schalter können Sie auch setzen, wenn es zur Abgabe Verbindungsprobleme gab und Teilnehmende ihre letzten Änderungen nachträglich noch übertragen oder freigeben müssen.
 solution_available#:#Lösungshinweise verfügbar
-solution_available_info#:#Die Lösungshinweise und das zugehörige Material sind für die Teilnehmenden auf ihrer Startseite verfügbar.
+solution_available_info#:#Die Lösungshinweise und die zugehörigen Hilfsmittel sind für die Teilnehmenden auf ihrer Startseite verfügbar.
 solution_available_date#:#Datum
 solution_available_date_info#:#Ab diesem Datum werden die Lösungshinweise angezeigt. Ohne festgelegtes Datum werden sie sofort angezeigt.
 result_available_type#:#Ergebnis (Punkte und Note)
@@ -99,24 +95,24 @@ result_available_finalised#:#wenn Abgabe korrigiert ist
 result_available_review#:#zur Einsichtnahme
 result_available_after#:#ab festem Datum
 result_available_date#:#Datum
-result_available_date_info#:#Das Ergebnis wird ab diesem Zeitpunkt angezeigt, sofern die Korrektur ihrer Abgabe finalisiert wurde. Bitte beachten Sie, das das Ergebnis bei aktiver Einsichtnahme auch im PDF der korrigierten Abgabe erscheint.
+result_available_date_info#:#Das Ergebnis wird ab diesem Zeitpunkt angezeigt, sofern die Korrektur ihrer Abgabe abgeschlossen wurde. Bitte beachten Sie, das das Ergebnis bei aktiver Einsichtnahme auch im PDF der korrigierten Abgabe erscheint.
 task_definition#:#Aufgaben-Beschreibung
 task_description#:#Vorab-Beschreibung
-task_description_info#:#Die Vorab-Beschreibung wird dem Teilnehmer vor dem Bearbeitungszeitraum angezeigt.
+task_description_info#:#Die Vorab-Beschreibung wird den Teilnehmenden vor dem Bearbeitungszeitraum angezeigt.
 task_instructions#:#Aufgabenstellung
 task_instructions_info#:#Die Aufgabenstellung wird mit Start der Bearbeitung angezeigt.
 task_solution#:#Lösungshinweise
-task_solution_info#:#Die Lösungshinweise werden erst ab einem festgelegten Zeitpunkt oder am Ende angezeigt. Dieser wird unter „Organisation ► Lösungshinweise verfügbar“ aktiviert und konfiguriert. Zusätzliche Hinweise können als Datei oder Weblink unter "Material" bereitgestellt werden.
+task_solution_info#:#Die Lösungshinweise werden erst ab einem festgelegten Zeitpunkt oder am Ende angezeigt. Dieser wird unter „Organisation ► Lösungshinweise verfügbar“ aktiviert und konfiguriert. Zusätzliche Hinweise können als Datei oder Weblink im Bereich „Hilfsmittel” angeboten werden.
 editor_settings#:#Schreiben der Aufgabe
 headline_scheme#:#Überschriften-Schema
-headline_scheme_single#:#Eine Ebene, ohne Numerierung
-headline_scheme_three#:#Drei Ebenen, ohne Numerierung
-headline_scheme_numeric#:#Hierarchische Numerierung: 1 ‧ 1.1 ‧ 1.1.1  ‧ ...
+headline_scheme_single#:#Eine Ebene, ohne Nummerierung
+headline_scheme_three#:#Drei Ebenen, ohne Nummerierung
+headline_scheme_numeric#:#Hierarchische Nummerierung: 1 ‧ 1.1 ‧ 1.1.1  ‧ ...
 headline_scheme_edutiek#:#Gutachten-Stil: A. ‧ I. ‧ 1. ‧ a. ‧ aa. ‧ (1)
-headline_scheme_description#:#Bei drei Ebenen ohne Numerierung haben die Überschriften unterschiedliche Größe, sonst eine einheitliche.
+headline_scheme_description#:#Bei drei Ebenen ohne Nummerierung haben die Überschriften unterschiedliche Größe, sonst eine einheitliche.
 formatting_options#:#Text-Formatierung
 formatting_options_none#:#Aus
-formatting_options_none_info#:#Keine Formatatierungs-Optionen
+formatting_options_none_info#:#Keine Formatierungs-Optionen
 formatting_options_minimal#:#Minimal
 formatting_options_minimal_info#:#Fett, kursiv,  unterstrichen
 formatting_options_medium#:#Mittel
@@ -124,12 +120,12 @@ formatting_options_medium_info#:#Fett, kursiv,  unterstrichen, Aufzählungen
 formatting_options_full#:#Hoch
 formatting_options_full_info#:#Fett, kursiv,  unterstrichen, Aufzählungen, Überschriften
 notice_boards#:#Notizbretter
-notice_boards_info#:#Anzahl der zur Verfügung gestellten Notitzbretter
+notice_boards_info#:#Anzahl der zur Verfügung gestellten Notizbretter
 copy_allowed#:#Freies Kopieren erlauben
 copy_allowed_info#:#Texte können auch von anderen Webseiten kopiert werden. Das Kopieren im Text und von den Notizbrettern ist immer erlaubt.
 allow_spellcheck#:#Rechtschreibprüfung zulassen
 allow_spellcheck_info#:#Beim Schreiben der Aufgabe wird eine Rechtschreibprüfung durch den Browser zugelassen.
-add_resource#:#Material hinzufügen
+add_resource#:#Hilfsmittel hinzufügen
 lp_passed#:#Bestanden
 lp_passed_info#:#Für Lernfortschritt und Vorbedingungen gilt diese Notenstufe als bestanden.
 start_working#:#Bearbeitung starten
@@ -142,90 +138,89 @@ period_only_until#:#bis
 period_from#:#von
 period_until#:#bis
 correction_period#:#Korrektur
-review_period#:#Einsichtnahme (für autorisierte Abgaben)
+review_period#:#Einsichtnahme (für freigegebene Abgaben)
 result#:#Ergebnis
 submission#:#Abgabe
 view_submission#:#Abgabe ansehen
 download_written_submission#:#Geschriebene Abgabe herunterladen
 download_corrected_submission#:#Korrigierte Abgabe herunterladen
-task_resources#:#Materialien zur Aufgabe
+task_resources#:#Hilfsmittel zur Aufgabe
 available#:#Verfügbar
-participant#:#Teilnehmer/in
+participant#:#Teilnehmer
 points#:#Punkte
 assign_writers#:#Korrektoren zuweisen
 0_assigned_correctors#:#Es konnten keine Korrektoren zugewiesen werden.
 1_assigned_corrector#:#Ein Korrektor wurde erfolgreich zugewiesen.
 n_assigned_correctors#:#%s Korrektoren wurden erfolgreich zugewiesen.
 view_correction#:#Korrektur einsehen
-change_corrector#:#Korrektorenzuweisung ändern
+change_corrector#:#Korrekturzuweisung ändern
 correctable_exams#:#Zu korrigierende Abgaben
 writing_status#:#Abgabe
 writing_status_not_written#:#nicht teilgenommen
 writing_status_not_authorized#:#nicht abgegeben
-writing_status_authorized#:#autorisiert
+writing_status_authorized#:#freigegeben
 correction_status#:#Korrektur
 correction_status_not_possible#:#nicht möglich
 correction_status_open#:#offen
 correction_status_stitch_needed#:#Stichentscheid notwendig
 correction_status_finished#:#abgeschlossen
-own_grading#:#Eigene Wertung
+own_grading#:#Eigene Note
 grading_not_started#:#nicht begonnen
 grading_open#:#offen
-grading_authorized#:#autorisiert
-assignment_pos_single#:# Korrektor/in
-assignment_pos_first#:#Erstkorrektor/in
-assignment_pos_second#:#Zweitkorrektor/in
-assignment_pos_x#:#%s. Korrektor/in
-assignment_pos_other#:#Mitkorrektor/in
+grading_authorized#:#freigegeben
+assignment_pos_single#:#Korrektor
+assignment_pos_first#:#Erstkorrektur
+assignment_pos_second#:#Zweitkorrektur
+assignment_pos_x#:#%s. Korrektur
+assignment_pos_other#:#Korrektur
 assignment_pos_empty#:#nicht ausgewählt
 start_correction#:#Angezeigte Korrekturen starten
 assigned_writings#:#Zugeteilte Abgaben
 min_points#:#Min. Punkte
-min_points_caption#:#Minimal benötigte Punkte zum Erreichen dieser Stufe.
+min_points_caption#:#Minimal benötigte Punkte zum Erreichen dieser Notenstufe.
 add_grade_level#:#Notenstufe hinzufügen
 grade_levels#:#Notenstufen
 edit_grade_level#:#Notenstufe bearbeiten
 delete_grade_level_successful#:#Notenstufe erfolgreich gelöscht.
 delete_grade_level_failure#:#Notenstufe konnte nicht gelöscht werden.
-correction_finalized_from#:#finalisiert von
-writing_authorized_from#:#autorisiert von
+correction_finalized_from#:#abgeschlossen von
+writing_authorized_from#:#freigegeben von
 working_started#:#gestartet
 working_not_started#:#nicht gestartet
 no_working_time_change#:#keine
 participants#:#Teilnehmer
 exclude_participant#:#Von Bearbeitung ausschließen
 change_working_time#:#Bearbeitungszeit anpassen
-authorize_writing#:#Abgabe autorisieren
-authorize_writings#:#Abgaben autorisieren
-unauthorize_writing#:#Autorisierung zurücknehmen
-unauthorize_writings#:#Autorisierungen zurücknehmen
+authorize_writing#:#Abgabe freigeben
+authorize_writings#:#Abgaben freigeben
+unauthorize_writing#:#Freigabe zurückziehen
+unauthorize_writings#:#Freigabe zurückziehen
 view_processing#:#Bearbeitung einsehen
 writing_last_save#:#Letzte Speicherung
 working_time_change#:#Zeitanpassung
 essay_status#:#Abgabe-Status
 search_participants#:#Teilnehmer suchen
-assign_writer_success#:#Teilnehmer erfolgreich hinzugefügt.
-exclude_writer_success#:#Teilnehmer erfolgreich ausgeschlossen.
-missing_writer_id#:#Teilnehmernummer fehlt.
-missing_writer#:#Teilnehmer konnte nicht gefunden werden.
+assign_writer_success#:#Teilnahme erfolgreich hinzugefügt.
+exclude_writer_success#:#Teilnahme erfolgreich ausgeschlossen.
+missing_writer_id#:#Teilnahmenummer fehlt.
+missing_writer#:#Teilnahme konnte nicht gefunden werden.
 grade_level#:#Notenstufe
-no_writer_set#:#Kein Teilnehmer angegeben.
-exclude_participant_confirmation#:#Wollen Sie den folgenden Teilnehmer wirklich von der Bearbeitung ausschließen?
+no_writer_set#:#Kein Teilnahme angegeben.
+exclude_participant_confirmation#:#Wollen Sie die folgenden Teilnahmen wirklich von der Bearbeitung ausschließen?
 exclude#:#Ausschließen
-authorize_writing_confirmation#:#Wollen Sie die Abgabe vom folgenden Teilnehmer wirklich autorisieren?
-authorize_writings_confirmation#:#Wollen Sie die Abgabe von den folgenden Teilnehmern wirklich autorisieren?
-unauthorize_writing_confirmation#:#Wollen Sie die Autorisierung der Abgabe vom folgenden Teilnehmer wirklich zurücknehmen?
-unauthorize_writings_confirmation#:#Wollen Sie die Autorisierung der Abgaben von den folgenden Teilnehmern wirklich zurücknehmen?
-authorize_writings_none_possible#:#Ihre Auswahl enthält keine Abgaben, die autorisiert werden können.
-unauthorize_writings_none_possible#:#Ihre Auswahl enthält keine Abgaben, deren Autorisierung entfernt werden kann.
+authorize_writing_confirmation#:#Wollen Sie die Abgabe der folgenden Teilnahme wirklich freigeben?
+authorize_writings_confirmation#:#Wollen Sie die Abgabe von den folgenden Teilnahmen wirklich freigeben?
+unauthorize_writing_confirmation#:#Wollen Sie die Freigabe der Abgabe der folgenden Teilnahme wirklich zurückziehen?
+unauthorize_writings_confirmation#:#Wollen Sie die Freigaben der Abgaben von den folgenden Teilnahmen wirklich zurückziehen?
+authorize_writings_none_possible#:#Ihre Auswahl enthält keine Abgaben, die freigegeben werden können.
+unauthorize_writings_none_possible#:#Ihre Auswahl enthält keine Abgaben, deren Freigabe zurückgezogen werden kann.
 correctors#:#Korrektoren
 tab_corrector_list#:#Korrektoren
-search_correctors#:#Korrektoren suchen
 remove_corrector#:#Korrektor entfernen
 remove_corrector_confirmation#:#Wollen Sie den folgenden Korrektor wirklich entfernen?
 missing_corrector_id#:#Korrektornummer fehlt.
 missing_corrector#:#Korrektor konnte nicht gefunden werden.
-remove_writer_pending_assignments#:#Korrektor konnte nicht entfernt werden, da er noch ein Erst- oder ZWeitkorrektor eingetragen ist.
+remove_writer_pending_assignments#:#Korrektor konnte nicht entfernt werden, da er noch als Erst- oder Zweitkorrektur eingetragen ist.
 remove_corrector_success#:#Korrektor(en) wurden erfolgreich entfernt.
 assign_corrector_success#:#Korrektor(en) wurden erfolgreich hinzugefügt.
 correction_status_stitch#:#Stichentscheid
@@ -234,16 +229,16 @@ alert_send#:#Gesendet
 log_type_alert#:#Benachrichtigung
 log_entry_entered#:#Eingetragen
 log_entries#:#Protokolleinträge
-log_entry_writing_post_authorized#:#Die Abgabe von %s wurde durch %s nachträglich autorisiert.
+log_entry_writing_post_authorized#:#Die Abgabe von %s wurde durch %s nachträglich freigegeben.
 log_entry_working_time_changed#:#Die Bearbeitungszeit von %s wurde durch %s angepasst.
 log_entry_working_time_deleted#:#Die Anpassung der Bearbeitungszeit von %s wurde durch %s entfernt.
 log_entry_working_time_note#:#Zeitanpassung: %s
 log_entry_writer_note#:#Notiz zu Teilnehmer %s von %s.
-log_entry_writer_exclusion#:#Der Teilnehmer %s wurde durch %s ausgeschlossen.
-log_entry_writer_removal#:#Der Teilnehmer %s wurde durch %s entfernt.
+log_entry_writer_exclusion#:#Die Teilnahme von %s wurde durch %s ausgeschlossen.
+log_entry_writer_removal#:#Die Teilnahme von %s wurde durch %s entfernt.
 log_type_exclusion#:#Ausschluss
 log_type_working_time#:#Zeitanpassung
-log_type_authorize#:#Authorisierung
+log_type_authorize#:#Freigabe
 log_type_note#:#Notiz
 log_type_all#:#Alle
 log_entry_text#:#Notiz
@@ -255,32 +250,32 @@ create_log_entry#:#Notiz hinzufügen
 create_alert#:#Benachrichtigung senden
 alert_created#:#Benachrichtigung wurde gesendet.
 log_entry_created#:#Notiz wurde hinzugefügt.
-corrector_assignment_changed#:#Korrektorenzuweisung wurde gändert.
+corrector_assignment_changed#:#Korrekturzuweisung wurde geändert.
 writing_excluded_from#:#ausgeschlossen von
 repeal_exclude_participant#:#Ausschluss aufheben
-repeal_exclude_participant_confirmation#:#Wollen Sie den Ausschluss des folgenden Teilnehmers wirklich aufheben?
+repeal_exclude_participant_confirmation#:#Wollen Sie den Ausschluss des folgenden Teilnahme wirklich aufheben?
 missing_essay#:#Aufsatz konnte nicht gefunden werden.
-log_entry_writer_repealed_exclusion#:#Der Ausschluss von Teilnehmer %s wurde durch %s aufgehoben.
-essay_not_excluded#:#Der Teilnehmer wurde nicht ausgeschlossen und der Ausschluss kann daher nicht aufgehoben werden.
-exclude_writer_repeal_success#:#Teilnehmerausschluss erfolgreich aufgehoben.
-resource_availability_before#:#Vorab
+log_entry_writer_repealed_exclusion#:#Der Ausschluss der Teilnahme von %s wurde durch %s aufgehoben.
+essay_not_excluded#:#Die Teilnahme wurde nicht ausgeschlossen und der Ausschluss kann daher nicht aufgehoben werden.
+exclude_writer_repeal_success#:#Ausschluss der Teilnahme erfolgreich aufgehoben.
+resource_availability_before#:#Vor Start der Bearbeitung
 resource_availability_during#:#Nach Start der Bearbeitung
 resource_availability_after#:#Mit Verfügbarkeit der Lösungshinweise
 resource_embedded#:#Eingebettet
 resource_embedded_info#:#Der Weblink wird in der Schreiboberfläche eingebettet angezeigt. Bitte beachten Sie, dass viele Websites das nicht erlauben.
 resource_file_description#:#Die Datei kann vorab, während der Bearbeitung oder ab Verfügbarkeit der Lösungshinweise angesehen oder heruntergeladen werden.
 resource_weblink#:#Weblink
-resource_edit#:#Material bearbeiten
-resource_add#:#Material hinzufügen
+resource_edit#:#Hilfsmittel bearbeiten
+resource_add#:#Hilfsmittel hinzufügen
 resource_availability#:#Verfügbarkeit
 resource_available#:#Verfügbar:
 pseudonym#:#Pseudonym
 icon_label#:#Profilbild von
 time_exceeds_solution_availability#:#Die Lösungshinweise wären in der Bearbeitungszeit verfügbar!
-writing_authorized#:#Die Abgabe wurde autorisiert.
-writings_authorized#:#Die Abgaben wurden autorisiert.
-writing_unauthorized#:#Die Autorisierung der Abgabe wurde entfernt.
-writings_unauthorized#:#Die Autorisierungen der Abgaben wurden entfernt.
+writing_authorized#:#Die Abgabe wurde freigegeben.
+writings_authorized#:#Die Abgaben wurden freigegeben.
+writing_unauthorized#:#Die Freigabe der Abgabe wurde zurückgezogen.
+writings_unauthorized#:#Die Freigaben der Abgaben wurden zurückgezogen.
 grade_level_code#:#Code
 grade_level_code_caption#:#Interner Code zum Abgleich der Notenstufe mit internen Systemen
 passed#:#Bestanden
@@ -294,20 +289,20 @@ export_results_file_prefix#:#Ergebnisse
 message_no_admin_writer_corrector#:#Sie können auf diese Aufgabe nicht zugreifen, da Sie weder zur Bearbeitung noch zur Korrektur vorgesehen sind.
 message_writing_excluded#:#Sie wurden von der Bearbeitung ausgeschlossen.
 message_writing_authorized#:#Sie haben Ihre Bearbeitung zur Korrektur abgegeben.
-message_writing_authorized_link#:#» Klausur verlassen
-message_writing_returned_interrupted#:#Sie haben Ihre Bearbeitung unterbrochen. Klicken Sie auf "Bearbeitung fortsetzen", um ihre Klausur weiter zu schreiben oder für die Korrektur zu autorisieren.
+message_writing_authorized_link#:#» Bearbeitung verlassen
+message_writing_returned_interrupted#:#Sie haben Ihre Bearbeitung unterbrochen. Klicken Sie auf „Bearbeitung fortsetzen”, um ihre Bearbeitung weiter zu schreiben oder für die Korrektur freizugeben.
 continue_writing#:#Bearbeitung fortsetzen
 review_writing#:#Bearbeitung schreibgeschützt einsehen
-assign_mode#:#Korrektoren-Zuweisung
+assign_mode#:#Korrekturenzuweisung
 assign_mode_random_equal#:#zufällig gleichverteilt
 assign_mode_random_equal_info#:#Die Abgaben werden zufällig auf alle Korrektoren verteilt, so dass alle möglichst gleich viele Abgaben zugeteilt bekommen.
-assign_not_needed#:#Es gibt keine autorisierten Abgaben mit fehlenden Korektoren-Zuweisungen!
+assign_not_needed#:#Es gibt keine freigegebenen Abgaben mit fehlender Korrekturzuweisung!
 assign_not_available#:#Es sind keine Korrektoren verfügbar, die zugewiesen werden könnten!
-assign_missing_correctors#:#Fehlende Zuteilungen: %s
+assign_missing_correctors#:#Fehlende Korrekturzuweisungen: %s
 assign_available_correctors#:#Verfügbare Korrekturkräfte: %s
-required_correctors#:#Anzahl Korrektoren
+required_correctors#:#Anzahl Korrekturen
 mutual_visibility#:#Gegenseitige Sichtbarkeit
-mutual_visibility_info#:#Korrektoren derselben Abgabe können ihre Korrekturen gegenseitig sehen, sobald sie autorisiert sind.
+mutual_visibility_info#:#Korrektoren derselben Abgabe können ihre Korrekturen gegenseitig sehen, sobald sie freigegeben sind.
 max_points#:#Maximale Punkte
 max_auto_distance#:#Maximaler Punkteunterschied
 max_auto_distance_info#:#Maximaler Unterschied zwischen niedrigster und höchster Punktzahl, bei der eine Durchschnittsnote gebildet werden kann und kein Stichentscheid notwendig ist
@@ -318,43 +313,43 @@ message_no_correction_items#:#Ihnen sind noch keine Abgaben zur Korrektur zugewi
 correction_period#:#Korrektur-Zeitraum
 final_grade#:#Endnote
 actions#:#Aktionen
-delete_writer_data#:#Alle Teilnehmerdaten entfernen
-delete_writer_data_confirmation#:#Sind Sie sicher, dass Sie alle Teilnehmerdaten unwiderruflich entfernen möchten?
-delete_writer_data_success#:#Alle Teilnehmerdaten erfolgreich entfernt.
-message_corrector_assignment_changeable#:#Die Korrektorenzuweisung kann nachträglich für einzelne Abgaben geändert werden.
+delete_writer_data#:#Alle Teilnahmedaten entfernen
+delete_writer_data_confirmation#:#Sind Sie sicher, dass Sie alle Teilnahmedaten unwiderruflich entfernen möchten?
+delete_writer_data_success#:#Alle Teilnahmedaten erfolgreich entfernt.
+message_corrector_assignment_changeable#:#Die Korrekturzuweisung kann nachträglich für einzelne Abgaben geändert werden.
 do_stich_decision#:#Stichentscheid vornehmen
 primary_color#:#Primärfarbe (Hintergrund)
-primary_color_info#:#Diese Farbe wird im Writer und Corrector zur Hervorhebung der Buttons primärer Aktionen verwendet.
+primary_color_info#:#Diese Farbe wird in der Schreiboberfläche und Korrekturoberfläche zur Hervorhebung der Buttons primärer Aktionen verwendet.
 primary_text_color#:#Primärfarbe (Text)
-primary_text_color_info#:#Diese Farbe wird im Writer und Corrector zur Hervorhebung der Beschriftung von Buttons primärer Aktionen verwendet.
+primary_text_color_info#:#Diese Farbe wird in der Schreiboberfläche und Korrekturoberfläche zur Hervorhebung der Beschriftung von Buttons primärer Aktionen verwendet.
 via_stitch_decision#:#per Stichentscheid
-remove_writer#:#Teilnehmer entfernen
-remove_writer_confirmation#:#Sind Sie sicher, dass Sie den Teilnehmer unwiderruflich entfernen möchten?
-remove_writer_success#:#Teilnehmer erfolgreich entfernt.
-export_log#:#Protokoll exportieren
-export_log_file_prefix#:#Log
+remove_writer#:#Teilnahme entfernen
+remove_writer_confirmation#:#Sind Sie sicher, dass Sie die Teilnahme unwiderruflich entfernen möchten?
+remove_writer_success#:#Teilnahme erfolgreich entfernt.
+export_log#:#Aufsichtsprotokoll exportieren
+export_log_file_prefix#:#Aufsichtsprotokoll
 log_time#:#Zeit
 log_until#:#Bis
 log_category#:#Kategorie
 log_alert_to#:#An
-log_alert_to_all#:#alle Teilnehmer/innen
+log_alert_to_all#:#alle Teilnehmenden
 log_title#:#Titel
 log_content#:#Inhalt
-log_cat_authorize#:#Autorisierung
+log_cat_authorize#:#Freigabe
 log_cat_note#:#Notiz
 log_cat_working_time#:#Zeitanpassung
 log_cat_exclusion#:#Ausschluss
 log_cat_alert#:#Benachrichtigung
 correction_filter_not_started#:#fällig
 correction_filter_started#:#selbst begonnen
-correction_filter_authorized#:#selbst autorisiert
+correction_filter_authorized#:#selbst freigegeben
 correction_filter_stitch#:#Stichentscheid notwendig
 export_steps#:#Bearbeitungsschritte exportieren
 view_instructions#:#Aufgabenstellung ansehen
 view_solution#:#Lösungshinweise ansehen
 message_review_period#:#Die Einsichtnahme findet %s statt.
 content_not_available#:#Es ist kein Inhalt verfügbar
-resource_deleted#:#Material erfolgreich gelöscht.
+resource_deleted#:#Hilfsmittel erfolgreich gelöscht.
 result_not_available#:#nicht verfügbar
 result_not_finalized#:#nicht festgelegt
 result_not_graded#:#ohne Note
@@ -363,10 +358,10 @@ draw_stitch_decision#:#Stichentscheid vornehmen
 developer_settings#:#Einstellungen zur Entwicklung
 developer_settings_info#:#Diese Einstellungen werden im Normalbetrieb nicht benötigt.
 simulate_offline#:#Netzwerkunterbrechung simulieren
-simulate_offline_info#:#Anfragen aus den Writer und Corrector Web Apps werden mit dem Status SERVICE_UNAVAILABLE (503) zurückgewiesen. Damit können Netzwerkprobleme während des Schreibens oder Korrigierens einer Klausur simuliert werden.
-message_writing_to_continue#:#Ihre Bearbeitung ist noch nicht zur Korrektur abgegeben. Klicken Sie auf "Bearbeitung fortsetzen", um weiter zu scheiben oder sie abzugeben.
-message_writing_to_authorize#:#Ihre Bearbeitung ist noch nicht zur Korrektur abgegeben. Klicken Sie auf "Bearbeitung schreibgeschützt einsehen", um sie zu überprüfen und abzugeben.
-message_writing_to_authorize_pdf#:#Ihre Bearbeitung ist noch nicht zur Korrektur abgegeben. Klicken Sie auf "Vorschau zur Abgabe", um sie zu überprüfen und abzugeben.
+simulate_offline_info#:#Anfragen aus der Schreiboberfläche und Korrekturoberfläche werden mit dem Status SERVICE_UNAVAILABLE (503) zurückgewiesen. Damit können Netzwerkprobleme während des Schreibens oder Korrigierens einer Abgabe simuliert werden.
+message_writing_to_continue#:#Ihre Bearbeitung wurde noch nicht zur Korrektur abgegeben. Klicken Sie auf „Bearbeitung fortsetzen”, um weiterzuschreiben oder die Bearbeitung abzugeben.
+message_writing_to_authorize#:#Ihre Bearbeitung ist noch nicht zur Korrektur abgegeben. Klicken Sie auf „Bearbeitung schreibgeschützt einsehen”, um sie zu überprüfen und abzugeben.
+message_writing_to_authorize_pdf#:#Ihre Bearbeitung ist noch nicht zur Korrektur abgegeben. Klicken Sie auf „Vorschau zur Abgabe”, um sie zu überprüfen und abzugeben.
 message_writing_not_authorized#:#Sie haben Ihre Bearbeitung nicht zur Korrektur abgegeben. Wenden Sie sich an die Prüfungsleitung, wenn Ihre Bearbeitung doch bewertet werden soll.
 warning_potential_later_assignments#:#Es gibt noch Teilnehmende, die möglicherweise nachträglich zugewiesen werden müssen.
 potential_authorizations_not_started#:#Noch nicht gestartet, aber in Bearbeitungszeit: %s
@@ -375,18 +370,18 @@ potential_authorizations_after#:#Nach Bearbeitungszeit, aber noch nicht zur Korr
 settings_stitch_required#:#Stichentscheid
 stitch_when_distance#:#Bei abweichenden Punkten
 stitch_when_decimals#:#Wenn der Punktedurchschnitt keine ganze Zahl ist
-remove_authorization#:#Korrektur-Autorisierung zurücknehmen
-remove_authorizations#:#Korrektur-Autorisierungen zurücknehmen
-confirm_remove_authorizations_for#:#Möchten Sie die Autorisierung der Korrektur(en) für %s zurücknehmen? Diese Aktion wird protokolliert.
-remove_authorizations_for_done#:#Die Korrektur-Autorisierungen für %s wurden zurückgenommen.
-remove_authorizations_for_failed#:#Die Korrektur-Autorisierungen für %s konnten nicht zurückgenommen werden.
-log_entry_removed_authorization#:#Die Autorisierung der Korrekturen für %s wurde durch %s zurückgezogen.
-remove_own_authorization#:#Autorisierung zurückziehen
-remove_own_authorization_for#:#Autorisierung für %s zurückziehen
-confirm_remove_own_authorization#:#Möchten Sie folgende Korrektur-Autorisierungen zurücknehmen? Diese Aktion wird protokolliert.
-remove_own_authorization_done#:#Ihre Korrektur-Autorisierungen wurden zurückgezogen.
-remove_own_authorization_failed#:#Ihre Korrektur-Autorisierung für %s konnte nicht zurücckgezogen werden.
-log_entry_removed_own_authorization#:#Die Autorisierung der eigenen Korrektur für %s wurde durch %s zurückgezogen.
+remove_authorization#:#Korrektur-Freigabe zurückziehen
+remove_authorizations#:#Korrektur-Freigaben zurückziehen
+confirm_remove_authorizations_for#:#Möchten Sie die Freigabe der Korrektur(en) für %s zurückziehen? Diese Aktion wird protokolliert.
+remove_authorizations_for_done#:#Die Korrektur-Freigaben für %s wurden zurückgezogen.
+remove_authorizations_for_failed#:#Die Korrektur-Freigaben für %s konnten nicht zurückgezogen werden.
+log_entry_removed_authorization#:#Die Freigabe der Korrekturen für %s wurde durch %s zurückgezogen.
+remove_own_authorization#:#Freigaben zurückziehen
+remove_own_authorization_for#:#Freigaben für %s zurückziehen
+confirm_remove_own_authorization#:#Möchten Sie folgende Korrektur-Freigabe zurückziehen? Diese Aktion wird protokolliert.
+remove_own_authorization_done#:#Ihre Korrektur-Freigaben wurden zurückgezogen.
+remove_own_authorization_failed#:#Ihre Korrektur-Freigaben für %s konnte nicht zurückgezogen werden.
+log_entry_removed_own_authorization#:#Die Freigabe der eigenen Korrektur für %s wurde durch %s zurückgezogen.
 own_position#:#Funktion
 filter_own_position#:#Nach Korrekturfunktion filtern
 own_correction#:#Eigene Korrekturen
@@ -395,128 +390,128 @@ count_x_of_y#:#%s von %s
 count_x_total#:#%s gesamt
 criteria_mode#:#Bewertungskriterien verwenden
 criteria_mode_none#:#keine Bewertungskriterien
-criteria_mode_none_info#:#Es werden zur Bewertung keine Kriterien vorgegeben. Teilpunkte werden direkt bei den Kommentaren eingegeben.
+criteria_mode_none_info#:#Es werden zur Bewertung keine Bewertungskriterien vorgegeben. Teilpunkte werden direkt bei den Bemerkungen eingegeben.
 criteria_mode_fixed#:#einheitliche Bewertungskriterien
-criteria_mode_fixed_info#:#Die Bewertungskriterien werden für alle Korrekturkräfte einheitlich vorgegeben. Teilpunkte werden nach Kriterium aufgeschlüsselt eingegeben.
+criteria_mode_fixed_info#:#Die Bewertungskriterien werden für alle Korrekturkräfte einheitlich vorgegeben. Teilpunkte werden nach Bewertungskriterium aufgeschlüsselt eingegeben.
 criteria_mode_corrector#:#persönliche Bewertungskriterien
-criteria_mode_corrector_info#:#Die Bewertungskriterien können von der Korrekturkraft selbst erstellt und mit anderen geteilt werden. Es können zentrale Kriterien als Vorlage für alle Korrekturkräfte erstellt werden. Teilpunkte werden nach Kriterium aufgeschlüsselt eingegeben.
+criteria_mode_corrector_info#:#Die Bewertungskriterien können von der Korrekturkraft selbst erstellt und mit anderen geteilt werden. Es können zentrale Bewertungskriterien als Vorlage für alle Korrekturkräfte erstellt werden. Teilpunkte werden nach Bewertungskriterium aufgeschlüsselt eingegeben.
 criteria_mode_change_from_none_message#:#Wenn Sie die Einstellung ändern, werden bereits vergebene Punkte verworfen.
-criteria_mode_change_from_fixed_message#:#<p>Wenn Sie die Einstellung auf "Keine Bewertungskriterien" ändern, werden Punkte bei Anmerkungen zusammengefasst und Punkte zu Kopfnoten verworfen.</p><p>Wenn Sie die Einstellung auf "persönliche Bewerungskriterien ändern" werden die bisherigen Kriterien für alle Korrektoren übernommen.</p>
-criteria_mode_change_from_corrector_message#:#<p>Wenn Sie die Einstellung auf "Keine Bewertungskriterien" ändern, werden Punkte bei Anmerkungen zusammengefasst und Punkte zu Kopfnoten verworfen.</p><p>Wenn Sie die Einstellung auf "einheitliche Bewertungskriterien" ändern, werden alle Punkte verworfen.</p>
-criteria_admin_authorized_message#:#Es gibt bereits autorisierte Korrekturen. Ziehen Sie diese in der Korrekturverwaltung zurück, wenn Sie hier etwas ändern müssen.
-criteria_corrector_finalized_message#:#Sie haben bereits komplett abgeschlossene Korrekturen. Wenden Sie sich an die Korrekturverwaltung, wenn Sie hier etwas ändern müssen.
-criteria_corrector_authorized_message#:#Sie haben bereits autorisierte Korrekturen. Ziehen Sie diese unter "Abgaben" zurück, wenn Sie hier etwas ändern müssen.
+criteria_mode_change_from_fixed_message#:#<p>Wenn Sie die Einstellung auf „Keine Bewertungskriterien” ändern, werden Punkte bei Anmerkungen zusammengefasst und Punkte zu Kopfnoten verworfen.</p><p>Wenn Sie die Einstellung auf „persönliche Bewertungskriterien ändern” werden die bisherigen Bewertungskriterien für alle Korrektoren übernommen.</p>
+criteria_mode_change_from_corrector_message#:#<p>Wenn Sie die Einstellung auf „Keine Bewertungskriterien” ändern, werden Punkte bei Anmerkungen zusammengefasst und Punkte zu Kopfnoten verworfen.</p><p>Wenn Sie die Einstellung auf „einheitliche Bewertungskriterien” ändern, werden alle Punkte verworfen.</p>
+criteria_admin_authorized_message#:#Es gibt bereits freigegebene Korrekturen. Ziehen Sie diese in der Korrekturverwaltung zurück, wenn Sie hier etwas ändern müssen.
+criteria_corrector_finalized_message#:#Sie haben bereits abgeschlossene Korrekturen. Wenden Sie sich an die Korrekturverwaltung, wenn Sie hier etwas ändern müssen.
+criteria_corrector_authorized_message#:#Sie haben bereits freigegebene Korrekturen. Ziehen Sie diese unter „Abgaben” zurück, wenn Sie hier etwas ändern müssen.
 criteria#:#Bewertungskriterien
-criteria_add#:#Kriterium hinzufügen
-criteria_edit#:#Kriterium bearbeiten
+criteria_add#:#Bewertungskriterium hinzufügen
+criteria_edit#:#Bewertungskriterium bearbeiten
 criteria_max_point#:#Max. Punkte
-criteria_max_point_desc#:#Maximal vergebbare Punkte für dieses Kriterium.
-delete_criteria_successful#:#Kriterien erfolgreich gelöscht.
-delete_criteria_failure#:#Kriterien konnten nicht gelöscht werden.
-delete_criteria#:#Kriterium löschen
-delete_criteria_confirmation#:#Sind Sie sicher, dass Sie das Kriterium unwiderruflich entfernen möchten?
+criteria_max_point_desc#:#Maximal vergebbare Punkte für dieses Bewertungskriterium.
+delete_criteria_successful#:#Bewertungskriterien erfolgreich gelöscht.
+delete_criteria_failure#:#Bewertungskriterien konnten nicht gelöscht werden.
+delete_criteria#:#Bewertungskriterium löschen
+delete_criteria_confirmation#:#Sind Sie sicher, dass Sie das Bewertungskriterium unwiderruflich entfernen möchten?
 copy_rating_criterion_from#:#Kopiere Bewertungskriterien von
 publish_rating_criterion#:#Bewertungskriterien teilen
-criteria_publish_enabled#:#Kriterien erfolgreich geteilt.
-criteria_publish_disabled#:#Kriterien werden nicht mehr geteilt.
+criteria_publish_enabled#:#Bewertungskriterien erfolgreich geteilt.
+criteria_publish_disabled#:#Bewertungskriterien werden nicht mehr geteilt.
 criteria_template#:#Vorlage
-copy_criteria_successful#:#Kriterien erfolgreich kopiert.
-copy_criteria_failure#:#Kriterien konnte nicht kopiert werden.
+copy_criteria_successful#:#Bewertungskriterien erfolgreich kopiert.
+copy_criteria_failure#:#Bewertungskriteri konnte nicht kopiert werden.
 criteria_from#:#Bewertungskriterien von %s
 locations#:#Teilnahmeorte
 location#:#Teilnahmeort
-locations_info#:#Den Teilnehmenden kann in der Teilnehmerliste ein Teilnahmeort zugewiesen werden, der im Abgabe- und Ergebnis-PDF angezeigt wird.
+locations_info#:#Den Teilnehmenden kann in der Teilnahmeverwaltung ein Teilnahmeort zugewiesen werden, der in der Abgabe- und Korrektur-Datei angezeigt wird.
 assign_location#:#Teilnahmeort zuweisen
 change_location#:#Teilnahmeort ändern
 location_assigned#:#Teilnahmeort erfolgreich zugewiesen.
 closing_message#:#Abschlussmeldung
-closing_message_info#:#Die Abschlussmeldung wird dem Teilnehmer nach der Abgabe im Klausuren-Reiter angezeigt.
+closing_message_info#:#Die Abschlussmeldung wird den Teilnehmenden nach der Abgabe im Reiter Meine Abgabe angezeigt.
 solution_is_not_available#:#Die Lösungshinweise werden aktuell nicht angezeigt. Sie können unter „Organisation ► Lösungshinweise verfügbar“ aktiviert werden.
-task_instructions_file_info#:#Die Aufgabenstellung kann auch als PDF-Datei hochgeladen werden. Sie wird wie der Text mit Start der Bearbeitung angezeigt.
-task_solution_file_info#:#Die Lösungshinweise können auch als PDF-Datei hochgeladen werden. Sie werden erst ab einem festgelegten Zeitpunkt angezeigt.
-missing_file#:#Die Datei muss hochgeladen werden."
+task_instructions_file_info#:#Die Aufgabenstellung kann auch als Datei im Format PDF hochgeladen werden. Sie wird wie der Text mit Start der Bearbeitung angezeigt.
+task_solution_file_info#:#Die Lösungshinweise können auch als Datei im Format PDF hochgeladen werden. Sie werden erst ab einem festgelegten Zeitpunkt angezeigt.
+missing_file#:#Die Datei muss hochgeladen werden.
 unchanged#:#nicht Ändern
-same_assigned_corrector_error#:#Erstkorrektor/in und Zweitkorrektor/in können nicht gleich sein.
-invalid_assignment_combinations_error#:#Diese Zuweisung führt in einigen Fällen zu unerlaubten Kombinationen.
-remove_authorizations_confirmation#:#Möchten Sie die Autorisierung für die Korrektur(en) folgender Teilnehmer zurücknehmen? Diese Aktion wird protokolliert.
+same_assigned_corrector_error#:#Erstkorrektur und Zweitkorrektur können nicht identisch sein.
+invalid_assignment_combinations_error#:#Diese Korrekturzuweisung führt in einigen Fällen zu unerlaubten Kombinationen.
+remove_authorizations_confirmation#:#Möchten Sie die Freigaben für die Korrektur(en) folgender Teilnahmen zurückziehen? Diese Aktion wird protokolliert.
 remove_authorizations_no_valid_essays#:#In der Auswahl gab es keine Korrektur(en), die zurückgenommen werden können.
-change_corrector_info#:#Bitte beachten Sie folgendes, wenn es bereits Korrekturen gibt: <ul><li>Korrekturen werden auf neuen Korrektor übretragen</li><li>Korrektoren von bereits autorisierten Korrekturen können nicht geändert werden</li><li>An Bewertungskriterien vergebene Punkte werden beim Übertragen entfernt</li><li>Korrekturen entfernter Korrektoren werden ebenfalls permanent entfernt</li></ul>
-authorize_correction#:#Korrektur autorisieren
-authorize_correction_for#:#Korrektur für %s autorisieren
-confirm_authorize_correction#:#Möchten Sie die folgenden Korrekturen autorisieren?
-authorize_correction_done#:#Ihre Korrektur wurde autorisiert.
-no_authorizations_to_remove#:#In Ihrer Auswahl waren keine Korrektur-Autorisierungen, die zurückgenommen werden können. Das Zurücknehmen ist nur möglich, wenn die Korrektur einer Abgabe noch nicht abgeschlossen ist.
-no_corrections_to_authorize#:#In Ihrer Auswahl waren keine Korrekturen, die autorisiert werden können.
+change_corrector_info#:#Bitte beachten Sie folgendes, wenn es bereits Korrekturen gibt: <ul><li>Korrekturen werden auf neuen Korrektor übretragen</li><li>Korrektoren von bereits freigegebenen Korrekturen können nicht geändert werden</li><li>An Bewertungskriterien vergebene Punkte werden beim Übertragen entfernt</li><li>Korrekturen entfernter Korrektoren werden ebenfalls permanent entfernt</li></ul>
+authorize_correction#:#Korrektur freigeben
+authorize_correction_for#:#Korrektur für %s freigeben
+confirm_authorize_correction#:#Möchten Sie die folgenden Korrekturen freigeben?
+authorize_correction_done#:#Ihre Korrektur wurde freigegeben.
+no_authorizations_to_remove#:#In Ihrer Auswahl waren keine Korrektur-Freigaben, die zurückgenommen werden können. Das Zurücknehmen ist nur möglich, wenn die Korrektur einer Abgabe noch nicht abgeschlossen ist.
+no_corrections_to_authorize#:#In Ihrer Auswahl waren keine Korrekturen, die freigegeben werden können.
 download_instructions#:#Aufgabenstellung herunterladen
 download_solution#:#Lösungshinweise herunterladen
-authorize_pdf_version_info#:#Wenn eine PDF-Abgabe hinzugefügt oder geändert wird, wird eine bisherige Autorisierung je nach Einstellung entfernt oder durch Sie erneuert.
+authorize_pdf_version_info#:#Wenn eine PDF-Abgabe hinzugefügt oder geändert wird, wird eine bisherige Freigabe je nach Einstellung zurückgezogen oder durch Sie erneuert.
 pdf_version#:#PDF-Abgabe
 pdf_version_edit#:#PDF-Abgabe editieren
 pdf_version_upload#:#PDF-Abgabe hochladen
-pdf_version_info_already_uploaded#:#Wenn Sie die vorhandene PDF-Abgabe entfernen oder ersetzen, werden die Markierungen und Kommentare bereits begonnener Korrekturen verworfen!
-pdf_version_info_started_essay#:#Teilnehmer/in hat bereits einen Text angefangen. Sind Sie sich sicher, dass Sie diese Ergebnisse mit dem PDF-Upload ergänzen möchten? Die Markierungen und Kommentare bereits begonnener Korrekturen werden verworfen.
-pdf_version_warning_authorized_essay#:#Teilnehmer/in hat bereits einen Text abgegeben und autorisiert. Sind Sie sich sicher, dass Sie diese Ergebnisse mit dem PDF-Upload ergänzen möchten? Die Markierungen und Kommentare bereits begonnener Korrekturen werden verworfen.
-log_entry_writing_removed_authorized#:#Die Autorisierung der Abgabe von %s wurde durch %s entfernt.
+pdf_version_info_already_uploaded#:#Wenn Sie die vorhandene PDF-Abgabe entfernen oder ersetzen, werden die Markierungen und Bemerkungen bereits begonnener Korrekturen verworfen!
+pdf_version_info_started_essay#:#Der Teilnehmer hat bereits mit einem Text begonnen. Möchten Sie diese Ergebnisse wirklich mit einer PDF-Abgabe ergänzen? Die Markierungen und Bemerkungen bereits begonnener Korrekturen werden dabei verworfen.
+pdf_version_warning_authorized_essay#:#Der Teilnehmer hat bereits einen Text abgegeben und freigegeben. Möchten Sie diese Ergebnisse wirklich mit einer PDF-Abgabe ergänzen? Die Markierungen und Bemerkungen bereits begonnener Korrekturen werden dabei verworfen.
+log_entry_writing_removed_authorized#:#Die Freigabe der Abgabe von %s wurde durch %s zurückgezogen.
 pdf_version_download#:#PDF-Abgabe herunterladen
 download#:#Herunterladen
 pdf_version_header_writing#:#Text aus der Schreiboberfläche (wird hinzugefügt)
-pdf_version_upload_not_allowed_by_corrections#:#Sie können keine PDF-Version hochladen, da eine Korrektur bereits autorisiert ist.
-pdf_version_upload_successful_auth#:#Die PDF-Version wurde erfolgreich hochgeladen und autorisiert.
-pdf_version_upload_successful_removed#:#Die PDF-Version wurde erfolgreich entfernt.
-pdf_version_upload_successful_no_auth#:#Die PDF-Version wurde erfolgreich hochgeladen. Eine Autorisierung steht noch aus.
-pdf_version_upload_failure#:#Bitte laden Sie eine PDF-Version hoch.
-pdf_version_not_found#:#Es konnte keine PDF-Version gefunden werden.
-download_written_pdf#:#Abgabe-PDF herunterladen
-download_written_pdf_for#:#Abgabe-PDF von %s herunterladen
-download_corrected_pdf#:#Korrektur-PDF herunterladen
-download_corrected_pdf_for#:#Korrektur-PDF von %s herunterladen
+pdf_version_upload_not_allowed_by_corrections#:#Sie können keine PDF-Abgabe hochladen, da eine Korrektur bereits freigegeben ist.
+pdf_version_upload_successful_auth#:#Die PDF-Abgabe wurde erfolgreich hochgeladen und freigegeben.
+pdf_version_upload_successful_removed#:#Die PDF-Abgabe wurde erfolgreich entfernt.
+pdf_version_upload_successful_no_auth#:#Die PDF-Abgabe wurde erfolgreich hochgeladen. Eine Freigabe steht noch aus.
+pdf_version_upload_failure#:#Bitte laden Sie eine PDF-Abgabe hoch.
+pdf_version_not_found#:#Es konnte keine PDF-Abgabe gefunden werden.
+download_written_pdf#:#Abgabe-Datei herunterladen
+download_written_pdf_for#:#Abgabe-Datei von %s herunterladen
+download_corrected_pdf#:#Korrektur-Datei herunterladen
+download_corrected_pdf_for#:#Korrektur-Datei von %s herunterladen
 tab_corrector_statistic#:#Notenstatistik
 statistic#:#Notenstatistik
 correction_count#:#Korrekturen
-correction_final#:#davon autorisiert
-essay_count#:#Klausuren
-essay_final#:#davon finalisiert
+correction_final#:#davon freigegeben
+essay_count#:#Abgaben
+essay_final#:#davon abgeschlossen
 essay_not_passed_quota#:#Durchfallquote
 essay_average_points#:#Durchschnittspunkte
 grade_distribution#:#Notenverteilung
 corrections_all#:#Alle Korrekturen
-essay_correction_finlized#:#Alle Klausuren
-corrector_assignment_change_file_success#:#Die Zuweisungen aus der Datei wurden vorgenommen.
+essay_correction_finlized#:#Alle Abgaben
+corrector_assignment_change_file_success#:#Die Korrekturzuweisungen aus der Datei wurden vorgenommen.
 corrector_assignment_change_file_failure#:#Die Datei konnte nicht korrekt ausgewertet werden. Es wurden keine Änderungen vorgenommen.
-assignment_excel#:#Korrektorzuweisung
+assignment_excel#:#Korrekturzuweisung
 assignment_excel_export#:#Export
 assignment_excel_import#:#Import
-assignment_excel_export_auth#:#nur Autorisiert
+assignment_excel_export_auth#:#nur Freigegebene
 resource_title#:#Titel zur Anzeige
 word_count#:#Wörter
-filter_authorized#:#Autorisiert
+filter_authorized#:#Freigegeben
 filter_words#:#Wörter
-filter_assigned#:#Korrektor(en) zugewiesen
+filter_assigned#:#Korrektur(en) zugewiesen
 filter_stitch#:#Stichentscheid notwendig
 filter_corrected#:#Korrigiert
 filter_attended#:#Teilgenommen
 filter_working_time_change#:#Zeitanpassung
-filter_pdf_version#:#PDF-Version
+filter_pdf_version#:#PDF-Abgabe
 filter_exclusion#:#Ausgeschlossen
 filter_words_more_than#:#mehr als %d
 filter_words_less_than#:#weniger als %d
 yes#:#Ja
 no#:#Nein
 fixed_inclusions#:#Details festlegen
-fixed_inclusions_info#:#Für die Aufgabe wird vorgegeben, welche Details aus der Korrektur in die Dokumentation einbezogen werden. Falls dieser Schalter nicht gesetzt ist, bleibt die Entscheidung den Korrekturkräften überlassen. Bereits autorisierte Korrekturen werden durch eine Änderung hier nicht verändert.
+fixed_inclusions_info#:#Für die Aufgabe wird vorgegeben, welche Details aus der Korrektur in die Dokumentation einbezogen werden. Falls dieser Schalter nicht gesetzt ist, bleibt die Entscheidung den Korrekturkräften überlassen. Bereits freigegebene Korrekturen werden durch eine Änderung hier nicht verändert.
 inclusions_label#:#Einbeziehen
 include_suffix_info#:#(i)
 include_suffix_relevant#:#(r)
-include_comments#:#Kommentare
-include_comment_ratings#:#"%s" und "%s"
-include_comment_points#:#Punkte zu Kommentaren
+include_comments#:#Bemerkungen
+include_comment_ratings#:#„%s” und „%s”
+include_comment_points#:#Punkte zu Bemerkungen
 include_criteria_points#:#Punkte im Bewertungsschema
 include_nothing#:#Keine Detail-Informationen
 include_not#:#nicht einbeziehen
 include_info#:#informativ
 include_relevant#:#bewertungsrelevant
 grade_level_cannot_edit_used#:#Notenstufen dürfen in laufenden Aufgaben nicht verändert werden.
-grade_level_cannot_edit_used_info#:#Die Aufgabe enthält bereits autorisierte Korrekturen. Sie können die Notenstufen erst wieder bearbeiten, wenn Sie alle Korrektur-Autorisierungen zurücknehmen.
+grade_level_cannot_edit_used_info#:#Die Aufgabe enthält bereits freigegebene Korrekturen. Sie können die Notenstufen erst wieder bearbeiten, wenn Sie alle Korrektur-Freigaben zurückziehen.
 comment_rating_negative#:#Negativbewertung
 comment_rating_negative_info#:#Anzeigename für negative Bewertungen in den Korrektur-Anmerkungen
 comment_rating_negative_default#:#Kardinal
@@ -525,26 +520,26 @@ comment_rating_positive_info#:#Anzeigename für positive Bewertungen in den Korr
 comment_rating_positive_default#:#Exzellent
 refresh_page#:# ➜ Seite aktualisieren
 change_text_to_pdf#:#Textabgabe in PDF-Abgabe umwandeln
-change_text_to_pdf_confirmation#:#Die folgenden Abgabe können von Text in PDF umgewandelt werden, um sie mit grafischen Markierungen zu korrigieren. Bei der Umwandlung gehen Textmarkierungen und Kommentare bereits begonnener Korrekturen verloren. Die Abgaben werden zur Korrektur autorisiert.
+change_text_to_pdf_confirmation#:#Die folgenden Abgabe können von Text eine PDF-Abgabe umgewandelt werden, um sie mit grafischen Markierungen zu korrigieren. Bei der Umwandlung gehen Markierungen und Bemerkungen bereits begonnener Korrekturen verloren. Die Abgaben werden zur Korrektur freigegeben.
 change_text_to_pdf_none_possible#:#Ihre Auswahl enthält keine Abgaben, die umgewandelt werden könnten.
 change_text_to_pdf_success#:#Die ausgewählten Textabgaben wurden in PDF-Abgaben umgewandelt.
 pdf_from_text#:#Konvertierte Textabgabe
-info_missing_correctors#:#Es gibt Abgaben zur Korrektur, aber Sie haben noch keine Korrektoren festgelegt. Wechseln Sie zu "Korrektoren", um Benutzer als Korrektoren hinzuzufügen. Anschließend können Sie diese den Abgaben zuweisen.
-info_missing_assignments#:#Es fehlen noch Korrektorenzuweisungen.
+info_missing_correctors#:#Es gibt Abgaben zur Korrektur, aber Sie haben noch keine Korrektoren zugewiesen. Wechseln Sie zu „Korrektoren”, um Benutzer als Korrektoren hinzuzufügen. Anschließend können Sie diese den Abgaben zuweisen.
+info_missing_assignments#:#Es fehlen noch Korrekturzuweisungen.
 processing_settings#:#Weiterverarbeitung
-processing_settings_info#:#Diese Einstellungen gelten für die Weiterverarbeitungen des geschriebenen Textes zur Korrektur. Da sie die Markierungsfunktion bei der Korrektur beeinflussen, können sie nicht mehr verändert werden, wenn es bereits Korrekuren mit Markierungen gibt.
+processing_settings_info#:#Diese Einstellungen gelten für die Weiterverarbeitungen des geschriebenen Textes zur Korrektur. Da sie die Markierungsfunktion bei der Korrektur beeinflussen, können sie nicht mehr verändert werden, wenn es bereits Korrekturen mit Markierungen gibt.
 add_paragraph_numbers#:#Absatznummern generieren
 add_paragraph_numbers_info#:#Alle Überschriften, Absätze und Aufzählungen erhalten am Rand eine Nummer.
 add_correction_margin#:#Korrekturrand
-add_correction_margin_info#:#Wird ein Text zur Korrektur in ein PDF umgewandelt, kann ein Korrekturrand hinzugefügt werden, um dort Markierungen wie Haken zu platzieren.
+add_correction_margin_info#:#Wird ein Text zur Korrektur in eine PDF-Abgabe umgewandelt, kann ein Korrekturrand hinzugefügt werden, um dort Markierungen wie Haken zu platzieren.
 left_correction_margin#:#Linker Rand (mm)
 right_correction_margin#:#Rechter Rand (mm)
 pdf_settings#:#PDF-Generierung
 pdf_settings_info#:#Diese Einstellungen gelten für PDF-Dateien, die zur Dokumentation der Abgabe und Korrektur generiert werden.
 pdf_add_header#:#Kopfzeile
-pdf_add_header_info#:#Fügt unter dem oberen Rand eine Kopfzeile mit den folgenden Informationen ein: Aufgabentitel, Name Teilnehmer/in, Bearbeitungszeit
+pdf_add_header_info#:#Fügt unter dem oberen Rand eine Kopfzeile mit den folgenden Informationen ein: Aufgabentitel, Name, Bearbeitungszeit
 pdf_add_footer#:#Fußzeile
-pdf_add_footer_info#:#Fügt über dem unteren Rand eine Fußzeile mit der Seitenummer des abgegebenen Texts ein
+pdf_add_footer_info#:#Fügt über dem unteren Rand eine Fußzeile mit der Seitennummer des abgegebenen Texts ein
 pdf_top_margin#:#Oberer Rand (mm)
 pdf_top_margin_info#:#Minimum:  5
 pdf_bottom_margin#:#Unterer Rand (mm)
@@ -556,24 +551,24 @@ pdf_right_margin_info#:#Minimum:  5
 unknown#:#unbekannt
 log_entry_note#:#Notiz von %s:
 import_missing_column#:#In der Datei fehlt eine Spalte mit dem Titel %s.
-import_line_user_not_found#:#Zeile %s: das Konto '%s' wurde nicht gefunden.
-import_line_writer_repeated#:#Zeile %s: das Konto '%s' wird wiederholt.
-import_line_corrector_repeated#:#Zeile %s: das Konto '%s' ist mehrfach zur Korrektur eingetragen.
-assignment_excel_import_info#:#Die Zuweisungen werden vom ersten Blatt einer Excel-Datei importiert, dessen erste Zeile die Spaltenbezeichnungen enthält. Sie muss die Bezeichnungen "Login" für den Teilnehmer, "Corrector 1" für den Korrektor und evtl. "Corrector 2" für einen Zweitkorrektor enthalten. In diesen Spalten werden  Login-Namen von Benutzerkonten eingetragen, die im System existieren müssen. Falls sie noch nicht als Teilnehmer oder Korrektoren eingetragen sind, wird das automatisch gemacht.
-add_all_course_tutors#:#Alle Tutoren hinzufügen
-confirm_add_all_course_tutors#:#Möchten Sie alle Kurstutoren als Korrektoren hinzufügen?
-tutors_added#:#Die Tutoren wurden hinzugefügt
+import_line_user_not_found#:#Zeile %s: das Konto „%s” wurde nicht gefunden.
+import_line_writer_repeated#:#Zeile %s: das Konto „%s” wird wiederholt.
+import_line_corrector_repeated#:#Zeile %s: das Konto „%s” ist mehrfach zur Korrektur eingetragen.
+assignment_excel_import_info#:#Die Korrekturzuweisungen werden vom ersten Blatt einer Excel-Datei importiert, dessen erste Zeile die Spaltenbezeichnungen enthält. Sie muss die Bezeichnungen „Login” für den Teilnehmer, „Corrector 1” für den Korrektor und evtl. „Corrector 2” für eine Zweitkorrektur enthalten. In diesen Spalten werden Login-Namen von Benutzerkonten eingetragen, die im System existieren müssen. Falls sie noch nicht als Teilnehmer oder Korrektor eingetragen sind, wird das automatisch gemacht.
+add_all_course_tutors#:#Kursbetreuung hinzufügen
+confirm_add_all_course_tutors#:#Möchten Sie die Kursbetreuung zur Korrektur hinzufügen?
+tutors_added#:#Die Kursbetreuung wurde zur Korrektur hinzugefügt
 constraint_error_not_minimum#:#%s ist kleiner als das Minimum %s.
 corrector_x_login#:#Korrektor %s Login
 corrector_x_name#:#Korrektor %s Name
 corrector_x_points#:#Korrektor %s Punkte
 website#:#Website
 correction_finalize_datetime#:#Korrektur-Ende
-anonymize_correctors#:#Korrektoren anonymisieren
-anonymize_correctors_info#:#Verbirgt die Namen der Korrektoren vor den Teilnehmern. Sie bleiben in der Korrektorenverwaltung, bei der Korrektur und beim Export der Korrekturen sichtbar.
+anonymize_correctors#:#Korrekturen anonymisieren
+anonymize_correctors_info#:#Verbirgt die Namen der Korrektoren vor den Teilnehmenden. Sie bleiben in der Korrekturverwaltung, bei der Korrektur und beim Export der Korrekturen sichtbar.
 corrector_x#:#Korrektor %s
 rating_settings#:#Bewertung
-show_resources#:#Material zur Bearbeitung
+show_resources#:#Hilfsmittel zur Bearbeitung
 mail_to_correctors#:#Mail an Korrektoren
 all_correctors#:#alle Korrektoren
 correctors_with_open_corrections#:#Korrektoren mit offenen Korrekturen
@@ -581,48 +576,48 @@ link_to_object#:#Link zur Aufgabe
 write_mail#:#Mail schreiben
 mail_for_selected_essays#:#Mail für ausgewählte Abgaben
 review_enabled#:#Einsichtnahme aktiviert
-review_info#:#Hier stellen Sie ein, ob und wann den Teilnehmern ein PDF mit ihrer korrigierten Abgabe zur Einsichtnahme auf ihrer Startseite angeboten werden soll.
+review_info#:#Hier stellen Sie ein, ob und wann den Teilnehmenden ein eine Datei im Format PDF mit ihrer korrigierten Abgabe zur Einsichtnahme auf ihrer Startseite zum Herunterladen angeboten werden soll.
 review_notification_enabled#:#Benachrichtigung aktiviert
-review_notification_info#:#Teilnehmer erhalten eine Mail-Benachrichtigung, wenn die Korrektur finalisiert und der Einsichtnahme-Zeitraum begonnen hat.
-mail_review_notification_subject#:#Die Einsichtnahme für die Klausur „%s“ hat begonnen
-mail_review_notification_body#:#Ihre Klausur wurde korrigiert und steht nun zur Einsichtnahme bereit.
-mail_permanent_link#:#Wählen Sie den folgenden Link, um auf den Klausurinhalt zuzugreifen:
+review_notification_info#:#Teilnehmende erhalten eine Mail-Benachrichtigung, wenn die Korrektur abgeschlossen ist und der Einsichtnahme-Zeitraum begonnen hat.
+mail_review_notification_subject#:#Die Einsichtnahme für die Abgaben „%s“ hat begonnen
+mail_review_notification_body#:#Ihre Abgabe wurde korrigiert und steht nun zur Einsichtnahme bereit.
+mail_permanent_link#:#Wählen Sie den folgenden Link, um auf den Inhalt der Abgabe zuzugreifen:
 mail_to_writer#:#Mail an Teilnehmer
-mail_to_writers#:#Mail an Teilnehmer
+mail_to_writers#:#Mail an Teilnehmende
 mail_to_writer_or_corrector#:#Mail an Teilnehmer/Korrektor(en)
-mail_to_writers_or_correctors#:#Mail an Teilnehmer/Korrektoren
+mail_to_writers_or_correctors#:#Mail an Teilnehmende/Korrektoren
 review_notification_cron_job#:#Benachrichtigung zur Einsichtnahme von Langtext-Aufgaben
-review_notification_cron_job_desc#:#Teilnehmer erhalten eine Mail-Benachrichtigung, wenn die Korrektur finalisiert, der Einsichtnahme-Zeitraum begonnen hat und Benachrichtigungen im Reiter Aufgabenstellungen > Organisation aktiviert sind.
+review_notification_cron_job_desc#:#Teilnehmende erhalten eine Mail-Benachrichtigung, wenn die Korrektur abgeschlossen ist, der Einsichtnahme-Zeitraum begonnen hat und Benachrichtigungen im Reiter Aufgabenstellungen > Organisation aktiviert sind.
 review_notification_text#:#Zusätzliche Informationen
-review_notification_text_info#:#Die Informationen werden dem Teilnehmer in der Mail-Benachrichtigung zur Einsichtsnahme angezeigt.
-total_statistic#:#Gesamtstatistik
-tab_writer_statistic#:#Teilnehmer Notenstatistik
-tab_corrector_admin_statistic#:#Korrektoren Notenstatistik
-min_finalized_corrections#:#Min. finalisierte Klausuren
-export_statistics_writer_file#:#Teilnehmer Notenstatistik
-export_statistics_corrector_file#:#Korrektoren Notenstatistik
+review_notification_text_info#:#Die Informationen werden den Teilnehmenden in der Mail-Benachrichtigung zur Einsichtnahme angezeigt.
+total_statistic#:#Gesamt-Notenstatistik
+tab_writer_statistic#:#Teilnehmer-Notenstatistik
+tab_corrector_admin_statistic#:#Korrkektor-Notenstatistik
+min_finalized_corrections#:#Min. abgeschlossene Korrekturen
+export_statistics_writer_file#:#Teilnehmer-Notenstatistik
+export_statistics_corrector_file#:#Korrkektor-Notenstatistik
 export_statistics#:#Notenstatistik exportieren
-grade_levels_empty_notice#:#Es sind noch keine Notenstufen festgelegt. Damit können Abgaben auch ohne Bewertung korrigiert werden. Wenn Sie Notenstufen hinzufügen, müssen die Korrekturen mit einer Punktebewertung abgeschlossen werden. Anhand der Notenstufen wird daraus die Note und das Bestehen der Aufgabe ermittelt.
+grade_levels_empty_notice#:#Es sind noch keine Notenstufen festgelegt. Damit können Abgaben auch ohne Benotung korrigiert werden. Wenn Sie Notenstufen hinzufügen, müssen die Korrekturen mit einer Punkten abgeschlossen werden. Anhand der Notenstufen wird daraus die Note und das Bestehen der Aufgabe ermittelt.
 tab_correction_report#:#Korrekturbericht
 correction_report#:#Korrekturbericht
 correction_reports#:#Korrekturberichte
-correction_report_info#:#Ein Korrekturbericht, den Sie hier eingeben, wird zusammen mit den Berichten anderer Korrekturkräfte allen Teilnehmern anonymisiert zum Download angeboten. Bitte vermeiden Sie namentliche Erwähnungen.
+correction_report_info#:#Ein Korrekturbericht, den Sie hier eingeben, wird zusammen mit den Berichten anderer Korrekturkräfte allen Teilnehmenden anonymisiert zum Herunterladen angeboten. Bitte vermeiden Sie namentliche Erwähnungen.
 correction_report_saved#:#Der Korrekturbericht wurde gespeichert.
 download_correction_reports#:#Korrekturberichte herunterladen
 reports_enabled#:#Korrekturberichte
-reports_enabled_info#:#Korrekturkräfte können zusammenfassende Berichte zur Korrektur der Aufgabe eingeben. Diese werden den Teilnehmern gesammelt anonym als PDF-Datei zur Verfügung gestellt.
+reports_enabled_info#:#Korrekturkräfte können zusammenfassende Berichte zur Korrektur der Aufgabe eingeben. Diese werden den Teilnehmenden gesammelt anonym als PDF-Datei zur Verfügung gestellt.
 reports_available_start#:#Verfügbar ab
-reports_available_start_info#:#Datum, ab dem die Korrekturberichte den Teilehmern zum Download bereitgestellt stehen. Wenn leer, werden verfügbare Berichte sofort angeboten.
-writer_statistic#:#Teilnehmerstatistik
+reports_available_start_info#:#Datum, ab dem die Korrekturberichte den Teilnehmenden zum Herunterladen angeboten werden. Wenn leer, werden verfügbare Berichte sofort angeboten.
+writer_statistic#:#Teilnehmer-Notenstatistik
 statistic_passed#:#bestanden
 statistic_not_passed#:#nicht bestanden
 statistic_not_attended#:#nicht abgegeben
 statistic_context_filter#:#Aufgaben
-statistic_grade_level_inconsistency_info#:#Die Notenstufen der ausgewählten Aufgaben variieren. Einige Teile der angezeigten Statistiken könnten daher weniger aussagekräftig sein.
+statistic_grade_level_inconsistency_info#:#Die Notenstufen der ausgewählten Aufgaben variieren. Einige Teile der angezeigten Notenstatistiken könnten daher weniger aussagekräftig sein.
 result_available_review_error#:#Ergebnis zur Einsichtnahme kann nur ausgewählt werden, wenn die Einsichtnahme aktiviert ist.
 writer_statistics_enabled#:#Notenstatistik verfügbar
-writer_statistics_info#:#Sobald die Ergebnisse angezeigt werden, wird den Teilnehmern auch eine Notenstatistik angezeigt in der die Teilnehmernote im Zusammenhang mit dieser Klausur und weiteren Klausuren im gleichen Klausurkontext (dieser Kurs/Gruppe/Ordner/Kategorie) verglichen werden können.
-own_assessments#:#Eigene Klausuren
+writer_statistics_info#:#Sobald die Ergebnisse angezeigt werden, wird den Teilnehmenden auch eine Notenstatistik angezeigt in der die Note im Zusammenhang mit dieser Abgabe und weiteren Abgaben im gleichen ILIAS-Bereich (dieser Kurs/Gruppe/Ordner/Kategorie) verglichen werden können.
+own_assessments#:#Eigene Abgaben
 final_result#:#Eigenes Ergebnis
 tab_statistic#:#Notenstatistik
 check_all#:#Alles auswählen
@@ -630,33 +625,33 @@ all_checked#:#Alles ausgewählt
 count#:#Anzahl
 task_type#:#Abgabeform
 task_type_essay_editor#:#Online-Editor
-task_type_essay_editor_info#:#Die Teilnehmer schreiben ihren Text in einem Online-Editor. Unter "Technik" kann eingestellt werden, welche Möglichkeiten sie dort haben. Einzelne handschriftliche oder anderweitig erstellt Abgaben können in der Teilnehmerverwaltung als PDF-Dateien hochgeladen werden. Ihre Korrektur unterscheidet sich nur in den Markierungs-Optionen.
-task_type_pdf_upload#:#PDF-Upload
-task_type_pdf_upload_info#:#Die Texte werden von allen Teilnehmern einheitlich als PDF-Dateien zur Abgabe hochgeladen. Während der Bearbeitungszeit kann eine hochgeladene Datei ersetzt werden. Die Abgabe zur Korrektur muss bestätigt werden. Danach ist keine Änderung mehr möglich.
-writer_upload_pdf#:#PDF-Datei hochladen
-writer_replace_pdf#:#PDF-Datei ersetzen
+task_type_essay_editor_info#:#Die Teilnehmenden schreiben ihren Text in einem Online-Editor. Unter „Technik” kann eingestellt werden, welche Möglichkeiten sie dort haben. Einzelne handschriftliche oder anderweitig erstellte Abgaben können in der Teilnahmeverwaltung als PDF-Abgabe hochgeladen werden. Ihre Korrektur unterscheidet sich nur in den Markierungs-Optionen.
+task_type_pdf_upload#:#PDF-Abgabe
+task_type_pdf_upload_info#:#Die Texte werden von allen Teilnehmenden einheitlich als PDF-Abgabe hochgeladen. Während der Bearbeitungszeit kann eine hochgeladene Datei ersetzt werden. Die Abgabe zur Korrektur muss bestätigt werden. Danach ist keine Änderung mehr möglich.
+writer_upload_pdf#:#PDF-Abgabe hochladen
+writer_replace_pdf#:#PDF-Abgabe ersetzen
 writer_review_pdf#:#Vorschau zur Abgabe
-writer_authorize_pdf#:#Zur Korrektur abgeben
-writer_authorize_pdf_info#:#Bitte überprüfen Sie, ob Sie die Datei in dieser Form zur Bewertung abgeben möchten. Nach der Abgabe ist keine weitere Bearbeitung mehr möglich!
-writer_upload_pdf_bt_processing#:#Verarbeite PDF-Upload von %s
-writer_upload_pdf_bt_success#:#PDF-Upload erfolgreich verarbeitet.
-writer_upload_pdf_bt_failure#:#Fehler beim Verarbeiten des PDF-Uploads.
+writer_authorize_pdf#:#Abgabe zur Korrektur
+writer_authorize_pdf_info#:#Bitte überprüfen Sie, ob Sie die Datei in dieser Form zur Korrektur abgeben möchten. Nach der Abgabe ist keine weitere Bearbeitung mehr möglich!
+writer_upload_pdf_bt_processing#:#Verarbeite PDF-Abgabe von %s
+writer_upload_pdf_bt_success#:#PDF-Abgabe erfolgreich verarbeitet.
+writer_upload_pdf_bt_failure#:#Fehler beim Verarbeiten der PDF-Abgabe.
 existing_file#:#Bestehende Datei
 new_file#:#Neue Datei
 upload_file#:#Datei hochladen
 replace_file#:#Datei ersetzen
 delete_file#:#Datei löschen
-writer_upload_pdf_missing#:#Bitte laden Sie eine PDF-Datei hoch!
-writer_upload_pdf_deleted#:#Die PDF-Datei wurde erfolgreich entfernt.
+writer_upload_pdf_missing#:#Bitte laden Sie eine PDF-Abgabe hoch!
+writer_upload_pdf_deleted#:#Die PDF-Abgabe wurde erfolgreich entfernt.
 copy_grade_level#:#Notenstufen kopieren
 copy_grade_level_successful#:#Notenstufe erfolgreich kopiert.
 copy_grade_level_info#:#Beim Kopieren der Notenstufen werden die bestehenden Notenstufen ersetzt.
 path_to_ghostscript#:#Pfad zu Ghostscript
-path_to_ghostscript_info#:#Ghostscript wird benötigt, um hochgeladene PDF-Dateien zu verarbeiten. Konfigurieren Sie hier den Pfad zum direkten Aufruf von ghostscript auf Ihrem Server. Als Fallback wird ein für die ILIAS-Vorschau konfigurierter Pfad oder '/usr/bin/gs' als Standard verwendet. Falls der Pfad nicht ausführbar ist, wird Ghostscript über die PHP-Erweiterung Imagick verwendet. Das kann bei großen PDF-Dateien zu Ressourcen-Problemen führen.
+path_to_ghostscript_info#:#Ghostscript wird benötigt, um hochgeladene PDF-Dateien zu verarbeiten. Konfigurieren Sie hier den Pfad zum direkten Aufruf von ghostscript auf Ihrem Server. Als Fallback wird ein für die ILIAS-Vorschau konfigurierter Pfad oder „/usr/bin/gs” als Standard verwendet. Falls der Pfad nicht ausführbar ist, wird Ghostscript über die PHP-Erweiterung Imagick verwendet. Das kann bei großen PDF-Dateien zu Ressourcen-Problemen führen.
 ghostscript_used#:#Aktuell verwendet: %s
 ghostscript_imagick#:#PHP-Erweiterung Imagick
 writing_limit#:#Zeitbegrenzung
-writing_limit_info#:#Begrenzt die Dauer zur Bearbeitung ab dem Betätigen des Schalters "Bearbeitung starten". Nach dieser Dauer werden neue Eingaben nicht mehr akzeptiert, vorher getätigte können aber noch übertragen und autorisiert werden.
+writing_limit_info#:#Begrenzt die Dauer zur Bearbeitung ab dem Betätigen des Schalters „Bearbeitung starten”. Nach dieser Dauer werden neue Eingaben nicht mehr akzeptiert, vorher getätigte können aber noch übertragen und freigegeben werden.
 writing_limit_days#:#Tage
 writing_limit_hours_minutes#:#Stunden, Minuten
 label_general#:#Allgemein:
@@ -678,9 +673,9 @@ x_working_times_deleted#:#%s Anpassungen der Bearbeitungszeit wurden entfernt.
 task_info#:#Hinweise zur Aufgabe
 criterion_type#:#Typ
 criterion_type_general#:#allgemein (Kopfnote)
-criterion_type_general_info#:#Das Kriterium kann pro abgegebenem Text einmalig bewertet werden. Die Bewertung wird unabhängig von Textstellen eingegeben. Sie darf die maximalen Punkte nicht überschreiten.
+criterion_type_general_info#:#Das Bewertungskriterium kann pro Abgabe einmalig bewertet werden. Die Bewertung wird unabhängig von Textstellen eingegeben. Sie darf die maximalen Punkte nicht überschreiten.
 criterion_type_comment#:#zu Anmerkungen
-criterion_type_comment_info#:#Das Kriterium wird bei der Anmerkung zu einer Textstelle bewertet. Es kann an mehreren Stellen bewertet werden. Die Summe der Punkte aller bewerteten Stellen darf die maximalen Punkte nicht überschreiten.
+criterion_type_comment_info#:#Das Bewertungskriterium wird bei der Anmerkung zu einer Textstelle bewertet. Es kann an mehreren Stellen bewertet werden. Die Summe der Punkte aller bewerteten Stellen darf die maximalen Punkte nicht überschreiten.
 corrector_single_assignments#:#Korrekturen
 corrector_first_assignments#:#Erstkorrekturen
 corrector_second_assignments#:#Zweitkorrekturen
@@ -690,10 +685,10 @@ corrector_no_assignments#:#Keine zugewiesen
 corrector_assignments#:#Korrekturen
 no_correctors#:#Keine Korrektoren
 copy_from_xlas#:#Korrektoren aus Langtext-Aufgabe
-copy_criteria#:#Kriterien kopieren
-copy_criteria_info#:#Beim Kopieren der Kriterien werden die bestehenden Kriterien ersetzt.
+copy_criteria#:#Bewertungskriterien kopieren
+copy_criteria_info#:#Beim Kopieren der Bewertungskriterien werden die bestehenden Bewertungskriterien ersetzt.
 not_a_weburl#:#Keine Web URL beginnend mit http(s)://
 select_x#:#%s auswählen
 actions_for#:#Aktionen für %s
-delete_resource_confirmation#:#Möchten Sie die folgenden Materialien löschen?
+delete_resource_confirmation#:#Möchten Sie die folgenden Hilfsmittel löschen?
 point_graph#:#Punkte

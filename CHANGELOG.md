@@ -4,6 +4,7 @@
 
 Plugin:
 - Allow zero maximum points in correction settings
+- Organisation setting to forward writer after finishing the assignment an url
 
 Writer web app:
 - Support marking and comments for instructions and resources
@@ -13,6 +14,7 @@ Bug fixes:
 - fix version conflict with ILIAS logger
 - fix deletion of grades
 - fix export of grade statistics (Mantis #45080)
+- fix the calculation of essays that have not been passed in the grade statistics for writers when viewing multiple assessments
 
 ## Version 3.6 (2025-04-01)
 

@@ -8,6 +8,7 @@ use Edutiek\AssessmentService\Assessment\Api\ForClients as AssessmentApi;
 use Edutiek\AssessmentService\Assessment\TaskInterfaces\Manager as TaskManagerService;
 use Edutiek\AssessmentService\Assessment\TaskInterfaces\TaskInfo;
 use Edutiek\AssessmentService\EssayTask\Api\ForClients as EssayTaskApi;
+use Edutiek\AssessmentService\EssayTask\Data\HeadlineScheme;
 use Edutiek\AssessmentService\System\Api\ForClients as SystemApi;
 use Edutiek\AssessmentService\Task\Api\ForClients as TaskApi;
 use ilCtrl;
@@ -211,16 +212,16 @@ abstract class BaseGUI
         $headline_class = "";
         if (!empty($settings = $this->essay_task_api->writingSettings()->get())) {
             switch ($settings->getHeadlineScheme()) {
-                case EditorSettings::HEADLINE_SCHEME_SINGLE:
+                case HeadlineScheme::SINGLE:
                     $headline_class = "headlines-single";
                     break;
-                case EditorSettings::HEADLINE_SCHEME_THREE:
+                case HeadlineScheme::THREE:
                     $headline_class = "headlines-three";
                     break;
-                case EditorSettings::HEADLINE_SCHEME_EDUTIEK:
+                case HeadlineScheme::EDUTIEK:
                     $headline_class = "headlines-edutiek";
                     break;
-                case EditorSettings::HEADLINE_SCHEME_NUMERIC:
+                case HeadlineScheme::NUMERIC:
                     $headline_class = "headlines-numeric";
                     break;
             }
@@ -237,16 +238,16 @@ abstract class BaseGUI
 
         if (!empty($settings = $settings = $this->essay_task_api->writingSettings()->get())) {
             switch ($settings->getHeadlineScheme()) {
-                case EditorSettings::HEADLINE_SCHEME_SINGLE:
+                case HeadlineScheme::SINGLE:
                     $this->tpl->addCss($this->plugin->getDirectory() . '/templates/css/headlines-single.css');
                     break;
-                case EditorSettings::HEADLINE_SCHEME_THREE:
+                case HeadlineScheme::THREE:
                     $this->tpl->addCss($this->plugin->getDirectory() . '/templates/css/headlines-three.css');
                     break;
-                case EditorSettings::HEADLINE_SCHEME_EDUTIEK:
+                case HeadlineScheme::EDUTIEK:
                     $this->tpl->addCss($this->plugin->getDirectory() . '/templates/css/headlines-edutiek.css');
                     break;
-                case EditorSettings::HEADLINE_SCHEME_NUMERIC:
+                case HeadlineScheme::NUMERIC:
                     $this->tpl->addCss($this->plugin->getDirectory() . '/templates/css/headlines-numeric.css');
                     break;
             }

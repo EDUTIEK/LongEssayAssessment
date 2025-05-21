@@ -4,6 +4,7 @@
 
 use Edutiek\AssessmentService\Assessment\Api\ForClients as Assessment;
 use Edutiek\AssessmentService\Assessment\Permissions;
+use ILIAS\Plugin\LongEssayAssessment\Settings\CorrectionSettingsGUI;
 use ILIAS\Plugin\LongEssayAssessment\Settings\OrgaSettingsGUI;
 use ILIAS\Plugin\LongEssayAssessment\Settings\InstructionSettingsGUI;
 use ilGlobalTemplateInterface as Gti;
@@ -157,12 +158,12 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                         $this->ctrl->forwardCommand(new TechnicalSettingsGUI($this->object));
                     }
                     break;
-                    //                case 'ilias\plugin\longessayassessment\task\correctionsettingsgui':
-                    //                    if ($this->permissions->canEditTechnicalSettings()) {
-                    //                        $this->activateTab('tab_task', 'tab_correction_settings');
-                    //                        $this->ctrl->forwardCommand(new \ILIAS\Plugin\LongEssayAssessment\Task\CorrectionSettingsGUI($this));
-                    //                    }
-                    //                    break;
+                case strtolower(CorrectionSettingsGUI::class):
+                    if ($this->permissions->canEditTechnicalSettings()) {
+                        $this->activateTab('tab_assessment', 'tab_correction_settings');
+                        $this->ctrl->forwardCommand(new CorrectionSettingsGUI($this->object));
+                    }
+                    break;
                     //                case 'ilias\plugin\longessayassessment\task\criteriaadmingui':
                     //                    if ($this->permissions->canEditContentSettings()) {
                     //                        $this->activateTab('tab_task', 'tab_criteria');
@@ -419,13 +420,13 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                 'url' => $this->ctrl->getLinkTargetByClass(TechnicalSettingsGUI::class)
             ];
         }
-        //        if ($this->permissions->canEditTechnicalSettings()) {
-        //            $tabs[] = [
-        //                'id' => 'tab_correction_settings',
-        //                'txt' => $this->plugin->txt('tab_correction_settings'),
-        //                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessayassessment\task\correctionsettingsgui')
-        //            ];
-        //        }
+        if ($this->permissions->canEditTechnicalSettings()) {
+            $tabs[] = [
+                'id' => 'tab_correction_settings',
+                'txt' => $this->plugin->txt('tab_correction_settings'),
+                'url' => $this->ctrl->getLinkTargetByClass(CorrectionSettingsGUI::class)
+            ];
+        }
         //
         //        if ($this->permissions->canEditContentSettings()) {
         //            $tabs[] = [

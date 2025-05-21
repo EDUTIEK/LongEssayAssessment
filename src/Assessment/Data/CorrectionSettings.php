@@ -21,6 +21,7 @@ declare(strict_types=1);
 namespace ILIAS\Plugin\LongEssayAssessment\Assessment\Data;
 
 use DateTimeImmutable;
+use Edutiek\AssessmentService\Assessment\Data\AssignMode;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Key;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Table;
 
@@ -29,7 +30,7 @@ class CorrectionSettings extends \Edutiek\AssessmentService\Assessment\Data\Corr
 {
     #[Key]
     private int $ass_id = 0;
-    private int $required_correctors = 0;
+    private int $required_correctors = 1;
     private float $max_auto_distance = 0;
     private bool $mutual_visibility = false;
     private string $assign_mode = '';
@@ -75,13 +76,13 @@ class CorrectionSettings extends \Edutiek\AssessmentService\Assessment\Data\Corr
         $this->mutual_visibility = $mutual_visibility;
         return $this;
     }
-    public function getAssignMode(): string
+    public function getAssignMode(): AssignMode
     {
-        return $this->assign_mode;
+        return AssignMode::tryFrom($this->assign_mode) ?? AssignMode::RANDOM_EQUAL;
     }
-    public function setAssignMode(string $assign_mode): self
+    public function setAssignMode(AssignMode $assign_mode): self
     {
-        $this->assign_mode = $assign_mode;
+        $this->assign_mode = $assign_mode->value;
         return $this;
     }
     public function getStitchWhenDistance(): bool

@@ -20,6 +20,8 @@ declare(strict_types=1);
 
 namespace ILIAS\Plugin\LongEssayAssessment\EssayTask\Data;
 
+use Edutiek\AssessmentService\EssayTask\Data\CriteriaMode;
+use Edutiek\AssessmentService\EssayTask\Data\SummaryInclusion;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Key;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Table;
 
@@ -46,13 +48,13 @@ class CorrectionSettings extends \Edutiek\AssessmentService\EssayTask\Data\Corre
         $this->ass_id = $ass_id;
         return $this;
     }
-    public function getCriteriaMode(): string
+    public function getCriteriaMode(): CriteriaMode
     {
-        return $this->criteria_mode;
+        return CriteriaMode::tryFrom($this->criteria_mode) ?? CriteriaMode::NONE;
     }
-    public function setCriteriaMode(string $criteria_mode): self
+    public function setCriteriaMode(CriteriaMode $criteria_mode): self
     {
-        $this->criteria_mode = $criteria_mode;
+        $this->criteria_mode = $criteria_mode->value;
         return $this;
     }
     public function getPositiveRating(): string
@@ -73,49 +75,49 @@ class CorrectionSettings extends \Edutiek\AssessmentService\EssayTask\Data\Corre
         $this->negative_rating = $negative_rating;
         return $this;
     }
-    public function getFixedInclusions(): int
+    public function getFixedInclusions(): bool
     {
-        return $this->fixed_inclusions;
+        return (bool) $this->fixed_inclusions;
     }
-    public function setFixedInclusions(int $fixed_inclusions): self
+    public function setFixedInclusions(bool $fixed_inclusions): self
     {
-        $this->fixed_inclusions = $fixed_inclusions;
+        $this->fixed_inclusions = (int) $fixed_inclusions;
         return $this;
     }
-    public function getIncludeComments(): int
+    public function getIncludeComments(): SummaryInclusion
     {
-        return $this->include_comments;
+        return SummaryInclusion::tryFrom($this->include_comments) ?? SummaryInclusion::INCLUDE_NOT;
     }
-    public function setIncludeComments(int $include_comments): self
+    public function setIncludeComments(SummaryInclusion $include_comments): self
     {
-        $this->include_comments = $include_comments;
+        $this->include_comments = $include_comments->value;
         return $this;
     }
-    public function getIncludeCommentRatings(): int
+    public function getIncludeCommentRatings(): SummaryInclusion
     {
-        return $this->include_comment_ratings;
+        return SummaryInclusion::tryFrom($this->include_comment_ratings) ?? SummaryInclusion::INCLUDE_NOT;
     }
-    public function setIncludeCommentRatings(int $include_comment_ratings): self
+    public function setIncludeCommentRatings(SummaryInclusion $include_comment_ratings): self
     {
-        $this->include_comment_ratings = $include_comment_ratings;
+        $this->include_comment_ratings = $include_comment_ratings->value;
         return $this;
     }
-    public function getIncludeCommentPoints(): int
+    public function getIncludeCommentPoints(): SummaryInclusion
     {
-        return $this->include_comment_points;
+        return SummaryInclusion::tryFrom($this->include_comment_points) ?? SummaryInclusion::INCLUDE_NOT;
     }
-    public function setIncludeCommentPoints(int $include_comment_points): self
+    public function setIncludeCommentPoints(SummaryInclusion $include_comment_points): self
     {
-        $this->include_comment_points = $include_comment_points;
+        $this->include_comment_points = $include_comment_points->value;
         return $this;
     }
-    public function getIncludeCriteriaPoints(): int
+    public function getIncludeCriteriaPoints(): SummaryInclusion
     {
-        return $this->include_criteria_points;
+        return SummaryInclusion::tryFrom($this->include_criteria_points) ?? SummaryInclusion::INCLUDE_NOT;
     }
-    public function setIncludeCriteriaPoints(int $include_criteria_points): self
+    public function setIncludeCriteriaPoints(SummaryInclusion $include_criteria_points): self
     {
-        $this->include_criteria_points = $include_criteria_points;
+        $this->include_criteria_points = $include_criteria_points->value;
         return $this;
     }
 }

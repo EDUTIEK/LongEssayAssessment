@@ -92,9 +92,10 @@ class InputRenderer extends \ILIAS\UI\Implementation\Component\Input\Field\Rende
         $this->applyName($component, $tpl);
         $this->applyValue($component, $tpl, $this->escapeSpecialChars());
         $this->applyStep($component, $tpl);
-        # $this->maybeDisable($component, $tpl);
-        $id = $this->bindJSandApplyId($component, $tpl);
-        return $this->wrapInFormContext($component, $tpl->get(), $id);
+
+        $label_id = $this->createId();
+        $tpl->setVariable('ID', $label_id);
+        return $this->wrapInFormContext($component, $component->getLabel(), $tpl->get(), $label_id);
     }
 
     protected function renderBlankForm(BlankForm $form, RendererInterface $default_renderer)

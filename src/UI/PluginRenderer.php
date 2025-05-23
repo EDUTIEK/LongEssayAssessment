@@ -18,6 +18,7 @@ use ILIAS\Plugin\LongEssayAssessment\UI\Item\ItemRenderer;
 use ILIAS\Plugin\LongEssayAssessment\UI\Viewer\ViewerRenderer;
 use ILIAS\Plugin\LongEssayAssessment\UI\Input\InputRenderer;
 use ILIAS\Plugin\LongEssayAssessment\UI\Statistic\StatisticRenderer;
+use ILIAS\Plugin\LongEssayAssessment\UI\Table\Table;
 
 //inherit from DecoratedRender to align your renderer with other potential renders in ILIAS to allow manipulations from
 //different sources to be chained behind each other.
@@ -61,6 +62,8 @@ class PluginRenderer extends DecoratedRenderer
                 return $this->statistic_renderer->render($component, $root);
             case ($component instanceof PdfViewer):
                 return $this->viewer_render->render($component, $root);
+            case ($component instanceof Table):
+                return $root->render($component->getComponents());
         }
 
         //skip components that are not important to you with returning null

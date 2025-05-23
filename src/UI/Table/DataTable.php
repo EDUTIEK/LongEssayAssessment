@@ -19,6 +19,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use ILIAS\Plugin\LongEssayAssessment\UI as LocalUI;
 use ILIAS\Refinery;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\Helper\SmallView;
+use ILIAS\UI\Component\Table\OrderingBinding;
 
 class DataTable extends Table implements DataRetrieval, DataTableParent
 {
@@ -68,12 +69,12 @@ class DataTable extends Table implements DataRetrieval, DataTableParent
 
         $small_view = $this->smallView($this->getAdditionalParameter());
 
-        if(!empty($this->actions) && !$small_view && $this->isActionEnabled()) {
+        if (!empty($this->actions) && !$small_view && $this->isActionEnabled()) {
             $actions = $this->getDataTableActions();
             $table = $table->withActions($actions);
         }
 
-        if(!empty($this->getFilterInputActivation())) {
+        if (!empty($this->getFilterInputActivation())) {
             $filter_gui = $this->getFilter();
             $filter_data = $this->ui_service->filter()->getData($filter_gui) ?? [];
             $table = $table->withFilter($filter_data);
@@ -92,7 +93,7 @@ class DataTable extends Table implements DataRetrieval, DataTableParent
     ): \Generator {
 
         $content = function (mixed $item, bool $orderable = false) : mixed {
-            if(is_callable($item)) {
+            if (is_callable($item)) {
                 return $item($orderable);
             }
             return $item;
@@ -106,7 +107,7 @@ class DataTable extends Table implements DataRetrieval, DataTableParent
             iterator_to_array($this->getTableItems(null, $filter_data))
         );
 
-        if($order) {
+        if ($order) {
             list($order_field, $order_direction) = $order->join([], fn ($ret, $key, $value) => [$key, $value]);
             usort($data, fn ($a, $b) => $content($a["mapping"][$order_field], true) <=> $content($b["mapping"][$order_field], true));
             if ($order_direction === 'DESC') {
@@ -120,7 +121,7 @@ class DataTable extends Table implements DataRetrieval, DataTableParent
 
         foreach ($data as list("item" => $item, "mapping" => $mapping)) {
             $row = $row_builder->buildDataRow($item->getId(), array_map(fn (mixed $item) => $content($item), $mapping));
-            foreach(array_filter($this->actions, fn (Action\Action $x) => in_array($x->type(), [Action\Type::Standard, Action\Type::Single])) as $action) {
+            foreach (array_filter($this->actions, fn (Action\Action $x) => in_array($x->type(), [Action\Type::Standard, Action\Type::Single])) as $action) {
                 $row = $row->withDisabledAction($action->name(), !$action->enabled($item));
             }
             yield $row;
@@ -134,7 +135,7 @@ class DataTable extends Table implements DataRetrieval, DataTableParent
         URLBuilderToken $row_id_parameter
     ): UIAction {
         $tf = $this->ui_factory->table()->action();
-        switch($type) {
+        switch ($type) {
             case Action\Type::Single:
                 return $tf->single($label, $url_builder, $row_id_parameter);
             case Action\Type::Multi:
@@ -154,7 +155,7 @@ class DataTable extends Table implements DataRetrieval, DataTableParent
         $tf = $this->ui_factory->table()->action();
 
         foreach ($this->actions as $action) {
-            if($action->type() == Action\Type::Global) {
+            if ($action->type() == Action\Type::Global) {
                 continue;
             }
             switch (true) {

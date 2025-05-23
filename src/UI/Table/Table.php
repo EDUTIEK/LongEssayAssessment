@@ -22,7 +22,7 @@ use Generator;
 use ILIAS\UI\Implementation\Component\Signal;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\Action\Type;
 
-abstract class Table implements TableParent, FilterParent
+abstract class Table implements TableParent, FilterParent, Component\Component
 {
     private string $title  = "";
     private ?Filter\Standard $filter = null;
@@ -429,4 +429,10 @@ abstract class Table implements TableParent, FilterParent
     {
         return $this->action_enabled;
     }
+
+    public function getCanonicalName(): string
+    {
+        return "XLAS_Table";
+    }
+
 }

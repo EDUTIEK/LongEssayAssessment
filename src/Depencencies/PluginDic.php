@@ -47,6 +47,7 @@ use ILIAS\Plugin\LongEssayAssessment\UI\UIService;
 use ILIAS\Plugin\LongEssayAssessment\UI\Viewer\ViewerFactory;
 use ilLongEssayAssessmentPlugin;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\Factory as TableFactory;
+use ILIAS\Plugin\LongEssayAssessment\UI\Tree\TreeFactory;
 
 /**
  * Local Dependency Injection Container of the Plugin
@@ -125,6 +126,17 @@ class PluginDic
                     $dic->http()->wrapper()->query(),
                     $dic->http()->request(),
                     $dic->language()
+                ),
+                new TreeFactory(
+                    $dic["ui.factory.tree"],
+                    $dic["ui.factory.symbol.icon"],
+                    $dic->repositoryTree(),
+                    $dic->access(),
+                    $dic->language(),
+                    $dic->http(),
+                    $dic->refinery(),
+                    $dic->ui()->factory(),
+                    $dic->ui()->renderer()
                 )
             );
         };

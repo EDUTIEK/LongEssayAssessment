@@ -11,6 +11,7 @@ use ILIAS\Plugin\LongEssayAssessment\UI\Item\ItemFactory;
 use ILIAS\Plugin\LongEssayAssessment\UI\Viewer\ViewerFactory;
 use ILIAS\Plugin\LongEssayAssessment\UI\Statistic\StatisticFactory;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\Factory as TableFactory;
+use ILIAS\Plugin\LongEssayAssessment\UI\Tree\TreeFactory;
 
 /**
  * Class Factory
@@ -19,27 +20,16 @@ use ILIAS\Plugin\LongEssayAssessment\UI\Table\Factory as TableFactory;
  */
 class Factory
 {
-    private InputFactory $field_factory;
-    private IconFactory $icon_factory;
-    private ItemFactory $item_factory;
-    private StatisticFactory $statistic_factory;
-    private ViewerFactory $viewer_factory;
-    private TableFactory $table_factory;
-
     public function __construct(
-        InputFactory $field_factory,
-        IconFactory  $icon_factory,
-        ItemFactory  $item_factory,
-        StatisticFactory $statistic_factory,
-        ViewerFactory $viewer_factory,
-        TableFactory $table_factory
+        private InputFactory $field_factory,
+        private IconFactory  $icon_factory,
+        private ItemFactory  $item_factory,
+        private StatisticFactory $statistic_factory,
+        private ViewerFactory $viewer_factory,
+        private TableFactory $table_factory,
+        private TreeFactory $tree_factory
     ) {
-        $this->field_factory = $field_factory;
-        $this->icon_factory = $icon_factory;
-        $this->item_factory = $item_factory;
-        $this->statistic_factory = $statistic_factory;
-        $this->viewer_factory = $viewer_factory;
-        $this->table_factory = $table_factory;
+
     }
 
 
@@ -71,5 +61,10 @@ class Factory
     public function table(): TableFactory
     {
         return $this->table_factory;
+    }
+
+    public function tree(): TreeFactory
+    {
+        return $this->tree_factory;
     }
 }

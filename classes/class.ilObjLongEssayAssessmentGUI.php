@@ -12,6 +12,7 @@ use ILIAS\Plugin\LongEssayAssessment\Settings\ResourcesAdminGUI;
 use ILIAS\Plugin\LongEssayAssessment\Settings\SolutionSettingsGUI;
 use ILIAS\Plugin\LongEssayAssessment\Settings\TechnicalSettingsGUI;
 use ILIAS\UI\Component\Input\Container\Form\Standard as StandardForm;
+use ILIAS\Plugin\LongEssayAssessment\Settings\GradesAdminGUI;
 
 /**
  * Plugin GUI Class
@@ -146,6 +147,13 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                         $this->ctrl->forwardCommand(new SolutionSettingsGUI($this->object));
                     }
                     break;
+                case strtolower(GradesAdminGUI::class):
+                    if ($this->permissions->canEditGrades()) {
+                        $this->activateTab('tab_assessment', 'tab_grades');
+                        $this->ctrl->forwardCommand(new GradesAdminGUI($this->object));
+                    }
+                    break;
+
                 case strtolower(ResourcesAdminGUI::class):
                     if ($this->permissions->canEditContentSettings()) {
                         $this->activateTab('tab_assessment', 'tab_resources');
@@ -427,6 +435,14 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                 'url' => $this->ctrl->getLinkTargetByClass(CorrectionSettingsGUI::class)
             ];
         }
+        if ($this->permissions->canEditGrades()) {
+            $tabs[] = [
+                'id' => 'tab_grades',
+                'txt' => $this->plugin->txt('tab_grades'),
+                'url' => $this->ctrl->getLinkTargetByClass(GradesAdminGUI::class)
+            ];
+        }
+
         //
         //        if ($this->permissions->canEditContentSettings()) {
         //            $tabs[] = [

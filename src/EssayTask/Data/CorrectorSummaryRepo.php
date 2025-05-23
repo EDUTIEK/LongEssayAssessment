@@ -44,6 +44,24 @@ class CorrectorSummaryRepo implements \Edutiek\AssessmentService\EssayTask\Data\
         return null !== $this->repo->queryOneBy(['essay_id' => $essay_id]);
     }
 
+    public function hasAuthorizedByAssId(int $ass_id, ?int $corrector_id = null): bool
+    {
+        $where = ['ass_id' => $ass_id];
+
+        if ($corrector_id !== null) {
+            $where['summary.corrector_id'] = $corrector_id;
+        }
+
+        $query = "
+            SELECT summary.*, settings.ass_id AS ass_id
+            FROM xlas_et_corr_summary AS summary
+            JOIN xlas_et_essay essay ON essay.id = summary.essay_id
+            JOIN xlas_et_task_settings settings ON settings.task_id = essay.task_id
+            WHERE summary.corection_authorized IS NOT NULL AND" . $this->repo->where($where);
+
+        return $this->repo->queryOne($query) === null;
+    }
+
     public function allByTaskId(int $task_id): array
     {
         return $this->repo->queryAllBy(['task_id' => $task_id]);

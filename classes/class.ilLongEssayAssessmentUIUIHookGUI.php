@@ -7,53 +7,78 @@ class ilLongEssayAssessmentUIUIHookGUI extends ilUIHookPluginGUI
      */
     private \ILIAS\DI\Container $dic;
     private ?string $context_type;
+    private ilTabsGUI $tabs;
 
     public function __construct()
     {
         global $DIC;
         $this->dic = $DIC;
-
+        $this->tabs = $DIC->tabs();
         $this->context_type = $this->dic->ctrl()->getContextObjType();
     }
 
-    /**
-     * Modify HTML output of GUI elements. Modifications modes are:
-     * - ilUIHookPluginGUI::KEEP (No modification)
-     * - ilUIHookPluginGUI::REPLACE (Replace default HTML with your HTML)
-     * - ilUIHookPluginGUI::APPEND (Append your HTML to the default HTML)
-     * - ilUIHookPluginGUI::PREPEND (Prepend your HTML to the default HTML)
-     *
-     * @param string $a_comp component
-     * @param string $a_part string that identifies the part of the UI that is handled
-     * @param string $a_par array of parameters (depend on $a_comp and $a_part)
-     *
-     * @return array array with entries "mode" => modification mode, "html" => your html
-     */
-    function getHTML($a_comp, $a_part, $a_par = array()): array
+
+    function modifyGUI($a_comp, $a_part, $a_par = array()): void
     {
-        return array("mode" => ilUIHookPluginGUI::KEEP, "html" => "");
+        if ($a_part == "tabs")
+        {
+            if($this->context_type === "crs") {
+                /**
+                 * @var ilTabsGUI $tabs;
+                 */
+                $tabs = $a_par["tabs"];
+                $tabs->addTab("edutiek", "Langtext-Aufgabe", "");
+                $last = array_pop($tabs->target);
+
+                array_splice($tabs->target, 1, 0 , [$last]);
+                $this->saveTabs("Course");
+            }
+
+            if($this->dic->ctrl->getCmdClass() == 'illongessayassessmentcoursegui')
+            {
+                $this->restoreTabs("Course");
+                $this->tabs->activateTab("edutiek");
+            }
+        }
     }
 
     /**
-     * Modify GUI objects, before they generate ouput
-     *
-     * @param string $a_comp component
-     * @param string $a_part string that identifies the part of the UI that is handled
-     * @param string $a_par array of parameters (depend on $a_comp and $a_part)
+     * Save the tabs for reuse on the plugin pages
+     * @param string $a_context context for which the tabs should be saved
      */
-    function modifyGUI($a_comp, $a_part, $a_par = array()): void
+    protected function saveTabs(string $a_context) : void
     {
-        if ($a_part == "tabs" && $this->context_type === "crs")
-        {
-            /**
-             * @var ilTabsGUI $tabs;
-             */
-            $tabs = $a_par["tabs"];
-            $tabs->addTab("edutiek", "Langtext-Aufgabe", "");
-            $last = array_pop($tabs->target);
+        $this->setArrayInSession($a_context, 'TabTarget', $this->tabs->target);
+        $this->setArrayInSession($a_context, 'TabSubTarget', $this->tabs->sub_target);
+    }
 
+    /**
+     * Restore the tabs for reuse on the plugin pages
+     * @param string $a_context context for which the tabs should be saved
+     */
+    protected function restoreTabs(string $a_context) : void
+    {
+        // reuse the tabs that were saved from the parent gui
+        if (!empty($target = $this->getArrayFromSession($a_context, 'TabTarget'))) {
+            $this->tabs->target = $target;
+        }
+        if (!empty($target = $this->getArrayFromSession($a_context, 'TabSubTarget'))) {
+            $this->tabs->sub_target = $target;
+        }
+    }
 
-            array_splice($tabs->target, 1, 0 , [$last]);
+    protected function setArrayInSession(string $a_context, string $name, array $array) : void
+    {
+        ilSession::set(__class__ . '.' . $a_context . '.' . $name, serialize($array));
+    }
+
+    protected function getArrayFromSession(string $a_context, string $name) : ?array
+    {
+        try {
+            return unserialize(ilSession::get(__class__ . '.' . $a_context . '.' . $name));
+        }
+        catch (Exception $e) {
+            return null;
         }
     }
 

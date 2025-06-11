@@ -270,11 +270,15 @@ abstract class Table implements TableParent, FilterParent, Component\Component
         $fields = $action->fields($items);
         $content = $action->content($items);
         $action_buttons = $action->actionButtons($items);
-
+        $transformations = $action->transformations();
 
         $modal = $this->ui_factory->modal()->roundtrip($action->label(), $content, $fields, $link)
             ->withActionButtons($action_buttons)
             ->withSubmitLabel($action->actionLabel());
+
+        if( !empty($transformations)) {
+            array_map(fn($x) => ($modal = $modal->withAdditionalTransformation($x)), $transformations);
+        }
 
         if($this->request->getMethod() === "POST" || $action->type() === Type::Global) {
             // Reload Page when closing a modal to deter side effects:

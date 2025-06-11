@@ -5,11 +5,14 @@ namespace ILIAS\Plugin\LongEssayAssessment\UI\Table\Action;
 use ILIAS\UI\Component\Input\Input;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\Item;
 use ILIAS\UI\Component\Component;
+use ILIAS\UI\Component\Button\Button;
+use ILIAS\Refinery\Transformation;
 
 abstract class Form extends Action
 {
     private array $content = [];
     private array $action_buttons = [];
+    private array $transformations = [];
 
     public function __construct(
         string $action_name,
@@ -43,11 +46,19 @@ abstract class Form extends Action
 
     /**
      * @param Item[] $items
-     * @return array
+     * @return Button[]
      */
     public function actionButtons(array $items): array
     {
         return $this->action_buttons;
+    }
+
+    /**
+     * @return Transformation[]
+     */
+    public function transformations(): array
+    {
+        return $this->transformations;
     }
 
     /**
@@ -68,10 +79,25 @@ abstract class Form extends Action
         return $new;
     }
 
+    /**
+     * @param Button[] $buttons
+     * @return $this|Form
+     */
     public function withActionButtons(array $buttons)
     {
         $new = clone $this;
         $new->action_buttons = $buttons;
+        return $new;
+    }
+
+    /**
+     * @param Transformation[] $buttons
+     * @return $this|Form
+     */
+    public function withTransformations(array $transformations)
+    {
+        $new = clone $this;
+        $new->transformations = $transformations;
         return $new;
     }
 }

@@ -43,6 +43,7 @@ class GradesAdminGUI extends BaseGUI implements DataTableParent
     private \Edutiek\AssessmentService\Assessment\GradeLevel\FullService $grade_service;
     private \Edutiek\AssessmentService\EssayTask\AssessmentStatus\FullService $assessment_status;
     private bool $can_edit;
+    private \Edutiek\AssessmentService\System\Entity\FullService $entity_service;
     protected \ILIAS\Plugin\LongEssayAssessment\UI\Table\Factory $table_factory;
 
     public function __construct(BaseObjectData $object)
@@ -52,7 +53,8 @@ class GradesAdminGUI extends BaseGUI implements DataTableParent
         $this->table_factory = $this->plugin_ui_factory->table();
         $this->grade_service = $this->assessment_api->gradLevel();
         $this->assessment_status = $this->essay_task_api->assessmentStatus();
-        $this->can_edit = $this->assessment_status->hasAuthorizedSummaries();
+        $this->entity_service = $this->system_api->entity();
+        $this->can_edit = !$this->assessment_status->hasAuthorizedSummaries();
     }
 
     /**
@@ -155,7 +157,7 @@ class GradesAdminGUI extends BaseGUI implements DataTableParent
             $this->lng->txt('save'),
             [$this, "buildFields"],
             [$this, "save"],
-            fn (GradeItem $x) => true,
+            fn (GradeItem $x) => $this->can_edit,
             Action\Type::Global
         );
     }
@@ -199,6 +201,7 @@ class GradesAdminGUI extends BaseGUI implements DataTableParent
                     ->setCode($data['code'])
                     ->setPassed($data['passed']);
 
+        $this->entity_service->secure($grade_level, GradeLevel::class);
         $this->grade_service->save($grade_level);
         $this->tpl->setOnScreenMessage("success", $this->lng->txt("settings_saved"), true);
     }
@@ -240,8 +243,7 @@ class GradesAdminGUI extends BaseGUI implements DataTableParent
     public function getTableItems(?array $ids = null, ?array $filter_data = []) : Generator
     {
         if ($this->copy_context !== null) {
-            $obj_id = \ilObjLongEssayAssessment::_lookupObjectId($this->copy_context);
-            $copy_object = new \ilObjLongEssayAssessment($obj_id);
+            $copy_object = new \ilObjLongEssayAssessment($this->copy_context);
             $copy_assessment_api = $this->plugin->dic()->assessment($copy_object->getAssId(), $this->user->getId());
             $copy_grade_service = $copy_assessment_api->gradLevel();
 
@@ -264,7 +266,7 @@ class GradesAdminGUI extends BaseGUI implements DataTableParent
 
     protected function delete()
     {
-        if ($this->can_edit) {
+        if (!$this->can_edit) {
             throw new ilException("Operation not permitted");
         }
 
@@ -286,27 +288,31 @@ class GradesAdminGUI extends BaseGUI implements DataTableParent
 
     protected function copyGrades()
     {
-        if ($this->can_edit) {
+        if (!$this->can_edit) {
             throw new ilException("Operation not permitted");
         }
         $select = $this->buildRepositorySelect();
 
         if ($select->hasSelected()) {
-            $obj_id = \ilObjLongEssayAssessment::_lookupObjectId($select->getSelectedId());
-            $copy_object = new \ilObjLongEssayAssessment($obj_id);
+            $copy_object = new \ilObjLongEssayAssessment($select->getSelectedId());
             $copy_assessment_api = $this->plugin->dic()->assessment($copy_object->getAssId(), $this->user->getId());
             $copy_grade_service = $copy_assessment_api->gradLevel();
 
-            foreach ($copy_grade_service->all() as $grade_level) {
-                $new_grade_level = clone $grade_level;
-                $new_grade_level->setAssId($this->object->getAssId());
-                $new_grade_level->setId(0);
-                $this->grade_service->save($new_grade_level);
-            }
-            # Is not needed anymore because grade level are shown dynamically for summaries
-            # $this->grade_service->recalculateGradeLevel();
+            if($copy_assessment_api->permissions($select->getSelectedId())->canEditGrades()) {
+                foreach ($copy_grade_service->all() as $grade_level) {
+                    $new_grade_level = clone $grade_level;
+                    $new_grade_level->setAssId($this->object->getAssId());
+                    $new_grade_level->setId(0);
+                    $this->grade_service->save($new_grade_level);
+                }
+                # Is not needed anymore because grade level are shown dynamically for summaries
+                # $this->grade_service->recalculateGradeLevel();
 
-            $this->tpl->setOnScreenMessage("success", $this->plugin->txt('copy_grade_level_successful'), true);
+                $this->tpl->setOnScreenMessage("success", $this->plugin->txt('copy_grade_level_successful'), true);
+            } else {
+                throw new ilException("Operation not permitted");
+            }
+
             $this->ctrl->redirect($this, "showItems");
         } else {
             $select->showAsync();

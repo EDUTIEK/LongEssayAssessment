@@ -1,6 +1,12 @@
 <?php
 
+use ILIAS\Plugin\LongEssayAssessment\Collection\CollectionGUI;
 
+/**
+ * Organisational Settings
+ *
+ * @ilCtrl_isCalledBy ilLongEssayAssessmentDispatchGUI: ilObjCourseGUI
+ */
 class ilLongEssayAssessmentDispatchGUI extends ilObjPluginDispatchGUI implements ilCtrlBaseClassInterface
 {
     public function executeCommand(): void
@@ -20,7 +26,13 @@ class ilLongEssayAssessmentDispatchGUI extends ilObjPluginDispatchGUI implements
             $this->gui_obj = new $class_name($this->request->getRefId());
             $ilCtrl->forwardCommand($this->gui_obj);
         } else {
-            $this->processCommand($ilCtrl->getCmd());
+            if (($cmd_class !== "illongessayassessmentdispatchgui" && $cmd_class !== "" && $cmd_class !== null) || $next_class === strtolower(
+                    CollectionGUI::class
+                )) {
+                $this->ctrl->forwardCommand(new CollectionGUI());
+            } else {
+                $this->processCommand($ilCtrl->getCmd());
+            }
         }
     }
 }

@@ -2,16 +2,16 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\Cron;
 
-use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
 use ilCronJobResult;
+use ILIAS\Plugin\LongEssayAssessment\Dependencies\PluginDic;
 
 abstract class CronJob extends \ilCronJob implements CronJobInterface
 {
     protected \ILIAS\DI\Container $global_dic;
     protected \ilLongEssayAssessmentPlugin $plugin;
-    protected LongEssayAssessmentDI $local_dic;
+    protected PluginDic $local_dic;
 
-    public function __construct(\ilLongEssayAssessmentPlugin $plugin, LongEssayAssessmentDI $local_dic, \ILIAS\DI\Container $global_dic)
+    final public function __construct(\ilLongEssayAssessmentPlugin $plugin, PluginDic $local_dic, \ILIAS\DI\Container $global_dic)
     {
         $this->plugin = $plugin;
         $this->local_dic = $local_dic;

@@ -2,9 +2,11 @@
 /* Copyright (c) 2024 ILIAS open source, Extended GPL, see docs/LICENSE */
 
 use ILIAS\Setup\ImplementationOfInterfaceFinder;
+use ILIAS\Plugin\LongEssayAssessment\Cron\CronJob;
 
 class ilLongEssayAssessmentCronPlugin extends ilCronHookPlugin
 {
+    use \ILIAS\Plugin\LongEssayAssessment\InheritParentPlugin;
     private ImplementationOfInterfaceFinder $interface_finder;
     /**
      * @var ilCronJob[]
@@ -19,7 +21,6 @@ class ilLongEssayAssessmentCronPlugin extends ilCronHookPlugin
     {
         global $DIC;
         parent::__construct($db, $component_repository, $id);
-        $this->interface_finder = new ImplementationOfInterfaceFinder();
         $this->dic = $DIC;
     }
 
@@ -40,7 +41,7 @@ class ilLongEssayAssessmentCronPlugin extends ilCronHookPlugin
             $job_classes = $this->interface_finder->getMatchingClassNames(
                 ILIAS\Plugin\LongEssayAssessment\Cron\CronJobInterface::class,
                 [],
-                "[/]Customizing/global/plugins/Services/Repository/RepositoryObject/LongEssayAssessment/classes/.*"
+                "[/]public/Customizing/global/plugins/Services/Repository/RepositoryObject/LongEssayAssessment/[classes|src]/.*"
             );
 
             foreach ($job_classes as $class_name) {
@@ -59,12 +60,8 @@ class ilLongEssayAssessmentCronPlugin extends ilCronHookPlugin
             return $this->objects[$class_name];
         }
 
-        $xlas_plugin = ilLongEssayAssessmentPlugin::getInstance();
-        $xlas_dic = \ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI::getInstance();
-
-        return $this->objects[$class_name] = new $class_name($xlas_plugin, $xlas_dic, $this->dic);
+        return $this->objects[$class_name] = new $class_name($this->getParentPlugin(), $this->getParentPlugin()->dic(), $this->dic);
     }
-
 
     public function getCronJobInstances(): array
     {

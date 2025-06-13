@@ -284,6 +284,7 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                 default:
                     $this->tpl->setOnScreenMessage("failure", 'Unsupported cmdClass: ' . $next_class, true);
             }
+            $this->tpl->setPermanentLink($this->object->getType(), $this->object->getRefId());
         } else {
             switch ($cmd) {
                 case 'jumpToOrgaSettings':

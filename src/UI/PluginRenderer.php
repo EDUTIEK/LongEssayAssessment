@@ -1,11 +1,32 @@
 <?php
 
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+declare(strict_types=1);
+
 namespace ILIAS\Plugin\LongEssayAssessment\UI;
 
 use ILIAS\UI\Implementation\Render\DecoratedRenderer;
 use ILIAS\UI\Renderer;
 use ILIAS\Plugin\LongEssayAssessment\UI\Input\TinyMCE;
 use ILIAS\Plugin\LongEssayAssessment\UI\Viewer\PdfViewer;
+use ILIAS\Plugin\LongEssayAssessment\UI\Viewer\AudioPlayer;
+use ILIAS\Plugin\LongEssayAssessment\UI\Viewer\VideoPlayer;
+use ILIAS\Plugin\LongEssayAssessment\UI\Viewer\ImageViewer;
 use ILIAS\Plugin\LongEssayAssessment\UI\Statistic\ExtendableStatisticGroup;
 use ILIAS\Plugin\LongEssayAssessment\UI\Statistic\GraphStatisticGroup;
 use ILIAS\Plugin\LongEssayAssessment\UI\Statistic\Statistic;
@@ -61,6 +82,9 @@ class PluginRenderer extends DecoratedRenderer
             case ($component instanceof ExtendableStatisticGroup):
                 return $this->statistic_renderer->render($component, $root);
             case ($component instanceof PdfViewer):
+            case ($component instanceof AudioPlayer):
+            case ($component instanceof VideoPlayer):
+            case ($component instanceof ImageViewer):
                 return $this->viewer_render->render($component, $root);
             case ($component instanceof Table):
                 return $root->render($component->getComponents());

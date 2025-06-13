@@ -1,5 +1,23 @@
 <?php
 
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+declare(strict_types=1);
+
 namespace ILIAS\Plugin\LongEssayAssessment\UI\Table;
 
 use ILIAS\UI\Component\Table\DataRetrieval;
@@ -20,6 +38,7 @@ use ILIAS\Plugin\LongEssayAssessment\UI as LocalUI;
 use ILIAS\Refinery;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\Helper\SmallView;
 use ILIAS\UI\Component\Table\OrderingBinding;
+use Closure;
 
 class DataTable extends Table implements DataRetrieval, DataTableParent
 {
@@ -92,36 +111,34 @@ class DataTable extends Table implements DataRetrieval, DataTableParent
         ?array $additional_parameters
     ): \Generator {
 
-        $content = function (mixed $item, bool $orderable = false) : mixed {
-            if (is_callable($item)) {
+        $content = function (mixed $item, bool $orderable = false): mixed {
+            // Cannot use is_callable, for english translation $item is 'File' sometimes,
+            // which is a valid PHP function and therefore throws an error.
+            if ($item instanceof Closure) {
                 return $item($orderable);
             }
             return $item;
         };
 
         $data = array_map(
-            fn (Item $x) => [
+            fn(Item $x) => [
                 "item" => $x,
-                "mapping" =>  $this->getColumnMapping($x, $additional_parameters)
+                "mapping" => $this->getColumnMapping($x, $additional_parameters)
             ],
             iterator_to_array($this->getTableItems(null, $filter_data))
         );
 
-        if ($order) {
-            list($order_field, $order_direction) = $order->join([], fn ($ret, $key, $value) => [$key, $value]);
-            usort($data, fn ($a, $b) => $content($a["mapping"][$order_field], true) <=> $content($b["mapping"][$order_field], true));
-            if ($order_direction === 'DESC') {
-                $data = array_reverse($data);
-            }
+        list($order_field, $order_direction) = $order->join([], fn($ret, $key, $value) => [$key, $value]);
+        usort($data, fn($a, $b) => $content($a["mapping"][$order_field], true) <=> $content($b["mapping"][$order_field], true));
+        if ($order_direction === 'DESC') {
+            $data = array_reverse($data);
         }
 
-        if ($range) {
-            $data = array_slice($data, $range->getStart(), $range->getLength());
-        }
+        $data = array_slice($data, $range->getStart(), $range->getLength());
 
         foreach ($data as list("item" => $item, "mapping" => $mapping)) {
-            $row = $row_builder->buildDataRow($item->getId(), array_map(fn (mixed $item) => $content($item), $mapping));
-            foreach (array_filter($this->actions, fn (Action\Action $x) => in_array($x->type(), [Action\Type::Standard, Action\Type::Single])) as $action) {
+            $row = $row_builder->buildDataRow((string) $item->getId(), array_map($content, $mapping));
+            foreach (array_filter($this->actions, fn(Action\Action $x) => in_array($x->type(), [Action\Type::Standard, Action\Type::Single])) as $action) {
                 $row = $row->withDisabledAction($action->name(), !$action->enabled($item));
             }
             yield $row;
@@ -149,7 +166,7 @@ class DataTable extends Table implements DataRetrieval, DataTableParent
     /**
      * @return UIAction[]
      */
-    protected function getDataTableActions() : array
+    protected function getDataTableActions(): array
     {
         $data_actions = [];
         $tf = $this->ui_factory->table()->action();
@@ -182,18 +199,18 @@ class DataTable extends Table implements DataRetrieval, DataTableParent
         return $data_actions;
     }
 
-    public function getAdditionalParameter() : array
+    public function getAdditionalParameter(): array
     {
         return $this->additional_parameter;
     }
 
-    public function setAdditionalParameter(array $additional_parameter) : void
+    public function setAdditionalParameter(array $additional_parameter): void
     {
         $this->additional_parameter = $additional_parameter;
     }
 
     # DATA TABLE PARENT fassade
-    public function getTotalRowCount(?array $filter_data, ?array $additional_parameters) : ?int
+    public function getTotalRowCount(?array $filter_data, ?array $additional_parameters): ?int
     {
         return $this->dt_parent->getTotalRowCount($filter_data, $additional_parameters);
     }

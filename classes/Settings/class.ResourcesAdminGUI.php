@@ -1,6 +1,22 @@
 <?php
 
-declare(strict_types = 1);
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+declare(strict_types=1);
 
 namespace ILIAS\Plugin\LongEssayAssessment\Settings;
 
@@ -20,6 +36,8 @@ use ILIAS\Plugin\LongEssayAssessment\UI\Table\Factory as TableFactory;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\Helper\ConfirmationIds;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\Item;
 use ilLongEssayAssessmentUploadHandlerGUI;
+use ILIAS\Plugin\LongEssayAssessment\UI\Viewer\Media;
+use ILIAS\UI\Component\Component;
 
 /**
  * Resources Administration
@@ -49,10 +67,11 @@ class ResourcesAdminGUI extends BaseGUI implements DataTableParent
 
         $this->upload_handler = new ilLongEssayAssessmentUploadHandlerGUI(
             $this->file_storage,
-            $this->plugin->dic()->uploadTempFile());
+            $this->plugin->dic()->uploadTempFile()
+        );
     }
 
-    public function executeCommand()
+    public function executeCommand(): void
     {
         $this->initForTask();
         $this->resource_service = $this->task_api->resource($this->task_info->getId());
@@ -71,7 +90,7 @@ class ResourcesAdminGUI extends BaseGUI implements DataTableParent
         }
     }
 
-    public function getTableActions() : array
+    public function getTableActions(): array
     {
         return [
             $this->openAction(),
@@ -83,7 +102,7 @@ class ResourcesAdminGUI extends BaseGUI implements DataTableParent
         ];
     }
 
-    protected function deleteAction() : Action\Confirmation
+    protected function deleteAction(): Action\Confirmation
     {
         return $this->table_factory->action()->confirmation(
             "delete",
@@ -95,19 +114,20 @@ class ResourcesAdminGUI extends BaseGUI implements DataTableParent
         );
     }
 
-    protected function previewAction() : Action\Modal
+    protected function previewAction(): Action\Modal
     {
         return $this->table_factory->action()->modal(
             "preview",
             $this->lng->txt('preview'),
             [$this, "previewModal"],
-            fn(ResourceItem $x
+            fn(
+                ResourceItem $x
             ) => ($x->getType() === ResourceType::FILE || ($x->isEmbedded() && $x->getType() === ResourceType::URL)),
             Action\Type::Single
         );
     }
 
-    protected function downloadAction() : Action\Direct
+    protected function downloadAction(): Action\Direct
     {
         return $this->table_factory->action()->direct(
             "download",
@@ -118,7 +138,7 @@ class ResourcesAdminGUI extends BaseGUI implements DataTableParent
         );
     }
 
-    protected function openAction() : Action\Direct
+    protected function openAction(): Action\Direct
     {
         return $this->table_factory->action()->direct(
             "open",
@@ -129,7 +149,7 @@ class ResourcesAdminGUI extends BaseGUI implements DataTableParent
         );
     }
 
-    protected function editAction() : Action\Form
+    protected function editAction(): Action\Form
     {
         return $this->table_factory->action()->form(
             "edit",
@@ -142,7 +162,7 @@ class ResourcesAdminGUI extends BaseGUI implements DataTableParent
         );
     }
 
-    protected function createAction() : Action\Form
+    protected function createAction(): Action\Form
     {
         return $this->table_factory->action()->form(
             "create",
@@ -155,7 +175,7 @@ class ResourcesAdminGUI extends BaseGUI implements DataTableParent
         );
     }
 
-    public function buildConfirmationNames(ResourceItem $item) : string
+    public function buildConfirmationNames(ResourceItem $item): string
     {
         $type = $item->getType() === ResourceType::FILE
             ? $this->lng->txt('file')
@@ -163,7 +183,7 @@ class ResourcesAdminGUI extends BaseGUI implements DataTableParent
         return $item->getTitle() . " ($type)";
     }
 
-    public function buildFields(ResourceItem $item) : array
+    public function buildFields(ResourceItem $item): array
     {
         $factory = $this->ui_factory->input()->field();
         $fields = [];
@@ -177,7 +197,7 @@ class ResourcesAdminGUI extends BaseGUI implements DataTableParent
 
         $resource_file = $factory->file($this->upload_handler, $this->lng->txt("file"))
             ->withValue(!empty($item->getIdentifier()) ? [$item->getIdentifier()] : [])
-            ->withAcceptedMimeTypes(['application/pdf'])
+            ->withAcceptedMimeTypes($this->plugin_ui_factory->viewer()->supportedMimeTypes())
             ->withRequired(true)
             ->withByline($this->plugin->txt("resource_file_description") . "<br>" . $this->plugin_ui_service->getMaxFileSizeString());
 
@@ -191,8 +211,10 @@ class ResourcesAdminGUI extends BaseGUI implements DataTableParent
                 )
             );
 
-        $embedded = $factory->checkbox($this->plugin->txt('resource_embedded'),
-            $this->plugin->txt('resource_embedded_info'))
+        $embedded = $factory->checkbox(
+            $this->plugin->txt('resource_embedded'),
+            $this->plugin->txt('resource_embedded_info')
+        )
             ->withValue($item->isEmbedded());
 
         $availability = $factory->radio($this->plugin->txt("resource_availability"))
@@ -252,7 +274,8 @@ class ResourcesAdminGUI extends BaseGUI implements DataTableParent
                     );
                     $resource->setFileId($stored?->getId());
                 }
-                $this->resource_service->save($resource
+                $this->resource_service->save(
+                    $resource
                     ->setType(ResourceType::FILE)
                     ->setUrl('')
                     ->setEmbedded(true)
@@ -263,7 +286,8 @@ class ResourcesAdminGUI extends BaseGUI implements DataTableParent
                 if ($resource->getFileId()) {
                     $this->file_storage->deleteFile($resource->getFileId());
                 }
-                $this->resource_service->save($resource
+                $this->resource_service->save(
+                    $resource
                     ->setType(ResourceType::URL)
                     ->setFileId(null)
                     ->setUrl((string) $data["type"][1]["url"])
@@ -322,7 +346,7 @@ class ResourcesAdminGUI extends BaseGUI implements DataTableParent
     /**
      * @param ResourceItem $item
      */
-    public function getColumnMapping(Item $item, ?array $additional_parameters) : array
+    public function getColumnMapping(Item $item, ?array $additional_parameters): array
     {
         $type = "";
         $info = null;
@@ -345,7 +369,9 @@ class ResourcesAdminGUI extends BaseGUI implements DataTableParent
 
             case ResourceType::URL:
                 $info = $this->renderer->render($this->ui_factory->link()->standard(
-                    $item->getUrl(), $item->getUrl()));
+                    $item->getUrl(),
+                    $item->getUrl()
+                ));
                 if ($item->isEmbedded()) {
                     $info .= " (" . $this->plugin->txt("resource_embedded") . ")";
                 }
@@ -365,7 +391,7 @@ class ResourcesAdminGUI extends BaseGUI implements DataTableParent
         ];
     }
 
-    public function getColumns(?array $additional_parameters) : array
+    public function getColumns(?array $additional_parameters): array
     {
         $tf = $this->ui_factory->table();
         return [
@@ -377,24 +403,32 @@ class ResourcesAdminGUI extends BaseGUI implements DataTableParent
         ];
     }
 
-    public function getTotalRowCount(?array $filter_data, ?array $additional_parameters) : ?int
+    public function getTotalRowCount(?array $filter_data, ?array $additional_parameters): ?int
     {
         return -1;
     }
 
-    protected function tableItemFromData(Resource $resource) : ResourceItem
+    protected function tableItemFromData(Resource $resource): ResourceItem
     {
-        return new ResourceItem($resource->getId(), $resource->getTitle(), $resource->getType(), $resource->getDescription(),
-            $resource->getAvailability(), $resource->getUrl(), $resource->getFileId(), $resource->getEmbedded());
+        return new ResourceItem(
+            $resource->getId(),
+            $resource->getTitle(),
+            $resource->getType(),
+            $resource->getDescription(),
+            $resource->getAvailability(),
+            $resource->getUrl(),
+            $resource->getFileId(),
+            $resource->getEmbedded()
+        );
     }
 
-    public function getTableItem(int $id) : Item
+    public function getTableItem(int $id): Item
     {
         $resource = $this->resource_service->one($id);
         return $this->tableItemFromData($resource);
     }
 
-    public function getTableItems(?array $ids = null, ?array $filter_data = []) : \Generator
+    public function getTableItems(?array $ids = null, ?array $filter_data = []): \Generator
     {
         if ($ids === [0]) {
             yield $this->tableItemFromData($this->resource_service->new());
@@ -402,20 +436,21 @@ class ResourcesAdminGUI extends BaseGUI implements DataTableParent
         }
 
         foreach ($this->resource_service->allByTypes(
-            [ResourceType::FILE, ResourceType::URL]) as $resource) {
+            [ResourceType::FILE, ResourceType::URL]
+        ) as $resource) {
             if ((empty($ids) || in_array($resource->getId(), $ids))) {
                 yield $this->tableItemFromData($resource);
             }
         }
     }
 
-    public function previewModal(ResourceItem $item)
+    public function previewModal(ResourceItem $item): Component
     {
         $components = [];
         if ($item->getType() === ResourceType::FILE) {
             $this->ctrl->setParameter($this, "resource_id", $item->getId());
             $link = $this->ctrl->getLinkTarget($this, "downloadResourceFile");
-            $components[] = $this->plugin_ui_factory->viewer()->pdf($link);
+            $components[] = $this->componentOfFile($item, $link);
         } elseif ($item->isEmbedded() && $item->getType() === ResourceType::URL) {
             $url = $item->getUrl();
             $components[] = $this->ui_factory->legacy("<iframe src=\"$url\" width=\"100%\" height=\"500px\"></iframe>");
@@ -425,5 +460,11 @@ class ResourcesAdminGUI extends BaseGUI implements DataTableParent
         return $this->ui_factory->modal()->lightbox([
             $this->ui_factory->modal()->lightboxTextPage($this->renderer->render($components), $title)
         ]);
+    }
+
+    private function componentOfFile(ResourceItem $item, string $link): Media
+    {
+        $mime_type = $this->file_storage->getFileInfo($item->getIdentifier())->getMimeType();
+        return $this->plugin_ui_factory->viewer()->fromMimeType($link, $mime_type);
     }
 }

@@ -20,13 +20,15 @@ declare(strict_types=1);
 
 namespace ILIAS\Plugin\LongEssayAssessment\UI\Viewer;
 
-/**
- * Implementation of the viewer for PDF files
- */
-class PdfViewer extends Media
+class VideoPlayer extends Media
 {
     public static function supportedMimeTypes(): array
     {
-        return ['application/pdf'];
+        return [
+            'video/mp4',
+            'video/mpeg',
+            'video/ogg',
+            'video/webm',
+        ];
     }
 }

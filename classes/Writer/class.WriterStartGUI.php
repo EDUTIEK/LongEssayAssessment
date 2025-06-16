@@ -333,7 +333,25 @@ class WriterStartGUI extends BaseGUI
                                 )
                             );
                     }
-                } else {
+                }
+                elseif( $resource->getType() == Resource::RESOURCE_TYPE_URL && $resource->getEmbedded()) {
+                    $url = $resource->getUrl();
+                    $iframe = $this->uiFactory->legacy("<iframe src=\"$url\" width=\"100%\" height=\"500px\"></iframe>");
+                    $title = $resource->getTitle();
+                    $contents[] = $preview_modal = $this->uiFactory->modal()->lightbox([
+                        $this->uiFactory->modal()->lightboxTextPage($this->renderer->render($iframe), $title)
+                    ]);
+                    $button = $this->uiFactory->button()->standard($this->lng->txt('preview'), '#')->withOnClick($preview_modal->getShowSignal());
+
+                    $item = $this->uiFactory->item()->standard($resource->getTitle())
+                                            ->withDescription((string) $resource->getDescription())
+                                            ->withLeadIcon($this->uiFactory->symbol()->icon()->standard('webr', '', 'medium'))
+                                            ->withProperties(array(
+                                                $this->plugin->txt("website") => $resource->getUrl(),
+                                                $this->plugin->txt("resource_availability") => $this->plugin->txt('resource_availability_' . $resource->getAvailability())))
+                                            ->withMainAction($button);
+                }
+                else {
                     $item = $this->uiFactory->item()->standard($this->uiFactory->link()->standard($resource->getTitle(), $resource->getUrl()))
                                             ->withDescription((string) $resource->getDescription())
                                             ->withLeadIcon($this->uiFactory->symbol()->icon()->standard('webr', '', 'medium'))

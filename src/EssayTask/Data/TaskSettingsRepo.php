@@ -34,6 +34,11 @@ class TaskSettingsRepo implements \Edutiek\AssessmentService\EssayTask\Data\Task
         return $this->repo->new();
     }
 
+    public function allByAssId(int $ass_id): array
+    {
+        return $this->repo->queryAllBy(['ass_id' => $ass_id]);
+    }
+
     public function hasByAssId(int $ass_id): bool
     {
         return $this->repo->queryOneBy(['ass_id' => $ass_id]) !== null;

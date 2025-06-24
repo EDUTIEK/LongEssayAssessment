@@ -29,7 +29,8 @@ use Edutiek\AssessmentService\System\Api\Factory as SystemFactory;
 use Edutiek\AssessmentService\System\Api\ForClients as SystemClientApi;
 use Edutiek\AssessmentService\System\Api\ForServices as SystemServicesApi;
 use Edutiek\AssessmentService\Task\Api\Factory as TaskFactory;
-use Edutiek\AssessmentService\Task\Api\ForClients as TaskApi;
+use Edutiek\AssessmentService\Task\Api\ForClients as TaskClientApi;
+use Edutiek\AssessmentService\Task\Api\ForTypes as TaskTypesApi;
 use ILIAS\DI\Container;
 use ILIAS\Data\UUID\Factory as UUIDFactory;
 use ILIAS\Plugin\LongEssayAssessment\Common\Constraints\DataConstraints;
@@ -186,8 +187,13 @@ class PluginDic
         };
 
         // Sub factories for assessment service components
+
         $dic[SystemServicesApi::class] = function (Container $dic) {
             return $dic[SystemFactory::class]->forServices();
+        };
+
+        $dic[TaskTypesApi::class] = function (Container $dic) {
+            return $dic[TaskFactory::class]->forTypes();
         };
     }
 
@@ -236,7 +242,7 @@ class PluginDic
         return ($this->dic[AssessmentFactory::class])->forRest();
     }
 
-    public function task(int $ass_id, int $user_id): TaskApi
+    public function task(int $ass_id, int $user_id): TaskClientApi
     {
         return ($this->dic[TaskFactory::class])->forClients($ass_id, $user_id);
     }

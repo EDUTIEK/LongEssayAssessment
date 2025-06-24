@@ -41,7 +41,11 @@ class CorrectorAssignmentRepo implements \Edutiek\AssessmentService\Task\Data\Co
 
     public function allByAssId(int $ass_id): array
     {
-        return $this->repo->queryAllBy(['ass_id' => $ass_id]);
+        $query = "SELECT assignments.*, settings.ass_id FROM xlas_ta_corr_assign AS assignments"
+            . " JOIN xlas_ta_settings AS settings ON (settings.task_id = assignments.task_id)"
+            . " WHERE " . $this->repo->where(['ass_id' => $ass_id]);
+
+        return $this->repo->queryAll($query);
     }
 
     public function allByTaskId(int $task_id): array

@@ -59,7 +59,7 @@ class CorrectorSummaryRepo implements \Edutiek\AssessmentService\EssayTask\Data\
             JOIN xlas_et_task_settings settings ON settings.task_id = essay.task_id
             WHERE summary.corection_authorized IS NOT NULL AND" . $this->repo->where($where);
 
-        return $this->repo->queryOne($query) === null;
+        return $this->repo->queryOne($query) !== null;
     }
 
     public function allByTaskId(int $task_id): array

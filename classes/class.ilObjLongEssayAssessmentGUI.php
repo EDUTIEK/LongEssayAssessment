@@ -13,6 +13,7 @@ use ILIAS\Plugin\LongEssayAssessment\Settings\SolutionSettingsGUI;
 use ILIAS\Plugin\LongEssayAssessment\Settings\TechnicalSettingsGUI;
 use ILIAS\UI\Component\Input\Container\Form\Standard as StandardForm;
 use ILIAS\Plugin\LongEssayAssessment\Settings\GradesAdminGUI;
+use ILIAS\Plugin\LongEssayAssessment\Settings\CriteriaAdminGUI;
 
 /**
  * Plugin GUI Class
@@ -153,7 +154,12 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                         $this->ctrl->forwardCommand(new GradesAdminGUI($this->object));
                     }
                     break;
-
+                case strtolower(CriteriaAdminGUI::class):
+                    if ($this->permissions->canEditContentSettings()) { # TODO: Das muss anders
+                        $this->activateTab('tab_assessment', 'tab_criteria');
+                        $this->ctrl->forwardCommand(new CriteriaAdminGUI($this->object));
+                    }
+                    break;
                 case strtolower(ResourcesAdminGUI::class):
                     if ($this->permissions->canEditContentSettings()) {
                         $this->activateTab('tab_assessment', 'tab_resources');
@@ -440,6 +446,13 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                 'id' => 'tab_grades',
                 'txt' => $this->plugin->txt('tab_grades'),
                 'url' => $this->ctrl->getLinkTargetByClass(GradesAdminGUI::class)
+            ];
+        }
+        if ($this->permissions->canEditOrgaSettings()) { # TODO: Own permission for the criteria tab?
+            $tabs[] = [
+                'id' => 'tab_criteria',
+                'txt' => $this->plugin->txt('tab_criteria'),
+                'url' => $this->ctrl->getLinkTargetByClass(CriteriaAdminGUI::class)
             ];
         }
 

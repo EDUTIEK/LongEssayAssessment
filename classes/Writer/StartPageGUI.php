@@ -40,7 +40,7 @@ class StartPageGUI extends BaseGUI
 {
     private readonly ReadService $perms;
     private readonly OrgaSettings $orga_settings;
-    private readonly ?object $essay; // Essay
+    private readonly ?Writer $writer;
     private readonly ?DateTimeImmutable $writing_start;
     private readonly ?DateTimeImmutable $writing_end;
     private readonly bool $is_written;
@@ -58,10 +58,10 @@ class StartPageGUI extends BaseGUI
 
         $this->perms = $this->assessment_api->permissions($this->object->getId());
         $this->orga_settings = $this->assessment_api->orgaSettings()->get();
-        $this->essay = $this->dic[AssessmentDic::class]->repositories()->writer()->oneByUserIdAndAssId($this->dic->user()->getId(), $this->object->getId());
+        $this->writer = $this->dic[AssessmentDic::class]->repositories()->writer()->oneByUserIdAndAssId($this->dic->user()->getId(), $this->object->getId());
         $this->writing_start = $this->orga_settings->getWritingStart();
         $this->writing_end = $this->orga_settings->getWritingEnd(); // @Todo: not found: getOwnTimeExtensionSeconds / getTimeExtensionByWriterId
-        $this->is_written = $this->essay?->getWritingAuthorized() !== null;
+        $this->is_written = $this->writer?->getWritingAuthorized() !== null;
         $this->is_before_writing = time() < $this->writing_start?->getTimestamp();
         $this->is_after_writing = $this->is_written || (time() > ($this->writing_end->getTimestamp() ?? INF));
         [$this->solution_resources, $this->writing_resources] = $this->calcResource();
@@ -81,15 +81,16 @@ class StartPageGUI extends BaseGUI
 
     private function screenMessage(): array
     {
-        if ($this->essay === null) {
+        if ($this->writer === null) {
             return [];
         }
 
         $writing_settings = $this->essay_task_api->writingSettings()->get();
 
-        if ($this->essay->getWritingExcluded()) {
+        $essays = $this->dic[\ILIAS\Plugin\LongEssayAssessment\Dependencies\EssayTaskDic::class]->repositories()->essay()->allByWriterId($this->writer->getId());
+        if ($this->writer->getWritingExcluded()) {
             $this->tpl->setOnScreenMessage('info', $this->plugin->txt('message_writing_excluded'));
-        } elseif (!$this->essay->getWritingAuthorized() && (false /*$this->essay->getWrittenText()*/ || false /*$this->essay->getPdfVersion()*/)) {
+        } elseif (!$this->writer->getWritingAuthorized() && array_filter($essays, fn($e) => $e->getWrittenText() || $e->essay->getPdfVersion())) {
             if ($this->perms->canReviewWrittenAssessment()) {
                 $this->tpl->setOnScreenMessage('failure', $this->plugin->txt(
                     $writing_settings->getWritingType() === WritingType::PDF_UPLOAD ? 'message_writing_to_authorize_pdf' : 'message_writing_to_authorize'
@@ -106,7 +107,7 @@ class StartPageGUI extends BaseGUI
                 $this->tpl->setOnScreenMessage('failure', $this->plugin->txt('message_writing_not_authorized'));
             }
 
-        } elseif ($this->essay->getWritingAuthorized()) {
+        } elseif ($this->writer->getWritingAuthorized()) {
             if (isset($this->params['returned'])) {
                 if($this->orga_settings->getClosingMessage()) {
                     $message = $this->displayText($this->orga_settings->getClosingMessage());
@@ -141,11 +142,11 @@ class StartPageGUI extends BaseGUI
         case WritingType::ESSAY_EDITOR:
             if ($this->perms->canWrite()) {
                 $button = $this->ui_factory->button()->primary(
-                    $this->plugin->txt($this->essay === null ? 'start_writing' : 'continue_writing'),
+                    $this->plugin->txt($this->writer === null ? 'start_writing' : 'continue_writing'),
                     $this->ctrl->getLinkTarget($this->target, 'startWriter')
                 );
                 $this->toolbar->addComponent($button);
-            } elseif ($this->perms->canReviewWrittenAssessment() && $this->essay && !$this->essay->getWritingAuthorized()) {
+            } elseif ($this->perms->canReviewWrittenAssessment() && $this->writer && !$this->writer->getWritingAuthorized()) {
                 $button = $this->ui_factory->button()->standard(
                     $this->plugin->txt('review_writing'),
                     $this->ctrl->getLinkTarget($this->target, 'startWritingReview')
@@ -156,7 +157,7 @@ class StartPageGUI extends BaseGUI
 
         case WritingType::PDF_UPLOAD:
             if (($this->perms->canWrite() || $this->perms->canReviewWrittenAssessment())
-                && $this->essay && $this->essay->getPdfVersion() && !$this->essay->getWritingAuthorized() ) {
+                && $this->writer && $this->writer->getPdfVersion() && !$this->writer->getWritingAuthorized() ) {
                 $button = $this->ui_factory->button()->primary(
                     $this->plugin->txt('writer_review_pdf'),
                     $this->ctrl->getLinkTargetByClass(
@@ -245,8 +246,8 @@ class StartPageGUI extends BaseGUI
         };
 
         // xx
-        if ($this->essay?->getLocation() !== null) {
-            $properties[$this->plugin->txt('location')] = ($location = $this->task_repo->getLocationById($this->essay->getLocation())) !== null ? $location->getTitle() : ' - ';
+        if ($this->writer?->getLocation() !== null) {
+            $properties[$this->plugin->txt('location')] = ($location = $this->task_repo->getLocationById($this->writer->getLocation())) !== null ? $location->getTitle() : ' - ';
         }
 
         if ($properties !== []) {
@@ -322,7 +323,7 @@ class StartPageGUI extends BaseGUI
         $properties = [];
 
         if ($this->perms->canViewResult()) {
-            $result_items[] = $this->ui_factory->legacy($this->formatFinalResult($this->essay));
+            $result_items[] = $this->ui_factory->legacy($this->formatFinalResult($this->writer));
             $result_items[] = $this->ui_factory->divider()->horizontal();
         } else {
             $properties[$this->plugin->txt('label_available')] = $this->formatResultAvailability();
@@ -334,8 +335,8 @@ class StartPageGUI extends BaseGUI
         }
         $result_items[] = $this->ui_factory->listing()->descriptive($properties);
 
-        if ($this->essay !== null) {
-            if ($this->perms->canReviewWrittenAssessment() && $this->essay->getWritingAuthorized()) {
+        if ($this->writer !== null) {
+            if ($this->perms->canReviewWrittenAssessment() && $this->writer->getWritingAuthorized()) {
                 $result_items[] = $this->ui_factory->item()->standard(
                     $this->ui_factory->link()->standard(
                         $this->plugin->txt('download_written_submission'),

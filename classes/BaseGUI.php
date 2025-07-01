@@ -37,6 +37,7 @@ use ilTabsGUI;
 use ilToolbarGUI;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use ILIAS\UI\Component\Component;
 
 /**
  * Base class for GUI classes (except the plugin guis required by ILIAS)
@@ -103,6 +104,7 @@ abstract class BaseGUI
         $this->plugin_ui_service = $this->plugin->dic()->uiService();
         $this->constraints = $this->plugin->dic()->constraints();
         $this->session = $this->plugin->dic()->sessionValues(self::class, $this->object->getAssId());
+        $this->manager_service = $this->task_api->manager();
 
         $this->get = new RequestVariables($DIC->http()->wrapper()->query(), $this->dic->refinery());
         $this->post = new RequestVariables($DIC->http()->wrapper()->post(), $this->dic->refinery());
@@ -280,5 +282,13 @@ abstract class BaseGUI
                 ],
             )
         );
+    }
+
+    /**
+     * @param Component|Component[] $render_me
+     */
+    protected function renderContent($render_me): void
+    {
+        $this->tpl->setContent($this->renderer->render($render_me));
     }
 }

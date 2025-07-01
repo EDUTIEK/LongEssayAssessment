@@ -13,6 +13,7 @@ use ILIAS\Plugin\LongEssayAssessment\Settings\SolutionSettingsGUI;
 use ILIAS\Plugin\LongEssayAssessment\Settings\TechnicalSettingsGUI;
 use ILIAS\UI\Component\Input\Container\Form\Standard as StandardForm;
 use ILIAS\Plugin\LongEssayAssessment\Settings\GradesAdminGUI;
+use ILIAS\Plugin\LongEssayAssessment\Writer\WriterStartGUI;
 
 /**
  * Plugin GUI Class
@@ -184,12 +185,12 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                     //                        $this->ctrl->forwardCommand(new \ILIAS\Plugin\LongEssayAssessment\Task\GradesAdminGUI($this));
                     //                    }
                     //                    break;
-                    //                case 'ilias\plugin\longessayassessment\writer\writerstartgui':
-                    //                    if ($this->permissions->canViewWriterScreen()) {
-                    //                        $this->activateTab('tab_writer', 'tab_writer_start');
-                    //                        $this->ctrl->forwardCommand(new \ILIAS\Plugin\LongEssayAssessment\Writer\WriterStartGUI($this));
-                    //                    }
-                    //                    break;
+                                       case strtolower(WriterStartGUI::class):
+                                           if ($this->permissions->canViewWriterScreen()) {
+                                               $this->activateTab('tab_writer', 'tab_writer_start');
+                                               $this->ctrl->forwardCommand(new WriterStartGUI($this->object));
+                                           }
+                                       break;
                     //                case 'ilias\plugin\longessayassessment\writer\writerstatisticsgui':
                     //                    if ($this->permissions->canViewWriterStatistics()) {
                     //                        $this->activateTab('tab_writer', 'tab_writer_statistic');
@@ -498,14 +499,14 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
 
         // Writer Tab
         $tabs = [];
-        //        if ($this->permissions->canViewWriterScreen()) {
-        //            $tabs[] = [
-        //                'id' => 'tab_writer_start',
-        //                'txt' => $this->plugin->txt('tab_writer_start'),
-        //                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessayassessment\writer\writerstartgui')
-        //            ];
-        //
-        //        }
+        if ($this->permissions->canViewWriterScreen()) {
+            $tabs[] = [
+                'id' => 'tab_writer_start',
+                'txt' => $this->plugin->txt('tab_writer_start'),
+                'url' => $this->ctrl->getLinkTargetByClass(WriterStartGUI::class),
+            ];
+
+        }
         //        if ($this->permissions->canViewWriterStatistics()) {
         //            $tabs[] = [
         //                'id' => 'tab_writer_statistic',

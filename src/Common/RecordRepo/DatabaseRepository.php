@@ -57,6 +57,9 @@ class DatabaseRepository implements RepositoryInterface
         return array_map($this->fromRow(...), $this->queryAllRaw($query));
     }
 
+    /**
+     * todo: maybe increase performance by adding "LIMIT 1" to the query ?
+     */
     public function queryOne(string $query): ?object
     {
         $row = $this->db->fetchAssoc($this->db->query($query));
@@ -164,6 +167,14 @@ class DatabaseRepository implements RepositoryInterface
     public function keyFields(): array
     {
         return array_filter($this->model['properties'], fn(array $p) => $p['key']);
+    }
+
+    /**
+     * todo: improve performance with EXISTS
+     */
+    public function hasBy(array $conditions) : bool
+    {
+        return $this->countBy($conditions) > 0;
     }
 
     public function countBy(array $conditions): int

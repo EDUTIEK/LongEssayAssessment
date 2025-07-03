@@ -20,6 +20,7 @@ declare(strict_types=1);
 
 namespace ILIAS\Plugin\LongEssayAssessment\Writer;
 
+use Edutiek\AssessmentService\Assessment\Data\WorkingTime;
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\BaseObjectData;
 use Edutiek\AssessmentService\Assessment\Permissions\ReadService;
@@ -41,10 +42,8 @@ class StartPageGUI extends BaseGUI
     private readonly ReadService $perms;
     private readonly OrgaSettings $orga_settings;
     private readonly ?Writer $writer;
-    private readonly ?DateTimeImmutable $writing_start;
-    private readonly ?DateTimeImmutable $writing_end;
+    private readonly WorkingTime $working_time;
     private readonly bool $is_written;
-    private readonly bool $is_before_writing;
     private readonly bool $is_after_writing;
 
     /** @var array<int, Component[]> */
@@ -58,12 +57,12 @@ class StartPageGUI extends BaseGUI
 
         $this->perms = $this->assessment_api->permissions($this->object->getId());
         $this->orga_settings = $this->assessment_api->orgaSettings()->get();
-        $this->writer = $this->dic[AssessmentDic::class]->repositories()->writer()->oneByUserIdAndAssId($this->dic->user()->getId(), $this->object->getId());
-        $this->writing_start = $this->orga_settings->getWritingStart();
-        $this->writing_end = $this->orga_settings->getWritingEnd(); // @Todo: not found: getOwnTimeExtensionSeconds / getTimeExtensionByWriterId
+        $this->writer = $this->assessment_api->writer()->oneByUserId($this->dic->user()->getId(), $this->object->getId());
+
+        $this->working_time = new WorkingTime($this->orga_settings, $this->writer);
+
         $this->is_written = $this->writer?->getWritingAuthorized() !== null;
-        $this->is_before_writing = time() < $this->writing_start?->getTimestamp();
-        $this->is_after_writing = $this->is_written || (time() > ($this->writing_end->getTimestamp() ?? INF));
+        $this->is_after_writing = $this->is_written || $this->working_time->isNowAfterAllowedTime();
         [$this->solution_resources, $this->writing_resources] = $this->calcResource();
     }
 
@@ -87,10 +86,12 @@ class StartPageGUI extends BaseGUI
 
         $writing_settings = $this->essay_task_api->writingSettings()->get();
 
-        $essays = $this->dic[\ILIAS\Plugin\LongEssayAssessment\Dependencies\EssayTaskDic::class]->repositories()->essay()->allByWriterId($this->writer->getId());
+        $essays = $this->essay_task_api->essay()->allByWriterId($this->writer->getId());
+
         if ($this->writer->getWritingExcluded()) {
             $this->tpl->setOnScreenMessage('info', $this->plugin->txt('message_writing_excluded'));
-        } elseif (!$this->writer->getWritingAuthorized() && array_filter($essays, fn($e) => $e->getWrittenText() || $e->essay->getPdfVersion())) {
+
+        } elseif (!$this->writer->getWritingAuthorized() && array_filter($essays, fn($e) => $e->getWrittenText() || $e->getPdfVersion())) {
             if ($this->perms->canReviewWrittenAssessment()) {
                 $this->tpl->setOnScreenMessage('failure', $this->plugin->txt(
                     $writing_settings->getWritingType() === WritingType::PDF_UPLOAD ? 'message_writing_to_authorize_pdf' : 'message_writing_to_authorize'

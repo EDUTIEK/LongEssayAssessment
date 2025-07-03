@@ -7,6 +7,8 @@ namespace ILIAS\Plugin\LongEssayAssessment\Dependencies;
 use ILIAS\DI\Container;
 use Edutiek\AssessmentService\System\Api\Factory as SystemFactory;
 use Edutiek\AssessmentService\System\Api\ForServices as SystemApi;
+use Edutiek\AssessmentService\Assessment\Api\Factory as AssessmentFactory;
+use Edutiek\AssessmentService\Assessment\Api\ForTasks as AssessmentApi;
 use Edutiek\AssessmentService\Task\Api\Factory as TaskFactory;
 use Edutiek\AssessmentService\Task\Api\ForTypes as TaskApi;
 use ILIAS\Plugin\LongEssayAssessment\EssayTask\Data\RepositoryFactory;
@@ -32,6 +34,11 @@ class EssayTaskDic implements \Edutiek\AssessmentService\EssayTask\Api\Dependenc
     public function systemApi(): SystemApi
     {
         return $this->dic[SystemApi::class];
+    }
+
+    public function assessmentApi(int $ass_id): AssessmentApi
+    {
+        return $this->dic[AssessmentFactory::class]->forTypes($ass_id);
     }
 
     public function taskApi(int $ass_id): TaskApi

@@ -185,12 +185,12 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                     //                        $this->ctrl->forwardCommand(new \ILIAS\Plugin\LongEssayAssessment\Task\GradesAdminGUI($this));
                     //                    }
                     //                    break;
-                                       case strtolower(WriterStartGUI::class):
-                                           if ($this->permissions->canViewWriterScreen()) {
-                                               $this->activateTab('tab_writer', 'tab_writer_start');
-                                               $this->ctrl->forwardCommand(new WriterStartGUI($this->object));
-                                           }
-                                       break;
+               case strtolower(WriterStartGUI::class):
+                   if ($this->permissions->canViewWriterScreen()) {
+                       $this->activateTab('tab_writer', 'tab_writer_start');
+                       $this->ctrl->forwardCommand(new WriterStartGUI($this->object));
+                   }
+                   break;
                     //                case 'ilias\plugin\longessayassessment\writer\writerstatisticsgui':
                     //                    if ($this->permissions->canViewWriterStatistics()) {
                     //                        $this->activateTab('tab_writer', 'tab_writer_statistic');

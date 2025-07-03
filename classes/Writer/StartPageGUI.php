@@ -489,7 +489,6 @@ class StartPageGUI extends BaseGUI
     {
         $blocks = [];
         $tasks = $this->task_manager->all();
-        $tasks = [$tasks[0], $tasks[0]];
         $one = count($tasks) === 1;
         foreach ($tasks as $task) {
             $methods = ['instructions', 'resources', 'solutions'];

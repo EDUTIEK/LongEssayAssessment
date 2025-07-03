@@ -23,8 +23,10 @@ namespace ILIAS\Plugin\LongEssayAssessment\Writer;
 use Edutiek\AssessmentService\Assessment\Data\WorkingTime;
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\BaseObjectData;
-use Edutiek\AssessmentService\Assessment\Permissions\ReadService;
+use Edutiek\AssessmentService\Assessment\TaskInterfaces\Manager as TaskManager;
+use Edutiek\AssessmentService\Assessment\Permissions\ReadService as Permissions;
 use Edutiek\AssessmentService\Assessment\Data\OrgaSettings;
+use Edutiek\AssessmentService\EssayTask\Data\WritingSettings;
 use ILIAS\Plugin\LongEssayAssessment\Dependencies\AssessmentDic;
 use Edutiek\AssessmentService\EssayTask\Data\WritingType;
 use Edutiek\AssessmentService\Task\Data\ResourceType;
@@ -36,12 +38,16 @@ use Edutiek\AssessmentService\Assessment\Data\ResultAvailableType;
 use Edutiek\AssessmentService\Assessment\Data\Writer;
 use ILIAS\UI\Component\Component;
 use Closure;
+use Edutiek\AssessmentService\System\File\Storage as FileStorage;
 
 class StartPageGUI extends BaseGUI
 {
-    private readonly ReadService $perms;
+    private readonly Permissions $perms;
     private readonly OrgaSettings $orga_settings;
-    private readonly ?Writer $writer;
+    private WritingSettings $writing_settings;
+    private readonly TaskManager $task_manager;
+    private FileStorage $file_storage;
+    
     private readonly WorkingTime $working_time;
     private readonly bool $is_written;
     private readonly bool $is_after_writing;
@@ -50,29 +56,40 @@ class StartPageGUI extends BaseGUI
     private array $solution_resources;
     /** @var array<int, Component[]> */
     private array $writing_resources;
+    /** @var \Edutiek\AssessmentService\EssayTask\Data\Essay[]  */
+    private array $essays;
 
-    public function __construct(BaseObjectData $object, private readonly object $target, private readonly Closure $is_resource_available)
+
+    public function __construct(
+        BaseObjectData $object,
+        private readonly Writer $writer,
+        private readonly object $target,
+        private readonly Closure $is_resource_available)
     {
         parent::__construct($object);
 
         $this->perms = $this->assessment_api->permissions($this->object->getId());
         $this->orga_settings = $this->assessment_api->orgaSettings()->get();
-        $this->writer = $this->assessment_api->writer()->oneByUserId($this->dic->user()->getId(), $this->object->getId());
+        $this->task_manager = $this->task_api->manager();
+        $this->file_storage = $this->system_api->fileStorage();
 
         $this->working_time = new WorkingTime($this->orga_settings, $this->writer);
 
         $this->is_written = $this->writer?->getWritingAuthorized() !== null;
         $this->is_after_writing = $this->is_written || $this->working_time->isNowAfterAllowedTime();
         [$this->solution_resources, $this->writing_resources] = $this->calcResource();
+
+        $this->writing_settings = $this->essay_task_api->writingSettings()->get();
+        $this->essays = $this->essay_task_api->essay()->allByWriterId($this->writer->getId());
     }
 
-    public function show(): void
+    public function showPage(): void
     {
         $this->toolbar();
 
         $this->renderContent([
             $this->screenMessage(),
-            $this->ins(),
+            $this->assessmentInfo(),
             ...$this->allTaskBlocks(),
             $this->result(),
         ]);
@@ -80,36 +97,29 @@ class StartPageGUI extends BaseGUI
 
     private function screenMessage(): array
     {
-        if ($this->writer === null) {
-            return [];
-        }
-
-        $writing_settings = $this->essay_task_api->writingSettings()->get();
-
-        $essays = $this->essay_task_api->essay()->allByWriterId($this->writer->getId());
-
         if ($this->writer->getWritingExcluded()) {
-            $this->tpl->setOnScreenMessage('info', $this->plugin->txt('message_writing_excluded'));
+            $this->info($this->plugin->txt('message_writing_excluded'));
 
-        } elseif (!$this->writer->getWritingAuthorized() && array_filter($essays, fn($e) => $e->getWrittenText() || $e->getPdfVersion())) {
+        } elseif (!$this->writer->getWritingAuthorized() && array_filter($this->essays, fn($e) => $e->getWrittenText() || $e->getPdfVersion())) {
+            
             if ($this->perms->canReviewWrittenAssessment()) {
-                $this->tpl->setOnScreenMessage('failure', $this->plugin->txt(
-                    $writing_settings->getWritingType() === WritingType::PDF_UPLOAD ? 'message_writing_to_authorize_pdf' : 'message_writing_to_authorize'
+                $this->failure($this->plugin->txt(
+                    $this->writing_settings->getWritingType() === WritingType::PDF_UPLOAD ? 'message_writing_to_authorize_pdf' : 'message_writing_to_authorize'
                 ));
             } elseif ($this->perms->canWrite()) {
-                if (isset($this->params['returned'])) {
-                    $this->tpl->setOnScreenMessage('info', $this->plugin->txt('message_writing_returned_interrupted'));
+                if ($this->get->has('returned')) {
+                    $this->info($this->plugin->txt('message_writing_returned_interrupted'));
                 } else {
-                    $this->tpl->setOnScreenMessage('info', $this->plugin->txt(
-                        $writing_settings->getWritingType() === WritingType::PDF_UPLOAD ? 'message_writing_to_authorize_pdf' : 'message_writing_to_continue'
+                    $this->info($this->plugin->txt(
+                        $this->writing_settings->getWritingType() === WritingType::PDF_UPLOAD ? 'message_writing_to_authorize_pdf' : 'message_writing_to_continue'
                     ));
                 }
             } else {
-                $this->tpl->setOnScreenMessage('failure', $this->plugin->txt('message_writing_not_authorized'));
+                $this->failure($this->plugin->txt('message_writing_not_authorized'));
             }
 
         } elseif ($this->writer->getWritingAuthorized()) {
-            if (isset($this->params['returned'])) {
+            if ($this->get->has('returned')) {
                 if($this->orga_settings->getClosingMessage()) {
                     $message = $this->displayText($this->orga_settings->getClosingMessage());
                 } else {
@@ -128,7 +138,7 @@ class StartPageGUI extends BaseGUI
 
                 return [$this->ui_factory->legacy('<div class="alert alert-success" role="alert">' . $message . '</div>')];
             } else {
-                $this->tpl->setOnScreenMessage('info', $this->plugin->txt('message_writing_authorized'));
+                $this->info($this->plugin->txt('message_writing_authorized'));
             }
         }
 
@@ -137,80 +147,105 @@ class StartPageGUI extends BaseGUI
 
     private function toolbar(): void
     {
-        $writing_settings = $this->essay_task_api->writingSettings()->get();
-
-        switch ($writing_settings->getWritingType()) {
-        case WritingType::ESSAY_EDITOR:
+        if (!$this->working_time->isStarted()) {
             if ($this->perms->canWrite()) {
-                $button = $this->ui_factory->button()->primary(
-                    $this->plugin->txt($this->writer === null ? 'start_writing' : 'continue_writing'),
-                    $this->ctrl->getLinkTarget($this->target, 'startWriter')
-                );
-                $this->toolbar->addComponent($button);
-            } elseif ($this->perms->canReviewWrittenAssessment() && $this->writer && !$this->writer->getWritingAuthorized()) {
-                $button = $this->ui_factory->button()->standard(
-                    $this->plugin->txt('review_writing'),
-                    $this->ctrl->getLinkTarget($this->target, 'startWritingReview')
-                );
+                $contents[] = $start_modal = $this->ui_factory->modal()->interruptive(
+                    $this->plugin->txt('start_working'),
+                    $this->plugin->txt($this->working_time->hasTimeLimitFromStart() ? 'start_working_time_limited' : 'start_working_time_unlimited'),
+                    $this->ctrl->getLinkTarget($this, 'startWorking')
+                )->withActionButtonLabel($this->plugin->txt('start_working'));
+                $button = $this->ui_factory->button()->primary($this->plugin->txt('start_working'), '#')->withOnClick($start_modal->getShowSignal());
                 $this->toolbar->addComponent($button);
             }
-            break;
+        } else {
+            switch ($this->writing_settings->getWritingType()) {
+                case WritingType::ESSAY_EDITOR:
+                    if ($this->perms->canWrite()) {
+                        $button = $this->ui_factory->button()->primary(
+                            $this->plugin->txt('continue_writing'),
+                            $this->ctrl->getLinkTarget($this->target, 'startWriter')
+                        );
+                        $this->toolbar->addComponent($button);
+                    } elseif ($this->perms->canReviewWrittenAssessment() && $this->writer && !$this->writer->getWritingAuthorized()) {
+                        $button = $this->ui_factory->button()->standard(
+                            $this->plugin->txt('review_writing'),
+                            $this->ctrl->getLinkTarget($this->target, 'startWritingReview')
+                        );
+                        $this->toolbar->addComponent($button);
+                    }
+                    break;
 
-        case WritingType::PDF_UPLOAD:
-            if (($this->perms->canWrite() || $this->perms->canReviewWrittenAssessment())
-                && $this->writer && $this->writer->getPdfVersion() && !$this->writer->getWritingAuthorized() ) {
-                $button = $this->ui_factory->button()->primary(
-                    $this->plugin->txt('writer_review_pdf'),
-                    $this->ctrl->getLinkTargetByClass(
-                        'ilias\plugin\longessayassessment\writer\writeruploadgui',
-                        'reviewPdf'
-                    )
-                );
-                $this->toolbar->addComponent($button);
+                case WritingType::PDF_UPLOAD:
+                    if (($this->perms->canWrite() || $this->perms->canReviewWrittenAssessment())
+                        && $this->writer && !$this->writer->getWritingAuthorized()
+                        && array_filter($this->essays, fn($e) => $e->getPdfVersion())) {
+                        $button = $this->ui_factory->button()->primary(
+                            $this->plugin->txt('writer_review_pdf'),
+                            // todo: use ::class when writeruploadgui is migrated
+                            $this->ctrl->getLinkTargetByClass(
+                                'ilias\plugin\longessayassessment\writer\writeruploadgui',
+                                'reviewPdf'
+                            )
+                        );
+                        $this->toolbar->addComponent($button);
 
-                if ($this->perms->canWrite()) {
-                    $button = $this->ui_factory->button()->standard(
-                        $this->plugin->txt('writer_replace_pdf'),
-                        $this->ctrl->getLinkTargetByClass(
-                            'ilias\plugin\longessayassessment\writer\writeruploadgui',
-                            'uploadPdf'
-                        )
-                    );
-                    $this->toolbar->addComponent($button);
-                }
+                        if ($this->perms->canWrite()) {
+                            $button = $this->ui_factory->button()->standard(
+                                $this->plugin->txt('writer_replace_pdf'),
+                                $this->ctrl->getLinkTargetByClass(
+                                    // todo: use ::class when writeruploadgui is migrated
+                                    'ilias\plugin\longessayassessment\writer\writeruploadgui',
+                                    'uploadPdf'
+                                )
+                            );
+                            $this->toolbar->addComponent($button);
+                        }
 
-            } elseif ($this->perms->canWrite()) {
-                $button = $this->ui_factory->button()->primary(
-                    $this->plugin->txt('writer_upload_pdf'),
-                    $this->ctrl->getLinkTargetByClass(
-                        'ilias\plugin\longessayassessment\writer\writeruploadgui',
-                        'uploadPdf'
-                    )
-                );
-                $this->toolbar->addComponent($button);
+                    } elseif ($this->perms->canWrite()) {
+                        $button = $this->ui_factory->button()->primary(
+                            $this->plugin->txt('writer_upload_pdf'),
+                            $this->ctrl->getLinkTargetByClass(
+                                // todo: use ::class when writeruploadgui is migrated
+                                'ilias\plugin\longessayassessment\writer\writeruploadgui',
+                                'uploadPdf'
+                            )
+                        );
+                        $this->toolbar->addComponent($button);
+                    }
+                    break;
             }
-            break;
         }
-    }
+     }
 
-    private function ins()
+    private function assessmentInfo()
     {
+        $inst_parts = [];
+
         if ($this->orga_settings->getDescription() && !$this->is_after_writing) {
             $inst_parts[] = $this->ui_factory->legacy($this->displayText($this->orga_settings->getDescription()));
         }
 
-        if ($this->is_before_writing) {
+        if ($this->working_time->isNowBeforeAllowedTime()) {
             $properties[$this->plugin->txt('writing_period')] = $this->ui_factory->button()->shy(
-                $this->formatDateRange($this->orga_settings->getWritingStart(), $this->writing_end)
+                $this->formatWorkingTime($this->working_time)
                     . ' ' . $this->plugin->txt('refresh_page'),
                 $this->ctrl->getLinkTarget($this->target)
             );
         }
-        elseif (!$this->is_written) {
-            $properties[$this->plugin->txt('writing_period')] = $this->formatDateRange($this->orga_settings->getWritingStart(), $this->writing_end);
+        elseif ($this->working_time->isLimited() && !$this->is_written) {
+            $properties[$this->plugin->txt('writing_period')] = ($this->working_time->isStarted()) ?
+                $this->formatDateRange($this->working_time->getWorkingStart(), $this->working_time->getWorkingDeadline()) :
+                $this->formatWorkingTime($this->working_time);
+        }
+
+        if (isset($this->writer) && $this->writer->getLocation() !== null) {
+            $location = $this->assessment_api->location()->one($this->writer->getLocation());
+            $properties[$this->plugin->txt("location")] = ($location !== null ? $location?->getTitle() : " - ");
         }
 
         if ($this->is_after_writing) {
+            $divider = $this->ui_factory->divider()->vertical();
+
             if ($this->orga_settings->getDescription()) {
                 $inst_parts[] = $this->ui_factory->button()->shy(
                     $this->plugin->txt('task_description'),
@@ -218,7 +253,7 @@ class StartPageGUI extends BaseGUI
                 );
             }
             if ($this->orga_settings->getClosingMessage() && $this->is_written) {
-                $separate($divider);
+                $inst_parts = empty($inst_parts) ? [] : array_merge($inst_parts, [$divider]);
                 $inst_parts[] = $this->ui_factory->button()->shy(
                     $this->plugin->txt('closing_message'),
                     $this->ctrl->getLinkTarget($this->target, 'viewClosingMessage')
@@ -246,11 +281,6 @@ class StartPageGUI extends BaseGUI
             }
         };
 
-        // xx
-        if ($this->writer?->getLocation() !== null) {
-            $properties[$this->plugin->txt('location')] = ($location = $this->task_repo->getLocationById($this->writer->getLocation())) !== null ? $location->getTitle() : ' - ';
-        }
-
         if ($properties !== []) {
             $separate($this->ui_factory->divider()->horizontal());
             $inst_parts[] = $this->ui_factory->listing()->descriptive($properties);
@@ -259,7 +289,6 @@ class StartPageGUI extends BaseGUI
         if ($this->is_after_writing) {
             $divider = $this->ui_factory->divider()->vertical();
 
-            
             if ($task_settings->getInstructions()) {
                 $separate($divider);
                 $inst_parts[] = $this->ui_factory->button()->shy(
@@ -275,7 +304,7 @@ class StartPageGUI extends BaseGUI
                     $this->ctrl->getLinkTarget($this->target, 'downloadInstructions')
                 );
             }
-        } elseif (!$this->is_before_writing) {
+        } elseif (!$this->working_time->isNowBeforeAllowedTime()) {
             if ($task_settings->getInstructions()) {
                 $inst_parts[] = $this->ui_factory->item()->standard(
                     $this->ui_factory->link()->standard(
@@ -330,7 +359,7 @@ class StartPageGUI extends BaseGUI
             $properties[$this->plugin->txt('label_available')] = $this->formatResultAvailability();
         }
 
-        if($this->orga_settings->getReviewStart() || $this->orga_settings->getReviewEnd()) {
+        if ($this->orga_settings->getReviewStart() || $this->orga_settings->getReviewEnd()) {
             $properties[$this->plugin->txt('review_period')] =
                 $this->formatDateRange($this->orga_settings->getReviewStart(), $this->orga_settings->getReviewEnd());
         }
@@ -354,7 +383,7 @@ class StartPageGUI extends BaseGUI
                 )->withLeadIcon($this->ui_factory->symbol()->icon()->standard('file', '', 'medium'));
             }
         }
-        if ($this->perms->canDownloadCorrectionReports() && $this->perms->hasCorrectionReports()) {
+        if ($this->perms->canDownloadCorrectionReports() && $this->assessment_api->corrector()->hasReports()) {
             $result_items[] = $this->ui_factory->item()->standard(
                 $this->ui_factory->link()->standard(
                     $this->plugin->txt('download_correction_reports'),
@@ -404,7 +433,7 @@ class StartPageGUI extends BaseGUI
         $writing_resources = [];
         $solution_resources = [];
 
-        $tasks = $this->manager_service->all();
+        $tasks = $this->task_manager->all();
         
 
         foreach ($tasks as $task) {
@@ -414,21 +443,21 @@ class StartPageGUI extends BaseGUI
                 if (($this->is_resource_available)($resource)) {
 
                     if ($resource->getType() == ResourceType::FILE && $resource->getFileId() !== null) {
-                        $resource_file = $this->dic->resourceStorage()->manage()->find($resource->getFileId());
-                        if ($resource_file !== null) {
-                            $revision = $this->dic->resourceStorage()->manage()->getCurrentRevision($resource_file);
+
+                        $file_info = $this->file_storage->getFileInfo($resource->getFileId());
+                        if ($file_info !== null) {
                             $this->ctrl->setParameter($this->target, 'resource_id', $resource->getId());
                             $this->ctrl->setParameter($this->target, 'task_id', (string) $task->getId());
                             $item = $this->ui_factory->item()->standard(
                                 $this->ui_factory->link()->standard(
-                                    $resource->getTitle(),
+                                   $file_info->getFileName(),
                                     $this->ctrl->getLinkTarget($this->target, 'downloadResourceFile')
                                 )
                             )   ->withDescription((string) $resource->getDescription())
                                 ->withLeadIcon($this->ui_factory->symbol()->icon()->standard('file', '', 'medium'))
                                 ->withProperties(
                                     array(
-                                        $this->lng->txt('filename') => $revision->getInformation()->getTitle(),
+                                        $this->lng->txt('filename') => $file_info->getFileName(),
                                         $this->plugin->txt('resource_availability') => $this->plugin->txt('resource_availability_' . $resource->getAvailability()->value)
                                     )
                                 );
@@ -459,7 +488,7 @@ class StartPageGUI extends BaseGUI
     private function allTaskBlocks(): array
     {
         $blocks = [];
-        $tasks = $this->manager_service->all();
+        $tasks = $this->task_manager->all();
         $tasks = [$tasks[0], $tasks[0]];
         $one = count($tasks) === 1;
         foreach ($tasks as $task) {
@@ -473,6 +502,11 @@ class StartPageGUI extends BaseGUI
         return $blocks;
     }
 
+    /**
+     * todo: migrate to \Edutiek\AssessmentService\System\Format\Service::dates
+     * - How to get rid of ilDatePresentation? e.g. with a formatDate Closure dependency of the service?
+     * - Move language variables to the service? Would be needed fpr PDF generation, too
+     */
     private function formatDateRange(?DateTimeImmutable $from, ?DateTimeImmutable $to): string
     {
         $old_relative = ilDatePresentation::useRelativeDates();
@@ -493,6 +527,10 @@ class StartPageGUI extends BaseGUI
         return $text;
     }
 
+    /**
+     * todo: move to a new formatting service function of the assessment service
+     * - Move language variables to the service?
+     */
     private function formatResultAvailability(): string
     {
         return match ($this->orga_settings->getResultAvailableType()) {
@@ -502,6 +540,10 @@ class StartPageGUI extends BaseGUI
         };
     }
 
+    /**
+     * todo: move to a new formatting service function of the assessment service
+     * - Move language variables to the service?
+     */
     private function formatFinalResult(?Writer $essay): string
     {
         if (null === $essay) {
@@ -512,7 +554,7 @@ class StartPageGUI extends BaseGUI
             return $this->plugin->txt('result_not_finalized');
         }
 
-        $level = $this->localDI->getObjectRepo()->getGradeLevelById((int) $essay->getFinalGradeLevelId());
+        $level = $this->assessment_api->gradLevel()->one((int) $essay->getFinalGradeLevelId());
         if (empty($level)) {
             $text =  $this->plugin->txt('result_not_graded');
         } else {
@@ -528,5 +570,49 @@ class StartPageGUI extends BaseGUI
         }
 
         return $text;
+    }
+
+    /**
+     * todo: move to a new formatting service function of the assessment service
+     */
+    private function formatWorkingTime(WorkingTime $working_time): string
+    {
+        if ($working_time->isLimited()) {
+            $string = $this->formatDateRange($working_time->getEarliestStart(), $working_time->getLatestEnd());
+            if ($working_time->getTimeLimitMinutes()) {
+                $string .= ', ' . $this->formatDuration($working_time->getTimeLimitMinutes() * 60);
+            }
+            return $string;
+        }
+
+        return $this->plugin->txt('not_specified');
+    }
+
+    /**
+     * todo: move to a new formatting service function of the system service
+     */
+    private function formatDuration($seconds): string
+    {
+        $duration = (int) $seconds;
+        $days = floor($duration / (24 * 3600));
+        $hours = floor(($duration - $days * 24 * 3600) / 3600);
+        $minutes = floor(($duration - $days * 24 * 3600 - $hours * 3600) / 60);
+        $seconds = $duration % 60;
+
+        $parts = [];
+        if (!empty($days)) {
+            $parts[] = ($days == 1) ? $this->plugin->txt('one_day') : sprintf($this->plugin->txt('x_days'), $days);
+        }
+        if (!empty($hours)) {
+            $parts[] = ($hours == 1) ? $this->plugin->txt('one_hour') : sprintf($this->plugin->txt('x_hours'), $hours);
+        }
+        if (!empty($minutes)) {
+            $parts[] = ($minutes == 1) ? $this->plugin->txt('one_minute') : sprintf($this->plugin->txt('x_minutes'), $minutes);
+        }
+        if (!empty($seconds)) {
+            $parts[] = ($seconds == 1) ? $this->plugin->txt('one_second') : sprintf($this->plugin->txt('x_seconds'), $seconds);
+        }
+
+        return implode(' ', $parts);
     }
 }

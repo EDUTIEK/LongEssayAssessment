@@ -18,6 +18,7 @@ use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\BaseObjectData;
 use ILIAS\UI\Component\Input\Container\Form\Standard;
 use ilLongEssayAssessmentUploadHandlerGUI;
+use Edutiek\AssessmentService\Assessment\TaskInterfaces\Manager as TaskManager;
 
 /**
  * Settings GUI for task instructions
@@ -35,13 +36,14 @@ class InstructionSettingsGUI extends BaseGUI
     private FileStorage $file_storage;
     private Settings $settings;
     private ?Resource $resource;
-
+    private TaskManager $task_manager;
 
     public function __construct(BaseObjectData $object) {
         parent::__construct($object);
 
         $this->entity_service = $this->system_api->entity();
         $this->transform_service = $this->system_api->transform();
+        $this->task_manager = $this->task_api->manager();
         $this->file_storage = $this->system_api->fileStorage();
         $this->upload_handler = new ilLongEssayAssessmentUploadHandlerGUI(
             $this->file_storage,
@@ -88,7 +90,7 @@ class InstructionSettingsGUI extends BaseGUI
             $data = $form->getData();
             $result = $form->getInputGroup()->getContent();
             if ($result->isOK()) {
-                $task_id = $this->manager_service->create(new TaskInfo(
+                $task_id = $this->task_manager->create(new TaskInfo(
                     $data['form']['title'],
                     TaskType::ESSAY
                 ));
@@ -103,10 +105,10 @@ class InstructionSettingsGUI extends BaseGUI
 
     private function delete(): void
     {
-        if ($this->manager_service->count() < 2) {
+        if ($this->task_manager->count() < 2) {
             $this->raisePermissionError();
         }
-        $this->manager_service->delete($this->task_info->getId());
+        $this->task_manager->delete($this->task_info->getId());
         $this->success($this->plugin->txt('tak_deleted'), true);
         $this->ctrl->redirect($this, 'editSettings');
 
@@ -200,7 +202,7 @@ class InstructionSettingsGUI extends BaseGUI
         $this->toolbar->addComponent($this->ui_factory->button()->standard(
             $this->plugin->txt("delete_task"), "#"
             )->withOnClick($modal->getShowSignal())->withUnavailableAction(
-                $this->manager_service->count() < 2
+                $this->task_manager->count() < 2
         ));
     }
 }

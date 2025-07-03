@@ -34,6 +34,22 @@ class CorrectorRepo implements \Edutiek\AssessmentService\Assessment\Data\Correc
         return $this->repo->new();
     }
 
+    public function has(int $id): bool
+    {
+        return $this->repo->hasBy(['id' => $id]);
+    }
+
+    public function hasReports(): bool
+    {
+        $sql = "SELECT id FROM " . $this->repo->table() . " WHERE correction_report IS NOT NULL LIMIT 1";
+        return $this->repo->queryOne($sql) !== null;
+    }
+
+    public function hasByCorrectorIdAndAssId(int $corrector_id, int $ass_id): bool
+    {
+        return $this->repo->hasBy(['corrector_id' => $corrector_id, 'ass_id' => $ass_id]);
+    }
+
     public function one(int $id): ?Corrector
     {
         return $this->repo->queryOneBy(['id' => $id]);

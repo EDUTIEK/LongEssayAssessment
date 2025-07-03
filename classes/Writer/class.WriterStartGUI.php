@@ -28,6 +28,7 @@ use ILIAS\Plugin\LongEssayAssessment\System\Data\FileInfo;
 use ILIAS\Plugin\LongEssayAssessment\BaseObjectData;
 use Edutiek\AssessmentService\Assessment\Permissions\ReadService;
 use Edutiek\AssessmentService\Assessment\Data\OrgaSettings;
+use Edutiek\AssessmentService\Assessment\Data\Writer as Writer;
 
 /**
  * @ilCtrl_isCalledBy ILIAS\Plugin\LongEssayAssessment\Writer\WriterStartGUI: ilObjLongEssayAssessmentGUI
@@ -37,12 +38,16 @@ class WriterStartGUI extends BaseGUI
 {
     private readonly ReadService $perms;
     private readonly OrgaSettings $orga_settings;
+    private Writer $writer;
 
     public function __construct(BaseObjectData $object)
     {
         parent::__construct($object);
         $this->perms = $this->assessment_api->permissions($this->object->getId());
         $this->orga_settings = $this->assessment_api->orgaSettings()->get();
+
+        // get or create - permission is already checked
+        $this->writer = $this->assessment_api->writer()->getByUserId($this->user->getId());
     }
 
     public function executeCommand(): void
@@ -68,7 +73,15 @@ class WriterStartGUI extends BaseGUI
 
     public function showStartPage(): void
     {
-        (new StartPageGUI($this->object, $this, $this->isResourceAvailable(...)))->show();
+
+
+        // todo: add forwarding url from version 3
+//        if(!empty($this->orga_settings->getForwardingUrl()) && !empty($this->writer->getWritingAuthorized()) && $this->get->has('returned')) {
+//            $this->ctrl->redirectToURL($this->orga_settings->getForwardingUrl());
+//            return;
+//        }
+
+        (new StartPageGUI($this->object, $this->writer, $this, $this->isResourceAvailable(...)))->showPage();
     }
 
     public function viewDescription(): void
@@ -256,6 +269,9 @@ class WriterStartGUI extends BaseGUI
         }
     }
 
+    /**
+     * todo: move to a service function
+     */
     private function isResourceAvailable($resource): bool
     {
         if ($resource->getAvailability() === ResourceAvailability::BEFORE) {
@@ -268,7 +284,7 @@ class WriterStartGUI extends BaseGUI
         }
 
         return $resource->getAvailability() === ResourceAvailability::AFTER
-            && $this->orga_settings->isSolutionAvailable()
+            && $this->orga_settings->getSolutionAvailable()
             && time() < $this->orga_settings->getSolutionAvailableDate()->getTimestamp();
     }
 

@@ -22,7 +22,6 @@ namespace ILIAS\Plugin\LongEssayAssessment\Writer;
 
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use Edutiek\AssessmentService\Task\Data\ResourceType;
-use Edutiek\AssessmentService\Task\Data\ResourceAvailability;
 use Edutiek\AssessmentService\System\File\Disposition;
 use ILIAS\Plugin\LongEssayAssessment\System\Data\FileInfo;
 use ILIAS\Plugin\LongEssayAssessment\BaseObjectData;
@@ -81,7 +80,7 @@ class WriterStartGUI extends BaseGUI
 //            return;
 //        }
 
-        (new StartPageGUI($this->object, $this->writer, $this, $this->isResourceAvailable(...)))->showPage();
+        (new StartPageGUI($this->object, $this->writer, $this))->showPage();
     }
 
     public function viewDescription(): void
@@ -141,11 +140,12 @@ class WriterStartGUI extends BaseGUI
             return;
         }
 
-        $resource = $this->task_api->resource($task_id)->one($resource_id);
+        $resource_api = $this->task_api->resource($task_id);
+        $resource = $resource_api->one($resource_id);
         if (!$resource) {
             $this->raisePermissionError();
         }
-        if (!$this->isResourceAvailable($resource)) {
+        if (!$resource_api->isAvailable($this->orga_settings, $resource)) {
             $this->raisePermissionError();
         }
 
@@ -267,25 +267,6 @@ class WriterStartGUI extends BaseGUI
                 $this->system_api->fileDelivery()->sendFile($resource->getFileId(), Disposition::ATTACHMENT);
             }
         }
-    }
-
-    /**
-     * todo: move to a service function
-     */
-    private function isResourceAvailable($resource): bool
-    {
-        if ($resource->getAvailability() === ResourceAvailability::BEFORE) {
-            return true;
-        }
-
-        if ($resource->getAvailability() === ResourceAvailability::DURING
-            && time() < $this->orga_settings->getWritingStart()->getTimestamp()) {
-            return true;
-        }
-
-        return $resource->getAvailability() === ResourceAvailability::AFTER
-            && $this->orga_settings->getSolutionAvailable()
-            && time() < $this->orga_settings->getSolutionAvailableDate()->getTimestamp();
     }
 
     private function pdf(): string

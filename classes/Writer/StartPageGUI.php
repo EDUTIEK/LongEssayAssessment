@@ -20,7 +20,6 @@ declare(strict_types=1);
 
 namespace ILIAS\Plugin\LongEssayAssessment\Writer;
 
-use Edutiek\AssessmentService\Assessment\Data\WorkingTime;
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\BaseObjectData;
 use Edutiek\AssessmentService\Assessment\TaskInterfaces\Manager as TaskManager;
@@ -32,25 +31,29 @@ use Edutiek\AssessmentService\EssayTask\Data\WritingType;
 use Edutiek\AssessmentService\Task\Data\ResourceType;
 use Edutiek\AssessmentService\Task\Data\ResourceAvailability;
 use ilDatePresentation;
-use DateTimeImmutable;
 use ilDateTime;
-use Edutiek\AssessmentService\Assessment\Data\ResultAvailableType;
 use Edutiek\AssessmentService\Assessment\Data\Writer;
 use ILIAS\UI\Component\Component;
 use Closure;
 use Edutiek\AssessmentService\System\File\Storage as FileStorage;
+use Edutiek\AssessmentService\Assessment\TaskInterfaces\TaskInfo as Task;
+use Edutiek\AssessmentService\System\Format\FullService as SystemFormat;
+use Edutiek\AssessmentService\Assessment\Format\FullService as AssessmentFormat;
+use Edutiek\AssessmentService\Assessment\WorkingTime\FullService as WorkingTime;
 
 class StartPageGUI extends BaseGUI
 {
     private readonly Permissions $perms;
     private readonly OrgaSettings $orga_settings;
-    private WritingSettings $writing_settings;
+    private readonly WritingSettings $writing_settings;
     private readonly TaskManager $task_manager;
-    private FileStorage $file_storage;
+    private readonly FileStorage $file_storage;
     
     private readonly WorkingTime $working_time;
     private readonly bool $is_written;
     private readonly bool $is_after_writing;
+    private readonly SystemFormat $system_format;
+    private readonly AssessmentFormat $assessment_format;
 
     /** @var array<int, Component[]> */
     private array $solution_resources;
@@ -64,8 +67,7 @@ class StartPageGUI extends BaseGUI
         BaseObjectData $object,
         private readonly Writer $writer,
         private readonly object $target,
-        private readonly Closure $is_resource_available)
-    {
+    ) {
         parent::__construct($object);
 
         $this->perms = $this->assessment_api->permissions($this->object->getId());
@@ -73,10 +75,12 @@ class StartPageGUI extends BaseGUI
         $this->task_manager = $this->task_api->manager();
         $this->file_storage = $this->system_api->fileStorage();
 
-        $this->working_time = new WorkingTime($this->orga_settings, $this->writer);
+        $this->working_time = $this->assessment_api->workingTime($this->orga_settings, $this->writer);
 
         $this->is_written = $this->writer?->getWritingAuthorized() !== null;
         $this->is_after_writing = $this->is_written || $this->working_time->isNowAfterAllowedTime();
+        $this->system_format = $this->system_api->format($this->dic->user()->getId(), $this->formatDate(...));
+        $this->assessment_format = $this->assessment_api->format($this->system_format, $this->orga_settings);
         [$this->solution_resources, $this->writing_resources] = $this->calcResource();
 
         $this->writing_settings = $this->essay_task_api->writingSettings()->get();
@@ -128,7 +132,7 @@ class StartPageGUI extends BaseGUI
                 if ($this->orga_settings->getReviewStart() || $this->orga_settings->getReviewEnd()) {
                     $message .= sprintf(
                         '<p>' . $this->plugin->txt('message_review_period') . '</p>',
-                        $this->formatDateRange($this->orga_settings->getReviewStart(), $this->orga_settings->getReviewEnd())
+                        $this->system_format->dateRange($this->orga_settings->getReviewStart(), $this->orga_settings->getReviewEnd())
                     );
                 }
 
@@ -227,15 +231,15 @@ class StartPageGUI extends BaseGUI
 
         if ($this->working_time->isNowBeforeAllowedTime()) {
             $properties[$this->plugin->txt('writing_period')] = $this->ui_factory->button()->shy(
-                $this->formatWorkingTime($this->working_time)
+                $this->working_time->format($this->system_format)
                     . ' ' . $this->plugin->txt('refresh_page'),
                 $this->ctrl->getLinkTarget($this->target)
             );
         }
         elseif ($this->working_time->isLimited() && !$this->is_written) {
             $properties[$this->plugin->txt('writing_period')] = ($this->working_time->isStarted()) ?
-                $this->formatDateRange($this->working_time->getWorkingStart(), $this->working_time->getWorkingDeadline()) :
-                $this->formatWorkingTime($this->working_time);
+                $this->system_format->dateRange($this->working_time->getWorkingStart(), $this->working_time->getWorkingDeadline()) :
+                $this->working_time->format($this->system_format);
         }
 
         if (isset($this->writer) && $this->writer->getLocation() !== null) {
@@ -253,7 +257,7 @@ class StartPageGUI extends BaseGUI
                 );
             }
             if ($this->orga_settings->getClosingMessage() && $this->is_written) {
-                $inst_parts = empty($inst_parts) ? [] : array_merge($inst_parts, [$divider]);
+                $inst_parts = $inst_parts === [] ? [] : array_merge($inst_parts, [$divider]);
                 $inst_parts[] = $this->ui_factory->button()->shy(
                     $this->plugin->txt('closing_message'),
                     $this->ctrl->getLinkTarget($this->target, 'viewClosingMessage')
@@ -264,7 +268,7 @@ class StartPageGUI extends BaseGUI
         return [$this->ui_factory->panel()->standard('@todo', $inst_parts)];
     }
 
-    private function instructions($task, bool $one): array
+    private function instructions(Task $task, bool $one): array
     {
         $title = $this->plugin->txt('task_instructions');
         $title .= $one ? '' : ' ' . ($task->getPosition() + 1);
@@ -353,15 +357,15 @@ class StartPageGUI extends BaseGUI
         $properties = [];
 
         if ($this->perms->canViewResult()) {
-            $result_items[] = $this->ui_factory->legacy($this->formatFinalResult($this->writer));
+            $result_items[] = $this->ui_factory->legacy($this->assessment_format->finalResult($this->writer));
             $result_items[] = $this->ui_factory->divider()->horizontal();
         } else {
-            $properties[$this->plugin->txt('label_available')] = $this->formatResultAvailability();
+            $properties[$this->plugin->txt('label_available')] = $this->assessment_format->resultAvailability();
         }
 
         if ($this->orga_settings->getReviewStart() || $this->orga_settings->getReviewEnd()) {
             $properties[$this->plugin->txt('review_period')] =
-                $this->formatDateRange($this->orga_settings->getReviewStart(), $this->orga_settings->getReviewEnd());
+                $this->system_format->dateRange($this->orga_settings->getReviewStart(), $this->orga_settings->getReviewEnd());
         }
         $result_items[] = $this->ui_factory->listing()->descriptive($properties);
 
@@ -437,11 +441,11 @@ class StartPageGUI extends BaseGUI
         
 
         foreach ($tasks as $task) {
-            $resources = $this->task_api->resource($task->getId())->allByTypes([ResourceType::URL, ResourceType::FILE]);
+            $resource_api = $this->task_api->resource($task->getId());
+            $resources = $resource_api->allByTypes([ResourceType::URL, ResourceType::FILE]);
             foreach ($resources as $resource) {
                 $item = null;
-                if (($this->is_resource_available)($resource)) {
-
+                if ($resource_api->isAvailable($this->orga_settings, $resource)) {
                     if ($resource->getType() == ResourceType::FILE && $resource->getFileId() !== null) {
 
                         $file_info = $this->file_storage->getFileInfo($resource->getFileId());
@@ -499,119 +503,5 @@ class StartPageGUI extends BaseGUI
         }
 
         return $blocks;
-    }
-
-    /**
-     * todo: migrate to \Edutiek\AssessmentService\System\Format\Service::dates
-     * - How to get rid of ilDatePresentation? e.g. with a formatDate Closure dependency of the service?
-     * - Move language variables to the service? Would be needed fpr PDF generation, too
-     */
-    private function formatDateRange(?DateTimeImmutable $from, ?DateTimeImmutable $to): string
-    {
-        $old_relative = ilDatePresentation::useRelativeDates();
-        ilDatePresentation::setUseRelativeDates(true);
-
-        $txt = $this->plugin->txt(...);
-        $format = fn($d) => ilDatePresentation::formatDate(new ilDateTime($d->getTimestamp(), IL_CAL_UNIX));
-
-        $text = match([!!$from, !!$to]) {
-            [true, false] => $txt('period_only_from') . ' ' . $format($from),
-            [false, true] => $txt('period_only_until') . ' ' . $format($to),
-            [true, true] => join(' ', [$txt('period_from'), $format($from), $txt('period_until'), $format($to)]),
-            [false, false] => $txt('not_specified'),
-        };
-
-        ilDatePresentation::setUseRelativeDates($old_relative);
-
-        return $text;
-    }
-
-    /**
-     * todo: move to a new formatting service function of the assessment service
-     * - Move language variables to the service?
-     */
-    private function formatResultAvailability(): string
-    {
-        return match ($this->orga_settings->getResultAvailableType()) {
-            ResultAvailableType::FINALISED => $this->plugin->txt('result_available_finalised'),
-            ResultAvailableType::REVIEW => $this->plugin->txt('result_available_review'),
-            ResultAvailableType::DATE => $this->formatDateRange($this->orga_settings->getResultAvailableDate(), null),
-        };
-    }
-
-    /**
-     * todo: move to a new formatting service function of the assessment service
-     * - Move language variables to the service?
-     */
-    private function formatFinalResult(?Writer $essay): string
-    {
-        if (null === $essay) {
-            return $this->plugin->txt('result_not_available');
-        }
-
-        if (null === $essay->getCorrectionFinalized()) {
-            return $this->plugin->txt('result_not_finalized');
-        }
-
-        $level = $this->assessment_api->gradLevel()->one((int) $essay->getFinalGradeLevelId());
-        if (empty($level)) {
-            $text =  $this->plugin->txt('result_not_graded');
-        } else {
-            $text = $level->getGrade();
-        }
-
-        if (!empty($essay->getFinalPoints())) {
-            $text .= ' (' . $essay->getFinalPoints() . ' ' . $this->plugin->txt('points') . ')';
-        }
-
-        if (!empty($essay->getStitchComment())) {
-            $text .= ' ' . $this->plugin->txt('via_stitch_decision');
-        }
-
-        return $text;
-    }
-
-    /**
-     * todo: move to a new formatting service function of the assessment service
-     */
-    private function formatWorkingTime(WorkingTime $working_time): string
-    {
-        if ($working_time->isLimited()) {
-            $string = $this->formatDateRange($working_time->getEarliestStart(), $working_time->getLatestEnd());
-            if ($working_time->getTimeLimitMinutes()) {
-                $string .= ', ' . $this->formatDuration($working_time->getTimeLimitMinutes() * 60);
-            }
-            return $string;
-        }
-
-        return $this->plugin->txt('not_specified');
-    }
-
-    /**
-     * todo: move to a new formatting service function of the system service
-     */
-    private function formatDuration($seconds): string
-    {
-        $duration = (int) $seconds;
-        $days = floor($duration / (24 * 3600));
-        $hours = floor(($duration - $days * 24 * 3600) / 3600);
-        $minutes = floor(($duration - $days * 24 * 3600 - $hours * 3600) / 60);
-        $seconds = $duration % 60;
-
-        $parts = [];
-        if (!empty($days)) {
-            $parts[] = ($days == 1) ? $this->plugin->txt('one_day') : sprintf($this->plugin->txt('x_days'), $days);
-        }
-        if (!empty($hours)) {
-            $parts[] = ($hours == 1) ? $this->plugin->txt('one_hour') : sprintf($this->plugin->txt('x_hours'), $hours);
-        }
-        if (!empty($minutes)) {
-            $parts[] = ($minutes == 1) ? $this->plugin->txt('one_minute') : sprintf($this->plugin->txt('x_minutes'), $minutes);
-        }
-        if (!empty($seconds)) {
-            $parts[] = ($seconds == 1) ? $this->plugin->txt('one_second') : sprintf($this->plugin->txt('x_seconds'), $seconds);
-        }
-
-        return implode(' ', $parts);
     }
 }

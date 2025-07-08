@@ -5,7 +5,6 @@
 namespace ILIAS\Plugin\LongEssayAssessment;
 
 use Edutiek\AssessmentService\Assessment\Api\ForClients as AssessmentApi;
-use Edutiek\AssessmentService\Assessment\TaskInterfaces\Manager as TaskManagerService;
 use Edutiek\AssessmentService\Assessment\TaskInterfaces\TaskInfo;
 use Edutiek\AssessmentService\EssayTask\Api\ForClients as EssayTaskApi;
 use Edutiek\AssessmentService\EssayTask\Data\HeadlineScheme;
@@ -15,15 +14,15 @@ use ilCtrl;
 use ilGlobalTemplateInterface;
 use ILIAS\DI\Container;
 use ILIAS\HTTP\Services as Http;
+use ILIAS\Plugin\LongEssayAssessment\Common\Constraints\DataConstraints;
 use ILIAS\Plugin\LongEssayAssessment\Common\Http\RequestVariables;
 use ILIAS\Plugin\LongEssayAssessment\Common\Session\SessionValues;
-use ILIAS\Plugin\LongEssayAssessment\Common\Constraints\DataConstraints;
-use ILIAS\Plugin\LongEssayAssessment\Data\Task\EditorSettings;
 use ILIAS\Plugin\LongEssayAssessment\Provider\ToolProvider;
 use ILIAS\Plugin\LongEssayAssessment\Settings\InstructionSettingsGUI;
 use ILIAS\Plugin\LongEssayAssessment\UI\Factory as PluginUiFactory;
 use ILIAS\Plugin\LongEssayAssessment\UI\UIService as PluginUIService;
 use ILIAS\Refinery\Factory as RefineryFactory;
+use ILIAS\UI\Component\Component;
 use ILIAS\UI\Component\Component as UiComponent;
 use ILIAS\UI\Factory as UiFactory;
 use ILIAS\UI\Renderer;
@@ -37,6 +36,9 @@ use ilTabsGUI;
 use ilToolbarGUI;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use DateTimeInterface;
+use ilDatePresentation;
+use ilDateTime;
 
 /**
  * Base class for GUI classes (except the plugin guis required by ILIAS)
@@ -69,7 +71,6 @@ abstract class BaseGUI
     protected RequestVariables $get;
     protected RequestVariables $post;
 
-    protected TaskManagerService $manager_service;
     protected ?TaskInfo $task_info;
 
     /** @var UiComponent[] */
@@ -99,6 +100,7 @@ abstract class BaseGUI
         $this->assessment_api = $this->plugin->dic()->assessment($this->object->getAssId(), $this->user->getId());
         $this->task_api = $this->plugin->dic()->task($this->object->getAssId(), $this->user->getId());
         $this->essay_task_api = $this->plugin->dic()->essayTask($this->object->getAssId(), $this->user->getId());
+
         $this->plugin_ui_factory = $this->plugin->dic()->uiFactory();
         $this->plugin_ui_service = $this->plugin->dic()->uiService();
         $this->constraints = $this->plugin->dic()->constraints();
@@ -163,10 +165,10 @@ abstract class BaseGUI
      */
     protected function initForTask()
     {
-        $this->manager_service = $this->task_api->manager();
+        $manager_service = $this->task_api->manager();
 
         $task_id = $this->get->integer('task_id', null) ?? (int) $this->session->get('task_id');
-        $this->task_info = $this->manager_service->one($task_id) ?? $this->manager_service->first();
+        $this->task_info = $manager_service->one($task_id) ?? $manager_service->first();
 
         if ($this->task_info === null) {
             $this->tpl->setContent('task not found');
@@ -185,7 +187,7 @@ abstract class BaseGUI
     }
 
     /**
-     * Init the GUI to handle generic screen that are not bound to an assessment task
+     * Init the GUI to handle generic screens that are not bound to an assessment task
      */
     protected function initForNonTask()
     {
@@ -280,5 +282,18 @@ abstract class BaseGUI
                 ],
             )
         );
+    }
+
+    /**
+     * @param Component|Component[] $render_me
+     */
+    protected function renderContent($render_me): void
+    {
+        $this->tpl->setContent($this->renderer->render($render_me));
+    }
+
+    protected function formatDate(?DateTimeInterface $date): string
+    {
+        return ilDatePresentation::formatDate(new ilDateTime($date->getTimestamp(), IL_CAL_UNIX));
     }
 }

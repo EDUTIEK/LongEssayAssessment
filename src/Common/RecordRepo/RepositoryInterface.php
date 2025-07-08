@@ -38,6 +38,11 @@ interface RepositoryInterface
     public function all(): array;
 
     /**
+     * Check if a recod exists by conditions
+     */
+    public function hasBy(array $conditions): bool;
+
+    /**
      * Get the number of records found by conditions
      */
     public function countBy(array $conditions): int;

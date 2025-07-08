@@ -1210,6 +1210,17 @@ class V10Migration
                             'comment' => '',
                             'src_table' => 'xlas_essay',
                         ),
+                    'correction_finalized' =>
+                        array(
+                            'Field' => 'correction_finalized',
+                            'Type' => 'datetime',
+                            'Null' => 'YES',
+                            'Key' => '',
+                            'Default' => null,
+                            'Extra' => '',
+                            'comment' => 'get/set DateTime',
+                            'src_table' => 'xlas_essay',
+                        ),
                     'correction_finalized_by' =>
                         array(
                             'Field' => 'correction_finalized_by',

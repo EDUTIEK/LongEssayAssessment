@@ -86,7 +86,9 @@ class CriteriaAdminGUI extends CriteriaGUI
             $table->disableAction(true);
         }
 
-        $table->addActionToToolbar($this->toolbar, $table->getActionByName("criteria_settings"));
+        if ($this->allowSettingsInContext()) {
+            $table->addActionToToolbar($this->toolbar, $table->getActionByName("criteria_settings"));
+        }
         $components[] = $table;
         $this->tpl->setContent($this->renderer->render($components));
 
@@ -149,11 +151,7 @@ class CriteriaAdminGUI extends CriteriaGUI
         if ($old_mode !== $new_mode) {
             $this->correction_settings->setCriteriaMode($new_mode);
             $this->correction_settings_service->save($this->correction_settings);
-
-            // This triggers the transition from criteria modes asisde to the removing of authorisations and logging of such
-            $this->correction_settings_service->changeCriteriaMode($old_mode, $new_mode);
-
-            $this->tpl->setOnScreenMessage("success", $this->lng->txt("settings_saved"), true);
+            $this->tpl->setOnScreenMessage("success", $this->lng->txt("settings_saved"), false);
         }
     }
 

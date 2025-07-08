@@ -2,34 +2,22 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\Criteria;
 
-use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
-
-use ILIAS\UI\Implementation\Component\Signal;
-use LTI\ilGlobalTemplate;
-use ILIAS\Plugin\LongEssayAssessment\CorrectorAdmin\CorrectorAdminService;
-use ILIAS\Plugin\LongEssayAssessment\UI\Table\DataTableParent;
-use ILIAS\Plugin\LongEssayAssessment\UI\Table\Item;
-use ILIAS\UI\Component\Table\Column\Column;
-use Generator;
-use ILIAS\Plugin\LongEssayAssessment\UI\Table\Helper\SmallView;
-use ILIAS\Plugin\LongEssayAssessment\UI\Table\Action;
-use ILIAS\Plugin\LongEssayAssessment\UI\Table\Helper\ConfirmationIds;
-use ILIAS\Export\ImportStatus\Exception\ilException;
-use ILIAS\Plugin\LongEssayAssessment\UI\Tree\RepositorySelectModal;
-use ILIAS\UI\Component\Component;
-use ILIAS\Plugin\LongEssayAssessment\BaseObjectData;
-use Edutiek\AssessmentService\EssayTask\Data\RatingCriterion;
-use Edutiek\AssessmentService\Task\Data\ResourceType;
-use ILIAS\Plugin\LongEssayAssessment\UI\Factory;
-use Edutiek\AssessmentService\EssayTask\Data\CorrectionSettings;
 use Edutiek\AssessmentService\EssayTask\Data\CriteriaMode;
+use Edutiek\AssessmentService\EssayTask\Data\RatingCriterion;
+use Generator;
+use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
+use ILIAS\Plugin\LongEssayAssessment\BaseObjectData;
+use ILIAS\Plugin\LongEssayAssessment\UI\Table\Action;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\DataTable;
+use ILIAS\Plugin\LongEssayAssessment\UI\Table\DataTableParent;
+use ILIAS\Plugin\LongEssayAssessment\UI\Table\Helper\ConfirmationIds;
+use ILIAS\Plugin\LongEssayAssessment\UI\Table\Helper\SmallView;
+use ILIAS\Plugin\LongEssayAssessment\UI\Table\Item;
 
 abstract class CriteriaGUI extends BaseGUI implements DataTableParent
 {
     use SmallView, ConfirmationIds;
 
-    private bool $can_edit;
     protected \Edutiek\AssessmentService\System\Entity\FullService $entity_service;
     protected \Edutiek\AssessmentService\EssayTask\CorrectionSettings\FullService $correction_settings_service;
     protected \Edutiek\AssessmentService\EssayTask\Data\CorrectionSettings $correction_settings;
@@ -39,6 +27,7 @@ abstract class CriteriaGUI extends BaseGUI implements DataTableParent
     #private \Edutiek\AssessmentService\Assessment\Corrector\Service $corrector_service;
 
     protected ?int $copy_context = null;
+    private ?bool $has_authorized_corrections = null;
 
     public function __construct(BaseObjectData $objectGUI)
     {
@@ -59,10 +48,6 @@ abstract class CriteriaGUI extends BaseGUI implements DataTableParent
     {
         $this->initForTask();
         $this->criterion_service = $this->essay_task_api->ratingCriterion($this->task_info->getId());
-
-
-        $this->can_edit = $this->correction_settings->getCriteriaMode() == CriteriaMode::CORRECTOR
-            && $this->assessment_status->hasAuthorizedSummaries($this->getCorrectorIdFromContext());
 
         $cmd = $this->ctrl->getCmd('showItems');
 
@@ -103,7 +88,8 @@ abstract class CriteriaGUI extends BaseGUI implements DataTableParent
 
     protected function hasAuthorizedCorrections(): bool
     {
-        return $this->can_edit;
+        return $this->has_authorized_corrections ??= $this->assessment_status->hasAuthorizedSummaries(
+            $this->getCorrectorIdFromContext());
     }
 
     public function table(): DataTable

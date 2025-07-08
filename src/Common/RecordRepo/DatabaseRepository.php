@@ -57,12 +57,9 @@ class DatabaseRepository implements RepositoryInterface
         return array_map($this->fromRow(...), $this->queryAllRaw($query));
     }
 
-    /**
-     * todo: maybe increase performance by adding "LIMIT 1" to the query ?
-     */
     public function queryOne(string $query): ?object
     {
-        $row = $this->db->fetchAssoc($this->db->query($query));
+        $row = $this->db->fetchAssoc($this->db->query($query . ' LIMIT 0, 1'));
         return $row ? $this->fromRow($row) : null;
     }
 
@@ -169,40 +166,40 @@ class DatabaseRepository implements RepositoryInterface
         return array_filter($this->model['properties'], fn(array $p) => $p['key']);
     }
 
-    /**
-     * todo: improve performance with EXISTS
-     */
-    public function hasBy(array $conditions) : bool
+    public function hasBy($conditions) : bool
     {
-        return $this->countBy($conditions) > 0;
+        $result = $this->db->query($this->sqlHas($this->where($conditions)));
+        $row = $this->db->fetchAssoc($result);
+        return (bool) $row['found'];
     }
 
-    public function countBy(array $conditions): int
+    public function countBy($conditions): int
     {
         $result = $this->db->query($this->sqlCount($this->where($conditions)));
-        if ($row = $this->db->fetchAssoc($result)) {
-            return (int) $row['count'];
-        }
-        return 0;
+        $row = $this->db->fetchAssoc($result);
+        return (int) ($row['count'] ?? 0);
     }
 
-    public function queryAllBy(array $conditions, array $order = []): array
+    public function queryAllBy($conditions, array $order = []): array
     {
         return $this->queryAll($this->sqlSelect($this->where($conditions), $this->order($order)));
     }
 
-    public function queryOneBy(array $conditions): ?object
+    public function queryOneBy($conditions): ?object
     {
         return $this->queryOne($this->sqlSelect($this->where($conditions)));
     }
 
-    public function deleteAllBy(array $conditions): void
+    public function deleteAllBy($conditions): void
     {
         $this->db->manipulate($this->sqlDelete($this->where($conditions)));
     }
 
-    public function where(array $conditions): string
+    public function where($conditions): string
     {
+        if (is_string($conditions)) {
+            return $conditions;
+        }
         return join(' AND ', array_map($this->equals(...), array_keys($conditions), array_values($conditions)));
     }
 
@@ -234,6 +231,11 @@ class DatabaseRepository implements RepositoryInterface
     private function sqlDelete(string $where): string
     {
         return 'DELETE FROM ' . $this->db->quoteIdentifier($this->table()) . ' WHERE ' . $where;
+    }
+
+    private function sqlHas(string $where): string
+    {
+        return 'SELECT EXISTS (SELECT 1 FROM ' . $this->db->quoteIdentifier($this->table()) . ' WHERE ' . $where . ') AS found';
     }
 
     /**

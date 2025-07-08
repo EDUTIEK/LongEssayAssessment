@@ -50,12 +50,12 @@ class CacheRepository implements RepositoryInterface
         return $this->cache(__FUNCTION__, []);
     }
 
-    public function hasBy(array $conditions) : bool
+    public function hasBy($conditions) : bool
     {
         return $this->cache(__FUNCTION__, func_get_args());
     }
 
-    public function countBy(array $conditions) : int
+    public function countBy($conditions) : int
     {
         return $this->cache(__FUNCTION__, func_get_args());
     }
@@ -70,7 +70,7 @@ class CacheRepository implements RepositoryInterface
         return $this->cache(__FUNCTION__, func_get_args());
     }
 
-    public function queryAllBy(array $conditions, array $order = []): array
+    public function queryAllBy($conditions, array $order = []): array
     {
         return $this->cache(__FUNCTION__, func_get_args());
     }
@@ -80,7 +80,7 @@ class CacheRepository implements RepositoryInterface
         return $this->cache(__FUNCTION__, func_get_args());
     }
 
-    public function queryOneBy(array $conditions): ?object
+    public function queryOneBy($conditions): ?object
     {
         return $this->cache(__FUNCTION__, func_get_args());
     }
@@ -109,7 +109,7 @@ class CacheRepository implements RepositoryInterface
         $this->clearCache();
     }
 
-    public function deleteAllBy(array $conditions): void
+    public function deleteAllBy($conditions): void
     {
         $this->r->deleteAllBy($conditions);
         $this->clearCache();
@@ -145,7 +145,7 @@ class CacheRepository implements RepositoryInterface
         return $this->r->table();
     }
 
-    public function where(array $conditions): string
+    public function where($conditions): string
     {
         return $this->r->where($conditions);
     }

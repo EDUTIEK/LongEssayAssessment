@@ -39,13 +39,15 @@ interface RepositoryInterface
 
     /**
      * Check if a recod exists by conditions
+     * @param string|array<string, mixed> $conditions
      */
-    public function hasBy(array $conditions): bool;
+    public function hasBy($conditions): bool;
 
     /**
      * Get the number of records found by conditions
+     * @param string|array<string, mixed> $conditions
      */
-    public function countBy(array $conditions): int;
+    public function countBy($conditions): int;
 
     /**
      * Get all entities found by an SQL query
@@ -55,11 +57,12 @@ interface RepositoryInterface
 
     /**
      * Query all entities based on an array of conditions
+     * @param string|array<string, mixed> $conditions
      * @param array<string, 'asc'|'desc' $order
      * @return A[]
      * @see where
      */
-    public function queryAllBy(array $conditions, array $order = []): array;
+    public function queryAllBy($conditions, array $order = []): array;
 
     /**
      * Do a raw database query and return the assoc record arrays
@@ -75,10 +78,11 @@ interface RepositoryInterface
 
     /**
      * Get the first entity found by an array of conditions
+     * @param string|array<string, mixed> $conditions
      * @return ?A
      * @see where
      */
-    public function queryOneBy(array $conditions): ?object;
+    public function queryOneBy($conditions): ?object;
 
     /**
      * Insert a new entity
@@ -111,10 +115,10 @@ interface RepositoryInterface
 
     /**
      * Delete all entities by an array of conditions
-     * @param A $model
+     * @param string|array<string, mixed> $conditions
      * @see where
      */
-    public function deleteAllBy(array $conditions): void;
+    public function deleteAllBy($conditions): void;
 
     /**
      * @return int[]
@@ -162,7 +166,10 @@ interface RepositoryInterface
      *  - An array is used for an IN clause
      *  - null creates an IS NULL clause
      *  - All given conditions are AND combined
-     *  - values are automatically cast and quoted accounting their database field type
+     *  - values are automatically cast and quoted according to their database field type
+     * Or pass a string instead of an array to this method which will be used directly as the WHERE part ('WHERE' must not be included in the string).
+     *
+     * @param string|array<string, mixed> $conditions
      */
-    public function where(array $conditions): string;
+    public function where($conditions): string;
 }

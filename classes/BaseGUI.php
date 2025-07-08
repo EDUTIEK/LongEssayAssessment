@@ -39,6 +39,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use DateTimeInterface;
 use ilDatePresentation;
 use ilDateTime;
+use Edutiek\AssessmentService\System\Format\FullService as SystemFormat;
 
 /**
  * Base class for GUI classes (except the plugin guis required by ILIAS)
@@ -290,10 +291,5 @@ abstract class BaseGUI
     protected function renderContent($render_me): void
     {
         $this->tpl->setContent($this->renderer->render($render_me));
-    }
-
-    protected function formatDate(?DateTimeInterface $date): string
-    {
-        return ilDatePresentation::formatDate(new ilDateTime($date->getTimestamp(), IL_CAL_UNIX));
     }
 }

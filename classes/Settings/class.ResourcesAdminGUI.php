@@ -63,7 +63,7 @@ class ResourcesAdminGUI extends BaseGUI implements DataTableParent
         $this->table_factory = $this->plugin_ui_factory->table();
         $this->file_storage = $this->system_api->fileStorage();
         $this->file_delivery = $this->system_api->fileDelivery();
-        $this->format_service = $this->system_api->format();
+        $this->format_service = $this->system_api->format($this->dic->user()->getId());
 
         $this->upload_handler = new ilLongEssayAssessmentUploadHandlerGUI(
             $this->file_storage,

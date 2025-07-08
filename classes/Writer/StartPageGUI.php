@@ -79,8 +79,8 @@ class StartPageGUI extends BaseGUI
 
         $this->is_written = $this->writer?->getWritingAuthorized() !== null;
         $this->is_after_writing = $this->is_written || $this->working_time->isNowAfterAllowedTime();
-        $this->system_format = $this->system_api->format($this->dic->user()->getId(), $this->formatDate(...));
-        $this->assessment_format = $this->assessment_api->format($this->system_format, $this->orga_settings);
+        $this->system_format = $this->system_api->format($this->dic->user()->getId());
+        $this->assessment_format = $this->assessment_api->format($this->orga_settings);
         [$this->solution_resources, $this->writing_resources] = $this->calcResource();
 
         $this->writing_settings = $this->essay_task_api->writingSettings()->get();
@@ -271,7 +271,7 @@ class StartPageGUI extends BaseGUI
     private function instructions(Task $task, bool $one): array
     {
         $title = $this->plugin->txt('task_instructions');
-        $title .= $one ? '' : ' ' . ($task->getPosition() + 1);
+        $title .= $one ? '' : ' ' . $task->getTitle();
 
         $has_resources = $this->task_api->resource($task->getId())->oneByType(ResourceType::INSTRUCTIONS);
         $task_settings = $this->task_api->settings($task->getId())->get();

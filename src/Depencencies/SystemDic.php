@@ -21,6 +21,9 @@ use ilUserQuery;
 use ilUserUtil;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\CacheRepository;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\DatabaseRepository;
+use DateTimeInterface;
+use ilDatePresentation;
+use ilDateTime;
 
 /**
  *  Dependencies of the assessment services component "System"
@@ -84,5 +87,10 @@ class SystemDic implements \Edutiek\AssessmentService\System\Api\Dependencies
     public function userDisplayRepo(): UserDisplayRepo
     {
         return new UserDisplayRepo(new ilUserUtil());
+    }
+
+    public function formatDate(DateTimeInterface $date): string
+    {
+        return ilDatePresentation::formatDate(new ilDateTime($date->getTimestamp(), IL_CAL_UNIX));
     }
 }

@@ -59,7 +59,7 @@ class StartPageGUI extends BaseGUI
     private array $solution_resources;
     /** @var array<int, Component[]> */
     private array $writing_resources;
-    /** @var \Edutiek\AssessmentService\EssayTask\Data\Essay[]  */
+    /** @var \Edutiek\AssessmentService\EssayTask\Data\Essay[] */
     private array $essays;
 
 
@@ -77,7 +77,7 @@ class StartPageGUI extends BaseGUI
 
         $this->working_time = $this->assessment_api->workingTime($this->orga_settings, $this->writer);
 
-        $this->is_written = $this->writer?->getWritingAuthorized() !== null;
+        $this->is_written = $this->writer->getWritingAuthorized() !== null;
         $this->is_after_writing = $this->is_written || $this->working_time->isNowAfterAllowedTime();
         $this->system_format = $this->system_api->format($this->dic->user()->getId());
         $this->assessment_format = $this->assessment_api->format($this->orga_settings);
@@ -91,10 +91,14 @@ class StartPageGUI extends BaseGUI
     {
         $this->toolbar();
 
-        $this->renderContent([
+        $content = $this->is_after_writing ? $this->summarise() : [
             $this->screenMessage(),
             $this->assessmentInfo(),
             ...$this->allTaskBlocks(),
+        ];
+
+        $this->renderContent([
+            ...$content,
             $this->result(),
         ]);
     }
@@ -170,7 +174,7 @@ class StartPageGUI extends BaseGUI
                             $this->ctrl->getLinkTarget($this->target, 'startWriter')
                         );
                         $this->toolbar->addComponent($button);
-                    } elseif ($this->perms->canReviewWrittenAssessment() && $this->writer && !$this->writer->getWritingAuthorized()) {
+                    } elseif ($this->perms->canReviewWrittenAssessment() && !$this->writer->getWritingAuthorized()) {
                         $button = $this->ui_factory->button()->standard(
                             $this->plugin->txt('review_writing'),
                             $this->ctrl->getLinkTarget($this->target, 'startWritingReview')
@@ -181,7 +185,7 @@ class StartPageGUI extends BaseGUI
 
                 case WritingType::PDF_UPLOAD:
                     if (($this->perms->canWrite() || $this->perms->canReviewWrittenAssessment())
-                        && $this->writer && !$this->writer->getWritingAuthorized()
+                        && !$this->writer->getWritingAuthorized()
                         && array_filter($this->essays, fn($e) => $e->getPdfVersion())) {
                         $button = $this->ui_factory->button()->primary(
                             $this->plugin->txt('writer_review_pdf'),
@@ -221,11 +225,12 @@ class StartPageGUI extends BaseGUI
         }
      }
 
-    private function assessmentInfo()
+    private function assessmentInfo(): array
     {
         $inst_parts = [];
+        $properties = [];
 
-        if ($this->orga_settings->getDescription() && !$this->is_after_writing) {
+        if ($this->orga_settings->getDescription()) {
             $inst_parts[] = $this->ui_factory->legacy($this->displayText($this->orga_settings->getDescription()));
         }
 
@@ -244,25 +249,16 @@ class StartPageGUI extends BaseGUI
 
         if (isset($this->writer) && $this->writer->getLocation() !== null) {
             $location = $this->assessment_api->location()->one($this->writer->getLocation());
-            $properties[$this->plugin->txt("location")] = ($location !== null ? $location?->getTitle() : " - ");
+            $properties[$this->plugin->txt('location')] = $location?->getTitle() ?? ' - ';
         }
 
-        if ($this->is_after_writing) {
-            $divider = $this->ui_factory->divider()->vertical();
+        if ($properties !== []) {
+            $inst_parts = $inst_parts === [] ? [] : array_merge($inst_parts, [$this->ui_factory->divider()->horizontal()]);
+            $inst_parts[] = $this->ui_factory->listing()->descriptive($properties);
+        }
 
-            if ($this->orga_settings->getDescription()) {
-                $inst_parts[] = $this->ui_factory->button()->shy(
-                    $this->plugin->txt('task_description'),
-                    $this->ctrl->getLinkTarget($this->target, 'viewDescription')
-                );
-            }
-            if ($this->orga_settings->getClosingMessage() && $this->is_written) {
-                $inst_parts = $inst_parts === [] ? [] : array_merge($inst_parts, [$divider]);
-                $inst_parts[] = $this->ui_factory->button()->shy(
-                    $this->plugin->txt('closing_message'),
-                    $this->ctrl->getLinkTarget($this->target, 'viewClosingMessage')
-                );
-            }
+        if ($inst_parts === []) {
+            return [];
         }
 
         return [$this->ui_factory->panel()->standard('@todo', $inst_parts)];
@@ -277,7 +273,6 @@ class StartPageGUI extends BaseGUI
         $task_settings = $this->task_api->settings($task->getId())->get();
 
         $inst_parts = [];
-        $properties = [];
 
         $separate = function ($divider) use (&$inst_parts): void {
             if ($inst_parts !== []) {
@@ -285,30 +280,7 @@ class StartPageGUI extends BaseGUI
             }
         };
 
-        if ($properties !== []) {
-            $separate($this->ui_factory->divider()->horizontal());
-            $inst_parts[] = $this->ui_factory->listing()->descriptive($properties);
-        }
-
-        if ($this->is_after_writing) {
-            $divider = $this->ui_factory->divider()->vertical();
-
-            if ($task_settings->getInstructions()) {
-                $separate($divider);
-                $inst_parts[] = $this->ui_factory->button()->shy(
-                    $this->plugin->txt('view_instructions'),
-                    $this->ctrl->getLinkTarget($this->target, 'viewInstructions')
-                );
-            }
-            if ($has_resources) {
-                $separate($divider);
-                $this->ctrl->setParameter($this->target, 'task_id', (string) $task->getId());
-                $inst_parts[] = $this->ui_factory->button()->shy(
-                    $this->plugin->txt('download_instructions'),
-                    $this->ctrl->getLinkTarget($this->target, 'downloadInstructions')
-                );
-            }
-        } elseif (!$this->working_time->isNowBeforeAllowedTime()) {
+        if (!$this->working_time->isNowBeforeAllowedTime()) {
             if ($task_settings->getInstructions()) {
                 $inst_parts[] = $this->ui_factory->item()->standard(
                     $this->ui_factory->link()->standard(
@@ -331,24 +303,15 @@ class StartPageGUI extends BaseGUI
         return [$this->ui_factory->panel()->standard($title, $inst_parts)];
     }
 
-    private function resources($task, bool $one): array
+    private function resources(Task $task, bool $one): array
     {
         $writing_resources = $this->writing_resources[$task->getId()] ?? [];
-        if ($writing_resources !== []) {
-            if ($this->is_after_writing) {
-                $popover = $this->ui_factory->popover()->listing($writing_resources)->withTitle($this->plugin->txt('tab_resources'));
-                $button = $this->ui_factory->button()->shy($this->plugin->txt('show_resources'), '#')
-                    ->withOnClick($popover->getShowSignal());
-                return [
-                    $popover,
-                    $this->ui_factory->panel()->standard($this->plugin->txt('tab_resources'), $button),
-                ];
-            } else {
-                return [$this->ui_factory->panel()->standard($this->plugin->txt('tab_resources'), $writing_resources)];
-            }
+        $writing_resources = array_merge($writing_resources, $this->solutions($task, $one));
+        if ($writing_resources === []) {
+            return [];
         }
 
-        return [];
+        return [$this->ui_factory->panel()->standard($this->plugin->txt('tab_resources'), $writing_resources)];
     }
 
     private function result(): array
@@ -369,24 +332,23 @@ class StartPageGUI extends BaseGUI
         }
         $result_items[] = $this->ui_factory->listing()->descriptive($properties);
 
-        if ($this->writer !== null) {
-            if ($this->perms->canReviewWrittenAssessment() && $this->writer->getWritingAuthorized()) {
-                $result_items[] = $this->ui_factory->item()->standard(
-                    $this->ui_factory->link()->standard(
-                        $this->plugin->txt('download_written_submission'),
-                        $this->ctrl->getLinkTarget($this->target, 'downloadWriterPdf')
-                    )
-                )->withLeadIcon($this->ui_factory->symbol()->icon()->standard('file', '', 'medium'));
-            }
-            if ($this->perms->canReviewCorrectedAssessment()) {
-                $result_items[] = $this->ui_factory->item()->standard(
-                    $this->ui_factory->link()->standard(
-                        $this->plugin->txt('download_corrected_submission'),
-                        $this->ctrl->getLinkTarget($this->target, 'downloadCorrectedPdf')
-                    )
-                )->withLeadIcon($this->ui_factory->symbol()->icon()->standard('file', '', 'medium'));
-            }
+        if ($this->perms->canReviewWrittenAssessment() && $this->writer->getWritingAuthorized()) {
+            $result_items[] = $this->ui_factory->item()->standard(
+                $this->ui_factory->link()->standard(
+                    $this->plugin->txt('download_written_submission'),
+                    $this->ctrl->getLinkTarget($this->target, 'downloadWriterPdf')
+                )
+            )->withLeadIcon($this->ui_factory->symbol()->icon()->standard('file', '', 'medium'));
         }
+        if ($this->perms->canReviewCorrectedAssessment()) {
+            $result_items[] = $this->ui_factory->item()->standard(
+                $this->ui_factory->link()->standard(
+                    $this->plugin->txt('download_corrected_submission'),
+                    $this->ctrl->getLinkTarget($this->target, 'downloadCorrectedPdf')
+                )
+            )->withLeadIcon($this->ui_factory->symbol()->icon()->standard('file', '', 'medium'));
+        }
+
         if ($this->perms->canDownloadCorrectionReports() && $this->assessment_api->corrector()->hasReports()) {
             $result_items[] = $this->ui_factory->item()->standard(
                 $this->ui_factory->link()->standard(
@@ -399,37 +361,32 @@ class StartPageGUI extends BaseGUI
         return [$this->ui_factory->panel()->standard($this->plugin->txt('result'), $result_items)];
     }
 
-    private function solutions($task, bool $one): array
+    private function solutions(Task $task, bool $one): array
     {
         $task_settings = $this->task_api->settings($task->getId())->get();
         $solution_items = [];
-        if ($this->perms->canViewSolution()) {
-            if ($task_settings->getSolution()) {
-                $this->ctrl->setParameter($this->target, 'task_id', (string) $task->getId());
-                $solution_items[] = $this->ui_factory->item()->standard(
-                    $this->ui_factory->link()->standard(
-                        $this->plugin->txt('view_solution'),
-                        $this->ctrl->getLinkTarget($this->target, 'viewSolution')
-                    )
-                )->withLeadIcon($this->ui_factory->symbol()->icon()->standard('impr', '', 'medium'));
-            }
-            if ($this->task_api->resource($task->getId())->oneByType(ResourceType::SOLUTION)) {
-                $this->ctrl->setParameter($this->target, 'task_id', (string) $task->getId());
-                $solution_items[] = $this->ui_factory->item()->standard(
-                    $this->ui_factory->link()->standard(
-                        $this->plugin->txt('download_solution'),
-                        $this->ctrl->getLinkTarget($this->target, 'downloadSolution')
-                    )
-                )->withLeadIcon($this->ui_factory->symbol()->icon()->standard('file', '', 'medium'));
-            }
-            $solution_items = array_merge($solution_items, $this->solution_resources[$task->getId()] ?? []);
-
-            if ($solution_items !== []) {
-                return [$this->ui_factory->panel()->standard($this->plugin->txt('task_solution'), $solution_items)];
-            }
+        if (!$this->perms->canViewSolution()) {
+            return [];
         }
-
-        return [];
+        if ($task_settings->getSolution()) {
+            $this->ctrl->setParameter($this->target, 'task_id', (string) $task->getId());
+            $solution_items[] = $this->ui_factory->item()->standard(
+                $this->ui_factory->link()->standard(
+                    $this->plugin->txt('view_solution'),
+                    $this->ctrl->getLinkTarget($this->target, 'viewSolution')
+                )
+            )->withLeadIcon($this->ui_factory->symbol()->icon()->standard('impr', '', 'medium'));
+        }
+        if ($this->task_api->resource($task->getId())->oneByType(ResourceType::SOLUTION)) {
+            $this->ctrl->setParameter($this->target, 'task_id', (string) $task->getId());
+            $solution_items[] = $this->ui_factory->item()->standard(
+                $this->ui_factory->link()->standard(
+                    $this->plugin->txt('download_solution'),
+                    $this->ctrl->getLinkTarget($this->target, 'downloadSolution')
+                )
+            )->withLeadIcon($this->ui_factory->symbol()->icon()->standard('file', '', 'medium'));
+        }
+        return array_merge($solution_items, $this->solution_resources[$task->getId()] ?? []);
     }
 
     private function calcResource(): array
@@ -489,13 +446,62 @@ class StartPageGUI extends BaseGUI
         return [$solution_resources, $writing_resources];
     }
 
+    private function summarise(): array
+    {
+        $inst_parts = [];
+
+        $separate = function ($divider) use (&$inst_parts): void {
+            if ($inst_parts !== []) {
+                $inst_parts[] = $divider;
+            }
+        };
+        $divider = $this->ui_factory->divider()->horizontal();
+
+        if ($this->orga_settings->getDescription()) {
+            $inst_parts[] = $this->shyTo('task_description', 'viewDescription');
+        }
+        if ($this->orga_settings->getClosingMessage() && $this->is_written) {
+            $inst_parts[] = $this->shyTo('closing_message', 'viewClosingMessage');
+        }
+
+        $tasks = $this->task_manager->all();
+        $one = count($tasks) === 1;
+        // Instructions
+        foreach ($tasks as $task) {
+            $separate($divider);
+            $has_resources = $this->task_api->resource($task->getId())->oneByType(ResourceType::INSTRUCTIONS);
+            $task_settings = $this->task_api->settings($task->getId())->get();
+            if (!$one) {
+                $inst_parts[] = $this->ui_factory->legacy($task->getTitle() . ': ');
+            }
+            if ($task_settings->getInstructions()) {
+                $inst_parts[] = $this->shyTo('view_instructions', 'viewInstructions');
+            }
+            if ($has_resources) {
+                $this->ctrl->setParameter($this->target, 'task_id', (string) $task->getId());
+                $inst_parts[] = $this->shyTo('download_instructions', 'downloadInstructions');
+            }
+            // Resources
+            $writing_resources = $this->writing_resources[$task->getId()] ?? [];
+            $writing_resources = array_merge($writing_resources, $this->solutions($task, $one));
+            if ($writing_resources !== []) {
+                $popover = $this->ui_factory->popover()->listing($writing_resources)->withTitle($this->plugin->txt('tab_resources'));
+                $inst_parts[] = $popover;
+                $inst_parts[] = $this->ui_factory->button()->shy($this->plugin->txt('show_resources'), '#')
+                    ->withOnClick($popover->getShowSignal());
+            }
+        }
+
+        return [$this->ui_factory->panel()->standard('@todo Summary', $inst_parts)];
+    }
+
     private function allTaskBlocks(): array
     {
         $blocks = [];
         $tasks = $this->task_manager->all();
         $one = count($tasks) === 1;
         foreach ($tasks as $task) {
-            $methods = ['instructions', 'resources', 'solutions'];
+            $methods = ['instructions', 'resources'];
             $blocks[] = array_combine($methods, array_map(
                 fn($m) => $this->$m($task, $one),
                 $methods
@@ -503,5 +509,13 @@ class StartPageGUI extends BaseGUI
         }
 
         return $blocks;
+    }
+
+    private function shyTo(string $lang_var, string $cmd): Component
+    {
+        return $this->ui_factory->button()->shy(
+            $this->plugin->txt($lang_var),
+            $this->ctrl->getLinkTarget($this->target, $cmd)
+        );
     }
 }

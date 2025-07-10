@@ -165,7 +165,7 @@ class WriterStartGUI extends BaseGUI
 
     public function startWritingReview(): void
     {
-        if (!$this->perms->canReviewWrittenEssay()) {
+        if (!$this->perms->canReviewWrittenAssessment()) {
             $this->raisePermissionError();
         }
         $this->assessment_api->writerApp($this->object->getId())->open();
@@ -181,7 +181,7 @@ class WriterStartGUI extends BaseGUI
         // $repoWriter = $this->localDI->getWriterRepo()->getWriterByUserIdAndTaskId($this->dic->user()->getId(), $this->object->getId());
         // $content = $service->getWritingAsPdf($this->object, $repoWriter)
 
-        $filename = 'task' . $this->object->getId() . '_writer' . $repoWriter->getId(). '-writing.pdf';
+        $filename = 'task' . $this->object->getId() . '_writer' . $this->writer->getId(). '-writing.pdf';
         $file_info = new FileInfo();
         $file_info->setFileName($filename);
         $file_info->setMimeType('application/pdf');
@@ -194,7 +194,7 @@ class WriterStartGUI extends BaseGUI
 
     public function downloadCorrectedPdf(): void
     {
-        if (!$this->perms->canReviewCorrectedEssay()) {
+        if (!$this->perms->canReviewCorrectedAssessment()) {
             $this->raisePermissionError();
         }
         // @Todo
@@ -202,7 +202,7 @@ class WriterStartGUI extends BaseGUI
         // $repoWriter = $this->localDI->getWriterRepo()->getWriterByUserIdAndTaskId($this->dic->user()->getId(), $this->object->getId());
         // $content = $service->getCorrectionAsPdf($this->object, $repoWriter, null, false, true);
 
-        $filename = 'task' . $this->object->getId() . '_writer' . $repoWriter->getId(). '-correction.pdf';
+        $filename = 'task' . $this->object->getId() . '_writer' . $this->writer->getId(). '-correction.pdf';
         $file_info = new FileInfo();
         $file_info->setFileName($filename);
         $file_info->setMimeType('application/pdf');
@@ -295,16 +295,18 @@ class WriterStartGUI extends BaseGUI
 
     private function getWritingAsPdf(ilObjLongEssayAssessment $object, $repoWriter, bool $anonymous = false, bool $rawContent = false, bool $onlyText = false): string
     {
-        $context = new WriterContext();
-        $context->init((string) $repoWriter->getUserId(), (string) $object->getRefId());
+        // @Todo
+        return '';
+        // $context = new WriterContext();
+        // $context->init((string) $repoWriter->getUserId(), (string) $object->getRefId());
 
-        $writingTask = $context->getWritingTask();
-        if ($anonymous) {
-            $writingTask = $writingTask->withWriterName($repoWriter->getPseudonym());
-        }
-        $writtenEssay = $context->getWrittenEssay();
+        // $writingTask = $context->getWritingTask();
+        // if ($anonymous) {
+        //     $writingTask = $writingTask->withWriterName($repoWriter->getPseudonym());
+        // }
+        // $writtenEssay = $context->getWrittenEssay();
 
-        $service = new Service($context);
-        return $service->getWritingAsPdf($writingTask, $writtenEssay, $rawContent, $onlyText);
+        // $service = new Service($context);
+        // return $service->getWritingAsPdf($writingTask, $writtenEssay, $rawContent, $onlyText);
     }
 }

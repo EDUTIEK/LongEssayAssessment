@@ -170,7 +170,8 @@ class CacheRepository implements RepositoryInterface
      * $a->clearCache(); // This will clear all three caches.
      * $c->clearCache(); // This will also clear all three caches.
      *
-     * @param CacheRepository $other
+     * @template B of object
+     * @param CacheRepository<B> $other
      */
     public function connectCache(CacheRepository $other): void
     {

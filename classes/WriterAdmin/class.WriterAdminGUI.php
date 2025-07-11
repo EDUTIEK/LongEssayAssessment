@@ -360,22 +360,25 @@ class WriterAdminGUI extends BaseGUI
                 $this->task->getWritingEnd() == null ? null : new DateTimeImmutable($this->task->getWritingEnd()), false)
         )->withUseTime(true)->withValue($working_time->getLatestEnd()?->format('Y-m-d H:i:s'));
 
-        $fields['writing_limit_days'] =
-            $factory->numeric(
-                $this->plugin->txt("writing_limit_days"),
-            )->withValue($days);
-
-        $fields['writing_limit_hours_minutes'] =
-            $factory->dateTime(
-                $this->plugin->txt("writing_limit_hours_minutes"),
+        $fields['writing_limit'] = $factory->optionalGroup(
+            [
+                'days' => $factory->numeric(
+                    $this->plugin->txt("writing_limit_days"),
+                )->withValue($days > 0 ? $days: null),
+                'hours_minutes' => $factory->dateTime(
+                    $this->plugin->txt("writing_limit_hours_minutes"),
+                )->withTimeOnly(true)
+                ->withValue(new \DateTimeImmutable(sprintf('%02d:%02d:00', $hours, $minutes, 0), New \DateTimeZone($this->user->getTimeZone())))
+            ],
+            $this->plugin->txt('writing_limit'),
+            $this->task->getWritingLimitMinutes() !== null ? (
                 $this->plugin->txt('label_general') . ' ' . $this->common_services->formatter()->formatDuration(
-                    $this->task->getWritingLimitMinutes() * 60
-                )
-            )->withTimeOnly(true)->withValue(
-                new \DateTimeImmutable(
-                    sprintf('%02d:%02d:00', $hours, $minutes), new \DateTimeZone($this->user->getTimeZone())
-                )
-            );
+                $this->task->getWritingLimitMinutes() * 60)
+            ) : ''
+        );
+        if (!$working_time->hasTimeLimitFromStart()) {
+            $fields['writing_limit'] = $fields['writing_limit']->withValue(null);
+        }
 
         return $this->localDI->getUIFactory()->field()->blankForm(
             $this->ctrl->getFormAction($this, "updateWorkingTime"),
@@ -421,7 +424,8 @@ class WriterAdminGUI extends BaseGUI
         if ($this->getWriterId() !== null) {
             $current_writer = $this->writer_repo->getWriterById($this->getWriterId());
         }
-        $form = $this->buildWorkingTimeForm(new WorkingTime($this->task, $current_writer))->withRequest($this->request);
+        $current_working_time = new WorkingTime($this->task, $current_writer);
+        $form = $this->buildWorkingTimeForm($current_working_time)->withRequest($this->request);
 
         $failures = [];
         if ($data = $form->getData()) {
@@ -431,14 +435,22 @@ class WriterAdminGUI extends BaseGUI
             $data_writer->setEarliestStart($data['earliest_start'] ?? null);
             $data_writer->setLatestEnd($data['latest_end'] ?? null);
             $limit = null;
-            if (isset($data['writing_limit_days'])) {
-                $limit = (int) $data['writing_limit_days'] * 24 * 60;
+            if (isset($data['writing_limit'])) {
+                if (isset($data['writing_limit']['days'])) {
+                    $limit = (int) $data['writing_limit']['days'] * 24 * 60;
+                }
+                if (isset($data['writing_limit']['hours_minutes'])) {
+                    [$hours, $minutes] = explode(':', $data['writing_limit']['hours_minutes']->format('H:i'));
+                    $limit = (int) $limit + (int) $hours * 60 + (int) $minutes;
+                }
             }
-            if (isset($data['writing_limit_hours_minutes'])) {
-                [$hours, $minutes] = explode(':', $data['writing_limit_hours_minutes']->format('H:i'));
-                $limit = (int) $limit + (int) $hours * 60 + (int) $minutes;
+            if (empty($limit) && $this->task->getWritingLimitMinutes() === null) {
+                // use null to keep the time limit unset
+                $data_writer->setTimeLimitMinutes(null);
+            } else {
+                // use 0 to reset a time limit from the task
+                $data_writer->setTimeLimitMinutes((int) $limit);
             }
-            $data_writer->setTimeLimitMinutes($limit);
 
             $working_time = new WorkingTime($this->task, $data_writer);
 

@@ -5,9 +5,10 @@
 Plugin:
 - Allow zero maximum points in correction settings
 - Organisation setting to forward writer after finishing the assignment an url
+- Allow to reset a common time limit for a writer while setting a time frame
 
 Writer web app:
-- Support marking and comments for instructions and resources
+- Support marking and comments for instructions and PDF resources
 - Automatically show first resource if no instructions are given
 
 Bug fixes:

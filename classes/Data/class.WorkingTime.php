@@ -73,6 +73,10 @@ class WorkingTime
      */
     public function getTimeLimitMinutes(): ?int
     {
+        // special case: zero minutes from the writer reset the time limit of the task
+        if ($this->writer_time_limit_minutes === 0) {
+            return null;
+        }
         return $this->writer_time_limit_minutes ?? $this->common_time_limit_minutes;
     }
 

@@ -240,7 +240,13 @@ class CorrectionSettings extends RecordData
      */
     public function getCriteriaMode(): string
     {
-        return $this->criteria_mode;
+        if (in_array($this->criteria_mode, [
+            self::CRITERIA_MODE_NONE,
+            self::CRITERIA_MODE_CORRECTOR,
+            self::CRITERIA_MODE_FIXED])) {
+            return $this->criteria_mode;
+        }
+        return self::CRITERIA_MODE_NONE;
     }
 
     /**

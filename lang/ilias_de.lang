@@ -205,7 +205,7 @@ view_processing#:#Bearbeitung einsehen
 writing_last_save#:#Letzte Speicherung
 working_time_change#:#Zeitanpassung
 essay_status#:#Abgabe-Status
-search_participants#:#Teilnehmer suchen
+search_participants#:#Benutzer suchen
 assign_writer_success#:#Teilnehmer erfolgreich hinzugefügt.
 exclude_writer_success#:#Teilnehmer erfolgreich ausgeschlossen.
 missing_writer_id#:#Teilnehmernummer fehlt.
@@ -258,7 +258,6 @@ create_alert#:#Benachrichtigung senden
 alert_created#:#Benachrichtigung wurde gesendet.
 log_entry_created#:#Notiz wurde hinzugefügt.
 corrector_assignment_changed#:#Korrektorenzuweisung wurde gändert.
-writing_excluded_from#:#ausgeschlossen von
 repeal_exclude_participant#:#Ausschluss aufheben
 repeal_exclude_participant_confirmation#:#Wollen Sie den Ausschluss des folgenden Teilnehmers wirklich aufheben?
 missing_essay#:#Aufsatz konnte nicht gefunden werden.
@@ -706,3 +705,18 @@ create_task#:#Teilaufgabe hinzufügen
 delete_task#:#Teilaufgabe löschen
 delete_task_confirmation#:#Möchten Sie diese Teilaufgabe mit allen Daten löschen?
 task_deleted#:#Die Teilaufgabe wurde gelöscht.
+working_period#:#Bearbeitungszeitraum
+working_duration#:#Bearbeitungsdauer
+assessment_period#:#Aufgabenzeitraum
+assessment_duration#:#Aufgabendauer
+time_limit_changed#:#Zeitanpassung
+writing_autorized_at#:#Freigegeben am
+writing_autorized_from#:#Freigegeben von
+writing_excluded_at#:#Ausgeschlossen am
+writing_excluded_from#:#Ausgeschlossen von
+status_writing_not_started#:#nicht gestartet
+status_writing_started#:#gestartet
+status_writing_excluded#:#ausgeschlossen
+status_writing_authorized#:#freigegeben
+status_writing_excluded_from#:#ausgeschlossen von
+status_writing_autorized_from#:#freigegeben von

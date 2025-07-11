@@ -31,7 +31,7 @@ readonly class UserData extends \Edutiek\AssessmentService\System\Data\UserData
 
     public function getTitle(): string
     {
-        return $this->title;
+        return $this->title ?? '';
     }
 
     public function getFirstname(): string

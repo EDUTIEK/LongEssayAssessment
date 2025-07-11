@@ -80,7 +80,7 @@ readonly class UserDataRepo implements \Edutiek\AssessmentService\System\Data\Us
         }
 
         $query = clone $this->user_query;
-        $query->setLimit(0);
+        $query->setLimit(99999);
         $query->setOffset(0);
         $query->setOrderField('lastname');
         $query->setOrderDirection('asc');
@@ -89,7 +89,7 @@ readonly class UserDataRepo implements \Edutiek\AssessmentService\System\Data\Us
 
         $result = $query->query();
         foreach ($result['set'] ?? [] as $row) {
-            $users = new UserData(
+            $users[(int) $row['usr_id']] = new UserData(
                 (int) $row['usr_id'],
                 (string) $row['login'],
                 !empty($row['title']) ? (string) $row['title'] : null,

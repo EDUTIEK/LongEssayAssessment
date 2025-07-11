@@ -42,7 +42,7 @@ abstract class Table implements TableParent, FilterParent, Component\Component
     protected array $actions = [];
     public function __construct(
         protected readonly string $ui_name,
-        protected TableParent $parent,
+        protected TableParent|FilterParent $parent,
         protected URLBuilder $url_builder,
         protected URLBuilderToken $row_id_token,
         protected URLBuilderToken $action_parameter_token,
@@ -87,8 +87,8 @@ abstract class Table implements TableParent, FilterParent, Component\Component
     {
         $this->filter_inputs = [];
 
-        foreach($parent->getFilterInputs() as $filter) {
-            $this->filter_inputs[] = $filter;
+        foreach($parent->getFilterInputs() as $key => $filter) {
+            $this->filter_inputs[$key] = $filter;
         }
     }
 
@@ -195,7 +195,7 @@ abstract class Table implements TableParent, FilterParent, Component\Component
     {
         return $this->ui_service->filter()->standard(
             $this->getUIName() . "_filter",
-            $this->request->getUri()->__toString(),
+            $this->parent->getFilterBaseAction(),
             $this->getFilterInputs(),
             $this->getFilterInputActivation(),
             true,
@@ -422,6 +422,14 @@ abstract class Table implements TableParent, FilterParent, Component\Component
         }
 
         return array_map(fn ($x) => true, $this->getFilterInputs());
+    }
+
+    public function getFilterBaseAction(): string
+    {
+        if($this->parent instanceof FilterParent){
+            return $this->parent->getFilterBaseAction();
+        }
+        return "";
     }
 
     public function disableAction(bool $disable)

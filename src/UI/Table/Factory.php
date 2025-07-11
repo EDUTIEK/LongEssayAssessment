@@ -18,6 +18,7 @@ class Factory
 {
     private Action\Factory $action_factory;
     private \ILIAS\Data\Factory $data_factory;
+    private Column\Factory $column_factory;
 
     public function __construct(
         protected PluginDic $pdic,
@@ -31,11 +32,17 @@ class Factory
     ) {
         $this->action_factory = new Action\Factory();
         $this->data_factory = new \ILIAS\Data\Factory();
+        $this->column_factory = new Column\Factory($this->lng);
     }
 
     public function action() : Action\Factory
     {
         return $this->action_factory;
+    }
+
+    public function column(): Column\Factory
+    {
+        return $this->column_factory;
     }
 
     public function dataTable(

@@ -15,4 +15,10 @@ interface FilterParent
      * @return bool[]
      */
     public function getFilterInputActivation(): ?array;
+
+    /**
+     * The ctrl action string to the table
+     * @return string
+     */
+    public function getFilterBaseAction(): string;
 }

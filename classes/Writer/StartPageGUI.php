@@ -40,6 +40,7 @@ use Edutiek\AssessmentService\Assessment\TaskInterfaces\TaskInfo as Task;
 use Edutiek\AssessmentService\System\Format\FullService as SystemFormat;
 use Edutiek\AssessmentService\Assessment\Format\FullService as AssessmentFormat;
 use Edutiek\AssessmentService\Assessment\WorkingTime\FullService as WorkingTime;
+use ILIAS\Plugin\LongEssayAssessment\Writer\WriterUploadGUI;
 
 class StartPageGUI extends BaseGUI
 {
@@ -189,22 +190,14 @@ class StartPageGUI extends BaseGUI
                         && array_filter($this->essays, fn($e) => $e->getPdfVersion())) {
                         $button = $this->ui_factory->button()->primary(
                             $this->plugin->txt('writer_review_pdf'),
-                            // todo: use ::class when writeruploadgui is migrated
-                            $this->ctrl->getLinkTargetByClass(
-                                'ilias\plugin\longessayassessment\writer\writeruploadgui',
-                                'reviewPdf'
-                            )
+                            $this->ctrl->getLinkTargetByClass(WriterUploadGUI::class, 'reviewPdf')
                         );
                         $this->toolbar->addComponent($button);
 
                         if ($this->perms->canWrite()) {
                             $button = $this->ui_factory->button()->standard(
                                 $this->plugin->txt('writer_replace_pdf'),
-                                $this->ctrl->getLinkTargetByClass(
-                                    // todo: use ::class when writeruploadgui is migrated
-                                    'ilias\plugin\longessayassessment\writer\writeruploadgui',
-                                    'uploadPdf'
-                                )
+                                $this->ctrl->getLinkTargetByClass(WriterUploadGUI::class, 'uploadPdf')
                             );
                             $this->toolbar->addComponent($button);
                         }
@@ -212,11 +205,7 @@ class StartPageGUI extends BaseGUI
                     } elseif ($this->perms->canWrite()) {
                         $button = $this->ui_factory->button()->primary(
                             $this->plugin->txt('writer_upload_pdf'),
-                            $this->ctrl->getLinkTargetByClass(
-                                // todo: use ::class when writeruploadgui is migrated
-                                'ilias\plugin\longessayassessment\writer\writeruploadgui',
-                                'uploadPdf'
-                            )
+                            $this->ctrl->getLinkTargetByClass(WriterUploadGUI::class, 'uploadPdf')
                         );
                         $this->toolbar->addComponent($button);
                     }

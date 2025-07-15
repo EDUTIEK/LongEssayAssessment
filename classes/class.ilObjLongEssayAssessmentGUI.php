@@ -16,6 +16,7 @@ use ILIAS\Plugin\LongEssayAssessment\Settings\GradesAdminGUI;
 use ILIAS\Plugin\LongEssayAssessment\Writer\WriterStartGUI;
 use ILIAS\Plugin\LongEssayAssessment\Settings\CriteriaAdminGUI;
 use ILIAS\Plugin\LongEssayAssessment\WriterAdmin\WriterAdminGUI;
+use ILIAS\Plugin\LongEssayAssessment\Writer\WriterUploadGUI;
 
 /**
  * Plugin GUI Class
@@ -204,12 +205,12 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                     //                        $this->ctrl->forwardCommand(new \ILIAS\Plugin\LongEssayAssessment\Writer\WriterStatisticsGUI($this));
                     //                    }
                     //                    break;
-                    //                case 'ilias\plugin\longessayassessment\writer\writeruploadgui':
-                    //                    if ($this->permissions->canViewWriterScreen()) {
-                    //                        $this->activateTab('tab_writer', 'tab_writer_start');
-                    //                        $this->ctrl->forwardCommand(new \ILIAS\Plugin\LongEssayAssessment\Writer\WriterUploadGUI($this));
-                    //                    }
-                    //                    break;
+                case strtolower(WriterUploadGUI::class):
+                    if ($this->permissions->canViewWriterScreen()) {
+                        $this->activateTab('tab_writer', 'tab_writer_start');
+                        $this->ctrl->forwardCommand(new WriterUploadGUI($this->object));
+                    }
+                    break;
                     //                case 'ilias\plugin\longessayassessment\corrector\correctorstartgui':
                     //                    if ($this->permissions->canViewCorrectorScreen()) {
                     //                        $this->activateTab('tab_corrector', 'tab_corrector_start');

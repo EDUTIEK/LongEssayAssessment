@@ -40,6 +40,7 @@ use DateTimeInterface;
 use ilDatePresentation;
 use ilDateTime;
 use Edutiek\AssessmentService\System\Format\FullService as SystemFormat;
+use ILIAS\UI\Component\Input\Container\Form\Form;
 
 /**
  * Base class for GUI classes (except the plugin guis required by ILIAS)
@@ -128,22 +129,22 @@ abstract class BaseGUI
     /**
      * Show the added components
      */
-    protected function show()
+    protected function show(): void
     {
         $this->tpl->setContent($this->renderer->render($this->components));
     }
 
-    protected function success(string $message, bool $keep = false)
+    protected function success(string $message, bool $keep = false): void
     {
         $this->tpl->setOnScreenMessage(ilGlobalTemplateInterface::MESSAGE_TYPE_SUCCESS, $message, $keep);
     }
 
-    protected function failure(string $message, bool $keep = false)
+    protected function failure(string $message, bool $keep = false): void
     {
         $this->tpl->setOnScreenMessage(ilGlobalTemplateInterface::MESSAGE_TYPE_FAILURE, $message, $keep);
     }
 
-    protected function info(string $message, bool $keep = false)
+    protected function info(string $message, bool $keep = false): void
     {
         $this->tpl->setOnScreenMessage(ilGlobalTemplateInterface::MESSAGE_TYPE_FAILURE, $message, $keep);
     }
@@ -291,5 +292,17 @@ abstract class BaseGUI
     protected function renderContent($render_me): void
     {
         $this->tpl->setContent($this->renderer->render($render_me));
+    }
+
+    protected function withFormData(Form $form, callable $proc): Form
+    {
+        if ($this->request->getMethod() === 'POST') {
+            $form = $form->withRequest($this->request);
+            $data = $form->getData();
+            if ($data) {
+                $proc($data);
+            }
+        }
+        return $form;
     }
 }

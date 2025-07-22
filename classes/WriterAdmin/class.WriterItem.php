@@ -5,6 +5,7 @@ namespace ILIAS\Plugin\LongEssayAssessment\WriterAdmin;
 use Edutiek\AssessmentService\Assessment\Data\Writer;
 use Edutiek\AssessmentService\System\Data\UserData;
 use Edutiek\AssessmentService\System\Data\UserDisplay;
+use Edutiek\AssessmentService\EssayTask\AssessmentStatus\WriterEssayStatus;
 
 class WriterItem extends \ILIAS\Plugin\LongEssayAssessment\UI\Table\Item
 {
@@ -13,6 +14,7 @@ class WriterItem extends \ILIAS\Plugin\LongEssayAssessment\UI\Table\Item
         private Writer $writer,
         private UserData $user_data,
         private UserDisplay $user_display,
+        private ?WriterEssayStatus $essay_status,
         private ?UserData $authorized_from,
         private ?UserData $excluded_from,
     ) {
@@ -47,6 +49,16 @@ class WriterItem extends \ILIAS\Plugin\LongEssayAssessment\UI\Table\Item
     public function setUserDisplay(UserDisplay $user_display): void
     {
         $this->user_display = $user_display;
+    }
+
+    public function getEssayStatus(): ?WriterEssayStatus
+    {
+        return $this->essay_status;
+    }
+
+    public function setEssayStatus(WriterEssayStatus $essay_status): void
+    {
+        $this->essay_status = $essay_status;
     }
 
     public function getAuthorizedFrom(): ?UserData

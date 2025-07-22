@@ -36,9 +36,9 @@ class EssayTaskDic implements \Edutiek\AssessmentService\EssayTask\Api\Dependenc
         return $this->dic[SystemApi::class];
     }
 
-    public function assessmentApi(int $ass_id): AssessmentApi
+    public function assessmentApi(int $ass_id, int $user_id): AssessmentApi
     {
-        return $this->dic[AssessmentFactory::class]->forTasks($ass_id);
+        return $this->dic[AssessmentFactory::class]->forTasks($ass_id, $user_id);
     }
 
     public function taskApi(int $ass_id): TaskApi

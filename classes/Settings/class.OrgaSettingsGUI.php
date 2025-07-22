@@ -7,7 +7,6 @@ namespace ILIAS\Plugin\LongEssayAssessment\Settings;
 use DateTimeImmutable;
 use DateTimeZone;
 use Edutiek\AssessmentService\Assessment\Data\OrgaSettings;
-use Edutiek\AssessmentService\Assessment\Data\OrgaSettingsError;
 use Edutiek\AssessmentService\Assessment\Data\ParticipationType;
 use Edutiek\AssessmentService\Assessment\Data\ResultAvailableType;
 use Edutiek\AssessmentService\Assessment\Location\FullService as LocationService;
@@ -20,6 +19,7 @@ use Edutiek\AssessmentService\System\Transform\FullService as TransformService;
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\BaseObjectData;
 use ILIAS\UI\Component\Input\Container\Form\Standard;
+use Edutiek\AssessmentService\Assessment\WorkingTime\ValidationError;
 
 /**
  * Organisational Settings
@@ -146,7 +146,7 @@ class OrgaSettingsGUI extends BaseGUI
         }
 
         $this->failure(implode('<br>',
-            array_map(fn(OrgaSettingsError $error) => $this->plugin->txt('failure_'. $error->value),
+            array_map(fn(ValidationError $error) => $this->plugin->txt('failure_'. $error->value),
             $orga_settings->getValidationErrors())));
     }
 

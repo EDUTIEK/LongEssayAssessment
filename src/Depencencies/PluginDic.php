@@ -49,6 +49,8 @@ use ILIAS\Plugin\LongEssayAssessment\UI\Viewer\ViewerFactory;
 use ilLongEssayAssessmentPlugin;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\Factory as TableFactory;
 use ILIAS\Plugin\LongEssayAssessment\UI\Tree\TreeFactory;
+//use Edutiek\AssessmentService\Assessment\Api\EventManager as AssessmentEventManager;
+//use Edutiek\AssessmentService\EssayTask\Api\EventManager as EssayTaskEventManager;
 
 /**
  * Local Dependency Injection Container of the Plugin
@@ -195,6 +197,28 @@ class PluginDic
         $dic[TaskTypesApi::class] = function (Container $dic) {
             return $dic[TaskFactory::class]->forTypes();
         };
+//
+//        $event_manager = function (Container $dic, $class) {
+//            $assessment_em = new AssessmentEventManager($dic[AssessmentFactory::class]->internal());
+//            $esssay_task_em = new EssayTaskEventManager($dic[EssayTaskFactory::class]->internal());
+//
+//            $assessment_em->addObserver($esssay_task_em);
+//
+//            $esssay_task_em->addObserver($assessment_em);
+//
+//            $dic[AssessmentEventManager::class] = $assessment_em;
+//            $dic[EssayTaskEventManager::class] = $esssay_task_em;
+//
+//            return $dic[$class];
+//        };
+//
+//        $dic[AssessmentEventManager::class] = function (Container $dic, $event_manager) {
+//            return $event_manager($dic, AssessmentEventManager::class);
+//        };
+//
+//        $dic[EssayTaskEventManager::class] = function (Container $dic, $event_manager) {
+//            return $event_manager($dic, EssayTaskEventManager::class);
+//        };
     }
 
     public function constraints(): DataConstraints

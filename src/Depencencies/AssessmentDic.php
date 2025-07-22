@@ -29,6 +29,8 @@ use ilObjectFactory;
 use ILIAS\Plugin\LongEssayAssessment\Assessment\Data\RepositoryFactory;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Generate;
 use ILIAS\Plugin\LongEssayAssessment\Assessment\Rest\RestContext;
+//use Edutiek\AssessmentService\Assessment\Api\EventManager;
+//use Edutiek\AssessmentService\Event\EventDispatcher;
 
 /**
  * Dependencies of the assessment service component "Assessment"
@@ -80,4 +82,9 @@ class AssessmentDic implements \Edutiek\AssessmentService\Assessment\Api\Depende
     {
         return $this->dic[RestContext::class];
     }
+//
+//    public function eventManager(): EventDispatcher
+//    {
+//        return $this->dic[EventManager::class];
+//    }
 }

@@ -277,7 +277,9 @@ abstract class Table implements TableParent, FilterParent, Component\Component
             ->withSubmitLabel($action->actionLabel());
 
         if( !empty($transformations)) {
-            array_map(fn($x) => ($modal = $modal->withAdditionalTransformation($x)), $transformations);
+            foreach($transformations as $transformation) {
+                $modal = $modal->withAdditionalTransformation($transformation);
+            }
         }
 
         if($this->request->getMethod() === "POST" || $action->type() === Type::Global) {

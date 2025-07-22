@@ -23,18 +23,22 @@ class Interval extends Column
 
     public function format($value): string
     {
-        if($value === "" || $value === null){
+        if ($value === "" || $value === null) {
             return "";
         }
 
         if (is_numeric($value)) {
-            $value = new \DateInterval("$value s");
-        } else if(is_string($value)) {
+            $days = floor($value / 1440); // 1440 minutes in a day
+            $hours = floor(($value % 1440) / 60); // 60 minutes in an hour
+            $minutes = $value % 60; // Remaining minutes
+
+            $value = new \DateInterval("P{$days}DT{$hours}H{$minutes}M");
+        } elseif (is_string($value)) {
             $value = new \DateInterval($value);
         }
 
         $this->checkArgInstanceOf('value', $value, \DateInterval::class);
-        return $value[0]->format($this->getFormat());
+        return $value->format($this->getFormat());
 
     }
 

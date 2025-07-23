@@ -342,6 +342,7 @@ class WriterAdminGUI extends BaseGUI implements DataTableParent, FilterParent
         WriterItem|\ILIAS\Plugin\LongEssayAssessment\UI\Table\Item $item,
         ?array $additional_parameters
     ): array {
+        $timezone = new \DateTimeZone($this->user->getTimeZone());
         $writer = $item->getWriter();
         $user_data = $item->getUserData();
         $user_display = $item->getUserDisplay();
@@ -370,10 +371,10 @@ class WriterAdminGUI extends BaseGUI implements DataTableParent, FilterParent
                     : ($item->getAuthorizedFromFullname()??$unknown))
         };
 
-        $working_start = $writer->getWorkingStart();
-        $working_end = $writer->getWritingAuthorized();
-        $exam_start = $writer->getEarliestStart() ?? $this->getSettings()->getWritingStart();
-        $exam_end = $writer->getLatestEnd() ?? $this->getSettings()->getWritingEnd();
+        $working_start = $writer->getWorkingStart()?->setTimezone($timezone);
+        $working_end = $writer->getWritingAuthorized()?->setTimezone($timezone);
+        $exam_start = $writer->getEarliestStart() ?? $this->getSettings()->getWritingStart()?->setTimezone($timezone);
+        $exam_end = $writer->getLatestEnd() ?? $this->getSettings()->getWritingEnd()?->setTimezone($timezone);
         $assessment_duration = $writer->getTimeLimitMinutes() ?? $this->getSettings()->getWritingLimitMinutes();
         if (empty($assessment_duration) && $exam_start !== null && $exam_end !== null) {
             $assessment_duration = $exam_start->diff($exam_end)->i;
@@ -388,19 +389,19 @@ class WriterAdminGUI extends BaseGUI implements DataTableParent, FilterParent
             "pseudonym" => $writer->getPseudonym(),
             "location" => $this->getLocation($writer->getLocation()),
             "status" => $status,
-            "writing_last_save" => $essay_status?->getLastSave(),
+            "writing_last_save" => $essay_status?->getLastSave()?->setTimezone($timezone),
             "working_period" => [$working_start, $working_end],
-            "working_duration" => $writer->getWorkingStart() !== null
-                ? date_diff($working_start, $working_end ?? new \DateTimeImmutable('now'))
+            "working_duration" => $working_start !== null
+                ? date_diff($working_start, $working_end ?? (new \DateTimeImmutable('now', $timezone)))
                 : null,
             "assessment_period" => [$exam_start, $exam_end],
             "assessment_duration" => $assessment_duration ?? "",
             "time_limit_changed" => $exam_limit_changed,
-            "authorized" => $writer->getWritingAuthorized(),
+            "authorized" => $writer->getWritingAuthorized()?->setTimezone($timezone),
             "authorized_from" => $writer->getWritingAuthorized() !== null  && $writer->getUserId() === $writer->getWritingAuthorizedBy()
                 ? $this->plugin->txt("participant")
                 : ($item->getAuthorizedFromFullname() ?? $unknown),
-            "excluded" => $writer->getWritingExcluded(),
+            "excluded" => $writer->getWritingExcluded()?->setTimezone($timezone),
             "excluded_from" => $item->getExecludedFromFullname() ?? $unknown,
             "pdf_version" => $essay_status?->hasPdfUploads() ?? false
         ];
@@ -421,7 +422,7 @@ class WriterAdminGUI extends BaseGUI implements DataTableParent, FilterParent
         $location_avaiable = $this->hasLocations();
         $duration_avaiable = !empty($settings->getWritingLimitMinutes());
         $has_started = $settings->getWritingStart() !== null ? $settings->getWritingStart() < new \DateTimeImmutable() : true;
-        $date_without_seconds = $df->dateFormat()->withTime24($df->dateFormat()->standard());
+        $date_without_seconds = $this->user->getDateTimeFormat();
         $date_with_seconds = $df->dateFormat()->amend($date_without_seconds)->colon()->seconds()->get();
         if (!empty($settings->getWritingLimitMinutes())) {
             $long_exam = $settings->getWritingLimitMinutes() > 1440;

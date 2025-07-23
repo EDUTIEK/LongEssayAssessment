@@ -49,6 +49,8 @@ use ILIAS\Plugin\LongEssayAssessment\UI\Viewer\ViewerFactory;
 use ilLongEssayAssessmentPlugin;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\Factory as TableFactory;
 use ILIAS\Plugin\LongEssayAssessment\UI\Tree\TreeFactory;
+use ILIAS\Plugin\LongEssayAssessment\UI\Protocol\Factory as ProtocolFactory;
+
 //use Edutiek\AssessmentService\Assessment\Api\EventManager as AssessmentEventManager;
 //use Edutiek\AssessmentService\EssayTask\Api\EventManager as EssayTaskEventManager;
 
@@ -99,6 +101,10 @@ class PluginDic
             );
         };
 
+        $dic[IconFactory::class]  =  function () use ($dic) {
+            return new IconFactory($dic->ui()->factory()->symbol()->icon());
+        };
+
         $dic[Factory::class] = function (Container $dic) {
             $data_factory = new \ILIAS\Data\Factory();
             $refinery = new \ILIAS\Refinery\Factory($data_factory, $dic["lng"]);
@@ -110,9 +116,7 @@ class PluginDic
                     $refinery,
                     $dic->language()
                 ),
-                new IconFactory(
-                    $dic->ui()->factory()->symbol()->icon()
-                ),
+                $dic[IconFactory::class] ,
                 new ItemFactory(
                     $dic->ui()->factory()->symbol()->icon(),
                     $this->plugin(),
@@ -140,6 +144,13 @@ class PluginDic
                     $dic->refinery(),
                     $dic->ui()->factory(),
                     $dic->ui()->renderer()
+                ),
+                new ProtocolFactory(
+                    $dic[IconFactory::class],
+                    $dic->ui()->factory(),
+                    $dic[ilLongEssayAssessmentPlugin::class],
+                    $dic->http(),
+                    $dic->refinery()
                 )
             );
         };

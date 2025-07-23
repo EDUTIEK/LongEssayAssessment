@@ -11,6 +11,7 @@ use ILIAS\Plugin\LongEssayAssessment\UI\Item\ItemFactory;
 use ILIAS\Plugin\LongEssayAssessment\UI\Viewer\ViewerFactory;
 use ILIAS\Plugin\LongEssayAssessment\UI\Statistic\StatisticFactory;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\Factory as TableFactory;
+use ILIAS\Plugin\LongEssayAssessment\UI\Protocol\Factory as ProtocolFactory;
 use ILIAS\Plugin\LongEssayAssessment\UI\Tree\TreeFactory;
 
 /**
@@ -27,11 +28,11 @@ class Factory
         private StatisticFactory $statistic_factory,
         private ViewerFactory $viewer_factory,
         private TableFactory $table_factory,
-        private TreeFactory $tree_factory
+        private TreeFactory $tree_factory,
+        private ProtocolFactory $protocol_factory
     ) {
 
     }
-
 
     public function field(): InputFactory
     {
@@ -66,5 +67,10 @@ class Factory
     public function tree(): TreeFactory
     {
         return $this->tree_factory;
+    }
+
+    public function protocol(): ProtocolFactory
+    {
+        return $this->protocol_factory;
     }
 }

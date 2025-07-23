@@ -24,6 +24,7 @@ use DateTimeImmutable;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Key;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Sequence;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Table;
+use Edutiek\AssessmentService\Assessment\LogEntry\Category as LogEntryCategory;
 
 #[Table(name: 'xlas_as_log_entry')]
 class LogEntry extends \Edutiek\AssessmentService\Assessment\Data\LogEntry
@@ -54,13 +55,13 @@ class LogEntry extends \Edutiek\AssessmentService\Assessment\Data\LogEntry
         $this->timestamp = $timestamp;
         return $this;
     }
-    public function getCategory(): string
+    public function getCategory(): LogEntryCategory
     {
-        return $this->category;
+        return LogEntryCategory::from($this->category);
     }
-    public function setCategory(string $category): self
+    public function setCategory(LogEntryCategory $category): self
     {
-        $this->category = $category;
+        $this->category = $category->value;
         return $this;
     }
     public function getEntry(): ?string

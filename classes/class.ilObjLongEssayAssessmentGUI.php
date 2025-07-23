@@ -17,6 +17,7 @@ use ILIAS\Plugin\LongEssayAssessment\Writer\WriterStartGUI;
 use ILIAS\Plugin\LongEssayAssessment\Settings\CriteriaAdminGUI;
 use ILIAS\Plugin\LongEssayAssessment\WriterAdmin\WriterAdminGUI;
 use ILIAS\Plugin\LongEssayAssessment\Writer\WriterUploadGUI;
+use ILIAS\Plugin\LongEssayAssessment\WriterAdmin\ProtocolGUI;
 
 /**
  * Plugin GUI Class
@@ -193,7 +194,7 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                     //                        $this->ctrl->forwardCommand(new \ILIAS\Plugin\LongEssayAssessment\Task\GradesAdminGUI($this));
                     //                    }
                     //                    break;
-               case strtolower(WriterStartGUI::class):
+                case strtolower(WriterStartGUI::class):
                    if ($this->permissions->canViewWriterScreen()) {
                        $this->activateTab('tab_writer', 'tab_writer_start');
                        $this->ctrl->forwardCommand(new WriterStartGUI($this->object));
@@ -230,17 +231,17 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                     //                    }
                     //                    break;
                    case strtolower(WriterAdminGUI::class):
-                    if ($this->permissions->canMaintainWriters()) {
-                        $this->activateTab('tab_writer_admin', 'tab_writer_admin');
-                        $this->ctrl->forwardCommand(new WriterAdminGUI($this->object));
-                    }
-                    break;
-                    //                case 'ilias\plugin\longessayassessment\writeradmin\writeradminloggui':
-                    //                    if ($this->permissions->canMaintainWriters()) {
-                    //                        $this->activateTab('tab_writer_admin', 'tab_writer_admin_log');
-                    //                        $this->ctrl->forwardCommand(new \ILIAS\Plugin\LongEssayAssessment\WriterAdmin\WriterAdminLogGUI($this));
-                    //                    }
-                    //                    break;
+                       if ($this->permissions->canMaintainWriters()) {
+                           $this->activateTab('tab_writer_admin', 'tab_writer_admin');
+                           $this->ctrl->forwardCommand(new WriterAdminGUI($this->object));
+                       }
+                       break;
+                    case strtolower(ProtocolGUI::class):
+                        if ($this->permissions->canMaintainWriters()) {
+                            $this->activateTab('tab_writer_admin', 'tab_writer_admin_log');
+                            $this->ctrl->forwardCommand(new \ILIAS\Plugin\LongEssayAssessment\WriterAdmin\ProtocolGUI($this->object));
+                        }
+                        break;
                     //                case 'ilias\plugin\longessayassessment\correctoradmin\correctoradmingui':
                     //                    if ($this->permissions->canMaintainCorrectors()) {
                     //                        $cmd = $this->ctrl->getCmd('showStartPage');
@@ -544,11 +545,11 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                 'txt' => $this->plugin->txt('tab_writer_admin'),
                 'url' => $this->ctrl->getLinkTargetByClass(strtolower(WriterAdminGUI::class))
             ];
-        //            $tabs[] = [
-        //                'id' => 'tab_writer_admin_log',
-        //                'txt' => $this->plugin->txt('tab_writer_admin_log'),
-        //                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessayassessment\writerAdmin\writeradminloggui')
-        //            ];
+            $tabs[] = [
+                'id' => 'tab_writer_admin_log',
+                'txt' => $this->plugin->txt('tab_writer_admin_log'),
+                'url' => $this->ctrl->getLinkTargetByClass(strtolower(ProtocolGUI::class))
+            ];
         }
         if (!empty($tabs)) {
             $this->tabs->addTab('tab_writer_admin', $this->plugin->txt('tab_writer_admin'), $tabs[0]['url']);

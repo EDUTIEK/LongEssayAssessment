@@ -28,6 +28,8 @@ use Edutiek\LongEssayAssessmentService\Data\CorrectionPreferences;
 use ILIAS\Plugin\LongEssayAssessment\Data\Corrector\CorrectorPreferences;
 use ILIAS\StaticURL\Builder\StandardURIBuilder;
 use ILIAS\Data\ReferenceId;
+use Edutiek\LongEssayAssessmentService\Data\CorrectionSnippet;
+use ILIAS\Plugin\LongEssayAssessment\Data\Corrector\CorrectorSnippet;
 
 class CorrectorContext extends ServiceContext implements Context
 {
@@ -606,6 +608,20 @@ class CorrectorContext extends ServiceContext implements Context
     }
 
 
+    public function getCorrectionSnippets(string $corrector_key): array
+    {
+        $snippets = [];
+        foreach ($this->localDI->getCorrectorRepo()->getCorrectorSnippets(
+            (int) $corrector_key,$this->task->getTaskId()) as $repoSnippet) {
+            $snippets[] = new CorrectionSnippet(
+                $repoSnippet->getKey(),
+                $repoSnippet->getPurpose(),
+                $repoSnippet->getText()
+            );
+        }
+        return $snippets;
+    }
+
     /**
      * @inheritDoc
      * here:    the item key is a string of the writer id
@@ -742,6 +758,32 @@ class CorrectorContext extends ServiceContext implements Context
 
         $this->localDI->getCorrectorRepo()->save($repoPrefs);
         return true;
+    }
+
+    public function saveCorrectionSnippet(string $corrector_key, CorrectionSnippet $snippet): void
+    {
+       $repoSnippet = $this->localDI->getCorrectorRepo()->getCorrectorSnippetByKey(
+           $this->task->getTaskId(),
+           (int) $corrector_key,
+           $snippet->getKey()
+       ) ?? (new CorrectorSnippet())
+           ->setTaskId($this->task->getTaskId())
+           ->setCorrectorId((int) $corrector_key)
+           ->setKey($snippet->getKey());
+
+       $repoSnippet->setPurpose($snippet->getPurpose());
+       $repoSnippet->setText($snippet->getText());
+
+       $this->localDI->getCorrectorRepo()->save($repoSnippet);
+    }
+
+    public function deleteCorrectionSnippet(string $corrector_key, string $key): void
+    {
+        $this->localDI->getCorrectorRepo()->deleteCorrectorSnippetByKey(
+            $this->task->getTaskId(),
+            (int) $corrector_key,
+            $key
+        );
     }
 
 

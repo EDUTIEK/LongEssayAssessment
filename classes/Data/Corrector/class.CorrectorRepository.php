@@ -74,6 +74,27 @@ class CorrectorRepository extends RecordRepo
     }
 
     /**
+     * @return CorrectorSnippet[]
+     */
+    public function getCorrectorSnippets(int $corrector_id, int $task_id): array
+    {
+        $query = "SELECT * FROM xlas_corr_snippet WHERE corrector_id = " . $this->db->quote($corrector_id, "integer") .
+            " AND task_id = " . $this->db->quote($task_id, "integer");
+        return $this->queryRecords($query, CorrectorSnippet::model());
+    }
+
+    /**
+     * @return CorrectorSnippet|null
+     */
+    public function getCorrectorSnippetByKey(int $task_id, int $corrector_id, string $key): ?RecordData
+    {
+        $query = "SELECT * FROM xlas_corr_snippet WHERE task_id = " . $this->db->quote($task_id, "integer") .
+            " AND corrector_id = " . $this->db->quote($corrector_id, "integer") .
+            " AND `key` = " . $this->db->quote($key, "string");
+        return $this->getSingleRecord($query, CorrectorSnippet::model());
+    }
+
+    /**
      * @param int $a_id
      * @return CorrectorAssignment|null
      */
@@ -134,6 +155,7 @@ class CorrectorRepository extends RecordRepo
 
         $this->deleteCorrectorAssignmentByCorrector($a_id);
         $this->deleteCorrectorPreferencesByCorrector($a_id);
+        $this->deleteCorrectorSnippetsByCorrector($a_id);
         $this->essay_repo->deleteAccessTokenByCorrectorId($a_id);
         $this->essay_repo->deleteCorrectorCommentByCorrectorId($a_id);
         $this->essay_repo->deleteCorrectorSummaryByCorrectorId($a_id);
@@ -181,10 +203,27 @@ class CorrectorRepository extends RecordRepo
         $this->db->manipulate("DELETE prefs FROM xlas_corrector_prefs AS prefs"
             . " JOIN xlas_corrector AS corrector ON (prefs.corrector_id = corrector.id)"
             . " WHERE corrector.task_id = " . $this->db->quote($a_task_id, "integer"));
+
+        $this->db->manipulate("DELETE FROM xlas_corr_snippet" .
+            " WHERE task_id = " . $this->db->quote($a_task_id, "integer"));
         
         $this->db->manipulate("DELETE FROM xlas_corrector" .
             " WHERE task_id = " . $this->db->quote($a_task_id, "integer"));
 
+    }
+
+    public function deleteCorrectorSnippetByKey(int $task_id, int $corrector_id, string $key): void
+    {
+        $record = $this->getCorrectorSnippetByKey($task_id, $corrector_id, $key);
+        if ($record !== null) {
+            $this->deleteRecord($record);
+        }
+    }
+
+    public function deleteCorrectorSnippetsByCorrector(int $corrector_id): void
+    {
+        $query = "DELETE FROM xlas_corr_snippet WHERE corrector_id = " . $this->db->quote($corrector_id, "integer");
+        $this->db->manipulate($query);
     }
 
     /**
@@ -197,9 +236,10 @@ class CorrectorRepository extends RecordRepo
             . " WHERE task_id = " . $this->db->quote($a_task_id, 'integer');
         return $this->queryRecords($query, CorrectorAssignment::model());
     }
+
     /**
      * Save record data of an allowed type
-     * @param Corrector|CorrectorPreferences|CorrectorAssignment $record
+     * @param Corrector|CorrectorPreferences|CorrectorSnippet|CorrectorAssignment $record
      */
     public function save(RecordData $record)
     {

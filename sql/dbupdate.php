@@ -2553,3 +2553,45 @@ if (!$ilDB->tableColumnExists('xlas_task_settings', 'forwarding_url')) {
     ]);
 }
 ?>
+<#129>
+<?php
+$fields = array(
+    'id' => array(
+        'notnull' => '1',
+        'type' => 'integer',
+        'length' => '4',
+    ),
+    'task_id' => array(
+        'notnull' => '1',
+        'type' => 'integer',
+        'length' => '4',
+    ),
+    'corrector_id' => array(
+        'notnull' => '1',
+        'type' => 'integer',
+        'length' => '4',
+    ),
+    'key' => array(
+        'notnull' => '1',
+        'type' => 'text',
+        'length' => '50',
+    ),
+    'purpose' => array(
+        'notnull' => '1',
+        'type' => 'text',
+        'length' => '20',
+    ),
+    'text' => array(
+        'type' => 'clob',
+    )
+);
+if (!$ilDB->tableExists('xlas_corr_snippet')) {
+    $ilDB->createTable('xlas_corr_snippet', $fields);
+    $ilDB->addPrimaryKey('xlas_corr_snippet', array( 'id' ));
+    $ilDB->addIndex("xlas_corr_snippet", array("task_id"), "i1");
+
+    if (! $ilDB->sequenceExists('xlas_corr_snippet')) {
+        $ilDB->createSequence('xlas_corr_snippet');
+    }
+}
+?>

@@ -390,11 +390,12 @@ class CorrectorAdminGUI extends BaseGUI
         $this->ctrl->redirect($this);
     }
 
-
     protected function exportCorrections()
     {
-        $filename = ilFileDelivery::returnASCIIFilename($this->plugin->txt('export_corrections_file_prefix') .' ' .$this->object->getTitle()) . '.zip';
-        ilFileDelivery::deliverFileAttached($this->service->createCorrectionsExport($this->object), $filename, 'application/zip', false);
+        $this->service->startCorrectionsExport($this->object);
+        $this->ctrl->clearParameters($this);
+        $this->tpl->setOnScreenMessage("success", $this->plugin->txt('corrections_export_started'), true);
+        $this->ctrl->redirect($this);
     }
 
     protected function exportResults()

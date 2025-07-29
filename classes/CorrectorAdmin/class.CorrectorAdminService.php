@@ -28,6 +28,11 @@ use Edutiek\LongEssayAssessmentService\Data\CorrectionSummary;
 use ILIAS\Plugin\LongEssayAssessment\Writer\WriterContext;
 use Edutiek\LongEssayAssessmentService\Data\PdfHtml;
 use ILIAS\Plugin\LongEssayAssessment\Data\Object\ObjectRepository;
+use ILIAS\Plugin\LongEssayAssessment\WriterAdmin\WriterPdfUploadBackgroundJob;
+use ILIAS\Plugin\LongEssayAssessment\WriterAdmin\WriterPdfUploadBackgroundInteraction;
+use ILIAS\BackgroundTasks\Implementation\Bucket\BasicBucket;
+use ILIAS\BackgroundTasks\Implementation\Values\ScalarValues\StringValue;
+use ilZipJob;
 
 /**
  * Service for maintaining correctors (business logic)
@@ -511,46 +516,29 @@ class CorrectorAdminService extends BaseService
     }
 
     /**
-     * Create an export file for the corrections
-     * @param \ilObjLongEssayAssessment $object
-     * @return string   file path of the export
+     * Create an export file for the corrections in a background task
      */
-    public function createCorrectionsExport(\ilObjLongEssayAssessment $object) : string
+    public function startCorrectionsExport(\ilObjLongEssayAssessment $object) : void
     {
-        $storage = $this->dic->filesystem()->temp();
-        $basedir = ILIAS_DATA_DIR . '/' . CLIENT_ID . '/temp';
-        $tempdir = 'xlas/'. (new UUID)->uuid4AsString();
-        $zipdir = $tempdir . '/' . ilFileDelivery::returnASCIIFilename($object->getTitle());
-        $storage->createDir($zipdir);
-        $user_data_helper = $this->localDI->services()->common()->userDataHelper();
-        $repoTask = $this->taskRepo->getTaskSettingsById($object->getId());
-        $writerAdminService = $this->localDI->getWriterAdminService($repoTask->getTaskId());
-        foreach ($this->essayRepo->getEssaysByTaskId($repoTask->getTaskId()) as $repoEssay) {
-            $repoWriter = $this->writerRepo->getWriterById($repoEssay->getWriterId());
+        $factory = $this->dic->backgroundTasks()->taskFactory();
+        $manager = $this->dic->backgroundTasks()->taskManager();
 
-            $subdir = ilFileDelivery::returnASCIIFilename($user_data_helper->getFullname($repoWriter->getUserId()) . ' (' . $user_data_helper->getLogin($repoWriter->getUserId()) . ')');
-            $storage->createDir($zipdir . '/' . $subdir);
+        $export_job = $factory->createTask(CorrectorAdminCreateCorrectionsExportJob::class, [$object->getRefId()]);
+        $zip_job = $factory->createTask(ilZipJob::class, [$export_job]);
 
-            $filename = $subdir . '-writing.pdf';
-            $storage->write($zipdir . '/' . $subdir. '/'. $filename, $writerAdminService->getWritingAsPdf($object, $repoWriter));
-            
-            $filename = $subdir . '-correction.pdf';
-            $storage->write($zipdir . '/' . $subdir. '/'. $filename, $this->getCorrectionAsPdf($object, $repoWriter));
-        }
+        $download_name = new StringValue();
+        $download_name->setValue(ilFileDelivery::returnASCIIFilename(
+            $this->plugin->txt('export_corrections_file_prefix') .' ' . $object->getTitle()) . '.zip');
 
-        $zipfile = $basedir . '/' . $tempdir . '/' . ilFileDelivery::returnASCIIFilename($object->getTitle()) . '.zip';
-        \ilFileUtils::zip($basedir . '/' . $zipdir, $zipfile);
-        // With ILIAS 9 rewrite with this guide:
-        // https://github.com/ILIAS-eLearning/ILIAS/blob/release_9/docs/development/file-handling.md#zip-and-unzip
+        $interaction = $factory->createTask(\ilDownloadZipInteraction::class, [$zip_job, $download_name]);
 
-        $storage->deleteDir($zipdir);
-        return $zipfile;
+        $bucket = new BasicBucket();
+        $bucket->setUserId($this->dic->user()->getId());
+        $bucket->setTitle($this->plugin->txt('corrections_export') . ' '.  $object->getTitle());
+        $bucket->setTask($interaction);
 
-        // check if that can be used without abolute path
-        // then also the tempdir can be deleted
-        //$delivery = new \ilFileDelivery()
+        $manager->run($bucket);
     }
-
 
     /**
      * Get the correction of an essay as PDF string

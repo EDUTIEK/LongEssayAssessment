@@ -275,13 +275,13 @@ abstract class BaseGUI
         $sig = chr(13) . chr(10) . chr(13) . chr(10);
         $sig .= $this->plugin->txt('link_to_object');
         $sig .= chr(13) . chr(10);
-        $sig .= ilLink::_getStaticLink((int) ($get['ref_id'] ?? ''));
+        $sig .= ilLink::_getStaticLink((int) ($this->params['ref_id'] ?? ''));
         $sig = rawurlencode(base64_encode($sig));
 
         $get = $this->request->getQueryParams();
         $this->ctrl->redirectToUrl(
             ilMailFormCall::getRedirectTarget(
-                $this, $current_command, ['ref_id' => $get['ref_id'] ?? ''],
+                $this, $current_command, ['ref_id' => $this->params['ref_id'] ?? ''],
                 [
                     'type' => 'new', // Could also be 'reply' with an additional 'mail_id' paremter provided here
                     'rcp_to' => implode(', ', $logins),

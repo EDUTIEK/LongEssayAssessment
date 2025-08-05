@@ -202,6 +202,7 @@ abstract class BaseGUI
 
     /**
      * Display an HTML text in readable width
+     * @todo: merge with displayContent in a new UI element
      */
     public function displayText(?string $html): string
     {
@@ -210,6 +211,7 @@ abstract class BaseGUI
 
     /**
      * Display an essay content
+     * @todo: merge with displayText in a new UI element
      */
     public function displayContent(?string $html): string
     {

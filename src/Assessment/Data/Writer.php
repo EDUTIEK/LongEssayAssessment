@@ -49,6 +49,7 @@ class Writer extends \Edutiek\AssessmentService\Assessment\Data\Writer
     private ?string $stitch_comment = null;
     private ?int $location = null;
     private int $review_notification = 0;
+    private bool $stitch_needed = false;
 
     public function getId(): int
     {
@@ -220,5 +221,16 @@ class Writer extends \Edutiek\AssessmentService\Assessment\Data\Writer
     {
         $this->review_notification = $review_notification;
         return $this;
+    }
+
+    public function setStitchNeeded(bool $stitch_needed): self
+    {
+        $this->stitch_needed = $stitch_needed;
+        return $this;
+    }
+
+    public function getStitchNeeded(): bool
+    {
+        return $this->stitch_needed;
     }
 }

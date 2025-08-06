@@ -78,4 +78,10 @@ class WriterRepo implements \Edutiek\AssessmentService\Assessment\Data\WriterRep
     {
         $this->repo->deleteAllBy(['ass_id' => $ass_id]);
     }
+
+    public function hasStitchDecisions(int $ass_id): bool
+    {
+        return $this->repo->hasBy(['ass_id' => $ass_id, "stitch_needed" => 1]);
+    }
+
 }

@@ -27,6 +27,8 @@ use Edutiek\AssessmentService\System\Api\ForServices as SystemApi;
 use ILIAS\Plugin\LongEssayAssessment\Task\Data\RepositoryFactory;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Generate;
 use Edutiek\AssessmentService\EssayTask\Api\Factory as EssayTaskFactory;
+use Edutiek\AssessmentService\Assessment\Api\ForTasks as AssessmentApiFactory;
+use Edutiek\AssessmentService\Assessment\Api\Factory as AssessmentFactory;
 
 /**
  * Dependencies of the assessment services component "Task"
@@ -66,4 +68,8 @@ class TaskDic implements \Edutiek\AssessmentService\Task\Api\Dependencies
         return $this->dic[RepositoryFactory::class];
     }
 
+    public function assessmentApis(int $ass_id, int $user_id): AssessmentApiFactory
+    {
+        return $this->dic[AssessmentFactory::class]->forTasks($ass_id, $user_id);
+    }
 }

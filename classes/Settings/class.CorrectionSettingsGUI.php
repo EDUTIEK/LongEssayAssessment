@@ -18,7 +18,7 @@ use Edutiek\AssessmentService\System\Entity\FullService as EntityService;
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\BaseObjectData;
 use ILIAS\Plugin\LongEssayAssessment\EssayTask\Data\Essay;
-
+use Edutiek\AssessmentService\Assessment\TaskInterfaces\Manager as TaskManager;
 
 /**
  * Settings for the correction
@@ -32,6 +32,7 @@ class CorrectionSettingsGUI extends BaseGUI
     private EssayTaskCorrectionSettingsService $essay_task_correction_settings_service;
     private EntityService $entity_service;
     private DateTimeZone $user_timezone;
+    private TaskManager $manager_service;
 
     public function __construct(BaseObjectData $object)
     {

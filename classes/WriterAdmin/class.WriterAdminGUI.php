@@ -26,6 +26,7 @@ use ILIAS\UI\Component\Modal\RoundTrip;
 use Edutiek\AssessmentService\Assessment\WorkingTime\ValidationError;
 use ILIAS\Plugin\LongEssayAssessment\Assessment\WorkingTime\ValidationErrorStore;
 use ILIAS\Plugin\LongEssayAssessment\Assessment\WorkingTime\IndividualValidator;
+use Edutiek\AssessmentService\EssayTask\AssessmentStatus\WriterEssaySummary;
 
 /**
  * Writer Admin GUI class
@@ -173,11 +174,11 @@ class WriterAdminGUI extends BaseGUI implements DataTableParent, FilterParent
             $content
         );
         $reload_button = $this->ui_factory->button()->standard($this->lng->txt("refresh"), "")
-                                         ->withLoadingAnimationOnClick(true)
-                                         ->withOnLoadCode(
-                                             function ($id) use ($link) {
-                                                 return
-                                                     "$('#{$id}').click(function() { 
+                                          ->withLoadingAnimationOnClick(true)
+                                          ->withOnLoadCode(
+                                              function ($id) use ($link) {
+                                                  return
+                                                      "$('#{$id}').click(function() { 
                                                         n_url = '{$link}';
                                                         text = $('#$id').html();
                                                         $('#$id').html('...');
@@ -186,8 +187,8 @@ class WriterAdminGUI extends BaseGUI implements DataTableParent, FilterParent
                                                         il.UI.button.deactivateLoadingAnimation('$id');
                                                         return false;
                                                       });";
-                                             }
-                                         );
+                                              }
+                                          );
 
         return $sight_modal->withActionButtons([$reload_button]);
     }
@@ -350,22 +351,19 @@ class WriterAdminGUI extends BaseGUI implements DataTableParent, FilterParent
         $renderer = $this->renderer;
         $unknown = $this->lng->txt('unknown');
 
-        $image = function () use ($renderer, $user_data, $user_display, $unknown) {
-            if (!empty($user_display?->getImageUrl())) {
-                $avatar = $this->ui_factory->symbol()->avatar()->picture($user_display->getImageUrl(), $user_data->getLogin());
-            } else {
-                $avatar = $this->ui_factory->symbol()->avatar()->letter($user_data?->getFullname(false)??$unknown);
-            }
 
-            return $renderer->render($avatar);
-        };
+        if (!empty($user_display?->getImageUrl())) {
+            $avatar = $this->ui_factory->symbol()->avatar()->picture($user_display->getImageUrl(), $user_data->getLogin());
+        } else {
+            $avatar = $this->ui_factory->symbol()->avatar()->letter($user_data?->getFullname(false)??$unknown);
+        }
 
         $status = match($writer->getStatus()) {
             WritingStatus::NOT_STARTED => $this->plugin->txt("status_writing_not_started"),
             WritingStatus::STARTED => $this->plugin->txt("status_writing_started"),
-            WritingStatus::EXCLUDED => $this->plugin->txt("status_writing_excluded_from") . " " .
+            WritingStatus::EXCLUDED => $this->plugin->txt("writing_excluded_from") . " " .
                 ($item->getExecludedFromFullname()??$unknown),
-            WritingStatus::AUTHORIZED => $this->plugin->txt("status_writing_authorized_from") . " " .
+            WritingStatus::AUTHORIZED => $this->plugin->txt("writing_authorized_from") . " " .
                 ($writer->getUserId() === $writer->getWritingAuthorizedBy()
                     ? $this->plugin->txt("participant")
                     : ($item->getAuthorizedFromFullname()??$unknown))
@@ -383,13 +381,14 @@ class WriterAdminGUI extends BaseGUI implements DataTableParent, FilterParent
         $exam_limit_changed = $writer->hasChangedTimeLimit();
 
         return [
-            "image" => $image,
+            "image" => $avatar,
             "name" => $user_data->getListname(false),
             "login" => $user_data->getLogin(),
             "pseudonym" => $writer->getPseudonym(),
             "location" => $this->getLocation($writer->getLocation()),
             "status" => $status,
             "writing_last_save" => $essay_summary?->getLastSave()?->setTimezone($timezone),
+            "word_count" => $essay_summary?->getWords() ?? 0,
             "working_period" => [$working_start, $working_end],
             "working_duration" => $working_start !== null
                 ? date_diff($working_start, $working_end ?? (new \DateTimeImmutable('now', $timezone)))
@@ -435,13 +434,14 @@ class WriterAdminGUI extends BaseGUI implements DataTableParent, FilterParent
         $w_interval_format = $this->intervalFormat($long_exam, true);
 
         return [
-            "image" => $cf->text($this->lng->txt("image"))->withIsOptional(true, false)->withIsSortable(false),
+            "image" => $cfp->image($this->lng->txt("image"))->withIsOptional(true, false)->withIsSortable(false),
             "name" => $cf->text($this->lng->txt("name"))->withIsOptional(false, true)->withIsSortable(true),
             "login" => $cf->text($this->lng->txt("login"))->withIsOptional(false, true)->withIsSortable(true),
             "pseudonym" => $cf->text($this->plugin->txt("pseudonym"))->withIsOptional(true, true)->withIsSortable(true),
             "location" => $cf->text($this->plugin->txt("location"))->withIsOptional(true, $location_avaiable)->withIsSortable(true),
             "status" => $cf->status($this->plugin->txt("essay_status"))->withIsOptional(true, true)->withIsSortable(true),
             "writing_last_save" => $cfp->nullableDate($this->plugin->txt("writing_last_save"), $date_with_seconds)->withIsOptional(true, $has_started)->withIsSortable(true),
+            "word_count" => $cf->number($this->plugin->txt('word_count'))->withIsOptional(false, $has_started)->withIsSortable(true),
             "working_period" => $cfp->unboundTimeSpan($this->plugin->txt("working_period"), $date_with_seconds)->withIsOptional(true, $has_started)->withIsSortable(true),
             "working_duration" => $cfp->interval($this->plugin->txt("working_duration"), $w_interval_format)->withIsOptional(true, $has_started)->withIsSortable(true),
             "assessment_period" => $cfp->unboundTimeSpan($this->plugin->txt("assessment_period"), $date_without_seconds)->withIsOptional(true, false)->withIsSortable(true),
@@ -656,20 +656,20 @@ class WriterAdminGUI extends BaseGUI implements DataTableParent, FilterParent
                 $this->plugin->txt("writing_start"),
                 $this->plugin->txt('label_general') . ' '
             )->withUseTime(true)
-             ->withValue($earliest_start),
+                                         ->withValue($earliest_start),
             'latest_end' => $factory->dateTime(
                 $this->plugin->txt("writing_end"),
                 $this->plugin->txt('label_general') . ' '
             )->withUseTime(true)
-             ->withValue($latest_end),
+                                    ->withValue($latest_end),
             'writing_limit_days' => $factory->numeric($this->plugin->txt("writing_limit_days"))
-                ->withAdditionalTransformation($this->refinery->int()->isGreaterThanOrEqual(0))
-                ->withValue($writing_limit_days),
+                                            ->withAdditionalTransformation($this->refinery->int()->isGreaterThanOrEqual(0))
+                                            ->withValue($writing_limit_days),
             'writing_limit_hours_minutes' =>  $factory->dateTime(
                 $this->plugin->txt("writing_limit_hours_minutes"),
                 $this->plugin->txt('label_general') . ' '
             )->withTimeOnly(true)
-             ->withValue($writing_limit_hours_minutes)
+                                                      ->withValue($writing_limit_hours_minutes)
         ];
     }
 
@@ -714,7 +714,7 @@ class WriterAdminGUI extends BaseGUI implements DataTableParent, FilterParent
             "pdf_version_download",
             $this->plugin->txt("pdf_version_download"),
             [$this, "pdfVersionDownloadModal"],
-            fn (WriterItem $item) => $item->getEssaySummaries()?->hasPdfUploads() ?? false,
+            fn (WriterItem $item) => $item->getEssayStatus()?->hasPdfUploads() ?? false,
             Action\Type::Single
         );
     }
@@ -785,24 +785,24 @@ class WriterAdminGUI extends BaseGUI implements DataTableParent, FilterParent
             $writers = array_filter($writers, fn(Writer $writer) => in_array($writer->getId(), $ids));
         }
 
-        $writer_essay_summaries = $this->assessment_status->allWriterEssaySummaries();
+        $writer_essay_status = $this->assessment_status->allWriterEssaySummaries();
 
         $user_ids = [];
         foreach ($writers as $key => $writer) {
-            if (isset($filter_data['status']) && !in_array($writer->getStatus()->value, $filter_data['status'])) {
+            if (!empty($filter_data['status']??null) && !in_array($writer->getStatus()->value, $filter_data['status'])) {
                 unset($writers[$key]);
                 continue;
             }
 
-            if (($changed = $filter_data['time_limit_changed'] ?? null) !== null && (
-                ($writer->hasChangedTimeLimit() && $changed === self::FILTER_NO) ||
-                (!$writer->hasChangedTimeLimit() && $changed === self::FILTER_YES)
-            )) {
+            if (!empty($changed = ($filter_data['time_limit_changed'] ?? null)) && (
+                    ($writer->hasChangedTimeLimit() && $changed === self::FILTER_NO) ||
+                    (!$writer->hasChangedTimeLimit() && $changed === self::FILTER_YES)
+                )) {
                 unset($writers[$key]);
                 continue;
             }
 
-            if (isset($filter_data['location']) && !in_array($writer->getStatus(), $filter_data['location'])) {
+            if (!empty($filter_data['location']?? null) && !in_array($writer->getLocation(), $filter_data['location'])) {
                 unset($writers[$key]);
                 continue;
             }
@@ -823,21 +823,29 @@ class WriterAdminGUI extends BaseGUI implements DataTableParent, FilterParent
         foreach ($writers as $writer) {
             $user = $users[$writer->getUserId()] ?? null;
             $user_display = $user_displays[$writer->getUserId()] ?? null;
-            $essay_status = $writer_essay_summaries[$writer->getUserId()] ?? null;
+            $essay_status = $writer_essay_status[$writer->getId()] ?? null;
             $authorized_from = $writer->getWritingAuthorizedBy() !== null ? $users[$writer->getWritingAuthorizedBy()] ?? null : null;
             $excluded_from = $writer->getWritingExcludedBy() !== null ? $users[$writer->getWritingExcludedBy()] ?? null : null;
 
-            if (isset($filter_data['name']) && !str_contains($writer->getPseudonym() . $user?->getFullname(true), $filter_data['name'])) {
+            if (!empty($filter_data['name']??null) && !str_contains($writer->getPseudonym() . $user?->getFullname(true), $filter_data['name'])) {
                 continue;
             }
 
-            if (isset($filter_data['pdf_version'])) {
+            if (!empty($filter_data['pdf_version']??null)) {
                 $has_pdf_upload = $essay_status?->hasPdfUploads() ?? false;
                 $filter_pdf_upload = $filter_data['pdf_version'] === self::FILTER_YES;
 
                 if ($has_pdf_upload != $filter_pdf_upload) {
                     continue;
                 }
+            }
+
+            if (!empty($filter_data['min_words']??null) && ($essay_status?->getWords()??0) < (int)$filter_data['min_words']) {
+                continue;
+            }
+
+            if (!empty($filter_data['max_words']??null) && ($essay_status?->getWords()??0) > (int)$filter_data['max_words']) {
+                continue;
             }
 
             yield new WriterItem($writer->getId(), $writer, $user, $user_display, $essay_status, $authorized_from, $excluded_from);
@@ -847,7 +855,7 @@ class WriterAdminGUI extends BaseGUI implements DataTableParent, FilterParent
     public function getTableItem(int $id): \ILIAS\Plugin\LongEssayAssessment\UI\Table\Item
     {
         $writer = $this->writer_service->oneByWriterId($id);
-        $essay_status = $this->assessment_status->oneWriterEssayStatus($writer->getId());
+        $essay_status = $this->assessment_status->oneWriterEssaySummary($writer->getId());
         $user = $this->user_service->getUser($writer->getUserId());
         $user_display = $this->user_service->getUserDisplay($writer->getUserId(), null);
         $authorized_from = $writer->getWritingAuthorizedBy() !== null ? $users[$writer->getWritingAuthorizedBy()] ?? null : null;
@@ -875,6 +883,10 @@ class WriterAdminGUI extends BaseGUI implements DataTableParent, FilterParent
                 $this->plugin->txt("time_limit_changed"),
                 [self::FILTER_YES => $this->plugin->txt("yes"), self::FILTER_NO => $this->plugin->txt("no")]
             ),
+            "min_words" => $this->ui_factory->input()->field()->numeric($this->plugin->txt("min_word_count"))
+                                            ->withAdditionalTransformation($this->refinery->int()->isGreaterThanOrEqual(0)),
+            "max_words" => $this->ui_factory->input()->field()->numeric($this->plugin->txt("max_word_count"))
+                                            ->withAdditionalTransformation($this->refinery->int()->isGreaterThanOrEqual(1)),
             "pdf_version" => $this->ui_factory->input()->field()->select(
                 $this->plugin->txt("filter_pdf_version"),
                 [self::FILTER_YES => $this->plugin->txt("yes"), self::FILTER_NO => $this->plugin->txt("no")]
@@ -884,7 +896,7 @@ class WriterAdminGUI extends BaseGUI implements DataTableParent, FilterParent
 
     public function getFilterInputActivation(): ?array
     {
-        return [true, $this->hasLocations(), true, true, true];
+        return [true, $this->hasLocations(), true, true, true, true, true];
     }
 
     protected function hasLocations() : bool

@@ -110,39 +110,16 @@ class DataTable extends Table implements DataRetrieval, DataTableParent
         ?array $filter_data,
         ?array $additional_parameters
     ): \Generator {
-
-        $content = function (mixed $item, bool $orderable = false): mixed {
-            // Cannot use is_callable, for english translation $item is 'File' sometimes,
-            // which is a valid PHP function and therefore throws an error.
-            if ($item instanceof Closure) {
-                return $item($orderable);
-            }
-            return $item;
-        };
-
-        $data = array_map(
-            fn(Item $x) => [
-                "item" => $x,
-                "mapping" => $this->getColumnMapping($x, $additional_parameters)
-            ],
-            iterator_to_array($this->getTableItems(null, $filter_data))
+        yield from new DataTableRowBuilder(
+            $row_builder,
+            $this->getTableItems(null, $filter_data),
+            $this,
+            $visible_column_ids,
+            $range,
+            $order,
+            $this->actions,
+            $additional_parameters
         );
-
-        list($order_field, $order_direction) = $order->join([], fn($ret, $key, $value) => [$key, $value]);
-        usort($data, fn($a, $b) => $content($a["mapping"][$order_field], true) <=> $content($b["mapping"][$order_field], true));
-        if ($order_direction === 'DESC') {
-            $data = array_reverse($data);
-        }
-
-        $data = array_slice($data, $range->getStart(), $range->getLength());
-
-        foreach ($data as list("item" => $item, "mapping" => $mapping)) {
-            $row = $row_builder->buildDataRow((string) $item->getId(), array_map($content, $mapping));
-            foreach (array_filter($this->actions, fn(Action\Action $x) => in_array($x->type(), [Action\Type::Standard, Action\Type::Single])) as $action) {
-                $row = $row->withDisabledAction($action->name(), !$action->enabled($item));
-            }
-            yield $row;
-        }
     }
 
     protected function buildDataTabeActionByType(
@@ -215,7 +192,7 @@ class DataTable extends Table implements DataRetrieval, DataTableParent
         return $this->dt_parent->getTotalRowCount($filter_data, $additional_parameters);
     }
 
-    public function getColumnMapping(Item $item, ?array $additional_parameters): array
+    public function getColumnMapping(Item $item, ?array $additional_parameters): array|\ArrayAccess
     {
         return $this->dt_parent->getColumnMapping($item, $additional_parameters);
     }

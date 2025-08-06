@@ -6,7 +6,7 @@ use ILIAS\UI\Component\Table\Column\Column;
 
 interface DataTableParent extends TableParent
 {
-    public function getColumnMapping(Item $item, ?array $additional_parameters): array;
+    public function getColumnMapping(Item $item, ?array $additional_parameters): array|\ArrayAccess;
 
     /**
      * @return Column[]

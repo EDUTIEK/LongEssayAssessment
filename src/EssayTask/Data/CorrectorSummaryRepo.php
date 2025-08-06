@@ -62,8 +62,58 @@ class CorrectorSummaryRepo implements \Edutiek\AssessmentService\EssayTask\Data\
         return $this->repo->queryOne($query) !== null;
     }
 
+    /**
+     * @param int $ass_id
+     * @return CorrectorSummary[]
+     */
+    public function allByAssId(int $ass_id): array
+    {
+        $query = "
+            SELECT summary.*, settings.ass_id AS ass_id
+            FROM xlas_et_corr_summary AS summary
+            JOIN xlas_et_essay AS essay ON summary.essay_id = essay.id
+            JOIN xlas_et_task_settings AS settings ON essay.task_id = settings.task_id
+            WHERE "
+            . $this->repo->where(['ass_id' => $ass_id]);
+
+        $summaries = [];
+        foreach ($this->repo->queryAllRaw($query) as $row) {
+            $summaries[] = $this->repo->fromRow($row);
+        }
+        return $summaries;
+    }
+
+    public function allByWriterId(int $writer_id): array
+    {
+        $query = "
+            SELECT summary.*, essay.writer_id AS writer_id
+            FROM xlas_et_corr_summary AS summary
+            JOIN xlas_et_essay AS essay ON summary.essay_id = essay.id
+            WHERE "
+            . $this->repo->where(['ass_id' => $writer_id]);
+
+        $summaries = [];
+        foreach ($this->repo->queryAllRaw($query) as $row) {
+            $summaries[] = $this->repo->fromRow($row);
+        }
+        return $summaries;
+    }
+
     public function allByTaskId(int $task_id): array
     {
+        $query = "
+            SELECT summary.*, essay.task_id AS task_id
+            FROM xlas_et_corr_summary AS summary
+            JOIN xlas_et_essay AS essay ON summary.essay_id = essay.id
+            WHERE "
+            . $this->repo->where(['task_id' => $task_id]);
+
+        $summaries = [];
+        foreach ($this->repo->queryAllRaw($query) as $row) {
+            $summaries[] = $this->repo->fromRow($row);
+        }
+        return $summaries;
+
         return $this->repo->queryAllBy(['task_id' => $task_id]);
     }
 

@@ -18,6 +18,7 @@ use ILIAS\Plugin\LongEssayAssessment\Settings\CriteriaAdminGUI;
 use ILIAS\Plugin\LongEssayAssessment\WriterAdmin\WriterAdminGUI;
 use ILIAS\Plugin\LongEssayAssessment\Writer\WriterUploadGUI;
 use ILIAS\Plugin\LongEssayAssessment\WriterAdmin\ProtocolGUI;
+use ILIAS\Plugin\LongEssayAssessment\CorrectionAdmin\CorrectionAdminGUI;
 
 /**
  * Plugin GUI Class
@@ -242,17 +243,17 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                             $this->ctrl->forwardCommand(new \ILIAS\Plugin\LongEssayAssessment\WriterAdmin\ProtocolGUI($this->object));
                         }
                         break;
-                    //                case 'ilias\plugin\longessayassessment\correctoradmin\correctoradmingui':
-                    //                    if ($this->permissions->canMaintainCorrectors()) {
-                    //                        $cmd = $this->ctrl->getCmd('showStartPage');
-                    //                        $active_sub = 'tab_correction_items';
-                    //                        if(in_array($cmd, ["showCorrectors", "start", "performSearch"])) {
-                    //                            $active_sub = 'tab_corrector_list';
-                    //                        }
-                    //                        $this->activateTab('tab_corrector_admin', $active_sub);
-                    //                        $this->ctrl->forwardCommand(new \ILIAS\Plugin\LongEssayAssessment\CorrectorAdmin\CorrectorAdminGUI($this));
-                    //                    }
-                    //                    break;
+                    case strtolower(CorrectionAdminGUI::class):
+                        if ($this->permissions->canMaintainCorrectors()) {
+                            $cmd = $this->ctrl->getCmd('showStartPage');
+                            $active_sub = 'tab_correction_items';
+                            if(in_array($cmd, ["showCorrectors", "start", "performSearch"])) {
+                                $active_sub = 'tab_corrector_list';
+                            }
+                            $this->activateTab('tab_corrector_admin', $active_sub);
+                            $this->ctrl->forwardCommand(new CorrectionAdminGUI($this->object));
+                        }
+                        break;
                     //                case 'ilias\plugin\longessayassessment\correctoradmin\correctoradminstatisticsgui':
                     //                    if ($this->permissions->canMaintainCorrectors()) {
                     //                        $cmd = $this->ctrl->getCmd('showStartPage');
@@ -558,12 +559,12 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
 
         // Corrector Admin Tab
         $tabs = [];
-        //        if ($this->permissions->canMaintainCorrectors()) {
-        //            $tabs[] = [
-        //                'id' => 'tab_correction_items',
-        //                'txt' => $this->plugin->txt('tab_correction_items'),
-        //                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessayassessment\correctorAdmin\correctoradmingui')
-        //            ];
+        if ($this->permissions->canMaintainCorrectors()) {
+            $tabs[] = [
+                'id' => 'tab_correction_items',
+                'txt' => $this->plugin->txt('tab_correction_items'),
+                'url' => $this->ctrl->getLinkTargetByClass(strtolower(CorrectionAdminGUI::class))
+            ];
         //            $tabs[] = [
         //                'id' => 'tab_corrector_list',
         //                'txt' => $this->plugin->txt('tab_corrector_list'),
@@ -579,7 +580,7 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
         //                'txt' => $this->plugin->txt('tab_writer_statistic'),
         //                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessayassessment\correctorAdmin\correctoradminwriterstatisticsgui', "showStartPage")
         //            ];
-        //        }
+        }
         if (!empty($tabs)) {
             $this->tabs->addTab('tab_corrector_admin', $this->plugin->txt('tab_corrector_admin'), $tabs[0]['url']);
             $this->subtabs['tab_corrector_admin'] = $tabs;

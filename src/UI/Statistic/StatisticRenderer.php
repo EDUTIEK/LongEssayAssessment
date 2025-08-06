@@ -67,6 +67,9 @@ class StatisticRenderer extends AbstractComponentRenderer
     protected function buildStatistic(Statistic $component): Sub
     {
         $items = [];
+        $grades = [];
+        $chart = [];
+
         $items[$component->getCountLabel()] = (string)$component->getCount();
         $items[$component->getFinalLabel()] = (string)$component->getFinal();
 
@@ -85,7 +88,9 @@ class StatisticRenderer extends AbstractComponentRenderer
             $items[$this->pluginTxt('essay_average_points')] = sprintf('%.2f', $component->getAveragePoints());
         }
 
-        list($grades, $chart) = $this->buildGradesAndGraph($component);
+        if(!empty($component->getGrades())) {
+            list($grades, $chart) = $this->buildGradesAndGraph($component);
+        }
 
         $root = $this->getUIFactory()->panel()->sub($component->getTitle(), $this->getUIFactory()->listing()->characteristicValue()->text($items));
 
@@ -131,6 +136,7 @@ class StatisticRenderer extends AbstractComponentRenderer
                 $pseudonym = [];
                 $fproperties = [];
                 $properties = [];
+                $chart = [];
 
                 if ($record instanceof StatisticSection) {
                     return [$ui_factory->legacy("<h4>" . $record->getTitle() . "</h4>")];
@@ -154,7 +160,9 @@ class StatisticRenderer extends AbstractComponentRenderer
                         $properties[$this->pluginTxt('essay_average_points')] = sprintf('%.2f', $record->getAveragePoints());
                     }
 
-                    list($fproperties, $chart) = $this->buildGradesAndGraph($record);
+                    if(!empty($record->getGrades())) {
+                        list($fproperties, $chart) = $this->buildGradesAndGraph($record);
+                    }
 
                     if ($record->getPseudonym() !== null) {
                         $pseudonym = [$this->pluginTxt("pseudonym") => implode(", ", array_unique($record->getPseudonym()))];

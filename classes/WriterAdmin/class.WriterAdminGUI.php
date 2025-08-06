@@ -347,7 +347,7 @@ class WriterAdminGUI extends BaseGUI implements DataTableParent, FilterParent
         $writer = $item->getWriter();
         $user_data = $item->getUserData();
         $user_display = $item->getUserDisplay();
-        $essay_summary = $item->getEssaySummaries();
+        $essay_summary = $item->getEssaySummary();
         $renderer = $this->renderer;
         $unknown = $this->lng->txt('unknown');
 
@@ -714,7 +714,7 @@ class WriterAdminGUI extends BaseGUI implements DataTableParent, FilterParent
             "pdf_version_download",
             $this->plugin->txt("pdf_version_download"),
             [$this, "pdfVersionDownloadModal"],
-            fn (WriterItem $item) => $item->getEssayStatus()?->hasPdfUploads() ?? false,
+            fn (WriterItem $item) => $item->getEssaySummary()?->hasPdfUploads() ?? false,
             Action\Type::Single
         );
     }

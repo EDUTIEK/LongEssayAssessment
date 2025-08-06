@@ -14,7 +14,7 @@ class WriterItem extends \ILIAS\Plugin\LongEssayAssessment\UI\Table\Item
         private Writer $writer,
         private UserData $user_data,
         private UserDisplay $user_display,
-        private ?WriterEssaySummary $essay_summaries,
+        private ?WriterEssaySummary $essay_summary,
         private ?UserData $authorized_from,
         private ?UserData $excluded_from,
     ) {
@@ -36,9 +36,9 @@ class WriterItem extends \ILIAS\Plugin\LongEssayAssessment\UI\Table\Item
         return $this->user_display;
     }
 
-    public function getEssaySummaries(): ?WriterEssaySummary
+    public function getEssaySummary(): ?WriterEssaySummary
     {
-        return $this->essay_summaries;
+        return $this->essay_summary;
     }
 
     public function getAuthorizedFrom(): ?UserData

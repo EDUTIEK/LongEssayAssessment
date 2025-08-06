@@ -5,7 +5,7 @@ namespace ILIAS\Plugin\LongEssayAssessment\WriterAdmin;
 use Edutiek\AssessmentService\Assessment\Data\Writer;
 use Edutiek\AssessmentService\System\Data\UserData;
 use Edutiek\AssessmentService\System\Data\UserDisplay;
-use Edutiek\AssessmentService\EssayTask\AssessmentStatus\WriterEssayStatus;
+use Edutiek\AssessmentService\EssayTask\AssessmentStatus\WriterEssaySummary;
 
 class WriterItem extends \ILIAS\Plugin\LongEssayAssessment\UI\Table\Item
 {
@@ -14,7 +14,7 @@ class WriterItem extends \ILIAS\Plugin\LongEssayAssessment\UI\Table\Item
         private Writer $writer,
         private UserData $user_data,
         private UserDisplay $user_display,
-        private ?WriterEssayStatus $essay_status,
+        private ?WriterEssaySummary $essay_summaries,
         private ?UserData $authorized_from,
         private ?UserData $excluded_from,
     ) {
@@ -26,19 +26,9 @@ class WriterItem extends \ILIAS\Plugin\LongEssayAssessment\UI\Table\Item
         return $this->writer;
     }
 
-    public function setWriter(Writer $writer): void
-    {
-        $this->writer = $writer;
-    }
-
     public function getUserData(): UserData
     {
         return $this->user_data;
-    }
-
-    public function setUserData(UserData $user_data): void
-    {
-        $this->user_data = $user_data;
     }
 
     public function getUserDisplay(): UserDisplay
@@ -46,29 +36,14 @@ class WriterItem extends \ILIAS\Plugin\LongEssayAssessment\UI\Table\Item
         return $this->user_display;
     }
 
-    public function setUserDisplay(UserDisplay $user_display): void
+    public function getEssaySummaries(): ?WriterEssaySummary
     {
-        $this->user_display = $user_display;
-    }
-
-    public function getEssayStatus(): ?WriterEssayStatus
-    {
-        return $this->essay_status;
-    }
-
-    public function setEssayStatus(WriterEssayStatus $essay_status): void
-    {
-        $this->essay_status = $essay_status;
+        return $this->essay_summaries;
     }
 
     public function getAuthorizedFrom(): ?UserData
     {
         return $this->authorized_from;
-    }
-
-    public function setAuthorizedFrom(?UserData $authorized_from): void
-    {
-        $this->authorized_from = $authorized_from;
     }
 
     public function getExcludedFrom(): ?UserData

@@ -346,7 +346,7 @@ class WriterAdminGUI extends BaseGUI implements DataTableParent, FilterParent
         $writer = $item->getWriter();
         $user_data = $item->getUserData();
         $user_display = $item->getUserDisplay();
-        $essay_status = $item->getEssayStatus();
+        $essay_summary = $item->getEssaySummaries();
         $renderer = $this->renderer;
         $unknown = $this->lng->txt('unknown');
 
@@ -389,7 +389,7 @@ class WriterAdminGUI extends BaseGUI implements DataTableParent, FilterParent
             "pseudonym" => $writer->getPseudonym(),
             "location" => $this->getLocation($writer->getLocation()),
             "status" => $status,
-            "writing_last_save" => $essay_status?->getLastSave()?->setTimezone($timezone),
+            "writing_last_save" => $essay_summary?->getLastSave()?->setTimezone($timezone),
             "working_period" => [$working_start, $working_end],
             "working_duration" => $working_start !== null
                 ? date_diff($working_start, $working_end ?? (new \DateTimeImmutable('now', $timezone)))
@@ -403,7 +403,7 @@ class WriterAdminGUI extends BaseGUI implements DataTableParent, FilterParent
                 : ($item->getAuthorizedFromFullname() ?? $unknown),
             "excluded" => $writer->getWritingExcluded()?->setTimezone($timezone),
             "excluded_from" => $item->getExecludedFromFullname() ?? $unknown,
-            "pdf_version" => $essay_status?->hasPdfUploads() ?? false
+            "pdf_version" => $essay_summary?->hasPdfUploads() ?? false
         ];
     }
 
@@ -714,7 +714,7 @@ class WriterAdminGUI extends BaseGUI implements DataTableParent, FilterParent
             "pdf_version_download",
             $this->plugin->txt("pdf_version_download"),
             [$this, "pdfVersionDownloadModal"],
-            fn (WriterItem $item) => $item->getEssayStatus()?->hasPdfUploads() ?? false,
+            fn (WriterItem $item) => $item->getEssaySummaries()?->hasPdfUploads() ?? false,
             Action\Type::Single
         );
     }
@@ -785,7 +785,7 @@ class WriterAdminGUI extends BaseGUI implements DataTableParent, FilterParent
             $writers = array_filter($writers, fn(Writer $writer) => in_array($writer->getId(), $ids));
         }
 
-        $writer_essay_status = $this->assessment_status->allWriterEssayStatus();
+        $writer_essay_summaries = $this->assessment_status->allWriterEssaySummaries();
 
         $user_ids = [];
         foreach ($writers as $key => $writer) {
@@ -823,7 +823,7 @@ class WriterAdminGUI extends BaseGUI implements DataTableParent, FilterParent
         foreach ($writers as $writer) {
             $user = $users[$writer->getUserId()] ?? null;
             $user_display = $user_displays[$writer->getUserId()] ?? null;
-            $essay_status = $writer_essay_status[$writer->getUserId()] ?? null;
+            $essay_status = $writer_essay_summaries[$writer->getUserId()] ?? null;
             $authorized_from = $writer->getWritingAuthorizedBy() !== null ? $users[$writer->getWritingAuthorizedBy()] ?? null : null;
             $excluded_from = $writer->getWritingExcludedBy() !== null ? $users[$writer->getWritingExcludedBy()] ?? null : null;
 

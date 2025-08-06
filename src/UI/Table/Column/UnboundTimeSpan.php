@@ -22,9 +22,14 @@ class UnboundTimeSpan extends TimeSpan
             }
         );
 
-        return
-            ($value[0] !== null ? $value[0]->format($this->getFormat()->toString()) : '*')
-            . ' - ' .
-            ($value[1] !== null ? $value[1]->format($this->getFormat()->toString()) : '*');
+        $start = ($value[0] !== null
+            ? ('<span class="sr-only">' . $this->lng->txt('from') . ' </span><time>' . $value[0]->format($this->getFormat()->toString()) . '</time>')
+            : '<span aria-hidden="true">*</span>');
+
+        $end = ($value[1] !== null
+            ? ('<span class="sr-only">' . $this->lng->txt('to') . ' </span><time>' . $value[1]->format($this->getFormat()->toString()) . '</time>')
+            : '<span aria-hidden="true">*</span>');
+
+        return "$start<span aria-hidden=\"true\"> - </span>$end";
     }
 }

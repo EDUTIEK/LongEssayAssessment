@@ -38,7 +38,7 @@ class Interval extends Column
         }
 
         $this->checkArgInstanceOf('value', $value, \DateInterval::class);
-        return $value->format($this->getFormat());
+        return '<time>' . $value->format($this->getFormat()) . '</time>';
 
     }
 

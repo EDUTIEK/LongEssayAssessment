@@ -44,6 +44,22 @@ class EssayRepo implements \Edutiek\AssessmentService\EssayTask\Data\EssayRepo
         return $this->repo->queryOneBy(['writer_id' => $writer_id, 'task_id' => $task_id]);
     }
 
+    public function allByAssId(int $ass_id): array
+    {
+        $query = "
+            SELECT essay.*, settings.ass_id AS ass_id
+            FROM xlas_et_essay AS essay
+            JOIN xlas_et_task_settings AS settings ON essay.task_id = settings.task_id
+            WHERE "
+            . $this->repo->where(['ass_id' => $ass_id]);
+
+        $essay = [];
+        foreach ($this->repo->queryAllRaw($query) as $row) {
+            $essay[] = $this->repo->fromRow($row);
+        }
+        return $essay;
+    }
+
     public function allByTaskId(int $task_id): array
     {
         return $this->repo->queryallBy(['task_id' => $task_id]);

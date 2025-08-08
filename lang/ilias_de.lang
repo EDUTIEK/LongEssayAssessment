@@ -12,12 +12,16 @@ obj_xlas_duplicate#:#Kopieren
 objs_xlas_duplicate#:#Kopiere Langtext-Aufgabe
 obj_xlas_select#:#Wähle Langtext-Aufgabe
 xlas_add#:#Langtext-Aufgabe hinzufügen
+xlas_copy#:#Langtext-Aufgabe kopieren
 xlas_new#:#Neue Langtext-Aufgabe
 xlas_read#:#Lesezugriff auf Langtext-Aufgabe
 xlas_write#:#Langtext-Aufgabe bearbeiten
 xlas_delete#:#Langtext-Aufgabe löschen
 xlas_visible#:#Langtext-Aufgabe ist sichtbar
 xlas_edit_permission#:#Zugriffsrecht bearbeiten
+xlas_maintain_task#:#Aufgabenstellung verwalten
+xlas_maintain_writers#:#Durchführung verwalten
+xlas_maintain_correctors#:#Korrektur verwalten
 crs_create_xlas#:#Erstelle Langtext-Aufgabe
 grp_create_xlas#:#Erstelle Langtext-Aufgabe
 fold_create_xlas#:#Erstelle Langtext-Aufgabe

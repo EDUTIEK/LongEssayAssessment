@@ -405,6 +405,7 @@ criteria_mode_change_from_corrector_message#:#<p>Wenn Sie die Einstellung auf �
 criteria_admin_authorized_message#:#Es gibt bereits freigegebene Korrekturen. Ziehen Sie diese in der Korrekturverwaltung zurück, wenn Sie hier etwas ändern müssen.
 criteria_corrector_finalized_message#:#Sie haben bereits abgeschlossene Korrekturen. Wenden Sie sich an die Korrekturverwaltung, wenn Sie hier etwas ändern müssen.
 criteria_corrector_authorized_message#:#Sie haben bereits freigegebene Korrekturen. Ziehen Sie diese unter „Abgaben” zurück, wenn Sie hier etwas ändern müssen.
+criteria_corrector_points_purge_message#:#Sie haben bereits Punkte in Anmerkungen ohne Kriterien vergeben. Wenn Sie Kriterien für Anmerkungen erstellen, werden diese gelöscht!
 criteria#:#Bewertungskriterien
 criteria_add#:#Bewertungskriterium hinzufügen
 criteria_edit#:#Bewertungskriterium bearbeiten

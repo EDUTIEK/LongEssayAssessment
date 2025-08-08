@@ -6,6 +6,7 @@ Plugin:
 - Allow zero maximum points in correction settings
 - Organisation setting to forward writer after finishing the assignment an url
 - Allow to reset a common time limit for a writer while setting a time frame
+- Generate the documentation archive in a background task
 - Renaming of language variables
 
 Writer Web App:
@@ -35,6 +36,8 @@ Bug fixes:
 - Missing link in emails to writers and correctors (#45227)
 - Error on statistics tab if no points are given (#45119)
 - Naming of Permissions in permission templates (#43074)
+- Editing and sorting of grade levels (#45225)
+- Style selection in TinyMCE menu and lists (#45230)
 
 ## Version 3.6 (2025-04-01)
 

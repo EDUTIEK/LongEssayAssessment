@@ -123,6 +123,10 @@ abstract class CriteriaGUI extends BaseGUI implements DataTableParent
                 }
             }
         }
+        elseif ($this->getCorrectorIdFromContext() !== null
+            && $this->criteria_service->hasCorrectorPointsWithoutCriteria($this->getCorrectorIdFromContext())) {
+            $this->tpl->setOnScreenMessage(ilGlobalTemplate::MESSAGE_TYPE_INFO, $this->plugin->txt('criteria_corrector_points_purge_message'));
+        }
 
         // panel showing an explanation of the criteria mode
         switch($this->settings->getCriteriaMode()) {
@@ -271,11 +275,19 @@ abstract class CriteriaGUI extends BaseGUI implements DataTableParent
                 $group = $this->object_repo->getRatingCriteriaByObjectId($this->object->getId(), $from_corrector_id);
                 $this->object_repo->deleteRatingCriterionByObjectIdAndCorrectorId($this->object->getId(), $to_corrector_id);
 
+                $has_comment_criterion = false;
                 foreach ($group as $criterion) {
                     $new = clone $criterion;
+                    if (!$new->getIsGeneral()) {
+                        $has_comment_criterion = true;
+                    }
                     $new->setId(0);
                     $new->setCorrectorId($to_corrector_id);
                     $this->object_repo->save($new);
+                }
+
+                if ($has_comment_criterion) {
+                    $this->criteria_service->deleteCorrectorPointsWithoutCriteria($to_corrector_id);
                 }
                 $success = true;
             }
@@ -594,6 +606,11 @@ abstract class CriteriaGUI extends BaseGUI implements DataTableParent
                   ->setPoints($data['points']);
 
         $this->object_repo->save($criterion);
+
+        if ($item->getId() === 0 && !$criterion->getIsGeneral() && $this->getCorrectorIdFromContext() !== null) {
+            $this->criteria_service->deleteCorrectorPointsWithoutCriteria($this->getCorrectorIdFromContext());
+        }
+
         $this->tpl->setOnScreenMessage("success", $this->lng->txt("settings_saved"), true);
         $this->ctrl->redirect($this, "showItems");
     }

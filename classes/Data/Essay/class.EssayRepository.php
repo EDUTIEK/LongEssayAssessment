@@ -286,6 +286,22 @@ class EssayRepository extends RecordRepo
         return !empty($this->getIntegerList($query, 'id'));
     }
 
+    public function hasCorrectorPointsWithoutCriteria(int $corrector_id)
+    {
+        $query = "SELECT id FROM xlas_corrector_points WHERE criterion_id IS NULL AND corrector_id = "
+            . $this->db->quote($corrector_id, 'integer') . ' LIMIT 1';
+
+        return !empty($this->getIntegerList($query, 'id'));
+    }
+
+    public function deleteCorrectorPointsWithoutCriteria(int $corrector_id)
+    {
+        $query = "DELETE FROM xlas_corrector_points WHERE criterion_id IS NULL AND corrector_id = "
+            . $this->db->quote($corrector_id, 'integer');
+
+        return $this->db->manipulate($query);
+    }
+
     /**
      * @param int $id
      * @return CorrectorPoints|null

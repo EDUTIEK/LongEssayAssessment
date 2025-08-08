@@ -149,4 +149,20 @@ class CorrectorCriteriaService extends BaseService
             $this->object_repo->deleteRatingCriterionByObjectIdAndCorrectorId($this->task_id, $corrector->getId());
         }
     }
+
+    /**
+     * Check if the corrector has points given to comments without criteria
+     */
+    public function hasCorrectorPointsWithoutCriteria(int $corrector_id): bool
+    {
+        return $this->essay_repo->hasCorrectorPointsWithoutCriteria($corrector_id);
+    }
+
+    /**
+     * Delete points given by a corrector to comments without criteria
+     */
+    public function deleteCorrectorPointsWithoutCriteria(int $corrector_id)
+    {
+         $this->essay_repo->deleteCorrectorPointsWithoutCriteria($corrector_id);
+    }
 }

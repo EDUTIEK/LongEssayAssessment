@@ -141,7 +141,7 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
             $toolbar->addComponent($this->ui_factory->button()->standard(
                 $this->plugin->txt("do_stich_decision"),
                 $this->ctrl->getLinkTarget($this, "stitchDecision")
-            )->withUnavailableAction($this->writer_service->hasStitcheDecisions()));
+            )->withUnavailableAction($this->writer_service->hasStitchDecisions()));
         }
 
         $toolbar->addComponent($this->ui_factory->button()->standard(
@@ -237,12 +237,12 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
             if(!$multi) {
                 $columns["corr_{$p}_grade"] = $cf->text($cor. $this->lng->txt("grade"))->withIsOptional(false, true)->withIsSortable(true);
             }
-            $columns["corr_{$p}_authorized"] = $cf->boolean($cor. $this->lng->txt("grade"), $this->lng->txt('yes'), $this->lng->txt('no'))->withIsOptional(false, true)->withIsSortable(true)->withHighlight($multi);
+            $columns["corr_{$p}_authorized"] = $cf->boolean($cor. $this->lng->txt("authorized"), $this->lng->txt('yes'), $this->lng->txt('no'))->withIsOptional(false, true)->withIsSortable(true)->withHighlight($multi);
         }
 
         $columns += [
             "points" => $cfp->nullableNumber($this->lng->txt("final_points"))->withIsOptional(false, true)->withIsSortable(true),
-            "grade" => $cf->text($cor . $this->plugin->txt("final_grade"))->withIsOptional(false, true)->withIsSortable(true),
+            "grade" => $cf->text($this->plugin->txt("final_grade"))->withIsOptional(false, true)->withIsSortable(true),
             "finalized" => $cfp->nullableDate($this->plugin->txt("finalized_at"), $date_without_seconds)->withIsOptional(true, $has_started)->withIsSortable(true),
             "finalized_from" => $cf->text($this->plugin->txt("finalized_from"))->withIsOptional(true, false)->withIsSortable(true),
             "stitch_needed" => $cf->boolean($this->lng->txt("stitch"), $this->lng->txt('yes'), $this->lng->txt('no'))->withIsOptional(false, true)->withIsSortable(true),
@@ -289,7 +289,7 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
     {
         $writer = $this->writer_service->oneByWriterId($id);
         $summaries = [];
-        foreach($this->summary_service->allByWriterIdAndTaskId($writer->getId(), $this->task_info->getId()) as $summary)
+        foreach($this->summary_service->allByWriterId($writer->getId()) as $summary)
         {
             $summaries[$summary->getCorrectorId()][] = $summary;
         }

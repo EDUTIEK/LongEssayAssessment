@@ -38,6 +38,8 @@ Bug fixes:
 - Naming of Permissions in permission templates (#43074)
 - Editing and sorting of grade levels (#45225)
 - Style selection in TinyMCE menu and lists (#45230)
+- Delete points without criterion when criterion for comments is created by corrector
+- Resources admin error after import
 
 ## Version 3.6 (2025-04-01)
 

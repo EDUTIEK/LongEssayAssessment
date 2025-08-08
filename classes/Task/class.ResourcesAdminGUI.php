@@ -381,7 +381,7 @@ class ResourcesAdminGUI extends BaseGUI implements DataTableParent
 
         return [
             "title" => $item->getTitle(),
-            "description" => nl2br($item->getDescription()),
+            "description" => nl2br((string) $item->getDescription()),
             "type" => $type,
             "available" => $this->plugin->txt('resource_availability_'.$item->getAvailable()),
             "info" => $info,

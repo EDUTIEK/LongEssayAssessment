@@ -595,6 +595,7 @@ abstract class CriteriaGUI extends BaseGUI implements DataTableParent
 
         $this->object_repo->save($criterion);
         $this->tpl->setOnScreenMessage("success", $this->lng->txt("settings_saved"), true);
+        $this->ctrl->redirect($this, "showItems");
     }
 
     public function saveSettings(array $data)

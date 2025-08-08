@@ -220,6 +220,7 @@ class ResourcesAdminGUI extends BaseGUI implements DataTableParent
         $resource_admin = new ResourceAdmin($this->object->getId());
 
         $this->tpl->setOnScreenMessage("success", $this->lng->txt("settings_saved"), true);
+        $this->ctrl->redirect($this, 'showItems');
     }
 
     /**

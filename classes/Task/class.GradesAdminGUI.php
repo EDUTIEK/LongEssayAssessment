@@ -145,8 +145,8 @@ class GradesAdminGUI extends BaseGUI implements DataTableParent
         $sortable = !$small_view;
 
         return [
-            "title" => $tf->column()->text($this->plugin->txt('grade_level'))->withIsSortable($sortable),
             "points" => $tf->column()->number($this->plugin->txt('min_points'))->withDecimals(2)->withIsSortable($sortable),
+            "title" => $tf->column()->text($this->plugin->txt('grade_level'))->withIsSortable($sortable),
             "passed" => $tf->column()->boolean($this->plugin->txt('passed'), $this->lng->txt('yes'), $this->lng->txt('no'))->withIsSortable($sortable),
             "code" => $tf->column()->text($this->plugin->txt('grade_level_code'))->withIsSortable($sortable),
         ];
@@ -221,6 +221,7 @@ class GradesAdminGUI extends BaseGUI implements DataTableParent
 
         $this->object_repo->save($grade_level);
         $this->tpl->setOnScreenMessage("success", $this->lng->txt("settings_saved"), true);
+        $this->ctrl->redirect($this, "showItems");
     }
 
     public function buildFields(GradeItem $item) : array
@@ -230,10 +231,6 @@ class GradesAdminGUI extends BaseGUI implements DataTableParent
         $fields['grade'] = $factory->text($this->plugin->txt("grade_level"))
                                    ->withRequired(true)
                                    ->withValue($item->getGrade());
-
-        $fields['code'] = $factory->text($this->plugin->txt("grade_level_code"), $this->plugin->txt("grade_level_code_caption"))
-                                  ->withRequired(false)
-                                  ->withValue(!empty($item->getCode()) ? $item->getCode() : "");
 
         $fields['points'] = $this->localDI->getUIFactory()
                                           ->field()
@@ -245,6 +242,10 @@ class GradesAdminGUI extends BaseGUI implements DataTableParent
         $fields['passed'] =$factory->checkbox($this->plugin->txt('passed'), $this->plugin->txt("passed_caption"))
                                    ->withRequired(true)
                                    ->withValue($item->isPassed());
+
+        $fields['code'] = $factory->text($this->plugin->txt("grade_level_code"))
+                                   ->withRequired(false)
+                                   ->withValue($item->getCode());
         return $fields;
     }
 

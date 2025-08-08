@@ -10,6 +10,7 @@ use ILIAS\ResourceStorage\Consumer\Consumers;
 use ILIAS\Filesystem\Stream\Streams;
 use ILIAS\ResourceStorage\Resource\InfoResolver\StreamInfoResolver;
 use ILIAS\ResourceStorage\Resource\ResourceBuilder;
+use Psr\Http\Message\StreamInterface as Stream;
 
 /**
  * Adapter of the ILIAS resource storage (IRSS) service for the assessment-service
@@ -51,7 +52,9 @@ readonly class StorageAdapter implements Storage
 
     public function saveFile(mixed $stream_resource, ?FileInfo $info = null): ?FileInfo
     {
-        $stream_object = Streams::ofResource($stream_resource);
+        $stream_object = $stream_resource instanceof Stream ?
+            $stream_resource :
+            Streams::ofResource($stream_resource);
         $info = $info ?? new FileInfoModel();
 
         $resource_id = $this->manager->find($info->getId() ?? '');
@@ -59,7 +62,7 @@ readonly class StorageAdapter implements Storage
             $resource_id = $this->manager->stream(
                 $stream_object,
                 $this->stakeholder,
-                $info->getFileName()
+                $info->getFileName() ?? ''
             );
         } else {
             $resource = $this->manager->getResource($resource_id);

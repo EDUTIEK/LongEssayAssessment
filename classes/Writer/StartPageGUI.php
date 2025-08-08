@@ -256,7 +256,7 @@ class StartPageGUI extends BaseGUI
     private function instructions(Task $task, bool $one): array
     {
         $title = $this->plugin->txt('task_instructions');
-        $title .= $one ? '' : ' ' . $task->getTitle();
+        $title .= $one ? '' : ' ' . $task->getTitle() . ' ' . $this->ctrl->getLinkTargetByClass(WriterUploadGUI::class, 'reviewPdf');
 
         $has_resources = $this->task_api->resource($task->getId())->oneByType(ResourceType::INSTRUCTIONS);
         $task_settings = $this->task_api->settings($task->getId())->get();

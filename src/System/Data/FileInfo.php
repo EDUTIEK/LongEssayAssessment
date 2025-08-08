@@ -4,9 +4,9 @@ namespace ILIAS\Plugin\LongEssayAssessment\System\Data;
 
 class FileInfo extends \Edutiek\AssessmentService\System\Data\FileInfo
 {
-    private ?string $id;
+    private ?string $id = null;
     private ?string $mime;
-    private ?string $name;
+    private ?string $name = null;
     private ?int $size;
 
     public function getId(): ?string

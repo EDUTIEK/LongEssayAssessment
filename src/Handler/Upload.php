@@ -24,6 +24,8 @@ use ILIAS\UI\Component\Input\Field\UploadHandler;
 use ILIAS\FileUpload\Handler\FileInfoResult;
 use ILIAS\FileUpload\Handler\BasicFileInfoResult;
 use Closure;
+use ILIAS\ResourceStorage\Services as ILIASResourceStorage;
+use Edutiek\AssessmentService\Task\Api\ForClients as TaskApi;
 
 class Upload implements UploadHandler
 {
@@ -31,6 +33,8 @@ class Upload implements UploadHandler
      * @param Closure(string): string $link
      */
     public function __construct(
+        private readonly ILIASResourceStorage $storage,
+        private readonly TaskApi $task_api,
         private readonly Closure $link,
     ) {
     }
@@ -62,13 +66,22 @@ class Upload implements UploadHandler
 
     public function getInfoResult(string $identifier): ?FileInfoResult
     {
-        return ($this->content)()->map(fn(DocumentContent $c) => new BasicFileInfoResult(
+        [$task_id, $resource_id] = array_map('intval', explode(':', $identifier));
+        $resource = $this->task_api->resource($task_id)->one($resource_id);
+        $ili_resource_id = $this->storage->manage()->find($resource->getFileId());
+        if($ili_resource_id === null) {
+            throw new \ilException('resource id not found');
+        }
+
+        $ili_res = $this->storage->manage()->getResource($ili_resource_id);
+
+        return new BasicFileInfoResult(
             $identifier,
             $identifier,
-            ($this->txt)('updated_document'),
-            strlen($c->value()),
-            $c->type()
-        ))->except(fn() => new Ok(null))->value();
+            $resource->getTitle(),
+            $ili_res->getFullSize(),
+            $ili_res->getCurrentRevision()->getInformation()->getMimeType()
+        );
     }
 
     public function supportsChunkedUploads(): bool

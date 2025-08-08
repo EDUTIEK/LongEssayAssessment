@@ -12,7 +12,7 @@ class ResourceItem extends Item
         int $id,
         protected string $title,
         protected ResourceType $type,
-        protected ?string $description = null,
+        protected ?string $description,
         protected ResourceAvailability $available,
         protected ?string $url = null,
         protected ?string $identifier = null,

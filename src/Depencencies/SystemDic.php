@@ -24,6 +24,8 @@ use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\DatabaseRepository;
 use DateTimeInterface;
 use ilDatePresentation;
 use ilDateTime;
+use Edutiek\AssessmentService\System\BackgroundTask\ClientManager as BackgroundTaskManager;
+use ILIAS\Plugin\LongEssayAssessment\System\BackgroundTask\Manager as ILIASTaskManager;
 
 /**
  *  Dependencies of the assessment services component "System"
@@ -92,5 +94,14 @@ class SystemDic implements \Edutiek\AssessmentService\System\Api\Dependencies
     public function formatDate(DateTimeInterface $date): string
     {
         return ilDatePresentation::formatDate(new ilDateTime($date->getTimestamp(), IL_CAL_UNIX));
+    }
+
+    public function backgroundTaskManager(): BackgroundTaskManager
+    {
+        return new ILIASTaskManager(
+            $this->dic->backgroundTasks()->taskFactory(),
+            $this->dic->backgroundTasks()->taskManager(),
+            $this->dic->user(),
+        );
     }
 }

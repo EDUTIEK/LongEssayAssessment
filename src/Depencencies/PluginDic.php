@@ -50,6 +50,7 @@ use ilLongEssayAssessmentPlugin;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\Factory as TableFactory;
 use ILIAS\Plugin\LongEssayAssessment\UI\Tree\TreeFactory;
 use ILIAS\Plugin\LongEssayAssessment\UI\Protocol\Factory as ProtocolFactory;
+use ILIAS\Plugin\LongEssayAssessment\System\Context\Service as ContextService;
 
 //use Edutiek\AssessmentService\Assessment\Api\EventManager as AssessmentEventManager;
 //use Edutiek\AssessmentService\EssayTask\Api\EventManager as EssayTaskEventManager;
@@ -285,5 +286,10 @@ class PluginDic
     public function essayTask(int $ass_id, int $user_id): EssayTaskApi
     {
         return ($this->dic[EssayTaskFactory::class])->forClients($ass_id, $user_id);
+    }
+
+    public function context(int $ref_id): ContextService
+    {
+        return $this->dic[ContextService::class][$ref_id] ??= new ContextService($ref_id, $this->dic->repositoryTree());
     }
 }

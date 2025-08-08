@@ -32,7 +32,7 @@ class RatingCriterion extends RecordData
     protected string $title = "";
     protected ?string $description = null;
     protected int $points = 0;
-    protected int $is_general = 0;
+    protected int $is_general = 1;
 
 
     public static function model()

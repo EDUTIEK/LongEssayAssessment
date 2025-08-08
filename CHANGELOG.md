@@ -1,21 +1,40 @@
 # Change Log
 
-## Upcoming version
+## Version 3.7 (2025-08-08)
 
 Plugin:
 - Allow zero maximum points in correction settings
 - Organisation setting to forward writer after finishing the assignment an url
 - Allow to reset a common time limit for a writer while setting a time frame
+- Renaming of language variables
 
-Writer web app:
+Writer Web App:
 - Support marking and comments for instructions and PDF resources
 - Automatically show first resource if no instructions are given
+- Components update and integration of i18n support
+- Extraction and renaming of language variables
+
+Corrector Web App:
+- Create and reuse of text snippets for comments and summary
+- Components update and integration of i18n support
+- Extraction and renaming of language variables
 
 Bug fixes:
-- fix version conflict with ILIAS logger
-- fix deletion of grades
-- fix export of grade statistics (Mantis #45080)
-- fix the calculation of essays that have not been passed in the grade statistics for writers when viewing multiple assessments
+- Version conflict with ILIAS logger
+- Deletion of grades
+- Export of grade statistics (#45080)
+- Calculation of essays that have not been passed in the grade statistics for writers when viewing multiple assessments
+- Problems after interrupted network connection (#45265)
+- Expanding of annotations in writer app (#45224)
+- Cursor jumps while editing text (#45415)
+- Layout of working time adjustment (#45229)
+- Error on tab of rating criteria in older objects (#45231)
+- Missing configured naming of positive and negative criteria (#45221)
+- Copy/Paste restriction does not support annotations (#45226, #45228)
+- Input fields for points not recognizable (#45266)
+- Missing link in emails to writers and correctors (#45227)
+- Error on statistics tab if no points are given (#45119)
+- Naming of Permissions in permission templates (#43074)
 
 ## Version 3.6 (2025-04-01)
 

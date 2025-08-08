@@ -143,6 +143,11 @@ class CorrectorSummaryRepo implements \Edutiek\AssessmentService\EssayTask\Data\
         return $this->repo->queryAllBy(['task_id' => $task_id, 'corrector_id' => $corrector_id]);
     }
 
+    public function allByCorrectorId(int $corrector_id): array
+    {
+        return $this->repo->queryAllBy(['corrector_id' => $corrector_id]);
+    }
+
     public function allByEssayIdAndCorrectorId(int $essay_id, int $corrector_id): array
     {
         return $this->repo->queryAllBy(['essay_id' => $essay_id, 'corrector_id' => $corrector_id]);

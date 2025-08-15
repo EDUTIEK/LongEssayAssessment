@@ -2,7 +2,6 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\UI\Table;
 
-use ILIAS\Plugin\LongEssayAssessment\UI\Form\FormItem;
 use ILIAS\HTTP\Wrapper\ArrayBasedRequestWrapper;
 use ILIAS\UI;
 use ILIAS\UI\Renderer;
@@ -11,6 +10,7 @@ use ILIAS\Plugin\LongEssayAssessment\UI as LocalUI;
 use ILIAS\Refinery;
 use ILIAS\UI\URLBuilder;
 use ILIAS\UI\URLBuilderToken;
+use ILIAS\Plugin\LongEssayAssessment\UI\Item\FormItem;
 
 class FormGroup extends Table
 {
@@ -57,7 +57,7 @@ class FormGroup extends Table
         return (string) $url_builder->buildURI();
     }
 
-    protected function getActionsForTable(\ILIAS\Plugin\LongEssayAssessment\UI\Implementation\FormGroup $table) : array
+    protected function getActionsForTable(\ILIAS\Plugin\LongEssayAssessment\UI\Item\FormGroup $table) : array
     {
         $action_buttons = [];
         $fbtn = $this->ui_factory->button();
@@ -132,8 +132,7 @@ class FormGroup extends Table
         $filter_data = [];
 
         if(!empty($this->getFilterInputActivation())) {
-            $filter_gui = $this->getFilter();
-            $filter_data = $this->ui_service->filter()->getData($filter_gui) ?? [];
+            $filter_data = $this->getFilterData();
         }
         # $small_view = isset($additional_parameters["small_view"]) && (bool)$additional_parameters["small_view"];
         $small_view = false;

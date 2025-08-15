@@ -3,7 +3,7 @@
 namespace ILIAS\Plugin\LongEssayAssessment\UI\Table;
 
 use ILIAS\UI\Component\Table\Column\Column;
-use ILIAS\Plugin\LongEssayAssessment\UI\Component\FormItem;
+use ILIAS\Plugin\LongEssayAssessment\UI\Item\FormItem;
 
 interface FormGroupParent extends TableParent
 {

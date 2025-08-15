@@ -290,6 +290,6 @@ class PluginDic
 
     public function context(int $ref_id): ContextService
     {
-        return $this->dic[ContextService::class][$ref_id] ??= new ContextService($ref_id, $this->dic->repositoryTree());
+        return $this->dic[ContextService::class . "_$ref_id"] ??= new ContextService($ref_id, $this->dic->repositoryTree());
     }
 }

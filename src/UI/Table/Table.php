@@ -36,6 +36,7 @@ abstract class Table implements TableParent, FilterParent, Component\Component
      */
     private array $filter_inputs = [];
     private bool $action_enabled = true;
+    private ?array $filter_data = null;
     /**
      * @var Action[]
      */
@@ -87,7 +88,7 @@ abstract class Table implements TableParent, FilterParent, Component\Component
     {
         $this->filter_inputs = [];
 
-        foreach($parent->getFilterInputs() as $key => $filter) {
+        foreach(array_filter($parent->getFilterInputs()) as $key => $filter) {
             $this->filter_inputs[$key] = $filter;
         }
     }
@@ -191,6 +192,16 @@ abstract class Table implements TableParent, FilterParent, Component\Component
         $this->filter = $filter;
         return $filter;
     }
+    public function getFilterData(): array
+    {
+        if($this->filter_data !== null) {
+            return $this->filter_data;
+        }
+
+        $filter_gui = $this->getFilter();
+        return $this->filter_data = $this->ui_service->filter()->getData($filter_gui) ?? [];
+    }
+
     private function buildFilter() : Filter\Standard
     {
         return $this->ui_service->filter()->standard(

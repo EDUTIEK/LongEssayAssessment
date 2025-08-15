@@ -8,13 +8,16 @@ use Edutiek\AssessmentService\EssayTask\AssessmentStatus\CorrectionStatus;
 use Edutiek\AssessmentService\EssayTask\Data\GradingStatus;
 use ILIAS\UI\Renderer;
 use Edutiek\AssessmentService\Assessment\AssessmentGrading\ReadService as GradingService;
+use Edutiek\AssessmentService\Assessment\Format\Service as AssFormService;
+use Edutiek\AssessmentService\EssayTask\Format\Service as EssFormService;
+use ILIAS\Plugin\LongEssayAssessment\UI\Table\ColumnMappingArray;
 
 /**
  * Map from CorrectionItem to CorrectionAdminGUI table columns, which acts like an array.
  * This way each cell is renderer only if it is sorted by or visible and not all of them.every time.
  * It allso statically caches some field contents if the reoccour in the table
  */
-class CorrectionItemColumnMap extends \ArrayObject
+class CorrectionItemColumnMap extends ColumnMappingArray
 {
     private static array $correction_status = [];
     private static array $grading_status = [];
@@ -26,6 +29,8 @@ class CorrectionItemColumnMap extends \ArrayObject
         private Factory $ui_factory,
         private \DateTimeZone $timezone,
         private GradingService $grading,
+        private AssFormService $ass_format,
+        private EssFormService $ess_format,
         private CorrectionItem $item
     ) {
     }
@@ -46,9 +51,9 @@ class CorrectionItemColumnMap extends \ArrayObject
     private function gradingStatus(?GradingStatus $status) :string
     {
         return self::$grading_status[$status?->value] ??= match($status) {
-                GradingStatus::OPEN => $this->plugin->txt("grading_open"),
-                GradingStatus::NOT_STARTED => $this->plugin->txt("grading_not_started"),
-                GradingStatus::AUTHORIZED => $this->plugin->txt("grading_authorized"),
+                GradingStatus::OPEN => $this->plng->txt("grading_open"),
+                GradingStatus::NOT_STARTED => $this->plng->txt("grading_not_started"),
+                GradingStatus::AUTHORIZED => $this->plng->txt("grading_authorized"),
                 default => ""
             };
     }
@@ -70,12 +75,7 @@ class CorrectionItemColumnMap extends \ArrayObject
         return self::$unknown ??= $this->lng->txt("unknown");
     }
 
-    public function offsetExists(mixed $key): bool
-    {
-        return true;
-    }
-
-    public function offsetGet(mixed $key) : mixed
+    public function map(string $key) : mixed
     {
         $item = $this->item;
 
@@ -88,18 +88,25 @@ class CorrectionItemColumnMap extends \ArrayObject
             "status" => $this->correctionStatus($item->getCorrectionStatus()),
             "writing_last_save" => $item->getEssay()?->getLastChange()?->setTimezone($this->timezone),
             "word_count" => $item->getEssay()?->getWordCount() ?? 0,
+            "result" => $this->ass_format->finalResult($item->getWriter()),
             "points" => $item->getWriter()->getFinalPoints(),
             "grade" => $this->grading->getGradeLevel($item->getWriter()->getFinalGradeLevelId())??"",
             "finalized" => $item->getWriter()->getCorrectionFinalized()?->setTimezone($this->timezone),
-            "finalized_from" => $item->getFinalizedByName()??$this->unknown,
+            "finalized_from" => $item->getFinalizedByName()??$this->unknown(),
             "stitch_needed" => $item->isStitchNeeded(),
             "pdf_version" => $item->getEssay()?->hasPDFVersion() ?? false,
 
+            "corr_1" => $item->getCorrectorDataByPosition(1) !== null
+                ? ($item->getCorrectorDataByPosition(1)?->getFullname(true) ?? $this->unknown() . " - " . $this->ess_format->correctionResult($item->getSummaryByPosition(1)))
+                : "",
             "corr_1_name" => $item->getCorrectorDataByPosition(1)?->getFullname(true),
             "corr_1_status" => $this->gradingStatus($item->getSummaryByPosition(1)?->getGradingStatus()),
             "corr_1_points" => $item->getSummaryByPosition(1)?->getPoints(),
             "corr_1_grade" => $this->grading->getGradLevelForPoints($item->getSummaryByPosition(1)?->getPoints())??"",
             "corr_1_authorized" => $item->getSummaryByPosition(1)?->isAuthorized() ?? false,
+            "corr_2" => $item->getCorrectorDataByPosition(2) !== null
+                ? ($item->getCorrectorDataByPosition(2)?->getFullname(true) ?? $this->unknown() . " - " . $this->ess_format->correctionResult($item->getSummaryByPosition(2)))
+                : "",
             "corr_2_name" => $item->getCorrectorDataByPosition(2)?->getFullname(true),
             "corr_2_status" => $this->gradingStatus($item->getSummaryByPosition(2)?->getGradingStatus()),
             "corr_2_points" => $item->getSummaryByPosition(2)?->getPoints(),

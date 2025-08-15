@@ -137,7 +137,7 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
 
         $this->toolbar->addSeparator();
 
-        if ($this->getCorrectionSettings()->getRequiredCorrectors() > 1) {
+        if ($this->getCorrectionSettings()->isStitchPossible()) {
             $toolbar->addComponent($this->ui_factory->button()->standard(
                 $this->plugin->txt("do_stich_decision"),
                 $this->ctrl->getLinkTarget($this, "stitchDecision")
@@ -167,13 +167,15 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
     public function getColumnMapping(
         CorrectionItem|\ILIAS\Plugin\LongEssayAssessment\UI\Table\Item $item,
         ?array $additional_parameters
-    ): \ArrayObject {
+    ): \ArrayAccess {
         return new CorrectionItemColumnMap(
             $this->lng,
             $this->plugin,
             $this->ui_factory,
             new \DateTimeZone($this->user->getTimeZone()),
             $this->grading_service,
+            $this->assessment_api->format($this->getSettings()),
+            $this->essay_task_api->format(),
             $item
         );
     }
@@ -200,25 +202,26 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
 
         $corrections = $this->getCorrectionSettings()->getRequiredCorrectors();
         $multi = $this->getSettings()->getMultiTasks();
+        $stitch_possible = $this->getCorrectionSettings()->isStitchPossible();
 
         $columns = [
             "image" => $cfp->image($this->lng->txt("image"))->withIsOptional(true, false)->withIsSortable(false),
             "name" => $cf->text($this->lng->txt("name"))->withIsOptional(false, true)->withIsSortable(true),
             "login" => $cf->text($this->lng->txt("login"))->withIsOptional(false, true)->withIsSortable(true),
             "pseudonym" => $cf->text($this->plugin->txt("pseudonym"))->withIsOptional(true, true)->withIsSortable(true),
-            "location" => $cf->text($this->plugin->txt("location"))->withIsOptional(true, $location_avaiable)->withIsSortable(true),
+            "location" => $location_avaiable ? $cf->text($this->plugin->txt("location"))->withIsOptional(true, $location_avaiable)->withIsSortable(true) : null,
             "status" => $cf->status($this->plugin->txt("essay_status"))->withIsOptional(true, true)->withIsSortable(true),
             "writing_last_save" => $cfp->nullableDate($this->plugin->txt("writing_last_save"), $date_with_seconds)->withIsOptional(true, $has_started)->withIsSortable(true)->withHighlight($multi),
             "word_count" => $cf->number($this->plugin->txt('word_count'))->withIsOptional(false, $has_started)->withIsSortable(true)->withHighlight($multi),
             "pdf_version" => $cf->boolean($this->plugin->txt("pdf_version"), $this->lng->txt("yes"), $this->lng->txt("no"))->withIsOptional(true, false)->withIsSortable(true)->withHighlight($multi)
         ];
 
-        foreach(range(1,$corrections) as $p)
+        foreach(range(0,$corrections-1) as $p)
         {
             if ($corrections == 1) {
                 $cor = $this->plugin->txt("assignment_pos_single");
             } else {
-                switch(1) {
+                switch($p) {
                     case 0: $cor = $this->plugin->txt("assignment_pos_first");
                         break;
                     case 1: $cor = $this->plugin->txt("assignment_pos_second");
@@ -229,23 +232,25 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
             }
             $cor = $cor . " ";
             $columns += [
-                "corr_{$p}_name" => $cf->text($cor. $this->lng->txt("name"))->withIsOptional(false, true)->withIsSortable(true)->withHighlight($multi),
-                "corr_{$p}_status" => $cf->status($cor . $this->plugin->txt("status"))->withIsOptional(false, true)->withIsSortable(true)->withHighlight($multi),
-                "corr_{$p}_points" => $cfp->nullableNumber($cor . $this->plugin->txt("points"))->withIsOptional(false, true)->withIsSortable(true)->withHighlight($multi),
+                "corr_{$p}" => $cf->text($cor)->withIsOptional(false, true)->withIsSortable(true)->withIsSortable(false)->withHighlight($multi),
+                "corr_{$p}_name" => $cf->text($cor. $this->lng->txt("name"))->withIsOptional(true, false)->withIsSortable(true)->withHighlight($multi),
+                "corr_{$p}_status" => $cf->status($cor . $this->plugin->txt("status"))->withIsOptional(true, false)->withIsSortable(true)->withHighlight($multi),
+                "corr_{$p}_points" => $cfp->nullableNumber($cor . $this->plugin->txt("points"))->withIsOptional(true, false)->withIsSortable(true)->withHighlight($multi),
             ];
 
             if(!$multi) {
-                $columns["corr_{$p}_grade"] = $cf->text($cor. $this->lng->txt("grade"))->withIsOptional(false, true)->withIsSortable(true);
+                $columns["corr_{$p}_grade"] = $cf->text($cor. $this->lng->txt("grade"))->withIsOptional(true, false)->withIsSortable(true);
             }
-            $columns["corr_{$p}_authorized"] = $cf->boolean($cor. $this->lng->txt("authorized"), $this->lng->txt('yes'), $this->lng->txt('no'))->withIsOptional(false, true)->withIsSortable(true)->withHighlight($multi);
+            $columns["corr_{$p}_authorized"] = $cf->boolean($cor. $this->lng->txt("authorized"), $this->lng->txt('yes'), $this->lng->txt('no'))->withIsOptional(true, false)->withIsSortable(true)->withHighlight($multi);
         }
 
         $columns += [
-            "points" => $cfp->nullableNumber($this->lng->txt("final_points"))->withIsOptional(false, true)->withIsSortable(true),
-            "grade" => $cf->text($this->plugin->txt("final_grade"))->withIsOptional(false, true)->withIsSortable(true),
-            "finalized" => $cfp->nullableDate($this->plugin->txt("finalized_at"), $date_without_seconds)->withIsOptional(true, $has_started)->withIsSortable(true),
+            "result" => $cf->text($this->lng->txt("result"))->withIsOptional(true, true)->withIsSortable(false),
+            "points" => $cfp->nullableNumber($this->lng->txt("final_points"))->withIsOptional(true, false)->withIsSortable(true),
+            "grade" => $cf->text($this->plugin->txt("final_grade"))->withIsOptional(true, false)->withIsSortable(true),
+            "finalized" => $cfp->nullableDate($this->plugin->txt("finalized_at"), $date_without_seconds)->withIsOptional(true, false)->withIsSortable(true),
             "finalized_from" => $cf->text($this->plugin->txt("finalized_from"))->withIsOptional(true, false)->withIsSortable(true),
-            "stitch_needed" => $cf->boolean($this->lng->txt("stitch"), $this->lng->txt('yes'), $this->lng->txt('no'))->withIsOptional(false, true)->withIsSortable(true),
+            "stitch_needed" => $stitch_possible ? $cf->boolean($this->lng->txt("stitch"), $this->lng->txt('yes'), $this->lng->txt('no'))->withIsOptional(false, true)->withIsSortable(true) : null,
         ];
 
         return $columns;

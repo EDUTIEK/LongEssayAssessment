@@ -4,6 +4,7 @@ namespace ILIAS\Plugin\LongEssayAssessment\UI\Table\Action;
 
 use ILIAS\UI\Implementation\Component as UI;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\Item;
+use ILIAS\UI\Component\Image\Image;
 
 class Factory
 {
@@ -18,6 +19,9 @@ class Factory
         Type $action_type = Type::Standard
     ) : Confirmation {
         return new class($action_name, $button_label, $action_label, $message, $form_action, $item_name_callback, $enabled_callback, $action_type) extends Confirmation {
+            private $icon_callback = null;
+            private $description_callback = null;
+
             public function __construct(
                 string $action_name,
                 string $button_label,
@@ -39,6 +43,28 @@ class Factory
             public function enabled(Item $item) : bool
             {
                 return $this->enabled_callback !== null ? $this->callback($this->enabled_callback, [$item]) : true;
+            }
+
+            public function withDescriptionCallback($callback): self
+            {
+                $this->description_callback = $callback;
+                return $this;
+            }
+
+            public function itemDescription(Item $item): string
+            {
+                return $this->description_callback !== null ? $this->callback($this->description_callback, [$item]) : '';
+            }
+
+            public function withIconCallback($callback): self
+            {
+                $this->icon_callback = $callback;
+                return $this;
+            }
+
+            public function itemIcon(Item $item): ?Image
+            {
+                return $this->icon_callback !== null ? $this->callback($this->icon_callback, [$item]) : null;
             }
         };
     }

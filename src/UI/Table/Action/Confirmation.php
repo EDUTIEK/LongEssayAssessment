@@ -3,6 +3,7 @@
 namespace ILIAS\Plugin\LongEssayAssessment\UI\Table\Action;
 
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\Item;
+use ILIAS\UI\Component\Image\Image;
 
 abstract class Confirmation extends Action
 {
@@ -18,6 +19,10 @@ abstract class Confirmation extends Action
     }
 
     abstract public function itemName(Item $item): string;
+
+    abstract public function itemDescription(Item $item): string;
+
+    abstract public function itemIcon(Item $item): ?Image;
 
     public function formAction()
     {

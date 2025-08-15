@@ -90,7 +90,7 @@ class CorrectorSummaryRepo implements \Edutiek\AssessmentService\EssayTask\Data\
             FROM xlas_et_corr_summary AS summary
             JOIN xlas_et_essay AS essay ON summary.essay_id = essay.id
             WHERE "
-            . $this->repo->where(['ass_id' => $writer_id]);
+            . $this->repo->where(['writer_id' => $writer_id]);
 
         $summaries = [];
         foreach ($this->repo->queryAllRaw($query) as $row) {
@@ -125,11 +125,11 @@ class CorrectorSummaryRepo implements \Edutiek\AssessmentService\EssayTask\Data\
     public function allByTaskIdAndWriterIds(int $task_id, array $writer_ids): array
     {
         $query = "
-            SELECT summary.*, essay.writer_id AS writer_id
+            SELECT summary.*, essay.writer_id AS writer_id, essay.task_id AS task_id
             FROM xlas_et_corr_summary AS summary
             JOIN xlas_et_essay AS essay ON summary.essay_id = essay.id 
             WHERE "
-            . $this->repo->where(['essay.task_id' => $task_id, 'essay.writer_id' => $writer_ids]);
+            . $this->repo->where(['task_id' => $task_id, 'writer_id' => $writer_ids]);
 
         $summaries = [];
         foreach ($this->repo->queryAllRaw($query) as $row) {

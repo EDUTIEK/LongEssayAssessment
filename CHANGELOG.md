@@ -1,6 +1,6 @@
 # Change Log
 
-## Version 3.7 (2025-08-08)
+## Version 3.7 (2025-08-15)
 
 Plugin:
 - Allow zero maximum points in correction settings
@@ -12,6 +12,7 @@ Plugin:
 Writer Web App:
 - Support marking and comments for instructions and PDF resources
 - Automatically show first resource if no instructions are given
+- Sending overview and HTML export of essay
 - Components update and integration of i18n support
 - Extraction and renaming of language variables
 

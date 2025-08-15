@@ -92,4 +92,10 @@ class CorrectorAssignmentRepo implements \Edutiek\AssessmentService\Task\Data\Co
     {
         $this->repo->deleteAllBy(['writer_id' => $writer_id, 'corrector_id' => $corrector_id]);
     }
+
+    public function oneById(int $id): ?CorrectorAssignment
+    {
+        return $this->repo->queryOneBy(['id' => $id]);
+    }
+
 }

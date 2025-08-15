@@ -94,8 +94,7 @@ class DataTable extends Table implements DataRetrieval, DataTableParent
         }
 
         if (!empty($this->getFilterInputActivation())) {
-            $filter_gui = $this->getFilter();
-            $filter_data = $this->ui_service->filter()->getData($filter_gui) ?? [];
+            $filter_data = $this->getFilterData();
             $table = $table->withFilter($filter_data);
         }
 
@@ -202,7 +201,7 @@ class DataTable extends Table implements DataRetrieval, DataTableParent
      */
     public function getColumns(?array $additional_parameters): array
     {
-        return $this->dt_parent->getColumns($additional_parameters);
+        return array_filter($this->dt_parent->getColumns($additional_parameters)); // use array filter to remove all null values
     }
 
 }

@@ -20,6 +20,7 @@ use ILIAS\Plugin\LongEssayAssessment\Writer\WriterUploadGUI;
 use ILIAS\Plugin\LongEssayAssessment\WriterAdmin\ProtocolGUI;
 use ILIAS\Plugin\LongEssayAssessment\CorrectionAdmin\CorrectionAdminGUI;
 use ILIAS\Plugin\LongEssayAssessment\CorrectorAdmin\CorrectorGUI;
+use ILIAS\Plugin\LongEssayAssessment\Corrector\CorrectorStartGUI;
 
 /**
  * Plugin GUI Class
@@ -214,12 +215,12 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                         $this->ctrl->forwardCommand(new WriterUploadGUI($this->object));
                     }
                     break;
-                    //                case 'ilias\plugin\longessayassessment\corrector\correctorstartgui':
-                    //                    if ($this->permissions->canViewCorrectorScreen()) {
-                    //                        $this->activateTab('tab_corrector', 'tab_corrector_start');
-                    //                        $this->ctrl->forwardCommand(new \ILIAS\Plugin\LongEssayAssessment\Corrector\CorrectorStartGUI($this));
-                    //                    }
-                    //                    break;
+                case strtolower(CorrectorStartGUI::class):
+                    if ($this->permissions->canViewCorrectorScreen()) {
+                        $this->activateTab('tab_corrector', 'tab_corrector_start');
+                        $this->ctrl->forwardCommand(new CorrectorStartGUI($this->object));
+                    }
+                    break;
                     //                case 'ilias\plugin\longessayassessment\corrector\correctorcriteriagui':
                     //                    if ($this->permissions->canViewCorrectorScreen()) {
                     //                        $this->activateTab('tab_corrector', 'tab_corrector_criteria');
@@ -485,12 +486,12 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
 
         // Corrector Tab
         $tabs = [];
-        //        if ($this->permissions->canViewCorrectorScreen()) {
-        //            $tabs[] = [
-        //                'id' => 'tab_corrector_start',
-        //                'txt' => $this->plugin->txt('tab_corrector_start'),
-        //                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessayassessment\corrector\correctorstartgui')
-        //            ];
+        if ($this->permissions->canViewCorrectorScreen()) {
+            $tabs[] = [
+                'id' => 'tab_corrector_start',
+                'txt' => $this->plugin->txt('tab_corrector_start'),
+                'url' => $this->ctrl->getLinkTargetByClass(strtolower(CorrectorStartGUI::class))
+            ];
         //            if($this->permissions->canViewCorrectorScreen()) {
         //                $tabs[] = [
         //                    'id' => 'tab_corrector_criteria',
@@ -510,7 +511,7 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
         //                'txt' => $this->plugin->txt('tab_correction_report'),
         //                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessayassessment\corrector\correctionreportgui')
         //            ];
-        //        }
+        }
         if (!empty($tabs)) {
             $this->tabs->addTab('tab_corrector', $this->plugin->txt('tab_corrector'), $tabs[0]['url']);
             $this->subtabs['tab_corrector'] = $tabs;

@@ -369,7 +369,9 @@ abstract class Table implements TableParent, FilterParent, Component\Component
 
         foreach ($items as $item) {
             if($action->enabled($item)) {
-                $confirmation_items[] = $this->ui_factory->modal()->interruptiveItem()->standard($item->getId(), $action->itemName($item));
+                $confirmation_items[] = $this->ui_factory->modal()->interruptiveItem()->standard(
+                    $item->getId(), $action->itemName($item), $action->itemIcon($item), $action->itemDescription($item)
+                );
             }
         }
 

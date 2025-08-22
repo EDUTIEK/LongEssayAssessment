@@ -127,6 +127,7 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
     }
     public function step_6(): void
     {
+        # Calculate new stitch_needed flag for all writer
         $summaries_by_task_and_writer = [];
         $writers_with_stitch = [];
 
@@ -214,5 +215,162 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
             . $this->db->in("id", $writers_with_stitch, false, "integer");
 
         $this->db->manipulate($sql);
+    }
+    public function step_7(): void
+    {
+        # Move CorrectionSettings to Task
+        if(!$this->db->tableExists("xlas_ta_corr_settings") && $this->db->tableExists("xlas_et_corr_settings") )
+        {
+            $this->db->renameTable("xlas_et_corr_settings", "xlas_ta_corr_settings");
+        }
+    }
+    public function step_8(): void
+    {
+        # Remove CorrectionSettings Inclusions
+       if($this->db->tableColumnExists('xlas_ta_corr_settings', 'fixed_inclusions')) {
+           $this->db->dropTableColumn('xlas_ta_corr_settings', 'fixed_inclusions');
+       }
+       if($this->db->tableColumnExists('xlas_ta_corr_settings', 'include_comments')) {
+           $this->db->dropTableColumn('xlas_ta_corr_settings', 'include_comments');
+       }
+       if($this->db->tableColumnExists('xlas_ta_corr_settings', 'include_comment_ratings')) {
+           $this->db->dropTableColumn('xlas_ta_corr_settings', 'include_comment_ratings');
+       }
+       if($this->db->tableColumnExists('xlas_ta_corr_settings', 'include_comment_points')) {
+           $this->db->dropTableColumn('xlas_ta_corr_settings', 'include_comment_points');
+       }
+       if($this->db->tableColumnExists('xlas_ta_corr_settings', 'include_criteria_points')) {
+           $this->db->dropTableColumn('xlas_ta_corr_settings', 'include_criteria_points');
+       }
+    }
+    public function step_9(): void
+    {
+        # Move CorectorPrefs to Task
+        if (!$this->db->tableExists("xlas_ta_corr_prefs") && $this->db->tableExists("xlas_et_corr_prefs")) {
+            $this->db->renameTable("xlas_et_corr_prefs", "xlas_ta_corr_prefs");
+        }
+    }
+    public function step_10(): void
+    {
+        # Remove CorectorPrefs Inclusions
+        if($this->db->tableColumnExists('xlas_ta_corr_prefs', 'include_comments')) {
+            $this->db->dropTableColumn('xlas_ta_corr_prefs', 'include_comments');
+        }
+        if($this->db->tableColumnExists('xlas_ta_corr_prefs', 'include_comment_ratings')) {
+            $this->db->dropTableColumn('xlas_ta_corr_prefs', 'include_comment_ratings');
+        }
+        if($this->db->tableColumnExists('xlas_ta_corr_prefs', 'include_comment_points')) {
+            $this->db->dropTableColumn('xlas_ta_corr_prefs', 'include_comment_points');
+        }
+        if($this->db->tableColumnExists('xlas_ta_corr_prefs', 'include_criteria_points')) {
+            $this->db->dropTableColumn('xlas_ta_corr_prefs', 'include_criteria_points');
+        }
+    }
+    public function step_11(): void
+    {
+        # Move CorrectorTaskPrefs to Task
+        if (!$this->db->tableExists("xlas_ta_corr_ta_prefs") && $this->db->tableExists("xlas_et_corr_ta_prefs")) {
+            $this->db->renameTable("xlas_et_corr_ta_prefs", "xlas_ta_corr_ta_prefs");
+        }
+    }
+    public function step_12(): void
+    {
+        # Move CorrectorTaskPrefs to Task
+        if (!$this->db->tableExists("xlas_ta_rating_crit") && $this->db->tableExists("xlas_et_rating_crit")) {
+            $this->db->renameTable("xlas_et_rating_crit", "xlas_ta_rating_crit");
+        }
+    }
+
+    public function step_13(): void
+    {
+        # Move CorrectorComment to Task
+        if (!$this->db->tableExists("xlas_ta_corr_comm") && $this->db->tableExists("xlas_et_corr_comm")) {
+            $this->db->renameTable("xlas_et_corr_comm", "xlas_ta_corr_comm");
+        }
+    }
+    public function step_14(): void
+    {
+        # Add task_id and writer_id to CorrectorComment
+        $this->addTaskIdAndWriterIdFromEssayId('xlas_ta_corr_comm');
+    }
+
+    public function step_15(): void
+    {
+        # Move CorrectorPoints to Task
+        if (!$this->db->tableExists("xlas_ta_corr_points") && $this->db->tableExists("xlas_et_corr_points")) {
+            $this->db->renameTable("xlas_et_corr_points", "xlas_ta_corr_points");
+        }
+    }
+
+    public function step_16(): void
+    {
+        # Add task_id and writer_id to CorrectorPoints
+        $this->addTaskIdAndWriterIdFromEssayId('xlas_ta_corr_points');
+    }
+
+    public function step_17(): void
+    {
+        # Move CorrectorSummary to Task
+        if (!$this->db->tableExists("xlas_ta_corr_summary") && $this->db->tableExists("xlas_et_corr_summary")) {
+            $this->db->renameTable("xlas_et_corr_summary", "xlas_ta_corr_summary");
+        }
+    }
+
+    public function step_18(): void
+    {
+        # Add task_id and writer_id to CorrectorSummary
+        $this->addTaskIdAndWriterIdFromEssayId('xlas_ta_corr_summary');
+    }
+    public function step_19(): void
+    {
+        # Remove CorrectorSummary Inclusions
+        if($this->db->tableColumnExists('xlas_ta_corr_summary', 'include_comments')) {
+            $this->db->dropTableColumn('xlas_ta_corr_summary', 'include_comments');
+        }
+        if($this->db->tableColumnExists('xlas_ta_corr_summary', 'include_comment_ratings')) {
+            $this->db->dropTableColumn('xlas_ta_corr_summary', 'include_comment_ratings');
+        }
+        if($this->db->tableColumnExists('xlas_ta_corr_summary', 'include_comment_points')) {
+            $this->db->dropTableColumn('xlas_ta_corr_summary', 'include_comment_points');
+        }
+        if($this->db->tableColumnExists('xlas_ta_corr_summary', 'include_criteria_points')) {
+            $this->db->dropTableColumn('xlas_ta_corr_summary', 'include_criteria_points');
+        }
+    }
+
+    private function addTaskIdAndWriterIdFromEssayId(string $table)
+    {
+        if(!$this->db->tableColumnExists($table, 'task_id')) {
+            $this->db->addTableColumn($table, 'task_id', [
+                'notnull' => '1',
+                'type' => 'integer',
+                'length' => 4,
+                'default' => 0
+            ]);
+            $this->db->addIndex($table, array("task_id"), "idt");
+        }
+
+        if(!$this->db->tableColumnExists($table, 'writer_id')) {
+            $this->db->addTableColumn($table, 'writer_id', [
+                'notnull' => '1',
+                'type' => 'integer',
+                'length' => 4,
+                'default' => 0
+            ]);
+            $this->db->addIndex($table, array("writer_id"), "idw");
+        }
+
+        $this->db->manipulate("
+            UPDATE $table as target_table 
+            LEFT JOIN xlas_et_essay AS essay ON target_table.essay_id = essay.id 
+            SET target_table.task_id = essay.task_id, target_table.writer_id = essay.writer_id;
+        ");
+
+        if($this->db->tableColumnExists($table, 'essay_id')) {
+            $this->db->dropTableColumn($table, 'essay_id');
+        }
+        if($this->db->indexExistsByFields($table, ['essay_id'])) {
+            $this->db->dropIndexByFields($table, ['essay_id']);
+        }
     }
 }

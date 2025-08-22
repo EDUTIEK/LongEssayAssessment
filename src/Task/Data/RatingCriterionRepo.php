@@ -18,12 +18,12 @@
 
 declare(strict_types=1);
 
-namespace ILIAS\Plugin\LongEssayAssessment\EssayTask\Data;
+namespace ILIAS\Plugin\LongEssayAssessment\Task\Data;
 
-use Edutiek\AssessmentService\EssayTask\Data\RatingCriterion;
+use Edutiek\AssessmentService\Task\Data\RatingCriterion;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\RepositoryInterface;
 
-class RatingCriterionRepo implements \Edutiek\AssessmentService\EssayTask\Data\RatingCriterionRepo
+class RatingCriterionRepo implements \Edutiek\AssessmentService\Task\Data\RatingCriterionRepo
 {
     public function __construct(private readonly RepositoryInterface $repo)
     {

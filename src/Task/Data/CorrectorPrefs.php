@@ -18,23 +18,19 @@
 
 declare(strict_types=1);
 
-namespace ILIAS\Plugin\LongEssayAssessment\EssayTask\Data;
+namespace ILIAS\Plugin\LongEssayAssessment\Task\Data;
 
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Key;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Table;
 
-#[Table(name: 'xlas_et_corr_prefs')]
-class CorrectorPrefs extends \Edutiek\AssessmentService\EssayTask\Data\CorrectorPrefs
+#[Table(name: 'xlas_ta_corr_prefs')]
+class CorrectorPrefs extends \Edutiek\AssessmentService\Task\Data\CorrectorPrefs
 {
     #[Key]
     private int $corrector_id = 0;
     private float $essay_page_zoom = 0;
     private float $essay_text_zoom = 0;
     private float $summary_text_zoom = 0;
-    private int $include_comments = 0;
-    private int $include_comment_ratings = 0;
-    private int $include_comment_points = 0;
-    private int $include_criteria_points = 0;
 
     public function getCorrectorId(): int
     {
@@ -70,42 +66,6 @@ class CorrectorPrefs extends \Edutiek\AssessmentService\EssayTask\Data\Corrector
     public function setSummaryTextZoom(float $summary_text_zoom): self
     {
         $this->summary_text_zoom = $summary_text_zoom;
-        return $this;
-    }
-    public function getIncludeComments(): int
-    {
-        return $this->include_comments;
-    }
-    public function setIncludeComments(int $include_comments): self
-    {
-        $this->include_comments = $include_comments;
-        return $this;
-    }
-    public function getIncludeCommentRatings(): int
-    {
-        return $this->include_comment_ratings;
-    }
-    public function setIncludeCommentRatings(int $include_comment_ratings): self
-    {
-        $this->include_comment_ratings = $include_comment_ratings;
-        return $this;
-    }
-    public function getIncludeCommentPoints(): int
-    {
-        return $this->include_comment_points;
-    }
-    public function setIncludeCommentPoints(int $include_comment_points): self
-    {
-        $this->include_comment_points = $include_comment_points;
-        return $this;
-    }
-    public function getIncludeCriteriaPoints(): int
-    {
-        return $this->include_criteria_points;
-    }
-    public function setIncludeCriteriaPoints(int $include_criteria_points): self
-    {
-        $this->include_criteria_points = $include_criteria_points;
         return $this;
     }
 }

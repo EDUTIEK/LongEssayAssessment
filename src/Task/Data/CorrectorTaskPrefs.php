@@ -18,12 +18,12 @@
 
 declare(strict_types=1);
 
-namespace ILIAS\Plugin\LongEssayAssessment\EssayTask\Data;
+namespace ILIAS\Plugin\LongEssayAssessment\Task\Data;
 
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Table;
 
-#[Table(name: 'xlas_et_corr_ta_prefs')]
-class CorrectorTaskPrefs extends \Edutiek\AssessmentService\EssayTask\Data\CorrectorTaskPrefs
+#[Table(name: 'xlas_ta_corr_ta_prefs')]
+class CorrectorTaskPrefs extends \Edutiek\AssessmentService\Task\Data\CorrectorTaskPrefs
 {
     // todo: add id with #key and #sequence
     private int $task_id = 0;

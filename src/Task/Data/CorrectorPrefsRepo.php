@@ -18,12 +18,12 @@
 
 declare(strict_types=1);
 
-namespace ILIAS\Plugin\LongEssayAssessment\EssayTask\Data;
+namespace ILIAS\Plugin\LongEssayAssessment\Task\Data;
 
-use Edutiek\AssessmentService\EssayTask\Data\CorrectorPrefs;
+use Edutiek\AssessmentService\Task\Data\CorrectorPrefs;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\RepositoryInterface;
 
-class CorrectorPrefsRepo implements \Edutiek\AssessmentService\EssayTask\Data\CorrectorPrefsRepo
+class CorrectorPrefsRepo implements \Edutiek\AssessmentService\Task\Data\CorrectorPrefsRepo
 {
     public function __construct(private readonly RepositoryInterface $repo)
     {

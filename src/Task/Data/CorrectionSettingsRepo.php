@@ -18,12 +18,12 @@
 
 declare(strict_types=1);
 
-namespace ILIAS\Plugin\LongEssayAssessment\EssayTask\Data;
+namespace ILIAS\Plugin\LongEssayAssessment\Task\Data;
 
-use Edutiek\AssessmentService\EssayTask\Data\CorrectionSettings;
+use Edutiek\AssessmentService\Task\Data\CorrectionSettings;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\RepositoryInterface;
 
-class CorrectionSettingsRepo implements \Edutiek\AssessmentService\EssayTask\Data\CorrectionSettingsRepo
+class CorrectionSettingsRepo implements \Edutiek\AssessmentService\Task\Data\CorrectionSettingsRepo
 {
     public function __construct(private readonly RepositoryInterface $repo)
     {
@@ -46,6 +46,6 @@ class CorrectionSettingsRepo implements \Edutiek\AssessmentService\EssayTask\Dat
 
     public function delete(int $ass_id): void
     {
-        $this->repo->deleteAllBy(['ass_id' => $id]);
+        $this->repo->deleteAllBy(['ass_id' => $ass_id]);
     }
 }

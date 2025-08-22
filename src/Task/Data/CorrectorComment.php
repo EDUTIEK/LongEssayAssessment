@@ -18,19 +18,20 @@
 
 declare(strict_types=1);
 
-namespace ILIAS\Plugin\LongEssayAssessment\EssayTask\Data;
+namespace ILIAS\Plugin\LongEssayAssessment\Task\Data;
 
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Key;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Sequence;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Table;
 
-#[Table(name: 'xlas_et_corr_comm')]
-class CorrectorComment extends \Edutiek\AssessmentService\EssayTask\Data\CorrectorComment
+#[Table(name: 'xlas_ta_corr_comm')]
+class CorrectorComment extends \Edutiek\AssessmentService\Task\Data\CorrectorComment
 {
     #[Key]
     #[Sequence]
     private int $id = 0;
-    private int $essay_id = 0;
+    private int $task_id = 0;
+    private int $writer_id = 0;
     private ?string $comment = null;
     private int $start_position = 0;
     private int $end_position = 0;
@@ -46,15 +47,6 @@ class CorrectorComment extends \Edutiek\AssessmentService\EssayTask\Data\Correct
     public function setId(int $id): self
     {
         $this->id = $id;
-        return $this;
-    }
-    public function getEssayId(): int
-    {
-        return $this->essay_id;
-    }
-    public function setEssayId(int $essay_id): self
-    {
-        $this->essay_id = $essay_id;
         return $this;
     }
     public function getComment(): ?string
@@ -118,6 +110,28 @@ class CorrectorComment extends \Edutiek\AssessmentService\EssayTask\Data\Correct
     public function setMarks(?string $marks): self
     {
         $this->marks = $marks;
+        return $this;
+    }
+
+    public function getTaskId(): int
+    {
+        return $this->task_id;
+    }
+
+    public function setTaskId(int $task_id): self
+    {
+        $this->task_id = $task_id;
+        return $this;
+    }
+
+    public function getWriterId(): int
+    {
+        return $this->writer_id;
+    }
+
+    public function setWriterId(int $writer_id): self
+    {
+        $this->writer_id = $writer_id;
         return $this;
     }
 }

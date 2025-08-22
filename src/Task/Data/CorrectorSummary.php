@@ -18,28 +18,25 @@
 
 declare(strict_types=1);
 
-namespace ILIAS\Plugin\LongEssayAssessment\EssayTask\Data;
+namespace ILIAS\Plugin\LongEssayAssessment\Task\Data;
 
 use DateTimeImmutable;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Key;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Sequence;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Table;
 
-#[Table(name: 'xlas_et_corr_summary')]
-class CorrectorSummary extends \Edutiek\AssessmentService\EssayTask\Data\CorrectorSummary
+#[Table(name: 'xlas_ta_corr_summary')]
+class CorrectorSummary extends \Edutiek\AssessmentService\Task\Data\CorrectorSummary
 {
     #[Key]
     #[Sequence]
     private int $id = 0;
-    private int $essay_id = 0;
+    private int $task_id = 0;
+    private int $writer_id = 0;
     private int $corrector_id = 0;
     private ?string $summary_text = null;
     private ?float $points = null;
     private ?DateTimeImmutable $last_change = null;
-    private ?int $include_comments = null;
-    private ?int $include_comment_ratings = null;
-    private ?int $include_comment_points = null;
-    private ?int $include_criteria_points = null;
     private ?DateTimeImmutable $corection_authorized = null;
     private ?int $correction_authorized_by = null;
 
@@ -50,15 +47,6 @@ class CorrectorSummary extends \Edutiek\AssessmentService\EssayTask\Data\Correct
     public function setId(int $id): self
     {
         $this->id = $id;
-        return $this;
-    }
-    public function getEssayId(): int
-    {
-        return $this->essay_id;
-    }
-    public function setEssayId(int $essay_id): self
-    {
-        $this->essay_id = $essay_id;
         return $this;
     }
     public function getCorrectorId(): int
@@ -97,42 +85,6 @@ class CorrectorSummary extends \Edutiek\AssessmentService\EssayTask\Data\Correct
         $this->last_change = $last_change;
         return $this;
     }
-    public function getIncludeComments(): ?int
-    {
-        return $this->include_comments;
-    }
-    public function setIncludeComments(?int $include_comments): self
-    {
-        $this->include_comments = $include_comments;
-        return $this;
-    }
-    public function getIncludeCommentRatings(): ?int
-    {
-        return $this->include_comment_ratings;
-    }
-    public function setIncludeCommentRatings(?int $include_comment_ratings): self
-    {
-        $this->include_comment_ratings = $include_comment_ratings;
-        return $this;
-    }
-    public function getIncludeCommentPoints(): ?int
-    {
-        return $this->include_comment_points;
-    }
-    public function setIncludeCommentPoints(?int $include_comment_points): self
-    {
-        $this->include_comment_points = $include_comment_points;
-        return $this;
-    }
-    public function getIncludeCriteriaPoints(): ?int
-    {
-        return $this->include_criteria_points;
-    }
-    public function setIncludeCriteriaPoints(?int $include_criteria_points): self
-    {
-        $this->include_criteria_points = $include_criteria_points;
-        return $this;
-    }
     public function getCorrectionAuthorized(): ?DateTimeImmutable
     {
         return $this->corection_authorized;
@@ -149,6 +101,28 @@ class CorrectorSummary extends \Edutiek\AssessmentService\EssayTask\Data\Correct
     public function setCorrectionAuthorizedBy(?int $correction_authorized_by): self
     {
         $this->correction_authorized_by = $correction_authorized_by;
+        return $this;
+    }
+
+    public function getTaskId(): int
+    {
+        return $this->task_id;
+    }
+
+    public function setTaskId(int $task_id): self
+    {
+        $this->task_id = $task_id;
+        return $this;
+    }
+
+    public function getWriterId(): int
+    {
+        return $this->writer_id;
+    }
+
+    public function setWriterId(int $writer_id): self
+    {
+        $this->writer_id = $writer_id;
         return $this;
     }
 }

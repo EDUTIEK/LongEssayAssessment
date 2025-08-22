@@ -18,12 +18,12 @@
 
 declare(strict_types=1);
 
-namespace ILIAS\Plugin\LongEssayAssessment\EssayTask\Data;
+namespace ILIAS\Plugin\LongEssayAssessment\Task\Data;
 
-use Edutiek\AssessmentService\EssayTask\Data\CorrectorPoints;
+use Edutiek\AssessmentService\Task\Data\CorrectorPoints;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\RepositoryInterface;
 
-class CorrectorPointsRepo implements \Edutiek\AssessmentService\EssayTask\Data\CorrectorPointsRepo
+class CorrectorPointsRepo implements \Edutiek\AssessmentService\Task\Data\CorrectorPointsRepo
 {
     public function __construct(private readonly RepositoryInterface $repo)
     {
@@ -39,16 +39,6 @@ class CorrectorPointsRepo implements \Edutiek\AssessmentService\EssayTask\Data\C
         return $this->repo->queryOneBy(['id' => $id]);
     }
 
-    public function hasByEssayId(int $essay_id): bool
-    {
-        return null !== $this->repo->queryOneBy(['essay_id' => $essay_id]);
-    }
-
-    public function allByEssayIdAndCorrectorId(int $essay_id, int $corrector_id): array
-    {
-        return $this->repo->queryAllBy(['essay_id' => $essay_id, 'corrector_id' => $corrector_id]);
-    }
-
     public function save(CorrectorPoints $entity): void
     {
         $this->repo->replace($entity);
@@ -59,14 +49,9 @@ class CorrectorPointsRepo implements \Edutiek\AssessmentService\EssayTask\Data\C
         $this->repo->deleteAllBy(['id' => $id]);
     }
 
-    public function deleteByCriterionId(int $essay_id): void
+    public function deleteByCriterionId(int $criterion_id): void
     {
-        $this->repo->deleteAllBy(['essay_id' => $essay_id]);
-    }
-
-    public function deleteByEssayId(int $essay_id): void
-    {
-        $this->repo->deleteAllBy(['essay_id' => $essay_id]);
+        $this->repo->deleteAllBy(['criterion_id' => $criterion_id]);
     }
 
     public function deleteByCorrectorId(int $corrector_id): void
@@ -74,8 +59,38 @@ class CorrectorPointsRepo implements \Edutiek\AssessmentService\EssayTask\Data\C
         $this->repo->deleteAllBy(['corrector_id' => $corrector_id]);
     }
 
-    public function deleteByEssayIdAndCorrectorId(int $essay_id, int $corrector_id): void
+    public function hasByTaskIdAndWriterId(int $task_id, int $writer_id): bool
     {
-        $this->repo->deleteAllBy(['essay_id' => $essay_id, 'corrector_id' => $corrector_id]);
+        return null !== $this->repo->queryOneBy(['task_id,' => $task_id, 'writer_id' => $writer_id]);
+    }
+
+    public function allByTaskIdAndWriterIdAndCorrectorId(int $task_id, int $writer_id, int $corrector_id): array
+    {
+        return $this->repo->queryAllBy(['task_id,' => $task_id, 'writer_id' => $writer_id, 'corrector_id' => $corrector_id]);
+    }
+
+    public function allByTaskIdAndCorrectorId(int $task_id, int $corrector_id): array
+    {
+        return $this->repo->queryAllBy(['task_id,' => $task_id, 'corrector_id' => $corrector_id]);
+    }
+
+    public function deleteByTaskId(int $task_id): void
+    {
+        $this->repo->deleteAllBy(['task_id,' => $task_id]);
+    }
+
+    public function deleteByTaskIdAndCorrectorId(int $task_id, int $corrector_id): void
+    {
+        $this->repo->deleteAllBy(['task_id,' => $task_id, 'corrector_id' => $corrector_id]);
+    }
+
+    public function deleteByTaskIdAndWriterId(int $task_id, int $writer_id): void
+    {
+        $this->repo->deleteAllBy(['task_id,' => $task_id, 'writer_id' => $writer_id]);
+    }
+
+    public function deleteByTaskIdAndWriterIdAndCorrectorId(int $task_id, int $writer_id, int $corrector_id): void
+    {
+        $this->repo->deleteAllBy(['task_id,' => $task_id, 'writer_id' => $writer_id, 'corrector_id' => $corrector_id]);
     }
 }

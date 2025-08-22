@@ -18,12 +18,12 @@
 
 declare(strict_types=1);
 
-namespace ILIAS\Plugin\LongEssayAssessment\EssayTask\Data;
+namespace ILIAS\Plugin\LongEssayAssessment\Task\Data;
 
-use Edutiek\AssessmentService\EssayTask\Data\CorrectorSummary;
+use Edutiek\AssessmentService\Task\Data\CorrectorSummary;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\RepositoryInterface;
 
-class CorrectorSummaryRepo implements \Edutiek\AssessmentService\EssayTask\Data\CorrectorSummaryRepo
+class CorrectorSummaryRepo implements \Edutiek\AssessmentService\Task\Data\CorrectorSummaryRepo
 {
     public function __construct(private readonly RepositoryInterface $repo)
     {
@@ -39,11 +39,6 @@ class CorrectorSummaryRepo implements \Edutiek\AssessmentService\EssayTask\Data\
         return $this->repo->queryOneBy(['id' => $id]);
     }
 
-    public function hasByEssayId(int $essay_id): bool
-    {
-        return null !== $this->repo->queryOneBy(['essay_id' => $essay_id]);
-    }
-
     public function hasAuthorizedByAssId(int $ass_id, ?int $corrector_id = null): bool
     {
         $where = ['ass_id' => $ass_id];
@@ -54,9 +49,8 @@ class CorrectorSummaryRepo implements \Edutiek\AssessmentService\EssayTask\Data\
 
         $query = "
             SELECT summary.*, settings.ass_id AS ass_id
-            FROM xlas_et_corr_summary AS summary
-            JOIN xlas_et_essay essay ON essay.id = summary.essay_id
-            JOIN xlas_et_task_settings settings ON settings.task_id = essay.task_id
+            FROM xlas_ta_corr_summary AS summary
+            JOIN xlas_ta_settings settings ON settings.task_id = summary.task_id
             WHERE summary.corection_authorized IS NOT NULL AND" . $this->repo->where($where);
 
         return $this->repo->queryOne($query) !== null;
@@ -68,13 +62,13 @@ class CorrectorSummaryRepo implements \Edutiek\AssessmentService\EssayTask\Data\
      */
     public function allByAssId(int $ass_id): array
     {
+        #TODO rewrite
+
         $query = "
             SELECT summary.*, settings.ass_id AS ass_id
-            FROM xlas_et_corr_summary AS summary
-            JOIN xlas_et_essay AS essay ON summary.essay_id = essay.id
-            JOIN xlas_et_task_settings AS settings ON essay.task_id = settings.task_id
-            WHERE "
-            . $this->repo->where(['ass_id' => $ass_id]);
+            FROM xlas_ta_corr_summary AS summary
+            JOIN xlas_ta_settings settings ON settings.task_id = summary.task_id
+            WHERE " . $this->repo->where(['ass_id' => $ass_id]);
 
         $summaries = [];
         foreach ($this->repo->queryAllRaw($query) as $row) {
@@ -85,35 +79,11 @@ class CorrectorSummaryRepo implements \Edutiek\AssessmentService\EssayTask\Data\
 
     public function allByWriterId(int $writer_id): array
     {
-        $query = "
-            SELECT summary.*, essay.writer_id AS writer_id
-            FROM xlas_et_corr_summary AS summary
-            JOIN xlas_et_essay AS essay ON summary.essay_id = essay.id
-            WHERE "
-            . $this->repo->where(['writer_id' => $writer_id]);
-
-        $summaries = [];
-        foreach ($this->repo->queryAllRaw($query) as $row) {
-            $summaries[] = $this->repo->fromRow($row);
-        }
-        return $summaries;
+        return $this->repo->queryAllBy(['writer_id' => $writer_id]);
     }
 
     public function allByTaskId(int $task_id): array
     {
-        $query = "
-            SELECT summary.*, essay.task_id AS task_id
-            FROM xlas_et_corr_summary AS summary
-            JOIN xlas_et_essay AS essay ON summary.essay_id = essay.id
-            WHERE "
-            . $this->repo->where(['task_id' => $task_id]);
-
-        $summaries = [];
-        foreach ($this->repo->queryAllRaw($query) as $row) {
-            $summaries[] = $this->repo->fromRow($row);
-        }
-        return $summaries;
-
         return $this->repo->queryAllBy(['task_id' => $task_id]);
     }
 
@@ -124,16 +94,9 @@ class CorrectorSummaryRepo implements \Edutiek\AssessmentService\EssayTask\Data\
      */
     public function allByTaskIdAndWriterIds(int $task_id, array $writer_ids): array
     {
-        $query = "
-            SELECT summary.*, essay.writer_id AS writer_id, essay.task_id AS task_id
-            FROM xlas_et_corr_summary AS summary
-            JOIN xlas_et_essay AS essay ON summary.essay_id = essay.id 
-            WHERE "
-            . $this->repo->where(['task_id' => $task_id, 'writer_id' => $writer_ids]);
-
         $summaries = [];
-        foreach ($this->repo->queryAllRaw($query) as $row) {
-            $summaries[$row['writer_id']][$row['corrector_id']] = $this->repo->fromRow($row);
+        foreach($this->repo->queryAllBy(['task_id' => $task_id, 'writer_id' => $writer_ids]) as $summary) {
+            $summaries[$summary->getWriterId()][$summary->getCorrectorId()] = $summary;
         }
         return $summaries;
     }
@@ -163,18 +126,33 @@ class CorrectorSummaryRepo implements \Edutiek\AssessmentService\EssayTask\Data\
         $this->repo->deleteAllBy(['id' => $id]);
     }
 
-    public function deleteByEssayId(int $essay_id): void
-    {
-        $this->repo->deleteAllBy(['esay_id' => $essay_id]);
-    }
-
     public function deleteByCorrectorId(int $corrector_id): void
     {
         $this->repo->deleteAllBy(['corrector_id' => $corrector_id]);
     }
 
-    public function deleteByEssayIdAndCorrectorId(int $essay_id, int $corrector_id): void
+    public function hasByTaskIdAndWriterId(int $task_id, int $writer_id): bool
     {
-        $this->repo->deleteAllBy(['essay_id' => $essay_id, 'corrector_id' => $corrector_id]);
+        return null !== $this->repo->queryOneBy(['task_id' => $task_id, 'writer_id' => $writer_id]);
+    }
+
+    public function allByTaskIdAndWriterIdAndCorrectorId(int $task_id, int $writer_id, int $corrector_id): array
+    {
+        return $this->repo->queryAllBy(['task_id' => $task_id, 'writer_id' => $writer_id, 'corrector_id' => $corrector_id]);
+    }
+
+    public function deleteByTaskId(int $task_id): void
+    {
+        $this->repo->deleteAllBy(['task_id' => $task_id]);
+    }
+
+    public function deleteByTaskIdAndWriterId(int $task_id, int $writer_id): void
+    {
+        $this->repo->deleteAllBy(['task_id' => $task_id, 'writer_id' => $writer_id]);
+    }
+
+    public function deleteByTaskIdAndWriterIdAndCorrectorId(int $task_id, int $writer_id, int $corrector_id): void
+    {
+        $this->repo->deleteAllBy(['task_id' => $task_id, 'writer_id' => $writer_id, 'corrector_id' => $corrector_id]);
     }
 }

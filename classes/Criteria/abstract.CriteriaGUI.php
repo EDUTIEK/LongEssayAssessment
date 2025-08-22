@@ -2,8 +2,8 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\Criteria;
 
-use Edutiek\AssessmentService\EssayTask\Data\CriteriaMode;
-use Edutiek\AssessmentService\EssayTask\Data\RatingCriterion;
+use Edutiek\AssessmentService\Task\Data\CriteriaMode;
+use Edutiek\AssessmentService\Task\Data\RatingCriterion;
 use Generator;
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\BaseObjectData;
@@ -19,10 +19,10 @@ abstract class CriteriaGUI extends BaseGUI implements DataTableParent
     use SmallView, ConfirmationIds;
 
     protected \Edutiek\AssessmentService\System\Entity\FullService $entity_service;
-    protected \Edutiek\AssessmentService\EssayTask\CorrectionSettings\FullService $correction_settings_service;
-    protected \Edutiek\AssessmentService\EssayTask\Data\CorrectionSettings $correction_settings;
-    protected \Edutiek\AssessmentService\EssayTask\AssessmentStatus\FullService $assessment_status;
-    protected \Edutiek\AssessmentService\EssayTask\RatingCriterion\FullService $criterion_service;
+    protected \Edutiek\AssessmentService\Task\CorrectionSettings\FullService $correction_settings_service;
+    protected \Edutiek\AssessmentService\Task\Data\CorrectionSettings $correction_settings;
+    protected \Edutiek\AssessmentService\Task\AssessmentStatus\FullService $assessment_status;
+    protected \Edutiek\AssessmentService\Task\RatingCriterion\FullService $criterion_service;
     protected \ILIAS\Plugin\LongEssayAssessment\UI\Table\Factory $table_factory;
     #private \Edutiek\AssessmentService\Assessment\Corrector\Service $corrector_service;
 
@@ -34,9 +34,9 @@ abstract class CriteriaGUI extends BaseGUI implements DataTableParent
         parent::__construct($objectGUI);
 
         $this->table_factory = $this->plugin_ui_factory->table();
-        $this->correction_settings_service = $this->essay_task_api->correctionSettings();
+        $this->correction_settings_service = $this->task_api->correctionSettings();
         $this->correction_settings = $this->correction_settings_service->get();
-        $this->assessment_status = $this->essay_task_api->assessmentStatus();
+        $this->assessment_status = $this->task_api->assessmentStatus();
         $this->entity_service = $this->system_api->entity();
 
         #$this->corrector_service = $this->assessment_api->corrector();
@@ -47,7 +47,7 @@ abstract class CriteriaGUI extends BaseGUI implements DataTableParent
     public function executeCommand()
     {
         $this->initForTask();
-        $this->criterion_service = $this->essay_task_api->ratingCriterion($this->task_info->getId());
+        $this->criterion_service = $this->task_api->ratingCriterion($this->task_info->getId());
 
         $cmd = $this->ctrl->getCmd('showItems');
 

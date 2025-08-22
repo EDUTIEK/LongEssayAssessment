@@ -21,8 +21,8 @@ use Edutiek\AssessmentService\Task\CorrectorAssignments\FullService as Assignmen
 use Edutiek\AssessmentService\System\User\ReadService as UserService;
 use Edutiek\AssessmentService\Assessment\Data\Corrector;
 use Edutiek\AssessmentService\Task\Data\CorrectorAssignment;
-use Edutiek\AssessmentService\EssayTask\AssessmentStatus\FullService as AssessmentStatusService;
-use Edutiek\AssessmentService\EssayTask\Format\FullService as EssayTaskFormatService;
+use Edutiek\AssessmentService\Task\AssessmentStatus\FullService as AssessmentStatusService;
+use Edutiek\AssessmentService\Task\Format\FullService as TaskFormatService;
 use Edutiek\AssessmentService\Assessment\Writer\FullService as WriterService;
 use Edutiek\AssessmentService\Assessment\Data\Writer;
 use ILIAS\Plugin\LongEssayAssessment\System\Context\Service as ContextService;
@@ -47,7 +47,7 @@ class CorrectorGUI extends BaseGUI implements DataTableParent
     private AssignmentsService $assignments_service;
     private UserService $user_service;
     private AssessmentStatusService $assessment_status_service;
-    private EssayTaskFormatService $essay_task_format;
+    private TaskFormatService $task_format;
     private WriterService $writer_service;
     private ContextService $context_service;
 
@@ -60,8 +60,8 @@ class CorrectorGUI extends BaseGUI implements DataTableParent
         $this->corrector_service = $this->assessment_api->corrector();
         $this->assignments_service = $this->task_api->correctorAssignments();
         $this->user_service = $this->system_api->user();
-        $this->assessment_status_service = $this->essay_task_api->assessmentStatus();
-        $this->essay_task_format = $this->essay_task_api->format();
+        $this->assessment_status_service = $this->task_api->assessmentStatus();
+        $this->task_format = $this->task_api->format();
         $this->writer_service = $this->assessment_api->writer();
         $this->context_service = $this->plugin->dic()->context($this->object->getRefId());
     }
@@ -298,7 +298,6 @@ class CorrectorGUI extends BaseGUI implements DataTableParent
         $assignments = $this->assignments_service->allByCorrectorId($item->getId());
         $writer_ids = array_map(fn (CorrectorAssignment $ass) => $ass->getWriterId(), $assignments);
         $writers = [];
-        $essay_writer_map = [];
         $summaries = [];
 
         foreach($this->writer_service->all() as $writer) {
@@ -306,16 +305,10 @@ class CorrectorGUI extends BaseGUI implements DataTableParent
             $writers[$writer->getId()] = $writer;
         }
 
-        foreach(array_unique(array_map(fn(CorrectorAssignment $ca) => $ca->getWriterId(), $assignments)) as $writer_id) {
-            foreach($this->essay_task_api->essay()->allByWriterId($writer_id) as $essay) {
-                $essay_writer_map[$essay->getId()] = $writer_id;
-            }
-        }
 
         foreach (array_unique(array_map(fn(CorrectorAssignment $ca) => $ca->getTaskId(), $assignments)) as $task_id) {
-            foreach($this->essay_task_api->summary($task_id)->all() as $summary) {
-                $writer_id = $essay_writer_map[$summary->getEssayId()]??-1;
-                $summaries[$writer_id][$task_id] = $summary;
+            foreach($this->task_api->summary($task_id)->all() as $summary) {
+                $summaries[$summary->getWriterId()][$task_id] = $summary;
             }
         }
 
@@ -330,7 +323,7 @@ class CorrectorGUI extends BaseGUI implements DataTableParent
             $writer = $writers[$assignment->getWriterId()];
             $summary = $summaries[$assignment->getWriterId()][$assignment->getTaskId()] ?? null;
             $name = $users[$writer->getUserId()]?->getFullname(true) ?? " - ";
-            $status = $this->essay_task_format->correctionResult($summary, false, false);
+            $status = $this->task_format->correctionResult($summary, false, false);
 
             if($assignment->getPosition() === 0) {
                 $first[$name] = $status;

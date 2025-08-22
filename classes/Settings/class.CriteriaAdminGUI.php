@@ -6,10 +6,10 @@ namespace ILIAS\Plugin\LongEssayAssessment\Settings;
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\UI\Component\Table\PresentationRow;
 use ILIAS\UI\Factory;
-use Edutiek\AssessmentService\EssayTask\Data\CriteriaMode;
+use Edutiek\AssessmentService\Task\Data\CriteriaMode;
 use ILIAS\Plugin\LongEssayAssessment\UI\Tree\RepositorySelectModal;
 use ILIAS\UI\Component\Component;
-use ILIAS\Plugin\LongEssayAssessment\EssayTask\Data\RatingCriterion;
+use ILIAS\Plugin\LongEssayAssessment\Task\Data\RatingCriterion;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\Action;
 use ILIAS\Plugin\LongEssayAssessment\Criteria\CriteriaGUI;
 use ILIAS\Plugin\LongEssayAssessment\Criteria\CriteriaItem;
@@ -27,7 +27,7 @@ class CriteriaAdminGUI extends CriteriaGUI
         return $this->criterion_service->allByCorrectorId(null);
     }
 
-    protected function getRatingCriterionModelFromContext(): \Edutiek\AssessmentService\EssayTask\Data\RatingCriterion
+    protected function getRatingCriterionModelFromContext(): \Edutiek\AssessmentService\Task\Data\RatingCriterion
     {
         return $this->criterion_service->new()->setCorrectorId(null);
     }

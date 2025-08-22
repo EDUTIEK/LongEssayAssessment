@@ -6,7 +6,7 @@ namespace ILIAS\Plugin\LongEssayAssessment\Settings;
 
 use Edutiek\AssessmentService\Assessment\Data\PdfSettings;
 use Edutiek\AssessmentService\Assessment\PdfSettings\FullService as PdfSettingsService;
-use Edutiek\AssessmentService\EssayTask\AssessmentStatus\FullService as StatusService;
+use Edutiek\AssessmentService\Task\AssessmentStatus\FullService as StatusService;
 use Edutiek\AssessmentService\EssayTask\Data\FormattingOptions;
 use Edutiek\AssessmentService\EssayTask\Data\HeadlineScheme;
 use Edutiek\AssessmentService\EssayTask\Data\WritingSettings;
@@ -35,7 +35,7 @@ class TechnicalSettingsGUI extends BaseGUI
         $this->writing_settings_service = $this->essay_task_api->writingSettings();
         $this->pdf_settings_service = $this->assessment_api->pdfSettings();
         $this->entity_service = $this->system_api->entity();
-        $this->status_service = $this->essay_task_api->assessmentStatus();
+        $this->status_service = $this->task_api->assessmentStatus();
     }
 
     /**

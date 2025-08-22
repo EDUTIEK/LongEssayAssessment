@@ -3,11 +3,11 @@
 namespace ILIAS\Plugin\LongEssayAssessment\Corrector;
 
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\Item;
-use Edutiek\AssessmentService\EssayTask\Data\CorrectorSummary;
+use Edutiek\AssessmentService\Task\Data\CorrectorSummary;
 use Edutiek\AssessmentService\System\Data\UserData;
 use Edutiek\AssessmentService\Assessment\Data\Writer;
 use Edutiek\AssessmentService\Task\Data\CorrectorAssignment;
-use Edutiek\AssessmentService\EssayTask\AssessmentStatus\CorrectionStatus;
+use Edutiek\AssessmentService\Task\AssessmentStatus\CorrectionStatus;
 
 class CorrectorStartItem extends Item
 {

@@ -12,16 +12,16 @@ use Edutiek\AssessmentService\Task\Data\ResourceType;
 use Edutiek\AssessmentService\Task\Data\Settings;
 use Edutiek\AssessmentService\Task\Settings\FullService as SettingsService;
 use Edutiek\AssessmentService\Assessment\Data\OrgaSettings;
-use Edutiek\AssessmentService\EssayTask\AssessmentStatus\CorrectionStatus;
-use Edutiek\AssessmentService\EssayTask\Data\GradingStatus;
+use Edutiek\AssessmentService\Task\AssessmentStatus\CorrectionStatus;
+use Edutiek\AssessmentService\Task\Data\GradingStatus;
 use Edutiek\AssessmentService\Assessment\Data\Writer;
 use Edutiek\AssessmentService\Assessment\OrgaSettings\FullService as OrgaService;
 use Edutiek\AssessmentService\Assessment\Writer\FullService as WriterService;
 use Edutiek\AssessmentService\System\User\ReadService as UserService;
 use Edutiek\AssessmentService\EssayTask\Essay\FullService as EssayService;
-use Edutiek\AssessmentService\EssayTask\AssessmentStatus\FullService as AssessmentStatus;
+use Edutiek\AssessmentService\Task\AssessmentStatus\FullService as AssessmentStatus;
 use ILIAS\Plugin\LongEssayAssessment\BaseObjectData;
-use Edutiek\AssessmentService\EssayTask\CorrectorSummary\FullService as SummaryService;
+use Edutiek\AssessmentService\Task\CorrectorSummary\FullService as SummaryService;
 use Edutiek\AssessmentService\Task\CorrectorAssignments\FullService as CorrectorAssignmentsService;
 use Edutiek\AssessmentService\Assessment\Corrector\FullService as CorrectorService;
 use Edutiek\AssessmentService\Assessment\Data\Location;
@@ -60,8 +60,8 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
         $this->writer_service = $this->assessment_api->writer();
         $this->user_service = $this->system_api->user();
         $this->essay_service = $this->essay_task_api->essay();
-        $this->assessment_status = $this->essay_task_api->assessmentStatus();
-        $this->summary_service = $this->essay_task_api->summary($this->task_info->getId());
+        $this->assessment_status = $this->task_api->assessmentStatus();
+        $this->summary_service = $this->task_api->summary($this->task_info->getId());
         $this->assignment_service = $this->task_api->correctorAssignments();
         $this->corrector_service = $this->assessment_api->corrector();
         $this->grading_service = $this->assessment_api->assessment_grading();
@@ -175,7 +175,7 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
             new \DateTimeZone($this->user->getTimeZone()),
             $this->grading_service,
             $this->assessment_api->format($this->getSettings()),
-            $this->essay_task_api->format(),
+            $this->task_api->format(),
             $item
         );
     }

@@ -4,12 +4,12 @@ namespace ILIAS\Plugin\LongEssayAssessment\CorrectionAdmin;
 
 use ILIAS\UI\Component\Symbol\Symbol;
 use ILIAS\UI\Factory;
-use Edutiek\AssessmentService\EssayTask\AssessmentStatus\CorrectionStatus;
-use Edutiek\AssessmentService\EssayTask\Data\GradingStatus;
+use Edutiek\AssessmentService\Task\AssessmentStatus\CorrectionStatus;
+use Edutiek\AssessmentService\Task\Data\GradingStatus;
 use ILIAS\UI\Renderer;
 use Edutiek\AssessmentService\Assessment\AssessmentGrading\ReadService as GradingService;
 use Edutiek\AssessmentService\Assessment\Format\Service as AssFormService;
-use Edutiek\AssessmentService\EssayTask\Format\Service as EssFormService;
+use Edutiek\AssessmentService\Task\Format\Service as TaskFormService;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\ColumnMappingArray;
 
 /**
@@ -30,7 +30,7 @@ class CorrectionItemColumnMap extends ColumnMappingArray
         private \DateTimeZone $timezone,
         private GradingService $grading,
         private AssFormService $ass_format,
-        private EssFormService $ess_format,
+        private TaskFormService $task_format,
         private CorrectionItem $item
     ) {
     }
@@ -97,7 +97,7 @@ class CorrectionItemColumnMap extends ColumnMappingArray
             "pdf_version" => $item->getEssay()?->hasPDFVersion() ?? false,
 
             "corr_1" => $item->getCorrectorDataByPosition(1) !== null
-                ? ($item->getCorrectorDataByPosition(1)?->getFullname(true) ?? $this->unknown() . " - " . $this->ess_format->correctionResult($item->getSummaryByPosition(1)))
+                ? ($item->getCorrectorDataByPosition(1)?->getFullname(true) ?? $this->unknown() . " - " . $this->task_format->correctionResult($item->getSummaryByPosition(1)))
                 : "",
             "corr_1_name" => $item->getCorrectorDataByPosition(1)?->getFullname(true),
             "corr_1_status" => $this->gradingStatus($item->getSummaryByPosition(1)?->getGradingStatus()),
@@ -105,7 +105,7 @@ class CorrectionItemColumnMap extends ColumnMappingArray
             "corr_1_grade" => $this->grading->getGradLevelForPoints($item->getSummaryByPosition(1)?->getPoints())??"",
             "corr_1_authorized" => $item->getSummaryByPosition(1)?->isAuthorized() ?? false,
             "corr_2" => $item->getCorrectorDataByPosition(2) !== null
-                ? ($item->getCorrectorDataByPosition(2)?->getFullname(true) ?? $this->unknown() . " - " . $this->ess_format->correctionResult($item->getSummaryByPosition(2)))
+                ? ($item->getCorrectorDataByPosition(2)?->getFullname(true) ?? $this->unknown() . " - " . $this->task_format->correctionResult($item->getSummaryByPosition(2)))
                 : "",
             "corr_2_name" => $item->getCorrectorDataByPosition(2)?->getFullname(true),
             "corr_2_status" => $this->gradingStatus($item->getSummaryByPosition(2)?->getGradingStatus()),

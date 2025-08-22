@@ -10,12 +10,12 @@ use ILIAS\Plugin\LongEssayAssessment\UI\Table\Item;
 use Generator;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\ColumnMappingClosure;
 use Edutiek\AssessmentService\Assessment\Data\WritingStatus;
-use Edutiek\AssessmentService\EssayTask\AssessmentStatus\CorrectionStatus;
-use Edutiek\AssessmentService\EssayTask\Data\CorrectorSummary;
+use Edutiek\AssessmentService\Task\AssessmentStatus\CorrectionStatus;
+use Edutiek\AssessmentService\Task\Data\CorrectorSummary;
 use Edutiek\AssessmentService\System\Data\UserData;
 use ILIAS\Plugin\LongEssayAssessment\Task\Data\CorrectorAssignment;
 use Edutiek\AssessmentService\Assessment\AssessmentGrading\ReadService as AssessmentGradingService;
-use Edutiek\AssessmentService\EssayTask\Format\FullService as EssayTaskFormatService;
+use Edutiek\AssessmentService\Task\Format\FullService as EssayTaskFormatService;
 use Edutiek\AssessmentService\Assessment\Data\CorrectionSettings;
 use Edutiek\AssessmentService\Assessment\Data\OrgaSettings;
 use Edutiek\AssessmentService\Task\CorrectorAssignments\FullService as AssignmentService;
@@ -23,10 +23,10 @@ use Edutiek\AssessmentService\System\User\ReadService as UserService;
 use Edutiek\AssessmentService\Assessment\Data\Corrector;
 use Edutiek\AssessmentService\Assessment\Corrector\FullService as CorrectorService;
 use Edutiek\AssessmentService\Assessment\Writer\FullService as WriterService;
-use Edutiek\AssessmentService\EssayTask\AssessmentStatus\FullService as AssesmentStatusService;
+use Edutiek\AssessmentService\Task\AssessmentStatus\FullService as AssesmentStatusService;
 use Edutiek\AssessmentService\System\Format\FullService as SystemFormatService;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\FilterParent;
-use Edutiek\AssessmentService\EssayTask\Data\GradingStatus;
+use Edutiek\AssessmentService\Task\Data\GradingStatus;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\Helper\ConfirmationIds;
 use DateTimeZone;
@@ -63,7 +63,7 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
         $this->orga_settings = $this->assessment_api->orgaSettings()->get();
         $this->settings = $this->assessment_api->correctionSettings()->get();
         $this->grading_service = $this->assessment_api->assessment_grading();
-        $this->format_service = $this->essay_task_api->format();
+        $this->format_service = $this->task_api->format();
         $this->system_format_service = $this->system_api->format($this->user->getId(), new DateTimeZone($this->user->getTimeZone()));
 
         $this->assignment_service = $this->task_api->correctorAssignments();
@@ -71,7 +71,7 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
         $this->corrector = $this->assessment_api->corrector()->oneByUserId($this->user->getId());
         $this->corrector_service = $this->assessment_api->corrector();
         $this->writer_service = $this->assessment_api->writer();
-        $this->assessment_status_service = $this->essay_task_api->assessmentStatus();
+        $this->assessment_status_service = $this->task_api->assessmentStatus();
         $this->assessment_format_service = $this->assessment_api->format($this->orga_settings);
         $this->can_correct = $this->assessment_api->permissions($this->object->getRefId())->canCorrect();
     }
@@ -314,7 +314,7 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
             }
         }
 
-        foreach($this->essay_task_api->summary($assignment->getTaskId())->allByWriterId($assignment->getWriterId()) as $summary) {
+        foreach($this->task_api->summary($assignment->getTaskId())->allByWriterId($assignment->getWriterId()) as $summary) {
             if($summary->getCorrectorId() === $assignment->getCorrectorId())
                 $own_summary = $summary;
             if($summary->getCorrectorId() === $co_assignment?->getCorrectorId())

@@ -6,7 +6,6 @@ namespace ILIAS\Plugin\LongEssayAssessment\Settings;
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\UI\Component\Table\PresentationRow;
 use ILIAS\UI\Factory;
-use ILIAS\Plugin\LongEssayAssessment\CorrectorAdmin\CorrectorAdminService;
 use ILIAS\UI\Implementation\Component\ReplaceSignal;
 use ILIAS\DI\Exceptions\Exception;
 use ILIAS\Data\Range;
@@ -41,7 +40,7 @@ class GradesAdminGUI extends BaseGUI implements DataTableParent
 
     private ?int $copy_context = null;
     private \Edutiek\AssessmentService\Assessment\GradeLevel\FullService $grade_service;
-    private \Edutiek\AssessmentService\EssayTask\AssessmentStatus\FullService $assessment_status;
+    private \Edutiek\AssessmentService\Task\AssessmentStatus\FullService $assessment_status;
     private bool $can_edit;
     private \Edutiek\AssessmentService\System\Entity\FullService $entity_service;
     protected \ILIAS\Plugin\LongEssayAssessment\UI\Table\Factory $table_factory;
@@ -52,7 +51,7 @@ class GradesAdminGUI extends BaseGUI implements DataTableParent
 
         $this->table_factory = $this->plugin_ui_factory->table();
         $this->grade_service = $this->assessment_api->gradLevel();
-        $this->assessment_status = $this->essay_task_api->assessmentStatus();
+        $this->assessment_status = $this->task_api->assessmentStatus();
         $this->entity_service = $this->system_api->entity();
         $this->can_edit = !$this->assessment_status->hasAuthorizedSummaries();
     }

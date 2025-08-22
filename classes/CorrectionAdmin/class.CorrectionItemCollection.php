@@ -5,9 +5,9 @@ namespace ILIAS\Plugin\LongEssayAssessment\CorrectionAdmin;
 use Edutiek\AssessmentService\Assessment\Data\Writer;
 use Edutiek\AssessmentService\Assessment\Data\Corrector;
 use Edutiek\AssessmentService\EssayTask\Data\Essay;
-use Edutiek\AssessmentService\EssayTask\AssessmentStatus\CorrectionStatus;
+use Edutiek\AssessmentService\Task\AssessmentStatus\CorrectionStatus;
 use Edutiek\AssessmentService\Task\Data\CorrectorAssignment;
-use Edutiek\AssessmentService\EssayTask\Data\CorrectorSummary;
+use Edutiek\AssessmentService\Task\Data\CorrectorSummary;
 use Edutiek\AssessmentService\System\Data\UserDisplay;
 use ILIAS\Plugin\LongEssayAssessment\Assessment\Data\Location;
 

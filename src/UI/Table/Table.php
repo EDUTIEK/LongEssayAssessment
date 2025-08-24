@@ -21,6 +21,7 @@ use ILIAS\Plugin\LongEssayAssessment\UI\Table\Action\Direct;
 use Generator;
 use ILIAS\UI\Implementation\Component\Signal;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\Action\Type;
+use ILIAS\Session;
 
 abstract class Table implements TableParent, FilterParent, Component\Component
 {
@@ -45,6 +46,7 @@ abstract class Table implements TableParent, FilterParent, Component\Component
         protected readonly string $ui_name,
         protected TableParent|FilterParent $parent,
         protected URLBuilder $url_builder,
+        protected URLBuilderToken $csrf_token,
         protected URLBuilderToken $row_id_token,
         protected URLBuilderToken $action_parameter_token,
         protected UI\Factory $ui_factory,
@@ -56,9 +58,35 @@ abstract class Table implements TableParent, FilterParent, Component\Component
         protected ServerRequestInterface $request,
         protected \ilLanguage $lng
     ) {
+        $this->initCSRFToken();
         $this->initActions($parent);
         if($this->parent instanceof FilterParent) {
             $this->initFilter($parent);
+        }
+    }
+
+    public function initCSRFToken()
+    {
+        if(!\ilSession::has('xlas_csrf')) {
+            \ilSession::set('xlas_csrf', bin2hex(random_bytes(32)));
+        }
+
+        $token = \ilSession::get('xlas_csrf');
+        $this->url_builder = $this->url_builder->withParameter($this->csrf_token, $token);
+    }
+
+    public function checkCSRFToken()
+    {
+        $csrf_token_uri = $this->query->has($this->csrf_token->getName())
+            ? $this->query->retrieve(
+                $this->csrf_token->getName(),
+                $this->refinery->to()->string()
+            )
+            : "";
+        $csrf_token_session = \ilSession::get('xlas_csrf');
+
+        if($csrf_token_uri !== $csrf_token_session) {
+            throw new \ilCtrlException('Wrong CSRF token.');
         }
     }
 
@@ -129,6 +157,7 @@ abstract class Table implements TableParent, FilterParent, Component\Component
     public function executeAction()
     {
         if($this->hasActiveAction()) {
+            $this->checkCSRFToken();
             $action = $this->currentAction();
             switch (true) {
                 case $action instanceof Direct:

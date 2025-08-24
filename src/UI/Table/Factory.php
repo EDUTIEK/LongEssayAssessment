@@ -59,14 +59,15 @@ class Factory
         $url_builder = new URLBuilder($table_uri);
         $query_params_namespace = ["xlas", "actions"];
 
-        list($url_builder, $action_parameter_token, $row_id_token) =
+        list($url_builder, $csrf_token, $action_parameter_token, $row_id_token) =
             $url_builder->acquireParameters(
                 $query_params_namespace,
+                $ui_name . "_csrf",
                 $ui_name . "_action",
                 $ui_name . "_item"
             );
 
-        return new DataTable($ui_name, $parent, $url_builder, $row_id_token, $action_parameter_token, $this->ui_factory, $this->pdic->uiFactory(), $this->ui_service, $this->renderer, $this->refinery, $this->query, $this->request, $this->lng);
+        return new DataTable($ui_name, $parent, $url_builder, $csrf_token, $row_id_token, $action_parameter_token, $this->ui_factory, $this->pdic->uiFactory(), $this->ui_service, $this->renderer, $this->refinery, $this->query, $this->request, $this->lng);
     }
 
     public function formGroup(
@@ -83,13 +84,14 @@ class Factory
         $url_builder = new URLBuilder($table_uri);
         $query_params_namespace = ["xlas", "actions"];
 
-        list($url_builder, $action_parameter_token, $row_id_token) =
+        list($url_builder, $csrf_token, $action_parameter_token, $row_id_token) =
             $url_builder->acquireParameters(
                 $query_params_namespace,
+                $ui_name . "_csrf",
                 $ui_name . "_action",
                 $ui_name . "_item"
             );
 
-        return new FormGroup($ui_name, $parent, $url_builder, $row_id_token, $action_parameter_token, $this->ui_factory, $this->pdic->uiFactory(), $this->ui_service, $this->renderer, $this->refinery, $this->query, $this->request, $this->lng);
+        return new FormGroup($ui_name, $parent, $url_builder, $csrf_token, $row_id_token, $action_parameter_token, $this->ui_factory, $this->pdic->uiFactory(), $this->ui_service, $this->renderer, $this->refinery, $this->query, $this->request, $this->lng);
     }
 }

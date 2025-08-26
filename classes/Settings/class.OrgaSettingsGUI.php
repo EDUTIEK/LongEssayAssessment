@@ -20,6 +20,7 @@ use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\BaseObjectData;
 use ILIAS\UI\Component\Input\Container\Form\Standard;
 use Edutiek\AssessmentService\Assessment\WorkingTime\ValidationError;
+use Edutiek\AssessmentService\Assessment\Data\DisabledGroup;
 
 /**
  * Organisational Settings
@@ -63,13 +64,16 @@ class OrgaSettingsGUI extends BaseGUI
             case "editSettings":
                 $this->$cmd();
                 break;
+            case 'saveModal':
+                $this->saveModal();
+                break;
 
             default:
                 $this->tpl->setContent('unknown command: ' . $cmd);
         }
     }
 
-    private function editSettings()
+    private function editSettings(): void
     {
         $form = $this->buildForm();
         if ($this->request->getMethod() == "POST") {
@@ -81,7 +85,13 @@ class OrgaSettingsGUI extends BaseGUI
                 $this->updateSettings($data);
             }
         }
-        $this->add($form)->show();
+
+        $this->add($form);
+        if ($this->assessment_api->permissions($this->object->getId())->canEditTemplates()) {
+            $this->add($this->disabled_group->modalWithButton($this->ctrl->getLinkTarget($this, 'saveModal')));
+            $this->add($this->disabled_group->toggleButton());
+        }
+        $this->show();
     }
 
     private function updateSettings(array $data): void
@@ -94,6 +104,7 @@ class OrgaSettingsGUI extends BaseGUI
         $properties->setDescription($data['object']['description']);
 
         $orga_settings->setOnline($data['object']['online']);
+        $orga_settings->setTemplate($data['object']['template']);
         $orga_settings->setParticipationType(ParticipationType::tryFrom(
             $data['object']['participation_type']) ?? ParticipationType::INSTANT);
 
@@ -141,7 +152,7 @@ class OrgaSettingsGUI extends BaseGUI
             $this->orga_settings_service->save($orga_settings);
             $this->location_service->saveTitles((array) ($data['task']['location'] ?? []));
 
-            $this->success( $this->lng->txt("settings_saved"), true);
+            $this->success($this->lng->txt("settings_saved"), true);
             $this->ctrl->redirect($this, "editSettings");
         }
 
@@ -157,6 +168,7 @@ class OrgaSettingsGUI extends BaseGUI
         $writing_settings = $this->writing_settings_service->get();
 
         $factory = $this->ui_factory->input()->field();
+        $section = fn($x, $title) => $factory->section($this->disabled_group->disableBySetting($x), $title);
         $sections = [];
 
         $fields_object = [];
@@ -169,6 +181,17 @@ class OrgaSettingsGUI extends BaseGUI
 
         $fields_object['online'] = $factory->checkbox($this->lng->txt('online'))
             ->withValue($orga_settings->getOnline());
+
+        if ($orga_settings->getSrcTemplateName()) {
+            $fields_object['src_template'] = $factory->text($this->plugin->txt('src_template'))
+                ->withValue($orga_settings->getSrcTemplateName())
+                ->withDisabled(true);
+        }
+
+        if ($this->assessment_api->permissions($this->object->getId())->canEditTemplates()) {
+            $fields_object['template'] = $factory->checkbox($this->plugin->txt('is_template'))
+                ->withValue($orga_settings->getTemplate());
+        }
 
         $fields_object['multi_tasks'] = $factory->checkbox($this->plugin->txt('multi_tasks'),
             $this->plugin->txt('multi_tasks_info'))
@@ -363,9 +386,9 @@ class OrgaSettingsGUI extends BaseGUI
             $fields_settings['review'] = $fields_settings['review']->withValue(null);
         }
 
-        $sections['object'] = $factory->section($fields_object, $this->plugin->txt('object_settings'));
-        $sections['content'] = $factory->section($fields_content, $this->plugin->txt('content'));
-        $sections['task'] = $factory->section($fields_settings, $this->plugin->txt('task_settings'))->withAdditionalTransformation(
+        $sections['object'] = $section($fields_object, $this->plugin->txt('object_settings'));
+        $sections['content'] = $section($fields_content, $this->plugin->txt('content'));
+        $sections['task'] = $section($fields_settings, $this->plugin->txt('task_settings'))->withAdditionalTransformation(
             $this->refinery->custom()->constraint(function (array $var) {
                 if(($var['result_available_type'][0] ?? "") === ResultAvailableType::REVIEW->value) {
                     return !empty($var['review']);
@@ -376,5 +399,11 @@ class OrgaSettingsGUI extends BaseGUI
         );
 
         return $this->ui_factory->input()->container()->form()->standard($this->ctrl->getFormAction($this), $sections);
+    }
+
+    public function saveModal(): void
+    {
+        $this->disabled_group->saveModal();
+        $this->ctrl->redirectToUrl($this->ctrl->getLinkTarget($this, 'editSettings'));
     }
 }

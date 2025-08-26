@@ -191,6 +191,10 @@ class ilLongEssayAssessmentImporter extends ilXmlImporter
                         $file_id = $this->addFile($file_id, $file_name);
                     }
                     $this->task_api->resource($task_id)->save($entity->setTaskId($task_id)->setFileId($file_id));
+                case 'DisabledGroups':
+                    $this->assessment_api->disabledGroup()->save(
+                        array_keys(iterator_to_array($element->getChildren()))
+                    );
             }
         }
 

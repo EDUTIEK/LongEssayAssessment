@@ -52,6 +52,8 @@ class OrgaSettings extends \Edutiek\AssessmentService\Assessment\Data\OrgaSettin
     private bool $review_notification = false;
     private ?string $review_notif_text = null;
     private bool $statistics_available = false;
+    private bool $template = false;
+    private ?string $src_template_name = null;
 
     public function getOnline(): bool
     {
@@ -254,5 +256,22 @@ class OrgaSettings extends \Edutiek\AssessmentService\Assessment\Data\OrgaSettin
         $this->statistics_available = $statistics_available;
         return $this;
     }
-
+    public function getTemplate(): bool
+    {
+        return $this->template;
+    }
+    public function setTemplate(bool $template): self
+    {
+        $this->template = $template;
+        return $this;
+    }
+    public function getSrcTemplateName(): ?string
+    {
+        return $this->src_template_name;
+    }
+    public function setSrcTemplateName(?string $name): self
+    {
+        $this->src_template_name = $name;
+        return $this;
+    }
 }

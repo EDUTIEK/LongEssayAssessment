@@ -310,10 +310,33 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
             $this->plugin->txt('multi_tasks'),
             $this->plugin->txt('multi_tasks_info')
         );
+        $inputs['template'] = $this->ui_factory->input()->field()->select(
+            $this->plugin->txt('use_template'),
+            $this->templates(),
+        );
         return $this->ui_factory->input()->container()->form()->standard(
             $this->ctrl->getFormAction($this, 'save'),
             $inputs
         )->withSubmitLabel($this->plugin->txt($new_type . '_add'));
+    }
+
+    private function templates(): array
+    {
+        global $DIC;
+        $node_path = $this->tree->getNodeTreeData($this->parent_id)['path'];
+
+        $r = $DIC->database()->queryF(
+            'SELECT ref_id FROM xlas_as_orga_settings JOIN object_reference ON ass_id = obj_id WHERE template = 1 AND ref_id IN (SELECT child FROM tree WHERE deleted IS NULL AND parent IN (SELECT child FROM tree WHERE %s LIKE CONCAT(path, ".%%") OR child = %s))',
+            [ilDBConstants::T_TEXT, ilDBConstants::T_INTEGER],
+            [$node_path, $this->parent_id]
+        );
+
+        $ref_ids = array_column($DIC->database()->fetchAll($r), 'ref_id');
+
+        return array_combine($ref_ids, array_map(
+            ilObject::_lookupTitle(...),
+            array_map(ilObject::_lookupObjId(...), $ref_ids)
+        ));
     }
 
     /**
@@ -331,6 +354,22 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
         // save the 'multi tasks' setting
         $assessment = $this->plugin->dic()->assessment($new_object->getAssId(), $new_object->getContextId(), $this->user->getId());
         $orga_settings = $assessment->orgaSettings()->get();
+        if ($data['template']) {
+            $template_obj_id = ilObject::_lookupObjId($data['template']);
+            $template_assessment = $this->plugin->dic()->assessment(
+                $template_obj_id,
+                $data['template'],
+                $this->user->getId()
+            );
+            $orga_settings = $template_assessment->orgaSettings()->get() ?? $orga_settings;
+            $orga_settings->setAssId($new_object->getAssId());
+            $orga_settings->setOnline(false);
+            $orga_settings->setTemplate(false);
+            $orga_settings->setSrcTemplateName(ilObject::_lookupTitle($template_obj_id));
+            $assessment->disabledGroup()->save(
+                array_map(fn($g) => $g->getName(), $template_assessment->disabledGroup()->get())
+            );
+        }
         $orga_settings->setMultiTasks(!empty($data['multi_tasks']));
         $assessment->orgaSettings()->save($orga_settings);
 

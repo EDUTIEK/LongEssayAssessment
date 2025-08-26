@@ -41,6 +41,7 @@ use ilDatePresentation;
 use ilDateTime;
 use Edutiek\AssessmentService\System\Format\FullService as SystemFormat;
 use ILIAS\UI\Component\Input\Container\Form\Form;
+use ILIAS\Plugin\LongEssayAssessment\Assessment\DisabledGroup\DisabledGroup;
 
 /**
  * Base class for GUI classes (except the plugin guis required by ILIAS)
@@ -75,10 +76,11 @@ abstract class BaseGUI
 
     protected ?TaskInfo $task_info;
 
+    protected DisabledGroup $disabled_group;
+
     /** @var UiComponent[] */
     private array $components = [];
     private SessionValues $session;
-
 
     public function __construct(protected BaseObjectData $object)
     {
@@ -110,6 +112,14 @@ abstract class BaseGUI
 
         $this->get = new RequestVariables($DIC->http()->wrapper()->query(), $this->dic->refinery());
         $this->post = new RequestVariables($DIC->http()->wrapper()->post(), $this->dic->refinery());
+        $this->disabled_group = new DisabledGroup(
+            $this->ui_factory,
+            $this->assessment_api,
+            $this->tpl,
+            $this->plugin->txt(...),
+            $this->withFormData(...),
+            $this->assessment_api->permissions($this->object->getId()),
+        );
     }
 
     /**

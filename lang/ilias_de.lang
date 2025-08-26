@@ -720,3 +720,6 @@ status_writing_excluded#:#ausgeschlossen
 status_writing_authorized#:#freigegeben
 status_writing_excluded_from#:#ausgeschlossen von
 status_writing_autorized_from#:#freigegeben von
+src_template#:#Verwendete Vorlage
+is_template#:#Ist Vorlage
+use_template#:#Vorlage verwenden

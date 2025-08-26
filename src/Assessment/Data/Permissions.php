@@ -15,7 +15,8 @@ readonly class Permissions extends \Edutiek\AssessmentService\Assessment\Data\Pe
         private bool $maintain_settings,
         private bool $maintain_content,
         private bool $maintain_writing,
-        private bool $maintain_correction
+        private bool $maintain_correction,
+        private bool $edit_templates,
     ) {
     }
 
@@ -62,5 +63,10 @@ readonly class Permissions extends \Edutiek\AssessmentService\Assessment\Data\Pe
     public function getMaintainCorrection(): bool
     {
         return $this->maintain_correction;
+    }
+
+    public function getEditTemplates(): bool
+    {
+        return $this->edit_templates;
     }
 }

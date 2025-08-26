@@ -133,6 +133,12 @@ class ilLongEssayAssessmentExporter extends ilXmlExporter
             $this->addEntityXml($writer, 'AssessmentGradeLevel', $level, GradeLevel::class);
         }
 
+        $writer->xmlStartTag('DisabledGroups');
+        foreach ($this->assessment_api->disabledGroup()->get() as $group) {
+            $writer->xmlElement('Name', $group->getName());
+        }
+        $writer->xmlStartTag('DisabledGroups');
+
         $this->addEntityXml($writer, 'EssayTaskCorrectionSettings',
             $this->essay_task_api->correctionSettings()->get(), EssayCorrectionSettings::class);
 

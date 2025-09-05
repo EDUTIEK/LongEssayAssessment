@@ -206,6 +206,7 @@ class WriterAdminGUI extends BaseGUI implements DataTableParent, FilterParent
         );
 
         $this->tpl->setOnScreenMessage("success", $this->plugin->txt("log_entry_created"), true);
+        $this->ctrl->redirect($this);
     }
 
     /**

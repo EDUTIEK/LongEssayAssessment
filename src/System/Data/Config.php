@@ -26,6 +26,8 @@ use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Table;
 #[Table(name: 'xlas_sy_config')]
 class Config extends \Edutiek\AssessmentService\System\Data\Config
 {
+    public const DEFAULT_HASH_ALGO = 'sha256';
+
     #[Key]
     private int $id = 0;
     private ?string $writer_url = null;
@@ -34,6 +36,7 @@ class Config extends \Edutiek\AssessmentService\System\Data\Config
     private ?string $primary_text_color = 'FFFFFF';
     private bool $simulate_offline = false;
     private ?string $path_to_ghostscript = null;
+    private string $hash_algo = self::DEFAULT_HASH_ALGO;
 
     public function getId(): int
     {
@@ -96,6 +99,15 @@ class Config extends \Edutiek\AssessmentService\System\Data\Config
     public function setPathToGhostscript(?string $path_to_ghostscript): self
     {
         $this->path_to_ghostscript = $path_to_ghostscript;
+        return $this;
+    }
+    public function getHashAlgo(): string
+    {
+        return $this->hash_algo;
+    }
+    public function setHashAlgo(string $hash_algo): self
+    {
+        $this->hash_algo = $hash_algo;
         return $this;
     }
 }

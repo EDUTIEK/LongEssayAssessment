@@ -40,6 +40,7 @@ use ILIAS\ResourceStorage\Services as ILIASResourceStorage;
 use ILIAS\Plugin\LongEssayAssessment\System\Data\FileInfo;
 use Closure;
 use DateTimeImmutable;
+use ILIAS\FileUpload\Handler\FileInfoResult;
 
 /**
  * @ilCtrl_isCalledBy ILIAS\Plugin\LongEssayAssessment\Writer\WriterUploadGUI: ilObjLongEssayAssessmentGUI
@@ -117,7 +118,7 @@ class WriterUploadGUI extends BaseGUI
         $entries = array_column($this->mapEssays(fn (Essay $essay, Task $task, ResourceApi $resource_api): array => [
             'key' => $essay->getId(),
             'component' => $this->ui_factory->input()->field()->file(
-                new Upload($this->storage, $this->task_api, $this->linkTo($task->getId() . ':' . $essay->getPdfVersion())),
+                new Upload($this->fileInfo(...), $this->linkTo($task->getId() . ':' . $essay->getPdfVersion())),
                 $this->plugin->txt('new_file'),
                 '', // @todo: $this->localDI->getUIService()->getMaxFileSizeString()
             )->withAcceptedMimeTypes(['application/pdf'])->withValue(
@@ -300,5 +301,25 @@ class WriterUploadGUI extends BaseGUI
         // $writer_repo = LongEssayAssessmentDI::getInstance()->getWriterRepo();
         // $writer = $writer_repo->getWriterById($essay->getWriterId());
         // $this->loggingService->addEntry(LogEntry::TYPE_WRITING_POST_AUTHORIZED, $user_id, $writer->getUserId());
+    }
+
+    private function fileInfo(string $info): ?FileInfoResult
+    {
+        [$task_id, $resource_id] = array_map('intval', explode(':', $identifier));
+        $resource = $this->task_api->resource($task_id)->one($resource_id);
+        $ili_resource_id = $this->storage->manage()->find($resource->getFileId());
+        if($ili_resource_id === null) {
+            throw new \ilException('resource id not found');
+        }
+
+        $ili_res = $this->storage->manage()->getResource($ili_resource_id);
+
+        return new BasicFileInfoResult(
+            $identifier,
+            $identifier,
+            $resource->getTitle(),
+            $ili_res->getFullSize(),
+            $ili_res->getCurrentRevision()->getInformation()->getMimeType()
+        );
     }
 }

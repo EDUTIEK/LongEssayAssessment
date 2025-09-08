@@ -86,6 +86,7 @@ class ilLongEssayAssessmentConfigGUI extends ilPluginConfigGUI
             $this->config->setPrimaryTextColor((string) $form->getInput('primary_text_color'));
             $this->config->setSimulateOffline((bool) $form->getInput('simulate_offline'));
             $this->config->setPathToGhostscript((string) $form->getInput('path_to_ghostscript'));
+            $this->config->setHashAlgo((string) $form->getInput('hash_algo'));
 
             $this->service->saveConfig($this->config);
 
@@ -125,6 +126,14 @@ class ilLongEssayAssessmentConfigGUI extends ilPluginConfigGUI
         $path_to_ghostscript->setInfo($this->plugin->txt('path_to_ghostscript_info'). '<br>' . $used_info);
         $path_to_ghostscript->setValue($this->config->getPathToGhostscript());
         $form->addItem($path_to_ghostscript);
+
+        $hash_header = new ilFormSectionHeaderGUI();
+        $form->addItem($hash_header);
+        $hash_algo = new ilSelectInputGUI($this->plugin->txt('hash_algo'), 'hash_algo');
+        $hash_algo->setOptions(array_combine(hash_algos(), hash_algos()));
+        $hash_algo->setValue($this->config->getHashAlgo());
+        $form->addItem($hash_algo);
+
 
         $developer = new ilFormSectionHeaderGUI();
         $developer->setTitle($this->plugin->txt('developer_settings'));

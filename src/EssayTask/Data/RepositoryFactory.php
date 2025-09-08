@@ -54,4 +54,9 @@ class RepositoryFactory implements \Edutiek\AssessmentService\EssayTask\Data\Rep
     {
         return $this->repo(WritingSettingsRepo::class, WritingSettings::class);
     }
+
+    public function essayImport(): EssayImportRepo
+    {
+        return $this->repo(EssayImportRepo::class, EssayImport::class);
+    }
 }

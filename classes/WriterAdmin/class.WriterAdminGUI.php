@@ -33,6 +33,7 @@ use Edutiek\AssessmentService\EssayTask\AssessmentStatus\WriterEssaySummary;
  *
  * @ilCtrl_isCalledBy ILIAS\Plugin\LongEssayAssessment\WriterAdmin\WriterAdminGUI: ilObjLongEssayAssessmentGUI
  * @ilCtrl_Calls ILIAS\Plugin\LongEssayAssessment\WriterAdmin\WriterAdminGUI: ilRepositorySearchGUI
+ * @ilCtrl_Calls ILIAS\Plugin\LongEssayAssessment\WriterAdmin\WriterAdminGUI: ILIAS\Plugin\LongEssayAssessment\WriterAdmin\ImportEssayGUI
  */
 class WriterAdminGUI extends BaseGUI implements DataTableParent, FilterParent
 {
@@ -70,6 +71,9 @@ class WriterAdminGUI extends BaseGUI implements DataTableParent, FilterParent
                 $this->ctrl->setReturn($this, 'showItems');
                 $ret = $this->ctrl->forwardCommand($rep_search);
                 break;
+            case strtolower(ImportEssayGUI::class):
+                $this->ctrl->forwardCommand(new ImportEssayGUI($this->object));
+                break;
             default:
                 $cmd = $this->ctrl->getCmd('showItems');
                 switch ($cmd) {
@@ -88,7 +92,7 @@ class WriterAdminGUI extends BaseGUI implements DataTableParent, FilterParent
         }
     }
 
-    public function showItems()
+    public function showItems(): void
     {
         $this->toolbar->setFormAction($this->ctrl->getFormAction($this));
 
@@ -99,11 +103,11 @@ class WriterAdminGUI extends BaseGUI implements DataTableParent, FilterParent
         );
 
         // search button
-        $delete_writer_data_button = $this->ui_factory->button()->standard(
+        $search_button = $this->ui_factory->button()->standard(
             $this->plugin->txt("search_participants"),
             $this->ctrl->getLinkTargetByClass('ilRepositorySearchGUI', 'start')
         );
-        $this->toolbar->addComponent($delete_writer_data_button);
+        $this->toolbar->addComponent($search_button);
 
         // spacer
         $this->toolbar->addSeparator();
@@ -112,6 +116,12 @@ class WriterAdminGUI extends BaseGUI implements DataTableParent, FilterParent
         $delete_writer_data_button = $this->ui_factory->button()->standard($this->plugin->txt("delete_writer_data"), "#");
         #                                             ->withOnClick($delete_writer_data_modal->getShowSignal());
         $this->toolbar->addComponent($delete_writer_data_button);
+
+        $upload_button = $this->ui_factory->button()->standard(
+            $this->plugin->txt('upload'),
+            $this->ctrl->getLinkTargetByClass(ImportEssayGUI::class, 'uploadConfigGUI')
+        );
+        $this->toolbar->addComponent($upload_button);
 
         $table = $this->plugin_ui_factory->table()->dataTable('writer_admin_table', $this);
         $table->executeAction();
@@ -932,6 +942,6 @@ class WriterAdminGUI extends BaseGUI implements DataTableParent, FilterParent
 
     public function getFilterBaseAction(): string
     {
-        return $this->ctrl->getFormAction($this, "showItems");
+        return $this->ctrl->getFormAction($this, 'showItems');
     }
 }

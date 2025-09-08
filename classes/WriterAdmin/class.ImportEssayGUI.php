@@ -26,11 +26,16 @@ use ILIAS\UI\Component\Table\DataRetrieval;
 use ILIAS\UI\Component\Table\DataRowBuilder;
 use ILIAS\Data\Range;
 use ILIAS\Data\Order;
-use ILIAS\Filesystem\Stream\Streams;
 use ILIAS\Plugin\LongEssayAssessment\Handler\Upload;
+use ILIAS\Plugin\LongEssayAssessment\Handler\UploadHelper;
 use ILIAS\FileUpload\Handler\FileInfoResult;
 use Generator;
 use ZipArchive;
+use ilObjUser;
+use Edutiek\AssessmentService\EssayTask\Data\EssayImport;
+use ILIAS\Plugin\LongEssayAssessment\System\Data\FileInfo;
+use DateTimeImmutable;
+use Edutiek\AssessmentService\Assessment\Data\WritingStatus;
 
 class ImportEssayGUI extends BaseGUI
 {
@@ -38,10 +43,14 @@ class ImportEssayGUI extends BaseGUI
     public const NRW_FILE_PATTERN = '/^\d+von\d+_(\d+-\d+).pdf$/';
     public const BY_FILE_PATTERN = '/^[[:alnum:]]+-\d+_([[:alpha:]]-\d+)_.*.pdf$/';
 
+    private readonly UploadHelper $upload;
+
     public function __construct(BaseObjectData $object)
     {
         // @Todo: Add access right here.
         parent::__construct($object);
+
+        $this->upload = new UploadHelper($this->dic);
     }
 
     public function executeCommand(): void
@@ -86,18 +95,8 @@ class ImportEssayGUI extends BaseGUI
             return;
         }
 
-        $zip = new ZipArchive();
-        $zip->open(stream_get_meta_data($file)['uri'], ZipArchive::RDONLY);
-        if ($import->getPassword() !== null) {
-            $zip->setPassword($import->getPassword());
-        }
-        $files = array_map(function ($index) use ($zip, $import) {
-            $stat = $zip->statIndex($index);
-            if (($stat['encryption_method'] ?? false) && $import->getPassword() === null) {
-                throw new \Exception('No password given');
-            }
-            return $stat['name'];
-        }, range(0, $zip->numFiles - 1));
+        $zip = $this->zipFromImport($import, $file);
+        $files = $this->filesFromZip($zip, $import->getPassword());
 
         $nrw_files = preg_grep(self::NRW_FILE_PATTERN, $files);
         if ($nrw_files !== []) {
@@ -121,31 +120,64 @@ class ImportEssayGUI extends BaseGUI
         $result_array = $upload->getResults();
         $result = current($result_array);
         if (!(($result ?: null)?->isOk())) {
-            throw new \Exception('todo');// $this->exitWithJson($this->errorJson('No upload'));
+            $this->upload->exitWithJson($this->upload->errorJson('No upload'));
         }
 
-        $id = $this->system_api->fileStorage()->saveFile(fopen($result->getPath(), 'rb'), null);
-
-        $this->dic->http()->saveResponse($this->dic->http()->response()->withBody(
-            Streams::ofString(json_encode(['status' => 1, 'file_id' => $id->getId()]))
-        ));
-
-        $this->dic->http()->sendResponse();
-        $this->dic->http()->close();
+        $info = $this->system_api->fileStorage()->saveFile(fopen($result->getPath(), 'rb'), null);
+        $this->upload->exitWithJson($this->upload->okJson($info->getId()));
     }
 
     public function import(): void
     {
         $import = $this->essay_task_api->essayImport()->getById($this->get->integer('import_id'));
-        // foreach ($a_usr_ids as $id) {
-        //     $this->writer_service->getByUserId($id);
-        // }
+        $zip = $this->zipFromImport($import);
+        $users = $this->existingUsersOfZip($zip);
+        $pdfs = $this->filesByLogin($this->filesFromZip($zip, $import->getPassword()));
+        $now = new DateTimeImmutable();
+
+        foreach ($users as $user_id => $login) {
+            $zip_pdf = $pdfs[$login] ?? null;
+            if (!$zip_pdf) {
+                continue;
+            }
+            $writer = $this->assessment_api->writer()->getByUserId($user_id);
+
+            $task = $this->task_api->manager()->first();
+            $essay = $this->essay_task_api->essay()->oneByWriterIdAndTaskId($writer->getId(), $task->getId()) ??
+                $this->essay_task_api->essay()->new($writer->getId(), $task->getId())->setFirstChange($now);
+
+            $essay = $essay->setLastChange($now);
+
+
+            $pdf = $essay->getPdfVersion();
+            $resource_api = $this->task_api->resource($essay->getTaskId());
+            $resource = $resource_api->new();
+            $info = (new FileInfo())
+                ->setMimeType('application/pdf')
+                ->setFileName($zip_pdf);
+            $resource->setFileId($this->system_api->fileStorage()->saveFile($zip->getStream($zip_pdf), $info)->getId());
+            $resource_api->save($resource);
+            $essay->setPdfVersion((string) $resource->getId());
+            $this->essay_task_api->essay()->save($essay);
+            if ($pdf) {
+                $pdf = $resource_api->one((int) $pdf);
+                $resource_api->delete($pdf);
+            }
+            $writer->setWorkingStart($writer->getWorkingStart() ?? $now);
+            $this->assessment_api->writer()->save($writer);
+
+            // $this->essay_task_api->pdfInput()->handleInput($essay);
+        }
+        $this->essay_task_api->essayImport()->delete($import);
+        $this->success($this->plugin->txt('upload_successful'), true);
+        $this->ctrl->redirectToURL($this->ctrl->getLinkTarget($this, 'uploadConfigGUI'));
     }
 
     public function cancel(): void
     {
         $id = $this->get->integer('import_id');
-        $this->essay_task_api->essayImport()->delete($id);
+        $import = $this->essay_task_api->essayImport()->getById($this->get->integer('import_id'));
+        $this->essay_task_api->essayImport()->delete($import);
         $this->ctrl->redirectToURL($this->ctrl->getLinkTarget($this, 'uploadConfigGUI'));
     }
 
@@ -234,7 +266,7 @@ class ImportEssayGUI extends BaseGUI
             $errors[] = 'File Missing';
         }
 
-        if (!\ilObjUser::getUserIdByLogin($login)) {
+        if (!ilObjUser::getUserIdByLogin($login)) {
             $errors[] = 'User does not exist';
         }
 
@@ -253,20 +285,13 @@ class ImportEssayGUI extends BaseGUI
 
     private function buildTableArray(ZipArchive $zip, array $pdfs, array $hashes): ?array
     {
-        $pdfs = array_combine(array_map(fn($pdf) => $this->extract(self::BY_FILE_PATTERN, $pdf, 1), $pdfs), $pdfs);
-        $csv = $zip->getStream(self::PROTOCOL_FILE_NAME);
-        if (!$csv) {
-            return null;
-        }
-        fgets($csv); // Skip Description
-        fgetcsv($csv); // Skip header
+        $pdfs = $this->filesByLogin($pdfs);
         $array = array_map(fn(array $row) => [
                 'file' => $pdfs[str_replace(' ', '-', $row[0])] ?? null,
                 'id' => $row[0],
                 'hash_ok' => $row[5] === ($hashes[$pdfs[str_replace(' ', '-', $row[0])] ?? false] ?? false),
                 'error' => join(', ', $this->determineError($pdfs, str_replace(' ', '-', $row[0]))),
-        ], iterator_to_array($this->iterator(fn() => fgetcsv($csv))));
-        fclose($csv);
+        ], $this->readProtocol($zip));
 
         return $array;
     }
@@ -282,5 +307,77 @@ class ImportEssayGUI extends BaseGUI
             },
             $pdfs
         ));
+    }
+
+    private function readProtocol(ZipArchive $zip): ?array
+    {
+        $csv = $zip->getStream(self::PROTOCOL_FILE_NAME);
+        if (!$csv) {
+            return null;
+        }
+        fgets($csv); // Skip Description
+        fgetcsv($csv); // Skip header
+
+        $array = iterator_to_array($this->iterator(fn() => fgetcsv($csv), false));
+        fclose($csv);
+        return $array;
+    }
+
+    private function zipFromImport(EssayImport $import, $file = null): ZipArchive
+    {
+        $file = $file ?? $this->system_api->fileStorage()->getFileStream($import->getFileId());
+        $zip = new ZipArchive();
+        $zip->open(stream_get_meta_data($file)['uri'], ZipArchive::RDONLY);
+
+        if ($import->getPassword() !== null) {
+            $zip->setPassword($import->getPassword());
+        }
+
+        return $zip;
+    }
+
+    private function filesFromZip(ZipArchive $zip, ?string $password): array
+    {
+        return array_map(function ($index) use ($zip, $password) {
+            $stat = $zip->statIndex($index);
+            if (($stat['encryption_method'] ?? false) && $password === null) {
+                throw new \Exception('No password given');
+            }
+            return $stat['name'];
+        }, range(0, $zip->numFiles - 1));
+    }
+
+    /**
+     * @return null|array<int, string>
+     */
+    private function existingUsersOfZip(ZipArchive $zip): ?array
+    {
+        $protocol = $this->readProtocol($zip);
+        if (!$protocol) {
+            return null;
+        }
+
+        $users = array_column(array_map(
+            fn($row) => [
+                'key' => ilObjUser::getUserIdByLogin(str_replace(' ', '-', $row[0])),
+                'value' => str_replace(' ', '-', $row[0]),
+            ],
+            $protocol
+        ), 'value', 'key');
+        unset($users[0]); // Remove not found users.
+
+        return $users;
+    }
+
+    private function filesByLogin(array $files): array
+    {
+        $files = array_column(array_map(fn(string $pdf) => [
+            'key' => $this->extract(self::BY_FILE_PATTERN, $pdf, 1),
+            'value' => $pdf,
+        ], $files), 'value', 'key');
+
+        unset($files['']); // Remove null keys
+
+        return $files;
     }
 }

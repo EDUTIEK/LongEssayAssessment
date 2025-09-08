@@ -29,10 +29,10 @@ use Edutiek\AssessmentService\Assessment\TaskInterfaces\TaskInfo as Task;
 use Edutiek\AssessmentService\Task\Resource\FullService as ResourceApi;
 use ILIAS\Data\DataSize;
 use ILIAS\Plugin\LongEssayAssessment\Handler\Upload;
+use ILIAS\Plugin\LongEssayAssessment\Handler\UploadHelper;
 use ILIAS\Plugin\LongEssayAssessment\Handler\PreProcessor;
 use Edutiek\AssessmentService\System\File\Disposition;
 use ILIAS\HTTP\StatusCode;
-use ILIAS\Filesystem\Stream\Streams;
 use ILIAS\Plugin\LongEssayAssessment\EssayTask\Data\Essay as TheEssay;
 use Edutiek\AssessmentService\Assessment\TaskInterfaces\TaskType;
 use Exception;
@@ -57,6 +57,7 @@ class WriterUploadGUI extends BaseGUI
         $this->perms = $this->assessment_api->permissions($this->object->getId());
         $this->writer = $this->assessment_api->writer()->getByUserId($this->user->getId());
         $this->storage = $this->dic->resourceStorage();
+        $this->upload = new UploadHandler($this->dic);
     }
 
     public function executeCommand(): void
@@ -156,7 +157,7 @@ class WriterUploadGUI extends BaseGUI
     public function upload(): never
     {
         if (!$this->perms->canWrite()) {
-            $this->exitWithJson($this->errorJson($this->lng->txt('permission_denied')));
+            $this->upload->exitWithJson($this->errorJson($this->lng->txt('permission_denied')));
         }
 
         [$task_id, $resource_id] = array_map('intval', explode(':', $this->get->string('id')));
@@ -172,10 +173,10 @@ class WriterUploadGUI extends BaseGUI
                 $resource = $resource_api->one($resource_id);
                 $return_id = $resource->getId();
                 $info->setId($resource->getFileId());
-                $this->plugin->dic()->system()->fileStorage()->saveFile($stream, $info);
+                $this->system_api->fileStorage()->saveFile($stream, $info);
             } else {
                 $resource = $resource_api->new();
-                $resource->setFileId($this->plugin->dic()->system()->fileStorage()->saveFile($stream, $info)->getId());
+                $resource->setFileId($this->system_api->fileStorage()->saveFile($stream, $info)->getId());
                 $resource_api->save($resource);
                 $return_id = $resource->getId();
             }
@@ -184,10 +185,10 @@ class WriterUploadGUI extends BaseGUI
         $upload->process();
         $result_array = $upload->getResults();
         if (!((current($result_array) ?: null)?->isOk())) {
-            $this->exitWithJson($this->errorJson('No upload'));
+            $this->upload->exitWithJson($this->upload->errorJson('No upload'));
         }
 
-        $this->exitWithJson($this->okJson($return_id));
+        $this->upload->exitWithJson($this->upload->okJson($return_id));
     }
 
     public function deliverPdf(): void
@@ -236,11 +237,6 @@ class WriterUploadGUI extends BaseGUI
 
     private function essays(): array
     {
-        // return [
-        //     (new TheEssay())->setId(3)->setPdfVersion('29'),
-        //     (new TheEssay())->setId(4)->setPdfVersion('29'),
-        // ];
-
         return $this->essay_task_api->essay()->allByWriterId($this->writer->getId());
     }
 
@@ -258,28 +254,6 @@ class WriterUploadGUI extends BaseGUI
         $this->http->saveResponse($response);
         $this->http->sendResponse();
         $this->http->close();
-    }
-
-    private function exitWithJson($value): never
-    {
-        // ... The content type cannot be set to application/json, because the components/ILIAS/UI/src/templates/js/Input/Field/file.js:392
-        //     does not expect that the content type is correct and parses it again ...
-        $this->dic->http()->saveResponse($this->dic->http()->response()/* ->withHeader('Content-Type', 'application/json') */->withBody(
-            Streams::ofString(json_encode($value))
-        ));
-
-        $this->dic->http()->sendResponse();
-        $this->dic->http()->close();
-    }
-
-    private function okJson(int $file_id): array
-    {
-        return ['status' => 1, 'file_id' => $file_id];
-    }
-
-    private function errorJson(string $message): array
-    {
-        return ['status' => 'error', 'message' => $message];
     }
 
     private function authorizeWriting(array $essays): void

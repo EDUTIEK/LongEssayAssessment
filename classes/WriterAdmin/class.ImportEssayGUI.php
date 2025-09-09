@@ -164,6 +164,8 @@ class ImportEssayGUI extends BaseGUI
                 $resource_api->delete($pdf);
             }
             $writer->setWorkingStart($writer->getWorkingStart() ?? $now);
+            $writer->setWritingAuthorized($now);
+            $writer->setWritingAuthorizedBy($this->user->getId());
             $this->assessment_api->writer()->save($writer);
 
             // $this->essay_task_api->pdfInput()->handleInput($essay);

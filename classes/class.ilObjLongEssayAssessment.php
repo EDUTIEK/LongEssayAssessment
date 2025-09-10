@@ -53,7 +53,7 @@ class ilObjLongEssayAssessment extends ilObjectPlugin implements BaseObjectData
     public function getMultiTasks() : bool
     {
        return $this->plugin->dic()
-           ->assessment($this->getAssId(), $this->getContextId(), $this->user->getId())
+           ->assessment($this->getAssId(), $this->user->getId())
            ->orgaSettings()->get()->getMultiTasks();
     }
 

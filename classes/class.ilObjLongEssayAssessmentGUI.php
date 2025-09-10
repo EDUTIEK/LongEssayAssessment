@@ -21,6 +21,7 @@ use ILIAS\Plugin\LongEssayAssessment\WriterAdmin\ProtocolGUI;
 use ILIAS\Plugin\LongEssayAssessment\CorrectionAdmin\CorrectionAdminGUI;
 use ILIAS\Plugin\LongEssayAssessment\CorrectorAdmin\CorrectorGUI;
 use ILIAS\Plugin\LongEssayAssessment\Corrector\CorrectorStartGUI;
+use ILIAS\Plugin\LongEssayAssessment\DisabledGroupGUI;
 
 /**
  * Plugin GUI Class
@@ -255,6 +256,11 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                     if ($this->permissions->canMaintainWriters()) {
                         $this->activateTab('tab_corrector_admin', 'tab_corrector_list');
                         $this->ctrl->forwardCommand(new CorrectorGUI($this->object));
+                    }
+                    break;
+                case strtolower(DisabledGroupGUI::class):
+                    if ($this->permissions->canEditTemplates()) {
+                        $this->ctrl->forwardCommand(new DisabledGroupGUI($this->object));
                     }
                     break;
                     //                case 'ilias\plugin\longessayassessment\correctoradmin\correctoradminstatisticsgui':

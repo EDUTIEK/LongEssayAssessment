@@ -110,8 +110,8 @@ abstract class BaseGUI
         $this->constraints = $this->plugin->dic()->constraints();
         $this->session = $this->plugin->dic()->sessionValues(self::class, $this->object->getAssId());
 
-        $this->get = new RequestVariables($DIC->http()->wrapper()->query(), $this->dic->refinery());
-        $this->post = new RequestVariables($DIC->http()->wrapper()->post(), $this->dic->refinery());
+        $this->get = new RequestVariables($this->dic->http()->wrapper()->query(), $this->dic->refinery());
+        $this->post = new RequestVariables($this->dic->http()->wrapper()->post(), $this->dic->refinery());
         $this->disabled_group = new DisabledGroup(
             $this->ui_factory,
             $this->assessment_api,
@@ -191,7 +191,7 @@ abstract class BaseGUI
         $this->session->set('task_id', $this->task_info->getId());
         $this->ctrl->setParameter($this, 'task_id', $this->task_info->getId());
 
-        if ($this->object->getMultiTasks()) {
+        if ($this->object->getMultiTasks() || $this->assessment_api->permissions($this->object->getId())->canEditTemplates()) {
             $tools_data = $this->dic->globalScreen()->tool()->context()->current()->getAdditionalData();
             $tools_data->add(ToolProvider::NAME, true);
             $tools_data->add(ToolProvider::GUI_CLASS, static::class);
@@ -203,7 +203,7 @@ abstract class BaseGUI
      */
     protected function initForNonTask()
     {
-        if ($this->object->getMultiTasks()) {
+        if ($this->object->getMultiTasks() || $this->assessment_api->permissions($this->object->getId())->canEditTemplates()) {
             $tools_data = $this->dic->globalScreen()->tool()->context()->current()->getAdditionalData();
             $tools_data->add(ToolProvider::NAME, true);
             $tools_data->add(ToolProvider::GUI_CLASS, InstructionSettingsGUI::class);

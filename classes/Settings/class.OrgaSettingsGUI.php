@@ -87,10 +87,6 @@ class OrgaSettingsGUI extends BaseGUI
         }
 
         $this->add($form);
-        if ($this->assessment_api->permissions($this->object->getId())->canEditTemplates()) {
-            $this->add($this->disabled_group->modalWithButton($this->ctrl->getLinkTarget($this, 'saveModal')));
-            $this->add($this->disabled_group->toggleButton());
-        }
         $this->show();
     }
 
@@ -399,11 +395,5 @@ class OrgaSettingsGUI extends BaseGUI
         );
 
         return $this->ui_factory->input()->container()->form()->standard($this->ctrl->getFormAction($this), $sections);
-    }
-
-    public function saveModal(): void
-    {
-        $this->disabled_group->saveModal();
-        $this->ctrl->redirectToUrl($this->ctrl->getLinkTarget($this, 'editSettings'));
     }
 }

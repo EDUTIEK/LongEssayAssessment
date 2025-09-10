@@ -25,10 +25,10 @@ use ILIAS\UI\Factory as UIFactory;
 use Edutiek\AssessmentService\Assessment\Api\ForClients as AssessmentApi;
 use Edutiek\AssessmentService\Assessment\Data\DisabledGroup as DisabledGroupEntity;
 use ILIAS\UI\Component\Button\Button;
-use ILIAS\UI\Component\Modal\Modal;
 use Closure;
 use Edutiek\AssessmentService\Assessment\Permissions\ReadService as Permissions;
 use Exception;
+use ILIAS\UI\Component\Input\Container\Form\Form;
 
 class DisabledGroup
 {
@@ -83,13 +83,14 @@ class DisabledGroup
     public function toggleButton(): Button
     {
         global $DIC;
+        $this->main_tpl->addJavaScript('Customizing/global/plugins/Services/Repository/RepositoryObject/LongEssayAssessment/templates/default/DisabledGroup/disabled-group.js');
         $click = $DIC['ui.signal_generator']->create();
-        $b = $this->ui_factory->button()->standard('toggle', '')->withAdditionalOnLoadCode(fn($id) => "$(document).on('$click', il.EDUTIEK.toggleDisabledInputs)");
+        $b = $this->ui_factory->button()->standard(($this->txt)('toggle'), '')->withAdditionalOnLoadCode(fn($id) => "$(document).on('$click', il.EDUTIEK.toggleDisabledInputs)");
 
         return $b->withOnClick($click);
     }
 
-    public function modal(string $post_url): Modal
+    public function form(string $post_url): Form
     {
         if (!$this->perms->canEditTemplates()) {
             throw new Exception('permission_denied');
@@ -98,32 +99,20 @@ class DisabledGroup
         $groups = array_keys(self::DEFINITION);
         $disabled = $this->groups();
 
-        return $this->ui_factory->modal()->roundtrip(($this->txt)('disabled_group_modal'), null, array_combine(
+        $fields = array_combine(
             $groups,
             array_map(
                 fn($group) => $checkbox($group)->withValue(in_array($group, $disabled, true)),
                 $groups
             )
-        ), $post_url);
-    }
+        );
 
-    public function modalWithButton(string $post_url): array
-    {
-        if (!$this->perms->canEditTemplates()) {
-            return [];
-        }
-        $this->main_tpl->addJavaScript('Customizing/global/plugins/Services/Repository/RepositoryObject/LongEssayAssessment/templates/default/DisabledGroup/disabled-group.js');
-        $modal = $this->modal($post_url);
-        $button = $this->ui_factory->button()->standard(($this->txt)('toggle_disabled_groups'), '');
-        $button = $button->withOnClick($modal->getShowSignal());
-
-        return [$button, $modal];
+        return $this->ui_factory->input()->container()->form()->standard($post_url, $fields);
     }
 
     public function saveModal(): void
     {
-        $modal = $this->modal('');
-        ($this->with_form)($modal, function (array $data): void {
+        ($this->with_form)($this->form(''), function (array $data): void {
             $this->assessment_api->disabledGroup()->save(array_keys(array_filter($data)));
         });
     }

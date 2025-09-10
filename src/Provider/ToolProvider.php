@@ -26,13 +26,47 @@ use ILIAS\GlobalScreen\ScreenContext\Stack\CalledContexts;
 use ILIAS\Plugin\LongEssayAssessment\Settings\InstructionSettingsGUI;
 use Edutiek\AssessmentService\Assessment\TaskInterfaces\TaskInfo;
 use ILIAS\Data\URI;
+use ILIAS\Plugin\LongEssayAssessment\Common\Http\RequestVariables;
+use ILIAS\DI\Container;
+use ilObject;
+use ilLongEssayAssessmentPlugin;
+use Edutiek\AssessmentService\Assessment\Api\ForClients as AssessmentApi;
+use ILIAS\Plugin\LongEssayAssessment\Assessment\DisabledGroup\DisabledGroup;
+use Edutiek\AssessmentService\Assessment\Permissions\ReadService as Permissions;
+use ILIAS\Plugin\LongEssayAssessment\DisabledGroupGUI;
 
 class ToolProvider extends AbstractDynamicToolProvider
 {
     final public const NAME = 'xlas_tool';
     final public const GUI_CLASS = 'gui_class';
 
-    private string $gui_class;
+    private readonly string $gui_class;
+    private readonly int $ref_id;
+    private readonly int $obj_id;
+    private readonly RequestVariables $get;
+    private readonly ilLongEssayAssessmentPlugin $plugin;
+    private readonly AssessmentApi $assessment_api;
+    private readonly Permissions $permissions;
+    private readonly DisabledGroup $disabled_group;
+
+    public function __construct(Container $dic)
+    {
+        parent::__construct($dic);
+        $this->get = new RequestVariables($dic->http()->wrapper()->query(), $dic->refinery());
+        $this->plugin = $dic['component.factory']->getPlugin('xlas');
+        $this->ref_id = $this->get->integer('ref_id');
+        $this->obj_id = ilObject::_lookupObjId($this->ref_id);
+        $this->assessment_api = $this->plugin->dic()->assessment($this->obj_id, $this->dic->user()->getId());
+        $this->permissions = $this->assessment_api->permissions($this->ref_id);
+        $this->disabled_group = new DisabledGroup(
+            $dic->ui()->factory(),
+            $this->assessment_api,
+            $dic->ui()->mainTemplate(),
+            $this->plugin->txt(...),
+            fn($x) => $x,
+            $this->permissions,
+        );
+    }
 
     public function isInterestedInContexts(): ContextCollection
     {
@@ -48,34 +82,51 @@ class ToolProvider extends AbstractDynamicToolProvider
         }
         $this->gui_class = $additional_data->get(self::GUI_CLASS);
 
+        $this->dic->ctrl()->setParameterByClass($this->gui_class, 'ref_id', (string) $this->ref_id);
+
+        $tab = fn(string $lang_var, $content) => $this->factory
+            ->tool($this->identification_provider->contextAwareIdentifier('xlas_' . $lang_var))
+            ->withTitle($this->plugin->txt($lang_var))
+            ->withContent($this->dic->ui()->factory()->legacy($this->dic->ui()->renderer()->render($content)));
+
+        $tabs = [];
+        if ($this->isMultiTask()) {
+            $tabs[] = $tab('tab_task', $this->multiTaskContent());
+        }
+
+        if ($this->permissions->canEditTemplates()) {
+            $tabs[] = $tab('switch', $this->disabledGroupContent());
+        }
+
+        return $tabs;
+    }
+
+    private function disabledGroupContent(): array
+    {
+        $this->dic->ctrl()->setParameterByClass(DisabledGroupGUI::class, 'return_url', urlencode((string) $this->dic->http()->request()->getUri()));
+        return [
+            $this->disabled_group->form((string) $this->dic->ctrl()->getLinkTargetByClass([\ilObjLongEssayAssessmentGUI::class, DisabledGroupGUI::class], 'saveGroups')),
+            $this->disabled_group->toggleButton(),
+        ];
+    }
+
+    private function multiTaskContent(): array
+    {
         $glyph = $this->dic->ui()->factory()->symbol()->glyph();
-        $icon = $glyph->link();
         $link = $this->dic->ui()->factory()->link()->bulky(...);
-        $plugin = $this->dic['component.factory']->getPlugin('xlas');
 
-        $ref_id = $this->dic->http()->wrapper()->query()->retrieve('ref_id', $this->dic->refinery()->kindlyTo()->int());
-        $obj_id = \ilObject::_lookupObjId($ref_id);
-
-        $all = $plugin->dic()->task(
-            $obj_id,
+        $all = $this->plugin->dic()->task(
+            $this->obj_id,
             $this->dic->user()->getId()
         )->manager()->all();
 
-        $this->dic->ctrl()->setParameterByClass($this->gui_class, 'ref_id', (string) $ref_id);
-
         $links = array_map(
-            fn(TaskInfo $t) => $link($icon, $t->getTitle(), $this->uriToTask($t)),
+            fn(TaskInfo $t) => $link($glyph->link(), $t->getTitle(), $this->uriToTask($t)),
             $all
         );
-
         $add_button = $link($glyph->add(), $this->dic->language()->txt('add'), $this->uriToClass(InstructionSettingsGUI::class, 'create'));
 
-        $tool = $this->factory
-            ->tool($this->identification_provider->contextAwareIdentifier('xlas_tool'))
-            ->withTitle($plugin->txt('tab_task'))
-            ->withContent($this->dic->ui()->factory()->legacy($this->dic->ui()->renderer()->render(array_merge($links, [$add_button]))));
-
-        return [$tool];
+        return array_merge($links, [$add_button]);
     }
 
     private function uriToTask(TaskInfo $task): URI
@@ -87,5 +138,10 @@ class ToolProvider extends AbstractDynamicToolProvider
     private function uriToClass(string $class, string $cmd = ''): URI
     {
         return new URI(ILIAS_HTTP_PATH . '/' . $this->dic->ctrl()->getLinkTargetByClass($class, $cmd));
+    }
+
+    private function isMultiTask(): bool
+    {
+        return $this->assessment_api->orgaSettings()->get()->getMultiTasks();
     }
 }

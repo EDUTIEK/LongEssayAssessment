@@ -312,18 +312,22 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
     {
         $form = parent::initCreateForm($new_type);
         $inputs = $form->getInputs();
-        $inputs['multi_tasks'] = $this->ui_factory->input()->field()->checkbox(
-            $this->plugin->txt('multi_tasks'),
-            $this->plugin->txt('multi_tasks_info')
+        $txt = $this->plugin->txt(...);
+        $templates = $this->templates();
+        $options = array_merge(
+            [['', $txt('no_template')], ['multi_task', $txt('multi_tasks'), $txt('multi_tasks_info')]],
+            array_map(null, array_keys($templates), array_values($templates))
         );
-        $inputs['template'] = $this->ui_factory->input()->field()->select(
-            $this->plugin->txt('use_template'),
-            $this->templates(),
+        $inputs['template'] = array_reduce(
+            $options,
+            fn($r, array $o) => $r->withOption(...$o),
+            $this->ui_factory->input()->field()->radio($txt('use_template'))
         );
+
         return $this->ui_factory->input()->container()->form()->standard(
             $this->ctrl->getFormAction($this, 'save'),
             $inputs
-        )->withSubmitLabel($this->plugin->txt($new_type . '_add'));
+        )->withSubmitLabel($txt($new_type . '_add'));
     }
 
     private function templates(): array
@@ -360,7 +364,9 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
         // save the 'multi tasks' setting
         $assessment = $this->plugin->dic()->assessment($new_object->getAssId(), $new_object->getContextId(), $this->user->getId());
         $orga_settings = $assessment->orgaSettings()->get();
-        if ($data['template']) {
+        if ($data['template'] === 'multi_task') {
+            $orga_settings->setMultiTasks(true);
+        } elseif ($data['template']) {
             $template_obj_id = ilObject::_lookupObjId($data['template']);
             $template_assessment = $this->plugin->dic()->assessment(
                 $template_obj_id,
@@ -376,7 +382,7 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                 array_map(fn($g) => $g->getName(), $template_assessment->disabledGroup()->get())
             );
         }
-        $orga_settings->setMultiTasks(!empty($data['multi_tasks']));
+
         $assessment->orgaSettings()->save($orga_settings);
 
         // always send a message

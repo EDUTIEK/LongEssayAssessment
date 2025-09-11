@@ -38,6 +38,7 @@ use DateTimeImmutable;
 use Edutiek\AssessmentService\Assessment\Data\WritingStatus;
 use ILIAS\Filesystem\Stream\Streams;
 use Closure;
+use ilSession;
 
 class ImportEssayGUI extends BaseGUI
 {
@@ -55,6 +56,30 @@ class ImportEssayGUI extends BaseGUI
         'given_up' => 'by_csv_given_up',
         'pdf_hash' => 'by_csv_pdf_hash',
     ];
+
+    private const IMPORT_TYPE = [
+            'by' => [
+                'pattern' => self::BY_FILE_PATTERN,
+                'build' => 'buildByTableArray',
+                'usersFromFiles' => 'byUsersFromFiles',
+                'columns' => [
+                    'file' => 'text',
+                    'id' => 'text',
+                    'hash_ok' => 'boolean',
+                    'error' => 'text',
+                ],
+            ],
+            'nrw' => [
+                'pattern' => self::NRW_FILE_PATTERN,
+                'build' => 'buildNrwTableArray',
+                'usersFromFiles' => 'nrwUsersFromFiles',
+                'columns' => [
+                    'file' => 'text',
+                    'id' => 'text',
+                    'error' => 'text',
+                ],
+            ],
+        ];
 
     private readonly UploadHelper $upload;
 
@@ -77,10 +102,6 @@ class ImportEssayGUI extends BaseGUI
 
     public function uploadConfigGUI(): void
     {
-        if (\ilSession::get(self::SESSION_KEY)) {
-            $this->uploadZip();
-            return;
-        }
         $form = $this->ui_factory->input()->container()->form()->standard($this->ctrl->getLinkTarget($this, __FUNCTION__), [
             'file' => $this->ui_factory->input()->field()->file(new Upload(
                 $this->fileInfo(...),
@@ -109,18 +130,18 @@ class ImportEssayGUI extends BaseGUI
                         ->setMimeType('application/pdf')
                         ->setFileName($file);
                     //dd(stream_get_meta_data($zip->getStream($file))['uri']);
-                    $id = $this->system_api->fileStorage()->saveFile(Streams::ofString(stream_get_contents($zip->getStream($file))), $info)->getId();
+                    $s = $zip->getStream($file);
+                    $id = $this->system_api->fileStorage()->saveFile(Streams::ofString(stream_get_contents($s)), $info)->getId();
+                    fclose($s);
                     $file_map[$file] = $id;
                 }
             }
-            \ilSession::set(self::SESSION_KEY, [
-                'files' => $file_map,
-            ]);
+            $this->saveSession(['type' => $this->typeByFiles($file_map), 'files' => $file_map]);
             $this->system_api->fileStorage()->deleteFile(current($data['file']));
             // $import = $this->essay_task_api->essayImport()->new(current($data['file']), $data['password']['value'] ?? null, $data['hash'] ?: null);
             // $this->essay_task_api->essayImport()->save($import);
             // $this->ctrl->setParameter($this, 'import_id', (string) $import->getId());
-            // $this->ctrl->redirectToURL($this->ctrl->getLinkTarget($this, 'uploadZip'));
+            $this->ctrl->redirectToURL($this->ctrl->getLinkTarget($this, 'uploadZip'));
         });
 
         $this->renderContent($form);
@@ -128,14 +149,17 @@ class ImportEssayGUI extends BaseGUI
 
     public function uploadZip(): void
     {
-        $files = \ilSession::get(self::SESSION_KEY)['files'];
+        $files = $this->session()['files'];
+        $hashes = $this->buildPdfHashes($files);
 
-        if (isset($files[self::PROTOCOL_FILE_NAME])) {
-            $this->by($files[self::PROTOCOL_FILE_NAME], $files);
-            return;
-        }
+        $type = self::IMPORT_TYPE[$this->session()['type']];
+        $array = $this->{$type['build']}($files, $hashes);
 
-        $this->nrw($files);
+        $this->renderContent([
+            $this->table($hashes, $array, $type['columns']),
+            $this->ui_factory->button()->primary($this->plugin->txt('import_zip'), $this->ctrl->getLinkTarget($this, 'import')),
+            $this->ui_factory->button()->standard($this->lng->txt('cancel'), $this->ctrl->getLinkTarget($this, 'cancel')),
+        ]);
     }
 
     public function upload(): never
@@ -154,9 +178,10 @@ class ImportEssayGUI extends BaseGUI
 
     public function import(): void
     {
-        $users = $this->existingUsers();
-        $files = \ilSession::get(self::SESSION_KEY)['files'];
-        $pdfs = $this->filesByLogin($files);
+        $type = self::IMPORT_TYPE[$this->session()['type']];
+        $users = $this->existingUsers($this->{$type['usersFromFiles']}($this->session()['files']));
+        $files = $this->session()['files'];
+        $pdfs = $this->filesByLogin($files, $type['pattern']); // @Todo
         $now = new DateTimeImmutable();
 
         foreach ($users as $user_id => $login) {
@@ -164,15 +189,12 @@ class ImportEssayGUI extends BaseGUI
             if (!$zip_pdf) {
                 continue;
             }
-            $writer = $this->assessment_api->writer()->getByUserId($user_id);
 
+            $writer = $this->assessment_api->writer()->getByUserId($user_id);
             $task = $this->task_api->manager()->first();
             $essay = $this->essay_task_api->essay()->oneByWriterIdAndTaskId($writer->getId(), $task->getId()) ??
                 $this->essay_task_api->essay()->new($writer->getId(), $task->getId())->setFirstChange($now);
-
             $essay = $essay->setLastChange($now);
-
-
             $pdf = $essay->getPdfVersion();
             $resource_api = $this->task_api->resource($essay->getTaskId());
             $resource = $resource_api->new();
@@ -192,7 +214,7 @@ class ImportEssayGUI extends BaseGUI
             // $this->essay_task_api->pdfInput()->handleInput($essay);
         }
 
-        \ilSession::set(self::SESSION_KEY, null);
+        $this->saveSession(null);
         $this->success($this->plugin->txt('upload_successful'), true);
         $this->ctrl->redirectToURL($this->ctrl->getLinkTarget($this, 'uploadConfigGUI'));
     }
@@ -205,28 +227,6 @@ class ImportEssayGUI extends BaseGUI
         $this->ctrl->redirectToURL($this->ctrl->getLinkTarget($this, 'uploadConfigGUI'));
     }
 
-    private function nrw(ZipArchive $zip, array $pdfs): void
-    {
-        // @Todo
-    }
-
-    private function by(string $protocol_id, array $pdfs): void
-    {
-        $hashes = $this->buildPdfHashes($pdfs);
-        $array = $this->buildTableArray($this->readProtocol($protocol_id), $pdfs, $hashes);
-
-        if ($array === null) {
-            $this->failure($this->plugin->txt('import_protocol_missing'));
-        }
-
-        $this->ctrl->saveParameter($this, 'import_id');
-        $this->renderContent([
-            $this->table($hashes, $array, $pdfs),
-            $this->ui_factory->button()->primary($this->plugin->txt('import_zip'), $this->ctrl->getLinkTarget($this, 'import')),
-            $this->ui_factory->button()->standard($this->lng->txt('cancel'), $this->ctrl->getLinkTarget($this, 'cancel')),
-        ]);
-    }
-
     private function iterator(callable $proc, $end = false): Generator
     {
         $v = $proc();
@@ -237,7 +237,7 @@ class ImportEssayGUI extends BaseGUI
         }
     }
 
-    private function table(array $hashes, array $data, array $pdfs)
+    private function table(array $hashes, array $data, array $columns)
     {
         $retrieval = new class implements DataRetrieval {
             public array $data;
@@ -264,12 +264,10 @@ class ImportEssayGUI extends BaseGUI
 
         $retrieval->data = $data;
         $c = $this->ui_factory->table()->column();
-        return $this->ui_factory->table()->data('hej', [
-            'file' => $c->text($this->plugin->txt('file')),
-            'id' => $c->text($this->plugin->txt('id')),
-            'hash_ok' => $c->boolean($this->plugin->txt('hash_ok'), $this->plugin->txt('ok'), $this->plugin->txt('not ok')),
-            'error' => $c->text($this->plugin->txt('error')),
-        ], $retrieval)->withRequest($this->dic->http()->request());
+        return $this->ui_factory->table()->data('hej', array_column(array_map(fn(string $name, string $type) => [
+            'value' => $c->$type($this->plugin->txt('xlas_essay_import_column_' . $name), 'ok', 'not ok'),
+            'key' => $name,
+        ], array_keys($columns), array_values($columns)), 'value', 'key'), $retrieval)->withRequest($this->dic->http()->request());
     }
 
     private function extract(string $pattern, string $subject, int $index): ?string
@@ -303,17 +301,27 @@ class ImportEssayGUI extends BaseGUI
         return hash($this->system_api->config()->getConfig()->getHashAlgo(), $value);
     }
 
-    private function buildTableArray(array $protocol, array $pdfs, array $hashes): ?array
+    private function buildByTableArray(array $files, array $hashes): array
     {
-        $pdfs = $this->filesByLogin($pdfs);
-        $array = array_map(fn(array $row) => [
-                'file' => $pdfs[str_replace(' ', '-', $row['id'])] ?? null,
+        $protocol = $this->readProtocol($files[self::PROTOCOL_FILE_NAME]);
+        $pdfs = $this->filesByLogin($files, self::BY_FILE_PATTERN);
+        return array_map(fn(array $row) => [
+                'file' => $pdfs[$this->byLogin($row)] ?? null,
                 'id' => $row['id'],
-                'hash_ok' => $row['pdf_hash'] === ($hashes[$pdfs[str_replace(' ', '-', $row['id'])] ?? false] ?? false),
-                'error' => join(', ', $this->determineError($pdfs, str_replace(' ', '-', $row['id']))),
+                'hash_ok' => $row['pdf_hash'] === ($hashes[$pdfs[$this->byLogin($row)] ?? false] ?? false),
+                'error' => join(', ', $this->determineError($pdfs, $this->byLogin($row))),
         ], $protocol);
+    }
 
-        return $array;
+    private function buildNrwTableArray(array $files, array $hashes): array
+    {
+        $pdfs = $this->filesByLogin($files, self::NRW_FILE_PATTERN);
+        return array_map(fn(string $login, string $file) => [
+            'file' => $file,
+            'id' => $login,
+            'hash_ok' => true,
+            'error' => join(', ', $this->determineError($pdfs, $login))
+        ], array_keys($pdfs), array_values($pdfs));
     }
 
     private function buildPdfHashes(array $pdfs): array
@@ -365,28 +373,36 @@ class ImportEssayGUI extends BaseGUI
     }
 
     /**
-     * @return null|array<int, string>
+     * @return array<int, string>
      */
-    private function existingUsers(): ?array
+    private function existingUsers(array $logins): array
     {
-        $protocol = $this->readProtocol(\ilSession::get(self::SESSION_KEY)['files'][self::PROTOCOL_FILE_NAME]);
-
         $users = array_column(array_map(
-            fn($row) => [
-                'key' => ilObjUser::getUserIdByLogin(str_replace(' ', '-', $row['id'])),
-                'value' => str_replace(' ', '-', $row['id']),
+            fn(string $login) => [
+                'key' => ilObjUser::getUserIdByLogin($login),
+                'value' => $login,
             ],
-            $protocol
+            $logins
         ), 'value', 'key');
         unset($users[0]); // Remove not found users.
 
         return $users;
     }
 
-    private function filesByLogin(array $files): array
+    private function byUsersFromFiles(array $files): array
+    {
+        return array_map($this->byLogin(...), $this->readProtocol($files[self::PROTOCOL_FILE_NAME]));
+    }
+
+    private function nrwUsersFromFiles(array $files): array
+    {
+        return array_filter(array_map(fn($file) => $this->extract(self::NRW_FILE_PATTERN, $file, 1), array_keys($files)));
+    }
+
+    private function filesByLogin(array $files, string $pattern): array
     {
         $files = array_column(array_map(fn(string $pdf) => [
-            'key' => $this->extract(self::BY_FILE_PATTERN, $pdf, 1),
+            'key' => $this->extract($pattern, $pdf, 1),
             'value' => $pdf,
         ], array_keys($files)), 'value', 'key');
 
@@ -408,5 +424,25 @@ class ImportEssayGUI extends BaseGUI
 
         $header = array_map(fn($key) => $txts[$key] ?? 'unknown', $header);
         return fn(array $row) => array_combine($header, $row);
+    }
+
+    private function session(): ?array
+    {
+        return ilSession::get(self::SESSION_KEY) ?? null;
+    }
+
+    private function saveSession(?array $files): void
+    {
+        ilSession::set(self::SESSION_KEY, $files);
+    }
+
+    private function typeByFiles(array $files): string
+    {
+        return isset($files[self::PROTOCOL_FILE_NAME]) ? 'by' : 'nrw';
+    }
+
+    private function byLogin(array $row): string
+    {
+        return str_replace(' ', '-', $row['id']);
     }
 }

@@ -33,7 +33,7 @@ use ILIAS\UI\Component\Input\Container\Form\Form;
 class DisabledGroup
 {
     public const DEFINITION = [
-        'example' => ['template'],
+        'sub_task' => ['max_points'],
         'grades' => ['grades'],
     ];
 

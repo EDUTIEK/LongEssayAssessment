@@ -213,7 +213,7 @@ class CorrectionSettingsGUI extends BaseGUI
             $sections['stitch'] = $factory->section($fields, $this->plugin->txt('settings_stitch_required'));
         }
 
-        $form = $this->ui_factory->input()->container()->form()->standard($this->ctrl->getFormAction($this), $sections);
+        $form = $this->ui_factory->input()->container()->form()->standard($this->ctrl->getFormAction($this), $this->disabled_group->disableBySetting($sections));
 
         // apply inputs
         if ($this->request->getMethod() == "POST") {

@@ -49,16 +49,16 @@ class StartPageGUI extends BaseGUI
     private readonly WritingSettings $writing_settings;
     private readonly TaskManager $task_manager;
     private readonly FileStorage $file_storage;
-    
+
     private readonly WorkingTime $working_time;
     private readonly bool $is_written;
     private readonly bool $is_after_writing;
     private readonly SystemFormat $system_format;
     private readonly AssessmentFormat $assessment_format;
 
-    /** @var array<int, Component[]> */
+    /** @var array<int, Component[]> indexed by task_id */
     private array $solution_resources;
-    /** @var array<int, Component[]> */
+    /** @var array<int, Component[]> inexed by task_id */
     private array $writing_resources;
     /** @var \Edutiek\AssessmentService\EssayTask\Data\Essay[] */
     private array $essays;
@@ -95,7 +95,7 @@ class StartPageGUI extends BaseGUI
         $content = $this->is_after_writing ? $this->summarise() : [
             $this->screenMessage(),
             $this->assessmentInfo(),
-            ...$this->allTaskBlocks(),
+            ...$this->allTaskPanels(),
         ];
 
         $this->renderContent([
@@ -110,7 +110,7 @@ class StartPageGUI extends BaseGUI
             $this->info($this->plugin->txt('message_writing_excluded'));
 
         } elseif (!$this->writer->getWritingAuthorized() && array_filter($this->essays, fn($e) => $e->getWrittenText() || $e->getPdfVersion())) {
-            
+
             if ($this->perms->canReviewWrittenAssessment()) {
                 $this->failure($this->plugin->txt(
                     $this->writing_settings->getWritingType() === WritingType::PDF_UPLOAD ? 'message_writing_to_authorize_pdf' : 'message_writing_to_authorize'
@@ -129,7 +129,7 @@ class StartPageGUI extends BaseGUI
 
         } elseif ($this->writer->getWritingAuthorized()) {
             if ($this->get->has('returned')) {
-                if($this->orga_settings->getClosingMessage()) {
+                if ($this->orga_settings->getClosingMessage()) {
                     $message = $this->displayText($this->orga_settings->getClosingMessage());
                 } else {
                     $message = $this->plugin->txt('message_writing_authorized');
@@ -212,7 +212,7 @@ class StartPageGUI extends BaseGUI
                     break;
             }
         }
-     }
+    }
 
     private function assessmentInfo(): array
     {
@@ -229,8 +229,7 @@ class StartPageGUI extends BaseGUI
                     . ' ' . $this->plugin->txt('refresh_page'),
                 $this->ctrl->getLinkTarget($this->target)
             );
-        }
-        elseif ($this->working_time->isLimited() && !$this->is_written) {
+        } elseif ($this->working_time->isLimited() && !$this->is_written) {
             $properties[$this->plugin->txt('writing_period')] = ($this->working_time->isStarted()) ?
                 $this->system_format->dateRange($this->working_time->getWorkingStart(), $this->working_time->getWorkingDeadline()) :
                 $this->working_time->format($this->system_format);
@@ -253,11 +252,8 @@ class StartPageGUI extends BaseGUI
         return [$this->ui_factory->panel()->standard('@todo', $inst_parts)];
     }
 
-    private function instructions(Task $task, bool $one): array
+    private function instructions(Task $task): array
     {
-        $title = $this->plugin->txt('task_instructions');
-        $title .= $one ? '' : ' ' . $task->getTitle() . ' ' . $this->ctrl->getLinkTargetByClass(WriterUploadGUI::class, 'reviewPdf');
-
         $has_resources = $this->task_api->resource($task->getId())->oneByType(ResourceType::INSTRUCTIONS);
         $task_settings = $this->task_api->settings($task->getId())->get();
 
@@ -289,18 +285,7 @@ class StartPageGUI extends BaseGUI
             }
         }
 
-        return [$this->ui_factory->panel()->standard($title, $inst_parts)];
-    }
-
-    private function resources(Task $task, bool $one): array
-    {
-        $writing_resources = $this->writing_resources[$task->getId()] ?? [];
-        $writing_resources = array_merge($writing_resources, $this->solutions($task, $one));
-        if ($writing_resources === []) {
-            return [];
-        }
-
-        return [$this->ui_factory->panel()->standard($this->plugin->txt('tab_resources'), $writing_resources)];
+        return $inst_parts;
     }
 
     private function result(): array
@@ -350,7 +335,7 @@ class StartPageGUI extends BaseGUI
         return [$this->ui_factory->panel()->standard($this->plugin->txt('result'), $result_items)];
     }
 
-    private function solutions(Task $task, bool $one): array
+    private function solutions(Task $task): array
     {
         $task_settings = $this->task_api->settings($task->getId())->get();
         $solution_items = [];
@@ -384,7 +369,6 @@ class StartPageGUI extends BaseGUI
         $solution_resources = [];
 
         $tasks = $this->task_manager->all();
-        
 
         foreach ($tasks as $task) {
             $resource_api = $this->task_api->resource($task->getId());
@@ -400,7 +384,7 @@ class StartPageGUI extends BaseGUI
                             $this->ctrl->setParameter($this->target, 'task_id', (string) $task->getId());
                             $item = $this->ui_factory->item()->standard(
                                 $this->ui_factory->link()->standard(
-                                   $file_info->getFileName(),
+                                    $file_info->getFileName(),
                                     $this->ctrl->getLinkTarget($this->target, 'downloadResourceFile')
                                 )
                             )   ->withDescription((string) $resource->getDescription())
@@ -484,20 +468,23 @@ class StartPageGUI extends BaseGUI
         return [$this->ui_factory->panel()->standard('@todo Summary', $inst_parts)];
     }
 
-    private function allTaskBlocks(): array
+    private function allTaskPanels(): array
     {
-        $blocks = [];
         $tasks = $this->task_manager->all();
-        $one = count($tasks) === 1;
-        foreach ($tasks as $task) {
-            $methods = ['instructions', 'resources'];
-            $blocks[] = array_combine($methods, array_map(
-                fn($m) => $this->$m($task, $one),
-                $methods
-            ));
-        }
+        $is_one = count($tasks) === 1;
 
-        return $blocks;
+        $panels = [];
+        foreach ($tasks as $task) {
+            $panels[] = $this->ui_factory->panel()->standard(
+                $is_one ? $this->plugin->txt('task') : $task->getTitle(),
+                array_merge(
+                    $this->instructions($task),
+                    $this->writing_resources[$task->getId()] ?? [],
+                    $this->solutions($task)
+                )
+            );
+        }
+        return $panels;
     }
 
     private function shyTo(string $lang_var, string $cmd): Component

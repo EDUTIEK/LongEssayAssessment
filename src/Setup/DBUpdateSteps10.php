@@ -25,6 +25,7 @@ use ilDBStepReader;
 use ILIAS\Plugin\LongEssayAssessment\System\File\Stakeholder;
 use ILIAS\ResourceStorage\Stakeholder\Repository\StakeholderDBRepository;
 use ilDBConstants;
+use ilDBUpdateNewObjectType;
 
 /**
  * TODO: Failed update should be repetable
@@ -404,5 +405,13 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
                 ],
             ]);
         }
+    }
+
+    public function step_21(): void
+    {
+        require_once __DIR__ . '/../../../../../../../../../../components/ILIAS/Migration/DBUpdate_3560/classes/class.ilDBUpdateNewObjectType.php';
+        $type_id = ilDBUpdateNewObjectType::addNewType('xlas', 'Long Essay Task');
+        $ops_id = ilDBUpdateNewObjectType::addCustomRBACOperation('edit_templates', 'Edit Templates', 'object', 3200);
+        ilDBUpdateNewObjectType::addRBACOperation($type_id, $ops_id);
     }
 }

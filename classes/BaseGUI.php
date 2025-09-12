@@ -118,7 +118,7 @@ abstract class BaseGUI
             $this->tpl,
             $this->plugin->txt(...),
             $this->withFormData(...),
-            $this->assessment_api->permissions($this->object->getId()),
+            $this->assessment_api->permissions($this->object->getContextId()),
         );
     }
 
@@ -203,7 +203,7 @@ abstract class BaseGUI
      */
     protected function initForNonTask()
     {
-        if ($this->object->getMultiTasks() || $this->assessment_api->permissions($this->object->getId())->canEditTemplates()) {
+        if ($this->object->getMultiTasks() || $this->assessment_api->permissions($this->object->getContextId())->canEditTemplates()) {
             $tools_data = $this->dic->globalScreen()->tool()->context()->current()->getAdditionalData();
             $tools_data->add(ToolProvider::NAME, true);
             $tools_data->add(ToolProvider::GUI_CLASS, InstructionSettingsGUI::class);

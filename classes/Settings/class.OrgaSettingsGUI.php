@@ -184,7 +184,7 @@ class OrgaSettingsGUI extends BaseGUI
                 ->withDisabled(true);
         }
 
-        if ($this->assessment_api->permissions($this->object->getId())->canEditTemplates()) {
+        if ($this->assessment_api->permissions($this->object->getContextId())->canEditTemplates()) {
             $fields_object['template'] = $factory->checkbox($this->plugin->txt('is_template'))
                 ->withValue($orga_settings->getTemplate());
         }

@@ -139,8 +139,11 @@ class ImportEssayGUI extends BaseGUI
         $array = $this->{$type['build']}($files, $hashes);
 
         $content = [$this->table($hashes, $array, $type['columns'])];
+        $no_errors = [] === array_filter(array_column($array, 'hash_ok'), fn($x) => !$x)
+            && in_array(array_unique(array_column($array, 'error')), [[], ['']], true);
+
         $content[] = $this->ui_factory->button()->primary($this->plugin->txt(
-            in_array(array_unique(array_column($array, 'error')), [[], ['']], true) ?
+            $no_errors ?
                 'import_zip' :
                 'import_zip_only_valid'
         ), $this->ctrl->getLinkTarget($this, 'import'));
@@ -339,7 +342,7 @@ class ImportEssayGUI extends BaseGUI
         if ($password !== null) {
             $zip->setPassword($password);
         }
-        return array_map(function ($index) use ($zip, $password) {
+        return array_map(function ($index) use ($zip, $password): string {
             $stat = $zip->statIndex($index);
             if (($stat['encryption_method'] ?? false) && $password === null) {
                 throw new \Exception('No password given');
@@ -367,7 +370,10 @@ class ImportEssayGUI extends BaseGUI
 
     private function byUsersFromFiles(array $files): array
     {
-        return array_map($this->byLogin(...), $this->readProtocol($files[self::PROTOCOL_FILE_NAME]));
+        return array_map($this->byLogin(...), array_filter(
+            $this->buildByTableArray($files, $this->buildPdfHashes($files)),
+            fn(array $row) => $row['hash_ok'] && $row['error'] === ''
+        ));
     }
 
     private function nrwUsersFromFiles(array $files): array

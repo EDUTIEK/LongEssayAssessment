@@ -119,7 +119,7 @@ class WriterAdminGUI extends BaseGUI implements DataTableParent, FilterParent
 
         $upload_button = $this->ui_factory->button()->standard(
             $this->plugin->txt('upload'),
-            $this->ctrl->getLinkTargetByClass(ImportEssayGUI::class, 'uploadConfigGUI')
+            $this->ctrl->getLinkTargetByClass(ImportEssayGUI::class, 'show')
         );
         $this->toolbar->addComponent($upload_button);
 

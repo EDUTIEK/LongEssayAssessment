@@ -11,6 +11,7 @@ use ILIAS\Filesystem\Stream\Streams;
 use ILIAS\ResourceStorage\Resource\InfoResolver\StreamInfoResolver;
 use ILIAS\ResourceStorage\Resource\ResourceBuilder;
 use Psr\Http\Message\StreamInterface as Stream;
+use ILIAS\ResourceStorage\Stakeholder\ResourceStakeholder;
 
 /**
  * Adapter of the ILIAS resource storage (IRSS) service for the assessment-service
@@ -21,7 +22,7 @@ readonly class StorageAdapter implements Storage
     public function __construct(
         private Manager $manager,
         private Consumers $consumers,
-        private Stakeholder $stakeholder
+        private ResourceStakeholder $stakeholder
     ) {
     }
 

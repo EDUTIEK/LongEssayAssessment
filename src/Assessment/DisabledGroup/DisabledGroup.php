@@ -37,6 +37,11 @@ class DisabledGroup
         'grades' => ['grades'],
     ];
 
+    private const LANG_VARS = [
+        'sub_task' => 'max_points',
+        'grades' => 'grade_levels',
+    ];
+
     /**
      * @param Closure(string): string $txt
      */
@@ -102,7 +107,7 @@ class DisabledGroup
         $fields = array_combine(
             $groups,
             array_map(
-                fn($group) => $checkbox($group)->withValue(in_array($group, $disabled, true)),
+                fn($group) => $checkbox(($this->txt)(self::LANG_VARS[$group]))->withValue(in_array($group, $disabled, true)),
                 $groups
             )
         );

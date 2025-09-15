@@ -29,10 +29,10 @@ use Edutiek\AssessmentService\Assessment\TaskInterfaces\TaskInfo as Task;
 use Edutiek\AssessmentService\Task\Resource\FullService as ResourceApi;
 use ILIAS\Data\DataSize;
 use ILIAS\Plugin\LongEssayAssessment\Handler\Upload;
+use ILIAS\Plugin\LongEssayAssessment\Handler\UploadHelper;
 use ILIAS\Plugin\LongEssayAssessment\Handler\PreProcessor;
 use Edutiek\AssessmentService\System\File\Disposition;
 use ILIAS\HTTP\StatusCode;
-use ILIAS\Filesystem\Stream\Streams;
 use ILIAS\Plugin\LongEssayAssessment\EssayTask\Data\Essay as TheEssay;
 use Edutiek\AssessmentService\Assessment\TaskInterfaces\TaskType;
 use Exception;
@@ -40,6 +40,7 @@ use ILIAS\ResourceStorage\Services as ILIASResourceStorage;
 use ILIAS\Plugin\LongEssayAssessment\System\Data\FileInfo;
 use Closure;
 use DateTimeImmutable;
+use ILIAS\FileUpload\Handler\FileInfoResult;
 
 /**
  * @ilCtrl_isCalledBy ILIAS\Plugin\LongEssayAssessment\Writer\WriterUploadGUI: ilObjLongEssayAssessmentGUI
@@ -56,6 +57,7 @@ class WriterUploadGUI extends BaseGUI
         $this->perms = $this->assessment_api->permissions($this->object->getId());
         $this->writer = $this->assessment_api->writer()->getByUserId($this->user->getId());
         $this->storage = $this->dic->resourceStorage();
+        $this->upload = new UploadHandler($this->dic);
     }
 
     public function executeCommand(): void
@@ -117,7 +119,7 @@ class WriterUploadGUI extends BaseGUI
         $entries = array_column($this->mapEssays(fn (Essay $essay, Task $task, ResourceApi $resource_api): array => [
             'key' => $essay->getId(),
             'component' => $this->ui_factory->input()->field()->file(
-                new Upload($this->storage, $this->task_api, $this->linkTo($task->getId() . ':' . $essay->getPdfVersion())),
+                new Upload($this->fileInfo(...), $this->linkTo($task->getId() . ':' . $essay->getPdfVersion())),
                 $this->plugin->txt('new_file'),
                 '', // @todo: $this->localDI->getUIService()->getMaxFileSizeString()
             )->withAcceptedMimeTypes(['application/pdf'])->withValue(
@@ -155,7 +157,7 @@ class WriterUploadGUI extends BaseGUI
     public function upload(): never
     {
         if (!$this->perms->canWrite()) {
-            $this->exitWithJson($this->errorJson($this->lng->txt('permission_denied')));
+            $this->upload->exitWithJson($this->errorJson($this->lng->txt('permission_denied')));
         }
 
         [$task_id, $resource_id] = array_map('intval', explode(':', $this->get->string('id')));
@@ -171,10 +173,10 @@ class WriterUploadGUI extends BaseGUI
                 $resource = $resource_api->one($resource_id);
                 $return_id = $resource->getId();
                 $info->setId($resource->getFileId());
-                $this->plugin->dic()->system()->fileStorage()->saveFile($stream, $info);
+                $this->system_api->fileStorage()->saveFile($stream, $info);
             } else {
                 $resource = $resource_api->new();
-                $resource->setFileId($this->plugin->dic()->system()->fileStorage()->saveFile($stream, $info)->getId());
+                $resource->setFileId($this->system_api->fileStorage()->saveFile($stream, $info)->getId());
                 $resource_api->save($resource);
                 $return_id = $resource->getId();
             }
@@ -183,10 +185,10 @@ class WriterUploadGUI extends BaseGUI
         $upload->process();
         $result_array = $upload->getResults();
         if (!((current($result_array) ?: null)?->isOk())) {
-            $this->exitWithJson($this->errorJson('No upload'));
+            $this->upload->exitWithJson($this->upload->errorJson('No upload'));
         }
 
-        $this->exitWithJson($this->okJson($return_id));
+        $this->upload->exitWithJson($this->upload->okJson($return_id));
     }
 
     public function deliverPdf(): void
@@ -235,11 +237,6 @@ class WriterUploadGUI extends BaseGUI
 
     private function essays(): array
     {
-        // return [
-        //     (new TheEssay())->setId(3)->setPdfVersion('29'),
-        //     (new TheEssay())->setId(4)->setPdfVersion('29'),
-        // ];
-
         return $this->essay_task_api->essay()->allByWriterId($this->writer->getId());
     }
 
@@ -257,28 +254,6 @@ class WriterUploadGUI extends BaseGUI
         $this->http->saveResponse($response);
         $this->http->sendResponse();
         $this->http->close();
-    }
-
-    private function exitWithJson($value): never
-    {
-        // ... The content type cannot be set to application/json, because the components/ILIAS/UI/src/templates/js/Input/Field/file.js:392
-        //     does not expect that the content type is correct and parses it again ...
-        $this->dic->http()->saveResponse($this->dic->http()->response()/* ->withHeader('Content-Type', 'application/json') */->withBody(
-            Streams::ofString(json_encode($value))
-        ));
-
-        $this->dic->http()->sendResponse();
-        $this->dic->http()->close();
-    }
-
-    private function okJson(int $file_id): array
-    {
-        return ['status' => 1, 'file_id' => $file_id];
-    }
-
-    private function errorJson(string $message): array
-    {
-        return ['status' => 'error', 'message' => $message];
     }
 
     private function authorizeWriting(array $essays): void
@@ -300,5 +275,25 @@ class WriterUploadGUI extends BaseGUI
         // $writer_repo = LongEssayAssessmentDI::getInstance()->getWriterRepo();
         // $writer = $writer_repo->getWriterById($essay->getWriterId());
         // $this->loggingService->addEntry(LogEntry::TYPE_WRITING_POST_AUTHORIZED, $user_id, $writer->getUserId());
+    }
+
+    private function fileInfo(string $info): ?FileInfoResult
+    {
+        [$task_id, $resource_id] = array_map('intval', explode(':', $identifier));
+        $resource = $this->task_api->resource($task_id)->one($resource_id);
+        $ili_resource_id = $this->storage->manage()->find($resource->getFileId());
+        if($ili_resource_id === null) {
+            throw new \ilException('resource id not found');
+        }
+
+        $ili_res = $this->storage->manage()->getResource($ili_resource_id);
+
+        return new BasicFileInfoResult(
+            $identifier,
+            $identifier,
+            $resource->getTitle(),
+            $ili_res->getFullSize(),
+            $ili_res->getCurrentRevision()->getInformation()->getMimeType()
+        );
     }
 }

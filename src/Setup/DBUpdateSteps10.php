@@ -26,6 +26,7 @@ use ILIAS\Plugin\LongEssayAssessment\System\File\Stakeholder;
 use ILIAS\ResourceStorage\Stakeholder\Repository\StakeholderDBRepository;
 use ilDBConstants;
 use ilDBUpdateNewObjectType;
+use ILIAS\Plugin\LongEssayAssessment\System\Data\Config;
 
 /**
  * TODO: Failed update should be repetable
@@ -378,32 +379,57 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
 
     public function step_20(): void
     {
-        if (!$this->db->tableColumnExists('xlas_as_orga_settings', 'template')) {
-            $this->db->addTableColumn('xlas_as_orga_settings', 'template', [
-                'notnull' => 1,
-                'type' => ilDBConstants::T_INTEGER,
-                'length' => 1,
-                'default' => 0,
-            ]);
+        $this->ensureTableColumn('xlas_as_orga_settings', 'template', [
+            'notnull' => 1,
+            'type' => ilDBConstants::T_INTEGER,
+            'length' => 1,
+            'default' => 0,
+        ]);
+        $this->ensureTableColumn('xlas_as_orga_settings', 'src_template_name', [
+            'notnull' => 0,
+            'type' => ilDBConstants::T_TEXT,
+            'length' => 255,
+        ]);
+        $this->ensureTable('xlas_as_dis_groups', [
+            'ass_id' => ['type' => ilDBConstants::T_INTEGER, 'notnull' => 1],
+            'name' => ['type' => ilDBConstants::T_TEXT, 'notnull' => 1],
+        ]);
+    }
+
+    public function step_21(): void
+    {
+        $this->ensureTable('xlas_et_essay_import', [
+            'id' => ['notnull' => 1, 'type' => ilDBConstants::T_INTEGER],
+            'file_id' => ['notnull' => 1, 'type' => ilDBConstants::T_TEXT],
+            'password' => ['notnull' => 0, 'type' => ilDBConstants::T_TEXT],
+            'expected_hash' => ['notnull' => 0, 'type' => ilDBConstants::T_TEXT],
+        ]);
+    }
+
+    public function step_22(): void
+    {
+        $this->ensureTableColumn('xlas_sy_config', 'hash_algo', [
+            'type' => ilDBConstants::T_TEXT,
+            'length' => 50,
+            'default' => Config::DEFAULT_HASH_ALGO,
+            'notnull' => 1,
+        ]);
+    }
+
+    private function ensureTable(string $name, array $fields): void
+    {
+        if (!$this->db->tableExists($name)) {
+            $this->db->createTable($name, $fields);
         }
-        if (!$this->db->tableColumnExists('xlas_as_orga_settings', 'src_template_name')) {
-            $this->db->addTableColumn('xlas_as_orga_settings', 'src_template_name', [
-                'notnull' => 0,
-                'type' => ilDBConstants::T_TEXT,
-                'length' => 255,
-            ]);
+        if (!$this->db->sequenceExists($name)) {
+            $this->db->createSequence($name);
         }
-        if (!$this->db->tableExists('xlas_as_dis_groups')) {
-            $this->db->createTable('xlas_as_dis_groups', [
-                'ass_id' => [
-                    'type' => ilDBConstants::T_INTEGER,
-                    'notnull' => 1,
-                ],
-                'name' => [
-                    'type' => ilDBConstants::T_TEXT,
-                    'notnull' => 1,
-                ],
-            ]);
+    }
+
+    private function ensureTableColumn(string $table, string $column, array $options): void
+    {
+        if (!$this->db->tableColumnExists($table, $column)) {
+            $this->db->addTableColumn($table, $column, $options);
         }
     }
 

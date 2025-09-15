@@ -30,11 +30,11 @@ use Edutiek\AssessmentService\Task\Api\ForClients as TaskApi;
 class Upload implements UploadHandler
 {
     /**
+     * @param Closure(string): ?FileInfoResult $info_result
      * @param Closure(string): string $link
      */
     public function __construct(
-        private readonly ILIASResourceStorage $storage,
-        private readonly TaskApi $task_api,
+        private readonly Closure $info_result,
         private readonly Closure $link,
     ) {
     }
@@ -66,22 +66,7 @@ class Upload implements UploadHandler
 
     public function getInfoResult(string $identifier): ?FileInfoResult
     {
-        [$task_id, $resource_id] = array_map('intval', explode(':', $identifier));
-        $resource = $this->task_api->resource($task_id)->one($resource_id);
-        $ili_resource_id = $this->storage->manage()->find($resource->getFileId());
-        if($ili_resource_id === null) {
-            throw new \ilException('resource id not found');
-        }
-
-        $ili_res = $this->storage->manage()->getResource($ili_resource_id);
-
-        return new BasicFileInfoResult(
-            $identifier,
-            $identifier,
-            $resource->getTitle(),
-            $ili_res->getFullSize(),
-            $ili_res->getCurrentRevision()->getInformation()->getMimeType()
-        );
+        return ($this->info_result)($identifier);
     }
 
     public function supportsChunkedUploads(): bool

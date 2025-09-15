@@ -730,3 +730,25 @@ by_csv_used_time#:#Eingereichte Zeit
 by_csv_logged_in#:#Prüfling eingelogged?
 by_csv_given_up#:#Prüfling abgegeben?
 by_csv_pdf_hash#:#Hash-wert
+essay_import_column_file#:#Datei
+essay_import_column_id#:#ID
+essay_import_column_error#:#Fehler
+essay_import_column_hash_ok#:#Hash ok
+upload_zip#:#ZIP hochladen
+import_zip#:#ZIP Importieren
+import_zip_name#:#ZIP Datei
+import_hash#:#Hash
+import_password#:#Passwort
+import_use_password#:#Passwort verwenden
+import_zip_only_valid#:#Fehlerfreie Einträge importieren
+upload_successful#:#Es wurden erfolgreich %d Einträge importiert.
+essay_import_table#:#ZIP Import
+import_file_missing#:#Datei fehlt
+import_user_not_existing#:#User existiert nicht
+import_same_file_exists#:#Gleiche Datei existiert
+import_another_file_exists#:#Unterschiedliche Datei existiert bereits
+import_invalid_zip_format#:#Invalides ZIP Format
+import_unknown_error#:#Unbekannter Fehler
+import_zip_inconsistent#:#ZIP ist inkonsistent
+import_not_a_zip#:#Datei ist keine ZIP
+import_hash_mismatch#:#Hash Werte stimmen nicht überein

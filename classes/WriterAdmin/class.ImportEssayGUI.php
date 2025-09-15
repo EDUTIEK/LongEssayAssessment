@@ -50,7 +50,7 @@ use Edutiek\AssessmentService\Task\Resource\FullService as ResourceApi;
 
 class ImportEssayGUI extends BaseGUI
 {
-    public const SESSION_KEY = 'huhu';
+    public const SESSION_KEY = self::class;
     public const PROTOCOL_FILE_NAME = 'Abgabe-Protokoll.csv';
     public const NRW_FILE_PATTERN = '/^\d+von\d+_(\d+-\d+).pdf$/';
     public const BY_FILE_PATTERN = '/^[[:alnum:]]+-\d+_([[:alpha:]]-\d+)_.*.pdf$/';
@@ -123,7 +123,7 @@ class ImportEssayGUI extends BaseGUI
             'file' => $this->ui_factory->input()->field()->file(new Upload(
                 $this->fileInfo(...),
                 fn($cmd) => $this->ctrl->getLinkTarget($this, $cmd),
-            ), $this->plugin->txt('import_zip')),
+            ), $this->plugin->txt('import_zip_name')),
             'hash' => $this->ui_factory->input()->field()->text($this->plugin->txt('import_hash')),
             'password' => $this->ui_factory->input()->field()->optionalGroup([
                 'value' => $this->ui_factory->input()->field()->text($this->plugin->txt('import_password')),
@@ -179,6 +179,7 @@ class ImportEssayGUI extends BaseGUI
         $files = $this->session()['files'];
         $pdfs = $this->filesByLogin($files, $type['pattern']);
         $now = new DateTimeImmutable();
+        $imported = 0;
 
         foreach ($users as $user_id => $login) {
             $zip_pdf = $files[$pdfs[$login] ?? null] ?? null;
@@ -204,13 +205,14 @@ class ImportEssayGUI extends BaseGUI
             $writer->setWritingAuthorized($now);
             $writer->setWritingAuthorizedBy($this->user->getId());
             $this->assessment_api->writer()->save($writer);
+            $imported++;
 
             // Comment in to start the background task
             // $this->essay_task_api->pdfInput()->handleInput($essay);
         }
 
         $this->saveSession(null);
-        $this->success($this->plugin->txt('upload_successful'), true);
+        $this->success(sprintf($this->plugin->txt('upload_successful'), $imported), true);
         $this->ctrl->redirectToURL($this->ctrl->getLinkTarget($this, 'show'));
     }
 

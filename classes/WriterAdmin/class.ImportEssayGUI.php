@@ -43,6 +43,10 @@ use ILIAS\UI\Component\Table\Data as Table;
 use ilTemporaryStakeholder;
 use ILIAS\Plugin\LongEssayAssessment\System\File\StorageAdapter;
 use Edutiek\AssessmentService\System\File\Storage;
+use Edutiek\AssessmentService\Assessment\Data\Writer;
+use Edutiek\AssessmentService\EssayTask\Data\Essay;
+use Edutiek\AssessmentService\Assessment\TaskInterfaces\TaskInfo as Task;
+use Edutiek\AssessmentService\Task\Resource\FullService as ResourceApi;
 
 class ImportEssayGUI extends BaseGUI
 {
@@ -88,6 +92,7 @@ class ImportEssayGUI extends BaseGUI
     private readonly UploadHelper $upload;
     private readonly Storage $perm_storage;
     private readonly Storage $temp_storage;
+    private array $cache = [];
 
     public function __construct(BaseObjectData $object)
     {
@@ -181,27 +186,26 @@ class ImportEssayGUI extends BaseGUI
                 continue;
             }
 
-            $writer = $this->assessment_api->writer()->getByUserId($user_id);
-            $task = $this->task_api->manager()->first();
-            $essay = $this->essay_task_api->essay()->oneByWriterIdAndTaskId($writer->getId(), $task->getId()) ??
+            $zip_pdf = $this->moveTempFileToPermanemt($zip_pdf);
+
+            $writer = $this->writerByUser($user_id);
+            $task = $this->task();
+            $essay = $this->essayByWriter($writer->getId()) ??
                 $this->essay_task_api->essay()->new($writer->getId(), $task->getId())->setFirstChange($now);
             $essay = $essay->setLastChange($now);
             $pdf = $essay->getPdfVersion();
-            $resource_api = $this->task_api->resource($essay->getTaskId());
-            $resource = $resource_api->new();
-            $resource->setFileId($zip_pdf);
-            $resource_api->save($resource);
-            $essay->setPdfVersion((string) $resource->getId());
+            $resource_api = $this->task_api->resource($task->getId());
+            $essay->setPdfVersion((string) $this->saveResource($resource_api, $zip_pdf));
             $this->essay_task_api->essay()->save($essay);
             if ($pdf) {
-                $pdf = $resource_api->one((int) $pdf);
-                $resource_api->delete($pdf);
+                $resource_api->delete($resource_api->one((int) $pdf));
             }
             $writer->setWorkingStart($writer->getWorkingStart() ?? $now);
             $writer->setWritingAuthorized($now);
             $writer->setWritingAuthorizedBy($this->user->getId());
             $this->assessment_api->writer()->save($writer);
 
+            // Comment in to start the background task
             // $this->essay_task_api->pdfInput()->handleInput($essay);
         }
 
@@ -267,15 +271,33 @@ class ImportEssayGUI extends BaseGUI
             null;
     }
 
-    private function determineError(array $pdfs, string $login): array
+    private function determineError(array $pdfs, string $login, array $hashes): array
     {
         $errors = [];
         if (!isset($pdfs[$login])) {
-            $errors[] = 'File Missing';
+            $errors[] = $this->plugin->txt('import_file_missing');
         }
 
-        if (!ilObjUser::getUserIdByLogin($login)) {
-            $errors[] = 'User does not exist';
+        $user_id = ilObjUser::getUserIdByLogin($login);
+        if (!$user_id) {
+            $errors[] = $this->plugin->txt('import_user_not_existing');
+        } else {
+            $writer = $this->writerByUser($user_id);
+            $task = $this->task();
+            $essay = $this->essayByWriter($writer->getId());
+            if ($essay) {
+                $pdf = $essay->getPdfVersion();
+                if  ($pdf) {
+                    $resource_api = $this->task_api->resource($task->getId());
+                    $resource = $resource_api->one((int) $pdf);
+                    $stream = $this->perm_storage->getFileStream($resource->getFileId());
+                    $same = $hashes[$pdfs[$login]] === $this->hash(stream_get_contents($stream));
+                    fclose($stream);
+                    $errors[] = $same ?
+                        $this->plugin->txt('import_same_file_exists') :
+                        $this->plugin->txt('import_another_file_exists');
+                }
+            }
         }
 
         return $errors;
@@ -299,7 +321,7 @@ class ImportEssayGUI extends BaseGUI
             'file' => $pdfs[$this->byLogin($row)] ?? null,
             'id' => $row['id'],
             'hash_ok' => $row['pdf_hash'] === ($hashes[$pdfs[$this->byLogin($row)] ?? false] ?? false),
-            'error' => join(', ', $this->determineError($pdfs, $this->byLogin($row))),
+            'error' => join(', ', $this->determineError($pdfs, $this->byLogin($row), $hashes)),
         ], $protocol);
     }
 
@@ -309,7 +331,7 @@ class ImportEssayGUI extends BaseGUI
         return array_map(fn(string $login, string $file) => [
             'file' => $file,
             'id' => $login,
-            'error' => join(', ', $this->determineError($pdfs, $login))
+            'error' => join(', ', $this->determineError($pdfs, $login, $hashes))
         ], array_keys($pdfs), array_values($pdfs));
     }
 
@@ -356,13 +378,7 @@ class ImportEssayGUI extends BaseGUI
      */
     private function existingUsers(array $logins): array
     {
-        $users = array_column(array_map(
-            fn(string $login) => [
-                'key' => ilObjUser::getUserIdByLogin($login),
-                'value' => $login,
-            ],
-            $logins
-        ), 'value', 'key');
+        $users = $this->keysBy(ilObjUser::getUserIdByLogin(...), $logins);
         unset($users[0]); // Remove not found users.
 
         return $users;
@@ -383,10 +399,10 @@ class ImportEssayGUI extends BaseGUI
 
     private function filesByLogin(array $files, string $pattern): array
     {
-        $files = array_column(array_map(fn(string $pdf) => [
-            'key' => $this->extract($pattern, $pdf, 1),
-            'value' => $pdf,
-        ], array_keys($files)), 'value', 'key');
+        $files = $this->keysBy(
+            fn(string $pdf) => $this->extract($pattern, $pdf, 1),
+            array_keys($files)
+        );
 
         unset($files['']); // Remove null keys
 
@@ -481,5 +497,65 @@ class ImportEssayGUI extends BaseGUI
         }
         $this->failure($this->plugin->txt($lang_var), true);
         $this->ctrl->redirectToURL($this->ctrl->getLinkTarget($this, 'show'));
+    }
+
+    private function moveTempFileToPermanemt(string $temp_file_id): string
+    {
+        $info = $this->temp_storage->getFileInfo($temp_file_id);
+        $info->setId(null);
+        $s = $this->temp_storage->getFileStream($temp_file_id);
+        $perm_id = $this->perm_storage->saveFile($s, $info)->getId();
+        $this->temp_storage->deleteFile($temp_file_id);
+
+        return $perm_id;
+    }
+
+    private function saveResource(ResourceApi $resource_api, string $file_id): int
+    {
+        $resource = $resource_api->new();
+        $resource->setFileId($file_id);
+        $resource_api->save($resource);
+        return $resource->getId();
+    }
+
+    private function writerByUser(int $user_id): ?Writer
+    {
+        $this->cache['writers'] ??= $this->keysBy(
+            fn(Writer $writer) => $writer->getUserId(),
+            $this->assessment_api->writer()->all()
+        );
+
+        return $this->cache['writers'][$user_id] ?? null;
+    }
+
+    private function task(): Task
+    {
+        return $this->cache['task'] ??= $this->task_api->manager()->first();
+    }
+
+    private function essayByWriter(int $writer_id): ?Essay
+    {
+        $this->cache['essays'] ??= $this->keysBy(
+            fn(Essay $essay) => $essay->getWriterId(),
+            $this->essay_task_api->essay()->allByTaskId($this->task()->getId())
+        );
+
+        return $this->cache['essays'][$writer_id] ?? null;
+    }
+
+    /**
+     * @template A
+     * @template B
+     *
+     * @param callable(A): B $proc
+     * @param A[] $array
+     * @return array<B, A>
+     */
+    private function keysBy(callable $proc, array $array): array
+    {
+        return array_column(array_map(
+            fn($x) => ['value' => $x, 'key' => $proc($x)],
+            $array
+        ), 'value', 'key');
     }
 }

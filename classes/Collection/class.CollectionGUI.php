@@ -75,7 +75,7 @@ class CollectionGUI
     private function prepareOutput()
     {
         $type = $this->object->getType();
-        $this->ctrl->setParameterByClass('ilObjCourseGUI', 'ref_id',  $this->object->getRefId());
+        $this->ctrl->setParameterByClass('ilObjCourseGUI', 'ref_id', $this->object->getRefId());
         $this->locator->addRepositoryItems($this->object->getRefId());
         #$this->locator->addItem($this->object->getTitle(),$this->ctrl->getLinkTargetByClass('ilObjTestGUI'));
 
@@ -102,7 +102,7 @@ class CollectionGUI
         $this->prepareOutput();
         $next_class = $this->ctrl->getNextClass($this);
 
-        switch($next_class) {
+        switch ($next_class) {
 
             default:
                 $cmd = $this->ctrl->getCmd('list');
@@ -125,7 +125,7 @@ class CollectionGUI
 
         $items = [];
 
-        foreach($this->assessment_nodes as $node) {
+        foreach ($this->assessment_nodes as $node) {
             $this->ctrl->setParameterByClass(\ilObjLongEssayAssessmentGUI::class, 'ref_id', $node['ref_id']);
             $link = $this->ctrl->getLinkTargetByClass([\ilObjLongEssayAssessmentGUI::class]);
 
@@ -133,7 +133,7 @@ class CollectionGUI
             $lgui->initItem($node['ref_id'], $node['obj_id'], 'xlas');
 
             $properties = [];
-            foreach($lgui->getProperties() as $prop) {
+            foreach ($lgui->getProperties() as $prop) {
                 $properties[$prop['property']] = isset($prop['link'])
                     ? $factory->button()->shy($prop['value'], $prop['link'])
                     : $prop['value'] ;
@@ -150,15 +150,18 @@ class CollectionGUI
 
     private function setTabs(string $activate_tab)
     {
-        $this->ctrl->setParameter($this, 'ref_id',  $this->object->getRefId());
+        $this->ctrl->setParameter($this, 'ref_id', $this->object->getRefId());
 
         $this->tabs->addSubTab('list', $this->plugin->txt('objs_xlas'), $this->ctrl->getLinkTarget($this, 'list'));
-        if($this->atleastOnePermission('ViewWriterStatistics'))
+        if ($this->atleastOnePermission('ViewWriterStatistics')) {
             $this->tabs->addSubTab('statistic', $this->plugin->txt('statistic'), $this->ctrl->getLinkTarget($this, 'statistic'));
-        if($this->atleastOnePermission('MaintainWriters'))
+        }
+        if ($this->atleastOnePermission('MaintainWriters')) {
             $this->tabs->addSubTab('writer_statistic', $this->plugin->txt('tab_writer_statistic'), $this->ctrl->getLinkTarget($this, 'writerStatistic'));
-        if($this->atleastOnePermission('MaintainCorrectors'))
+        }
+        if ($this->atleastOnePermission('MaintainCorrectors')) {
             $this->tabs->addSubTab('corrector_statistic', $this->plugin->txt('tab_corrector_admin_statistic'), $this->ctrl->getLinkTarget($this, 'correctorStatistic'));
+        }
         $this->tabs->activateSubTab($activate_tab);
     }
 
@@ -166,10 +169,9 @@ class CollectionGUI
     {
         $func = "can" . $perm;
 
-        foreach($this->plugin_objects as $obj)
-        {
-            $has_permission = $this->plugin_dic->assessment($obj->getAssId(), $this->user->getId())->permissions($obj->getRefId())->$func();
-            if($has_permission){
+        foreach ($this->plugin_objects as $obj) {
+            $has_permission = $this->plugin_dic->assessment($obj->getAssId(), $this->user->getId())->permissions($obj->getContextId())->$func();
+            if ($has_permission) {
                 return true;
             }
         }
@@ -181,7 +183,7 @@ class CollectionGUI
         $func = "can" . $perm;
         return array_filter(
             $this->plugin_objects,
-            fn($obj) => $this->plugin_dic->assessment($obj->getAssId(), $this->user->getId())->permissions($obj->getRefId())->$func()
+            fn($obj) => $this->plugin_dic->assessment($obj->getAssId(), $this->user->getId())->permissions($obj->getContextId())->$func()
         );
     }
 

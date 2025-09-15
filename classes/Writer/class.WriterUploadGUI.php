@@ -54,7 +54,7 @@ class WriterUploadGUI extends BaseGUI
     public function __construct(BaseObjectData $object)
     {
         parent::__construct($object);
-        $this->perms = $this->assessment_api->permissions($this->object->getId());
+        $this->perms = $this->assessment_api->permissions($this->object->getContextId());
         $this->writer = $this->assessment_api->writer()->getByUserId($this->user->getId());
         $this->storage = $this->dic->resourceStorage();
         $this->upload = new UploadHandler($this->dic);
@@ -65,7 +65,7 @@ class WriterUploadGUI extends BaseGUI
         $this->{$this->ctrl->getCmd()}();
     }
 
-    
+
     public function reviewPdf(): void
     {
         if (!$this->perms->canWrite() && !$this->perms->canReviewWrittenAssessment()) {
@@ -116,7 +116,7 @@ class WriterUploadGUI extends BaseGUI
         }
 
         $essays = $this->essays();
-        $entries = array_column($this->mapEssays(fn (Essay $essay, Task $task, ResourceApi $resource_api): array => [
+        $entries = array_column($this->mapEssays(fn(Essay $essay, Task $task, ResourceApi $resource_api): array => [
             'key' => $essay->getId(),
             'component' => $this->ui_factory->input()->field()->file(
                 new Upload($this->fileInfo(...), $this->linkTo($task->getId() . ':' . $essay->getPdfVersion())),
@@ -220,7 +220,7 @@ class WriterUploadGUI extends BaseGUI
                 $this->ctrl->redirectToURL($this->ctrl->getLinkTargetByClass(WriterStartGUI::class));
             }
         }
-        
+
         $this->authorizeWriting($essays);
 
         $this->ctrl->setParameterByClass(WriterStartGUI::class, 'returned', '1');
@@ -282,7 +282,7 @@ class WriterUploadGUI extends BaseGUI
         [$task_id, $resource_id] = array_map('intval', explode(':', $identifier));
         $resource = $this->task_api->resource($task_id)->one($resource_id);
         $ili_resource_id = $this->storage->manage()->find($resource->getFileId());
-        if($ili_resource_id === null) {
+        if ($ili_resource_id === null) {
             throw new \ilException('resource id not found');
         }
 

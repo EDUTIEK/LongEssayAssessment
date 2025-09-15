@@ -42,7 +42,7 @@ class WriterStartGUI extends BaseGUI
     public function __construct(BaseObjectData $object)
     {
         parent::__construct($object);
-        $this->perms = $this->assessment_api->permissions($this->object->getId());
+        $this->perms = $this->assessment_api->permissions($this->object->getContextId());
         $this->orga_settings = $this->assessment_api->orgaSettings()->get();
 
         // get or create - permission is already checked
@@ -75,10 +75,10 @@ class WriterStartGUI extends BaseGUI
 
 
         // todo: add forwarding url from version 3
-//        if(!empty($this->orga_settings->getForwardingUrl()) && !empty($this->writer->getWritingAuthorized()) && $this->get->has('returned')) {
-//            $this->ctrl->redirectToURL($this->orga_settings->getForwardingUrl());
-//            return;
-//        }
+        //        if(!empty($this->orga_settings->getForwardingUrl()) && !empty($this->writer->getWritingAuthorized()) && $this->get->has('returned')) {
+        //            $this->ctrl->redirectToURL($this->orga_settings->getForwardingUrl());
+        //            return;
+        //        }
 
         (new StartPageGUI($this->object, $this->writer, $this))->showPage();
     }
@@ -181,7 +181,7 @@ class WriterStartGUI extends BaseGUI
         // $repoWriter = $this->localDI->getWriterRepo()->getWriterByUserIdAndTaskId($this->dic->user()->getId(), $this->object->getId());
         // $content = $service->getWritingAsPdf($this->object, $repoWriter)
 
-        $filename = 'task' . $this->object->getId() . '_writer' . $this->writer->getId(). '-writing.pdf';
+        $filename = 'task' . $this->object->getId() . '_writer' . $this->writer->getId() . '-writing.pdf';
         $file_info = new FileInfo();
         $file_info->setFileName($filename);
         $file_info->setMimeType('application/pdf');
@@ -202,7 +202,7 @@ class WriterStartGUI extends BaseGUI
         // $repoWriter = $this->localDI->getWriterRepo()->getWriterByUserIdAndTaskId($this->dic->user()->getId(), $this->object->getId());
         // $content = $service->getCorrectionAsPdf($this->object, $repoWriter, null, false, true);
 
-        $filename = 'task' . $this->object->getId() . '_writer' . $this->writer->getId(). '-correction.pdf';
+        $filename = 'task' . $this->object->getId() . '_writer' . $this->writer->getId() . '-correction.pdf';
         $file_info = new FileInfo();
         $file_info->setFileName($filename);
         $file_info->setMimeType('application/pdf');
@@ -227,7 +227,7 @@ class WriterStartGUI extends BaseGUI
             Disposition::ATTACHMENT,
             $file_info
         );
-        
+
     }
 
     public function downloadInstructions(): void

@@ -1,4 +1,5 @@
 <?php
+
 /* Copyright (c) 2021 ILIAS open source, Extended GPL, see docs/LICENSE */
 
 namespace ILIAS\Plugin\LongEssayAssessment\Corrector;
@@ -73,7 +74,7 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
         $this->writer_service = $this->assessment_api->writer();
         $this->assessment_status_service = $this->task_api->assessmentStatus();
         $this->assessment_format_service = $this->assessment_api->format($this->orga_settings);
-        $this->can_correct = $this->assessment_api->permissions($this->object->getRefId())->canCorrect();
+        $this->can_correct = $this->assessment_api->permissions($this->object->getContextId())->canCorrect();
     }
 
     /**
@@ -103,9 +104,9 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
 
     public function getColumnMapping(CorrectorStartItem|Item $item, ?array $additional_parameters): array|\ArrayAccess
     {
-        $position_title = fn (int $pos) => match($pos) {
-            0=> $this->plugin->txt('assignment_pos_first'),
-            1=> $this->plugin->txt('assignment_pos_second'),
+        $position_title = fn(int $pos) => match($pos) {
+            0 => $this->plugin->txt('assignment_pos_first'),
+            1 => $this->plugin->txt('assignment_pos_second'),
             default => sprintf($this->plugin->txt('assignment_pos_x'), $pos)
         };
 
@@ -132,11 +133,11 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
             GradingStatus::AUTHORIZED => $this->plugin->txt('grading_authorized')
         };
 
-        $other_corrector = function(?UserData $user_data, ?CorrectorSummary $summary, ?CorrectorAssignment $assignment) use ($position_title){
+        $other_corrector = function (?UserData $user_data, ?CorrectorSummary $summary, ?CorrectorAssignment $assignment) use ($position_title) {
             if (empty($user_data) || empty($assignment)) {
                 return $this->plugin->txt('assignment_pos_empty');
             }
-            return $position_title($assignment->getPosition()) . ": " .$user_data->getFullname(false) . ' - ' . $this->format_service->correctionResult($summary, false, true);
+            return $position_title($assignment->getPosition()) . ": " . $user_data->getFullname(false) . ' - ' . $this->format_service->correctionResult($summary, false, true);
         };
 
         $grading_service = $this->grading_service;
@@ -149,8 +150,8 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
                 'position' => $position_title($item->getAssignment()->getPosition()),
                 'task' => $item->getTaskTitle(),
                 'writing_status' => $writing_status($item->getWriter()->getStatus()),
-                'correction_status' =>  $correction_status($item->getCorrectionStatus()),
-                'own_status' =>  $grading_status($item->getCorrectionStatus()),
+                'correction_status' => $correction_status($item->getCorrectionStatus()),
+                'own_status' => $grading_status($item->getCorrectionStatus()),
                 'own_points' => $item->getSummary()?->getPoints(),
                 'own_grade' => $grading_service->getGradLevelForPoints($item->getSummary()->getPoints())->getGrade(),
                 'own_grading' => $essay_format->correctionResult($item->getSummary()),
@@ -177,8 +178,8 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
           'writing_status' => $cf->status($this->plugin->txt('writing_status'))->withIsOptional(false, true),
           'correction_status' => $cf->status($this->plugin->txt('correction_status'))->withIsOptional(false, true),
           'own_status' => $cf->status($this->plugin->txt('own_status'))->withIsOptional(true, false),
-          'own_points' =>  $cfp->nullableNumber($this->plugin->txt('own_points'))->withIsOptional(true, false),
-          'own_grade' =>  !$multi_task ? $cf->text($this->plugin->txt('own_grade'))->withIsOptional(true, false) : null,
+          'own_points' => $cfp->nullableNumber($this->plugin->txt('own_points'))->withIsOptional(true, false),
+          'own_grade' => !$multi_task ? $cf->text($this->plugin->txt('own_grade'))->withIsOptional(true, false) : null,
           'own_grading' => $cf->status($this->plugin->txt('own_grading'))->withIsOptional(true, true)->withIsSortable(false),
           'other_corrections' => $other_corrections ? $cf->text($this->plugin->txt('other_corrections')) : null,
           'result' => $cf->status($this->plugin->txt('result'))->withIsOptional(false, true)->withIsSortable(false),
@@ -204,7 +205,7 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
         ];
     }
 
-    private function downloadWrittenPDFAction() : Table\Action\Direct
+    private function downloadWrittenPDFAction(): Table\Action\Direct
     {
         return $this->plugin_ui_factory->table()->action()->direct(
             "download_written_pdf",
@@ -215,7 +216,7 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
         );
     }
 
-    private function downloadCorrectedPdfAction() : Table\Action\Direct
+    private function downloadCorrectedPdfAction(): Table\Action\Direct
     {
         return $this->plugin_ui_factory->table()->action()->direct(
             "download_corrected_pdf",
@@ -265,18 +266,18 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
         /**
          * @var CorrectorAssignment $own_assignment
          */
-        foreach($own_assignments as $own_assignment) {
-            if(!empty($ids) && !in_array($own_assignment->getId(), $ids)) {
+        foreach ($own_assignments as $own_assignment) {
+            if (!empty($ids) && !in_array($own_assignment->getId(), $ids)) {
                 continue;
             }
 
-            if(!empty($filter_data['position']) && $filter_data['position'] != (string)$own_assignment->getPosition()){
+            if (!empty($filter_data['position']) && $filter_data['position'] != (string) $own_assignment->getPosition()) {
                 continue;
             }
 
             $item = $this->buildCorrectorStartItem($own_assignment);
 
-            if(!empty($filter_data['status']) && $filter_data['status'] != $item->getSummary()->getGradingStatus()->value){
+            if (!empty($filter_data['status']) && $filter_data['status'] != $item->getSummary()->getGradingStatus()->value) {
                 continue;
             }
 
@@ -298,27 +299,29 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
         $correction_status = $this->assessment_status_service->oneWriterCorrectionStatus($writer);
         $co_assignment = $co_user_data = $co_summary = $own_summary = null;
 
-        if($this->settings->getRequiredCorrectors() > 1) {
+        if ($this->settings->getRequiredCorrectors() > 1) {
 
-            foreach($this->assignment_service->allByWriterId($assignment->getWriterId()) as $a) {
-                if($a->getWriterId() === $assignment->getWriterId()
+            foreach ($this->assignment_service->allByWriterId($assignment->getWriterId()) as $a) {
+                if ($a->getWriterId() === $assignment->getWriterId()
                     && $a->getTaskId() === $assignment->getTaskId()
                     && $a->getCorrectorId() !== $assignment->getCorrectorId()) {
                     $co_assignment = $a;
                 }
             }
 
-            if($co_assignment !== null) {
+            if ($co_assignment !== null) {
                 $co_corrector = $this->corrector_service->oneById($co_assignment->getCorrectorId());
-                $co_user_data = $this->user_service->getUser($co_corrector?->getUserId()??-1);
+                $co_user_data = $this->user_service->getUser($co_corrector?->getUserId() ?? -1);
             }
         }
 
-        foreach($this->task_api->summary($assignment->getTaskId())->allByWriterId($assignment->getWriterId()) as $summary) {
-            if($summary->getCorrectorId() === $assignment->getCorrectorId())
+        foreach ($this->task_api->summary($assignment->getTaskId())->allByWriterId($assignment->getWriterId()) as $summary) {
+            if ($summary->getCorrectorId() === $assignment->getCorrectorId()) {
                 $own_summary = $summary;
-            if($summary->getCorrectorId() === $co_assignment?->getCorrectorId())
+            }
+            if ($summary->getCorrectorId() === $co_assignment?->getCorrectorId()) {
                 $co_summary = $summary;
+            }
         }
         return new CorrectorStartItem(
             $assignment->getId(),
@@ -343,8 +346,8 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
 
         $table = $this->plugin_ui_factory->table()->dataTable("corrector_start_table", $this);
         $filter_data = $table->getFilterData();
-        $is_empty_after_filter=false;//TODO
-        $is_empty_before_filter=false;//TODO
+        $is_empty_after_filter = false;//TODO
+        $is_empty_before_filter = false;//TODO
 
         if ($this->can_correct && $this->ready_items > 0) {
             $this->ctrl->clearParameters($this);
@@ -364,7 +367,7 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
 
             $this->tpl->setContent($this->renderer->render($table->getComponents()));
             if (!empty($period = $this->system_format_service->dateRange($this->orga_settings->getCorrectionStart(), $this->orga_settings->getCorrectionEnd()))) {
-                $this->tpl->setOnScreenMessage("info", $this->plugin->txt("correction_period"). ': ' . $period, false);
+                $this->tpl->setOnScreenMessage("info", $this->plugin->txt("correction_period") . ': ' . $period, false);
             }
         } else {
             $this->tpl->setOnScreenMessage("info", $this->plugin->txt("message_no_correction_items"), false);
@@ -378,38 +381,38 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
      */
     protected function startCorrector()
     {
-//        $context = new CorrectorContext();
-//        $context->init((string) $this->dic->user()->getId(), (string) $this->object->getRefId());
-//
-//        $params = $this->request->getQueryParams();
-//        if (!empty($params['writer_id'])) {
-//            $context->selectWriterId((int) $params['writer_id']);
-//        }
-//        $service = new Service($context);
-//        $service->openFrontend();
+        //        $context = new CorrectorContext();
+        //        $context->init((string) $this->dic->user()->getId(), (string) $this->object->getRefId());
+        //
+        //        $params = $this->request->getQueryParams();
+        //        if (!empty($params['writer_id'])) {
+        //            $context->selectWriterId((int) $params['writer_id']);
+        //        }
+        //        $service = new Service($context);
+        //        $service->openFrontend();
     }
 
     protected function authorizeCorrection()
     {
         $valid = false;
 
-//        foreach ($this->getWriterIds() as $writer_id) {
-//            $essay = $this->localDI->getEssayRepo()->getEssayByWriterIdAndTaskId($writer_id, $this->settings->getTaskId());
-//
-//            if (empty($essay)) {
-//                continue;
-//            }
-//            $summary = $this->localDI->getEssayRepo()->getCorrectorSummaryByEssayIdAndCorrectorId($essay->getId(), $corrector->getId());
-//
-//            if (empty($summary)) {
-//                continue;
-//            }
-//            $valid = true;
-//            $this->service->authorizeCorrection($summary, $corrector->getUserId());
-//            if ($this->service->tryFinalisation($essay, $corrector->getUserId())) {
-//                $this->service->sendReviewNotification($this->object->getRefId(), $writer_id);
-//            }
-//        }
+        //        foreach ($this->getWriterIds() as $writer_id) {
+        //            $essay = $this->localDI->getEssayRepo()->getEssayByWriterIdAndTaskId($writer_id, $this->settings->getTaskId());
+        //
+        //            if (empty($essay)) {
+        //                continue;
+        //            }
+        //            $summary = $this->localDI->getEssayRepo()->getCorrectorSummaryByEssayIdAndCorrectorId($essay->getId(), $corrector->getId());
+        //
+        //            if (empty($summary)) {
+        //                continue;
+        //            }
+        //            $valid = true;
+        //            $this->service->authorizeCorrection($summary, $corrector->getUserId());
+        //            if ($this->service->tryFinalisation($essay, $corrector->getUserId())) {
+        //                $this->service->sendReviewNotification($this->object->getRefId(), $writer_id);
+        //            }
+        //        }
 
         if ($valid) {
             $this->tpl->setOnScreenMessage("success", $this->plugin->txt("authorize_correction_done"), true);
@@ -422,27 +425,27 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
 
     protected function downloadWrittenPdf()
     {
-//        $params = $this->request->getQueryParams();
-//        $writer_id = (int) ($params['writer_id'] ?? 0);
-//
-//        $service = $this->localDI->getWriterAdminService($this->object->getId());
-//        $repoWriter = $this->localDI->getWriterRepo()->getWriterById($writer_id);
-//
-//        $filename = 'task' . $this->object->getId() . '_writer' . $repoWriter->getId(). '-writing.pdf';
-//        $this->common_services->fileHelper()->deliverData($service->getWritingAsPdf($this->object, $repoWriter, true), $filename, 'application/pdf');
+        //        $params = $this->request->getQueryParams();
+        //        $writer_id = (int) ($params['writer_id'] ?? 0);
+        //
+        //        $service = $this->localDI->getWriterAdminService($this->object->getId());
+        //        $repoWriter = $this->localDI->getWriterRepo()->getWriterById($writer_id);
+        //
+        //        $filename = 'task' . $this->object->getId() . '_writer' . $repoWriter->getId(). '-writing.pdf';
+        //        $this->common_services->fileHelper()->deliverData($service->getWritingAsPdf($this->object, $repoWriter, true), $filename, 'application/pdf');
     }
 
     protected function downloadCorrectedPdf()
     {
-//        $params = $this->request->getQueryParams();
-//        $writer_id = (int) ($params['writer_id'] ?? 0);
-//
-//        $service = $this->localDI->getCorrectorAdminService($this->object->getId());
-//        $repoWriter = $this->localDI->getWriterRepo()->getWriterById($writer_id);
-//        $repoCorrector = $this->localDI->getCorrectorRepo()->getCorrectorByUserId($this->dic->user()->getId(), $this->settings->getTaskId());
-//
-//        $filename = 'task' . $this->object->getId() . '_writer' . $repoWriter->getId(). '-correction.pdf';
-//        $this->common_services->fileHelper()->deliverData($service->getCorrectionAsPdf($this->object, $repoWriter, $repoCorrector, true), $filename, 'application/pdf');
+        //        $params = $this->request->getQueryParams();
+        //        $writer_id = (int) ($params['writer_id'] ?? 0);
+        //
+        //        $service = $this->localDI->getCorrectorAdminService($this->object->getId());
+        //        $repoWriter = $this->localDI->getWriterRepo()->getWriterById($writer_id);
+        //        $repoCorrector = $this->localDI->getCorrectorRepo()->getCorrectorByUserId($this->dic->user()->getId(), $this->settings->getTaskId());
+        //
+        //        $filename = 'task' . $this->object->getId() . '_writer' . $repoWriter->getId(). '-correction.pdf';
+        //        $this->common_services->fileHelper()->deliverData($service->getCorrectionAsPdf($this->object, $repoWriter, $repoCorrector, true), $filename, 'application/pdf');
     }
 
 
@@ -451,17 +454,17 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
     {
         $success = false;
 
-//        foreach ($this->getWriterIds() as $writer_id) {
-//            $writer = $this->localDI->getWriterRepo()->getWriterById($writer_id);
-//            if (empty($writer)) {
-//                continue;
-//            }
-//            if ($this->service->removeOwnAuthorization($writer, $corrector)) {
-//                $success = true;
-//            } else {
-//                $this->tpl->setOnScreenMessage("failure", sprintf($this->plugin->txt('remove_own_authorization_failed'), $writer->getPseudonym()), true);
-//            }
-//        }
+        //        foreach ($this->getWriterIds() as $writer_id) {
+        //            $writer = $this->localDI->getWriterRepo()->getWriterById($writer_id);
+        //            if (empty($writer)) {
+        //                continue;
+        //            }
+        //            if ($this->service->removeOwnAuthorization($writer, $corrector)) {
+        //                $success = true;
+        //            } else {
+        //                $this->tpl->setOnScreenMessage("failure", sprintf($this->plugin->txt('remove_own_authorization_failed'), $writer->getPseudonym()), true);
+        //            }
+        //        }
 
         if ($success) {
             $this->tpl->setOnScreenMessage("success", $this->plugin->txt('remove_own_authorization_done'), true);

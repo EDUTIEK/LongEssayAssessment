@@ -124,13 +124,15 @@ abstract class BaseGUI
 
     /**
      * Add a component(s) to to be shown
-     * @param UiComponent|UiComponent[] $component
+     * @param UiComponent|UiComponent[]|null $component
      */
-    protected function add(UiComponent|array $component): static
+    protected function add(UiComponent|array|null $component): static
     {
         if (is_array($component)) {
-            $this->components = array_merge($this->components, $component);
-        } else {
+            foreach ($component as $item) {
+                $this->add($item);
+            }
+        } elseif ($component !== null) {
             $this->components[] = $component;
         }
         return $this;
@@ -191,7 +193,7 @@ abstract class BaseGUI
         $this->session->set('task_id', $this->task_info->getId());
         $this->ctrl->setParameter($this, 'task_id', $this->task_info->getId());
 
-        if ($this->object->getMultiTasks() || $this->assessment_api->permissions($this->object->getId())->canEditTemplates()) {
+        if ($this->object->getMultiTasks() || $this->assessment_api->permissions($this->object->getContextId())->canEditTemplates()) {
             $tools_data = $this->dic->globalScreen()->tool()->context()->current()->getAdditionalData();
             $tools_data->add(ToolProvider::NAME, true);
             $tools_data->add(ToolProvider::GUI_CLASS, static::class);

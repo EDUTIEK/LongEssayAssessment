@@ -416,6 +416,14 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
         ]);
     }
 
+    public function step_23(): void
+    {
+        require_once __DIR__ . '/../../../../../../../../../../components/ILIAS/Migration/DBUpdate_3560/classes/class.ilDBUpdateNewObjectType.php';
+        $type_id = ilDBUpdateNewObjectType::addNewType('xlas', 'Long Essay Task');
+        $ops_id = ilDBUpdateNewObjectType::addCustomRBACOperation('edit_templates', 'Edit Templates', 'object', 3200);
+        ilDBUpdateNewObjectType::addRBACOperation($type_id, $ops_id);
+    }
+
     private function ensureTable(string $name, array $fields): void
     {
         if (!$this->db->tableExists($name)) {
@@ -431,13 +439,5 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
         if (!$this->db->tableColumnExists($table, $column)) {
             $this->db->addTableColumn($table, $column, $options);
         }
-    }
-
-    public function step_21(): void
-    {
-        require_once __DIR__ . '/../../../../../../../../../../components/ILIAS/Migration/DBUpdate_3560/classes/class.ilDBUpdateNewObjectType.php';
-        $type_id = ilDBUpdateNewObjectType::addNewType('xlas', 'Long Essay Task');
-        $ops_id = ilDBUpdateNewObjectType::addCustomRBACOperation('edit_templates', 'Edit Templates', 'object', 3200);
-        ilDBUpdateNewObjectType::addRBACOperation($type_id, $ops_id);
     }
 }

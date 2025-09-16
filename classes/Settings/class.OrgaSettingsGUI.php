@@ -95,14 +95,15 @@ class OrgaSettingsGUI extends BaseGUI
         $properties = $this->properties_service->get();
         $orga_settings = $this->orga_settings_service->get();
         $writing_settings = $this->writing_settings_service->get();
-        
+
         $properties->setTitle($data['object']['title']);
         $properties->setDescription($data['object']['description']);
 
         $orga_settings->setOnline($data['object']['online']);
         $orga_settings->setTemplate($data['object']['template']);
         $orga_settings->setParticipationType(ParticipationType::tryFrom(
-            $data['object']['participation_type']) ?? ParticipationType::INSTANT);
+            $data['object']['participation_type']
+        ) ?? ParticipationType::INSTANT);
 
         $writing_settings->setWritingType(WritingType::from((string) $data['object']['writing_type']));
 
@@ -129,7 +130,8 @@ class OrgaSettingsGUI extends BaseGUI
         $orga_settings->setCorrectionEnd($data['task']['correction_end'] ?? null);
 
         $orga_settings->setResultAvailableType(ResultAvailableType::tryFrom((
-            $data['task']['result_available_type'][0] )?? ResultAvailableType::REVIEW));
+            $data['task']['result_available_type'][0]
+        ) ?? ResultAvailableType::REVIEW));
         $orga_settings->setResultAvailableDate($data['task']['result_available_type'][1]['result_available_date'] ?? null);
 
         $orga_settings->setReviewEnabled(!empty($data['task']['review']));
@@ -152,9 +154,13 @@ class OrgaSettingsGUI extends BaseGUI
             $this->ctrl->redirect($this, "editSettings");
         }
 
-        $this->failure(implode('<br>',
-            array_map(fn(ValidationError $error) => $this->plugin->txt('failure_'. $error->value),
-            $orga_settings->getValidationErrors())));
+        $this->failure(implode(
+            '<br>',
+            array_map(
+                fn(ValidationError $error) => $this->plugin->txt('failure_' . $error->value),
+                $orga_settings->getValidationErrors()
+            )
+        ));
     }
 
     private function buildForm(): Standard
@@ -175,7 +181,10 @@ class OrgaSettingsGUI extends BaseGUI
         $fields_object['description'] = $factory->textarea($this->lng->txt("description"))
             ->withValue($properties->getDescription());// Exclude from RTE
 
-        $fields_object['online'] = $factory->checkbox($this->lng->txt('online'))
+        $fields_object['online'] = $factory->checkbox(
+            $this->lng->txt('online'),
+            $this->plugin->txt('online_info')
+        )
             ->withValue($orga_settings->getOnline());
 
         if ($orga_settings->getSrcTemplateName()) {
@@ -185,12 +194,17 @@ class OrgaSettingsGUI extends BaseGUI
         }
 
         if ($this->assessment_api->permissions($this->object->getContextId())->canEditTemplates()) {
-            $fields_object['template'] = $factory->checkbox($this->plugin->txt('is_template'))
+            $fields_object['template'] = $factory->checkbox(
+                $this->plugin->txt('is_template'),
+                $this->plugin->txt('is_template_info')
+            )
                 ->withValue($orga_settings->getTemplate());
         }
 
-        $fields_object['multi_tasks'] = $factory->checkbox($this->plugin->txt('multi_tasks'),
-            $this->plugin->txt('multi_tasks_info'))
+        $fields_object['multi_tasks'] = $factory->checkbox(
+            $this->plugin->txt('multi_tasks'),
+            $this->plugin->txt('multi_tasks_info')
+        )
             ->withValue($orga_settings->getMultiTasks())
             ->withDisabled(true);
 
@@ -253,7 +267,7 @@ class OrgaSettingsGUI extends BaseGUI
             [
                 'days' => $factory->numeric(
                     $this->plugin->txt("writing_limit_days"),
-                )->withValue($days > 0 ? $days: null),
+                )->withValue($days > 0 ? $days : null),
                 'hours_minutes' => $factory->dateTime(
                     $this->plugin->txt("writing_limit_hours_minutes"),
                 )->withTimeOnly(true)
@@ -266,7 +280,7 @@ class OrgaSettingsGUI extends BaseGUI
             $fields_settings['writing_limit'] = $fields_settings['writing_limit']->withValue(null);
         }
 
-        $fields_settings['location'] =  $factory->tag(
+        $fields_settings['location'] = $factory->tag(
             $this->plugin->txt("locations"),
             $this->location_service->exampleTitles(),
             $this->plugin->txt("locations_info")
@@ -323,7 +337,7 @@ class OrgaSettingsGUI extends BaseGUI
                 ),
                 ResultAvailableType::DATE->value => $factory->group(
                     [
-                        'result_available_date' =>  $factory->dateTime(
+                        'result_available_date' => $factory->dateTime(
                             $this->plugin->txt("result_available_date"),
                             $this->plugin->txt('result_available_date_info')
                         )
@@ -337,19 +351,19 @@ class OrgaSettingsGUI extends BaseGUI
             $this->plugin->txt('result_available_type_info'),
         )->withValue($orga_settings->getResultAvailableType()->value);
 
-        $fields_settings['statistics_available']  = $factory->checkbox(
+        $fields_settings['statistics_available'] = $factory->checkbox(
             $this->plugin->txt("writer_statistics_enabled"),
             $this->plugin->txt("writer_statistics_info")
         )->withValue($orga_settings->getStatisticsAvailable());
 
         $review_settings = [
-            'review_start' =>  $factory->dateTime(
+            'review_start' => $factory->dateTime(
                 $this->plugin->txt("review_start"),
                 $this->plugin->txt("review_start_info")
             )
                 ->withUseTime(true)
                 ->withValue($orga_settings->getReviewStart()?->setTimezone($this->user_timezone)),
-            'review_end' =>  $factory->dateTime(
+            'review_end' => $factory->dateTime(
                 $this->plugin->txt("review_end"),
                 $this->plugin->txt("review_end_info")
             )
@@ -368,17 +382,17 @@ class OrgaSettingsGUI extends BaseGUI
             )
         ];
 
-        if(!$orga_settings->getReviewNotification()) {
+        if (!$orga_settings->getReviewNotification()) {
             $review_settings['review_notification'] = $review_settings['review_notification']->withValue(null);
         }
 
-        $fields_settings['review']  = $factory->optionalGroup(
+        $fields_settings['review'] = $factory->optionalGroup(
             $review_settings,
             $this->plugin->txt("review_enabled"),
             $this->plugin->txt("review_info")
         );
 
-        if(!$orga_settings->getReviewEnabled()) {
+        if (!$orga_settings->getReviewEnabled()) {
             $fields_settings['review'] = $fields_settings['review']->withValue(null);
         }
 
@@ -386,7 +400,7 @@ class OrgaSettingsGUI extends BaseGUI
         $sections['content'] = $section($fields_content, $this->plugin->txt('content'));
         $sections['task'] = $section($fields_settings, $this->plugin->txt('task_settings'))->withAdditionalTransformation(
             $this->refinery->custom()->constraint(function (array $var) {
-                if(($var['result_available_type'][0] ?? "") === ResultAvailableType::REVIEW->value) {
+                if (($var['result_available_type'][0] ?? "") === ResultAvailableType::REVIEW->value) {
                     return !empty($var['review']);
                 }
                 return true;

@@ -63,6 +63,7 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
     {
         global $DIC;
 
+
         $t = explode("_", $a_target[0]);
         $ref_id = (int) $t[0];
 
@@ -199,11 +200,11 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                     //                    }
                     //                    break;
                 case strtolower(WriterStartGUI::class):
-                   if ($this->permissions->canViewWriterScreen()) {
-                       $this->activateTab('tab_writer', 'tab_writer_start');
-                       $this->ctrl->forwardCommand(new WriterStartGUI($this->object));
-                   }
-                   break;
+                    if ($this->permissions->canViewWriterScreen()) {
+                        $this->activateTab('tab_writer', 'tab_writer_start');
+                        $this->ctrl->forwardCommand(new WriterStartGUI($this->object));
+                    }
+                    break;
                     //                case 'ilias\plugin\longessayassessment\writer\writerstatisticsgui':
                     //                    if ($this->permissions->canViewWriterStatistics()) {
                     //                        $this->activateTab('tab_writer', 'tab_writer_statistic');
@@ -234,24 +235,24 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                     //                        $this->ctrl->forwardCommand(new \ILIAS\Plugin\LongEssayAssessment\Corrector\CorrectionReportGUI($this));
                     //                    }
                     //                    break;
-                   case strtolower(WriterAdminGUI::class):
-                       if ($this->permissions->canMaintainWriters()) {
-                           $this->activateTab('tab_writer_admin', 'tab_writer_admin');
-                           $this->ctrl->forwardCommand(new WriterAdminGUI($this->object));
-                       }
-                       break;
-                    case strtolower(ProtocolGUI::class):
-                        if ($this->permissions->canMaintainWriters()) {
-                            $this->activateTab('tab_writer_admin', 'tab_writer_admin_log');
-                            $this->ctrl->forwardCommand(new ProtocolGUI($this->object));
-                        }
-                        break;
-                    case strtolower(CorrectionAdminGUI::class):
-                        if ($this->permissions->canMaintainCorrectors()) {
-                            $this->activateTab('tab_corrector_admin', 'tab_correction_items');
-                            $this->ctrl->forwardCommand(new CorrectionAdminGUI($this->object));
-                        }
-                        break;
+                case strtolower(WriterAdminGUI::class):
+                    if ($this->permissions->canMaintainWriters()) {
+                        $this->activateTab('tab_writer_admin', 'tab_writer_admin');
+                        $this->ctrl->forwardCommand(new WriterAdminGUI($this->object));
+                    }
+                    break;
+                case strtolower(ProtocolGUI::class):
+                    if ($this->permissions->canMaintainWriters()) {
+                        $this->activateTab('tab_writer_admin', 'tab_writer_admin_log');
+                        $this->ctrl->forwardCommand(new ProtocolGUI($this->object));
+                    }
+                    break;
+                case strtolower(CorrectionAdminGUI::class):
+                    if ($this->permissions->canMaintainCorrectors()) {
+                        $this->activateTab('tab_corrector_admin', 'tab_correction_items');
+                        $this->ctrl->forwardCommand(new CorrectionAdminGUI($this->object));
+                    }
+                    break;
                 case strtolower(CorrectorGUI::class):
                     if ($this->permissions->canMaintainWriters()) {
                         $this->activateTab('tab_corrector_admin', 'tab_corrector_list');
@@ -314,10 +315,11 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
         $inputs = $form->getInputs();
         $txt = $this->plugin->txt(...);
         $templates = $this->templates();
-        $options = array_merge(
-            [['', $txt('no_template')], ['multi_task', $txt('multi_tasks'), $txt('multi_tasks_info')]],
-            array_map(null, array_keys($templates), array_values($templates))
-        );
+        $options = array_merge([
+            ['', $txt('single_task'), $txt('single_task_info')],
+            ['multi_task', $txt('multi_tasks'), $txt('multi_tasks_info')]
+        ], $this->templates());
+
         $inputs['template'] = array_reduce(
             $options,
             fn($r, array $o) => $r->withOption(...$o),
@@ -341,12 +343,28 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
             [$node_path, $this->parent_id]
         );
 
-        $ref_ids = array_column($DIC->database()->fetchAll($r), 'ref_id');
+        $templates = [];
+        while ($row = $DIC->database()->fetchAssoc($r)) {
+            $obj_id = ilObject::_lookupObjId($row['ref_id']);
+            $templates[] = [$row['ref_id'], ilObject::_lookupTitle($obj_id), ilObject::_lookupDescription($obj_id)];
+        }
+        return $templates;
+    }
 
-        return array_combine($ref_ids, array_map(
-            ilObject::_lookupTitle(...),
-            array_map(ilObject::_lookupObjId(...), $ref_ids)
-        ));
+    public function save(): void
+    {
+        $form = $this
+            ->initCreateForm($this->requested_new_type)
+            ->withRequest($this->request);
+        $data = $form->getData();
+
+        // set the template for creating the new object
+        if (!empty($data['template']) && is_numeric($data['template'])) {
+            $template = new ilObjLongEssayAssessment((int) $data['template']);
+            ilObjLongEssayAssessment::setTemplate($template);
+        }
+
+        parent::save();
     }
 
     /**
@@ -361,29 +379,21 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
             ->withRequest($this->request);
         $data = $form->getData();
 
-        // save the 'multi tasks' setting
-        $assessment = $this->plugin->dic()->assessment($new_object->getAssId(), $new_object->getContextId(), $this->user->getId());
-        $orga_settings = $assessment->orgaSettings()->get();
         if ($data['template'] === 'multi_task') {
+            $assessment = $this->plugin->dic()->assessment($new_object->getAssId(), $this->user->getId());
+            $orga_settings = $assessment->orgaSettings()->get();
             $orga_settings->setMultiTasks(true);
+            $assessment->orgaSettings()->save($orga_settings);
+
         } elseif ($data['template']) {
-            $template_obj_id = ilObject::_lookupObjId($data['template']);
-            $template_assessment = $this->plugin->dic()->assessment(
-                $template_obj_id,
-                $data['template'],
-                $this->user->getId()
-            );
-            $orga_settings = $template_assessment->orgaSettings()->get() ?? $orga_settings;
-            $orga_settings->setAssId($new_object->getAssId());
+            $template = ilObjLongEssayAssessment::getTemplate();
+            $assessment = $this->plugin->dic()->assessment($new_object->getAssId(), $this->user->getId());
+            $orga_settings = $assessment->orgaSettings()->get();
             $orga_settings->setOnline(false);
             $orga_settings->setTemplate(false);
-            $orga_settings->setSrcTemplateName(ilObject::_lookupTitle($template_obj_id));
-            $assessment->disabledGroup()->save(
-                array_map(fn($g) => $g->getName(), $template_assessment->disabledGroup()->get())
-            );
+            $orga_settings->setSrcTemplateName($template?->getTitle());
+            $assessment->orgaSettings()->save($orga_settings);
         }
-
-        $assessment->orgaSettings()->save($orga_settings);
 
         // always send a message
         $this->tpl->setOnScreenMessage(Gti::MESSAGE_TYPE_SUCCESS, $this->lng->txt("object_added"), true);
@@ -543,25 +553,25 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                 'txt' => $this->plugin->txt('tab_corrector_start'),
                 'url' => $this->ctrl->getLinkTargetByClass(strtolower(CorrectorStartGUI::class))
             ];
-        //            if($this->permissions->canViewCorrectorScreen()) {
-        //                $tabs[] = [
-        //                    'id' => 'tab_corrector_criteria',
-        //                    'txt' => $this->plugin->txt('tab_criteria'),
-        //                    'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessayassessment\corrector\correctorcriteriagui')
-        //                ];
-        //            }
-        //            $tabs[] = [
-        //                'id' => 'tab_corrector_statistic',
-        //                'txt' => $this->plugin->txt('tab_corrector_statistic'),
-        //                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessayassessment\corrector\correctorstatisticsgui')
-        //            ];
-        //        }
-        //        if ($this->permissions->canWriteCorrectionReport()) {
-        //            $tabs[] = [
-        //                'id' => 'tab_correction_report',
-        //                'txt' => $this->plugin->txt('tab_correction_report'),
-        //                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessayassessment\corrector\correctionreportgui')
-        //            ];
+            //            if($this->permissions->canViewCorrectorScreen()) {
+            //                $tabs[] = [
+            //                    'id' => 'tab_corrector_criteria',
+            //                    'txt' => $this->plugin->txt('tab_criteria'),
+            //                    'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessayassessment\corrector\correctorcriteriagui')
+            //                ];
+            //            }
+            //            $tabs[] = [
+            //                'id' => 'tab_corrector_statistic',
+            //                'txt' => $this->plugin->txt('tab_corrector_statistic'),
+            //                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessayassessment\corrector\correctorstatisticsgui')
+            //            ];
+            //        }
+            //        if ($this->permissions->canWriteCorrectionReport()) {
+            //            $tabs[] = [
+            //                'id' => 'tab_correction_report',
+            //                'txt' => $this->plugin->txt('tab_correction_report'),
+            //                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessayassessment\corrector\correctionreportgui')
+            //            ];
         }
         if (!empty($tabs)) {
             $this->tabs->addTab('tab_corrector', $this->plugin->txt('tab_corrector'), $tabs[0]['url']);
@@ -624,16 +634,16 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                 'txt' => $this->plugin->txt('tab_corrector_list'),
                 'url' => $this->ctrl->getLinkTargetByClass(strtolower(CorrectorGUI::class), "showItems")
             ];
-        //            $tabs[] = [
-        //                'id' => 'tab_corrector_adm_statistic',
-        //                'txt' => $this->plugin->txt('tab_corrector_admin_statistic'),
-        //                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessayassessment\correctorAdmin\correctoradminstatisticsgui', "showStartPage")
-        //            ];
-        //            $tabs[] = [
-        //                'id' => 'tab_writer_statistic',
-        //                'txt' => $this->plugin->txt('tab_writer_statistic'),
-        //                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessayassessment\correctorAdmin\correctoradminwriterstatisticsgui', "showStartPage")
-        //            ];
+            //            $tabs[] = [
+            //                'id' => 'tab_corrector_adm_statistic',
+            //                'txt' => $this->plugin->txt('tab_corrector_admin_statistic'),
+            //                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessayassessment\correctorAdmin\correctoradminstatisticsgui', "showStartPage")
+            //            ];
+            //            $tabs[] = [
+            //                'id' => 'tab_writer_statistic',
+            //                'txt' => $this->plugin->txt('tab_writer_statistic'),
+            //                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessayassessment\correctorAdmin\correctoradminwriterstatisticsgui', "showStartPage")
+            //            ];
         }
         if (!empty($tabs)) {
             $this->tabs->addTab('tab_corrector_admin', $this->plugin->txt('tab_corrector_admin'), $tabs[0]['url']);

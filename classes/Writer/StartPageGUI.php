@@ -340,9 +340,14 @@ class StartPageGUI extends BaseGUI
     {
         $parts = [];
         $tasks = $this->task_manager->all();
+        $is_one = count($tasks) === 1;
         foreach ($tasks as $task) {
             $items = $this->solutionItems($task);
             if ($items) {
+                if (count($tasks) === 1) {
+                    $parts = $items;
+                    break;
+                }
                 if ($parts) {
                     $parts[] = $this->ui_factory->divider()->horizontal();
                 }

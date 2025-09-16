@@ -24,16 +24,16 @@ use Edutiek\AssessmentService\Assessment\Api\ForClients as AssessmentApi;
 use Edutiek\AssessmentService\EssayTask\Api\ForClients as EssayTaskApi;
 use Edutiek\AssessmentService\Task\Api\ForClients as TaskApi;
 use Edutiek\AssessmentService\System\Entity\KeyCase;
-
 use Edutiek\AssessmentService\Assessment\Data\CorrectionSettings;
 use Edutiek\AssessmentService\Assessment\Data\OrgaSettings;
 use Edutiek\AssessmentService\Assessment\Data\PdfSettings;
 use Edutiek\AssessmentService\Assessment\Data\Location;
 use Edutiek\AssessmentService\Assessment\Data\GradeLevel;
+use Edutiek\AssessmentService\Assessment\Data\DisabledGroup;
 use Edutiek\AssessmentService\Task\Data\Settings as TaskSettings;
-use Edutiek\AssessmentService\EssayTask\Data\CorrectionSettings as EssayCorrectionSettings;
+use Edutiek\AssessmentService\Task\Data\CorrectionSettings as TaskCorrectionSettings;
+use Edutiek\AssessmentService\Task\Data\RatingCriterion as TaskRatingCriterion;
 use Edutiek\AssessmentService\EssayTask\Data\TaskSettings as EssayTaskSettings;
-use Edutiek\AssessmentService\EssayTask\Data\RatingCriterion;
 use Edutiek\AssessmentService\EssayTask\Data\WritingSettings as EssayWritingSettings;
 use ILIAS\Filesystem\Stream\Streams;
 use Edutiek\AssessmentService\Task\Data\Resource;
@@ -116,14 +116,26 @@ class ilLongEssayAssessmentExporter extends ilXmlExporter
         $writer->xmlElement("Title", null, $this->object->getTitle());
         $writer->xmlElement("Description", null, $this->object->getDescription());
 
-        $this->addEntityXml($writer, 'AssessmentOrgaSettings',
-            $this->assessment_api->orgaSettings()->get(), OrgaSettings::class);
+        $this->addEntityXml(
+            $writer,
+            'AssessmentOrgaSettings',
+            $this->assessment_api->orgaSettings()->get(),
+            OrgaSettings::class
+        );
 
-        $this->addEntityXml($writer, 'AssessmentPdfSettings',
-            $this->assessment_api->pdfSettings()->get(), PdfSettings::class);
+        $this->addEntityXml(
+            $writer,
+            'AssessmentPdfSettings',
+            $this->assessment_api->pdfSettings()->get(),
+            PdfSettings::class
+        );
 
-        $this->addEntityXml($writer, 'AssessmentCorrectionSettings',
-            $this->assessment_api->correctionSettings()->get(), CorrectionSettings::class);
+        $this->addEntityXml(
+            $writer,
+            'AssessmentCorrectionSettings',
+            $this->assessment_api->correctionSettings()->get(),
+            CorrectionSettings::class
+        );
 
         foreach ($this->assessment_api->location()->all() as $location) {
             $this->addEntityXml($writer, 'AssessmentLocation', $location, Location::class);
@@ -133,28 +145,42 @@ class ilLongEssayAssessmentExporter extends ilXmlExporter
             $this->addEntityXml($writer, 'AssessmentGradeLevel', $level, GradeLevel::class);
         }
 
-        $writer->xmlStartTag('DisabledGroups');
-        foreach ($this->assessment_api->disabledGroup()->get() as $group) {
-            $writer->xmlElement('Name', $group->getName());
+        foreach ($this->assessment_api->disabledGroup()->all() as $group) {
+            $this->addEntityXml($writer, 'AssessmentDisabledGroup', $group, DisabledGroup::class);
         }
-        $writer->xmlStartTag('DisabledGroups');
 
-        $this->addEntityXml($writer, 'EssayTaskCorrectionSettings',
-            $this->essay_task_api->correctionSettings()->get(), EssayCorrectionSettings::class);
+        $this->addEntityXml(
+            $writer,
+            'TaskCorrectionSettings',
+            $this->task_api->correctionSettings()->get(),
+            TaskCorrectionSettings::class
+        );
 
-        $this->addEntityXml($writer, 'EssayTaskWritingSettings',
-            $this->essay_task_api->writingSettings()->get(), EssayWritingSettings::class);
+        $this->addEntityXml(
+            $writer,
+            'EssayTaskWritingSettings',
+            $this->essay_task_api->writingSettings()->get(),
+            EssayWritingSettings::class
+        );
 
         foreach ($this->task_api->manager()->all() as $task_info) {
 
-            $this->addEntityXml($writer, 'TaskSettings',
-                $this->task_api->settings($task_info->getId())->get(), TaskSettings::class);
+            $this->addEntityXml(
+                $writer,
+                'TaskSettings',
+                $this->task_api->settings($task_info->getId())->get(),
+                TaskSettings::class
+            );
 
-            $this->addEntityXml($writer, 'EssayTaskSettings',
-                $this->essay_task_api->taskSettings($task_info->getId())->get(), EssayTaskSettings::class);
+            $this->addEntityXml(
+                $writer,
+                'EssayTaskSettings',
+                $this->essay_task_api->taskSettings($task_info->getId())->get(),
+                EssayTaskSettings::class
+            );
 
-            foreach ($this->essay_task_api->ratingCriterion($task_info->getId())->allByCorrectorId(null) as $criterion) {
-                $this->addEntityXml($writer, 'EssayTaskRatingCriterion', $criterion, RatingCriterion::class);
+            foreach ($this->task_api->ratingCriterion($task_info->getId())->allByCorrectorId(null) as $criterion) {
+                $this->addEntityXml($writer, 'TaskRatingCriterion', $criterion, TaskRatingCriterion::class);
             }
 
             foreach ($this->task_api->resource($task_info->getId())->all() as $resource) {
@@ -162,8 +188,9 @@ class ilLongEssayAssessmentExporter extends ilXmlExporter
                 $file_name = '';
                 if (!empty($file_id)) {
                     $file_name = $this->system_api->fileStorage()->getFileInfo($file_id)->getFileName() ?? '';
-                    $export_fs->writeStream($files_path . '/' . $file_id,
-                        Streams::ofResource( $this->system_api->fileStorage()->getFileStream($resource->getFileId()))
+                    $export_fs->writeStream(
+                        $files_path . '/' . $file_id,
+                        Streams::ofResource($this->system_api->fileStorage()->getFileStream($resource->getFileId()))
                     );
                 }
                 $row = $this->system_api->entity()->toPrimitives($resource, Resource::class, KeyCase::PASCAL_CASE);

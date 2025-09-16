@@ -46,6 +46,8 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
 
     public function prepare(\ilDBInterface $db): void
     {
+        require_once __DIR__ . '/../../vendor/autoload.php';
+
         $this->db = $db;
         $this->v10_migration = new V10Migration($db);
     }
@@ -150,16 +152,16 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
             LEFT JOIN xlas_as_corr_settings AS settings ON (writer.ass_id = settings.ass_id);";
 
         $query = $this->db->query($sql);
-        foreach($this->db->fetchObject($query)??[] as $obj) {
+        foreach ($this->db->fetchObject($query) ?? [] as $obj) {
             $summaries_by_task_and_writer[$obj->task_id][$obj->writer_id][] = $obj;
         }
 
-        foreach($summaries_by_task_and_writer as $task_id => $summaries_by_writer) {
-            foreach($summaries_by_writer as $writer_id => $summaries) {
-                $required_correctors = (int)$summaries[0]?->required_correctors ?? 0;
-                $stitch_when_distance = (bool)$summaries[0]?->stitch_when_distance??0;
-                $max_auto_distance = (int)$summaries[0]?->max_auto_distance??0;
-                $stitch_when_decimals = (bool)$summaries[0]?->stitch_when_decimals??0;
+        foreach ($summaries_by_task_and_writer as $task_id => $summaries_by_writer) {
+            foreach ($summaries_by_writer as $writer_id => $summaries) {
+                $required_correctors = (int) $summaries[0]?->required_correctors ?? 0;
+                $stitch_when_distance = (bool) $summaries[0]?->stitch_when_distance ?? 0;
+                $max_auto_distance = (int) $summaries[0]?->max_auto_distance ?? 0;
+                $stitch_when_decimals = (bool) $summaries[0]?->stitch_when_decimals ?? 0;
 
                 if (count($summaries) < $required_correctors) {
                     continue;// not enough correctors authorized => not yet ready
@@ -222,29 +224,28 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
     public function step_7(): void
     {
         # Move CorrectionSettings to Task
-        if(!$this->db->tableExists("xlas_ta_corr_settings") && $this->db->tableExists("xlas_et_corr_settings") )
-        {
+        if (!$this->db->tableExists("xlas_ta_corr_settings") && $this->db->tableExists("xlas_et_corr_settings")) {
             $this->db->renameTable("xlas_et_corr_settings", "xlas_ta_corr_settings");
         }
     }
     public function step_8(): void
     {
         # Remove CorrectionSettings Inclusions
-       if($this->db->tableColumnExists('xlas_ta_corr_settings', 'fixed_inclusions')) {
-           $this->db->dropTableColumn('xlas_ta_corr_settings', 'fixed_inclusions');
-       }
-       if($this->db->tableColumnExists('xlas_ta_corr_settings', 'include_comments')) {
-           $this->db->dropTableColumn('xlas_ta_corr_settings', 'include_comments');
-       }
-       if($this->db->tableColumnExists('xlas_ta_corr_settings', 'include_comment_ratings')) {
-           $this->db->dropTableColumn('xlas_ta_corr_settings', 'include_comment_ratings');
-       }
-       if($this->db->tableColumnExists('xlas_ta_corr_settings', 'include_comment_points')) {
-           $this->db->dropTableColumn('xlas_ta_corr_settings', 'include_comment_points');
-       }
-       if($this->db->tableColumnExists('xlas_ta_corr_settings', 'include_criteria_points')) {
-           $this->db->dropTableColumn('xlas_ta_corr_settings', 'include_criteria_points');
-       }
+        if ($this->db->tableColumnExists('xlas_ta_corr_settings', 'fixed_inclusions')) {
+            $this->db->dropTableColumn('xlas_ta_corr_settings', 'fixed_inclusions');
+        }
+        if ($this->db->tableColumnExists('xlas_ta_corr_settings', 'include_comments')) {
+            $this->db->dropTableColumn('xlas_ta_corr_settings', 'include_comments');
+        }
+        if ($this->db->tableColumnExists('xlas_ta_corr_settings', 'include_comment_ratings')) {
+            $this->db->dropTableColumn('xlas_ta_corr_settings', 'include_comment_ratings');
+        }
+        if ($this->db->tableColumnExists('xlas_ta_corr_settings', 'include_comment_points')) {
+            $this->db->dropTableColumn('xlas_ta_corr_settings', 'include_comment_points');
+        }
+        if ($this->db->tableColumnExists('xlas_ta_corr_settings', 'include_criteria_points')) {
+            $this->db->dropTableColumn('xlas_ta_corr_settings', 'include_criteria_points');
+        }
     }
     public function step_9(): void
     {
@@ -256,16 +257,16 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
     public function step_10(): void
     {
         # Remove CorectorPrefs Inclusions
-        if($this->db->tableColumnExists('xlas_ta_corr_prefs', 'include_comments')) {
+        if ($this->db->tableColumnExists('xlas_ta_corr_prefs', 'include_comments')) {
             $this->db->dropTableColumn('xlas_ta_corr_prefs', 'include_comments');
         }
-        if($this->db->tableColumnExists('xlas_ta_corr_prefs', 'include_comment_ratings')) {
+        if ($this->db->tableColumnExists('xlas_ta_corr_prefs', 'include_comment_ratings')) {
             $this->db->dropTableColumn('xlas_ta_corr_prefs', 'include_comment_ratings');
         }
-        if($this->db->tableColumnExists('xlas_ta_corr_prefs', 'include_comment_points')) {
+        if ($this->db->tableColumnExists('xlas_ta_corr_prefs', 'include_comment_points')) {
             $this->db->dropTableColumn('xlas_ta_corr_prefs', 'include_comment_points');
         }
-        if($this->db->tableColumnExists('xlas_ta_corr_prefs', 'include_criteria_points')) {
+        if ($this->db->tableColumnExists('xlas_ta_corr_prefs', 'include_criteria_points')) {
             $this->db->dropTableColumn('xlas_ta_corr_prefs', 'include_criteria_points');
         }
     }
@@ -327,23 +328,23 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
     public function step_19(): void
     {
         # Remove CorrectorSummary Inclusions
-        if($this->db->tableColumnExists('xlas_ta_corr_summary', 'include_comments')) {
+        if ($this->db->tableColumnExists('xlas_ta_corr_summary', 'include_comments')) {
             $this->db->dropTableColumn('xlas_ta_corr_summary', 'include_comments');
         }
-        if($this->db->tableColumnExists('xlas_ta_corr_summary', 'include_comment_ratings')) {
+        if ($this->db->tableColumnExists('xlas_ta_corr_summary', 'include_comment_ratings')) {
             $this->db->dropTableColumn('xlas_ta_corr_summary', 'include_comment_ratings');
         }
-        if($this->db->tableColumnExists('xlas_ta_corr_summary', 'include_comment_points')) {
+        if ($this->db->tableColumnExists('xlas_ta_corr_summary', 'include_comment_points')) {
             $this->db->dropTableColumn('xlas_ta_corr_summary', 'include_comment_points');
         }
-        if($this->db->tableColumnExists('xlas_ta_corr_summary', 'include_criteria_points')) {
+        if ($this->db->tableColumnExists('xlas_ta_corr_summary', 'include_criteria_points')) {
             $this->db->dropTableColumn('xlas_ta_corr_summary', 'include_criteria_points');
         }
     }
 
     private function addTaskIdAndWriterIdFromEssayId(string $table)
     {
-        if(!$this->db->tableColumnExists($table, 'task_id')) {
+        if (!$this->db->tableColumnExists($table, 'task_id')) {
             $this->db->addTableColumn($table, 'task_id', [
                 'notnull' => '1',
                 'type' => 'integer',
@@ -353,7 +354,7 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
             $this->db->addIndex($table, array("task_id"), "idt");
         }
 
-        if(!$this->db->tableColumnExists($table, 'writer_id')) {
+        if (!$this->db->tableColumnExists($table, 'writer_id')) {
             $this->db->addTableColumn($table, 'writer_id', [
                 'notnull' => '1',
                 'type' => 'integer',
@@ -369,10 +370,10 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
             SET target_table.task_id = essay.task_id, target_table.writer_id = essay.writer_id;
         ");
 
-        if($this->db->tableColumnExists($table, 'essay_id')) {
+        if ($this->db->tableColumnExists($table, 'essay_id')) {
             $this->db->dropTableColumn($table, 'essay_id');
         }
-        if($this->db->indexExistsByFields($table, ['essay_id'])) {
+        if ($this->db->indexExistsByFields($table, ['essay_id'])) {
             $this->db->dropIndexByFields($table, ['essay_id']);
         }
     }
@@ -418,6 +419,10 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
 
     public function step_23(): void
     {
+        // ilDBUpdateNewObjectType needs the global database
+        global $DIC;
+        $DIC['ilDB'] = $this->db;
+
         require_once __DIR__ . '/../../../../../../../../../../components/ILIAS/Migration/DBUpdate_3560/classes/class.ilDBUpdateNewObjectType.php';
         $type_id = ilDBUpdateNewObjectType::addNewType('xlas', 'Long Essay Task');
         $ops_id = ilDBUpdateNewObjectType::addCustomRBACOperation('edit_templates', 'Edit Templates', 'object', 3200);

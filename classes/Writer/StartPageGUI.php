@@ -169,7 +169,7 @@ class StartPageGUI extends BaseGUI
                 $contents[] = $start_modal = $this->ui_factory->modal()->interruptive(
                     $this->plugin->txt('start_working'),
                     $this->plugin->txt($this->working_time->hasTimeLimitFromStart() ? 'start_working_time_limited' : 'start_working_time_unlimited'),
-                    $this->ctrl->getLinkTarget($this, 'startWorking')
+                    $this->ctrl->getLinkTarget($this->target, 'startWorking')
                 )->withActionButtonLabel($this->plugin->txt('start_working'));
                 $button = $this->ui_factory->button()->primary($this->plugin->txt('start_working'), '#')->withOnClick($start_modal->getShowSignal());
                 $this->toolbar->addComponent($button);

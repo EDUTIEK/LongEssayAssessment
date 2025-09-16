@@ -116,13 +116,10 @@ class WriterStartGUI extends BaseGUI
             $this->ctrl->getLinkTarget($this, 'showStartPage')
         ));
 
-        if (time() >= $this->orga_settings->getWritingStart()?->getTimestamp()) {
+        if (time() <= $this->orga_settings->getWritingStart()?->getTimestamp()) {
             return;
         }
-        $task_id = $this->get->integer('task_id');
-        if (!$task_id) {
-            return;
-        }
+        $task_id = $this->get->integer('task_id', 0);
         $task_settings = $this->task_api->settings($task_id)->get();
 
         $this->renderContent($this->ui_factory->panel()->standard(
@@ -232,7 +229,7 @@ class WriterStartGUI extends BaseGUI
 
     public function downloadInstructions(): void
     {
-        if (time() < $this->orga_settings->getWritingStart()?->getTimestamp()) {
+        if (time() >= $this->orga_settings->getWritingStart()?->getTimestamp()) {
             $task_id = $this->get->integer('task_id');
             $resource = $this->task_api->resource($task_id)->oneByType(ResourceType::SOLUTION);
             if ($resource) {
@@ -249,7 +246,7 @@ class WriterStartGUI extends BaseGUI
         ));
 
         if ($this->perms->canViewSolution()) {
-            $task_id = $this->get->integer('task_id');
+            $task_id = $this->get->integer('task_id', 0);
             $task_settings = $this->task_api->settings($task_id)->get();
             $this->renderContent($this->ui_factory->panel()->standard(
                 $this->plugin->txt('task_solution'),

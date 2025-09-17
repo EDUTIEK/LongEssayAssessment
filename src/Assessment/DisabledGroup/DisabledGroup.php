@@ -90,7 +90,7 @@ class DisabledGroup
         global $DIC;
         $this->main_tpl->addJavaScript('Customizing/global/plugins/Services/Repository/RepositoryObject/LongEssayAssessment/templates/default/DisabledGroup/disabled-group.js');
         $click = $DIC['ui.signal_generator']->create();
-        return $this->ui_factory->button()->toggle(($this->txt)('toggle_disabled_group'), $click, $click)
+        return $this->ui_factory->button()->toggle(($this->txt)(''), $click, $click)
             ->withAdditionalOnLoadCode(fn($id) => "$(document).on('$click', il.EDUTIEK.toggleDisabledInputs)");
     }
 

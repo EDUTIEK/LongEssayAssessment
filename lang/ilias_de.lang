@@ -761,3 +761,7 @@ online_info#:#Die Aufgabe muss online geschalten sein, damit die bearbeitet und 
 is_template_info#:#Die Aufgabe kann als Vorlage für neue Aufgaben verwendet werden. Dazu muss sie auf der gleichen oder einer übergeordneten Magazinebene wie eine neue Aufgabe liegen.
 single_task#:#Einzelaufgabe
 single_task_info#:#Nur eine Aufgabenstellung ermöglichen. Die Bewertung kann dadurch mit Erst- und Zweitkorrektur durchgeführt werden. Diese Einstellung ist nicht änderbar.
+disabled_group_tool_tab#:#Festlegungen
+disabled_group_toggle#:#Ein/Ausblenden
+disabled_group_toggle_info#:#Sie können festgelegte Einstellungen einblenden, da Sie die Berechtigung "Vorlagen verwalten" haben.
+disabled_group_info#:#Wählen Sie aus, welche Einstellungen mit den aktuellen Werten festgeschrieben und ausgeblendet werden.

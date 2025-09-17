@@ -48,6 +48,7 @@ class ToolProvider extends AbstractDynamicToolProvider
     private readonly AssessmentApi $assessment_api;
     private readonly Permissions $permissions;
     private readonly DisabledGroup $disabled_group;
+    private \ILIAS\UI\Factory $ui_factory;
 
     public function __construct(Container $dic)
     {
@@ -58,6 +59,7 @@ class ToolProvider extends AbstractDynamicToolProvider
         $this->obj_id = ilObject::_lookupObjId($this->ref_id);
         $this->assessment_api = $this->plugin->dic()->assessment($this->obj_id, $this->dic->user()->getId());
         $this->permissions = $this->assessment_api->permissions($this->ref_id);
+        $this->ui_factory = $dic->ui()->factory();
         $this->disabled_group = new DisabledGroup(
             $dic->ui()->factory(),
             $this->assessment_api,
@@ -105,13 +107,18 @@ class ToolProvider extends AbstractDynamicToolProvider
     {
         $this->dic->ctrl()->setParameterByClass(DisabledGroupGUI::class, 'return_url', urlencode((string) $this->dic->http()->request()->getUri()));
         return [
-            // Comment in to use toggle buttons:
-            // $this->disabled_group->toggles($this->dic->ctrl()->getLinkTargetByClass([\ilObjLongEssayAssessmentGUI::class, DisabledGroupGUI::class], 'saveGroups')),
+            $this->ui_factory->panel()->standard('Anzeige', [
+                        $this->ui_factory->legacy('<p class="small">' . $this->plugin->txt('disabled_group_toggle_info') . '</p>'),
+                        $this->disabled_group->toggleButton()]),
+             $this->ui_factory->panel()->standard('Einstellung', [
+                 $this->ui_factory->legacy('<p class="small">' . $this->plugin->txt('disabled_group_info') . '</p>'),
 
-            // Comment out to disable form:
-            $this->disabled_group->form($this->dic->ctrl()->getLinkTargetByClass([\ilObjLongEssayAssessmentGUI::class, DisabledGroupGUI::class], 'saveGroups')),
+                 // Comment in to use toggle buttons:
+                 // ...$this->disabled_group->toggles($this->dic->ctrl()->getLinkTargetByClass([\ilObjLongEssayAssessmentGUI::class, DisabledGroupGUI::class], 'saveGroups')),
 
-            $this->disabled_group->toggleButton(),
+                 // Comment out to disable form:
+                 $this->disabled_group->form($this->dic->ctrl()->getLinkTargetByClass([\ilObjLongEssayAssessmentGUI::class, DisabledGroupGUI::class], 'saveGroups'))
+             ])
         ];
     }
 

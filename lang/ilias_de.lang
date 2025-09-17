@@ -732,7 +732,9 @@ by_csv_given_up#:#Prüfling abgegeben?
 by_csv_pdf_hash#:#Hash-wert
 essay_import_column_file#:#Datei
 essay_import_column_id#:#ID
-essay_import_column_error#:#Fehler
+essay_import_column_user#:#User
+essay_import_column_import_possible#:#Importierbar
+essay_import_column_comment#:#Bemerkung
 essay_import_column_hash_ok#:#Hash ok
 upload_zip#:#ZIP hochladen
 import_zip#:#ZIP Importieren
@@ -752,3 +754,5 @@ import_unknown_error#:#Unbekannter Fehler
 import_zip_inconsistent#:#ZIP ist inkonsistent
 import_not_a_zip#:#Datei ist keine ZIP
 import_hash_mismatch#:#Hash Werte stimmen nicht überein
+disabled_group_tool_tab#:#Fixierungen
+toggle_disabled_group#:#Fixierungen sichtbar

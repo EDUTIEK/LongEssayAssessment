@@ -95,7 +95,7 @@ class ToolProvider extends AbstractDynamicToolProvider
         }
 
         if ($this->permissions->canEditTemplates()) {
-            $tabs[] = $tab('switch', $this->disabledGroupContent());
+            $tabs[] = $tab('disabled_group_tool_tab', $this->disabledGroupContent());
         }
 
         return $tabs;
@@ -105,7 +105,12 @@ class ToolProvider extends AbstractDynamicToolProvider
     {
         $this->dic->ctrl()->setParameterByClass(DisabledGroupGUI::class, 'return_url', urlencode((string) $this->dic->http()->request()->getUri()));
         return [
-            $this->disabled_group->form((string) $this->dic->ctrl()->getLinkTargetByClass([\ilObjLongEssayAssessmentGUI::class, DisabledGroupGUI::class], 'saveGroups')),
+            // Comment in to use toggle buttons:
+            // $this->disabled_group->toggles($this->dic->ctrl()->getLinkTargetByClass([\ilObjLongEssayAssessmentGUI::class, DisabledGroupGUI::class], 'saveGroups')),
+
+            // Comment out to disable form:
+            $this->disabled_group->form($this->dic->ctrl()->getLinkTargetByClass([\ilObjLongEssayAssessmentGUI::class, DisabledGroupGUI::class], 'saveGroups')),
+
             $this->disabled_group->toggleButton(),
         ];
     }

@@ -11,3 +11,10 @@ il.EDUTIEK.disableInput = function(node) {
 il.EDUTIEK.toggleDisabledInputs = function() {
     il.EDUTIEK.disabledInputs.forEach(n => n.classList.toggle('ilNoDisplay'));
 };
+
+il.EDUTIEK.updateGroup = function(target_url, group, value){
+    const target = new URL(window.location.origin + '/' + target_url);
+    target.searchParams.set('group', group);
+    target.searchParams.set('enable', value);
+    window.location = target;
+};

@@ -41,6 +41,7 @@ class DisabledGroupRepo implements \Edutiek\AssessmentService\Assessment\Data\Di
     public function save(int $ass_id, array $groups): void
     {
         $this->repo->deleteAllBy(['ass_id' => $ass_id]);
+        $insert = [];
         foreach ($groups as $group) {
             if (is_string($group)) {
                 $group = $this->repo->new()->setName($group);
@@ -53,7 +54,9 @@ class DisabledGroupRepo implements \Edutiek\AssessmentService\Assessment\Data\Di
                 ));
             }
             
-            $this->repo->insert($group);
+            $insert[$group->getName()] = $group;
         }
+
+        array_map($this->repo->insert(...), $insert);
     }
 }

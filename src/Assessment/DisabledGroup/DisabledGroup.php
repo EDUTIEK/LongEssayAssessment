@@ -53,15 +53,14 @@ class DisabledGroup
         private readonly Closure $txt,
         private readonly Closure $with_form,
         private readonly Permissions $perms,
-    )
-    {
+    ) {
     }
 
     public function groups(): array
     {
         return array_map(
             fn(DisabledGroupEntity $g) => $g->getName(),
-            $this->assessment_api->disabledGroup()->get()
+            $this->assessment_api->disabledGroup()->all()
         );
 
     }
@@ -163,7 +162,7 @@ class DisabledGroup
             return;
         }
         ($this->with_form)($this->form(''), function (array $data): void {
-            $this->assessment_api->disabledGroup()->save(array_keys(array_filter($data)));
+            $this->assessment_api->disabledGroup()->saveAll(array_keys(array_filter($data)));
         });
     }
 

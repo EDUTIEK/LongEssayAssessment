@@ -24,39 +24,32 @@ use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\RepositoryInterface;
 use Edutiek\AssessmentService\Assessment\Data\DisabledGroup;
 use Exception;
 
-class DisabledGroupRepo implements \Edutiek\AssessmentService\Assessment\Data\DisabledGroupRepo
+readonly class DisabledGroupRepo implements \Edutiek\AssessmentService\Assessment\Data\DisabledGroupRepo
 {
     /**
      * @param RepositoryInterface<DisabledGroup> $repo
      */
-    public function __construct(private readonly RepositoryInterface $repo)
+    public function __construct(private RepositoryInterface $repo)
     {
     }
 
-    public function get(int $ass_id): array
+    public function new(): DisabledGroup
+    {
+        return $this->repo->new();
+    }
+
+    public function allByAssId(int $ass_id): array
     {
         return $this->repo->queryAllBy(['ass_id' => $ass_id]);
     }
 
-    public function save(int $ass_id, array $groups): void
+    public function deleteByAssId(int $ass_id): void
     {
         $this->repo->deleteAllBy(['ass_id' => $ass_id]);
-        $insert = [];
-        foreach ($groups as $group) {
-            if (is_string($group)) {
-                $group = $this->repo->new()->setName($group);
-                $group->setAssId($ass_id);
-            } elseif ($group->getAssId() !== $ass_id) {
-                throw new Exception(sprintf(
-                    'DisabledGroup item has wrong assessment id (expected: %d, actual %d)',
-                    $ass_id,
-                    $group->getAssId()
-                ));
-            }
-            
-            $insert[$group->getName()] = $group;
-        }
+    }
 
-        array_map($this->repo->insert(...), $insert);
+    public function save(DisabledGroup $group): void
+    {
+        $this->repo->insert($group);
     }
 }

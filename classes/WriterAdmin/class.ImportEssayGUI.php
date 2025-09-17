@@ -91,6 +91,7 @@ class ImportEssayGUI extends BaseGUI implements Import
     public function showForm(): void
     {
         $form = $this->ui_factory->input()->container()->form()->standard($this->ctrl->getLinkTarget($this, __FUNCTION__), [
+            'title' => $this->ui_factory->input()->field()->section([], $this->plugin->txt('import_essays')),
             'file' => $this->ui_factory->input()->field()->file(new Upload(
                 fn() => null,
                 fn($cmd) => $this->ctrl->getLinkTarget($this, $cmd),
@@ -186,21 +187,20 @@ class ImportEssayGUI extends BaseGUI implements Import
 
         $this->saveSession(null);
         $this->success(sprintf($this->plugin->txt('upload_successful'), $imported), true);
-        $this->ctrl->redirectToURL($this->ctrl->getLinkTarget($this, 'showForm'));
+        $this->ctrl->redirectToURL($this->ctrl->getLinkTargetByClass(WriterAdminGUI::class));
     }
 
     public function cancel(): void
     {
         array_map($this->temp_storage->deleteFile(...), $this->session()['files']);
         $this->saveSession(null);
-        $this->ctrl->redirectToURL($this->ctrl->getLinkTarget($this, 'showForm'));
+        $this->ctrl->redirectToURL($this->ctrl->getLinkTargetByClass(WriterAdminGUI::class));
     }
 
     public function iterator(callable $proc, $end = false): Generator
     {
         $v = $proc();
-        while($v !== $end)
-        {
+        while ($v !== $end) {
             yield $v;
             $v = $proc();
         }
@@ -231,7 +231,7 @@ class ImportEssayGUI extends BaseGUI implements Import
                 $essay = $this->essayByWriter($writer->getId());
                 if ($essay) {
                     $pdf = $essay->getPdfVersion();
-                    if  ($pdf) {
+                    if ($pdf) {
                         $resource_api = $this->task_api->resource($task->getId());
                         $resource = $resource_api->one((int) $pdf);
                         $stream = $this->perm_storage->getFileStream($resource->getFileId());
@@ -279,7 +279,7 @@ class ImportEssayGUI extends BaseGUI implements Import
         $file_map = $this->session()['files'];
 
         return array_combine($pdfs, array_map(
-            function(string $file) use ($file_map): string {
+            function (string $file) use ($file_map): string {
                 $s = $this->temp_storage->getFileStream($file_map[$file]);
                 $r = $this->hash(stream_get_contents($s));
                 fclose($s);
@@ -291,7 +291,7 @@ class ImportEssayGUI extends BaseGUI implements Import
 
     private function table(array $hashes, array $data, array $columns): Table
     {
-        $retrieval = new class implements DataRetrieval {
+        $retrieval = new class () implements DataRetrieval {
             public array $data;
             public function getRows(
                 DataRowBuilder $row_builder,
@@ -300,8 +300,7 @@ class ImportEssayGUI extends BaseGUI implements Import
                 Order $order,
                 ?array $filter_data,
                 ?array $additional_parameters
-            ): Generator
-            {
+            ): Generator {
                 $field = key($order->get());
                 $dir = current($order->get()) === 'ASC' ? 1 : -1;
                 usort($this->data, fn(array $row, $other) => $dir * strcmp((string) $row[$field], (string) $other[$field]));
@@ -310,9 +309,8 @@ class ImportEssayGUI extends BaseGUI implements Import
 
             public function getTotalRowCount(
                 ?array $filter_data,
-                    ?array $additional_parameters
-            ): ?int
-            {
+                ?array $additional_parameters
+            ): ?int {
                 // Disable pagination but enable ordering.
                 // See ILIAS\UI\Implementation\Component\Table\TableViewControlPagination::getViewControlPagination (requires less than 5)
                 // See ILIAS\UI\Implementation\Component\Table\TableViewControlOrdering::getViewControlOrdering (requires more than 1)

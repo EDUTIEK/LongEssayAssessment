@@ -745,7 +745,8 @@ import_password#:#Passwort
 import_use_password#:#Passwort verwenden
 import_zip_only_valid#:#Fehlerfreie Einträge importieren
 upload_successful#:#Es wurden erfolgreich %d Einträge importiert.
-essay_import_table#:#ZIP Import
+essay_import_table#:#Abgaben importieren
+import_essays#:#Abgaben importieren
 import_file_missing#:#Datei fehlt
 import_user_not_existing#:#User existiert nicht
 import_same_file_exists#:#Gleiche Datei existiert

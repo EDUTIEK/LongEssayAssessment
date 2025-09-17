@@ -425,7 +425,13 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
 
         require_once __DIR__ . '/../../../../../../../../../../components/ILIAS/Migration/DBUpdate_3560/classes/class.ilDBUpdateNewObjectType.php';
         $type_id = ilDBUpdateNewObjectType::addNewType('xlas', 'Long Essay Task');
-        $ops_id = ilDBUpdateNewObjectType::addCustomRBACOperation('edit_templates', 'Edit Templates', 'object', 3200);
+        $ops_id = ilDBUpdateNewObjectType::addCustomRBACOperation('maintain_task', 'Maintain Task Definition', 'object', 3200);
+        ilDBUpdateNewObjectType::addRBACOperation($type_id, $ops_id);
+        $ops_id = ilDBUpdateNewObjectType::addCustomRBACOperation('maintain_writers', 'Maintain Writers', 'object', 3210);
+        ilDBUpdateNewObjectType::addRBACOperation($type_id, $ops_id);
+        $ops_id = ilDBUpdateNewObjectType::addCustomRBACOperation('maintain_correctors', 'Maintain Correctors', 'object', 3220);
+        ilDBUpdateNewObjectType::addRBACOperation($type_id, $ops_id);
+        $ops_id = ilDBUpdateNewObjectType::addCustomRBACOperation('edit_templates', 'Edit Templates', 'object', 3230);
         ilDBUpdateNewObjectType::addRBACOperation($type_id, $ops_id);
     }
 

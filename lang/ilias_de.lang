@@ -26,6 +26,7 @@ cat_create_xlas#:#Erstelle Langtext-Aufgabe
 maintain_task#:#Aufgabenstellung verwalten
 maintain_writers#:#Durchführung verwalten
 maintain_correctors#:#Korrektur verwalten
+edit_templates#:#Vorlagen verwalten
 title#:#Titel
 description#:#Beschreibung
 status#:#Status

@@ -156,9 +156,9 @@ class DisabledGroup
         $group_name = $query->string('group');
         $enabled = $query->string('enable');
         if ($group_name) {
-            $groups = $this->assessment_api->disabledGroup()->get();
+            $groups = $this->assessment_api->disabledGroup()->all();
             $groups = $enabled ? array_merge($groups, [$group_name]) : array_filter($groups, fn($g) => $g->getName() !== $group_name);
-            $this->assessment_api->disabledGroup()->save($groups);
+            $this->assessment_api->disabledGroup()->saveAll($groups);
             return;
         }
         ($this->with_form)($this->form(''), function (array $data): void {

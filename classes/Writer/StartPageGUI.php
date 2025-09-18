@@ -166,11 +166,12 @@ class StartPageGUI extends BaseGUI
     {
         if (!$this->working_time->isStarted()) {
             if ($this->perms->canWrite()) {
-                $contents[] = $start_modal = $this->ui_factory->modal()->interruptive(
+                $start_modal = $this->ui_factory->modal()->interruptive(
                     $this->plugin->txt('start_working'),
                     $this->plugin->txt($this->working_time->hasTimeLimitFromStart() ? 'start_working_time_limited' : 'start_working_time_unlimited'),
                     $this->ctrl->getLinkTarget($this->target, 'startWorking')
                 )->withActionButtonLabel($this->plugin->txt('start_working'));
+                $this->add($start_modal);
                 $button = $this->ui_factory->button()->primary($this->plugin->txt('start_working'), '#')->withOnClick($start_modal->getShowSignal());
                 $this->toolbar->addComponent($button);
             }
@@ -264,7 +265,7 @@ class StartPageGUI extends BaseGUI
     private function writingItems(Task $task): array
     {
         $items = [];
-        if (!$this->working_time->isNowBeforeAllowedTime()) {
+        if ($this->working_time->isStarted()) {
             $task_settings = $this->task_api->settings($task->getId())->get();
             if ($task_settings->getInstructions()) {
                 $items[] = $this->ui_factory->item()->standard(
@@ -406,7 +407,7 @@ class StartPageGUI extends BaseGUI
             $resources = $resource_api->allByTypes([ResourceType::URL, ResourceType::FILE]);
             foreach ($resources as $resource) {
                 $item = null;
-                if ($resource_api->isAvailable($this->orga_settings, $resource)) {
+                if ($resource_api->isAvailable($this->orga_settings, $this->working_time, $resource)) {
                     if ($resource->getType() == ResourceType::FILE && $resource->getFileId() !== null) {
 
                         $file_info = $this->file_storage->getFileInfo($resource->getFileId());
@@ -487,11 +488,17 @@ class StartPageGUI extends BaseGUI
         $tasks = $this->task_manager->all();
         $is_one = count($tasks) === 1;
 
+        $info = $this->working_time->isStarted() ? [] :
+            [$this->ui_factory->legacy($this->plugin->txt('task_instructions_info') . '<br />')];
+
+
         $panels = [];
         foreach ($tasks as $task) {
             $panels[] = $this->ui_factory->panel()->standard(
-                $is_one ? $this->plugin->txt('task') : $task->getTitle(),
-                $this->writingItems($task)
+                $is_one ? $this->plugin->txt('task') : $task->getTitle(), [
+                    ...$info,
+                    ...$this->writingItems($task)
+                ]
             );
         }
         return $panels;

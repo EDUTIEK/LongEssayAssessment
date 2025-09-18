@@ -28,6 +28,9 @@ use ILIAS\Plugin\LongEssayAssessment\BaseObjectData;
 use Edutiek\AssessmentService\Assessment\Permissions\ReadService;
 use Edutiek\AssessmentService\Assessment\Data\OrgaSettings;
 use Edutiek\AssessmentService\Assessment\Data\Writer as Writer;
+use Edutiek\AssessmentService\Assessment\WorkingTime\FullService as WorkingTime;
+use Edutiek\AssessmentService\EssayTask\Data\WritingSettings as WritingSettings;
+use Edutiek\AssessmentService\EssayTask\Data\WritingType;
 
 /**
  * @ilCtrl_isCalledBy ILIAS\Plugin\LongEssayAssessment\Writer\WriterStartGUI: ilObjLongEssayAssessmentGUI
@@ -37,16 +40,21 @@ class WriterStartGUI extends BaseGUI
 {
     private readonly ReadService $perms;
     private readonly OrgaSettings $orga_settings;
+    private readonly WritingSettings $writing_settings;
     private Writer $writer;
+    private WorkingTime $working_time;
+
 
     public function __construct(BaseObjectData $object)
     {
         parent::__construct($object);
         $this->perms = $this->assessment_api->permissions($this->object->getContextId());
         $this->orga_settings = $this->assessment_api->orgaSettings()->get();
+        $this->writing_settings = $this->essay_task_api->writingSettings()->get();
 
         // get or create - permission is already checked
         $this->writer = $this->assessment_api->writer()->getByUserId($this->user->getId());
+        $this->working_time = $this->assessment_api->workingTime($this->orga_settings, $this->writer);
     }
 
     public function executeCommand(): void
@@ -56,6 +64,7 @@ class WriterStartGUI extends BaseGUI
             'showStartPage',
             'startWriter',
             'startWritingReview',
+            'startWorking',
             'downloadWriterPdf',
             'downloadCorrectedPdf',
             'downloadCorrectionReportsPdf',
@@ -142,12 +151,36 @@ class WriterStartGUI extends BaseGUI
         if (!$resource) {
             $this->raisePermissionError();
         }
-        if (!$resource_api->isAvailable($this->orga_settings, $resource)) {
+        if (!$resource_api->isAvailable($this->orga_settings, $this->working_time, $resource)) {
             $this->raisePermissionError();
         }
 
         if ($resource->getType() === ResourceType::FILE && is_string($resource->getFileId())) {
             $this->system_api->fileDelivery()->sendFile($resource->getFileId(), Disposition::ATTACHMENT);
+        }
+    }
+
+    /**
+     * Set the working start
+     */
+    protected function startWorking()
+    {
+        if ($this->perms->canWrite()) {
+            if ($this->writer->getWorkingStart() === null) {
+                $this->writer->setWorkingStart(\DateTimeImmutable::createFromFormat('U', (string) time()));
+                $this->assessment_api->writer()->save($this->writer);
+            }
+
+            switch ($this->writing_settings->getWritingType()) {
+                case WritingType::ESSAY_EDITOR:
+                    $this->ctrl->redirect($this, 'startWriter');
+
+                case WritingType::PDF_UPLOAD:
+                    $this->ctrl->redirect($this, 'showStartPage');
+            }
+        }
+        else {
+            $this->raisePermissionError();
         }
     }
 

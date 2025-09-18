@@ -759,7 +759,7 @@ import_hash_mismatch#:#Hash Werte stimmen nicht überein
 disabled_group_tool_tab#:#Fixierungen
 toggle_disabled_group#:#Fixierungen sichtbar
 online_info#:#Die Aufgabe muss online geschalten sein, damit die bearbeitet und korrigiert werden kann. Andernfalls ist ist der Zugriff nur mit der Berechtigung "Einstellungen bearbeiten" möglich.
-is_template_info#:#Die Aufgabe kann als Vorlage für neue Aufgaben verwendet werden. Dazu muss sie auf der gleichen oder einer übergeordneten Magazinebene wie eine neue Aufgabe liegen.
+is_template_info#:#Die Aufgabe kann als Vorlage für neue Aufgaben verwendet werden. Dazu muss sie auf der gleichen oder einer übergeordneten Magazinebene wie eine neue Aufgabe liegen. Sie können Vorlagen verbergen, indem Sie ihre Berechtigung "Anzeigen" entfernen oder die Aufgabe einem nicht sichtbaren Objekteblock zuordnen.
 single_task#:#Einzelaufgabe
 single_task_info#:#Nur eine Aufgabenstellung ermöglichen. Die Bewertung kann dadurch mit Erst- und Zweitkorrektur durchgeführt werden. Diese Einstellung ist nicht änderbar.
 disabled_group_tool_tab#:#Festlegungen

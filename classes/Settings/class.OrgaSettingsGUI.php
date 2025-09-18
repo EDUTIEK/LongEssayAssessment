@@ -64,9 +64,6 @@ class OrgaSettingsGUI extends BaseGUI
             case "editSettings":
                 $this->$cmd();
                 break;
-            case 'saveModal':
-                $this->saveModal();
-                break;
 
             default:
                 $this->tpl->setContent('unknown command: ' . $cmd);
@@ -148,6 +145,7 @@ class OrgaSettingsGUI extends BaseGUI
             $this->properties_service->save($properties);
             $this->entity_service->secure($orga_settings, OrgaSettings::class);
             $this->orga_settings_service->save($orga_settings);
+            $this->writing_settings_service->save($writing_settings);
             $this->location_service->saveTitles((array) ($data['task']['location'] ?? []));
 
             $this->success($this->lng->txt("settings_saved"), true);

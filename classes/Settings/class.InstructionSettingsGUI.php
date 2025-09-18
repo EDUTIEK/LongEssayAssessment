@@ -38,7 +38,8 @@ class InstructionSettingsGUI extends BaseGUI
     private ?Resource $resource;
     private TaskManager $task_manager;
 
-    public function __construct(BaseObjectData $object) {
+    public function __construct(BaseObjectData $object)
+    {
         parent::__construct($object);
 
         $this->entity_service = $this->system_api->entity();
@@ -47,7 +48,8 @@ class InstructionSettingsGUI extends BaseGUI
         $this->file_storage = $this->system_api->fileStorage();
         $this->upload_handler = new ilLongEssayAssessmentUploadHandlerGUI(
             $this->file_storage,
-            $this->plugin->dic()->uploadTempFile());
+            $this->plugin->dic()->uploadTempFile()
+        );
     }
 
     public function executeCommand(): void
@@ -83,7 +85,9 @@ class InstructionSettingsGUI extends BaseGUI
             ->withRequired(true)];
         $sections = ['form' => $factory->section($fields, $this->plugin->txt('create_task'))];
         $form = $this->ui_factory->input()->container()->form()->standard(
-            $this->ctrl->getFormAction($this, 'create'), $sections);
+            $this->ctrl->getFormAction($this, 'create'),
+            $sections
+        );
 
         if ($this->request->getMethod() == "POST") {
             $form = $form->withRequest($this->request);
@@ -116,7 +120,9 @@ class InstructionSettingsGUI extends BaseGUI
 
     protected function editSettings(): void
     {
-        $this->addDeleteButton();
+        if ($this->object->getMultiTasks()) {
+            $this->addDeleteButton();
+        }
 
         $form = $this->buildForm();
         if ($this->request->getMethod() == "POST") {
@@ -133,9 +139,12 @@ class InstructionSettingsGUI extends BaseGUI
 
     private function updateSettings(array $data): void
     {
-        $this->settings->setTitle($data['form']['title']);
+        if ($this->object->getMultiTasks()) {
+            $this->settings->setTitle($data['form']['title']);
+        }
         $this->settings->setInstructions(
-            $this->transform_service->trimRichText($data['form']['task_instructions']));
+            $this->transform_service->trimRichText($data['form']['task_instructions'])
+        );
         $this->entity_service->secure($this->settings, Settings::class);
         $this->settings_service->save($this->settings);
 
@@ -151,18 +160,18 @@ class InstructionSettingsGUI extends BaseGUI
                     $this->upload_handler->getApiStream($id),
                     $this->upload_handler->getApiInfo($id)
                 );
-                $this->resource_service->save($this->resource
+                $this->resource_service->save(
+                    $this->resource
                     ->setFileId($stored->getId())
                     ->setTitle($stored->getFileName())
                 );
-            }
-            elseif ($this->resource !== null) {
+            } elseif ($this->resource !== null) {
                 $this->file_storage->deleteFile($this->resource->getFileId());
                 $this->resource_service->delete($this->resource);
             }
         }
 
-        $this->success( $this->lng->txt("settings_saved"), true);
+        $this->success($this->lng->txt("settings_saved"), true);
         $this->ctrl->redirect($this, "editSettings");
     }
 
@@ -172,14 +181,17 @@ class InstructionSettingsGUI extends BaseGUI
         $sections = [];
         $fields = [];
 
-        $fields['title'] = $factory->text($this->lng->txt("title"))
-            ->withValue($this->settings->getTitle());
+        if ($this->object->getMultiTasks()) {
+            $fields['title'] = $factory->text($this->lng->txt("title"))
+                ->withValue($this->settings->getTitle());
+        }
 
         $fields['task_instructions'] = $this->plugin_ui_factory->field()
             ->tinyMCE($this->plugin->txt("task_instructions_text"), $this->plugin->txt("task_instructions_info"))
             ->withValue($this->settings->getInstructions() ?? "");
 
-        $fields['resource_file'] = $factory->file($this->upload_handler,
+        $fields['resource_file'] = $factory->file(
+            $this->upload_handler,
             $this->plugin->txt("task_instructions_file"),
             $this->plugin->txt("task_instructions_file_info")
         )
@@ -197,12 +209,13 @@ class InstructionSettingsGUI extends BaseGUI
             $this->plugin->txt("delete_task"),
             $this->plugin->txt("delete_task_confirmation"),
             $this->ctrl->getLinkTarget($this, "delete")
-            )->withActionButtonLabel($this->plugin->txt("delete_task")));
+        )->withActionButtonLabel($this->plugin->txt("delete_task")));
 
         $this->toolbar->addComponent($this->ui_factory->button()->standard(
-            $this->plugin->txt("delete_task"), "#"
-            )->withOnClick($modal->getShowSignal())->withUnavailableAction(
-                $this->task_manager->count() < 2
+            $this->plugin->txt("delete_task"),
+            "#"
+        )->withOnClick($modal->getShowSignal())->withUnavailableAction(
+            $this->task_manager->count() < 2
         ));
     }
 }

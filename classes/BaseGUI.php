@@ -189,9 +189,12 @@ abstract class BaseGUI
             return;
         }
 
-        $this->tpl->setTitle($this->object->getTitle() . ' | ' . $this->task_info->getTitle());
         $this->session->set('task_id', $this->task_info->getId());
         $this->ctrl->setParameter($this, 'task_id', $this->task_info->getId());
+
+        if ($this->object->getMultiTasks()) {
+            $this->tpl->setTitle($this->object->getTitle() . ' | ' . $this->task_info->getTitle());
+        }
 
         if ($this->object->getMultiTasks() || $this->assessment_api->permissions($this->object->getContextId())->canEditTemplates()) {
             $tools_data = $this->dic->globalScreen()->tool()->context()->current()->getAdditionalData();

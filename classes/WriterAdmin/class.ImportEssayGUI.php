@@ -28,16 +28,12 @@ use ILIAS\Data\Range;
 use ILIAS\Data\Order;
 use ILIAS\Plugin\LongEssayAssessment\Handler\Upload;
 use ILIAS\Plugin\LongEssayAssessment\Handler\UploadHelper;
-use ILIAS\FileUpload\Handler\FileInfoResult;
 use Generator;
 use ZipArchive;
 use ilObjUser;
-use Edutiek\AssessmentService\EssayTask\Data\EssayImport;
 use ILIAS\Plugin\LongEssayAssessment\System\Data\FileInfo;
 use DateTimeImmutable;
-use Edutiek\AssessmentService\Assessment\Data\WritingStatus;
 use ILIAS\Filesystem\Stream\Streams;
-use Closure;
 use ilSession;
 use ILIAS\UI\Component\Table\Data as Table;
 use ilTemporaryStakeholder;
@@ -161,20 +157,15 @@ class ImportEssayGUI extends BaseGUI implements Import
                 continue;
             }
 
-            $zip_pdf = $this->moveTempFileToPermanemt($zip_pdf);
+            $zip_pdf = $this->moveTempFileToPermanent($zip_pdf);
 
             $writer = $this->assessment_api->writer()->getByUserId($user_id);
             $task = $this->task();
             $essay = $this->essayByWriter($writer->getId()) ??
                 $this->essay_task_api->essay()->new($writer->getId(), $task->getId())->setFirstChange($now);
             $essay = $essay->setLastChange($now);
-            $pdf = $essay->getPdfVersion();
-            $resource_api = $this->task_api->resource($task->getId());
-            $essay->setPdfVersion((string) $this->saveResource($resource_api, $zip_pdf));
+            $essay->setPdfVersion($zip_pdf);
             $this->essay_task_api->essay()->save($essay);
-            if ($pdf) {
-                $resource_api->delete($resource_api->one((int) $pdf));
-            }
             $writer->setWorkingStart($writer->getWorkingStart() ?? $now);
             $writer->setWritingAuthorized($now);
             $writer->setWritingAuthorizedBy($this->user->getId());
@@ -428,7 +419,7 @@ class ImportEssayGUI extends BaseGUI implements Import
         $this->ctrl->redirectToURL($this->ctrl->getLinkTarget($this, 'showForm'));
     }
 
-    private function moveTempFileToPermanemt(string $temp_file_id): string
+    private function moveTempFileToPermanent(string $temp_file_id): string
     {
         $info = $this->temp_storage->getFileInfo($temp_file_id);
         $info->setId(null);
@@ -437,14 +428,6 @@ class ImportEssayGUI extends BaseGUI implements Import
         $this->temp_storage->deleteFile($temp_file_id);
 
         return $perm_id;
-    }
-
-    private function saveResource(ResourceApi $resource_api, string $file_id): int
-    {
-        $resource = $resource_api->new();
-        $resource->setFileId($file_id);
-        $resource_api->save($resource);
-        return $resource->getId();
     }
 
     private function writerByUser(int $user_id): ?Writer

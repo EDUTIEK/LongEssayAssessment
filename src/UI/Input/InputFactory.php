@@ -105,4 +105,9 @@ class InputFactory
     {
         return new TinyMCE($this->data_factory, $this->refinery, $label, $byline);
     }
+
+    public function info($label, $byline = null): Info
+    {
+        return new Info($this->data_factory, $this->refinery, $label, $byline);
+    }
 }

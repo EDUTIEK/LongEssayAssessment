@@ -41,6 +41,7 @@ use ILIAS\Plugin\LongEssayAssessment\UI\Input\InputRenderer;
 use ILIAS\Plugin\LongEssayAssessment\UI\Statistic\StatisticRenderer;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\Table;
 use ILIAS\Plugin\LongEssayAssessment\UI\Protocol\Group as ProtocolGroup;
+use ILIAS\Plugin\LongEssayAssessment\UI\Input\Info;
 
 //inherit from DecoratedRender to align your renderer with other potential renders in ILIAS to allow manipulations from
 //different sources to be chained behind each other.
@@ -77,6 +78,7 @@ class PluginRenderer extends DecoratedRenderer
             case ($component instanceof Numeric):
             case ($component instanceof BlankForm):
             case ($component instanceof TinyMCE):
+            case ($component instanceof Info):
                 return $this->field_render->render($component, $root);
             case ($component instanceof Statistic):
             case ($component instanceof GraphStatisticGroup):

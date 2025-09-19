@@ -45,6 +45,7 @@ use ILIAS\UI\Implementation\Component\ViewControl\Pagination;
 use ILIAS\UI\Implementation\Component\ViewControl\Sortation;
 use ILIAS\UI\Implementation\Render\Template;
 use ILIAS\UI\Renderer as RendererInterface;
+use ILIAS\UI\Component\Input\Container\Form\FormInput;
 
 class InputRenderer extends \ILIAS\UI\Implementation\Component\Input\Field\Renderer
 {
@@ -71,6 +72,8 @@ class InputRenderer extends \ILIAS\UI\Implementation\Component\Input\Field\Rende
                 return $this->renderBlankForm($component, $default_renderer);
             case ($component instanceof TinyMCE):
                 return $this->renderTinyMCE($component, $default_renderer);
+            case ($component instanceof Info):
+                return $this->renderInfo($component, $default_renderer);
             default:
                 throw new \LogicException("Cannot render '" . get_class($component) . "'");
         }
@@ -186,6 +189,7 @@ class InputRenderer extends \ILIAS\UI\Implementation\Component\Input\Field\Rende
             Numeric::class,
             BlankForm::class,
             TinyMCE::class,
+            Info::class
         ];
     }
 
@@ -319,5 +323,19 @@ class InputRenderer extends \ILIAS\UI\Implementation\Component\Input\Field\Rende
             }
         );
         return $component;
+    }
+
+    private function renderInfo(Info $component, RendererInterface $default_renderer)
+    {
+        $tpl = $this->getTemplate("tpl.info.html", true, true);
+        $this->applyName($component, $tpl);
+        $this->applyValue($component, $tpl, $this->escapeSpecialChars());
+        $content = $component->getInfo();
+
+        $tpl->setVariable('CONTENT', is_null($content) ? "" : $default_renderer->render($content));
+
+        $label_id = $this->createId();
+        $tpl->setVariable('ID', $label_id);
+        return $this->wrapInFormContext($component, $component->getLabel(), $tpl->get(), $label_id);
     }
 }

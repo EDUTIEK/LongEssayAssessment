@@ -61,6 +61,7 @@ class Bavaria implements Type
                 'hash_ok' => $hash_ok,
                 'import_possible' => $hash_ok && $problems['errors'] == [],
                 'comment' => join(', ', array_merge(...array_values($problems))),
+                'overwrites' => $problems['overwrites'],
             ];
             }, $protocol);
     }

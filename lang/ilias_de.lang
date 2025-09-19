@@ -740,6 +740,8 @@ essay_import_column_hash_ok#:#Hash ok
 upload_zip#:#ZIP hochladen
 import_zip#:#ZIP Importieren
 import_zip_name#:#ZIP Datei
+import_zip_overwrite#:#Bestehende Einträge überschreiben
+import_zip_no_overwrite#:#Einträge nicht überschreiben
 import_hash#:#Hash
 import_password#:#Passwort
 import_use_password#:#Passwort verwenden

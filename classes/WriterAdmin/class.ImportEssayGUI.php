@@ -77,7 +77,7 @@ class ImportEssayGUI extends BaseGUI implements Import
 
     public function executeCommand(): void
     {
-        if (in_array($this->ctrl->getCmd(), ['showForm', 'upload', 'showTable', 'cancel', 'import'], true)) {
+        if (in_array($this->ctrl->getCmd(), ['showForm', 'upload', 'showTable', 'cancel', 'import', 'importOverwrite'], true)) {
             $this->{$this->ctrl->getCmd()}();
         } else {
             echo 'Invalid cmd';
@@ -116,12 +116,27 @@ class ImportEssayGUI extends BaseGUI implements Import
 
         $content = [$this->table($hashes, $array, $type->columns($this->ui_factory->table()->column(), $ok, $nok))];
         $has_errors = in_array(false, array_column($array, 'import_possible'), true);
+        $overwrites = count(array_filter($array, fn($row) => ($row['overwrites'] ?? []) !== [] && $row['import_possible']));
 
-        $content[] = $this->ui_factory->button()->primary($this->plugin->txt(
-            $has_errors ?
-                'import_zip_only_valid' :
-                'import_zip'
-        ), $this->ctrl->getLinkTarget($this, 'import'));
+        $import_button = $this->ui_factory->button()->primary(
+            $this->plugin->txt($has_errors ? 'import_zip_only_valid' : 'import_zip'),
+            $this->ctrl->getLinkTarget($this, 'import')
+        );
+
+        if ($overwrites > 0) {
+            $lang_var = 'import_confirmation_content_' . ($overwrites === 1 ? 'singular' : 'plural');
+            $modal = $this->ui_factory->modal()->roundtrip($this->plugin->txt('import_confirmation_title'), [
+                $this->ui_factory->legacy('<span>' . sprintf($this->plugin->txt($lang_var), $overwrites) . '</span>'),
+            ], [], $this->ctrl->getLinkTarget($this, 'import'))->withActionButtons([
+                $this->ui_factory->button()->primary($this->plugin->txt('import_zip_no_overwrite'), $this->ctrl->getLinkTarget($this, 'import')),
+                $this->ui_factory->button()->primary($this->plugin->txt('import_zip_overwrite'), $this->ctrl->getLinkTarget($this, 'importOverwrite'))
+            ]);
+
+            $import_button = $import_button->withOnClick($modal->getShowSignal());
+            $content[] = $modal;
+        }
+
+        $content[] = $import_button;
 
         $content[] = $this->ui_factory->button()->standard($this->lng->txt('cancel'), $this->ctrl->getLinkTarget($this, 'cancel'));
 
@@ -142,7 +157,7 @@ class ImportEssayGUI extends BaseGUI implements Import
         $this->upload->exitWithJson($this->upload->okJson($info->getId()));
     }
 
-    public function import(): void
+    public function import(bool $overwrite = false): void
     {
         $type = $type = new (self::IMPORT_TYPES[$this->session()['type']])($this);
         $file_map = $this->session()['files'];
@@ -157,13 +172,16 @@ class ImportEssayGUI extends BaseGUI implements Import
                 continue;
             }
 
-            $zip_pdf = $this->moveTempFileToPermanent($zip_pdf);
-
             $writer = $this->assessment_api->writer()->getByUserId($user_id);
             $task = $this->task();
             $essay = $this->essayByWriter($writer->getId()) ??
                 $this->essay_task_api->essay()->new($writer->getId(), $task->getId())->setFirstChange($now);
             $essay = $essay->setLastChange($now);
+            $pdf = $essay->getPdfVersion();
+            if ($pdf && !$overwrite) {
+                continue;
+            }
+            $zip_pdf = $this->moveTempFileToPermanent($zip_pdf);
             $essay->setPdfVersion($zip_pdf);
             $this->essay_task_api->essay()->save($essay);
             $writer->setWorkingStart($writer->getWorkingStart() ?? $now);
@@ -179,6 +197,11 @@ class ImportEssayGUI extends BaseGUI implements Import
         $this->saveSession(null);
         $this->success(sprintf($this->plugin->txt('upload_successful'), $imported), true);
         $this->ctrl->redirectToURL($this->ctrl->getLinkTargetByClass(WriterAdminGUI::class));
+    }
+
+    public function importOverwrite(): void
+    {
+        $this->import(true);
     }
 
     public function cancel(): void
@@ -207,7 +230,7 @@ class ImportEssayGUI extends BaseGUI implements Import
     public function problems(string $login, array $pdfs, array $hashes): array
     {
         $errors = [];
-        $comments = [];
+        $overwrites = [];
         if (!isset($pdfs[$login])) {
             $errors[] = $this->plugin->txt('import_file_missing');
         }
@@ -223,12 +246,10 @@ class ImportEssayGUI extends BaseGUI implements Import
                 if ($essay) {
                     $pdf = $essay->getPdfVersion();
                     if ($pdf) {
-                        $resource_api = $this->task_api->resource($task->getId());
-                        $resource = $resource_api->one((int) $pdf);
-                        $stream = $this->perm_storage->getFileStream($resource->getFileId());
+                        $stream = $this->perm_storage->getFileStream($pdf);
                         $same = $hashes[$pdfs[$login]] === $this->hash(stream_get_contents($stream));
                         fclose($stream);
-                        $comments[] = $same ?
+                        $overwrites[] = $same ?
                             $this->plugin->txt('import_same_file_exists') :
                             $this->plugin->txt('import_another_file_exists');
                     }
@@ -236,7 +257,7 @@ class ImportEssayGUI extends BaseGUI implements Import
             }
         }
 
-        return ['errors' => $errors, 'comments' => $comments];
+        return ['errors' => $errors, 'overwrites' => $overwrites];
     }
 
     public function openFile(string $file)

@@ -13,7 +13,7 @@ il.EDUTIEK.toggleDisabledInputs = function() {
 };
 
 il.EDUTIEK.updateGroup = function(target_url, group, value){
-    const target = new URL(window.location.origin + '/' + target_url);
+    const target = new URL(window.location.origin + window.location.pathname.split('/').slice(0, -1).join('/') + '/' + target_url);
     target.searchParams.set('group', group);
     target.searchParams.set('enable', value);
     window.location = target;

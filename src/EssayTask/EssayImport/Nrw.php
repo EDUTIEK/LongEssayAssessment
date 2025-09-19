@@ -45,6 +45,7 @@ class Nrw implements Type
                 'id' => $login,
                 'import_possible' => $problems['errors'] === [],
                 'comment' => join(', ', array_merge(...array_values($problems))),
+                'overwrites' => $problems['overwrites'],
             ];
         }, array_keys($pdfs), array_values($pdfs));
     }

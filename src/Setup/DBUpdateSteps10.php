@@ -363,12 +363,17 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
             ]);
             $this->db->addIndex($table, array("writer_id"), "idw");
         }
+        if($this->db->tableColumnExists($table, 'writer_id')
+            && $this->db->tableColumnExists($table, 'writer_id')
+            && $this->db->tableColumnExists($table, 'essay_id')
+        ) {
+            $this->db->manipulate("
+                UPDATE $table as target_table 
+                LEFT JOIN xlas_et_essay AS essay ON target_table.essay_id = essay.id 
+                SET target_table.task_id = essay.task_id, target_table.writer_id = essay.writer_id;
+            ");
+        }
 
-        $this->db->manipulate("
-            UPDATE $table as target_table 
-            LEFT JOIN xlas_et_essay AS essay ON target_table.essay_id = essay.id 
-            SET target_table.task_id = essay.task_id, target_table.writer_id = essay.writer_id;
-        ");
 
         if ($this->db->tableColumnExists($table, 'essay_id')) {
             $this->db->dropTableColumn($table, 'essay_id');

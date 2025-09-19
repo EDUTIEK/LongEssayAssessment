@@ -34,6 +34,11 @@ class SettingsRepo implements \Edutiek\AssessmentService\Task\Data\SettingsRepo
         return $this->repo->new();
     }
 
+    public function has(int $ass_id, int $task_id): bool
+    {
+        return $this->repo->hasBy(['ass_id' => $ass_id, 'task_id' => $task_id]);
+    }
+
     public function one(int $task_id): ?Settings
     {
         return $this->repo->queryOneBy(['task_id' => $task_id]);

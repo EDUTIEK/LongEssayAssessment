@@ -58,6 +58,11 @@ class CorrectorAssignmentRepo implements \Edutiek\AssessmentService\Task\Data\Co
         return $this->repo->queryAllBy(['writer_id' => $writer_id]);
     }
 
+    public function allByTaskIdAndWriterId(int $task_id, int $writer_id): array
+    {
+        return $this->repo->queryAllBy(['task_id' => $task_id, 'writer_id' => $writer_id]);
+    }
+
     public function allByCorrectorId(int $corrector_id): array
     {
         return $this->repo->queryAllBy(['corrector_id' => $corrector_id]);
@@ -96,6 +101,11 @@ class CorrectorAssignmentRepo implements \Edutiek\AssessmentService\Task\Data\Co
     public function oneById(int $id): ?CorrectorAssignment
     {
         return $this->repo->queryOneBy(['id' => $id]);
+    }
+
+    public function deleteByTaskIdAndWriterId(int $task_id, mixed $writer_id)
+    {
+        $this->repo->deleteAllBy(['writer_id' => $writer_id, 'task_id' => $task_id]);
     }
 
 }

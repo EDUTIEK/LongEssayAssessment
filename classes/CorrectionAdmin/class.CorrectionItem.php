@@ -134,4 +134,9 @@ class CorrectionItem extends \ILIAS\Plugin\LongEssayAssessment\UI\Table\Item
     {
         return $this->summaries_by_position[$position] ?? null;
     }
+
+    public function canDownloadCorrectionPdf(): bool
+    {
+        return !empty($this->summaries_by_position);
+    }
 }

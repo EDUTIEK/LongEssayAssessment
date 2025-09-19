@@ -46,7 +46,6 @@ final class CorrectionItemCollection implements \Iterator
         array $locations,
         private int $correctors_needed
     ) {
-        $essay_by_id = [];
         $correctors_by_id = [];
         $assignment_by_writer_corrector = [];
         $user_ids = [];
@@ -81,7 +80,6 @@ final class CorrectionItemCollection implements \Iterator
 
         foreach ($essays as $e) {
             $this->essays[$e->getWriterId()] = $e;
-            $essay_by_id[$e->getId()] = $e;
         }
 
         foreach ($correctors as $c) {
@@ -99,7 +97,7 @@ final class CorrectionItemCollection implements \Iterator
         }
 
         foreach ($summaries as $s) {
-            $essay = $essay_by_id[$s->getEssayId()]??null;
+            $essay = $this->essays[$s->getWriterId()]??null;
             if($essay !== null) {
                 $assignment = $assignment_by_writer_corrector[$essay->getWriterId()][$s->getCorrectorId()] ?? null;
                 $this->summaries[$essay->getWriterId()][$assignment?->getPosition()] = $s;

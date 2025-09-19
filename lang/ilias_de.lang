@@ -774,3 +774,10 @@ table_select_columns#:#Spalten
 table_select_columns_visible#:#Sichtbare Spalten
 table_select_columns_all#:#Alle Spalten
 table_select_columns_selected#:#Spalten auswählen
+correction_admin_table_export#:#Tabelle exportieren
+correction_admin_table_export_filename#:#Korrekturentabelle
+final_points#:#Endpunkte
+finalized_at#:#Finalisiert am
+finalized_from#:#Finalisiert von
+min_word_count#:#Wörter mindestens
+max_word_count#:#Wörter maximal

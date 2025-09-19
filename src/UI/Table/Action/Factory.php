@@ -5,6 +5,7 @@ namespace ILIAS\Plugin\LongEssayAssessment\UI\Table\Action;
 use ILIAS\UI\Implementation\Component as UI;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\Item;
 use ILIAS\UI\Component\Image\Image;
+use ILIAS\FileDelivery\Services as DeliveryServices;
 
 class Factory
 {
@@ -166,5 +167,10 @@ class Factory
                 return $this->enabled_callback !== null ? $this->callback($this->enabled_callback, [$item]) : true;
             }
         };
+    }
+
+    public function export(string $action_name, string $button_label, string $filename, ExportType $export_type = ExportType::EXCEL) : Export
+    {
+        return new Export($action_name, $button_label, $filename, $export_type);
     }
 }

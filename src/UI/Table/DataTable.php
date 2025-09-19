@@ -39,6 +39,7 @@ use ILIAS\Refinery;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\Helper\SmallView;
 use ILIAS\UI\Component\Table\OrderingBinding;
 use Closure;
+use ILIAS\FileDelivery\Services as FileDeliveryServices;
 
 class DataTable extends Table implements DataRetrieval, DataTableParent
 {
@@ -57,6 +58,8 @@ class DataTable extends Table implements DataRetrieval, DataTableParent
         Refinery\Factory $refinery,
         ArrayBasedRequestWrapper $query,
         ServerRequestInterface $request,
+        FileDeliveryServices $delivery,
+        \ilLongEssayAssessmentPlugin $plugin,
         protected \ilLanguage $lng
     ) {
         parent::__construct(
@@ -73,6 +76,8 @@ class DataTable extends Table implements DataRetrieval, DataTableParent
             $refinery,
             $query,
             $request,
+            $delivery,
+            $plugin,
             $lng
         );
     }
@@ -123,7 +128,7 @@ class DataTable extends Table implements DataRetrieval, DataTableParent
         );
     }
 
-    protected function buildDataTabeActionByType(
+    protected function buildDataTableActionByType(
         Action\Type $type,
         string $label,
         URLBuilder $url_builder,
@@ -155,17 +160,18 @@ class DataTable extends Table implements DataRetrieval, DataTableParent
             }
             switch (true) {
                 case $action instanceof Action\Direct:
-                    $data_actions[$action->name()] = $this->buildDataTabeActionByType(
+                    $data_actions[$action->name()] = $this->buildDataTableActionByType(
                         $action->type(),
                         $action->label(),
                         $this->url_builder->withParameter($this->action_parameter_token, $action->name()),
                         $this->row_id_token
                     );
                     break;
+                case $action instanceof Action\Export:
                 case $action instanceof Action\Form:
                 case $action instanceof Action\Modal:
                 case $action instanceof Action\Confirmation:
-                    $data_actions[$action->name()] = $this->buildDataTabeActionByType(
+                    $data_actions[$action->name()] = $this->buildDataTableActionByType(
                         $action->type(),
                         $action->label(),
                         $this->url_builder->withParameter($this->action_parameter_token, $action->name()),

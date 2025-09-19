@@ -13,6 +13,7 @@ use ILIAS\UI\Renderer;
 use ILIAS\UI\URLBuilder;
 use ILIAS\UI\URLBuilderToken;
 use ILIAS\Plugin\LongEssayAssessment\Dependencies\PluginDic;
+use ILIAS\FileDelivery\Services as FileDeliveryServices;
 
 class Factory
 {
@@ -28,6 +29,7 @@ class Factory
         protected Refinery\Factory $refinery,
         protected ArrayBasedRequestWrapper $query,
         protected ServerRequestInterface $request,
+        protected FileDeliveryServices $delivery,
         protected \ilLanguage $lng
     ) {
         $this->action_factory = new Action\Factory();
@@ -67,7 +69,7 @@ class Factory
                 $ui_name . "_item"
             );
 
-        return new DataTable($ui_name, $parent, $url_builder, $csrf_token, $row_id_token, $action_parameter_token, $this->ui_factory, $this->pdic->uiFactory(), $this->ui_service, $this->renderer, $this->refinery, $this->query, $this->request, $this->lng);
+        return new DataTable($ui_name, $parent, $url_builder, $csrf_token, $row_id_token, $action_parameter_token, $this->ui_factory, $this->pdic->uiFactory(), $this->ui_service, $this->renderer, $this->refinery, $this->query, $this->request, $this->delivery, $this->pdic->plugin(), $this->lng);
     }
 
     public function formGroup(
@@ -92,6 +94,6 @@ class Factory
                 $ui_name . "_item"
             );
 
-        return new FormGroup($ui_name, $parent, $url_builder, $csrf_token, $row_id_token, $action_parameter_token, $this->ui_factory, $this->pdic->uiFactory(), $this->ui_service, $this->renderer, $this->refinery, $this->query, $this->request, $this->lng);
+        return new FormGroup($ui_name, $parent, $url_builder, $csrf_token, $row_id_token, $action_parameter_token, $this->ui_factory, $this->pdic->uiFactory(), $this->ui_service, $this->renderer, $this->refinery, $this->query, $this->request, $this->delivery, $this->pdic->plugin(), $this->lng);
     }
 }

@@ -41,6 +41,10 @@ abstract class Form extends Action
      */
     public function content(array $items): array
     {
+        if($this->isCallable($this->content)) {
+            return $this->callback($this->content, $items);
+        }
+
         return $this->content;
     }
 
@@ -50,14 +54,22 @@ abstract class Form extends Action
      */
     public function actionButtons(array $items): array
     {
+        if($this->isCallable($this->action_buttons)) {
+            return $this->callback($this->action_buttons, $items);
+        }
+
         return $this->action_buttons;
     }
 
     /**
      * @return Transformation[]
      */
-    public function transformations(): array
+    public function transformations(array $items): array
     {
+        if($this->isCallable($this->transformations)) {
+            return $this->callback($this->transformations, $items);
+        }
+
         return $this->transformations;
     }
 
@@ -69,10 +81,10 @@ abstract class Form extends Action
     abstract public function save(array $items, array $data) : void;
 
     /**
-     * @param Component[] $content
+     * @param Component[]|callable $content
      * @return $this
      */
-    public function withContent(array $content) : self
+    public function withContent(array|callable $content) : self
     {
         $new = clone $this;
         $new->content = $content;
@@ -80,10 +92,10 @@ abstract class Form extends Action
     }
 
     /**
-     * @param Button[] $buttons
+     * @param Button[]|callable $buttons
      * @return $this|Form
      */
-    public function withActionButtons(array $buttons)
+    public function withActionButtons(array|callable $buttons)
     {
         $new = clone $this;
         $new->action_buttons = $buttons;
@@ -91,10 +103,10 @@ abstract class Form extends Action
     }
 
     /**
-     * @param Transformation[] $buttons
+     * @param Transformation[]|callable $buttons
      * @return $this|Form
      */
-    public function withTransformations(array $transformations)
+    public function withTransformations(array|callable $transformations)
     {
         $new = clone $this;
         $new->transformations = $transformations;

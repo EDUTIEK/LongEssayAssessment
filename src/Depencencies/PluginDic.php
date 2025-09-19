@@ -133,6 +133,7 @@ class PluginDic
                     $dic->refinery(),
                     $dic->http()->wrapper()->query(),
                     $dic->http()->request(),
+                    $dic->fileDelivery(),
                     $dic->language()
                 ),
                 new TreeFactory(

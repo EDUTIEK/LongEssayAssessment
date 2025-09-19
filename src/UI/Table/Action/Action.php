@@ -17,9 +17,14 @@ abstract class Action
     ) {
     }
 
+    protected function isCallable($callback): bool
+    {
+        return is_callable($callback) || (is_array($callback) && count($callback) == 2) && is_object($callback[0]) && is_string($callback[1]);
+    }
+
     private function isMultiple($callback)
     {
-        if (is_callable($callback) || (is_array($callback) && count($callback) == 2) && is_object($callback[0]) && is_string($callback[1])) {
+        if ($this->isCallable($callback)) {
             if (is_array($callback)) {
                 // For class methods
                 $reflection = new ReflectionMethod($callback[0], $callback[1]);

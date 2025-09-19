@@ -768,3 +768,9 @@ disabled_group_tool_tab#:#Festlegungen
 disabled_group_toggle#:#Ein/Ausblenden
 disabled_group_toggle_info#:#Sie können festgelegte Einstellungen einblenden, da Sie die Berechtigung "Vorlagen verwalten" haben.
 disabled_group_info#:#Wählen Sie aus, welche Einstellungen mit den aktuellen Werten festgeschrieben und ausgeblendet werden.
+table_all_rows#:#Alle Zeilen
+table_all_rows_info#:#Alle Zeilen der Tabelle oder nur die Ausgewählten?
+table_select_columns#:#Spalten
+table_select_columns_visible#:#Sichtbare Spalten
+table_select_columns_all#:#Alle Spalten
+table_select_columns_selected#:#Spalten auswählen

@@ -11,6 +11,7 @@ use ILIAS\Refinery;
 use ILIAS\UI\URLBuilder;
 use ILIAS\UI\URLBuilderToken;
 use ILIAS\Plugin\LongEssayAssessment\UI\Item\FormItem;
+use ILIAS\FileDelivery\Services as FileDeliveryServices;
 
 class FormGroup extends Table
 {
@@ -28,6 +29,8 @@ class FormGroup extends Table
         Refinery\Factory $refinery,
         ArrayBasedRequestWrapper $query,
         ServerRequestInterface $request,
+        FileDeliveryServices $delivery,
+        \ilLongEssayAssessmentPlugin $plugin,
         protected \ilLanguage $lng
     ) {
         parent::__construct(
@@ -44,6 +47,8 @@ class FormGroup extends Table
             $refinery,
             $query,
             $request,
+            $delivery,
+            $plugin,
             $lng
         );
     }

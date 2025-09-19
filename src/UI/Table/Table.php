@@ -22,6 +22,10 @@ use Generator;
 use ILIAS\UI\Implementation\Component\Signal;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\Action\Type;
 use ILIAS\Session;
+use ILIAS\Plugin\LongEssayAssessment\UI\Table\Action\Export;
+use ILIAS\FileDelivery\Services as FileDeliveryServices;
+use ILIAS\Data\Range;
+use ILIAS\UI\Implementation\Component\Table\Data as UIDataTable;
 
 abstract class Table implements TableParent, FilterParent, Component\Component
 {
@@ -56,18 +60,20 @@ abstract class Table implements TableParent, FilterParent, Component\Component
         protected Refinery\Factory $refinery,
         protected ArrayBasedRequestWrapper $query,
         protected ServerRequestInterface $request,
+        protected FileDeliveryServices $delivery,
+        protected \ilLongEssayAssessmentPlugin $plugin,
         protected \ilLanguage $lng
     ) {
         $this->initCSRFToken();
         $this->initActions($parent);
-        if($this->parent instanceof FilterParent) {
+        if ($this->parent instanceof FilterParent) {
             $this->initFilter($parent);
         }
     }
 
     public function initCSRFToken()
     {
-        if(!\ilSession::has('xlas_csrf')) {
+        if (!\ilSession::has('xlas_csrf')) {
             \ilSession::set('xlas_csrf', bin2hex(random_bytes(32)));
         }
 
@@ -85,7 +91,7 @@ abstract class Table implements TableParent, FilterParent, Component\Component
             : "";
         $csrf_token_session = \ilSession::get('xlas_csrf');
 
-        if($csrf_token_uri !== $csrf_token_session) {
+        if ($csrf_token_uri !== $csrf_token_session) {
             throw new \ilCtrlException('Wrong CSRF token.');
         }
     }
@@ -116,14 +122,14 @@ abstract class Table implements TableParent, FilterParent, Component\Component
     {
         $this->filter_inputs = [];
 
-        foreach(array_filter($parent->getFilterInputs()) as $key => $filter) {
+        foreach (array_filter($parent->getFilterInputs()) as $key => $filter) {
             $this->filter_inputs[$key] = $filter;
         }
     }
 
     public function getActionByName(string $name): Action
     {
-        if(array_key_exists($name, $this->actions)) {
+        if (array_key_exists($name, $this->actions)) {
             return $this->actions[$name];
         }
         throw new \ilException("Action '$name' not found");
@@ -156,7 +162,7 @@ abstract class Table implements TableParent, FilterParent, Component\Component
 
     public function executeAction()
     {
-        if($this->hasActiveAction()) {
+        if ($this->hasActiveAction()) {
             $this->checkCSRFToken();
             $action = $this->currentAction();
             switch (true) {
@@ -172,6 +178,9 @@ abstract class Table implements TableParent, FilterParent, Component\Component
                 case $action instanceof Confirmation:
                     $this->confirmation($action);
                     break;
+                case $action instanceof Export:
+                    $this->export($action);
+                    break;
             }
         }
     }
@@ -182,12 +191,12 @@ abstract class Table implements TableParent, FilterParent, Component\Component
      */
     public function currentIds(): array
     {
-        if($this->query->has($this->row_id_token->getName())) {
+        if ($this->query->has($this->row_id_token->getName())) {
             return $this->query->retrieve(
                 $this->row_id_token->getName(),
                 $this->refinery->in()->series([
                     $this->refinery->custom()->transformation(function ($x) {
-                        if(is_array($x) && $x[0] === "ALL_OBJECTS") {
+                        if (is_array($x) && $x[0] === "ALL_OBJECTS") {
                             return array_map(fn ($x) => $x->getId(), iterator_to_array($this->getTableItems()));
                         } else {
                             return $x;
@@ -205,7 +214,7 @@ abstract class Table implements TableParent, FilterParent, Component\Component
     {
         $array = $this->currentIds();
 
-        if(!empty($array)) {
+        if (!empty($array)) {
             return array_pop($array);
         }
         throw new \ilException("too few ids");
@@ -213,7 +222,7 @@ abstract class Table implements TableParent, FilterParent, Component\Component
 
     protected function getFilter() : Filter\Standard
     {
-        if($this->filter !== null) {
+        if ($this->filter !== null) {
             return $this->filter;
         }
 
@@ -223,7 +232,7 @@ abstract class Table implements TableParent, FilterParent, Component\Component
     }
     public function getFilterData(): array
     {
-        if($this->filter_data !== null) {
+        if ($this->filter_data !== null) {
             return $this->filter_data;
         }
 
@@ -258,7 +267,7 @@ abstract class Table implements TableParent, FilterParent, Component\Component
 
     public function getTable() : Component\Component
     {
-        if($this->table !== null) {
+        if ($this->table !== null) {
             return $this->table;
         }
 
@@ -275,7 +284,7 @@ abstract class Table implements TableParent, FilterParent, Component\Component
     {
         $components = [];
 
-        if(count($this->getFilterInputs()) > 0) {
+        if (count($this->getFilterInputs()) > 0) {
             $components[] = $this->getFilter();
         }
 
@@ -310,19 +319,19 @@ abstract class Table implements TableParent, FilterParent, Component\Component
         $fields = $action->fields($items);
         $content = $action->content($items);
         $action_buttons = $action->actionButtons($items);
-        $transformations = $action->transformations();
+        $transformations = $action->transformations($items);
 
         $modal = $this->ui_factory->modal()->roundtrip($action->label(), $content, $fields, $link)
             ->withActionButtons($action_buttons)
             ->withSubmitLabel($action->actionLabel());
 
-        if( !empty($transformations)) {
-            foreach($transformations as $transformation) {
+        if (!empty($transformations)) {
+            foreach ($transformations as $transformation) {
                 $modal = $modal->withAdditionalTransformation($transformation);
             }
         }
 
-        if($this->request->getMethod() === "POST" || $action->type() === Type::Global) {
+        if ($this->request->getMethod() === "POST" || $action->type() === Type::Global) {
             // Reload Page when closing a modal to deter side effects:
             // 1) because of the reload warning after a POST
             // 2) a bug which breaks form modal if a form modal of type global was opened before
@@ -338,11 +347,11 @@ abstract class Table implements TableParent, FilterParent, Component\Component
 
         //$form = $this->local_factory->field()->blankForm($link, $fields);
 
-        if($this->request->getMethod() === "POST" && $action->name() == $this->currentAction()->name()) {
+        if ($this->request->getMethod() === "POST" && $action->name() == $this->currentAction()->name()) {
             $modal = $modal->withOnLoad($modal->getShowSignal())
                          ->withRequest($this->request);
 
-            if($modal->getData() !== null) {
+            if ($modal->getData() !== null) {
                 $action->save($items, $modal->getData());
             } else {
                 $this->addModal($modal);
@@ -363,7 +372,7 @@ abstract class Table implements TableParent, FilterParent, Component\Component
 
         $modal = $action->modal($items);
 
-        if($modal instanceof RoundTrip && $action->hasUpdateButton()) {
+        if ($modal instanceof RoundTrip && $action->hasUpdateButton()) {
             $link = $this->getActionFormLink();
             $reload_button = $this->ui_factory->button()->standard($this->lng->txt("refresh"), "")
                                              ->withLoadingAnimationOnClick(true)
@@ -397,14 +406,17 @@ abstract class Table implements TableParent, FilterParent, Component\Component
         $confirmation_items = [];
 
         foreach ($items as $item) {
-            if($action->enabled($item)) {
+            if ($action->enabled($item)) {
                 $confirmation_items[] = $this->ui_factory->modal()->interruptiveItem()->standard(
-                    $item->getId(), $action->itemName($item), $action->itemIcon($item), $action->itemDescription($item)
+                    $item->getId(),
+                    $action->itemName($item),
+                    $action->itemIcon($item),
+                    $action->itemDescription($item)
                 );
             }
         }
 
-        if(empty($confirmation_items)) {
+        if (empty($confirmation_items)) {
             echo($this->renderer->renderAsync([
                 $this->ui_factory->modal()->roundtrip(
                     $action->label(),
@@ -430,6 +442,60 @@ abstract class Table implements TableParent, FilterParent, Component\Component
         $action->action($items);
     }
 
+    protected function export(Export $action)
+    {
+        $table = $this->getTable();
+        $selected_columns = null;
+        $selected_rows = $this->currentIds();
+        $rows_all_selected = false;
+
+        if ($table instanceof UIDataTable) {
+            $columns = array_filter($table->getColumns(), fn ($x) => !$x instanceof Column\Image);
+            $rows_all_selected = count($selected_rows ?? []) >= $table->getDataRetrieval()->getTotalRowCount($table->getFilter(), $table->getAdditionalParameters());
+            $modal = $this->ui_factory->modal()->roundtrip(
+                $action->label(),
+                [],
+                [
+                    "rows" => $this->ui_factory->input()->field()->checkbox($this->plugin->txt('table_all_rows'), $this->plugin->txt('table_all_rows_info'))->withValue($rows_all_selected),
+                    "columns" => $this->ui_factory->input()->field()->switchableGroup([
+                        "visible" => $this->ui_factory->input()->field()->group([], $this->plugin->txt('table_select_columns_visible')),
+                        "all" => $this->ui_factory->input()->field()->group([], $this->plugin->txt('table_select_columns_all')),
+                        "selected" => $this->ui_factory->input()->field()->group(
+                            array_map(
+                                fn (Component\Table\Column\Column $c) =>
+                                $this->ui_factory->input()->field()->checkbox($c->getTitle())->withValue(!$c->isOptional())->withDisabled(!$c->isOptional()),
+                                $columns
+                            ), $this->plugin->txt('table_select_columns_selected'))
+                    ], $this->plugin->txt('table_select_columns'))->withValue("visible")
+                ], $this->getActionFormLink()
+            );
+
+            if ($this->request->getMethod() === "POST") {
+                $modal = $modal->withRequest($this->request);
+                $data = $modal->getData();
+
+                if (!empty($data["rows"])) {
+                    $selected_rows = null;
+                }
+                if ($data["columns"][0] === "all") {
+                    $selected_columns = array_keys($columns);
+                }
+                if ($data["columns"][0] === "selected") {
+                    $selected_columns = array_keys(array_filter($data["columns"][1]));
+                }
+            } else {
+                echo($this->renderer->renderAsync($modal));
+                exit();
+            }
+        }
+        $stream = $action->export($table, $selected_columns, $selected_rows, $rows_all_selected);
+
+        $this->delivery->delivery()->attached(
+            $stream,
+            $action->getFilename() . $action->getExtension(),
+            $action->getMimeType()
+        );
+    }
 
     # Table Parent fassade
     public function getTableActions() : array
@@ -461,7 +527,7 @@ abstract class Table implements TableParent, FilterParent, Component\Component
      */
     public function getFilterInputActivation(): array
     {
-        if($this->parent instanceof FilterParent && ($activation = $this->parent->getFilterInputActivation()) !== null) {
+        if ($this->parent instanceof FilterParent && ($activation = $this->parent->getFilterInputActivation()) !== null) {
             return $activation;
         }
 
@@ -470,7 +536,7 @@ abstract class Table implements TableParent, FilterParent, Component\Component
 
     public function getFilterBaseAction(): string
     {
-        if($this->parent instanceof FilterParent){
+        if ($this->parent instanceof FilterParent) {
             return $this->parent->getFilterBaseAction();
         }
         return "";

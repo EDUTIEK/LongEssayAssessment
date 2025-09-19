@@ -87,6 +87,15 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
         $this->prepare($db);
         $this->v10_migration->removeNewTables();
         $this->db->manipulate("DELETE FROM il_db_steps WHERE `class` = " . $this->db->quote(self::class));
+
+
+        $this->db->dropTable("xlas_ta_corr_settings");
+        $this->db->dropTable("xlas_ta_corr_prefs");
+        $this->db->dropTable("xlas_ta_corr_ta_prefs");
+        $this->db->dropTable("xlas_ta_rating_crit");
+        $this->db->dropTable("xlas_ta_corr_comm");
+        $this->db->dropTable("xlas_ta_corr_points");
+        $this->db->dropTable("xlas_ta_corr_summary");
     }
 
     public function step_1(): void

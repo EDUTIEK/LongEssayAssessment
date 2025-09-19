@@ -194,27 +194,10 @@ class StartPageGUI extends BaseGUI
                     break;
 
                 case WritingType::PDF_UPLOAD:
-                    if (($this->perms->canWrite() || $this->perms->canReviewWrittenAssessment())
-                        && !$this->writer->getWritingAuthorized()
-                        && array_filter($this->essays, fn($e) => $e->getPdfVersion())) {
+                    if ($this->perms->canWrite() || $this->perms->canReviewWrittenAssessment()) {
                         $button = $this->ui_factory->button()->primary(
                             $this->plugin->txt('writer_review_pdf'),
                             $this->ctrl->getLinkTargetByClass(WriterUploadGUI::class, 'reviewPdf')
-                        );
-                        $this->toolbar->addComponent($button);
-
-                        if ($this->perms->canWrite()) {
-                            $button = $this->ui_factory->button()->standard(
-                                $this->plugin->txt('writer_replace_pdf'),
-                                $this->ctrl->getLinkTargetByClass(WriterUploadGUI::class, 'uploadPdf')
-                            );
-                            $this->toolbar->addComponent($button);
-                        }
-
-                    } elseif ($this->perms->canWrite()) {
-                        $button = $this->ui_factory->button()->primary(
-                            $this->plugin->txt('writer_upload_pdf'),
-                            $this->ctrl->getLinkTargetByClass(WriterUploadGUI::class, 'uploadPdf')
                         );
                         $this->toolbar->addComponent($button);
                     }
@@ -495,7 +478,8 @@ class StartPageGUI extends BaseGUI
         $panels = [];
         foreach ($tasks as $task) {
             $panels[] = $this->ui_factory->panel()->standard(
-                $is_one ? $this->plugin->txt('task') : $task->getTitle(), [
+                $is_one ? $this->plugin->txt('task') : $task->getTitle(),
+                [
                     ...$info,
                     ...$this->writingItems($task)
                 ]

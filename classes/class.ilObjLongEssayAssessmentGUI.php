@@ -314,17 +314,22 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
         $form = parent::initCreateForm($new_type);
         $inputs = $form->getInputs();
         $txt = $this->plugin->txt(...);
-        $templates = $this->templates();
-        $options = array_merge([
-            ['', $txt('single_task'), $txt('single_task_info')],
-            ['multi_task', $txt('multi_tasks'), $txt('multi_tasks_info')]
-        ], $this->templates());
 
-        $inputs['template'] = array_reduce(
-            $options,
-            fn($r, array $o) => $r->withOption(...$o),
-            $this->ui_factory->input()->field()->radio($txt('use_template'))
-        );
+        $inputs['template'] = $this->ui_factory->input()->field()->switchableGroup([
+            'tasks' => $this->ui_factory->input()->field()->group([
+                'amount' => $this->ui_factory->input()->field()->radio($txt('please_choose'))
+                    ->withOption('single', $txt('single_task'), $txt('single_task_info'))
+                    ->withOption('multiple', $txt('multi_tasks'), $txt('multi_tasks_info'))
+                    ,
+            ], $txt('multi_tasks'))->withRequired(true),
+            'ref' => $this->ui_factory->input()->field()->group([
+                'id' => array_reduce(
+                    $this->templates(),
+                    fn($r, array $o) => $r->withOption(...$o),
+                    $this->ui_factory->input()->field()->radio($txt('please_choose'))
+                ),
+            ], $txt('use_template'))->withRequired(true),
+        ], $txt('predefined_settings'))->withRequired(true)->withValue(['tasks', ['amount' => 'single']]);
 
         return $this->ui_factory->input()->container()->form()->standard(
             $this->ctrl->getFormAction($this, 'save'),
@@ -359,8 +364,9 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
         $data = $form->getData();
 
         // set the template for creating the new object
-        if (!empty($data['template']) && is_numeric($data['template'])) {
-            $template = new ilObjLongEssayAssessment((int) $data['template']);
+        $template_ref = $data['template'][1]['id'] ?? null;
+        if (($data['template'][0] ?? null) === 'ref' && $template_ref && is_numeric($template_ref)) {
+            $template = new ilObjLongEssayAssessment((int) $template_ref);
             ilObjLongEssayAssessment::setTemplate($template);
         }
 
@@ -379,20 +385,22 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
             ->withRequest($this->request);
         $data = $form->getData();
 
-        if ($data['template'] === 'multi_task') {
-            $assessment = $this->plugin->dic()->assessment($new_object->getAssId(), $this->user->getId());
-            $orga_settings = $assessment->orgaSettings()->get();
-            $orga_settings->setMultiTasks(true);
-            $assessment->orgaSettings()->save($orga_settings);
-
-        } elseif ($data['template']) {
-            $template = ilObjLongEssayAssessment::getTemplate();
-            $assessment = $this->plugin->dic()->assessment($new_object->getAssId(), $this->user->getId());
-            $orga_settings = $assessment->orgaSettings()->get();
-            $orga_settings->setOnline(false);
-            $orga_settings->setTemplate(false);
-            $orga_settings->setSrcTemplateName($template?->getTitle());
-            $assessment->orgaSettings()->save($orga_settings);
+        switch ($data['template'][0] ?? null) {
+            case 'tasks':
+                $assessment = $this->plugin->dic()->assessment($new_object->getAssId(), $this->user->getId());
+                $orga_settings = $assessment->orgaSettings()->get();
+                $orga_settings->setMultiTasks('multiple' === ($data['template'][1]['amount'] ?? false));
+                $assessment->orgaSettings()->save($orga_settings);
+                break;
+            case 'ref':
+                $template = ilObjLongEssayAssessment::getTemplate();
+                $assessment = $this->plugin->dic()->assessment($new_object->getAssId(), $this->user->getId());
+                $orga_settings = $assessment->orgaSettings()->get();
+                $orga_settings->setOnline(false);
+                $orga_settings->setTemplate(false);
+                $orga_settings->setSrcTemplateName($template?->getTitle());
+                $assessment->orgaSettings()->save($orga_settings);
+                break;
         }
 
         // always send a message

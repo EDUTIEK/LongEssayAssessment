@@ -51,11 +51,16 @@ readonly class StorageAdapter implements Storage
         return null;
     }
 
-    public function saveFile(mixed $stream_resource, ?FileInfo $info = null): ?FileInfo
+    public function saveFile(mixed $input, ?FileInfo $info = null): ?FileInfo
     {
-        $stream_object = $stream_resource instanceof Stream ?
-            $stream_resource :
-            Streams::ofResource($stream_resource);
+        if ($input instanceof Stream) {
+            $stream_object = $input;
+        } elseif (is_string($input)) {
+            $stream_object = Streams::ofString($input);
+        } elseif (is_resource($input)) {
+            $stream_object = Streams::ofResource($input);
+        }
+
         $info = $info ?? new FileInfoModel();
 
         $resource_id = $this->manager->find($info->getId() ?? '');

@@ -20,9 +20,9 @@ trait RepositoryFactory
      * @param class-string<R> $repo
      * @return R
      */
-    private function repo(string $repo, string $model): object
+    private function repo(string $repo, string $model, ...$args): object
     {
-        return $this->instances[$repo] ??= new $repo($this->add($model));
+        return $this->instances[$repo] ??= new $repo($this->add($model), ...$args);
     }
 
     /**

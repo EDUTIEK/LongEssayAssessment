@@ -368,7 +368,7 @@ simulate_offline#:#Netzwerkunterbrechung simulieren
 simulate_offline_info#:#Anfragen aus den Writer und Corrector Web Apps werden mit dem Status SERVICE_UNAVAILABLE (503) zurückgewiesen. Damit können Netzwerkprobleme während des Schreibens oder Korrigierens einer Klausur simuliert werden.
 message_writing_to_continue#:#Ihre Bearbeitung ist noch nicht zur Korrektur abgegeben. Klicken Sie auf "Bearbeitung fortsetzen", um weiter zu scheiben oder sie abzugeben.
 message_writing_to_authorize#:#Ihre Bearbeitung ist noch nicht zur Korrektur abgegeben. Klicken Sie auf "Bearbeitung schreibgeschützt einsehen", um sie zu überprüfen und abzugeben.
-message_writing_to_authorize_pdf#:#Ihre Bearbeitung ist noch nicht zur Korrektur abgegeben. Klicken Sie auf "Vorschau zur Abgabe", um sie zu überprüfen und abzugeben.
+message_writing_to_authorize_pdf#:#Ihre Bearbeitung ist noch nicht zur Korrektur abgegeben. Klicken Sie auf "PDF-Abgabe", um sie zu überprüfen und abzugeben.
 message_writing_not_authorized#:#Sie haben Ihre Bearbeitung nicht zur Korrektur abgegeben. Wenden Sie sich an die Prüfungsleitung, wenn Ihre Bearbeitung doch bewertet werden soll.
 warning_potential_later_assignments#:#Es gibt noch Teilnehmende, die möglicherweise nachträglich zugewiesen werden müssen.
 potential_authorizations_not_started#:#Noch nicht gestartet, aber in Bearbeitungszeit: %s
@@ -640,9 +640,10 @@ writing_type_pdf_upload_info#:#Die Texte werden von allen Teilnehmern einheitlic
 writer_upload_pdf#:#PDF-Datei hochladen
 writer_replace_pdf#:#PDF-Datei ersetzen
 writer_upload_pdf_finished#:#Die Datei wurde hochgeladen.
-writer_review_pdf#:#Vorschau zur Abgabe
+writer_review_pdf#:#PDF-Abgabe
 writer_authorize_pdf#:#Zur Korrektur abgeben
-writer_authorize_pdf_info#:#Bitte überprüfen Sie, ob Sie die Datei in dieser Form zur Bewertung abgeben möchten. Nach der Abgabe ist keine weitere Bearbeitung mehr möglich!
+writer_authorize_pdf_info#:#Bitte überprüfen Sie, ob Sie die Datei in dieser Form zur Bewertung abgeben möchten. Klicken Sie dann auf "Zur Korrektur abgeben" unter der vorschau. Nach der Abgabe ist keine weitere Bearbeitung mehr möglich!
+writer_authorize_pdfs_info#:#Bitte überprüfen Sie, ob Sie die Dateien in dieser Form zur Bewertung abgeben möchten. Klicken Sie dann auf "Zur Korrektur abgeben" unter den Vorschauen. Nach der Abgabe ist keine weitere Bearbeitung mehr möglich!
 writer_upload_pdf_bt_processing#:#Verarbeite PDF-Upload von %s
 writer_upload_pdf_bt_success#:#PDF-Upload erfolgreich verarbeitet.
 writer_upload_pdf_bt_failure#:#Fehler beim Verarbeiten des PDF-Uploads.
@@ -651,7 +652,9 @@ new_file#:#Neue Datei
 upload_file#:#Datei hochladen
 replace_file#:#Datei ersetzen
 delete_file#:#Datei löschen
-writer_upload_pdf_missing#:#Bitte laden Sie eine PDF-Datei hoch!
+confirm_delete_file#:#Möchten Sie die Datei löschen?
+file_deleted#:#Die Datei wurde gelöscht.
+writer_upload_pdf_missing#:#Es ist noch keine PDF-Datei vorhanden.
 writer_upload_pdf_deleted#:#Die PDF-Datei wurde erfolgreich entfernt.
 copy_grade_level#:#Notenstufen kopieren
 copy_grade_level_successful#:#Notenstufe erfolgreich kopiert.

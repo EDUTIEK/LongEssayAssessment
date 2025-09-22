@@ -158,7 +158,7 @@ abstract class BaseGUI
 
     protected function info(string $message, bool $keep = false): void
     {
-        $this->tpl->setOnScreenMessage(ilGlobalTemplateInterface::MESSAGE_TYPE_FAILURE, $message, $keep);
+        $this->tpl->setOnScreenMessage(ilGlobalTemplateInterface::MESSAGE_TYPE_INFO, $message, $keep);
     }
 
     /**

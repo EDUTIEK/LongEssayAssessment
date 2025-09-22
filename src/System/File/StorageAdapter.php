@@ -80,6 +80,9 @@ readonly class StorageAdapter implements Storage
 
     public function deleteFile(?string $id): void
     {
+        if (!$id) {
+            return;
+        }
         $resource_id = $this->manager->find($id ?? '');
         if ($resource_id !== null) {
             $this->manager->remove($resource_id, $this->stakeholder);

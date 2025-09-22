@@ -22,11 +22,14 @@ namespace ILIAS\Plugin\LongEssayAssessment\EssayTask\Data;
 
 use Edutiek\AssessmentService\EssayTask\Data\EssayImage;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\RepositoryInterface;
+use ilDBInterface;
 
 class EssayImageRepo implements \Edutiek\AssessmentService\EssayTask\Data\EssayImageRepo
 {
-    public function __construct(private readonly RepositoryInterface $repo)
-    {
+    public function __construct(
+        private readonly RepositoryInterface $repo,
+        private readonly ilDBInterface $db
+    ) {
     }
 
     public function new(): EssayImage
@@ -39,11 +42,6 @@ class EssayImageRepo implements \Edutiek\AssessmentService\EssayTask\Data\EssayI
         return $this->repo->queryOneBy(['id' => $id]);
     }
 
-    public function allByEssayId(int $essay_id): array
-    {
-        return $this->repo->queryAllBy(['essay_id' => $essay_id]);
-    }
-
     public function save(EssayImage $entity): void
     {
         $this->repo->replace($entity);
@@ -54,8 +52,44 @@ class EssayImageRepo implements \Edutiek\AssessmentService\EssayTask\Data\EssayI
         $this->repo->deleteAllBy(['id' => $id]);
     }
 
-    public function deleteByEssayId(int $essay_id): void
+    public function allByEssayId(int $essay_id): array
     {
-        $this->repo->deleteAllBy(['essay_id' => $essay_id]);
+        $images = [];
+        $this->runAtomic(function (ilDBInterface $db) use ($essay_id, &$images) {
+            $images = $this->repo->queryAllBy(['essay_id' => $essay_id], ['page_no' => 'ASC']);
+        });
+        return $images;
+    }
+
+    public function replaceByEssayId(int $essay_id, array $images): array
+    {
+        $deleted = [];
+        $this->runAtomic(function (ilDBInterface $db) use ($essay_id, $images, &$deleted) {
+            $deleted = $this->repo->queryAllBy(['essay_id' => $essay_id], ['page_no' => 'ASC']);
+            $this->repo->deleteAllBy(['essay_id' => $essay_id]);
+            foreach ($images as $image) {
+                $this->repo->replace($image);
+            }
+        });
+        return $deleted;
+    }
+
+    public function deleteByEssayId(int $essay_id): array
+    {
+        $deleted = [];
+        $this->runAtomic(function (ilDBInterface $db) use ($essay_id, &$deleted) {
+            $deleted = $this->repo->queryAllBy(['essay_id' => $essay_id], ['page_no' => 'ASC']);
+            $this->repo->deleteAllBy(['essay_id' => $essay_id]);
+        });
+        return $deleted;
+    }
+
+    private function runAtomic(callable $callable): void
+    {
+        $atom = $this->db->buildAtomQuery();
+        $atom->addTableLock('xlas_et_essay_image');
+        $atom->addTableLock('xlas_et_essay_image_seq');
+        $atom->addQueryCallable($callable);
+        $atom->run();
     }
 }

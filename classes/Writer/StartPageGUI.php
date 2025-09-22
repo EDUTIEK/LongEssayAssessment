@@ -197,7 +197,7 @@ class StartPageGUI extends BaseGUI
                     if ($this->perms->canWrite() || $this->perms->canReviewWrittenAssessment()) {
                         $button = $this->ui_factory->button()->primary(
                             $this->plugin->txt('writer_review_pdf'),
-                            $this->ctrl->getLinkTargetByClass(WriterUploadGUI::class, 'reviewPdf')
+                            $this->ctrl->getLinkTargetByClass(WriterUploadGUI::class)
                         );
                         $this->toolbar->addComponent($button);
                     }

@@ -727,7 +727,7 @@ status_writing_excluded_from#:#ausgeschlossen von
 status_writing_autorized_from#:#freigegeben von
 src_template#:#Verwendete Vorlage
 is_template#:#Als Vorlage verwenden
-use_template#:#Vorlage
+use_template#:#Vorlage verwenden
 task#:#Aufgabe
 by_csv_id#:#Prüflings-ID
 by_csv_alloc_time#:#Allozierte Zeit
@@ -787,3 +787,7 @@ min_word_count#:#Wörter mindestens
 max_word_count#:#Wörter maximal
 predefined_settings#:#Voreinstellungen
 please_choose#:#Bitte wählen
+standard#:#Standard
+use_standard#:#Standard verwenden
+task_type#:#Aufgabentyp
+template#:#Vorlage

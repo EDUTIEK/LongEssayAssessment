@@ -26,8 +26,6 @@ use ILIAS\UI\Component\Table\DataRetrieval;
 use ILIAS\UI\Component\Table\DataRowBuilder;
 use ILIAS\Data\Range;
 use ILIAS\Data\Order;
-use ILIAS\Plugin\LongEssayAssessment\Handler\Upload;
-use ILIAS\Plugin\LongEssayAssessment\Handler\UploadHelper;
 use Generator;
 use ZipArchive;
 use ilObjUser;
@@ -46,6 +44,7 @@ use Edutiek\AssessmentService\Task\Resource\FullService as ResourceApi;
 use ILIAS\Plugin\LongEssayAssessment\EssayTask\EssayImport\Import;
 use ILIAS\Plugin\LongEssayAssessment\EssayTask\EssayImport\Bavaria;
 use ILIAS\Plugin\LongEssayAssessment\EssayTask\EssayImport\Nrw;
+use ilLongEssayAssessmentUploadHandlerGUI;
 
 class ImportEssayGUI extends BaseGUI implements Import
 {
@@ -56,9 +55,9 @@ class ImportEssayGUI extends BaseGUI implements Import
         'nrw' => Nrw::class,
     ];
 
-    private readonly UploadHelper $upload;
     private readonly Storage $perm_storage;
     private readonly Storage $temp_storage;
+    private readonly ilLongEssayAssessmentUploadHandlerGUI $upload_handler;
     private array $cache = [];
 
     public function __construct(BaseObjectData $object)
@@ -66,13 +65,13 @@ class ImportEssayGUI extends BaseGUI implements Import
         // @Todo: Add access right here.
         parent::__construct($object);
 
-        $this->upload = new UploadHelper($this->dic);
         $this->perm_storage = $this->system_api->fileStorage();
         $this->temp_storage = new StorageAdapter(
             $this->dic->resourceStorage()->manage(),
             $this->dic->resourceStorage()->consume(),
             new ilTemporaryStakeholder()
         );
+        $this->upload_handler = new ilLongEssayAssessmentUploadHandlerGUI($this->temp_storage, $this->plugin->dic()->uploadTempFile());
     }
 
     public function executeCommand(): void
@@ -88,10 +87,7 @@ class ImportEssayGUI extends BaseGUI implements Import
     {
         $form = $this->ui_factory->input()->container()->form()->standard($this->ctrl->getLinkTarget($this, __FUNCTION__), [
             'title' => $this->ui_factory->input()->field()->section([], $this->plugin->txt('import_essays')),
-            'file' => $this->ui_factory->input()->field()->file(new Upload(
-                fn() => null,
-                fn($cmd) => $this->ctrl->getLinkTarget($this, $cmd),
-            ), $this->plugin->txt('import_zip_name')),
+            'file' => $this->ui_factory->input()->field()->file($this->upload_handler, $this->plugin->txt('import_zip_name')),
             'hash' => $this->ui_factory->input()->field()->text($this->plugin->txt('import_hash')),
             'password' => $this->ui_factory->input()->field()->optionalGroup([
                 'value' => $this->ui_factory->input()->field()->text($this->plugin->txt('import_password')),
@@ -129,7 +125,7 @@ class ImportEssayGUI extends BaseGUI implements Import
                 $this->ui_factory->legacy('<span>' . sprintf($this->plugin->txt($lang_var), $overwrites) . '</span>'),
             ], [], $this->ctrl->getLinkTarget($this, 'import'))->withActionButtons([
                 $this->ui_factory->button()->primary($this->plugin->txt('import_zip_no_overwrite'), $this->ctrl->getLinkTarget($this, 'import')),
-                $this->ui_factory->button()->primary($this->plugin->txt('import_zip_overwrite'), $this->ctrl->getLinkTarget($this, 'importOverwrite'))
+                $this->ui_factory->button()->standard($this->plugin->txt('import_zip_overwrite'), $this->ctrl->getLinkTarget($this, 'importOverwrite'))
             ]);
 
             $import_button = $import_button->withOnClick($modal->getShowSignal());
@@ -141,20 +137,6 @@ class ImportEssayGUI extends BaseGUI implements Import
         $content[] = $this->ui_factory->button()->standard($this->lng->txt('cancel'), $this->ctrl->getLinkTarget($this, 'cancel'));
 
         $this->renderContent($content);
-    }
-
-    public function upload(): never
-    {
-        $upload = $this->dic->upload();
-        $upload->process();
-        $result_array = $upload->getResults();
-        $result = current($result_array);
-        if (!(($result ?: null)?->isOk())) {
-            $this->upload->exitWithJson($this->upload->errorJson('No upload'));
-        }
-
-        $info = $this->temp_storage->saveFile(fopen($result->getPath(), 'rb'), null);
-        $this->upload->exitWithJson($this->upload->okJson($info->getId()));
     }
 
     public function import(bool $overwrite = false): void
@@ -394,7 +376,7 @@ class ImportEssayGUI extends BaseGUI implements Import
 
     private function saveForm(array $data): void
     {
-        $stream = $this->temp_storage->getFileStream(current($data['file']));
+        $stream = $this->upload_handler->getApiStream(current($data['file']));
         if (($data['hash'] ?? null) && $data['hash'] !== $this->hash(stream_get_contents($stream))) {
             $this->fail('import_hash_mismatch');
         }

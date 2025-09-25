@@ -7,13 +7,15 @@ namespace ILIAS\Plugin\LongEssayAssessment\Dependencies;
 use ILIAS\DI\Container;
 use Edutiek\AssessmentService\System\Api\Factory as SystemFactory;
 use Edutiek\AssessmentService\System\Api\ForServices as SystemApi;
+use Edutiek\AssessmentService\System\Api\ForEvents as EventApi;
 use Edutiek\AssessmentService\Assessment\Api\Factory as AssessmentFactory;
 use Edutiek\AssessmentService\Assessment\Api\ForTasks as AssessmentApi;
 use Edutiek\AssessmentService\Task\Api\Factory as TaskFactory;
 use Edutiek\AssessmentService\Task\Api\ForTypes as TaskApi;
 use ILIAS\Plugin\LongEssayAssessment\EssayTask\Data\RepositoryFactory;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Generate;
-
+use Edutiek\AssessmentService\EssayTask\EventHandling\Observer;
+use Edutiek\AssessmentService\System\EventHandling\Dispatcher;
 
 /**
  * Dependencies of the assessment services component "EssayTask"
@@ -49,5 +51,10 @@ class EssayTaskDic implements \Edutiek\AssessmentService\EssayTask\Api\Dependenc
     public function repositories(): RepositoryFactory
     {
         return $this->dic[RepositoryFactory::class];
+    }
+
+    public function eventDispatcher(int $ass_id, int $user_id): Dispatcher
+    {
+        return $this->dic[EventApi::class]->dispatcher($ass_id, $user_id);
     }
 }

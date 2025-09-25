@@ -28,6 +28,7 @@ use Edutiek\AssessmentService\EssayTask\Api\ForClients as EssayTaskApi;
 use Edutiek\AssessmentService\System\Api\Factory as SystemFactory;
 use Edutiek\AssessmentService\System\Api\ForClients as SystemClientApi;
 use Edutiek\AssessmentService\System\Api\ForServices as SystemServicesApi;
+use Edutiek\AssessmentService\System\Api\ForEvents as EventApi;
 use Edutiek\AssessmentService\Task\Api\Factory as TaskFactory;
 use Edutiek\AssessmentService\Task\Api\ForClients as TaskClientApi;
 use Edutiek\AssessmentService\Task\Api\ForTypes as TaskTypesApi;
@@ -51,9 +52,9 @@ use ILIAS\Plugin\LongEssayAssessment\UI\Table\Factory as TableFactory;
 use ILIAS\Plugin\LongEssayAssessment\UI\Tree\TreeFactory;
 use ILIAS\Plugin\LongEssayAssessment\UI\Protocol\Factory as ProtocolFactory;
 use ILIAS\Plugin\LongEssayAssessment\System\Context\Service as ContextService;
-
-//use Edutiek\AssessmentService\Assessment\Api\EventManager as AssessmentEventManager;
-//use Edutiek\AssessmentService\EssayTask\Api\EventManager as EssayTaskEventManager;
+use Edutiek\AssessmentService\Assessment\EventHandling\Observer as AssessmentObserver;
+use Edutiek\AssessmentService\EssayTask\EventHandling\Observer as EssayTaskObserver;
+use Edutiek\AssessmentService\Task\EventHandling\Observer as TaskObserver;
 
 /**
  * Local Dependency Injection Container of the Plugin
@@ -102,7 +103,7 @@ class PluginDic
             );
         };
 
-        $dic[IconFactory::class]  =  function () use ($dic) {
+        $dic[IconFactory::class] = function () use ($dic) {
             return new IconFactory($dic->ui()->factory()->symbol()->icon());
         };
 
@@ -117,7 +118,7 @@ class PluginDic
                     $refinery,
                     $dic->language()
                 ),
-                $dic[IconFactory::class] ,
+                $dic[IconFactory::class],
                 new ItemFactory(
                     $dic->ui()->factory()->symbol()->icon(),
                     $this->plugin(),
@@ -158,9 +159,12 @@ class PluginDic
         };
 
         $dic[UploadTempFile::class] = function (Container $dic) {
-            return new UploadTempFile($dic->filesystem(), $dic->upload(),
-            $this->sessionValues(UploadTempFile::class),
-            new UUIDFactory());
+            return new UploadTempFile(
+                $dic->filesystem(),
+                $dic->upload(),
+                $this->sessionValues(UploadTempFile::class),
+                new UUIDFactory()
+            );
         };
 
         $dic[UIService::class] = function (Container $dic) {
@@ -171,7 +175,7 @@ class PluginDic
             return new Generate(ModelObjective::PATH());
         };
 
-        // Deendencies of the assessment service components
+        // Dependencies of the assessment service components
 
         $dic[SystemDic::class] = function (Container $dic) {
             return new SystemDic($dic);
@@ -210,28 +214,16 @@ class PluginDic
         $dic[TaskTypesApi::class] = function (Container $dic) {
             return $dic[TaskFactory::class]->forTypes();
         };
-//
-//        $event_manager = function (Container $dic, $class) {
-//            $assessment_em = new AssessmentEventManager($dic[AssessmentFactory::class]->internal());
-//            $esssay_task_em = new EssayTaskEventManager($dic[EssayTaskFactory::class]->internal());
-//
-//            $assessment_em->addObserver($esssay_task_em);
-//
-//            $esssay_task_em->addObserver($assessment_em);
-//
-//            $dic[AssessmentEventManager::class] = $assessment_em;
-//            $dic[EssayTaskEventManager::class] = $esssay_task_em;
-//
-//            return $dic[$class];
-//        };
-//
-//        $dic[AssessmentEventManager::class] = function (Container $dic, $event_manager) {
-//            return $event_manager($dic, AssessmentEventManager::class);
-//        };
-//
-//        $dic[EssayTaskEventManager::class] = function (Container $dic, $event_manager) {
-//            return $event_manager($dic, EssayTaskEventManager::class);
-//        };
+
+        // Event Management
+
+        $dic[EventApi::class] = function (Container $dic) {
+            return $dic[SystemFactory::class]->forEvents([
+                $dic[AssessmentFactory::class]->forEvents(),
+                $dic[EssayTaskFactory::class]->forEvents(),
+                $dic[TaskFactory::class]->forEvents(),
+            ]);
+        };
     }
 
     public function constraints(): DataConstraints

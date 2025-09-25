@@ -25,12 +25,13 @@ use Edutiek\AssessmentService\Task\Api\ForAssessment as TaskApi;
 use ILIAS\DI\Container;
 use Edutiek\AssessmentService\System\Api\Factory as SystemFactory;
 use Edutiek\AssessmentService\System\Api\ForServices as SystemApi;
+use Edutiek\AssessmentService\System\Api\ForEvents as EventApi;
 use ilObjectFactory;
 use ILIAS\Plugin\LongEssayAssessment\Assessment\Data\RepositoryFactory;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Generate;
 use ILIAS\Plugin\LongEssayAssessment\Assessment\Rest\RestContext;
-//use Edutiek\AssessmentService\Assessment\Api\EventManager;
-//use Edutiek\AssessmentService\Event\EventDispatcher;
+use Edutiek\AssessmentService\Assessment\EventHandling\Observer;
+use Edutiek\AssessmentService\System\EventHandling\Dispatcher;
 
 /**
  * Dependencies of the assessment service component "Assessment"
@@ -82,9 +83,9 @@ class AssessmentDic implements \Edutiek\AssessmentService\Assessment\Api\Depende
     {
         return $this->dic[RestContext::class];
     }
-//
-//    public function eventManager(): EventDispatcher
-//    {
-//        return $this->dic[EventManager::class];
-//    }
+
+    public function eventDispatcher(int $ass_id, int $user_id): Dispatcher
+    {
+        return $this->dic[EventApi::class]->dispatcher($ass_id, $user_id);
+    }
 }

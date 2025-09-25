@@ -24,11 +24,13 @@ use Edutiek\AssessmentService\Task\TypeInterfaces\ApiFactory as TypeApiFactory;
 use ILIAS\DI\Container;
 use Edutiek\AssessmentService\System\Api\Factory as SystemFactory;
 use Edutiek\AssessmentService\System\Api\ForServices as SystemApi;
+use Edutiek\AssessmentService\System\Api\ForEvents as EventApi;
 use ILIAS\Plugin\LongEssayAssessment\Task\Data\RepositoryFactory;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Generate;
 use Edutiek\AssessmentService\EssayTask\Api\Factory as EssayTaskFactory;
 use Edutiek\AssessmentService\Assessment\Api\ForTasks as AssessmentApiFactory;
 use Edutiek\AssessmentService\Assessment\Api\Factory as AssessmentFactory;
+use Edutiek\AssessmentService\System\EventHandling\Dispatcher;
 
 /**
  * Dependencies of the assessment services component "Task"
@@ -71,5 +73,10 @@ class TaskDic implements \Edutiek\AssessmentService\Task\Api\Dependencies
     public function assessmentApis(int $ass_id, int $user_id): AssessmentApiFactory
     {
         return $this->dic[AssessmentFactory::class]->forTasks($ass_id, $user_id);
+    }
+
+    public function eventDispatcher(int $ass_id, int $user_id): Dispatcher
+    {
+        return $this->dic[EventApi::class]->dispatcher($ass_id, $user_id);
     }
 }

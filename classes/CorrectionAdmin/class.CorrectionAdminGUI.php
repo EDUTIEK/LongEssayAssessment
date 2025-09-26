@@ -41,8 +41,8 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
 {
     use ConfirmationIds;
 
-    const FILTER_YES= "1";
-    const FILTER_NO = "2";
+    public const FILTER_YES = "1";
+    public const FILTER_NO = "2";
     private OrgaSettings $settings;
     private WriterService $writer_service;
     private UserService $user_service;
@@ -66,7 +66,7 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
         $this->user_service = $this->system_api->user();
         $this->essay_service = $this->essay_task_api->essay();
         $this->assessment_status = $this->task_api->assessmentStatus();
-        $this->summary_service = $this->task_api->summary($this->task_info->getId());
+        $this->summary_service = $this->task_api->correctorSummary();
         $this->assignment_service = $this->task_api->correctorAssignments();
         $this->corrector_service = $this->assessment_api->corrector();
         $this->grading_service = $this->assessment_api->assessment_grading();
@@ -84,7 +84,7 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
 
     private function removeAuthorizationsAction(): Action\Confirmation
     {
-        $label =  $this->correction_settings->getRequiredCorrectors() == 1
+        $label = $this->correction_settings->getRequiredCorrectors() == 1
             ? $this->plugin->txt('remove_authorization')
             : $this->plugin->txt('remove_authorizations');
         return $this->plugin_ui_factory->table()->action()->confirmation(
@@ -93,8 +93,8 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
             $label,
             $this->plugin->txt("remove_authorizations_confirmation"),
             $this->ctrl->getFormAction($this, "removeAuthorizations"),
-            fn (CorrectionItem $item) => $item->getWriterName(),
-            fn (CorrectionItem $item) => !$item->getWriter()->isCorrectionFinalized(),
+            fn(CorrectionItem $item) => $item->getWriterName(),
+            fn(CorrectionItem $item) => !$item->getWriter()->isCorrectionFinalized(),
             Action\Type::Standard,
         );
     }
@@ -105,8 +105,8 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
         $valid = [];
         $invalid = [];
 
-        foreach($writer_ids as $writer_id) {
-            if(($writer = $this->writer_service->oneByWriterId($writer_id)) !== null) {
+        foreach ($writer_ids as $writer_id) {
+            if (($writer = $this->writer_service->oneByWriterId($writer_id)) !== null) {
                 if ($this->correction_process->removeAuthorizations($this->task_info->getId(), $writer, $this->user->getId())) {
                     $valid[] = $writer;
                 } else {
@@ -115,9 +115,9 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
             }
         }
 
-        $users = $this->user_service->getUsersByIds(array_map(fn ($x) => $x->getUserId(), array_merge($valid, $invalid)));
+        $users = $this->user_service->getUsersByIds(array_map(fn($x) => $x->getUserId(), array_merge($valid, $invalid)));
 
-        if(count($invalid) > 0) {
+        if (count($invalid) > 0) {
             $names = [];
             foreach ($invalid as $writer) {
                 $user = $users[$writer->getUserId()] ?? null;
@@ -125,11 +125,11 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
             }
             $this->tpl->setOnScreenMessage("failure", sprintf($this->plugin->txt('remove_authorizations_for_failed'), implode(", ", $names)), true);
         }
-        if(count($valid) > 0) {
+        if (count($valid) > 0) {
             $names = [];
             foreach ($valid as $writer) {
                 $user = $users[$writer->getUserId()] ?? null;
-                $names[] = ($user?->getFullname(true) ?? "unknown"). ' [' . $writer->getPseudonym() . ']';
+                $names[] = ($user?->getFullname(true) ?? "unknown") . ' [' . $writer->getPseudonym() . ']';
             }
             $this->tpl->setOnScreenMessage("success", sprintf($this->plugin->txt('remove_authorizations_for_done'), implode(", ", $names)), true);
         }
@@ -143,7 +143,7 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
             "export_steps",
             $this->plugin->txt('export_steps'),
             [$this, "exportSteps"],
-            fn (CorrectionItem $item) => $item->getWriter()->canGetSight(),
+            fn(CorrectionItem $item) => $item->getWriter()->canGetSight(),
             Action\Type::Single
         );
     }
@@ -159,7 +159,7 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
             "stitch_decision",
             $this->plugin->txt('draw_stitch_decision'),
             [$this, "stitchDescision"],
-            fn (CorrectionItem $item) => $item->getCorrectionStatus() === CorrectionStatus::STITCH_NEEDED,
+            fn(CorrectionItem $item) => $item->getCorrectionStatus() === CorrectionStatus::STITCH_NEEDED,
             Action\Type::Single
         );
     }
@@ -177,17 +177,17 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
             $this->lng->txt("submit"),
             [$this, 'changeCorrectorFields'],
             [$this, 'changeCorrector'],
-            fn (CorrectionItem $item) => true,
+            fn(CorrectionItem $item) => true,
             Action\Type::Standard
         )->withContent([
             $this->ui_factory->messageBox()->info($this->plugin->txt("change_corrector_info"))
         ])->withTransformations([$this, "changeCorrectorCheck"]);
     }
 
-    public function changeCorrectorCheck(array $items) : array
+    public function changeCorrectorCheck(array $items): array
     {
         $correction_process = $this->correction_process;
-        $writer_ids = array_map(fn (CorrectionItem $item) => $item->getWriter()->getId(), $items);
+        $writer_ids = array_map(fn(CorrectionItem $item) => $item->getWriter()->getId(), $items);
 
         return [
             $this->refinery->custom()->constraint(
@@ -222,7 +222,7 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
         foreach ($this->corrector_service->all() as $corrector) {
             $corrector_ids[$corrector->getId()] = $corrector->getUserId();
         }
-        $names = array_map(fn (UserData $u) => $u->getFullname(true), $this->user_service->getUsersByIds($corrector_ids));
+        $names = array_map(fn(UserData $u) => $u->getFullname(true), $this->user_service->getUsersByIds($corrector_ids));
 
         foreach ($corrector_ids as $id => $user_id) {
             $corrector_list[$id] = $names[$user_id];
@@ -279,7 +279,7 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
             $this->task_info->getId(),
             $data["first_corrector"] ?? CorrectionProcess::UNCHANGED_CORRECTOR_ASSIGNMENT,
             $data["second_corrector"] ?? CorrectionProcess::UNCHANGED_CORRECTOR_ASSIGNMENT,
-            array_map(fn (CorrectionItem $x) => $x->getWriter()->getId(), $items)
+            array_map(fn(CorrectionItem $x) => $x->getWriter()->getId(), $items)
         );
         $this->tpl->setOnScreenMessage("success", $this->plugin->txt("corrector_assignment_changed"), true);
         $this->ctrl->redirect($this, 'showItems');
@@ -291,7 +291,7 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
             "mail_to_writer_or_corrector",
             $this->plugin->txt('mail_to_writer_or_corrector'),
             [$this, "mailToWriterOrCorrectorModal"],
-            fn (CorrectionItem $item) => true,
+            fn(CorrectionItem $item) => true,
             Action\Type::Standard
         );
     }
@@ -302,7 +302,7 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
      */
     public function mailToWriterOrCorrectorModal(array $items): \ILIAS\UI\Component\Modal\RoundTrip
     {
-        $writer_ids = array_map(fn (CorrectionItem $item) => $item->getWriter()->getId(), $items);
+        $writer_ids = array_map(fn(CorrectionItem $item) => $item->getWriter()->getId(), $items);
         $writer_id_query = "&" . http_build_query(["wid" => $writer_ids]);
 
         $fields = [
@@ -310,7 +310,7 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
         ];
 
         for ($i = 1; $i <= $this->correction_settings->getRequiredCorrectors(); $i++) {
-            $fields['corrector' . $i] =  $this->ui_factory->input()->field()->checkbox(
+            $fields['corrector' . $i] = $this->ui_factory->input()->field()->checkbox(
                 sprintf($this->plugin->txt('corrector_x'), $i)
             );
         }
@@ -368,7 +368,7 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
             }
 
             $users = $this->user_service->getUsersByIds($user_ids);
-            $logins = array_map(fn (UserData $u) => $u->getLogin(), $users);
+            $logins = array_map(fn(UserData $u) => $u->getLogin(), $users);
             $this->openMailForm($logins, 'showItems');
         }
     }
@@ -379,7 +379,7 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
             "view_stitch_decision",
             $this->plugin->txt('view_stitch_comment'),
             [$this, "viewStitchDecision"],
-            fn (CorrectionItem $item) => !empty($item->getWriter()->getStitchComment()),
+            fn(CorrectionItem $item) => !empty($item->getWriter()->getStitchComment()),
             Action\Type::Single
         );
     }
@@ -395,7 +395,7 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
             "download_corrected_pdf",
             $this->plugin->txt('download_corrected_pdf'),
             [$this, "downloadCorrectedPdf"],
-            fn (CorrectionItem $item) => $item->canDownloadCorrectionPdf(),
+            fn(CorrectionItem $item) => $item->canDownloadCorrectionPdf(),
             Action\Type::Single
         );
     }
@@ -411,7 +411,7 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
             "download_written_pdf",
             $this->plugin->txt('download_written_pdf'),
             [$this, "downloadWrittenPdf"],
-            fn (CorrectionItem $item) => $item->getWriter()->canDownloadWrittenPdf(),
+            fn(CorrectionItem $item) => $item->getWriter()->canDownloadWrittenPdf(),
             Action\Type::Single
         );
     }
@@ -427,7 +427,7 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
             "view_correction",
             $this->plugin->txt('view_correction'),
             [$this, "viewCorrections"],
-            fn (CorrectionItem $item) => true,
+            fn(CorrectionItem $item) => true,
             Action\Type::Single
         );
     }
@@ -586,7 +586,7 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
             "pdf_version" => $cf->boolean($this->plugin->txt("pdf_version"), $this->lng->txt("yes"), $this->lng->txt("no"))->withIsOptional(true, false)->withIsSortable(true)->withHighlight($multi)
         ];
 
-        foreach (range(0, $corrections-1) as $p) {
+        foreach (range(0, $corrections - 1) as $p) {
             if ($corrections == 1) {
                 $cor = $this->plugin->txt("assignment_pos_single");
             } else {
@@ -602,15 +602,15 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
             $cor = $cor . " ";
             $columns += [
                 "corr_{$p}" => $cf->text($cor)->withIsOptional(true, true)->withIsSortable(true)->withIsSortable(false)->withHighlight($multi),
-                "corr_{$p}_name" => $cf->text($cor. $this->lng->txt("name"))->withIsOptional(true, false)->withIsSortable(true)->withHighlight($multi),
+                "corr_{$p}_name" => $cf->text($cor . $this->lng->txt("name"))->withIsOptional(true, false)->withIsSortable(true)->withHighlight($multi),
                 "corr_{$p}_status" => $cf->status($cor . $this->plugin->txt("status"))->withIsOptional(true, false)->withIsSortable(true)->withHighlight($multi),
                 "corr_{$p}_points" => $cfp->nullableNumber($cor . $this->plugin->txt("points"))->withIsOptional(true, false)->withIsSortable(true)->withHighlight($multi),
             ];
 
             if (!$multi) {
-                $columns["corr_{$p}_grade"] = $cf->text($cor. $this->lng->txt("grade"))->withIsOptional(true, false)->withIsSortable(true);
+                $columns["corr_{$p}_grade"] = $cf->text($cor . $this->lng->txt("grade"))->withIsOptional(true, false)->withIsSortable(true);
             }
-            $columns["corr_{$p}_authorized"] = $cf->boolean($cor. $this->lng->txt("authorized"), $this->lng->txt('yes'), $this->lng->txt('no'))->withIsOptional(true, false)->withIsSortable(true)->withHighlight($multi);
+            $columns["corr_{$p}_authorized"] = $cf->boolean($cor . $this->lng->txt("authorized"), $this->lng->txt('yes'), $this->lng->txt('no'))->withIsOptional(true, false)->withIsSortable(true)->withHighlight($multi);
         }
 
         $columns += [
@@ -649,15 +649,15 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
 
     public function getTableItems(?array $ids = null, ?array $filter_data = null): \Generator
     {
-        $writer = array_filter($this->writer_service->all(), fn (Writer $writer) => empty($ids) || in_array($writer->getId(), $ids));
+        $writer = array_filter($this->writer_service->all(), fn(Writer $writer) => empty($ids) || in_array($writer->getId(), $ids));
         $collection = new CorrectionItemCollection(
             $writer,
-            $this->system_api->user()->getUserDisplaysByIds(array_map(fn (Writer $w) => $w->getUserId(), $writer), null),
+            $this->system_api->user()->getUserDisplaysByIds(array_map(fn(Writer $w) => $w->getUserId(), $writer), null),
             $this->corrector_service->all(),
             $this->essay_service->allByTaskId($this->task_info->getId()),
             $this->assessment_status->allWriterCorrectionStatus(),
             $this->assignment_service->all(),
-            $this->summary_service->all(),
+            $this->summary_service->allByTaskId($this->task_info->getId()),
             $this->getLocations(),
             $this->getCorrectionSettings()->getRequiredCorrectors()
         );
@@ -673,7 +673,7 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
     {
         $writer = $this->writer_service->oneByWriterId($id);
         $summaries = [];
-        foreach ($this->summary_service->allByWriterId($writer->getId()) as $summary) {
+        foreach ($this->summary_service->allByTaskIdAndWriterId($this->task_info->getId(), $writer->getId()) as $summary) {
             $summaries[$summary->getCorrectorId()][] = $summary;
         }
 
@@ -703,13 +703,13 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
     public function getFilterInputs(): array
     {
         $status = [
-            (string)CorrectionStatus::WRITING_NOT_STARTED->value => $this->plugin->txt("status_writing_not_started"),
-            (string)CorrectionStatus::WRITING_STARTED->value => $this->plugin->txt("status_writing_started"),
-            (string)CorrectionStatus::WRITING_EXCLUDED->value => $this->plugin->txt("status_writing_excluded"),
-            (string)CorrectionStatus::WRITING_EXCLUDED->value => $this->plugin->txt("status_writing_authorized"),
-            (string)CorrectionStatus::STARTED->value => $this->plugin->txt("correction_status_started"),
-            (string)CorrectionStatus::STITCH_NEEDED->value => $this->plugin->txt("correction_status_stitch_needed"),
-            (string)CorrectionStatus::FINALIZED->value => $this->plugin->txt("correction_finalized_from"),
+            (string) CorrectionStatus::WRITING_NOT_STARTED->value => $this->plugin->txt("status_writing_not_started"),
+            (string) CorrectionStatus::WRITING_STARTED->value => $this->plugin->txt("status_writing_started"),
+            (string) CorrectionStatus::WRITING_EXCLUDED->value => $this->plugin->txt("status_writing_excluded"),
+            (string) CorrectionStatus::WRITING_EXCLUDED->value => $this->plugin->txt("status_writing_authorized"),
+            (string) CorrectionStatus::STARTED->value => $this->plugin->txt("correction_status_started"),
+            (string) CorrectionStatus::STITCH_NEEDED->value => $this->plugin->txt("correction_status_stitch_needed"),
+            (string) CorrectionStatus::FINALIZED->value => $this->plugin->txt("correction_finalized_from"),
         ];
         $locations = [];
         foreach ($this->getLocations() as $location) {
@@ -718,7 +718,7 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
 
         return [
             "name" => $this->ui_factory->input()->field()->text($this->plugin->txt("participants")),
-            "location" =>  $this->ui_factory->input()->field()->multiselect($this->plugin->txt("locations"), $locations),
+            "location" => $this->ui_factory->input()->field()->multiselect($this->plugin->txt("locations"), $locations),
             "min_words" => $this->ui_factory->input()->field()->numeric($this->plugin->txt("min_word_count"))
                                             ->withAdditionalTransformation($this->refinery->int()->isGreaterThanOrEqual(0)),
             "max_words" => $this->ui_factory->input()->field()->numeric($this->plugin->txt("max_word_count"))
@@ -744,7 +744,7 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
         return $this->ctrl->getLinkTarget($this, "showItems");
     }
 
-    protected function hasLocations() : bool
+    protected function hasLocations(): bool
     {
         return !empty($this->getLocations());
     }
@@ -754,7 +754,7 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
         return $this->location ??= $this->assessment_api->location()->all();
     }
 
-    protected function getLocation(?int $id) : ?Location
+    protected function getLocation(?int $id): ?Location
     {
         if ($id === null) {
             return null;
@@ -764,12 +764,12 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
         return $location[$id] ?? null;
     }
 
-    protected function getSettings() : OrgaSettings
+    protected function getSettings(): OrgaSettings
     {
         return $this->settings ??= $this->assessment_api->orgaSettings()->get();
     }
 
-    protected function getCorrectionSettings() : CorrectionSettings
+    protected function getCorrectionSettings(): CorrectionSettings
     {
         return $this->correction_settings ??= $this->assessment_api->correctionSettings()->get();
     }

@@ -37,7 +37,8 @@ use Edutiek\AssessmentService\System\Data\UserData;
  */
 class CorrectorGUI extends BaseGUI implements DataTableParent
 {
-    use SmallView, ConfirmationIds;
+    use SmallView;
+    use ConfirmationIds;
 
     private ?int $required_correctors = null;
     private \ilTree $tree;
@@ -131,7 +132,7 @@ class CorrectorGUI extends BaseGUI implements DataTableParent
         $this->toolbar->addComponent($btn);
         $modal[] = $modal_copy;
 
-            // spacer
+        // spacer
         $this->toolbar->addSeparator();
 
         // mail to correctors
@@ -144,23 +145,23 @@ class CorrectorGUI extends BaseGUI implements DataTableParent
         $this->tpl->setContent($this->renderer->render(array_merge($modal, $table->getComponents())));
     }
 
-    public function getRequiredCorrectors() : int
+    public function getRequiredCorrectors(): int
     {
         return $this->correction_settings->getRequiredCorrectors();
     }
 
-    public function getColumnMapping(Item $item, ?array $additional_parameters) : array
+    public function getColumnMapping(Item $item, ?array $additional_parameters): array
     {
         /**
          * @var CorrectorItem $item
          */
 
-        $columns =  [
+        $columns = [
             "name" => $item->getName(),
             "login" => $item->getLogin(),
             "first" => $item->getFirst(),
             ];
-        if($this->getRequiredCorrectors() > 1) {
+        if ($this->getRequiredCorrectors() > 1) {
             $columns["second"] = $item->getSecond();
         }
         $columns["not_started"] = $item->getNotStarted();
@@ -170,7 +171,7 @@ class CorrectorGUI extends BaseGUI implements DataTableParent
         return $columns;
     }
 
-    public function getColumns(?array $additional_parameters) : array
+    public function getColumns(?array $additional_parameters): array
     {
         $tf = $this->ui_factory->table();
 
@@ -180,7 +181,7 @@ class CorrectorGUI extends BaseGUI implements DataTableParent
         $columns = ["name" => $tf->column()->text($this->lng->txt('name'))->withIsSortable($sortable),
                     "login" => $tf->column()->text($this->lng->txt('login'))->withIsSortable($sortable)];
 
-        if($this->getRequiredCorrectors() == 1) {
+        if ($this->getRequiredCorrectors() == 1) {
             $columns["first"] = $tf->column()->text($this->plugin->txt('corrector_single_assignments'))->withIsSortable($sortable);
         } else {
             $columns["first"] = $tf->column()->text($this->plugin->txt('corrector_first_assignments'))->withIsSortable($sortable);
@@ -192,46 +193,46 @@ class CorrectorGUI extends BaseGUI implements DataTableParent
         return $columns;
     }
 
-    public function getTotalRowCount(?array $filter_data, ?array $additional_parameters) : ?int
+    public function getTotalRowCount(?array $filter_data, ?array $additional_parameters): ?int
     {
         return -1;
     }
 
-    public function getTableActions() : array
+    public function getTableActions(): array
     {
         return [$this->assignmentsAction(), $this->mailAction(), $this->removeAction()];
     }
 
-    public function getTableItems(?array $ids = null, ?array $filter_data = null) : Generator
+    public function getTableItems(?array $ids = null, ?array $filter_data = null): Generator
     {
         $corrector = $this->corrector_service->all();
-        $corrector = array_filter($corrector, fn (Corrector $item) => $ids === null || in_array($item->getId(), $ids));
-        $users = $this->user_service->getUsersByIds(array_map(fn (Corrector $item) => $item->getUserId(), $corrector));
+        $corrector = array_filter($corrector, fn(Corrector $item) => $ids === null || in_array($item->getId(), $ids));
+        $users = $this->user_service->getUsersByIds(array_map(fn(Corrector $item) => $item->getUserId(), $corrector));
         $correction_summaries = $this->assessment_status_service->allCorrectorCorrectionSummaries(array_map(fn(Corrector $x) => $x->getId(), $corrector));
 
-        foreach($corrector as $item) {
-            $user_data = $users[$item->getUserId()]??null;
+        foreach ($corrector as $item) {
+            $user_data = $users[$item->getUserId()] ?? null;
             $correction_summary = $correction_summaries[$item->getId()] ?? null;
 
             yield new CorrectorItem(
                 $item->getId(),
-                $user_data?->getFullname(false)??"",
-                $user_data?->getLogin()??"",
-                $correction_summary?->getFirstCorrections()??0,
-                $correction_summary?->getSecondCorrections()??0,
-                $correction_summary?->getNotStarted()??0,
-                $correction_summary?->getOpenCorrections()??0,
-                $correction_summary?->getAuthorized()??0
+                $user_data?->getFullname(false) ?? "",
+                $user_data?->getLogin() ?? "",
+                $correction_summary?->getFirstCorrections() ?? 0,
+                $correction_summary?->getSecondCorrections() ?? 0,
+                $correction_summary?->getNotStarted() ?? 0,
+                $correction_summary?->getOpenCorrections() ?? 0,
+                $correction_summary?->getAuthorized() ?? 0
             );
         }
     }
 
-    public function getTableItem(int $id) : Item
+    public function getTableItem(int $id): Item
     {
         return new Item(0);
     }
 
-    private function removeAction() : Action\Confirmation
+    private function removeAction(): Action\Confirmation
     {
         return $this->table_factory->action()->confirmation(
             "remove",
@@ -239,30 +240,30 @@ class CorrectorGUI extends BaseGUI implements DataTableParent
             $this->plugin->txt("remove_corrector"),
             $this->plugin->txt("remove_corrector_confirmation"),
             $this->ctrl->getFormAction($this, "remove"),
-            fn (CorrectorItem $item) => $item->getName() . "[" . $item->getLogin() . "]",
-            fn (CorrectorItem $item) => ($item->getFirst() + $item->getSecond()) === 0,
+            fn(CorrectorItem $item) => $item->getName() . "[" . $item->getLogin() . "]",
+            fn(CorrectorItem $item) => ($item->getFirst() + $item->getSecond()) === 0,
             Action\Type::Standard
         );
     }
 
-    private function mailAction() : Action\Direct
+    private function mailAction(): Action\Direct
     {
         return $this->table_factory->action()->direct(
             "mail",
             $this->plugin->txt("write_mail"),
-            fn (array $items) => $this->openMailForm(array_map(fn (CorrectorItem $item) => $item->getLogin(), $items), "showItems"),
-            fn (CorrectorItem $item) => true,
+            fn(array $items) => $this->openMailForm(array_map(fn(CorrectorItem $item) => $item->getLogin(), $items), "showItems"),
+            fn(CorrectorItem $item) => true,
             Action\Type::Standard
         );
     }
 
-    private function assignmentsAction() : Action\Modal
+    private function assignmentsAction(): Action\Modal
     {
         return $this->table_factory->action()->modal(
             "assignments",
             $this->plugin->txt("corrector_show_assignments"),
             [$this, "assignmentsModal"],
-            fn (CorrectorItem $item) => true,
+            fn(CorrectorItem $item) => true,
             Action\Type::Single
         );
     }
@@ -271,20 +272,20 @@ class CorrectorGUI extends BaseGUI implements DataTableParent
     {
         $ids = $this->confirmationIds();
 
-        if(empty($ids)) {
+        if (empty($ids)) {
             $this->tpl->setOnScreenMessage("failure", $this->plugin->txt('missing_corrector'), true);
             $this->ctrl->redirect($this, "showItems");
         }
 
-        foreach($ids as $id) {
+        foreach ($ids as $id) {
             $ass = $this->assignments_service->allByCorrectorId($id);
-            if(count($ass) > 0) {
+            if (count($ass) > 0) {
                 $this->tpl->setOnScreenMessage("failure", $this->plugin->txt('remove_writer_pending_assignments'), true);
                 $this->ctrl->redirect($this, "showItems");
             }
         }
 
-        foreach($ids as $id) {
+        foreach ($ids as $id) {
             $corrector = $this->corrector_service->oneById($id);
             $this->corrector_service->remove($corrector);
         }
@@ -293,46 +294,46 @@ class CorrectorGUI extends BaseGUI implements DataTableParent
         $this->ctrl->redirect($this, "showItems");
     }
 
-    public function assignmentsModal(CorrectorItem $item) : RoundTrip
+    public function assignmentsModal(CorrectorItem $item): RoundTrip
     {
         $assignments = $this->assignments_service->allByCorrectorId($item->getId());
-        $writer_ids = array_map(fn (CorrectorAssignment $ass) => $ass->getWriterId(), $assignments);
+        $writer_ids = array_map(fn(CorrectorAssignment $ass) => $ass->getWriterId(), $assignments);
         $writers = [];
         $summaries = [];
 
-        foreach($this->writer_service->all() as $writer) {
-            if(in_array($writer->getId(), $writer_ids))
-            $writers[$writer->getId()] = $writer;
+        foreach ($this->writer_service->all() as $writer) {
+            if (in_array($writer->getId(), $writer_ids)) {
+                $writers[$writer->getId()] = $writer;
+            }
         }
 
-
         foreach (array_unique(array_map(fn(CorrectorAssignment $ca) => $ca->getTaskId(), $assignments)) as $task_id) {
-            foreach($this->task_api->summary($task_id)->all() as $summary) {
+            foreach ($this->task_api->correctorSummary()->allByTaskId($task_id) as $summary) {
                 $summaries[$summary->getWriterId()][$task_id] = $summary;
             }
         }
 
-        $users = $this->user_service->getUsersByIds(array_map(fn (Writer $writer) => $writer->getUserId(), $writers));
+        $users = $this->user_service->getUsersByIds(array_map(fn(Writer $writer) => $writer->getUserId(), $writers));
 
         $first = [];
         $second = [];
         /**
          * @var CorrectorAssignment $assignment
          */
-        foreach($assignments as $assignment) {
+        foreach ($assignments as $assignment) {
             $writer = $writers[$assignment->getWriterId()];
             $summary = $summaries[$assignment->getWriterId()][$assignment->getTaskId()] ?? null;
             $name = $users[$writer->getUserId()]?->getFullname(true) ?? " - ";
             $status = $this->task_format->correctionResult($summary, false, false);
 
-            if($assignment->getPosition() === 0) {
+            if ($assignment->getPosition() === 0) {
                 $first[$name] = $status;
             } else {
                 $second[$name] = $status;
             }
         }
 
-        if($this->getRequiredCorrectors() == 2) {
+        if ($this->getRequiredCorrectors() == 2) {
             $components = [
                 $this->ui_factory->panel()->standard($this->plugin->txt('corrector_first_assignments'), [
                     !empty($first)
@@ -367,11 +368,11 @@ class CorrectorGUI extends BaseGUI implements DataTableParent
         // Confirmation
         if ($this->request->getMethod() != 'POST') {
             ;
-            $items =[];
+            $items = [];
             foreach ($user_ids as $user_id) {
                 $items[] = $this->ui_factory->modal()->interruptiveItem()->standard(
                     $user_id,
-                    $user_data[$user_id]?->getFullname(true)??" - "
+                    $user_data[$user_id]?->getFullname(true) ?? " - "
                 );
             }
             $modal = $this->ui_factory->modal()->interruptive(
@@ -385,7 +386,7 @@ class CorrectorGUI extends BaseGUI implements DataTableParent
         }
 
         // Action
-        foreach($user_ids as $id) {
+        foreach ($user_ids as $id) {
             $this->corrector_service->getByUserId($id);
         }
 
@@ -404,7 +405,7 @@ class CorrectorGUI extends BaseGUI implements DataTableParent
             $this->ctrl->redirect($this, "showItems");
         }
 
-        foreach($a_usr_ids as $id) {
+        foreach ($a_usr_ids as $id) {
             $this->corrector_service->getByUserId($id);
         }
 
@@ -418,10 +419,10 @@ class CorrectorGUI extends BaseGUI implements DataTableParent
     public function addCorrectorsFilter($a_user_ids)
     {
         $user_ids = [];
-        $writers = array_map(fn ($row) => $row->getUserId(), $this->corrector_service->all());
+        $writers = array_map(fn($row) => $row->getUserId(), $this->corrector_service->all());
 
         foreach ($a_user_ids as $user_id) {
-            if(!in_array((int)$user_id, $writers)) {
+            if (!in_array((int) $user_id, $writers)) {
                 $user_ids[] = $user_id;
             }
         }
@@ -440,7 +441,7 @@ class CorrectorGUI extends BaseGUI implements DataTableParent
 
         // Selection Modal
         if ($this->request->getMethod() != 'POST') {
-            $fields= ['selection' => $this->ui_factory->input()->field()->radio($this->lng->txt('select'))
+            $fields = ['selection' => $this->ui_factory->input()->field()->radio($this->lng->txt('select'))
                                                      ->withOption('all', $this->plugin->txt('all_correctors') . ' (' . count($all) . ')')
                                                      ->withOption('open', $this->plugin->txt('correctors_with_open_corrections') . ' (' . count($open) . ')')
                                                      ->withValue('all')
@@ -463,7 +464,7 @@ class CorrectorGUI extends BaseGUI implements DataTableParent
         // Action
         $post = $this->request->getParsedBody();
         $correctors = [];
-        switch($post['form/input_0'] ?? '') {
+        switch ($post['form/input_0'] ?? '') {
             case 'all':
                 $correctors = $all;
                 break;
@@ -479,7 +480,7 @@ class CorrectorGUI extends BaseGUI implements DataTableParent
         $this->openMailForm($logins, 'showItems');
     }
 
-    protected function buildRepositorySelect() : RepositorySelectModal
+    protected function buildRepositorySelect(): RepositorySelectModal
     {
         return $this->plugin_ui_factory->tree()->repositorySelect(
             $this->object->getRefId(),
@@ -493,12 +494,12 @@ class CorrectorGUI extends BaseGUI implements DataTableParent
     {
         $select = $this->buildRepositorySelect();
 
-        if($select->hasSelected()) {
+        if ($select->hasSelected()) {
             $id = $this->context_service->lookupAssIdFromReference($select->getSelectedId());
             $service = $this->plugin->dic()->assessment($id, $this->user->getId());
             $correctors = $service->corrector()->all();
 
-            foreach($correctors as $corrector) {
+            foreach ($correctors as $corrector) {
                 $this->corrector_service->getByUserId($corrector->getUserId());
             }
 
@@ -509,20 +510,20 @@ class CorrectorGUI extends BaseGUI implements DataTableParent
         }
     }
 
-    public function listCorrectors(int $ref_id) : Component
+    public function listCorrectors(int $ref_id): Component
     {
         $id = $this->context_service->lookupAssIdFromReference($ref_id);
         $service = $this->plugin->dic()->assessment($id, $this->user->getId());
         $correctors = $service->corrector()->all();
 
-        if(empty($correctors)) {
+        if (empty($correctors)) {
             return $this->ui_factory->legacy($this->plugin->txt("no_correctors"));
         }
 
-        $user_data = $this->user_service->getUsersByIds(array_map(fn (Corrector $x) => $x->getUserId(), $correctors));
+        $user_data = $this->user_service->getUsersByIds(array_map(fn(Corrector $x) => $x->getUserId(), $correctors));
 
         return $this->ui_factory->listing()->unordered(
-            array_map(fn (Corrector $x) => $user_data[$x->getUserId()]?->getFullname()??" - ", $correctors)
+            array_map(fn(Corrector $x) => $user_data[$x->getUserId()]?->getFullname() ?? " - ", $correctors)
         );
     }
 }

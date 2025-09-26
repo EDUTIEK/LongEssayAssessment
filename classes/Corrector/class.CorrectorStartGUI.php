@@ -315,7 +315,10 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
             }
         }
 
-        foreach ($this->task_api->summary($assignment->getTaskId())->allByWriterId($assignment->getWriterId()) as $summary) {
+        foreach ($this->task_api->correctorSummary()->allByTaskIdAndWriterId(
+            $assignment->getTaskId(),
+            $assignment->getWriterId()
+        ) as $summary) {
             if ($summary->getCorrectorId() === $assignment->getCorrectorId()) {
                 $own_summary = $summary;
             }

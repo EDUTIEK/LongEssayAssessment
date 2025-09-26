@@ -147,13 +147,13 @@ class WriterUploadGUI extends BaseGUI
             $this->ctrl->getFormAction($this, 'authorize'),
         )->withActionButtonLabel($this->plugin->txt('writer_authorize_pdf'))
             ->withAffectedItems(
-            array_map(fn($task) => $this->ui_factory->modal()->interruptiveItem()->standard(
-                (string) $task->getId(),
-                $task->getTitle()
-            ), $incomplete_tasks)
-        ));
+                array_map(fn($task) => $this->ui_factory->modal()->interruptiveItem()->standard(
+                    (string) $task->getId(),
+                    $task->getTitle()
+                ), $incomplete_tasks)
+            ));
 
-        $this->add( $this->ui_factory->button()->primary(
+        $this->add($this->ui_factory->button()->primary(
             $this->plugin->txt('writer_authorize_pdf'),
             $this->ctrl->getLinkTarget($this, 'authorize')
         )->withOnClick($modal->getShowSignal()));

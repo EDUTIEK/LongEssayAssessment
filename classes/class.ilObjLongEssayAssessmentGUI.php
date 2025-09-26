@@ -317,18 +317,18 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
 
         $inputs['template'] = $this->ui_factory->input()->field()->switchableGroup([
             'tasks' => $this->ui_factory->input()->field()->group([
-                'amount' => $this->ui_factory->input()->field()->radio($txt('use_standard'))
+                'amount' => $this->ui_factory->input()->field()->radio($txt('task_type'))
                     ->withOption('single', $txt('single_task'), $txt('single_task_info'))
                     ->withOption('multiple', $txt('multi_tasks'), $txt('multi_tasks_info'))
                     ,
-            ], $txt('task_type'))->withRequired(true),
+            ], $txt('use_standard'))->withRequired(true),
             'ref' => $this->ui_factory->input()->field()->group([
                 'id' => array_reduce(
                     $this->templates(),
                     fn($r, array $o) => $r->withOption(...$o),
-                    $this->ui_factory->input()->field()->radio($txt('use_template'))
+                    $this->ui_factory->input()->field()->radio($txt('template'))
                 ),
-            ], $txt('template'))->withRequired(true),
+            ], $txt('use_template'))->withRequired(true),
         ], $txt('predefined_settings'))->withRequired(true)->withValue(['tasks', ['amount' => 'single']]);
 
         return $this->ui_factory->input()->container()->form()->standard(

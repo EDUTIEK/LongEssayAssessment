@@ -28,15 +28,20 @@ class CorrectorAssignmentRepo implements \Edutiek\AssessmentService\Task\Data\Co
     public function __construct(private readonly RepositoryInterface $repo)
     {
     }
-    
+
     public function new(): CorrectorAssignment
     {
         return $this->repo->new();
     }
 
-    public function oneByWriterIdAndCorrectorId(int $writer_id, int $corrector_id): ?CorrectorAssignment
+    public function hasByIds(int $writer_id, int $corrector_id, int $task_id): bool
     {
-        return $this->repo->queryOneBy(['writer_id' => $corrector_id]);
+        return $this->repo->hasBy(['writer_id' => $writer_id, 'corrector_id' => $corrector_id, 'task_id' => $task_id]);
+    }
+
+    public function oneByIds(int $writer_id, int $corrector_id, int $task_id): ?CorrectorAssignment
+    {
+        return $this->repo->queryOneBy(['writer_id' => $writer_id, 'corrector_id' => $corrector_id, 'task_id' => $task_id]);
     }
 
     public function allByAssId(int $ass_id): array

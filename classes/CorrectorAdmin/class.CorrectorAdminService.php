@@ -649,14 +649,13 @@ class CorrectorAdminService extends BaseService
         $context->init((string) $this->dic->user()->getId(), (string) $object->getRefId());
         $service = new Service($context);
 
-        $elements = [];
+        $html = '';
         foreach ($this->correctorRepo->getCorrectorsByTaskId($this->task_id) as $corrector) {
-            if (!empty($corrector->getCorrectionReport())) {
-                $elements[] = new PdfHtml($corrector->getCorrectionReport() . '<hr>');
-            }
+            $html .= $corrector->getCorrectionReport() . '<p><hr></p>';
         }
 
-        return $service->getPdfGeneration()->generatePdf([$service->getStandardPdfPart($elements)],
+        return $service->getPdfGeneration()->generatePdf([
+            $service->getStandardPdfPart([new PdfHtml($html)])],
             '', '',
         $object->getTitle(),
         $this->plugin->txt('correction_reports'));

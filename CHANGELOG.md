@@ -1,5 +1,10 @@
 # Change Log
 
+## Upcoming version 
+
+Bug fixes:
+- Missing correction report of second corrector (#45778)
+
 ## Version 3.7 (2025-08-15)
 
 Plugin:

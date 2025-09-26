@@ -780,3 +780,5 @@ standard#:#Standard
 use_standard#:#Standard verwenden
 task_type#:#Aufgabentyp
 template#:#Vorlage
+writer_authorize_pdf_question#:#Möchten Sie die Datei(en) zur Korrektur abgeben? Danach ist keine weitere Änderung mehr möglich.
+writer_authorize_pdf_question_incomplete#:#Es fehlen noch PDF-Dateien zur Abgabe. Möchten Sie dennoch abgeben? Danach ist keine weitere Änderung mehr möglich.

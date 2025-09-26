@@ -99,6 +99,7 @@ class WriterUploadGUI extends BaseGUI
             $this->info($this->plugin->txt(count($this->tasks) == 1 ? 'writer_authorize_pdf_info' : 'writer_authorize_pdfs_info'));
         }
 
+        $incomplete_tasks = [];
         foreach ($this->tasks as $task) {
             $essay = $this->essays[$task->getId()];
             $content = [];
@@ -111,6 +112,7 @@ class WriterUploadGUI extends BaseGUI
                     $file_info->getFileName()
                 );
             } else {
+                $incomplete_tasks[] = $task;
                 $content[] = $this->ui_factory->legacy('<p>' . $this->plugin->txt('writer_upload_pdf_missing') . '</p>');
             }
             if ($this->perms->canWrite()) {
@@ -138,12 +140,23 @@ class WriterUploadGUI extends BaseGUI
             $this->add($this->ui_factory->panel()->standard($task->getTitle(), $content));
         }
 
-        $this->add(
-            $this->ui_factory->button()->primary(
-                $this->plugin->txt('writer_authorize_pdf'),
-                $this->ctrl->getLinkTarget($this, 'authorize')
-            )
-        );
+
+        $this->add($modal = $this->ui_factory->modal()->interruptive(
+            $this->plugin->txt('writer_authorize_pdf'),
+            $this->plugin->txt(empty($incomplete_tasks) ? 'writer_authorize_pdf_question' : 'writer_authorize_pdf_question_incomplete'),
+            $this->ctrl->getFormAction($this, 'authorize'),
+        )->withActionButtonLabel($this->plugin->txt('writer_authorize_pdf'))
+            ->withAffectedItems(
+            array_map(fn($task) => $this->ui_factory->modal()->interruptiveItem()->standard(
+                (string) $task->getId(),
+                $task->getTitle()
+            ), $incomplete_tasks)
+        ));
+
+        $this->add( $this->ui_factory->button()->primary(
+            $this->plugin->txt('writer_authorize_pdf'),
+            $this->ctrl->getLinkTarget($this, 'authorize')
+        )->withOnClick($modal->getShowSignal()));
 
         $this->add(
             $this->ui_factory->button()->standard(

@@ -81,6 +81,13 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin implements \i
         (new DBUpdateSteps10())->install($this->db);
     }
 
+    public function update(): bool
+    {
+        parent::update();
+        (new DBUpdateSteps10())->install($this->db);
+        return true;
+    }
+
     /**
      * Uninstall the plugin
      * Overridden from ilPlugin::uninstall to catch an exception

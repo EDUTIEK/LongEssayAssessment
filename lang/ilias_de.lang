@@ -30,7 +30,7 @@ cat_create_xlas#:#Erstelle Langtext-Aufgabe
 maintain_task#:#Aufgabenstellung verwalten
 maintain_writers#:#Durchführung verwalten
 maintain_correctors#:#Korrektur verwalten
-edit_templates#:#Vorlagen verwalten
+edit_templates#:#Vorlage bearbeiten
 title#:#Titel
 description#:#Beschreibung
 status#:#Status
@@ -768,7 +768,7 @@ single_task#:#Einzelaufgabe
 single_task_info#:#Nur eine Aufgabenstellung ermöglichen. Die Bewertung kann dadurch mit Erst- und Zweitkorrektur durchgeführt werden. Diese Einstellung ist nicht änderbar.
 disabled_group_tool_tab#:#Festlegungen
 disabled_group_toggle#:#Ein/Ausblenden
-disabled_group_toggle_info#:#Sie können festgelegte Einstellungen einblenden, da Sie die Berechtigung "Vorlagen verwalten" haben.
+disabled_group_toggle_info#:#Sie können festgelegte Einstellungen einblenden, da Sie die Berechtigung "Vorlage bearbeiten" haben.
 disabled_group_info#:#Wählen Sie aus, welche Einstellungen mit den aktuellen Werten festgeschrieben und ausgeblendet werden.
 table_all_rows#:#Alle Zeilen
 table_all_rows_info#:#Alle Zeilen der Tabelle oder nur die Ausgewählten?

@@ -435,10 +435,12 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
     {
         // ilDBUpdateNewObjectType needs the global database
         global $DIC;
-        $DIC['ilDB'] = $this->db;
+        if (!isset($DIC['ilDB'])) {
+            $DIC['ilDB'] = $this->db;
+        }
 
         require_once __DIR__ . '/../../../../../../../../../../components/ILIAS/Migration/DBUpdate_3560/classes/class.ilDBUpdateNewObjectType.php';
-        $type_id = ilDBUpdateNewObjectType::addNewType('xlas', 'Long Essay Task');
+        $type_id = ilDBUpdateNewObjectType::addNewType('xlas', 'Long Essay Assessment');
         $ops_id = ilDBUpdateNewObjectType::addCustomRBACOperation('maintain_task', 'Maintain Task Definition', 'object', 3200);
         ilDBUpdateNewObjectType::addRBACOperation($type_id, $ops_id);
         $ops_id = ilDBUpdateNewObjectType::addCustomRBACOperation('maintain_writers', 'Maintain Writers', 'object', 3210);

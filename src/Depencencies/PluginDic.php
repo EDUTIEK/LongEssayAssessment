@@ -27,34 +27,32 @@ use Edutiek\AssessmentService\EssayTask\Api\Factory as EssayTaskFactory;
 use Edutiek\AssessmentService\EssayTask\Api\ForClients as EssayTaskApi;
 use Edutiek\AssessmentService\System\Api\Factory as SystemFactory;
 use Edutiek\AssessmentService\System\Api\ForClients as SystemClientApi;
-use Edutiek\AssessmentService\System\Api\ForServices as SystemServicesApi;
+use Edutiek\AssessmentService\System\Api\ForConstraints as ConstraintApi;
 use Edutiek\AssessmentService\System\Api\ForEvents as EventApi;
+use Edutiek\AssessmentService\System\Api\ForServices as SystemServicesApi;
 use Edutiek\AssessmentService\Task\Api\Factory as TaskFactory;
 use Edutiek\AssessmentService\Task\Api\ForClients as TaskClientApi;
 use Edutiek\AssessmentService\Task\Api\ForTypes as TaskTypesApi;
-use ILIAS\DI\Container;
 use ILIAS\Data\UUID\Factory as UUIDFactory;
+use ILIAS\DI\Container;
 use ILIAS\Plugin\LongEssayAssessment\Common\Constraints\DataConstraints;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Generate;
 use ILIAS\Plugin\LongEssayAssessment\Common\Session\SessionValues;
 use ILIAS\Plugin\LongEssayAssessment\Common\Upload\UploadTempFile;
 use ILIAS\Plugin\LongEssayAssessment\Setup\ModelObjective;
+use ILIAS\Plugin\LongEssayAssessment\System\Context\Service as ContextService;
 use ILIAS\Plugin\LongEssayAssessment\UI\Factory;
 use ILIAS\Plugin\LongEssayAssessment\UI\IconFactory;
 use ILIAS\Plugin\LongEssayAssessment\UI\Input\InputFactory;
 use ILIAS\Plugin\LongEssayAssessment\UI\Item\ItemFactory;
 use ILIAS\Plugin\LongEssayAssessment\UI\PluginTemplateFactory;
+use ILIAS\Plugin\LongEssayAssessment\UI\Protocol\Factory as ProtocolFactory;
 use ILIAS\Plugin\LongEssayAssessment\UI\Statistic\StatisticFactory;
+use ILIAS\Plugin\LongEssayAssessment\UI\Table\Factory as TableFactory;
+use ILIAS\Plugin\LongEssayAssessment\UI\Tree\TreeFactory;
 use ILIAS\Plugin\LongEssayAssessment\UI\UIService;
 use ILIAS\Plugin\LongEssayAssessment\UI\Viewer\ViewerFactory;
 use ilLongEssayAssessmentPlugin;
-use ILIAS\Plugin\LongEssayAssessment\UI\Table\Factory as TableFactory;
-use ILIAS\Plugin\LongEssayAssessment\UI\Tree\TreeFactory;
-use ILIAS\Plugin\LongEssayAssessment\UI\Protocol\Factory as ProtocolFactory;
-use ILIAS\Plugin\LongEssayAssessment\System\Context\Service as ContextService;
-use Edutiek\AssessmentService\Assessment\EventHandling\Observer as AssessmentObserver;
-use Edutiek\AssessmentService\EssayTask\EventHandling\Observer as EssayTaskObserver;
-use Edutiek\AssessmentService\Task\EventHandling\Observer as TaskObserver;
 
 /**
  * Local Dependency Injection Container of the Plugin
@@ -215,7 +213,17 @@ class PluginDic
             return $dic[TaskFactory::class]->forTypes();
         };
 
-        // Event Management
+        // Constraint Handling
+
+        $dic[ConstraintApi::class] = function (Container $dic) {
+            return $dic[SystemFactory::class]->forConstraints([
+                $dic[AssessmentFactory::class]->forConstraints(),
+                $dic[EssayTaskFactory::class]->forConstraints(),
+                $dic[TaskFactory::class]->forConstraints(),
+            ]);
+        };
+
+        // Event Handling
 
         $dic[EventApi::class] = function (Container $dic) {
             return $dic[SystemFactory::class]->forEvents([

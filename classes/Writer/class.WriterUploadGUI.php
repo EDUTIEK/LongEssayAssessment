@@ -27,15 +27,14 @@ use Edutiek\AssessmentService\Assessment\TaskInterfaces\Manager as TaskService;
 use Edutiek\AssessmentService\Assessment\TaskInterfaces\TaskInfo as Task;
 use Edutiek\AssessmentService\EssayTask\Data\Essay;
 use Edutiek\AssessmentService\EssayTask\Essay\FullService as EssayService;
+use Edutiek\AssessmentService\EssayTask\PdfInput\FullService as PdfInputService;
+use Edutiek\AssessmentService\System\ConstraintHandling\ResultStatus;
 use Edutiek\AssessmentService\System\File\Disposition;
 use Edutiek\AssessmentService\System\File\Storage as FileStorage;
 use ILIAS\HTTP\StatusCode;
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
-use ILIAS\Plugin\LongEssayAssessment\BaseObjectData;
-use ILIAS\Plugin\LongEssayAssessment\Handler\UploadHelper;
-use ilLongEssayAssessmentUploadHandlerGUI;
 use ILIAS\UI\Component\Modal\Modal;
-use Edutiek\AssessmentService\EssayTask\PdfInput\FullService as PdfInputService;
+use ilLongEssayAssessmentUploadHandlerGUI;
 
 /**
  * @ilCtrl_isCalledBy ILIAS\Plugin\LongEssayAssessment\Writer\WriterUploadGUI: ilObjLongEssayAssessmentGUI
@@ -58,12 +57,9 @@ class WriterUploadGUI extends BaseGUI
     private array $essays;
     private ilLongEssayAssessmentUploadHandlerGUI $upload_handler;
 
-
-    public function __construct(BaseObjectData $object)
+    public function init()
     {
-        parent::__construct($object);
         $this->essay_service = $this->essay_task_api->essay();
-        $this->pdf_input_service = $this->essay_task_api->pdfInput();
         $this->task_service = $this->task_api->manager();
         $this->file_storage = $this->system_api->fileStorage();
 
@@ -71,15 +67,16 @@ class WriterUploadGUI extends BaseGUI
             $this->file_storage,
             $this->plugin->dic()->uploadTempFile()
         );
-    }
-
-    public function executeCommand(): void
-    {
         $this->perms = $this->assessment_api->permissions($this->object->getContextId());
         $this->writer = $this->assessment_api->writer()->getByUserId($this->user->getId());
         $this->tasks = $this->task_service->all();
         $this->essays = $this->essay_service->getByWriterId($this->writer->getId());
+        $this->pdf_input_service = $this->essay_task_api->pdfInput(false);
+    }
 
+    public function executeCommand(): void
+    {
+        $this->init();
         $this->{$this->ctrl->getCmd('preview')}();
     }
 
@@ -117,23 +114,30 @@ class WriterUploadGUI extends BaseGUI
             }
             if ($this->perms->canWrite()) {
                 $this->add($modal = $this->upload($task->getId()));
-                $content[] = $this->ui_factory->button()->standard('upload', '')->withOnClick($modal->getShowSignal())->withLabel($this->plugin->txt($file_info ? 'writer_replace_pdf' : 'writer_upload_pdf'));
+                if ($modal) {
+                    $content[] = $this->ui_factory->button()->standard('upload', '')->withOnClick($modal->getShowSignal())->withLabel($this->plugin->txt($file_info ? 'writer_replace_pdf' : 'writer_upload_pdf'));
+                }
                 if ($file_info) {
-                    $this->ctrl->setParameter($this, 'task_id', $task->getId());
-                    $this->add($modal = $this->ui_factory->modal()->interruptive(
-                        $this->plugin->txt($task->getTitle()),
-                        $this->plugin->txt('confirm_delete_file'),
-                        $this->ctrl->getFormAction($this, 'delete'),
-                    )->withAffectedItems([$this->ui_factory->modal()->interruptiveItem()->standard(
-                        $file_info->getId(),
-                        $file_info->getFileName(),
-                        $this->ui_factory->image()->standard('./assets/images/standard/icon_file.svg', $this->lng->txt('file'))
-                    )]));
-                    $content[] = $this->ui_factory->button()->standard(
-                        $this->plugin->txt('delete_file'),
-                        ''
-                    )
-                    ->withOnClick($modal->getShowSignal());
+                    $essay = $this->essays[$task->getId()];
+                    $result = $this->pdf_input_service->checkDeletePdf($essay);
+
+                    if ($result->status() !== ResultStatus::BLOCK) {
+                        $this->ctrl->setParameter($this, 'task_id', $task->getId());
+                        $this->add($modal = $this->ui_factory->modal()->interruptive(
+                            $this->plugin->txt($task->getTitle()),
+                            $this->plugin->txt('confirm_delete_file')
+                            . ($result->status() === ResultStatus::ASK ? ' ' . implode(' ', $result->messages()) : ''),
+                            $this->ctrl->getFormAction($this, 'delete'),
+                        )->withAffectedItems([$this->ui_factory->modal()->interruptiveItem()->standard(
+                            $file_info->getId(),
+                            $file_info->getFileName(),
+                            $this->ui_factory->image()->standard('./assets/images/standard/icon_file.svg', $this->lng->txt('file'))
+                        )]));
+                        $content[] = $this->ui_factory->button()->standard(
+                            $this->plugin->txt('delete_file'),
+                            ''
+                        )->withOnClick($modal->getShowSignal());
+                    }
                 }
             }
 
@@ -172,16 +176,20 @@ class WriterUploadGUI extends BaseGUI
     {
         if (!$this->perms->canWrite()) {
             $this->failure($this->lng->txt('permission_denied'), true);
+            $this->ctrl->redirect($this);
         }
         $essay = $this->essay_service->oneByWriterIdAndTaskId(
             $this->writer->getId(),
             $this->get->integer('task_id')
         );
-        $this->pdf_input_service->deletePdf($essay);
-
-        $this->success($this->plugin->txt('file_deleted'), true);
+        $result = $this->pdf_input_service->checkDeletePdf($essay);
+        if ($result->status() !== ResultStatus::BLOCK) {
+            $this->pdf_input_service->deletePdf($essay);
+            $this->success($this->plugin->txt('file_deleted'), true);
+        } else {
+            $this->failure(implode('<br>', $result->messages()), true);
+        }
         $this->ctrl->redirect($this);
-
     }
 
     public function deliver(): void
@@ -240,10 +248,24 @@ class WriterUploadGUI extends BaseGUI
         $this->assessment_api->writer()->save($this->writer);
     }
 
-    private function upload(?int $task_id = null): Modal
+    /**
+     * Get an upload modal or handle an upload
+     * Return null if upload is not possible
+     * Redirect if an upload was successfully handled
+     */
+    private function upload(?int $task_id = null): ?Modal
     {
         $task = $this->task_service->one($task_id ?? $this->get->integer('task_id'));
         $essay = $this->essays[$task->getId()];
+        $result = $this->pdf_input_service->checkReplacePdf($essay);
+
+        $question = null;
+        if ($result->status() == ResultStatus::BLOCK) {
+            return null;
+        } elseif ($result->status() == ResultStatus::ASK) {
+            $question = $this->ui_factory->messageBox()->confirmation($this->lng->txt('writer_upload_question') . ' '
+                . implode(' ', $result->messages()));
+        }
 
         $fields = [
             'file_id' => $this->ui_factory->input()->field()->file(
@@ -256,7 +278,7 @@ class WriterUploadGUI extends BaseGUI
         $this->ctrl->setParameter($this, 'task_id', $task->getId());
         $modal = $this->ui_factory->modal()->roundtrip(
             $task->getTitle(),
-            null,
+            $question,
             $fields,
             $this->ctrl->getFormAction($this, 'upload'),
         );
@@ -273,7 +295,7 @@ class WriterUploadGUI extends BaseGUI
                     $this->upload_handler->getApiInfo($uploaded)
                 );
                 $this->pdf_input_service->replacePdf($essay, $stored->getId());
-                $this->tpl->setOnScreenMessage("success", $this->plugin->txt("writer_upload_pdf_finished"), true);
+                $this->success($this->plugin->txt("writer_upload_pdf_finished"), true);
             }
 
             $this->ctrl->redirect($this);

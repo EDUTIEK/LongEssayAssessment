@@ -20,17 +20,18 @@ declare(strict_types=1);
 
 namespace ILIAS\Plugin\LongEssayAssessment\Dependencies;
 
+use Edutiek\AssessmentService\Assessment\Api\Factory as AssessmentFactory;
+use Edutiek\AssessmentService\Assessment\Api\ForTasks as AssessmentApi;
+use Edutiek\AssessmentService\EssayTask\Api\Factory as EssayTaskFactory;
+use Edutiek\AssessmentService\System\Api\ForConstraints as ConstraintApi;
+use Edutiek\AssessmentService\System\Api\ForEvents as EventApi;
+use Edutiek\AssessmentService\System\Api\ForServices as SystemApi;
+use Edutiek\AssessmentService\System\ConstraintHandling\Collector;
+use Edutiek\AssessmentService\System\EventHandling\Dispatcher;
 use Edutiek\AssessmentService\Task\TypeInterfaces\ApiFactory as TypeApiFactory;
 use ILIAS\DI\Container;
-use Edutiek\AssessmentService\System\Api\Factory as SystemFactory;
-use Edutiek\AssessmentService\System\Api\ForServices as SystemApi;
-use Edutiek\AssessmentService\System\Api\ForEvents as EventApi;
-use ILIAS\Plugin\LongEssayAssessment\Task\Data\RepositoryFactory;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Generate;
-use Edutiek\AssessmentService\EssayTask\Api\Factory as EssayTaskFactory;
-use Edutiek\AssessmentService\Assessment\Api\ForTasks as AssessmentApi;
-use Edutiek\AssessmentService\Assessment\Api\Factory as AssessmentFactory;
-use Edutiek\AssessmentService\System\EventHandling\Dispatcher;
+use ILIAS\Plugin\LongEssayAssessment\Task\Data\RepositoryFactory;
 
 /**
  * Dependencies of the assessment services component "Task"
@@ -78,5 +79,10 @@ class TaskDic implements \Edutiek\AssessmentService\Task\Api\Dependencies
     public function eventDispatcher(int $ass_id, int $user_id): Dispatcher
     {
         return $this->dic[EventApi::class]->dispatcher($ass_id, $user_id);
+    }
+
+    public function constraintCollector(int $ass_id, int $user_id): Collector
+    {
+        return $this->dic[ConstraintApi::class]->collector($ass_id, $user_id);
     }
 }

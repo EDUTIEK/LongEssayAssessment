@@ -20,11 +20,11 @@ declare(strict_types=1);
 
 namespace ILIAS\Plugin\LongEssayAssessment\Writer;
 
-use DateTimeImmutable;
 use Edutiek\AssessmentService\Assessment\Data\Writer;
 use Edutiek\AssessmentService\Assessment\Permissions\ReadService as Permissions;
 use Edutiek\AssessmentService\Assessment\TaskInterfaces\Manager as TaskService;
 use Edutiek\AssessmentService\Assessment\TaskInterfaces\TaskInfo as Task;
+use Edutiek\AssessmentService\Assessment\Writer\FullService as WriterService;
 use Edutiek\AssessmentService\EssayTask\Data\Essay;
 use Edutiek\AssessmentService\EssayTask\Essay\ClientService as EssayService;
 use Edutiek\AssessmentService\System\ConstraintHandling\ResultStatus;
@@ -44,6 +44,7 @@ class WriterUploadGUI extends BaseGUI
     private readonly Writer $writer;
     private EssayService $essay_service;
     private TaskService $task_service;
+    private WriterService $writer_service;
     private FileStorage $file_storage;
     /**
      * @var Task[]
@@ -55,9 +56,11 @@ class WriterUploadGUI extends BaseGUI
     private array $essays;
     private ilLongEssayAssessmentUploadHandlerGUI $upload_handler;
 
+
     public function init()
     {
         $this->essay_service = $this->essay_task_api->essay(false);
+        $this->writer_service = $this->assessment_api->writer();
         $this->task_service = $this->task_api->manager();
         $this->file_storage = $this->system_api->fileStorage();
 
@@ -66,7 +69,7 @@ class WriterUploadGUI extends BaseGUI
             $this->plugin->dic()->uploadTempFile()
         );
         $this->perms = $this->assessment_api->permissions($this->object->getContextId());
-        $this->writer = $this->assessment_api->writer()->getByUserId($this->user->getId());
+        $this->writer = $this->writer_service->getByUserId($this->user->getId());
         $this->tasks = $this->task_service->all();
         $this->essays = $this->essay_service->getByWriterId($this->writer->getId());
     }
@@ -206,6 +209,9 @@ class WriterUploadGUI extends BaseGUI
         }
     }
 
+    /**
+     * Authorize the writing
+     */
     public function authorize(): void
     {
         if (!$this->perms->canWrite()) {
@@ -213,36 +219,9 @@ class WriterUploadGUI extends BaseGUI
             $this->return();
         }
 
-        foreach ($this->essays as $essay) {
-            if ($essay->getPdfVersion() === null) {
-                $this->failure($this->plugin->txt('pdf_version_not_found'), true);
-                $this->return();
-            }
-        }
-
-        $this->authorizeWriting($this->essays);
+        $this->writer_service->authorizeWriting($this->writer, $this->user->getId(), false);
         $this->ctrl->setParameterByClass(WriterStartGUI::class, 'returned', '1');
         $this->return();
-    }
-
-    /**
-     * @todo: provide a service function for the authorization
-     */
-    private function authorizeWriting(array $essays): void
-    {
-        $now = new DateTimeImmutable();
-
-        foreach ($essays as $essay) {
-            if (!$essay->getFirstChange()) {
-                $essay->setFirstChange($now);
-                $this->essay_service->save($essay);
-            }
-        }
-
-        $this->writer->setWritingAuthorized($now);
-        $this->writer->setWritingAuthorizedBy($this->user->getId());
-
-        $this->assessment_api->writer()->save($this->writer);
     }
 
     /**

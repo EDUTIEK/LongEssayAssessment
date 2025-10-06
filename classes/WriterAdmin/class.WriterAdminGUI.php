@@ -2,31 +2,26 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\WriterAdmin;
 
-use ILIAS\Plugin\LongEssayAssessment\UI\Table\DataTableParent;
+use Edutiek\AssessmentService\Assessment\Data\OrgaSettings;
+use Edutiek\AssessmentService\Assessment\Data\Writer;
+use Edutiek\AssessmentService\Assessment\Data\WritingStatus;
+use Edutiek\AssessmentService\Assessment\LogEntry\MentionUser as LogEntryMention;
+use Edutiek\AssessmentService\Assessment\LogEntry\Type as LogEntryType;
+use Edutiek\AssessmentService\Assessment\OrgaSettings\FullService as OrgaService;
+use Edutiek\AssessmentService\Assessment\WorkingTime\ValidationError;
+use Edutiek\AssessmentService\Assessment\Writer\FullService as WriterService;
+use Edutiek\AssessmentService\EssayTask\AssessmentStatus\FullService as AssessmentStatus;
+use Edutiek\AssessmentService\EssayTask\Essay\ClientService as EssayService;
+use Edutiek\AssessmentService\System\User\ReadService as UserService;
+use ILIAS\Plugin\LongEssayAssessment\Assessment\WorkingTime\IndividualValidator;
+use ILIAS\Plugin\LongEssayAssessment\Assessment\WorkingTime\ValidationErrorStore;
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
-use ILIAS\Test\Participants\TableAction;
+use ILIAS\Plugin\LongEssayAssessment\BaseObjectData;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\Action;
+use ILIAS\Plugin\LongEssayAssessment\UI\Table\DataTableParent;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\FilterParent;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\Helper\ConfirmationIds;
-use Edutiek\AssessmentService\Assessment\Writer\FullService as WriterService;
-use ILIAS\Plugin\LongEssayAssessment\BaseObjectData;
-use Edutiek\AssessmentService\Assessment\Data\Writer;
-use Edutiek\AssessmentService\System\Data\UserData;
-use ILIAS\Plugin\LongEssayAssessment\System\Data\UserDisplay;
-use Edutiek\AssessmentService\Assessment\Data\WritingStatus;
-use ILIAS\Plugin\LongEssayAssessment\Assessment\Data\CorrectionSettings;
-use Edutiek\AssessmentService\Assessment\Data\OrgaSettings;
-use Edutiek\AssessmentService\Assessment\OrgaSettings\FullService as OrgaService;
-use Edutiek\AssessmentService\System\User\ReadService as UserService;
-use Edutiek\AssessmentService\EssayTask\Essay\FullService as EssayService;
-use Edutiek\AssessmentService\EssayTask\AssessmentStatus\FullService as AssessmentStatus;
-use Edutiek\AssessmentService\Assessment\LogEntry\Type as LogEntryType;
-use Edutiek\AssessmentService\Assessment\LogEntry\MentionUser as LogEntryMention;
 use ILIAS\UI\Component\Modal\RoundTrip;
-use Edutiek\AssessmentService\Assessment\WorkingTime\ValidationError;
-use ILIAS\Plugin\LongEssayAssessment\Assessment\WorkingTime\ValidationErrorStore;
-use ILIAS\Plugin\LongEssayAssessment\Assessment\WorkingTime\IndividualValidator;
-use Edutiek\AssessmentService\EssayTask\AssessmentStatus\WriterEssaySummary;
 
 /**
  * Writer Admin GUI class
@@ -55,7 +50,7 @@ class WriterAdminGUI extends BaseGUI implements DataTableParent, FilterParent
         $this->writer_service = $this->assessment_api->writer();
         $this->user_service = $this->system_api->user();
         $this->orga_service = $this->assessment_api->orgaSettings();
-        $this->essay_service = $this->essay_task_api->essay();
+        $this->essay_service = $this->essay_task_api->essay(true);
         $this->assessment_status = $this->essay_task_api->assessmentStatus();
     }
 

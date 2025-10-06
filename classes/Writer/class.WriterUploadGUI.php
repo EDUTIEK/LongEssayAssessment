@@ -26,8 +26,7 @@ use Edutiek\AssessmentService\Assessment\Permissions\ReadService as Permissions;
 use Edutiek\AssessmentService\Assessment\TaskInterfaces\Manager as TaskService;
 use Edutiek\AssessmentService\Assessment\TaskInterfaces\TaskInfo as Task;
 use Edutiek\AssessmentService\EssayTask\Data\Essay;
-use Edutiek\AssessmentService\EssayTask\Essay\FullService as EssayService;
-use Edutiek\AssessmentService\EssayTask\PdfInput\FullService as PdfInputService;
+use Edutiek\AssessmentService\EssayTask\Essay\ClientService as EssayService;
 use Edutiek\AssessmentService\System\ConstraintHandling\ResultStatus;
 use Edutiek\AssessmentService\System\File\Disposition;
 use Edutiek\AssessmentService\System\File\Storage as FileStorage;
@@ -46,7 +45,6 @@ class WriterUploadGUI extends BaseGUI
     private EssayService $essay_service;
     private TaskService $task_service;
     private FileStorage $file_storage;
-    private PdfInputService $pdf_input_service;
     /**
      * @var Task[]
      */
@@ -59,7 +57,7 @@ class WriterUploadGUI extends BaseGUI
 
     public function init()
     {
-        $this->essay_service = $this->essay_task_api->essay();
+        $this->essay_service = $this->essay_task_api->essay(false);
         $this->task_service = $this->task_api->manager();
         $this->file_storage = $this->system_api->fileStorage();
 
@@ -71,7 +69,6 @@ class WriterUploadGUI extends BaseGUI
         $this->writer = $this->assessment_api->writer()->getByUserId($this->user->getId());
         $this->tasks = $this->task_service->all();
         $this->essays = $this->essay_service->getByWriterId($this->writer->getId());
-        $this->pdf_input_service = $this->essay_task_api->pdfInput(false);
     }
 
     public function executeCommand(): void
@@ -119,7 +116,7 @@ class WriterUploadGUI extends BaseGUI
                 }
                 if ($file_info) {
                     $essay = $this->essays[$task->getId()];
-                    $result = $this->pdf_input_service->checkDeletePdf($essay);
+                    $result = $this->essay_service->canChange($essay);
 
                     if ($result->status() !== ResultStatus::BLOCK) {
                         $this->ctrl->setParameter($this, 'task_id', $task->getId());
@@ -182,9 +179,9 @@ class WriterUploadGUI extends BaseGUI
             $this->writer->getId(),
             $this->get->integer('task_id')
         );
-        $result = $this->pdf_input_service->checkDeletePdf($essay);
+        $result = $this->essay_service->canChange($essay);
         if ($result->status() !== ResultStatus::BLOCK) {
-            $this->pdf_input_service->deletePdf($essay);
+            $this->essay_service->deletePdf($essay);
             $this->success($this->plugin->txt('file_deleted'), true);
         } else {
             $this->failure(implode('<br>', $result->messages()), true);
@@ -257,7 +254,7 @@ class WriterUploadGUI extends BaseGUI
     {
         $task = $this->task_service->one($task_id ?? $this->get->integer('task_id'));
         $essay = $this->essays[$task->getId()];
-        $result = $this->pdf_input_service->checkReplacePdf($essay);
+        $result = $this->essay_service->canChange($essay);
 
         $question = null;
         if ($result->status() == ResultStatus::BLOCK) {
@@ -294,7 +291,7 @@ class WriterUploadGUI extends BaseGUI
                     $this->upload_handler->getApiStream($uploaded),
                     $this->upload_handler->getApiInfo($uploaded)
                 );
-                $this->pdf_input_service->replacePdf($essay, $stored->getId());
+                $this->essay_service->replacePdf($essay, $stored->getId());
                 $this->success($this->plugin->txt("writer_upload_pdf_finished"), true);
             }
 

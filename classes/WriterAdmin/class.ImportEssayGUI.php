@@ -157,7 +157,7 @@ class ImportEssayGUI extends BaseGUI implements Import
             $writer = $this->assessment_api->writer()->getByUserId($user_id);
             $task = $this->task();
             $essay = $this->essayByWriter($writer->getId()) ??
-                $this->essay_task_api->essay()->new($writer->getId(), $task->getId())->setFirstChange($now);
+                $this->essay_task_api->essay(true)->new($writer->getId(), $task->getId())->setFirstChange($now);
             $essay = $essay->setLastChange($now);
             $pdf = $essay->getPdfVersion();
             if ($pdf && !$overwrite) {
@@ -165,7 +165,7 @@ class ImportEssayGUI extends BaseGUI implements Import
             }
             $zip_pdf = $this->moveTempFileToPermanent($zip_pdf);
             $essay->setPdfVersion($zip_pdf);
-            $this->essay_task_api->essay()->save($essay);
+            $this->essay_task_api->essay(true)->save($essay);
             $writer->setWorkingStart($writer->getWorkingStart() ?? $now);
             $writer->setWritingAuthorized($now);
             $writer->setWritingAuthorizedBy($this->user->getId());
@@ -452,7 +452,7 @@ class ImportEssayGUI extends BaseGUI implements Import
     {
         $this->cache['essays'] ??= $this->keysBy(
             fn(Essay $essay) => $essay->getWriterId(),
-            $this->essay_task_api->essay()->allByTaskId($this->task()->getId())
+            $this->essay_task_api->essay(true)->allByTaskId($this->task()->getId())
         );
 
         return $this->cache['essays'][$writer_id] ?? null;

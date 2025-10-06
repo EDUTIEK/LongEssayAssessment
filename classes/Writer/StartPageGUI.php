@@ -20,28 +20,22 @@ declare(strict_types=1);
 
 namespace ILIAS\Plugin\LongEssayAssessment\Writer;
 
+use Edutiek\AssessmentService\Assessment\Data\OrgaSettings;
+use Edutiek\AssessmentService\Assessment\Data\Writer;
+use Edutiek\AssessmentService\Assessment\Format\FullService as AssessmentFormat;
+use Edutiek\AssessmentService\Assessment\Permissions\ReadService as Permissions;
+use Edutiek\AssessmentService\Assessment\TaskInterfaces\Manager as TaskManager;
+use Edutiek\AssessmentService\Assessment\TaskInterfaces\TaskInfo as Task;
+use Edutiek\AssessmentService\Assessment\WorkingTime\FullService as WorkingTime;
+use Edutiek\AssessmentService\EssayTask\Data\WritingSettings;
+use Edutiek\AssessmentService\EssayTask\Data\WritingType;
+use Edutiek\AssessmentService\System\File\Storage as FileStorage;
+use Edutiek\AssessmentService\System\Format\FullService as SystemFormat;
+use Edutiek\AssessmentService\Task\Data\ResourceAvailability;
+use Edutiek\AssessmentService\Task\Data\ResourceType;
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\BaseObjectData;
-use Edutiek\AssessmentService\Assessment\TaskInterfaces\Manager as TaskManager;
-use Edutiek\AssessmentService\Assessment\Permissions\ReadService as Permissions;
-use Edutiek\AssessmentService\Assessment\Data\OrgaSettings;
-use Edutiek\AssessmentService\EssayTask\Data\WritingSettings;
-use ILIAS\Plugin\LongEssayAssessment\Dependencies\AssessmentDic;
-use Edutiek\AssessmentService\EssayTask\Data\WritingType;
-use Edutiek\AssessmentService\Task\Data\ResourceType;
-use Edutiek\AssessmentService\Task\Data\ResourceAvailability;
-use ilDatePresentation;
-use ilDateTime;
-use Edutiek\AssessmentService\Assessment\Data\Writer;
 use ILIAS\UI\Component\Component;
-use Closure;
-use Edutiek\AssessmentService\System\File\Storage as FileStorage;
-use Edutiek\AssessmentService\Assessment\TaskInterfaces\TaskInfo as Task;
-use Edutiek\AssessmentService\System\Format\FullService as SystemFormat;
-use Edutiek\AssessmentService\Assessment\Format\FullService as AssessmentFormat;
-use Edutiek\AssessmentService\Assessment\WorkingTime\FullService as WorkingTime;
-use ILIAS\Plugin\LongEssayAssessment\Writer\WriterUploadGUI;
-use ILIAS\UIComponent;
 
 class StartPageGUI extends BaseGUI
 {
@@ -80,7 +74,7 @@ class StartPageGUI extends BaseGUI
         $this->assessment_format = $this->assessment_api->format($this->orga_settings);
 
         $this->working_time = $this->assessment_api->workingTime($this->orga_settings, $this->writer);
-        $this->essays = $this->essay_task_api->essay()->allByWriterId($this->writer->getId());
+        $this->essays = $this->essay_task_api->essay(false)->allByWriterId($this->writer->getId());
 
         $this->is_written = $this->writer->getWritingAuthorized() !== null;
     }

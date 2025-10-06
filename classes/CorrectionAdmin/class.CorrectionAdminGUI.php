@@ -18,7 +18,7 @@ use Edutiek\AssessmentService\Assessment\Data\Writer;
 use Edutiek\AssessmentService\Assessment\OrgaSettings\FullService as OrgaService;
 use Edutiek\AssessmentService\Assessment\Writer\FullService as WriterService;
 use Edutiek\AssessmentService\System\User\ReadService as UserService;
-use Edutiek\AssessmentService\EssayTask\Essay\FullService as EssayService;
+use Edutiek\AssessmentService\EssayTask\Essay\ClientService as EssayService;
 use Edutiek\AssessmentService\Task\AssessmentStatus\FullService as AssessmentStatus;
 use ILIAS\Plugin\LongEssayAssessment\BaseObjectData;
 use Edutiek\AssessmentService\Task\CorrectorSummary\FullService as SummaryService;
@@ -64,7 +64,7 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
 
         $this->writer_service = $this->assessment_api->writer();
         $this->user_service = $this->system_api->user();
-        $this->essay_service = $this->essay_task_api->essay();
+        $this->essay_service = $this->essay_task_api->essay(true);
         $this->assessment_status = $this->task_api->assessmentStatus();
         $this->summary_service = $this->task_api->correctorSummary();
         $this->assignment_service = $this->task_api->correctorAssignments();

@@ -20,6 +20,8 @@ declare(strict_types=1);
 
 namespace ILIAS\Plugin\LongEssayAssessment\WriterAdmin;
 
+use Edutiek\AssessmentService\Assessment\Writer\FullService as WriterService;
+use Edutiek\AssessmentService\EssayTask\Essay\ClientService as EssayService;
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\BaseObjectData;
 use ILIAS\UI\Component\Table\DataRetrieval;
@@ -57,8 +59,12 @@ class ImportEssayGUI extends BaseGUI implements Import
 
     private readonly Storage $perm_storage;
     private readonly Storage $temp_storage;
+    private EssayService $essay_service;
+    private WriterService $writer_service;
+
     private readonly ilLongEssayAssessmentUploadHandlerGUI $upload_handler;
     private array $cache = [];
+
 
     public function __construct(BaseObjectData $object)
     {
@@ -76,6 +82,9 @@ class ImportEssayGUI extends BaseGUI implements Import
 
     public function executeCommand(): void
     {
+        $this->essay_service = $this->essay_task_api->essay(true);
+        $this->writer_service = $this->assessment_api->writer();
+
         if (in_array($this->ctrl->getCmd(), ['showForm', 'upload', 'showTable', 'cancel', 'import', 'importOverwrite'], true)) {
             $this->{$this->ctrl->getCmd()}();
         } else {
@@ -154,10 +163,10 @@ class ImportEssayGUI extends BaseGUI implements Import
                 continue;
             }
 
-            $writer = $this->assessment_api->writer()->getByUserId($user_id);
+            $writer = $this->writer_service->getByUserId($user_id);
             $task = $this->task();
             $essay = $this->essayByWriter($writer->getId()) ??
-                $this->essay_task_api->essay(true)->new($writer->getId(), $task->getId())->setFirstChange($now);
+                $this->essay_service->new($writer->getId(), $task->getId())->setFirstChange($now);
             $essay = $essay->setLastChange($now);
             $pdf = $essay->getPdfVersion();
             if ($pdf && !$overwrite) {
@@ -165,15 +174,9 @@ class ImportEssayGUI extends BaseGUI implements Import
             }
             $zip_pdf = $this->moveTempFileToPermanent($zip_pdf);
             $essay->setPdfVersion($zip_pdf);
-            $this->essay_task_api->essay(true)->save($essay);
-            $writer->setWorkingStart($writer->getWorkingStart() ?? $now);
-            $writer->setWritingAuthorized($now);
-            $writer->setWritingAuthorizedBy($this->user->getId());
-            $this->assessment_api->writer()->save($writer);
+            $this->essay_service->replacePdf($essay, $zip_pdf);
+            $this->writer_service->authorizeWriting($writer, $this->user->getId(), true);
             $imported++;
-
-            // Comment in to start the background task
-            // $this->essay_task_api->pdfInput()->handleInput($essay);
         }
 
         $this->saveSession(null);
@@ -437,7 +440,7 @@ class ImportEssayGUI extends BaseGUI implements Import
     {
         $this->cache['writers'] ??= $this->keysBy(
             fn(Writer $writer) => $writer->getUserId(),
-            $this->assessment_api->writer()->all()
+            $this->writer_service->all()
         );
 
         return $this->cache['writers'][$user_id] ?? null;
@@ -452,7 +455,7 @@ class ImportEssayGUI extends BaseGUI implements Import
     {
         $this->cache['essays'] ??= $this->keysBy(
             fn(Essay $essay) => $essay->getWriterId(),
-            $this->essay_task_api->essay(true)->allByTaskId($this->task()->getId())
+            $this->essay_service->allByTaskId($this->task()->getId())
         );
 
         return $this->cache['essays'][$writer_id] ?? null;

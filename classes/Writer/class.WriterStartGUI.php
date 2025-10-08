@@ -20,6 +20,7 @@ declare(strict_types=1);
 
 namespace ILIAS\Plugin\LongEssayAssessment\Writer;
 
+use ILIAS\Data\ReferenceId;
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use Edutiek\AssessmentService\Task\Data\ResourceType;
 use Edutiek\AssessmentService\System\File\Disposition;
@@ -31,6 +32,8 @@ use Edutiek\AssessmentService\Assessment\Data\Writer as Writer;
 use Edutiek\AssessmentService\Assessment\WorkingTime\FullService as WorkingTime;
 use Edutiek\AssessmentService\EssayTask\Data\WritingSettings as WritingSettings;
 use Edutiek\AssessmentService\EssayTask\Data\WritingType;
+use ILIAS\StaticURL\Builder\StandardURIBuilder;
+use ILIAS\UI\URLBuilder;
 
 /**
  * @ilCtrl_isCalledBy ILIAS\Plugin\LongEssayAssessment\Writer\WriterStartGUI: ilObjLongEssayAssessmentGUI
@@ -189,7 +192,7 @@ class WriterStartGUI extends BaseGUI
         if (!$this->perms->canWrite()) {
             $this->raisePermissionError();
         }
-        $this->assessment_api->writerApp($this->object->getId())->open();
+        $this->assessment_api->writerApp($this->object->getContextId())->open($this->getReturnUrl());
 
     }
 
@@ -198,7 +201,7 @@ class WriterStartGUI extends BaseGUI
         if (!$this->perms->canReviewWrittenAssessment()) {
             $this->raisePermissionError();
         }
-        $this->assessment_api->writerApp($this->object->getId())->open();
+        $this->assessment_api->writerApp($this->object->getContextId())->open($this->getReturnUrl());
     }
 
     public function downloadWriterPdf(): void
@@ -338,5 +341,16 @@ class WriterStartGUI extends BaseGUI
 
         // $service = new Service($context);
         // return $service->getWritingAsPdf($writingTask, $writtenEssay, $rawContent, $onlyText);
+    }
+
+    private function getReturnUrl(): string
+    {
+        $builder = new StandardURIBuilder(ILIAS_HTTP_PATH, false);
+
+        return (string) $builder->build(
+            'xlas',
+            new ReferenceId($this->object->getRefId()),
+            ['writer']
+        );
     }
 }

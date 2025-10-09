@@ -1,4 +1,5 @@
 <?php
+
 /* Copyright (c) 2021 ILIAS open source, Extended GPL, see docs/LICENSE */
 
 use Edutiek\AssessmentService\System\Config\Service;
@@ -30,7 +31,7 @@ class ilLongEssayAssessmentConfigGUI extends ilPluginConfigGUI
      * Handles all commands, default is "configure"
      * @throws Exception
      */
-    public function performCommand($cmd) : void
+    public function performCommand($cmd): void
     {
         global $DIC;
 
@@ -118,12 +119,14 @@ class ilLongEssayAssessmentConfigGUI extends ilPluginConfigGUI
         $primary_text_color->setValue($this->config->getPrimaryTextColor());
         $form->addItem($primary_text_color);
 
-        $ghostscript = $this->config->getPathToGhostscript();
-        $used_info = sprintf($this->plugin->txt('ghostscript_used'),
-            '<strong>' . (empty($ghostscript) ? $this->plugin->txt('ghostscript_imagick') : $ghostscript) . '</strong>');
+        $ghostscript = $this->service->getPathToGhostscript();
+        $used_info = sprintf(
+            $this->plugin->txt('ghostscript_used'),
+            '<strong>' . (empty($ghostscript) ? $this->plugin->txt('ghostscript_imagick') : $ghostscript) . '</strong>'
+        );
 
         $path_to_ghostscript = new ilTextInputGUI($this->plugin->txt('path_to_ghostscript'), 'path_to_ghostscript');
-        $path_to_ghostscript->setInfo($this->plugin->txt('path_to_ghostscript_info'). '<br>' . $used_info);
+        $path_to_ghostscript->setInfo($this->plugin->txt('path_to_ghostscript_info') . '<br>' . $used_info);
         $path_to_ghostscript->setValue($this->config->getPathToGhostscript());
         $form->addItem($path_to_ghostscript);
 

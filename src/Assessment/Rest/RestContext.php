@@ -35,7 +35,7 @@ readonly class RestContext implements \Edutiek\AssessmentService\Assessment\Apps
     }
 
     /**
-     * Get the route of the REST call
+     * Get the route of the current REST call
      */
     public function getRoute(): string
     {
@@ -44,7 +44,7 @@ readonly class RestContext implements \Edutiek\AssessmentService\Assessment\Apps
     }
 
     /**
-     * Get the params of the REST call
+     * Get the params of the current REST call
      */
     public function getParams(): array
     {

@@ -49,7 +49,7 @@ class Config extends \Edutiek\AssessmentService\System\Data\Config
     }
     public function getWriterUrl(): ?string
     {
-        return $this->writer_url;
+        return $this->nullify($this->writer_url);
     }
     public function setWriterUrl(?string $writer_url): self
     {
@@ -58,7 +58,7 @@ class Config extends \Edutiek\AssessmentService\System\Data\Config
     }
     public function getCorrectorUrl(): ?string
     {
-        return $this->corrector_url;
+        return $this->nullify($this->corrector_url);
     }
     public function setCorrectorUrl(?string $corrector_url): self
     {
@@ -67,7 +67,7 @@ class Config extends \Edutiek\AssessmentService\System\Data\Config
     }
     public function getPrimaryColor(): ?string
     {
-        return $this->primary_color;
+        return $this->nullify($this->primary_color);
     }
     public function setPrimaryColor(?string $primary_color): self
     {
@@ -76,7 +76,7 @@ class Config extends \Edutiek\AssessmentService\System\Data\Config
     }
     public function getPrimaryTextColor(): ?string
     {
-        return $this->primary_text_color;
+        return $this->nullify($this->primary_text_color);
     }
     public function setPrimaryTextColor(?string $primary_text_color): self
     {
@@ -94,7 +94,7 @@ class Config extends \Edutiek\AssessmentService\System\Data\Config
     }
     public function getPathToGhostscript(): ?string
     {
-        return $this->path_to_ghostscript;
+        return $this->nullify($this->path_to_ghostscript);
     }
     public function setPathToGhostscript(?string $path_to_ghostscript): self
     {
@@ -105,9 +105,14 @@ class Config extends \Edutiek\AssessmentService\System\Data\Config
     {
         return $this->hash_algo;
     }
-    public function setHashAlgo(string $hash_algo): self
+    public function setHashAlgo(string $algo): self
     {
-        $this->hash_algo = $hash_algo;
+        $this->hash_algo = $algo;
         return $this;
+    }
+
+    private function nullify(?string $string): ?string
+    {
+        return $string === '' ?  null : $string;
     }
 }

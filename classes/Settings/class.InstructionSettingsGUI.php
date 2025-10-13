@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace ILIAS\Plugin\LongEssayAssessment\Settings;
 
 use Edutiek\AssessmentService\Assessment\TaskInterfaces\TaskInfo;
+use Edutiek\AssessmentService\Assessment\TaskInterfaces\TaskManager as TaskManager;
 use Edutiek\AssessmentService\Assessment\TaskInterfaces\TaskType;
 use Edutiek\AssessmentService\System\Entity\FullService as EntityService;
 use Edutiek\AssessmentService\System\File\Storage as FileStorage;
@@ -18,7 +19,6 @@ use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\BaseObjectData;
 use ILIAS\UI\Component\Input\Container\Form\Standard;
 use ilLongEssayAssessmentUploadHandlerGUI;
-use Edutiek\AssessmentService\Assessment\TaskInterfaces\Manager as TaskManager;
 
 /**
  * Settings GUI for task instructions

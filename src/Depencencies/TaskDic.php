@@ -22,13 +22,13 @@ namespace ILIAS\Plugin\LongEssayAssessment\Dependencies;
 
 use Edutiek\AssessmentService\Assessment\Api\Factory as AssessmentFactory;
 use Edutiek\AssessmentService\Assessment\Api\ForTasks as AssessmentApi;
+use Edutiek\AssessmentService\Assessment\TaskInterfaces\TypeApiFactory;
 use Edutiek\AssessmentService\EssayTask\Api\Factory as EssayTaskFactory;
 use Edutiek\AssessmentService\System\Api\ForConstraints as ConstraintApi;
 use Edutiek\AssessmentService\System\Api\ForEvents as EventApi;
 use Edutiek\AssessmentService\System\Api\ForServices as SystemApi;
 use Edutiek\AssessmentService\System\ConstraintHandling\Collector;
 use Edutiek\AssessmentService\System\EventHandling\Dispatcher;
-use Edutiek\AssessmentService\Task\TypeInterfaces\ApiFactory as TypeApiFactory;
 use ILIAS\DI\Container;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Generate;
 use ILIAS\Plugin\LongEssayAssessment\Task\Data\RepositoryFactory;
@@ -44,7 +44,7 @@ class TaskDic implements \Edutiek\AssessmentService\Task\Api\Dependencies
 
         $dic[TypeApis::class] = function (Container $dic) {
             return new TypeApis(
-                $dic[EssayTaskFactory::class]->forTask()
+                $dic[EssayTaskFactory::class]->forServices()
             );
         };
 

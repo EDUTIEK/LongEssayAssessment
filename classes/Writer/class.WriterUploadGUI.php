@@ -22,8 +22,8 @@ namespace ILIAS\Plugin\LongEssayAssessment\Writer;
 
 use Edutiek\AssessmentService\Assessment\Data\Writer;
 use Edutiek\AssessmentService\Assessment\Permissions\ReadService as Permissions;
-use Edutiek\AssessmentService\Assessment\TaskInterfaces\Manager as TaskService;
 use Edutiek\AssessmentService\Assessment\TaskInterfaces\TaskInfo as Task;
+use Edutiek\AssessmentService\Assessment\TaskInterfaces\TaskManager as TaskService;
 use Edutiek\AssessmentService\Assessment\Writer\FullService as WriterService;
 use Edutiek\AssessmentService\EssayTask\Data\Essay;
 use Edutiek\AssessmentService\EssayTask\Essay\ClientService as EssayService;

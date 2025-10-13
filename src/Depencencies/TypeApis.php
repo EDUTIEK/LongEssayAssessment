@@ -21,9 +21,9 @@ declare(strict_types=1);
 namespace ILIAS\Plugin\LongEssayAssessment\Dependencies;
 
 use Edutiek\AssessmentService\Assessment\TaskInterfaces\TaskType;
-use Edutiek\AssessmentService\EssayTask\Api\ForTask as EssayTaskTypeApi;
-use Edutiek\AssessmentService\Task\TypeInterfaces\Api as TypeApi;
-use Edutiek\AssessmentService\Task\TypeInterfaces\ApiFactory as TypeApiFactory;
+use Edutiek\AssessmentService\Assessment\TaskInterfaces\TypeApi;
+use Edutiek\AssessmentService\Assessment\TaskInterfaces\TypeApiFactory as TypeApiFactory;
+use Edutiek\AssessmentService\EssayTask\Api\ForServices as EssayTaskApi;
 
 /**
  * Factory for APIs of task types
@@ -32,7 +32,7 @@ use Edutiek\AssessmentService\Task\TypeInterfaces\ApiFactory as TypeApiFactory;
 readonly class TypeApis implements TypeApiFactory
 {
     public function __construct(
-        private EssayTaskTypeApi $essay_task
+        private EssayTaskApi $essay_task
     ) {
     }
 

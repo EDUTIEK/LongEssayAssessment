@@ -623,11 +623,11 @@ tab_statistic#:#Notenstatistik
 check_all#:#Alles auswählen
 all_checked#:#Alles ausgewählt
 count#:#Anzahl
-task_type#:#Abgabeform
-task_type_essay_editor#:#Online-Editor
-task_type_essay_editor_info#:#Die Teilnehmenden schreiben ihren Text in einem Online-Editor. Unter „Technik” kann eingestellt werden, welche Möglichkeiten sie dort haben. Einzelne handschriftliche oder anderweitig erstellte Abgaben können in der Teilnahmeverwaltung als PDF-Abgabe hochgeladen werden. Ihre Korrektur unterscheidet sich nur in den Markierungs-Optionen.
-task_type_pdf_upload#:#PDF-Abgabe
-task_type_pdf_upload_info#:#Die Texte werden von allen Teilnehmenden einheitlich als PDF-Abgabe hochgeladen. Während der Bearbeitungszeit kann eine hochgeladene Datei ersetzt werden. Die Abgabe zur Korrektur muss bestätigt werden. Danach ist keine Änderung mehr möglich.
+writing_type#:#Abgabeform
+writing_type_essay_editor#:#Online-Editor
+writing_type_essay_editor_info#:#Die Teilnehmenden schreiben ihren Text in einem Online-Editor. Unter „Technik” kann eingestellt werden, welche Möglichkeiten sie dort haben. Einzelne handschriftliche oder anderweitig erstellte Abgaben können in der Teilnahmeverwaltung als PDF-Abgabe hochgeladen werden. Ihre Korrektur unterscheidet sich nur in den Markierungs-Optionen.
+writing_type_pdf_upload#:#PDF-Abgabe
+writing_type_pdf_upload_info#:#Die Texte werden von allen Teilnehmenden einheitlich als PDF-Abgabe hochgeladen. Während der Bearbeitungszeit kann eine hochgeladene Datei ersetzt werden. Die Abgabe zur Korrektur muss bestätigt werden. Danach ist keine Änderung mehr möglich.
 writer_upload_pdf#:#PDF-Abgabe hochladen
 writer_replace_pdf#:#PDF-Abgabe ersetzen
 writer_review_pdf#:#Vorschau zur Abgabe

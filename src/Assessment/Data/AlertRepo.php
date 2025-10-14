@@ -28,7 +28,11 @@ readonly class AlertRepo implements \Edutiek\AssessmentService\Assessment\Data\A
 
     public function allByAssId(int $ass_id): array
     {
-        return $this->repo->queryAllBy(['ass_id' => $ass_id]);
+        return $this->repo->queryAllBy(['ass_id' => $ass_id], ['shown_from' => 'asc']);
+    }
+    public function allByAssIdAndWriterId(int $ass_id, int $writer_id): array
+    {
+        return $this->repo->queryAllBy(['ass_id' => $ass_id, 'writer_id' => $writer_id], ['shown_from' => 'asc']);
     }
 
     public function create(Alert $entity): void

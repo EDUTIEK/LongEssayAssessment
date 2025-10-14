@@ -20,6 +20,7 @@ declare(strict_types=1);
 
 namespace ILIAS\Plugin\LongEssayAssessment\Dependencies;
 
+use Edutiek\AssessmentService\Assessment\TaskInterfaces\TypeApiFactory;
 use Edutiek\AssessmentService\System\Api\ForEvents as EventApi;
 use Edutiek\AssessmentService\System\Api\ForServices as SystemApi;
 use Edutiek\AssessmentService\System\Api\ForConstraints as ConstraintApi;
@@ -72,6 +73,11 @@ class AssessmentDic implements \Edutiek\AssessmentService\Assessment\Api\Depende
     public function taskApi(): TaskApi
     {
         return $this->dic[TaskApi::class];
+    }
+
+    public function typeApis(): TypeApiFactory
+    {
+        return $this->dic[TypeApis::class];
     }
 
     public function repositories(): RepositoryFactory

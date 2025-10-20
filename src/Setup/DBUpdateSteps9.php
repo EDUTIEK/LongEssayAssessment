@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace ILIAS\Plugin\LongEssayAssessment\Setup;
 
+use Exception;
 use ILIAS\Setup\Objective;
 use ILIAS\Setup\Environment;
-use _PHPStan_9815bbba4\Symfony\Component\Console\Exception\LogicException;
 
 class DBUpdateSteps9 implements \ilDatabaseUpdateSteps
 {
@@ -23,7 +23,7 @@ class DBUpdateSteps9 implements \ilDatabaseUpdateSteps
         }
 
         if ($this->db_version < 105) {
-            throw new LogicException("Plugin database version is too low. Please update this Plugin atleast one time with LongEssayAssessment 3 / ILIAS 9.");
+            throw new Exception("Plugin database version is too low. Please update this Plugin atleast one time with LongEssayAssessment 3 / ILIAS 9.");
         }
     }
 
@@ -442,6 +442,25 @@ class DBUpdateSteps9 implements \ilDatabaseUpdateSteps
                 'notnull' => '1',
                 'type' => 'integer',
                 'length' => 4
+            ]);
+        }
+    }
+
+    // Version 3 steps 126 to 129 are done in DBUpdateSteps10
+    // Version 3 step 238 must be done here, too, before the V10Migration
+
+    public function step_22(): void
+    {
+        if (128 <= $this->db_version) {
+            return;
+        }
+        $ilDB = $this->db;
+
+        if (!$ilDB->tableColumnExists('xlas_task_settings', 'forwarding_url')) {
+            $ilDB->addTableColumn('xlas_task_settings', 'forwarding_url', [
+                'type' => 'text',
+                'length' => '250',
+                'default' => null
             ]);
         }
     }

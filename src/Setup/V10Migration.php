@@ -782,7 +782,7 @@ class V10Migration
                             'Key' => '',
                             'Default' => 0,
                             'Extra' => '',
-                            'src_table' => '',
+                            'src_table' => null,
                         ),
                     'participation_type' =>
                         array(
@@ -999,6 +999,17 @@ class V10Migration
                             'Null' => 'NO',
                             'Key' => '',
                             'Default' => '0',
+                            'Extra' => '',
+                            'comment' => '',
+                            'src_table' => 'xlas_task_settings',
+                        ),
+                    'forwarding_url' =>
+                        array(
+                            'Field' => 'forwarding_url',
+                            'Type' => 'varchar(250)',
+                            'Null' => 'YES',
+                            'Key' => '',
+                            'Default' => null,
                             'Extra' => '',
                             'comment' => '',
                             'src_table' => 'xlas_task_settings',
@@ -1507,79 +1518,6 @@ class V10Migration
                             'Extra' => '',
                             'comment' => '',
                             'src_table' => 'xlas_task_settings',
-                        ),
-                ),
-            'xlas_ta_writer_comment' =>
-                array(
-                    'id' =>
-                        array(
-                            'Field' => 'id',
-                            'Type' => 'int(11)',
-                            'Null' => 'NO',
-                            'Key' => 'PRI',
-                            'Default' => null,
-                            'Extra' => '',
-                            'src_table' => 'xlas_writer_comment',
-                        ),
-                    'task_id' =>
-                        array(
-                            'Field' => 'task_id',
-                            'Type' => 'int(11)',
-                            'Null' => 'NO',
-                            'Key' => 'MUL',
-                            'Default' => null,
-                            'Extra' => '',
-                            'src_table' => 'xlas_writer_comment',
-                        ),
-                    'writer_id' =>
-                        array(
-                            'Field' => 'writer_id',
-                            'Type' => 'int(11)',
-                            'Null' => 'NO',
-                            'Key' => 'MUL',
-                            'Default' => null,
-                            'Extra' => '',
-                            'src_table' => 'xlas_writer_comment',
-                        ),
-                    'comment' =>
-                        array(
-                            'Field' => 'comment',
-                            'Type' => 'longtext',
-                            'Null' => 'YES',
-                            'Key' => '',
-                            'Default' => null,
-                            'Extra' => '',
-                            'src_table' => 'xlas_writer_comment',
-                        ),
-                    'parent_number' =>
-                        array(
-                            'Field' => 'parent_number',
-                            'Type' => 'int(11)',
-                            'Null' => 'NO',
-                            'Key' => '',
-                            'Default' => null,
-                            'Extra' => '',
-                            'src_table' => 'xlas_writer_comment',
-                        ),
-                    'start_position' =>
-                        array(
-                            'Field' => 'start_position',
-                            'Type' => 'int(11)',
-                            'Null' => 'NO',
-                            'Key' => '',
-                            'Default' => null,
-                            'Extra' => '',
-                            'src_table' => 'xlas_writer_comment',
-                        ),
-                    'end_position' =>
-                        array(
-                            'Field' => 'end_position',
-                            'Type' => 'int(11)',
-                            'Null' => 'NO',
-                            'Key' => '',
-                            'Default' => null,
-                            'Extra' => '',
-                            'src_table' => 'xlas_writer_comment',
                         ),
                 ),
             'xlas_et_corr_comm' =>

@@ -28,15 +28,6 @@ use ilDBConstants;
 use ilDBUpdateNewObjectType;
 use ILIAS\Plugin\LongEssayAssessment\System\Data\Config;
 
-/**
- * TODO: Failed update should be repetable
- * - it should be possible to execute steps 1 to 3 again
- * - drop tables before creation in step 1 (done)
- * - catch errors in step 1 to 3 and
- *      - delete entries for step 1 to 3 in il_db_steps
- *      - throw a runtime exception to abort the plugin update with explaining error message
- * - override ilPlugin::isActive to check if steps are executed
- */
 class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
 {
     public const PREFIX = 'step_';
@@ -88,7 +79,6 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
         $this->v10_migration->removeNewTables();
         $this->db->manipulate("DELETE FROM il_db_steps WHERE `class` = " . $this->db->quote(self::class));
 
-
         $this->db->dropTable("xlas_ta_corr_settings");
         $this->db->dropTable("xlas_ta_corr_prefs");
         $this->db->dropTable("xlas_ta_corr_ta_prefs");
@@ -96,6 +86,9 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
         $this->db->dropTable("xlas_ta_corr_comm");
         $this->db->dropTable("xlas_ta_corr_points");
         $this->db->dropTable("xlas_ta_corr_summary");
+        $this->db->dropTable("xlas_as_dis_groups");
+        $this->db->dropTable("xlas_ta_writer_anno");
+        $this->db->dropTable("xlas_et_corr_snippet");
     }
 
     public function step_1(): void
@@ -117,12 +110,6 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
         $this->v10_migration->migrateStakeholders();
     }
 
-    /**
-     * TODO: postpone the removing
-     * - give admins a chance to check interactively if everything is ok
-     * - eventually just rename the tables
-     * - provide a migration step to drop them
-    */
     public function step_4(): void
     {
         $this->v10_migration->removeOldTables();
@@ -132,8 +119,8 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
     {
         if (!$this->db->tableColumnExists('xlas_as_writer', 'stitch_needed')) {
             $this->db->addTableColumn('xlas_as_writer', 'stitch_needed', [
-                'notnull' => '1',
-                'type' => 'integer',
+                'notnull' => 1,
+                'type' => ilDBConstants::T_INTEGER,
                 'length' => 1,
                 'default' => 0
             ]);
@@ -161,7 +148,7 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
             LEFT JOIN xlas_as_corr_settings AS settings ON (writer.ass_id = settings.ass_id);";
 
         $query = $this->db->query($sql);
-        foreach ($this->db->fetchObject($query) ?? [] as $obj) {
+        foreach ($this->db->fetchAll($query, ilDBConstants::FETCHMODE_OBJECT) ?? [] as $obj) {
             $summaries_by_task_and_writer[$obj->task_id][$obj->writer_id][] = $obj;
         }
 
@@ -355,8 +342,8 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
     {
         if (!$this->db->tableColumnExists($table, 'task_id')) {
             $this->db->addTableColumn($table, 'task_id', [
-                'notnull' => '1',
-                'type' => 'integer',
+                'notnull' => 1,
+                'type' => ilDBConstants::T_INTEGER,
                 'length' => 4,
                 'default' => 0
             ]);
@@ -365,20 +352,20 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
 
         if (!$this->db->tableColumnExists($table, 'writer_id')) {
             $this->db->addTableColumn($table, 'writer_id', [
-                'notnull' => '1',
-                'type' => 'integer',
+                'notnull' => 1,
+                'type' => ilDBConstants::T_INTEGER,
                 'length' => 4,
                 'default' => 0
             ]);
             $this->db->addIndex($table, array("writer_id"), "idw");
         }
-        if($this->db->tableColumnExists($table, 'writer_id')
+        if ($this->db->tableColumnExists($table, 'writer_id')
             && $this->db->tableColumnExists($table, 'writer_id')
             && $this->db->tableColumnExists($table, 'essay_id')
         ) {
             $this->db->manipulate("
                 UPDATE $table as target_table 
-                LEFT JOIN xlas_et_essay AS essay ON target_table.essay_id = essay.id 
+                JOIN xlas_et_essay AS essay ON target_table.essay_id = essay.id 
                 SET target_table.task_id = essay.task_id, target_table.writer_id = essay.writer_id;
             ");
         }
@@ -449,6 +436,83 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
         ilDBUpdateNewObjectType::addRBACOperation($type_id, $ops_id);
         $ops_id = ilDBUpdateNewObjectType::addCustomRBACOperation('edit_templates', 'Edit Templates', 'object', 3230);
         ilDBUpdateNewObjectType::addRBACOperation($type_id, $ops_id);
+    }
+
+    /** Version 3 step #126 */
+    public function step_24(): void
+    {
+        if ($this->db->tableExists('xlas_writer_comment')) {
+            $this->db->dropTable('xlas_writer_comment');
+        }
+    }
+
+    /** Version 3 step #127 */
+    public function step_25(): void
+    {
+        if ($this->db->tableExists('xlas_writer_annotation')) {
+            $this->db->renameTable('xlas_writer_annotation', 'xlas_ta_writer_anno');
+        } else {
+            $fields = [
+                'id' => ['notnull' => 1, 'type' => ilDBConstants::T_INTEGER],
+                'task_id' => ['notnull' => 1, 'type' => ilDBConstants::T_INTEGER],
+                'writer_id' => ['notnull' => 1, 'type' => ilDBConstants::T_INTEGER],
+                'resource_id' => ['notnull' => 1, 'type' => ilDBConstants::T_INTEGER],
+                'mark_key' => ['notnull' => 1, 'type' => ilDBConstants::T_TEXT, 'length' => 50],
+                'mark_value' => ['type' => ilDBConstants::T_CLOB],
+                'parent_number' => ['notnull' => 1, 'type' => ilDBConstants::T_INTEGER],
+                'start_position' => ['notnull' => 1, 'type' => ilDBConstants::T_INTEGER],
+                'end_position' => ['notnull' => 1, 'type' => ilDBConstants::T_INTEGER],
+                'comment' => ['type' => ilDBConstants::T_CLOB]
+            ];
+            if (!$this->db->tableExists('xlas_ta_writer_anno')) {
+                $this->db->createTable('xlas_ta_writer_anno', $fields);
+                $this->db->addPrimaryKey('xlas_ta_writer_anno', array( 'id' ));
+                $this->db->addIndex("xlas_ta_writer_anno", array("task_id"), "i1");
+                $this->db->addIndex("xlas_ta_writer_anno", array("resource_id"), "i2");
+
+                if (! $this->db->sequenceExists('xlas_ta_writer_anno')) {
+                    $this->db->createSequence('xlas_ta_writer_anno');
+                }
+            }
+        }
+    }
+
+    /** Version 3 step #128 */
+    public function step_26(): void
+    {
+        if (!$this->db->tableColumnExists('xlas_as_orga_settings', 'forwarding_url')) {
+            $this->db->addTableColumn('xlas_as_orga_settings', 'forwarding_url', [
+                'type' => ilDBConstants::T_TEXT,
+                'length' => '250',
+                'default' => null
+            ]);
+        }
+    }
+
+    /** Version 3 step #129 */
+    public function step_27(): void
+    {
+        if ($this->db->tableExists('xlas_corr_snippet')) {
+            $this->db->renameTable('xlas_corr_snippet', 'xlas_et_corr_snippet');
+        } else {
+            $fields = [
+                'id' => ['notnull' => 1, 'type' => ilDBConstants::T_INTEGER],
+                'task_id' => ['notnull' => 1, 'type' => ilDBConstants::T_INTEGER],
+                'corrector_id' => ['notnull' => 1, 'type' => ilDBConstants::T_INTEGER],
+                'key' => ['notnull' => 1, 'type' => ilDBConstants::T_TEXT, 'length' => '50'],
+                'purpose' => ['notnull' => 1, 'type' => ilDBConstants::T_TEXT, 'length' => '20'],
+                'text' => ['type' => ilDBConstants::T_CLOB]
+            ];
+            if (!$this->db->tableExists('xlas_et_corr_snippet')) {
+                $this->db->createTable('xlas_et_corr_snippet', $fields);
+                $this->db->addPrimaryKey('xlas_et_corr_snippet', array('id'));
+                $this->db->addIndex("xlas_et_corr_snippet", array("task_id"), "i1");
+
+                if (!$this->db->sequenceExists('xlas_et_corr_snippet')) {
+                    $this->db->createSequence('xlas_et_corr_snippet');
+                }
+            }
+        }
     }
 
     private function ensureTable(string $name, array $fields): void

@@ -48,6 +48,10 @@ readonly class UserDataRepo implements \Edutiek\AssessmentService\System\Data\Us
         );
     }
 
+    public function idByLogin(string $login): int
+    {
+        return ilObjUser::getUserIdByLogin($login);
+    }
 
     /**
      * @param int[] $ids

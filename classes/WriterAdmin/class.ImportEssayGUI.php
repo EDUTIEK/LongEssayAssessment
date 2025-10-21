@@ -20,8 +20,6 @@ declare(strict_types=1);
 
 namespace ILIAS\Plugin\LongEssayAssessment\WriterAdmin;
 
-use Edutiek\AssessmentService\Assessment\Writer\FullService as WriterService;
-use Edutiek\AssessmentService\EssayTask\Essay\ClientService as EssayService;
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\BaseObjectData;
 use ILIAS\UI\Component\Table\DataRetrieval;
@@ -30,41 +28,25 @@ use ILIAS\Data\Range;
 use ILIAS\Data\Order;
 use Generator;
 use ZipArchive;
-use ilObjUser;
 use ILIAS\Plugin\LongEssayAssessment\System\Data\FileInfo;
-use DateTimeImmutable;
 use ILIAS\Filesystem\Stream\Streams;
 use ilSession;
 use ILIAS\UI\Component\Table\Data as Table;
 use ilTemporaryStakeholder;
 use ILIAS\Plugin\LongEssayAssessment\System\File\StorageAdapter;
 use Edutiek\AssessmentService\System\File\Storage;
-use Edutiek\AssessmentService\Assessment\Data\Writer;
-use Edutiek\AssessmentService\EssayTask\Data\Essay;
-use Edutiek\AssessmentService\Assessment\TaskInterfaces\TaskInfo as Task;
-use Edutiek\AssessmentService\Task\Resource\FullService as ResourceApi;
-use ILIAS\Plugin\LongEssayAssessment\EssayTask\EssayImport\Import;
-use ILIAS\Plugin\LongEssayAssessment\EssayTask\EssayImport\Bavaria;
-use ILIAS\Plugin\LongEssayAssessment\EssayTask\EssayImport\Nrw;
+use Edutiek\AssessmentService\EssayTask\EssayImport\Import;
+use Edutiek\AssessmentService\EssayTask\EssayImport\FullService as ImportService;
 use ilLongEssayAssessmentUploadHandlerGUI;
 
 class ImportEssayGUI extends BaseGUI implements Import
 {
     public const SESSION_KEY = self::class;
 
-    private const IMPORT_TYPES = [
-        'by' => Bavaria::class,
-        'nrw' => Nrw::class,
-    ];
-
     private readonly Storage $perm_storage;
     private readonly Storage $temp_storage;
-    private EssayService $essay_service;
-    private WriterService $writer_service;
-
     private readonly ilLongEssayAssessmentUploadHandlerGUI $upload_handler;
-    private array $cache = [];
-
+    private readonly ImportService $import;
 
     public function __construct(BaseObjectData $object)
     {
@@ -77,15 +59,13 @@ class ImportEssayGUI extends BaseGUI implements Import
             $this->dic->resourceStorage()->consume(),
             new ilTemporaryStakeholder()
         );
+        $this->import = $this->essay_task_api->import($this);
         $this->upload_handler = new ilLongEssayAssessmentUploadHandlerGUI($this->temp_storage, $this->plugin->dic()->uploadTempFile());
     }
 
     public function executeCommand(): void
     {
-        $this->essay_service = $this->essay_task_api->essay(true);
-        $this->writer_service = $this->assessment_api->writer();
-
-        if (in_array($this->ctrl->getCmd(), ['showForm', 'upload', 'showTable', 'cancel', 'import', 'importOverwrite'], true)) {
+        if (in_array($this->ctrl->getCmd(), ['showForm', 'showTable', 'cancel', 'import', 'importOverwrite'], true)) {
             $this->{$this->ctrl->getCmd()}();
         } else {
             echo 'Invalid cmd';
@@ -113,15 +93,12 @@ class ImportEssayGUI extends BaseGUI implements Import
         $files = $this->session()['files'];
         $hashes = $this->buildPdfHashes(array_keys($files));
 
-        $type = new (self::IMPORT_TYPES[$this->session()['type']])($this);
-        $array = $type->tableArray(array_keys($files), $hashes);
+        $type = $this->import->type($this->session()['type']);
+        $rows = $type->rows(array_keys($files), $hashes);
 
-        $ok = $this->ui_factory->symbol()->icon()->custom('assets/images/standard/icon_ok.svg', '', 'small');
-        $nok = $this->ui_factory->symbol()->icon()->custom('assets/images/standard/icon_not_ok.svg', '', 'small');
-
-        $content = [$this->table($hashes, $array, $type->columns($this->ui_factory->table()->column(), $ok, $nok))];
-        $has_errors = in_array(false, array_column($array, 'import_possible'), true);
-        $overwrites = count(array_filter($array, fn($row) => ($row['overwrites'] ?? []) !== [] && $row['import_possible']));
+        $content = [$this->table($hashes, $rows, $type->columns())];
+        $has_errors = in_array(false, array_map(fn($r) => $r->getImportPossible(), $rows));
+        $overwrites = count(array_filter($rows, fn($r) => $r->getOverwrites() !== [] && $r->getImportPossible()));
 
         $import_button = $this->ui_factory->button()->primary(
             $this->plugin->txt($has_errors ? 'import_zip_only_valid' : 'import_zip'),
@@ -150,35 +127,11 @@ class ImportEssayGUI extends BaseGUI implements Import
 
     public function import(bool $overwrite = false): void
     {
-        $type = $type = new (self::IMPORT_TYPES[$this->session()['type']])($this);
-        $file_map = $this->session()['files'];
-        $pdfs = $type->validFilesByLogin(array_keys($file_map));
-        $users = $this->loginsByUserId(array_keys($pdfs));
-        $now = new DateTimeImmutable();
-        $imported = 0;
+        $files = $this->session()['files'];
+        $type = $this->import->type($this->session()['type']);
+        $imported = $this->import->import($type, $files, $overwrite);
 
-        foreach ($users as $user_id => $login) {
-            $zip_pdf = $file_map[$pdfs[$login] ?? null] ?? null;
-            if (!$zip_pdf) {
-                continue;
-            }
-
-            $writer = $this->writer_service->getByUserId($user_id);
-            $task = $this->task();
-            $essay = $this->essayByWriter($writer->getId()) ??
-                $this->essay_service->new($writer->getId(), $task->getId())->setFirstChange($now);
-            $essay = $essay->setLastChange($now);
-            $pdf = $essay->getPdfVersion();
-            if ($pdf && !$overwrite) {
-                continue;
-            }
-            $zip_pdf = $this->moveTempFileToPermanent($zip_pdf);
-            $essay->setPdfVersion($zip_pdf);
-            $this->essay_service->replacePdf($essay, $zip_pdf);
-            $this->writer_service->authorizeWriting($writer, $this->user->getId(), true);
-            $imported++;
-        }
-
+        array_map($this->temp_storage->deleteFile(...), $files);
         $this->saveSession(null);
         $this->success(sprintf($this->plugin->txt('upload_successful'), $imported), true);
         $this->ctrl->redirectToURL($this->ctrl->getLinkTargetByClass(WriterAdminGUI::class));
@@ -196,15 +149,6 @@ class ImportEssayGUI extends BaseGUI implements Import
         $this->ctrl->redirectToURL($this->ctrl->getLinkTargetByClass(WriterAdminGUI::class));
     }
 
-    public function iterator(callable $proc, $end = false): Generator
-    {
-        $v = $proc();
-        while ($v !== $end) {
-            yield $v;
-            $v = $proc();
-        }
-    }
-
     public function extract(string $pattern, string $subject, int $index): ?string
     {
         return preg_match($pattern, $subject, $matches) ?
@@ -212,42 +156,12 @@ class ImportEssayGUI extends BaseGUI implements Import
             null;
     }
 
-    public function problems(string $login, array $pdfs, array $hashes): array
+    public function getRealPath(string $id): string
     {
-        $errors = [];
-        $overwrites = [];
-        if (!isset($pdfs[$login])) {
-            $errors[] = $this->plugin->txt('import_file_missing');
-        }
-
-        $user_id = ilObjUser::getUserIdByLogin($login);
-        if (!$user_id) {
-            $errors[] = $this->plugin->txt('import_user_not_existing');
-        } else {
-            $writer = $this->writerByUser($user_id);
-            if ($writer) {
-                $task = $this->task();
-                $essay = $this->essayByWriter($writer->getId());
-                if ($essay) {
-                    $pdf = $essay->getPdfVersion();
-                    if ($pdf) {
-                        $stream = $this->perm_storage->getFileStream($pdf);
-                        $same = $hashes[$pdfs[$login]] === $this->hash(stream_get_contents($stream));
-                        fclose($stream);
-                        $overwrites[] = $same ?
-                            $this->plugin->txt('import_same_file_exists') :
-                            $this->plugin->txt('import_another_file_exists');
-                    }
-                }
-            }
-        }
-
-        return ['errors' => $errors, 'overwrites' => $overwrites];
-    }
-
-    public function openFile(string $file)
-    {
-        return $this->temp_storage->getFileStream($this->session()['files'][$file]);
+        $stream = $this->openFile($id);
+        $path = stream_get_meta_data($stream)['uri'];
+        fclose($stream);
+        return $path;
     }
 
     public function txt(string $lang_var): string
@@ -286,27 +200,37 @@ class ImportEssayGUI extends BaseGUI implements Import
         ));
     }
 
-    private function table(array $hashes, array $data, array $columns): Table
+    public function hash(string $value): string
+    {
+        return hash($this->system_api->config()->getConfig()->getHashAlgo(), $value);
+    }
+
+    public function permanentId(string $file_id): string
+    {
+        return $this->moveTempFileToPermanent($file_id);
+    }
+
+    private function table(array $hashes, array $rows, array $columns): Table
     {
         $retrieval = new class () implements DataRetrieval {
-            public array $data;
+            public array $rows;
             public function getRows(
                 DataRowBuilder $row_builder,
                 array $visible_column_ids,
                 Range $range,
                 Order $order,
-                ?array $filter_data,
-                ?array $additional_parameters
+                    ?array $filter_data,
+                    ?array $additional_parameters
             ): Generator {
                 $field = key($order->get());
                 $dir = current($order->get()) === 'ASC' ? 1 : -1;
-                usort($this->data, fn(array $row, $other) => $dir * strcmp((string) $row[$field], (string) $other[$field]));
-                yield from array_map(fn($row) => $row_builder->buildDataRow($row['id'], $row), $this->data);
+                usort($this->rows, fn($row, $other) => $dir * strcmp((string) $row->getFields()[$field], (string) $other->getFields()[$field]));
+                yield from array_map(fn($row) => $row_builder->buildDataRow($row->getId(), $row->getFields()), $this->rows);
             }
 
             public function getTotalRowCount(
                 ?array $filter_data,
-                ?array $additional_parameters
+                    ?array $additional_parameters
             ): ?int {
                 // Disable pagination but enable ordering.
                 // See ILIAS\UI\Implementation\Component\Table\TableViewControlPagination::getViewControlPagination (requires less than 5)
@@ -315,15 +239,19 @@ class ImportEssayGUI extends BaseGUI implements Import
             }
         };
 
-        $retrieval->data = $data;
+        $retrieval->rows = $rows;
+
+        $column = $this->ui_factory->table()->column();
+        $ok = $this->ui_factory->symbol()->icon()->custom('assets/images/standard/icon_ok.svg', '', 'small');
+        $nok = $this->ui_factory->symbol()->icon()->custom('assets/images/standard/icon_not_ok.svg', '', 'small');
+
+        $columns = array_map(fn($c) => match ($c->getType()) {
+            'text' => $column->text($c->getTitle()),
+            'boolean' => $column->boolean($c->getTitle(), $ok, $nok),
+        }, $columns);
 
         return $this->ui_factory->table()->data($this->plugin->txt('essay_import_table'), $columns, $retrieval)
             ->withRequest($this->dic->http()->request());
-    }
-
-    private function hash(string $value): string
-    {
-        return hash($this->system_api->config()->getConfig()->getHashAlgo(), $value);
     }
 
     private function filesFromZip(ZipArchive $zip, ?string $password): array
@@ -340,20 +268,9 @@ class ImportEssayGUI extends BaseGUI implements Import
         }, range(0, $zip->numFiles - 1));
     }
 
-    /**
-     * @return array<int, string>
-     */
-    private function loginsByUserId(array $logins): array
+    private function openFile(string $file)
     {
-        $users = $this->keysBy(ilObjUser::getUserIdByLogin(...), $logins);
-        unset($users[0]); // Remove not found users.
-
-        return $users;
-    }
-
-    private function isRelevantFile(string $name): bool
-    {
-        return [] !== array_filter(self::IMPORT_TYPES, fn($class) => [] !== (new $class($this))->relevantFiles([$name]));
+        return $this->temp_storage->getFileStream($this->session()['files'][$file]);
     }
 
     private function session(): ?array
@@ -364,17 +281,6 @@ class ImportEssayGUI extends BaseGUI implements Import
     private function saveSession(?array $files): void
     {
         ilSession::set(self::SESSION_KEY, $files);
-    }
-
-    private function typeByFiles(array $files): ?string
-    {
-        foreach (self::IMPORT_TYPES as $key => $class) {
-            if ([] !== (new $class($this))->relevantFiles($files)) {
-                return $key;
-            }
-        }
-
-        return null;
     }
 
     private function saveForm(array $data): void
@@ -395,7 +301,7 @@ class ImportEssayGUI extends BaseGUI implements Import
         $files = $this->filesFromZip($zip, $data['password']['value'] ?? null);
         $file_map = [];
         foreach ($files as $file) {
-            if ($this->isRelevantFile($file)) {
+            if ($this->import->isRelevantFile($file)) {
                 $info = (new FileInfo())
                     ->setMimeType('application/pdf')
                     ->setFileName($file);
@@ -406,7 +312,7 @@ class ImportEssayGUI extends BaseGUI implements Import
             }
         }
 
-        $type = $this->typeByFiles(array_keys($file_map));
+        $type = $this->import->typeByFiles(array_keys($file_map));
         $this->temp_storage->deleteFile(current($data['file']));
         if ($type === null) {
             array_map($this->temp_storage->deleteFile(...), $file_map);
@@ -434,30 +340,5 @@ class ImportEssayGUI extends BaseGUI implements Import
         $this->temp_storage->deleteFile($temp_file_id);
 
         return $perm_id;
-    }
-
-    private function writerByUser(int $user_id): ?Writer
-    {
-        $this->cache['writers'] ??= $this->keysBy(
-            fn(Writer $writer) => $writer->getUserId(),
-            $this->writer_service->all()
-        );
-
-        return $this->cache['writers'][$user_id] ?? null;
-    }
-
-    private function task(): Task
-    {
-        return $this->cache['task'] ??= $this->task_api->manager()->first();
-    }
-
-    private function essayByWriter(int $writer_id): ?Essay
-    {
-        $this->cache['essays'] ??= $this->keysBy(
-            fn(Essay $essay) => $essay->getWriterId(),
-            $this->essay_service->allByTaskId($this->task()->getId())
-        );
-
-        return $this->cache['essays'][$writer_id] ?? null;
     }
 }

@@ -84,13 +84,12 @@ class WriterStartGUI extends BaseGUI
 
     public function showStartPage(): void
     {
-
-
-        // todo: add forwarding url from version 3
-        //        if(!empty($this->orga_settings->getForwardingUrl()) && !empty($this->writer->getWritingAuthorized()) && $this->get->has('returned')) {
-        //            $this->ctrl->redirectToURL($this->orga_settings->getForwardingUrl());
-        //            return;
-        //        }
+        if (!empty($this->orga_settings->getForwardingUrl())
+            && !empty($this->writer->getWritingAuthorized())
+            && $this->get->has('returned')) {
+            $this->ctrl->redirectToURL($this->orga_settings->getForwardingUrl());
+            return;
+        }
 
         (new StartPageGUI($this->object, $this->writer, $this))->showPage();
     }
@@ -178,11 +177,11 @@ class WriterStartGUI extends BaseGUI
                 case WritingType::ESSAY_EDITOR:
                     $this->ctrl->redirect($this, 'startWriter');
 
+                    // no break
                 case WritingType::PDF_UPLOAD:
                     $this->ctrl->redirect($this, 'showStartPage');
             }
-        }
-        else {
+        } else {
             $this->raisePermissionError();
         }
     }

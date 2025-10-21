@@ -21,6 +21,7 @@ use ILIAS\Plugin\LongEssayAssessment\BaseObjectData;
 use ILIAS\UI\Component\Input\Container\Form\Standard;
 use Edutiek\AssessmentService\Assessment\WorkingTime\ValidationError;
 use Edutiek\AssessmentService\Assessment\Data\DisabledGroup;
+use ILIAS\Data\URI;
 
 /**
  * Organisational Settings
@@ -139,6 +140,12 @@ class OrgaSettingsGUI extends BaseGUI
             if ($orga_settings->getReviewNotification()) {
                 $orga_settings->setReviewNotifText($data['task']['review']['review_notification']['review_notification_text'] ?? null);
             }
+        }
+
+        if (!empty($data['task']['forwarding'])) {
+            $orga_settings->setForwardingUrl((string) $data['task']['forwarding']['url']);
+        } else {
+            $orga_settings->setForwardingUrl(null);
         }
 
         if ($this->orga_settings_service->validate($orga_settings)) {
@@ -393,6 +400,25 @@ class OrgaSettingsGUI extends BaseGUI
         if (!$orga_settings->getReviewEnabled()) {
             $fields_settings['review'] = $fields_settings['review']->withValue(null);
         }
+
+        $forwarding = [
+            "url" => $factory->url(
+                $this->plugin->txt("forwarding_url"),
+                $this->plugin->txt("forwarding_url_info")
+            )->withValue($orga_settings->getForwardingUrl() ?? "")
+                             ->withRequired(true)
+        ];
+
+        $fields_settings['forwarding'] = $factory->optionalGroup(
+            $forwarding,
+            $this->plugin->txt("forwarding_enabled"),
+            $this->plugin->txt("forwarding_info")
+        );
+
+        if (empty($orga_settings->getForwardingUrl())) {
+            $fields_settings['forwarding'] = $fields_settings['forwarding']->withValue(null);
+        }
+
 
         $sections['object'] = $section($fields_object, $this->plugin->txt('object_settings'));
         $sections['content'] = $section($fields_content, $this->plugin->txt('content'));

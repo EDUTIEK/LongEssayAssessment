@@ -52,6 +52,7 @@ class OrgaSettings extends \Edutiek\AssessmentService\Assessment\Data\OrgaSettin
     private bool $review_notification = false;
     private ?string $review_notif_text = null;
     private bool $statistics_available = false;
+    private ?string $forwarding_url = null;
     private bool $template = false;
     private ?string $src_template_name = null;
 
@@ -65,12 +66,12 @@ class OrgaSettings extends \Edutiek\AssessmentService\Assessment\Data\OrgaSettin
         return $this;
     }
 
-    public function getMultiTasks() : bool
+    public function getMultiTasks(): bool
     {
         return $this->multi_tasks;
     }
 
-    public function setMultiTasks(bool $multi) : self
+    public function setMultiTasks(bool $multi): self
     {
         $this->multi_tasks = $multi;
         return $this;
@@ -254,6 +255,16 @@ class OrgaSettings extends \Edutiek\AssessmentService\Assessment\Data\OrgaSettin
     public function setStatisticsAvailable(bool $statistics_available): self
     {
         $this->statistics_available = $statistics_available;
+        return $this;
+    }
+    public function getForwardingUrl(): ?string
+    {
+        return $this->forwarding_url;
+    }
+
+    public function setForwardingUrl(?string $forwarding_url): self
+    {
+        $this->forwarding_url = $forwarding_url;
         return $this;
     }
     public function getTemplate(): bool

@@ -227,21 +227,21 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
     public function step_8(): void
     {
         # Remove CorrectionSettings Inclusions
-        if ($this->db->tableColumnExists('xlas_ta_corr_settings', 'fixed_inclusions')) {
-            $this->db->dropTableColumn('xlas_ta_corr_settings', 'fixed_inclusions');
-        }
-        if ($this->db->tableColumnExists('xlas_ta_corr_settings', 'include_comments')) {
-            $this->db->dropTableColumn('xlas_ta_corr_settings', 'include_comments');
-        }
-        if ($this->db->tableColumnExists('xlas_ta_corr_settings', 'include_comment_ratings')) {
-            $this->db->dropTableColumn('xlas_ta_corr_settings', 'include_comment_ratings');
-        }
-        if ($this->db->tableColumnExists('xlas_ta_corr_settings', 'include_comment_points')) {
-            $this->db->dropTableColumn('xlas_ta_corr_settings', 'include_comment_points');
-        }
-        if ($this->db->tableColumnExists('xlas_ta_corr_settings', 'include_criteria_points')) {
-            $this->db->dropTableColumn('xlas_ta_corr_settings', 'include_criteria_points');
-        }
+//        if ($this->db->tableColumnExists('xlas_ta_corr_settings', 'fixed_inclusions')) {
+//            $this->db->dropTableColumn('xlas_ta_corr_settings', 'fixed_inclusions');
+//        }
+//        if ($this->db->tableColumnExists('xlas_ta_corr_settings', 'include_comments')) {
+//            $this->db->dropTableColumn('xlas_ta_corr_settings', 'include_comments');
+//        }
+//        if ($this->db->tableColumnExists('xlas_ta_corr_settings', 'include_comment_ratings')) {
+//            $this->db->dropTableColumn('xlas_ta_corr_settings', 'include_comment_ratings');
+//        }
+//        if ($this->db->tableColumnExists('xlas_ta_corr_settings', 'include_comment_points')) {
+//            $this->db->dropTableColumn('xlas_ta_corr_settings', 'include_comment_points');
+//        }
+//        if ($this->db->tableColumnExists('xlas_ta_corr_settings', 'include_criteria_points')) {
+//            $this->db->dropTableColumn('xlas_ta_corr_settings', 'include_criteria_points');
+//        }
     }
     public function step_9(): void
     {
@@ -529,6 +529,46 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
     {
         if (!$this->db->tableColumnExists($table, $column)) {
             $this->db->addTableColumn($table, $column, $options);
+        }
+    }
+
+    public function step_24(): void
+    {
+        # Readd if removed CorrectionSettings Inclusions
+        if (!$this->db->tableColumnExists('xlas_ta_corr_settings', 'fixed_inclusions')) {
+            $this->db->addTableColumn('xlas_ta_corr_settings',  'fixed_inclusions',  [
+                'type' => 'integer',
+                'notnull' => '1',
+                'default' => 0,
+            ]);
+        }
+        if (!$this->db->tableColumnExists('xlas_ta_corr_settings', 'include_comments')) {
+            $this->db->addTableColumn('xlas_ta_corr_settings',  'include_comments',  [
+                'type' => 'integer',
+                'notnull' => '1',
+                'default' => 1,
+            ]);
+        }
+        if (!$this->db->tableColumnExists('xlas_ta_corr_settings', 'include_comment_ratings')) {
+            $this->db->addTableColumn('xlas_ta_corr_settings',  'include_comment_ratings',  [
+                'type' => 'integer',
+                'notnull' => '1',
+                'default' => 1,
+            ]);
+        }
+        if (!$this->db->tableColumnExists('xlas_ta_corr_settings', 'include_comment_points')) {
+            $this->db->addTableColumn('xlas_ta_corr_settings',  'include_comment_points',  [
+                'type' => 'integer',
+                'notnull' => '1',
+                'default' => 1,
+            ]);
+        }
+        if (!$this->db->tableColumnExists('xlas_ta_corr_settings', 'include_criteria_points')) {
+            $this->db->addTableColumn('xlas_ta_corr_settings',  'include_criteria_points',  [
+                'type' => 'integer',
+                'notnull' => '1',
+                'default' => 1,
+            ]);
         }
     }
 }

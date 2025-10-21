@@ -17,6 +17,7 @@ use Edutiek\AssessmentService\Task\CorrectionSettings\FullService as EssayTaskCo
 use Edutiek\AssessmentService\Task\Data\CorrectionSettings as EssayCorrectionSettings;
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\BaseObjectData;
+use Edutiek\AssessmentService\Task\Data\SummaryInclusion;
 
 /**
  * Settings for the correction
@@ -168,30 +169,29 @@ class CorrectionSettingsGUI extends BaseGUI
             ->withAdditionalTransformation($this->refinery->string()->hasMaxLength(50))
             ->withValue($essay_settings->getNegativeRating());
 
-        //        TODO: remove
-        //        $options = [
-        //            SummaryInclusion::INCLUDE_NOT->value => $this->plugin->txt('include_not'),
-        //            SummaryInclusion::INCLUDE_INFO->value => $this->plugin->txt('include_info'),
-        //            SummaryInclusion::INCLUDE_RELEVANT->value => $this->plugin->txt('include_relevant'),
-        //        ];
-        //        $fields['fixed_inclusions'] = $factory->optionalGroup(
-        //            [
-        //                "include_comments" => $factory->select($this->plugin->txt('include_comments'),
-        //                    $options)->withValue($essay_settings->getIncludeComments()->value),
-        //                "include_comment_ratings" => $factory->select(sprintf($this->plugin->txt('include_comment_ratings'), $essay_settings->getPositiveRating(), $essay_settings->getNegativeRating()),
-        //                    $options)->withValue($essay_settings->getIncludeCommentRatings()->value),
-        //                "include_comment_points" => $factory->select($this->plugin->txt('include_comment_points'),
-        //                    $options)->withValue($essay_settings->getIncludeCommentPoints()->value),
-        //                "include_criteria_points" => $factory->select($this->plugin->txt('include_criteria_points'),
-        //                    $options)->withValue($essay_settings->getIncludeCriteriaPoints()->value),
-        //            ],
-        //            $this->plugin->txt('fixed_inclusions'),
-        //            $this->plugin->txt('fixed_inclusions_info')
-        //        );
-        // strange but effective
-        //        if (!$essay_settings->getFixedInclusions()) {
-        //            $fields['fixed_inclusions'] = $fields['fixed_inclusions']->withValue(null);
-        //        }
+        $options = [
+            SummaryInclusion::INCLUDE_NOT->value => $this->plugin->txt('include_not'),
+            SummaryInclusion::INCLUDE_INFO->value => $this->plugin->txt('include_info'),
+            SummaryInclusion::INCLUDE_RELEVANT->value => $this->plugin->txt('include_relevant'),
+        ];
+        $fields['fixed_inclusions'] = $factory->optionalGroup(
+            [
+                "include_comments" => $factory->select($this->plugin->txt('include_comments'),
+                    $options)->withValue($essay_settings->getIncludeComments()->value),
+                "include_comment_ratings" => $factory->select(sprintf($this->plugin->txt('include_comment_ratings'), $essay_settings->getPositiveRating(), $essay_settings->getNegativeRating()),
+                    $options)->withValue($essay_settings->getIncludeCommentRatings()->value),
+                "include_comment_points" => $factory->select($this->plugin->txt('include_comment_points'),
+                    $options)->withValue($essay_settings->getIncludeCommentPoints()->value),
+                "include_criteria_points" => $factory->select($this->plugin->txt('include_criteria_points'),
+                    $options)->withValue($essay_settings->getIncludeCriteriaPoints()->value),
+            ],
+            $this->plugin->txt('fixed_inclusions'),
+            $this->plugin->txt('fixed_inclusions_info')
+        );
+
+        if (!$essay_settings->getFixedInclusions()) {
+            $fields['fixed_inclusions'] = $fields['fixed_inclusions']->withValue(null);
+        }
 
         $sections['rating'] = $factory->section($fields, $this->plugin->txt('rating_settings'));
 
@@ -258,20 +258,19 @@ class CorrectionSettingsGUI extends BaseGUI
                 }
             }
 
-            // TODO remove
-            //            if (isset($data['rating']['fixed_inclusions']) && is_array($data['rating']['fixed_inclusions'])) {
-            //                $essay_settings->setFixedInclusions(true);
-            //                $essay_settings->setIncludeComments(
-            //                    SummaryInclusion::tryFrom((int) $data['rating']['fixed_inclusions']['include_comments']) ?? SummaryInclusion::INCLUDE_NOT);
-            //                $essay_settings->setIncludeCommentRatings(
-            //                    SummaryInclusion::tryFrom((int) $data['rating']['fixed_inclusions']['include_comment_ratings']) ?? SummaryInclusion::INCLUDE_NOT);
-            //                $essay_settings->setIncludeCommentPoints(
-            //                    SummaryInclusion::tryFrom((int) $data['rating']['fixed_inclusions']['include_comment_points']) ?? SummaryInclusion::INCLUDE_NOT);
-            //                $essay_settings->setIncludeCriteriaPoints(
-            //                    SummaryInclusion::tryFrom((int) $data['rating']['fixed_inclusions']['include_criteria_points'])?? SummaryInclusion::INCLUDE_NOT);
-            //            } else {
-            //                $essay_settings->setFixedInclusions(false);
-            //            }
+            if (isset($data['rating']['fixed_inclusions']) && is_array($data['rating']['fixed_inclusions'])) {
+                $essay_settings->setFixedInclusions(true);
+                $essay_settings->setIncludeComments(
+                    SummaryInclusion::tryFrom((int) $data['rating']['fixed_inclusions']['include_comments']) ?? SummaryInclusion::INCLUDE_NOT);
+                $essay_settings->setIncludeCommentRatings(
+                    SummaryInclusion::tryFrom((int) $data['rating']['fixed_inclusions']['include_comment_ratings']) ?? SummaryInclusion::INCLUDE_NOT);
+                $essay_settings->setIncludeCommentPoints(
+                    SummaryInclusion::tryFrom((int) $data['rating']['fixed_inclusions']['include_comment_points']) ?? SummaryInclusion::INCLUDE_NOT);
+                $essay_settings->setIncludeCriteriaPoints(
+                    SummaryInclusion::tryFrom((int) $data['rating']['fixed_inclusions']['include_criteria_points'])?? SummaryInclusion::INCLUDE_NOT);
+            } else {
+                $essay_settings->setFixedInclusions(false);
+            }
 
             if (!$orga_settings->getMultiTasks()) {
                 if (isset($data['stitch']['stitch_when_distance']) && is_array($data['stitch']['stitch_when_distance'])) {

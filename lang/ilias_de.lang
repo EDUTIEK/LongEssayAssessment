@@ -499,7 +499,7 @@ filter_words_less_than#:#weniger als %d
 yes#:#Ja
 no#:#Nein
 fixed_inclusions#:#Details festlegen
-fixed_inclusions_info#:#Für die Aufgabe wird vorgegeben, welche Details aus der Korrektur in die Dokumentation einbezogen werden. Falls dieser Schalter nicht gesetzt ist, bleibt die Entscheidung den Korrekturkräften überlassen. Bereits freigegebene Korrekturen werden durch eine Änderung hier nicht verändert.
+fixed_inclusions_info#:#Für die Aufgabe wird vorgegeben, welche Details aus der Korrektur in die Dokumentation einbezogen werden. Bereits freigegebene Korrekturen werden durch eine Änderung hier nicht verändert.
 inclusions_label#:#Einbeziehen
 include_suffix_info#:#(i)
 include_suffix_relevant#:#(r)

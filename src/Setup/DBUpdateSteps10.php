@@ -515,24 +515,7 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
         }
     }
 
-    private function ensureTable(string $name, array $fields): void
-    {
-        if (!$this->db->tableExists($name)) {
-            $this->db->createTable($name, $fields);
-        }
-        if (!$this->db->sequenceExists($name)) {
-            $this->db->createSequence($name);
-        }
-    }
-
-    private function ensureTableColumn(string $table, string $column, array $options): void
-    {
-        if (!$this->db->tableColumnExists($table, $column)) {
-            $this->db->addTableColumn($table, $column, $options);
-        }
-    }
-
-    public function step_24(): void
+    public function step_28(): void
     {
         # Readd if removed CorrectionSettings Inclusions
         if (!$this->db->tableColumnExists('xlas_ta_corr_settings', 'fixed_inclusions')) {
@@ -571,4 +554,22 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
             ]);
         }
     }
+
+    private function ensureTable(string $name, array $fields): void
+    {
+        if (!$this->db->tableExists($name)) {
+            $this->db->createTable($name, $fields);
+        }
+        if (!$this->db->sequenceExists($name)) {
+            $this->db->createSequence($name);
+        }
+    }
+
+    private function ensureTableColumn(string $table, string $column, array $options): void
+    {
+        if (!$this->db->tableColumnExists($table, $column)) {
+            $this->db->addTableColumn($table, $column, $options);
+        }
+    }
+
 }

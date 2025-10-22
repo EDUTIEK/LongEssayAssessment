@@ -25,13 +25,16 @@ use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Sequence;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Table;
 
 #[Table(name: 'xlas_ta_writer_comment')]
-class WriterComment extends \Edutiek\AssessmentService\Task\Data\WriterComment
+class WriterAnnotation extends \Edutiek\AssessmentService\Task\Data\WriterAnnotation
 {
     #[Key]
     #[Sequence]
     private int $id = 0;
     private int $task_id = 0;
     private int $writer_id = 0;
+    private int $resource_id = 0;
+    private string $mark_key = '';
+    private ?string $mark_value = null;
     private ?string $comment = null;
     private int $parent_number = 0;
     private int $start_position = 0;
@@ -65,6 +68,39 @@ class WriterComment extends \Edutiek\AssessmentService\Task\Data\WriterComment
         $this->writer_id = $writer_id;
         return $this;
     }
+    public function getResourceId(): int
+    {
+        return $this->resource_id;
+    }
+
+    public function setResourceId(int $resource_id): self
+    {
+        $this->resource_id = $resource_id;
+        return $this;
+    }
+
+    public function getMarkKey(): string
+    {
+        return $this->mark_key;
+    }
+
+    public function setMarkKey(string $mark_key): self
+    {
+        $this->mark_key = $mark_key;
+        return $this;
+    }
+
+    public function getMarkValue(): ?string
+    {
+        return $this->mark_value;
+    }
+
+    public function setMarkValue(?string $mark_value): self
+    {
+        $this->mark_value = $mark_value;
+        return $this;
+    }
+
     public function getComment(): ?string
     {
         return $this->comment;

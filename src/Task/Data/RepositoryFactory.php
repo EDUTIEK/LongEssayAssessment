@@ -35,9 +35,9 @@ class RepositoryFactory implements \Edutiek\AssessmentService\Task\Data\Reposito
         return $this->repo(SettingsRepo::class, Settings::class);
     }
 
-    public function writerComment(): WriterCommentRepo
+    public function writerAnnotation(): WriterAnnotationRepo
     {
-        return $this->repo(WriterCommentRepo::class, WriterComment::class);
+        return $this->repo(WriterAnnotationRepo::class, WriterAnnotation::class);
     }
     public function correctionSettings(): CorrectionSettingsRepo
     {

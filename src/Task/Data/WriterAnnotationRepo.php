@@ -20,21 +20,21 @@ declare(strict_types=1);
 
 namespace ILIAS\Plugin\LongEssayAssessment\Task\Data;
 
-use Edutiek\AssessmentService\Task\Data\WriterComment;
+use Edutiek\AssessmentService\Task\Data\WriterAnnotation;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\RepositoryInterface;
 
-class WriterCommentRepo implements \Edutiek\AssessmentService\Task\Data\WriterCommentRepo
+class WriterAnnotationRepo implements \Edutiek\AssessmentService\Task\Data\WriterAnnotationRepo
 {
     public function __construct(private readonly RepositoryInterface $repo)
     {
     }
 
-    public function new(): WriterComment
+    public function new(): WriterAnnotation
     {
         return $this->repo->new();
     }
 
-    public function one(int $id): ?WriterComment
+    public function one(int $id): ?WriterAnnotation
     {
         return $this->repo->queryOneBy(['id' => $id]);
     }
@@ -49,7 +49,7 @@ class WriterCommentRepo implements \Edutiek\AssessmentService\Task\Data\WriterCo
         return $this->repo->queryAllBy(['writer_id' => $writer_id]);
     }
 
-    public function save(WriterComment $entity): void
+    public function save(WriterAnnotation $entity): void
     {
         $this->repo->replace($entity);
     }

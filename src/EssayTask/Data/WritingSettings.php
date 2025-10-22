@@ -20,8 +20,8 @@ declare(strict_types=1);
 
 namespace ILIAS\Plugin\LongEssayAssessment\EssayTask\Data;
 
-use Edutiek\AssessmentService\EssayTask\Data\FormattingOptions;
-use Edutiek\AssessmentService\EssayTask\Data\HeadlineScheme;
+use Edutiek\AssessmentService\System\Data\FormattingOptions;
+use Edutiek\AssessmentService\System\Data\HeadlineScheme;
 use Edutiek\AssessmentService\EssayTask\Data\WritingType;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Key;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Table;

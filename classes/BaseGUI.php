@@ -7,7 +7,7 @@ namespace ILIAS\Plugin\LongEssayAssessment;
 use Edutiek\AssessmentService\Assessment\Api\ForClients as AssessmentApi;
 use Edutiek\AssessmentService\Assessment\TaskInterfaces\TaskInfo;
 use Edutiek\AssessmentService\EssayTask\Api\ForClients as EssayTaskApi;
-use Edutiek\AssessmentService\EssayTask\Data\HeadlineScheme;
+use Edutiek\AssessmentService\System\Data\HeadlineScheme;
 use Edutiek\AssessmentService\System\Api\ForClients as SystemApi;
 use Edutiek\AssessmentService\Task\Api\ForClients as TaskApi;
 use ilCtrl;

@@ -39,6 +39,11 @@ class WriterAnnotationRepo implements \Edutiek\AssessmentService\Task\Data\Write
         return $this->repo->queryOneBy(['id' => $id]);
     }
 
+    public function oneByResourceIdAndMarkKey(int $resource_id, string $mark_key): ?WriterAnnotation
+    {
+        return $this->repo->queryOneBy(['resource_id' => $resource_id, 'mark_key' => $mark_key]);
+    }
+
     public function allByTaskId(int $task_id): array
     {
         return $this->repo->queryAllBy(['task_id' => $task_id]);

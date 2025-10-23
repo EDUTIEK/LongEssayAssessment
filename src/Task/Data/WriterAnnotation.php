@@ -24,7 +24,7 @@ use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Key;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Sequence;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Table;
 
-#[Table(name: 'xlas_ta_writer_comment')]
+#[Table(name: 'xlas_ta_writer_anno')]
 class WriterAnnotation extends \Edutiek\AssessmentService\Task\Data\WriterAnnotation
 {
     #[Key]

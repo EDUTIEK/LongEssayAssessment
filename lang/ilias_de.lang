@@ -505,12 +505,10 @@ include_suffix_info#:#(i)
 include_suffix_relevant#:#(r)
 include_comments#:#Bemerkungen
 include_comment_ratings#:#„%s” und „%s”
-include_comment_points#:#Punkte zu Bemerkungen
-include_criteria_points#:#Punkte im Bewertungsschema
+include_points#:#Teilpunkte
 include_nothing#:#Keine Detail-Informationen
-include_not#:#nicht einbeziehen
-include_info#:#informativ
-include_relevant#:#bewertungsrelevant
+include_not#:#nicht verfügbar
+include_relevant#:#verfügbar
 grade_level_cannot_edit_used#:#Notenstufen dürfen in laufenden Aufgaben nicht verändert werden.
 grade_level_cannot_edit_used_info#:#Die Aufgabe enthält bereits freigegebene Korrekturen. Sie können die Notenstufen erst wieder bearbeiten, wenn Sie alle Korrektur-Freigaben zurückziehen.
 comment_rating_negative#:#Negativbewertung

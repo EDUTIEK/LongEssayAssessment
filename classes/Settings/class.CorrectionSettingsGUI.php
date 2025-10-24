@@ -151,6 +151,23 @@ class CorrectionSettingsGUI extends BaseGUI
 
         $fields = [];
 
+
+
+        $options = [
+            SummaryInclusion::INCLUDE_NOT->value => $this->plugin->txt('include_not'),
+            SummaryInclusion::INCLUDE_RELEVANT->value => $this->plugin->txt('include_relevant'),
+        ];
+        $fields = array_merge($fields,
+            [
+                "include_comments" => $factory->select($this->plugin->txt('include_comments'),
+                    $options),//->withValue($essay_settings->getIncludeComments()->value),
+                "include_comment_ratings" => $factory->select(sprintf($this->plugin->txt('include_comment_ratings'), $essay_settings->getPositiveRating(), $essay_settings->getNegativeRating()),
+                    $options),//-->withValue($essay_settings->getIncludeCommentRatings()->value),
+                "include_points" => $factory->select($this->plugin->txt('include_points'),
+                    $options),//-->withValue($essay_settings->getIncludeCommentPoints()->value),
+            ],
+        );
+
         $fields['positive_rating'] = $factory->text(
             $this->plugin->txt('comment_rating_positive'),
             $this->plugin->txt('comment_rating_positive_info')
@@ -168,30 +185,6 @@ class CorrectionSettingsGUI extends BaseGUI
             ->withAdditionalTransformation($this->refinery->string()->hasMinLength(3))
             ->withAdditionalTransformation($this->refinery->string()->hasMaxLength(50))
             ->withValue($essay_settings->getNegativeRating());
-
-        $options = [
-            SummaryInclusion::INCLUDE_NOT->value => $this->plugin->txt('include_not'),
-            SummaryInclusion::INCLUDE_INFO->value => $this->plugin->txt('include_info'),
-            SummaryInclusion::INCLUDE_RELEVANT->value => $this->plugin->txt('include_relevant'),
-        ];
-        $fields['fixed_inclusions'] = $factory->optionalGroup(
-            [
-                "include_comments" => $factory->select($this->plugin->txt('include_comments'),
-                    $options)->withValue($essay_settings->getIncludeComments()->value),
-                "include_comment_ratings" => $factory->select(sprintf($this->plugin->txt('include_comment_ratings'), $essay_settings->getPositiveRating(), $essay_settings->getNegativeRating()),
-                    $options)->withValue($essay_settings->getIncludeCommentRatings()->value),
-                "include_comment_points" => $factory->select($this->plugin->txt('include_comment_points'),
-                    $options)->withValue($essay_settings->getIncludeCommentPoints()->value),
-                "include_criteria_points" => $factory->select($this->plugin->txt('include_criteria_points'),
-                    $options)->withValue($essay_settings->getIncludeCriteriaPoints()->value),
-            ],
-            $this->plugin->txt('fixed_inclusions'),
-            $this->plugin->txt('fixed_inclusions_info')
-        );
-
-        if (!$essay_settings->getFixedInclusions()) {
-            $fields['fixed_inclusions'] = $fields['fixed_inclusions']->withValue(null);
-        }
 
         $sections['rating'] = $factory->section($fields, $this->plugin->txt('rating_settings'));
 

@@ -208,17 +208,14 @@ class WriterStartGUI extends BaseGUI
         if (!$this->perms->canViewWriterScreen()) {
             $this->raisePermissionError();
         }
-        // @Todo
-        // $service = $this->localDI->getWriterAdminService($this->object->getId());
-        // $repoWriter = $this->localDI->getWriterRepo()->getWriterByUserIdAndTaskId($this->dic->user()->getId(), $this->object->getId());
-        // $content = $service->getWritingAsPdf($this->object, $repoWriter)
+        $content = $this->essay_task_api->pdfOutput()->getWritingAsPdf(current($this->essay_task_api->essay()->getByWriterId($this->writer->getId())));
 
         $filename = 'task' . $this->object->getId() . '_writer' . $this->writer->getId() . '-writing.pdf';
         $file_info = new FileInfo();
         $file_info->setFileName($filename);
         $file_info->setMimeType('application/pdf');
         $this->system_api->fileDelivery()->sendData(
-            '',
+            $content,
             Disposition::ATTACHMENT,
             $file_info
         );

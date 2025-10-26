@@ -34,9 +34,9 @@ class WriterNoticeRepo implements \Edutiek\AssessmentService\EssayTask\Data\Writ
         return $this->repo->new();
     }
 
-    public function oneByEssayIdAndNo(int $id): ?WriterNotice
+    public function oneByEssayIdAndNo(int $essay_id, int $note_no): ?WriterNotice
     {
-        return $this->repo->queryOneBy(['id' => $id, 'note_no' => true]);
+        return $this->repo->queryOneBy(['essay_id' => $essay_id, 'note_no' => $note_no]);
     }
 
     public function allByEssayId(int $essay_id): array
@@ -47,6 +47,11 @@ class WriterNoticeRepo implements \Edutiek\AssessmentService\EssayTask\Data\Writ
     public function save(WriterNotice $entity): void
     {
         $this->repo->replace($entity);
+    }
+
+    public function delete(WriterNotice $entity): void
+    {
+        $this->repo->delete($entity);
     }
 
     public function deleteByEssayId(int $essay_id): void

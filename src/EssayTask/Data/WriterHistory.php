@@ -26,7 +26,7 @@ use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Sequence;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Table;
 
 #[Table(name: 'xlas_et_writer_history')]
-class WriterHistory extends \Edutiek\AssessmentService\EssayTask\Data\WriterHistory
+class WritingStep extends \Edutiek\AssessmentService\EssayTask\Data\WritingStep
 {
     #[Key]
     #[Sequence]

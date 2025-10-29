@@ -35,9 +35,9 @@ class RepositoryFactory implements \Edutiek\AssessmentService\EssayTask\Data\Rep
         return $this->repo(TaskSettingsRepo::class, TaskSettings::class);
     }
 
-    public function writerHistory(): WriterHistoryRepo
+    public function writingStep(): WritingStepRepo
     {
-        return $this->repo(WriterHistoryRepo::class, WriterHistory::class);
+        return $this->repo(WritingStepRepo::class, WritingStep::class);
     }
 
     public function writerNotice(): WriterNoticeRepo

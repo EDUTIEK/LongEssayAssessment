@@ -20,21 +20,21 @@ declare(strict_types=1);
 
 namespace ILIAS\Plugin\LongEssayAssessment\EssayTask\Data;
 
-use Edutiek\AssessmentService\EssayTask\Data\WriterHistory;
+use Edutiek\AssessmentService\EssayTask\Data\WritingStep;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\RepositoryInterface;
 
-class WriterHistoryRepo implements \Edutiek\AssessmentService\EssayTask\Data\WriterHistoryRepo
+class WritingStepRepo implements \Edutiek\AssessmentService\EssayTask\Data\WritingStepRepo
 {
     public function __construct(private readonly RepositoryInterface $repo)
     {
     }
 
-    public function new(): WriterHistory
+    public function new(): WritingStep
     {
         return $this->repo->new();
     }
 
-    public function one(int $id): ?WriterHistory
+    public function one(int $id): ?WritingStep
     {
         return $this->repo->queryOneBy(['id' => $id]);
     }
@@ -49,7 +49,7 @@ class WriterHistoryRepo implements \Edutiek\AssessmentService\EssayTask\Data\Wri
         return $this->repo->queryAllBy(['essay_id' => $essay_id]);
     }
 
-    public function create(WriterHistory $entity): void
+    public function create(WritingStep $entity): void
     {
         $this->repo->insert($entity);
     }

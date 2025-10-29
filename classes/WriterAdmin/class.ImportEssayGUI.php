@@ -35,11 +35,11 @@ use ILIAS\UI\Component\Table\Data as Table;
 use ilTemporaryStakeholder;
 use ILIAS\Plugin\LongEssayAssessment\System\File\StorageAdapter;
 use Edutiek\AssessmentService\System\File\Storage;
-use Edutiek\AssessmentService\EssayTask\EssayImport\Import;
 use Edutiek\AssessmentService\EssayTask\EssayImport\FullService as ImportService;
+use ILIAS\Plugin\LongEssayAssessment\EssayTask\EssayImport\Import as ImportAdapter;
 use ilLongEssayAssessmentUploadHandlerGUI;
 
-class ImportEssayGUI extends BaseGUI implements Import
+class ImportEssayGUI extends BaseGUI
 {
     public const SESSION_KEY = self::class;
 
@@ -47,6 +47,7 @@ class ImportEssayGUI extends BaseGUI implements Import
     private readonly Storage $temp_storage;
     private readonly ilLongEssayAssessmentUploadHandlerGUI $upload_handler;
     private readonly ImportService $import;
+    private readonly ImportAdapter $import_adapter;
 
     public function __construct(BaseObjectData $object)
     {
@@ -59,7 +60,13 @@ class ImportEssayGUI extends BaseGUI implements Import
             $this->dic->resourceStorage()->consume(),
             new ilTemporaryStakeholder()
         );
-        $this->import = $this->essay_task_api->import($this);
+        $this->import_adapter = new ImportAdapter(
+            $this->temp_storage,
+            $this->perm_storage,
+            $this->system_api,
+            fn() => $this->session()['files'] ?? [],
+        );
+        $this->import = $this->essay_task_api->import($this->import_adapter);
         $this->upload_handler = new ilLongEssayAssessmentUploadHandlerGUI($this->temp_storage, $this->plugin->dic()->uploadTempFile());
     }
 
@@ -91,7 +98,7 @@ class ImportEssayGUI extends BaseGUI implements Import
     public function showTable(): void
     {
         $files = $this->session()['files'];
-        $hashes = $this->buildPdfHashes(array_keys($files));
+        $hashes = $this->import_adapter->buildPdfHashes(array_keys($files));
 
         $type = $this->import->type($this->session()['type']);
         $rows = $type->rows(array_keys($files), $hashes);
@@ -149,65 +156,9 @@ class ImportEssayGUI extends BaseGUI implements Import
         $this->ctrl->redirectToURL($this->ctrl->getLinkTargetByClass(WriterAdminGUI::class));
     }
 
-    public function extract(string $pattern, string $subject, int $index): ?string
-    {
-        return preg_match($pattern, $subject, $matches) ?
-            $matches[$index] :
-            null;
-    }
-
-    public function getRealPath(string $id): string
-    {
-        $stream = $this->openFile($id);
-        $path = stream_get_meta_data($stream)['uri'];
-        fclose($stream);
-        return $path;
-    }
-
     public function txt(string $lang_var): string
     {
         return $this->plugin->txt($lang_var);
-    }
-
-    /**
-     * @template A
-     * @template B
-     *
-     * @param callable(A): B $proc
-     * @param A[] $array
-     * @return array<B, A>
-     */
-    public function keysBy(callable $proc, array $array): array
-    {
-        return array_column(array_map(
-            fn($x) => ['value' => $x, 'key' => $proc($x)],
-            $array
-        ), 'value', 'key');
-    }
-
-    public function buildPdfHashes(array $pdfs): array
-    {
-        $file_map = $this->session()['files'];
-
-        return array_combine($pdfs, array_map(
-            function (string $file) use ($file_map): string {
-                $s = $this->temp_storage->getFileStream($file_map[$file]);
-                $r = $this->hash(stream_get_contents($s));
-                fclose($s);
-                return $r;
-            },
-            $pdfs
-        ));
-    }
-
-    public function hash(string $value): string
-    {
-        return hash($this->system_api->config()->getConfig()->getHashAlgo(), $value);
-    }
-
-    public function permanentId(string $file_id): string
-    {
-        return $this->moveTempFileToPermanent($file_id);
     }
 
     private function table(array $hashes, array $rows, array $columns): Table
@@ -268,11 +219,6 @@ class ImportEssayGUI extends BaseGUI implements Import
         }, range(0, $zip->numFiles - 1));
     }
 
-    private function openFile(string $file)
-    {
-        return $this->temp_storage->getFileStream($this->session()['files'][$file]);
-    }
-
     private function session(): ?array
     {
         return ilSession::get(self::SESSION_KEY) ?? null;
@@ -286,7 +232,7 @@ class ImportEssayGUI extends BaseGUI implements Import
     private function saveForm(array $data): void
     {
         $stream = $this->upload_handler->getApiStream(current($data['file']));
-        if (($data['hash'] ?? null) && $data['hash'] !== $this->hash(stream_get_contents($stream))) {
+        if (($data['hash'] ?? null) && $data['hash'] !== $this->import_adapter->hash(stream_get_contents($stream))) {
             $this->fail('import_hash_mismatch');
         }
         $zip = new ZipArchive();
@@ -329,16 +275,5 @@ class ImportEssayGUI extends BaseGUI implements Import
         }
         $this->failure($this->plugin->txt($lang_var), true);
         $this->ctrl->redirectToURL($this->ctrl->getLinkTarget($this, 'showForm'));
-    }
-
-    private function moveTempFileToPermanent(string $temp_file_id): string
-    {
-        $info = $this->temp_storage->getFileInfo($temp_file_id);
-        $info->setId(null);
-        $s = $this->temp_storage->getFileStream($temp_file_id);
-        $perm_id = $this->perm_storage->saveFile($s, $info)->getId();
-        $this->temp_storage->deleteFile($temp_file_id);
-
-        return $perm_id;
     }
 }

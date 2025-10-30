@@ -173,6 +173,7 @@ class WriterContext extends ServiceContext implements Context
             if (empty($essay->getWritingAuthorizedBy())) {
                 $essay->setWritingAuthorizedBy($this->user->getId());
             }
+            $this->deleteWrittenNotes();
         } else {
             $essay->setWritingAuthorized(null);
             $essay->setWritingAuthorizedBy(null);

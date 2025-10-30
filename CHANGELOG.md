@@ -4,6 +4,9 @@
 
 Bug fixes:
 - Missing correction report of second corrector (#45778)
+- Too early deletion of notes in the backend
+- typos in language variables
+
 
 ## Version 3.7 (2025-08-15)
 

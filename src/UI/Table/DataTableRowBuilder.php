@@ -58,7 +58,7 @@ class DataTableRowBuilder implements \Iterator
         $column = $this->columns[$id];
 
         foreach($this->visible_column_ids as $key) { //reduce to visible fields and convert to array (for ArrayAccess)
-            $array[$key] = $column[$key];
+            $array[$key] = $column[$key] ?? null;
         }
         return $array;
     }

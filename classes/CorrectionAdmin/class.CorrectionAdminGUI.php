@@ -69,7 +69,7 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
         $this->summary_service = $this->task_api->correctorSummary();
         $this->assignment_service = $this->task_api->correctorAssignments();
         $this->corrector_service = $this->assessment_api->corrector();
-        $this->grading_service = $this->assessment_api->assessment_grading();
+        $this->grading_service = $this->assessment_api->assessmentGrading();
         $this->correction_process = $this->task_api->correctionProcess();
     }
 

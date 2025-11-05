@@ -144,9 +144,9 @@ class ilLongEssayAssessmentImporter extends ilXmlImporter
                     break;
 
                 case 'AssessmentGradeLevel':
-                    $entity = $this->assessment_api->gradLevel()->new();
+                    $entity = $this->assessment_api->gradeLevel()->new();
                     $this->applyRow($row = $this->getRow($element), $entity, GradeLevel::class);
-                    $this->assessment_api->gradLevel()->save($entity->setAssId($ass_id)->setId(0));
+                    $this->assessment_api->gradeLevel()->save($entity->setAssId($ass_id)->setId(0));
                     break;
 
                 case 'AssessmentDisabledGroup':

@@ -63,7 +63,7 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
         parent::__construct($object);
         $this->orga_settings = $this->assessment_api->orgaSettings()->get();
         $this->settings = $this->assessment_api->correctionSettings()->get();
-        $this->grading_service = $this->assessment_api->assessment_grading();
+        $this->grading_service = $this->assessment_api->assessmentGrading();
         $this->format_service = $this->task_api->format();
         $this->system_format_service = $this->system_api->format($this->user->getId(), new DateTimeZone($this->user->getTimeZone()));
 

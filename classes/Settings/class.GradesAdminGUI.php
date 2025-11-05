@@ -51,7 +51,7 @@ class GradesAdminGUI extends BaseGUI implements DataTableParent
         parent::__construct($object);
 
         $this->table_factory = $this->plugin_ui_factory->table();
-        $this->grade_service = $this->assessment_api->gradLevel();
+        $this->grade_service = $this->assessment_api->gradeLevel();
         $this->assessment_status = $this->task_api->assessmentStatus();
         $this->entity_service = $this->system_api->entity();
         $this->is_disabled = $this->disabled_group->isDisabled('grades');
@@ -248,7 +248,7 @@ class GradesAdminGUI extends BaseGUI implements DataTableParent
         if ($this->copy_context !== null) {
             $copy_object = new \ilObjLongEssayAssessment($this->copy_context);
             $copy_assessment_api = $this->plugin->dic()->assessment($copy_object->getAssId(), $this->user->getId());
-            $copy_grade_service = $copy_assessment_api->gradLevel();
+            $copy_grade_service = $copy_assessment_api->gradeLevel();
 
             foreach ($copy_grade_service->all() as $object) {
                 yield $this->tableItemFromData($object);
@@ -299,7 +299,7 @@ class GradesAdminGUI extends BaseGUI implements DataTableParent
         if ($select->hasSelected()) {
             $copy_object = new \ilObjLongEssayAssessment($select->getSelectedId());
             $copy_assessment_api = $this->plugin->dic()->assessment($copy_object->getAssId(), $this->user->getId());
-            $copy_grade_service = $copy_assessment_api->gradLevel();
+            $copy_grade_service = $copy_assessment_api->gradeLevel();
 
             if($copy_assessment_api->permissions($select->getSelectedId())->canEditGrades()) {
                 foreach ($copy_grade_service->all() as $grade_level) {

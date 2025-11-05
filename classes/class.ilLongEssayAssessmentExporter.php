@@ -141,7 +141,7 @@ class ilLongEssayAssessmentExporter extends ilXmlExporter
             $this->addEntityXml($writer, 'AssessmentLocation', $location, Location::class);
         }
 
-        foreach ($this->assessment_api->gradLevel()->all() as $level) {
+        foreach ($this->assessment_api->gradeLevel()->all() as $level) {
             $this->addEntityXml($writer, 'AssessmentGradeLevel', $level, GradeLevel::class);
         }
 

@@ -208,7 +208,8 @@ class WriterStartGUI extends BaseGUI
         if (!$this->perms->canViewWriterScreen()) {
             $this->raisePermissionError();
         }
-        $content = $this->essay_task_api->pdfOutput()->getWritingAsPdf(current($this->essay_task_api->essay()->getByWriterId($this->writer->getId())));
+
+        $content = $this->assessment_api->pdfCreation()->createWritingPdf($this->writer->getId());
 
         $filename = 'task' . $this->object->getId() . '_writer' . $this->writer->getId() . '-writing.pdf';
         $file_info = new FileInfo();

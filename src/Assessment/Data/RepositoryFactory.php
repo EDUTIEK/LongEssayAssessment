@@ -71,6 +71,11 @@ class RepositoryFactory implements \Edutiek\AssessmentService\Assessment\Data\Re
         return $this->repo(OrgaSettingsRepo::class, OrgaSettings::class);
     }
 
+    public function pdfConfig(): PdfConfigRepo
+    {
+        return $this->repo(PdfConfigRepo::class, PdfConfig::class);
+    }
+
     public function pdfSettings(): PdfSettingsRepo
     {
         return $this->repo(PdfSettingsRepo::class, PdfSettings::class);

@@ -227,21 +227,21 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
     public function step_8(): void
     {
         # Remove CorrectionSettings Inclusions
-//        if ($this->db->tableColumnExists('xlas_ta_corr_settings', 'fixed_inclusions')) {
-//            $this->db->dropTableColumn('xlas_ta_corr_settings', 'fixed_inclusions');
-//        }
-//        if ($this->db->tableColumnExists('xlas_ta_corr_settings', 'include_comments')) {
-//            $this->db->dropTableColumn('xlas_ta_corr_settings', 'include_comments');
-//        }
-//        if ($this->db->tableColumnExists('xlas_ta_corr_settings', 'include_comment_ratings')) {
-//            $this->db->dropTableColumn('xlas_ta_corr_settings', 'include_comment_ratings');
-//        }
-//        if ($this->db->tableColumnExists('xlas_ta_corr_settings', 'include_comment_points')) {
-//            $this->db->dropTableColumn('xlas_ta_corr_settings', 'include_comment_points');
-//        }
-//        if ($this->db->tableColumnExists('xlas_ta_corr_settings', 'include_criteria_points')) {
-//            $this->db->dropTableColumn('xlas_ta_corr_settings', 'include_criteria_points');
-//        }
+        //        if ($this->db->tableColumnExists('xlas_ta_corr_settings', 'fixed_inclusions')) {
+        //            $this->db->dropTableColumn('xlas_ta_corr_settings', 'fixed_inclusions');
+        //        }
+        //        if ($this->db->tableColumnExists('xlas_ta_corr_settings', 'include_comments')) {
+        //            $this->db->dropTableColumn('xlas_ta_corr_settings', 'include_comments');
+        //        }
+        //        if ($this->db->tableColumnExists('xlas_ta_corr_settings', 'include_comment_ratings')) {
+        //            $this->db->dropTableColumn('xlas_ta_corr_settings', 'include_comment_ratings');
+        //        }
+        //        if ($this->db->tableColumnExists('xlas_ta_corr_settings', 'include_comment_points')) {
+        //            $this->db->dropTableColumn('xlas_ta_corr_settings', 'include_comment_points');
+        //        }
+        //        if ($this->db->tableColumnExists('xlas_ta_corr_settings', 'include_criteria_points')) {
+        //            $this->db->dropTableColumn('xlas_ta_corr_settings', 'include_criteria_points');
+        //        }
     }
     public function step_9(): void
     {
@@ -519,39 +519,59 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
     {
         # Readd if removed CorrectionSettings Inclusions
         if (!$this->db->tableColumnExists('xlas_ta_corr_settings', 'fixed_inclusions')) {
-            $this->db->addTableColumn('xlas_ta_corr_settings',  'fixed_inclusions',  [
+            $this->db->addTableColumn('xlas_ta_corr_settings', 'fixed_inclusions', [
                 'type' => 'integer',
                 'notnull' => '1',
                 'default' => 0,
             ]);
         }
         if (!$this->db->tableColumnExists('xlas_ta_corr_settings', 'include_comments')) {
-            $this->db->addTableColumn('xlas_ta_corr_settings',  'include_comments',  [
+            $this->db->addTableColumn('xlas_ta_corr_settings', 'include_comments', [
                 'type' => 'integer',
                 'notnull' => '1',
                 'default' => 1,
             ]);
         }
         if (!$this->db->tableColumnExists('xlas_ta_corr_settings', 'include_comment_ratings')) {
-            $this->db->addTableColumn('xlas_ta_corr_settings',  'include_comment_ratings',  [
+            $this->db->addTableColumn('xlas_ta_corr_settings', 'include_comment_ratings', [
                 'type' => 'integer',
                 'notnull' => '1',
                 'default' => 1,
             ]);
         }
         if (!$this->db->tableColumnExists('xlas_ta_corr_settings', 'include_comment_points')) {
-            $this->db->addTableColumn('xlas_ta_corr_settings',  'include_comment_points',  [
+            $this->db->addTableColumn('xlas_ta_corr_settings', 'include_comment_points', [
                 'type' => 'integer',
                 'notnull' => '1',
                 'default' => 1,
             ]);
         }
         if (!$this->db->tableColumnExists('xlas_ta_corr_settings', 'include_criteria_points')) {
-            $this->db->addTableColumn('xlas_ta_corr_settings',  'include_criteria_points',  [
+            $this->db->addTableColumn('xlas_ta_corr_settings', 'include_criteria_points', [
                 'type' => 'integer',
                 'notnull' => '1',
                 'default' => 1,
             ]);
+        }
+    }
+
+    public function step_29(): void
+    {
+        if (!$this->db->tableExists('xlas_as_pdf_config')) {
+            $fields = [
+                'id' => ['notnull' => 1, 'type' => ilDBConstants::T_INTEGER],
+                'ass_id' => ['notnull' => 1, 'type' => ilDBConstants::T_INTEGER],
+                'purpose' => ['notnull' => 1, 'type' => ilDBConstants::T_TEXT, 'length' => '20'],
+                'component' => ['notnull' => 1, 'type' => ilDBConstants::T_TEXT, 'length' => '50'],
+                'key' => ['notnull' => 1, 'type' => ilDBConstants::T_TEXT, 'length' => '50'],
+                'active' => ['notnull' => 1, 'type' => ilDBConstants::T_INTEGER],
+                'position' => ['notnull' => 1, 'type' => ilDBConstants::T_INTEGER],
+            ];
+
+            $this->db->createTable('xlas_as_pdf_config', $fields);
+            $this->db->addPrimaryKey('xlas_as_pdf_config', array('id'));
+            $this->db->addIndex("xlas_as_pdf_config", array("ass_id"), "i1");
+            $this->db->createSequence('xlas_as_pdf_config');
         }
     }
 

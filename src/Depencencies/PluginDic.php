@@ -213,6 +213,12 @@ class PluginDic
             return $dic[TaskFactory::class]->forTypes();
         };
 
+        $dic[TypeApis::class] = function (Container $dic) {
+            return new TypeApis(
+                $dic[EssayTaskFactory::class]->forServices()
+            );
+        };
+
         // Constraint Handling
 
         $dic[ConstraintApi::class] = function (Container $dic) {

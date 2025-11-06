@@ -22,7 +22,7 @@ namespace ILIAS\Plugin\LongEssayAssessment\Dependencies;
 
 use Edutiek\AssessmentService\Assessment\TaskInterfaces\TaskType;
 use Edutiek\AssessmentService\Assessment\TaskInterfaces\TypeApi;
-use Edutiek\AssessmentService\Assessment\TaskInterfaces\TypeApiFactory as TypeApiFactory;
+use Edutiek\AssessmentService\Assessment\TaskInterfaces\TypeApiFactory;
 use Edutiek\AssessmentService\EssayTask\Api\ForServices as EssayTaskApi;
 
 /**

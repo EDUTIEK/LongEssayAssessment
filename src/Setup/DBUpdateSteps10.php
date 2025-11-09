@@ -91,6 +91,23 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
         $this->db->dropTable("xlas_et_corr_snippet");
     }
 
+    private function ensureTable(string $name, array $fields): void
+    {
+        if (!$this->db->tableExists($name)) {
+            $this->db->createTable($name, $fields);
+        }
+        if (!$this->db->sequenceExists($name)) {
+            $this->db->createSequence($name);
+        }
+    }
+
+    private function ensureTableColumn(string $table, string $column, array $options): void
+    {
+        if (!$this->db->tableColumnExists($table, $column)) {
+            $this->db->addTableColumn($table, $column, $options);
+        }
+    }
+
     public function step_1(): void
     {
         $this->v10_migration->createNewTables();
@@ -226,22 +243,7 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
     }
     public function step_8(): void
     {
-        # Remove CorrectionSettings Inclusions
-        //        if ($this->db->tableColumnExists('xlas_ta_corr_settings', 'fixed_inclusions')) {
-        //            $this->db->dropTableColumn('xlas_ta_corr_settings', 'fixed_inclusions');
-        //        }
-        //        if ($this->db->tableColumnExists('xlas_ta_corr_settings', 'include_comments')) {
-        //            $this->db->dropTableColumn('xlas_ta_corr_settings', 'include_comments');
-        //        }
-        //        if ($this->db->tableColumnExists('xlas_ta_corr_settings', 'include_comment_ratings')) {
-        //            $this->db->dropTableColumn('xlas_ta_corr_settings', 'include_comment_ratings');
-        //        }
-        //        if ($this->db->tableColumnExists('xlas_ta_corr_settings', 'include_comment_points')) {
-        //            $this->db->dropTableColumn('xlas_ta_corr_settings', 'include_comment_points');
-        //        }
-        //        if ($this->db->tableColumnExists('xlas_ta_corr_settings', 'include_criteria_points')) {
-        //            $this->db->dropTableColumn('xlas_ta_corr_settings', 'include_criteria_points');
-        //        }
+        # Don't remove CorrectionSettings Inclusions - they will be converted in step 30
     }
     public function step_9(): void
     {
@@ -575,21 +577,33 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
         }
     }
 
-    private function ensureTable(string $name, array $fields): void
+    public function step_30(): void
     {
-        if (!$this->db->tableExists($name)) {
-            $this->db->createTable($name, $fields);
-        }
-        if (!$this->db->sequenceExists($name)) {
-            $this->db->createSequence($name);
+        # Existence of fixed_inclusions is indicator that inclusions need to be converted
+        if ($this->db->tableColumnExists('xlas_ta_corr_settings', 'fixed_inclusions')) {
+
+            // enable all inclusions of they were not fixed
+            $this->db->manipulate("
+                UPDATE xlas_ta_corr_settings
+                SET include_comments = 1, include_comment_ratings = 1, include_comment_points = 1, include_criteria_points = 1
+                WHERE fixed_inclusions = 0;
+            ");
+
+            // merge INCLUDE_INFO and INCLUDE_RELEVANT values
+            $this->db->manipulate("UPDATE xlas_ta_corr_settings SET include_comments = 1 WHERE include_comments = 2");
+            $this->db->manipulate("UPDATE xlas_ta_corr_settings SET include_comment_ratings = 1 WHERE include_comment_ratings = 2");
+
+            // merge settings for comment_points and criteria_points
+            $this->db->manipulate("UPDATE xlas_ta_corr_settings SET include_comment_points = 1 WHERE include_comment_points = 2 OR include_criteria_points > 0");
+
+            // use better column names
+            $this->db->renameTableColumn("xlas_ta_corr_settings", "include_comments", "enable_comments");
+            $this->db->renameTableColumn("xlas_ta_corr_settings", "include_comment_ratings", "enable_comment_ratings");
+            $this->db->renameTableColumn("xlas_ta_corr_settings", "include_comment_points", "enable_partial_points");
+
+            // cleanup obselete tables
+            $this->db->dropTableColumn("xlas_ta_corr_settings", "include_criteria_points");
+            $this->db->dropTableColumn("xlas_ta_corr_settings", "fixed_inclusions");
         }
     }
-
-    private function ensureTableColumn(string $table, string $column, array $options): void
-    {
-        if (!$this->db->tableColumnExists($table, $column)) {
-            $this->db->addTableColumn($table, $column, $options);
-        }
-    }
-
 }

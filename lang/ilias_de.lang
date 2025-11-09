@@ -789,3 +789,11 @@ task_type#:#Aufgabentyp
 template#:#Vorlage
 writer_authorize_pdf_question#:#Möchten Sie die Datei(en) zur Korrektur abgeben? Danach ist keine weitere Änderung mehr möglich.
 writer_authorize_pdf_question_incomplete#:#Es fehlen noch PDF-Dateien zur Abgabe. Möchten Sie dennoch abgeben? Danach ist keine weitere Änderung mehr möglich.
+correction_functions#:#Korrekturfunktionen
+enable_comments#:#Anmerkungen
+enable_comments_info#:#Markierte Stellen in der Abgabe können mit Anmerkungen versehen werden. Diese Einstellung ist auch nötig, um Stellen positiv oder negativ zu kennzeichen oder mit Teilpunkten zu versehen.
+enable_comment_ratings#:#Positiv/Negativberwertung
+enable_comment_ratings_info#:#Markierte Stellen in der Abgabe können positiv oder negativ gekennzeichnet werden. Dazu müssen Anmerkungen aktiviert sein.
+enable_partial_points#:#Teilpunkte
+enable_partial_points_info#:#Es können Teilpunkte zu Stellen in der Abgabe (falls Anmerkungen aktiviert sind) oder zu allgemeinen Bewertungskriterien vergeben werden.
+

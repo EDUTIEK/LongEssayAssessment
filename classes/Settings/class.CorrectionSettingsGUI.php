@@ -17,7 +17,6 @@ use Edutiek\AssessmentService\Task\CorrectionSettings\FullService as EssayTaskCo
 use Edutiek\AssessmentService\Task\Data\CorrectionSettings as EssayCorrectionSettings;
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\BaseObjectData;
-use Edutiek\AssessmentService\Task\Data\SummaryInclusion;
 
 /**
  * Settings for the correction
@@ -28,7 +27,7 @@ class CorrectionSettingsGUI extends BaseGUI
 {
     private OrgaSettingsService $orga_settings_service;
     private AssessmentCorrectionSettingsService $assessment_correction_settings_service;
-    private EssayTaskCorrectionSettingsService $essay_task_correction_settings_service;
+    private EssayTaskCorrectionSettingsService $task_correction_settings_service;
     private EntityService $entity_service;
     private DateTimeZone $user_timezone;
     private TaskManager $manager_service;
@@ -39,7 +38,7 @@ class CorrectionSettingsGUI extends BaseGUI
 
         $this->orga_settings_service = $this->assessment_api->orgaSettings();
         $this->assessment_correction_settings_service = $this->assessment_api->correctionSettings();
-        $this->essay_task_correction_settings_service = $this->task_api->correctionSettings();
+        $this->task_correction_settings_service = $this->task_api->correctionSettings();
         $this->entity_service = $this->system_api->entity();
         $this->user_timezone = new DateTimeZone($this->user->getTimeZone());
         $this->manager_service = $this->task_api->manager();
@@ -72,7 +71,7 @@ class CorrectionSettingsGUI extends BaseGUI
     {
         $orga_settings = $this->orga_settings_service->get();
         $assessment_settings = $this->assessment_correction_settings_service->get();
-        $essay_settings = $this->essay_task_correction_settings_service->get();
+        $task_settings = $this->task_correction_settings_service->get();
 
         $factory = $this->ui_factory->input()->field();
 
@@ -151,20 +150,24 @@ class CorrectionSettingsGUI extends BaseGUI
 
         $fields = [];
 
-
-
-        $options = [
-            SummaryInclusion::INCLUDE_NOT->value => $this->plugin->txt('include_not'),
-            SummaryInclusion::INCLUDE_RELEVANT->value => $this->plugin->txt('include_relevant'),
-        ];
-        $fields = array_merge($fields,
+        $fields = array_merge(
+            $fields,
             [
-                "include_comments" => $factory->select($this->plugin->txt('include_comments'),
-                    $options),//->withValue($essay_settings->getIncludeComments()->value),
-                "include_comment_ratings" => $factory->select(sprintf($this->plugin->txt('include_comment_ratings'), $essay_settings->getPositiveRating(), $essay_settings->getNegativeRating()),
-                    $options),//-->withValue($essay_settings->getIncludeCommentRatings()->value),
-                "include_points" => $factory->select($this->plugin->txt('include_points'),
-                    $options),//-->withValue($essay_settings->getIncludeCommentPoints()->value),
+                "enable_comments" => $factory->checkbox(
+                    $this->plugin->txt('enable_comments'),
+                    $this->plugin->txt('enable_comments_info')
+                )
+                    ->withValue($task_settings->getEnableComments()),
+                "enable_comment_ratings" => $factory->checkbox(
+                    $this->plugin->txt('enable_comment_ratings'),
+                    $this->plugin->txt('enable_comment_ratings_info')
+                )
+                    ->withValue($task_settings->getEnableCommentRatings()),
+                "enable_partial_points" => $factory->checkbox(
+                    $this->plugin->txt('enable_partial_points'),
+                    $this->plugin->txt('enable_partial_points_info')
+                )
+                    ->withValue($task_settings->getEnablePartialPoints()),
             ],
         );
 
@@ -175,7 +178,7 @@ class CorrectionSettingsGUI extends BaseGUI
             ->withRequired(true)
             ->withAdditionalTransformation($this->refinery->string()->hasMinLength(3))
             ->withAdditionalTransformation($this->refinery->string()->hasMaxLength(50))
-            ->withValue($essay_settings->getPositiveRating());
+            ->withValue($task_settings->getPositiveRating());
 
         $fields['negative_rating'] = $factory->text(
             $this->plugin->txt('comment_rating_negative'),
@@ -184,9 +187,9 @@ class CorrectionSettingsGUI extends BaseGUI
             ->withRequired(true)
             ->withAdditionalTransformation($this->refinery->string()->hasMinLength(3))
             ->withAdditionalTransformation($this->refinery->string()->hasMaxLength(50))
-            ->withValue($essay_settings->getNegativeRating());
+            ->withValue($task_settings->getNegativeRating());
 
-        $sections['rating'] = $factory->section($fields, $this->plugin->txt('rating_settings'));
+        $sections['correction_functions'] = $factory->section($fields, $this->plugin->txt('correction_functions'));
 
         // Stitch decision
 
@@ -240,9 +243,6 @@ class CorrectionSettingsGUI extends BaseGUI
                 $assessment_settings->setReportsEnabled(false);
             }
 
-            $essay_settings->setPositiveRating((string) $data['rating']['positive_rating']);
-            $essay_settings->setNegativeRating((string) $data['rating']['negative_rating']);
-
             $tasks_settings = [];
             foreach ($this->manager_service->all() as $task_info) {
                 if ($task_info->getTaskType() === TaskType::ESSAY) {
@@ -251,19 +251,11 @@ class CorrectionSettingsGUI extends BaseGUI
                 }
             }
 
-            if (isset($data['rating']['fixed_inclusions']) && is_array($data['rating']['fixed_inclusions'])) {
-                $essay_settings->setFixedInclusions(true);
-                $essay_settings->setIncludeComments(
-                    SummaryInclusion::tryFrom((int) $data['rating']['fixed_inclusions']['include_comments']) ?? SummaryInclusion::INCLUDE_NOT);
-                $essay_settings->setIncludeCommentRatings(
-                    SummaryInclusion::tryFrom((int) $data['rating']['fixed_inclusions']['include_comment_ratings']) ?? SummaryInclusion::INCLUDE_NOT);
-                $essay_settings->setIncludeCommentPoints(
-                    SummaryInclusion::tryFrom((int) $data['rating']['fixed_inclusions']['include_comment_points']) ?? SummaryInclusion::INCLUDE_NOT);
-                $essay_settings->setIncludeCriteriaPoints(
-                    SummaryInclusion::tryFrom((int) $data['rating']['fixed_inclusions']['include_criteria_points'])?? SummaryInclusion::INCLUDE_NOT);
-            } else {
-                $essay_settings->setFixedInclusions(false);
-            }
+            $task_settings->setEnableComments(((bool) $data['correction_functions']['enable_comments']));
+            $task_settings->setEnableCommentRatings(((bool) $data['correction_functions']['enable_comment_ratings']));
+            $task_settings->setEnablePartialPoints(((bool) $data['correction_functions']['enable_partial_points']));
+            $task_settings->setPositiveRating((string) $data['correction_functions']['positive_rating']);
+            $task_settings->setNegativeRating((string) $data['correction_functions']['negative_rating']);
 
             if (!$orga_settings->getMultiTasks()) {
                 if (isset($data['stitch']['stitch_when_distance']) && is_array($data['stitch']['stitch_when_distance'])) {
@@ -278,8 +270,8 @@ class CorrectionSettingsGUI extends BaseGUI
             $this->entity_service->secure($assessment_settings, AssessmentCorrectionSettings::class);
             $this->assessment_correction_settings_service->save($assessment_settings);
 
-            $this->entity_service->secure($essay_settings, EssayCorrectionSettings::class);
-            $this->essay_task_correction_settings_service->save($essay_settings);
+            $this->entity_service->secure($task_settings, EssayCorrectionSettings::class);
+            $this->task_correction_settings_service->save($task_settings);
 
             foreach ($tasks_settings as $settings) {
                 $this->entity_service->secure($settings, EssayTaskSettings::class);

@@ -23,7 +23,6 @@ namespace ILIAS\Plugin\LongEssayAssessment\Task\Data;
 use Edutiek\AssessmentService\Task\Data\CriteriaMode;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Key;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Table;
-use Edutiek\AssessmentService\Task\Data\SummaryInclusion;
 
 #[Table(name: 'xlas_ta_corr_settings')]
 class CorrectionSettings extends \Edutiek\AssessmentService\Task\Data\CorrectionSettings
@@ -33,11 +32,9 @@ class CorrectionSettings extends \Edutiek\AssessmentService\Task\Data\Correction
     private string $criteria_mode = '';
     private string $positive_rating = '';
     private string $negative_rating = '';
-    private int $fixed_inclusions = 0;
-    private int $include_comments = 1;
-    private int $include_comment_ratings = 1;
-    private int $include_comment_points = 1;
-    private int $include_criteria_points = 1;
+    private bool $enable_comments = true;
+    private bool $enable_comment_ratings = true;
+    private bool $enable_partial_points = true;
 
     public function getAssId(): int
     {
@@ -75,49 +72,37 @@ class CorrectionSettings extends \Edutiek\AssessmentService\Task\Data\Correction
         $this->negative_rating = $negative_rating;
         return $this;
     }
-    public function getFixedInclusions(): bool
+
+    public function getEnableComments(): bool
     {
-        return (bool) $this->fixed_inclusions;
+        return $this->enable_comments;
     }
-    public function setFixedInclusions(bool $fixed_inclusions): self
+
+    public function setEnableComments(bool $enable_comments): self
     {
-        $this->fixed_inclusions = (int) $fixed_inclusions;
+        $this->enable_comments = $enable_comments;
         return $this;
     }
-    public function getIncludeComments(): SummaryInclusion
+
+    public function getEnableCommentRatings(): bool
     {
-        return SummaryInclusion::tryFrom($this->include_comments) ?? SummaryInclusion::INCLUDE_NOT;
+        return $this->enable_comment_ratings;
     }
-    public function setIncludeComments(SummaryInclusion $include_comments): self
+
+    public function setEnableCommentRatings(bool $enable_comment_ratings): self
     {
-        $this->include_comments = $include_comments->value;
+        $this->enable_comment_ratings = $enable_comment_ratings;
         return $this;
     }
-    public function getIncludeCommentRatings(): SummaryInclusion
+
+    public function getEnablePartialPoints(): bool
     {
-        return SummaryInclusion::tryFrom($this->include_comment_ratings) ?? SummaryInclusion::INCLUDE_NOT;
+        return $this->enable_partial_points;
     }
-    public function setIncludeCommentRatings(SummaryInclusion $include_comment_ratings): self
+
+    public function setEnablePartialPoints(bool $enable_partial_points): self
     {
-        $this->include_comment_ratings = $include_comment_ratings->value;
-        return $this;
-    }
-    public function getIncludeCommentPoints(): SummaryInclusion
-    {
-        return SummaryInclusion::tryFrom($this->include_comment_points) ?? SummaryInclusion::INCLUDE_NOT;
-    }
-    public function setIncludeCommentPoints(SummaryInclusion $include_comment_points): self
-    {
-        $this->include_comment_points = $include_comment_points->value;
-        return $this;
-    }
-    public function getIncludeCriteriaPoints(): SummaryInclusion
-    {
-        return SummaryInclusion::tryFrom($this->include_criteria_points) ?? SummaryInclusion::INCLUDE_NOT;
-    }
-    public function setIncludeCriteriaPoints(SummaryInclusion $include_criteria_points): self
-    {
-        $this->include_criteria_points = $include_criteria_points->value;
+        $this->enable_partial_points = $enable_partial_points;
         return $this;
     }
 }

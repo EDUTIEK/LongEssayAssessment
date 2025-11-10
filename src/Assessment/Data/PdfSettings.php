@@ -22,6 +22,8 @@ namespace ILIAS\Plugin\LongEssayAssessment\Assessment\Data;
 
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Key;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Table;
+use Edutiek\AssessmentService\Assessment\Data\PdfFormat;
+use Edutiek\AssessmentService\Assessment\Data\PdfFeedbackMode;
 
 #[Table(name: 'xlas_as_pdf_settings')]
 class PdfSettings extends \Edutiek\AssessmentService\Assessment\Data\PdfSettings
@@ -34,6 +36,8 @@ class PdfSettings extends \Edutiek\AssessmentService\Assessment\Data\PdfSettings
     private int $right_margin = 10;
     #[Key]
     private int $ass_id = 0;
+    private string $format = PdfFormat::EDUTIEK->value;
+    private string $feedback_mode = PdfFeedbackMode::SIDE_BY_SIDE->value;
 
     public function getAddHeader(): bool
     {
@@ -98,4 +102,27 @@ class PdfSettings extends \Edutiek\AssessmentService\Assessment\Data\PdfSettings
         $this->ass_id = $ass_id;
         return $this;
     }
+
+    public function getFormat(): PdfFormat
+    {
+        return PdfFormat::tryFrom($this->format) ?? PdfFormat::EDUTIEK;
+    }
+
+    public function setFormat(PdfFormat $format): self
+    {
+        $this->format = $format->value;
+        return $this;
+    }
+
+    public function getFeedbackMode(): PdfFeedbackMode
+    {
+        return PdfFeedbackMode::tryFrom($this->feedback_mode) ?? PdfFeedbackMode::SIDE_BY_SIDE;
+    }
+
+    public function setFeedbackMode(PdfFeedbackMode $mode): self
+    {
+        $this->feedback_mode = $mode->value;
+        return $this;
+    }
+
 }

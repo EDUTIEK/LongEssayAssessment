@@ -23,6 +23,8 @@ use Generator;
 use Edutiek\AssessmentService\Assessment\PdfCreation\PdfConfigPart;
 use ILIAS\Data\Factory;
 use ILIAS\UI\URLBuilder;
+use Edutiek\AssessmentService\Assessment\Data\PdfFormat;
+use Edutiek\AssessmentService\Assessment\Data\PdfFeedbackMode;
 
 /**
  * Technical settings
@@ -283,6 +285,23 @@ class TechnicalSettingsGUI extends BaseGUI
 
         $fields = [];
 
+        $fields['format'] = $factory->select(
+            $this->plugin->txt('pdf_format'),
+            [PdfFormat::EDUTIEK->value => $this->plugin->txt('pdf_format_edutiek'),
+             PdfFormat::BY->value => $this->plugin->txt('pdf_format_by'),
+             PdfFormat::NRW->value => $this->plugin->txt('pdf_format_nrw')],
+            $this->plugin->txt('pdf_format_info')
+        )->withValue($pdf_settings->getFormat()->value)
+         ->withRequired(true);
+
+        $fields['feedback_mode'] = $factory->select(
+            $this->plugin->txt('pdf_feedback_mode'),
+            [PdfFeedbackMode::SIDE_BY_SIDE->value => $this->plugin->txt('pdf_feedback_mode_sidebyside'),
+             PdfFeedbackMode::SEQUENCE->value => $this->plugin->txt('pdf_feedback_mode_sequence')],
+            $this->plugin->txt('pdf_feedback_mode_info')
+        )->withValue($pdf_settings->getFeedbackMode()->value)
+         ->withRequired(true);
+
         $fields['add_header'] = $factory->checkbox(
             $this->plugin->txt('pdf_add_header'),
             $this->plugin->txt('pdf_add_header_info')
@@ -376,6 +395,8 @@ class TechnicalSettingsGUI extends BaseGUI
             $pdf_settings->setBottomMargin((int) $data['pdf']['bottom_margin']);
             $pdf_settings->setLeftMargin((int) $data['pdf']['left_margin']);
             $pdf_settings->setRightMargin((int) $data['pdf']['right_margin']);
+            $pdf_settings->setFormat(PdfFormat::tryFrom($data['pdf']['format']) ?? PdfFormat::EDUTIEK);
+            $pdf_settings->setFeedbackMode(PdfFeedbackMode::tryFrom($data['pdf']['feedback_mode']) ?? PdfFeedbackMode::SIDE_BY_SIDE);
 
             $this->entity_service->secure($pdf_settings, PdfSettings::class);
             $this->pdf_settings_service->save($pdf_settings);

@@ -798,5 +798,14 @@ enable_partial_points#:#Teilpunkte
 enable_partial_points_info#:#Es können Teilpunkte zu Stellen in der Abgabe (falls Anmerkungen aktiviert sind) oder zu allgemeinen Bewertungskriterien vergeben werden.
 written_pdf#:#Abgabe-Datei
 corrected_pdf#:#Korrektur-Datei
-config_written_pdf#:#Abgabe-Datei konfigurieren
-config_corrected_pdf#:#Korrektur-Datei konfigurieren
+config_written_pdf#:#Aufbau Abgabe-Datei
+config_corrected_pdf#:#Aufbau Korrektur-Datei
+pdf_format#:#Format für Deckblatt und Kopfzeile
+pdf_format_info#:#Gibt an, nach welchem Format das Deckblatt und die Kopfzeile der generierten Seiten dargestellt werden.
+pdf_format_edutiek#:#EDUTIEK
+pdf_format_by#:#Staatsprüfungen Bayern
+pdf_format_nrw#:#Staatsprüfungen Nordrhein Westfalen
+pdf_feedback_mode#:#Format für kommentierte Abgabeseiten
+pdf_feedback_mode_info#:#Gibt an, wie die Abgabe und die zugehörigen Kommentare dargestellt werden.
+pdf_feedback_mode_sidebyside#:#Querformat/Nebeneinander
+pdf_feedback_mode_sequence#:#Hochformat/Abwechselnd

@@ -189,6 +189,23 @@ class CorrectionSettingsGUI extends BaseGUI
             ->withAdditionalTransformation($this->refinery->string()->hasMaxLength(50))
             ->withValue($task_settings->getNegativeRating());
 
+        $fields['enable_summary_pdf'] = $factory->optionalGroup(
+            [
+                "summary_pdf_advice" => $factory->textarea(
+                    $this->plugin->txt('summary_pdf_advice'),
+                    $this->plugin->txt('summary_pdf_advice_info')
+                )
+                    ->withAdditionalTransformation($this->refinery->kindlyTo()->string())
+                    ->withValue((string) $task_settings->getSummaryPdfAdvice())
+            ],
+            $this->plugin->txt('enable_summary_pdf'),
+            $this->plugin->txt('enable_summary_pdf_info')
+        );
+        // strange but effective
+        if (!$task_settings->getEnableSummaryPdf()) {
+            $fields['enable_summary_pdf'] = $fields['enable_summary_pdf']->withValue(null);
+        }
+
         $sections['correction_functions'] = $factory->section($fields, $this->plugin->txt('correction_functions'));
 
         // Stitch decision
@@ -243,10 +260,10 @@ class CorrectionSettingsGUI extends BaseGUI
                 $assessment_settings->setReportsEnabled(false);
             }
 
-            $tasks_settings = [];
+            $essay_tasks_settings = [];
             foreach ($this->manager_service->all() as $task_info) {
                 if ($task_info->getTaskType() === TaskType::ESSAY) {
-                    $tasks_settings[] = $this->essay_task_api->taskSettings($task_info->getId())
+                    $essay_tasks_settings[] = $this->essay_task_api->taskSettings($task_info->getId())
                         ->get()->setMaxPoints((int) $data['max_points'][$task_info->getId()]);
                 }
             }
@@ -256,6 +273,12 @@ class CorrectionSettingsGUI extends BaseGUI
             $task_settings->setEnablePartialPoints(((bool) $data['correction_functions']['enable_partial_points']));
             $task_settings->setPositiveRating((string) $data['correction_functions']['positive_rating']);
             $task_settings->setNegativeRating((string) $data['correction_functions']['negative_rating']);
+            if (isset($data['correction_functions']['enable_summary_pdf']) && is_array($data['correction_functions']['enable_summary_pdf'])) {
+                $task_settings->setEnableSummaryPdf(true);
+                $task_settings->setSummaryPdfAdvice((string) $data['correction_functions']['enable_summary_pdf']['summary_pdf_advice']);
+            } else {
+                $task_settings->setEnableSummaryPdf(false);
+            }
 
             if (!$orga_settings->getMultiTasks()) {
                 if (isset($data['stitch']['stitch_when_distance']) && is_array($data['stitch']['stitch_when_distance'])) {
@@ -273,7 +296,7 @@ class CorrectionSettingsGUI extends BaseGUI
             $this->entity_service->secure($task_settings, EssayCorrectionSettings::class);
             $this->task_correction_settings_service->save($task_settings);
 
-            foreach ($tasks_settings as $settings) {
+            foreach ($essay_tasks_settings as $settings) {
                 $this->entity_service->secure($settings, EssayTaskSettings::class);
                 $this->essay_task_api->taskSettings($settings->getTaskId())->save($settings);
             }

@@ -35,6 +35,8 @@ class CorrectionSettings extends \Edutiek\AssessmentService\Task\Data\Correction
     private bool $enable_comments = true;
     private bool $enable_comment_ratings = true;
     private bool $enable_partial_points = true;
+    private bool $enable_summary_pdf = true;
+    private ?string $summary_pdf_advice = null;
 
     public function getAssId(): int
     {
@@ -103,6 +105,28 @@ class CorrectionSettings extends \Edutiek\AssessmentService\Task\Data\Correction
     public function setEnablePartialPoints(bool $enable_partial_points): self
     {
         $this->enable_partial_points = $enable_partial_points;
+        return $this;
+    }
+
+    public function getEnableSummaryPdf(): bool
+    {
+        return $this->enable_summary_pdf;
+    }
+
+    public function setEnableSummaryPdf(bool $enable_summary_pdf): self
+    {
+        $this->enable_summary_pdf = $enable_summary_pdf;
+        return $this;
+    }
+
+    public function getSummaryPdfAdvice(): ?string
+    {
+        return $this->summary_pdf_advice;
+    }
+
+    public function setSummaryPdfAdvice(?string $summary_pdf_advice): self
+    {
+        $this->summary_pdf_advice = $summary_pdf_advice;
         return $this;
     }
 }

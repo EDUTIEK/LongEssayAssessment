@@ -35,6 +35,7 @@ class CorrectorSummary extends \Edutiek\AssessmentService\Task\Data\CorrectorSum
     private int $writer_id = 0;
     private int $corrector_id = 0;
     private ?string $summary_text = null;
+    private ?string $summary_pdf = null;
     private ?float $points = null;
     private ?DateTimeImmutable $last_change = null;
     private ?DateTimeImmutable $corection_authorized = null;
@@ -65,6 +66,15 @@ class CorrectorSummary extends \Edutiek\AssessmentService\Task\Data\CorrectorSum
     public function setSummaryText(?string $summary_text): self
     {
         $this->summary_text = $summary_text;
+        return $this;
+    }
+    public function getSummaryPdf(): ?string
+    {
+        return $this->summary_pdf;
+    }
+    public function setSummaryPdf(?string $summary_pdf): self
+    {
+        $this->summary_pdf = $summary_pdf;
         return $this;
     }
     public function getPoints(): ?float

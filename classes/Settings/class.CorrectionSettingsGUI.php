@@ -150,44 +150,43 @@ class CorrectionSettingsGUI extends BaseGUI
 
         $fields = [];
 
-        $fields = array_merge(
-            $fields,
+        $fields["enable_comments"] = $factory->checkbox(
+            $this->plugin->txt('enable_comments'),
+            $this->plugin->txt('enable_comments_info')
+        )->withValue($task_settings->getEnableComments());
+
+        $fields["enable_partial_points"] = $factory->checkbox(
+            $this->plugin->txt('enable_partial_points'),
+            $this->plugin->txt('eenable_partial_points_info')
+        )
+        ->withValue($task_settings->getEnablePartialPoints());
+
+        $fields['enable_comment_ratings'] = $factory->optionalGroup(
             [
-                "enable_comments" => $factory->checkbox(
-                    $this->plugin->txt('enable_comments'),
-                    $this->plugin->txt('enable_comments_info')
+                "positive_rating" => $factory->text(
+                    $this->plugin->txt('comment_rating_positive'),
+                    $this->plugin->txt('comment_rating_positive_info')
                 )
-                    ->withValue($task_settings->getEnableComments()),
-                "enable_comment_ratings" => $factory->checkbox(
-                    $this->plugin->txt('enable_comment_ratings'),
-                    $this->plugin->txt('enable_comment_ratings_info')
+                    ->withRequired(true)
+                    ->withAdditionalTransformation($this->refinery->string()->hasMinLength(3))
+                    ->withAdditionalTransformation($this->refinery->string()->hasMaxLength(50))
+                    ->withValue($task_settings->getPositiveRating()),
+                "negative_rating" => $factory->text(
+                    $this->plugin->txt('comment_rating_negative'),
+                    $this->plugin->txt('comment_rating_negative_info')
                 )
-                    ->withValue($task_settings->getEnableCommentRatings()),
-                "enable_partial_points" => $factory->checkbox(
-                    $this->plugin->txt('enable_partial_points'),
-                    $this->plugin->txt('enable_partial_points_info')
-                )
-                    ->withValue($task_settings->getEnablePartialPoints()),
+                    ->withRequired(true)
+                    ->withAdditionalTransformation($this->refinery->string()->hasMinLength(3))
+                    ->withAdditionalTransformation($this->refinery->string()->hasMaxLength(50))
+                    ->withValue($task_settings->getNegativeRating())
             ],
+            $this->plugin->txt('enable_comment_ratings'),
+            $this->plugin->txt('enable_comment_ratings_infp')
         );
-
-        $fields['positive_rating'] = $factory->text(
-            $this->plugin->txt('comment_rating_positive'),
-            $this->plugin->txt('comment_rating_positive_info')
-        )
-            ->withRequired(true)
-            ->withAdditionalTransformation($this->refinery->string()->hasMinLength(3))
-            ->withAdditionalTransformation($this->refinery->string()->hasMaxLength(50))
-            ->withValue($task_settings->getPositiveRating());
-
-        $fields['negative_rating'] = $factory->text(
-            $this->plugin->txt('comment_rating_negative'),
-            $this->plugin->txt('comment_rating_negative_info')
-        )
-            ->withRequired(true)
-            ->withAdditionalTransformation($this->refinery->string()->hasMinLength(3))
-            ->withAdditionalTransformation($this->refinery->string()->hasMaxLength(50))
-            ->withValue($task_settings->getNegativeRating());
+        // strange but effective
+        if (!$task_settings->getEnableCommentRatings()) {
+            $fields['enable_comment_ratings'] = $fields['enable_comment_ratings']->withValue(null);
+        }
 
         $fields['enable_summary_pdf'] = $factory->optionalGroup(
             [
@@ -269,10 +268,14 @@ class CorrectionSettingsGUI extends BaseGUI
             }
 
             $task_settings->setEnableComments(((bool) $data['correction_functions']['enable_comments']));
-            $task_settings->setEnableCommentRatings(((bool) $data['correction_functions']['enable_comment_ratings']));
             $task_settings->setEnablePartialPoints(((bool) $data['correction_functions']['enable_partial_points']));
-            $task_settings->setPositiveRating((string) $data['correction_functions']['positive_rating']);
-            $task_settings->setNegativeRating((string) $data['correction_functions']['negative_rating']);
+            if (isset($data['correction_functions']['enable_comment_ratings']) && is_array($data['correction_functions']['enable_comment_ratings'])) {
+                $task_settings->setEnableCommentRatings(true);
+                $task_settings->setPositiveRating((string) $data['correction_functions']['enable_comment_ratings']['positive_rating']);
+                $task_settings->setNegativeRating((string) $data['correction_functions']['enable_comment_ratings']['negative_rating']);
+            } else {
+                $task_settings->setEnableCommentRatings(false);
+            }
             if (isset($data['correction_functions']['enable_summary_pdf']) && is_array($data['correction_functions']['enable_summary_pdf'])) {
                 $task_settings->setEnableSummaryPdf(true);
                 $task_settings->setSummaryPdfAdvice((string) $data['correction_functions']['enable_summary_pdf']['summary_pdf_advice']);

@@ -505,14 +505,12 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
                 'purpose' => ['notnull' => 1, 'type' => ilDBConstants::T_TEXT, 'length' => '20'],
                 'text' => ['type' => ilDBConstants::T_CLOB]
             ];
-            if (!$this->db->tableExists('xlas_et_corr_snippet')) {
-                $this->db->createTable('xlas_et_corr_snippet', $fields);
-                $this->db->addPrimaryKey('xlas_et_corr_snippet', array('id'));
-                $this->db->addIndex("xlas_et_corr_snippet", array("task_id"), "i1");
+            $this->db->createTable('xlas_et_corr_snippet', $fields);
+            $this->db->addPrimaryKey('xlas_et_corr_snippet', array('id'));
+            $this->db->addIndex("xlas_et_corr_snippet", array("task_id"), "i1");
 
-                if (!$this->db->sequenceExists('xlas_et_corr_snippet')) {
-                    $this->db->createSequence('xlas_et_corr_snippet');
-                }
+            if (!$this->db->sequenceExists('xlas_et_corr_snippet')) {
+                $this->db->createSequence('xlas_et_corr_snippet');
             }
         }
     }
@@ -604,6 +602,27 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
             // cleanup obselete tables
             $this->db->dropTableColumn("xlas_ta_corr_settings", "include_criteria_points");
             $this->db->dropTableColumn("xlas_ta_corr_settings", "fixed_inclusions");
+        }
+    }
+
+    public function step_31(): void
+    {
+        if (!$this->db->tableColumnExists('xlas_as_pdf_settings', 'format')) {
+            $this->db->addTableColumn('xlas_as_pdf_settings', 'format', [
+                'type' => ilDBConstants::T_TEXT,
+                'length' => '25',
+                'notnull' => true,
+                'default' => 'edutiek'
+            ]);
+        }
+
+        if (!$this->db->tableColumnExists('xlas_as_pdf_settings', 'feedback_mode')) {
+            $this->db->addTableColumn('xlas_as_pdf_settings', 'feedback_mode', [
+                'type' => ilDBConstants::T_TEXT,
+                'length' => '25',
+                'notnull' => true,
+                'default' => 'side-by-side'
+            ]);
         }
     }
 }

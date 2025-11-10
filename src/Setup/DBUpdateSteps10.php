@@ -88,7 +88,7 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
         $this->db->dropTable("xlas_ta_corr_summary");
         $this->db->dropTable("xlas_as_dis_groups");
         $this->db->dropTable("xlas_ta_writer_anno");
-        $this->db->dropTable("xlas_et_corr_snippet");
+        $this->db->dropTable("xlas_ta_corr_snippet");
     }
 
     private function ensureTable(string $name, array $fields): void
@@ -622,6 +622,22 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
                 'length' => '25',
                 'notnull' => true,
                 'default' => 'side-by-side'
+            ]);
+        }
+    }
+
+    public function step_32(): void
+    {
+        if ($this->db->tableExists('xlas_et_corr_snippet')) {
+            $this->db->renameTable('xlas_et_corr_snippet', 'xlas_ta_corr_snippet');
+            $this->db->renameTableColumn('xlas_ta_corr_snippet', 'task_id', 'ass_id');
+        }
+
+        if (!$this->db->tableColumnExists('xlas_ta_corr_snippet', 'title')) {
+            $this->db->addTableColumn('xlas_ta_corr_snippet', 'title', [
+                'type' => ilDBConstants::T_TEXT,
+                'length' => '50',
+                'default' => null
             ]);
         }
     }

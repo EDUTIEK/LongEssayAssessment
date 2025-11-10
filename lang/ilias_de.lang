@@ -796,4 +796,7 @@ enable_comment_ratings#:#Positiv/Negativberwertung
 enable_comment_ratings_info#:#Markierte Stellen in der Abgabe können positiv oder negativ gekennzeichnet werden. Dazu müssen Anmerkungen aktiviert sein.
 enable_partial_points#:#Teilpunkte
 enable_partial_points_info#:#Es können Teilpunkte zu Stellen in der Abgabe (falls Anmerkungen aktiviert sind) oder zu allgemeinen Bewertungskriterien vergeben werden.
-
+written_pdf#:#Abgabe-Datei
+corrected_pdf#:#Korrektur-Datei
+config_written_pdf#:#Abgabe-Datei konfigurieren
+config_corrected_pdf#:#Korrektur-Datei konfigurieren

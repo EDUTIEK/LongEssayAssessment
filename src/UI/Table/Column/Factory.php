@@ -33,4 +33,9 @@ class Factory
     {
         return new Image($this->language, $title);
     }
+
+    public function checkbox(string $title, string $name)
+    {
+        return new Checkbox($this->language, $title, $name);
+    }
 }

@@ -21,6 +21,7 @@ declare(strict_types=1);
 namespace ILIAS\Plugin\LongEssayAssessment\Assessment\Data;
 
 use DateTimeImmutable;
+use Edutiek\AssessmentService\Assessment\Data\CorrectionStatus;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Key;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Sequence;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Table;
@@ -42,14 +43,14 @@ class Writer extends \Edutiek\AssessmentService\Assessment\Data\Writer
     private ?int $final_grade_level_id = null;
     private ?DateTimeImmutable $writing_authorized = null;
     private ?int $writing_authorized_by = null;
-    private ?DateTimeImmutable $correction_finalized = null;
-    private ?int $correction_finalized_by = null;
+    private string $correction_status;
+    private ?DateTimeImmutable $correction_status_changed = null;
+    private ?int $correction_status_changed_by = null;
     private ?DateTimeImmutable $writing_excluded = null;
     private ?int $writing_excluded_by = null;
     private ?string $stitch_comment = null;
     private ?int $location = null;
     private int $review_notification = 0;
-    private bool $stitch_needed = false;
 
     public function getId(): int
     {
@@ -159,24 +160,6 @@ class Writer extends \Edutiek\AssessmentService\Assessment\Data\Writer
         $this->writing_authorized_by = $writing_authorized_by;
         return $this;
     }
-    public function getCorrectionFinalized(): ?DateTimeImmutable
-    {
-        return $this->correction_finalized;
-    }
-    public function setCorrectionFinalized(?DateTimeImmutable $correction_finalized): self
-    {
-        $this->correction_finalized = $correction_finalized;
-        return $this;
-    }
-    public function getCorrectionFinalizedBy(): ?int
-    {
-        return $this->correction_finalized_by;
-    }
-    public function setCorrectionFinalizedBy(?int $correction_finalized_by): self
-    {
-        $this->correction_finalized_by = $correction_finalized_by;
-        return $this;
-    }
     public function getWritingExcluded(): ?DateTimeImmutable
     {
         return $this->writing_excluded;
@@ -223,14 +206,36 @@ class Writer extends \Edutiek\AssessmentService\Assessment\Data\Writer
         return $this;
     }
 
-    public function setStitchNeeded(bool $stitch_needed): self
+    public function getCorrectionStatus(): CorrectionStatus
     {
-        $this->stitch_needed = $stitch_needed;
+        return CorrectionStatus::tryFrom($this->correction_status) ?? CorrectionStatus::OPEN;
+    }
+
+    public function setCorrectionStatus(CorrectionStatus $status): self
+    {
+        $this->correction_status = $status->value;
         return $this;
     }
 
-    public function getStitchNeeded(): bool
+    public function getCorrectionStatusChanged(): ?DateTimeImmutable
     {
-        return $this->stitch_needed;
+        return $this->correction_status_changed;
+    }
+
+    public function setCorrectionStatusChanged(DateTimeImmutable $correction_status_changed): self
+    {
+        $this->correction_status_changed = $correction_status_changed;
+        return $this;
+    }
+
+    public function getCorrectionStatusChangedBy(): ?int
+    {
+        return $this->correction_status_changed_by;
+    }
+
+    public function setCorrectionStatusChangedBy(?int $correction_status_changed_by): self
+    {
+        $this->correction_status_changed_by = $correction_status_changed_by;
+        return $this;
     }
 }

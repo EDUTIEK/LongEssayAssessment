@@ -666,4 +666,35 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
             ]);
         }
     }
+
+    public function step_34(): void
+    {
+        if (!$this->db->tableColumnExists('xlas_as_writer', 'correction_status')) {
+            $this->db->addTableColumn('xlas_as_writer', 'correction_status', [
+                'type' => ilDBConstants::T_TEXT,
+                'length' => '25',
+                'notnull' => true,
+                'default' => 'open'
+            ]);
+        }
+    }
+
+    public function step_35(): void
+    {
+        if ($this->db->tableColumnExists('xlas_as_writer', 'correction_finalized')) {
+            $this->db->manipulate("UPDATE xlas_as_writer SET correction_status = 'finalized' WHERE correction_finalized IS NOT NULL");
+            $this->db->renameTableColumn('xlas_as_writer', 'correction_finalized', 'correction_status_changed');
+        }
+        if ($this->db->tableColumnExists('xlas_as_writer', 'correction_finalized_by')) {
+            $this->db->renameTableColumn('xlas_as_writer', 'correction_finalized_by', 'correction_status_changed_by');
+        }
+    }
+
+    public function step_36(): void
+    {
+        if ($this->db->tableColumnExists('xlas_as_writer', 'stitch_needed')) {
+            $this->db->manipulate("UPDATE xlas_as_writer SET correction_status = 'stitch' WHERE stitch_needed > 0");
+            $this->db->dropTableColumn('xlas_as_writer', 'stitch_needed');
+        }
+    }
 }

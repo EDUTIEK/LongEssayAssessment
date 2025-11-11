@@ -20,26 +20,50 @@ declare(strict_types=1);
 
 namespace ILIAS\Plugin\LongEssayAssessment\Assessment\DisabledGroup;
 
-use ilGlobalTemplateInterface;
-use ILIAS\UI\Factory as UIFactory;
+use Closure;
 use Edutiek\AssessmentService\Assessment\Api\ForClients as AssessmentApi;
 use Edutiek\AssessmentService\Assessment\Data\DisabledGroup as DisabledGroupEntity;
-use ILIAS\UI\Component\Button\Button;
-use Closure;
 use Edutiek\AssessmentService\Assessment\Permissions\ReadService as Permissions;
 use Exception;
+use ilGlobalTemplateInterface;
+use ILIAS\Plugin\LongEssayAssessment\Settings\CorrectionSettingsGUI;
+use ILIAS\UI\Component\Button\Button;
 use ILIAS\UI\Component\Input\Container\Form\Form;
+use ILIAS\UI\Component\Input\Container\Form\FormInput;
+use ILIAS\UI\Component\Input\Field\Group;
+use ILIAS\UI\Component\Input\Field\Section;
+use ILIAS\UI\Factory as UIFactory;
 
 class DisabledGroup
 {
-    public const DEFINITION = [
-        'sub_task' => ['max_points'],
-        'grades' => ['grades'],
+    /**
+     * GUI tabs that have disabled groups
+     * - Key is the id (and language variable) of the tab
+     * - Value is a list of settings groups that are shown on the tab
+     */
+    private const TABS = [
+        'tab_correction_settings' => ['max_points', 'correction_functions'],
+        'tab_grades' => ['grade_levels']
     ];
 
+    /**
+     * Settings groups that can be fixed and disabled
+     * - Key is the name of the settings group
+     * - Value is an array of form input names that belong to the group
+     */
+    private const GROUPS = [
+        'correction_functions' => ['correction_functions'],
+        'max_points' => ['max_points'],
+        'grade_levels' => ['grades'],
+    ];
+
+    /**
+     * Lang
+     */
     private const LANG_VARS = [
-        'sub_task' => 'max_points',
-        'grades' => 'grade_levels',
+        'correction_functions' => 'correction_functions',
+        'max_points' => 'max_points',
+        'grade_levels' => 'grade_levels',
     ];
 
     /**
@@ -56,18 +80,16 @@ class DisabledGroup
     ) {
     }
 
-    public function groups(): array
+    /**
+     * Disable form inputs whose names found in the list of disabled settings
+     * These inputs are disabled and get a CSS class to show/hide them
+     *
+     * @param FormInput[]|Group[]|Section[] $sections
+     * @return array
+     */
+    public function disableBySetting(string $tab, array $sections): array
     {
-        return array_map(
-            fn(DisabledGroupEntity $g) => $g->getName(),
-            $this->assessment_api->disabledGroup()->all()
-        );
-
-    }
-
-    public function disableBySetting(array $sections): array
-    {
-        $disabled = $this->names();
+        $disabled = $this->disabledInputs($tab);
 
         foreach ($sections as $key => $section) {
             if (in_array($key, $disabled, true)) {
@@ -80,11 +102,17 @@ class DisabledGroup
         return $sections;
     }
 
-    public function isDisabled(string $name): bool
+    /**
+     * Check if a form input with a name is disabled and fixed
+     */
+    public function isDisabled(string $tab, string $name): bool
     {
-        return in_array($name, $this->names(), true);
+        return in_array($name, $this->disabledInputs($tab), true);
     }
 
+    /**
+     * Get a UI button that toggles the visibility of all fixed inputs on the screen
+     */
     public function toggleButton(): Button
     {
         global $DIC;
@@ -94,14 +122,18 @@ class DisabledGroup
             ->withAdditionalOnLoadCode(fn($id) => "$(document).on('$click', il.EDUTIEK.toggleDisabledInputs)");
     }
 
-    public function toggles(string $post_url): array
+    /**
+     * Get the toggle buttons for fixable settings groups shown on a tab
+     * @throws Exception
+     */
+    public function toggles(string $tab, string $post_url): array
     {
         if (!$this->perms->canEditTemplates()) {
             throw new Exception('permission_denied');
         }
 
-        $groups = array_keys(self::DEFINITION);
-        $disabled = $this->groups();
+        $groups = array_values(self::TABS[$tab] ?? []);
+        $disabled = $this->disabledGroups();
 
         $set = function ($group, $value) use ($post_url) {
             global $DIC;
@@ -129,26 +161,6 @@ class DisabledGroup
         ));
     }
 
-    public function form(string $post_url): Form
-    {
-        if (!$this->perms->canEditTemplates()) {
-            throw new Exception('permission_denied');
-        }
-        $checkbox = $this->ui_factory->input()->field()->checkbox(...);
-        $groups = array_keys(self::DEFINITION);
-        $disabled = $this->groups();
-
-        $fields = array_combine(
-            $groups,
-            array_map(
-                fn($group) => $checkbox(($this->txt)(self::LANG_VARS[$group]))->withValue(in_array($group, $disabled, true)),
-                $groups
-            )
-        );
-
-        return $this->ui_factory->input()->container()->form()->standard($post_url, $fields);
-    }
-
     public function saveModal(): void
     {
         global $DIC;
@@ -159,18 +171,50 @@ class DisabledGroup
             $groups = $this->assessment_api->disabledGroup()->all();
             $groups = $enabled ? array_merge($groups, [$group_name]) : array_filter($groups, fn($g) => $g->getName() !== $group_name);
             $this->assessment_api->disabledGroup()->saveAll($groups);
-            return;
         }
-        ($this->with_form)($this->form(''), function (array $data): void {
-            $this->assessment_api->disabledGroup()->saveAll(array_keys(array_filter($data)));
-        });
     }
 
-    private function names(): array
+    /**
+     * Get the ids of the GUI tabs that support disabled settings
+     */
+    public function supportedTabs(): array
+    {
+        return array_keys(self::TABS);
+    }
+
+    /**
+     * Get the defined groups filtered by tab
+     */
+    private function filterGroups(string $tab): array
+    {
+        return array_filter(
+            self::GROUPS,
+            fn($key) => in_array($key, self::TABS[$tab] ?? []),
+            ARRAY_FILTER_USE_KEY
+        );
+    }
+
+    /**
+     * Get the names of all settings groups that are fixed an hidden
+     * @return string[]
+     */
+    private function disabledGroups(): array
+    {
+        return array_map(
+            fn(DisabledGroupEntity $g) => $g->getName(),
+            $this->assessment_api->disabledGroup()->all()
+        );
+    }
+
+    /**
+     * Get the names of all form inputs that belong to disabled groups of settings
+     * @return string[]
+     */
+    private function disabledInputs(string $tab): array
     {
         return array_merge(...array_map(
-            fn($k) => self::DEFINITION[$k] ?? [],
-            $this->groups()
+            fn($k) => $this->filterGroups($tab)[$k] ?? [],
+            $this->disabledGroups()
         ));
     }
 }

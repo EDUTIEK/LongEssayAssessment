@@ -175,7 +175,7 @@ class OrgaSettingsGUI extends BaseGUI
         $writing_settings = $this->writing_settings_service->get();
 
         $factory = $this->ui_factory->input()->field();
-        $section = fn($x, $title) => $factory->section($this->disabled_group->disableBySetting($x), $title);
+        $section = fn($x, $title) => $factory->section($this->disabled_group->disableBySetting('tab_orga_settings', $x), $title);
         $sections = [];
 
         $fields_object = [];

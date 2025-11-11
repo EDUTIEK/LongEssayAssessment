@@ -106,18 +106,27 @@ class ToolProvider extends AbstractDynamicToolProvider
     private function disabledGroupContent(): array
     {
         $this->dic->ctrl()->setParameterByClass(DisabledGroupGUI::class, 'return_url', urlencode((string) $this->dic->http()->request()->getUri()));
+
+        $fixing_content = [];
+        foreach ($this->disabled_group->supportedTabs() as $tab) {
+            $fixing_content = array_merge($fixing_content, [
+                $this->ui_factory->divider()->horizontal(),
+                $this->ui_factory->legacy('<strong>' . $this->plugin->txt($tab) . '</strong>'),
+                ...$this->disabled_group->toggles(
+                    $tab,
+                    $this->dic->ctrl()->getLinkTargetByClass([\ilObjLongEssayAssessmentGUI::class, DisabledGroupGUI::class], 'saveGroups')
+                )
+            ]);
+        }
+
         return [
             $this->ui_factory->panel()->standard('Anzeige', [
                         $this->ui_factory->legacy('<p class="small">' . $this->plugin->txt('disabled_group_toggle_info') . '</p>'),
                         $this->disabled_group->toggleButton()]),
-             $this->ui_factory->panel()->standard('Einstellung', [
+
+             $this->ui_factory->panel()->standard('Festlegungen', [
                  $this->ui_factory->legacy('<p class="small">' . $this->plugin->txt('disabled_group_info') . '</p>'),
-
-                 // Comment in to use toggle buttons:
-                 // ...$this->disabled_group->toggles($this->dic->ctrl()->getLinkTargetByClass([\ilObjLongEssayAssessmentGUI::class, DisabledGroupGUI::class], 'saveGroups')),
-
-                 // Comment out to disable form:
-                 $this->disabled_group->form($this->dic->ctrl()->getLinkTargetByClass([\ilObjLongEssayAssessmentGUI::class, DisabledGroupGUI::class], 'saveGroups'))
+                 ... $fixing_content
              ])
         ];
     }

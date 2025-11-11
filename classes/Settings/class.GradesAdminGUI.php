@@ -1,4 +1,5 @@
 <?php
+
 /* Copyright (c) 2021 ILIAS open source, Extended GPL, see docs/LICENSE */
 
 namespace ILIAS\Plugin\LongEssayAssessment\Settings;
@@ -36,7 +37,8 @@ use Edutiek\AssessmentService\Assessment\Data\GradeLevel;
  */
 class GradesAdminGUI extends BaseGUI implements DataTableParent
 {
-    use ConfirmationIds, SmallView;
+    use ConfirmationIds;
+    use SmallView;
 
     private ?int $copy_context = null;
     private \Edutiek\AssessmentService\Assessment\GradeLevel\FullService $grade_service;
@@ -54,7 +56,7 @@ class GradesAdminGUI extends BaseGUI implements DataTableParent
         $this->grade_service = $this->assessment_api->gradeLevel();
         $this->assessment_status = $this->task_api->assessmentStatus();
         $this->entity_service = $this->system_api->entity();
-        $this->is_disabled = $this->disabled_group->isDisabled('grades');
+        $this->is_disabled = $this->disabled_group->isDisabled('tab_grades', 'grades');
         $this->can_edit = !$this->assessment_status->hasAuthorizedSummaries() && !$this->is_disabled;
     }
 
@@ -113,17 +115,17 @@ class GradesAdminGUI extends BaseGUI implements DataTableParent
         $this->tpl->setContent($this->renderer->render($components));
     }
 
-    public function getColumnMapping(Item $item, ?array $additional_parameters) : array
+    public function getColumnMapping(Item $item, ?array $additional_parameters): array
     {
         return [
             "title" => $item->getGrade(),
             "points" => $item->getMinPoints(),
             "passed" => $item->isPassed(),
-            "code" =>$item->getCode()
+            "code" => $item->getCode()
         ];
     }
 
-    public function getColumns(?array $additional_parameters) : array
+    public function getColumns(?array $additional_parameters): array
     {
         $tf = $this->ui_factory->table();
 
@@ -138,12 +140,12 @@ class GradesAdminGUI extends BaseGUI implements DataTableParent
         ];
     }
 
-    public function getTotalRowCount(?array $filter_data, ?array $additional_parameters) : ?int
+    public function getTotalRowCount(?array $filter_data, ?array $additional_parameters): ?int
     {
         return -1;
     }
 
-    public function getTableActions() : array
+    public function getTableActions(): array
     {
         return [
             $this->editAction(),
@@ -160,7 +162,7 @@ class GradesAdminGUI extends BaseGUI implements DataTableParent
             $this->lng->txt('save'),
             [$this, "buildFields"],
             [$this, "save"],
-            fn (GradeItem $x) => $this->can_edit,
+            fn(GradeItem $x) => $this->can_edit,
             Action\Type::Global
         );
     }
@@ -173,8 +175,8 @@ class GradesAdminGUI extends BaseGUI implements DataTableParent
             $this->lng->txt('delete'),
             $this->plugin->txt('delete_grade_level_confirmation'),
             $this->ctrl->getFormAction($this, 'delete'),
-            fn (GradeItem $item) => $item->getGrade(),
-            fn (GradeItem $x) => $this->can_edit,
+            fn(GradeItem $item) => $item->getGrade(),
+            fn(GradeItem $x) => $this->can_edit,
             Action\Type::Standard
         );
     }
@@ -187,7 +189,7 @@ class GradesAdminGUI extends BaseGUI implements DataTableParent
             $this->lng->txt('save'),
             [$this, "buildFields"],
             [$this, "save"],
-            fn (GradeItem $x) => $this->can_edit,
+            fn(GradeItem $x) => $this->can_edit,
             Action\Type::Single
         );
     }
@@ -209,7 +211,7 @@ class GradesAdminGUI extends BaseGUI implements DataTableParent
         $this->tpl->setOnScreenMessage("success", $this->lng->txt("settings_saved"), true);
     }
 
-    public function buildFields(GradeItem $item) : array
+    public function buildFields(GradeItem $item): array
     {
         $factory = $this->ui_factory->input()->field();
         $plugin_factory = $this->plugin_ui_factory->field();
@@ -227,7 +229,7 @@ class GradesAdminGUI extends BaseGUI implements DataTableParent
                                            ->withRequired(true)
                                            ->withValue($item->getMinPoints());
 
-        $fields['passed'] =$factory->checkbox($this->plugin->txt('passed'), $this->plugin->txt("passed_caption"))
+        $fields['passed'] = $factory->checkbox($this->plugin->txt('passed'), $this->plugin->txt("passed_caption"))
                                    ->withRequired(true)
                                    ->withValue($item->isPassed());
         return $fields;
@@ -238,12 +240,12 @@ class GradesAdminGUI extends BaseGUI implements DataTableParent
         return new GradeItem($item->getId(), $item->getGrade(), $item->getMinPoints(), $item->getPassed(), $item->getCode());
     }
 
-    public function getTableItem(int $id) : Item
+    public function getTableItem(int $id): Item
     {
         return $this->tableItemFromData($this->grade_service->one($id) ?? $this->grade_service->new());
     }
 
-    public function getTableItems(?array $ids = null, ?array $filter_data = []) : Generator
+    public function getTableItems(?array $ids = null, ?array $filter_data = []): Generator
     {
         if ($this->copy_context !== null) {
             $copy_object = new \ilObjLongEssayAssessment($this->copy_context);
@@ -301,7 +303,7 @@ class GradesAdminGUI extends BaseGUI implements DataTableParent
             $copy_assessment_api = $this->plugin->dic()->assessment($copy_object->getAssId(), $this->user->getId());
             $copy_grade_service = $copy_assessment_api->gradeLevel();
 
-            if($copy_assessment_api->permissions($select->getSelectedId())->canEditGrades()) {
+            if ($copy_assessment_api->permissions($select->getSelectedId())->canEditGrades()) {
                 foreach ($copy_grade_service->all() as $grade_level) {
                     $new_grade_level = clone $grade_level;
                     $new_grade_level->setAssId($this->object->getAssId());
@@ -322,7 +324,7 @@ class GradesAdminGUI extends BaseGUI implements DataTableParent
         }
     }
 
-    protected function buildRepositorySelect() : RepositorySelectModal
+    protected function buildRepositorySelect(): RepositorySelectModal
     {
         return $this->plugin_ui_factory->tree()->repositorySelect(
             $this->object->getRefId(),
@@ -333,7 +335,7 @@ class GradesAdminGUI extends BaseGUI implements DataTableParent
          ->setMessage($this->plugin->txt('copy_grade_level_info'));
     }
 
-    public function listGrades(int $ref_id) : Component
+    public function listGrades(int $ref_id): Component
     {
         $this->copy_context = $ref_id;
 

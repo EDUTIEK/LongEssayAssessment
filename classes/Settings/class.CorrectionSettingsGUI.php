@@ -121,7 +121,6 @@ class CorrectionSettingsGUI extends BaseGUI
             $this->plugin->txt('reports_enabled'),
             $this->plugin->txt('reports_enabled_info')
         );
-        // strange but effective
         if (!$assessment_settings->getReportsEnabled()) {
             $fields['reports_enabled'] = $fields['reports_enabled']->withValue(null);
         }
@@ -157,7 +156,7 @@ class CorrectionSettingsGUI extends BaseGUI
 
         $fields["enable_partial_points"] = $factory->checkbox(
             $this->plugin->txt('enable_partial_points'),
-            $this->plugin->txt('eenable_partial_points_info')
+            $this->plugin->txt('enable_partial_points_info')
         )
         ->withValue($task_settings->getEnablePartialPoints());
 
@@ -181,9 +180,8 @@ class CorrectionSettingsGUI extends BaseGUI
                     ->withValue($task_settings->getNegativeRating())
             ],
             $this->plugin->txt('enable_comment_ratings'),
-            $this->plugin->txt('enable_comment_ratings_infp')
+            $this->plugin->txt('enable_comment_ratings_info')
         );
-        // strange but effective
         if (!$task_settings->getEnableCommentRatings()) {
             $fields['enable_comment_ratings'] = $fields['enable_comment_ratings']->withValue(null);
         }
@@ -200,7 +198,6 @@ class CorrectionSettingsGUI extends BaseGUI
             $this->plugin->txt('enable_summary_pdf'),
             $this->plugin->txt('enable_summary_pdf_info')
         );
-        // strange but effective
         if (!$task_settings->getEnableSummaryPdf()) {
             $fields['enable_summary_pdf'] = $fields['enable_summary_pdf']->withValue(null);
         }
@@ -223,7 +220,6 @@ class CorrectionSettingsGUI extends BaseGUI
                 ],
                 $this->plugin->txt('stitch_when_distance')
             );
-            // strange but effective
             if (!$assessment_settings->getStitchWhenDistance()) {
                 $fields['stitch_when_distance'] = $fields['stitch_when_distance']->withValue(null);
             }
@@ -234,7 +230,10 @@ class CorrectionSettingsGUI extends BaseGUI
             $sections['stitch'] = $factory->section($fields, $this->plugin->txt('settings_stitch_required'));
         }
 
-        $form = $this->ui_factory->input()->container()->form()->standard($this->ctrl->getFormAction($this), $this->disabled_group->disableBySetting($sections));
+        $form = $this->ui_factory->input()->container()->form()->standard(
+            $this->ctrl->getFormAction($this),
+            $this->disabled_group->disableBySetting('tab_correction_settings', $sections)
+        );
 
         // apply inputs
         if ($this->request->getMethod() == "POST") {

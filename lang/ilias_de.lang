@@ -813,3 +813,4 @@ enable_summary_pdf#:#Gutachten als PDF
 enable_summary_pdf_info#:#Ermöglicht anstelle eines textuellen Gutachtens ein Gutachten als PDF-Datei (z.B. einen Begrüdungsbogen) hochzuladen.
 summary_pdf_advice#:#Anleitung zum PDF-Gutachten
 summary_pdf_advice_info#:#Diee Anleitung wird im Formular zum Hochladen eines PDF-Gutachtens angezeigt
+tab_documentation_settings#:#Dokumentation

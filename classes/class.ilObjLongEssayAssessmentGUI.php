@@ -22,6 +22,7 @@ use ILIAS\Plugin\LongEssayAssessment\CorrectionAdmin\CorrectionAdminGUI;
 use ILIAS\Plugin\LongEssayAssessment\CorrectorAdmin\CorrectorGUI;
 use ILIAS\Plugin\LongEssayAssessment\Corrector\CorrectorStartGUI;
 use ILIAS\Plugin\LongEssayAssessment\DisabledGroupGUI;
+use ILIAS\Plugin\LongEssayAssessment\Settings\DocumentationSettingsGUI;
 
 /**
  * Plugin GUI Class
@@ -179,6 +180,12 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                     if ($this->permissions->canEditTechnicalSettings()) {
                         $this->activateTab('tab_assessment', 'tab_technical_settings');
                         $this->ctrl->forwardCommand(new TechnicalSettingsGUI($this->object));
+                    }
+                    break;
+                case strtolower(DocumentationSettingsGUI::class):
+                    if ($this->permissions->canEditDocumentationSettings()) {
+                        $this->activateTab('tab_assessment', 'tab_documentation_settings');
+                        $this->ctrl->forwardCommand(new DocumentationSettingsGUI($this->object));
                     }
                     break;
                 case strtolower(CorrectionSettingsGUI::class):
@@ -509,6 +516,13 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                 'id' => 'tab_technical_settings',
                 'txt' => $this->plugin->txt('tab_technical_settings'),
                 'url' => $this->ctrl->getLinkTargetByClass(TechnicalSettingsGUI::class)
+            ];
+        }
+        if ($this->permissions->canEditDocumentationSettings()) {
+            $tabs[] = [
+                'id' => 'tab_documentation_settings',
+                'txt' => $this->plugin->txt('tab_documentation_settings'),
+                'url' => $this->ctrl->getLinkTargetByClass(DocumentationSettingsGUI::class)
             ];
         }
         if ($this->permissions->canEditTechnicalSettings()) {

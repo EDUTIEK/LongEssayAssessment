@@ -5,7 +5,7 @@ namespace ILIAS\Plugin\LongEssayAssessment\CorrectionAdmin;
 use Edutiek\AssessmentService\Assessment\Data\Writer;
 use Edutiek\AssessmentService\Assessment\Data\Corrector;
 use Edutiek\AssessmentService\EssayTask\Data\Essay;
-use Edutiek\AssessmentService\Task\AssessmentStatus\CorrectionStatus;
+use Edutiek\AssessmentService\Task\AssessmentStatus\CombinedStatus;
 use Edutiek\AssessmentService\Task\Data\CorrectorAssignment;
 use Edutiek\AssessmentService\Task\Data\CorrectorSummary;
 use Edutiek\AssessmentService\System\Data\UserDisplay;
@@ -30,7 +30,7 @@ final class CorrectionItemCollection implements \Iterator
      * @param UserDisplay[] $user_displays
      * @param Corrector[] $correctors
      * @param Essay[] $essays
-     * @param CorrectionStatus[] $correction_status
+     * @param CombinedStatus[] $correction_status
      * @param CorrectorAssignment[] $corrector_assignments
      * @param CorrectorSummary[] $summaries
      * @param Location[] $locations

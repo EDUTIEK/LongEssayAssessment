@@ -7,14 +7,14 @@ use Edutiek\AssessmentService\Task\Data\CorrectorSummary;
 use Edutiek\AssessmentService\System\Data\UserData;
 use Edutiek\AssessmentService\Assessment\Data\Writer;
 use Edutiek\AssessmentService\Task\Data\CorrectorAssignment;
-use Edutiek\AssessmentService\Task\AssessmentStatus\CorrectionStatus;
+use Edutiek\AssessmentService\Task\AssessmentStatus\CombinedStatus;
 
 class CorrectorStartItem extends Item
 {
     public function __construct(
         int $id,
         private Writer $writer,
-        private CorrectionStatus $correction_status,
+        private CombinedStatus $correction_status,
         private CorrectorAssignment $assignment,
         private ?CorrectorSummary $summary,
         private ?string $task_title,
@@ -30,7 +30,7 @@ class CorrectorStartItem extends Item
         return $this->writer;
     }
 
-    public function getCorrectionStatus(): CorrectionStatus
+    public function getCorrectionStatus(): CombinedStatus
     {
         return $this->correction_status;
     }

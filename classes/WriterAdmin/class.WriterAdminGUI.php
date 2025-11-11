@@ -364,7 +364,7 @@ class WriterAdminGUI extends BaseGUI implements DataTableParent, FilterParent
             $avatar = $this->ui_factory->symbol()->avatar()->letter($user_data?->getFullname(false) ?? $unknown);
         }
 
-        $status = match($writer->getStatus()) {
+        $status = match($writer->getWritingStatus()) {
             WritingStatus::NOT_STARTED => $this->plugin->txt("status_writing_not_started"),
             WritingStatus::STARTED => $this->plugin->txt("status_writing_started"),
             WritingStatus::EXCLUDED => $this->plugin->txt("writing_excluded_from") . " " .
@@ -799,7 +799,7 @@ class WriterAdminGUI extends BaseGUI implements DataTableParent, FilterParent
 
         $user_ids = [];
         foreach ($writers as $key => $writer) {
-            if (!empty($filter_data['status'] ?? null) && !in_array($writer->getStatus()->value, $filter_data['status'])) {
+            if (!empty($filter_data['status'] ?? null) && !in_array($writer->getWritingStatus()->value, $filter_data['status'])) {
                 unset($writers[$key]);
                 continue;
             }

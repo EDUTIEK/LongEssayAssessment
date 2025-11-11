@@ -12,7 +12,7 @@ use Edutiek\AssessmentService\Task\Data\ResourceType;
 use Edutiek\AssessmentService\Task\Data\Settings;
 use Edutiek\AssessmentService\Task\Settings\FullService as SettingsService;
 use Edutiek\AssessmentService\Assessment\Data\OrgaSettings;
-use Edutiek\AssessmentService\Task\AssessmentStatus\CorrectionStatus;
+use Edutiek\AssessmentService\Task\AssessmentStatus\CombinedStatus;
 use Edutiek\AssessmentService\Task\Data\GradingStatus;
 use Edutiek\AssessmentService\Assessment\Data\Writer;
 use Edutiek\AssessmentService\Assessment\OrgaSettings\FullService as OrgaService;
@@ -159,7 +159,7 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
             "stitch_decision",
             $this->plugin->txt('draw_stitch_decision'),
             [$this, "stitchDescision"],
-            fn(CorrectionItem $item) => $item->getCorrectionStatus() === CorrectionStatus::STITCH_NEEDED,
+            fn(CorrectionItem $item) => $item->getCorrectionStatus() === CombinedStatus::STITCH_NEEDED,
             Action\Type::Single
         );
     }
@@ -655,7 +655,7 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
             $this->system_api->user()->getUserDisplaysByIds(array_map(fn(Writer $w) => $w->getUserId(), $writer), null),
             $this->corrector_service->all(),
             $this->essay_service->allByTaskId($this->task_info->getId()),
-            $this->assessment_status->allWriterCorrectionStatus(),
+            $this->assessment_status->allWriterCombinedStatus(),
             $this->assignment_service->all(),
             $this->summary_service->allByTaskId($this->task_info->getId()),
             $this->getLocations(),
@@ -693,7 +693,7 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
             [$this->user_service->getUser($writer->getUserId())],
             $this->getLocation($writer->getLocation()),
             $this->essay_service->oneByWriterIdAndTaskId($writer->getId(), $this->task_info->getId()),
-            $this->assessment_status->oneWriterCorrectionStatus($writer),
+            $this->assessment_status->oneWriterCmbinedStatus($writer),
             $summary_by_pos,
             $corrector_by_pos,
             $this->user_service->getUserDisplay($writer->getUserId(), null)
@@ -703,13 +703,13 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
     public function getFilterInputs(): array
     {
         $status = [
-            (string) CorrectionStatus::WRITING_NOT_STARTED->value => $this->plugin->txt("status_writing_not_started"),
-            (string) CorrectionStatus::WRITING_STARTED->value => $this->plugin->txt("status_writing_started"),
-            (string) CorrectionStatus::WRITING_EXCLUDED->value => $this->plugin->txt("status_writing_excluded"),
-            (string) CorrectionStatus::WRITING_EXCLUDED->value => $this->plugin->txt("status_writing_authorized"),
-            (string) CorrectionStatus::STARTED->value => $this->plugin->txt("correction_status_started"),
-            (string) CorrectionStatus::STITCH_NEEDED->value => $this->plugin->txt("correction_status_stitch_needed"),
-            (string) CorrectionStatus::FINALIZED->value => $this->plugin->txt("correction_finalized_from"),
+            (string) CombinedStatus::WRITING_NOT_STARTED->value => $this->plugin->txt("status_writing_not_started"),
+            (string) CombinedStatus::WRITING_STARTED->value => $this->plugin->txt("status_writing_started"),
+            (string) CombinedStatus::WRITING_EXCLUDED->value => $this->plugin->txt("status_writing_excluded"),
+            (string) CombinedStatus::WRITING_EXCLUDED->value => $this->plugin->txt("status_writing_authorized"),
+            (string) CombinedStatus::STARTED->value => $this->plugin->txt("correction_status_started"),
+            (string) CombinedStatus::STITCH_NEEDED->value => $this->plugin->txt("correction_status_stitch_needed"),
+            (string) CombinedStatus::FINALIZED->value => $this->plugin->txt("correction_finalized_from"),
         ];
         $locations = [];
         foreach ($this->getLocations() as $location) {

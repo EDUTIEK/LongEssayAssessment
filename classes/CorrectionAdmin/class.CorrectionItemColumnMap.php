@@ -4,7 +4,7 @@ namespace ILIAS\Plugin\LongEssayAssessment\CorrectionAdmin;
 
 use ILIAS\UI\Component\Symbol\Symbol;
 use ILIAS\UI\Factory;
-use Edutiek\AssessmentService\Task\AssessmentStatus\CorrectionStatus;
+use Edutiek\AssessmentService\Task\AssessmentStatus\CombinedStatus;
 use Edutiek\AssessmentService\Task\Data\GradingStatus;
 use ILIAS\UI\Renderer;
 use Edutiek\AssessmentService\Assessment\AssessmentGrading\ReadService as GradingService;
@@ -35,16 +35,16 @@ class CorrectionItemColumnMap extends ColumnMappingArray
     ) {
     }
 
-    private function correctionStatus(CorrectionStatus $status) : string
+    private function correctionStatus(CombinedStatus $status) : string
     {
         return self::$correction_status[$status->value] ??= match($status) {
-            CorrectionStatus::WRITING_NOT_STARTED => $this->plng->txt("status_writing_not_started"),
-            CorrectionStatus::WRITING_STARTED => $this->plng->txt("status_writing_started"),
-            CorrectionStatus::WRITING_EXCLUDED => $this->plng->txt("status_writing_excluded_from"),
-            CorrectionStatus::WRITING_AUTHORIZED => $this->plng->txt("status_writing_authorized_from"),
-            CorrectionStatus::STARTED => $this->plng->txt("correction_status_started"),
-            CorrectionStatus::STITCH_NEEDED => $this->plng->txt("correction_status_stitch_needed"),
-            CorrectionStatus::FINALIZED => $this->plng->txt("correction_finalized_from"),
+            CombinedStatus::WRITING_NOT_STARTED => $this->plng->txt("status_writing_not_started"),
+            CombinedStatus::WRITING_STARTED => $this->plng->txt("status_writing_started"),
+            CombinedStatus::WRITING_EXCLUDED => $this->plng->txt("status_writing_excluded_from"),
+            CombinedStatus::WRITING_AUTHORIZED => $this->plng->txt("status_writing_authorized_from"),
+            CombinedStatus::STARTED => $this->plng->txt("correction_status_started"),
+            CombinedStatus::STITCH_NEEDED => $this->plng->txt("correction_status_stitch_needed"),
+            CombinedStatus::FINALIZED => $this->plng->txt("correction_finalized_from"),
         };
     }
 

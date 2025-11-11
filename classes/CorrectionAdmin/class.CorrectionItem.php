@@ -6,7 +6,7 @@ use Edutiek\AssessmentService\System\Data\UserData;
 use Edutiek\AssessmentService\System\Data\UserDisplay;
 use Edutiek\AssessmentService\EssayTask\AssessmentStatus\WriterEssaySummary;
 use Edutiek\AssessmentService\Assessment\Data\Writer;
-use Edutiek\AssessmentService\Task\AssessmentStatus\CorrectionStatus;
+use Edutiek\AssessmentService\Task\AssessmentStatus\CombinedStatus;
 use Edutiek\AssessmentService\Task\Data\CorrectorSummary;
 use Edutiek\AssessmentService\EssayTask\Data\Essay;
 use Edutiek\AssessmentService\Assessment\Data\Location;
@@ -22,7 +22,7 @@ class CorrectionItem extends \ILIAS\Plugin\LongEssayAssessment\UI\Table\Item
      * @param array            $user_data
      * @param Location|null    $location
      * @param Essay|null       $essay
-     * @param CorrectionStatus $correction_status
+     * @param CombinedStatus $correction_status
      * @param CorrectorSummary[]            $summaries_by_position
      * @param Corrector[]            $correcor_by_position
      */
@@ -32,7 +32,7 @@ class CorrectionItem extends \ILIAS\Plugin\LongEssayAssessment\UI\Table\Item
         private array $user_data,
         private ?Location $location,
         private ?Essay $essay,
-        private CorrectionStatus $correction_status,
+        private CombinedStatus $correction_status,
         private array $summaries_by_position,
         private array $correcor_by_position,
         private ?UserDisplay $user_display
@@ -70,7 +70,7 @@ class CorrectionItem extends \ILIAS\Plugin\LongEssayAssessment\UI\Table\Item
         return $this->location;
     }
 
-    public function getCorrectionStatus(): CorrectionStatus
+    public function getCorrectionStatus(): CombinedStatus
     {
         return $this->correction_status;
     }
@@ -121,7 +121,7 @@ class CorrectionItem extends \ILIAS\Plugin\LongEssayAssessment\UI\Table\Item
 
     public function isStitchNeeded()
     {
-        return $this->correction_status == CorrectionStatus::STITCH_NEEDED;
+        return $this->correction_status == CombinedStatus::STITCH_NEEDED;
     }
 
     public function getCorrectorDataByPosition(int $position) : ?UserData

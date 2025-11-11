@@ -11,7 +11,7 @@ use ILIAS\Plugin\LongEssayAssessment\UI\Table\Item;
 use Generator;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\ColumnMappingClosure;
 use Edutiek\AssessmentService\Assessment\Data\WritingStatus;
-use Edutiek\AssessmentService\Task\AssessmentStatus\CorrectionStatus;
+use Edutiek\AssessmentService\Task\AssessmentStatus\CombinedStatus;
 use Edutiek\AssessmentService\Task\Data\CorrectorSummary;
 use Edutiek\AssessmentService\System\Data\UserData;
 use ILIAS\Plugin\LongEssayAssessment\Task\Data\CorrectorAssignment;
@@ -117,14 +117,14 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
             WritingStatus::AUTHORIZED => $this->plugin->txt("writing_status_authorized")
         };
 
-        $correction_status = fn(CorrectionStatus $x) => match ($x) {
-            CorrectionStatus::WRITING_NOT_STARTED,
-            CorrectionStatus::WRITING_STARTED,
-            CorrectionStatus::WRITING_EXCLUDED => $this->plugin->txt('correction_status_not_possible'),
-            CorrectionStatus::WRITING_AUTHORIZED,
-            CorrectionStatus::STARTED => $this->plugin->txt("correction_status_open"),
-            CorrectionStatus::STITCH_NEEDED => $this->plugin->txt("correction_status_stitch_needed"),
-            CorrectionStatus::FINALIZED => $this->plugin->txt("correction_status_finished")
+        $correction_status = fn(CombinedStatus $x) => match ($x) {
+            CombinedStatus::WRITING_NOT_STARTED,
+            CombinedStatus::WRITING_STARTED,
+            CombinedStatus::WRITING_EXCLUDED => $this->plugin->txt('correction_status_not_possible'),
+            CombinedStatus::WRITING_AUTHORIZED,
+            CombinedStatus::STARTED => $this->plugin->txt("correction_status_open"),
+            CombinedStatus::STITCH_NEEDED => $this->plugin->txt("correction_status_stitch_needed"),
+            CombinedStatus::FINALIZED => $this->plugin->txt("correction_status_finished")
         };
 
         $grading_status = fn(GradingStatus $x) => match($x) {
@@ -149,7 +149,7 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
                 'pseudonym' => $item->getWriter()->getPseudonym(),
                 'position' => $position_title($item->getAssignment()->getPosition()),
                 'task' => $item->getTaskTitle(),
-                'writing_status' => $writing_status($item->getWriter()->getStatus()),
+                'writing_status' => $writing_status($item->getWriter()->getWritingStatus()),
                 'correction_status' => $correction_status($item->getCorrectionStatus()),
                 'own_status' => $grading_status($item->getCorrectionStatus()),
                 'own_points' => $item->getSummary()?->getPoints(),
@@ -296,7 +296,7 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
     {
         $writer = $this->writer_service->oneByWriterId($assignment->getWriterId());
         $title = $settings = $this->task_api->settings($assignment->getId())->get()->getTitle();
-        $correction_status = $this->assessment_status_service->oneWriterCorrectionStatus($writer);
+        $correction_status = $this->assessment_status_service->oneWriterCmbinedStatus($writer);
         $co_assignment = $co_user_data = $co_summary = $own_summary = null;
 
         if ($this->settings->getRequiredCorrectors() > 1) {

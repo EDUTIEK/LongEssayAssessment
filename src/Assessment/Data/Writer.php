@@ -43,7 +43,7 @@ class Writer extends \Edutiek\AssessmentService\Assessment\Data\Writer
     private ?int $final_grade_level_id = null;
     private ?DateTimeImmutable $writing_authorized = null;
     private ?int $writing_authorized_by = null;
-    private string $correction_status;
+    private string $correction_status = CorrectionStatus::OPEN->value;
     private ?DateTimeImmutable $correction_status_changed = null;
     private ?int $correction_status_changed_by = null;
     private ?DateTimeImmutable $writing_excluded = null;

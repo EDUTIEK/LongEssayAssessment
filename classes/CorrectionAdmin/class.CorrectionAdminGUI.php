@@ -693,7 +693,7 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
             [$this->user_service->getUser($writer->getUserId())],
             $this->getLocation($writer->getLocation()),
             $this->essay_service->oneByWriterIdAndTaskId($writer->getId(), $this->task_info->getId()),
-            $this->assessment_status->oneWriterCmbinedStatus($writer),
+            $this->assessment_status->oneWriterCombinedStatus($writer),
             $summary_by_pos,
             $corrector_by_pos,
             $this->user_service->getUserDisplay($writer->getUserId(), null)

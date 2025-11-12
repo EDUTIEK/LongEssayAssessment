@@ -41,7 +41,7 @@ class CorrectionItemColumnMap extends ColumnMappingArray
             CombinedStatus::WRITING_NOT_STARTED => $this->plng->txt("status_writing_not_started"),
             CombinedStatus::WRITING_STARTED => $this->plng->txt("status_writing_started"),
             CombinedStatus::WRITING_EXCLUDED => $this->plng->txt("status_writing_excluded_from"),
-            CombinedStatus::WRITING_AUTHORIZED => $this->plng->txt("status_writing_authorized_from"),
+            CombinedStatus::WRITING_AUTHORIZED => $this->plng->txt("status_writing_authorized"),
             CombinedStatus::STARTED => $this->plng->txt("correction_status_started"),
             CombinedStatus::APPROXIMATION => $this->plng->txt("correction_status_approximation"),
             CombinedStatus::CONSULTING => $this->plng->txt("correction_status_consulting"),

@@ -20,6 +20,7 @@ declare(strict_types=1);
 
 namespace ILIAS\Plugin\LongEssayAssessment\Assessment\Data;
 
+use Edutiek\AssessmentService\Assessment\Data\CorrectionStatus;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\RepositoryInterface;
 use Edutiek\AssessmentService\Assessment\Data\Writer;
 
@@ -81,7 +82,7 @@ class WriterRepo implements \Edutiek\AssessmentService\Assessment\Data\WriterRep
 
     public function hasStitchDecisions(int $ass_id): bool
     {
-        return $this->repo->hasBy(['ass_id' => $ass_id, "stitch_needed" => 1]);
+        return $this->repo->hasBy(['ass_id' => $ass_id, "correction_status" => CorrectionStatus::STITCH->value]);
     }
 
 }

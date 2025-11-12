@@ -301,7 +301,6 @@ assign_not_needed#:#Es gibt keine freigegebenen Abgaben mit fehlender Korrekturz
 assign_not_available#:#Es sind keine Korrektoren verfügbar, die zugewiesen werden könnten!
 assign_missing_correctors#:#Fehlende Korrekturzuweisungen: %s
 assign_available_correctors#:#Verfügbare Korrekturkräfte: %s
-required_correctors#:#Anzahl Korrekturen
 mutual_visibility#:#Gegenseitige Sichtbarkeit
 mutual_visibility_info#:#Korrektoren derselben Abgabe können ihre Korrekturen gegenseitig sehen, sobald sie freigegeben sind.
 max_points#:#Maximale Punkte
@@ -829,3 +828,18 @@ approximation#:#Annäherung
 approximation_one#:#Nur durch den Erstkorretor
 approximation_both#:#Durch beide Korrektoren, wenn erforderlich
 approximation_decide#:#Erstkorrektor entscheidet über Einbeziehung des Zweitkorrektors, wenn erforderlich
+no_manual_decimals#:#Ganzzahlige Punkte
+no_manual_decimals_info#:#Bei der manuellen Eingabe der Bewertung dürfen nur ganzzahlige Punkte vergeben werden.
+correctors_per_writer#:#Korrektoren pro Abgabe
+required_correctors#:#Erforderliche Korrektoren
+single_corrector#:#Ein Korrektor
+first_and_second_corrector#:#Erst- und Zweitkorrektor
+wait_for_first#:#Auf Erstkorrektur warten
+wait_for_first_info#:#Die Zweitkorrektur einer Abgabe kann erst starten, wenn die Erstkorrektur freigegeben ist.
+undo_authorization#:#Freigabe zurückziehen
+undo_authorization_info#:#Korrektoren können die Freigabe ihrer Korrektur einer Abgabe zurückziehen, solange die Korrektur dieser Abgabe noch nicht abgeschlossen ist.
+instant_status#:#Korrekturstatus anzeigen
+instant_status_on#:#sofort
+instant_status_on_info#:#Der Beginn der Korrektur einer Abgabe ist sofort in der Korrekturverwaltung sichtbar.
+instant_status_off#:#ab Freigabe
+instant_status_off_info#:#Der Status der Korrektur einer Abgabe wird erst ab der Freigabe durch den Korrektoren sichtbar.

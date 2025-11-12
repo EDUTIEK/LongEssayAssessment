@@ -746,4 +746,48 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
             ]);
         }
     }
+
+    public function step_40(): void
+    {
+        if (!$this->db->tableColumnExists('xlas_as_corr_settings', 'no_manual_decimals')) {
+            $this->db->addTableColumn('xlas_as_corr_settings', 'no_manual_decimals', [
+                'type' => ilDBConstants::T_INTEGER,
+                'notnull' => true,
+                'default' => 0
+            ]);
+        }
+    }
+
+    public function step_41(): void
+    {
+        if (!$this->db->tableColumnExists('xlas_as_corr_settings', 'wait_for_first')) {
+            $this->db->addTableColumn('xlas_as_corr_settings', 'wait_for_first', [
+                'type' => ilDBConstants::T_INTEGER,
+                'notnull' => true,
+                'default' => 0
+            ]);
+        }
+    }
+
+    public function step_42(): void
+    {
+        if (!$this->db->tableColumnExists('xlas_as_corr_settings', 'undo_authorization')) {
+            $this->db->addTableColumn('xlas_as_corr_settings', 'undo_authorization', [
+                'type' => ilDBConstants::T_INTEGER,
+                'notnull' => true,
+                'default' => 1
+            ]);
+        }
+    }
+
+    public function step_43(): void
+    {
+        if (!$this->db->tableColumnExists('xlas_as_corr_settings', 'instant_status')) {
+            $this->db->addTableColumn('xlas_as_corr_settings', 'instant_status', [
+                'type' => ilDBConstants::T_INTEGER,
+                'notnull' => true,
+                'default' => 1
+            ]);
+        }
+    }
 }

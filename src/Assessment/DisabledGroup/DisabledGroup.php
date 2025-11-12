@@ -42,7 +42,12 @@ class DisabledGroup
      * - Value is a list of settings groups that are shown on the tab
      */
     private const TABS = [
-        'tab_correction_settings' => ['max_points', 'correction_functions', 'procedure'],
+        'tab_correction_settings' => [
+            'correctors_per_writer',
+            'rating_settings',
+            'correction_functions',
+            'procedure'
+        ],
         'tab_grades' => ['grade_levels']
     ];
 
@@ -52,9 +57,10 @@ class DisabledGroup
      * - Value is an array of form input names that belong to the group
      */
     private const GROUPS = [
+        'correctors_per_writer' => ['correctors_per_writer'],
         'correction_functions' => ['correction_functions'],
         'procedure' => ['procedure'],
-        'max_points' => ['max_points'],
+        'rating_settings' => ['rating_settings'],
         'grade_levels' => ['grades'],
     ];
 
@@ -62,9 +68,10 @@ class DisabledGroup
      * Lang
      */
     private const LANG_VARS = [
+        'correctors_per_writer' => 'correctors_per_writer',
         'correction_functions' => 'correction_functions',
         'procedure' => 'correction_procedure_settings',
-        'max_points' => 'max_points',
+        'rating_settings' => 'rating_settings',
         'grade_levels' => 'grade_levels',
     ];
 

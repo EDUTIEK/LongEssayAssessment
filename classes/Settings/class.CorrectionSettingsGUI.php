@@ -85,14 +85,23 @@ class CorrectionSettingsGUI extends BaseGUI
 
         // inputs are ok => save data
         if (isset($data)) {
+
+            // Multi Correctors
+
             if (!$orga_settings->getMultiTasks()) {
-                $assessment_settings->setRequiredCorrectors((int) $data['correction']['required_correctors']);
-                $assessment_settings->setMutualVisibility((int) $data['correction']['mutual_visibility']);
+                $assessment_settings->setRequiredCorrectors((int) $data['correctors_per_writer']['required_correctors'][0]);
+                if ($assessment_settings->getRequiredCorrectors() === 2) {
+                    $assessment_settings->setMutualVisibility((int) $data['correctors_per_writer']['required_correctors'][1]['mutual_visibility']);
+                    $assessment_settings->setWaitForFirst((int) $data['correctors_per_writer']['required_correctors'][1]['wait_for_first']);
+                }
             }
 
-            $assessment_settings->setAssignMode(AssignMode::tryFrom($data['correction']['assign_mode']) ?? AssignMode::RANDOM_EQUAL);
+            // Correction settings
 
-            $assessment_settings->setAnonymizeCorrectors((int) $data['correction']['anonymize_correctors']);
+            $assessment_settings->setAssignMode(AssignMode::tryFrom($data['correction']['assign_mode']) ?? AssignMode::RANDOM_EQUAL);
+            $assessment_settings->setUndoAuthorization((bool) $data['correction']['undo_authorization']);
+            $assessment_settings->setInstantStatus((bool) $data['correction']['instant_status']);
+            $assessment_settings->setAnonymizeCorrectors((bool) $data['correction']['anonymize_correctors']);
             if (isset($data['correction']['reports_enabled']) && is_array($data['correction']['reports_enabled'])) {
                 $assessment_settings->setReportsEnabled(true);
                 $assessment_settings->setReportsAvailableStart($data['correction']['reports_enabled']['reports_available_start']);
@@ -100,13 +109,24 @@ class CorrectionSettingsGUI extends BaseGUI
                 $assessment_settings->setReportsEnabled(false);
             }
 
+            // Rating settings
+
             $essay_tasks_settings = [];
             foreach ($this->manager_service->all() as $task_info) {
                 if ($task_info->getTaskType() === TaskType::ESSAY) {
                     $essay_tasks_settings[] = $this->essay_task_api->taskSettings($task_info->getId())
-                        ->get()->setMaxPoints((int) $data['max_points'][$task_info->getId()]);
+                        ->get()->setMaxPoints((int) $data['rating_settings'][$task_info->getId()]);
                 }
             }
+            $assessment_settings->setNoManualDecimals(((bool) $data['rating_settings']['no_manual_decimals']));
+            if (isset($data['rating_settings']['enable_summary_pdf']) && is_array($data['rating_settings']['enable_summary_pdf'])) {
+                $task_settings->setEnableSummaryPdf(true);
+                $task_settings->setSummaryPdfAdvice((string) $data['rating_settings']['enable_summary_pdf']['summary_pdf_advice']);
+            } else {
+                $task_settings->setEnableSummaryPdf(false);
+            }
+
+            // Correction functions
 
             $task_settings->setEnableComments(((bool) $data['correction_functions']['enable_comments']));
             $task_settings->setEnablePartialPoints(((bool) $data['correction_functions']['enable_partial_points']));
@@ -117,12 +137,8 @@ class CorrectionSettingsGUI extends BaseGUI
             } else {
                 $task_settings->setEnableCommentRatings(false);
             }
-            if (isset($data['correction_functions']['enable_summary_pdf']) && is_array($data['correction_functions']['enable_summary_pdf'])) {
-                $task_settings->setEnableSummaryPdf(true);
-                $task_settings->setSummaryPdfAdvice((string) $data['correction_functions']['enable_summary_pdf']['summary_pdf_advice']);
-            } else {
-                $task_settings->setEnableSummaryPdf(false);
-            }
+
+            // Procedure
 
             if (!$orga_settings->getMultiTasks()) {
                 if (isset($data['procedure']['procedure_when_distance']) && is_array($data['procedure']['procedure_when_distance'])) {
@@ -177,19 +193,34 @@ class CorrectionSettingsGUI extends BaseGUI
         $fields = [];
 
         if (!$orga_settings->getMultiTasks()) {
-            $fields['required_correctors'] = $factory->select($this->plugin->txt('required_correctors'), [
-                "1" => "1",
-                "2" => "2"
-            ])->withRequired(true)
-                ->withValue((string) empty($assessment_settings->getRequiredCorrectors()) ? 1 : $assessment_settings->getRequiredCorrectors());
+            $fields = [];
 
-            $fields['mutual_visibility'] = $factory->checkbox(
-                $this->plugin->txt('mutual_visibility'),
-                $this->plugin->txt('mutual_visibility_info')
-            )
-                ->withValue($assessment_settings->getMutualVisibility());
+            $single = $factory->group(
+                [],
+                $this->plugin->txt('single_corrector'),
+            );
+            $double = $factory->group([
+                'mutual_visibility' => $factory->checkbox(
+                    $this->plugin->txt('mutual_visibility'),
+                    $this->plugin->txt('mutual_visibility_info')
+                )->withValue($assessment_settings->getMutualVisibility()),
+                'wait_for_first' => $factory->checkbox(
+                    $this->plugin->txt('wait_for_first'),
+                    $this->plugin->txt('wait_for_first_info')
+                )->withValue($assessment_settings->getWaitForFirst())
+
+            ], $this->plugin->txt('first_and_second_corrector'));
+
+            $fields['required_correctors'] = $factory->switchableGroup([
+                '1' => $single,
+                '2' => $double,
+            ], $this->plugin->txt('required_correctors'))
+            ->withValue((string) empty($assessment_settings->getRequiredCorrectors()) ? 1 : $assessment_settings->getRequiredCorrectors());
+
+            $sections['correctors_per_writer'] = $factory->section($fields, $this->plugin->txt('correctors_per_writer'));
         }
 
+        $fields = [];
         $fields['assign_mode'] = $factory->radio($this->plugin->txt('assign_mode'))
             ->withRequired(true)
             ->withOption(
@@ -199,11 +230,21 @@ class CorrectionSettingsGUI extends BaseGUI
             )
             ->withValue($assessment_settings->getAssignMode()->value);
 
+        $fields['undo_authorization'] = $factory->checkbox(
+            $this->plugin->txt('undo_authorization'),
+            $this->plugin->txt('undo_authorization_info')
+        )->withValue($assessment_settings->getUndoAuthorization());
+
+        $fields['instant_status'] = $factory->radio(
+            $this->plugin->txt('instant_status'),
+        )->withOption(1, $this->plugin->txt('instant_status_on'), $this->plugin->txt('instant_status_on_info'))
+         ->withOption(0, $this->plugin->txt('instant_status_off'), $this->plugin->txt('instant_status_off_info'))
+        ->withValue((int) $assessment_settings->getInstantStatus());
+
         $fields['anonymize_correctors'] = $factory->checkbox(
             $this->plugin->txt('anonymize_correctors'),
             $this->plugin->txt('anonymize_correctors_info')
-        )
-            ->withValue($assessment_settings->getAnonymizeCorrectors());
+        )->withValue($assessment_settings->getAnonymizeCorrectors());
 
         $fields['reports_enabled'] = $factory->optionalGroup(
             [
@@ -222,25 +263,48 @@ class CorrectionSettingsGUI extends BaseGUI
 
         $sections['correction'] = $factory->section($fields, $this->plugin->txt('correction_settings'));
 
-        // Max Points
+        // Rating
 
         $fields = [];
 
         foreach ($this->manager_service->all() as $task_info) {
             if ($task_info->getTaskType() === TaskType::ESSAY) {
                 $settings = $this->essay_task_api->taskSettings($task_info->getId())->get();
-                $fields[$task_info->getId()] = $factory->numeric($task_info->getTitle())
+                $fields[$task_info->getId()] = $factory->numeric($this->plugin->txt('max_points') .
+                    ($orga_settings->getMultiTasks() ? ' ' . $task_info->getTitle() : ''))
                     ->withAdditionalTransformation($this->refinery->int()->isGreaterThanOrEqual(0))
                     ->withAdditionalTransformation($this->refinery->to()->int())
                     ->withRequired(true)
                     ->withValue($settings->getMaxPoints());
             }
         }
-        if (!empty($fields)) {
-            $sections['max_points'] = $factory->section($fields, $this->plugin->txt('max_points'));
+
+        $fields["no_manual_decimals"] = $factory->checkbox(
+            $this->plugin->txt('no_manual_decimals'),
+            $this->plugin->txt('no_manual_decimals_info')
+        )->withValue($assessment_settings->getNoManualDecimals());
+
+        $fields['enable_summary_pdf'] = $factory->optionalGroup(
+            [
+                "summary_pdf_advice" => $factory->textarea(
+                    $this->plugin->txt('summary_pdf_advice'),
+                    $this->plugin->txt('summary_pdf_advice_info')
+                )
+                    ->withAdditionalTransformation($this->refinery->kindlyTo()->string())
+                    ->withValue((string) $task_settings->getSummaryPdfAdvice())
+            ],
+            $this->plugin->txt('enable_summary_pdf'),
+            $this->plugin->txt('enable_summary_pdf_info')
+        );
+        if (!$task_settings->getEnableSummaryPdf()) {
+            $fields['enable_summary_pdf'] = $fields['enable_summary_pdf']->withValue(null);
         }
 
-        // Rating
+        if (!empty($fields)) {
+            $sections['rating_settings'] = $factory->section($fields, $this->plugin->txt('rating_settings'));
+        }
+
+        // Functions
 
         $fields = [];
 
@@ -279,22 +343,6 @@ class CorrectionSettingsGUI extends BaseGUI
         );
         if (!$task_settings->getEnableCommentRatings()) {
             $fields['enable_comment_ratings'] = $fields['enable_comment_ratings']->withValue(null);
-        }
-
-        $fields['enable_summary_pdf'] = $factory->optionalGroup(
-            [
-                "summary_pdf_advice" => $factory->textarea(
-                    $this->plugin->txt('summary_pdf_advice'),
-                    $this->plugin->txt('summary_pdf_advice_info')
-                )
-                    ->withAdditionalTransformation($this->refinery->kindlyTo()->string())
-                    ->withValue((string) $task_settings->getSummaryPdfAdvice())
-            ],
-            $this->plugin->txt('enable_summary_pdf'),
-            $this->plugin->txt('enable_summary_pdf_info')
-        );
-        if (!$task_settings->getEnableSummaryPdf()) {
-            $fields['enable_summary_pdf'] = $fields['enable_summary_pdf']->withValue(null);
         }
 
         $sections['correction_functions'] = $factory->section($fields, $this->plugin->txt('correction_functions'));

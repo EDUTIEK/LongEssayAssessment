@@ -33,8 +33,10 @@ class CorrectionSettings extends \Edutiek\AssessmentService\Assessment\Data\Corr
     #[Key]
     private int $ass_id = 0;
     private int $required_correctors = 1;
+    private bool $no_manual_decimals = false;
     private float $max_auto_distance = 0;
     private bool $mutual_visibility = false;
+    private bool $wait_for_first = false;
     private string $assign_mode = '';
     private bool $procedure_when_distance = false;
     private bool $procedure_when_decimals = false;
@@ -42,6 +44,8 @@ class CorrectionSettings extends \Edutiek\AssessmentService\Assessment\Data\Corr
     private string $approximation = CorrectionApproximation::ONE->value;
     private bool $revision_between = false;
     private bool $stitch_after_procedure = false;
+    private bool $undo_authorization = false;
+    private bool $instant_status = false;
     private bool $anonymize_correctors = false;
     private bool $reports_enabled = false;
     private ?DateTimeImmutable $reports_available_start = null;
@@ -64,6 +68,15 @@ class CorrectionSettings extends \Edutiek\AssessmentService\Assessment\Data\Corr
         $this->required_correctors = $required_correctors;
         return $this;
     }
+    public function getNoManualDecimals(): bool
+    {
+        return $this->no_manual_decimals;
+    }
+    public function setNoManualDecimals(bool $no_manual_decimals): self
+    {
+        $this->no_manual_decimals = $no_manual_decimals;
+        return $this;
+    }
     public function getMaxAutoDistance(): float
     {
         return $this->max_auto_distance;
@@ -80,6 +93,15 @@ class CorrectionSettings extends \Edutiek\AssessmentService\Assessment\Data\Corr
     public function setMutualVisibility(bool $mutual_visibility): self
     {
         $this->mutual_visibility = $mutual_visibility;
+        return $this;
+    }
+    public function getWaitForFirst(): bool
+    {
+        return $this->wait_for_first;
+    }
+    public function setWaitForFirst(bool $wait_for_first): self
+    {
+        $this->wait_for_first = $wait_for_first;
         return $this;
     }
     public function getAssignMode(): AssignMode
@@ -143,6 +165,24 @@ class CorrectionSettings extends \Edutiek\AssessmentService\Assessment\Data\Corr
     public function setStitchAfterProcedure(bool $stitch_after_procedure): self
     {
         $this->stitch_after_procedure = $stitch_after_procedure;
+        return $this;
+    }
+    public function getUndoAuthorization(): bool
+    {
+        return $this->undo_authorization;
+    }
+    public function setUndoAuthorization(bool $undo_authorization): self
+    {
+        $this->undo_authorization = $undo_authorization;
+        return $this;
+    }
+    public function getInstantStatus(): bool
+    {
+        return $this->instant_status;
+    }
+    public function setInstantStatus(bool $instant_status): self
+    {
+        $this->instant_status = $instant_status;
         return $this;
     }
     public function getAnonymizeCorrectors(): bool

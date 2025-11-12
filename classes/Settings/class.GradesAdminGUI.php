@@ -121,7 +121,8 @@ class GradesAdminGUI extends BaseGUI implements DataTableParent
             "title" => $item->getGrade(),
             "points" => $item->getMinPoints(),
             "passed" => $item->isPassed(),
-            "code" => $item->getCode()
+            "code" => $item->getCode(),
+            "statement" => $item->getStatement(),
         ];
     }
 
@@ -137,6 +138,7 @@ class GradesAdminGUI extends BaseGUI implements DataTableParent
             "points" => $tf->column()->number($this->plugin->txt('min_points'))->withDecimals(2)->withIsSortable($sortable),
             "passed" => $tf->column()->boolean($this->plugin->txt('passed'), $this->lng->txt('yes'), $this->lng->txt('no'))->withIsSortable($sortable),
             "code" => $tf->column()->text($this->plugin->txt('grade_level_code'))->withIsSortable($sortable),
+            "statement" => $tf->column()->text($this->plugin->txt('grade_level_statement'))->withIsSortable(false),
         ];
     }
 
@@ -204,7 +206,8 @@ class GradesAdminGUI extends BaseGUI implements DataTableParent
         $grade_level->setGrade($data['grade'])
                     ->setMinPoints($data['points'])
                     ->setCode($data['code'])
-                    ->setPassed($data['passed']);
+                    ->setPassed($data['passed'])
+                    ->setStatement($data['statement']);
 
         $this->entity_service->secure($grade_level, GradeLevel::class);
         $this->grade_service->save($grade_level);
@@ -232,12 +235,17 @@ class GradesAdminGUI extends BaseGUI implements DataTableParent
         $fields['passed'] = $factory->checkbox($this->plugin->txt('passed'), $this->plugin->txt("passed_caption"))
                                    ->withRequired(true)
                                    ->withValue($item->isPassed());
+
+        $fields['statement'] = $factory->textarea($this->plugin->txt("grade_level_statement"), $this->plugin->txt("grade_level_statement_caption"))
+            ->withRequired(false)
+            ->withValue($item->getStatement() ?? "");
+
         return $fields;
     }
 
     protected function tableItemFromData(GradeLevel $item): GradeItem
     {
-        return new GradeItem($item->getId(), $item->getGrade(), $item->getMinPoints(), $item->getPassed(), $item->getCode());
+        return new GradeItem($item->getId(), $item->getGrade(), $item->getMinPoints(), $item->getPassed(), $item->getCode(), $item->getStatement());
     }
 
     public function getTableItem(int $id): Item

@@ -35,6 +35,7 @@ class GradeLevel extends \Edutiek\AssessmentService\Assessment\Data\GradeLevel
     private ?string $code = null;
     private bool $passed = false;
     private int $ass_id = 0;
+    private ?string $statement = null;
 
     public function getId(): int
     {
@@ -88,6 +89,16 @@ class GradeLevel extends \Edutiek\AssessmentService\Assessment\Data\GradeLevel
     public function setAssId(int $ass_id): self
     {
         $this->ass_id = $ass_id;
+        return $this;
+    }
+
+    public function getStatement(): ?string
+    {
+        return $this->statement;
+    }
+    public function setStatement(?string $statement): self
+    {
+        $this->statement = $statement;
         return $this;
     }
 }

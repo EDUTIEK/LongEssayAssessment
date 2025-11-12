@@ -790,4 +790,14 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
             ]);
         }
     }
+
+    public function step_44(): void
+    {
+        if (!$this->db->tableColumnExists('xlas_as_grade_level', 'statement')) {
+            $this->db->addTableColumn('xlas_as_grade_level', 'statement', [
+                'type' => ilDBConstants::T_TEXT,
+                'notnull' => false,
+            ]);
+        }
+    }
 }

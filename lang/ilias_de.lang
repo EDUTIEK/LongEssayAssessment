@@ -279,6 +279,8 @@ writing_unauthorized#:#Die Freigabe der Abgabe wurde zurückgezogen.
 writings_unauthorized#:#Die Freigaben der Abgaben wurden zurückgezogen.
 grade_level_code#:#Code
 grade_level_code_caption#:#Interner Code zum Abgleich der Notenstufe mit internen Systemen
+grade_level_statement#:#Verbale Bewertung
+grade_level_statement_caption#:#Die verbale Bewertung wird im Korrektur-PDF vor der Punktzahl und Note angezeigt.
 passed#:#Bestanden
 passed_caption#:#Mit dieser Notenstufe ist die Abgabe bestanden
 delete_grade_level#:#Notenstufe löschen

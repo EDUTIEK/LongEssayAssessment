@@ -11,28 +11,34 @@ class GradeItem extends Item
         protected string $grade,
         protected float $min_points,
         protected bool $passed,
-        protected ?string $code
+        protected ?string $code,
+        protected ?string $statement
     ) {
         parent::__construct($id);
     }
 
-    public function getGrade() : string
+    public function getGrade(): string
     {
         return $this->grade;
     }
 
-    public function getMinPoints() : float
+    public function getMinPoints(): float
     {
         return $this->min_points;
     }
 
-    public function isPassed() : bool
+    public function isPassed(): bool
     {
         return $this->passed;
     }
 
-    public function getCode() : string
+    public function getCode(): string
     {
         return $this->code ?? "";
+    }
+
+    public function getStatement(): ?string
+    {
+        return $this->statement ?? "";
     }
 }

@@ -176,6 +176,7 @@ grading_not_started#:#nicht begonnen
 grading_open#:#offen
 grading_pre_graded#:#Vorbenotet
 grading_authorized#:#freigegeben
+grading_revised#:#überarbeitet
 assignment_pos_single#:#Korrektor
 assignment_pos_first#:#Erstkorrektur
 assignment_pos_second#:#Zweitkorrektur

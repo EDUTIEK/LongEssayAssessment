@@ -57,6 +57,7 @@ class CorrectionItemColumnMap extends ColumnMappingArray
             GradingStatus::NOT_STARTED => $this->plng->txt("grading_not_started"),
             GradingStatus::PRE_GRADED => $this->plng->txt("grading_pre_graded"),
             GradingStatus::AUTHORIZED => $this->plng->txt("grading_authorized"),
+            GradingStatus::REVISED => $this->plng->txt("grading_revised"),
             default => ""
         };
     }

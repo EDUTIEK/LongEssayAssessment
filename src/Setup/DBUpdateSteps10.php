@@ -810,4 +810,26 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
             ]);
         }
     }
+
+    public function step_46(): void
+    {
+        if (!$this->db->tableColumnExists('xlas_ta_corr_summary', 'revised')) {
+            $this->db->addTableColumn('xlas_ta_corr_summary', 'revised', [
+                'type' => ilDBConstants::T_TIMESTAMP,
+                'notnull' => false,
+            ]);
+        }
+        if (!$this->db->tableColumnExists('xlas_ta_corr_summary', 'revision_text')) {
+            $this->db->addTableColumn('xlas_ta_corr_summary', 'revision_text', [
+                'type' => ilDBConstants::T_TEXT,
+                'notnull' => false,
+            ]);
+        }
+        if (!$this->db->tableColumnExists('xlas_ta_corr_summary', 'revision_points')) {
+            $this->db->addTableColumn('xlas_ta_corr_summary', 'revision_points', [
+                'type' => ilDBConstants::T_FLOAT,
+                'notnull' => false,
+            ]);
+        }
+    }
 }

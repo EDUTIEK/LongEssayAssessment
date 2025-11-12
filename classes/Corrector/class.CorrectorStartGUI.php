@@ -133,7 +133,8 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
             GradingStatus::NOT_STARTED => $this->plugin->txt('grading_not_started'),
             GradingStatus::OPEN => $this->plugin->txt('grading_open'),
             GradingStatus::PRE_GRADED => $this->plugin->txt('grading_pre_graded'),
-            GradingStatus::AUTHORIZED => $this->plugin->txt('grading_authorized')
+            GradingStatus::AUTHORIZED => $this->plugin->txt('grading_authorized'),
+            GradingStatus::REVISED => $this->plugin->txt('grading_revised')
         };
 
         $other_corrector = function (?UserData $user_data, ?CorrectorSummary $summary, ?CorrectorAssignment $assignment) use ($position_title) {

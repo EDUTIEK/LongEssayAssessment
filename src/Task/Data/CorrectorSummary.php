@@ -41,6 +41,9 @@ class CorrectorSummary extends \Edutiek\AssessmentService\Task\Data\CorrectorSum
     private ?DateTimeImmutable $corection_authorized = null;
     private ?int $correction_authorized_by = null;
     private ?DateTimeImmutable $pre_graded = null;
+    private ?DateTimeImmutable $revised = null;
+    private ?string $revision_text = null;
+    private ?float $revision_points = null;
 
     public function getId(): int
     {
@@ -145,6 +148,39 @@ class CorrectorSummary extends \Edutiek\AssessmentService\Task\Data\CorrectorSum
     public function setPreGraded(?DateTimeImmutable $pre_graded): self
     {
         $this->pre_graded = $pre_graded;
+        return $this;
+    }
+
+    public function getRevised(): ?DateTimeImmutable
+    {
+        return $this->revised;
+    }
+
+    public function setRevised(?DateTimeImmutable $revised): self
+    {
+        $this->revised = $revised;
+        return $this;
+    }
+
+    public function getRevisionText(): ?string
+    {
+        return $this->revision_text;
+    }
+
+    public function setRevisionText(?string $revision_text): self
+    {
+        $this->revision_text = $revision_text;
+        return $this;
+    }
+
+    public function getRevisionPoints(): ?float
+    {
+        return $this->revision_points;
+    }
+
+    public function setRevisionPoints(?float $revision_points): self
+    {
+        $this->revision_points = $revision_points;
         return $this;
     }
 }

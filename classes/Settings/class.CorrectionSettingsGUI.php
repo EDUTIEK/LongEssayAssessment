@@ -7,6 +7,8 @@ namespace ILIAS\Plugin\LongEssayAssessment\Settings;
 use DateTimeZone;
 use Edutiek\AssessmentService\Assessment\CorrectionSettings\FullService as AssessmentCorrectionSettingsService;
 use Edutiek\AssessmentService\Assessment\Data\AssignMode;
+use Edutiek\AssessmentService\Assessment\Data\CorrectionApproximation;
+use Edutiek\AssessmentService\Assessment\Data\CorrectionProcedure;
 use Edutiek\AssessmentService\Assessment\Data\CorrectionSettings as AssessmentCorrectionSettings;
 use Edutiek\AssessmentService\Assessment\OrgaSettings\FullService as OrgaSettingsService;
 use Edutiek\AssessmentService\Assessment\TaskInterfaces\TaskManager as TaskManager;
@@ -17,6 +19,7 @@ use Edutiek\AssessmentService\Task\CorrectionSettings\FullService as EssayTaskCo
 use Edutiek\AssessmentService\Task\Data\CorrectionSettings as EssayCorrectionSettings;
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\BaseObjectData;
+use ILIAS\UI\Component\Input\Container\Form\Standard;
 
 /**
  * Settings for the correction
@@ -68,6 +71,98 @@ class CorrectionSettingsGUI extends BaseGUI
      * Edit and save the settings
      */
     protected function editSettings()
+    {
+        $orga_settings = $this->orga_settings_service->get();
+        $assessment_settings = $this->assessment_correction_settings_service->get();
+        $task_settings = $this->task_correction_settings_service->get();
+
+        $form = $this->buildForm();
+        // apply inputs
+        if ($this->request->getMethod() == "POST") {
+            $form = $form->withRequest($this->request);
+            $data = $form->getData();
+        }
+
+        // inputs are ok => save data
+        if (isset($data)) {
+            if (!$orga_settings->getMultiTasks()) {
+                $assessment_settings->setRequiredCorrectors((int) $data['correction']['required_correctors']);
+                $assessment_settings->setMutualVisibility((int) $data['correction']['mutual_visibility']);
+            }
+
+            $assessment_settings->setAssignMode(AssignMode::tryFrom($data['correction']['assign_mode']) ?? AssignMode::RANDOM_EQUAL);
+
+            $assessment_settings->setAnonymizeCorrectors((int) $data['correction']['anonymize_correctors']);
+            if (isset($data['correction']['reports_enabled']) && is_array($data['correction']['reports_enabled'])) {
+                $assessment_settings->setReportsEnabled(true);
+                $assessment_settings->setReportsAvailableStart($data['correction']['reports_enabled']['reports_available_start']);
+            } else {
+                $assessment_settings->setReportsEnabled(false);
+            }
+
+            $essay_tasks_settings = [];
+            foreach ($this->manager_service->all() as $task_info) {
+                if ($task_info->getTaskType() === TaskType::ESSAY) {
+                    $essay_tasks_settings[] = $this->essay_task_api->taskSettings($task_info->getId())
+                        ->get()->setMaxPoints((int) $data['max_points'][$task_info->getId()]);
+                }
+            }
+
+            $task_settings->setEnableComments(((bool) $data['correction_functions']['enable_comments']));
+            $task_settings->setEnablePartialPoints(((bool) $data['correction_functions']['enable_partial_points']));
+            if (isset($data['correction_functions']['enable_comment_ratings']) && is_array($data['correction_functions']['enable_comment_ratings'])) {
+                $task_settings->setEnableCommentRatings(true);
+                $task_settings->setPositiveRating((string) $data['correction_functions']['enable_comment_ratings']['positive_rating']);
+                $task_settings->setNegativeRating((string) $data['correction_functions']['enable_comment_ratings']['negative_rating']);
+            } else {
+                $task_settings->setEnableCommentRatings(false);
+            }
+            if (isset($data['correction_functions']['enable_summary_pdf']) && is_array($data['correction_functions']['enable_summary_pdf'])) {
+                $task_settings->setEnableSummaryPdf(true);
+                $task_settings->setSummaryPdfAdvice((string) $data['correction_functions']['enable_summary_pdf']['summary_pdf_advice']);
+            } else {
+                $task_settings->setEnableSummaryPdf(false);
+            }
+
+            if (!$orga_settings->getMultiTasks()) {
+                if (isset($data['procedure']['procedure_when_distance']) && is_array($data['procedure']['procedure_when_distance'])) {
+                    $assessment_settings->setProcedureWhenDistance(true);
+                    $assessment_settings->setMaxAutoDistance((float) $data['procedure']['procedure_when_distance']['max_auto_distance']);
+                } else {
+                    $assessment_settings->setProcedureWhenDistance(false);
+                }
+                $assessment_settings->setProcedure(CorrectionProcedure::tryFrom(
+                    $data['procedure']['procedure'][0] ?? CorrectionProcedure::NONE
+                ));
+                if ($assessment_settings->getProcedure() === CorrectionProcedure::APPROXIMATION) {
+                    $assessment_settings->setApproximation(CorrectionApproximation::tryFrom(
+                        $data['procedure']['procedure'][1]['approximation']
+                    ) ?? CorrectionProcedure::NONE);
+                }
+                $assessment_settings->setProcedureWhenDecimals(!empty($data['procedure']['procedure_when_decimals']));
+                $assessment_settings->setRevisionBetween(!empty($data['procedure']['revision_between']));
+                $assessment_settings->setStitchAfterProcedure(!empty($data['procedure']['stitch_after_procedure']));
+            }
+
+            $this->entity_service->secure($assessment_settings, AssessmentCorrectionSettings::class);
+            $this->assessment_correction_settings_service->save($assessment_settings);
+
+            $this->entity_service->secure($task_settings, EssayCorrectionSettings::class);
+            $this->task_correction_settings_service->save($task_settings);
+
+            foreach ($essay_tasks_settings as $settings) {
+                $this->entity_service->secure($settings, EssayTaskSettings::class);
+                $this->essay_task_api->taskSettings($settings->getTaskId())->save($settings);
+            }
+
+            $this->tpl->setOnScreenMessage("success", $this->lng->txt("settings_saved"), true);
+            $this->ctrl->redirect($this, "editSettings");
+        }
+
+        $this->add($form)->show();
+    }
+
+    private function buildForm(): Standard
     {
         $orga_settings = $this->orga_settings_service->get();
         $assessment_settings = $this->assessment_correction_settings_service->get();
@@ -158,7 +253,7 @@ class CorrectionSettingsGUI extends BaseGUI
             $this->plugin->txt('enable_partial_points'),
             $this->plugin->txt('enable_partial_points_info')
         )
-        ->withValue($task_settings->getEnablePartialPoints());
+            ->withValue($task_settings->getEnablePartialPoints());
 
         $fields['enable_comment_ratings'] = $factory->optionalGroup(
             [
@@ -204,11 +299,11 @@ class CorrectionSettingsGUI extends BaseGUI
 
         $sections['correction_functions'] = $factory->section($fields, $this->plugin->txt('correction_functions'));
 
-        // Stitch decision
+        // procedure decision
 
         if (!$orga_settings->getMultiTasks()) {
             $fields = [];
-            $fields['stitch_when_distance'] = $factory->optionalGroup(
+            $fields['procedure_when_distance'] = $factory->optionalGroup(
                 [
                     "max_auto_distance" => $factory->text(
                         $this->plugin->txt('max_auto_distance'),
@@ -218,95 +313,57 @@ class CorrectionSettingsGUI extends BaseGUI
                         ->withRequired(true)
                         ->withValue((string) (empty($assessment_settings->getMaxAutoDistance()) ? '0.0' : $assessment_settings->getMaxAutoDistance()))
                 ],
-                $this->plugin->txt('stitch_when_distance')
+                $this->plugin->txt('procedure_when_distance')
             );
-            if (!$assessment_settings->getStitchWhenDistance()) {
-                $fields['stitch_when_distance'] = $fields['stitch_when_distance']->withValue(null);
+            if (!$assessment_settings->getProcedureWhenDistance()) {
+                $fields['procedure_when_distance'] = $fields['procedure_when_distance']->withValue(null);
             }
 
-            $fields['stitch_when_decimals'] = $factory->checkbox($this->plugin->txt('stitch_when_decimals'))
-                ->withValue($assessment_settings->getStitchWhenDecimals());
+            $fields['procedure_when_decimals'] = $factory->checkbox($this->plugin->txt('procedure_when_decimals'))
+                ->withValue($assessment_settings->getProcedureWhenDecimals());
 
-            $sections['stitch'] = $factory->section($fields, $this->plugin->txt('settings_stitch_required'));
+            $proc_none = $factory->group(
+                [],
+                $this->plugin->txt('procedure_none')
+            );
+            $proc_consult = $factory->group(
+                [],
+                $this->plugin->txt('procedure_consulting'),
+                $this->plugin->txt('procedure_approximation_info')
+            );
+            $proc_approx = $factory->group([
+                'approximation' => $factory->radio($this->plugin->txt('approximation'))
+                    ->withOption(CorrectionApproximation::ONE->value, $this->plugin->txt('approximation_one'))
+                    ->withOption(CorrectionApproximation::BOTH->value, $this->plugin->txt('approximation_both'))
+                    ->withOption(CorrectionApproximation::DECIDE->value, $this->plugin->txt('approximation_decide'))
+                    ->withValue($assessment_settings->getApproximation()->value)
+            ], $this->plugin->txt('procedure_approximation'), $this->plugin->txt('procedure_approximation_info'));
+
+            $fields['procedure'] = $factory->switchableGroup([
+                CorrectionProcedure::NONE->value => $proc_none,
+                CorrectionProcedure::APPROXIMATION->value => $proc_approx,
+                CorrectionProcedure::CONSULTING->value => $proc_consult,
+            ], $this->plugin->txt('correction_procedure'))
+                ->withValue($assessment_settings->getProcedure()->value);
+
+            $fields['revision_between'] = $factory->checkbox(
+                $this->plugin->txt('revision_between'),
+                $this->plugin->txt('revision_between_info')
+            )
+                ->withValue($assessment_settings->getRevisionBetween());
+
+            $fields['stitch_after_procedure'] = $factory->checkbox(
+                $this->plugin->txt('stitch_after_procedure'),
+                $this->plugin->txt('stitch_after_procedure_info')
+            )
+                ->withValue($assessment_settings->getStitchAfterProcedure());
+
+            $sections['procedure'] = $factory->section($fields, $this->plugin->txt('correction_procedure_settings'));
         }
 
-        $form = $this->ui_factory->input()->container()->form()->standard(
+        return $this->ui_factory->input()->container()->form()->standard(
             $this->ctrl->getFormAction($this),
             $this->disabled_group->disableBySetting('tab_correction_settings', $sections)
         );
-
-        // apply inputs
-        if ($this->request->getMethod() == "POST") {
-            $form = $form->withRequest($this->request);
-            $data = $form->getData();
-        }
-
-        // inputs are ok => save data
-        if (isset($data)) {
-            if (!$orga_settings->getMultiTasks()) {
-                $assessment_settings->setRequiredCorrectors((int) $data['correction']['required_correctors']);
-                $assessment_settings->setMutualVisibility((int) $data['correction']['mutual_visibility']);
-            }
-
-            $assessment_settings->setAssignMode(AssignMode::tryFrom($data['correction']['assign_mode']) ?? AssignMode::RANDOM_EQUAL);
-
-            $assessment_settings->setAnonymizeCorrectors((int) $data['correction']['anonymize_correctors']);
-            if (isset($data['correction']['reports_enabled']) && is_array($data['correction']['reports_enabled'])) {
-                $assessment_settings->setReportsEnabled(true);
-                $assessment_settings->setReportsAvailableStart($data['correction']['reports_enabled']['reports_available_start']);
-            } else {
-                $assessment_settings->setReportsEnabled(false);
-            }
-
-            $essay_tasks_settings = [];
-            foreach ($this->manager_service->all() as $task_info) {
-                if ($task_info->getTaskType() === TaskType::ESSAY) {
-                    $essay_tasks_settings[] = $this->essay_task_api->taskSettings($task_info->getId())
-                        ->get()->setMaxPoints((int) $data['max_points'][$task_info->getId()]);
-                }
-            }
-
-            $task_settings->setEnableComments(((bool) $data['correction_functions']['enable_comments']));
-            $task_settings->setEnablePartialPoints(((bool) $data['correction_functions']['enable_partial_points']));
-            if (isset($data['correction_functions']['enable_comment_ratings']) && is_array($data['correction_functions']['enable_comment_ratings'])) {
-                $task_settings->setEnableCommentRatings(true);
-                $task_settings->setPositiveRating((string) $data['correction_functions']['enable_comment_ratings']['positive_rating']);
-                $task_settings->setNegativeRating((string) $data['correction_functions']['enable_comment_ratings']['negative_rating']);
-            } else {
-                $task_settings->setEnableCommentRatings(false);
-            }
-            if (isset($data['correction_functions']['enable_summary_pdf']) && is_array($data['correction_functions']['enable_summary_pdf'])) {
-                $task_settings->setEnableSummaryPdf(true);
-                $task_settings->setSummaryPdfAdvice((string) $data['correction_functions']['enable_summary_pdf']['summary_pdf_advice']);
-            } else {
-                $task_settings->setEnableSummaryPdf(false);
-            }
-
-            if (!$orga_settings->getMultiTasks()) {
-                if (isset($data['stitch']['stitch_when_distance']) && is_array($data['stitch']['stitch_when_distance'])) {
-                    $assessment_settings->setStitchWhenDistance(true);
-                    $assessment_settings->setMaxAutoDistance((float) $data['stitch']['stitch_when_distance']['max_auto_distance']);
-                } else {
-                    $assessment_settings->setStitchWhenDistance(false);
-                }
-                $assessment_settings->setStitchWhenDecimals(!empty($data['stitch']['stitch_when_decimals']));
-            }
-
-            $this->entity_service->secure($assessment_settings, AssessmentCorrectionSettings::class);
-            $this->assessment_correction_settings_service->save($assessment_settings);
-
-            $this->entity_service->secure($task_settings, EssayCorrectionSettings::class);
-            $this->task_correction_settings_service->save($task_settings);
-
-            foreach ($essay_tasks_settings as $settings) {
-                $this->entity_service->secure($settings, EssayTaskSettings::class);
-                $this->essay_task_api->taskSettings($settings->getTaskId())->save($settings);
-            }
-
-            $this->tpl->setOnScreenMessage("success", $this->lng->txt("settings_saved"), true);
-            $this->ctrl->redirect($this, "editSettings");
-        }
-
-        $this->add($form)->show();
     }
 }

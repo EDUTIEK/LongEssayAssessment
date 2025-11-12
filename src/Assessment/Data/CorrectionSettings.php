@@ -22,6 +22,8 @@ namespace ILIAS\Plugin\LongEssayAssessment\Assessment\Data;
 
 use DateTimeImmutable;
 use Edutiek\AssessmentService\Assessment\Data\AssignMode;
+use Edutiek\AssessmentService\Assessment\Data\CorrectionApproximation;
+use Edutiek\AssessmentService\Assessment\Data\CorrectionProcedure;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Key;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Table;
 
@@ -34,8 +36,12 @@ class CorrectionSettings extends \Edutiek\AssessmentService\Assessment\Data\Corr
     private float $max_auto_distance = 0;
     private bool $mutual_visibility = false;
     private string $assign_mode = '';
-    private bool $stitch_when_distance = false;
-    private bool $stitch_when_decimals = false;
+    private bool $procedure_when_distance = false;
+    private bool $procedure_when_decimals = false;
+    private string $procedure = CorrectionProcedure::NONE->value;
+    private string $approximation = CorrectionApproximation::ONE->value;
+    private bool $revision_between = false;
+    private bool $stitch_after_procedure = false;
     private bool $anonymize_correctors = false;
     private bool $reports_enabled = false;
     private ?DateTimeImmutable $reports_available_start = null;
@@ -85,22 +91,58 @@ class CorrectionSettings extends \Edutiek\AssessmentService\Assessment\Data\Corr
         $this->assign_mode = $assign_mode->value;
         return $this;
     }
-    public function getStitchWhenDistance(): bool
+    public function getProcedureWhenDistance(): bool
     {
-        return $this->stitch_when_distance;
+        return $this->procedure_when_distance;
     }
-    public function setStitchWhenDistance(bool $stitch_when_distance): self
+    public function setProcedureWhenDistance(bool $procedure_when_distance): self
     {
-        $this->stitch_when_distance = $stitch_when_distance;
+        $this->procedure_when_distance = $procedure_when_distance;
         return $this;
     }
-    public function getStitchWhenDecimals(): bool
+    public function getProcedureWhenDecimals(): bool
     {
-        return $this->stitch_when_decimals;
+        return $this->procedure_when_decimals;
     }
-    public function setStitchWhenDecimals(bool $stitch_when_decimals): self
+    public function setProcedureWhenDecimals(bool $procedure_when_decimals): self
     {
-        $this->stitch_when_decimals = $stitch_when_decimals;
+        $this->procedure_when_decimals = $procedure_when_decimals;
+        return $this;
+    }
+    public function getProcedure(): CorrectionProcedure
+    {
+        return CorrectionProcedure::tryFrom($this->procedure) ?? CorrectionProcedure::NONE;
+    }
+    public function setProcedure(CorrectionProcedure $procedure): self
+    {
+        $this->procedure = $procedure->value;
+        return $this;
+    }
+    public function getApproximation(): CorrectionApproximation
+    {
+        return CorrectionApproximation::tryFrom($this->approximation) ?? CorrectionApproximation::DECIDE;
+    }
+    public function setApproximation(CorrectionApproximation $approximation): self
+    {
+        $this->approximation = $approximation->value;
+        return $this;
+    }
+    public function getRevisionBetween(): bool
+    {
+        return $this->revision_between;
+    }
+    public function setRevisionBetween(bool $revision_between): self
+    {
+        $this->revision_between = $revision_between;
+        return $this;
+    }
+    public function getStitchAfterProcedure(): bool
+    {
+        return $this->stitch_after_procedure;
+    }
+    public function setStitchAfterProcedure(bool $stitch_after_procedure): self
+    {
+        $this->stitch_after_procedure = $stitch_after_procedure;
         return $this;
     }
     public function getAnonymizeCorrectors(): bool

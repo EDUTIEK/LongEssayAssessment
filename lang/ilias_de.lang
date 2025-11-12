@@ -305,8 +305,6 @@ required_correctors#:#Anzahl Korrekturen
 mutual_visibility#:#Gegenseitige Sichtbarkeit
 mutual_visibility_info#:#Korrektoren derselben Abgabe können ihre Korrekturen gegenseitig sehen, sobald sie freigegeben sind.
 max_points#:#Maximale Punkte
-max_auto_distance#:#Maximaler Punkteunterschied
-max_auto_distance_info#:#Maximaler Unterschied zwischen niedrigster und höchster Punktzahl, bei der eine Durchschnittsnote gebildet werden kann und kein Stichentscheid notwendig ist
 tab_correction_settings#:#Korrektur
 tab_correction_items#:#Abgaben
 correction_settings#:#Korrektur-Einstellungen
@@ -369,8 +367,6 @@ potential_authorizations_not_started#:#Noch nicht gestartet, aber in Bearbeitung
 potential_authorizations_writing#:#In Bearbeitung und in Bearbeitungszeit: %s
 potential_authorizations_after#:#Nach Bearbeitungszeit, aber noch nicht zur Korrektur abgegeben: %s
 settings_stitch_required#:#Stichentscheid
-stitch_when_distance#:#Bei abweichenden Punkten
-stitch_when_decimals#:#Wenn der Punktedurchschnitt keine ganze Zahl ist
 remove_authorization#:#Korrektur-Freigabe zurückziehen
 remove_authorizations#:#Korrektur-Freigaben zurückziehen
 confirm_remove_authorizations_for#:#Möchten Sie die Freigabe der Korrektur(en) für %s zurückziehen? Diese Aktion wird protokolliert.
@@ -814,3 +810,22 @@ enable_summary_pdf_info#:#Ermöglicht anstelle eines textuellen Gutachtens ein G
 summary_pdf_advice#:#Anleitung zum PDF-Gutachten
 summary_pdf_advice_info#:#Diee Anleitung wird im Formular zum Hochladen eines PDF-Gutachtens angezeigt
 tab_documentation_settings#:#Dokumentation
+correction_procedure_settings#:#Ausnahmebehandlung
+procedure_when_distance#:#Bei abweichenden Punkten
+procedure_when_decimals#:#Wenn der Durchschnitt keine ganze Zahl ist
+max_auto_distance#:#Maximaler Punkteunterschied
+max_auto_distance_info#:#Maximal erlaubter Unterschied zwischen niedrigster und höchster Punktzahl
+correction_procedure#:#Verfahren der Korrektoren
+procedure_none#:#Kein Verfahren
+procedure_approximation#:#Annäherungsverfahren
+procedure_approximation_info#:#Die Annäherung beginnt mit dem Erstkorrektor, der seine Punkte und sein Gutachten überarbeiten muss. Anschließend kann oder muss der Zweitkorrektor seine Punkte und sein Gutachten überarbeiten, falls weiterhin eine Annäherung notwendig ist. Die Eingaben aus der Annäherung werden gesondert gespeichert.
+procedure_consulting#:#Beratungsverfahren
+procedure_consulting_info#:#Beide Korrektoren müssen eine Beratungspunktzahl eingeben. Nur der Zweitkorrektor darf eine Begründung als Beratungsvermerk eingeben. Die Eingaben aus der Beratung werden gesondert gespeichert.
+revision_between#:#Bewertungskorridor
+revision_between_info#:#Eine überarbeitete Punktzahl muss zwischen den ursprünglichen beider Korrektoren liegen.
+stitch_after_procedure#:#Stichentscheid
+stitch_after_procedure_info#:#Ist nach dem Verfahren der Korrektoren weiterhin eine Ausnahmebehandlung nötig, muss ein Stichentscheid durch einen dritten Korrektor erfolgen, der in der Korrekturverwaltung manuell bestimmt wird. Andernfalls wird eine Durchschnittspunktzahl gebildet.
+approximation#:#Annäherung
+approximation_one#:#Nur durch den Erstkorretor
+approximation_both#:#Durch beide Korrektoren, wenn erforderlich
+approximation_decide#:#Erstkorrektor entscheidet über Einbeziehung des Zweitkorrektors, wenn erforderlich

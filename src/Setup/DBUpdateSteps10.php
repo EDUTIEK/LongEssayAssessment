@@ -697,4 +697,53 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
             $this->db->dropTableColumn('xlas_as_writer', 'stitch_needed');
         }
     }
+
+    public function step_37(): void
+    {
+        if ($this->db->tableColumnExists('xlas_as_corr_settings', 'stitch_when_distance')) {
+            $this->db->renameTableColumn('xlas_as_corr_settings', 'stitch_when_distance', 'procedure_when_distance');
+        }
+        if ($this->db->tableColumnExists('xlas_as_corr_settings', 'stitch_when_decimals')) {
+            $this->db->renameTableColumn('xlas_as_corr_settings', 'stitch_when_decimals', 'procedure_when_decimals');
+        }
+    }
+
+    public function step_38(): void
+    {
+        if (!$this->db->tableColumnExists('xlas_as_corr_settings', 'procedure')) {
+            $this->db->addTableColumn('xlas_as_corr_settings', 'procedure', [
+                'type' => ilDBConstants::T_TEXT,
+                'length' => '25',
+                'notnull' => true,
+                'default' => 'none'
+            ]);
+        }
+
+        if (!$this->db->tableColumnExists('xlas_as_corr_settings', 'stitch_after_procedure')) {
+            $this->db->addTableColumn('xlas_as_corr_settings', 'stitch_after_procedure', [
+                'type' => ilDBConstants::T_INTEGER,
+                'notnull' => true,
+                'default' => 1
+            ]);
+        }
+
+        if (!$this->db->tableColumnExists('xlas_as_corr_settings', 'approximation')) {
+            $this->db->addTableColumn('xlas_as_corr_settings', 'approximation', [
+                'type' => ilDBConstants::T_TEXT,
+                'length' => '25',
+                'notnull' => true,
+                'default' => 'decide'
+            ]);
+        }
+    }
+    public function step_39(): void
+    {
+        if (!$this->db->tableColumnExists('xlas_as_corr_settings', 'revision_between')) {
+            $this->db->addTableColumn('xlas_as_corr_settings', 'revision_between', [
+                'type' => ilDBConstants::T_INTEGER,
+                'notnull' => true,
+                'default' => 0
+            ]);
+        }
+    }
 }

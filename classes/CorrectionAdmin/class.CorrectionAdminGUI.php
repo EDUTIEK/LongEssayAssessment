@@ -708,6 +708,8 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
             (string) CombinedStatus::WRITING_EXCLUDED->value => $this->plugin->txt("status_writing_excluded"),
             (string) CombinedStatus::WRITING_EXCLUDED->value => $this->plugin->txt("status_writing_authorized"),
             (string) CombinedStatus::STARTED->value => $this->plugin->txt("correction_status_started"),
+            (string) CombinedStatus::APPROXIMATION->value => $this->plugin->txt("correction_status_approximation"),
+            (string) CombinedStatus::CONSULTING->value => $this->plugin->txt("correction_status_consulting"),
             (string) CombinedStatus::STITCH_NEEDED->value => $this->plugin->txt("correction_status_stitch_needed"),
             (string) CombinedStatus::FINALIZED->value => $this->plugin->txt("correction_finalized_from"),
         ];

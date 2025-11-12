@@ -51,7 +51,7 @@ final class CorrectionItemCollection implements \Iterator
         $user_ids = [];
         $locations_by_id = [];
 
-        foreach($locations as $l) {
+        foreach ($locations as $l) {
             $locations_by_id[$l->getId()] = $l;
         }
 
@@ -61,7 +61,7 @@ final class CorrectionItemCollection implements \Iterator
             $this->summaries[$w->getId()] = [];
             $this->correctors[$w->getId()] = [];
             $this->corrector_assignments[$w->getId()] = [];
-            $this->locations[$w->getId()] = $locations_by_id[$w->getLocation()]?? null;
+            $this->locations[$w->getId()] = $locations_by_id[$w->getLocation()] ?? null;
 
             if ($w->getWritingAuthorizedBy() !== null) {
                 $user_ids[] = $w->getWritingAuthorizedBy();
@@ -69,8 +69,8 @@ final class CorrectionItemCollection implements \Iterator
             if ($w->getWritingExcludedBy() !== null) {
                 $user_ids[] = $w->getWritingExcludedBy();
             }
-            if ($w->getCorrectionFinalized() !== null) {
-                $user_ids[] = $w->getCorrectionFinalized();
+            if ($w->getCorrectionFinalizedBy() !== null) {
+                $user_ids[] = $w->getCorrectionFinalizedBy();
             }
         }
 
@@ -91,20 +91,20 @@ final class CorrectionItemCollection implements \Iterator
             $corrector = $correctors_by_id[$ca->getCorrectorId()] ?? null;
             $this->corrector_assignments[$ca->getWriterId()][$ca->getPosition()] = $ca;
             $assignment_by_writer_corrector[$ca->getWriterId()][$ca->getCorrectorId()] = $ca;
-            if($corrector !== null){
+            if ($corrector !== null) {
                 $this->correctors[$ca->getWriterId()][$ca->getPosition()] = $corrector;
             }
         }
 
         foreach ($summaries as $s) {
-            $essay = $this->essays[$s->getWriterId()]??null;
-            if($essay !== null) {
+            $essay = $this->essays[$s->getWriterId()] ?? null;
+            if ($essay !== null) {
                 $assignment = $assignment_by_writer_corrector[$essay->getWriterId()][$s->getCorrectorId()] ?? null;
                 $this->summaries[$essay->getWriterId()][$assignment?->getPosition()] = $s;
             }
         }
         $this->user_ids = array_unique($user_ids);
-        $this->ids= array_keys($this->writer);
+        $this->ids = array_keys($this->writer);
     }
 
     public function getUserIds()
@@ -119,31 +119,30 @@ final class CorrectionItemCollection implements \Iterator
 
     public function applyFilter(?array $filter_data)
     {
-        if(empty($filter)) {
+        if (empty($filter)) {
             $this->ids = array_keys($this->writer);
             return;
         }
 
         $this->ids = [];
-        foreach($this->writer as $id => $w)
-        {
+        foreach ($this->writer as $id => $w) {
             $user_data = $this->user_data[$w->getUserId()] ?? null;
             $essay = $this->essays[$id] ?? null;
-            if(!empty($filter_data["name"]??null) && !str_contains($w->getPseudonym() . $user_data?->getFullname(true), $filter_data['name'])) {
+            if (!empty($filter_data["name"] ?? null) && !str_contains($w->getPseudonym() . $user_data?->getFullname(true), $filter_data['name'])) {
                 continue;
             }
-            if (!empty($filter_data['location']?? null) && !in_array($w->getLocation(), $filter_data['location'])) {
+            if (!empty($filter_data['location'] ?? null) && !in_array($w->getLocation(), $filter_data['location'])) {
                 continue;
             }
-            if (!empty($filter_data['min_words']??null) && ($essay?->getWords()??0) < (int)$filter_data['min_words']) {
-                continue;
-            }
-
-            if (!empty($filter_data['max_words']??null) && ($essay?->getWords()??0) > (int)$filter_data['max_words']) {
+            if (!empty($filter_data['min_words'] ?? null) && ($essay?->getWords() ?? 0) < (int) $filter_data['min_words']) {
                 continue;
             }
 
-            if (!empty($filter_data['pdf_version']??null)) {
+            if (!empty($filter_data['max_words'] ?? null) && ($essay?->getWords() ?? 0) > (int) $filter_data['max_words']) {
+                continue;
+            }
+
+            if (!empty($filter_data['pdf_version'] ?? null)) {
                 $has_pdf_upload = $essay?->hasPdfUploads() ?? false;
                 $filter_pdf_upload = $filter_data['pdf_version'] === CorrectionAdminGUI::FILTER_YES;
 
@@ -153,17 +152,17 @@ final class CorrectionItemCollection implements \Iterator
             }
             $status = $this->correction_status[$id] ?? null;
 
-            if (!empty($filter_data['status']??null) && !in_array($status->value, $filter_data['status'])) {
+            if (!empty($filter_data['status'] ?? null) && !in_array($status->value, $filter_data['status'])) {
                 continue;
             }
 
-            if(!empty($filter_data['assigned']??null)){
+            if (!empty($filter_data['assigned'] ?? null)) {
                 $need_correctors = count($this->corrector_assignments[$id]) === $this->correctors_needed;
 
-                if ($filter_data['assigned'] == CorrectionAdminGUI::FILTER_YES && !$need_correctors)  {
+                if ($filter_data['assigned'] == CorrectionAdminGUI::FILTER_YES && !$need_correctors) {
                     continue;
                 }
-                if ($filter_data['assigned'] == CorrectionAdminGUI::FILTER_NO && $need_correctors)  {
+                if ($filter_data['assigned'] == CorrectionAdminGUI::FILTER_NO && $need_correctors) {
                     continue;
                 }
             }

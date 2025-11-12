@@ -40,6 +40,7 @@ class CorrectorSummary extends \Edutiek\AssessmentService\Task\Data\CorrectorSum
     private ?DateTimeImmutable $last_change = null;
     private ?DateTimeImmutable $corection_authorized = null;
     private ?int $correction_authorized_by = null;
+    private ?DateTimeImmutable $pre_graded = null;
 
     public function getId(): int
     {
@@ -133,6 +134,17 @@ class CorrectorSummary extends \Edutiek\AssessmentService\Task\Data\CorrectorSum
     public function setWriterId(int $writer_id): self
     {
         $this->writer_id = $writer_id;
+        return $this;
+    }
+
+    public function getPreGraded(): ?DateTimeImmutable
+    {
+        return $this->pre_graded;
+    }
+
+    public function setPreGraded(?DateTimeImmutable $pre_graded): self
+    {
+        $this->pre_graded = $pre_graded;
         return $this;
     }
 }

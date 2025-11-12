@@ -800,4 +800,14 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
             ]);
         }
     }
+
+    public function step_45(): void
+    {
+        if (!$this->db->tableColumnExists('xlas_ta_corr_summary', 'pre_graded')) {
+            $this->db->addTableColumn('xlas_ta_corr_summary', 'pre_graded', [
+                'type' => ilDBConstants::T_TIMESTAMP,
+                'notnull' => false,
+            ]);
+        }
+    }
 }

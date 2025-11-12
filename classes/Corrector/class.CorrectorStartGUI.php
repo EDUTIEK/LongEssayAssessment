@@ -123,6 +123,8 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
             CombinedStatus::WRITING_EXCLUDED => $this->plugin->txt('correction_status_not_possible'),
             CombinedStatus::WRITING_AUTHORIZED,
             CombinedStatus::STARTED => $this->plugin->txt("correction_status_open"),
+            CombinedStatus::APPROXIMATION => $this->plugin->txt("correction_status_approximation"),
+            CombinedStatus::CONSULTING => $this->plugin->txt("correction_status_consulting"),
             CombinedStatus::STITCH_NEEDED => $this->plugin->txt("correction_status_stitch_needed"),
             CombinedStatus::FINALIZED => $this->plugin->txt("correction_status_finished")
         };
@@ -130,6 +132,7 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
         $grading_status = fn(GradingStatus $x) => match($x) {
             GradingStatus::NOT_STARTED => $this->plugin->txt('grading_not_started'),
             GradingStatus::OPEN => $this->plugin->txt('grading_open'),
+            GradingStatus::PRE_GRADED => $this->plugin->txt('grading_pre_graded'),
             GradingStatus::AUTHORIZED => $this->plugin->txt('grading_authorized')
         };
 

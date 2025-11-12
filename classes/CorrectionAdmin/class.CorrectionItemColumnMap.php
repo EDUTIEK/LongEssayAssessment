@@ -35,7 +35,7 @@ class CorrectionItemColumnMap extends ColumnMappingArray
     ) {
     }
 
-    private function correctionStatus(CombinedStatus $status) : string
+    private function correctionStatus(CombinedStatus $status): string
     {
         return self::$correction_status[$status->value] ??= match($status) {
             CombinedStatus::WRITING_NOT_STARTED => $this->plng->txt("status_writing_not_started"),
@@ -43,25 +43,28 @@ class CorrectionItemColumnMap extends ColumnMappingArray
             CombinedStatus::WRITING_EXCLUDED => $this->plng->txt("status_writing_excluded_from"),
             CombinedStatus::WRITING_AUTHORIZED => $this->plng->txt("status_writing_authorized_from"),
             CombinedStatus::STARTED => $this->plng->txt("correction_status_started"),
+            CombinedStatus::APPROXIMATION => $this->plng->txt("correction_status_approximation"),
+            CombinedStatus::CONSULTING => $this->plng->txt("correction_status_consulting"),
             CombinedStatus::STITCH_NEEDED => $this->plng->txt("correction_status_stitch_needed"),
             CombinedStatus::FINALIZED => $this->plng->txt("correction_finalized_from"),
         };
     }
 
-    private function gradingStatus(?GradingStatus $status) :string
+    private function gradingStatus(?GradingStatus $status): string
     {
         return self::$grading_status[$status?->value] ??= match($status) {
-                GradingStatus::OPEN => $this->plng->txt("grading_open"),
-                GradingStatus::NOT_STARTED => $this->plng->txt("grading_not_started"),
-                GradingStatus::AUTHORIZED => $this->plng->txt("grading_authorized"),
-                default => ""
-            };
+            GradingStatus::OPEN => $this->plng->txt("grading_open"),
+            GradingStatus::NOT_STARTED => $this->plng->txt("grading_not_started"),
+            GradingStatus::PRE_GRADED => $this->plng->txt("grading_pre_graded"),
+            GradingStatus::AUTHORIZED => $this->plng->txt("grading_authorized"),
+            default => ""
+        };
     }
 
-    private function image() : Symbol
+    private function image(): Symbol
     {
         $writer_image = $this->item->getWriterImage();
-        $login = $this->item->getWriterLogin()??"";
+        $login = $this->item->getWriterLogin() ?? "";
         if (!empty($writer_image)) {
             $avatar = $this->ui_factory->symbol()->avatar()->picture($writer_image, $login);
         } else {
@@ -70,16 +73,16 @@ class CorrectionItemColumnMap extends ColumnMappingArray
         return $avatar;
     }
 
-    private function unknown() : string
+    private function unknown(): string
     {
         return self::$unknown ??= $this->lng->txt("unknown");
     }
 
-    public function map(string $key) : mixed
+    public function map(string $key): mixed
     {
         $item = $this->item;
 
-        return match($key){
+        return match($key) {
             "image" => $this->image(),
             "name" => $item->getWriterName() ?? $this->unknown(),
             "login" => $item->getWriterLogin() ?? "",
@@ -90,9 +93,9 @@ class CorrectionItemColumnMap extends ColumnMappingArray
             "word_count" => $item->getEssay()?->getWordCount() ?? 0,
             "result" => $this->ass_format->finalResult($item->getWriter()),
             "points" => $item->getWriter()->getFinalPoints(),
-            "grade" => $this->grading->getGradeLevel($item->getWriter()->getFinalGradeLevelId())??"",
+            "grade" => $this->grading->getGradeLevel($item->getWriter()->getFinalGradeLevelId()) ?? "",
             "finalized" => $item->getWriter()->getCorrectionFinalized()?->setTimezone($this->timezone),
-            "finalized_from" => $item->getFinalizedByName()??$this->unknown(),
+            "finalized_from" => $item->getFinalizedByName() ?? $this->unknown(),
             "stitch_needed" => $item->isStitchNeeded(),
             "pdf_version" => $item->getEssay()?->hasPDFVersion() ?? false,
 
@@ -102,7 +105,7 @@ class CorrectionItemColumnMap extends ColumnMappingArray
             "corr_0_name" => $item->getCorrectorDataByPosition(0)?->getFullname(true),
             "corr_0_status" => $this->gradingStatus($item->getSummaryByPosition(0)?->getGradingStatus()),
             "corr_0_points" => $item->getSummaryByPosition(0)?->getPoints(),
-            "corr_0_grade" => $this->grading->getGradLevelForPoints($item->getSummaryByPosition(0)?->getPoints())??"",
+            "corr_0_grade" => $this->grading->getGradLevelForPoints($item->getSummaryByPosition(0)?->getPoints()) ?? "",
             "corr_0_authorized" => $item->getSummaryByPosition(0)?->isAuthorized() ?? false,
             "corr_1" => $item->getCorrectorDataByPosition(1) !== null
                 ? (($item->getCorrectorDataByPosition(1)?->getFullname(true) ?? $this->unknown()) . " - " . $this->task_format->correctionResult($item->getSummaryByPosition(1)))
@@ -110,7 +113,7 @@ class CorrectionItemColumnMap extends ColumnMappingArray
             "corr_1_name" => $item->getCorrectorDataByPosition(1)?->getFullname(true),
             "corr_1_status" => $this->gradingStatus($item->getSummaryByPosition(1)?->getGradingStatus()),
             "corr_1_points" => $item->getSummaryByPosition(1)?->getPoints(),
-            "corr_1_grade" => $this->grading->getGradLevelForPoints($item->getSummaryByPosition(1)?->getPoints())??"",
+            "corr_1_grade" => $this->grading->getGradLevelForPoints($item->getSummaryByPosition(1)?->getPoints()) ?? "",
             "corr_1_authorized" => $item->getSummaryByPosition(1)?->isAuthorized() ?? false,
             default => null
         };//explicit corrector for more calculation speed

@@ -33,7 +33,7 @@ use Edutiek\AssessmentService\Assessment\WorkingTime\FullService as WorkingTime;
 use Edutiek\AssessmentService\EssayTask\Data\WritingSettings as WritingSettings;
 use Edutiek\AssessmentService\EssayTask\Data\WritingType;
 use ILIAS\StaticURL\Builder\StandardURIBuilder;
-use ILIAS\UI\URLBuilder;
+use Edutiek\AssessmentService\System\Config\Frontend;
 
 /**
  * @ilCtrl_isCalledBy ILIAS\Plugin\LongEssayAssessment\Writer\WriterStartGUI: ilObjLongEssayAssessmentGUI
@@ -191,8 +191,11 @@ class WriterStartGUI extends BaseGUI
         if (!$this->perms->canWrite()) {
             $this->raisePermissionError();
         }
-        $this->assessment_api->writerApp($this->object->getContextId())->open($this->getReturnUrl());
-
+        $this->assessment_api->appService()->open(
+            Frontend::WRITER,
+            $this->object->getContextId(),
+            $this->getReturnUrl()
+        );
     }
 
     public function startWritingReview(): void
@@ -200,7 +203,11 @@ class WriterStartGUI extends BaseGUI
         if (!$this->perms->canReviewWrittenAssessment()) {
             $this->raisePermissionError();
         }
-        $this->assessment_api->writerApp($this->object->getContextId())->open($this->getReturnUrl());
+        $this->assessment_api->appService()->open(
+            Frontend::WRITER,
+            $this->object->getContextId(),
+            $this->getReturnUrl()
+        );
     }
 
     public function downloadWriterPdf(): void

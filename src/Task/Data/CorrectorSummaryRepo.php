@@ -95,7 +95,7 @@ class CorrectorSummaryRepo implements \Edutiek\AssessmentService\Task\Data\Corre
     public function allByTaskIdAndWriterIds(int $task_id, array $writer_ids): array
     {
         $summaries = [];
-        foreach($this->repo->queryAllBy(['task_id' => $task_id, 'writer_id' => $writer_ids]) as $summary) {
+        foreach ($this->repo->queryAllBy(['task_id' => $task_id, 'writer_id' => $writer_ids]) as $summary) {
             $summaries[$summary->getWriterId()][$summary->getCorrectorId()] = $summary;
         }
         return $summaries;
@@ -136,9 +136,9 @@ class CorrectorSummaryRepo implements \Edutiek\AssessmentService\Task\Data\Corre
         return null !== $this->repo->queryOneBy(['task_id' => $task_id, 'writer_id' => $writer_id]);
     }
 
-    public function allByTaskIdAndWriterIdAndCorrectorId(int $task_id, int $writer_id, int $corrector_id): array
+    public function oneByTaskIdAndWriterIdAndCorrectorId(int $task_id, int $writer_id, int $corrector_id): ?CorrectorSummary
     {
-        return $this->repo->queryAllBy(['task_id' => $task_id, 'writer_id' => $writer_id, 'corrector_id' => $corrector_id]);
+        return $this->repo->queryOneBy(['task_id' => $task_id, 'writer_id' => $writer_id, 'corrector_id' => $corrector_id]);
     }
 
     public function deleteByTaskId(int $task_id): void
@@ -158,9 +158,10 @@ class CorrectorSummaryRepo implements \Edutiek\AssessmentService\Task\Data\Corre
 
     public function moveCorrectorByTaskIdAndWriterId(int $task_id, int $writer_id, int $from_corrector, int $to_corrector): void
     {
-        foreach ($this->allByTaskIdAndWriterIdAndCorrectorId($task_id, $writer_id, $from_corrector) as $object) {
-            $object->setCorrectorId($to_corrector);
-            $this->repo->update($object);
+        $summary = $this->oneByTaskIdAndWriterIdAndCorrectorId($task_id, $writer_id, $from_corrector);
+        if ($summary) {
+            $summary->setCorrectorId($to_corrector);
+            $this->repo->update($summary);
         }
     }
 

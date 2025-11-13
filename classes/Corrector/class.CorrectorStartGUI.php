@@ -86,6 +86,7 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
     {
         $cmd = $this->ctrl->getCmd('showStartPage');
         switch ($cmd) {
+            case 'applyFilter':
             case 'showStartPage':
             case 'startCorrector':
             case 'removeAuthorization':
@@ -266,7 +267,13 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
 
     public function getTableItems(?array $ids = null, ?array $filter_data = null): Generator
     {
-        $own_assignments = $this->assignment_service->allByCorrectorId($this->corrector->getId());
+        if (isset($filter_data)) {
+            // filter is already saved
+            $own_assignments = $this->assignment_service->allByCorrectorIdFiltered($this->corrector->getId());
+        } else {
+            $own_assignments = $this->assignment_service->allByCorrectorId($this->corrector->getId());
+        }
+
         /**
          * @var CorrectorAssignment $own_assignment
          */
@@ -275,17 +282,7 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
                 continue;
             }
 
-            if (!empty($filter_data['position']) && $filter_data['position'] != (string) $own_assignment->getPosition()) {
-                continue;
-            }
-
             $item = $this->buildCorrectorStartItem($own_assignment);
-
-            if (!empty($filter_data['status']) && $filter_data['status'] != $item->getSummary()?->getGradingStatus()->value) {
-                continue;
-            }
-
-
             yield $item;
         }
     }
@@ -344,6 +341,28 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
     }
 
     /**
+     * Apply the filter settings
+     * These are saved in the service to be available when the corrctor app loads its items
+     */
+    public function applyFilter()
+    {
+        $table = $this->plugin_ui_factory->table()->dataTable("corrector_start_table", $this);
+
+        $filter_data = $table->getFilterData();
+        $status = null;
+        if (is_array($filter_data['status'])) {
+            $status = [];
+            foreach ($filter_data['status'] as $value) {
+                $status[] = GradingStatus::tryFrom($value);
+            }
+        }
+        $position = !empty($filter_data['position']) ? (int) $filter_data['position'] : null;
+        $this->assignment_service->saveCorrectorFilter($this->corrector->getId(), $status, $position);
+
+        $this->showStartPage();
+    }
+
+    /**
      * Show the items
      */
     protected function showStartPage()
@@ -371,7 +390,6 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
         }
 
         if (!$is_empty_before_filter) {
-
             $this->tpl->setContent($this->renderer->render($table->getComponents()));
             if (!empty($period = $this->system_format_service->dateRange($this->orga_settings->getCorrectionStart(), $this->orga_settings->getCorrectionEnd()))) {
                 $this->tpl->setOnScreenMessage("info", $this->plugin->txt("correction_period") . ': ' . $period, false);
@@ -483,14 +501,17 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
     public function getFilterInputs(): array
     {
         $correction_actions = [
-            GradingStatus::NOT_STARTED->value => $this->plugin->txt('correction_filter_not_started'),
-            GradingStatus::OPEN->value => $this->plugin->txt('correction_filter_started'),
-            GradingStatus::AUTHORIZED->value => $this->plugin->txt('correction_filter_authorized'),
+            GradingStatus::NOT_STARTED->value => $this->plugin->txt('grading_not_started'),
+            GradingStatus::OPEN->value => $this->plugin->txt('grading_open'),
+            GradingStatus::PRE_GRADED->value => $this->plugin->txt('grading_pre_graded'),
+            GradingStatus::AUTHORIZED->value => $this->plugin->txt('grading_authorized'),
+            GradingStatus::REVISED->value => $this->plugin->txt('grading_revised'),
         ];
         $multiple_correctors = $this->settings->getRequiredCorrectors() > 1;
         $position = [
             "1" => $this->plugin->txt('assignment_pos_first'),
             "2" => $this->plugin->txt('assignment_pos_second'),
+            '3' => $this->plugin->txt('assignment_pos_stitch'),
         ];
 
         return  [
@@ -506,6 +527,6 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
 
     public function getFilterBaseAction(): string
     {
-        return $this->ctrl->getLinkTarget($this);
+        return $this->ctrl->getLinkTarget($this, 'applyFilter');
     }
 }

@@ -174,12 +174,13 @@ correction_status_finished#:#abgeschlossen
 own_grading#:#Eigene Note
 grading_not_started#:#nicht begonnen
 grading_open#:#offen
-grading_pre_graded#:#Vorbenotet
+grading_pre_graded#:#vorbenotet
 grading_authorized#:#freigegeben
 grading_revised#:#überarbeitet
 assignment_pos_single#:#Korrektor
 assignment_pos_first#:#Erstkorrektur
 assignment_pos_second#:#Zweitkorrektur
+assignment_pos_stitch#:#Stichentscheid
 assignment_pos_x#:#%s. Korrektur
 assignment_pos_other#:#Korrektur
 assignment_pos_empty#:#nicht ausgewählt
@@ -345,10 +346,6 @@ log_cat_note#:#Notiz
 log_cat_working_time#:#Zeitanpassung
 log_cat_exclusion#:#Ausschluss
 log_cat_alert#:#Benachrichtigung
-correction_filter_not_started#:#fällig
-correction_filter_started#:#selbst begonnen
-correction_filter_authorized#:#selbst freigegeben
-correction_filter_stitch#:#Stichentscheid notwendig
 export_steps#:#Bearbeitungsschritte exportieren
 view_instructions#:#Aufgabenstellung ansehen
 view_solution#:#Lösungshinweise ansehen

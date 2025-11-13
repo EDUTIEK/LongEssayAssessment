@@ -191,8 +191,7 @@ class WriterStartGUI extends BaseGUI
         if (!$this->perms->canWrite()) {
             $this->raisePermissionError();
         }
-        $this->assessment_api->appService()->open(
-            Frontend::WRITER,
+        $this->assessment_api->appService()->openWriter(
             $this->object->getContextId(),
             $this->getReturnUrl()
         );
@@ -203,8 +202,7 @@ class WriterStartGUI extends BaseGUI
         if (!$this->perms->canReviewWrittenAssessment()) {
             $this->raisePermissionError();
         }
-        $this->assessment_api->appService()->open(
-            Frontend::WRITER,
+        $this->assessment_api->appService()->openWriter(
             $this->object->getContextId(),
             $this->getReturnUrl()
         );

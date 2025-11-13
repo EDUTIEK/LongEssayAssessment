@@ -31,6 +31,8 @@ class CorrectorPrefs extends \Edutiek\AssessmentService\Task\Data\CorrectorPrefs
     private float $essay_page_zoom = 0;
     private float $essay_text_zoom = 0;
     private float $summary_text_zoom = 0;
+    private ?string $filter_grading_status = null;
+    private ?int $filter_assigned_position = null;
 
     public function getCorrectorId(): int
     {
@@ -66,6 +68,24 @@ class CorrectorPrefs extends \Edutiek\AssessmentService\Task\Data\CorrectorPrefs
     public function setSummaryTextZoom(float $summary_text_zoom): self
     {
         $this->summary_text_zoom = $summary_text_zoom;
+        return $this;
+    }
+    public function getFilterGradingStatus(): ?string
+    {
+        return $this->filter_grading_status;
+    }
+    public function setFilterGradingStatus(?string $filter_grading_status): self
+    {
+        $this->filter_grading_status = $filter_grading_status;
+        return $this;
+    }
+    public function getFilterAssignedPosition(): ?int
+    {
+        return $this->filter_assigned_position;
+    }
+    public function setFilterAssignedPosition(?int $filter_assigned_position): self
+    {
+        $this->filter_assigned_position = $filter_assigned_position;
         return $this;
     }
 }

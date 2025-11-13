@@ -59,6 +59,11 @@ class RepositoryFactory implements \Edutiek\AssessmentService\Task\Data\Reposito
         return $this->repo(CorrectorPrefsRepo::class, CorrectorPrefs::class);
     }
 
+    public function correctorSnippets(): CorrectorSnippetRepo
+    {
+        return $this->repo(CorrectorSnippetRepo::class, CorrectorSnippet::class);
+    }
+
     public function correctorSummary(): CorrectorSummaryRepo
     {
         return $this->repo(CorrectorSummaryRepo::class, CorrectorSummary::class);

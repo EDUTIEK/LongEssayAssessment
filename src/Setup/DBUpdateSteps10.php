@@ -832,4 +832,21 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
             ]);
         }
     }
+
+    public function step_47(): void
+    {
+        if (!$this->db->tableColumnExists('xlas_ta_corr_prefs', 'filter_grading_status')) {
+            $this->db->addTableColumn('xlas_ta_corr_prefs', 'filter_grading_status', [
+                'type' => ilDBConstants::T_TEXT,
+                'notnull' => false,
+            ]);
+        }
+
+        if (!$this->db->tableColumnExists('xlas_ta_corr_prefs', 'filter_assigned_position')) {
+            $this->db->addTableColumn('xlas_ta_corr_prefs', 'filter_assigned_position', [
+                'type' => ilDBConstants::T_INTEGER,
+                'notnull' => false,
+            ]);
+        }
+    }
 }

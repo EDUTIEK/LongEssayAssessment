@@ -194,18 +194,6 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                         $this->ctrl->forwardCommand(new CorrectionSettingsGUI($this->object));
                     }
                     break;
-                    //                case 'ilias\plugin\longessayassessment\task\criteriaadmingui':
-                    //                    if ($this->permissions->canEditContentSettings()) {
-                    //                        $this->activateTab('tab_task', 'tab_criteria');
-                    //                        $this->ctrl->forwardCommand(new \ILIAS\Plugin\LongEssayAssessment\Task\CriteriaAdminGUI($this));
-                    //                    }
-                    //                    break;
-                    //                case 'ilias\plugin\longessayassessment\task\gradesadmingui':
-                    //                    if ($this->permissions->canEditContentSettings()) {
-                    //                        $this->activateTab('tab_task', 'tab_grades');
-                    //                        $this->ctrl->forwardCommand(new \ILIAS\Plugin\LongEssayAssessment\Task\GradesAdminGUI($this));
-                    //                    }
-                    //                    break;
                 case strtolower(WriterStartGUI::class):
                     if ($this->permissions->canViewWriterScreen()) {
                         $this->activateTab('tab_writer', 'tab_writer_start');
@@ -518,13 +506,6 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                 'url' => $this->ctrl->getLinkTargetByClass(TechnicalSettingsGUI::class)
             ];
         }
-        if ($this->permissions->canEditDocumentationSettings()) {
-            $tabs[] = [
-                'id' => 'tab_documentation_settings',
-                'txt' => $this->plugin->txt('tab_documentation_settings'),
-                'url' => $this->ctrl->getLinkTargetByClass(DocumentationSettingsGUI::class)
-            ];
-        }
         if ($this->permissions->canEditTechnicalSettings()) {
             $tabs[] = [
                 'id' => 'tab_correction_settings',
@@ -546,22 +527,13 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                 'url' => $this->ctrl->getLinkTargetByClass(CriteriaAdminGUI::class)
             ];
         }
-
-        //
-        //        if ($this->permissions->canEditContentSettings()) {
-        //            $tabs[] = [
-        //                'id' => 'tab_criteria',
-        //                'txt' => $this->plugin->txt('tab_criteria'),
-        //                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessayassessment\task\criteriaadmingui')
-        //            ];
-        //        }
-        //        if ($this->permissions->canEditContentSettings()) {
-        //            $tabs[] = [
-        //                'id' => 'tab_grades',
-        //                'txt' => $this->plugin->txt('tab_grades'),
-        //                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessayassessment\task\gradesadmingui')
-        //            ];
-        //        }
+        if ($this->permissions->canEditDocumentationSettings()) {
+            $tabs[] = [
+                'id' => 'tab_documentation_settings',
+                'txt' => $this->plugin->txt('tab_documentation_settings'),
+                'url' => $this->ctrl->getLinkTargetByClass(DocumentationSettingsGUI::class)
+            ];
+        }
         if (!empty($tabs)) {
             $this->tabs->addTab('tab_assessment', $this->plugin->txt('tab_task'), $tabs[0]['url']);
             $this->subtabs['tab_assessment'] = $tabs;

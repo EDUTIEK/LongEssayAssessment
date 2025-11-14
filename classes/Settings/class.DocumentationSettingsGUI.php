@@ -158,7 +158,7 @@ class DocumentationSettingsGUI extends BaseGUI
         $written_order = $this->buildOrder($this->plugin->txt('written_pdf'), PdfPurpose::WRITING, "updateWritingOrder");
         $correction_order = $this->buildOrder($this->plugin->txt('corrected_pdf'), PdfPurpose::CORRECTION, "updateCorrectionOrder");
 
-        $this->tpl->setContent($this->renderer->render([$form, $correction_order, $written_order]));
+        $this->tpl->setContent($this->renderer->render([$form, $correction_order]));
     }
 
     private function buildForm(): Form

@@ -79,7 +79,9 @@ class DocumentationSettingsGUI extends BaseGUI
             $post = $this->request->getParsedBody() ?? [];
             $active = !empty($post) && isset($post['active'])
                 ? $post['active']
-                : array_map(fn(PdfConfigPart $part) => $part->getKey(), $parts
+                : array_map(
+                    fn(PdfConfigPart $part) => $part->getKey(),
+                    $parts
                 ); // Set all active if no active parts are in post
             $i = 0; // Index if the order is missing
 
@@ -116,7 +118,7 @@ class DocumentationSettingsGUI extends BaseGUI
 
     private function orderingBinding(array $parts)
     {
-        return new class($parts) implements OrderingBinding {
+        return new class ($parts) implements OrderingBinding {
             /**
              * @param PdfConfigPart[] $parts
              */
@@ -169,74 +171,22 @@ class DocumentationSettingsGUI extends BaseGUI
         $sections = [];
         $fields = [];
 
-        $fields['format'] = $factory->select(
+        $fields['format'] = $factory->radio(
             $this->plugin->txt('pdf_format'),
-            [
-                PdfFormat::EDUTIEK->value => $this->plugin->txt('pdf_format_edutiek'),
-                PdfFormat::BY->value => $this->plugin->txt('pdf_format_by'),
-                PdfFormat::NRW->value => $this->plugin->txt('pdf_format_nrw')
-            ],
-            $this->plugin->txt('pdf_format_info')
-        )->withValue($pdf_settings->getFormat()->value)
-                                    ->withRequired(true);
+            $this->plugin->txt('pdf_format_info'),
+        )->withOption(PdfFormat::EDUTIEK->value, $this->plugin->txt('pdf_format_edutiek'))
+            ->withOption(PdfFormat::BY->value, $this->plugin->txt('pdf_format_by'))
+            ->withOption(PdfFormat::NRW->value, $this->plugin->txt('pdf_format_nrw'))
+            ->withValue($pdf_settings->getFormat()->value)
+            ->withRequired(true);
 
-        $fields['feedback_mode'] = $factory->select(
+        $fields['feedback_mode'] = $factory->radio(
             $this->plugin->txt('pdf_feedback_mode'),
-            [
-                PdfFeedbackMode::SIDE_BY_SIDE->value => $this->plugin->txt('pdf_feedback_mode_sidebyside'),
-                PdfFeedbackMode::SEQUENCE->value => $this->plugin->txt('pdf_feedback_mode_sequence')
-            ],
-            $this->plugin->txt('pdf_feedback_mode_info')
-        )->withValue($pdf_settings->getFeedbackMode()->value)
-                                           ->withRequired(true);
-
-        $fields['add_header'] = $factory->checkbox(
-            $this->plugin->txt('pdf_add_header'),
-            $this->plugin->txt('pdf_add_header_info')
-        )
-                                        ->withValue($pdf_settings->getAddHeader());
-
-        $fields['add_footer'] = $factory->checkbox(
-            $this->plugin->txt('pdf_add_footer'),
-            $this->plugin->txt('pdf_add_footer_info')
-        )
-                                        ->withValue($pdf_settings->getAddFooter());
-
-        $fields['top_margin'] = $factory->numeric(
-            $this->plugin->txt('pdf_top_margin'),
-            $this->plugin->txt('pdf_top_margin_info')
-        )
-                                        ->withAdditionalTransformation($this->refinery->to()->int())
-                                        ->withAdditionalTransformation($this->constraints->minimumInteger(5))
-                                        ->withRequired(true)
-                                        ->withValue($pdf_settings->getTopMargin());
-
-        $fields['bottom_margin'] = $factory->numeric(
-            $this->plugin->txt('pdf_bottom_margin'),
-            $this->plugin->txt('pdf_bottom_margin_info')
-        )
-                                           ->withAdditionalTransformation($this->refinery->to()->int())
-                                           ->withAdditionalTransformation($this->constraints->minimumInteger(5))
-                                           ->withRequired(true)
-                                           ->withValue($pdf_settings->getBottomMargin());
-
-        $fields['left_margin'] = $factory->numeric(
-            $this->plugin->txt('pdf_left_margin'),
-            $this->plugin->txt('pdf_left_margin_info')
-        )
-                                         ->withAdditionalTransformation($this->refinery->to()->int())
-                                         ->withAdditionalTransformation($this->constraints->minimumInteger(5))
-                                         ->withRequired(true)
-                                         ->withValue($pdf_settings->getLeftMargin());
-
-        $fields['right_margin'] = $factory->numeric(
-            $this->plugin->txt('pdf_right_margin'),
-            $this->plugin->txt('pdf_right_margin_info')
-        )
-                                          ->withAdditionalTransformation($this->refinery->to()->int())
-                                          ->withAdditionalTransformation($this->constraints->minimumInteger(5))
-                                          ->withRequired(true)
-                                          ->withValue($pdf_settings->getRightMargin());
+            $this->plugin->txt('pdf_feedback_mode_info'),
+        )->withOption(PdfFeedbackMode::SIDE_BY_SIDE->value, $this->plugin->txt('pdf_feedback_mode_sidebyside'))
+            ->withOption(PdfFeedbackMode::SEQUENCE->value, $this->plugin->txt('pdf_feedback_mode_sequence'))
+            ->withValue($pdf_settings->getFeedbackMode()->value)
+            ->withRequired(true);
 
         $sections['pdf'] = $factory->section(
             $fields,
@@ -251,12 +201,6 @@ class DocumentationSettingsGUI extends BaseGUI
     {
         $pdf_settings = $this->pdf_settings_service->get();
 
-        $pdf_settings->setAddHeader((bool) $data['pdf']['add_header']);
-        $pdf_settings->setAddFooter((bool) $data['pdf']['add_footer']);
-        $pdf_settings->setTopMargin((int) $data['pdf']['top_margin']);
-        $pdf_settings->setBottomMargin((int) $data['pdf']['bottom_margin']);
-        $pdf_settings->setLeftMargin((int) $data['pdf']['left_margin']);
-        $pdf_settings->setRightMargin((int) $data['pdf']['right_margin']);
         $pdf_settings->setFormat(PdfFormat::tryFrom($data['pdf']['format']) ?? PdfFormat::EDUTIEK);
         $pdf_settings->setFeedbackMode(
             PdfFeedbackMode::tryFrom($data['pdf']['feedback_mode']) ?? PdfFeedbackMode::SIDE_BY_SIDE

@@ -883,4 +883,26 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
             $this->db->dropTable('xlas_et_task_settings');
         }
     }
+
+    public function step_49(): void
+    {
+        if ($this->db->tableColumnExists('xlas_as_pdf_settings', 'add_header')) {
+            $this->db->dropTableColumn('xlas_as_pdf_settings', 'add_header');
+        }
+        if ($this->db->tableColumnExists('xlas_as_pdf_settings', 'add_footer')) {
+            $this->db->dropTableColumn('xlas_as_pdf_settings', 'add_footer');
+        }
+        if ($this->db->tableColumnExists('xlas_as_pdf_settings', 'top_margin')) {
+            $this->db->dropTableColumn('xlas_as_pdf_settings', 'top_margin');
+        }
+        if ($this->db->tableColumnExists('xlas_as_pdf_settings', 'bottom_margin')) {
+            $this->db->dropTableColumn('xlas_as_pdf_settings', 'bottom_margin');
+        }
+        if ($this->db->tableColumnExists('xlas_as_pdf_settings', 'left_margin')) {
+            $this->db->dropTableColumn('xlas_as_pdf_settings', 'left_margin');
+        }
+        if ($this->db->tableColumnExists('xlas_as_pdf_settings', 'right_margin')) {
+            $this->db->dropTableColumn('xlas_as_pdf_settings', 'right_margin');
+        }
+    }
 }

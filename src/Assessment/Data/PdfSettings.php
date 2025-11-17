@@ -28,71 +28,11 @@ use Edutiek\AssessmentService\Assessment\Data\PdfFeedbackMode;
 #[Table(name: 'xlas_as_pdf_settings')]
 class PdfSettings extends \Edutiek\AssessmentService\Assessment\Data\PdfSettings
 {
-    private bool $add_header = false;
-    private bool $add_footer = false;
-    private int $top_margin = 10;
-    private int $bottom_margin = 10;
-    private int $left_margin = 10;
-    private int $right_margin = 10;
     #[Key]
     private int $ass_id = 0;
     private string $format = PdfFormat::EDUTIEK->value;
     private string $feedback_mode = PdfFeedbackMode::SIDE_BY_SIDE->value;
 
-    public function getAddHeader(): bool
-    {
-        return $this->add_header;
-    }
-    public function setAddHeader(bool $add_header): self
-    {
-        $this->add_header = $add_header;
-        return $this;
-    }
-    public function getAddFooter(): bool
-    {
-        return $this->add_footer;
-    }
-    public function setAddFooter(bool $add_footer): self
-    {
-        $this->add_footer = $add_footer;
-        return $this;
-    }
-    public function getTopMargin(): int
-    {
-        return $this->top_margin;
-    }
-    public function setTopMargin(int $top_margin): self
-    {
-        $this->top_margin = $top_margin;
-        return $this;
-    }
-    public function getBottomMargin(): int
-    {
-        return $this->bottom_margin;
-    }
-    public function setBottomMargin(int $bottom_margin): self
-    {
-        $this->bottom_margin = $bottom_margin;
-        return $this;
-    }
-    public function getLeftMargin(): int
-    {
-        return $this->left_margin;
-    }
-    public function setLeftMargin(int $left_margin): self
-    {
-        $this->left_margin = $left_margin;
-        return $this;
-    }
-    public function getRightMargin(): int
-    {
-        return $this->right_margin;
-    }
-    public function setRightMargin(int $right_margin): self
-    {
-        $this->right_margin = $right_margin;
-        return $this;
-    }
     public function getAssId(): int
     {
         return $this->ass_id;

@@ -49,6 +49,7 @@ class CorrectionSettings extends \Edutiek\AssessmentService\Assessment\Data\Corr
     private bool $anonymize_correctors = false;
     private bool $reports_enabled = false;
     private ?DateTimeImmutable $reports_available_start = null;
+    private ?int $max_points = null;
 
     public function getAssId(): int
     {
@@ -210,6 +211,17 @@ class CorrectionSettings extends \Edutiek\AssessmentService\Assessment\Data\Corr
     public function setReportsAvailableStart(?DateTimeImmutable $reports_available_start): self
     {
         $this->reports_available_start = $reports_available_start;
+        return $this;
+    }
+
+    public function getMaxPoints(): ?int
+    {
+        return $this->max_points;
+    }
+
+    public function setMaxPoints(?int $max_points): self
+    {
+        $this->max_points = $max_points;
         return $this;
     }
 }

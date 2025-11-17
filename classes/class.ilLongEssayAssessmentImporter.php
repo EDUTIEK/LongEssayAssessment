@@ -176,13 +176,6 @@ class ilLongEssayAssessmentImporter extends ilXmlImporter
                     $this->task_api->settings($task_id)->save($entity->setAssId($ass_id)->setTaskId($task_id));
                     break;
 
-                case 'EssayTaskSettings':
-                    $entity = $this->essay_task_api->taskSettings(0)->get();
-                    $this->applyRow($row = $this->getRow($element), $entity, EssayTaskSettings::class);
-                    $task_id = $task_id_match[$entity->getTaskId()];
-                    $this->essay_task_api->taskSettings($task_id)->save($entity->setAssId($ass_id)->setTaskId($task_id));
-                    break;
-
                 case 'TaskRatingCriterion':
                     $entity = $this->task_api->ratingCriterion(0)->new();
                     $this->applyRow($row = $this->getRow($element), $entity, TaskRatingCriterion::class);

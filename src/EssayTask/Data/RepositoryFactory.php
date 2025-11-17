@@ -30,11 +30,6 @@ class RepositoryFactory implements \Edutiek\AssessmentService\EssayTask\Data\Rep
         return $this->repo(EssayImageRepo::class, EssayImage::class, $this->db);
     }
 
-    public function taskSettings(): TaskSettingsRepo
-    {
-        return $this->repo(TaskSettingsRepo::class, TaskSettings::class);
-    }
-
     public function writingStep(): WritingStepRepo
     {
         return $this->repo(WritingStepRepo::class, WritingStep::class);

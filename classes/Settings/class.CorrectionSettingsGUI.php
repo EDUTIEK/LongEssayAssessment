@@ -13,7 +13,7 @@ use Edutiek\AssessmentService\Assessment\Data\CorrectionSettings as AssessmentCo
 use Edutiek\AssessmentService\Assessment\OrgaSettings\FullService as OrgaSettingsService;
 use Edutiek\AssessmentService\Assessment\TaskInterfaces\TaskManager as TaskManager;
 use Edutiek\AssessmentService\Assessment\TaskInterfaces\TaskType;
-use Edutiek\AssessmentService\EssayTask\Data\TaskSettings as EssayTaskSettings;
+use Edutiek\AssessmentService\Task\Data\Settings as TaskSettings;
 use Edutiek\AssessmentService\System\Entity\FullService as EntityService;
 use Edutiek\AssessmentService\Task\CorrectionSettings\FullService as EssayTaskCorrectionSettingsService;
 use Edutiek\AssessmentService\Task\Data\CorrectionSettings as EssayCorrectionSettings;
@@ -111,13 +111,18 @@ class CorrectionSettingsGUI extends BaseGUI
 
             // Rating settings
 
-            $essay_tasks_settings = [];
-            foreach ($this->manager_service->all() as $task_info) {
-                if ($task_info->getTaskType() === TaskType::ESSAY) {
-                    $essay_tasks_settings[] = $this->essay_task_api->taskSettings($task_info->getId())
-                        ->get()->setMaxPoints((int) $data['rating_settings'][$task_info->getId()]);
+            $assessment_settings->setMaxPoints((int) $data['rating_settings']['max_points']);
+
+            $single_task_settings = [];
+            if ($orga_settings->getMultiTasks()) {
+                foreach ($this->manager_service->all() as $task_info) {
+                    $settings = $this->task_api->settings($task_info->getId())->get();
+                    $settings->setWeight($data['rating_settings']['weight' . $task_info->getId()]);
+                    $single_task_settings[] = $settings;
                 }
+
             }
+
             $assessment_settings->setNoManualDecimals(((bool) $data['rating_settings']['no_manual_decimals']));
             if (isset($data['rating_settings']['enable_summary_pdf']) && is_array($data['rating_settings']['enable_summary_pdf'])) {
                 $task_settings->setEnableSummaryPdf(true);
@@ -141,23 +146,17 @@ class CorrectionSettingsGUI extends BaseGUI
             // Procedure
 
             if (!$orga_settings->getMultiTasks()) {
-                if (isset($data['procedure']['procedure_when_distance']) && is_array($data['procedure']['procedure_when_distance'])) {
+                if ($data['procedure']['handle_distance'][0] === 'procedure') {
                     $assessment_settings->setProcedureWhenDistance(true);
-                    $assessment_settings->setMaxAutoDistance((float) $data['procedure']['procedure_when_distance']['max_auto_distance']);
+                    $assessment_settings->setMaxAutoDistance((float) $data['procedure']['handle_distance'][1]['max_auto_distance']);
+                    $assessment_settings->setProcedure(CorrectionProcedure::tryFrom(
+                        $data['procedure']['handle_distance'][1]['procedure'] ?? CorrectionProcedure::NONE
+                    ));
+                    $assessment_settings->setRevisionBetween(!empty($data['procedure']['handle_distance'][1]['revision_between']));
+                    $assessment_settings->setStitchAfterProcedure(!empty($data['procedure']['handle_distance'][1]['stitch_after_procedure']));
                 } else {
                     $assessment_settings->setProcedureWhenDistance(false);
                 }
-                $assessment_settings->setProcedure(CorrectionProcedure::tryFrom(
-                    $data['procedure']['procedure'][0] ?? CorrectionProcedure::NONE
-                ));
-                if ($assessment_settings->getProcedure() === CorrectionProcedure::APPROXIMATION) {
-                    $assessment_settings->setApproximation(CorrectionApproximation::tryFrom(
-                        $data['procedure']['procedure'][1]['approximation']
-                    ) ?? CorrectionProcedure::NONE);
-                }
-                $assessment_settings->setProcedureWhenDecimals(!empty($data['procedure']['procedure_when_decimals']));
-                $assessment_settings->setRevisionBetween(!empty($data['procedure']['revision_between']));
-                $assessment_settings->setStitchAfterProcedure(!empty($data['procedure']['stitch_after_procedure']));
             }
 
             $this->entity_service->secure($assessment_settings, AssessmentCorrectionSettings::class);
@@ -166,9 +165,9 @@ class CorrectionSettingsGUI extends BaseGUI
             $this->entity_service->secure($task_settings, EssayCorrectionSettings::class);
             $this->task_correction_settings_service->save($task_settings);
 
-            foreach ($essay_tasks_settings as $settings) {
-                $this->entity_service->secure($settings, EssayTaskSettings::class);
-                $this->essay_task_api->taskSettings($settings->getTaskId())->save($settings);
+            foreach ($single_task_settings as $settings) {
+                $this->entity_service->secure($settings, TaskSettings::class);
+                $this->task_api->settings($settings->getTaskId())->save($settings);
             }
 
             $this->tpl->setOnScreenMessage("success", $this->lng->txt("settings_saved"), true);
@@ -267,15 +266,24 @@ class CorrectionSettingsGUI extends BaseGUI
 
         $fields = [];
 
-        foreach ($this->manager_service->all() as $task_info) {
-            if ($task_info->getTaskType() === TaskType::ESSAY) {
-                $settings = $this->essay_task_api->taskSettings($task_info->getId())->get();
-                $fields[$task_info->getId()] = $factory->numeric($this->plugin->txt('max_points') .
-                    ($orga_settings->getMultiTasks() ? ' ' . $task_info->getTitle() : ''))
+        $fields['max_points'] = $factory->numeric(
+            $this->plugin->txt('max_points'),
+            $this->plugin->txt($orga_settings->getMultiTasks() ? 'max_points_info_multi' : 'max_points_info')
+        )
+            ->withAdditionalTransformation($this->refinery->int()->isGreaterThanOrEqual(0))
+            ->withAdditionalTransformation($this->refinery->to()->int())
+            ->withRequired(true)
+            ->withValue($assessment_settings->getMaxPoints());
+
+        if ($orga_settings->getMultiTasks()) {
+            foreach ($this->manager_service->all() as $task_info) {
+                $settings = $this->task_api->settings($task_info->getId())->get();
+                $fields['weight' . $task_info->getId()] = $factory->numeric(
+                    $this->plugin->txt('weight') . ' ' . $task_info->getTitle()
+                )
                     ->withAdditionalTransformation($this->refinery->int()->isGreaterThanOrEqual(0))
-                    ->withAdditionalTransformation($this->refinery->to()->int())
                     ->withRequired(true)
-                    ->withValue($settings->getMaxPoints());
+                    ->withValue($settings->getWeight());
             }
         }
 
@@ -350,48 +358,29 @@ class CorrectionSettingsGUI extends BaseGUI
         // procedure decision
 
         if (!$orga_settings->getMultiTasks()) {
+
             $fields = [];
-            $fields['procedure_when_distance'] = $factory->optionalGroup(
-                [
-                    "max_auto_distance" => $factory->text(
-                        $this->plugin->txt('max_auto_distance'),
-                        $this->plugin->txt('max_auto_distance_info')
-                    )
-                        ->withAdditionalTransformation($this->refinery->kindlyTo()->float())
-                        ->withRequired(true)
-                        ->withValue((string) (empty($assessment_settings->getMaxAutoDistance()) ? '0.0' : $assessment_settings->getMaxAutoDistance()))
-                ],
-                $this->plugin->txt('procedure_when_distance')
-            );
-            if (!$assessment_settings->getProcedureWhenDistance()) {
-                $fields['procedure_when_distance'] = $fields['procedure_when_distance']->withValue(null);
-            }
 
-            $fields['procedure_when_decimals'] = $factory->checkbox($this->plugin->txt('procedure_when_decimals'))
-                ->withValue($assessment_settings->getProcedureWhenDecimals());
+            $fields ['max_auto_distance'] = $factory->text(
+                $this->plugin->txt('max_auto_distance'),
+                $this->plugin->txt('max_auto_distance_info')
+            )
+                ->withAdditionalTransformation($this->refinery->kindlyTo()->float())
+                ->withRequired(true)
+                ->withValue((string) (empty($assessment_settings->getMaxAutoDistance()) ? '0.0' : $assessment_settings->getMaxAutoDistance()));
 
-            $proc_none = $factory->group(
-                [],
-                $this->plugin->txt('procedure_none')
-            );
-            $proc_consult = $factory->group(
-                [],
-                $this->plugin->txt('procedure_consulting'),
-                $this->plugin->txt('procedure_approximation_info')
-            );
-            $proc_approx = $factory->group([
-                'approximation' => $factory->radio($this->plugin->txt('approximation'))
-                    ->withOption(CorrectionApproximation::ONE->value, $this->plugin->txt('approximation_one'))
-                    ->withOption(CorrectionApproximation::BOTH->value, $this->plugin->txt('approximation_both'))
-                    ->withOption(CorrectionApproximation::DECIDE->value, $this->plugin->txt('approximation_decide'))
-                    ->withValue($assessment_settings->getApproximation()->value)
-            ], $this->plugin->txt('procedure_approximation'), $this->plugin->txt('procedure_approximation_info'));
-
-            $fields['procedure'] = $factory->switchableGroup([
-                CorrectionProcedure::NONE->value => $proc_none,
-                CorrectionProcedure::APPROXIMATION->value => $proc_approx,
-                CorrectionProcedure::CONSULTING->value => $proc_consult,
-            ], $this->plugin->txt('correction_procedure'))
+            $fields['procedure'] = $factory->radio($this->plugin->txt('correction_procedure'))
+                ->withOption(CorrectionProcedure::NONE->value, $this->plugin->txt('procedure_none'))
+                ->withOption(
+                    CorrectionProcedure::APPROXIMATION->value,
+                    $this->plugin->txt('procedure_approximation'),
+                    $this->plugin->txt('procedure_approximation_info')
+                )
+                ->withOption(
+                    CorrectionProcedure::CONSULTING->value,
+                    $this->plugin->txt('procedure_consulting'),
+                    $this->plugin->txt('procedure_consulting_info')
+                )
                 ->withValue($assessment_settings->getProcedure()->value);
 
             $fields['revision_between'] = $factory->checkbox(
@@ -405,6 +394,26 @@ class CorrectionSettingsGUI extends BaseGUI
                 $this->plugin->txt('stitch_after_procedure_info')
             )
                 ->withValue($assessment_settings->getStitchAfterProcedure());
+
+            $average = $factory->group(
+                [],
+                $this->plugin->txt('average_when_distance'),
+                $this->plugin->txt('average_when_distance_info')
+            );
+
+            $procedure = $factory->group(
+                $fields,
+                $this->plugin->txt('procedure_when_distance'),
+                $this->plugin->txt('procedure_when_distance_info')
+            );
+
+            $fields = [];
+            $fields['handle_distance'] = $factory->switchableGroup(
+                [
+                    'average' => $average,
+                    'procedure' => $procedure],
+                $this->plugin->txt('handle_distance'),
+            )->withValue($assessment_settings->getProcedureWhenDistance() ? 'procedure' : 'average');
 
             $sections['procedure'] = $factory->section($fields, $this->plugin->txt('correction_procedure_settings'));
         }

@@ -172,13 +172,6 @@ class ilLongEssayAssessmentExporter extends ilXmlExporter
                 TaskSettings::class
             );
 
-            $this->addEntityXml(
-                $writer,
-                'EssayTaskSettings',
-                $this->essay_task_api->taskSettings($task_info->getId())->get(),
-                EssayTaskSettings::class
-            );
-
             foreach ($this->task_api->ratingCriterion($task_info->getId())->allByCorrectorId(null) as $criterion) {
                 $this->addEntityXml($writer, 'TaskRatingCriterion', $criterion, TaskRatingCriterion::class);
             }

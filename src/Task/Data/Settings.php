@@ -37,6 +37,7 @@ class Settings extends \Edutiek\AssessmentService\Task\Data\Settings
     private ?string $instructions = null;
     private ?string $solution = null;
     private int $position = 0;
+    private float $weight = 1;
 
     public function getTaskId(): int
     {
@@ -99,6 +100,17 @@ class Settings extends \Edutiek\AssessmentService\Task\Data\Settings
     public function setSolution(?string $solution): self
     {
         $this->solution = $solution;
+        return $this;
+    }
+
+    public function getWeight(): float
+    {
+        return $this->weight;
+    }
+
+    public function setWeight(float $weight): self
+    {
+        $this->weight = $weight;
         return $this;
     }
 }

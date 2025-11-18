@@ -182,7 +182,11 @@ abstract class BaseGUI
         $manager_service = $this->task_api->manager();
 
         $task_id = $this->get->integer('task_id', null) ?? (int) $this->session->get('task_id');
-        $this->task_info = $manager_service->one($task_id) ?? $manager_service->first();
+        if ($manager_service->has($task_id)) {
+            $this->task_info = $manager_service->one($task_id);
+        } else {
+            $this->task_info = $manager_service->first();
+        }
 
         if ($this->task_info === null) {
             $this->tpl->setContent('task not found');

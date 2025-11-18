@@ -46,6 +46,7 @@ use ILIAS\UI\Implementation\Component\ViewControl\Sortation;
 use ILIAS\UI\Implementation\Render\Template;
 use ILIAS\UI\Renderer as RendererInterface;
 use ILIAS\UI\Component\Input\Container\Form\FormInput;
+use ilUtil;
 
 class InputRenderer extends \ILIAS\UI\Implementation\Component\Input\Field\Renderer
 {
@@ -294,34 +295,23 @@ class InputRenderer extends \ILIAS\UI\Implementation\Component\Input\Field\Rende
             $this->tpl->addJavaScript('node_modules/tinymce/tinymce.min.js');
         }
 
-        $tiny = new \ilTinyMCE();
-
         $tpl = $this->getTemplate("tpl.tiny_mce.js", true, true);
-        $tpl->setVariable("STYLESHEET_LOCATION", \ilUtil::getNewContentStyleSheetLocation() . ',' . \ilUtil::getStyleSheetLocation('output', 'delos.css'));
-        $tpl->setVariable("ADDITIONAL_PLUGINS", implode(' ', $component->getPlugins()));
-        $tpl->setVariable("LANG", is_file("./node_modules/tinymce/langs/de.js") ? "de" : "en"); // as we only have de right now this is sufficient
-        $buttons_1 = $tiny->_buildAdvancedButtonsFromHTMLTags(1, $component->getElements());
-        $buttons_2 = $tiny->_buildAdvancedButtonsFromHTMLTags(2, $component->getElements())
-            . ',' . $tiny->_buildAdvancedTableButtonsFromHTMLTags($component->getElements())
-            . ($tiny->getStyleSelect() ? ',styleselect' : '');
-        $buttons_3 = $tiny->_buildAdvancedButtonsFromHTMLTags(3, $component->getElements());
-        $tpl->setVariable('BUTTONS_1', $tiny->removeRedundantSeparators($buttons_1));
-        $tpl->setVariable('BUTTONS_2', $tiny->removeRedundantSeparators($buttons_2));
-        $tpl->setVariable('BUTTONS_3', $tiny->removeRedundantSeparators($buttons_3));
-        $tpl->setVariable("VALID_ELEMENTS", $tiny->_getValidElementsFromHTMLTags($component->getElements()));
-        $tpl->setVariable('BLOCKFORMATS', $tiny->_buildAdvancedBlockformatsFromHTMLTags($component->getElements()));
+        // todo: use user language
+        $tpl->setVariable("LANG", "de");
+        // todo: use EDUTIEK content style with headline styles
+        $tpl->setVariable("CONTENT_CSS",
+            ilUtil::getNewContentStyleSheetLocation() . ','
+            . ilUtil::getStyleSheetLocation('output', 'delos.css'));
+        $tpl->setVariable("ARIA_TEXT", "Editor");
 
-        $tpl->setVariable("CONTEXT_MENU_ITEMS", "");
-
-        /**
-         * @var TinyMCE $component
-         */
         $component = $component->withAdditionalOnLoadCode(
             function ($id) use ($component, $tpl, $form_id) {
                 $tpl->setVariable("ID", $form_id);
                 return $tpl->get();
             }
         );
+
+        /** @var TinyMCE $component */
         return $component;
     }
 

@@ -43,10 +43,9 @@ class DisabledGroup
      */
     private const TABS = [
         'tab_correction_settings' => [
-            'correctors_per_writer',
+            'correctors',
             'rating_settings',
             'correction_functions',
-            'procedure'
         ],
         'tab_grades' => ['grade_levels']
     ];
@@ -57,9 +56,8 @@ class DisabledGroup
      * - Value is an array of form input names that belong to the group
      */
     private const GROUPS = [
-        'correctors_per_writer' => ['correctors_per_writer'],
+        'correctors' => ['correctors'],
         'correction_functions' => ['correction_functions'],
-        'procedure' => ['procedure'],
         'rating_settings' => ['rating_settings'],
         'grade_levels' => ['grades'],
     ];
@@ -68,9 +66,8 @@ class DisabledGroup
      * Lang
      */
     private const LANG_VARS = [
-        'correctors_per_writer' => 'correctors_per_writer',
+        'correctors' => 'correctors_per_writer',
         'correction_functions' => 'correction_functions',
-        'procedure' => 'correction_procedure_settings',
         'rating_settings' => 'rating_settings',
         'grade_levels' => 'grade_levels',
     ];

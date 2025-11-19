@@ -89,10 +89,24 @@ class CorrectionSettingsGUI extends BaseGUI
             // Multi Correctors
 
             if (!$orga_settings->getMultiTasks()) {
-                $assessment_settings->setRequiredCorrectors((int) $data['correctors_per_writer']['required_correctors'][0]);
+                $assessment_settings->setRequiredCorrectors((int) $data['correctors']['required_correctors'][0]);
                 if ($assessment_settings->getRequiredCorrectors() === 2) {
-                    $assessment_settings->setMutualVisibility((int) $data['correctors_per_writer']['required_correctors'][1]['mutual_visibility']);
-                    $assessment_settings->setWaitForFirst((int) $data['correctors_per_writer']['required_correctors'][1]['wait_for_first']);
+                    $subdata = $data['correctors']['required_correctors'][1];
+
+                    $assessment_settings->setMutualVisibility((int) $subdata['mutual_visibility']);
+                    $assessment_settings->setWaitForFirst((int) $subdata['wait_for_first']);
+
+                    if ($subdata['handle_distance'][0] === 'procedure') {
+                        $assessment_settings->setProcedureWhenDistance(true);
+                        $assessment_settings->setMaxAutoDistance((float) $subdata['handle_distance'][1]['max_auto_distance']);
+                        $assessment_settings->setProcedure(CorrectionProcedure::tryFrom(
+                            $subdata['handle_distance'][1]['procedure'] ?? CorrectionProcedure::NONE
+                        ));
+                        $assessment_settings->setRevisionBetween(!empty($subdata['handle_distance'][1]['revision_between']));
+                        $assessment_settings->setStitchAfterProcedure(!empty($subdata['handle_distance'][1]['stitch_after_procedure']));
+                    } else {
+                        $assessment_settings->setProcedureWhenDistance(false);
+                    }
                 }
             }
 
@@ -143,22 +157,6 @@ class CorrectionSettingsGUI extends BaseGUI
                 $task_settings->setEnableCommentRatings(false);
             }
 
-            // Procedure
-
-            if (!$orga_settings->getMultiTasks()) {
-                if ($data['procedure']['handle_distance'][0] === 'procedure') {
-                    $assessment_settings->setProcedureWhenDistance(true);
-                    $assessment_settings->setMaxAutoDistance((float) $data['procedure']['handle_distance'][1]['max_auto_distance']);
-                    $assessment_settings->setProcedure(CorrectionProcedure::tryFrom(
-                        $data['procedure']['handle_distance'][1]['procedure'] ?? CorrectionProcedure::NONE
-                    ));
-                    $assessment_settings->setRevisionBetween(!empty($data['procedure']['handle_distance'][1]['revision_between']));
-                    $assessment_settings->setStitchAfterProcedure(!empty($data['procedure']['handle_distance'][1]['stitch_after_procedure']));
-                } else {
-                    $assessment_settings->setProcedureWhenDistance(false);
-                }
-            }
-
             $this->entity_service->secure($assessment_settings, AssessmentCorrectionSettings::class);
             $this->assessment_correction_settings_service->save($assessment_settings);
 
@@ -187,12 +185,59 @@ class CorrectionSettingsGUI extends BaseGUI
 
         $sections = [];
 
-        // Object
-
-        $fields = [];
+        // Correctors
 
         if (!$orga_settings->getMultiTasks()) {
             $fields = [];
+
+            // multi correctors
+
+            $fields['max_auto_distance'] = $factory->text(
+                $this->plugin->txt('max_auto_distance'),
+                $this->plugin->txt('max_auto_distance_info')
+            )
+                ->withAdditionalTransformation($this->refinery->kindlyTo()->float())
+                ->withRequired(true)
+                ->withValue((string) (empty($assessment_settings->getMaxAutoDistance()) ? '0.0' : $assessment_settings->getMaxAutoDistance()));
+
+            $fields['procedure'] = $factory->radio($this->plugin->txt('correction_procedure'))
+                ->withOption(CorrectionProcedure::NONE->value, $this->plugin->txt('procedure_none'))
+                ->withOption(
+                    CorrectionProcedure::APPROXIMATION->value,
+                    $this->plugin->txt('procedure_approximation'),
+                    $this->plugin->txt('procedure_approximation_info')
+                )
+                ->withOption(
+                    CorrectionProcedure::CONSULTING->value,
+                    $this->plugin->txt('procedure_consulting'),
+                    $this->plugin->txt('procedure_consulting_info')
+                )
+                ->withValue($assessment_settings->getProcedure()->value);
+
+            $fields['revision_between'] = $factory->checkbox(
+                $this->plugin->txt('revision_between'),
+                $this->plugin->txt('revision_between_info')
+            )
+                ->withValue($assessment_settings->getRevisionBetween());
+
+            $fields['stitch_after_procedure'] = $factory->checkbox(
+                $this->plugin->txt('stitch_after_procedure'),
+                $this->plugin->txt('stitch_after_procedure_info')
+            )
+                ->withValue($assessment_settings->getStitchAfterProcedure());
+
+            $average = $factory->group(
+                [],
+                $this->plugin->txt('average_when_distance'),
+                $this->plugin->txt('average_when_distance_info')
+            );
+
+            $procedure = $factory->group(
+                $fields,
+                $this->plugin->txt('procedure_when_distance'),
+                $this->plugin->txt('procedure_when_distance_info')
+            );
+
 
             $single = $factory->group(
                 [],
@@ -206,17 +251,24 @@ class CorrectionSettingsGUI extends BaseGUI
                 'wait_for_first' => $factory->checkbox(
                     $this->plugin->txt('wait_for_first'),
                     $this->plugin->txt('wait_for_first_info')
-                )->withValue($assessment_settings->getWaitForFirst())
-
+                )->withValue($assessment_settings->getWaitForFirst()),
+                'handle_distance' => $factory->switchableGroup(
+                    [
+                        'average' => $average,
+                        'procedure' => $procedure
+                    ],
+                    $this->plugin->txt('handle_distance'),
+                )->withValue($assessment_settings->getProcedureWhenDistance() ? 'procedure' : 'average')
             ], $this->plugin->txt('first_and_second_corrector'));
 
+            $fields = [];
             $fields['required_correctors'] = $factory->switchableGroup([
                 '1' => $single,
                 '2' => $double,
             ], $this->plugin->txt('required_correctors'))
-            ->withValue((string) empty($assessment_settings->getRequiredCorrectors()) ? 1 : $assessment_settings->getRequiredCorrectors());
+                ->withValue((string) empty($assessment_settings->getRequiredCorrectors()) ? 1 : $assessment_settings->getRequiredCorrectors());
 
-            $sections['correctors_per_writer'] = $factory->section($fields, $this->plugin->txt('correctors_per_writer'));
+            $sections['correctors'] = $factory->section($fields, $this->plugin->txt('correctors_per_writer'));
         }
 
         $fields = [];
@@ -354,69 +406,6 @@ class CorrectionSettingsGUI extends BaseGUI
         }
 
         $sections['correction_functions'] = $factory->section($fields, $this->plugin->txt('correction_functions'));
-
-        // procedure decision
-
-        if (!$orga_settings->getMultiTasks()) {
-
-            $fields = [];
-
-            $fields ['max_auto_distance'] = $factory->text(
-                $this->plugin->txt('max_auto_distance'),
-                $this->plugin->txt('max_auto_distance_info')
-            )
-                ->withAdditionalTransformation($this->refinery->kindlyTo()->float())
-                ->withRequired(true)
-                ->withValue((string) (empty($assessment_settings->getMaxAutoDistance()) ? '0.0' : $assessment_settings->getMaxAutoDistance()));
-
-            $fields['procedure'] = $factory->radio($this->plugin->txt('correction_procedure'))
-                ->withOption(CorrectionProcedure::NONE->value, $this->plugin->txt('procedure_none'))
-                ->withOption(
-                    CorrectionProcedure::APPROXIMATION->value,
-                    $this->plugin->txt('procedure_approximation'),
-                    $this->plugin->txt('procedure_approximation_info')
-                )
-                ->withOption(
-                    CorrectionProcedure::CONSULTING->value,
-                    $this->plugin->txt('procedure_consulting'),
-                    $this->plugin->txt('procedure_consulting_info')
-                )
-                ->withValue($assessment_settings->getProcedure()->value);
-
-            $fields['revision_between'] = $factory->checkbox(
-                $this->plugin->txt('revision_between'),
-                $this->plugin->txt('revision_between_info')
-            )
-                ->withValue($assessment_settings->getRevisionBetween());
-
-            $fields['stitch_after_procedure'] = $factory->checkbox(
-                $this->plugin->txt('stitch_after_procedure'),
-                $this->plugin->txt('stitch_after_procedure_info')
-            )
-                ->withValue($assessment_settings->getStitchAfterProcedure());
-
-            $average = $factory->group(
-                [],
-                $this->plugin->txt('average_when_distance'),
-                $this->plugin->txt('average_when_distance_info')
-            );
-
-            $procedure = $factory->group(
-                $fields,
-                $this->plugin->txt('procedure_when_distance'),
-                $this->plugin->txt('procedure_when_distance_info')
-            );
-
-            $fields = [];
-            $fields['handle_distance'] = $factory->switchableGroup(
-                [
-                    'average' => $average,
-                    'procedure' => $procedure],
-                $this->plugin->txt('handle_distance'),
-            )->withValue($assessment_settings->getProcedureWhenDistance() ? 'procedure' : 'average');
-
-            $sections['procedure'] = $factory->section($fields, $this->plugin->txt('correction_procedure_settings'));
-        }
 
         return $this->ui_factory->input()->container()->form()->standard(
             $this->ctrl->getFormAction($this),

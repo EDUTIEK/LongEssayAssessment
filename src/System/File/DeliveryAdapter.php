@@ -43,7 +43,7 @@ readonly class DeliveryAdapter implements \Edutiek\AssessmentService\System\File
     ) {
     }
 
-    public function sendFile(string $id, Disposition $disposition): never
+    public function sendFile(string $id, Disposition $disposition, ?FileInfo $info = null): never
     {
         try {
             $identification = $this->manager->find($id);
@@ -54,8 +54,8 @@ readonly class DeliveryAdapter implements \Edutiek\AssessmentService\System\File
             $absolute_path = $stream->getMetadata('uri');
 
             $delivery = new Delivery($absolute_path, $this->http);
-            $delivery->setDownloadFileName($resource->getCurrentRevision()->getTitle());
-            $delivery->setMimeType($resource->getCurrentRevision()->getInformation()->getMimeType());
+            $delivery->setDownloadFileName($info?->getFileName() ?? $resource->getCurrentRevision()->getTitle());
+            $delivery->setMimeType($info?->getMimeType() ?? $resource->getCurrentRevision()->getInformation()->getMimeType());
             $delivery->setDisposition($disposition->value);
             $delivery->deliver();
         } catch (Exception $e) {

@@ -149,8 +149,8 @@ review_period#:#Einsichtnahme (für freigegebene Abgaben)
 result#:#Ergebnis
 submission#:#Abgabe
 view_submission#:#Abgabe ansehen
-download_written_submission#:#Geschriebene Abgabe herunterladen
-download_corrected_submission#:#Korrigierte Abgabe herunterladen
+download_written_submission#:#Abgabe-Datei
+download_corrected_submission#:#Korrektur-Datei
 task_resources#:#Hilfsmittel zur Aufgabe
 available#:#Verfügbar
 participant#:#Teilnehmer

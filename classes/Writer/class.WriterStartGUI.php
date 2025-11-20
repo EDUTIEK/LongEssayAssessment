@@ -214,17 +214,17 @@ class WriterStartGUI extends BaseGUI
             $this->raisePermissionError();
         }
 
-        $content = $this->assessment_api->pdfCreation()->createWritingPdf($this->writer->getId());
+        $task_id = $this->get->integer('task_id', 0);
+        $file_id = $this->assessment_api->pdfCreation()->createWritingPdf($task_id, $this->writer->getId());
 
-        $filename = 'task' . $this->object->getId() . '_writer' . $this->writer->getId() . '-writing.pdf';
-        $file_info = new FileInfo();
-        $file_info->setFileName($filename);
-        $file_info->setMimeType('application/pdf');
-        $this->system_api->fileDelivery()->sendData(
-            $content,
+        $filename = 'task' . $task_id . '_writer' . $this->writer->getId() . '-writing.pdf';
+        $this->system_api->fileDelivery()->sendFile(
+            $file_id,
             Disposition::ATTACHMENT,
-            $file_info
+            (new FileInfo())->setFileName($filename)->setMimeType('application/pdf')
         );
+
+        $this->system_api->fileStorage()->deleteFile($file_id);
     }
 
     public function downloadCorrectedPdf(): void
@@ -232,20 +232,17 @@ class WriterStartGUI extends BaseGUI
         if (!$this->perms->canReviewCorrectedAssessment()) {
             $this->raisePermissionError();
         }
-        // @Todo
-        // $service = $this->localDI->getCorrectorAdminService($this->object->getId());
-        // $repoWriter = $this->localDI->getWriterRepo()->getWriterByUserIdAndTaskId($this->dic->user()->getId(), $this->object->getId());
-        // $content = $service->getCorrectionAsPdf($this->object, $repoWriter, null, false, true);
 
-        $filename = 'task' . $this->object->getId() . '_writer' . $this->writer->getId() . '-correction.pdf';
-        $file_info = new FileInfo();
-        $file_info->setFileName($filename);
-        $file_info->setMimeType('application/pdf');
-        $this->system_api->fileDelivery()->sendData(
-            '',
+        $task_id = $this->get->integer('task_id', 0);
+        $file_id = $this->assessment_api->pdfCreation()->createCorrectionPdf($task_id, $this->writer->getId());
+        $filename = 'task' . $task_id . '_writer' . $this->writer->getId() . '-correction.pdf';
+        $this->system_api->fileDelivery()->sendFile(
+            $file_id,
             Disposition::ATTACHMENT,
-            $file_info
+            (new FileInfo())->setFileName($filename)->setMimeType('application/pdf')
         );
+
+        $this->system_api->fileStorage()->deleteFile($file_id);
     }
 
     public function downloadCorrectionReportsPdf(): void
@@ -253,16 +250,16 @@ class WriterStartGUI extends BaseGUI
         if (!$this->perms->canDownloadCorrectionReports()) {
             $this->raisePermissionError();
         }
-        $filename = 'task' . $this->object->getId() . '-reports.pdf';
-        $file_info = new FileInfo();
-        $file_info->setFileName($filename);
-        $file_info->setMimeType('application/pdf');
-        $this->system_api->fileDelivery()->sendData(
-            $this->pdf(),
+
+        $file_id = $this->assessment_api->pdfCreation()->createCorrectionReport($this->object->getAssId());
+        $filename = 'assessment' . $this->object->getId() . '-reports.pdf';
+        $this->system_api->fileDelivery()->sendFile(
+            $file_id,
             Disposition::ATTACHMENT,
-            $file_info
+            (new FileInfo())->setFileName($filename)->setMimeType('application/pdf')
         );
 
+        $this->system_api->fileStorage()->deleteFile($file_id);
     }
 
     public function downloadInstructions(): void
@@ -302,47 +299,6 @@ class WriterStartGUI extends BaseGUI
                 $this->system_api->fileDelivery()->sendFile($resource->getFileId(), Disposition::ATTACHMENT);
             }
         }
-    }
-
-    private function pdf(): string
-    {
-        // @Todo
-        return '';
-        // $context = new CorrectorContext();
-        // $context->init((string) $this->dic->user()->getId(), (string) $object->getRefId());
-        // $service = new Service($context);
-
-        // $elements = [];
-        // foreach ($this->correctorRepo->getCorrectorsByTaskId($this->task_id) as $corrector) {
-        //     if (!empty($corrector->getCorrectionReport())) {
-        //         $elements[] = new PdfHtml($corrector->getCorrectionReport() . '<hr>');
-        //     }
-        // }
-
-        // return $service->getPdfGeneration()->generatePdf(
-        //     [$service->getStandardPdfPart($elements)],
-        //     '',
-        //     '',
-        //     $object->getTitle(),
-        //     $this->plugin->txt('correction_reports')
-        // );
-    }
-
-    private function getWritingAsPdf(ilObjLongEssayAssessment $object, $repoWriter, bool $anonymous = false, bool $rawContent = false, bool $onlyText = false): string
-    {
-        // @Todo
-        return '';
-        // $context = new WriterContext();
-        // $context->init((string) $repoWriter->getUserId(), (string) $object->getRefId());
-
-        // $writingTask = $context->getWritingTask();
-        // if ($anonymous) {
-        //     $writingTask = $writingTask->withWriterName($repoWriter->getPseudonym());
-        // }
-        // $writtenEssay = $context->getWrittenEssay();
-
-        // $service = new Service($context);
-        // return $service->getWritingAsPdf($writingTask, $writtenEssay, $rawContent, $onlyText);
     }
 
     private function getReturnUrl(): string

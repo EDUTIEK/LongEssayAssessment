@@ -75,10 +75,13 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
      */
     public function uninstall(\ilDBInterface $db): void
     {
+        // todo: remove all stored files
+
         $this->prepare($db);
         $this->v10_migration->removeNewTables();
         $this->db->manipulate("DELETE FROM il_db_steps WHERE `class` = " . $this->db->quote(self::class));
 
+        $this->db->dropTable("xlas_as_pdf_config");
         $this->db->dropTable("xlas_ta_corr_settings");
         $this->db->dropTable("xlas_ta_corr_prefs");
         $this->db->dropTable("xlas_ta_corr_ta_prefs");
@@ -88,6 +91,7 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
         $this->db->dropTable("xlas_ta_corr_summary");
         $this->db->dropTable("xlas_as_dis_groups");
         $this->db->dropTable("xlas_ta_writer_anno");
+        $this->db->dropTable("xlas_ta_writer_comment");
         $this->db->dropTable("xlas_ta_corr_snippet");
     }
 

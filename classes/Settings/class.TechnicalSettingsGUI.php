@@ -4,8 +4,6 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\Settings;
 
-use Edutiek\AssessmentService\Assessment\Data\PdfSettings;
-use Edutiek\AssessmentService\Assessment\PdfSettings\FullService as PdfSettingsService;
 use Edutiek\AssessmentService\Task\AssessmentStatus\FullService as StatusService;
 use Edutiek\AssessmentService\System\Data\FormattingOptions;
 use Edutiek\AssessmentService\System\Data\HeadlineScheme;
@@ -15,16 +13,6 @@ use Edutiek\AssessmentService\EssayTask\WritingSettings\FullService as WritingSe
 use Edutiek\AssessmentService\System\Entity\FullService as EntityService;
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\BaseObjectData;
-use Edutiek\AssessmentService\Assessment\PdfCreation\PdfPurpose;
-use ILIAS\Data\URI;
-use ILIAS\UI\Component\Table\OrderingBinding;
-use ILIAS\UI\Component\Table\OrderingRowBuilder;
-use Generator;
-use Edutiek\AssessmentService\Assessment\PdfCreation\PdfConfigPart;
-use ILIAS\Data\Factory;
-use ILIAS\UI\URLBuilder;
-use Edutiek\AssessmentService\Assessment\Data\PdfFormat;
-use Edutiek\AssessmentService\Assessment\Data\PdfFeedbackMode;
 
 /**
  * Technical settings
@@ -34,7 +22,6 @@ use Edutiek\AssessmentService\Assessment\Data\PdfFeedbackMode;
 class TechnicalSettingsGUI extends BaseGUI
 {
     private WritingSettingsService $writing_settings_service;
-    private PdfSettingsService $pdf_settings_service;
     private EntityService $entity_service;
     private StatusService $status_service;
 
@@ -43,7 +30,6 @@ class TechnicalSettingsGUI extends BaseGUI
         parent::__construct($object);
 
         $this->writing_settings_service = $this->essay_task_api->writingSettings();
-        $this->pdf_settings_service = $this->assessment_api->pdfSettings();
         $this->entity_service = $this->system_api->entity();
         $this->status_service = $this->task_api->assessmentStatus();
     }
@@ -60,8 +46,6 @@ class TechnicalSettingsGUI extends BaseGUI
         $cmd = $this->ctrl->getCmd('editSettings');
         switch ($cmd) {
             case "editSettings":
-            case "configCorrectionPDF":
-            case "configWritingPDF":
                 $this->$cmd();
                 break;
 
@@ -70,104 +54,12 @@ class TechnicalSettingsGUI extends BaseGUI
         }
     }
 
-    protected function configCorrectionPDF()
-    {
-        $this->configPDF(
-            $this->plugin->txt('corrected_pdf'),
-            PdfPurpose::CORRECTION
-        );
-    }
-
-    protected function configWritingPDF()
-    {
-        $this->configPDF(
-            $this->plugin->txt('written_pdf'),
-            PdfPurpose::WRITING
-        );
-    }
-
-    protected function configPDF(string $title, PdfPurpose $purpose)
-    {
-        $this->tabs->setBackTarget($this->lng->txt('back'), $this->ctrl->getLinkTarget($this));
-
-        $parts = $this->assessment_api->pdfCreation()->getSortedParts($purpose);
-
-        if ($this->request->getMethod() == "POST") {
-            $post = $this->request->getParsedBody() ?? [];
-            $active = !empty($post) && isset($post['active'])
-                ? $post['active']
-                : array_map(fn (PdfConfigPart $part) => $part->getKey(), $parts); // Set all active if no active parts are in post
-            $i = 0; // Index if the order is missing
-
-            foreach ($parts as $part) {
-                $part->setIsActive(in_array($part->getKey(), $active));
-                $part->setPosition($this->post->integer($part->getKey(), (++$i)*10));
-            }
-
-            $this->assessment_api->pdfCreation()->saveSortedParts($purpose, $parts);
-            $this->success($this->lng->txt("settings_saved"), true);
-            $this->ctrl->redirect($this, $this->ctrl->getCmd('editSettings'));
-            return;
-        }
-
-        $df = new \ILIAS\Data\Factory();
-        $url_builder = new URLBuilder($df->uri($this->request->getUri()->__toString()));
-
-        $ordering = $this->ui_factory->table()->ordering(
-            $title,
-            [
-                "active" => $this->plugin_ui_factory->table()->column()->checkbox($this->lng->txt('active'), "active"),
-                "title" => $this->ui_factory->table()->column()->text($this->lng->txt('title')),
-            ],
-            $this->orderingBinding($parts),
-            $url_builder->buildURI(),
-        )->withRequest($this->request);
-
-        $this->tpl->setContent($this->renderer->renderAsync($ordering));
-    }
-
-    private function orderingBinding(array $parts)
-    {
-        return new class($parts) implements OrderingBinding {
-            /**
-             * @param PdfConfigPart[] $parts
-             */
-            public function __construct(private array $parts)
-            {
-            }
-
-            public function getRows(OrderingRowBuilder $row_builder, array $visible_column_ids): Generator
-            {
-                foreach ($this->parts as $part) {
-                    yield $row_builder->buildOrderingRow(
-                        $part->getKey(),
-                        [
-                            "active" => [$part->getKey(), $part->getIsActive()],
-                            "title" => $part->getTitle(),
-                        ]
-                    )->withPosition($part->getPosition());
-                }
-            }
-        };
-    }
-
     /**
      * Edit and save the settings
      */
     protected function editSettings()
     {
-        $this->toolbar->addComponent($this->ui_factory->button()->standard(
-            $this->plugin->txt('config_corrected_pdf'),
-            $this->ctrl->getLinkTarget($this, "configCorrectionPDF")
-        ));
-
-        $this->toolbar->addComponent($this->ui_factory->button()->standard(
-            $this->plugin->txt('config_written_pdf'),
-            $this->ctrl->getLinkTarget($this, "configWritingPDF")
-        ));
-
         $writing_settings = $this->writing_settings_service->get();
-        $pdf_settings = $this->pdf_settings_service->get();
         $has_comments = $this->status_service->hasComments();
 
         $factory = $this->ui_factory->input()->field();

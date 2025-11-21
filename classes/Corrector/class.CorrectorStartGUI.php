@@ -4,6 +4,9 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\Corrector;
 
+use Edutiek\AssessmentService\Assessment\Format\FullService as FormatService;
+use Edutiek\AssessmentService\Assessment\Permissions\ReadService as PermissionService;
+use ILIAS\Data\ReferenceId;
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\BaseObjectData;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\DataTableParent;
@@ -31,6 +34,7 @@ use Edutiek\AssessmentService\Task\Data\GradingStatus;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\Helper\ConfirmationIds;
 use DateTimeZone;
+use ILIAS\StaticURL\Builder\StandardURIBuilder;
 
 /**
  *Start page for correctors
@@ -41,7 +45,6 @@ use DateTimeZone;
 class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
 {
     use ConfirmationIds;
-    private bool $can_correct;
 
     private int $ready_items = 0;
     private CorrectionSettings $settings;
@@ -56,11 +59,13 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
     private AssesmentStatusService $assessment_status_service;
     private ?int $row_count = null;
     private SystemFormatService $system_format_service;
-    private \Edutiek\AssessmentService\Assessment\Format\FullService $assessment_format_service;
+    private FormatService $assessment_format_service;
+    private PermissionService $perms;
 
     public function __construct(BaseObjectData $object)
     {
         parent::__construct($object);
+        $this->perms = $this->assessment_api->permissions($this->object->getContextId());
         $this->orga_settings = $this->assessment_api->orgaSettings()->get();
         $this->settings = $this->assessment_api->correctionSettings()->get();
         $this->grading_service = $this->assessment_api->assessmentGrading();
@@ -74,7 +79,6 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
         $this->writer_service = $this->assessment_api->writer();
         $this->assessment_status_service = $this->task_api->assessmentStatus();
         $this->assessment_format_service = $this->assessment_api->format($this->orga_settings);
-        $this->can_correct = $this->assessment_api->permissions($this->object->getContextId())->canCorrect();
     }
 
     /**
@@ -193,11 +197,14 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
         ];
     }
 
-
-
     public function getTotalRowCount(?array $filter_data, ?array $additional_parameters): ?int
     {
-        return count($this->assignment_service->allByCorrectorId($this->corrector->getId()));
+        if (isset($filter_data)) {
+            // filter is already saved
+            return count($this->assignment_service->allByCorrectorIdFiltered($this->corrector->getId()));
+        } else {
+            return count($this->assignment_service->allByCorrectorId($this->corrector->getId()));
+        }
     }
 
     public function getTableActions(): array
@@ -371,11 +378,12 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
         $modals = [];
 
         $table = $this->plugin_ui_factory->table()->dataTable("corrector_start_table", $this);
-        $filter_data = $table->getFilterData();
-        $is_empty_after_filter = false;//TODO
-        $is_empty_before_filter = false;//TODO
 
-        if ($this->can_correct && $this->ready_items > 0) {
+        $filter_data = $table->getFilterData();
+        $is_empty_after_filter = empty($this->getTotalRowCount($filter_data, null));
+        $is_empty_before_filter = empty($this->getTotalRowCount(null, null));
+
+        if ($this->perms->canCorrect()) {
             $this->ctrl->clearParameters($this);
             $button = $this->ui_factory->button()->primary(
                 $this->plugin->txt('start_correction'),
@@ -399,22 +407,20 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
         }
     }
 
-
-
     /**
-     * Start the Writer Web app
+     * Start the Corrector Web app
      */
     protected function startCorrector()
     {
-        //        $context = new CorrectorContext();
-        //        $context->init((string) $this->dic->user()->getId(), (string) $this->object->getRefId());
-        //
-        //        $params = $this->request->getQueryParams();
-        //        if (!empty($params['writer_id'])) {
-        //            $context->selectWriterId((int) $params['writer_id']);
-        //        }
-        //        $service = new Service($context);
-        //        $service->openFrontend();
+        if (!$this->perms->canCorrect()) {
+            $this->raisePermissionError();
+        }
+        $this->assessment_api->appService()->openCorrector(
+            $this->object->getContextId(),
+            $this->getReturnUrl(),
+            null,
+            null
+        );
     }
 
     protected function authorizeCorrection()
@@ -528,5 +534,16 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
     public function getFilterBaseAction(): string
     {
         return $this->ctrl->getLinkTarget($this, 'applyFilter');
+    }
+
+    private function getReturnUrl(): string
+    {
+        $builder = new StandardURIBuilder(ILIAS_HTTP_PATH, false);
+
+        return (string) $builder->build(
+            'xlas',
+            new ReferenceId($this->object->getRefId()),
+            ['corrector']
+        );
     }
 }

@@ -433,18 +433,18 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
         if ($this->permissions->canEditContentSettings()) {
             $this->ctrl->redirectByClass(InstructionSettingsGUI::class);
         }
-        //        if ($this->permissions->canMaintainWriters()) {
-        //            $this->ctrl->redirectByClass('ilias\plugin\longessayassessment\writerAdmin\writeradmingui');
-        //        }
-        //        if ($this->permissions->canMaintainCorrectors()) {
-        //            $this->ctrl->redirectByClass('ilias\plugin\longessayassessment\correctorAdmin\correctoradmingui');
-        //        }
-        //        if ($this->permissions->canViewCorrectorScreen()) {
-        //            $this->ctrl->redirectByClass('ilias\plugin\longessayassessment\corrector\correctorstartgui');
-        //        }
-        //        if ($this->permissions->canViewWriterScreen()) {
-        //            $this->ctrl->redirectByClass('ilias\plugin\longessayassessment\writer\writerstartgui');
-        //        }
+        if ($this->permissions->canMaintainWriters()) {
+            $this->ctrl->redirectByClass(WriterAdminGUI::class);
+        }
+        if ($this->permissions->canMaintainCorrectors()) {
+            $this->ctrl->redirectByClass(CorrectionAdminGUI::class);
+        }
+        if ($this->permissions->canViewCorrectorScreen()) {
+            $this->ctrl->redirectByClass(CorrectorStartGUI::class);
+        }
+        if ($this->permissions->canViewWriterScreen()) {
+            $this->ctrl->redirectByClass(WriterStartGUI::class);
+        }
 
         $this->tpl->setOnScreenMessage(Gti::MESSAGE_TYPE_FAILURE, $this->plugin->txt('message_no_admin_writer_corrector'), true);
     }

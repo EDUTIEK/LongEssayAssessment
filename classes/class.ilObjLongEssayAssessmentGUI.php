@@ -513,18 +513,18 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                 'url' => $this->ctrl->getLinkTargetByClass(CorrectionSettingsGUI::class)
             ];
         }
-        if ($this->permissions->canEditGrades()) {
-            $tabs[] = [
-                'id' => 'tab_grades',
-                'txt' => $this->plugin->txt('tab_grades'),
-                'url' => $this->ctrl->getLinkTargetByClass(GradesAdminGUI::class)
-            ];
-        }
         if ($this->permissions->canEditOrgaSettings()) { # TODO: Own permission for the criteria tab?
             $tabs[] = [
                 'id' => 'tab_criteria',
                 'txt' => $this->plugin->txt('tab_criteria'),
                 'url' => $this->ctrl->getLinkTargetByClass(CriteriaAdminGUI::class)
+            ];
+        }
+        if ($this->permissions->canEditGrades()) {
+            $tabs[] = [
+                'id' => 'tab_grades',
+                'txt' => $this->plugin->txt('tab_grades'),
+                'url' => $this->ctrl->getLinkTargetByClass(GradesAdminGUI::class)
             ];
         }
         if ($this->permissions->canEditDocumentationSettings()) {

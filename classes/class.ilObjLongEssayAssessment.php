@@ -77,7 +77,7 @@ class ilObjLongEssayAssessment extends ilObjectPlugin implements BaseObjectData
     {
         if (self::$template !== null) {
             self::$template->cloneTo($this->getAssId());
-        } else {
+        } elseif (!$clone_mode) {
             $this->initServices();  // now the new id is available
             $this->manager->create();
         }
@@ -90,6 +90,7 @@ class ilObjLongEssayAssessment extends ilObjectPlugin implements BaseObjectData
 
     protected function doCloneObject($new_obj, $a_target_id, $a_copy_id = null): void
     {
+        $this->initServices();
         $this->cloneTo($new_obj->getId());
     }
 

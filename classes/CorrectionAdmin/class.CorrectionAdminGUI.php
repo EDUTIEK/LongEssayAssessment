@@ -253,7 +253,7 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
             $item = array_pop($items);
             $assignments = [];
             foreach ($this->assignment_service->allByWriterId($item->getWriter()->getId()) as $assignment) {
-                $assignments[$assignment->getPosition()] = $assignment;
+                $assignments[$assignment->getPosition()->value] = $assignment;
             }
 
             $fields["first_corrector"] = $fields["first_corrector"]->withValue(
@@ -360,7 +360,7 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
                         && !empty($writer = $writers[$assignment->getWriterId()])) {
                         $user_ids[] = $writer->getUserId();
                     }
-                    if (isset($to_correctors[$assignment->getPosition()])
+                    if (isset($to_correctors[$assignment->getPosition()->value])
                         && !empty($corrector = $correctors[$assignment->getCorrectorId()])) {
                         $user_ids[] = $corrector->getUserId();
                     }
@@ -683,8 +683,8 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
         foreach ($this->assignment_service->all() as $a) {
             $summary = $summaries[$a->getCorrectorId()] ?? null;
             $corrector = $this->corrector_service->oneById($a->getCorrectorId());
-            $summary_by_pos[$a->getPosition()] = $summary;
-            $corrector_by_pos[$a->getPosition()] = $corrector;
+            $summary_by_pos[$a->getPosition()->value] = $summary;
+            $corrector_by_pos[$a->getPosition()->value] = $corrector;
         }
 
         return new CorrectionItem(

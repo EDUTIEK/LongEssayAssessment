@@ -20,6 +20,7 @@ declare(strict_types=1);
 
 namespace ILIAS\Plugin\LongEssayAssessment\Task\Data;
 
+use Edutiek\AssessmentService\Task\Data\AssignmentPosition;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Key;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Sequence;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Table;
@@ -62,13 +63,13 @@ class CorrectorAssignment extends \Edutiek\AssessmentService\Task\Data\Corrector
         $this->corrector_id = $corrector_id;
         return $this;
     }
-    public function getPosition(): int
+    public function getPosition(): AssignmentPosition
     {
-        return $this->position;
+        return AssignmentPosition::from($this->position);
     }
-    public function setPosition(int $position): self
+    public function setPosition(AssignmentPosition $position): self
     {
-        $this->position = $position;
+        $this->position = $position->value;
         return $this;
     }
     public function getTaskId(): int

@@ -2,6 +2,7 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\CorrectorAdmin;
 
+use Edutiek\AssessmentService\Task\Data\AssignmentPosition;
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\DataTableParent;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\Item;
@@ -326,7 +327,7 @@ class CorrectorGUI extends BaseGUI implements DataTableParent
             $name = $users[$writer->getUserId()]?->getFullname(true) ?? " - ";
             $status = $this->task_format->correctionResult($summary, false, false);
 
-            if ($assignment->getPosition() === 0) {
+            if ($assignment->getPosition() === AssignmentPosition::FIRST) {
                 $first[$name] = $status;
             } else {
                 $second[$name] = $status;

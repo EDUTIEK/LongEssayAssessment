@@ -6,6 +6,7 @@ namespace ILIAS\Plugin\LongEssayAssessment\Corrector;
 
 use Edutiek\AssessmentService\Assessment\Format\FullService as FormatService;
 use Edutiek\AssessmentService\Assessment\Permissions\ReadService as PermissionService;
+use Edutiek\AssessmentService\Task\Data\AssignmentPosition;
 use ILIAS\Data\ReferenceId;
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\BaseObjectData;
@@ -109,12 +110,6 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
 
     public function getColumnMapping(CorrectorStartItem|Item $item, ?array $additional_parameters): array|\ArrayAccess
     {
-        $position_title = fn(int $pos) => match($pos) {
-            0 => $this->plugin->txt('assignment_pos_first'),
-            1 => $this->plugin->txt('assignment_pos_second'),
-            default => sprintf($this->plugin->txt('assignment_pos_x'), $pos)
-        };
-
         $writing_status = fn(WritingStatus $x) => match($x) {
             WritingStatus::NOT_STARTED => $this->plugin->txt("writing_status_not_written"),
             WritingStatus::STARTED => $this->plugin->txt("writing_status_not_authorized"),
@@ -142,21 +137,21 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
             GradingStatus::REVISED => $this->plugin->txt('grading_revised')
         };
 
-        $other_corrector = function (?UserData $user_data, ?CorrectorSummary $summary, ?CorrectorAssignment $assignment) use ($position_title) {
+        $other_corrector = function (?UserData $user_data, ?CorrectorSummary $summary, ?CorrectorAssignment $assignment) {
             if (empty($user_data) || empty($assignment)) {
                 return $this->plugin->txt('assignment_pos_empty');
             }
-            return $position_title($assignment->getPosition()) . ": " . $user_data->getFullname(false) . ' - ' . $this->format_service->correctionResult($summary, false, true);
+            return $this->plugin->txt($assignment->getPosition()->languageVariable()) . ": " . $user_data->getFullname(false) . ' - ' . $this->format_service->correctionResult($summary, false, true);
         };
 
         $grading_service = $this->grading_service;
         $assessment_format = $this->assessment_format_service;
         $essay_format = $this->format_service;
 
-        return new ColumnMappingClosure(function ($key) use ($item, $position_title, $writing_status, $correction_status, $grading_service, $other_corrector, $grading_status, $assessment_format, $essay_format) {
+        return new ColumnMappingClosure(function ($key) use ($item, $writing_status, $correction_status, $grading_service, $other_corrector, $grading_status, $assessment_format, $essay_format) {
             return match($key) {
                 'pseudonym' => $item->getWriter()->getPseudonym(),
-                'position' => $position_title($item->getAssignment()->getPosition()),
+                'position' => $this->plugin->txt($item->getAssignment()->getPosition()->languageVariable()),
                 'task' => $item->getTaskTitle(),
                 'writing_status' => $writing_status($item->getWriter()->getWritingStatus()),
                 'correction_status' => $correction_status($item->getCorrectionStatus()),
@@ -515,9 +510,9 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
         ];
         $multiple_correctors = $this->settings->getRequiredCorrectors() > 1;
         $position = [
-            "1" => $this->plugin->txt('assignment_pos_first'),
-            "2" => $this->plugin->txt('assignment_pos_second'),
-            '3' => $this->plugin->txt('assignment_pos_stitch'),
+            AssignmentPosition::FIRST->value => $this->plugin->txt('assignment_pos_first'),
+            AssignmentPosition::SECOND->value => $this->plugin->txt('assignment_pos_second'),
+            AssignmentPosition::STITCH->value => $this->plugin->txt('assignment_pos_stitch'),
         ];
 
         return  [

@@ -89,10 +89,10 @@ final class CorrectionItemCollection implements \Iterator
 
         foreach ($corrector_assignments as $ca) {
             $corrector = $correctors_by_id[$ca->getCorrectorId()] ?? null;
-            $this->corrector_assignments[$ca->getWriterId()][$ca->getPosition()] = $ca;
+            $this->corrector_assignments[$ca->getWriterId()][$ca->getPosition()->value] = $ca;
             $assignment_by_writer_corrector[$ca->getWriterId()][$ca->getCorrectorId()] = $ca;
             if ($corrector !== null) {
-                $this->correctors[$ca->getWriterId()][$ca->getPosition()] = $corrector;
+                $this->correctors[$ca->getWriterId()][$ca->getPosition()->value] = $corrector;
             }
         }
 

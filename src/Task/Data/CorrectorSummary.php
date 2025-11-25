@@ -44,6 +44,7 @@ class CorrectorSummary extends \Edutiek\AssessmentService\Task\Data\CorrectorSum
     private ?DateTimeImmutable $revised = null;
     private ?string $revision_text = null;
     private ?float $revision_points = null;
+    private bool $require_other_revision = false;
 
     public function getId(): int
     {
@@ -181,6 +182,17 @@ class CorrectorSummary extends \Edutiek\AssessmentService\Task\Data\CorrectorSum
     public function setRevisionPoints(?float $revision_points): self
     {
         $this->revision_points = $revision_points;
+        return $this;
+    }
+
+    public function getRequireOtherRevision() : bool
+    {
+        return $this->require_other_revision;
+    }
+
+    public function setRequireOtherRevision(bool $require_other_revision) : self
+    {
+        $this->require_other_revision = $require_other_revision;
         return $this;
     }
 }

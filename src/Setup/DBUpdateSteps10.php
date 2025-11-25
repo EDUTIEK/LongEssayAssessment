@@ -909,4 +909,15 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
             $this->db->dropTableColumn('xlas_as_pdf_settings', 'right_margin');
         }
     }
+
+    public function step_50(): void
+    {
+        if (!$this->db->tableColumnExists('xlas_ta_corr_summary', 'require_other_revision')) {
+            $this->db->addTableColumn('xlas_ta_corr_summary', 'require_other_revision', [
+                'type' => ilDBConstants::T_INTEGER,
+                'notnull' => false,
+                'default' => 0
+            ]);
+        }
+    }
 }

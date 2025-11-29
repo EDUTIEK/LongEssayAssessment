@@ -38,7 +38,10 @@ class CorrectorCommentRepo implements \Edutiek\AssessmentService\Task\Data\Corre
     {
         return $this->repo->queryOneBy(['id' => $id]);
     }
-
+    public function oneByTaskIdAndWriterIdAndKey(int $task_id, int $writer_id, string $key): ?CorrectorComment
+    {
+        return $this->repo->queryOneBy(['task_id' => $task_id, 'writer_id' => $writer_id, 'key' => $key]);
+    }
     public function hasByAssId(int $ass_id): bool
     {
         $sql = "
@@ -93,10 +96,9 @@ class CorrectorCommentRepo implements \Edutiek\AssessmentService\Task\Data\Corre
 
     public function moveCorrectorByTaskIdAndWriterId(int $task_id, int $writer_id, int $from_corrector, int $to_corrector): void
     {
-        foreach($this->allByTaskIdAndWriterIdAndCorrectorId($task_id, $writer_id, $from_corrector) as $object) {
+        foreach ($this->allByTaskIdAndWriterIdAndCorrectorId($task_id, $writer_id, $from_corrector) as $object) {
             $object->setCorrectorId($to_corrector);
             $this->repo->update($object);
         }
     }
-
 }

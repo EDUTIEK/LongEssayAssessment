@@ -920,4 +920,28 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
             ]);
         }
     }
+
+    public function step_51(): void
+    {
+        if (!$this->db->tableColumnExists('xlas_ta_corr_comm', 'key')) {
+            $this->db->addTableColumn('xlas_ta_corr_comm', 'key', [
+                'type' => ilDBConstants::T_TEXT,
+                'notnull' => false,
+                'default' => ''
+            ]);
+            $this->db->manipulate("UPDATE xlas_ta_corr_comm SET `key` = CONCAT('C', '_', corrector_id, '_', RAND())");
+        }
+    }
+
+    public function step_52(): void
+    {
+        if (!$this->db->tableColumnExists('xlas_ta_corr_points', 'key')) {
+            $this->db->addTableColumn('xlas_ta_corr_points', 'key', [
+                'type' => ilDBConstants::T_TEXT,
+                'notnull' => false,
+                'default' => ''
+            ]);
+            $this->db->manipulate("UPDATE xlas_ta_corr_points SET `key` = CONCAT('P', '_', corrector_id, '_', RAND())");
+        }
+    }
 }

@@ -30,6 +30,7 @@ class CorrectorPoints extends \Edutiek\AssessmentService\Task\Data\CorrectorPoin
     #[Key]
     #[Sequence]
     private int $id = 0;
+    private string $key = '';
     private ?int $comment_id = null;
     private ?int $criterion_id = null;
     private int $task_id = 0;
@@ -44,6 +45,15 @@ class CorrectorPoints extends \Edutiek\AssessmentService\Task\Data\CorrectorPoin
     public function setId(int $id): self
     {
         $this->id = $id;
+        return $this;
+    }
+    public function getKey(): string
+    {
+        return $this->key;
+    }
+    public function setKey(string $key): self
+    {
+        $this->key = $key;
         return $this;
     }
     public function getCommentId(): ?int

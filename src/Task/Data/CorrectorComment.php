@@ -30,6 +30,7 @@ class CorrectorComment extends \Edutiek\AssessmentService\Task\Data\CorrectorCom
     #[Key]
     #[Sequence]
     private int $id = 0;
+    private string $key = '';
     private int $task_id = 0;
     private int $writer_id = 0;
     private ?string $comment = null;
@@ -47,6 +48,15 @@ class CorrectorComment extends \Edutiek\AssessmentService\Task\Data\CorrectorCom
     public function setId(int $id): self
     {
         $this->id = $id;
+        return $this;
+    }
+    public function getKey(): string
+    {
+        return $this->key;
+    }
+    public function setKey(string $key): self
+    {
+        $this->key = $key;
         return $this;
     }
     public function getComment(): ?string
@@ -134,4 +144,5 @@ class CorrectorComment extends \Edutiek\AssessmentService\Task\Data\CorrectorCom
         $this->writer_id = $writer_id;
         return $this;
     }
+
 }

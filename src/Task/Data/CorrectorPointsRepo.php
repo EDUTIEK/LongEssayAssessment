@@ -38,7 +38,10 @@ class CorrectorPointsRepo implements \Edutiek\AssessmentService\Task\Data\Correc
     {
         return $this->repo->queryOneBy(['id' => $id]);
     }
-
+    public function oneByTaskIdAndWriterIdAndKey(int $task_id, int $writer_id, string $key) : ?CorrectorPoints
+    {
+        return $this->repo->queryOneBy(['task_id' => $task_id, 'writer_id' => $writer_id, 'key' => $key]);
+    }
     public function save(CorrectorPoints $entity): void
     {
         $this->repo->replace($entity);

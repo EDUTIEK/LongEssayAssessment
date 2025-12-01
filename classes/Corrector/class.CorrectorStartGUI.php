@@ -176,7 +176,7 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
 
         return [
           'pseudonym' => $cf->text($this->plugin->txt('pseudonym'))->withIsOptional(false, true),
-          'position' => !$multi_task && $other_corrections ? $cf->status($this->plugin->txt('position'))->withIsOptional(true, true) : null,
+          'position' => !$multi_task && $other_corrections ? $cf->status($this->plugin->txt('own_position'))->withIsOptional(true, true) : null,
           'task' => $multi_task ? $cf->text($this->plugin->txt('task'))->withIsOptional(false, true) : null,
           'writing_status' => $cf->status($this->plugin->txt('writing_status'))->withIsOptional(false, true),
           'correction_status' => $cf->status($this->plugin->txt('correction_status'))->withIsOptional(false, true),

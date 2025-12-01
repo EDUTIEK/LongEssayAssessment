@@ -153,22 +153,6 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
         // TODO: implement download
     }
 
-    private function drawStitchDecisionAction(): Action\Direct
-    {
-        return $this->plugin_ui_factory->table()->action()->direct(
-            "stitch_decision",
-            $this->plugin->txt('draw_stitch_decision'),
-            [$this, "stitchDescision"],
-            fn(CorrectionItem $item) => $item->getCorrectionStatus() === CombinedStatus::STITCH_NEEDED,
-            Action\Type::Single
-        );
-    }
-
-    public function stitchDescision(CorrectionItem $item): void
-    {
-        //TODO: implement open corrector
-    }
-
     private function changeCorrectorAction(): Action\Form
     {
         return $this->plugin_ui_factory->table()->action()->form(
@@ -186,16 +170,15 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
 
     public function changeCorrectorCheck(array $items): array
     {
-        $correction_process = $this->correction_process;
         $writer_ids = array_map(fn(CorrectionItem $item) => $item->getWriter()->getId(), $items);
 
         return [
             $this->refinery->custom()->constraint(
-                function (array $var) use ($correction_process, $writer_ids) {
-                    $result = $correction_process->assignMultiple(
+                function (array $var) use ($writer_ids) {
+                    $result = $this->assignment_service->assignMultiple(
                         $this->task_info->getId(),
-                        $var["first_corrector"] ?? CorrectionProcess::UNCHANGED_CORRECTOR_ASSIGNMENT,
-                        $var["second_corrector"] ?? CorrectionProcess::UNCHANGED_CORRECTOR_ASSIGNMENT,
+                        $var["first_corrector"] ?? CorrectorAssignmentsService::UNCHANGED_CORRECTOR_ASSIGNMENT,
+                        $var["second_corrector"] ?? CorrectorAssignmentsService::UNCHANGED_CORRECTOR_ASSIGNMENT,
                         $writer_ids,
                         true
                     );
@@ -213,8 +196,8 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
     public function changeCorrectorFields(array $items): array
     {
         $corrector_list = [
-            CorrectionProcess::UNCHANGED_CORRECTOR_ASSIGNMENT => $this->plugin->txt("unchanged"),
-            CorrectionProcess::BLANK_CORRECTOR_ASSIGNMENT => $this->lng->txt("remove")
+            CorrectorAssignmentsService::UNCHANGED_CORRECTOR_ASSIGNMENT => $this->plugin->txt("unchanged"),
+            CorrectorAssignmentsService::BLANK_CORRECTOR_ASSIGNMENT => $this->lng->txt("remove")
         ];
 
         $corrector_ids = [];
@@ -235,7 +218,7 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
                 : $this->plugin->txt("assignment_pos_single"),
             $corrector_list
         )->withRequired(true)
-         ->withValue(CorrectionProcess::UNCHANGED_CORRECTOR_ASSIGNMENT)
+         ->withValue(CorrectorAssignmentsService::UNCHANGED_CORRECTOR_ASSIGNMENT)
          ->withAdditionalTransformation($this->refinery->kindlyTo()->int());
 
 
@@ -244,7 +227,7 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
                 $this->plugin->txt("grading_pos_second"),
                 $corrector_list
             )->withRequired(true)
-             ->withValue(CorrectionProcess::UNCHANGED_CORRECTOR_ASSIGNMENT)
+             ->withValue(CorrectorAssignmentsService::UNCHANGED_CORRECTOR_ASSIGNMENT)
              ->withAdditionalTransformation($this->refinery->kindlyTo()->int());
         }
 
@@ -259,14 +242,14 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
             $fields["first_corrector"] = $fields["first_corrector"]->withValue(
                 isset($assignments[0]) ?
                     $assignments[0]->getCorrectorId() :
-                    CorrectionProcess::UNCHANGED_CORRECTOR_ASSIGNMENT
+                    CorrectorAssignmentsService::UNCHANGED_CORRECTOR_ASSIGNMENT
             );
 
             if ($this->correction_settings->getRequiredCorrectors() > 1) {
                 $fields["second_corrector"] = $fields["second_corrector"]->withValue(
                     isset($assignments[1]) ?
                         $assignments[1]->getCorrectorId() :
-                        CorrectionProcess::UNCHANGED_CORRECTOR_ASSIGNMENT
+                        CorrectorAssignmentsService::UNCHANGED_CORRECTOR_ASSIGNMENT
                 );
             }
         }
@@ -275,10 +258,10 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
 
     public function changeCorrector(array $items, array $data)
     {
-        $this->correction_process->assignMultiple(
+        $this->assignment_service->assignMultiple(
             $this->task_info->getId(),
-            $data["first_corrector"] ?? CorrectionProcess::UNCHANGED_CORRECTOR_ASSIGNMENT,
-            $data["second_corrector"] ?? CorrectionProcess::UNCHANGED_CORRECTOR_ASSIGNMENT,
+            $data["first_corrector"] ?? CorrectorAssignmentsService::UNCHANGED_CORRECTOR_ASSIGNMENT,
+            $data["second_corrector"] ?? CorrectorAssignmentsService::UNCHANGED_CORRECTOR_ASSIGNMENT,
             array_map(fn(CorrectionItem $x) => $x->getWriter()->getId(), $items)
         );
         $this->tpl->setOnScreenMessage("success", $this->plugin->txt("corrector_assignment_changed"), true);
@@ -457,7 +440,8 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
     }
     public function showItems()
     {
-        $this->buildToolbar($this->toolbar);
+        // todo: add toolbar
+        // $this->buildToolbar($this->toolbar);
 
         $table = $this->plugin_ui_factory->table()->dataTable('correction_admin_table', $this);
         $table->executeAction();
@@ -610,7 +594,7 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
             if (!$multi) {
                 $columns["corr_{$p}_grade"] = $cf->text($cor . $this->lng->txt("grade"))->withIsOptional(true, false)->withIsSortable(true);
             }
-            $columns["corr_{$p}_authorized"] = $cf->boolean($cor . $this->lng->txt("authorized"), $this->lng->txt('yes'), $this->lng->txt('no'))->withIsOptional(true, false)->withIsSortable(true)->withHighlight($multi);
+            $columns["corr_{$p}_authorized"] = $cf->boolean($cor . $this->plugin->txt("grading_authorized"), $this->lng->txt('yes'), $this->lng->txt('no'))->withIsOptional(true, false)->withIsSortable(true)->withHighlight($multi);
         }
 
         $columns += [
@@ -619,7 +603,7 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
             "grade" => $cf->text($this->plugin->txt("final_grade"))->withIsOptional(true, false)->withIsSortable(true),
             "finalized" => $cfp->nullableDate($this->plugin->txt("finalized_at"), $date_without_seconds)->withIsOptional(true, false)->withIsSortable(true),
             "finalized_from" => $cf->text($this->plugin->txt("finalized_from"))->withIsOptional(true, false)->withIsSortable(true),
-            "stitch_needed" => $stitch_possible ? $cf->boolean($this->lng->txt("stitch"), $this->lng->txt('yes'), $this->lng->txt('no'))->withIsOptional(false, true)->withIsSortable(true) : null,
+            "stitch_needed" => $stitch_possible ? $cf->boolean($this->plugin->txt("correction_status_stitch_needed"), $this->lng->txt('yes'), $this->lng->txt('no'))->withIsOptional(false, true)->withIsSortable(true) : null,
         ];
 
         return $columns;
@@ -634,16 +618,16 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
     public function getTableActions(): array
     {
         return [
-            $this->viewCorrectionAction(),
-            $this->viewStitchDecisionAction(),
-            $this->downloadWrittenPdfAction(),
-            $this->downloadCorrectedPdfAction(),
-            $this->mailToWriterOrCorrectorAction(),
+//            $this->viewCorrectionAction(),
+//            $this->viewStitchDecisionAction(),
+//            $this->downloadWrittenPdfAction(),
+//            $this->downloadCorrectedPdfAction(),
+//            $this->mailToWriterOrCorrectorAction(),
             $this->changeCorrectorAction(),
-            $this->drawStitchDecisionAction(),
-            $this->exportStepsAction(),
-            $this->removeAuthorizationsAction(),
-            $this->exportTableAction(),
+//            $this->drawStitchDecisionAction(),
+//            $this->exportStepsAction(),
+//            $this->removeAuthorizationsAction(),
+//            $this->exportTableAction(),
         ];
     }
 

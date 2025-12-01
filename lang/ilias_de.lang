@@ -166,13 +166,21 @@ writing_status#:#Abgabe
 writing_status_not_written#:#nicht teilgenommen
 writing_status_not_authorized#:#nicht abgegeben
 writing_status_authorized#:#freigegeben
-correction_status#:#Korrektur
+correction_status#:#Korrektur-Status
+correction_status_writing_excluded#:#ausgeschlossen
+correction_status_writing_not_started#:#nicht teilgenommen
+correction_status_writing_started#:#in Teilnahme
+correction_status_writing_authorized#:#Abgabe freigegeben
 correction_status_not_possible#:#nicht möglich
-correction_status_open#:#offen
-correction_status_stitch_needed#:#Stichentscheid notwendig
+correction_status_open#:#Korrektur offen
 correction_status_finished#:#abgeschlossen
+correction_status_stitch#:#im Stichentscheid
+correction_status_approximation#:#in Annäherung
+correction_status_consulting#:#in Beratung
+correction_status_finalized#:#Korrektur abgeschlossen
+correction_status_stitch_needed#:#Stichentscheid notwendig
 own_grading#:#Eigene Note
-own_status#:#Eigner Status
+own_status#:#Eigene Korrektur
 own_points#:#Eigene Punkte
 own_grade#:#Eigene Note
 grading_not_started#:#nicht begonnen
@@ -180,6 +188,8 @@ grading_open#:#offen
 grading_pre_graded#:#vorbenotet
 grading_authorized#:#freigegeben
 grading_revised#:#überarbeitet
+grading_approximated#:#angenähert
+grading_consulted#:#beraten
 grading_pos_first#:#Erstkorrektur
 grading_pos_second#:#Zweitkorrektur
 grading_pos_stitch#:#Stichentscheid
@@ -241,10 +251,6 @@ missing_corrector#:#Korrektor konnte nicht gefunden werden.
 remove_writer_pending_assignments#:#Korrektor konnte nicht entfernt werden, da er noch als Erst- oder Zweitkorrektur eingetragen ist.
 remove_corrector_success#:#Korrektor(en) wurden erfolgreich entfernt.
 assign_corrector_success#:#Korrektor(en) wurden erfolgreich hinzugefügt.
-correction_status_stitch#:#Stichentscheid
-correction_status_approximation#:#Annäherung
-correction_status_consulting#:#Beratung
-correction_status_started#:#Begonnen
 log_type#:#Typ
 alert_send#:#Gesendet
 log_type_alert#:#Benachrichtigung
@@ -324,7 +330,7 @@ tab_correction_items#:#Abgaben
 correction_settings#:#Korrektur-Einstellungen
 message_no_correction_items#:#Ihnen sind noch keine Abgaben zur Korrektur zugewiesen.
 correction_period#:#Korrektur-Zeitraum
-final_grade#:#Endnote
+final_grade#:#End-Note
 actions#:#Aktionen
 delete_writer_data#:#Alle Teilnahmedaten entfernen
 delete_writer_data_confirmation#:#Sind Sie sicher, dass Sie alle Teilnahmedaten unwiderruflich entfernen möchten?
@@ -782,7 +788,7 @@ table_select_columns_all#:#Alle Spalten
 table_select_columns_selected#:#Spalten auswählen
 correction_admin_table_export#:#Tabelle exportieren
 correction_admin_table_export_filename#:#Korrekturentabelle
-final_points#:#Endpunkte
+final_points#:#End-Punkte
 finalized_at#:#Finalisiert am
 finalized_from#:#Finalisiert von
 min_word_count#:#Wörter mindestens

@@ -36,6 +36,7 @@ use ILIAS\Plugin\LongEssayAssessment\UI\Table;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\Helper\ConfirmationIds;
 use DateTimeZone;
 use ILIAS\StaticURL\Builder\StandardURIBuilder;
+use Edutiek\AssessmentService\Assessment\Data\CorrectionProcedure;
 
 /**
  *Start page for correctors
@@ -117,24 +118,18 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
             WritingStatus::AUTHORIZED => $this->plugin->txt("writing_status_authorized")
         };
 
-        $correction_status = fn(CombinedStatus $x) => match ($x) {
-            CombinedStatus::WRITING_NOT_STARTED,
-            CombinedStatus::WRITING_STARTED,
-            CombinedStatus::WRITING_EXCLUDED => $this->plugin->txt('correction_status_not_possible'),
-            CombinedStatus::WRITING_AUTHORIZED,
-            CombinedStatus::STARTED => $this->plugin->txt("correction_status_open"),
-            CombinedStatus::APPROXIMATION => $this->plugin->txt("correction_status_approximation"),
-            CombinedStatus::CONSULTING => $this->plugin->txt("correction_status_consulting"),
-            CombinedStatus::STITCH_NEEDED => $this->plugin->txt("correction_status_stitch_needed"),
-            CombinedStatus::FINALIZED => $this->plugin->txt("correction_status_finished")
-        };
+        $correction_status = fn(CombinedStatus $x) => $this->plugin->txt($x->langVar());
 
         $grading_status = fn(GradingStatus $x) => match($x) {
             GradingStatus::NOT_STARTED => $this->plugin->txt('grading_not_started'),
             GradingStatus::OPEN => $this->plugin->txt('grading_open'),
             GradingStatus::PRE_GRADED => $this->plugin->txt('grading_pre_graded'),
             GradingStatus::AUTHORIZED => $this->plugin->txt('grading_authorized'),
-            GradingStatus::REVISED => $this->plugin->txt('grading_revised')
+            GradingStatus::REVISED => match($this->settings->getProcedure()) {
+                CorrectionProcedure::APPROXIMATION => $this->plugin->txt('grading_approximated'),
+                CorrectionProcedure::CONSULTING => $this->plugin->txt('grading_consulted'),
+                CorrectionProcedure::NONE => $this->plugin->txt('grading_revised'),
+            }
         };
 
         $other_corrector = function (?UserData $user_data, ?CorrectorSummary $summary, ?CorrectorAssignment $assignment) {
@@ -153,8 +148,7 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
                 'pseudonym' => $item->getWriter()->getPseudonym(),
                 'position' => $this->plugin->txt($item->getAssignment()->getPosition()->languageVariable()),
                 'task' => $item->getTaskTitle(),
-                'writing_status' => $writing_status($item->getWriter()->getWritingStatus()),
-                'correction_status' => $correction_status($item->getCorrectionStatus()),
+                'combined_status' => $correction_status($item->getCombinedStatus()),
                 'own_status' => $grading_status($item->getSummary()?->getGradingStatus() ?? GradingStatus::NOT_STARTED),
                 'own_points' => $item->getSummary()?->getPoints(),
                 'own_grade' => $item->getSummary() ? $grading_service->getGradLevelForPoints($item->getSummary()->getPoints())?->getGrade() : null,
@@ -178,12 +172,11 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
           'pseudonym' => $cf->text($this->plugin->txt('pseudonym'))->withIsOptional(false, true),
           'position' => !$multi_task && $other_corrections ? $cf->status($this->plugin->txt('own_position'))->withIsOptional(true, true) : null,
           'task' => $multi_task ? $cf->text($this->plugin->txt('task'))->withIsOptional(false, true) : null,
-          'writing_status' => $cf->status($this->plugin->txt('writing_status'))->withIsOptional(false, true),
-          'correction_status' => $cf->status($this->plugin->txt('correction_status'))->withIsOptional(false, true),
+          'combined_status' => $cf->status($this->plugin->txt('status'))->withIsOptional(false, true),
           'own_status' => $cf->status($this->plugin->txt('own_status'))->withIsOptional(true, false),
           'own_points' => $cfp->nullableNumber($this->plugin->txt('own_points'))->withIsOptional(true, false),
           'own_grade' => !$multi_task ? $cf->text($this->plugin->txt('own_grade'))->withIsOptional(true, false) : null,
-          'other_corrections' => $other_corrections ? $cf->text($this->plugin->txt('other_corrections')) : null,
+          'other_correction' => $other_corrections ? $cf->text($this->plugin->txt('other_corrections')) : null,
           'result' => $cf->status($this->plugin->txt('result'))->withIsOptional(false, true)->withIsSortable(false),
           'final_points' => $cfp->nullableNumber($this->plugin->txt('final_points'))->withIsOptional(true, false),
           'final_grade' => !$multi_task ? $cf->text($this->plugin->txt('final_grade'))->withIsOptional(true, false) : null,

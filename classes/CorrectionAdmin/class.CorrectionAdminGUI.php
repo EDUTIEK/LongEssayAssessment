@@ -564,7 +564,7 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
             "login" => $cf->text($this->lng->txt("login"))->withIsOptional(false, true)->withIsSortable(true),
             "pseudonym" => $cf->text($this->plugin->txt("pseudonym"))->withIsOptional(true, true)->withIsSortable(true),
             "location" => $location_avaiable ? $cf->text($this->plugin->txt("location"))->withIsOptional(true, $location_avaiable)->withIsSortable(true) : null,
-            "status" => $cf->status($this->plugin->txt("essay_status"))->withIsOptional(true, true)->withIsSortable(true),
+            "status" => $cf->status($this->plugin->txt("status"))->withIsOptional(true, true)->withIsSortable(true),
             "writing_last_save" => $cfp->nullableDate($this->plugin->txt("writing_last_save"), $date_with_seconds)->withIsOptional(true, $has_started)->withIsSortable(true)->withHighlight($multi),
             "word_count" => $cf->number($this->plugin->txt('word_count'))->withIsOptional(false, $has_started)->withIsSortable(true)->withHighlight($multi),
             "pdf_version" => $cf->boolean($this->plugin->txt("pdf_version"), $this->lng->txt("yes"), $this->lng->txt("no"))->withIsOptional(true, false)->withIsSortable(true)->withHighlight($multi)
@@ -603,7 +603,6 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
             "grade" => $cf->text($this->plugin->txt("final_grade"))->withIsOptional(true, false)->withIsSortable(true),
             "finalized" => $cfp->nullableDate($this->plugin->txt("finalized_at"), $date_without_seconds)->withIsOptional(true, false)->withIsSortable(true),
             "finalized_from" => $cf->text($this->plugin->txt("finalized_from"))->withIsOptional(true, false)->withIsSortable(true),
-            "stitch_needed" => $stitch_possible ? $cf->boolean($this->plugin->txt("correction_status_stitch_needed"), $this->lng->txt('yes'), $this->lng->txt('no'))->withIsOptional(false, true)->withIsSortable(true) : null,
         ];
 
         return $columns;
@@ -687,15 +686,15 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
     public function getFilterInputs(): array
     {
         $status = [
-            (string) CombinedStatus::WRITING_NOT_STARTED->value => $this->plugin->txt("status_writing_not_started"),
-            (string) CombinedStatus::WRITING_STARTED->value => $this->plugin->txt("status_writing_started"),
-            (string) CombinedStatus::WRITING_EXCLUDED->value => $this->plugin->txt("status_writing_excluded"),
-            (string) CombinedStatus::WRITING_EXCLUDED->value => $this->plugin->txt("status_writing_authorized"),
-            (string) CombinedStatus::STARTED->value => $this->plugin->txt("correction_status_started"),
-            (string) CombinedStatus::APPROXIMATION->value => $this->plugin->txt("correction_status_approximation"),
-            (string) CombinedStatus::CONSULTING->value => $this->plugin->txt("correction_status_consulting"),
-            (string) CombinedStatus::STITCH_NEEDED->value => $this->plugin->txt("correction_status_stitch_needed"),
-            (string) CombinedStatus::FINALIZED->value => $this->plugin->txt("correction_finalized_from"),
+            (string) CombinedStatus::WRITING_EXCLUDED->value => $this->plugin->txt(CombinedStatus::WRITING_EXCLUDED->langVar()),
+            (string) CombinedStatus::WRITING_NOT_STARTED->value => $this->plugin->txt(CombinedStatus::WRITING_NOT_STARTED->langVar()),
+            (string) CombinedStatus::WRITING_STARTED->value => $this->plugin->txt(CombinedStatus::WRITING_STARTED->langVar()),
+            (string) CombinedStatus::WRITING_AUTHORIZED->value => $this->plugin->txt(CombinedStatus::WRITING_AUTHORIZED->langVar()),
+            (string) CombinedStatus::OPEN->value => $this->plugin->txt(CombinedStatus::OPEN->langVar()),
+            (string) CombinedStatus::APPROXIMATION->value => $this->plugin->txt(CombinedStatus::APPROXIMATION->langVar()),
+            (string) CombinedStatus::CONSULTING->value => $this->plugin->txt(CombinedStatus::CONSULTING->langVar()),
+            (string) CombinedStatus::STITCH_NEEDED->value => $this->plugin->txt(CombinedStatus::STITCH_NEEDED->langVar()),
+            (string) CombinedStatus::FINALIZED->value => $this->plugin->txt(CombinedStatus::FINALIZED->langVar()),
         ];
         $locations = [];
         foreach ($this->getLocations() as $location) {
@@ -709,7 +708,7 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
                                             ->withAdditionalTransformation($this->refinery->int()->isGreaterThanOrEqual(0)),
             "max_words" => $this->ui_factory->input()->field()->numeric($this->plugin->txt("max_word_count"))
                                             ->withAdditionalTransformation($this->refinery->int()->isGreaterThanOrEqual(1)),
-            "status" => $this->ui_factory->input()->field()->multiSelect($this->plugin->txt("correction_status"), $status),
+            "status" => $this->ui_factory->input()->field()->multiSelect($this->plugin->txt("status"), $status),
             "assigned" => $this->ui_factory->input()->field()->select(
                 $this->plugin->txt("filter_assigned"),
                 [self::FILTER_YES => $this->plugin->txt("yes"), self::FILTER_NO => $this->plugin->txt("no")]

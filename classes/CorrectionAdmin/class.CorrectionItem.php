@@ -22,7 +22,7 @@ class CorrectionItem extends \ILIAS\Plugin\LongEssayAssessment\UI\Table\Item
      * @param array            $user_data
      * @param Location|null    $location
      * @param Essay|null       $essay
-     * @param CombinedStatus $correction_status
+     * @param CombinedStatus $combined_status
      * @param CorrectorSummary[]            $summaries_by_position
      * @param Corrector[]            $correcor_by_position
      */
@@ -32,7 +32,7 @@ class CorrectionItem extends \ILIAS\Plugin\LongEssayAssessment\UI\Table\Item
         private array $user_data,
         private ?Location $location,
         private ?Essay $essay,
-        private CombinedStatus $correction_status,
+        private CombinedStatus $combined_status,
         private array $summaries_by_position,
         private array $correcor_by_position,
         private ?UserDisplay $user_display
@@ -40,12 +40,12 @@ class CorrectionItem extends \ILIAS\Plugin\LongEssayAssessment\UI\Table\Item
         parent::__construct($id);
     }
 
-    private function getUserData(int $user_id) : ?UserData
+    private function getUserData(int $user_id): ?UserData
     {
         return $this->user_data[$user_id] ?? null;
     }
 
-    public function getWriterImage() : ?string
+    public function getWriterImage(): ?string
     {
         return $this->user_display?->getImageUrl();
     }
@@ -65,14 +65,14 @@ class CorrectionItem extends \ILIAS\Plugin\LongEssayAssessment\UI\Table\Item
         return $this->writer;
     }
 
-    public function getLocation():? Location
+    public function getLocation(): ?Location
     {
         return $this->location;
     }
 
-    public function getCorrectionStatus(): CombinedStatus
+    public function getCombinedStatus(): CombinedStatus
     {
-        return $this->correction_status;
+        return $this->combined_status;
     }
 
     public function getEssay(): ?Essay
@@ -86,7 +86,7 @@ class CorrectionItem extends \ILIAS\Plugin\LongEssayAssessment\UI\Table\Item
      *         null if there is no person found
      * @return string|null
      */
-    public function getExecludedByName() : ?string
+    public function getExecludedByName(): ?string
     {
         $by = $this->writer->getWritingExcludedBy();
         return $by !== null
@@ -99,7 +99,7 @@ class CorrectionItem extends \ILIAS\Plugin\LongEssayAssessment\UI\Table\Item
      *         null if there is no person found
      * @return string|null
      */
-    public function getAuthorizedByName() : ?string
+    public function getAuthorizedByName(): ?string
     {
         $by = $this->writer->getWritingAuthorizedBy();
         return $by !== null
@@ -112,7 +112,7 @@ class CorrectionItem extends \ILIAS\Plugin\LongEssayAssessment\UI\Table\Item
      *         null if there is no person found
      * @return string|null
      */
-    public function getFinalizedByName() : ?string
+    public function getFinalizedByName(): ?string
     {
         $by = $this->writer->getCorrectionFinalizedBy();
         return $by !== null
@@ -121,16 +121,16 @@ class CorrectionItem extends \ILIAS\Plugin\LongEssayAssessment\UI\Table\Item
 
     public function isStitchNeeded()
     {
-        return $this->correction_status == CombinedStatus::STITCH_NEEDED;
+        return $this->combined_status == CombinedStatus::STITCH_NEEDED;
     }
 
-    public function getCorrectorDataByPosition(int $position) : ?UserData
+    public function getCorrectorDataByPosition(int $position): ?UserData
     {
         $corrector = $this->correcor_by_position[$position] ?? null;
         return $corrector !== null ? $this->getUserData($corrector->getUserId()) : null;
     }
 
-    public function getSummaryByPosition(int $position) : ?CorrectorSummary
+    public function getSummaryByPosition(int $position): ?CorrectorSummary
     {
         return $this->summaries_by_position[$position] ?? null;
     }

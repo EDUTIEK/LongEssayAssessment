@@ -37,17 +37,7 @@ class CorrectionItemColumnMap extends ColumnMappingArray
 
     private function correctionStatus(CombinedStatus $status): string
     {
-        return self::$correction_status[$status->value] ??= match($status) {
-            CombinedStatus::WRITING_NOT_STARTED => $this->plng->txt("status_writing_not_started"),
-            CombinedStatus::WRITING_STARTED => $this->plng->txt("status_writing_started"),
-            CombinedStatus::WRITING_EXCLUDED => $this->plng->txt("status_writing_excluded_from"),
-            CombinedStatus::WRITING_AUTHORIZED => $this->plng->txt("status_writing_authorized"),
-            CombinedStatus::STARTED => $this->plng->txt("correction_status_started"),
-            CombinedStatus::APPROXIMATION => $this->plng->txt("correction_status_approximation"),
-            CombinedStatus::CONSULTING => $this->plng->txt("correction_status_consulting"),
-            CombinedStatus::STITCH_NEEDED => $this->plng->txt("correction_status_stitch_needed"),
-            CombinedStatus::FINALIZED => $this->plng->txt("correction_finalized_from"),
-        };
+        return $this->plng->txt($status->langVar());
     }
 
     private function gradingStatus(?GradingStatus $status): string
@@ -89,7 +79,7 @@ class CorrectionItemColumnMap extends ColumnMappingArray
             "login" => $item->getWriterLogin() ?? "",
             "pseudonym" => $item->getWriter()->getPseudonym(),
             "location" => $item->getLocation()?->getTitle() ?? "",
-            "status" => $this->correctionStatus($item->getCorrectionStatus()),
+            "status" => $this->correctionStatus($item->getCombinedStatus()),
             "writing_last_save" => $item->getEssay()?->getLastChange()?->setTimezone($this->timezone),
             "word_count" => $item->getEssay()?->getWordCount() ?? 0,
             "result" => $this->ass_format->finalResult($item->getWriter()),
@@ -97,7 +87,6 @@ class CorrectionItemColumnMap extends ColumnMappingArray
             "grade" => $this->grading->getGradeLevel($item->getWriter()->getFinalGradeLevelId())?->getGrade() ?? "",
             "finalized" => $item->getWriter()->getCorrectionFinalized()?->setTimezone($this->timezone),
             "finalized_from" => $item->getFinalizedByName() ?? $this->unknown(),
-            "stitch_needed" => $item->isStitchNeeded(),
             "pdf_version" => $item->getEssay()?->hasPDFVersion() ?? false,
 
             "corr_0" => $item->getCorrectorDataByPosition(0) !== null

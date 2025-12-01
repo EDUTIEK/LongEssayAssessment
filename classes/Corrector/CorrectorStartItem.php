@@ -31,7 +31,7 @@ class CorrectorStartItem extends Item
         return $this->writer;
     }
 
-    public function getCorrectionStatus(): CombinedStatus
+    public function getCombinedStatus(): CombinedStatus
     {
         return $this->correction_status;
     }

@@ -137,12 +137,13 @@ class CorrectorGUI extends BaseGUI implements DataTableParent
         $this->toolbar->addSeparator();
 
         // mail to correctors
-        $modal[] = $modal_mail = $this->ui_factory->modal()->roundtrip('', [])
-                                 ->withAsyncRenderUrl($this->ctrl->getFormAction($this, 'mailToCorrectorsAsync'));
-        $button = $this->ui_factory->button()->standard($this->plugin->txt("mail_to_correctors"), '')
-                                  ->withOnClick($modal_mail->getShowSignal());
-        $this->toolbar->addComponent($button);
-
+        // todo
+//        $modal[] = $modal_mail = $this->ui_factory->modal()->roundtrip('', [])
+//                                 ->withAsyncRenderUrl($this->ctrl->getFormAction($this, 'mailToCorrectorsAsync'));
+//        $button = $this->ui_factory->button()->standard($this->plugin->txt("mail_to_correctors"), '')
+//                                  ->withOnClick($modal_mail->getShowSignal());
+//        $this->toolbar->addComponent($button);
+//
         $this->tpl->setContent($this->renderer->render(array_merge($modal, $table->getComponents())));
     }
 

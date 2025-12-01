@@ -5,7 +5,7 @@ namespace ILIAS\Plugin\LongEssayAssessment\CorrectionAdmin;
 use ILIAS\UI\Component\Symbol\Symbol;
 use ILIAS\UI\Factory;
 use Edutiek\AssessmentService\Task\AssessmentStatus\CombinedStatus;
-use Edutiek\AssessmentService\Task\Data\GradingStatus;
+use Edutiek\AssessmentService\Assessment\TaskInterfaces\GradingStatus;
 use ILIAS\UI\Renderer;
 use Edutiek\AssessmentService\Assessment\AssessmentGrading\ReadService as GradingService;
 use Edutiek\AssessmentService\Assessment\Format\Service as AssFormService;

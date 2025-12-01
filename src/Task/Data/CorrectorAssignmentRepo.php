@@ -20,7 +20,7 @@ declare(strict_types=1);
 
 namespace ILIAS\Plugin\LongEssayAssessment\Task\Data;
 
-use Edutiek\AssessmentService\Task\Data\AssignmentPosition;
+use Edutiek\AssessmentService\Assessment\TaskInterfaces\GradingPosition;
 use Edutiek\AssessmentService\Task\Data\CorrectorAssignment;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\RepositoryInterface;
 
@@ -45,7 +45,7 @@ class CorrectorAssignmentRepo implements \Edutiek\AssessmentService\Task\Data\Co
         return $this->repo->queryOneBy(['writer_id' => $writer_id, 'corrector_id' => $corrector_id, 'task_id' => $task_id]);
     }
 
-    public function oneByPosition(int $task_id, int $writer_id, AssignmentPosition $position): ?CorrectorAssignment
+    public function oneByPosition(int $task_id, int $writer_id, GradingPosition $position): ?CorrectorAssignment
     {
         return $this->repo->queryOneBy(['task_id' => $task_id, 'writer_id' => $writer_id, 'position' => $position->value]);
     }

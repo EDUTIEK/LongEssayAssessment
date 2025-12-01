@@ -6,7 +6,7 @@ namespace ILIAS\Plugin\LongEssayAssessment\Corrector;
 
 use Edutiek\AssessmentService\Assessment\Format\FullService as FormatService;
 use Edutiek\AssessmentService\Assessment\Permissions\ReadService as PermissionService;
-use Edutiek\AssessmentService\Task\Data\AssignmentPosition;
+use Edutiek\AssessmentService\Assessment\TaskInterfaces\GradingPosition;
 use ILIAS\Data\ReferenceId;
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\BaseObjectData;
@@ -31,7 +31,7 @@ use Edutiek\AssessmentService\Assessment\Writer\FullService as WriterService;
 use Edutiek\AssessmentService\Task\AssessmentStatus\FullService as AssesmentStatusService;
 use Edutiek\AssessmentService\System\Format\FullService as SystemFormatService;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\FilterParent;
-use Edutiek\AssessmentService\Task\Data\GradingStatus;
+use Edutiek\AssessmentService\Assessment\TaskInterfaces\GradingStatus;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\Helper\ConfirmationIds;
 use DateTimeZone;
@@ -510,9 +510,9 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
         ];
         $multiple_correctors = $this->settings->getRequiredCorrectors() > 1;
         $position = [
-            AssignmentPosition::FIRST->value => $this->plugin->txt('assignment_pos_first'),
-            AssignmentPosition::SECOND->value => $this->plugin->txt('assignment_pos_second'),
-            AssignmentPosition::STITCH->value => $this->plugin->txt('assignment_pos_stitch'),
+            GradingPosition::FIRST->value => $this->plugin->txt('grading_pos_first'),
+            GradingPosition::SECOND->value => $this->plugin->txt('grading_pos_second'),
+            GradingPosition::STITCH->value => $this->plugin->txt('grading_pos_stitch'),
         ];
 
         return  [

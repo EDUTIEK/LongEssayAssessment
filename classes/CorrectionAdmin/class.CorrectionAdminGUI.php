@@ -13,7 +13,7 @@ use Edutiek\AssessmentService\Task\Data\Settings;
 use Edutiek\AssessmentService\Task\Settings\FullService as SettingsService;
 use Edutiek\AssessmentService\Assessment\Data\OrgaSettings;
 use Edutiek\AssessmentService\Task\AssessmentStatus\CombinedStatus;
-use Edutiek\AssessmentService\Task\Data\GradingStatus;
+use Edutiek\AssessmentService\Assessment\TaskInterfaces\GradingStatus;
 use Edutiek\AssessmentService\Assessment\Data\Writer;
 use Edutiek\AssessmentService\Assessment\OrgaSettings\FullService as OrgaService;
 use Edutiek\AssessmentService\Assessment\Writer\FullService as WriterService;
@@ -231,7 +231,7 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
         $fields = [];
         $fields["first_corrector"] = $this->ui_factory->input()->field()->select(
             $this->correction_settings->getRequiredCorrectors() > 1
-                ? $this->plugin->txt("assignment_pos_first")
+                ? $this->plugin->txt("grading_pos_first")
                 : $this->plugin->txt("assignment_pos_single"),
             $corrector_list
         )->withRequired(true)
@@ -241,7 +241,7 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
 
         if ($this->correction_settings->getRequiredCorrectors() > 1) {
             $fields["second_corrector"] = $this->ui_factory->input()->field()->select(
-                $this->plugin->txt("assignment_pos_second"),
+                $this->plugin->txt("grading_pos_second"),
                 $corrector_list
             )->withRequired(true)
              ->withValue(CorrectionProcess::UNCHANGED_CORRECTOR_ASSIGNMENT)
@@ -591,9 +591,9 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
                 $cor = $this->plugin->txt("assignment_pos_single");
             } else {
                 switch ($p) {
-                    case 0: $cor = $this->plugin->txt("assignment_pos_first");
+                    case 0: $cor = $this->plugin->txt("grading_pos_first");
                         break;
-                    case 1: $cor = $this->plugin->txt("assignment_pos_second");
+                    case 1: $cor = $this->plugin->txt("grading_pos_second");
                         break;
                     default: $cor = $this->plugin->txt("assignment_pos_other");
                         break;

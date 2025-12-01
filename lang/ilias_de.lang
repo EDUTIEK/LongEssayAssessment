@@ -178,9 +178,9 @@ grading_pre_graded#:#vorbenotet
 grading_authorized#:#freigegeben
 grading_revised#:#überarbeitet
 assignment_pos_single#:#Korrektor
-assignment_pos_first#:#Erstkorrektur
-assignment_pos_second#:#Zweitkorrektur
-assignment_pos_stitch#:#Stichentscheid
+grading_pos_first#:#Erstkorrektur
+grading_pos_second#:#Zweitkorrektur
+grading_pos_stitch#:#Stichentscheid
 assignment_pos_x#:#%s. Korrektur
 assignment_pos_other#:#Korrektur
 assignment_pos_empty#:#nicht ausgewählt

@@ -94,7 +94,7 @@ class CorrectionItemColumnMap extends ColumnMappingArray
             "word_count" => $item->getEssay()?->getWordCount() ?? 0,
             "result" => $this->ass_format->finalResult($item->getWriter()),
             "points" => $item->getWriter()->getFinalPoints(),
-            "grade" => $this->grading->getGradeLevel($item->getWriter()->getFinalGradeLevelId()) ?? "",
+            "grade" => $this->grading->getGradeLevel($item->getWriter()->getFinalGradeLevelId())?->getGrade() ?? "",
             "finalized" => $item->getWriter()->getCorrectionFinalized()?->setTimezone($this->timezone),
             "finalized_from" => $item->getFinalizedByName() ?? $this->unknown(),
             "stitch_needed" => $item->isStitchNeeded(),
@@ -106,7 +106,8 @@ class CorrectionItemColumnMap extends ColumnMappingArray
             "corr_0_name" => $item->getCorrectorDataByPosition(0)?->getFullname(true),
             "corr_0_status" => $this->gradingStatus($item->getSummaryByPosition(0)?->getGradingStatus()),
             "corr_0_points" => $item->getSummaryByPosition(0)?->getPoints(),
-            "corr_0_grade" => $this->grading->getGradLevelForPoints($item->getSummaryByPosition(0)?->getPoints()) ?? "",
+            "corr_0_grade" => $item->getSummaryByPosition(0)?->isAuthorized() ?
+                $this->grading->getGradLevelForPoints($item->getSummaryByPosition(0)?->getPoints())?->getGrade() ?? "" : "",
             "corr_0_authorized" => $item->getSummaryByPosition(0)?->isAuthorized() ?? false,
             "corr_1" => $item->getCorrectorDataByPosition(1) !== null
                 ? (($item->getCorrectorDataByPosition(1)?->getFullname(true) ?? $this->unknown()) . " - " . $this->task_format->correctionResult($item->getSummaryByPosition(1)))
@@ -114,7 +115,8 @@ class CorrectionItemColumnMap extends ColumnMappingArray
             "corr_1_name" => $item->getCorrectorDataByPosition(1)?->getFullname(true),
             "corr_1_status" => $this->gradingStatus($item->getSummaryByPosition(1)?->getGradingStatus()),
             "corr_1_points" => $item->getSummaryByPosition(1)?->getPoints(),
-            "corr_1_grade" => $this->grading->getGradLevelForPoints($item->getSummaryByPosition(1)?->getPoints()) ?? "",
+            "corr_1_grade" => $item->getSummaryByPosition(1)?->isAuthorized() ?
+                $this->grading->getGradLevelForPoints($item->getSummaryByPosition(1)?->getPoints())?->getGrade() ?? "" : "",
             "corr_1_authorized" => $item->getSummaryByPosition(1)?->isAuthorized() ?? false,
             default => null
         };//explicit corrector for more calculation speed

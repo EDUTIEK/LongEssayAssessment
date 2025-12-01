@@ -100,7 +100,7 @@ final class CorrectionItemCollection implements \Iterator
             $essay = $this->essays[$s->getWriterId()] ?? null;
             if ($essay !== null) {
                 $assignment = $assignment_by_writer_corrector[$essay->getWriterId()][$s->getCorrectorId()] ?? null;
-                $this->summaries[$essay->getWriterId()][$assignment?->getPosition()] = $s;
+                $this->summaries[$essay->getWriterId()][$assignment?->getPosition()?->value] = $s;
             }
         }
         $this->user_ids = array_unique($user_ids);

@@ -172,11 +172,17 @@ correction_status_open#:#offen
 correction_status_stitch_needed#:#Stichentscheid notwendig
 correction_status_finished#:#abgeschlossen
 own_grading#:#Eigene Note
+own_status#:#Eigner Status
+own_points#:#Eigene Punkte
+own_grade#:#Eigene Note
 grading_not_started#:#nicht begonnen
 grading_open#:#offen
 grading_pre_graded#:#vorbenotet
 grading_authorized#:#freigegeben
 grading_revised#:#überarbeitet
+grading_pos_first#:#Erstkorrektur
+grading_pos_second#:#Zweitkorrektur
+grading_pos_stitch#:#Stichentscheid
 assignment_pos_single#:#Korrektor
 grading_pos_first#:#Erstkorrektur
 grading_pos_second#:#Zweitkorrektur
@@ -184,6 +190,7 @@ grading_pos_stitch#:#Stichentscheid
 assignment_pos_x#:#%s. Korrektur
 assignment_pos_other#:#Korrektur
 assignment_pos_empty#:#nicht ausgewählt
+other_corrections#:#Andere Korrekturen
 start_correction#:#Angezeigte Korrekturen starten
 assigned_writings#:#Zugeteilte Abgaben
 min_points#:#Min. Punkte

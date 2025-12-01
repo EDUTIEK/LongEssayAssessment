@@ -8,6 +8,7 @@ use Edutiek\AssessmentService\System\Data\UserData;
 use Edutiek\AssessmentService\Assessment\Data\Writer;
 use Edutiek\AssessmentService\Task\Data\CorrectorAssignment;
 use Edutiek\AssessmentService\Task\AssessmentStatus\CombinedStatus;
+use Edutiek\AssessmentService\Assessment\TaskInterfaces\GradingStatus;
 
 class CorrectorStartItem extends Item
 {

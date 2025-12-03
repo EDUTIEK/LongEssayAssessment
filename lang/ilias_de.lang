@@ -160,7 +160,7 @@ assign_writers#:#Korrektoren zuweisen
 1_assigned_corrector#:#Ein Korrektor wurde erfolgreich zugewiesen.
 n_assigned_correctors#:#%s Korrektoren wurden erfolgreich zugewiesen.
 view_correction#:#Korrektur einsehen
-change_corrector#:#Korrekturzuweisung ändern
+change_corrector#:#Korrekturzuweisung
 correctable_exams#:#Zu korrigierende Abgaben
 writing_status#:#Abgabe
 writing_status_not_written#:#nicht teilgenommen

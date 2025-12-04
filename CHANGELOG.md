@@ -3,6 +3,7 @@
 ## Upcoming version 
 Bug fixes:
 - Prevent automated generation of lists when typing a numbering in writer
+- Performance when essay pdf is puloaded
 
 ## Version 1.11 (2024-12-27)
 Bug fixes:

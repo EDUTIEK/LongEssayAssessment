@@ -2,6 +2,7 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\CorrectionAdmin;
 
+use Edutiek\AssessmentService\Assessment\Data\CorrectionStatus;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\DataTableParent;
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Test\Participants\TableAction;
@@ -179,6 +180,7 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
                         $this->task_info->getId(),
                         $var["first_corrector"] ?? CorrectorAssignmentsService::UNCHANGED_CORRECTOR_ASSIGNMENT,
                         $var["second_corrector"] ?? CorrectorAssignmentsService::UNCHANGED_CORRECTOR_ASSIGNMENT,
+                        $var["stitch_corrector"] ?? CorrectorAssignmentsService::UNCHANGED_CORRECTOR_ASSIGNMENT,
                         $writer_ids,
                         true
                     );
@@ -221,7 +223,6 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
          ->withValue(CorrectorAssignmentsService::UNCHANGED_CORRECTOR_ASSIGNMENT)
          ->withAdditionalTransformation($this->refinery->kindlyTo()->int());
 
-
         if ($this->correction_settings->getRequiredCorrectors() > 1) {
             $fields["second_corrector"] = $this->ui_factory->input()->field()->select(
                 $this->plugin->txt("grading_pos_second"),
@@ -229,8 +230,16 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
             )->withRequired(true)
              ->withValue(CorrectorAssignmentsService::UNCHANGED_CORRECTOR_ASSIGNMENT)
              ->withAdditionalTransformation($this->refinery->kindlyTo()->int());
-        }
 
+            if (count($items) == 1 && $items[0]->getCombinedStatus() === CombinedStatus::STITCH_NEEDED) {
+                $fields["stitch_corrector"] = $this->ui_factory->input()->field()->select(
+                    $this->plugin->txt("grading_pos_stitch"),
+                    $corrector_list
+                )->withRequired(true)
+                    ->withValue(CorrectorAssignmentsService::UNCHANGED_CORRECTOR_ASSIGNMENT)
+                    ->withAdditionalTransformation($this->refinery->kindlyTo()->int());
+            }
+        }
 
         if (count($items) == 1) { // Pre set the assigned correctors if its just one corrector
             $item = array_pop($items);
@@ -251,6 +260,14 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
                         $assignments[1]->getCorrectorId() :
                         CorrectorAssignmentsService::UNCHANGED_CORRECTOR_ASSIGNMENT
                 );
+
+                if ($item->getCombinedStatus() === CombinedStatus::STITCH_NEEDED) {
+                    $fields["stitch_corrector"] = $fields["stitch_corrector"]->withValue(
+                        isset($assignments[2]) ?
+                            $assignments[2]->getCorrectorId() :
+                            CorrectorAssignmentsService::UNCHANGED_CORRECTOR_ASSIGNMENT
+                    );
+                }
             }
         }
         return $fields;
@@ -262,6 +279,7 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
             $this->task_info->getId(),
             $data["first_corrector"] ?? CorrectorAssignmentsService::UNCHANGED_CORRECTOR_ASSIGNMENT,
             $data["second_corrector"] ?? CorrectorAssignmentsService::UNCHANGED_CORRECTOR_ASSIGNMENT,
+            $data["stitch_corrector"] ?? CorrectorAssignmentsService::UNCHANGED_CORRECTOR_ASSIGNMENT,
             array_map(fn(CorrectionItem $x) => $x->getWriter()->getId(), $items)
         );
         $this->tpl->setOnScreenMessage("success", $this->plugin->txt("corrector_assignment_changed"), true);

@@ -77,45 +77,57 @@ class CorrectorSummaryRepo implements \Edutiek\AssessmentService\Task\Data\Corre
         return $summaries;
     }
 
+    /**
+     * @return CorrectorSummary[]
+     */
     public function allByWriterId(int $writer_id): array
     {
         return $this->repo->queryAllBy(['writer_id' => $writer_id]);
     }
 
+    /**
+     * @return CorrectorSummary[]
+     */
     public function allByTaskId(int $task_id): array
     {
         return $this->repo->queryAllBy(['task_id' => $task_id]);
     }
 
     /**
-     * Get the corrector summaries for a task and selected writer ids
-     * Result is indexed by writer_id and corrector_id
-     * @return CorrectorSummary[][]
+     * @return CorrectorSummary[]
      */
     public function allByTaskIdAndWriterIds(int $task_id, array $writer_ids): array
     {
-        $summaries = [];
-        foreach ($this->repo->queryAllBy(['task_id' => $task_id, 'writer_id' => $writer_ids]) as $summary) {
-            $summaries[$summary->getWriterId()][$summary->getCorrectorId()] = $summary;
-        }
-        return $summaries;
+        return $this->repo->queryAllBy(['task_id' => $task_id, 'writer_id' => $writer_ids]);
     }
 
+    /**
+     * @return CorrectorSummary[]
+     */
     public function allByTaskIdAndWriterId(int $task_id, int $writer_id): array
     {
         return $this->repo->queryAllBy(['task_id' => $task_id, 'writer_id' => $writer_id]);
     }
 
+    /**
+     * @return CorrectorSummary[]
+     */
     public function allByTaskIdAndCorrectorId(int $task_id, int $corrector_id): array
     {
         return $this->repo->queryAllBy(['task_id' => $task_id, 'corrector_id' => $corrector_id]);
     }
 
+    /**
+     * @return CorrectorSummary[]
+     */
     public function allByCorrectorId(int $corrector_id): array
     {
         return $this->repo->queryAllBy(['corrector_id' => $corrector_id]);
     }
 
+    /**
+     * @return CorrectorSummary[]
+     */
     public function allByEssayIdAndCorrectorId(int $essay_id, int $corrector_id): array
     {
         return $this->repo->queryAllBy(['essay_id' => $essay_id, 'corrector_id' => $corrector_id]);

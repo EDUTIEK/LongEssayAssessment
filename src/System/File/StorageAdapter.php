@@ -54,7 +54,7 @@ readonly class StorageAdapter implements Storage
     public function saveFile(mixed $input, ?FileInfo $info = null): ?FileInfo
     {
         if ($input instanceof Stream) {
-            $stream_object = $input;
+            $stream_object = Streams::ofPsr7Stream($input);
         } elseif (is_string($input)) {
             $stream_object = Streams::ofString($input);
         } elseif (is_resource($input)) {

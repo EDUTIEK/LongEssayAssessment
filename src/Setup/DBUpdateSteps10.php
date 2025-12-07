@@ -944,4 +944,11 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
             $this->db->manipulate("UPDATE xlas_ta_corr_points SET `key` = CONCAT('P', '_', corrector_id, '_', RAND())");
         }
     }
+
+    public function step_53(): void
+    {
+        if (!$this->db->indexExistsByFields('xlas_ta_corr_summary', ['summary_pdf'])) {
+            $this->db->addIndex('xlas_ta_corr_summary', ['summary_pdf'], 'idp');
+        }
+    }
 }

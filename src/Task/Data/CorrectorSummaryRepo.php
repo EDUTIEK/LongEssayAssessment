@@ -158,6 +158,11 @@ class CorrectorSummaryRepo implements \Edutiek\AssessmentService\Task\Data\Corre
         return $this->repo->queryOneBy(['task_id' => $task_id, 'writer_id' => $writer_id, 'corrector_id' => $corrector_id]);
     }
 
+    public function oneByPdf(string $file_id): ?CorrectorSummary
+    {
+        return $this->repo->queryOneBy(['summary_pdf' => $file_id]);
+    }
+
     public function deleteByTaskId(int $task_id): void
     {
         $this->repo->deleteAllBy(['task_id' => $task_id]);
@@ -181,5 +186,4 @@ class CorrectorSummaryRepo implements \Edutiek\AssessmentService\Task\Data\Corre
             $this->repo->update($summary);
         }
     }
-
 }

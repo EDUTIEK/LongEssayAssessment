@@ -94,18 +94,18 @@ class CorrectionItemColumnMap extends ColumnMappingArray
                 : "",
             "corr_0_name" => $item->getCorrectorDataByPosition(0)?->getFullname(true),
             "corr_0_status" => $this->gradingStatus($item->getSummaryByPosition(0)?->getGradingStatus()),
-            "corr_0_points" => $item->getSummaryByPosition(0)?->getPoints(),
+            "corr_0_points" => $item->getSummaryByPosition(0)?->getEffectivePoints(),
             "corr_0_grade" => $item->getSummaryByPosition(0)?->isAuthorized() ?
-                $this->grading->getGradLevelForPoints($item->getSummaryByPosition(0)?->getPoints())?->getGrade() ?? "" : "",
+                $this->grading->getGradLevelForPoints($item->getSummaryByPosition(0)?->getEffectivePoints())?->getGrade() ?? "" : "",
             "corr_0_authorized" => $item->getSummaryByPosition(0)?->isAuthorized() ?? false,
             "corr_1" => $item->getCorrectorDataByPosition(1) !== null
                 ? (($item->getCorrectorDataByPosition(1)?->getFullname(true) ?? $this->unknown()) . " - " . $this->task_format->correctionResult($item->getSummaryByPosition(1)))
                 : "",
             "corr_1_name" => $item->getCorrectorDataByPosition(1)?->getFullname(true),
             "corr_1_status" => $this->gradingStatus($item->getSummaryByPosition(1)?->getGradingStatus()),
-            "corr_1_points" => $item->getSummaryByPosition(1)?->getPoints(),
+            "corr_1_points" => $item->getSummaryByPosition(1)?->getEffectivePoints(),
             "corr_1_grade" => $item->getSummaryByPosition(1)?->isAuthorized() ?
-                $this->grading->getGradLevelForPoints($item->getSummaryByPosition(1)?->getPoints())?->getGrade() ?? "" : "",
+                $this->grading->getGradLevelForPoints($item->getSummaryByPosition(1)?->getEffectivePoints())?->getGrade() ?? "" : "",
             "corr_1_authorized" => $item->getSummaryByPosition(1)?->isAuthorized() ?? false,
             default => null
         };//explicit corrector for more calculation speed

@@ -173,13 +173,13 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
           'position' => !$multi_task && $other_corrections ? $cf->status($this->plugin->txt('own_position'))->withIsOptional(true, true) : null,
           'task' => $multi_task ? $cf->text($this->plugin->txt('task'))->withIsOptional(false, true) : null,
           'combined_status' => $cf->status($this->plugin->txt('status'))->withIsOptional(false, true),
-          'own_status' => $cf->status($this->plugin->txt('own_status'))->withIsOptional(true, false),
+          'own_status' => $cf->status($this->plugin->txt('own_status'))->withIsOptional(true, true),
           'own_points' => $cfp->nullableNumber($this->plugin->txt('own_points'))->withIsOptional(true, false),
-          'own_grade' => !$multi_task ? $cf->text($this->plugin->txt('own_grade'))->withIsOptional(true, false) : null,
+          'own_grade' => !$multi_task ? $cf->text($this->plugin->txt('own_grade'))->withIsOptional(true, true) : null,
           'other_correction' => $other_corrections ? $cf->text($this->plugin->txt('other_corrections')) : null,
-          'result' => $cf->status($this->plugin->txt('result'))->withIsOptional(false, true)->withIsSortable(false),
+          'result' => $cf->status($this->plugin->txt('result'))->withIsOptional(false, true)->withIsSortable(true),
           'final_points' => $cfp->nullableNumber($this->plugin->txt('final_points'))->withIsOptional(true, false),
-          'final_grade' => !$multi_task ? $cf->text($this->plugin->txt('final_grade'))->withIsOptional(true, false) : null,
+          'final_grade' => !$multi_task ? $cf->text($this->plugin->txt('final_grade'))->withIsOptional(true, true) : null,
         ];
     }
 

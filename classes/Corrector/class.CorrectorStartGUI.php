@@ -350,7 +350,7 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
                 $status[] = GradingStatus::tryFrom($value);
             }
         }
-        $position = !empty($filter_data['position']) ? (int) $filter_data['position'] : null;
+        $position = isset($filter_data['position']) ? (int) $filter_data['position'] : null;
         $this->assignment_service->saveCorrectorFilter($this->corrector->getId(), $status, $position);
 
         $this->showStartPage();

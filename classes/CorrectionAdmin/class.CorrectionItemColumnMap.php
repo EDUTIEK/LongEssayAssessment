@@ -84,7 +84,7 @@ class CorrectionItemColumnMap extends ColumnMappingArray
             "word_count" => $item->getEssay()?->getWordCount() ?? 0,
             "result" => $this->ass_format->finalResult($item->getWriter()),
             "points" => $item->getWriter()->getFinalPoints(),
-            "grade" => $this->grading->getGradeLevel($item->getWriter()->getFinalGradeLevelId())?->getGrade() ?? "",
+            "grade" => $this->grading->getGradLevelForPoints($item->getWriter()->getFinalPoints())?->getGrade() ?? "",
             "finalized" => $item->getWriter()->getCorrectionFinalized()?->setTimezone($this->timezone),
             "finalized_from" => $item->getFinalizedByName() ?? $this->unknown(),
             "pdf_version" => $item->getEssay()?->hasPDFVersion() ?? false,

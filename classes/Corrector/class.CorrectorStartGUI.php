@@ -155,7 +155,7 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
                 'result' => $assessment_format->finalResult($item->getWriter()),
                 'other_correction' => $other_corrector($item->getOtherCorrector(), $item->getOtherSummary(), $item->getOtherAssignment()),
                 'final_points' => $item->getWriter()->getFinalPoints(),
-                'final_grade' => $grading_service->getGradeLevel($item->getWriter()->getFinalGradeLevelId())?->getGrade(),
+                'final_grade' => $grading_service->getGradLevelForPoints($item->getWriter()->getFinalPoints())?->getGrade(),
                 default => null
             };
         });
@@ -344,7 +344,7 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
 
         $filter_data = $table->getFilterData();
         $status = null;
-        if (is_array($filter_data['status'])) {
+        if (is_array($filter_data['status'] ?? null)) {
             $status = [];
             foreach ($filter_data['status'] as $value) {
                 $status[] = GradingStatus::tryFrom($value);

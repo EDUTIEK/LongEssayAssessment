@@ -97,8 +97,8 @@ readonly class UserDataRepo implements \Edutiek\AssessmentService\System\Data\Us
                 (int) $row['usr_id'],
                 (string) $row['login'],
                 !empty($row['title']) ? (string) $row['title'] : null,
-                (string) $row['lastname'] ?? '',
                 (string) $row['firstname'] ?? '',
+                (string) $row['lastname'] ?? '',
                 $languages[$row['usr_id']] ?? $default_language,
                 $timezones[$row['usr_id']] ?? $default_timezone
             );

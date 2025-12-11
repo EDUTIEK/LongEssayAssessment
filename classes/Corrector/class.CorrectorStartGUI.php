@@ -174,11 +174,11 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
           'task' => $multi_task ? $cf->text($this->plugin->txt('task'))->withIsOptional(false, true) : null,
           'combined_status' => $cf->status($this->plugin->txt('status'))->withIsOptional(false, true),
           'own_status' => $cf->status($this->plugin->txt('own_status'))->withIsOptional(true, true),
-          'own_points' => $cfp->nullableNumber($this->plugin->txt('own_points'))->withIsOptional(true, false),
+          'own_points' => $cfp->nullableNumber($this->plugin->txt('own_points'))->withIsOptional(true, true),
           'own_grade' => !$multi_task ? $cf->text($this->plugin->txt('own_grade'))->withIsOptional(true, true) : null,
           'other_correction' => $other_corrections ? $cf->text($this->plugin->txt('other_corrections')) : null,
           'result' => $cf->status($this->plugin->txt('result'))->withIsOptional(false, true)->withIsSortable(true),
-          'final_points' => $cfp->nullableNumber($this->plugin->txt('final_points'))->withIsOptional(true, false),
+          'final_points' => $cfp->nullableNumber($this->plugin->txt('final_points'))->withIsOptional(true, true),
           'final_grade' => !$multi_task ? $cf->text($this->plugin->txt('final_grade'))->withIsOptional(true, true) : null,
         ];
     }
@@ -341,19 +341,24 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
     public function applyFilter()
     {
         $table = $this->plugin_ui_factory->table()->dataTable("corrector_start_table", $this);
-
         $filter_data = $table->getFilterData();
-        $status = null;
-        if (is_array($filter_data['status'] ?? null)) {
-            $status = [];
-            foreach ($filter_data['status'] as $value) {
-                $status[] = GradingStatus::tryFrom($value);
-            }
-        }
-        $position = isset($filter_data['position']) ? (int) $filter_data['position'] : null;
-        $this->assignment_service->saveCorrectorFilter($this->corrector->getId(), $status, $position);
 
-        $this->showStartPage();
+        if ($this->get->string('cmdFilter') == 'reset') {
+            $status = null;
+            $position = null;
+        } else {
+            $status = null;
+            if (is_array($filter_data['status'] ?? null)) {
+                $status = [];
+                foreach ($filter_data['status'] as $value) {
+                    $status[] = GradingStatus::tryFrom($value);
+                }
+            }
+            $position = (isset($filter_data['position']) && $filter_data['position'] !== '') ? (int) $filter_data['position'] : null;
+        }
+
+        $this->assignment_service->saveCorrectorFilter($this->corrector->getId(), $status, $position);
+        $this->ctrl->redirect($this, 'showStartPage');
     }
 
     /**
@@ -493,6 +498,7 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
 
     public function getFilterInputs(): array
     {
+
         $correction_actions = [
             GradingStatus::NOT_STARTED->value => $this->plugin->txt('grading_not_started'),
             GradingStatus::OPEN->value => $this->plugin->txt('grading_open'),
@@ -502,14 +508,20 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
         ];
         $multiple_correctors = $this->settings->getRequiredCorrectors() > 1;
         $position = [
-            GradingPosition::FIRST->value => $this->plugin->txt('grading_pos_first'),
-            GradingPosition::SECOND->value => $this->plugin->txt('grading_pos_second'),
-            GradingPosition::STITCH->value => $this->plugin->txt('grading_pos_stitch'),
+            (string) GradingPosition::FIRST->value => $this->plugin->txt('grading_pos_first'),
+            (string) GradingPosition::SECOND->value => $this->plugin->txt('grading_pos_second'),
+            (string) GradingPosition::STITCH->value => $this->plugin->txt('grading_pos_stitch'),
         ];
 
+        [$stat_value, $pos_value] = $this->assignment_service->getCorrectionFilter($this->corrector->getId());
+
         return  [
-            "status" => $this->ui_factory->input()->field()->multiSelect($this->plugin->txt('own_correction'), $correction_actions),
-            "position" => $multiple_correctors ? $this->ui_factory->input()->field()->select($this->plugin->txt('own_position'), $position) : null
+            "status" => $this->ui_factory->input()->field()->multiSelect($this->plugin->txt('own_correction'), $correction_actions)
+                ->withValue($stat_value),
+            "position" => $multiple_correctors
+                ? $this->ui_factory->input()->field()->select($this->plugin->txt('own_position'), $position)
+                    ->withValue($pos_value ?? '')
+                : null
         ];
     }
 

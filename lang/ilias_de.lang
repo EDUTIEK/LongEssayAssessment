@@ -194,9 +194,6 @@ grading_pos_first#:#Erstkorrektur
 grading_pos_second#:#Zweitkorrektur
 grading_pos_stitch#:#Stichentscheid
 assignment_pos_single#:#Korrektor
-grading_pos_first#:#Erstkorrektur
-grading_pos_second#:#Zweitkorrektur
-grading_pos_stitch#:#Stichentscheid
 assignment_pos_x#:#%s. Korrektur
 assignment_pos_other#:#Korrektur
 assignment_pos_empty#:#nicht ausgewählt

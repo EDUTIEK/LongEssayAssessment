@@ -6,18 +6,39 @@ namespace ILIAS\Plugin\LongEssayAssessment\System\Data;
 
 use DateTimeZone;
 
-readonly class UserData extends \Edutiek\AssessmentService\System\Data\UserData
+class UserData extends \Edutiek\AssessmentService\System\Data\UserData
 {
+    private string $login;
+    private ?string $title;
+    private string $firstname;
+    private string $lastname;
+    private string $language;
+    private DateTimeZone $timezone;
+
     public function __construct(
         private int $id,
-        private string $login,
-        private ?string $title,
-        private string $firstname,
-        private string $lastname,
-        private string $language,
-        private DateTimeZone $timezone
     ) {
     }
+
+    public function setValues(
+        string $login,
+        ?string $title,
+        string $firstname,
+        string $lastname,
+        ?string $email,
+        string $language,
+        DateTimeZone $timezone
+    ): self {
+        $this->login = $login;
+        $this->title = $title;
+        $this->firstname = $firstname;
+        $this->lastname = $lastname;
+        $this->language = $language;
+        $this->timezone = $timezone;
+
+        return $this;
+    }
+
 
     public function getId(): int
     {

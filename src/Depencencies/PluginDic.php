@@ -152,7 +152,8 @@ class PluginDic
                     $dic[ilLongEssayAssessmentPlugin::class],
                     $dic->http(),
                     $dic->refinery()
-                )
+                ),
+                new \ILIAS\Plugin\LongEssayAssessment\UI\LiveStatusPanel\Factory()
             );
         };
 

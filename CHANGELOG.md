@@ -7,6 +7,7 @@ Bug fixes:
 - Too early deletion of notes in the backend
 - typos in language variables
 - performance of deleting pdf files and page images
+- correction summary editor display (#0045916)
 
 
 ## Version 3.7 (2025-08-15)

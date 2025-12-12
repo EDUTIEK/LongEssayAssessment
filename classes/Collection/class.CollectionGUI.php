@@ -3,6 +3,7 @@
 namespace ILIAS\Plugin\LongEssayAssessment\Collection;
 
 use ILIAS\Plugin\LongEssayAssessment\Dependencies\PluginDic;
+use ILIAS\Plugin\LongEssayAssessment\GUI\Correction\CorrectionTableParent;
 
 /**
  * Collection entrance point
@@ -107,6 +108,7 @@ class CollectionGUI
             default:
                 $cmd = $this->ctrl->getCmd('list');
                 switch ($cmd) {
+                    case 'correctionStatus':
                     case 'list':
                         $this->$cmd();
                         $this->setTabs($cmd);
@@ -117,6 +119,31 @@ class CollectionGUI
         }
 
         $this->tpl->printToStdout();
+    }
+
+    private function correctionStatus()
+    {
+        $multi = true;
+        $corrections = 2;
+        $ass_ids = array_map(fn(array $node) => $node['obj_id'], array_filter($this->assessment_nodes,
+            fn(array $node) => $this->plugin_dic->assessment($node['obj_id'], $this->user->getId())->permissions($node['ref_id'])->canMaintainCorrectors()
+        ));
+
+        $this->ctrl->setParameter($this, 'ref_id', $this->object->getRefId());
+        $table_parent = new CorrectionTableParent($this->dic, $this->plugin, $ass_ids, $this->ctrl->getFormAction($this, "correctionStatus"));
+        $table_parent->setHasColumns(
+            array_merge(
+                ["image", "name", "login", "pseudonym", "location", "status", "assessment", "task", "writing_last_save",
+                 "word_count", "pdf_version", "result", "points", "grade", "finalized", "finalized_from"],
+                ...array_map(fn ($p) => ["corr_{$p}", "corr_{$p}_name", "corr_{$p}_status", "corr_{$p}_points", $multi ? "corr_{$p}_grade" : null, "corr_{$p}_authorized"], range(0, $corrections - 1))
+            )
+        )->setInitialVisibleColumns(["name", "login", "pseudonym", "location", "assessment", "task", "status", "writing_last_save", "word_count", "corr_1", "corr_2", "result"])
+        ->setTableActions([$this->plugin_dic->uiFactory()->table()->action()->export('export', $this->lng->txt('export'), 'xlas_corrections_export.xlsx')]);
+
+        $table_parent->setInitialVisibleColumns([]);
+        $table = $this->plugin_dic->uiFactory()->table()->dataTable('correction_admin_table', $table_parent);
+        $table->executeAction();
+        $this->tpl->setContent($this->uiRenderer->render($table));
     }
 
     private function list()
@@ -155,6 +182,9 @@ class CollectionGUI
         $this->tabs->addSubTab('list', $this->plugin->txt('objs_xlas'), $this->ctrl->getLinkTarget($this, 'list'));
         if ($this->atleastOnePermission('ViewWriterStatistics')) {
             $this->tabs->addSubTab('statistic', $this->plugin->txt('statistic'), $this->ctrl->getLinkTarget($this, 'statistic'));
+        }
+        if ($this->atleastOnePermission('MaintainCorrectors')) {
+            $this->tabs->addSubTab('correctionStatus', $this->plugin->txt('tab_correction_status'), $this->ctrl->getLinkTarget($this, 'correctionStatus'));
         }
         if ($this->atleastOnePermission('MaintainWriters')) {
             $this->tabs->addSubTab('writer_statistic', $this->plugin->txt('tab_writer_statistic'), $this->ctrl->getLinkTarget($this, 'writerStatistic'));

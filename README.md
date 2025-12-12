@@ -38,6 +38,13 @@ The requirements of this plugin are nearly the same as for ILIAS with the follow
 ````
     apt-get install php8.2-curl, php8.2-dom, php8.2-gd, php8.2-imagick, php8.2-json, php8.2-xml, php8.2-xsl
 ````
+
+* Files with the suffix .mjs must be delivered as 'text/javascript' by the web server to correctly load the library to display PDF files in the browser. In Apache this is set by default. In nginx please add the following line to `/etc/nginx/mime.types`:
+
+ ````
+    text/javascript mjs;
+ ````
+
 The PHP imagick extension uses Imagemagick and ghostscript to convert uploaded PDF files to images. On Debian/Ubuntu execute:
 
  ````

@@ -23,7 +23,7 @@ namespace ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo;
 /**
  * @template A of object
  */
-interface RepositoryInterface
+interface RepositoryInterface extends HydrationInterface
 {
     /**
      * Create a new entity with uninitialized properties
@@ -130,7 +130,7 @@ interface RepositoryInterface
      * @param array<int|string, string> $row
      * @return A
      */
-    public function fromRow(array $row): object;
+    public function fromRow(array $row, ?object $instance = null): object;
 
     /**
      * Create a database row array with type information from the model's properties

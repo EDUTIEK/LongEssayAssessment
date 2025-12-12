@@ -34,6 +34,8 @@ use ilDBInterface;
 class DatabaseRepository implements RepositoryInterface
 {
     private DateTimeZone $time_zone;
+    private array $dehydrated = [];
+    private ?array $keys = null;
 
     public function __construct(
         private readonly ilDBInterface $db,
@@ -121,9 +123,9 @@ class DatabaseRepository implements RepositoryInterface
         return array_map(strval(...), array_column($this->queryAllRaw($query), $key));
     }
 
-    public function fromRow(array $row): object
+    public function fromRow(array $row, ?object $instance = null): object
     {
-        $instance = new $this->model['class']();
+        $instance ??= new $this->model['class']();
         $set = (function ($key, $value) {
             $this->$key = $value;
         })->bindTo($instance, $instance);
@@ -163,7 +165,7 @@ class DatabaseRepository implements RepositoryInterface
 
     public function keyFields(): array
     {
-        return array_filter($this->model['properties'], fn(array $p) => $p['key']);
+        return $this->keys ??= array_filter($this->model['properties'], fn (array $p) => $p['key']);
     }
 
     public function hasBy($conditions) : bool
@@ -212,7 +214,7 @@ class DatabaseRepository implements RepositoryInterface
         return match (gettype($right)) {
             'integer', 'string', 'float' => $quote_id($left) . ' = ' . $this->db->quote($right, ilDBConstants::T_TEXT),
             'boolean' => $quote_id($left) . ' = ' . $this->db->quote((int) $right, ilDBConstants::T_INTEGER),
-            'array' => $this->db->in($left, array_map(fn($x) => is_bool($x) ? (int) $x : $x, $right), false, ilDBConstants::T_TEXT),
+            'array' => $this->db->in($left, array_map(fn ($x) => is_bool($x) ? (int) $x : $x, $right), false, ilDBConstants::T_TEXT),
             'NULL' => $quote_id($left) . ' IS NULL',
             default => throw new Exception('Unsupported type: ' . gettype($right)),
         };
@@ -276,7 +278,7 @@ class DatabaseRepository implements RepositoryInterface
      */
     private function updateSequence(object $model): void
     {
-        $fields = array_filter($this->model['properties'], fn(array $field) => $field['sequence']);
+        $fields = array_filter($this->model['properties'], fn (array $field) => $field['sequence']);
         if ($fields === []) {
             return;
         }
@@ -285,7 +287,7 @@ class DatabaseRepository implements RepositoryInterface
         $field = current($fields);
         $table = $this->table();
         $db = $this->db;
-        $convert = fn(int $val) => $this->dbToClassValue((string) $val, $field['class_type']);
+        $convert = fn (int $val) => $this->dbToClassValue((string) $val, $field['class_type']);
 
         (function () use ($db, $property, $table, $convert): void {
             if (empty($this->$property)) {
@@ -310,7 +312,7 @@ class DatabaseRepository implements RepositoryInterface
      */
     private function order(array $order): string
     {
-        if ([] !== array_filter($order, fn($dir) => !in_array(strtolower($dir), ['asc', 'desc'], true))) {
+        if ([] !== array_filter($order, fn ($dir) => !in_array(strtolower($dir), ['asc', 'desc'], true))) {
             throw new Exception('Invalid order key given. Only ASC and DESC are allowed');
         }
 
@@ -320,5 +322,41 @@ class DatabaseRepository implements RepositoryInterface
         }
 
         return join(', ', $parts);
+    }
+
+    public function dehydratedInstance(mixed $key_value): ?object
+    {
+        if (count($keys = $this->keyFields()) > 1) {
+            throw new Exception('DatabaseRepository Hydration does not support multiple key fields.');
+        }
+        $key = array_pop($keys)['db_name'];
+        if($key_value === null) {
+            return null;
+        }
+
+        return $this->dehydrated[$key_value] ??= $this->fromRow([$key => $key_value]);
+    }
+
+    public function hydrate(): void
+    {
+        if (count($keys = $this->keyFields()) > 1) {
+            throw new Exception('DatabaseRepository Hydration does not support multiple key fields.');
+        }
+        $key = array_pop($keys)['db_name'];
+
+        if (count($this->dehydrated) <= 0) {
+            return;
+        }
+
+        $query = 'SELECT * FROM ' . $this->db->quoteIdentifier($this->table()) . ' WHERE '
+            . $this->where([$key => array_keys($this->dehydrated)]);
+
+        $raw = $this->queryAllRaw($query);
+
+        foreach ($raw as $row) {
+            $object = $this->dehydrated[$row[$key]];
+            $this->fromRow($row, $object);
+            unset($this->dehydrated[$row[$key]]);
+        }
     }
 }

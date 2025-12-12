@@ -17,7 +17,7 @@ use ILIAS\Plugin\LongEssayAssessment\Writer\WriterStartGUI;
 use ILIAS\Plugin\LongEssayAssessment\Settings\CriteriaAdminGUI;
 use ILIAS\Plugin\LongEssayAssessment\WriterAdmin\WriterAdminGUI;
 use ILIAS\Plugin\LongEssayAssessment\Writer\WriterUploadGUI;
-use ILIAS\Plugin\LongEssayAssessment\WriterAdmin\ProtocolGUI;
+use ILIAS\Plugin\LongEssayAssessment\Dashboard\ProtocolGUI;
 use ILIAS\Plugin\LongEssayAssessment\CorrectionAdmin\CorrectionAdminGUI;
 use ILIAS\Plugin\LongEssayAssessment\CorrectorAdmin\CorrectorGUI;
 use ILIAS\Plugin\LongEssayAssessment\Corrector\CorrectorStartGUI;
@@ -245,7 +245,7 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                     break;
                 case strtolower(ProtocolGUI::class):
                     if ($this->permissions->canMaintainWriters()) {
-                        $this->activateTab('tab_writer_admin', 'tab_writer_admin_log');
+                        $this->activateTab('tab_dashboard', 'tab_dashboard_log');
                         $this->ctrl->forwardCommand(new ProtocolGUI($this->object));
                     }
                     break;
@@ -611,6 +611,11 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                 'txt' => $this->plugin->txt('tab_dashboard'),
                 'url' => $this->ctrl->getLinkTargetByClass(strtolower(DashboardGUI::class))
             ];
+            $tabs[] = [
+                'id' => 'tab_dashboard_log',
+                'txt' => $this->plugin->txt('tab_writer_admin_log'),
+                'url' => $this->ctrl->getLinkTargetByClass(strtolower(ProtocolGUI::class))
+            ];
         }
         if (!empty($tabs)) {
             $this->tabs->addTab('tab_dashboard', $this->plugin->txt('tab_dashboard'), $tabs[0]['url']);
@@ -624,11 +629,6 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                 'id' => 'tab_writer_admin',
                 'txt' => $this->plugin->txt('tab_writer_admin'),
                 'url' => $this->ctrl->getLinkTargetByClass(strtolower(WriterAdminGUI::class))
-            ];
-            $tabs[] = [
-                'id' => 'tab_writer_admin_log',
-                'txt' => $this->plugin->txt('tab_writer_admin_log'),
-                'url' => $this->ctrl->getLinkTargetByClass(strtolower(ProtocolGUI::class))
             ];
         }
         if (!empty($tabs)) {

@@ -1,6 +1,6 @@
 <?php
 
-namespace ILIAS\Plugin\LongEssayAssessment\WriterAdmin;
+namespace ILIAS\Plugin\LongEssayAssessment\Dashboard;
 
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\Item;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\Action\Action;
@@ -21,8 +21,8 @@ use ILIAS\Plugin\LongEssayAssessment\BaseObjectData;
 use Edutiek\AssessmentService\Assessment\Data\Alert;
 
 /**
- * @ilCtrl_isCalledBy ILIAS\Plugin\LongEssayAssessment\WriterAdmin\ProtocolGUI: ilObjLongEssayAssessmentGUI
- * @ilCtrl_Calls ILIAS\Plugin\LongEssayAssessment\WriterAdmin\ProtocolGUI:
+ * @ilCtrl_isCalledBy ILIAS\Plugin\LongEssayAssessment\Dashboard\ProtocolGUI: ilObjLongEssayAssessmentGUI
+ * @ilCtrl_Calls ILIAS\Plugin\LongEssayAssessment\Dashboard\ProtocolGUI:
  */
 class ProtocolGUI extends BaseGUI
 {

@@ -45,7 +45,8 @@ class PermissionsRepo implements \Edutiek\AssessmentService\Assessment\Data\Perm
             $this->access->checkAccessOfUser($user_id, 'maintain_task', '', $context_id, 'xlas', $ass_id),
             $this->access->checkAccessOfUser($user_id, 'maintain_writers', '', $context_id, 'xlas', $ass_id),
             $this->access->checkAccessOfUser($user_id, 'maintain_correctors', '', $context_id, 'xlas', $ass_id),
-            $this->access->checkAccessOfUser($user_id, 'edit_templates', '', $context_id, 'xlas', $ass_id)
+            $this->access->checkAccessOfUser($user_id, 'edit_templates', '', $context_id, 'xlas', $ass_id),
+            $this->access->checkAccessOfUser($user_id, 'proctor_writer', '', $context_id, 'xlas', $ass_id)
         );
     }
 }

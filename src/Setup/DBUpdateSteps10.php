@@ -874,15 +874,15 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
         // move max_points back to assessment
         // at this step only one essay task exists in an update from ILIAS 9
         if ($this->db->tableExists('xlas_et_task_settings')) {
-            $query = "SELECT ass_id, max_points FROM xlas_et_task_settings";
-            $result = $this->db->query($query);
-            while ($row = $this->db->fetchAssoc($result)) {
-                $this->db->manipulateF(
-                    "UPDATE xlas_as_corr_settings SET max_points = %s WHERE ass_id = %s",
-                    [ilDBConstants::T_INTEGER, ilDBConstants::T_INTEGER],
-                    [$row['max_points'], $row['ass_id']]
-                );
-            }
+//            $query = "SELECT ass_id, max_points FROM xlas_et_task_settings";
+//            $result = $this->db->query($query);
+//            while ($row = $this->db->fetchAssoc($result)) {
+//                $this->db->manipulateF(
+//                    "UPDATE xlas_as_corr_settings SET max_points = %s WHERE ass_id = %s",
+//                    [ilDBConstants::T_INTEGER, ilDBConstants::T_INTEGER],
+//                    [$row['max_points'], $row['ass_id']]
+//                );
+//            }
 
             $this->db->dropTable('xlas_et_task_settings');
         }
@@ -943,5 +943,18 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
             ]);
             $this->db->manipulate("UPDATE xlas_ta_corr_points SET `key` = CONCAT('P', '_', corrector_id, '_', RAND())");
         }
+    }
+    public function step_53(): void
+    {
+        // ilDBUpdateNewObjectType needs the global database
+        global $DIC;
+        if (!isset($DIC['ilDB'])) {
+            $DIC['ilDB'] = $this->db;
+        }
+
+        require_once __DIR__ . '/../../../../../../../../../../components/ILIAS/Migration/DBUpdate_3560/classes/class.ilDBUpdateNewObjectType.php';
+        $type_id = \ilDBUpdateNewObjectType::getObjectTypeId('xlas');
+        $ops_id = \ilDBUpdateNewObjectType::addCustomRBACOperation('proctor_writer', 'Proctor Assessment', 'object', 3240);
+        \ilDBUpdateNewObjectType::addRBACOperation($type_id, $ops_id);
     }
 }

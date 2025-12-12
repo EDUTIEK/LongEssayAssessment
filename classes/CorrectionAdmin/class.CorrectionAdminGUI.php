@@ -32,13 +32,15 @@ use ILIAS\UI\Implementation\Component\Modal\RoundTrip;
 use Edutiek\AssessmentService\System\Data\UserData;
 use ILIAS\Refinery\Transformation;
 use Edutiek\AssessmentService\Task\CorrectionProcess\FullService as CorrectionProcess;
+use ILIAS\Plugin\LongEssayAssessment\GUI\Correction\CorrectionTableParent;
+use ILIAS\Plugin\LongEssayAssessment\GUI\Correction\CorrectionItem;
 
 /**
  * Correction Admin GUI class
  *
  * @ilCtrl_isCalledBy ILIAS\Plugin\LongEssayAssessment\CorrectionAdmin\CorrectionAdminGUI: ilObjLongEssayAssessmentGUI
  */
-class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParent
+class CorrectionAdminGUI extends BaseGUI
 {
     use ConfirmationIds;
 
@@ -94,8 +96,8 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
             $label,
             $this->plugin->txt("remove_authorizations_confirmation"),
             $this->ctrl->getFormAction($this, "removeAuthorizations"),
-            fn(CorrectionItem $item) => $item->getWriterName(),
-            fn(CorrectionItem $item) => !$item->getWriter()->isCorrectionFinalized(),
+            fn (CorrectionItem $item) => $item->getWriterName(),
+            fn (CorrectionItem $item) => !$item->getWriter()->isCorrectionFinalized(),
             Action\Type::Standard,
         );
     }
@@ -116,7 +118,7 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
             }
         }
 
-        $users = $this->user_service->getUsersByIds(array_map(fn($x) => $x->getUserId(), array_merge($valid, $invalid)));
+        $users = $this->user_service->getUsersByIds(array_map(fn ($x) => $x->getUserId(), array_merge($valid, $invalid)));
 
         if (count($invalid) > 0) {
             $names = [];
@@ -144,7 +146,7 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
             "export_steps",
             $this->plugin->txt('export_steps'),
             [$this, "exportSteps"],
-            fn(CorrectionItem $item) => $item->getWriter()->canGetSight(),
+            fn (CorrectionItem $item) => $item->getWriter()->canGetSight(),
             Action\Type::Single
         );
     }
@@ -162,7 +164,7 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
             $this->lng->txt("submit"),
             [$this, 'changeCorrectorFields'],
             [$this, 'changeCorrector'],
-            fn(CorrectionItem $item) => true,
+            fn (CorrectionItem $item) => true,
             Action\Type::Standard
         )->withContent([
             $this->ui_factory->messageBox()->info($this->plugin->txt("change_corrector_info"))
@@ -171,7 +173,7 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
 
     public function changeCorrectorCheck(array $items): array
     {
-        $writer_ids = array_map(fn(CorrectionItem $item) => $item->getWriter()->getId(), $items);
+        $writer_ids = array_map(fn (CorrectionItem $item) => $item->getWriter()->getId(), $items);
 
         return [
             $this->refinery->custom()->constraint(
@@ -207,7 +209,7 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
         foreach ($this->corrector_service->all() as $corrector) {
             $corrector_ids[$corrector->getId()] = $corrector->getUserId();
         }
-        $names = array_map(fn(UserData $u) => $u->getFullname(true), $this->user_service->getUsersByIds($corrector_ids));
+        $names = array_map(fn (UserData $u) => $u->getFullname(true), $this->user_service->getUsersByIds($corrector_ids));
 
         foreach ($corrector_ids as $id => $user_id) {
             $corrector_list[$id] = $names[$user_id];
@@ -220,24 +222,24 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
                 : $this->plugin->txt("assignment_pos_single"),
             $corrector_list
         )->withRequired(true)
-         ->withValue(CorrectorAssignmentsService::UNCHANGED_CORRECTOR_ASSIGNMENT)
-         ->withAdditionalTransformation($this->refinery->kindlyTo()->int());
+                                                      ->withValue(CorrectorAssignmentsService::UNCHANGED_CORRECTOR_ASSIGNMENT)
+                                                      ->withAdditionalTransformation($this->refinery->kindlyTo()->int());
 
         if ($this->correction_settings->getRequiredCorrectors() > 1) {
             $fields["second_corrector"] = $this->ui_factory->input()->field()->select(
                 $this->plugin->txt("grading_pos_second"),
                 $corrector_list
             )->withRequired(true)
-             ->withValue(CorrectorAssignmentsService::UNCHANGED_CORRECTOR_ASSIGNMENT)
-             ->withAdditionalTransformation($this->refinery->kindlyTo()->int());
+                                                           ->withValue(CorrectorAssignmentsService::UNCHANGED_CORRECTOR_ASSIGNMENT)
+                                                           ->withAdditionalTransformation($this->refinery->kindlyTo()->int());
 
             if (count($items) == 1 && $items[0]->getCombinedStatus() === CombinedStatus::STITCH_NEEDED) {
                 $fields["stitch_corrector"] = $this->ui_factory->input()->field()->select(
                     $this->plugin->txt("grading_pos_stitch"),
                     $corrector_list
                 )->withRequired(true)
-                    ->withValue(CorrectorAssignmentsService::UNCHANGED_CORRECTOR_ASSIGNMENT)
-                    ->withAdditionalTransformation($this->refinery->kindlyTo()->int());
+                                                               ->withValue(CorrectorAssignmentsService::UNCHANGED_CORRECTOR_ASSIGNMENT)
+                                                               ->withAdditionalTransformation($this->refinery->kindlyTo()->int());
             }
         }
 
@@ -280,7 +282,7 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
             $data["first_corrector"] ?? CorrectorAssignmentsService::UNCHANGED_CORRECTOR_ASSIGNMENT,
             $data["second_corrector"] ?? CorrectorAssignmentsService::UNCHANGED_CORRECTOR_ASSIGNMENT,
             $data["stitch_corrector"] ?? CorrectorAssignmentsService::UNCHANGED_CORRECTOR_ASSIGNMENT,
-            array_map(fn(CorrectionItem $x) => $x->getWriter()->getId(), $items)
+            array_map(fn (CorrectionItem $x) => $x->getWriter()->getId(), $items)
         );
         $this->tpl->setOnScreenMessage("success", $this->plugin->txt("corrector_assignment_changed"), true);
         $this->ctrl->redirect($this, 'showItems');
@@ -292,7 +294,7 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
             "mail_to_writer_or_corrector",
             $this->plugin->txt('mail_to_writer_or_corrector'),
             [$this, "mailToWriterOrCorrectorModal"],
-            fn(CorrectionItem $item) => true,
+            fn (CorrectionItem $item) => true,
             Action\Type::Standard
         );
     }
@@ -303,7 +305,7 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
      */
     public function mailToWriterOrCorrectorModal(array $items): \ILIAS\UI\Component\Modal\RoundTrip
     {
-        $writer_ids = array_map(fn(CorrectionItem $item) => $item->getWriter()->getId(), $items);
+        $writer_ids = array_map(fn (CorrectionItem $item) => $item->getWriter()->getId(), $items);
         $writer_id_query = "&" . http_build_query(["wid" => $writer_ids]);
 
         $fields = [
@@ -369,7 +371,7 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
             }
 
             $users = $this->user_service->getUsersByIds($user_ids);
-            $logins = array_map(fn(UserData $u) => $u->getLogin(), $users);
+            $logins = array_map(fn (UserData $u) => $u->getLogin(), $users);
             $this->openMailForm($logins, 'showItems');
         }
     }
@@ -380,7 +382,7 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
             "view_stitch_decision",
             $this->plugin->txt('view_stitch_comment'),
             [$this, "viewStitchDecision"],
-            fn(CorrectionItem $item) => !empty($item->getWriter()->getStitchComment()),
+            fn (CorrectionItem $item) => !empty($item->getWriter()->getStitchComment()),
             Action\Type::Single
         );
     }
@@ -396,7 +398,7 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
             "download_corrected_pdf",
             $this->plugin->txt('download_corrected_pdf'),
             [$this, "downloadCorrectedPdf"],
-            fn(CorrectionItem $item) => $item->canDownloadCorrectionPdf(),
+            fn (CorrectionItem $item) => $item->canDownloadCorrectionPdf(),
             Action\Type::Single
         );
     }
@@ -412,7 +414,7 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
             "download_written_pdf",
             $this->plugin->txt('download_written_pdf'),
             [$this, "downloadWrittenPdf"],
-            fn(CorrectionItem $item) => $item->getWriter()->canDownloadWrittenPdf(),
+            fn (CorrectionItem $item) => $item->getWriter()->canDownloadWrittenPdf(),
             Action\Type::Single
         );
     }
@@ -428,7 +430,7 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
             "view_correction",
             $this->plugin->txt('view_correction'),
             [$this, "viewCorrections"],
-            fn(CorrectionItem $item) => true,
+            fn (CorrectionItem $item) => true,
             Action\Type::Single
         );
     }
@@ -461,7 +463,24 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
         // todo: add toolbar
         // $this->buildToolbar($this->toolbar);
 
-        $table = $this->plugin_ui_factory->table()->dataTable('correction_admin_table', $this);
+        $location_avaiable = $this->hasLocations();
+        $corrections = $this->getCorrectionSettings()->getRequiredCorrectors();
+        $multi = $this->getSettings()->getMultiTasks();
+        $has_started = $this->getSettings()->getWritingStart() !== null ? $this->getSettings()->getWritingStart() < new \DateTimeImmutable() : true;
+
+        $table_parent = new CorrectionTableParent($this->dic, $this->plugin, [$this->object->getAssId()], $this->ctrl->getFormAction($this));
+        $table_parent->setHasColumns(
+            array_merge(
+                ["image", "name", "login", "pseudonym", $location_avaiable ? "location": null, "status", $multi ? "task" : null,
+                         "writing_last_save", "word_count", "pdf_version", "result", "points", "grade", "finalized", "finalized_from"],
+                ...array_map(fn ($p) => ["corr_{$p}", "corr_{$p}_name", "corr_{$p}_status", "corr_{$p}_points", $multi ? "corr_{$p}_grade" : null, "corr_{$p}_authorized"], range(0, $corrections - 1)),
+            )
+        )->setInitialVisibleColumns(["name", "login", "pseudonym", "location", "status", $has_started ? "writing_last_save": null, $has_started ? "word_count" : null, "corr_1", "corr_2", "result"])
+         ->setHasFilterFields(["name", $multi ? "task" : null, "location", "min_words", "max_words", "status", "assigned", "pdf_version"])
+        ->setTableActions($this->getTableActions());
+
+        $table_parent->setInitialVisibleColumns([]);
+        $table = $this->plugin_ui_factory->table()->dataTable('correction_admin_table', $table_parent);
         $table->executeAction();
         $this->tpl->setContent($this->renderer->render($table));
     }
@@ -536,102 +555,6 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
         }
     }
 
-    public function getColumnMapping(
-        CorrectionItem|\ILIAS\Plugin\LongEssayAssessment\UI\Table\Item $item,
-        ?array $additional_parameters
-    ): \ArrayAccess {
-        return new CorrectionItemColumnMap(
-            $this->lng,
-            $this->plugin,
-            $this->ui_factory,
-            new \DateTimeZone($this->user->getTimeZone()),
-            $this->grading_service,
-            $this->assessment_api->format($this->getSettings()),
-            $this->task_api->format(),
-            $item
-        );
-    }
-
-    public function getColumns(?array $additional_parameters): array
-    {
-        $cf = $this->ui_factory->table()->column();
-        $cfp = $this->plugin_ui_factory->table()->column();
-        $settings = $this->getSettings();
-
-        $df = new \ILIAS\Data\Factory();
-        $location_avaiable = $this->hasLocations();
-        $duration_avaiable = !empty($settings->getWritingLimitMinutes());
-        $has_started = $settings->getWritingStart() !== null ? $settings->getWritingStart() < new \DateTimeImmutable() : true;
-        $date_without_seconds = $this->user->getDateTimeFormat();
-        $date_with_seconds = $df->dateFormat()->amend($date_without_seconds)->colon()->seconds()->get();
-        if (!empty($settings->getWritingLimitMinutes())) {
-            $long_exam = $settings->getWritingLimitMinutes() > 1440;
-        } elseif ($settings->getWritingStart() !== null) {
-            $long_exam = date_diff($settings->getWritingStart(), $working_end ?? new \DateTimeImmutable('now'))->d > 0;
-        } else {
-            $long_exam = true;
-        }
-
-        $corrections = $this->getCorrectionSettings()->getRequiredCorrectors();
-        $multi = $this->getSettings()->getMultiTasks();
-        $stitch_possible = $this->getCorrectionSettings()->isStitchPossible();
-
-        $columns = [
-            "image" => $cfp->image($this->lng->txt("image"))->withIsOptional(true, false)->withIsSortable(false),
-            "name" => $cf->text($this->lng->txt("name"))->withIsOptional(false, true)->withIsSortable(true),
-            "login" => $cf->text($this->lng->txt("login"))->withIsOptional(false, true)->withIsSortable(true),
-            "pseudonym" => $cf->text($this->plugin->txt("pseudonym"))->withIsOptional(true, true)->withIsSortable(true),
-            "location" => $location_avaiable ? $cf->text($this->plugin->txt("location"))->withIsOptional(true, $location_avaiable)->withIsSortable(true) : null,
-            "status" => $cf->status($this->plugin->txt("status"))->withIsOptional(true, true)->withIsSortable(true),
-            "writing_last_save" => $cfp->nullableDate($this->plugin->txt("writing_last_save"), $date_with_seconds)->withIsOptional(true, $has_started)->withIsSortable(true)->withHighlight($multi),
-            "word_count" => $cf->number($this->plugin->txt('word_count'))->withIsOptional(false, $has_started)->withIsSortable(true)->withHighlight($multi),
-            "pdf_version" => $cf->boolean($this->plugin->txt("pdf_version"), $this->lng->txt("yes"), $this->lng->txt("no"))->withIsOptional(true, false)->withIsSortable(true)->withHighlight($multi)
-        ];
-
-        foreach (range(0, $corrections - 1) as $p) {
-            if ($corrections == 1) {
-                $cor = $this->plugin->txt("assignment_pos_single");
-            } else {
-                switch ($p) {
-                    case 0: $cor = $this->plugin->txt("grading_pos_first");
-                        break;
-                    case 1: $cor = $this->plugin->txt("grading_pos_second");
-                        break;
-                    default: $cor = $this->plugin->txt("assignment_pos_other");
-                        break;
-                }
-            }
-            $cor = $cor . " ";
-            $columns += [
-                "corr_{$p}" => $cf->text($cor)->withIsOptional(true, true)->withIsSortable(true)->withIsSortable(false)->withHighlight($multi),
-                "corr_{$p}_name" => $cf->text($cor . $this->lng->txt("name"))->withIsOptional(true, false)->withIsSortable(true)->withHighlight($multi),
-                "corr_{$p}_status" => $cf->status($cor . $this->plugin->txt("status"))->withIsOptional(true, false)->withIsSortable(true)->withHighlight($multi),
-                "corr_{$p}_points" => $cfp->nullableNumber($cor . $this->plugin->txt("points"))->withIsOptional(true, false)->withIsSortable(true)->withHighlight($multi),
-            ];
-
-            if (!$multi) {
-                $columns["corr_{$p}_grade"] = $cf->text($cor . $this->lng->txt("grade"))->withIsOptional(true, false)->withIsSortable(true);
-            }
-            $columns["corr_{$p}_authorized"] = $cf->boolean($cor . $this->plugin->txt("grading_authorized"), $this->lng->txt('yes'), $this->lng->txt('no'))->withIsOptional(true, false)->withIsSortable(true)->withHighlight($multi);
-        }
-
-        $columns += [
-            "result" => $cf->text($this->plugin->txt("result"))->withIsOptional(true, true)->withIsSortable(false),
-            "points" => $cfp->nullableNumber($this->plugin->txt("final_points"))->withIsOptional(true, false)->withIsSortable(true),
-            "grade" => $cf->text($this->plugin->txt("final_grade"))->withIsOptional(true, false)->withIsSortable(true),
-            "finalized" => $cfp->nullableDate($this->plugin->txt("finalized_at"), $date_without_seconds)->withIsOptional(true, false)->withIsSortable(true),
-            "finalized_from" => $cf->text($this->plugin->txt("finalized_from"))->withIsOptional(true, false)->withIsSortable(true),
-        ];
-
-        return $columns;
-
-    }
-
-    public function getTotalRowCount(?array $filter_data, ?array $additional_parameters): ?int
-    {
-        return count($this->writer_service->all());
-    }
-
     public function getTableActions(): array
     {
         return [
@@ -646,105 +569,6 @@ class CorrectionAdminGUI extends BaseGUI implements DataTableParent, FilterParen
 //            $this->removeAuthorizationsAction(),
 //            $this->exportTableAction(),
         ];
-    }
-
-    public function getTableItems(?array $ids = null, ?array $filter_data = null): \Generator
-    {
-        $writer = array_filter($this->writer_service->all(), fn(Writer $writer) => empty($ids) || in_array($writer->getId(), $ids));
-        $collection = new CorrectionItemCollection(
-            $writer,
-            $this->system_api->user()->getUserDisplaysByIds(array_map(fn(Writer $w) => $w->getUserId(), $writer), null),
-            $this->corrector_service->all(),
-            $this->essay_service->allByTaskId($this->task_info->getId()),
-            $this->assessment_status->allWriterCombinedStatus(),
-            $this->assignment_service->all(),
-            $this->summary_service->allByTaskId($this->task_info->getId()),
-            $this->getLocations(),
-            $this->getCorrectionSettings()->getRequiredCorrectors()
-        );
-        $user_ids = $collection->getUserIds();
-        $collection->setUserData($this->system_api->user()->getUsersByIds($user_ids));
-
-        $collection->applyFilter($filter_data);
-        yield from $collection;
-
-    }
-
-    public function getTableItem(int $id): \ILIAS\Plugin\LongEssayAssessment\UI\Table\Item
-    {
-        $writer = $this->writer_service->oneByWriterId($id);
-        $summaries = [];
-        foreach ($this->summary_service->allByTaskIdAndWriterId($this->task_info->getId(), $writer->getId()) as $summary) {
-            $summaries[$summary->getCorrectorId()][] = $summary;
-        }
-
-
-        $summary_by_pos = [];
-        $corrector_by_pos = [];
-        foreach ($this->assignment_service->all() as $a) {
-            $summary = $summaries[$a->getCorrectorId()] ?? null;
-            $corrector = $this->corrector_service->oneById($a->getCorrectorId());
-            $summary_by_pos[$a->getPosition()->value] = $summary;
-            $corrector_by_pos[$a->getPosition()->value] = $corrector;
-        }
-
-        return new CorrectionItem(
-            $id,
-            $writer,
-            [$this->user_service->getUser($writer->getUserId())],
-            $this->getLocation($writer->getLocation()),
-            $this->essay_service->oneByWriterIdAndTaskId($writer->getId(), $this->task_info->getId()),
-            $this->assessment_status->oneWriterCombinedStatus($writer),
-            $summary_by_pos,
-            $corrector_by_pos,
-            $this->user_service->getUserDisplay($writer->getUserId(), null)
-        );
-    }
-
-    public function getFilterInputs(): array
-    {
-        $status = [
-            (string) CombinedStatus::WRITING_EXCLUDED->value => $this->plugin->txt(CombinedStatus::WRITING_EXCLUDED->langVar()),
-            (string) CombinedStatus::WRITING_NOT_STARTED->value => $this->plugin->txt(CombinedStatus::WRITING_NOT_STARTED->langVar()),
-            (string) CombinedStatus::WRITING_STARTED->value => $this->plugin->txt(CombinedStatus::WRITING_STARTED->langVar()),
-            (string) CombinedStatus::WRITING_AUTHORIZED->value => $this->plugin->txt(CombinedStatus::WRITING_AUTHORIZED->langVar()),
-            (string) CombinedStatus::OPEN->value => $this->plugin->txt(CombinedStatus::OPEN->langVar()),
-            (string) CombinedStatus::APPROXIMATION->value => $this->plugin->txt(CombinedStatus::APPROXIMATION->langVar()),
-            (string) CombinedStatus::CONSULTING->value => $this->plugin->txt(CombinedStatus::CONSULTING->langVar()),
-            (string) CombinedStatus::STITCH_NEEDED->value => $this->plugin->txt(CombinedStatus::STITCH_NEEDED->langVar()),
-            (string) CombinedStatus::FINALIZED->value => $this->plugin->txt(CombinedStatus::FINALIZED->langVar()),
-        ];
-        $locations = [];
-        foreach ($this->getLocations() as $location) {
-            $locations[$location->getId()] = $location->getTitle();
-        }
-
-        return [
-            "name" => $this->ui_factory->input()->field()->text($this->plugin->txt("participants")),
-            "location" => $this->ui_factory->input()->field()->multiselect($this->plugin->txt("locations"), $locations),
-            "min_words" => $this->ui_factory->input()->field()->numeric($this->plugin->txt("min_word_count"))
-                                            ->withAdditionalTransformation($this->refinery->int()->isGreaterThanOrEqual(0)),
-            "max_words" => $this->ui_factory->input()->field()->numeric($this->plugin->txt("max_word_count"))
-                                            ->withAdditionalTransformation($this->refinery->int()->isGreaterThanOrEqual(1)),
-            "status" => $this->ui_factory->input()->field()->multiSelect($this->plugin->txt("status"), $status),
-            "assigned" => $this->ui_factory->input()->field()->select(
-                $this->plugin->txt("filter_assigned"),
-                [self::FILTER_YES => $this->plugin->txt("yes"), self::FILTER_NO => $this->plugin->txt("no")]
-            ),
-            "pdf_version" => $this->ui_factory->input()->field()->select(
-                $this->plugin->txt("filter_pdf_version"),
-                [self::FILTER_YES => $this->plugin->txt("yes"), self::FILTER_NO => $this->plugin->txt("no")]
-            )];
-    }
-
-    public function getFilterInputActivation(): ?array
-    {
-        return [true, true, true, true, true, true, true];
-    }
-
-    public function getFilterBaseAction(): string
-    {
-        return $this->ctrl->getLinkTarget($this, "showItems");
     }
 
     protected function hasLocations(): bool

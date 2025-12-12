@@ -1,16 +1,16 @@
 <?php
 
-namespace ILIAS\Plugin\LongEssayAssessment\CorrectionAdmin;
+namespace ILIAS\Plugin\LongEssayAssessment\GUI\Correction;
 
 use ILIAS\UI\Component\Symbol\Symbol;
 use ILIAS\UI\Factory;
-use Edutiek\AssessmentService\Task\AssessmentStatus\CombinedStatus;
 use Edutiek\AssessmentService\Assessment\TaskInterfaces\GradingStatus;
 use ILIAS\UI\Renderer;
 use Edutiek\AssessmentService\Assessment\AssessmentGrading\ReadService as GradingService;
 use Edutiek\AssessmentService\Assessment\Format\Service as AssFormService;
 use Edutiek\AssessmentService\Task\Format\Service as TaskFormService;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\ColumnMappingArray;
+use Edutiek\AssessmentService\Assessment\Data\CombinedStatus;
 
 /**
  * Map from CorrectionItem to CorrectionAdminGUI table columns, which acts like an array.
@@ -79,7 +79,9 @@ class CorrectionItemColumnMap extends ColumnMappingArray
             "login" => $item->getWriterLogin() ?? "",
             "pseudonym" => $item->getWriter()->getPseudonym(),
             "location" => $item->getLocation()?->getTitle() ?? "",
-            "status" => $this->correctionStatus($item->getCombinedStatus()),
+            "assessment" => $item->getAssessmentProperties()->getTitle(),
+            "task" => $item->getTaskSettings()->getTitle(),
+            "status" => $this->correctionStatus($item->getWriter()->getCombinedStatus()),
             "writing_last_save" => $item->getEssay()?->getLastChange()?->setTimezone($this->timezone),
             "word_count" => $item->getEssay()?->getWordCount() ?? 0,
             "result" => $this->ass_format->finalResult($item->getWriter()),

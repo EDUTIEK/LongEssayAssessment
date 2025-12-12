@@ -300,4 +300,9 @@ class PluginDic
     {
         return $this->dic[ContextService::class . "_$ref_id"] ??= new ContextService($ref_id, $this->dic->repositoryTree());
     }
+
+    public function view()
+    {
+        return $this->dic[ViewDic::class] ??= new ViewDic($this->dic);
+    }
 }

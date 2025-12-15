@@ -64,7 +64,7 @@ class CorrectorAdminCreateCorrectionsExportJob extends AbstractJob
                 $ref_id
             ));
         } else {
-            // relative path in the tem stprage
+            // relative path in the tem storage
             $zipdir = 'xlas/'. (new UUID)->uuid4AsString() . '/' . ilFileDelivery::returnASCIIFilename($object->getTitle());
 
             $storage = $this->dic->filesystem()->temp();
@@ -75,17 +75,21 @@ class CorrectorAdminCreateCorrectionsExportJob extends AbstractJob
             $writerAdminService = $this->localDI->getWriterAdminService($repoTask->getTaskId());
             $correctorAdminService = $this->localDI->getCorrectorAdminService($repoTask->getTaskId());
 
+            $correctorAdminService->createResultsExport($zipdir . '/results.csv');
+
             foreach ($this->essayRepo->getEssaysByTaskId($repoTask->getTaskId()) as $repoEssay) {
-                $repoWriter = $this->writerRepo->getWriterById($repoEssay->getWriterId());
+                if ($repoEssay->getWritingAuthorized()) {
+                    $repoWriter = $this->writerRepo->getWriterById($repoEssay->getWriterId());
 
-                $subdir = ilFileDelivery::returnASCIIFilename($user_data_helper->getFullname($repoWriter->getUserId()) . ' (' . $user_data_helper->getLogin($repoWriter->getUserId()) . ')');
-                $storage->createDir($zipdir . '/' . $subdir);
+                    $subdir = ilFileDelivery::returnASCIIFilename($user_data_helper->getFullname($repoWriter->getUserId()) . ' (' . $user_data_helper->getLogin($repoWriter->getUserId()) . ')');
+                    $storage->createDir($zipdir . '/' . $subdir);
 
-                $filename = $subdir . '-writing.pdf';
-                $storage->write($zipdir . '/' . $subdir. '/'. $filename, $writerAdminService->getWritingAsPdf($object, $repoWriter));
+                    $filename = $subdir . '-writing.pdf';
+                    $storage->write($zipdir . '/' . $subdir. '/'. $filename, $writerAdminService->getWritingAsPdf($object, $repoWriter));
 
-                $filename = $subdir . '-correction.pdf';
-                $storage->write($zipdir . '/' . $subdir. '/'. $filename, $correctorAdminService->getCorrectionAsPdf($object, $repoWriter));
+                    $filename = $subdir . '-correction.pdf';
+                    $storage->write($zipdir . '/' . $subdir. '/'. $filename, $correctorAdminService->getCorrectionAsPdf($object, $repoWriter));
+                }
             }
 
             $directory_to_zip->setValue(ILIAS_DATA_DIR . '/' . CLIENT_ID . '/temp/' . $zipdir);

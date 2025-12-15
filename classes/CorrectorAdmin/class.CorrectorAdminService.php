@@ -661,8 +661,10 @@ class CorrectorAdminService extends BaseService
         $this->plugin->txt('correction_reports'));
     }
 
-
-    public function createResultsExport() : string
+    /**
+     * Create an export of the results as CSV
+     */
+    public function createResultsExport(string $path_in_temp_storage = '') : string
     {
         $csv = new \ilCSVWriter();
         $csv->setSeparator(';');
@@ -764,7 +766,11 @@ class CorrectorAdminService extends BaseService
 
         $storage = $this->dic->filesystem()->temp();
         $basedir = ILIAS_DATA_DIR . '/' . CLIENT_ID . '/temp';
-        $file = 'xlas/'. (new UUID)->uuid4AsString() . '.csv';
+        if ($path_in_temp_storage !== '') {
+            $file = $path_in_temp_storage;
+        } else {
+            $file = 'xlas/'. (new UUID)->uuid4AsString() . '.csv';
+        }
         $storage->write($file, $csv->getCSVString());
 
         return $basedir . '/' . $file;

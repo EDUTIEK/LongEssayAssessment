@@ -42,7 +42,11 @@ use ILIAS\Plugin\LongEssayAssessment\UI\Table\Helper\HasFilterFields;
 
 class CorrectionTableParent implements DataTableParent, FilterParent
 {
-    use ConfirmationIds, HasColumns, HighligtedColumns, InitialVisibleColumns, HasFilterFields;
+    use ConfirmationIds;
+    use HasColumns;
+    use HighligtedColumns;
+    use InitialVisibleColumns;
+    use HasFilterFields;
 
     public const FILTER_YES = "1";
     public const FILTER_NO = "2";
@@ -65,7 +69,7 @@ class CorrectionTableParent implements DataTableParent, FilterParent
         $this->plugin = $plugin;
         $this->ui_factory = $dic->ui()->factory();
         $this->user = $dic->user();
-        $this->corrections_view = $this->plugin->dic()->view()->correctionsViewRepo();
+        $this->corrections_view = $this->plugin->dic()->view()->corrections();
         $this->refinery = $dic->refinery();
     }
 
@@ -172,7 +176,7 @@ class CorrectionTableParent implements DataTableParent, FilterParent
         if (!empty($this->getInitialVisibleColumns())) {
             $columns = $this->setInitialVisible($columns);
         }
-        if(!empty($this->getHighlightedColumns())) {
+        if (!empty($this->getHighlightedColumns())) {
             $columns = $this->setHighlighted($columns);
         }
 
@@ -199,8 +203,8 @@ class CorrectionTableParent implements DataTableParent, FilterParent
                 $view->getWriterDisplay(),
                 $view->getLocation(),
                 $view->getEssay(),
-                array_map(fn (Correction $c) => $c->getCorrectorSummary(), $view->getCorrections()),
-                array_map(fn (Correction $c) => $c->getCorrectorData(), $view->getCorrections()),
+                array_map(fn(Correction $c) => $c->getCorrectorSummary(), $view->getCorrections()),
+                array_map(fn(Correction $c) => $c->getCorrectorData(), $view->getCorrections()),
                 $view->getFinalizedByData(),
                 $view->getAuthorizedByData(),
                 $view->getExcludedByData(),
@@ -212,7 +216,7 @@ class CorrectionTableParent implements DataTableParent, FilterParent
 
     public function getTableItem(int $id): \ILIAS\Plugin\LongEssayAssessment\UI\Table\Item
     {
-        $corrections_view = $this->plugin->dic()->view()->correctionsViewRepo();
+        $corrections_view = $this->plugin->dic()->view()->corrections();
         $view = $corrections_view->some(['id' => $id, 'ass_id' => $this->ass_ids]);
         $view = empty($view) ? null : $view[0];
 
@@ -227,8 +231,8 @@ class CorrectionTableParent implements DataTableParent, FilterParent
             $view->getWriterDisplay(),
             $view->getLocation(),
             $view->getEssay(),
-            array_map(fn (Correction $c) => $c->getCorrectorSummary(), $view->getCorrections()),
-            array_map(fn (Correction $c) => $c->getCorrectorData(), $view->getCorrections()),
+            array_map(fn(Correction $c) => $c->getCorrectorSummary(), $view->getCorrections()),
+            array_map(fn(Correction $c) => $c->getCorrectorData(), $view->getCorrections()),
             $view->getFinalizedByData(),
             $view->getAuthorizedByData(),
             $view->getExcludedByData(),
@@ -267,7 +271,7 @@ class CorrectionTableParent implements DataTableParent, FilterParent
             $locations[$location->getId()] = $location->getTitle();
         }
 
-        $filter =  [
+        $filter = [
             "name" => $this->ui_factory->input()->field()->text($this->plugin->txt("participants")),
             "task" => $this->ui_factory->input()->field()->multiselect($this->plugin->txt("task"), $this->getTasks()),
             "location" => $this->ui_factory->input()->field()->multiselect($this->plugin->txt("locations"), $locations),
@@ -301,7 +305,7 @@ class CorrectionTableParent implements DataTableParent, FilterParent
 
     public function getFilterInputActivation(): array
     {
-        $act =  ["name" => true, "task" => true, "location" => true, "min_words" => true, "max_words" => true, "status" => true, "assigned" => true, "pdf_version" => true];
+        $act = ["name" => true, "task" => true, "location" => true, "min_words" => true, "max_words" => true, "status" => true, "assigned" => true, "pdf_version" => true];
 
         if (!empty($this->getHasFilterFields())) {
             $act = $this->filterFilterFields($act);
@@ -324,7 +328,7 @@ class CorrectionTableParent implements DataTableParent, FilterParent
         $tasks = [];
         $assessments = $this->corrections_view->assessments($this->ass_ids);
 
-        foreach($this->corrections_view->tasks($this->ass_ids) as $task) {
+        foreach ($this->corrections_view->tasks($this->ass_ids) as $task) {
             $tasks[$task->getTaskId()] = ($assessments[$task->getAssId()] ?? "") . " &raquo; " . $task->getTitle();
         }
 

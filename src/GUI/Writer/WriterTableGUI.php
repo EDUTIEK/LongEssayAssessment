@@ -28,7 +28,10 @@ use _PHPStan_2d0955352\Nette\Neon\Exception;
 
 abstract class WriterTableGUI extends BaseGUI implements DataTableParent, FilterParent
 {
-    use ConfirmationIds, HasColumns, HasFilterFields, InitialVisibleColumns;
+    use ConfirmationIds;
+    use HasColumns;
+    use HasFilterFields;
+    use InitialVisibleColumns;
 
     protected const FILTER_YES = "1";
     protected const FILTER_NO = "2";
@@ -164,7 +167,7 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
                 $error = (implode(
                     '<br>',
                     array_map(
-                        fn (ValidationError $error) => $this->plugin->txt('failure_' . $error->value),
+                        fn(ValidationError $error) => $this->plugin->txt('failure_' . $error->value),
                         $writer->getValidationErrors()
                     )
                 ));
@@ -379,7 +382,7 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
             "view_processing",
             $this->plugin->txt("view_processing"),
             [$this, "viewProcessing"],
-            fn (WriterItem $item) => $item->getWriter()->canGetSight(),
+            fn(WriterItem $item) => $item->getWriter()->canGetSight(),
             Action\Type::Single
         );
     }
@@ -390,7 +393,7 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
             "export_steps",
             $this->plugin->txt("export_steps"),
             [$this, "exportSteps"],
-            fn (WriterItem $item) => $item->getWriter()->canGetSight(),
+            fn(WriterItem $item) => $item->getWriter()->canGetSight(),
             Action\Type::Single
         );
     }
@@ -403,7 +406,7 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
             $this->lng->txt("add"),
             [$this, "addLogEntryFields"],
             [$this, "addLogEntry"],
-            fn (WriterItem $writer) => true,
+            fn(WriterItem $writer) => true,
             Action\Type::Single
         );
     }
@@ -421,7 +424,7 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
             "mail_to_writer",
             $this->plugin->txt("mail_to_writer"),
             [$this, "mailToWriter"],
-            fn (WriterItem $writer) => true,
+            fn(WriterItem $writer) => true,
             Action\Type::Standard
         );
     }
@@ -434,8 +437,8 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
             $this->plugin->txt("authorize_writing"),
             $this->plugin->txt("authorize_writing_confirmation"),
             $this->ctrl->getFormAction($this, 'authorizeWriting'),
-            fn (WriterItem $item) => "Item " . $item->getId(),
-            fn (WriterItem $item) => $item->getWriter()->canGetAuthorized(),
+            fn(WriterItem $item) => "Item " . $item->getId(),
+            fn(WriterItem $item) => $item->getWriter()->canGetAuthorized(),
             Action\Type::Standard
         );
     }
@@ -448,8 +451,8 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
             $this->plugin->txt("unauthorize_writing"),
             $this->plugin->txt("unauthorize_writing_confirmation"),
             $this->ctrl->getFormAction($this, 'unauthorizeWriting'),
-            fn (WriterItem $item) => "Item " . $item->getId(),
-            fn (WriterItem $item) => $item->getWriter()->canGetUnauthorized(),
+            fn(WriterItem $item) => "Item " . $item->getId(),
+            fn(WriterItem $item) => $item->getWriter()->canGetUnauthorized(),
             Action\Type::Standard
         );
     }
@@ -462,8 +465,8 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
             $this->lng->txt("delete"),
             "",
             $this->ctrl->getLinkTarget($this, 'deleteWorkingTime'),
-            fn (WriterItem $item) => $item->getUserData()->getFullname(true),
-            fn (WriterItem $item) => $item->getWriter()->hasChangedTimeLimit(),
+            fn(WriterItem $item) => $item->getUserData()->getFullname(true),
+            fn(WriterItem $item) => $item->getWriter()->hasChangedTimeLimit(),
             Action\Type::Standard
         );
     }
@@ -476,7 +479,7 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
             $this->lng->txt("change"),
             [$this, "workingTimeChangeFields"],
             [$this, "workingTimeChange"],
-            fn (WriterItem $item) => $item->getWriter()->canChangeWorkingTime(),
+            fn(WriterItem $item) => $item->getWriter()->canChangeWorkingTime(),
             Action\Type::Standard
         )->withTransformations([$this->workingTimeValidation()]);
     }
@@ -501,7 +504,7 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
             return (implode(
                 '<br>',
                 array_map(
-                    fn (ValidationError $error) => $this->plugin->txt('failure_' . $error->value),
+                    fn(ValidationError $error) => $this->plugin->txt('failure_' . $error->value),
                     $error_store->getValidationErrors()
                 )
             ));
@@ -575,7 +578,7 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
             $this->lng->txt("save"),
             [$this, "changeLocationFields"],
             [$this, "changeLocation"],
-            fn (WriterItem $item) => $this->hasLocations(),
+            fn(WriterItem $item) => $this->hasLocations(),
             Action\Type::Standard
         );
 
@@ -607,7 +610,7 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
             "pdf_version_download",
             $this->plugin->txt("pdf_version_download"),
             [$this, "pdfVersionDownloadModal"],
-            fn (WriterItem $item) => $item->getEssaySummary()?->hasPdfUploads() ?? false,
+            fn(WriterItem $item) => $item->getEssaySummary()?->hasPdfUploads() ?? false,
             Action\Type::Single
         );
     }
@@ -624,7 +627,7 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
             "pdf_version_edit",
             $this->plugin->txt("pdf_version_edit"),
             [$this, "editPdfVersion"],
-            fn (WriterItem $writer) => true,
+            fn(WriterItem $writer) => true,
             Action\Type::Single
         );
     }
@@ -637,8 +640,8 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
             $this->plugin->txt("exclude_participant"),
             $this->plugin->txt("exclude_participant_confirmation"),
             $this->ctrl->getFormAction($this, 'excludeParticipants'),
-            fn (WriterItem $item) => $item->getUserData()->getFullname(true),
-            fn (WriterItem $item) => $item->getWriter()->canGetExcluded(),
+            fn(WriterItem $item) => $item->getUserData()->getFullname(true),
+            fn(WriterItem $item) => $item->getWriter()->canGetExcluded(),
             Action\Type::Standard
         );
     }
@@ -651,8 +654,8 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
             $this->plugin->txt("repeal_exclude_participant"),
             $this->plugin->txt("repeal_exclude_participant_confirmation"),
             $this->ctrl->getFormAction($this, 'repealExcludeParticipants'),
-            fn (WriterItem $item) => $item->getUserData()->getFullname(true),
-            fn (WriterItem $item) => $item->getWriter()->canGetRepealed(),
+            fn(WriterItem $item) => $item->getUserData()->getFullname(true),
+            fn(WriterItem $item) => $item->getWriter()->canGetRepealed(),
             Action\Type::Standard
         );
     }
@@ -665,15 +668,15 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
             $this->plugin->txt("remove_writer"),
             $this->plugin->txt("remove_writer_confirmation"),
             $this->ctrl->getFormAction($this, 'removeWriter'),
-            fn (WriterItem $item) => $item->getUserData()->getFullname(true),
-            fn (WriterItem $item) => true,
+            fn(WriterItem $item) => $item->getUserData()->getFullname(true),
+            fn(WriterItem $item) => true,
             Action\Type::Standard
         );
     }
 
     public function getTableItems(?array $ids = null, ?array $filter_data = null): \Generator
     {
-        $writer_view = $this->plugin->dic()->view()->writerView();
+        $writer_view = $this->plugin->dic()->view()->writer();
 
         $filter = array_merge(['ass_id' => $this->object->getAssId()], $filter_data);
         if (!empty($ids)) {
@@ -687,11 +690,11 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
 
     public function getTableItem(int $id): \ILIAS\Plugin\LongEssayAssessment\UI\Table\Item
     {
-        $writer_view = $this->plugin->dic()->view()->writerView();
+        $writer_view = $this->plugin->dic()->view()->writer();
         $view = $writer_view->some(['id' => $id, 'ass_id' => $this->object->getAssId()]);
         $view = empty($view) ? null : $view[0];
 
-        if($view === null) {
+        if ($view === null) {
             throw new \Exception("Writer with id $id not found");
         }
 

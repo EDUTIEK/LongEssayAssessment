@@ -50,6 +50,7 @@ class UserDataRepo implements \Edutiek\AssessmentService\System\Data\UserDataRep
             empty($this->user->getTitle()) ? null : $this->user->getTitle(),
             $this->user->getFirstname(),
             $this->user->getLastname(),
+            $this->user->getEmail(),
             $this->user->getLanguage(),
             new DateTimeZone($this->user->getTimeZone())
         );
@@ -107,6 +108,7 @@ class UserDataRepo implements \Edutiek\AssessmentService\System\Data\UserDataRep
                 !empty($row['title']) ? (string) $row['title'] : null,
                 (string) $row['lastname'] ?? '',
                 (string) $row['firstname'] ?? '',
+                $row['email'] ?? null,
                 $languages[$row['usr_id']] ?? $default_language,
                 $timezones[$row['usr_id']] ?? $default_timezone
             );
@@ -160,11 +162,12 @@ class UserDataRepo implements \Edutiek\AssessmentService\System\Data\UserDataRep
 
         $result = $query->query();
         foreach ($result['set'] ?? [] as $row) {
-            ($this->dehydrated[$row['usr_id']]?? null)?->setValues(
+            ($this->dehydrated[$row['usr_id']] ?? null)?->setValues(
                 (string) $row['login'],
                 !empty($row['title']) ? (string) $row['title'] : null,
                 (string) $row['lastname'] ?? '',
                 (string) $row['firstname'] ?? '',
+                $row['email'] ?? null,
                 $languages[$row['usr_id']] ?? $default_language,
                 $timezones[$row['usr_id']] ?? $default_timezone
             );

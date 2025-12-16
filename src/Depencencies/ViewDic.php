@@ -18,8 +18,9 @@ use ILIAS\Plugin\LongEssayAssessment\Assessment\Data\Properties;
 use ILIAS\Plugin\LongEssayAssessment\Task\Data\CorrectorAssignment;
 use ILIAS\Plugin\LongEssayAssessment\Task\Data\CorrectorSummary;
 use ILIAS\Plugin\LongEssayAssessment\Assessment\Data\Corrector;
+use Edutiek\AssessmentService\Views\Api\ForClients;
 
-class ViewDic
+class ViewDic implements ForClients
 {
     use FactoryTrait;
     public function __construct(
@@ -29,7 +30,7 @@ class ViewDic
         $this->g = $dic[Generate::class];
     }
 
-    public function writerView(): WriterViewRepo
+    public function writer(): WriterViewRepo
     {
         return new WriterViewRepo(
             $this->dic->database(),
@@ -41,7 +42,7 @@ class ViewDic
             new \DateTimeZone($this->dic->user()->getTimeZone())
         );
     }
-    public function correctionsViewRepo(): CorrectionsViewRepo
+    public function corrections(): CorrectionsViewRepo
     {
         return new CorrectionsViewRepo(
             $this->dic->database(),

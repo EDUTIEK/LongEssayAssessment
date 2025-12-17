@@ -30,17 +30,18 @@ class CorrectionsViewRepo extends ViewRepo implements \Edutiek\AssessmentService
 
     public function some(array $filter, ?int $limit = null, ?int $offset = null): array
     {
-        $sub_sql = "SELECT CONCAT('[', ca.position, ',', ca.id, ',', cs.id, ',', cc.id, ',', cc.user_id, ']') ";
+        $sub_sql = "SELECT GROUP_CONCAT(CONCAT('[', ca.position, ',', ca.id, ',', COALESCE(cs.id, 'null'), ',', COALESCE(cc.id, 'null'), ',', COALESCE(cc.user_id, 'null'), ']') SEPARATOR ',') ";
         $sub_sql .= "FROM {$this->corrector_assignment_repo->table()} AS ca ";
         $sub_sql .= "LEFT JOIN {$this->corrector_repo->table()} AS cc ON ca.corrector_id = cc.id ";
         $sub_sql .= "LEFT JOIN {$this->corrector_summary_repo->table()} AS cs ON ";
         $sub_sql .= "(ca.writer_id = cs.writer_id AND ca.corrector_id = cs.corrector_id AND ca.task_id = cs.task_id) ";
-        $sub_sql .= "WHERE w.id = ca.writer_id AND t.task_id = ca.task_id";
+        $sub_sql .= "WHERE w.id = ca.writer_id AND t.task_id = ca.task_id ";
+        $sub_sql .= "GROUP BY ca.writer_id, ca.task_id";
 
         $sql = "SELECT w.id AS writer_id, w.user_id AS user_id, w.location AS location_id, e.id  AS essay_id, ";
         $sql .= "w.writing_authorized_by as authorized_by, w.writing_excluded_by as excluded_by, ";
         $sql .= "w.correction_status_changed_by as finalized_by, t.task_id as task_id, w.ass_id as ass_id, ";
-        $sql .= "GROUP_CONCAT(({$sub_sql}) SEPARATOR ',') AS corrections ";
+        $sql .= "({$sub_sql}) AS corrections ";
         $sql .= "FROM {$this->writer_repo->table()} AS w ";
         $sql .= "JOIN {$this->task_repo->table()} AS t ON w.ass_id = t.ass_id ";
         $sql .= "LEFT JOIN {$this->essay_repo->table()} AS e ON w.id = e.writer_id ";

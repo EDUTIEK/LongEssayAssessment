@@ -62,9 +62,6 @@ class CorrectionAdminGUI extends BaseGUI
     public function __construct(BaseObjectData $object)
     {
         parent::__construct($object);
-
-        $this->initForTask();
-
         $this->writer_service = $this->assessment_api->writer();
         $this->user_service = $this->system_api->user();
         $this->essay_service = $this->essay_task_api->essay(true);

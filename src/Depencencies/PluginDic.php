@@ -152,7 +152,8 @@ class PluginDic
                     $dic[ilLongEssayAssessmentPlugin::class],
                     $dic->http(),
                     $dic->refinery()
-                )
+                ),
+                new \ILIAS\Plugin\LongEssayAssessment\UI\LiveStatusPanel\Factory()
             );
         };
 
@@ -298,5 +299,10 @@ class PluginDic
     public function context(int $ref_id): ContextService
     {
         return $this->dic[ContextService::class . "_$ref_id"] ??= new ContextService($ref_id, $this->dic->repositoryTree());
+    }
+
+    public function view()
+    {
+        return $this->dic[ViewDic::class] ??= new ViewDic($this->dic);
     }
 }

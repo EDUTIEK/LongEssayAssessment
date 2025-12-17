@@ -1,48 +1,43 @@
 <?php
 
-namespace ILIAS\Plugin\LongEssayAssessment\CorrectionAdmin;
+namespace ILIAS\Plugin\LongEssayAssessment\GUI\Correction;
 
 use Edutiek\AssessmentService\System\Data\UserData;
 use Edutiek\AssessmentService\System\Data\UserDisplay;
 use Edutiek\AssessmentService\EssayTask\AssessmentStatus\WriterEssaySummary;
 use Edutiek\AssessmentService\Assessment\Data\Writer;
-use Edutiek\AssessmentService\Task\AssessmentStatus\CombinedStatus;
 use Edutiek\AssessmentService\Task\Data\CorrectorSummary;
 use Edutiek\AssessmentService\EssayTask\Data\Essay;
 use Edutiek\AssessmentService\Assessment\Data\Location;
 use ILIAS\UI\Component\Symbol\Symbol;
 use Edutiek\AssessmentService\Assessment\Data\Corrector;
+use ILIAS\Plugin\LongEssayAssessment\Task\Data\Settings;
+use ILIAS\Plugin\LongEssayAssessment\Assessment\Data\Properties;
 
 class CorrectionItem extends \ILIAS\Plugin\LongEssayAssessment\UI\Table\Item
 {
-    /**
-     * @param int              $id
-     * @param Writer           $writer
-     * @param Symbol           $user_image
-     * @param array            $user_data
-     * @param Location|null    $location
-     * @param Essay|null       $essay
-     * @param CombinedStatus $combined_status
-     * @param CorrectorSummary[]            $summaries_by_position
-     * @param Corrector[]            $correcor_by_position
-     */
+
     public function __construct(
         int $id,
         private Writer $writer,
-        private array $user_data,
+        private ?UserData $writer_data,
+        private ?UserDisplay $user_display,
         private ?Location $location,
         private ?Essay $essay,
-        private CombinedStatus $combined_status,
         private array $summaries_by_position,
-        private array $correcor_by_position,
-        private ?UserDisplay $user_display
+        private array $corrector_data_by_position,
+        private readonly ?UserData $finalized_by_data,
+        private readonly ?UserData $authorized_by_data,
+        private readonly ?UserData $excluded_by_data,
+        private readonly Settings $settings,
+        private readonly Properties $properties
     ) {
         parent::__construct($id);
     }
 
-    private function getUserData(int $user_id): ?UserData
+    private function getUserData(): ?UserData
     {
-        return $this->user_data[$user_id] ?? null;
+        return $this->writer_data;
     }
 
     public function getWriterImage(): ?string
@@ -52,12 +47,12 @@ class CorrectionItem extends \ILIAS\Plugin\LongEssayAssessment\UI\Table\Item
 
     public function getWriterName(): ?string
     {
-        return $this->getUserData($this->writer->getUserId())?->getFullname(false);
+        return $this->writer_data?->getFullname(false);
     }
 
     public function getWriterLogin(): ?string
     {
-        return $this->getUserData($this->writer->getUserId())?->getLogin();
+        return $this->writer_data?->getLogin();
     }
 
     public function getWriter(): Writer
@@ -68,11 +63,6 @@ class CorrectionItem extends \ILIAS\Plugin\LongEssayAssessment\UI\Table\Item
     public function getLocation(): ?Location
     {
         return $this->location;
-    }
-
-    public function getCombinedStatus(): CombinedStatus
-    {
-        return $this->combined_status;
     }
 
     public function getEssay(): ?Essay
@@ -88,9 +78,8 @@ class CorrectionItem extends \ILIAS\Plugin\LongEssayAssessment\UI\Table\Item
      */
     public function getExecludedByName(): ?string
     {
-        $by = $this->writer->getWritingExcludedBy();
-        return $by !== null
-            ? $this->getUserData($by)?->getFullname(true) : '';
+
+        return $this->excluded_by_data?->getFullname(true);
     }
 
     /**
@@ -101,9 +90,7 @@ class CorrectionItem extends \ILIAS\Plugin\LongEssayAssessment\UI\Table\Item
      */
     public function getAuthorizedByName(): ?string
     {
-        $by = $this->writer->getWritingAuthorizedBy();
-        return $by !== null
-            ? $this->getUserData($by)?->getFullname(true) : '';
+        return $this->authorized_by_data?->getFullname(true);
     }
 
     /**
@@ -114,20 +101,12 @@ class CorrectionItem extends \ILIAS\Plugin\LongEssayAssessment\UI\Table\Item
      */
     public function getFinalizedByName(): ?string
     {
-        $by = $this->writer->getCorrectionFinalizedBy();
-        return $by !== null
-            ? $this->getUserData($by)?->getFullname(true) : '';
-    }
-
-    public function isStitchNeeded()
-    {
-        return $this->combined_status == CombinedStatus::STITCH_NEEDED;
+        return $this->finalized_by_data?->getFullname(true);
     }
 
     public function getCorrectorDataByPosition(int $position): ?UserData
     {
-        $corrector = $this->correcor_by_position[$position] ?? null;
-        return $corrector !== null ? $this->getUserData($corrector->getUserId()) : null;
+        return $this->corrector_data_by_position[$position] ?? null;
     }
 
     public function getSummaryByPosition(int $position): ?CorrectorSummary
@@ -138,5 +117,15 @@ class CorrectionItem extends \ILIAS\Plugin\LongEssayAssessment\UI\Table\Item
     public function canDownloadCorrectionPdf(): bool
     {
         return !empty($this->summaries_by_position);
+    }
+
+    public function getTaskSettings(): Settings
+    {
+        return $this->settings;
+    }
+
+    public function getAssessmentProperties(): Properties
+    {
+        return $this->properties;
     }
 }

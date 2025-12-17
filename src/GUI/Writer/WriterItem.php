@@ -1,11 +1,12 @@
 <?php
 
-namespace ILIAS\Plugin\LongEssayAssessment\WriterAdmin;
+namespace ILIAS\Plugin\LongEssayAssessment\GUI\Writer;
 
 use Edutiek\AssessmentService\Assessment\Data\Writer;
 use Edutiek\AssessmentService\System\Data\UserData;
 use Edutiek\AssessmentService\System\Data\UserDisplay;
 use Edutiek\AssessmentService\EssayTask\AssessmentStatus\WriterEssaySummary;
+use Edutiek\AssessmentService\Views\Data\EssayTaskSummary;
 
 class WriterItem extends \ILIAS\Plugin\LongEssayAssessment\UI\Table\Item
 {
@@ -14,7 +15,7 @@ class WriterItem extends \ILIAS\Plugin\LongEssayAssessment\UI\Table\Item
         private Writer $writer,
         private UserData $user_data,
         private UserDisplay $user_display,
-        private ?WriterEssaySummary $essay_summary,
+        private WriterEssaySummary|EssayTaskSummary|null $essay_summary,
         private ?UserData $authorized_from,
         private ?UserData $excluded_from,
     ) {
@@ -36,7 +37,7 @@ class WriterItem extends \ILIAS\Plugin\LongEssayAssessment\UI\Table\Item
         return $this->user_display;
     }
 
-    public function getEssaySummary(): ?WriterEssaySummary
+    public function getEssaySummary(): WriterEssaySummary|EssayTaskSummary|null
     {
         return $this->essay_summary;
     }

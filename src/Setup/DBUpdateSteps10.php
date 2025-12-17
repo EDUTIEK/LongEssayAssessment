@@ -951,4 +951,18 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
             $this->db->addIndex('xlas_ta_corr_summary', ['summary_pdf'], 'idp');
         }
     }
+
+    public function step_54(): void
+    {
+        // ilDBUpdateNewObjectType needs the global database
+        global $DIC;
+        if (!isset($DIC['ilDB'])) {
+            $DIC['ilDB'] = $this->db;
+        }
+
+        require_once __DIR__ . '/../../../../../../../../../../components/ILIAS/Migration/DBUpdate_3560/classes/class.ilDBUpdateNewObjectType.php';
+        $type_id = \ilDBUpdateNewObjectType::getObjectTypeId('xlas');
+        $ops_id = \ilDBUpdateNewObjectType::addCustomRBACOperation('proctor_writer', 'Proctor Assessment', 'object', 3240);
+        \ilDBUpdateNewObjectType::addRBACOperation($type_id, $ops_id);
+    }
 }

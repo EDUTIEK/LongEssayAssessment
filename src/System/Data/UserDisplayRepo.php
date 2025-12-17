@@ -5,9 +5,15 @@ declare(strict_types=1);
 namespace ILIAS\Plugin\LongEssayAssessment\System\Data;
 
 use ilUserUtil;
+use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\HydrationInterface;
 
-class UserDisplayRepo implements \Edutiek\AssessmentService\System\Data\UserDisplayRepo
+class UserDisplayRepo implements \Edutiek\AssessmentService\System\Data\UserDisplayRepo, HydrationInterface
 {
+    /**
+     * @var UserDisplay
+     */
+    private array $dehydrated = [];
+
     public function __construct(
         private readonly ilUserUtil $user_util
     ) {
@@ -15,7 +21,7 @@ class UserDisplayRepo implements \Edutiek\AssessmentService\System\Data\UserDisp
 
     public function one(int $id, ?string $back_link): UserDisplay
     {
-        $result = $this->user_util::getNamePresentation(
+        $data = $this->user_util::getNamePresentation(
             $id,
             true,
             true,
@@ -26,8 +32,9 @@ class UserDisplayRepo implements \Edutiek\AssessmentService\System\Data\UserDisp
             true
         );
 
-        return new UserDisplay(
-            $id,
+        return (new UserDisplay(
+            $id
+        ))->setValues(
             $data['img'] ?? null,
             $data['link'] ?? null
         );
@@ -36,7 +43,7 @@ class UserDisplayRepo implements \Edutiek\AssessmentService\System\Data\UserDisp
 
     public function some(array $ids, ?string $back_link): array
     {
-        $result = $this->user_util::getNamePresentation(
+        $data = $this->user_util::getNamePresentation(
             $ids,
             true,
             true,
@@ -49,13 +56,45 @@ class UserDisplayRepo implements \Edutiek\AssessmentService\System\Data\UserDisp
 
         $displays = [];
         foreach ($ids as $id) {
-            $displays[$id] = new UserDisplay(
-                $id,
-                $data[$id]['img'] ?? null,
-                $data[$id]['link'] ?? null
+            $displays[$id] = (new UserDisplay(
+                $id
+            ))->setValues(
+                $data['img'] ?? null,
+                $data['link'] ?? null
             );
         }
 
         return $displays;
+    }
+
+    public function dehydratedInstance(mixed $key_value): ?object
+    {
+        if ($key_value === null) {
+            return null;
+        }
+
+        return $this->dehydrated[$key_value] ??= new UserDisplay($key_value);
+    }
+
+    public function hydrate(): void
+    {
+        $data = $this->user_util::getNamePresentation(
+            array_keys($this->dehydrated),
+            true,
+            true,
+            "",
+            false,
+            false,
+            false,
+            true
+        );
+
+        foreach ($data as $id => $row) {
+            ($this->dehydrated[$id] ?? null)?->setValues(
+                $row['img'] ?? null,
+                $row['link'] ?? null
+            );
+            unset($this->dehydrated[$id]);
+        }
     }
 }

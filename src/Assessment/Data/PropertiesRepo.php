@@ -10,10 +10,12 @@ use ilAccessHandler;
 use ilObject;
 use ilObjectDataCache;
 use ilObjectFactory;
+use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\HydrationInterface;
 
-class PropertiesRepo implements \Edutiek\AssessmentService\Assessment\Data\PropertiesRepo
+class PropertiesRepo implements \Edutiek\AssessmentService\Assessment\Data\PropertiesRepo, HydrationInterface
 {
     private array $instances = [];
+    private array $dehydrated = [];
 
     public function __construct(
         private readonly ilObjectDataCache $data_cache,
@@ -42,5 +44,26 @@ class PropertiesRepo implements \Edutiek\AssessmentService\Assessment\Data\Prope
         $object->update();
 
         $this->data_cache->deleteCachedEntry($entity->getAssId());
+    }
+
+    public function dehydratedInstance(mixed $key_value): ?object
+    {
+        if ($key_value === null) {
+            return null;
+        }
+
+        return $this->dehydrated[$key_value] ??= (new PropertiesModel($key_value));
+    }
+
+    public function hydrate(): void
+    {
+        $this->data_cache->preloadObjectCache(array_keys($this->dehydrated ?? []));
+
+        $ret = [];
+        foreach ($this->dehydrated as $id => $object) {
+            unset($this->dehydrated[$id]);
+            $object->setTitle($this->data_cache->lookupTitle($id))
+                   ->setDescription($this->data_cache->lookupDescription($id));
+        }
     }
 }

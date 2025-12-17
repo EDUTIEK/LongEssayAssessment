@@ -17,12 +17,13 @@ use ILIAS\Plugin\LongEssayAssessment\Writer\WriterStartGUI;
 use ILIAS\Plugin\LongEssayAssessment\Settings\CriteriaAdminGUI;
 use ILIAS\Plugin\LongEssayAssessment\WriterAdmin\WriterAdminGUI;
 use ILIAS\Plugin\LongEssayAssessment\Writer\WriterUploadGUI;
-use ILIAS\Plugin\LongEssayAssessment\WriterAdmin\ProtocolGUI;
+use ILIAS\Plugin\LongEssayAssessment\Dashboard\ProtocolGUI;
 use ILIAS\Plugin\LongEssayAssessment\CorrectionAdmin\CorrectionAdminGUI;
 use ILIAS\Plugin\LongEssayAssessment\CorrectorAdmin\CorrectorGUI;
 use ILIAS\Plugin\LongEssayAssessment\Corrector\CorrectorStartGUI;
 use ILIAS\Plugin\LongEssayAssessment\DisabledGroupGUI;
 use ILIAS\Plugin\LongEssayAssessment\Settings\DocumentationSettingsGUI;
+use ILIAS\Plugin\LongEssayAssessment\Dashboard\DashboardGUI;
 
 /**
  * Plugin GUI Class
@@ -230,6 +231,12 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                     //                        $this->ctrl->forwardCommand(new \ILIAS\Plugin\LongEssayAssessment\Corrector\CorrectionReportGUI($this));
                     //                    }
                     //                    break;
+                case strtolower(DashboardGUI::class):
+                    if ($this->permissions->canViewDashboard()) {
+                        $this->activateTab('tab_dashboard', 'tab_dashboard');
+                        $this->ctrl->forwardCommand(new DashboardGUI($this->object));
+                    }
+                    break;
                 case strtolower(WriterAdminGUI::class):
                     if ($this->permissions->canMaintainWriters()) {
                         $this->activateTab('tab_writer_admin', 'tab_writer_admin');
@@ -238,7 +245,7 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                     break;
                 case strtolower(ProtocolGUI::class):
                     if ($this->permissions->canMaintainWriters()) {
-                        $this->activateTab('tab_writer_admin', 'tab_writer_admin_log');
+                        $this->activateTab('tab_dashboard', 'tab_dashboard_log');
                         $this->ctrl->forwardCommand(new ProtocolGUI($this->object));
                     }
                     break;
@@ -598,16 +605,30 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
 
         // Writer Admin Tab
         $tabs = [];
+        if ($this->permissions->canViewDashboard()) {
+            $tabs[] = [
+                'id' => 'tab_dashboard',
+                'txt' => $this->plugin->txt('tab_dashboard'),
+                'url' => $this->ctrl->getLinkTargetByClass(strtolower(DashboardGUI::class))
+            ];
+            $tabs[] = [
+                'id' => 'tab_dashboard_log',
+                'txt' => $this->plugin->txt('tab_writer_admin_log'),
+                'url' => $this->ctrl->getLinkTargetByClass(strtolower(ProtocolGUI::class))
+            ];
+        }
+        if (!empty($tabs)) {
+            $this->tabs->addTab('tab_dashboard', $this->plugin->txt('tab_dashboard'), $tabs[0]['url']);
+            $this->subtabs['tab_dashboard'] = $tabs;
+        }
+
+        // Writer Admin Tab
+        $tabs = [];
         if ($this->permissions->canMaintainWriters()) {
             $tabs[] = [
                 'id' => 'tab_writer_admin',
                 'txt' => $this->plugin->txt('tab_writer_admin'),
                 'url' => $this->ctrl->getLinkTargetByClass(strtolower(WriterAdminGUI::class))
-            ];
-            $tabs[] = [
-                'id' => 'tab_writer_admin_log',
-                'txt' => $this->plugin->txt('tab_writer_admin_log'),
-                'url' => $this->ctrl->getLinkTargetByClass(strtolower(ProtocolGUI::class))
             ];
         }
         if (!empty($tabs)) {

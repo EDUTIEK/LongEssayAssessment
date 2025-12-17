@@ -4,13 +4,21 @@ declare(strict_types=1);
 
 namespace ILIAS\Plugin\LongEssayAssessment\System\Data;
 
-readonly class UserDisplay extends \Edutiek\AssessmentService\System\Data\UserDisplay
+class UserDisplay extends \Edutiek\AssessmentService\System\Data\UserDisplay
 {
+    private ?string $image_url = null;
+    private ?string $profile_url = null;
+
     public function __construct(
         private int $id,
-        private ?string $image_url = null,
-        private ?string $profile_url = null
     ) {
+    }
+
+    public function setValues(?string $image_url = null, ?string $profile_url = null):  self
+    {
+        $this->image_url = $image_url;
+        $this->profile_url = $profile_url;
+        return $this;
     }
 
     public function getId(): int

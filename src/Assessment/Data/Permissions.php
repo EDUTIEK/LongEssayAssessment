@@ -17,6 +17,7 @@ readonly class Permissions extends \Edutiek\AssessmentService\Assessment\Data\Pe
         private bool $maintain_writing,
         private bool $maintain_correction,
         private bool $edit_templates,
+        private bool $proctor_writer
     ) {
     }
 
@@ -69,4 +70,10 @@ readonly class Permissions extends \Edutiek\AssessmentService\Assessment\Data\Pe
     {
         return $this->edit_templates;
     }
+
+    public function getProctorWriting(): bool
+    {
+        return $this->proctor_writer;
+    }
+
 }

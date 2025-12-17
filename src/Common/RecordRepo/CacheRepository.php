@@ -125,9 +125,9 @@ class CacheRepository implements RepositoryInterface
         return $this->cache(__FUNCTION__, func_get_args(), [$query]);
     }
 
-    public function fromRow(array $row): object
+    public function fromRow(array $row, ?object $instance = null): object
     {
-        return $this->r->fromRow($row);
+        return $this->r->fromRow($row, $instance);
     }
 
     public function toRowWithTypes(object $model): array
@@ -211,4 +211,15 @@ class CacheRepository implements RepositoryInterface
     {
         return md5(json_encode($keys));
     }
+
+    public function dehydratedInstance(mixed $key_value): ?object
+    {
+        return $this->r->dehydratedInstance($key_value);
+    }
+
+    public function hydrate(): void
+    {
+        $this->r->hydrate();
+    }
+
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace ILIAS\Plugin\LongEssayAssessment\WriterAdmin;
+namespace ILIAS\Plugin\LongEssayAssessment\Dashboard;
 
 use Edutiek\AssessmentService\Assessment\Data\OrgaSettings;
 use Edutiek\AssessmentService\Assessment\Data\Writer;
@@ -26,39 +26,24 @@ use ILIAS\Plugin\LongEssayAssessment\GUI\Writer\WriterTableGUI;
 use ILIAS\Plugin\LongEssayAssessment\GUI\Writer\WriterItem;
 
 /**
- * Writer Admin GUI class
+ * Dashboard GUI class
  *
- * @ilCtrl_isCalledBy ILIAS\Plugin\LongEssayAssessment\WriterAdmin\WriterAdminGUI: ilObjLongEssayAssessmentGUI
- * @ilCtrl_Calls ILIAS\Plugin\LongEssayAssessment\WriterAdmin\WriterAdminGUI: ilRepositorySearchGUI
- * @ilCtrl_Calls ILIAS\Plugin\LongEssayAssessment\WriterAdmin\WriterAdminGUI: ILIAS\Plugin\LongEssayAssessment\WriterAdmin\ImportEssayGUI
+ * @ilCtrl_isCalledBy ILIAS\Plugin\LongEssayAssessment\Dashboard\DashboardGUI: ilObjLongEssayAssessmentGUI
+ * @ilCtrl_Calls ILIAS\Plugin\LongEssayAssessment\Dashboard\DashboardGUI: ILIAS\Plugin\LongEssayAssessment\WriterAdmin\ImportEssayGUI
  */
-class WriterAdminGUI extends WriterTableGUI
+class DashboardGUI extends WriterTableGUI
 {
-
-
     public function executeCommand()
     {
         $next_class = $this->ctrl->getNextClass();
 
         switch ($next_class) {
-            case 'ilrepositorysearchgui':
-                $rep_search = new \ilRepositorySearchGUI();
-                $rep_search->addUserAccessFilterCallable([$this, 'filterUserIdsByParticipants']);
-                $rep_search->setCallback($this, "assignWriters");
-                $this->ctrl->setReturn($this, 'showItems');
-                $ret = $this->ctrl->forwardCommand($rep_search);
-                break;
-            case strtolower(ImportEssayGUI::class):
-                $this->ctrl->forwardCommand(new ImportEssayGUI($this->object));
-                break;
             default:
                 $cmd = $this->ctrl->getCmd('showItems');
                 switch ($cmd) {
                     case 'showItems':
                     case 'deleteWorkingTime':
-                    case 'removeWriter':
-                    case 'repealExcludeParticipants':
-                    case 'excludeParticipants':
+                    case 'liveData':
                         $this->$cmd();
                         break;
 
@@ -71,81 +56,31 @@ class WriterAdminGUI extends WriterTableGUI
 
     public function showItems(): void
     {
-        $this->toolbar->setFormAction($this->ctrl->getFormAction($this));
-
-        \ilRepositorySearchGUI::fillAutoCompleteToolbar(
-            $this,
-            $this->toolbar,
-            array()
-        );
-
-        // search button
-        $search_button = $this->ui_factory->button()->standard(
-            $this->plugin->txt("search_participants"),
-            $this->ctrl->getLinkTargetByClass('ilRepositorySearchGUI', 'start')
-        );
-        $this->toolbar->addComponent($search_button);
-
-        // spacer
-        $this->toolbar->addSeparator();
-
-        #$delete_writer_data_modal = $this->buildDeleteWriterDataModal();
-        $delete_writer_data_button = $this->ui_factory->button()->standard($this->plugin->txt("delete_writer_data"), "#");
-        #                                             ->withOnClick($delete_writer_data_modal->getShowSignal());
-        $this->toolbar->addComponent($delete_writer_data_button);
-
-        $upload_button = $this->ui_factory->button()->standard(
-            $this->plugin->txt('import_essays'),
-            $this->ctrl->getLinkTargetByClass(ImportEssayGUI::class, 'showForm')
-        );
-        $this->toolbar->addComponent($upload_button);
+        $lsp_f = $this->plugin_ui_factory->liveStatusPanel();
+        $live_panel = $lsp_f->panel("Status", $this->ctrl->getLinkTarget($this, "liveData"))
+        ->withAdditionalProperties([
+            $lsp_f->property('online', 'Online', 0, '#online'),
+            $lsp_f->property('offline', 'Offline', 0, '#offline'),
+            $lsp_f->property('connection', 'Verbindungsprobleme', 0, '#connection'),
+            $lsp_f->property('battery', 'niedriger Batteriestatus', 0, '#battery'),
+            $lsp_f->property('locked', 'gesperrte Bildschirme', 0, '#locked'),
+        ]);
 
         $table = $this->plugin_ui_factory->table()->dataTable('writer_admin_table', $this);
         $table->executeAction();
-        $this->tpl->setContent($this->renderer->render($table));
+        $this->tpl->setContent($this->renderer->render([$live_panel, $table]));
     }
 
-    public function assignWriters(array $a_usr_ids, $a_type = null)
-    {
-        if (count($a_usr_ids) <= 0) {
-            $this->tpl->setOnScreenMessage("failure", $this->plugin->txt('no_writer_set'), true);
-            $this->ctrl->redirect($this, "showStartPage");
-        }
-
-        foreach ($a_usr_ids as $id) {
-            $this->writer_service->getByUserId($id);
-        }
-
-        if (count($a_usr_ids) == 1) {
-            $anchor = "user_" . $a_usr_ids[0];
-        }
-        $this->tpl->setOnScreenMessage("success", $this->plugin->txt('assign_writer_success'), true);
-        $this->ctrl->redirect($this, "showItems", $anchor ?? "");
-    }
-
-    public function filterUserIdsByParticipants($a_user_ids)
-    {
-        $writers = array_map(fn ($row) => $row->getUserId(), $this->writer_service->all());
-        return array_filter($a_user_ids, fn ($user_id) => !in_array((int) $user_id, $writers));
-    }
 
     public function getTableActions(): array
     {
         return [
             $this->viewProccessingAction(),
-            $this->exportStepsAction(),
             $this->addLogEntryAction(),
-            $this->mailToWriterAction(),
-            $this->authorizeWritingAction(),
             $this->unauthorizeWritingAction(),
             $this->workingTimeChangeAction(),
             $this->workingTimeDeleteAction(),
             $this->changeLocationAction(),
-            $this->pdfVersionDownloadAction(),
-            $this->editPdfVersionAction(),
-            $this->excludeParticipantAction(),
-            $this->repealExcludeParticipantAction(),
-            $this->removeWriterAction(),
         ];
     }
 
@@ -194,5 +129,17 @@ class WriterAdminGUI extends WriterTableGUI
                 $has_started ? "working_start": null, $has_started ? "working_end": null,
                 $has_started ? "working_duration": null, $duration_avaiable ? "assessment_duration": null,
                 "time_limit_changed", $has_started ? "authorized" : null, $has_started ? "excluded" : null];
+    }
+
+    protected function liveData(): void
+    {
+        echo(json_encode([
+            'online' => rand(50, 100),
+            'offline' => rand(1, 10),
+            'connection' => rand(1, 15),
+            'battery' => rand(1, 25),
+            'locked' => rand(1, 5),
+        ]));
+        exit();
     }
 }

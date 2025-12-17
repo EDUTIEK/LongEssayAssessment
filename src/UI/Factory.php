@@ -13,6 +13,7 @@ use ILIAS\Plugin\LongEssayAssessment\UI\Statistic\StatisticFactory;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\Factory as TableFactory;
 use ILIAS\Plugin\LongEssayAssessment\UI\Protocol\Factory as ProtocolFactory;
 use ILIAS\Plugin\LongEssayAssessment\UI\Tree\TreeFactory;
+use ILIAS\Plugin\LongEssayAssessment\UI\LiveStatusPanel\Factory as LiveStatusPanelFactory;
 
 /**
  * Class Factory
@@ -29,7 +30,8 @@ class Factory
         private ViewerFactory $viewer_factory,
         private TableFactory $table_factory,
         private TreeFactory $tree_factory,
-        private ProtocolFactory $protocol_factory
+        private ProtocolFactory $protocol_factory,
+        private LiveStatusPanelFactory $live_status_panel_factory,
     ) {
 
     }
@@ -72,5 +74,10 @@ class Factory
     public function protocol(): ProtocolFactory
     {
         return $this->protocol_factory;
+    }
+
+    public function liveStatusPanel(): LiveStatusPanelFactory
+    {
+        return $this->live_status_panel_factory;
     }
 }

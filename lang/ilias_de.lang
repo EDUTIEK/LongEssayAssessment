@@ -22,6 +22,7 @@ xlas_edit_permission#:#Zugriffsrecht bearbeiten
 xlas_maintain_task#:#Aufgabenstellung verwalten
 xlas_maintain_writers#:#Durchführung verwalten
 xlas_maintain_correctors#:#Korrektur verwalten
+proctor_writer#:#Durchführung beaufsichtigen
 crs_create_xlas#:#Erstelle Langtext-Aufgabe
 grp_create_xlas#:#Erstelle Langtext-Aufgabe
 fold_create_xlas#:#Erstelle Langtext-Aufgabe
@@ -68,6 +69,8 @@ tab_writer_admin#:#Teilnahmeverwaltung
 tab_writer_admin_log#:#Aufsichtsprotokoll
 tab_corrector_admin#:#Korrekturverwaltung
 tab_corrector_export#:#Abgaben exportieren
+tab_dashboard#:#Aufsicht
+tab_correction_status#:#Korrekturstatus
 object_settings#:#Objekt-Einstellungen
 participation_type#:#Teilnahme
 participation_type_fixed#:#Vorgegeben
@@ -733,7 +736,8 @@ status_writing_autorized_from#:#freigegeben von
 src_template#:#Verwendete Vorlage
 is_template#:#Als Vorlage verwenden
 use_template#:#Vorlage verwenden
-task#:#Aufgabe
+assessment#:#Aufgabe
+task#:#Teilaufgabe
 by_csv_id#:#Prüflings-ID
 by_csv_alloc_time#:#Allozierte Zeit
 by_csv_used_time#:#Eingereichte Zeit
@@ -859,4 +863,3 @@ instant_status_off_info#:#Der Status der Korrektur einer Abgabe wird erst ab der
 weight#:#Gewichtung
 max_points_info#:#Maximale Punktzahl die vergeben werden kann.
 max_points_info_multi#:#Maximale Punktzahl die für eine Teilaufgabe vergeben werden kann. Die Gesamtpunktzahl ist der Durchschnitt der gewichteten Punktzahlen aller Teilaufgaben.
-

@@ -11,7 +11,7 @@ Bug fixes:
 - Missing paragraph numbers > 99 in PDF (#45999)
 - Use smaller font for PDF from editor text (#45781)
 - Export only corrections for authorized essays and add results overview (#46350)
-
+- Missing hint why an assigned corrector cannot be deleted (#45997)
 
 ## Version 3.7 (2025-08-15)
 

@@ -27,6 +27,8 @@ abstract class Table implements TableParent, FilterParent
     private string $title  = "";
     private ?Filter\Standard $filter = null;
     private ?Component\Component $table = null;
+    private \ilLongEssayAssessmentPlugin $plugin;
+
     /**
      * @var Component\Modal\Modal
      */
@@ -55,6 +57,8 @@ abstract class Table implements TableParent, FilterParent
         protected ServerRequestInterface $request,
         protected \ilLanguage $lng
     ) {
+        $this->plugin = \ilLongEssayAssessmentPlugin::getInstance();
+
         $this->initActions($parent);
         if($this->parent instanceof FilterParent) {
             $this->initFilter($parent);
@@ -346,11 +350,28 @@ abstract class Table implements TableParent, FilterParent
         $items = $this->getTableItems($ids);
 
         $confirmation_items = [];
+        $disabled = [];
 
         foreach ($items as $item) {
             if($action->enabled($item)) {
                 $confirmation_items[] = $this->ui_factory->modal()->interruptiveItem()->standard($item->getId(), $action->itemName($item));
+            } else {
+                $disabled[] = $action->itemName($item);
             }
+        }
+
+        if ($action->requireAllEnabled() && !empty($disabled)) {
+            echo($this->renderer->renderAsync([
+                $this->ui_factory->modal()->roundtrip(
+                    $action->label(),
+                    [
+                        $this->ui_factory->messageBox()->failure(
+                            $action->disabledMessage() ?? $this->plugin->txt("message_action_with_disabled_items")),
+                        $this->ui_factory->listing()->unordered($disabled),
+                    ]
+                )
+            ]));
+            exit();
         }
 
         if(empty($confirmation_items)) {

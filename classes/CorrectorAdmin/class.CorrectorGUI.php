@@ -243,7 +243,9 @@ class CorrectorGUI extends BaseGUI implements DataTableParent
             $this->ctrl->getFormAction($this, "remove"),
             fn (CorrectorItem $item) => $item->getName() . "[" . $item->getLogin() . "]",
             fn (CorrectorItem $item) => ($item->getFirst() + $item->getSecond()) === 0,
-            Action\Type::Standard
+            Action\Type::Standard,
+            true,
+            $this->plugin->txt("message_remove_corrector_with_assignments"),
         );
     }
 

@@ -703,3 +703,5 @@ forwarding_url#:#URL Zielseite
 forwarding_url_info#:#Geben Sie die vollständige URL ein, einschließlich "https://", wenn Sie die Adresse einer externen Webseite eingeben möchten. Für Weiterleitungen zu einem Objekt in ILIAS verwenden Sie bitte den Permalink, den Sie in der Fußzeile des betreffenden Objekts finden.
 corrections_export#:#Korrekturen-Export
 corrections_export_started#:#Der Korrekturen-Export wurde gestartet. Sie werden über das Glocken-Symbol in der Kopfzeile informiert, wenn der Export verfügbar ist. Dort können sie ihn herunterladen.
+message_action_with_disabled_items#:#Die Aktion kann nicht für alle ausgewählten Einträge ausgeführt werden. Bitte wählen Sie diese ab.
+message_remove_corrector_with_assignments#:#Sie haben Korrektoren mit zugewiesenen Abgaben ausgewählt. Bitte entfernen Sie die Zuweisungen, um die Korrektoren entfernen zu können.

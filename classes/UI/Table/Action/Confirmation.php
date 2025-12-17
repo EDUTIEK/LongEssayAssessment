@@ -12,7 +12,9 @@ abstract class Confirmation extends Action
         protected string $action_label,
         protected string $message,
         protected string $form_action,
-        Type $action_type = Type::Standard
+        Type $action_type = Type::Standard,
+        protected bool $require_all_enabled = false,
+        protected ?string $disabled_message = null,
     ) {
         parent::__construct($action_name, $button_label, $action_type);
     }
@@ -32,5 +34,15 @@ abstract class Confirmation extends Action
     public function actionLabel(): string
     {
         return $this->action_label;
+    }
+
+    public function requireAllEnabled(): bool
+    {
+        return $this->require_all_enabled;
+    }
+
+    public function disabledMessage(): ?string
+    {
+        return $this->disabled_message;
     }
 }

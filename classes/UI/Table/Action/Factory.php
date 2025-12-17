@@ -15,9 +15,12 @@ class Factory
         string $form_action,
         $item_name_callback,
         $enabled_callback = null,
-        Type $action_type = Type::Standard
+        Type $action_type = Type::Standard,
+        bool $require_all_enabled = false,
+        ?string $disabled_message = null,
     ) : Confirmation {
-        return new class($action_name, $button_label, $action_label, $message, $form_action, $item_name_callback, $enabled_callback, $action_type) extends Confirmation {
+        return new class($action_name, $button_label, $action_label, $message, $form_action, $item_name_callback, $enabled_callback, $action_type,
+        $require_all_enabled, $disabled_message) extends Confirmation {
             public function __construct(
                 string $action_name,
                 string $button_label,
@@ -26,9 +29,12 @@ class Factory
                 string $form_action,
                 private $item_name_callback,
                 private $enabled_callback,
-                Type $action_type
+                Type $action_type,
+                bool $require_all_enabled,
+                ?string $disabled_message
             ) {
-                parent::__construct($action_name, $button_label, $action_label, $message, $form_action, $action_type);
+                parent::__construct($action_name, $button_label, $action_label, $message, $form_action, $action_type,
+                $require_all_enabled, $disabled_message);
             }
 
             public function itemName(Item $item) : string

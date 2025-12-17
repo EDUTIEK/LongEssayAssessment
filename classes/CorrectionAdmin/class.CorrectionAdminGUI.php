@@ -13,7 +13,6 @@ use Edutiek\AssessmentService\Task\Data\ResourceType;
 use Edutiek\AssessmentService\Task\Data\Settings;
 use Edutiek\AssessmentService\Task\Settings\FullService as SettingsService;
 use Edutiek\AssessmentService\Assessment\Data\OrgaSettings;
-use Edutiek\AssessmentService\Task\AssessmentStatus\CombinedStatus;
 use Edutiek\AssessmentService\Assessment\TaskInterfaces\GradingStatus;
 use Edutiek\AssessmentService\Assessment\Data\Writer;
 use Edutiek\AssessmentService\Assessment\OrgaSettings\FullService as OrgaService;
@@ -34,6 +33,7 @@ use ILIAS\Refinery\Transformation;
 use Edutiek\AssessmentService\Task\CorrectionProcess\FullService as CorrectionProcess;
 use ILIAS\Plugin\LongEssayAssessment\GUI\Correction\CorrectionTableParent;
 use ILIAS\Plugin\LongEssayAssessment\GUI\Correction\CorrectionItem;
+use Edutiek\AssessmentService\Assessment\Data\CombinedStatus;
 
 /**
  * Correction Admin GUI class
@@ -233,7 +233,7 @@ class CorrectionAdminGUI extends BaseGUI
                                                            ->withValue(CorrectorAssignmentsService::UNCHANGED_CORRECTOR_ASSIGNMENT)
                                                            ->withAdditionalTransformation($this->refinery->kindlyTo()->int());
 
-            if (count($items) == 1 && $items[0]->getCombinedStatus() === CombinedStatus::STITCH_NEEDED) {
+            if (count($items) == 1 && $items[0]->getWriter()->getCombinedStatus() === CombinedStatus::STITCH_NEEDED) {
                 $fields["stitch_corrector"] = $this->ui_factory->input()->field()->select(
                     $this->plugin->txt("grading_pos_stitch"),
                     $corrector_list
@@ -263,7 +263,7 @@ class CorrectionAdminGUI extends BaseGUI
                         CorrectorAssignmentsService::UNCHANGED_CORRECTOR_ASSIGNMENT
                 );
 
-                if ($item->getCombinedStatus() === CombinedStatus::STITCH_NEEDED) {
+                if ($item->getWriter()->getCombinedStatus() === CombinedStatus::STITCH_NEEDED) {
                     $fields["stitch_corrector"] = $fields["stitch_corrector"]->withValue(
                         isset($assignments[2]) ?
                             $assignments[2]->getCorrectorId() :

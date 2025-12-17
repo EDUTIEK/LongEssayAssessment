@@ -15,7 +15,7 @@ use ILIAS\Plugin\LongEssayAssessment\UI\Table\Item;
 use Generator;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\ColumnMappingClosure;
 use Edutiek\AssessmentService\Assessment\Data\WritingStatus;
-use Edutiek\AssessmentService\Task\AssessmentStatus\CombinedStatus;
+use Edutiek\AssessmentService\Assessment\Data\CombinedStatus;
 use Edutiek\AssessmentService\Task\Data\CorrectorSummary;
 use Edutiek\AssessmentService\System\Data\UserData;
 use ILIAS\Plugin\LongEssayAssessment\Task\Data\CorrectorAssignment;
@@ -291,7 +291,6 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
     {
         $writer = $this->writer_service->oneByWriterId($assignment->getWriterId());
         $title = $settings = $this->task_api->settings($assignment->getId())->get()->getTitle();
-        $correction_status = $this->assessment_status_service->oneWriterCombinedStatus($writer);
         $co_assignment = $co_user_data = $co_summary = $own_summary = null;
 
         if ($this->settings->getRequiredCorrectors() > 1) {
@@ -324,7 +323,7 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
         return new CorrectorStartItem(
             $assignment->getId(),
             $writer,
-            $correction_status,
+            $writer->getCombinedStatus(),
             $assignment,
             $own_summary,
             $title,

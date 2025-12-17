@@ -88,7 +88,7 @@ class CorrectionItemColumnMap extends ColumnMappingArray
             "points" => $item->getWriter()->getFinalPoints(),
             "grade" => $this->grading->getGradLevelForPoints($item->getWriter()->getFinalPoints())?->getGrade() ?? "",
             "finalized" => $item->getWriter()->getCorrectionFinalized()?->setTimezone($this->timezone),
-            "finalized_from" => $item->getFinalizedByName() ?? $this->unknown(),
+            "finalized_from" => $item->getFinalizedByName() ?? "",
             "pdf_version" => $item->getEssay()?->hasPDFVersion() ?? false,
 
             "corr_0" => $item->getCorrectorDataByPosition(0) !== null

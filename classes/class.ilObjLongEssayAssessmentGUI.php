@@ -24,6 +24,7 @@ use ILIAS\Plugin\LongEssayAssessment\Corrector\CorrectorStartGUI;
 use ILIAS\Plugin\LongEssayAssessment\DisabledGroupGUI;
 use ILIAS\Plugin\LongEssayAssessment\Settings\DocumentationSettingsGUI;
 use ILIAS\Plugin\LongEssayAssessment\Dashboard\DashboardGUI;
+use ILIAS\UI\Component\Input\Field\Radio;
 
 /**
  * Plugin GUI Class
@@ -317,21 +318,31 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
         $inputs = $form->getInputs();
         $txt = $this->plugin->txt(...);
 
-        $inputs['template'] = $this->ui_factory->input()->field()->switchableGroup([
-            'tasks' => $this->ui_factory->input()->field()->group([
-                'amount' => $this->ui_factory->input()->field()->radio($txt('task_type'))
-                    ->withOption('single', $txt('single_task'), $txt('single_task_info'))
-                    ->withOption('multiple', $txt('multi_tasks'), $txt('multi_tasks_info'))
-                    ,
-            ], $txt('use_standard'))->withRequired(true),
-            'ref' => $this->ui_factory->input()->field()->group([
+        $templates = $this->templates();
+        $switches = [];
+
+        if (count($templates)) {
+            $switches['ref'] = $this->ui_factory->input()->field()->group([
                 'id' => array_reduce(
                     $this->templates(),
-                    fn($r, array $o) => $r->withOption(...$o),
+                    fn(Radio $r, array $o) => $r->withOption(...$o),
                     $this->ui_factory->input()->field()->radio($txt('template'))
                 ),
-            ], $txt('use_template'))->withRequired(true),
-        ], $txt('predefined_settings'))->withRequired(true)->withValue(['tasks', ['amount' => 'single']]);
+            ], $txt('use_template'));
+            $default_value = ['ref', ['id' => $templates[0][0]]];
+        } else {
+            $default_value = ['tasks', ['amount' => 'single']];
+        }
+
+        $switches['tasks'] = $this->ui_factory->input()->field()->group([
+            'amount' => $this->ui_factory->input()->field()->radio($txt('task_type'))
+                ->withOption('single', $txt('single_task'), $txt('single_task_info'))
+                ->withOption('multiple', $txt('multi_tasks'), $txt('multi_tasks_info'))
+            ,
+        ], $txt('use_standard'))->withValue(['amount' => 'single']);
+
+        $inputs['template'] = $this->ui_factory->input()->field()->switchableGroup($switches, $txt('predefined_settings'))
+            ->withValue($default_value);
 
         return $this->ui_factory->input()->container()->form()->standard(
             $this->ctrl->getFormAction($this, 'save'),

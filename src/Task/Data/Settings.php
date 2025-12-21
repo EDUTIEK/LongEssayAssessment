@@ -77,7 +77,7 @@ class Settings extends \Edutiek\AssessmentService\Task\Data\Settings
     }
     public function getTaskType(): TaskType
     {
-        return TaskType::from($this->task_type);
+        return TaskType::tryFrom($this->task_type) ?? TaskType::ESSAY;
     }
     public function setTaskType(TaskType $type): self
     {

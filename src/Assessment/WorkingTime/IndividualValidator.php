@@ -3,9 +3,9 @@
 namespace ILIAS\Plugin\LongEssayAssessment\Assessment\WorkingTime;
 
 use Edutiek\AssessmentService\Assessment\WorkingTime\IndividualWorkingTime;
-use Edutiek\AssessmentService\Assessment\WorkingTime\ValidationErrorStore;
+use Edutiek\AssessmentService\Assessment\Data\ValidationErrorStore;
 use DateTimeImmutable;
-use Edutiek\AssessmentService\Assessment\WorkingTime\ValidationError;
+use Edutiek\AssessmentService\Assessment\Data\ValidationError;
 
 class IndividualValidator implements IndividualWorkingTime
 {

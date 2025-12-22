@@ -61,7 +61,7 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin implements \i
     /**
      * Get the dependency injection container of the plugin
      */
-    public function dic()
+    public function dic(): PluginDic
     {
         return PluginDic::getInstance($this->ilias_dic, $this);
     }

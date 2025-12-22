@@ -681,6 +681,8 @@ message_form_not_saved#:#Ihre Eingaben sind noch nicht gespeichert.
 failure_form_validation:#Die Formulareingaben sind fehlerhaft
 failure_latest_end_before_earliest_start#:#Das späteste Bearbeitungs-Ende liegt vor dem frühesten Bearbeitungs-Start.
 failure_time_limit_too_long#:#Die begrenzte Bearbeitungsdauer überschreitet das verfügbare Zeitfenster.
+failure_correction_end_before_correction_start#:#Das Korrektur-Ende liegt vor dem Korrektur-Start.
+failure_review_end_before_review_start#:#Das Einsichtnahme-Ende liegt vor dem Einsichtnahme-Start.
 delete_individual_working_time#:#Anpassung entfernen
 one_working_time_deleted#:#Die Anpassung der Bearbeitungszeit wurde entfernt.
 x_working_times_deleted#:#%s Anpassungen der Bearbeitungszeit wurden entfernt.

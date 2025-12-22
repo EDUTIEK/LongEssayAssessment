@@ -19,7 +19,7 @@ use Edutiek\AssessmentService\System\Transform\FullService as TransformService;
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\BaseObjectData;
 use ILIAS\UI\Component\Input\Container\Form\Standard;
-use Edutiek\AssessmentService\Assessment\WorkingTime\ValidationError;
+use Edutiek\AssessmentService\Assessment\Data\ValidationError;
 use Edutiek\AssessmentService\Assessment\Data\DisabledGroup;
 use ILIAS\Data\URI;
 

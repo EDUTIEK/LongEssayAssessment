@@ -3,8 +3,8 @@
 namespace ILIAS\Plugin\LongEssayAssessment\Assessment\WorkingTime;
 
 
-use Edutiek\AssessmentService\Assessment\WorkingTime\ValidationErrorStore as ValidationErrorStoreInterface;
-use Edutiek\AssessmentService\Assessment\WorkingTime\ValidationError;
+use Edutiek\AssessmentService\Assessment\Data\ValidationErrorStore as ValidationErrorStoreInterface;
+use Edutiek\AssessmentService\Assessment\Data\ValidationError;
 
 class ValidationErrorStore implements ValidationErrorStoreInterface
 {

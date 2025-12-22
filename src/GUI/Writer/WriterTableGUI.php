@@ -678,7 +678,11 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
     {
         $writer_view = $this->plugin->dic()->view()->writer();
 
-        $filter = array_merge(['ass_id' => $this->object->getAssId()], $filter_data);
+        $filter = ['ass_id' => $this->object->getAssId()];
+
+        if (!empty($filter_data)) {
+            $filter = array_merge($filter, $filter_data);
+        }
         if (!empty($ids)) {
             $filter['id'] = $ids;
         }

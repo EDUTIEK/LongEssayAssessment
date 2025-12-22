@@ -186,12 +186,13 @@ class CollectionGUI
         if ($this->atleastOnePermission('MaintainCorrectors')) {
             $this->tabs->addSubTab('correctionStatus', $this->plugin->txt('tab_correction_status'), $this->ctrl->getLinkTarget($this, 'correctionStatus'));
         }
-        if ($this->atleastOnePermission('MaintainWriters')) {
-            $this->tabs->addSubTab('writer_statistic', $this->plugin->txt('tab_writer_statistic'), $this->ctrl->getLinkTarget($this, 'writerStatistic'));
-        }
-        if ($this->atleastOnePermission('MaintainCorrectors')) {
-            $this->tabs->addSubTab('corrector_statistic', $this->plugin->txt('tab_corrector_admin_statistic'), $this->ctrl->getLinkTarget($this, 'correctorStatistic'));
-        }
+// todo: show when implemented
+//        if ($this->atleastOnePermission('MaintainWriters')) {
+//            $this->tabs->addSubTab('writer_statistic', $this->plugin->txt('tab_writer_statistic'), $this->ctrl->getLinkTarget($this, 'writerStatistic'));
+//        }
+//        if ($this->atleastOnePermission('MaintainCorrectors')) {
+//            $this->tabs->addSubTab('corrector_statistic', $this->plugin->txt('tab_corrector_admin_statistic'), $this->ctrl->getLinkTarget($this, 'correctorStatistic'));
+//        }
         $this->tabs->activateSubTab($activate_tab);
     }
 

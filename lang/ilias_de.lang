@@ -865,3 +865,7 @@ instant_status_off_info#:#Der Status der Korrektur einer Abgabe wird erst ab der
 weight#:#Gewichtung
 max_points_info#:#Maximale Punktzahl die vergeben werden kann.
 max_points_info_multi#:#Maximale Punktzahl die für eine Teilaufgabe vergeben werden kann. Die Gesamtpunktzahl ist der Durchschnitt der gewichteten Punktzahlen aller Teilaufgaben.
+working_start#:#Bearbeitungs-Strart
+working_end#:#Bearbeitungs-Ende
+assessment_start#:#Beginn Bearbeitungs-Teitraum
+assesment_end#:#Ende Bearbeitungszeitraum

@@ -89,10 +89,11 @@ class WriterAdminGUI extends WriterTableGUI
         // spacer
         $this->toolbar->addSeparator();
 
-        #$delete_writer_data_modal = $this->buildDeleteWriterDataModal();
-        $delete_writer_data_button = $this->ui_factory->button()->standard($this->plugin->txt("delete_writer_data"), "#");
-        #                                             ->withOnClick($delete_writer_data_modal->getShowSignal());
-        $this->toolbar->addComponent($delete_writer_data_button);
+// todo: activate when implemented
+//        #$delete_writer_data_modal = $this->buildDeleteWriterDataModal();
+//        $delete_writer_data_button = $this->ui_factory->button()->standard($this->plugin->txt("delete_writer_data"), "#");
+//        #                                             ->withOnClick($delete_writer_data_modal->getShowSignal());
+//        $this->toolbar->addComponent($delete_writer_data_button);
 
         $upload_button = $this->ui_factory->button()->standard(
             $this->plugin->txt('import_essays'),
@@ -132,19 +133,20 @@ class WriterAdminGUI extends WriterTableGUI
     public function getTableActions(): array
     {
         return [
-            $this->viewProccessingAction(),
-            $this->exportStepsAction(),
-            $this->addLogEntryAction(),
-            $this->mailToWriterAction(),
-            $this->authorizeWritingAction(),
-            $this->unauthorizeWritingAction(),
-            $this->workingTimeChangeAction(),
-            $this->workingTimeDeleteAction(),
-            $this->changeLocationAction(),
-            $this->pdfVersionDownloadAction(),
-            $this->editPdfVersionAction(),
-            $this->excludeParticipantAction(),
-            $this->repealExcludeParticipantAction(),
+// todo: activate when implemented
+//            $this->viewProccessingAction(),
+//            $this->exportStepsAction(),
+//            $this->addLogEntryAction(),
+//            $this->mailToWriterAction(),
+//            $this->authorizeWritingAction(),
+//            $this->unauthorizeWritingAction(),
+//            $this->workingTimeChangeAction(),
+//            $this->workingTimeDeleteAction(),
+//            $this->changeLocationAction(),
+//            $this->pdfVersionDownloadAction(),
+//            $this->editPdfVersionAction(),
+//            $this->excludeParticipantAction(),
+//            $this->repealExcludeParticipantAction(),
             $this->removeWriterAction(),
         ];
     }

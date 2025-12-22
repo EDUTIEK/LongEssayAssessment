@@ -1,8 +1,6 @@
 <?php
 
-namespace ILIAS\Plugin\LongEssayAssessment\Assessment\WorkingTime;
-
-
+namespace ILIAS\Plugin\LongEssayAssessment\Assessment\Data;
 use Edutiek\AssessmentService\Assessment\Data\ValidationErrorStore as ValidationErrorStoreInterface;
 use Edutiek\AssessmentService\Assessment\Data\ValidationError;
 

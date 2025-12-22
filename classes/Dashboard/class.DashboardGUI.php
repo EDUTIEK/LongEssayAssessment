@@ -75,12 +75,13 @@ class DashboardGUI extends WriterTableGUI
     public function getTableActions(): array
     {
         return [
-            $this->viewProccessingAction(),
-            $this->addLogEntryAction(),
-            $this->unauthorizeWritingAction(),
-            $this->workingTimeChangeAction(),
-            $this->workingTimeDeleteAction(),
-            $this->changeLocationAction(),
+// todo: activate when implemented
+//            $this->viewProccessingAction(),
+//            $this->addLogEntryAction(),
+//            $this->unauthorizeWritingAction(),
+//            $this->workingTimeChangeAction(),
+//            $this->workingTimeDeleteAction(),
+//            $this->changeLocationAction(),
         ];
     }
 

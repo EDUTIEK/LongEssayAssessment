@@ -190,7 +190,11 @@ class CorrectionTableParent implements DataTableParent, FilterParent
 
     public function getTableItems(?array $ids = null, ?array $filter_data = null): \Generator
     {
-        $filter = array_merge(['ass_id' => $this->ass_ids], $filter_data);
+        $filter = ['ass_id' => $this->ass_ids];
+
+        if (!empty($filter_data)) {
+            $filter = array_merge($filter, $filter_data);
+        }
         if (!empty($ids)) {
             $filter['id'] = $ids;
         }

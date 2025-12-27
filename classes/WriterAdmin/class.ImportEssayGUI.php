@@ -20,54 +20,40 @@ declare(strict_types=1);
 
 namespace ILIAS\Plugin\LongEssayAssessment\WriterAdmin;
 
+use Edutiek\AssessmentService\EssayTask\EssayImport\FullService as ImportService;
+use Edutiek\AssessmentService\EssayTask\EssayImport\Row;
+use Generator;
+use ILIAS\Data\Order;
+use ILIAS\Data\Range;
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\BaseObjectData;
+use ILIAS\UI\Component\Input\Container\Form\Standard as StandardForm;
+use ILIAS\UI\Component\Table\Data as Table;
 use ILIAS\UI\Component\Table\DataRetrieval;
 use ILIAS\UI\Component\Table\DataRowBuilder;
-use ILIAS\Data\Range;
-use ILIAS\Data\Order;
-use Generator;
-use ZipArchive;
-use ILIAS\Plugin\LongEssayAssessment\System\Data\FileInfo;
-use ILIAS\Filesystem\Stream\Streams;
-use ilSession;
-use ILIAS\UI\Component\Table\Data as Table;
-use ilTemporaryStakeholder;
-use ILIAS\Plugin\LongEssayAssessment\System\File\StorageAdapter;
-use Edutiek\AssessmentService\System\File\Storage;
-use Edutiek\AssessmentService\EssayTask\EssayImport\FullService as ImportService;
-use ILIAS\Plugin\LongEssayAssessment\EssayTask\EssayImport\Import as ImportAdapter;
 use ilLongEssayAssessmentUploadHandlerGUI;
 
-class ImportEssayGUI extends BaseGUI
+class ImportEssayGUI extends BaseGUI implements DataRetrieval
 {
-    public const SESSION_KEY = self::class;
-
-    private readonly Storage $perm_storage;
-    private readonly Storage $temp_storage;
     private readonly ilLongEssayAssessmentUploadHandlerGUI $upload_handler;
     private readonly ImportService $import;
-    private readonly ImportAdapter $import_adapter;
+
+    /** @var Row[] */
+    private array $rows = [];
 
     public function __construct(BaseObjectData $object)
     {
-        // @Todo: Add access right here.
+        // todo: add access check
         parent::__construct($object);
 
-        $this->perm_storage = $this->system_api->fileStorage();
-        $this->temp_storage = new StorageAdapter(
-            $this->dic->resourceStorage()->manage(),
-            $this->dic->resourceStorage()->consume(),
-            new ilTemporaryStakeholder()
+        // todo: get task_id as parameter
+        $task_id = $this->task_api->manager()->first()->getId();
+
+        $this->import = $this->essay_task_api->import($task_id);
+        $this->upload_handler = new ilLongEssayAssessmentUploadHandlerGUI(
+            $this->system_api->tempStorage(),
+            $this->plugin->dic()->uploadTempFile()
         );
-        $this->import_adapter = new ImportAdapter(
-            $this->temp_storage,
-            $this->perm_storage,
-            $this->system_api,
-            fn() => $this->session()['files'] ?? [],
-        );
-        $this->import = $this->essay_task_api->import($this->import_adapter);
-        $this->upload_handler = new ilLongEssayAssessmentUploadHandlerGUI($this->temp_storage, $this->plugin->dic()->uploadTempFile());
     }
 
     public function executeCommand(): void
@@ -79,9 +65,9 @@ class ImportEssayGUI extends BaseGUI
         }
     }
 
-    public function showForm(): void
+    private function buildForm(): StandardForm
     {
-        $form = $this->ui_factory->input()->container()->form()->standard($this->ctrl->getLinkTarget($this, __FUNCTION__), [
+        return $this->ui_factory->input()->container()->form()->standard($this->ctrl->getLinkTarget($this, __FUNCTION__), [
             'title' => $this->ui_factory->input()->field()->section([], $this->plugin->txt('import_essays')),
             'file' => $this->ui_factory->input()->field()->file($this->upload_handler, $this->plugin->txt('import_zip_name')),
             'hash' => $this->ui_factory->input()->field()->text($this->plugin->txt('import_hash')),
@@ -89,23 +75,57 @@ class ImportEssayGUI extends BaseGUI
                 'value' => $this->ui_factory->input()->field()->text($this->plugin->txt('import_password')),
             ], $this->plugin->txt('import_use_password'))->withValue(null),
         ]);
+    }
 
-        $form = $this->withFormData($form, $this->saveForm(...));
-
+    public function showForm(): void
+    {
+        $form = $this->buildForm();
         $this->renderContent($form);
     }
 
+    public function saveForm(): void
+    {
+        $form = $this->buildForm()->withRequest($this->request);
+        $data = $form->getData();
+
+        if ($data && !empty($data['file'])) {
+            $file_id = (string) current($data['file']);
+
+            $result = $this->import->processZipFile(
+                $file_id,
+                $data['password']['value'] ?? null,
+                $data['hash'] ?? null
+            );
+
+            if ($result->isOk()) {
+                $this->ctrl->redirect($this, 'showTable');
+            }
+            $this->system_api->tempStorage()->deleteFile($file_id);
+            $this->failure($result->getMessagesAsHtml());
+        }
+        $this->renderContent($form);
+    }
+
+
     public function showTable(): void
     {
-        $files = $this->session()['files'];
-        $hashes = $this->import_adapter->buildPdfHashes(array_keys($files));
+        $this->rows = $this->import->tableRows();
 
-        $type = $this->import->type($this->session()['type']);
-        $rows = $type->rows(array_keys($files), $hashes);
+        $column = $this->ui_factory->table()->column();
+        $ok = $this->ui_factory->symbol()->icon()->custom('assets/images/standard/icon_ok.svg', '', 'small');
+        $nok = $this->ui_factory->symbol()->icon()->custom('assets/images/standard/icon_not_ok.svg', '', 'small');
 
-        $content = [$this->table($hashes, $rows, $type->columns())];
-        $has_errors = in_array(false, array_map(fn($r) => $r->getImportPossible(), $rows));
-        $overwrites = count(array_filter($rows, fn($r) => $r->getOverwrites() !== [] && $r->getImportPossible()));
+        $columns = array_map(fn($c) => match ($c->getType()) {
+            'text' => $column->text($c->getTitle()),
+            'boolean' => $column->boolean($c->getTitle(), $ok, $nok),
+        }, $this->import->tableColumns());
+
+        $this->add($this->ui_factory->table()->data($this->plugin->txt('essay_import_table'), $columns, $this)
+            ->withRequest($this->dic->http()->request()));
+
+        $files = $this->import->relevantFiles();
+        $has_errors = in_array(false, array_map(fn($file) => $file->isImportPossible(), $files));
+        $overwrites = count(array_filter($files, fn($file) => $file->isImportPossible() && $file->isExisting()));
 
         $import_button = $this->ui_factory->button()->primary(
             $this->plugin->txt($has_errors ? 'import_zip_only_valid' : 'import_zip'),
@@ -121,25 +141,21 @@ class ImportEssayGUI extends BaseGUI
                 $this->ui_factory->button()->standard($this->plugin->txt('import_zip_overwrite'), $this->ctrl->getLinkTarget($this, 'importOverwrite'))
             ]);
 
-            $import_button = $import_button->withOnClick($modal->getShowSignal());
-            $content[] = $modal;
+            $this->add($import_button->withOnClick($modal->getShowSignal()));
+            $this->add($modal);
+        } else {
+            $this->add($import_button);
         }
 
-        $content[] = $import_button;
 
-        $content[] = $this->ui_factory->button()->standard($this->lng->txt('cancel'), $this->ctrl->getLinkTarget($this, 'cancel'));
+        $this->add($this->ui_factory->button()->standard($this->lng->txt('cancel'), $this->ctrl->getLinkTarget($this, 'cancel')));
 
-        $this->renderContent($content);
+        $this->show();
     }
 
     public function import(bool $overwrite = false): void
     {
-        $files = $this->session()['files'];
-        $type = $this->import->type($this->session()['type']);
-        $imported = $this->import->import($type, $files, $overwrite);
-
-        array_map($this->temp_storage->deleteFile(...), $files);
-        $this->saveSession(null);
+        $imported = $this->import->importFiles($overwrite);
         $this->success(sprintf($this->plugin->txt('upload_successful'), $imported), true);
         $this->ctrl->redirectToURL($this->ctrl->getLinkTargetByClass(WriterAdminGUI::class));
     }
@@ -151,14 +167,33 @@ class ImportEssayGUI extends BaseGUI
 
     public function cancel(): void
     {
-        array_map($this->temp_storage->deleteFile(...), $this->session()['files']);
-        $this->saveSession(null);
+        $this->import->cleanup();
         $this->ctrl->redirectToURL($this->ctrl->getLinkTargetByClass(WriterAdminGUI::class));
     }
 
-    public function txt(string $lang_var): string
-    {
-        return $this->plugin->txt($lang_var);
+    public function getRows(
+        DataRowBuilder $row_builder,
+        array $visible_column_ids,
+        Range $range,
+        Order $order,
+        ?array $filter_data,
+        ?array $additional_parameters
+    ): Generator {
+        $field = key($order->get());
+        $dir = current($order->get()) === 'ASC' ? 1 : -1;
+
+        usort($this->rows, fn($row, $other) => $dir * strcmp((string) $row->getFields()[$field], (string) $other->getFields()[$field]));
+        yield from array_map(fn($row) => $row_builder->buildDataRow($row->getId(), $row->getFields()), $this->rows);
+    }
+
+    public function getTotalRowCount(
+        ?array $filter_data,
+        ?array $additional_parameters
+    ): ?int {
+        // Disable pagination but enable ordering.
+        // See ILIAS\UI\Implementation\Component\Table\TableViewControlPagination::getViewControlPagination (requires less than 5)
+        // See ILIAS\UI\Implementation\Component\Table\TableViewControlOrdering::getViewControlOrdering (requires more than 1)
+        return 2;
     }
 
     private function table(array $hashes, array $rows, array $columns): Table
@@ -170,8 +205,8 @@ class ImportEssayGUI extends BaseGUI
                 array $visible_column_ids,
                 Range $range,
                 Order $order,
-                    ?array $filter_data,
-                    ?array $additional_parameters
+                ?array $filter_data,
+                ?array $additional_parameters
             ): Generator {
                 $field = key($order->get());
                 $dir = current($order->get()) === 'ASC' ? 1 : -1;
@@ -181,7 +216,7 @@ class ImportEssayGUI extends BaseGUI
 
             public function getTotalRowCount(
                 ?array $filter_data,
-                    ?array $additional_parameters
+                ?array $additional_parameters
             ): ?int {
                 // Disable pagination but enable ordering.
                 // See ILIAS\UI\Implementation\Component\Table\TableViewControlPagination::getViewControlPagination (requires less than 5)
@@ -203,77 +238,5 @@ class ImportEssayGUI extends BaseGUI
 
         return $this->ui_factory->table()->data($this->plugin->txt('essay_import_table'), $columns, $retrieval)
             ->withRequest($this->dic->http()->request());
-    }
-
-    private function filesFromZip(ZipArchive $zip, ?string $password): array
-    {
-        if ($password !== null) {
-            $zip->setPassword($password);
-        }
-        return array_map(function ($index) use ($zip, $password): string {
-            $stat = $zip->statIndex($index);
-            if (($stat['encryption_method'] ?? false) && $password === null) {
-                throw new \Exception('No password given');
-            }
-            return $stat['name'];
-        }, range(0, $zip->numFiles - 1));
-    }
-
-    private function session(): ?array
-    {
-        return ilSession::get(self::SESSION_KEY) ?? null;
-    }
-
-    private function saveSession(?array $files): void
-    {
-        ilSession::set(self::SESSION_KEY, $files);
-    }
-
-    private function saveForm(array $data): void
-    {
-        $stream = $this->upload_handler->getApiStream(current($data['file']));
-        if (($data['hash'] ?? null) && $data['hash'] !== $this->import_adapter->hash(stream_get_contents($stream))) {
-            $this->fail('import_hash_mismatch');
-        }
-        $zip = new ZipArchive();
-        $path = stream_get_meta_data($stream)['uri'];
-        $code = $zip->open($path, ZipArchive::RDONLY);
-        match ($code) {
-            true => null,
-            ZipArchive::ER_NOZIP => $this->fail('import_not_a_zip'),
-            ZipArchive::ER_INCONS => $this->fail('import_zip_inconsistent'),
-            default => $this->fail('import_unknown_error', 'ZipArchive returned error code: ' . $code),
-        };
-        $files = $this->filesFromZip($zip, $data['password']['value'] ?? null);
-        $file_map = [];
-        foreach ($files as $file) {
-            if ($this->import->isRelevantFile($file)) {
-                $info = (new FileInfo())
-                    ->setMimeType('application/pdf')
-                    ->setFileName($file);
-                $s = $zip->getStream($file);
-                $id = $this->temp_storage->saveFile(Streams::ofString(stream_get_contents($s)), $info)->getId();
-                fclose($s);
-                $file_map[$file] = $id;
-            }
-        }
-
-        $type = $this->import->typeByFiles(array_keys($file_map));
-        $this->temp_storage->deleteFile(current($data['file']));
-        if ($type === null) {
-            array_map($this->temp_storage->deleteFile(...), $file_map);
-            $this->fail('import_invalid_zip_format');
-        }
-        $this->saveSession(['type' => $type, 'files' => $file_map]);
-        $this->ctrl->redirectToURL($this->ctrl->getLinkTarget($this, 'showTable'));
-    }
-
-    private function fail(string $lang_var, ?string $log = null): never
-    {
-        if ($log !== null) {
-            $this->dic->logger()->xlas()->error($log);
-        }
-        $this->failure($this->plugin->txt($lang_var), true);
-        $this->ctrl->redirectToURL($this->ctrl->getLinkTarget($this, 'showForm'));
     }
 }

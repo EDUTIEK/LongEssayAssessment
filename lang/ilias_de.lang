@@ -769,10 +769,6 @@ import_user_not_existing#:#User existiert nicht
 import_same_file_exists#:#Gleiche Datei existiert
 import_another_file_exists#:#Unterschiedliche Datei existiert bereits
 import_invalid_zip_format#:#Invalides ZIP Format
-import_unknown_error#:#Unbekannter Fehler
-import_zip_inconsistent#:#ZIP ist inkonsistent
-import_not_a_zip#:#Datei ist keine ZIP
-import_hash_mismatch#:#Hash Werte stimmen nicht überein
 disabled_group_tool_tab#:#Fixierungen
 toggle_disabled_group#:#Fixierungen sichtbar
 online_info#:#Die Aufgabe muss online geschalten sein, damit die bearbeitet und korrigiert werden kann. Andernfalls ist ist der Zugriff nur mit der Berechtigung "Einstellungen bearbeiten" möglich.

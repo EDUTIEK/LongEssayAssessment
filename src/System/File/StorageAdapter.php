@@ -2,16 +2,14 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\System\File;
 
-use Edutiek\AssessmentService\System\File\Storage;
 use Edutiek\AssessmentService\System\Data\FileInfo;
-use ILIAS\Plugin\LongEssayAssessment\System\Data\FileInfo as FileInfoModel;
-use ILIAS\ResourceStorage\Manager\Manager;
-use ILIAS\ResourceStorage\Consumer\Consumers;
+use Edutiek\AssessmentService\System\File\Storage;
 use ILIAS\Filesystem\Stream\Streams;
-use ILIAS\ResourceStorage\Resource\InfoResolver\StreamInfoResolver;
-use ILIAS\ResourceStorage\Resource\ResourceBuilder;
-use Psr\Http\Message\StreamInterface as Stream;
+use ILIAS\Plugin\LongEssayAssessment\System\Data\FileInfo as FileInfoModel;
+use ILIAS\ResourceStorage\Consumer\Consumers;
+use ILIAS\ResourceStorage\Manager\Manager;
 use ILIAS\ResourceStorage\Stakeholder\ResourceStakeholder;
+use Psr\Http\Message\StreamInterface as Stream;
 
 /**
  * Adapter of the ILIAS resource storage (IRSS) service for the assessment-service
@@ -24,6 +22,12 @@ readonly class StorageAdapter implements Storage
         private Consumers $consumers,
         private ResourceStakeholder $stakeholder
     ) {
+    }
+
+    public function hasFile(?string $id): bool
+    {
+        $resource_id = $this->manager->find($id ?? '');
+        return $resource_id !== null;
     }
 
     public function getFileInfo(?string $id): ?FileInfo
@@ -45,7 +49,6 @@ readonly class StorageAdapter implements Storage
     {
         $resource_id = $this->manager->find($id ?? '');
         if ($resource_id !== null) {
-            $resource = $this->manager->getResource($resource_id);
             return $this->consumers->stream($resource_id)->getStream()->detach();
         }
         return null;
@@ -71,7 +74,6 @@ readonly class StorageAdapter implements Storage
                 $info->getFileName() ?? ''
             );
         } else {
-            $resource = $this->manager->getResource($resource_id);
             $this->manager->replaceWithStream(
                 $resource_id,
                 $stream_object,
@@ -91,6 +93,20 @@ readonly class StorageAdapter implements Storage
         $resource_id = $this->manager->find($id ?? '');
         if ($resource_id !== null) {
             $this->manager->remove($resource_id, $this->stakeholder);
+        }
+    }
+
+    public function getReadablePath(?string $id): ?string
+    {
+        if (!$id) {
+            return null;
+        }
+
+        try {
+            $resource_id = $this->manager->find($id);
+            return $this->consumers->stream($resource_id)->getStream()->getMetadata('uri');
+        } catch (\Exception $e) {
+            return null;
         }
     }
 }

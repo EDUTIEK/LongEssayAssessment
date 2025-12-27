@@ -4,28 +4,30 @@ declare(strict_types=1);
 
 namespace ILIAS\Plugin\LongEssayAssessment\Dependencies;
 
+use DateTimeInterface;
+use Edutiek\AssessmentService\System\BackgroundTask\ClientManager as BackgroundTaskManager;
+use Edutiek\AssessmentService\System\Session\Storage as SessionStorage;
+use ilDatePresentation;
+use ilDateTime;
+use ILIAS\DI\Container;
+use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\CacheRepository;
+use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\DatabaseRepository;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Generate;
+use ILIAS\Plugin\LongEssayAssessment\System\BackgroundTask\Manager as ILIASTaskManager;
 use ILIAS\Plugin\LongEssayAssessment\System\Data\Config;
 use ILIAS\Plugin\LongEssayAssessment\System\Data\ConfigRepo;
 use ILIAS\Plugin\LongEssayAssessment\System\Data\SetupRepo;
 use ILIAS\Plugin\LongEssayAssessment\System\Data\UserDataRepo;
 use ILIAS\Plugin\LongEssayAssessment\System\Data\UserDisplayRepo;
 use ILIAS\Plugin\LongEssayAssessment\System\File\DeliveryAdapter;
-use ILIAS\Plugin\LongEssayAssessment\System\File\StorageAdapter;
 use ILIAS\Plugin\LongEssayAssessment\System\File\Stakeholder;
-use ILIAS\DI\Container;
-use ILIAS\ResourceStorage\Resource\ResourceBuilder;
-use ilLongEssayAssessmentPlugin;
-use InitResourceStorage;
+use ILIAS\Plugin\LongEssayAssessment\System\File\StorageAdapter;
+use ILIAS\Plugin\LongEssayAssessment\System\Log\LogAdapter;
+use ILIAS\Plugin\LongEssayAssessment\System\Session\SessionAdapter;
+use ilTemporaryStakeholder;
 use ilUserQuery;
 use ilUserUtil;
-use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\CacheRepository;
-use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\DatabaseRepository;
-use DateTimeInterface;
-use ilDatePresentation;
-use ilDateTime;
-use Edutiek\AssessmentService\System\BackgroundTask\ClientManager as BackgroundTaskManager;
-use ILIAS\Plugin\LongEssayAssessment\System\BackgroundTask\Manager as ILIASTaskManager;
+use InitResourceStorage;
 
 /**
  *  Dependencies of the assessment services component "System"
@@ -76,6 +78,20 @@ class SystemDic implements \Edutiek\AssessmentService\System\Api\Dependencies
         );
     }
 
+    public function tempStorage(): StorageAdapter
+    {
+        return new StorageAdapter(
+            $this->dic->resourceStorage()->manage(),
+            $this->dic->resourceStorage()->consume(),
+            new ilTemporaryStakeholder()
+        );
+    }
+
+    public function tempDelivery(): DeliveryAdapter
+    {
+        return $this->fileDelivery();
+    }
+
     public function userDataRepo(): UserDataRepo
     {
         return new UserDataRepo(
@@ -103,5 +119,15 @@ class SystemDic implements \Edutiek\AssessmentService\System\Api\Dependencies
             $this->dic->backgroundTasks()->taskManager(),
             $this->dic->user(),
         );
+    }
+
+    public function sessionStorage(): SessionStorage
+    {
+        return new SessionAdapter();
+    }
+
+    public function log(): LogAdapter
+    {
+        return new LogAdapter($this->dic->logger()->xlas());
     }
 }

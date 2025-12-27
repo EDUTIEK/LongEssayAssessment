@@ -20,14 +20,14 @@ declare(strict_types=1);
 
 namespace ILIAS\Plugin\LongEssayAssessment\System\File;
 
+use Edutiek\AssessmentService\System\Data\FileInfo;
+use Edutiek\AssessmentService\System\File\Disposition;
+use ILIAS\DI\Exceptions\Exception;
+use ILIAS\FileDelivery\Delivery;
+use ILIAS\Filesystem\Stream\Streams;
+use ILIAS\HTTP\Services as HttpServices;
 use ILIAS\ResourceStorage\Manager\Manager;
 use ILIAS\ResourceStorage\StorageHandler\StorageHandlerFactory;
-use ILIAS\FileDelivery\Delivery;
-use ILIAS\HTTP\Services as HttpServices;
-use ILIAS\DI\Exceptions\Exception;
-use ILIAS\Filesystem\Stream\Streams;
-use Edutiek\AssessmentService\System\File\Disposition;
-use Edutiek\AssessmentService\System\Data\FileInfo;
 
 /**
  * Adapter of the ILIAS delivery functions for the assessment-service
@@ -36,6 +36,10 @@ use Edutiek\AssessmentService\System\Data\FileInfo;
  */
 readonly class DeliveryAdapter implements \Edutiek\AssessmentService\System\File\Delivery
 {
+    /**
+     * todo: try consumer instead of StorageHandlerFactory
+     * @see \ILIAS\Plugin\LongEssayAssessment\System\File\StorageAdapter::getReadablePath
+     */
     public function __construct(
         private Manager $manager,
         private StorageHandlerFactory $handler_factory,

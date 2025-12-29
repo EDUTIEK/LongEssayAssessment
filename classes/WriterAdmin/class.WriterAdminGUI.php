@@ -96,7 +96,7 @@ class WriterAdminGUI extends WriterTableGUI
 //        $this->toolbar->addComponent($delete_writer_data_button);
 
         $upload_button = $this->ui_factory->button()->standard(
-            $this->plugin->txt('import_essays'),
+            $this->plugin->txt('essay_import'),
             $this->ctrl->getLinkTargetByClass(ImportEssayGUI::class, 'showForm')
         );
         $this->toolbar->addComponent($upload_button);

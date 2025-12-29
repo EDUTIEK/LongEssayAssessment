@@ -141,7 +141,7 @@ class ImportEssayGUI extends BaseGUI implements DataRetrieval
         $overwrites = count(array_filter($files, fn($file) => $file->isImportPossible() && $file->isExisting()));
 
         $import_button = $this->ui_factory->button()->primary(
-            $this->plugin->txt($has_errors ? 'essay_import_zip_only_valid' : 'import_zip'),
+            $this->plugin->txt($has_errors ? 'essay_import_zip_only_valid' : 'essay_import'),
             $this->ctrl->getLinkTarget($this, 'import')
         );
 

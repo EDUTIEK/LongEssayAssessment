@@ -753,22 +753,22 @@ essay_import_column_import_possible#:#Importierbar
 essay_import_column_comment#:#Bemerkung
 essay_import_column_hash_ok#:#Hash ok
 upload_zip#:#ZIP hochladen
-import_zip#:#ZIP Importieren
-import_zip_name#:#ZIP Datei
-import_zip_overwrite#:#Bestehende Einträge überschreiben
-import_zip_no_overwrite#:#Einträge nicht überschreiben
-import_hash#:#Hash
-import_password#:#Passwort
-import_use_password#:#Passwort verwenden
-import_zip_only_valid#:#Fehlerfreie Einträge importieren
-upload_successful#:#Es wurden erfolgreich %d Einträge importiert.
+essay_import#:#Abgaben Importieren
+essay_import_zip_name#:#ZIP Datei
+essay_import_confirmation#:#Wie soll mit bestehenden Dateien verfahren werden?
+essay_import_overwrite#:#Bestehende Einträge überschreiben
+essay_import_no_overwrite#:#Einträge nicht überschreiben
+essay_import_hash#:#Hash
+essay_import_password#:#Passwort
+essay_import_use_password#:#Passwort verwenden
+essay_import_zip_only_valid#:#Fehlerfreie Einträge importieren
+essay_import_successful#:#Es wurden erfolgreich %d Einträge importiert.
 essay_import_table#:#Abgaben importieren
-import_essays#:#Abgaben importieren
-import_file_missing#:#Datei fehlt
-import_user_not_existing#:#User existiert nicht
-import_same_file_exists#:#Gleiche Datei existiert
-import_another_file_exists#:#Unterschiedliche Datei existiert bereits
-import_invalid_zip_format#:#Invalides ZIP Format
+essay_import_file_missing#:#Datei fehlt
+essay_import_user_not_existing#:#User existiert nicht
+essay_import_same_file_exists#:#Gleiche Datei existiert
+essay_import_another_file_exists#:#Unterschiedliche Datei existiert bereits
+essay_import_invalid_zip_format#:#Invalides ZIP Format
 disabled_group_tool_tab#:#Fixierungen
 toggle_disabled_group#:#Fixierungen sichtbar
 online_info#:#Die Aufgabe muss online geschalten sein, damit die bearbeitet und korrigiert werden kann. Andernfalls ist ist der Zugriff nur mit der Berechtigung "Einstellungen bearbeiten" möglich.

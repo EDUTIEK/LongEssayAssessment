@@ -58,7 +58,7 @@ class ImportEssayGUI extends BaseGUI implements DataRetrieval
 
     public function executeCommand(): void
     {
-        if (in_array($this->ctrl->getCmd(), ['showForm', 'showTable', 'cancel', 'import', 'importOverwrite'], true)) {
+        if (in_array($this->ctrl->getCmd(), ['showForm', 'saveForm', 'showTable', 'cancel', 'import', 'importOverwrite'], true)) {
             $this->{$this->ctrl->getCmd()}();
         } else {
             echo 'Invalid cmd';
@@ -67,45 +67,58 @@ class ImportEssayGUI extends BaseGUI implements DataRetrieval
 
     private function buildForm(): StandardForm
     {
-        return $this->ui_factory->input()->container()->form()->standard($this->ctrl->getLinkTarget($this, __FUNCTION__), [
-            'title' => $this->ui_factory->input()->field()->section([], $this->plugin->txt('import_essays')),
-            'file' => $this->ui_factory->input()->field()->file($this->upload_handler, $this->plugin->txt('import_zip_name')),
-            'hash' => $this->ui_factory->input()->field()->text($this->plugin->txt('import_hash')),
+        return $this->ui_factory->input()->container()->form()->standard($this->ctrl->getLinkTarget($this, 'saveForm'), [
+            'title' => $this->ui_factory->input()->field()->section([], $this->plugin->txt('essay_import')),
+            'file' => $this->ui_factory->input()->field()->file(
+                $this->upload_handler,
+                $this->plugin->txt('essay_import_zip_name')
+            )->withAcceptedMimeTypes(['application/x-zip-compressed']),
+            'hash' => $this->ui_factory->input()->field()->text($this->plugin->txt('essay_import_hash')),
             'password' => $this->ui_factory->input()->field()->optionalGroup([
-                'value' => $this->ui_factory->input()->field()->text($this->plugin->txt('import_password')),
-            ], $this->plugin->txt('import_use_password'))->withValue(null),
+                'value' => $this->ui_factory->input()->field()->text($this->plugin->txt('essay_import_password')),
+            ], $this->plugin->txt('essay_import_use_password'))->withValue(null),
         ]);
     }
 
     public function showForm(): void
     {
         $form = $this->buildForm();
-        $this->renderContent($form);
+        $this->add($form)->show();
     }
 
     public function saveForm(): void
     {
         $form = $this->buildForm()->withRequest($this->request);
+        $result = $form->getInputGroup()->getContent();
         $data = $form->getData();
 
         if ($data && !empty($data['file'])) {
-            $file_id = (string) current($data['file']);
+            $upload_id = (string) current($data['file']);
+
+            $stored = $this->system_api->tempStorage()->saveFile(
+                $this->upload_handler->getApiStream($upload_id),
+                $this->upload_handler->getApiInfo($upload_id)
+            );
 
             $result = $this->import->processZipFile(
-                $file_id,
+                $stored->getId(),
                 $data['password']['value'] ?? null,
                 $data['hash'] ?? null
             );
 
+            $this->system_api->tempStorage()->deleteFile($stored->getId());
+
             if ($result->isOk()) {
+                if ($result->hasMessages()) {
+                    $this->info($result->getMessagesAsHtml(), true);
+                }
                 $this->ctrl->redirect($this, 'showTable');
             }
-            $this->system_api->tempStorage()->deleteFile($file_id);
             $this->failure($result->getMessagesAsHtml());
         }
-        $this->renderContent($form);
-    }
 
+        $this->add($form)->show();
+    }
 
     public function showTable(): void
     {
@@ -128,17 +141,16 @@ class ImportEssayGUI extends BaseGUI implements DataRetrieval
         $overwrites = count(array_filter($files, fn($file) => $file->isImportPossible() && $file->isExisting()));
 
         $import_button = $this->ui_factory->button()->primary(
-            $this->plugin->txt($has_errors ? 'import_zip_only_valid' : 'import_zip'),
+            $this->plugin->txt($has_errors ? 'essay_import_zip_only_valid' : 'import_zip'),
             $this->ctrl->getLinkTarget($this, 'import')
         );
 
         if ($overwrites > 0) {
-            $lang_var = 'import_confirmation_content_' . ($overwrites === 1 ? 'singular' : 'plural');
-            $modal = $this->ui_factory->modal()->roundtrip($this->plugin->txt('import_confirmation_title'), [
-                $this->ui_factory->legacy('<span>' . sprintf($this->plugin->txt($lang_var), $overwrites) . '</span>'),
+            $modal = $this->ui_factory->modal()->roundtrip($this->plugin->txt('essay_import'), [
+                $this->ui_factory->legacy('<span>' . sprintf($this->plugin->txt('essay_import_confirmation'), $overwrites) . '</span>'),
             ], [], $this->ctrl->getLinkTarget($this, 'import'))->withActionButtons([
-                $this->ui_factory->button()->primary($this->plugin->txt('import_zip_no_overwrite'), $this->ctrl->getLinkTarget($this, 'import')),
-                $this->ui_factory->button()->standard($this->plugin->txt('import_zip_overwrite'), $this->ctrl->getLinkTarget($this, 'importOverwrite'))
+                $this->ui_factory->button()->primary($this->plugin->txt('essay_import_no_overwrite'), $this->ctrl->getLinkTarget($this, 'import')),
+                $this->ui_factory->button()->standard($this->plugin->txt('essay_import_overwrite'), $this->ctrl->getLinkTarget($this, 'importOverwrite'))
             ]);
 
             $this->add($import_button->withOnClick($modal->getShowSignal()));
@@ -147,9 +159,7 @@ class ImportEssayGUI extends BaseGUI implements DataRetrieval
             $this->add($import_button);
         }
 
-
         $this->add($this->ui_factory->button()->standard($this->lng->txt('cancel'), $this->ctrl->getLinkTarget($this, 'cancel')));
-
         $this->show();
     }
 
@@ -194,49 +204,5 @@ class ImportEssayGUI extends BaseGUI implements DataRetrieval
         // See ILIAS\UI\Implementation\Component\Table\TableViewControlPagination::getViewControlPagination (requires less than 5)
         // See ILIAS\UI\Implementation\Component\Table\TableViewControlOrdering::getViewControlOrdering (requires more than 1)
         return 2;
-    }
-
-    private function table(array $hashes, array $rows, array $columns): Table
-    {
-        $retrieval = new class () implements DataRetrieval {
-            public array $rows;
-            public function getRows(
-                DataRowBuilder $row_builder,
-                array $visible_column_ids,
-                Range $range,
-                Order $order,
-                ?array $filter_data,
-                ?array $additional_parameters
-            ): Generator {
-                $field = key($order->get());
-                $dir = current($order->get()) === 'ASC' ? 1 : -1;
-                usort($this->rows, fn($row, $other) => $dir * strcmp((string) $row->getFields()[$field], (string) $other->getFields()[$field]));
-                yield from array_map(fn($row) => $row_builder->buildDataRow($row->getId(), $row->getFields()), $this->rows);
-            }
-
-            public function getTotalRowCount(
-                ?array $filter_data,
-                ?array $additional_parameters
-            ): ?int {
-                // Disable pagination but enable ordering.
-                // See ILIAS\UI\Implementation\Component\Table\TableViewControlPagination::getViewControlPagination (requires less than 5)
-                // See ILIAS\UI\Implementation\Component\Table\TableViewControlOrdering::getViewControlOrdering (requires more than 1)
-                return 2;
-            }
-        };
-
-        $retrieval->rows = $rows;
-
-        $column = $this->ui_factory->table()->column();
-        $ok = $this->ui_factory->symbol()->icon()->custom('assets/images/standard/icon_ok.svg', '', 'small');
-        $nok = $this->ui_factory->symbol()->icon()->custom('assets/images/standard/icon_not_ok.svg', '', 'small');
-
-        $columns = array_map(fn($c) => match ($c->getType()) {
-            'text' => $column->text($c->getTitle()),
-            'boolean' => $column->boolean($c->getTitle(), $ok, $nok),
-        }, $columns);
-
-        return $this->ui_factory->table()->data($this->plugin->txt('essay_import_table'), $columns, $retrieval)
-            ->withRequest($this->dic->http()->request());
     }
 }

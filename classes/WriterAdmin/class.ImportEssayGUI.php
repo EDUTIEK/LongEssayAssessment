@@ -166,7 +166,7 @@ class ImportEssayGUI extends BaseGUI implements DataRetrieval
     public function import(bool $overwrite = false): void
     {
         $imported = $this->import->importFiles($overwrite);
-        $this->success(sprintf($this->plugin->txt('upload_successful'), $imported), true);
+        $this->success(sprintf($this->plugin->txt('essay_import_successful'), $imported), true);
         $this->ctrl->redirectToURL($this->ctrl->getLinkTargetByClass(WriterAdminGUI::class));
     }
 

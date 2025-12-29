@@ -753,7 +753,7 @@ essay_import_column_import_possible#:#Importierbar
 essay_import_column_comment#:#Bemerkung
 essay_import_column_hash_ok#:#Hash ok
 upload_zip#:#ZIP hochladen
-essay_import#:#Abgaben Importieren
+essay_import#:#Abgaben importieren
 essay_import_zip_name#:#ZIP Datei
 essay_import_confirmation#:#Wie soll mit bestehenden Dateien verfahren werden?
 essay_import_overwrite#:#Bestehende Einträge überschreiben

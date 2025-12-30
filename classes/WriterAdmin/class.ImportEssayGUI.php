@@ -43,13 +43,8 @@ class ImportEssayGUI extends BaseGUI implements DataRetrieval
 
     public function __construct(BaseObjectData $object)
     {
-        // todo: add access check
         parent::__construct($object);
-
-        // todo: get task_id as parameter
-        $task_id = $this->task_api->manager()->first()->getId();
-
-        $this->import = $this->essay_task_api->import($task_id);
+        $this->import = $this->essay_task_api->import($this->task_info->getId());
         $this->upload_handler = new ilLongEssayAssessmentUploadHandlerGUI(
             $this->system_api->tempStorage(),
             $this->plugin->dic()->uploadTempFile()
@@ -58,8 +53,10 @@ class ImportEssayGUI extends BaseGUI implements DataRetrieval
 
     public function executeCommand(): void
     {
-        if (in_array($this->ctrl->getCmd(), ['showForm', 'saveForm', 'showTable', 'cancel', 'import', 'importOverwrite'], true)) {
-            $this->{$this->ctrl->getCmd()}();
+        $this->initTools(true, false);
+        $cmd = $this->ctrl->getCmd('showForm');
+        if (in_array($cmd, ['showForm', 'saveForm', 'showTable', 'cancel', 'import', 'importOverwrite'], true)) {
+            $this->$cmd();
         } else {
             echo 'Invalid cmd';
         }
@@ -67,7 +64,7 @@ class ImportEssayGUI extends BaseGUI implements DataRetrieval
 
     private function buildForm(): StandardForm
     {
-        return $this->ui_factory->input()->container()->form()->standard($this->ctrl->getLinkTarget($this, 'saveForm'), [
+        $inputs = [
             'title' => $this->ui_factory->input()->field()->section([], $this->plugin->txt('essay_import')),
             'file' => $this->ui_factory->input()->field()->file(
                 $this->upload_handler,
@@ -77,7 +74,9 @@ class ImportEssayGUI extends BaseGUI implements DataRetrieval
             'password' => $this->ui_factory->input()->field()->optionalGroup([
                 'value' => $this->ui_factory->input()->field()->text($this->plugin->txt('essay_import_password')),
             ], $this->plugin->txt('essay_import_use_password'))->withValue(null),
-        ]);
+        ];
+
+        return $this->ui_factory->input()->container()->form()->standard($this->ctrl->getLinkTarget($this, 'saveForm'), $inputs);
     }
 
     public function showForm(): void

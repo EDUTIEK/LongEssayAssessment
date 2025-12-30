@@ -41,7 +41,7 @@ class TechnicalSettingsGUI extends BaseGUI
      */
     public function executeCommand()
     {
-        $this->initForNonTask();
+        $this->initTools(false, true);
 
         $cmd = $this->ctrl->getCmd('editSettings');
         switch ($cmd) {

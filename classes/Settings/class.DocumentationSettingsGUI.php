@@ -47,7 +47,7 @@ class DocumentationSettingsGUI extends BaseGUI
      */
     public function executeCommand()
     {
-        $this->initForNonTask();
+        $this->initTools(false, true);
 
         $cmd = $this->ctrl->getCmd('edit');
         switch ($cmd) {

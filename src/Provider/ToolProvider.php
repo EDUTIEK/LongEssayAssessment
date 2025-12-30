@@ -37,7 +37,8 @@ use ILIAS\Plugin\LongEssayAssessment\DisabledGroupGUI;
 
 class ToolProvider extends AbstractDynamicToolProvider
 {
-    final public const NAME = 'xlas_tool';
+    final public const WITH_TASK_SELECTION = 'xlas_task_selection';
+    final public const WITH_FIXATIONS = 'xlas_fixations';
     final public const GUI_CLASS = 'gui_class';
 
     private readonly string $gui_class;
@@ -78,26 +79,27 @@ class ToolProvider extends AbstractDynamicToolProvider
     public function getToolsForContextStack(CalledContexts $called_contexts): array
     {
         $additional_data = $called_contexts->getLast()->getAdditionalData();
-
-        if (!$additional_data->is(self::NAME, true)) {
+        if ($additional_data->exists(self::GUI_CLASS)) {
+            $this->gui_class = $additional_data->get(self::GUI_CLASS);
+            $this->dic->ctrl()->setParameterByClass($this->gui_class, 'ref_id', (string) $this->ref_id);
+        } else {
             return [];
         }
-        $this->gui_class = $additional_data->get(self::GUI_CLASS);
-
-        $this->dic->ctrl()->setParameterByClass($this->gui_class, 'ref_id', (string) $this->ref_id);
-
-        $tab = fn(string $lang_var, $content) => $this->factory
-            ->tool($this->identification_provider->contextAwareIdentifier('xlas_' . $lang_var))
-            ->withTitle($this->plugin->txt($lang_var))
-            ->withContent($this->dic->ui()->factory()->legacy($this->dic->ui()->renderer()->render($content)));
 
         $tabs = [];
-        if ($this->isMultiTask()) {
-            $tabs[] = $tab('tab_task', $this->multiTaskContent());
+
+        if ($this->isMultiTask() && $additional_data->is(self::WITH_TASK_SELECTION, true)) {
+            $tabs[] = $this->factory
+                ->tool($this->identification_provider->contextAwareIdentifier('xlas_tab_task'))
+                ->withTitle($this->plugin->txt('tools_tab_tasks'))
+                ->withContent($this->dic->ui()->factory()->legacy($this->dic->ui()->renderer()->render($this->multiTaskContent())));
         }
 
-        if ($this->permissions->canEditTemplates()) {
-            $tabs[] = $tab('disabled_group_tool_tab', $this->disabledGroupContent());
+        if ($this->permissions->canEditTemplates() && $additional_data->is(self::WITH_FIXATIONS, true)) {
+            $tabs[] = $this->factory
+                ->tool($this->identification_provider->contextAwareIdentifier('xlas_disabled_group_tool_tab'))
+                ->withTitle($this->plugin->txt('tools_tab_fixations'))
+                ->withContent($this->dic->ui()->factory()->legacy($this->dic->ui()->renderer()->render($this->disabledGroupContent())));
         }
 
         return $tabs;
@@ -145,9 +147,8 @@ class ToolProvider extends AbstractDynamicToolProvider
             fn(TaskInfo $t) => $link($glyph->link(), $t->getTitle(), $this->uriToTask($t)),
             $all
         );
-        $add_button = $link($glyph->add(), $this->dic->language()->txt('add'), $this->uriToClass(InstructionSettingsGUI::class, 'create'));
 
-        return array_merge($links, [$add_button]);
+        return $links;
     }
 
     private function uriToTask(TaskInfo $task): URI

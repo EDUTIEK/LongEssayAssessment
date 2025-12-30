@@ -16,7 +16,8 @@ use ILIAS\Plugin\LongEssayAssessment\UI\Table\Item;
 
 abstract class CriteriaGUI extends BaseGUI implements DataTableParent
 {
-    use SmallView, ConfirmationIds;
+    use SmallView;
+    use ConfirmationIds;
 
     protected \Edutiek\AssessmentService\System\Entity\FullService $entity_service;
     protected \Edutiek\AssessmentService\Task\CorrectionSettings\FullService $correction_settings_service;
@@ -46,7 +47,7 @@ abstract class CriteriaGUI extends BaseGUI implements DataTableParent
 
     public function executeCommand()
     {
-        $this->initForTask();
+        $this->initTools(true, false);
         $this->criterion_service = $this->task_api->ratingCriterion($this->task_info->getId());
 
         $cmd = $this->ctrl->getCmd('showItems');
@@ -79,7 +80,7 @@ abstract class CriteriaGUI extends BaseGUI implements DataTableParent
     /**
      * @return RatingCriterion[]
      */
-    abstract protected function getRatingCriteriaFromContext():array;
+    abstract protected function getRatingCriteriaFromContext(): array;
     abstract protected function getRatingCriterionModelFromContext(): RatingCriterion;
     abstract protected function getCorrectorIdFromContext(): ?int;
     abstract protected function allowChangeInContext(): bool;
@@ -89,7 +90,8 @@ abstract class CriteriaGUI extends BaseGUI implements DataTableParent
     protected function hasAuthorizedCorrections(): bool
     {
         return $this->has_authorized_corrections ??= $this->assessment_status->hasAuthorizedSummaries(
-            $this->getCorrectorIdFromContext());
+            $this->getCorrectorIdFromContext()
+        );
     }
 
     public function table(): DataTable
@@ -100,7 +102,7 @@ abstract class CriteriaGUI extends BaseGUI implements DataTableParent
         return $table;
     }
 
-    public abstract function showItems();
+    abstract public function showItems();
 
     protected function buildItemTitle(RatingCriterion $item): string
     {
@@ -133,7 +135,7 @@ abstract class CriteriaGUI extends BaseGUI implements DataTableParent
         $this->ctrl->redirect($this, "showItems");
     }
 
-    public function getColumnMapping(Item $item, ?array $additional_parameters) : array
+    public function getColumnMapping(Item $item, ?array $additional_parameters): array
     {
 
         /**
@@ -147,7 +149,7 @@ abstract class CriteriaGUI extends BaseGUI implements DataTableParent
         ];
     }
 
-    public function getColumns(?array $additional_parameters) : array
+    public function getColumns(?array $additional_parameters): array
     {
         $tf = $this->ui_factory->table();
         $small_view = $this->smallView($additional_parameters);
@@ -161,12 +163,12 @@ abstract class CriteriaGUI extends BaseGUI implements DataTableParent
         ];
     }
 
-    public function getTotalRowCount(?array $filter_data, ?array $additional_parameters) : ?int
+    public function getTotalRowCount(?array $filter_data, ?array $additional_parameters): ?int
     {
         return -1;
     }
 
-    public function getTableItems(?array $ids = null, ?array $filter_data = null) : Generator
+    public function getTableItems(?array $ids = null, ?array $filter_data = null): Generator
     {
         if ($this->copy_context !== null) {
             //$obj_id = \ilObject2::_lookupObjectId($this->copy_context);
@@ -187,7 +189,7 @@ abstract class CriteriaGUI extends BaseGUI implements DataTableParent
         }
     }
 
-    public function getTableItem(int $id) : Item
+    public function getTableItem(int $id): Item
     {
         $item = $this->criterion_service->one($id);
         if ($item->getTaskId() !== $this->task_info->getId() && $item->getCorrectorId() !== $this->getCorrectorIdFromContext()) {
@@ -198,36 +200,36 @@ abstract class CriteriaGUI extends BaseGUI implements DataTableParent
 
     protected function tableItemFromData(RatingCriterion $item): CriteriaItem
     {
-        return new CriteriaItem($item->getId(), $item->getTitle(), $item->getDescription(), (int)$item->getGeneral(), $item->getPoints());
+        return new CriteriaItem($item->getId(), $item->getTitle(), $item->getDescription(), (int) $item->getGeneral(), $item->getPoints());
     }
 
-    protected function createAction() : Action\Form
+    protected function createAction(): Action\Form
     {
         return $this->table_factory->action()->form(
             "add_criteria",
             $this->plugin->txt('criteria_add'),
             $this->lng->txt('save'),
-            fn (CriteriaItem $item) => $this->buildFields($item),
-            fn (CriteriaItem $item, array $data) => $this->save($item, $data),
-            fn (CriteriaItem $x) => $this->allowChangeInContext(),
+            fn(CriteriaItem $item) => $this->buildFields($item),
+            fn(CriteriaItem $item, array $data) => $this->save($item, $data),
+            fn(CriteriaItem $x) => $this->allowChangeInContext(),
             Action\Type::Global
         );
     }
 
-    protected function editAction() : Action\Form
+    protected function editAction(): Action\Form
     {
         return $this->table_factory->action()->form(
             "edit_criteria",
             $this->lng->txt('edit'),
             $this->lng->txt('save'),
-            fn (CriteriaItem $item) => $this->buildFields($item),
-            fn (CriteriaItem $item, array $data) => $this->save($item, $data),
-            fn (CriteriaItem $x) => $this->allowChangeInContext(),
+            fn(CriteriaItem $item) => $this->buildFields($item),
+            fn(CriteriaItem $item, array $data) => $this->save($item, $data),
+            fn(CriteriaItem $x) => $this->allowChangeInContext(),
             Action\Type::Single
         );
     }
 
-    protected function deleteAction() : Action\Confirmation
+    protected function deleteAction(): Action\Confirmation
     {
         return $this->table_factory->action()->confirmation(
             "delete_criteria",
@@ -235,21 +237,21 @@ abstract class CriteriaGUI extends BaseGUI implements DataTableParent
             $this->lng->txt('delete'),
             $this->plugin->txt('delete_criteria_confirmation'),
             $this->ctrl->getFormAction($this, 'deleteItems'),
-            fn (CriteriaItem $item) => $item->getTitle(),
-            fn (CriteriaItem $x) => $this->allowChangeInContext(),
+            fn(CriteriaItem $item) => $item->getTitle(),
+            fn(CriteriaItem $x) => $this->allowChangeInContext(),
             Action\Type::Standard
         );
     }
 
-    protected function buildFields(CriteriaItem $item) : array
+    protected function buildFields(CriteriaItem $item): array
     {
         return [
-            'title' =>  $this->ui_factory->input()->field()->text($this->lng->txt("title"))
+            'title' => $this->ui_factory->input()->field()->text($this->lng->txt("title"))
                                         ->withAdditionalTransformation($this->refinery->string()->hasMinLength(1))
                                         ->withRequired(true)
                                         ->withValue($item->getTitle()),
-            'description' =>  $this->ui_factory->input()->field()->textarea($this->lng->txt("description"))
-                                              ->withValue($item->getDescription() !== null ? $item->getDescription(): ""),
+            'description' => $this->ui_factory->input()->field()->textarea($this->lng->txt("description"))
+                                              ->withValue($item->getDescription() !== null ? $item->getDescription() : ""),
             'is_general' => $this->ui_factory->input()->field()->radio(
                 $this->plugin->txt('criterion_type')
             )
@@ -268,7 +270,7 @@ abstract class CriteriaGUI extends BaseGUI implements DataTableParent
         ];
     }
 
-    protected function save(CriteriaItem $item, array $data) : void
+    protected function save(CriteriaItem $item, array $data): void
     {
         if ($item->getId() === 0) {
             $criterion = $this->getRatingCriterionModelFromContext();

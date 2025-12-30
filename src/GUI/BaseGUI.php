@@ -120,6 +120,14 @@ abstract class BaseGUI
             $this->withFormData(...),
             $this->assessment_api->permissions($this->object->getContextId()),
         );
+
+        $manager_service = $this->task_api->manager();
+        $task_id = $this->get->integer('task_id', null) ?? (int) $this->session->get('task_id');
+        if ($manager_service->has($task_id)) {
+            $this->task_info = $manager_service->one($task_id);
+        } else {
+            $this->task_info = $manager_service->first();
+        }
     }
 
     /**
@@ -173,49 +181,28 @@ abstract class BaseGUI
     }
 
     /**
-     * Init the GUI to handle an assessment task
-     * The task is identified by the query parameter task_id
-     * Basic information of the task is loaded to the variable task_info
+     * Init the tools available for the GUI
+     * @param $with_task_selection - show the tool for task selection, if possible
+     *                               The task is identified by the query parameter task_id
+     *                               Basic information of the task is loaded to the property task_info
+     *
+     * @param $with_task_selection - show the tool for fixations, if allowed
      */
-    protected function initForTask()
+    protected function initTools(bool $with_task_selection = false, bool $with_fixations = false): void
     {
-        $manager_service = $this->task_api->manager();
+        $tools_data = $this->dic->globalScreen()->tool()->context()->current()->getAdditionalData();
+        $tools_data->add(ToolProvider::GUI_CLASS, static::class);
 
-        $task_id = $this->get->integer('task_id', null) ?? (int) $this->session->get('task_id');
-        if ($manager_service->has($task_id)) {
-            $this->task_info = $manager_service->one($task_id);
-        } else {
-            $this->task_info = $manager_service->first();
+        if ($with_task_selection && $this->object->getMultiTasks()) {
+            $this->session->set('task_id', $this->task_info?->getId() ?? '');
+            $this->ctrl->setParameter($this, 'task_id', $this->task_info?->getId() ?? '');
+            $this->tpl->setTitle($this->object->getTitle() . ' | ' . $this->task_info?->getTitle() ?? 'unknown task');
+
+            $tools_data->add(ToolProvider::WITH_TASK_SELECTION, true);
         }
 
-        if ($this->task_info === null) {
-            $this->tpl->setContent('task not found');
-            return;
-        }
-
-        $this->session->set('task_id', $this->task_info->getId());
-        $this->ctrl->setParameter($this, 'task_id', $this->task_info->getId());
-
-        if ($this->object->getMultiTasks()) {
-            $this->tpl->setTitle($this->object->getTitle() . ' | ' . $this->task_info->getTitle());
-        }
-
-        if ($this->object->getMultiTasks() || $this->assessment_api->permissions($this->object->getContextId())->canEditTemplates()) {
-            $tools_data = $this->dic->globalScreen()->tool()->context()->current()->getAdditionalData();
-            $tools_data->add(ToolProvider::NAME, true);
-            $tools_data->add(ToolProvider::GUI_CLASS, static::class);
-        }
-    }
-
-    /**
-     * Init the GUI to handle generic screens that are not bound to an assessment task
-     */
-    protected function initForNonTask()
-    {
-        if ($this->object->getMultiTasks() || $this->assessment_api->permissions($this->object->getContextId())->canEditTemplates()) {
-            $tools_data = $this->dic->globalScreen()->tool()->context()->current()->getAdditionalData();
-            $tools_data->add(ToolProvider::NAME, true);
-            $tools_data->add(ToolProvider::GUI_CLASS, InstructionSettingsGUI::class);
+        if ($with_fixations && $this->assessment_api->permissions($this->object->getContextId())->canEditTemplates()) {
+            $tools_data->add(ToolProvider::WITH_FIXATIONS, true);
         }
     }
 

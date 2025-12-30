@@ -54,7 +54,7 @@ class InstructionSettingsGUI extends BaseGUI
 
     public function executeCommand(): void
     {
-        $this->initForTask();
+        $this->initTools(true, true);
         $this->settings_service = $this->task_api->settings($this->task_info->getId());
         $this->resource_service = $this->task_api->resource($this->task_info->getId());
         $this->settings = $this->settings_service->get();
@@ -79,32 +79,21 @@ class InstructionSettingsGUI extends BaseGUI
     private function create(): void
     {
         $this->tpl->setTitle($this->object->getTitle());
-
-        $factory = $this->ui_factory->input()->field();
-        $fields = ['title' => $factory->text($this->lng->txt("title"))
-            ->withRequired(true)];
-        $sections = ['form' => $factory->section($fields, $this->plugin->txt('create_task'))];
-        $form = $this->ui_factory->input()->container()->form()->standard(
-            $this->ctrl->getFormAction($this, 'create'),
-            $sections
-        );
+        $modal = $this->getCreateModal();
 
         if ($this->request->getMethod() == "POST") {
-            $form = $form->withRequest($this->request);
-            $data = $form->getData();
-            $result = $form->getInputGroup()->getContent();
-            if ($result->isOK()) {
-                $task_id = $this->task_manager->create(new TaskInfo(
-                    $data['form']['title'],
-                    TaskType::ESSAY
-                ));
+            $modal = $modal->withRequest($this->request);
+            $data = $modal->getData();
 
-                $this->ctrl->setParameter($this, 'task_id', $task_id);
-                $this->ctrl->redirect($this, 'editSettings');
-            }
+            $task_id = $this->task_manager->create(new TaskInfo(
+                !empty($data['title']) ? $data['title'] : $this->plugin->txt('new_task'),
+                TaskType::ESSAY
+            ));
+
+            $this->ctrl->setParameter($this, 'task_id', $task_id);
         }
 
-        $this->add($form)->show();
+        $this->ctrl->redirect($this, 'editSettings');
     }
 
     private function delete(): void
@@ -113,17 +102,14 @@ class InstructionSettingsGUI extends BaseGUI
             $this->raisePermissionError();
         }
         $this->task_manager->delete($this->task_info->getId());
-        $this->success($this->plugin->txt('tak_deleted'), true);
+        $this->success($this->plugin->txt('task_deleted'), true);
         $this->ctrl->redirect($this, 'editSettings');
 
     }
 
     protected function editSettings(): void
     {
-        if ($this->object->getMultiTasks()) {
-            $this->addDeleteButton();
-        }
-
+        $this->setToolbar();
         $form = $this->buildForm();
         if ($this->request->getMethod() == "POST") {
             $form = $form->withRequest($this->request);
@@ -203,19 +189,40 @@ class InstructionSettingsGUI extends BaseGUI
         return $this->ui_factory->input()->container()->form()->standard($this->ctrl->getFormAction($this), $sections);
     }
 
-    private function addDeleteButton(): void
+    private function setToolbar(): void
     {
-        $this->add($modal = $this->ui_factory->modal()->interruptive(
-            $this->plugin->txt("delete_task"),
-            $this->plugin->txt("delete_task_confirmation"),
-            $this->ctrl->getLinkTarget($this, "delete")
-        )->withActionButtonLabel($this->plugin->txt("delete_task")));
+        if ($this->object->getMultiTasks()) {
+            $this->add($modal = $this->getCreateModal());
 
-        $this->toolbar->addComponent($this->ui_factory->button()->standard(
-            $this->plugin->txt("delete_task"),
-            "#"
-        )->withOnClick($modal->getShowSignal())->withUnavailableAction(
-            $this->task_manager->count() < 2
-        ));
+            $this->toolbar->addComponent($this->ui_factory->button()->primary(
+                $this->plugin->txt("create_task"),
+                '#'
+            )->withOnClick($modal->getShowSignal()));
+
+            $this->add($modal = $this->ui_factory->modal()->interruptive(
+                $this->plugin->txt("delete_task"),
+                $this->plugin->txt("delete_task_confirmation"),
+                $this->ctrl->getLinkTarget($this, "delete")
+            )->withActionButtonLabel($this->plugin->txt("delete_task")));
+
+            $this->toolbar->addComponent($this->ui_factory->button()->standard(
+                $this->plugin->txt("delete_task"),
+                "#"
+            )->withOnClick($modal->getShowSignal())->withUnavailableAction(
+                $this->task_manager->count() < 2
+            ));
+        }
+    }
+
+    private function getCreateModal()
+    {
+        return $this->ui_factory->modal()->roundtrip(
+            $this->plugin->txt("create_task"),
+            null,
+            [
+                'title' => $this->ui_factory->input()->field()->text($this->lng->txt("title")),
+            ],
+            $this->ctrl->getFormAction($this, 'create')
+        )->withSubmitLabel($this->plugin->txt("create_task"));
     }
 }

@@ -36,7 +36,8 @@ class SolutionSettingsGUI extends BaseGUI
     private Settings $settings;
     private ?Resource $resource;
 
-    public function __construct(BaseObjectData $object) {
+    public function __construct(BaseObjectData $object)
+    {
         parent::__construct($object);
 
         $this->entity_service = $this->system_api->entity();
@@ -44,12 +45,13 @@ class SolutionSettingsGUI extends BaseGUI
         $this->file_storage = $this->system_api->fileStorage();
         $this->upload_handler = new ilLongEssayAssessmentUploadHandlerGUI(
             $this->file_storage,
-            $this->plugin->dic()->uploadTempFile());
+            $this->plugin->dic()->uploadTempFile()
+        );
     }
 
     public function executeCommand(): void
     {
-        $this->initForTask();
+        $this->initTools(true, true);
         $this->settings_service = $this->task_api->settings($this->task_info->getId());
         $this->resource_service = $this->task_api->resource($this->task_info->getId());
         $this->settings = $this->settings_service->get();
@@ -87,7 +89,8 @@ class SolutionSettingsGUI extends BaseGUI
     private function updateSettings(array $data): void
     {
         $this->settings->setSolution(
-            $this->transform_service->trimRichText($data['form']['task_solution']));
+            $this->transform_service->trimRichText($data['form']['task_solution'])
+        );
         $this->entity_service->secure($this->settings, Settings::class);
         $this->settings_service->save($this->settings);
 
@@ -103,18 +106,18 @@ class SolutionSettingsGUI extends BaseGUI
                     $this->upload_handler->getApiStream($id),
                     $this->upload_handler->getApiInfo($id)
                 );
-                $this->resource_service->save($this->resource
+                $this->resource_service->save(
+                    $this->resource
                     ->setFileId($stored->getId())
                     ->setTitle($stored->getFileName())
                 );
-            }
-            elseif ($this->resource !== null) {
+            } elseif ($this->resource !== null) {
                 $this->file_storage->deleteFile($this->resource->getFileId());
                 $this->resource_service->delete($this->resource);
             }
         }
 
-        $this->success( $this->lng->txt("settings_saved"), true);
+        $this->success($this->lng->txt("settings_saved"), true);
         $this->ctrl->redirect($this, "editSettings");
     }
 
@@ -128,7 +131,8 @@ class SolutionSettingsGUI extends BaseGUI
             ->tinyMCE($this->plugin->txt("task_solution_text"), $this->plugin->txt("task_solution_info"))
             ->withValue($this->settings->getSolution() ?? "");
 
-        $fields['resource_file'] = $factory->file($this->upload_handler,
+        $fields['resource_file'] = $factory->file(
+            $this->upload_handler,
             $this->plugin->txt("task_solution_file"),
             $this->plugin->txt("task_solution_file_info")
         )

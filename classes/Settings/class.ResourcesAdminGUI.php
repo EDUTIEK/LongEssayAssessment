@@ -73,7 +73,7 @@ class ResourcesAdminGUI extends BaseGUI implements DataTableParent
 
     public function executeCommand(): void
     {
-        $this->initForTask();
+        $this->initTools(true, true);
         $this->resource_service = $this->task_api->resource($this->task_info->getId());
 
         $cmd = $this->ctrl->getCmd('showItems');

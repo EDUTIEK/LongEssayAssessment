@@ -52,6 +52,7 @@ writer_url#:#Adresse zur Schreiboberfläche
 writer_url_info#:#Die Webapp zur Schreiboberfläche ist im Plugin integriert. Wenn Sie zur Entwicklung eine separate verwenden, tragen Sie deren Adresse hier ein.
 corrector_url#:#Adresse zur Korrekturoberfläche
 corrector_url_info#:#Die Webapp zur Korrekturoberfläche ist im Plugin integriert. Wenn Sie zur Entwicklung eine separate verwenden, tragen Sie deren Adresse hier ein.
+tab_task#:#Aufgabenerstellung
 tab_orga_settings#:#Organisation
 tab_content_settings#:#Inhalt
 tab_instructions_settings#:#Aufgabenstellung

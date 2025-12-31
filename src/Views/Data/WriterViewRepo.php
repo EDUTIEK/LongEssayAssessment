@@ -2,6 +2,7 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\View\Data;
 
+use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\HydrationInterface;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\RepositoryInterface;
 use ILIAS\Plugin\LongEssayAssessment\System\Data\UserDataRepo;
 use ILIAS\Plugin\LongEssayAssessment\System\Data\UserDisplayRepo;
@@ -59,6 +60,7 @@ class WriterViewRepo extends ViewRepo implements \Edutiek\AssessmentService\View
         $sql .= "LEFT JOIN object_reference AS r ON w.ass_id = r.obj_id ";
         $sql .= "WHERE " . ($this->where($filter) ?? "1") . " ";
         $sql .= "GROUP BY writer_id, user_id, location_id, authorized_by, excluded_by ";
+        $sql .= "HAVING " . ($this->having($filter) ?? "1") . " ";
         $sql .= "{$limit} {$offset}";
 
         $query = $this->db->query($sql);
@@ -77,12 +79,13 @@ class WriterViewRepo extends ViewRepo implements \Edutiek\AssessmentService\View
         }
 
         //Hydrate all objects
-        array_map(fn (\ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\HydrationInterface $r) => $r->hydrate(), [
+        array_map(fn (HydrationInterface $r) => $r->hydrate(), [
             $this->writer_repo, $this->location_repo, $this->user_data_repo, $this->user_display_repo
         ]);
 
         //Apply backend filtering for composed complex values
-        array_filter($result, function (WriterView $wv) use ($filter) {
+        $result = array_filter($result, function (WriterView $wv) use ($filter) {
+            $status = $wv->getWriter()->getWritingStatus();
             if (!empty($filter['status']) && !in_array($wv->getWriter()->getWritingStatus()->value, $filter['status'])) {
                 return false;
             }
@@ -104,10 +107,25 @@ class WriterViewRepo extends ViewRepo implements \Edutiek\AssessmentService\View
             "id" => is_array($value) ? $this->db->in("w.id", $value, false, "integer") : "w.id = " . $this->db->quote($value, "integer"),
             "ass_id", "obj_id" => is_array($value) ? $this->db->in("w.ass_id", $value, false, "integer") : "w.ass_id = " . $this->db->quote($value, "integer"),
             "ref_id" => is_array($value) ? $this->db->in("r.ref_id", $value, false, "integer") : "r.ref_id = " . $this->db->quote($value, "integer"),
-            "name" => $this->db->like("CONCAT(u.firstname, u.lastname, u.login, w.pseudonym)", $value, true),
+            "name" => $this->db->like("CONCAT(u.firstname, u.lastname, u.login, w.pseudonym)", "text", $value, true),
             "time_limit_changed" => ($value == "1" ? "NOT" : "") . "(w.earliest_start IS NULL AND w.latest_end IS NULL AND w.time_limit_minutes IS NULL)",
             "location" => "writer.location = " . $this->db->quote($value, "integer"),
-            "pdf_version" => "MAX(e.pdf_version) IS " . ($value == "1" ? "" : "NOT") . " NULL",
+            default => null,
+        };
+    }
+
+    public function having(array $filter): ?string
+    {
+        $filter = array_filter($filter);
+        $parts = array_filter(array_map([$this, 'groupingFilter'], array_keys($filter), $filter));
+
+        return !empty($parts) ? implode(' AND ', $parts) : null;
+    }
+
+    public function groupingFilter(string $key, mixed $value): ?string
+    {
+        return match($key) {
+            "pdf_version" => "MAX(e.pdf_version) IS " . ($value == "2" ? "" : "NOT") . " NULL",
             default => null,
         };
     }

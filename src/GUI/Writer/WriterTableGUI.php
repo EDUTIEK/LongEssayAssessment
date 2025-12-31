@@ -373,6 +373,7 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
 
     public function getTotalRowCount(?array $filter_data, ?array $additional_parameters): ?int
     {
+        // todo: respect the filter when a count can be done fully in SQL, see CorrectionsViewRepo
         return count($this->writer_service->all());
     }
 

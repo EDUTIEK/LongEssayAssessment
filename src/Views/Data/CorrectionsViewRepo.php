@@ -11,7 +11,6 @@ use ILIAS\Plugin\LongEssayAssessment\Assessment\Data\PropertiesRepo;
 
 class CorrectionsViewRepo extends ViewRepo implements \Edutiek\AssessmentService\Views\Data\CorrectionsViewRepo
 {
-
     public function __construct(
         private readonly ilDBInterface $db,
         private readonly RepositoryInterface $writer_repo,
@@ -58,10 +57,10 @@ class CorrectionsViewRepo extends ViewRepo implements \Edutiek\AssessmentService
             $cor_result = json_decode('[' . $row['corrections'] . ']', true);
             foreach ($cor_result as list($position, $assignment_id, $summary_id, $corrector_id, $user_id)) {
                 $corrections[$position] = new Correction(
-                    $this->corrector_assignment_repo->dehydratedInstance((int)$assignment_id),
-                    $summary_id !== null ? $this->corrector_summary_repo->dehydratedInstance((int)$summary_id) : null,
-                    $this->corrector_repo->dehydratedInstance((int)$corrector_id),
-                    $this->user_data_repo->dehydratedInstance((int)$user_id)
+                    $this->corrector_assignment_repo->dehydratedInstance((int) $assignment_id),
+                    $summary_id !== null ? $this->corrector_summary_repo->dehydratedInstance((int) $summary_id) : null,
+                    $this->corrector_repo->dehydratedInstance((int) $corrector_id),
+                    $this->user_data_repo->dehydratedInstance((int) $user_id)
                 );
             }
 
@@ -79,14 +78,14 @@ class CorrectionsViewRepo extends ViewRepo implements \Edutiek\AssessmentService
                 $this->user_data_repo->dehydratedInstance($row['excluded_by'])
             );
         }
-        array_map(fn (\ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\HydrationInterface $r) => $r->hydrate(), [
+        array_map(fn(\ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\HydrationInterface $r) => $r->hydrate(), [
             $this->writer_repo, $this->location_repo, $this->user_data_repo, $this->user_display_repo, $this->task_repo,
             $this->properties_repo, $this->corrector_repo, $this->corrector_assignment_repo, $this->corrector_summary_repo
         ]);
 
         //Apply backend filtering for composed complex values
-        array_filter($result, function (CorrectionsView $wv) use ($filter) {
-            if (!empty($filter['status']) && !in_array($wv->getWriter()->getWritingStatus()->value, $filter['status'])) {
+        $result = array_filter($result, function (CorrectionsView $wv) use ($filter) {
+            if (!empty($filter['status']) && !in_array($wv->getWriter()->getCombinedStatus()->value, $filter['status'])) {
                 return false;
             }
             if (!empty($filter['min_words'] ?? null) && ($wv->getEssay()?->getWordCount() ?? 0) < (int) $filter['min_words']) {
@@ -101,7 +100,7 @@ class CorrectionsViewRepo extends ViewRepo implements \Edutiek\AssessmentService
         return $result;
     }
 
-    public function filter(string $key, mixed $value): ?string
+    public function whereCondition(string $key, mixed $value): ?string
     {
         return match($key) {
             "id" => is_array($value) ? $this->db->in("w.id", $value, false, "integer") : "w.id = " . $this->db->quote($value, "integer"),
@@ -111,13 +110,22 @@ class CorrectionsViewRepo extends ViewRepo implements \Edutiek\AssessmentService
             "name" => $this->db->like("CONCAT(u.firstname, u.lastname, u.login, w.pseudonym)", $value, true),
             "time_limit_changed" => ($value == "1" ? "NOT" : "") . "(w.earliest_start IS NULL AND w.latest_end IS NULL AND w.time_limit_minutes IS NULL)",
             "location" => "writer.location = " . $this->db->quote($value, "integer"),
-            "pdf_version" => "MAX(e.pdf_version) IS " . ($value == "1" ? "" : "NOT") . " NULL",
+            default => null,
+        };
+    }
+
+    public function havingCondition(string $key, mixed $value): ?string
+    {
+        return match($key) {
+            "pdf_version" => "MAX(e.pdf_version) IS " . ($value == "2" ? "" : "NOT") . " NULL",
             default => null,
         };
     }
 
     public function count(array $filter): int
     {
+        // todo: use the full condition from some() whenn all filters can ve applied by SQL
+
         $sql = "SELECT count(*) AS count ";
         $sql .= "FROM {$this->writer_repo->table()} AS w ";
         $sql .= "JOIN {$this->task_repo->table()} AS t ON w.ass_id = t.ass_id ";
@@ -147,7 +155,7 @@ class CorrectionsViewRepo extends ViewRepo implements \Edutiek\AssessmentService
     {
         $assessments = [];
 
-        foreach($ass_ids as $ass_id) {
+        foreach ($ass_ids as $ass_id) {
             $property = $this->properties_repo->one($ass_id);
             $assessments[$ass_id] = $property->getTitle();
         }

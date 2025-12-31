@@ -72,14 +72,14 @@ class WriterViewRepo extends ViewRepo implements \Edutiek\AssessmentService\View
                 $this->user_data_repo->dehydratedInstance($row['user_id']),
                 $this->user_display_repo->dehydratedInstance($row['user_id']),
                 $this->location_repo->dehydratedInstance($row['location_id']),
-                new EssayTaskSummary($row['newest_last_change'] !== null ? new DateTimeImmutable($row['newest_last_change'], $this->time_zone) : null, (bool)$row['has_pdf_version'], (int)$row['total_word_count']),
+                new EssayTaskSummary($row['newest_last_change'] !== null ? new DateTimeImmutable($row['newest_last_change'], $this->time_zone) : null, (bool) $row['has_pdf_version'], (int) $row['total_word_count']),
                 $this->user_data_repo->dehydratedInstance($row['authorized_by']),
                 $this->user_data_repo->dehydratedInstance($row['excluded_by'])
             );
         }
 
         //Hydrate all objects
-        array_map(fn (HydrationInterface $r) => $r->hydrate(), [
+        array_map(fn(HydrationInterface $r) => $r->hydrate(), [
             $this->writer_repo, $this->location_repo, $this->user_data_repo, $this->user_display_repo
         ]);
 
@@ -101,7 +101,7 @@ class WriterViewRepo extends ViewRepo implements \Edutiek\AssessmentService\View
         return $result;
     }
 
-    public function filter(string $key, mixed $value): ?string
+    public function whereCondition(string $key, mixed $value): ?string
     {
         return match($key) {
             "id" => is_array($value) ? $this->db->in("w.id", $value, false, "integer") : "w.id = " . $this->db->quote($value, "integer"),
@@ -114,15 +114,7 @@ class WriterViewRepo extends ViewRepo implements \Edutiek\AssessmentService\View
         };
     }
 
-    public function having(array $filter): ?string
-    {
-        $filter = array_filter($filter);
-        $parts = array_filter(array_map([$this, 'groupingFilter'], array_keys($filter), $filter));
-
-        return !empty($parts) ? implode(' AND ', $parts) : null;
-    }
-
-    public function groupingFilter(string $key, mixed $value): ?string
+    public function havingCondition(string $key, mixed $value): ?string
     {
         return match($key) {
             "pdf_version" => "MAX(e.pdf_version) IS " . ($value == "2" ? "" : "NOT") . " NULL",

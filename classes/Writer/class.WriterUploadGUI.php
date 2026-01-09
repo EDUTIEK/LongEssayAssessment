@@ -200,7 +200,7 @@ class WriterUploadGUI extends BaseGUI
         );
 
         if ($essay?->getPdfVersion()) {
-            $this->system_api->fileDelivery()->sendFile($essay->getPdfVersion(), Disposition::ATTACHMENT);
+            $this->system_api->fileDelivery()->sendFile($essay->getPdfVersion(), Disposition::INLINE);
         } else {
             $response = $this->http->response()->withStatus(StatusCode::HTTP_NOT_FOUND);
             $this->http->saveResponse($response);

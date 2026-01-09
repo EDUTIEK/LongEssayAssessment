@@ -80,6 +80,7 @@ class ResourcesAdminGUI extends BaseGUI implements DataTableParent
         switch ($cmd) {
             case 'showItems':
             case "editItem":
+            case "inlineResourceFile":
             case "downloadResourceFile":
             case "deleteItem":
                 $this->$cmd();
@@ -323,7 +324,8 @@ class ResourcesAdminGUI extends BaseGUI implements DataTableParent
         $this->ctrl->redirect($this, "showItems");
     }
 
-    protected function downloadResourceFile(?string $identifier = null)
+
+    private function deliverResourceFile(?string $identifier = null, Disposition $disposition = Disposition::INLINE)
     {
         if ($identifier === null) {
             if ($this->get->has("resource_id")) {
@@ -340,7 +342,18 @@ class ResourcesAdminGUI extends BaseGUI implements DataTableParent
                 throw new \Exception("Resource not found");
             }
         }
-        $this->file_delivery->sendFile($identifier, Disposition::ATTACHMENT);
+        $this->file_delivery->sendFile($identifier, Disposition::INLINE);
+    }
+
+
+    protected function inlineResourceFile(?string $identifier = null)
+    {
+        $this->deliverResourceFile($identifier, Disposition::INLINE);
+    }
+
+    protected function downloadResourceFile(?string $identifier = null)
+    {
+        $this->deliverResourceFile($identifier, Disposition::ATTACHMENT);
     }
 
     /**
@@ -449,7 +462,7 @@ class ResourcesAdminGUI extends BaseGUI implements DataTableParent
         $components = [];
         if ($item->getType() === ResourceType::FILE) {
             $this->ctrl->setParameter($this, "resource_id", $item->getId());
-            $link = $this->ctrl->getLinkTarget($this, "downloadResourceFile");
+            $link = $this->ctrl->getLinkTarget($this, "inlineResourceFile");
             $components[] = $this->componentOfFile($item, $link);
         } elseif ($item->isEmbedded() && $item->getType() === ResourceType::URL) {
             $url = $item->getUrl();

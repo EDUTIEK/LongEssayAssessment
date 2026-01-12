@@ -841,7 +841,7 @@ procedure_approximation_info#:#Die Annäherung beginnt mit dem Erstkorrektor, de
 procedure_consulting#:#Beratungsverfahren
 procedure_consulting_info#:#Beide Korrektoren müssen eine Beratungspunktzahl eingeben. Nur der Zweitkorrektor darf eine Begründung als Beratungsvermerk eingeben. Die Eingaben aus der Beratung werden gesondert gespeichert.
 revision_between#:#Bewertungskorridor
-revision_between_info#:#Eine überarbeitete Punktzahl muss zwischen den ursprünglichen beider Korrektoren liegen.
+revision_between_info#:#Eine überarbeitete Punktzahl muss zwischen den ursprünglichen Bewertungen beider Korrektoren liegen.
 stitch_after_procedure#:#Stichentscheid
 stitch_after_procedure_info#:#Ist nach dem Verfahren der Korrektoren weiterhin eine Ausnahmebehandlung nötig, muss ein Stichentscheid durch einen dritten Korrektor erfolgen, der in der Korrekturverwaltung manuell bestimmt wird. Andernfalls wird eine Durchschnittspunktzahl gebildet.
 no_manual_decimals#:#Ganzzahlige Punkte

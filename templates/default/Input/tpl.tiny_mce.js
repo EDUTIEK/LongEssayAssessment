@@ -70,7 +70,7 @@ $(document).ready(function () {
     text_patterns: false,
     // skin_url: 'default',
     content_css: "{CONTENT_CSS}",
-    content_style: "html { overflow: initial; }",
+    content_style: "html { overflow: initial; padding: 10px;}",
     browser_spellcheck: true,
     highlight_on_focus: true,
     iframe_aria_text: "{ARIA_TEXT}",

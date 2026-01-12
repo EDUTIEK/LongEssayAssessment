@@ -837,7 +837,7 @@ max_auto_distance_info#:#Maximal erlaubter Unterschied zwischen niedrigster und 
 correction_procedure#:#Verfahren der Korrektoren
 procedure_none#:#Kein Verfahren
 procedure_approximation#:#Annäherungsverfahren
-procedure_approximation_info#:#Die Annäherung beginnt mit dem Erstkorrektor, der seine Punkte und sein Gutachten überarbeiten muss. Anschließend muss der Zweitkorrektor seine Punkte und sein Gutachten überarbeiten, wenn der Erstkorrektor dies entscheidet. Die Eingaben aus der Annäherung werden gesondert gespeichert.
+procedure_approximation_info#:#Im Annäherungsverfahren hat der Erstkorrektor seine Bewertung zu überprüfen und das Ergebnis (Änderung oder Beibehaltung der vergebenen Punktzahl) mit kurzer Begründung zu dokumentieren. Der Zweitkorrektor wird in gleicher Weise einbezogen, falls der Erstkorrektor dies veranlasst. Andernfalls hat es mit der Überprüfung durch den Erstkorrektor sein Bewenden.
 procedure_consulting#:#Beratungsverfahren
 procedure_consulting_info#:#Beide Korrektoren müssen eine Beratungspunktzahl eingeben. Nur der Zweitkorrektor darf eine Begründung als Beratungsvermerk eingeben. Die Eingaben aus der Beratung werden gesondert gespeichert.
 revision_between#:#Bewertungskorridor

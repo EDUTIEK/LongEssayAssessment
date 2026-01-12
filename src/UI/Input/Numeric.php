@@ -7,7 +7,7 @@ use ILIAS\Refinery\Transformation;
 /**
  * This implements the numeric input.
  */
-class Numeric extends \ILIAS\UI\Implementation\Component\Input\Field\Numeric
+class Numeric extends \ILIAS\UI\Implementation\Component\Input\Field\FormInput
 {
     /**
      * @var bool

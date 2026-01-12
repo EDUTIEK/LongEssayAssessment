@@ -19,11 +19,20 @@ class DataConstraints
     }
 
     /**
-     * Creates a constraint that can be used to check if an integer value is
+     * Creates a constraint that can be used to check if value is
      * greater or equal than the defined minimum.
      */
-    public function minimumInteger(int $minimum) : MinimumInteger
+    public function minimum(int $minimum) : Minimum
     {
-        return new MinimumInteger($minimum, $this->dataFactory, $this->language);
+        return new Minimum($minimum, $this->dataFactory, $this->language);
+    }
+
+    /**
+     * Creates a constraint that can be used to check if value is
+     * lower or equal than the defined maximum.
+     */
+    public function maximum(int $minimum) : Maximum
+    {
+        return new Maximum($minimum, $this->dataFactory, $this->language);
     }
 }

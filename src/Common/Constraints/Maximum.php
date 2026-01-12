@@ -9,19 +9,19 @@ use ILIAS\Refinery\Constraint;
 use ILIAS\Refinery\Custom\Constraint as CustomConstraint;
 use ilLanguage;
 
-class MinimumInteger extends CustomConstraint implements Constraint
+class Maximum extends CustomConstraint implements Constraint
 {
-    protected int $min;
+    protected int $max;
 
-    public function __construct(int $min, Data\Factory $data_factory, ilLanguage $lng)
+    public function __construct(int $max, Data\Factory $data_factory, ilLanguage $lng)
     {
-        $this->min = $min;
+        $this->max = $max;
         parent::__construct(
             function ($value) {
-                return $value >= $this->min;
+                return $value <= $this->max;
             },
             function ($txt, $value) {
-                return $txt("rep_robj_xlas_constraint_error_not_minimum", $value, $this->min);
+                return $txt("rep_robj_xlas_constraint_error_not_maximum", $this->max);
             },
             $data_factory,
             $lng

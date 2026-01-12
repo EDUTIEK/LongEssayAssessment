@@ -192,16 +192,18 @@ class CorrectionSettingsGUI extends BaseGUI
 
             // multi correctors
 
-            $fields['max_auto_distance'] = $factory->text(
+            $fields['max_auto_distance'] = $this->plugin_ui_factory->field()->numeric(
                 $this->plugin->txt('max_auto_distance'),
                 $this->plugin->txt('max_auto_distance_info')
             )
-                ->withAdditionalTransformation($this->refinery->byTrying(
-                    [
-                    $this->refinery->kindlyTo()->float(),
-                    $this->refinery->always(0.0)]
-                ))
-                ->withValue((string) (empty($assessment_settings->getMaxAutoDistance()) ? '0.0' : $assessment_settings->getMaxAutoDistance()));
+                ->withStep(0.5)
+                ->withAdditionalTransformation($this->refinery->byTrying([
+                    $this->refinery->KindlyTo()->float(),
+                    $this->refinery->always(0)
+                ]))
+                ->withAdditionalTransformation($this->constraints->minimum(0))
+                ->withAdditionalTransformation($this->constraints->maximum(1000000000))
+                ->withValue((empty($assessment_settings->getMaxAutoDistance()) ? 0.0 : $assessment_settings->getMaxAutoDistance()));
 
             $fields['procedure'] = $factory->radio($this->plugin->txt('correction_procedure'))
                 ->withOption(CorrectionProcedure::NONE->value, $this->plugin->txt('procedure_none'))
@@ -325,18 +327,27 @@ class CorrectionSettingsGUI extends BaseGUI
             $this->plugin->txt('max_points'),
             $this->plugin->txt($orga_settings->getMultiTasks() ? 'max_points_info_multi' : 'max_points_info')
         )
+            ->withAdditionalTransformation($this->refinery->byTrying([
+                $this->refinery->To()->int(),
+                $this->refinery->always(0)
+            ]))
             ->withAdditionalTransformation($this->refinery->int()->isGreaterThanOrEqual(0))
-            ->withAdditionalTransformation($this->refinery->to()->int())
-            ->withRequired(true)
+            ->withAdditionalTransformation($this->refinery->int()->isLessThanOrEqual(1000000000))
             ->withValue($assessment_settings->getMaxPoints());
 
         if ($orga_settings->getMultiTasks()) {
             foreach ($this->manager_service->all() as $task_info) {
                 $settings = $this->task_api->settings($task_info->getId())->get();
-                $fields['weight' . $task_info->getId()] = $factory->numeric(
+                $fields['weight' . $task_info->getId()] = $this->plugin_ui_factory->field()->numeric(
                     $this->plugin->txt('weight') . ' ' . $task_info->getTitle()
                 )
+                    ->withStep(0.1)
+                    ->withAdditionalTransformation($this->refinery->byTrying([
+                        $this->refinery->To()->float(),
+                        $this->refinery->always(0)
+                    ]))
                     ->withAdditionalTransformation($this->refinery->int()->isGreaterThanOrEqual(0))
+                    ->withAdditionalTransformation($this->refinery->int()->isLessThanOrEqual(10))
                     ->withRequired(true)
                     ->withValue($settings->getWeight());
             }

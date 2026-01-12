@@ -80,6 +80,14 @@ class InputRenderer extends \ILIAS\UI\Implementation\Component\Input\Field\Rende
         }
     }
 
+    protected function applyNumeric(FormInput $component, Template $tpl): void
+    {
+        $value = $component->getValue();
+        if (is_numeric($value)) {
+            $tpl->setVariable("VALUE", (float) $value);
+        }
+    }
+
     protected function applyStep(Numeric $component, Template $tpl) : ?string
     {
         $step = $component->getStep();
@@ -94,7 +102,7 @@ class InputRenderer extends \ILIAS\UI\Implementation\Component\Input\Field\Rende
     {
         $tpl = $this->getTemplate("tpl.numeric.html", true, true);
         $this->applyName($component, $tpl);
-        $this->applyValue($component, $tpl, $this->escapeSpecialChars());
+        $this->applyNumeric($component, $tpl);
         $this->applyStep($component, $tpl);
 
         $label_id = $this->createId();

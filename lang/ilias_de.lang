@@ -568,7 +568,8 @@ assignment_excel_import_info#:#Die Korrekturzuweisungen werden vom ersten Blatt 
 add_all_course_tutors#:#Kursbetreuung hinzufügen
 confirm_add_all_course_tutors#:#Möchten Sie die Kursbetreuung zur Korrektur hinzufügen?
 tutors_added#:#Die Kursbetreuung wurde zur Korrektur hinzugefügt
-constraint_error_not_minimum#:#%s ist kleiner als das Minimum %s.
+constraint_error_not_minimum#:#Der Wert mus größer oder gleich %s sein.
+constraint_error_not_maximum#:#Der Wert mus kleiner oder gleich %s sein.
 corrector_x_login#:#Korrektor %s Login
 corrector_x_name#:#Korrektor %s Name
 corrector_x_points#:#Korrektor %s Punkte

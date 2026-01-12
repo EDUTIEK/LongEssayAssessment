@@ -196,8 +196,11 @@ class CorrectionSettingsGUI extends BaseGUI
                 $this->plugin->txt('max_auto_distance'),
                 $this->plugin->txt('max_auto_distance_info')
             )
-                ->withAdditionalTransformation($this->refinery->kindlyTo()->float())
-                ->withRequired(true)
+                ->withAdditionalTransformation($this->refinery->byTrying(
+                    [
+                    $this->refinery->kindlyTo()->float(),
+                    $this->refinery->always(0.0)]
+                ))
                 ->withValue((string) (empty($assessment_settings->getMaxAutoDistance()) ? '0.0' : $assessment_settings->getMaxAutoDistance()));
 
             $fields['procedure'] = $factory->radio($this->plugin->txt('correction_procedure'))

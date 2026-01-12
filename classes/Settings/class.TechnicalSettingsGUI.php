@@ -149,11 +149,13 @@ class TechnicalSettingsGUI extends BaseGUI
                 [
                     'left_correction_margin' => $factory->numeric($this->plugin->txt('left_correction_margin'))
                         ->withAdditionalTransformation($this->refinery->kindlyTo()->int())
+                        ->withAdditionalTransformation($this->refinery->int()->isLessThan(200))
                         ->withRequired(true)
                         ->withDisabled($has_comments)
                         ->withValue($writing_settings->getLeftCorrectionMargin()),
                     'right_correction_margin' => $factory->numeric($this->plugin->txt('right_correction_margin'))
                         ->withAdditionalTransformation($this->refinery->kindlyTo()->int())
+                        ->withAdditionalTransformation($this->refinery->int()->isLessThan(200))
                         ->withRequired(true)
                         ->withDisabled($has_comments)
                         ->withValue($writing_settings->getRightCorrectionMargin()),

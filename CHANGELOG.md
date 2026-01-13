@@ -12,6 +12,7 @@ Bug fixes:
 - Use smaller font for PDF from editor text (#45781)
 - Export only corrections for authorized essays and add results overview (#46350)
 - Missing hint why an assigned corrector cannot be deleted (#45997)
+- Removed decimal places in points (#46851)
 
 ## Version 3.7 (2025-08-15)
 

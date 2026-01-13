@@ -196,6 +196,9 @@ class DataTable extends Table implements DataRetrieval, DataTableParent
     # DATA TABLE PARENT fassade
     public function getTotalRowCount(?array $filter_data, ?array $additional_parameters): ?int
     {
+        if ($this->smallView($additional_parameters)) {
+            return -1;
+        }
         return $this->dt_parent->getTotalRowCount($filter_data, $additional_parameters);
     }
 

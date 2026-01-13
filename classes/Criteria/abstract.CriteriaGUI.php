@@ -165,7 +165,8 @@ abstract class CriteriaGUI extends BaseGUI implements DataTableParent
 
     public function getTotalRowCount(?array $filter_data, ?array $additional_parameters): ?int
     {
-        return -1;
+        $items = iterator_to_array($this->getTableItems(null, $filter_data));
+        return count($items);
     }
 
     public function getTableItems(?array $ids = null, ?array $filter_data = null): Generator

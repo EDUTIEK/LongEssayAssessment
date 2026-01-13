@@ -197,7 +197,8 @@ class CorrectorGUI extends BaseGUI implements DataTableParent
 
     public function getTotalRowCount(?array $filter_data, ?array $additional_parameters): ?int
     {
-        return -1;
+        $items = iterator_to_array($this->getTableItems(null, $filter_data));
+        return count($items);
     }
 
     public function getTableActions(): array
@@ -525,7 +526,7 @@ class CorrectorGUI extends BaseGUI implements DataTableParent
         $user_data = $this->user_service->getUsersByIds(array_map(fn(Corrector $x) => $x->getUserId(), $correctors));
 
         return $this->ui_factory->listing()->unordered(
-            array_map(fn(Corrector $x) => $user_data[$x->getUserId()]?->getFullname() ?? " - ", $correctors)
+            array_map(fn(Corrector $x) => $user_data[$x->getUserId()]?->getFullname(true) ?? " - ", $correctors)
         );
     }
 }

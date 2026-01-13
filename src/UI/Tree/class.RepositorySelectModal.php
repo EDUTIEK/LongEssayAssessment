@@ -78,7 +78,7 @@ class RepositorySelectModal
         return $this->permission;
     }
 
-    public function setSelectableTypes(array $types) : self
+    public function setSelectableTypes(array $types): self
     {
         $this->selectable_types = $types;
         return $this;
@@ -97,7 +97,7 @@ class RepositorySelectModal
 
     protected function getActionLabel(): string
     {
-        return $this->action_label ?? $this->lng->txt('copy');
+        return $this->action_label ?? $this->lng->txt('insert');
     }
 
     public function hasSelected(): bool
@@ -106,9 +106,9 @@ class RepositorySelectModal
         return $this->query->has($action_name) && $this->query->retrieve($action_name, $this->refinery->kindlyTo()->string()) === 'copy';
     }
 
-    public function getSelectedId() : int
+    public function getSelectedId(): int
     {
-        if(!$this->query->has($this->ref_id_token->getName()) || !$this->hasSelected()) {
+        if (!$this->query->has($this->ref_id_token->getName()) || !$this->hasSelected()) {
             throw new \ilException("There wasn't a selection yet.");
         }
 
@@ -125,7 +125,7 @@ class RepositorySelectModal
 
         $replace_signal = new ReplaceSignal($replace_signal_str);
 
-        switch($this->query->retrieve($this->action_token->getName(), $this->refinery->kindlyTo()->string())) {
+        switch ($this->query->retrieve($this->action_token->getName(), $this->refinery->kindlyTo()->string())) {
             case "preview":
                 $this->preview($replace_signal);
                 break;
@@ -149,7 +149,7 @@ class RepositorySelectModal
         }
         $obj_id = \ilObject2::_lookupObjectId($ref_id);
 
-        $title = $this->getTitle(). ": " . \ilObject2::_lookupTitle($obj_id);
+        $title = $this->getTitle() . ": " . \ilObject2::_lookupTitle($obj_id);
 
         $back_link = $this->url_builder
             ->withParameter($this->ref_id_token, $ref_id)
@@ -161,11 +161,11 @@ class RepositorySelectModal
 
         $components = [];
 
-        if($this->getMessage()) {
+        if ($this->getMessage()) {
             $components[] = $this->ui_factory->messageBox()->info($this->getMessage());
         }
         $contents = $this->getView($ref_id);
-        if(is_array($contents)) {
+        if (is_array($contents)) {
             $components = array_merge($components, $contents);
         } else {
             $components[] = $contents;
@@ -269,7 +269,7 @@ class RepositorySelectModal
      * @param string $action_title
      * @return array{0: \ILIAS\UI\Component\Button\Button, 1: Roundtrip}
      */
-    public function getToolbarComponents(string $action_title) : array
+    public function getToolbarComponents(string $action_title): array
     {
         $modal = $this->getModal();
         $btn = $this->ui_factory->button()->standard($action_title, "#")->withOnClick($modal->getShowSignal());

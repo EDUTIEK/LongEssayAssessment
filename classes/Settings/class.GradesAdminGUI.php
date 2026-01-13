@@ -314,6 +314,9 @@ class GradesAdminGUI extends BaseGUI implements DataTableParent
             $copy_grade_service = $copy_assessment_api->gradeLevel();
 
             if ($copy_assessment_api->permissions($select->getSelectedId())->canEditGrades()) {
+                foreach ($this->grade_service->all() as $grade) {
+                    $this->grade_service->delete($grade);
+                }
                 foreach ($copy_grade_service->all() as $grade_level) {
                     $new_grade_level = clone $grade_level;
                     $new_grade_level->setAssId($this->object->getAssId());

@@ -81,14 +81,14 @@ class CorrectorAdminCreateCorrectionsExportJob extends AbstractJob
                 if ($repoEssay->getWritingAuthorized()) {
                     $repoWriter = $this->writerRepo->getWriterById($repoEssay->getWriterId());
 
-                    $subdir = ilFileDelivery::returnASCIIFilename($repoWriter->getPseudonym());
+                    $subdir = ilFileDelivery::returnASCIIFilename($user_data_helper->getFullname($repoWriter->getUserId()) . ' (' . $user_data_helper->getLogin($repoWriter->getUserId()) . ')');
                     $storage->createDir($zipdir . '/' . $subdir);
 
                     $filename = $subdir . '-writing.pdf';
-                    $storage->write($zipdir . '/' . $subdir. '/'. $filename, $writerAdminService->getWritingAsPdf($object, $repoWriter, true));
+                    $storage->write($zipdir . '/' . $subdir. '/'. $filename, $writerAdminService->getWritingAsPdf($object, $repoWriter));
 
                     $filename = $subdir . '-correction.pdf';
-                    $storage->write($zipdir . '/' . $subdir. '/'. $filename, $correctorAdminService->getCorrectionAsPdf($object, $repoWriter, null, false, true));
+                    $storage->write($zipdir . '/' . $subdir. '/'. $filename, $correctorAdminService->getCorrectionAsPdf($object, $repoWriter));
                 }
             }
 

@@ -7,16 +7,14 @@ namespace ILIAS\Plugin\LongEssayAssessment\Settings;
 use DateTimeZone;
 use Edutiek\AssessmentService\Assessment\CorrectionSettings\FullService as AssessmentCorrectionSettingsService;
 use Edutiek\AssessmentService\Assessment\Data\AssignMode;
-use Edutiek\AssessmentService\Assessment\Data\CorrectionApproximation;
 use Edutiek\AssessmentService\Assessment\Data\CorrectionProcedure;
 use Edutiek\AssessmentService\Assessment\Data\CorrectionSettings as AssessmentCorrectionSettings;
 use Edutiek\AssessmentService\Assessment\OrgaSettings\FullService as OrgaSettingsService;
 use Edutiek\AssessmentService\Assessment\TaskInterfaces\TaskManager as TaskManager;
-use Edutiek\AssessmentService\Assessment\TaskInterfaces\TaskType;
-use Edutiek\AssessmentService\Task\Data\Settings as TaskSettings;
 use Edutiek\AssessmentService\System\Entity\FullService as EntityService;
-use Edutiek\AssessmentService\Task\CorrectionSettings\FullService as EssayTaskCorrectionSettingsService;
+use Edutiek\AssessmentService\Task\CorrectionSettings\FullService as TaskCorrectionSettingsService;
 use Edutiek\AssessmentService\Task\Data\CorrectionSettings as EssayCorrectionSettings;
+use Edutiek\AssessmentService\Task\Data\Settings as TaskSettings;
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\BaseObjectData;
 use ILIAS\UI\Component\Input\Container\Form\Standard;
@@ -30,7 +28,7 @@ class CorrectionSettingsGUI extends BaseGUI
 {
     private OrgaSettingsService $orga_settings_service;
     private AssessmentCorrectionSettingsService $assessment_correction_settings_service;
-    private EssayTaskCorrectionSettingsService $task_correction_settings_service;
+    private TaskCorrectionSettingsService $task_correction_settings_service;
     private EntityService $entity_service;
     private DateTimeZone $user_timezone;
     private TaskManager $manager_service;
@@ -155,6 +153,8 @@ class CorrectionSettingsGUI extends BaseGUI
                 $task_settings->setNegativeRating((string) $data['correction_functions']['enable_comment_ratings']['negative_rating']);
             } else {
                 $task_settings->setEnableCommentRatings(false);
+                $task_settings->setPositiveRating('');
+                $task_settings->setNegativeRating('');
             }
 
             $this->entity_service->secure($assessment_settings, AssessmentCorrectionSettings::class);

@@ -29,7 +29,7 @@ class CorrectionSettings extends \Edutiek\AssessmentService\Task\Data\Correction
 {
     #[Key]
     private int $ass_id = 0;
-    private string $criteria_mode = '';
+    private string $criteria_mode = 'none';
     private string $positive_rating = '';
     private string $negative_rating = '';
     private bool $enable_comments = true;

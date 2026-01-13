@@ -154,7 +154,7 @@ class GradesAdminGUI extends BaseGUI implements DataTableParent
 
     public function getTotalRowCount(?array $filter_data, ?array $additional_parameters) : ?int
     {
-        $items = iterator_to_array($this->getTableItems($filter_data, $additional_parameters));
+        $items = iterator_to_array($this->getTableItems(null, $filter_data));
         return count($items);
     }
 

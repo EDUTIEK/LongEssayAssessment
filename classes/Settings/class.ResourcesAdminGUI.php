@@ -38,6 +38,7 @@ use ILIAS\Plugin\LongEssayAssessment\UI\Table\Item;
 use ilLongEssayAssessmentUploadHandlerGUI;
 use ILIAS\Plugin\LongEssayAssessment\UI\Viewer\Media;
 use ILIAS\UI\Component\Component;
+use ILIAS\UI\Implementation\Component\Modal\Lightbox;
 
 /**
  * Resources Administration
@@ -94,8 +95,6 @@ class ResourcesAdminGUI extends BaseGUI implements DataTableParent
     public function getTableActions(): array
     {
         return [
-            $this->openAction(),
-            $this->previewAction(),
             $this->downloadAction(),
             $this->editAction(),
             $this->deleteAction(),
@@ -115,6 +114,9 @@ class ResourcesAdminGUI extends BaseGUI implements DataTableParent
         );
     }
 
+    /**
+     * @deprecated
+     */
     protected function previewAction(): Action\Modal
     {
         return $this->table_factory->action()->modal(
@@ -139,6 +141,9 @@ class ResourcesAdminGUI extends BaseGUI implements DataTableParent
         );
     }
 
+    /**
+     * @deprecated
+     */
     protected function openAction(): Action\Direct
     {
         return $this->table_factory->action()->direct(
@@ -342,7 +347,7 @@ class ResourcesAdminGUI extends BaseGUI implements DataTableParent
                 throw new \Exception("Resource not found");
             }
         }
-        $this->file_delivery->sendFile($identifier, Disposition::INLINE);
+        $this->file_delivery->sendFile($identifier, $disposition);
     }
 
 
@@ -370,10 +375,14 @@ class ResourcesAdminGUI extends BaseGUI implements DataTableParent
                     $file_info = $this->file_storage->getFileInfo($item->getIdentifier());
                     $name = $file_info->getFileName();
                     $size = $this->format_service->fileSize($file_info->getSize());
-                    $info = $this->renderer->render($this->ui_factory->listing()->property()->withItems([
-                        [$this->lng->txt("filename"), $name],
-                        [$this->lng->txt("size"), $size],
-                    ]));
+
+                    $modal = $this->previewModal($item);
+                    $info = $this->renderer->render([$modal, $this->ui_factory->button()->shy(
+                        $name,
+                        '',
+                    )->withOnClick($modal->getShowSignal())]);
+
+                    $info .= " (" . $size . ")";
                 } catch (\Exception $e) {
                     $info = "-- Broken File --";
                 }
@@ -381,12 +390,19 @@ class ResourcesAdminGUI extends BaseGUI implements DataTableParent
                 break;
 
             case ResourceType::URL:
-                $info = $this->renderer->render($this->ui_factory->link()->standard(
-                    $item->getUrl(),
-                    $item->getUrl()
-                ));
+
                 if ($item->isEmbedded()) {
+                    $modal = $this->previewModal($item);
+                    $info = $this->renderer->render([$modal, $this->ui_factory->button()->shy(
+                        $item->getUrl(),
+                        '',
+                    )->withOnClick($modal->getShowSignal())]);
                     $info .= " (" . $this->plugin->txt("resource_embedded") . ")";
+                } else {
+                    $info = $this->renderer->render($this->ui_factory->link()->standard(
+                        $item->getUrl(),
+                        $item->getUrl()
+                    )->withOpenInNewViewport(true));
                 }
                 $type = $this->plugin->txt('resource_weblink');
                 break;
@@ -458,6 +474,9 @@ class ResourcesAdminGUI extends BaseGUI implements DataTableParent
         }
     }
 
+    /**
+     * @return Lightbox
+     */
     public function previewModal(ResourceItem $item): Component
     {
         $components = [];

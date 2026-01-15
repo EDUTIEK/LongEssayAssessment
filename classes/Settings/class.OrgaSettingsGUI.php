@@ -98,7 +98,6 @@ class OrgaSettingsGUI extends BaseGUI
         $properties->setDescription($data['object']['description']);
 
         $orga_settings->setOnline($data['object']['online']);
-        $orga_settings->setTemplate($data['object']['template']);
         $orga_settings->setParticipationType(ParticipationType::tryFrom(
             $data['object']['participation_type']
         ) ?? ParticipationType::INSTANT);
@@ -173,10 +172,7 @@ class OrgaSettingsGUI extends BaseGUI
         $properties = $this->properties_service->get();
         $orga_settings = $this->orga_settings_service->get();
         $writing_settings = $this->writing_settings_service->get();
-
         $factory = $this->ui_factory->input()->field();
-        $section = fn($x, $title) => $factory->section($this->disabled_group->disableBySetting('tab_orga_settings', $x), $title);
-        $sections = [];
 
         $fields_object = [];
         $fields_object['title'] = $factory->text($this->lng->txt("title"))
@@ -196,14 +192,6 @@ class OrgaSettingsGUI extends BaseGUI
             $fields_object['src_template'] = $factory->text($this->plugin->txt('src_template'))
                 ->withValue($orga_settings->getSrcTemplateName())
                 ->withDisabled(true);
-        }
-
-        if ($this->assessment_api->permissions($this->object->getContextId())->canEditTemplates()) {
-            $fields_object['template'] = $factory->checkbox(
-                $this->plugin->txt('is_template'),
-                $this->plugin->txt('is_template_info')
-            )
-                ->withValue($orga_settings->getTemplate());
         }
 
         $fields_object['multi_tasks'] = $factory->checkbox(
@@ -419,19 +407,23 @@ class OrgaSettingsGUI extends BaseGUI
             $fields_settings['forwarding'] = $fields_settings['forwarding']->withValue(null);
         }
 
+        $sections = [
+            'object' => $factory->section($fields_object, $this->plugin->txt('object_settings')),
+            'content' => $factory->section($fields_content, $this->plugin->txt('content')),
+            'task' => $factory->section($fields_settings, $this->plugin->txt('task_settings'))
+                ->withAdditionalTransformation(
+                    $this->refinery->custom()->constraint(function (array $var) {
+                        if (($var['result_available_type'][0] ?? "") === ResultAvailableType::REVIEW->value) {
+                            return !empty($var['review']);
+                        }
+                        return true;
+                    }, $this->plugin->txt("result_available_review_error"))
+                )
+        ];
 
-        $sections['object'] = $section($fields_object, $this->plugin->txt('object_settings'));
-        $sections['content'] = $section($fields_content, $this->plugin->txt('content'));
-        $sections['task'] = $section($fields_settings, $this->plugin->txt('task_settings'))->withAdditionalTransformation(
-            $this->refinery->custom()->constraint(function (array $var) {
-                if (($var['result_available_type'][0] ?? "") === ResultAvailableType::REVIEW->value) {
-                    return !empty($var['review']);
-                }
-                return true;
-
-            }, $this->plugin->txt("result_available_review_error"))
+        return $this->ui_factory->input()->container()->form()->standard(
+            $this->ctrl->getFormAction($this),
+            $this->fixation_gui->disableBySetting('tab_orga_settings', $sections)
         );
-
-        return $this->ui_factory->input()->container()->form()->standard($this->ctrl->getFormAction($this), $sections);
     }
 }

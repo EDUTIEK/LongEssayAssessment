@@ -737,7 +737,6 @@ status_writing_authorized#:#freigegeben
 status_writing_excluded_from#:#ausgeschlossen von
 status_writing_autorized_from#:#freigegeben von
 src_template#:#Verwendete Vorlage
-is_template#:#Als Vorlage verwenden
 use_template#:#Vorlage verwenden
 assessment#:#Aufgabe
 task#:#Teilaufgabe
@@ -770,17 +769,18 @@ essay_import_user_not_existing#:#User existiert nicht
 essay_import_same_file_exists#:#Gleiche Datei existiert
 essay_import_another_file_exists#:#Unterschiedliche Datei existiert bereits
 essay_import_invalid_zip_format#:#Invalides ZIP Format
-disabled_group_tool_tab#:#Fixierungen
-toggle_disabled_group#:#Fixierungen sichtbar
 online_info#:#Die Aufgabe muss online geschalten sein, damit die bearbeitet und korrigiert werden kann. Andernfalls ist ist der Zugriff nur mit der Berechtigung "Einstellungen bearbeiten" möglich.
-is_template_info#:#Die Aufgabe kann als Vorlage für neue Aufgaben verwendet werden. Dazu muss sie auf der gleichen oder einer übergeordneten Magazinebene wie eine neue Aufgabe liegen. Sie können Vorlagen verbergen, indem Sie ihre Berechtigung "Anzeigen" entfernen oder die Aufgabe einem nicht sichtbaren Objekteblock zuordnen.
+is_template_info#:#Die Aufgabe kann als Vorlage für neue Aufgaben verwendet werden, die im Magazin auf der gleichen oder einer untergeordneten Magazinebene erstellt werden. Sie können Vorlagen verbergen, indem Sie ihre Berechtigung "Anzeigen" entfernen oder die Aufgabe einem nicht sichtbaren Objekteblock zuordnen.
 single_task#:#Einzelaufgabe
 single_task_info#:#Nur eine Aufgabenstellung ermöglichen. Die Bewertung kann dadurch mit Erst- und Zweitkorrektur durchgeführt werden. Diese Einstellung ist nicht änderbar.
 tools_tab_tasks#:#Teilaufgaben
-tools_tab_fixations#:#Festlegungen
-disabled_group_toggle#:#Ein/Ausblenden
-disabled_group_toggle_info#:#Sie können festgelegte Einstellungen einblenden, da Sie die Berechtigung "Vorlage bearbeiten" haben.
-disabled_group_info#:#Wählen Sie aus, welche Einstellungen mit den aktuellen Werten festgeschrieben und ausgeblendet werden.
+tools_tab_template#:#Vorlage
+template_title#:#Vorlage
+template_info#:#Sie können diese Aufgabe als Vorlage für neue Aufgaben vorsehen, die im Magazin auf der gleiche oder einer untergeordneten Ebene erstellt werden.
+template_toggle#:#Als Vorlage verwenden
+fixation_title#:#Festlegungen
+fixation_info#:#Die festgelegten Einstellungen sind gesperrt und werden für Nutzer ohne die Berechtigung "Vorlage bearbeiten" ausgeblendet. Sie können das mit dem Schalter "Reduzierte Ansicht" überprüfen.
+fixation_hide_toggle#:#Reduzierte Ansicht
 table_all_rows#:#Alle Zeilen
 table_all_rows_info#:#Alle Zeilen der Tabelle oder nur die Ausgewählten?
 table_select_columns#:#Spalten

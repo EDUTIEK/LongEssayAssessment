@@ -2,8 +2,6 @@
 
 /* Copyright (c) 2021 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-use ILIAS\Plugin\LongEssayAssessment\Data\Object\ObjectSettings;
-
 /**
  * Please do not create instances of large application classes
  * Write small methods within this class to determine the status.

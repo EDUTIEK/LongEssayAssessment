@@ -17,8 +17,7 @@ use ILIAS\HTTP\Services as Http;
 use ILIAS\Plugin\LongEssayAssessment\Common\Constraints\DataConstraints;
 use ILIAS\Plugin\LongEssayAssessment\Common\Http\RequestVariables;
 use ILIAS\Plugin\LongEssayAssessment\Common\Session\SessionValues;
-use ILIAS\Plugin\LongEssayAssessment\Provider\ToolProvider;
-use ILIAS\Plugin\LongEssayAssessment\Settings\InstructionSettingsGUI;
+use ILIAS\Plugin\LongEssayAssessment\ToolProvider;
 use ILIAS\Plugin\LongEssayAssessment\UI\Factory as PluginUiFactory;
 use ILIAS\Plugin\LongEssayAssessment\UI\UIService as PluginUIService;
 use ILIAS\Refinery\Factory as RefineryFactory;
@@ -36,12 +35,7 @@ use ilTabsGUI;
 use ilToolbarGUI;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use DateTimeInterface;
-use ilDatePresentation;
-use ilDateTime;
-use Edutiek\AssessmentService\System\Format\FullService as SystemFormat;
 use ILIAS\UI\Component\Input\Container\Form\Form;
-use ILIAS\Plugin\LongEssayAssessment\Assessment\DisabledGroup\DisabledGroup;
 
 /**
  * Base class for GUI classes (except the plugin guis required by ILIAS)
@@ -76,7 +70,7 @@ abstract class BaseGUI
 
     protected ?TaskInfo $task_info;
 
-    protected DisabledGroup $disabled_group;
+    protected FixationGUI $fixation_gui;
 
     /** @var UiComponent[] */
     private array $components = [];
@@ -112,14 +106,7 @@ abstract class BaseGUI
 
         $this->get = new RequestVariables($this->dic->http()->wrapper()->query(), $this->dic->refinery());
         $this->post = new RequestVariables($this->dic->http()->wrapper()->post(), $this->dic->refinery());
-        $this->disabled_group = new DisabledGroup(
-            $this->ui_factory,
-            $this->assessment_api,
-            $this->tpl,
-            $this->plugin->txt(...),
-            $this->withFormData(...),
-            $this->assessment_api->permissions($this->object->getContextId()),
-        );
+        $this->fixation_gui = new FixationGUI($this->object);
 
         $manager_service = $this->task_api->manager();
         $task_id = $this->get->integer('task_id', null) ?? (int) $this->session->get('task_id');
@@ -300,17 +287,5 @@ abstract class BaseGUI
     protected function renderContent($render_me): void
     {
         $this->tpl->setContent($this->renderer->render($render_me));
-    }
-
-    protected function withFormData(Form $form, callable $proc): Form
-    {
-        if ($this->request->getMethod() === 'POST') {
-            $form = $form->withRequest($this->request);
-            $data = $form->getData();
-            if ($data) {
-                $proc($data);
-            }
-        }
-        return $form;
     }
 }

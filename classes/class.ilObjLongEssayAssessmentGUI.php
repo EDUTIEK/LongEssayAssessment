@@ -21,10 +21,11 @@ use ILIAS\Plugin\LongEssayAssessment\Dashboard\ProtocolGUI;
 use ILIAS\Plugin\LongEssayAssessment\CorrectionAdmin\CorrectionAdminGUI;
 use ILIAS\Plugin\LongEssayAssessment\CorrectorAdmin\CorrectorGUI;
 use ILIAS\Plugin\LongEssayAssessment\Corrector\CorrectorStartGUI;
-use ILIAS\Plugin\LongEssayAssessment\DisabledGroupGUI;
+use ILIAS\Plugin\LongEssayAssessment\Settings\TemplateSettingsGUI;
 use ILIAS\Plugin\LongEssayAssessment\Settings\DocumentationSettingsGUI;
 use ILIAS\Plugin\LongEssayAssessment\Dashboard\DashboardGUI;
 use ILIAS\UI\Component\Input\Field\Radio;
+use ILIAS\Plugin\LongEssayAssessment\FixationGUI;
 
 /**
  * Plugin GUI Class
@@ -262,11 +263,12 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                         $this->ctrl->forwardCommand(new CorrectorGUI($this->object));
                     }
                     break;
-                case strtolower(DisabledGroupGUI::class):
+                case strtolower(FixationGUI::class):
                     if ($this->permissions->canEditTemplates()) {
-                        $this->ctrl->forwardCommand(new DisabledGroupGUI($this->object));
+                        $this->ctrl->forwardCommand(new FixationGUI($this->object));
                     }
                     break;
+
                     //                case 'ilias\plugin\longessayassessment\correctoradmin\correctoradminstatisticsgui':
                     //                    if ($this->permissions->canMaintainCorrectors()) {
                     //                        $cmd = $this->ctrl->getCmd('showStartPage');

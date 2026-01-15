@@ -423,7 +423,7 @@ class CorrectionSettingsGUI extends BaseGUI
 
         return $this->ui_factory->input()->container()->form()->standard(
             $this->ctrl->getFormAction($this),
-            $this->disabled_group->disableBySetting('tab_correction_settings', $sections)
+            $this->fixation_gui->disableBySetting('tab_correction_settings', $sections)
         );
     }
 }

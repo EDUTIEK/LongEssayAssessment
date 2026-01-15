@@ -56,7 +56,7 @@ class GradesAdminGUI extends BaseGUI implements DataTableParent
         $this->grade_service = $this->assessment_api->gradeLevel();
         $this->assessment_status = $this->task_api->assessmentStatus();
         $this->entity_service = $this->system_api->entity();
-        $this->is_disabled = $this->disabled_group->isDisabled('tab_grades', 'grades');
+        $this->is_disabled = $this->fixation_gui->isDisabled('tab_grades', 'grades');
         $this->can_edit = !$this->assessment_status->hasAuthorizedSummaries() && !$this->is_disabled;
     }
 

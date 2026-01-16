@@ -102,7 +102,7 @@ class ilObjLongEssayAssessment extends ilObjectPlugin implements BaseObjectData
     private function initServices()
     {
         $this->manager = $this->plugin->dic()
-            ->assessment($this->getAssId(), $this->getContextId(), $this->user->getId())
+            ->assessment($this->getAssId(), $this->user->getId())
             ->manager();
     }
 }

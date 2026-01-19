@@ -93,8 +93,8 @@ class CorrectionAdminGUI extends BaseGUI
             $label,
             $this->plugin->txt("remove_authorizations_confirmation"),
             $this->ctrl->getFormAction($this, "removeAuthorizations"),
-            fn (CorrectionItem $item) => $item->getWriterName(),
-            fn (CorrectionItem $item) => !$item->getWriter()->isCorrectionFinalized(),
+            fn(CorrectionItem $item) => $item->getWriterName(),
+            fn(CorrectionItem $item) => !$item->getWriter()->isCorrectionFinalized(),
             Action\Type::Standard,
         );
     }
@@ -115,7 +115,7 @@ class CorrectionAdminGUI extends BaseGUI
             }
         }
 
-        $users = $this->user_service->getUsersByIds(array_map(fn ($x) => $x->getUserId(), array_merge($valid, $invalid)));
+        $users = $this->user_service->getUsersByIds(array_map(fn($x) => $x->getUserId(), array_merge($valid, $invalid)));
 
         if (count($invalid) > 0) {
             $names = [];
@@ -143,7 +143,7 @@ class CorrectionAdminGUI extends BaseGUI
             "export_steps",
             $this->plugin->txt('export_steps'),
             [$this, "exportSteps"],
-            fn (CorrectionItem $item) => $item->getWriter()->canGetSight(),
+            fn(CorrectionItem $item) => $item->getWriter()->canGetSight(),
             Action\Type::Single
         );
     }
@@ -161,7 +161,7 @@ class CorrectionAdminGUI extends BaseGUI
             $this->lng->txt("submit"),
             [$this, 'changeCorrectorFields'],
             [$this, 'changeCorrector'],
-            fn (CorrectionItem $item) => true,
+            fn(CorrectionItem $item) => true,
             Action\Type::Standard
         )->withContent([
             $this->ui_factory->messageBox()->info($this->plugin->txt("change_corrector_info"))
@@ -170,7 +170,7 @@ class CorrectionAdminGUI extends BaseGUI
 
     public function changeCorrectorCheck(array $items): array
     {
-        $writer_ids = array_map(fn (CorrectionItem $item) => $item->getWriter()->getId(), $items);
+        $writer_ids = array_map(fn(CorrectionItem $item) => $item->getWriter()->getId(), $items);
 
         return [
             $this->refinery->custom()->constraint(
@@ -206,7 +206,7 @@ class CorrectionAdminGUI extends BaseGUI
         foreach ($this->corrector_service->all() as $corrector) {
             $corrector_ids[$corrector->getId()] = $corrector->getUserId();
         }
-        $names = array_map(fn (UserData $u) => $u->getListname(true), $this->user_service->getUsersByIds($corrector_ids));
+        $names = array_map(fn(UserData $u) => $u->getListname(true), $this->user_service->getUsersByIds($corrector_ids));
 
         foreach ($corrector_ids as $id => $user_id) {
             $corrector_list[$id] = $names[$user_id];
@@ -279,7 +279,7 @@ class CorrectionAdminGUI extends BaseGUI
             $data["first_corrector"] ?? CorrectorAssignmentsService::UNCHANGED_CORRECTOR_ASSIGNMENT,
             $data["second_corrector"] ?? CorrectorAssignmentsService::UNCHANGED_CORRECTOR_ASSIGNMENT,
             $data["stitch_corrector"] ?? CorrectorAssignmentsService::UNCHANGED_CORRECTOR_ASSIGNMENT,
-            array_map(fn (CorrectionItem $x) => $x->getWriter()->getId(), $items)
+            array_map(fn(CorrectionItem $x) => $x->getWriter()->getId(), $items)
         );
         $this->tpl->setOnScreenMessage("success", $this->plugin->txt("corrector_assignment_changed"), true);
         $this->ctrl->redirect($this, 'showItems');
@@ -291,7 +291,7 @@ class CorrectionAdminGUI extends BaseGUI
             "mail_to_writer_or_corrector",
             $this->plugin->txt('mail_to_writer_or_corrector'),
             [$this, "mailToWriterOrCorrectorModal"],
-            fn (CorrectionItem $item) => true,
+            fn(CorrectionItem $item) => true,
             Action\Type::Standard
         );
     }
@@ -302,7 +302,7 @@ class CorrectionAdminGUI extends BaseGUI
      */
     public function mailToWriterOrCorrectorModal(array $items): \ILIAS\UI\Component\Modal\RoundTrip
     {
-        $writer_ids = array_map(fn (CorrectionItem $item) => $item->getWriter()->getId(), $items);
+        $writer_ids = array_map(fn(CorrectionItem $item) => $item->getWriter()->getId(), $items);
         $writer_id_query = "&" . http_build_query(["wid" => $writer_ids]);
 
         $fields = [
@@ -368,7 +368,7 @@ class CorrectionAdminGUI extends BaseGUI
             }
 
             $users = $this->user_service->getUsersByIds($user_ids);
-            $logins = array_map(fn (UserData $u) => $u->getLogin(), $users);
+            $logins = array_map(fn(UserData $u) => $u->getLogin(), $users);
             $this->openMailForm($logins, 'showItems');
         }
     }
@@ -379,7 +379,7 @@ class CorrectionAdminGUI extends BaseGUI
             "view_stitch_decision",
             $this->plugin->txt('view_stitch_comment'),
             [$this, "viewStitchDecision"],
-            fn (CorrectionItem $item) => !empty($item->getWriter()->getStitchComment()),
+            fn(CorrectionItem $item) => !empty($item->getWriter()->getStitchComment()),
             Action\Type::Single
         );
     }
@@ -395,7 +395,7 @@ class CorrectionAdminGUI extends BaseGUI
             "download_corrected_pdf",
             $this->plugin->txt('download_corrected_pdf'),
             [$this, "downloadCorrectedPdf"],
-            fn (CorrectionItem $item) => $item->canDownloadCorrectionPdf(),
+            fn(CorrectionItem $item) => $item->canDownloadCorrectionPdf(),
             Action\Type::Single
         );
     }
@@ -411,7 +411,7 @@ class CorrectionAdminGUI extends BaseGUI
             "download_written_pdf",
             $this->plugin->txt('download_written_pdf'),
             [$this, "downloadWrittenPdf"],
-            fn (CorrectionItem $item) => $item->getWriter()->canDownloadWrittenPdf(),
+            fn(CorrectionItem $item) => $item->getWriter()->canDownloadWrittenPdf(),
             Action\Type::Single
         );
     }
@@ -427,7 +427,7 @@ class CorrectionAdminGUI extends BaseGUI
             "view_correction",
             $this->plugin->txt('view_correction'),
             [$this, "viewCorrections"],
-            fn (CorrectionItem $item) => true,
+            fn(CorrectionItem $item) => true,
             Action\Type::Single
         );
     }
@@ -462,17 +462,20 @@ class CorrectionAdminGUI extends BaseGUI
 
         $location_avaiable = $this->hasLocations();
         $corrections = $this->getCorrectionSettings()->getRequiredCorrectors();
+        if ($corrections > 1 && $this->getCorrectionSettings()->getStitchAfterProcedure()) {
+            $corrections++;
+        }
         $multi = $this->getSettings()->getMultiTasks();
         $has_started = $this->getSettings()->getWritingStart() !== null ? $this->getSettings()->getWritingStart() < new \DateTimeImmutable() : true;
 
         $table_parent = new CorrectionTableParent($this->dic, $this->plugin, [$this->object->getAssId()], $this->ctrl->getFormAction($this));
         $table_parent->setHasColumns(
             array_merge(
-                ["image", "name", "login", "pseudonym", $location_avaiable ? "location": null, "status", $multi ? "task" : null,
+                ["image", "name", "login", "pseudonym", $location_avaiable ? "location" : null, "status", $multi ? "task" : null,
                          "writing_last_save", "word_count", "pdf_version", "result", "points", "grade", "finalized", "finalized_from"],
-                ...array_map(fn ($p) => ["corr_{$p}", "corr_{$p}_name", "corr_{$p}_status", "corr_{$p}_points", $multi ? "corr_{$p}_grade" : null, "corr_{$p}_authorized"], range(0, $corrections - 1)),
+                ...array_map(fn($p) => ["corr_{$p}", "corr_{$p}_name", "corr_{$p}_status", "corr_{$p}_points", $multi ? "corr_{$p}_grade" : null, "corr_{$p}_authorized"], range(0, $corrections - 1)),
             )
-        )->setInitialVisibleColumns(["name", "login", "pseudonym", "location", "status", $has_started ? "writing_last_save": null, $has_started ? "word_count" : null, "corr_1", "corr_2", "result"])
+        )->setInitialVisibleColumns(["name", "login", "pseudonym", "location", "status", $has_started ? "writing_last_save" : null, $has_started ? "word_count" : null, "corr_1", "corr_2", "result"])
          ->setHasFilterFields(["name", $multi ? "task" : null, "location", "min_words", "max_words", "status", "assigned", "pdf_version"])
         ->setTableActions($this->getTableActions());
 

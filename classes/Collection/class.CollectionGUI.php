@@ -37,6 +37,7 @@ class CollectionGUI
     private PluginDic $plugin_dic;
     private \ILIAS\DI\Container $dic;
     private \ilObjUser $user;
+    private \ILIAS\Plugin\LongEssayAssessment\View\Data\CorrectionsViewRepo $corrections_view;
 
     public function __construct()
     {
@@ -44,6 +45,7 @@ class CollectionGUI
         $this->ref_id = $DIC->http()->wrapper()->query()->retrieve('ref_id', $DIC->refinery()->kindlyTo()->int());
         $this->object = \ilObjectFactory::getInstanceByRefId($this->ref_id);
         $this->plugin = \ilLongEssayAssessmentPlugin::getInstance();
+        $this->corrections_view = $this->plugin->dic()->view()->corrections();
 
         $this->ctrl = $DIC->ctrl();
         $this->access = $DIC->access();
@@ -123,21 +125,25 @@ class CollectionGUI
 
     private function correctionStatus()
     {
-        $multi = true;
-        $corrections = 2;
-        $ass_ids = array_map(fn(array $node) => $node['obj_id'], array_filter($this->assessment_nodes,
+        $ass_ids = array_map(fn(array $node) => $node['obj_id'], array_filter(
+            $this->assessment_nodes,
             fn(array $node) => $this->plugin_dic->assessment($node['obj_id'], $this->user->getId())->permissions($node['ref_id'])->canMaintainCorrectors()
         ));
 
+        $multi = $this->corrections_view->hasMultiTasks($ass_ids);
+        $corrections = $this->corrections_view->visibleCorrectors($ass_ids);
+
         $this->ctrl->setParameter($this, 'ref_id', $this->object->getRefId());
         $table_parent = new CorrectionTableParent($this->dic, $this->plugin, $ass_ids, $this->ctrl->getFormAction($this, "correctionStatus"));
-        $table_parent->setHasColumns(
-            array_merge(
-                ["image", "name", "login", "pseudonym", "location", "status", "assessment", "task", "writing_last_save",
-                 "word_count", "pdf_version", "result", "points", "grade", "finalized", "finalized_from"],
-                ...array_map(fn ($p) => ["corr_{$p}", "corr_{$p}_name", "corr_{$p}_status", "corr_{$p}_points", $multi ? "corr_{$p}_grade" : null, "corr_{$p}_authorized"], range(0, $corrections - 1))
-            )
-        )->setInitialVisibleColumns(["name", "login", "pseudonym", "location", "assessment", "task", "status", "writing_last_save", "word_count", "corr_1", "corr_2", "result"])
+        $table_parent
+            ->setHasColumns(
+                array_merge(
+                    ["image", "name", "login", "pseudonym", "location", "status", "assessment"],
+                    $multi ? ["task"] : [],
+                    ["writing_last_save", "word_count", "pdf_version", "result", "points", "grade", "finalized", "finalized_from"],
+                    ...array_map(fn($p) => ["corr_{$p}", "corr_{$p}_name", "corr_{$p}_status", "corr_{$p}_points", $multi ? "corr_{$p}_grade" : null, "corr_{$p}_authorized"], range(0, $corrections - 1))
+                )
+            )->setInitialVisibleColumns(["name", "login", "pseudonym", "location", "assessment", "task", "status", "writing_last_save", "word_count", "corr_1", "corr_2", "result"])
         ->setTableActions([$this->plugin_dic->uiFactory()->table()->action()->export('export', $this->lng->txt('export'), 'xlas_corrections_export.xlsx')]);
 
         $table_parent->setInitialVisibleColumns([]);
@@ -186,13 +192,13 @@ class CollectionGUI
         if ($this->atleastOnePermission('MaintainCorrectors')) {
             $this->tabs->addSubTab('correctionStatus', $this->plugin->txt('tab_correction_status'), $this->ctrl->getLinkTarget($this, 'correctionStatus'));
         }
-// todo: show when implemented
-//        if ($this->atleastOnePermission('MaintainWriters')) {
-//            $this->tabs->addSubTab('writer_statistic', $this->plugin->txt('tab_writer_statistic'), $this->ctrl->getLinkTarget($this, 'writerStatistic'));
-//        }
-//        if ($this->atleastOnePermission('MaintainCorrectors')) {
-//            $this->tabs->addSubTab('corrector_statistic', $this->plugin->txt('tab_corrector_admin_statistic'), $this->ctrl->getLinkTarget($this, 'correctorStatistic'));
-//        }
+        // todo: show when implemented
+        //        if ($this->atleastOnePermission('MaintainWriters')) {
+        //            $this->tabs->addSubTab('writer_statistic', $this->plugin->txt('tab_writer_statistic'), $this->ctrl->getLinkTarget($this, 'writerStatistic'));
+        //        }
+        //        if ($this->atleastOnePermission('MaintainCorrectors')) {
+        //            $this->tabs->addSubTab('corrector_statistic', $this->plugin->txt('tab_corrector_admin_statistic'), $this->ctrl->getLinkTarget($this, 'correctorStatistic'));
+        //        }
         $this->tabs->activateSubTab($activate_tab);
     }
 

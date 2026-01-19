@@ -51,7 +51,7 @@ class CorrectionTableParent implements DataTableParent, FilterParent
     public const FILTER_YES = "1";
     public const FILTER_NO = "2";
     private ?array $location = null;
-    private ?int $required_correctors = null;
+    private ?int $visible_correctors = null;
     private \ilLanguage $lng;
     private \ilLongEssayAssessmentPlugin $plugin;
     private \ILIAS\UI\Factory $ui_factory;
@@ -104,31 +104,30 @@ class CorrectionTableParent implements DataTableParent, FilterParent
         $date_without_seconds = $this->user->getDateTimeFormat();
         $date_with_seconds = $df->dateFormat()->amend($date_without_seconds)->colon()->seconds()->get();
 
-        $corrections = $this->getRequiredCorrectors();
-
         $columns = [
-            "image" => $cfp->image($this->lng->txt("image"))->withIsOptional(true)->withIsSortable(false),
+            "image" => $cfp->image($this->lng->txt("image"))->withIsOptional(true, false)->withIsSortable(false),
             "name" => $cf->text($this->lng->txt("name"))->withIsOptional(false)->withIsSortable(true),
-            "login" => $cf->text($this->lng->txt("login"))->withIsOptional(false)->withIsSortable(true),
-            "pseudonym" => $cf->text($this->plugin->txt("pseudonym"))->withIsOptional(false)->withIsSortable(true),
-            "location" => $cf->text($this->plugin->txt("location"))->withIsOptional(true)->withIsSortable(true),
-            "assessment" => $cf->text($this->plugin->txt("assessment"))->withIsOptional(true)->withIsSortable(true),
-            "task" => $cf->text($this->plugin->txt("task"))->withIsOptional(true)->withIsSortable(true),
-            "status" => $cf->status($this->plugin->txt("status"))->withIsOptional(true)->withIsSortable(true),
+            "login" => $cf->text($this->lng->txt("login"))->withIsOptional(true, false)->withIsSortable(true),
+            "pseudonym" => $cf->text($this->plugin->txt("pseudonym"))->withIsOptional(true, false)->withIsSortable(true),
+            "location" => $cf->text($this->plugin->txt("location"))->withIsOptional(true, false)->withIsSortable(true),
+            "assessment" => $cf->text($this->plugin->txt("assessment"))->withIsOptional(true, true)->withIsSortable(true),
+            "task" => $cf->text($this->plugin->txt("task"))->withIsOptional(true, true)->withIsSortable(true),
+            "status" => $cf->status($this->plugin->txt("status"))->withIsOptional(true, true)->withIsSortable(true),
             "writing_last_save" => $cfp->nullableDate(
                 $this->plugin->txt("writing_last_save"),
                 $date_with_seconds
-            )->withIsOptional(true)->withIsSortable(true),
-            "word_count" => $cf->number($this->plugin->txt('word_count'))->withIsOptional(true)->withIsSortable(true),
+            )->withIsOptional(true, false)->withIsSortable(true),
+            "word_count" => $cf->number($this->plugin->txt('word_count'))->withIsOptional(true, false)->withIsSortable(true),
             "pdf_version" => $cf->boolean(
                 $this->plugin->txt("pdf_version"),
                 $this->lng->txt("yes"),
                 $this->lng->txt("no")
-            )->withIsOptional(true)->withIsSortable(true)
+            )->withIsOptional(true, false)->withIsSortable(true)
         ];
 
-        foreach (range(0, $corrections - 1) as $p) {
-            if ($corrections == 1) {
+        $visible_correctors = $this->getVisibleCorrectors();
+        foreach (range(0, 2) as $p) {
+            if ($visible_correctors == 1) {
                 $cor = $this->plugin->txt("assignment_pos_single");
             } else {
                 switch ($p) {
@@ -138,6 +137,9 @@ class CorrectionTableParent implements DataTableParent, FilterParent
                     case 1:
                         $cor = $this->plugin->txt("grading_pos_second");
                         break;
+                    case 2:
+                        $cor = $this->plugin->txt("grading_pos_stitch");
+                        break;
                     default:
                         $cor = $this->plugin->txt("assignment_pos_other");
                         break;
@@ -145,29 +147,29 @@ class CorrectionTableParent implements DataTableParent, FilterParent
             }
             $cor = $cor . " ";
             $columns += [
-                "corr_{$p}" => $cf->text($cor)->withIsOptional(true)->withIsSortable(false),
-                "corr_{$p}_name" => $cf->text($cor . $this->lng->txt("name"))->withIsOptional(true)->withIsSortable(true),
-                "corr_{$p}_status" => $cf->status($cor . $this->plugin->txt("status"))->withIsOptional(true)->withIsSortable(true),
-                "corr_{$p}_points" => $cfp->nullableNumber($cor . $this->plugin->txt("points"))->withIsOptional(true)->withIsSortable(true),
+                "corr_{$p}" => $cf->text($cor)->withIsOptional(true, true)->withIsSortable(false),
+                "corr_{$p}_name" => $cf->text($cor . $this->lng->txt("name"))->withIsOptional(true, false)->withIsSortable(true),
+                "corr_{$p}_status" => $cf->status($cor . $this->plugin->txt("status"))->withIsOptional(true, false)->withIsSortable(true),
+                "corr_{$p}_points" => $cfp->nullableNumber($cor . $this->plugin->txt("points"))->withIsOptional(true, false)->withIsSortable(true),
             ];
 
-            $columns["corr_{$p}_grade"] = $cf->text($cor . $this->lng->txt("grade"))->withIsOptional(true)->withIsSortable(true); // Should be disabled for multi-task
+            $columns["corr_{$p}_grade"] = $cf->text($cor . $this->lng->txt("grade"))->withIsOptional(true, false)->withIsSortable(true); // Should be disabled for multi-task
             $columns["corr_{$p}_authorized"] = $cf->boolean(
                 $cor . $this->plugin->txt("grading_authorized"),
                 $this->lng->txt('yes'),
                 $this->lng->txt('no')
-            )->withIsOptional(true)->withIsSortable(true);
+            )->withIsOptional(true, false)->withIsSortable(true);
         }
 
         $columns += [
-            "result" => $cf->text($this->plugin->txt("result"))->withIsOptional(true)->withIsSortable(false),
-            "points" => $cfp->nullableNumber($this->plugin->txt("final_points"))->withIsOptional(true)->withIsSortable(true),
-            "grade" => $cf->text($this->plugin->txt("final_grade"))->withIsOptional(true)->withIsSortable(true),
+            "result" => $cf->text($this->plugin->txt("result"))->withIsOptional(true, true)->withIsSortable(false),
+            "points" => $cfp->nullableNumber($this->plugin->txt("final_points"))->withIsOptional(true, false)->withIsSortable(true),
+            "grade" => $cf->text($this->plugin->txt("final_grade"))->withIsOptional(true, false)->withIsSortable(true),
             "finalized" => $cfp->nullableDate(
                 $this->plugin->txt("finalized_at"),
                 $date_without_seconds
-            )->withIsOptional(true)->withIsSortable(true),
-            "finalized_from" => $cf->text($this->plugin->txt("finalized_from"))->withIsOptional(true)->withIsSortable(true),
+            )->withIsOptional(true, false)->withIsSortable(true),
+            "finalized_from" => $cf->text($this->plugin->txt("finalized_from"))->withIsOptional(true, false)->withIsSortable(true),
         ];
 
         if (!empty($this->getHasColumns())) {
@@ -340,9 +342,9 @@ class CorrectionTableParent implements DataTableParent, FilterParent
         return $tasks;
     }
 
-    protected function getRequiredCorrectors(): int
+    protected function getVisibleCorrectors(): int
     {
-        return $this->required_correctors ??= $this->corrections_view->requiredCorrectors($this->ass_ids);
+        return $this->visible_correctors ??= $this->corrections_view->visibleCorrectors($this->ass_ids);
     }
 
     public function getTableActions(): array

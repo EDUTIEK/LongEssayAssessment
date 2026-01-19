@@ -162,13 +162,32 @@ class CorrectionsViewRepo extends ViewRepo implements \Edutiek\AssessmentService
         return $assessments;
     }
 
-    public function requiredCorrectors(array $ass_ids): int
+    public function hasMultiTasks(array $ass_ids): bool
     {
         $query = $this->db->query(
-            'SELECT MAX(required_correctors) as max_required_correctors FROM xlas_as_corr_settings WHERE '
+            'SELECT MAX(multi_tasks) as max_multi_tasks 
+                    FROM xlas_as_orga_settings WHERE '
             . $this->db->in('ass_id', $ass_ids, false, 'integer')
         );
         $row = $this->db->fetchAssoc($query);
-        return (int) $row['max_required_correctors'] ?? 2;
+
+        return (bool) ($row['max_multi_tasks'] ?? 0);
+    }
+
+    public function visibleCorrectors(array $ass_ids): int
+    {
+        $query = $this->db->query(
+            'SELECT MAX(required_correctors) as max_required_correctors, 
+                    MAX(stitch_after_procedure) as max_stitch_after_procedure
+                    FROM xlas_as_corr_settings WHERE '
+            . $this->db->in('ass_id', $ass_ids, false, 'integer')
+        );
+        $row = $this->db->fetchAssoc($query);
+
+        $required = (int) ($row['max_required_correctors'] ?? 1);
+        if ($required > 1 && ($row['max_stitch_after_procedure'] ?? 0)) {
+            $required++;
+        }
+        return $required;
     }
 }

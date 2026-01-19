@@ -100,6 +100,7 @@ class CorrectionItemColumnMap extends ColumnMappingArray
             "corr_0_grade" => $item->getSummaryByPosition(0)?->isAuthorized() ?
                 $this->grading->getGradLevelForPoints($item->getSummaryByPosition(0)?->getEffectivePoints())?->getGrade() ?? "" : "",
             "corr_0_authorized" => $item->getSummaryByPosition(0)?->isAuthorized() ?? false,
+
             "corr_1" => $item->getCorrectorDataByPosition(1) !== null
                 ? (($item->getCorrectorDataByPosition(1)?->getListname(true) ?? $this->unknown()) . " - " . $this->task_format->correctionResult($item->getSummaryByPosition(1)))
                 : "",
@@ -109,6 +110,17 @@ class CorrectionItemColumnMap extends ColumnMappingArray
             "corr_1_grade" => $item->getSummaryByPosition(1)?->isAuthorized() ?
                 $this->grading->getGradLevelForPoints($item->getSummaryByPosition(1)?->getEffectivePoints())?->getGrade() ?? "" : "",
             "corr_1_authorized" => $item->getSummaryByPosition(1)?->isAuthorized() ?? false,
+
+            "corr_2" => $item->getCorrectorDataByPosition(2) !== null
+                ? (($item->getCorrectorDataByPosition(2)?->getListname(true) ?? $this->unknown()) . " - " . $this->task_format->correctionResult($item->getSummaryByPosition(2)))
+                : "",
+            "corr_2_name" => $item->getCorrectorDataByPosition(2)?->getListname(true),
+            "corr_2_status" => $this->gradingStatus($item->getSummaryByPosition(2)?->getGradingStatus()),
+            "corr_2_points" => $item->getSummaryByPosition(2)?->getEffectivePoints(),
+            "corr_2_grade" => $item->getSummaryByPosition(2)?->isAuthorized() ?
+                $this->grading->getGradLevelForPoints($item->getSummaryByPosition(2)?->getEffectivePoints())?->getGrade() ?? "" : "",
+            "corr_2_authorized" => $item->getSummaryByPosition(2)?->isAuthorized() ?? false,
+
             default => null
         };//explicit corrector for more calculation speed
     }

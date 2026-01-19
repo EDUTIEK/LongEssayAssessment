@@ -65,7 +65,7 @@ class WriterItem extends \ILIAS\Plugin\LongEssayAssessment\UI\Table\Item
      */
     public function getExecludedFromFullname() : ?string
     {
-        return $this->writer->isExcluded() ? $this->getExcludedFrom()?->getFullname(true) : '';
+        return $this->writer->isExcluded() ? $this->getExcludedFrom()?->getListname(true) : '';
     }
 
     /**
@@ -76,6 +76,6 @@ class WriterItem extends \ILIAS\Plugin\LongEssayAssessment\UI\Table\Item
      */
     public function getAuthorizedFromFullname() : ?string
     {
-        return $this->writer->isAuthorized() ? $this->getAuthorizedFrom()?->getFullname(true) : '';
+        return $this->writer->isAuthorized() ? $this->getAuthorizedFrom()?->getListname(true) : '';
     }
 }

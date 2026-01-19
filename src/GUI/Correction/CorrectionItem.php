@@ -47,7 +47,7 @@ class CorrectionItem extends \ILIAS\Plugin\LongEssayAssessment\UI\Table\Item
 
     public function getWriterName(): ?string
     {
-        return $this->writer_data?->getFullname(false);
+        return $this->writer_data?->getListname(false);
     }
 
     public function getWriterLogin(): ?string
@@ -79,7 +79,7 @@ class CorrectionItem extends \ILIAS\Plugin\LongEssayAssessment\UI\Table\Item
     public function getExecludedByName(): ?string
     {
 
-        return $this->excluded_by_data?->getFullname(true);
+        return $this->excluded_by_data?->getListname(true);
     }
 
     /**
@@ -90,7 +90,7 @@ class CorrectionItem extends \ILIAS\Plugin\LongEssayAssessment\UI\Table\Item
      */
     public function getAuthorizedByName(): ?string
     {
-        return $this->authorized_by_data?->getFullname(true);
+        return $this->authorized_by_data?->getListname(true);
     }
 
     /**
@@ -101,7 +101,7 @@ class CorrectionItem extends \ILIAS\Plugin\LongEssayAssessment\UI\Table\Item
      */
     public function getFinalizedByName(): ?string
     {
-        return $this->finalized_by_data?->getFullname(true);
+        return $this->finalized_by_data?->getListname(true);
     }
 
     public function getCorrectorDataByPosition(int $position): ?UserData

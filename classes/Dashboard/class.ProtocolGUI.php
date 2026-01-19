@@ -93,7 +93,7 @@ class ProtocolGUI extends BaseGUI
             $user_id = $writer_id_user_id_map[$alert->getWriterId()] ?? null;
 
             $recipient = $user_id !== null
-                ? ($users[$user_id] ?? null)?->getFullname(true) ?? " - "
+                ? ($users[$user_id] ?? null)?->getListname(true) ?? " - "
                 : $this->plugin->txt("alert_recipient_all");
             $items_alert[] = $protocol_factory->alert(
                 $recipient,
@@ -229,7 +229,7 @@ class ProtocolGUI extends BaseGUI
 
         foreach ($this->user_service->getUsersByIds($user_ids) as $usr_id => $user) {
             if (isset($writers[$usr_id])) {
-                $out[(string)$writers[$usr_id]->getId()] = $user->getFullname(true);
+                $out[(string)$writers[$usr_id]->getId()] = $user->getListname(true);
             }
         }
 

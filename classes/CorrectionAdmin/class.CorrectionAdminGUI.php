@@ -121,7 +121,7 @@ class CorrectionAdminGUI extends BaseGUI
             $names = [];
             foreach ($invalid as $writer) {
                 $user = $users[$writer->getUserId()] ?? null;
-                $names[] = ($user?->getFullname(true) ?? "unknown") . ' [' . $writer->getPseudonym() . ']';
+                $names[] = ($user?->getListname(false) ?? "unknown") . ' [' . $writer->getPseudonym() . ']';
             }
             $this->tpl->setOnScreenMessage("failure", sprintf($this->plugin->txt('remove_authorizations_for_failed'), implode(", ", $names)), true);
         }
@@ -129,7 +129,7 @@ class CorrectionAdminGUI extends BaseGUI
             $names = [];
             foreach ($valid as $writer) {
                 $user = $users[$writer->getUserId()] ?? null;
-                $names[] = ($user?->getFullname(true) ?? "unknown") . ' [' . $writer->getPseudonym() . ']';
+                $names[] = ($user?->getListname(false) ?? "unknown") . ' [' . $writer->getPseudonym() . ']';
             }
             $this->tpl->setOnScreenMessage("success", sprintf($this->plugin->txt('remove_authorizations_for_done'), implode(", ", $names)), true);
         }
@@ -206,7 +206,7 @@ class CorrectionAdminGUI extends BaseGUI
         foreach ($this->corrector_service->all() as $corrector) {
             $corrector_ids[$corrector->getId()] = $corrector->getUserId();
         }
-        $names = array_map(fn (UserData $u) => $u->getFullname(true), $this->user_service->getUsersByIds($corrector_ids));
+        $names = array_map(fn (UserData $u) => $u->getListname(true), $this->user_service->getUsersByIds($corrector_ids));
 
         foreach ($corrector_ids as $id => $user_id) {
             $corrector_list[$id] = $names[$user_id];

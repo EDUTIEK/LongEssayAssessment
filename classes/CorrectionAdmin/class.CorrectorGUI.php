@@ -219,7 +219,7 @@ class CorrectorGUI extends BaseGUI implements DataTableParent
 
             yield new CorrectorItem(
                 $item->getId(),
-                $user_data?->getFullname(false) ?? "",
+                $user_data?->getListname(false) ?? "",
                 $user_data?->getLogin() ?? "",
                 $correction_summary?->getFirstCorrections() ?? 0,
                 $correction_summary?->getSecondCorrections() ?? 0,
@@ -326,7 +326,7 @@ class CorrectorGUI extends BaseGUI implements DataTableParent
         foreach ($assignments as $assignment) {
             $writer = $writers[$assignment->getWriterId()];
             $summary = $summaries[$assignment->getWriterId()][$assignment->getTaskId()] ?? null;
-            $name = $users[$writer->getUserId()]?->getFullname(true) ?? " - ";
+            $name = $users[$writer->getUserId()]?->getListname(true) ?? " - ";
             $status = $this->task_format->correctionResult($summary, false, false);
 
             if ($assignment->getPosition() === GradingPosition::FIRST) {
@@ -375,7 +375,7 @@ class CorrectorGUI extends BaseGUI implements DataTableParent
             foreach ($user_ids as $user_id) {
                 $items[] = $this->ui_factory->modal()->interruptiveItem()->standard(
                     $user_id,
-                    $user_data[$user_id]?->getFullname(true) ?? " - "
+                    $user_data[$user_id]?->getListname(true) ?? " - "
                 );
             }
             $modal = $this->ui_factory->modal()->interruptive(
@@ -526,7 +526,7 @@ class CorrectorGUI extends BaseGUI implements DataTableParent
         $user_data = $this->user_service->getUsersByIds(array_map(fn(Corrector $x) => $x->getUserId(), $correctors));
 
         return $this->ui_factory->listing()->unordered(
-            array_map(fn(Corrector $x) => $user_data[$x->getUserId()]?->getFullname(true) ?? " - ", $correctors)
+            array_map(fn(Corrector $x) => $user_data[$x->getUserId()]?->getListname(true) ?? " - ", $correctors)
         );
     }
 }

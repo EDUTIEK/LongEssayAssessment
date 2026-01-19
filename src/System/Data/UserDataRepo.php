@@ -165,8 +165,8 @@ class UserDataRepo implements \Edutiek\AssessmentService\System\Data\UserDataRep
             ($this->dehydrated[$row['usr_id']] ?? null)?->setValues(
                 (string) $row['login'],
                 !empty($row['title']) ? (string) $row['title'] : null,
-                (string) $row['lastname'] ?? '',
                 (string) $row['firstname'] ?? '',
+                (string) $row['lastname'] ?? '',
                 $row['email'] ?? null,
                 $languages[$row['usr_id']] ?? $default_language,
                 $timezones[$row['usr_id']] ?? $default_timezone

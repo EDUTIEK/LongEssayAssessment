@@ -136,7 +136,7 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
             if (empty($user_data) || empty($assignment)) {
                 return $this->plugin->txt('assignment_pos_empty');
             }
-            return $this->plugin->txt($assignment->getPosition()->languageVariable()) . ": " . $user_data->getFullname(false) . ' - ' . $this->format_service->correctionResult($summary, false, true);
+            return $this->plugin->txt($assignment->getPosition()->languageVariable()) . ": " . $user_data->getListname(false) . ' - ' . $this->format_service->correctionResult($summary, false, true);
         };
 
         $grading_service = $this->grading_service;

@@ -267,7 +267,7 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
         if (!empty($user_display?->getImageUrl())) {
             $avatar = $this->ui_factory->symbol()->avatar()->picture($user_display->getImageUrl(), $user_data->getLogin());
         } else {
-            $avatar = $this->ui_factory->symbol()->avatar()->letter($user_data?->getFullname(false) ?? $unknown);
+            $avatar = $this->ui_factory->symbol()->avatar()->letter($user_data?->getLogin() ?? $unknown);
         }
 
         $status = match($writer->getWritingStatus()) {
@@ -466,7 +466,7 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
             $this->lng->txt("delete"),
             "",
             $this->ctrl->getLinkTarget($this, 'deleteWorkingTime'),
-            fn(WriterItem $item) => $item->getUserData()->getFullname(true),
+            fn(WriterItem $item) => $item->getUserData()->getListname(true),
             fn(WriterItem $item) => $item->getWriter()->hasChangedTimeLimit(),
             Action\Type::Standard
         );
@@ -641,7 +641,7 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
             $this->plugin->txt("exclude_participant"),
             $this->plugin->txt("exclude_participant_confirmation"),
             $this->ctrl->getFormAction($this, 'excludeParticipants'),
-            fn(WriterItem $item) => $item->getUserData()->getFullname(true),
+            fn(WriterItem $item) => $item->getUserData()->getListname(true),
             fn(WriterItem $item) => $item->getWriter()->canGetExcluded(),
             Action\Type::Standard
         );
@@ -655,7 +655,7 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
             $this->plugin->txt("repeal_exclude_participant"),
             $this->plugin->txt("repeal_exclude_participant_confirmation"),
             $this->ctrl->getFormAction($this, 'repealExcludeParticipants'),
-            fn(WriterItem $item) => $item->getUserData()->getFullname(true),
+            fn(WriterItem $item) => $item->getUserData()->getListname(true),
             fn(WriterItem $item) => $item->getWriter()->canGetRepealed(),
             Action\Type::Standard
         );
@@ -669,7 +669,7 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
             $this->plugin->txt("remove_writer"),
             $this->plugin->txt("remove_writer_confirmation"),
             $this->ctrl->getFormAction($this, 'removeWriter'),
-            fn(WriterItem $item) => $item->getUserData()->getFullname(true),
+            fn(WriterItem $item) => $item->getUserData()->getListname(true),
             fn(WriterItem $item) => true,
             Action\Type::Standard
         );

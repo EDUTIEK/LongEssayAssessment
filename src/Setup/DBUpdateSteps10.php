@@ -965,4 +965,15 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
         $ops_id = \ilDBUpdateNewObjectType::addCustomRBACOperation('proctor_writer', 'Proctor Assessment', 'object', 3240);
         \ilDBUpdateNewObjectType::addRBACOperation($type_id, $ops_id);
     }
+
+    public function step_55(): void
+    {
+        if (!$this->db->tableColumnExists('xlas_as_corr_settings', 'pseudonymization')) {
+            $this->db->addTableColumn('xlas_as_corr_settings', 'pseudonymization', [
+                'type' => ilDBConstants::T_TEXT,
+                'notnull' => true,
+                'default' => 'writer_id'
+            ]);
+        }
+    }
 }

@@ -18,6 +18,7 @@ use Edutiek\AssessmentService\Task\Data\Settings as TaskSettings;
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\BaseObjectData;
 use ILIAS\UI\Component\Input\Container\Form\Standard;
+use Edutiek\AssessmentService\Assessment\Data\Pseudonymization;
 
 /**
  * Settings for the correction
@@ -110,6 +111,8 @@ class CorrectionSettingsGUI extends BaseGUI
 
             // Correction settings
 
+            $assessment_settings->setPseudonymization(Pseudonymization::tryFrom((string) $data['correction']['pseudonymization'])
+                ?? Pseudonymization::WRITER_ID);
             $assessment_settings->setAssignMode(AssignMode::tryFrom($data['correction']['assign_mode']) ?? AssignMode::RANDOM_EQUAL);
             $assessment_settings->setUndoAuthorization((bool) $data['correction']['undo_authorization']);
             $assessment_settings->setInstantStatus((bool) $data['correction']['instant_status']);
@@ -276,7 +279,16 @@ class CorrectionSettingsGUI extends BaseGUI
             $sections['correctors'] = $factory->section($fields, $this->plugin->txt('correctors_per_writer'));
         }
 
+        // Correction Settings
+
         $fields = [];
+
+        $fields['pseudonymization'] = $factory->select(
+            $this->plugin->txt('pseudonymization'),
+            $this->assessment_api->pseudonym()->options(),
+            $this->plugin->txt('pseudonymization_info'),
+        )->withRequired(true)->withValue($assessment_settings->getPseudonymization()->value);
+
         $fields['assign_mode'] = $factory->radio($this->plugin->txt('assign_mode'))
             ->withRequired(true)
             ->withOption(

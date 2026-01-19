@@ -868,3 +868,5 @@ working_end#:#Bearbeitungs-Ende
 assessment_start#:#Beginn Bearbeitungs-Teitraum
 assesment_end#:#Ende Bearbeitungszeitraum
 new_task#:#Neue Teilaufgabe
+pseudonymization#:#Pseudonymisierung
+pseudonymization_info#:#Das Pseudonym eines Teilnehmers wird bei allen Anzeigen für die Korrektoren verwendet. In der Korrekturverwaltung ist der Bezug zum Benutzerkonto ersichtlich.

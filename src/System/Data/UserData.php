@@ -12,6 +12,7 @@ class UserData extends \Edutiek\AssessmentService\System\Data\UserData
     private ?string $title;
     private string $firstname;
     private string $lastname;
+    private ?string $matriculation;
     private string $language;
     private DateTimeZone $timezone;
 
@@ -25,7 +26,7 @@ class UserData extends \Edutiek\AssessmentService\System\Data\UserData
         ?string $title,
         string $firstname,
         string $lastname,
-        ?string $email,
+        ?string $matriculation,
         string $language,
         DateTimeZone $timezone
     ): self {
@@ -33,6 +34,7 @@ class UserData extends \Edutiek\AssessmentService\System\Data\UserData
         $this->title = $title;
         $this->firstname = $firstname;
         $this->lastname = $lastname;
+        $this->matriculation = $matriculation;
         $this->language = $language;
         $this->timezone = $timezone;
 
@@ -63,6 +65,11 @@ class UserData extends \Edutiek\AssessmentService\System\Data\UserData
     public function getLastname(): string
     {
         return $this->lastname;
+    }
+
+    public function getMatriculation(): ?string
+    {
+        return $this->matriculation;
     }
 
     public function getLanguage(): string

@@ -26,6 +26,7 @@ use Edutiek\AssessmentService\Assessment\Data\CorrectionApproximation;
 use Edutiek\AssessmentService\Assessment\Data\CorrectionProcedure;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Key;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Table;
+use Edutiek\AssessmentService\Assessment\Data\Pseudonymization;
 
 #[Table(name: 'xlas_as_corr_settings')]
 class CorrectionSettings extends \Edutiek\AssessmentService\Assessment\Data\CorrectionSettings
@@ -46,6 +47,7 @@ class CorrectionSettings extends \Edutiek\AssessmentService\Assessment\Data\Corr
     private bool $stitch_after_procedure = false;
     private bool $undo_authorization = false;
     private bool $instant_status = false;
+    private string $pseudonymization = Pseudonymization::WRITER_ID->value;
     private bool $anonymize_correctors = false;
     private bool $reports_enabled = false;
     private ?DateTimeImmutable $reports_available_start = null;
@@ -184,6 +186,15 @@ class CorrectionSettings extends \Edutiek\AssessmentService\Assessment\Data\Corr
     public function setInstantStatus(bool $instant_status): self
     {
         $this->instant_status = $instant_status;
+        return $this;
+    }
+    public function getPseudonymization(): Pseudonymization
+    {
+        return Pseudonymization::tryFrom($this->pseudonymization) ?? Pseudonymization::WRITER_ID;
+    }
+    public function setPseudonymization(Pseudonymization $pseudonymization): self
+    {
+        $this->pseudonymization = $pseudonymization->value;
         return $this;
     }
     public function getAnonymizeCorrectors(): bool

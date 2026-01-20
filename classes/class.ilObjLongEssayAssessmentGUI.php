@@ -21,7 +21,6 @@ use ILIAS\Plugin\LongEssayAssessment\Dashboard\ProtocolGUI;
 use ILIAS\Plugin\LongEssayAssessment\CorrectionAdmin\CorrectionAdminGUI;
 use ILIAS\Plugin\LongEssayAssessment\CorrectorAdmin\CorrectorGUI;
 use ILIAS\Plugin\LongEssayAssessment\Corrector\CorrectorStartGUI;
-use ILIAS\Plugin\LongEssayAssessment\Settings\TemplateSettingsGUI;
 use ILIAS\Plugin\LongEssayAssessment\Settings\DocumentationSettingsGUI;
 use ILIAS\Plugin\LongEssayAssessment\Dashboard\DashboardGUI;
 use ILIAS\UI\Component\Input\Field\Radio;
@@ -382,7 +381,10 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
         $template_ref = $data['template'][1]['id'] ?? null;
         if (($data['template'][0] ?? null) === 'ref' && $template_ref && is_numeric($template_ref)) {
             $template = new ilObjLongEssayAssessment((int) $template_ref);
-            ilObjLongEssayAssessment::setTemplate($template);
+            ilObjLongEssayAssessment::setCreateTemplate($template);
+        }
+        if (($data['template'][1]['amount'] ?? null) === 'multiple') {
+            ilObjLongEssayAssessment::setCreateMultiTasks(true);
         }
 
         parent::save();
@@ -400,22 +402,14 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
             ->withRequest($this->request);
         $data = $form->getData();
 
-        switch ($data['template'][0] ?? null) {
-            case 'tasks':
-                $assessment = $this->plugin->dic()->assessment($new_object->getAssId(), $this->user->getId());
-                $orga_settings = $assessment->orgaSettings()->get();
-                $orga_settings->setMultiTasks('multiple' === ($data['template'][1]['amount'] ?? false));
-                $assessment->orgaSettings()->save($orga_settings);
-                break;
-            case 'ref':
-                $template = ilObjLongEssayAssessment::getTemplate();
-                $assessment = $this->plugin->dic()->assessment($new_object->getAssId(), $this->user->getId());
-                $orga_settings = $assessment->orgaSettings()->get();
-                $orga_settings->setOnline(false);
-                $orga_settings->setTemplate(false);
-                $orga_settings->setSrcTemplateName($template?->getTitle());
-                $assessment->orgaSettings()->save($orga_settings);
-                break;
+        if (($data['template'][0] ?? null) === 'ref') {
+            $template = ilObjLongEssayAssessment::getCreateTemplate();
+            $assessment = $this->plugin->dic()->assessment($new_object->getAssId(), $this->user->getId());
+            $orga_settings = $assessment->orgaSettings()->get();
+            $orga_settings->setOnline(false);
+            $orga_settings->setTemplate(false);
+            $orga_settings->setSrcTemplateName($template?->getTitle());
+            $assessment->orgaSettings()->save($orga_settings);
         }
 
         // always send a message

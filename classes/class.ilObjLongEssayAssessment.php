@@ -26,7 +26,9 @@ use ILIAS\Plugin\LongEssayAssessment\BaseObjectData;
  */
 class ilObjLongEssayAssessment extends ilObjectPlugin implements BaseObjectData
 {
-    private static ?ilObjLongEssayAssessment $template = null;
+    private static ?ilObjLongEssayAssessment $create_template = null;
+    private static bool $create_multi_tasks = false;
+
     private Manager $manager;
 
     public function __construct($a_ref_id = 0)
@@ -35,14 +37,19 @@ class ilObjLongEssayAssessment extends ilObjectPlugin implements BaseObjectData
         $this->initServices();
     }
 
-    public static function setTemplate(ilObjLongEssayAssessment $template)
+    public static function setCreateMultiTasks(bool $multi)
     {
-        self::$template = $template;
+        self::$create_multi_tasks = $multi;
     }
 
-    public static function getTemplate(): ?ilObjLongEssayAssessment
+    public static function setCreateTemplate(ilObjLongEssayAssessment $template)
     {
-        return self::$template;
+        self::$create_template = $template;
+    }
+
+    public static function getCreateTemplate(): ?ilObjLongEssayAssessment
+    {
+        return self::$create_template;
     }
 
     /**
@@ -75,11 +82,11 @@ class ilObjLongEssayAssessment extends ilObjectPlugin implements BaseObjectData
 
     protected function doCreate(bool $clone_mode = false): void
     {
-        if (self::$template !== null) {
-            self::$template->cloneTo($this->getAssId());
+        if (self::$create_template !== null) {
+            self::$create_template->cloneTo($this->getAssId());
         } elseif (!$clone_mode) {
             $this->initServices();  // now the new id is available
-            $this->manager->create();
+            $this->manager->create(self::$create_multi_tasks);
         }
     }
 

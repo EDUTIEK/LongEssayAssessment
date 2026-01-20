@@ -145,7 +145,7 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
 
         return new ColumnMappingClosure(function ($key) use ($item, $writing_status, $correction_status, $grading_service, $other_corrector, $grading_status, $assessment_format, $essay_format) {
             return match($key) {
-                'pseudonym' => $item->getWriter()->getPseudonym(),
+                'pseudonym' => $this->ui_factory->link()->standard($item->getWriter()->getPseudonym(), $this->itemLinkTarget($item)),
                 'position' => $this->plugin->txt($item->getAssignment()->getPosition()->languageVariable()),
                 'task' => $item->getTaskTitle(),
                 'combined_status' => $correction_status($item->getCombinedStatus()),
@@ -161,6 +161,13 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
         });
     }
 
+    private function itemLinkTarget(CorrectorStartItem $item): ?string
+    {
+        $this->ctrl->setParameter($this, 'task_id', $item->getAssignment()->getTaskId());
+        $this->ctrl->setParameter($this, 'writer_id', $item->getAssignment()->getWriterId());
+        return $this->ctrl->getLinkTarget($this, 'startCorrector');
+    }
+
     public function getColumns(?array $additional_parameters): array
     {
         $cf = $this->ui_factory->table()->column();
@@ -169,7 +176,7 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
         $multi_task = $this->orga_settings->getMultiTasks();
 
         return [
-          'pseudonym' => $cf->text($this->plugin->txt('pseudonym'))->withIsOptional(false, true),
+          'pseudonym' => $cf->link($this->plugin->txt('pseudonym'))->withIsOptional(false, true),
           'position' => !$multi_task && $other_corrections ? $cf->status($this->plugin->txt('own_position'))->withIsOptional(true, true) : null,
           'task' => $multi_task ? $cf->text($this->plugin->txt('task'))->withIsOptional(false, true) : null,
           'combined_status' => $cf->status($this->plugin->txt('status'))->withIsOptional(false, true),
@@ -409,8 +416,8 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
         $this->assessment_api->appService()->openCorrector(
             $this->object->getContextId(),
             $this->getReturnUrl(),
-            null,
-            null
+            $this->get->integer('task_id'),
+            $this->get->integer('writer_id'),
         );
     }
 

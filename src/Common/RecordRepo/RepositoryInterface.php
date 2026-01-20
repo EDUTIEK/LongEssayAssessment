@@ -121,6 +121,14 @@ interface RepositoryInterface extends HydrationInterface
     public function deleteAllBy($conditions): void;
 
     /**
+     * Get a list of integers by an array of conditions
+     * @param string|array<string, mixed> $conditions
+     * @return int[]
+     */
+    public function queryIntegersBy($conditions, string $key): array;
+
+    /**
+     * Get a list of integers from an SQL query
      * @return int[]
      */
     public function queryIntegers(string $query, string $key): array;

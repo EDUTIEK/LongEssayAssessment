@@ -26,6 +26,7 @@ use DateTime;
 use DateTimeImmutable;
 use Exception;
 use ilDBInterface;
+use PDOStatement;
 
 /**
  * @template A of object
@@ -113,6 +114,11 @@ class DatabaseRepository implements RepositoryInterface
         $this->db->manipulate($this->sqlDelete(join(' AND ', $where)));
     }
 
+    public function queryIntegersBy($conditions, string $key): array
+    {
+        return $this->queryIntegers($this->sqlSelectKey($key, $this->where($conditions)), $key);
+    }
+
     public function queryIntegers(string $query, string $key): array
     {
         return array_map(intval(...), array_column($this->queryAllRaw($query), $key));
@@ -165,10 +171,10 @@ class DatabaseRepository implements RepositoryInterface
 
     public function keyFields(): array
     {
-        return $this->keys ??= array_filter($this->model['properties'], fn (array $p) => $p['key']);
+        return $this->keys ??= array_filter($this->model['properties'], fn(array $p) => $p['key']);
     }
 
-    public function hasBy($conditions) : bool
+    public function hasBy($conditions): bool
     {
         $result = $this->db->query($this->sqlHas($this->where($conditions)));
         $row = $this->db->fetchAssoc($result);
@@ -211,10 +217,14 @@ class DatabaseRepository implements RepositoryInterface
     private function equals(string $left, $right): string
     {
         $quote_id = $this->db->quoteIdentifier(...);
+
+        if ($right instanceof Value) {
+            return $right->condition($quote_id($left));
+        }
         return match (gettype($right)) {
             'integer', 'string', 'float' => $quote_id($left) . ' = ' . $this->db->quote($right, ilDBConstants::T_TEXT),
             'boolean' => $quote_id($left) . ' = ' . $this->db->quote((int) $right, ilDBConstants::T_INTEGER),
-            'array' => $this->db->in($left, array_map(fn ($x) => is_bool($x) ? (int) $x : $x, $right), false, ilDBConstants::T_TEXT),
+            'array' => $this->db->in($left, array_map(fn($x) => is_bool($x) ? (int) $x : $x, $right), false, ilDBConstants::T_TEXT),
             'NULL' => $quote_id($left) . ' IS NULL',
             default => throw new Exception('Unsupported type: ' . gettype($right)),
         };
@@ -223,6 +233,11 @@ class DatabaseRepository implements RepositoryInterface
     private function sqlCount(string $where = '1'): string
     {
         return 'SELECT COUNT(*) as count FROM ' . $this->db->quoteIdentifier($this->table()) . ' WHERE ' . $where;
+    }
+
+    private function sqlSelectKey(string $key, string $where = '1'): string
+    {
+        return 'SELECT ' . $this->db->quoteIdentifier($key) . ' FROM ' . $this->db->quoteIdentifier($this->table()) . ' WHERE ' . ($where ?: '1') ;
     }
 
     private function sqlSelect(string $where = '1', string $order = ''): string
@@ -278,7 +293,7 @@ class DatabaseRepository implements RepositoryInterface
      */
     private function updateSequence(object $model): void
     {
-        $fields = array_filter($this->model['properties'], fn (array $field) => $field['sequence']);
+        $fields = array_filter($this->model['properties'], fn(array $field) => $field['sequence']);
         if ($fields === []) {
             return;
         }
@@ -287,7 +302,7 @@ class DatabaseRepository implements RepositoryInterface
         $field = current($fields);
         $table = $this->table();
         $db = $this->db;
-        $convert = fn (int $val) => $this->dbToClassValue((string) $val, $field['class_type']);
+        $convert = fn(int $val) => $this->dbToClassValue((string) $val, $field['class_type']);
 
         (function () use ($db, $property, $table, $convert): void {
             if (empty($this->$property)) {
@@ -312,7 +327,7 @@ class DatabaseRepository implements RepositoryInterface
      */
     private function order(array $order): string
     {
-        if ([] !== array_filter($order, fn ($dir) => !in_array(strtolower($dir), ['asc', 'desc'], true))) {
+        if ([] !== array_filter($order, fn($dir) => !in_array(strtolower($dir), ['asc', 'desc'], true))) {
             throw new Exception('Invalid order key given. Only ASC and DESC are allowed');
         }
 
@@ -330,7 +345,7 @@ class DatabaseRepository implements RepositoryInterface
             throw new Exception('DatabaseRepository Hydration does not support multiple key fields.');
         }
         $key = array_pop($keys)['db_name'];
-        if($key_value === null) {
+        if ($key_value === null) {
             return null;
         }
 

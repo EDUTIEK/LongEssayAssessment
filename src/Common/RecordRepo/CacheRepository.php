@@ -50,12 +50,12 @@ class CacheRepository implements RepositoryInterface
         return $this->cache(__FUNCTION__, []);
     }
 
-    public function hasBy($conditions) : bool
+    public function hasBy($conditions): bool
     {
         return $this->cache(__FUNCTION__, func_get_args());
     }
 
-    public function countBy($conditions) : int
+    public function countBy($conditions): int
     {
         return $this->cache(__FUNCTION__, func_get_args());
     }
@@ -113,6 +113,11 @@ class CacheRepository implements RepositoryInterface
     {
         $this->r->deleteAllBy($conditions);
         $this->clearCache();
+    }
+
+    public function queryIntegersBy($conditions, string $key): array
+    {
+        return $this->cache(__FUNCTION__, func_get_args());
     }
 
     public function queryIntegers(string $query, string $key): array
@@ -209,7 +214,7 @@ class CacheRepository implements RepositoryInterface
 
     private function key(array $keys): string
     {
-        return md5(json_encode($keys));
+        return md5(serialize($keys));
     }
 
     public function dehydratedInstance(mixed $key_value): ?object

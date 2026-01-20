@@ -92,6 +92,8 @@ class ilObjLongEssayAssessment extends ilObjectPlugin implements BaseObjectData
 
     protected function doDelete(): void
     {
+        // re-initialisation needed to get the ids available
+        $this->initServices();
         $this->manager->delete();
     }
 

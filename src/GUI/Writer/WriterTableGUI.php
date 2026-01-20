@@ -734,10 +734,8 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
                 $this->plugin->txt("time_limit_changed"),
                 [self::FILTER_YES => $this->plugin->txt("yes"), self::FILTER_NO => $this->plugin->txt("no")]
             ),
-            "min_words" => $this->ui_factory->input()->field()->numeric($this->plugin->txt("min_word_count"))
-                                            ->withAdditionalTransformation($this->refinery->int()->isGreaterThanOrEqual(0)),
-            "max_words" => $this->ui_factory->input()->field()->numeric($this->plugin->txt("max_word_count"))
-                                            ->withAdditionalTransformation($this->refinery->int()->isGreaterThanOrEqual(1)),
+            "min_words" => $this->ui_factory->input()->field()->numeric($this->plugin->txt("min_word_count")),
+            "max_words" => $this->ui_factory->input()->field()->numeric($this->plugin->txt("max_word_count")),
             "pdf_version" => $this->ui_factory->input()->field()->select(
                 $this->plugin->txt("filter_pdf_version"),
                 [self::FILTER_YES => $this->plugin->txt("yes"), self::FILTER_NO => $this->plugin->txt("no")]

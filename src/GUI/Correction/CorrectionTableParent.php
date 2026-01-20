@@ -281,14 +281,8 @@ class CorrectionTableParent implements DataTableParent, FilterParent
             "name" => $this->ui_factory->input()->field()->text($this->plugin->txt("participants")),
             "task" => $this->ui_factory->input()->field()->multiselect($this->plugin->txt("task"), $this->getTasks()),
             "location" => $this->ui_factory->input()->field()->multiselect($this->plugin->txt("locations"), $locations),
-            "min_words" => $this->ui_factory->input()->field()->numeric($this->plugin->txt("min_word_count"))
-                                            ->withAdditionalTransformation(
-                                                $this->refinery->int()->isGreaterThanOrEqual(0)
-                                            ),
-            "max_words" => $this->ui_factory->input()->field()->numeric($this->plugin->txt("max_word_count"))
-                                            ->withAdditionalTransformation(
-                                                $this->refinery->int()->isGreaterThanOrEqual(1)
-                                            ),
+            "min_words" => $this->ui_factory->input()->field()->numeric($this->plugin->txt("min_word_count")),
+            "max_words" => $this->ui_factory->input()->field()->numeric($this->plugin->txt("max_word_count")),
             "status" => $this->ui_factory->input()->field()->multiSelect($this->plugin->txt("status"), $status),
             "assigned" => $this->ui_factory->input()->field()->select(
                 $this->plugin->txt("filter_assigned"),

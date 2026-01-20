@@ -107,7 +107,7 @@ class WriterViewRepo extends ViewRepo implements \Edutiek\AssessmentService\View
             "id" => is_array($value) ? $this->db->in("w.id", $value, false, "integer") : "w.id = " . $this->db->quote($value, "integer"),
             "ass_id", "obj_id" => is_array($value) ? $this->db->in("w.ass_id", $value, false, "integer") : "w.ass_id = " . $this->db->quote($value, "integer"),
             "ref_id" => is_array($value) ? $this->db->in("r.ref_id", $value, false, "integer") : "r.ref_id = " . $this->db->quote($value, "integer"),
-            "name" => $this->db->like("CONCAT(u.firstname, u.lastname, u.login, w.pseudonym)", "text", $value, true),
+            "name" => $this->db->like("CONCAT(u.firstname, u.lastname, u.login, u.email,w.pseudonym)", "text", "%". $value . "%", true),
             "time_limit_changed" => ($value == "1" ? "NOT" : "") . "(w.earliest_start IS NULL AND w.latest_end IS NULL AND w.time_limit_minutes IS NULL)",
             "location" => "writer.location = " . $this->db->quote($value, "integer"),
             default => null,

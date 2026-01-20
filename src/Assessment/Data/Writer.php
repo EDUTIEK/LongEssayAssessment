@@ -51,6 +51,7 @@ class Writer extends \Edutiek\AssessmentService\Assessment\Data\Writer
     private ?string $stitch_comment = null;
     private ?int $location = null;
     private int $review_notification = 0;
+    private ?string $finalized_from_status = null;
 
     public function getId(): int
     {
@@ -236,6 +237,17 @@ class Writer extends \Edutiek\AssessmentService\Assessment\Data\Writer
     public function setCorrectionStatusChangedBy(?int $correction_status_changed_by): self
     {
         $this->correction_status_changed_by = $correction_status_changed_by;
+        return $this;
+    }
+
+    public function getFinalizedFromStatus(): ?CorrectionStatus
+    {
+        return CorrectionStatus::tryFrom((string) $this->finalized_from_status) ?? null;
+    }
+
+    public function setFinalizedFromStatus(?CorrectionStatus $finalized_from_status): self
+    {
+        $this->finalized_from_status = $finalized_from_status?->value;
         return $this;
     }
 }

@@ -77,9 +77,11 @@ class CorrectionTableParent implements DataTableParent, FilterParent
         CorrectionItem|\ILIAS\Plugin\LongEssayAssessment\UI\Table\Item $item,
         ?array $additional_parameters
     ): \ArrayAccess {
+        $system_api = $this->plugin->dic()->system();
         $assessment_api = $this->plugin->dic()->assessment($item->getWriter()->getAssId(), $this->user->getId());
         $task_api = $this->plugin->dic()->task($item->getWriter()->getAssId(), $this->user->getId());
         $grading_service = $assessment_api->assessmentGrading();
+        $sys_format = $system_api->format($this->user->getId());
         $ass_format = $assessment_api->format($assessment_api->orgaSettings()->get());
         $task_format = $task_api->format();
 
@@ -89,9 +91,10 @@ class CorrectionTableParent implements DataTableParent, FilterParent
             $this->ui_factory,
             new \DateTimeZone($this->user->getTimeZone()),
             $grading_service,
+            $sys_format,
             $ass_format,
             $task_format,
-            $item
+            $item,
         );
     }
 
@@ -145,31 +148,36 @@ class CorrectionTableParent implements DataTableParent, FilterParent
                         break;
                 }
             }
-            $cor = $cor . " ";
             $columns += [
                 "corr_{$p}" => $cf->text($cor)->withIsOptional(true, true)->withIsSortable(false),
-                "corr_{$p}_name" => $cf->text($cor . $this->lng->txt("name"))->withIsOptional(true, false)->withIsSortable(true),
-                "corr_{$p}_status" => $cf->status($cor . $this->plugin->txt("status"))->withIsOptional(true, false)->withIsSortable(true),
-                "corr_{$p}_points" => $cfp->nullableNumber($cor . $this->plugin->txt("points"))->withIsOptional(true, false)->withIsSortable(true),
+                "corr_{$p}_name" => $cf->text($cor . ': ' . $this->lng->txt("name"))->withIsOptional(true, false)->withIsSortable(true),
+                "corr_{$p}_status" => $cf->status($cor . ': ' . $this->plugin->txt("status"))->withIsOptional(true, false)->withIsSortable(true),
+                "corr_{$p}_points" => $cfp->nullableNumber($cor . ': ' . $this->plugin->txt("points"))->withIsOptional(true, false)->withIsSortable(true),
             ];
 
-            $columns["corr_{$p}_grade"] = $cf->text($cor . $this->lng->txt("grade"))->withIsOptional(true, false)->withIsSortable(true); // Should be disabled for multi-task
+            $columns["corr_{$p}_grade"] = $cf->text($cor . ': ' . $this->lng->txt("grade"))->withIsOptional(true, false)->withIsSortable(true); // Should be disabled for multi-task
             $columns["corr_{$p}_authorized"] = $cf->boolean(
-                $cor . $this->plugin->txt("grading_authorized"),
+                $cor . ': ' . $this->plugin->txt("grading_authorized"),
                 $this->lng->txt('yes'),
                 $this->lng->txt('no')
             )->withIsOptional(true, false)->withIsSortable(true);
         }
 
+        $res = $this->plugin->txt("result");
+        $fin = $this->plugin->txt("finalization");
+
         $columns += [
-            "result" => $cf->text($this->plugin->txt("result"))->withIsOptional(true, true)->withIsSortable(false),
-            "points" => $cfp->nullableNumber($this->plugin->txt("final_points"))->withIsOptional(true, false)->withIsSortable(true),
-            "grade" => $cf->text($this->plugin->txt("final_grade"))->withIsOptional(true, false)->withIsSortable(true),
-            "finalized" => $cfp->nullableDate(
-                $this->plugin->txt("finalized_at"),
+            "result" => $cf->text($res)->withIsOptional(true, true)->withIsSortable(false),
+            "points" => $cfp->nullableNumber($res . ': ' . $this->plugin->txt("points"))->withIsOptional(true, false)->withIsSortable(true),
+            "grade" => $cf->text($res . ': ' . $this->plugin->txt("grade"))->withIsOptional(true, false)->withIsSortable(true),
+
+            "finalized" => $cf->text($fin)->withIsOptional(true, true)->withIsSortable(false),
+            "finalized_date" => $cfp->nullableDate(
+                $fin . ': ' . $this->lng->txt('date'),
                 $date_without_seconds
             )->withIsOptional(true, false)->withIsSortable(true),
-            "finalized_from" => $cf->text($this->plugin->txt("finalized_from"))->withIsOptional(true, false)->withIsSortable(true),
+            "finalized_name" => $cf->text($fin . ': ' . $this->lng->txt('name'))->withIsOptional(true, false)->withIsSortable(true),
+            "finalized_from_status" => $cf->text($fin . ': ' . $this->plugin->txt('procedure'))->withIsOptional(true, false)->withIsSortable(true),
         ];
 
         if (!empty($this->getHasColumns())) {

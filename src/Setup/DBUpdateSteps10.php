@@ -971,8 +971,20 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
         if (!$this->db->tableColumnExists('xlas_as_corr_settings', 'pseudonymization')) {
             $this->db->addTableColumn('xlas_as_corr_settings', 'pseudonymization', [
                 'type' => ilDBConstants::T_TEXT,
+                'length' => 20,
                 'notnull' => true,
                 'default' => 'writer_id'
+            ]);
+        }
+    }
+
+    public function step_56(): void
+    {
+        if (!$this->db->tableColumnExists('xlas_as_writer', 'finalized_from_status')) {
+            $this->db->addTableColumn('xlas_as_writer', 'finalized_from_status', [
+                'type' => ilDBConstants::T_TEXT,
+                'length' => 20,
+                'notnull' => false
             ]);
         }
     }

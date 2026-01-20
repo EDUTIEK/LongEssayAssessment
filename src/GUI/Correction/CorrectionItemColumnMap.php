@@ -6,11 +6,14 @@ use ILIAS\UI\Component\Symbol\Symbol;
 use ILIAS\UI\Factory;
 use Edutiek\AssessmentService\Assessment\TaskInterfaces\GradingStatus;
 use ILIAS\UI\Renderer;
+use Edutiek\AssessmentService\System\Format\Service as SysFormService;
 use Edutiek\AssessmentService\Assessment\AssessmentGrading\ReadService as GradingService;
 use Edutiek\AssessmentService\Assessment\Format\Service as AssFormService;
 use Edutiek\AssessmentService\Task\Format\Service as TaskFormService;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\ColumnMappingArray;
 use Edutiek\AssessmentService\Assessment\Data\CombinedStatus;
+use Edutiek\AssessmentService\Assessment\Data\Writer;
+use Edutiek\AssessmentService\Assessment\Data\CorrectionStatus;
 
 /**
  * Map from CorrectionItem to CorrectionAdminGUI table columns, which acts like an array.
@@ -29,9 +32,10 @@ class CorrectionItemColumnMap extends ColumnMappingArray
         private Factory $ui_factory,
         private \DateTimeZone $timezone,
         private GradingService $grading,
+        private SysFormService $sys_format,
         private AssFormService $ass_format,
         private TaskFormService $task_format,
-        private CorrectionItem $item
+        private CorrectionItem $item,
     ) {
     }
 
@@ -50,6 +54,13 @@ class CorrectionItemColumnMap extends ColumnMappingArray
             GradingStatus::REVISED => $this->plng->txt("grading_revised"),
             default => ""
         };
+    }
+
+    private function finalized(CorrectionItem $item)
+    {
+        return  $this->sys_format->date($item->getWriter()->getCorrectionFinalized()?->setTimezone($this->timezone))
+            . ' ' . $item->getFinalizedByName()
+            . ' ' . $this->ass_format->finalizedFromStatus($item->getWriter());
     }
 
     private function image(): Symbol
@@ -87,8 +98,10 @@ class CorrectionItemColumnMap extends ColumnMappingArray
             "result" => $this->ass_format->finalResult($item->getWriter()),
             "points" => $item->getWriter()->getFinalPoints(),
             "grade" => $this->grading->getGradLevelForPoints($item->getWriter()->getFinalPoints())?->getGrade() ?? "",
-            "finalized" => $item->getWriter()->getCorrectionFinalized()?->setTimezone($this->timezone),
-            "finalized_from" => $item->getFinalizedByName() ?? "",
+            "finalized" => $this->finalized($item),
+            "finalized_date" => $item->getWriter()->getCorrectionFinalized()?->setTimezone($this->timezone),
+            "finalized_name" => $item->getFinalizedByName() ?? "",
+            "finalized_from_status" => $this->ass_format->finalizedFromStatus($item->getWriter()),
             "pdf_version" => $item->getEssay()?->hasPDFVersion() ?? false,
 
             "corr_0" => $item->getCorrectorDataByPosition(0) !== null

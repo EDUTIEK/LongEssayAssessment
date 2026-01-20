@@ -789,9 +789,6 @@ table_select_columns_all#:#Alle Spalten
 table_select_columns_selected#:#Spalten auswählen
 correction_admin_table_export#:#Tabelle exportieren
 correction_admin_table_export_filename#:#Korrekturentabelle
-final_points#:#End-Punkte
-finalized_at#:#Finalisiert am
-finalized_from#:#Finalisiert von
 min_word_count#:#Wörter mindestens
 max_word_count#:#Wörter maximal
 predefined_settings#:#Voreinstellungen
@@ -870,3 +867,7 @@ assesment_end#:#Ende Bearbeitungszeitraum
 new_task#:#Neue Teilaufgabe
 pseudonymization#:#Pseudonymisierung
 pseudonymization_info#:#Das Pseudonym eines Teilnehmers wird bei allen Anzeigen für die Korrektoren verwendet. In der Korrekturverwaltung ist der Bezug zum Benutzerkonto ersichtlich.
+grade#:#Note
+finalization#:#Abschluss
+procedure#:#Verfahren
+date#:#Datum

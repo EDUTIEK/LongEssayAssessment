@@ -187,9 +187,9 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
     {
         if (isset($filter_data)) {
             // filter is already saved
-            return count($this->assignment_service->allByCorrectorIdFiltered($this->corrector->getId()));
+            return count($this->assignment_service->allByCorrectorIdFiltered($this->corrector->getId(), true));
         } else {
-            return count($this->assignment_service->allByCorrectorId($this->corrector->getId()));
+            return count($this->assignment_service->allByCorrectorId($this->corrector->getId(), true));
         }
     }
 
@@ -263,9 +263,9 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
     {
         if (isset($filter_data)) {
             // filter is already saved
-            $own_assignments = $this->assignment_service->allByCorrectorIdFiltered($this->corrector->getId());
+            $own_assignments = $this->assignment_service->allByCorrectorIdFiltered($this->corrector->getId(), true);
         } else {
-            $own_assignments = $this->assignment_service->allByCorrectorId($this->corrector->getId());
+            $own_assignments = $this->assignment_service->allByCorrectorId($this->corrector->getId(), true);
         }
 
         /**
@@ -371,8 +371,8 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
         $table = $this->plugin_ui_factory->table()->dataTable("corrector_start_table", $this);
 
         $filter_data = $table->getFilterData();
-        $is_empty_after_filter = empty($this->getTotalRowCount($filter_data, null));
         $is_empty_before_filter = empty($this->getTotalRowCount(null, null));
+        $is_empty_after_filter = empty($this->getTotalRowCount($filter_data, null));
 
         if ($this->perms->canCorrect()) {
             $this->ctrl->clearParameters($this);

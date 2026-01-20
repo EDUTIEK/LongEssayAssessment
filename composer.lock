@@ -246,12 +246,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/EDUTIEK/assessment-service.git",
-                "reference": "f3ddfb5169669ccdbd6feba1a7ec762f74254311"
+                "reference": "324ff739c446df64a4425bf72178cec3b1b83273"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EDUTIEK/assessment-service/zipball/f3ddfb5169669ccdbd6feba1a7ec762f74254311",
-                "reference": "f3ddfb5169669ccdbd6feba1a7ec762f74254311",
+                "url": "https://api.github.com/repos/EDUTIEK/assessment-service/zipball/324ff739c446df64a4425bf72178cec3b1b83273",
+                "reference": "324ff739c446df64a4425bf72178cec3b1b83273",
                 "shasum": ""
             },
             "require": {
@@ -294,7 +294,7 @@
                 "source": "https://github.com/EDUTIEK/assessment-service/tree/main",
                 "issues": "https://github.com/EDUTIEK/assessment-service/issues"
             },
-            "time": "2026-01-20T13:58:04+00:00"
+            "time": "2026-01-20T22:39:12+00:00"
         },
         {
             "name": "fig/http-message-util",

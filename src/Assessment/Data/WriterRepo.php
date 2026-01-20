@@ -22,6 +22,7 @@ namespace ILIAS\Plugin\LongEssayAssessment\Assessment\Data;
 
 use Edutiek\AssessmentService\Assessment\Data\CorrectionStatus;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\RepositoryInterface;
+use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Value;
 use Edutiek\AssessmentService\Assessment\Data\Writer;
 
 class WriterRepo implements \Edutiek\AssessmentService\Assessment\Data\WriterRepo
@@ -65,6 +66,11 @@ class WriterRepo implements \Edutiek\AssessmentService\Assessment\Data\WriterRep
         return $this->repo->queryAllBy(['ass_id' => $ass_id]);
     }
 
+    public function authorizedIds(int $ass_id): array
+    {
+        return $this->repo->queryIntegersBy(['ass_id' => $ass_id, 'writing_authorized' => Value::NOT_NULL], 'id');
+    }
+
     public function save(Writer $entity): void
     {
         $this->repo->replace($entity);
@@ -84,5 +90,4 @@ class WriterRepo implements \Edutiek\AssessmentService\Assessment\Data\WriterRep
     {
         return $this->repo->hasBy(['ass_id' => $ass_id, "correction_status" => CorrectionStatus::STITCH->value]);
     }
-
 }

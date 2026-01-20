@@ -58,9 +58,12 @@ class CorrectionItemColumnMap extends ColumnMappingArray
 
     private function finalized(CorrectionItem $item)
     {
-        return  $this->sys_format->date($item->getWriter()->getCorrectionFinalized()?->setTimezone($this->timezone))
-            . ' ' . $item->getFinalizedByName()
-            . ' ' . $this->ass_format->finalizedFromStatus($item->getWriter());
+        if ($item->getWriter()->isCorrectionFinalized()) {
+            return  $this->sys_format->date($item->getWriter()->getCorrectionFinalized()?->setTimezone($this->timezone))
+                . ' ' . $item->getFinalizedByName()
+                . ' ' . $this->ass_format->finalizedFromStatus($item->getWriter());
+        }
+        return '';
     }
 
     private function image(): Symbol
@@ -100,8 +103,8 @@ class CorrectionItemColumnMap extends ColumnMappingArray
             "grade" => $this->grading->getGradLevelForPoints($item->getWriter()->getFinalPoints())?->getGrade() ?? "",
             "finalized" => $this->finalized($item),
             "finalized_date" => $item->getWriter()->getCorrectionFinalized()?->setTimezone($this->timezone),
-            "finalized_name" => $item->getFinalizedByName() ?? "",
-            "finalized_from_status" => $this->ass_format->finalizedFromStatus($item->getWriter()),
+            "finalized_name" => $item->getWriter()->isCorrectionFinalized() ? ($item->getFinalizedByName() ?? "") : '',
+            "finalized_from_status" => $item->getWriter()->isCorrectionFinalized() ? ($this->ass_format->finalizedFromStatus($item->getWriter())) : '',
             "pdf_version" => $item->getEssay()?->hasPDFVersion() ?? false,
 
             "corr_0" => $item->getCorrectorDataByPosition(0) !== null

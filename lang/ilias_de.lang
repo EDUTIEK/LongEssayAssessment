@@ -386,8 +386,10 @@ settings_stitch_required#:#Stichentscheid
 remove_authorization#:#Korrektur-Freigabe zurückziehen
 remove_authorizations#:#Korrektur-Freigaben zurückziehen
 confirm_remove_authorizations_for#:#Möchten Sie die Freigabe der Korrektur(en) für %s zurückziehen? Diese Aktion wird protokolliert.
-remove_authorizations_for_done#:#Die Korrektur-Freigaben für %s wurden zurückgezogen.
-remove_authorizations_for_failed#:#Die Korrektur-Freigaben für %s konnten nicht zurückgezogen werden.
+remove_authorizations_done#:#Die Korrektur-Freigaben wurden zurückgezogen.
+remove_authorizations_changed#:#Zurückgezogen: %s
+remove_authorizations_unchanged#:#Unverändert: %s
+remove_authorizations_failed#:#Ihre Auswahl enthält keine Freigaben die zurückgezogen können.
 remove_own_authorization#:#Freigaben zurückziehen
 remove_own_authorization_for#:#Freigaben für %s zurückziehen
 confirm_remove_own_authorization#:#Möchten Sie folgende Korrektur-Freigabe zurückziehen? Diese Aktion wird protokolliert.

@@ -576,7 +576,7 @@ class CorrectionAdminGUI extends BaseGUI
             $this->changeCorrectorAction(),
 //            $this->exportStepsAction(),
             $this->removeAuthorizationsAction(),
-//            $this->exportTableAction(),
+            $this->exportTableAction(),
         ];
     }
 

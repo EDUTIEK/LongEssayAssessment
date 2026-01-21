@@ -107,44 +107,39 @@ class CorrectionAdminGUI extends BaseGUI
 
         foreach ($writer_ids as $writer_id) {
             if (($writer = $this->writer_service->oneByWriterId($writer_id)) !== null) {
-                if ($this->correction_process->removeAuthorizations($this->task_info->getId(), $writer, $this->user->getId())) {
-                    $changed[] = $writer;
+                $user = $this->user_service->getUser($writer->getUserId());
+                $name = ($user?->getListname(false) ?? $this->plugin->txt('unknown')) . ' (' . $writer->getPseudonym() . ')';
+                $result = $this->correction_process->removeAuthorizations($this->task_info->getId(), $writer, $this->user->getId());
+                if ($result->isOk()) {
+                    $changed[] = $name;
                 } else {
-                    $unchanged[] = $writer;
+                    $unchanged[] = $name . ': ' . implode(', ', $result->messages());
+                    ;
                 }
             }
         }
 
+        $messages = [
+            $this->plugin->txt(count($changed) ? 'remove_authorizations_done' : 'remove_authorizations_failed'),
+        ];
+
         if (count($changed)) {
-            $messages = [
-                $this->plugin->txt('remove_authorizations_done'),
-                sprintf($this->plugin->txt('remove_authorizations_changed'), $this->getWriterNamesList($changed))
-            ];
-            if (count($unchanged)) {
-                $messages[] = sprintf($this->plugin->txt('remove_authorizations_unchanged'), $this->getWriterNamesList($unchanged));
+            $messages[] = $this->renderer->render($this->ui_factory->listing()->unordered($changed));
+        }
+        if (count($unchanged)) {
+            if (count($changed)) {
+                $messages[] = $this->plugin->txt('remove_authorizations_unchanged');
             }
+            $messages[] = $this->renderer->render($this->ui_factory->listing()->unordered($unchanged));
+        }
+
+        if (count($changed)) {
             $this->success(implode('<br>', $messages), true);
         } else {
-            $this->failure($this->plugin->txt('remove_authorizations_failed'), true);
+            $this->failure(implode('<br>', $messages), true);
         }
 
         $this->ctrl->redirect($this);
-    }
-
-    /**
-     * Get a list of writer names
-     * This can be used for success and failed messages
-     * @param Writer[] $writers
-     */
-    private function getWriterNamesList(array $writers): string
-    {
-        $users = $this->user_service->getUsersByIds(array_map(fn($w) => $w->getUserId(), $writers));
-        $names = [];
-        foreach ($writers as $writer) {
-            $user = $users[$writer->getUserId()] ?? null;
-            $names[] = ($user?->getListname(false) ?? $this->plugin->txt('unknown')) . ' (' . $writer->getPseudonym() . ')';
-        }
-        return implode(", ", $names);
     }
 
     private function exportStepsAction(): Action\Direct

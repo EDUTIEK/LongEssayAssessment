@@ -387,8 +387,8 @@ remove_authorization#:#Korrektur-Freigabe zurückziehen
 remove_authorizations#:#Korrektur-Freigaben zurückziehen
 confirm_remove_authorizations_for#:#Möchten Sie die Freigabe der Korrektur(en) für %s zurückziehen? Diese Aktion wird protokolliert.
 remove_authorizations_done#:#Die Korrektur-Freigaben wurden zurückgezogen.
-remove_authorizations_changed#:#Zurückgezogen: %s
-remove_authorizations_unchanged#:#Unverändert: %s
+remove_authorizations_changed#:#Zurückgezogen:
+remove_authorizations_unchanged#:#Unverändert:
 remove_authorizations_failed#:#Ihre Auswahl enthält keine Freigaben die zurückgezogen können.
 remove_own_authorization#:#Freigaben zurückziehen
 remove_own_authorization_for#:#Freigaben für %s zurückziehen
@@ -456,8 +456,10 @@ authorize_correction#:#Korrektur freigeben
 authorize_correction_for#:#Korrektur für %s freigeben
 confirm_authorize_correction#:#Möchten Sie die folgenden Korrekturen freigeben?
 authorize_correction_done#:#Ihre Korrektur wurde freigegeben.
+authorize_correction_changed#:#Freigegeben:
+authorize_correction_unchanged#:#Unverändert:
+authorize_correction_failed#:#In Ihrer Auswahl waren keine Korrekturen, die freigegeben werden können.
 no_authorizations_to_remove#:#In Ihrer Auswahl waren keine Korrektur-Freigaben, die zurückgenommen werden können. Das Zurücknehmen ist nur möglich, wenn die Korrektur einer Abgabe noch nicht abgeschlossen ist.
-no_corrections_to_authorize#:#In Ihrer Auswahl waren keine Korrekturen, die freigegeben werden können.
 download_instructions#:#Aufgabenstellung herunterladen
 download_solution#:#Lösungshinweise herunterladen
 authorize_pdf_version_info#:#Wenn eine PDF-Abgabe hinzugefügt oder geändert wird, wird eine bisherige Freigabe je nach Einstellung zurückgezogen oder durch Sie erneuert.

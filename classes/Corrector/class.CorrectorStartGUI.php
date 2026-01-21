@@ -37,6 +37,8 @@ use ILIAS\Plugin\LongEssayAssessment\UI\Table\Helper\ConfirmationIds;
 use DateTimeZone;
 use ILIAS\StaticURL\Builder\StandardURIBuilder;
 use Edutiek\AssessmentService\Assessment\Data\CorrectionProcedure;
+use Edutiek\AssessmentService\Assessment\Data\Writer;
+use Edutiek\AssessmentService\Task\CorrectionProcess\FullService as CorrectionProcess;
 
 /**
  *Start page for correctors
@@ -63,6 +65,7 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
     private SystemFormatService $system_format_service;
     private FormatService $assessment_format_service;
     private PermissionService $perms;
+    private CorrectionProcess $correction_process;
 
     public function __construct(BaseObjectData $object)
     {
@@ -81,6 +84,7 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
         $this->writer_service = $this->assessment_api->writer();
         $this->assessment_status_service = $this->task_api->assessmentStatus();
         $this->assessment_format_service = $this->assessment_api->format($this->orga_settings);
+        $this->correction_process = $this->task_api->correctionProcess();
     }
 
     /**
@@ -206,7 +210,7 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
             // todo: activate actions
 //            $this->downloadWrittenPDFAction(),
 //            $this->downloadCorrectedPdfAction(),
-//            $this->authorizeCorrectionAction(),
+              $this->authorizeCorrectionAction(),
 //            $this->removeAuthorizationAction()
         ];
     }
@@ -236,7 +240,7 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
     private function authorizeCorrectionAction(): Table\Action\Confirmation
     {
         return $this->plugin_ui_factory->table()->action()->confirmation(
-            "authorize_correction",
+            "authorizeCorrection",
             $this->plugin->txt('authorize_correction'),
             $this->plugin->txt('authorize_correction'),
             $this->plugin->txt('confirm_authorize_correction'),
@@ -244,9 +248,7 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
             fn(CorrectorStartItem $x) => $x->getWriter()->getPseudonym() . ': '
                 . $this->format_service->correctionResult($x->getSummary()),
             fn(CorrectorStartItem $x) =>
-                empty($x->getSummary()?->getCorrectionAuthorized())
-                && $x->getWriter()->isAuthorized()
-                && !empty($x->getSummary()?->getPoints()),
+                $this->correction_process->canAuthorize($x->getAssignment()),
             Table\Action\Type::Standard
         );
     }
@@ -396,8 +398,10 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
         }
 
         if (!$is_empty_before_filter) {
+            $table->executeAction();
             $this->tpl->setContent($this->renderer->render($table->getComponents()));
-            if (!empty($period = $this->system_format_service->dateRange($this->orga_settings->getCorrectionStart(), $this->orga_settings->getCorrectionEnd()))) {
+            if ($this->orga_settings->getCorrectionStart() || $this->orga_settings->getCorrectionEnd()) {
+                $period = $this->system_format_service->dateRange($this->orga_settings->getCorrectionStart(), $this->orga_settings->getCorrectionEnd());
                 $this->tpl->setOnScreenMessage("info", $this->plugin->txt("correction_period") . ': ' . $period, false);
             }
         } else {
@@ -423,33 +427,44 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
 
     protected function authorizeCorrection()
     {
-        $valid = false;
+        $assignment_ids = $this->confirmationIds();
+        $changed = [];
+        $unchanged = [];
 
-        //        foreach ($this->getWriterIds() as $writer_id) {
-        //            $essay = $this->localDI->getEssayRepo()->getEssayByWriterIdAndTaskId($writer_id, $this->settings->getTaskId());
-        //
-        //            if (empty($essay)) {
-        //                continue;
-        //            }
-        //            $summary = $this->localDI->getEssayRepo()->getCorrectorSummaryByEssayIdAndCorrectorId($essay->getId(), $corrector->getId());
-        //
-        //            if (empty($summary)) {
-        //                continue;
-        //            }
-        //            $valid = true;
-        //            $this->service->authorizeCorrection($summary, $corrector->getUserId());
-        //            if ($this->service->tryFinalisation($essay, $corrector->getUserId())) {
-        //                $this->service->sendReviewNotification($this->object->getRefId(), $writer_id);
-        //            }
-        //        }
-
-        if ($valid) {
-            $this->tpl->setOnScreenMessage("success", $this->plugin->txt("authorize_correction_done"), true);
-            $this->ctrl->redirect($this);
-        } else {
-            $this->tpl->setOnScreenMessage("failure", $this->plugin->txt("no_corrections_to_authorize"), true);
-            $this->ctrl->redirect($this);
+        foreach ($assignment_ids as $assignment_id) {
+            $assignment = $this->assignment_service->oneById($assignment_id);
+            $writer = $this->writer_service->oneByWriterId($assignment?->getWriterId() ?? 0);
+            if ($writer !== null && $assignment !== null) {
+                $result = $this->correction_process->authorizeCorrection($assignment, $this->user->getId());
+                if ($result->isOk()) {
+                    $changed[] = $writer->getPseudonym();
+                } else {
+                    $unchanged[] = $writer->getPseudonym() . ': ' . implode(', ', $result->messages());
+                }
+            }
         }
+
+        $messages = [
+            $this->plugin->txt(count($changed) ? 'authorize_correction_done' : 'authorize_correction_failed'),
+        ];
+
+        if (count($changed)) {
+            $messages[] = $this->renderer->render($this->ui_factory->listing()->unordered($changed));
+        }
+        if (count($unchanged)) {
+            if (count($changed)) {
+                $messages[] = $this->plugin->txt('authorize_correction_unchanged');
+            }
+            $messages[] = $this->renderer->render($this->ui_factory->listing()->unordered($unchanged));
+        }
+
+        if (count($changed)) {
+            $this->success(implode('<br>', $messages), true);
+        } else {
+            $this->failure(implode('<br>', $messages), true);
+        }
+
+        $this->ctrl->redirect($this);
     }
 
     protected function downloadWrittenPdf()
@@ -482,18 +497,6 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
     protected function removeAuthorization()
     {
         $success = false;
-
-        //        foreach ($this->getWriterIds() as $writer_id) {
-        //            $writer = $this->localDI->getWriterRepo()->getWriterById($writer_id);
-        //            if (empty($writer)) {
-        //                continue;
-        //            }
-        //            if ($this->service->removeOwnAuthorization($writer, $corrector)) {
-        //                $success = true;
-        //            } else {
-        //                $this->tpl->setOnScreenMessage("failure", sprintf($this->plugin->txt('remove_own_authorization_failed'), $writer->getPseudonym()), true);
-        //            }
-        //        }
 
         if ($success) {
             $this->tpl->setOnScreenMessage("success", $this->plugin->txt('remove_own_authorization_done'), true);

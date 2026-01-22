@@ -109,7 +109,7 @@ class CorrectionAdminGUI extends BaseGUI
             if (($writer = $this->writer_service->oneByWriterId($writer_id)) !== null) {
                 $user = $this->user_service->getUser($writer->getUserId());
                 $name = ($user?->getListname(false) ?? $this->plugin->txt('unknown')) . ' (' . $writer->getPseudonym() . ')';
-                $result = $this->correction_process->removeAuthorizations($this->task_info->getId(), $writer, $this->user->getId());
+                $result = $this->correction_process->removeAuthorizations($this->task_info->getId(), $writer);
                 if ($result->isOk()) {
                     $changed[] = $name;
                 } else {

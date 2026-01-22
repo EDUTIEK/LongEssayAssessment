@@ -248,7 +248,9 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
             fn(CorrectorStartItem $x) => $x->getWriter()->getPseudonym() . ': '
                 . $this->format_service->correctionResult($x->getSummary()),
             fn(CorrectorStartItem $x) =>
-                $this->correction_process->canAuthorize($x->getAssignment()),
+                $this->correction_process->canAuthorize($x->getAssignment())
+                && $x->getSummary()->getPoints() !== null
+                && !(empty($x->getSummary()->getSummaryText() && empty($x->getSummary()->getSummaryPdf()))),
             Table\Action\Type::Standard
         );
     }
@@ -435,7 +437,7 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
             $assignment = $this->assignment_service->oneById($assignment_id);
             $writer = $this->writer_service->oneByWriterId($assignment?->getWriterId() ?? 0);
             if ($writer !== null && $assignment !== null) {
-                $result = $this->correction_process->authorizeCorrection($assignment, $this->user->getId());
+                $result = $this->correction_process->authorizeCorrection($assignment);
                 if ($result->isOk()) {
                     $changed[] = $writer->getPseudonym();
                 } else {

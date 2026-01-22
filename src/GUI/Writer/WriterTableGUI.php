@@ -132,7 +132,7 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
             }
         }
 
-        $this->openMailForm($logins, 'showStartPage');
+        $this->openMailForm($logins, 'showItems');
     }
     public function authorizeWriting(WriterItem $writer)
     {

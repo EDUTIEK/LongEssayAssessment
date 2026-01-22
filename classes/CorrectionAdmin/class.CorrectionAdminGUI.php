@@ -219,9 +219,7 @@ class CorrectionAdminGUI extends BaseGUI
 
         $fields = [];
         $fields["first_corrector"] = $this->ui_factory->input()->field()->select(
-            $this->correction_settings->getRequiredCorrectors() > 1
-                ? $this->plugin->txt("grading_pos_first")
-                : $this->plugin->txt("assignment_pos_single"),
+            $this->correctorLabel(0),
             $corrector_list
         )->withRequired(true)
                                                       ->withValue(CorrectorAssignmentsService::UNCHANGED_CORRECTOR_ASSIGNMENT)
@@ -229,7 +227,7 @@ class CorrectionAdminGUI extends BaseGUI
 
         if ($this->correction_settings->getRequiredCorrectors() > 1) {
             $fields["second_corrector"] = $this->ui_factory->input()->field()->select(
-                $this->plugin->txt("grading_pos_second"),
+                $this->correctorLabel(1),
                 $corrector_list
             )->withRequired(true)
                                                            ->withValue(CorrectorAssignmentsService::UNCHANGED_CORRECTOR_ASSIGNMENT)
@@ -237,7 +235,7 @@ class CorrectionAdminGUI extends BaseGUI
 
             if (count($items) == 1 && $items[0]->getWriter()->getCombinedStatus() === CombinedStatus::STITCH_NEEDED) {
                 $fields["stitch_corrector"] = $this->ui_factory->input()->field()->select(
-                    $this->plugin->txt("grading_pos_stitch"),
+                    $this->correctorLabel(2),
                     $corrector_list
                 )->withRequired(true)
                                                                ->withValue(CorrectorAssignmentsService::UNCHANGED_CORRECTOR_ASSIGNMENT)
@@ -277,6 +275,18 @@ class CorrectionAdminGUI extends BaseGUI
         return $fields;
     }
 
+    private function correctorLabel(int $assignment_position)
+    {
+        return match($assignment_position) {
+            0 => $this->correction_settings->getRequiredCorrectors() > 1
+                    ? $this->plugin->txt("assignment_pos_first")
+                    : $this->plugin->txt("assignment_pos_single"),
+            1 => $this->plugin->txt("assignment_pos_second"),
+            2 => $this->plugin->txt("assignment_pos_stitch"),
+            default => sprintf($this->plugin->txt("assignment_pos_x"), $assignment_position + 1)
+        };
+    }
+
     public function changeCorrector(array $items, array $data)
     {
         $this->assignment_service->assignMultiple(
@@ -290,12 +300,14 @@ class CorrectionAdminGUI extends BaseGUI
         $this->ctrl->redirect($this, 'showItems');
     }
 
-    private function mailToWriterOrCorrectorAction(): Action\Modal
+    private function mailToWriterOrCorrectorAction()
     {
-        return $this->plugin_ui_factory->table()->action()->modal(
+        return $this->plugin_ui_factory->table()->action()->form(
             "mail_to_writer_or_corrector",
             $this->plugin->txt('mail_to_writer_or_corrector'),
-            [$this, "mailToWriterOrCorrectorModal"],
+            $this->plugin->txt('mail_to_writer_or_corrector'),
+            $this->mailToWriterOrCorrectorFields(...),
+            $this->mailToWriterOrCorrector(...),
             fn(CorrectionItem $item) => true,
             Action\Type::Standard
         );
@@ -303,79 +315,44 @@ class CorrectionAdminGUI extends BaseGUI
 
     /**
      * @param CorrectionItem[] $items
-     * @return \ILIAS\UI\Component\Modal\RoundTrip
      */
-    public function mailToWriterOrCorrectorModal(array $items): \ILIAS\UI\Component\Modal\RoundTrip
+    private function mailToWriterOrCorrectorFields(array $items): array
     {
-        $writer_ids = array_map(fn(CorrectionItem $item) => $item->getWriter()->getId(), $items);
-        $writer_id_query = "&" . http_build_query(["wid" => $writer_ids]);
-
         $fields = [
             'writer' => $this->ui_factory->input()->field()->checkbox($this->plugin->txt('participant'))
         ];
 
-        for ($i = 1; $i <= $this->correction_settings->getRequiredCorrectors(); $i++) {
-            $fields['corrector' . $i] = $this->ui_factory->input()->field()->checkbox(
-                sprintf($this->plugin->txt('corrector_x'), $i)
-            );
-        }
+        $num = array_reduce($items, fn(int $n, CorrectionItem $i) => $n = max($n, $i->getAssignedCorrectorsCount()), 0);
 
-        return $this->ui_factory->modal()->roundtrip(
-            $this->plugin->txt('mail_for_selected_essays'),
-            [],
-            $fields,
-            $this->ctrl->getFormAction($this, "mailToWriterOrCorrector") . $writer_id_query
-        )->withActionButtons([
-            $this->ui_factory->button()->primary($this->plugin->txt('write_mail'), "#")
-        ]);
-    }
-
-    public function mailToWriterOrCorrector()
-    {
-        $form = $this->mailToWriterOrCorrectorModal([]);
-        if (!($data = $form->getData()) !== null) {
-            $to_writer = false;
-            $to_correctors = [];
-
-            if (isset($data["writer"])) {
-                $to_writer = true;
-            }
-
-            for ($i = 1; $i <= $this->correction_settings->getRequiredCorrectors(); $i++) {
-                if (isset($data['corrector' . $i])) {
-                    $to_correctors[$i - 1] = true;
-                }
-            }
-            $writer_ids = [];
-            if ($this->http->wrapper()->query()->has('wid')) {
-                $writer_ids = $this->http->wrapper()->query()->retrieve(
-                    'wid',
-                    $this->refinery->kindlyTo()->listOf($this->refinery->to()->int())
+        if ($num > 0) {
+            for ($i = 0; $i < $num; $i++) {
+                $fields['corrector' . $i] = $this->ui_factory->input()->field()->checkbox(
+                    $this->correctorLabel($i)
                 );
             }
+        }
+        return $fields;
+    }
 
-            $assignments = $this->assignment_service->all();
-            $correctors = $this->corrector_service->all();
-            $writers = $this->writer_service->all();
-
-            $user_ids = [];
-            foreach ($assignments as $assignment) {
-                if (in_array($assignment->getWriterId(), $writer_ids)) {
-                    if ($to_writer
-                        && !empty($writer = $writers[$assignment->getWriterId()])) {
-                        $user_ids[] = $writer->getUserId();
-                    }
-                    if (isset($to_correctors[$assignment->getPosition()->value])
-                        && !empty($corrector = $correctors[$assignment->getCorrectorId()])) {
-                        $user_ids[] = $corrector->getUserId();
-                    }
+    /**
+     * @param CorrectionItem[] $items
+     */
+    public function mailToWriterOrCorrector(array $items, array $data)
+    {
+        $logins = [];
+        foreach ($items as $item) {
+            if ($data['writer'] ?? 0) {
+                $logins[] = $item->getWriterLogin();
+            }
+            for ($p = 0; $p <= $item->getAssignedCorrectorsCount(); $p++) {
+                $corrector = $item->getCorrectorDataByPosition($p);
+                if ($corrector && $data['corrector' . $p] ?? 0) {
+                    $logins[] = $corrector->getLogin();
                 }
             }
-
-            $users = $this->user_service->getUsersByIds($user_ids);
-            $logins = array_map(fn(UserData $u) => $u->getLogin(), $users);
-            $this->openMailForm($logins, 'showItems');
         }
+
+        $this->openMailForm(array_unique($logins), 'showItems');
     }
 
     private function viewStitchDecisionAction(): Action\Direct
@@ -452,6 +429,7 @@ class CorrectionAdminGUI extends BaseGUI
                 switch ($cmd) {
                     case 'showItems':
                     case 'removeAuthorizations':
+                    case 'mailToWriterOrCorrector':
                         $this->$cmd();
                         break;
 
@@ -567,7 +545,7 @@ class CorrectionAdminGUI extends BaseGUI
 //            $this->viewCorrectionAction(),
 //            $this->downloadWrittenPdfAction(),
 //            $this->downloadCorrectedPdfAction(),
-//            $this->mailToWriterOrCorrectorAction(),
+            $this->mailToWriterOrCorrectorAction(),
             $this->changeCorrectorAction(),
 //            $this->exportStepsAction(),
             $this->removeAuthorizationsAction(),

@@ -16,7 +16,6 @@ use ILIAS\Plugin\LongEssayAssessment\Assessment\Data\Properties;
 
 class CorrectionItem extends \ILIAS\Plugin\LongEssayAssessment\UI\Table\Item
 {
-
     public function __construct(
         int $id,
         private Writer $writer,
@@ -102,6 +101,11 @@ class CorrectionItem extends \ILIAS\Plugin\LongEssayAssessment\UI\Table\Item
     public function getFinalizedByName(): ?string
     {
         return $this->finalized_by_data?->getListname(true);
+    }
+
+    public function getAssignedCorrectorsCount(): int
+    {
+        return count($this->corrector_data_by_position);
     }
 
     public function getCorrectorDataByPosition(int $position): ?UserData

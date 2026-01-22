@@ -84,12 +84,6 @@ class WriterAdminGUI extends WriterTableGUI
         // spacer
         $this->toolbar->addSeparator();
 
-        // todo: activate when implemented
-        //        #$delete_writer_data_modal = $this->buildDeleteWriterDataModal();
-        //        $delete_writer_data_button = $this->ui_factory->button()->standard($this->plugin->txt("delete_writer_data"), "#");
-        //        #                                             ->withOnClick($delete_writer_data_modal->getShowSignal());
-        //        $this->toolbar->addComponent($delete_writer_data_button);
-
         $upload_button = $this->ui_factory->button()->standard(
             $this->plugin->txt('essay_import'),
             $this->ctrl->getLinkTargetByClass(ImportEssayGUI::class, 'showForm')
@@ -101,6 +95,9 @@ class WriterAdminGUI extends WriterTableGUI
         $this->tpl->setContent($this->renderer->render($table));
     }
 
+    /**
+     * Add users as writers
+     */
     public function assignWriters(array $a_usr_ids, $a_type = null)
     {
         if (count($a_usr_ids) <= 0) {
@@ -109,6 +106,7 @@ class WriterAdminGUI extends WriterTableGUI
         }
 
         foreach ($a_usr_ids as $id) {
+            // this creates the writer data if not yet existing
             $this->writer_service->getByUserId($id);
         }
 
@@ -132,7 +130,7 @@ class WriterAdminGUI extends WriterTableGUI
 //            $this->viewProccessingAction(),
 //            $this->exportStepsAction(),
 //            $this->addLogEntryAction(),
-//            $this->mailToWriterAction(),
+            $this->mailToWriterAction(),
 //            $this->authorizeWritingAction(),
 //            $this->unauthorizeWritingAction(),
 //            $this->workingTimeChangeAction(),

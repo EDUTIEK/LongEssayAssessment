@@ -197,8 +197,10 @@ grading_pos_first#:#Erstkorrektur
 grading_pos_second#:#Zweitkorrektur
 grading_pos_stitch#:#Stichentscheid
 assignment_pos_single#:#Korrektor
+assignment_pos_first#:#Erstkorrektor
+assignment_pos_second#:#Zweitkorrektor
+assignment_pos_sticht#:#Stichentscheider
 assignment_pos_x#:#%s. Korrektur
-assignment_pos_other#:#Korrektur
 assignment_pos_empty#:#nicht ausgewählt
 other_corrections#:#Andere Korrekturen
 start_correction#:#Angezeigte Korrekturen starten

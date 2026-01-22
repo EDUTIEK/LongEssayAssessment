@@ -39,6 +39,7 @@ use ILIAS\Plugin\LongEssayAssessment\UI\Table\Helper\HasColumns;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\Helper\HighligtedColumns;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\Helper\InitialVisibleColumns;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\Helper\HasFilterFields;
+use ILIAS\Plugin\LongEssayAssessment\View\Data\CorrectionsViewRepo;
 
 class CorrectionTableParent implements DataTableParent, FilterParent
 {
@@ -57,7 +58,7 @@ class CorrectionTableParent implements DataTableParent, FilterParent
     private \ILIAS\UI\Factory $ui_factory;
     protected \ILIAS\Refinery\Factory $refinery;
     private \ilObjUser $user;
-    private \ILIAS\Plugin\LongEssayAssessment\View\Data\CorrectionsViewRepo $corrections_view;
+    private CorrectionsViewRepo $corrections_view;
     /**
      * @var Action\Action[]
      */

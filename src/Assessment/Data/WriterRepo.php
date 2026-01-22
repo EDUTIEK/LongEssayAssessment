@@ -66,9 +66,13 @@ class WriterRepo implements \Edutiek\AssessmentService\Assessment\Data\WriterRep
         return $this->repo->queryAllBy(['ass_id' => $ass_id]);
     }
 
-    public function authorizedIds(int $ass_id): array
+    public function correctableIds(int $ass_id): array
     {
-        return $this->repo->queryIntegersBy(['ass_id' => $ass_id, 'writing_authorized' => Value::NOT_NULL], 'id');
+        return $this->repo->queryIntegersBy([
+            'ass_id' => $ass_id,
+            'writing_authorized' => Value::NOT_NULL,
+            'writing_excluded_by' => Value::NULL,
+        ], 'id');
     }
 
     public function save(Writer $entity): void

@@ -343,7 +343,7 @@ primary_text_color#:#Primärfarbe (Text)
 primary_text_color_info#:#Diese Farbe wird in der Schreiboberfläche und Korrekturoberfläche zur Hervorhebung der Beschriftung von Buttons primärer Aktionen verwendet.
 via_stitch_decision#:#per Stichentscheid
 remove_writer#:#Teilnahme entfernen
-remove_writer_confirmation#:#Sind Sie sicher, dass Sie die Teilnahme unwiderruflich entfernen möchten?
+remove_writer_confirmation#:#Sind Sie sicher, dass Sie die Teilnehmer-Daten unwiderruflich entfernen möchten?<br>Bitte bestätigen Sie das durch Eingabe einer Begründung. Ihre Aktion wird mit dieser Begründung protokolliert.
 remove_writer_success#:#Teilnahme erfolgreich entfernt.
 export_log#:#Aufsichtsprotokoll exportieren
 export_log_file_prefix#:#Aufsichtsprotokoll
@@ -875,3 +875,5 @@ grade#:#Note
 finalization#:#Abschluss
 procedure#:#Verfahren
 date#:#Datum
+logged_reason#:#Protokollierte Begründung
+logged_reason_info#:#Bitte geben Sie mindesten 5 Zeichen ein

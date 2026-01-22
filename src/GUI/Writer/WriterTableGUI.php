@@ -24,7 +24,6 @@ use ILIAS\Plugin\LongEssayAssessment\UI\Table\Helper\HasFilterFields;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\Helper\InitialVisibleColumns;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\DataTableParent;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\FilterParent;
-use _PHPStan_2d0955352\Nette\Neon\Exception;
 
 abstract class WriterTableGUI extends BaseGUI implements DataTableParent, FilterParent
 {
@@ -209,41 +208,61 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
     }
 
     /**
-     * @param WriterItem[] $writer_item
-     * @return void
+     * @param WriterItem[] $items
      */
-    public function excludeParticipants()
+    public function excludeParticipants(array $items, array $data)
     {
-        foreach ($this->confirmationIds() as $id) {
-            $writer = $this->writer_service->oneByWriterId($id);
-            if ($writer !== null) {
-                $this->writer_service->exclude($writer, $this->dic->user()->getId());
-            }
+        foreach ($items as $item) {
+            $this->writer_service->exclude($item->getWriter(), $data['reason'] ?? null);
         }
-        $this->tpl->setOnScreenMessage("success", $this->plugin->txt("exclude_writer_success"), true);
-        $this->ctrl->redirect($this, "showItems");
+
+        $this->success(
+            $this->plugin->txt("exclude_writer_success")
+            . $this->renderer->render($this->ui_factory->listing()->unordered(
+                array_map(fn(WriterItem $item) => $item->getUserData()->getListname(true), $items)
+            )),
+            true
+        );
+
+        $this->ctrl->redirect($this);
     }
-    public function repealExcludeParticipants()
+
+    /**
+     * @param WriterItem[] $items
+     */
+    public function repealExcludeParticipants(array $items, array $data)
     {
-        foreach ($this->confirmationIds() as $id) {
-            $writer = $this->writer_service->oneByWriterId($id);
-            if ($writer !== null) {
-                $this->writer_service->repealExclusion($writer, $this->dic->user()->getId());
-            }
+        foreach ($items as $item) {
+            $this->writer_service->repealExclusion($item->getWriter(), $data['reason'] ?? null);
         }
-        $this->tpl->setOnScreenMessage("success", $this->plugin->txt("exclude_writer_repeal_success"), true);
-        $this->ctrl->redirect($this, "showItems");
+
+        $this->success(
+            $this->plugin->txt("exclude_writer_repeal_success")
+            . $this->renderer->render($this->ui_factory->listing()->unordered(
+                array_map(fn(WriterItem $item) => $item->getUserData()->getListname(true), $items)
+            )),
+            true
+        );
     }
-    public function removeWriter()
+
+    /**
+     * @param WriterItem[] $items
+     */
+    private function removeWriter(array $items, array $data)
     {
-        foreach ($this->confirmationIds() as $id) {
-            $writer = $this->writer_service->oneByWriterId($id);
-            if ($writer !== null) {
-                $this->writer_service->remove($writer, $this->dic->user()->getId());
-            }
+        foreach ($items as $item) {
+            $this->writer_service->remove($item->getWriter(), $data['reason'] ?? null);
         }
-        $this->tpl->setOnScreenMessage("success", $this->plugin->txt("remove_writer_success"), true);
-        $this->ctrl->redirect($this, "showItems");
+
+        $this->success(
+            $this->plugin->txt("remove_writer_success")
+            . $this->renderer->render($this->ui_factory->listing()->unordered(
+                array_map(fn(WriterItem $item) => $item->getUserData()->getListname(true), $items)
+            )),
+            true
+        );
+
+        $this->ctrl->redirect($this);
     }
 
     public function editPdfVersion(array $writer)
@@ -635,44 +654,60 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
 
     protected function excludeParticipantAction()
     {
-        return $this->plugin_ui_factory->table()->action()->confirmation(
+        return $this->plugin_ui_factory->table()->action()->form(
             "exclude_participant",
             $this->plugin->txt("exclude_participant"),
             $this->plugin->txt("exclude_participant"),
-            $this->plugin->txt("exclude_participant_confirmation"),
-            $this->ctrl->getFormAction($this, 'excludeParticipants'),
-            fn(WriterItem $item) => $item->getUserData()->getListname(true),
+            $this->getTableActionConfirmFields(...),
+            $this->excludeParticipants(...),
             fn(WriterItem $item) => $item->getWriter()->canGetExcluded(),
             Action\Type::Standard
-        );
+        )->withContent([$this->ui_factory->messageBox()->confirmation($this->plugin->txt('exclude_participant_confirmation'))]);
     }
 
     protected function repealExcludeParticipantAction()
     {
-        return $this->plugin_ui_factory->table()->action()->confirmation(
+        return $this->plugin_ui_factory->table()->action()->form(
             "repeal_exclude_participant",
             $this->plugin->txt("repeal_exclude_participant"),
             $this->plugin->txt("repeal_exclude_participant"),
-            $this->plugin->txt("repeal_exclude_participant_confirmation"),
-            $this->ctrl->getFormAction($this, 'repealExcludeParticipants'),
-            fn(WriterItem $item) => $item->getUserData()->getListname(true),
-            fn(WriterItem $item) => $item->getWriter()->canGetRepealed(),
+            $this->getTableActionConfirmFields(...),
+            $this->repealExcludeParticipants(...),
+            fn(WriterItem $item) => $item->getWriter()->isExcluded(),
             Action\Type::Standard
-        );
+        )->withContent([$this->ui_factory->messageBox()->confirmation($this->plugin->txt('repeal_exclude_participant_confirmation'))]);
     }
 
     protected function removeWriterAction()
     {
-        return $this->plugin_ui_factory->table()->action()->confirmation(
+        return $this->plugin_ui_factory->table()->action()->form(
             "remove_writer",
             $this->plugin->txt("remove_writer"),
             $this->plugin->txt("remove_writer"),
-            $this->plugin->txt("remove_writer_confirmation"),
-            $this->ctrl->getFormAction($this, 'removeWriter'),
-            fn(WriterItem $item) => $item->getUserData()->getListname(true),
+            $this->getTableActionConfirmFields(...),
+            $this->removeWriter(...),
             fn(WriterItem $item) => true,
             Action\Type::Standard
-        );
+        )->withContent([$this->ui_factory->messageBox()->confirmation($this->plugin->txt('remove_writer_confirmation'))]);
+    }
+
+    /**
+     * @param WriterItem[] $items
+     */
+    private function getTableActionConfirmFields(array $items): array
+    {
+        $fields = [
+            'info' => $this->plugin_ui_factory->field()->info($this->plugin->txt('participants'))
+                                              ->withInfo($this->ui_factory->listing()->unordered(
+                                                  array_map(fn(WriterItem $item) => $item->getUserData()->getListname(true), $items)
+                                              )),
+            'reason' => $this->ui_factory->input()->field()->textarea(
+                $this->plugin->txt('logged_reason'),
+                $this->plugin->txt('logged_reason_info')
+            )->withAdditionalTransformation($this->refinery->string()->hasMinLength(5))
+        ];
+
+        return $fields;
     }
 
     public function getTableItems(?array $ids = null, ?array $filter_data = null): \Generator

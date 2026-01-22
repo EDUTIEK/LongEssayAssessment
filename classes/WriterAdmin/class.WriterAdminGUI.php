@@ -34,8 +34,6 @@ use ILIAS\Plugin\LongEssayAssessment\GUI\Writer\WriterItem;
  */
 class WriterAdminGUI extends WriterTableGUI
 {
-
-
     public function executeCommand()
     {
         $next_class = $this->ctrl->getNextClass();
@@ -56,9 +54,6 @@ class WriterAdminGUI extends WriterTableGUI
                 switch ($cmd) {
                     case 'showItems':
                     case 'deleteWorkingTime':
-                    case 'removeWriter':
-                    case 'repealExcludeParticipants':
-                    case 'excludeParticipants':
                         $this->$cmd();
                         break;
 
@@ -89,11 +84,11 @@ class WriterAdminGUI extends WriterTableGUI
         // spacer
         $this->toolbar->addSeparator();
 
-// todo: activate when implemented
-//        #$delete_writer_data_modal = $this->buildDeleteWriterDataModal();
-//        $delete_writer_data_button = $this->ui_factory->button()->standard($this->plugin->txt("delete_writer_data"), "#");
-//        #                                             ->withOnClick($delete_writer_data_modal->getShowSignal());
-//        $this->toolbar->addComponent($delete_writer_data_button);
+        // todo: activate when implemented
+        //        #$delete_writer_data_modal = $this->buildDeleteWriterDataModal();
+        //        $delete_writer_data_button = $this->ui_factory->button()->standard($this->plugin->txt("delete_writer_data"), "#");
+        //        #                                             ->withOnClick($delete_writer_data_modal->getShowSignal());
+        //        $this->toolbar->addComponent($delete_writer_data_button);
 
         $upload_button = $this->ui_factory->button()->standard(
             $this->plugin->txt('essay_import'),
@@ -126,8 +121,8 @@ class WriterAdminGUI extends WriterTableGUI
 
     public function filterUserIdsByParticipants($a_user_ids)
     {
-        $writers = array_map(fn ($row) => $row->getUserId(), $this->writer_service->all());
-        return array_filter($a_user_ids, fn ($user_id) => !in_array((int) $user_id, $writers));
+        $writers = array_map(fn($row) => $row->getUserId(), $this->writer_service->all());
+        return array_filter($a_user_ids, fn($user_id) => !in_array((int) $user_id, $writers));
     }
 
     public function getTableActions(): array
@@ -145,8 +140,8 @@ class WriterAdminGUI extends WriterTableGUI
 //            $this->changeLocationAction(),
 //            $this->pdfVersionDownloadAction(),
 //            $this->editPdfVersionAction(),
-//            $this->excludeParticipantAction(),
-//            $this->repealExcludeParticipantAction(),
+            $this->excludeParticipantAction(),
+            $this->repealExcludeParticipantAction(),
             $this->removeWriterAction(),
         ];
     }
@@ -154,26 +149,27 @@ class WriterAdminGUI extends WriterTableGUI
     protected function hasColumns(): array
     {
         return [
-            "image",
-     "name",
-     "login",
-     "pseudonym",
-     "location",
-     "status",
-     "writing_last_save",
-     "word_count",
-     "working_start",
-     "working_end",
-     "working_duration",
-     "assessment_start",
-     "assessment_end",
-     "assessment_duration",
-     "time_limit_changed",
-     "authorized",
-     "authorized_from",
-     "excluded",
-     "excluded_from",
-     "pdf_version"];
+             "image",
+             "name",
+             "login",
+             "pseudonym",
+             "location",
+             "status",
+             "writing_last_save",
+             "word_count",
+             "working_start",
+             "working_end",
+             "working_duration",
+             "assessment_start",
+             "assessment_end",
+             "assessment_duration",
+             "time_limit_changed",
+             "authorized",
+             "authorized_from",
+             "excluded",
+             "excluded_from",
+             "pdf_version"
+        ];
     }
 
     protected function hasFilterFields(): array
@@ -193,8 +189,8 @@ class WriterAdminGUI extends WriterTableGUI
     {
         $location_avaiable = $has_started = $duration_avaiable = true;
         return ["name", "login", "pseudonym", $location_avaiable ? "location" : null,  "status",
-                $has_started ? "working_start": null, $has_started ? "working_end": null,
-                $has_started ? "working_duration": null, $duration_avaiable ? "assessment_duration": null,
+                $has_started ? "working_start" : null, $has_started ? "working_end" : null,
+                $has_started ? "working_duration" : null, $duration_avaiable ? "assessment_duration" : null,
                 "time_limit_changed", $has_started ? "authorized" : null, $has_started ? "excluded" : null];
     }
 }

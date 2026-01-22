@@ -220,6 +220,8 @@ no_working_time_change#:#keine
 participants#:#Teilnehmer
 exclude_participant#:#Von Bearbeitung ausschließen
 change_working_time#:#Bearbeitungszeit anpassen
+change_working_time_done#:#Die Bearbeitungszeit wurde angepasst.
+change_working_time_failed#:#Die Bearbeitungszeitkonnte nicht angepasst werden.
 authorize_writing#:#Abgabe freigeben
 authorize_writings#:#Abgaben freigeben
 unauthorize_writing#:#Freigabe zurückziehen
@@ -680,6 +682,7 @@ one_day#:# 1 Tag
 one_hour#:# 1 Stunde
 one_minute#:#1 Minute
 one_second#:#1 Sekunde
+days#:#Tage
 x_days#:#%s Tage
 x_hours#:#%s Stunden
 x_minutes#:#%s Minuten
@@ -691,6 +694,7 @@ failure_time_limit_too_long#:#Die begrenzte Bearbeitungsdauer überschreitet das
 failure_correction_end_before_correction_start#:#Das Korrektur-Ende liegt vor dem Korrektur-Start.
 failure_review_end_before_review_start#:#Das Einsichtnahme-Ende liegt vor dem Einsichtnahme-Start.
 delete_individual_working_time#:#Anpassung entfernen
+delete_individual_working_time_confirmation#:#Möchten Sie die indivuduelle Anpassung der Bearbeitungzeit entfernen?
 one_working_time_deleted#:#Die Anpassung der Bearbeitungszeit wurde entfernt.
 x_working_times_deleted#:#%s Anpassungen der Bearbeitungszeit wurden entfernt.
 task_info#:#Hinweise zur Aufgabe
@@ -728,9 +732,9 @@ delete_task#:#Teilaufgabe löschen
 delete_task_confirmation#:#Möchten Sie diese Teilaufgabe mit allen Daten löschen?
 task_deleted#:#Die Teilaufgabe wurde gelöscht.
 working_period#:#Bearbeitungszeitraum
-working_duration#:#Bearbeitungsdauer
-assessment_period#:#Aufgabenzeitraum
-assessment_duration#:#Aufgabendauer
+working_duration#:#Bearbeitung: Dauer
+assessment_period#:#Aufgabe: Zeitraum
+assessment_duration#:#Aufgabe: Dauer
 time_limit_changed#:#Zeitanpassung
 writing_autorized_at#:#Freigegeben am
 writing_autorized_from#:#Freigegeben von
@@ -866,10 +870,10 @@ instant_status_off_info#:#Der Status der Korrektur einer Abgabe wird erst ab der
 weight#:#Gewichtung
 max_points_info#:#Maximale Punktzahl die vergeben werden kann.
 max_points_info_multi#:#Maximale Punktzahl die für eine Teilaufgabe vergeben werden kann. Die Gesamtpunktzahl ist der Durchschnitt der gewichteten Punktzahlen aller Teilaufgaben.
-working_start#:#Bearbeitungs-Strart
-working_end#:#Bearbeitungs-Ende
-assessment_start#:#Beginn Bearbeitungs-Teitraum
-assesment_end#:#Ende Bearbeitungszeitraum
+working_start#:#Bearbeitung: Start
+working_end#:#Bearbeitung: Ende
+assessment_start#:#Aufgabe: Start
+assessment_end#:#Aufgabe: Ende
 new_task#:#Neue Teilaufgabe
 pseudonymization#:#Pseudonymisierung
 pseudonymization_info#:#Das Pseudonym eines Teilnehmers wird bei allen Anzeigen für die Korrektoren verwendet. In der Korrekturverwaltung ist der Bezug zum Benutzerkonto ersichtlich.
@@ -879,3 +883,4 @@ procedure#:#Verfahren
 date#:#Datum
 logged_reason#:#Protokollierte Begründung
 logged_reason_info#:#Bitte geben Sie mindesten 5 Zeichen ein
+multi_feedback_unchanged#:#Unverändert:

@@ -2,12 +2,17 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\GUI\Writer;
 
+use Closure;
+use Edutiek\AssessmentService\Assessment\Data\Writer;
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
+use ILIAS\Plugin\LongEssayAssessment\UI\Input\BlankForm;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\Helper\ConfirmationIds;
 use Edutiek\AssessmentService\Assessment\OrgaSettings\FullService as OrgaService;
 use Edutiek\AssessmentService\Assessment\Data\OrgaSettings;
 use Edutiek\AssessmentService\Assessment\Writer\FullService as WriterService;
+use Edutiek\AssessmentService\Assessment\WorkingTime\FullService as WorkingTimeService;
 use Edutiek\AssessmentService\System\User\ReadService as UserService;
+use Edutiek\AssessmentService\System\Format\Service as FormatService;
 use Edutiek\AssessmentService\EssayTask\Essay\ClientService as EssayService;
 use Edutiek\AssessmentService\EssayTask\AssessmentStatus\FullService as AssessmentStatus;
 use ILIAS\Plugin\LongEssayAssessment\BaseObjectData;
@@ -24,6 +29,7 @@ use ILIAS\Plugin\LongEssayAssessment\UI\Table\Helper\HasFilterFields;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\Helper\InitialVisibleColumns;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\DataTableParent;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\FilterParent;
+use ILIAS\UI\Implementation\Component\Input\Input;
 
 abstract class WriterTableGUI extends BaseGUI implements DataTableParent, FilterParent
 {
@@ -41,6 +47,7 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
     protected ?array $location = null;
     protected EssayService $essay_service;
     protected AssessmentStatus $assessment_status;
+    protected FormatService $format;
 
     public function __construct(BaseObjectData $object)
     {
@@ -50,6 +57,7 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
         $this->orga_service = $this->assessment_api->orgaSettings();
         $this->essay_service = $this->essay_task_api->essay(true);
         $this->assessment_status = $this->essay_task_api->assessmentStatus();
+        $this->format = $this->system_api->format($this->user->getId());
     }
 
     public function viewProcessing(WriterItem $writer): RoundTrip
@@ -142,45 +150,142 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
     {
         // TODO: implement unauthorize
     }
-    /**
-     * @param WriterItem[] $writer_items
-     * @param array        $data
-     * @return void
-     */
-    public function workingTimeChange(array $writer_items, array $data)
-    {
-        foreach ($writer_items as $item) {
-            $writer = $item->getWriter();
-            $earliest_start = $data['earliest_start'] ?? null;
-            $latest_end = $data['latest_end'] ?? null;
-            $writing_limit = (int) ($data['writing_limit_days'] ?? 0) * 24 * 60;
-            if ($data['writing_limit_hours_minutes'] instanceof \DateTimeInterface) {
-                list($hours, $minutes) = explode(':', $data['writing_limit_hours_minutes']->format('H:i'));
-                $writing_limit += (int) $hours * 60 + (int) $minutes;
-            }
 
-            $ok = $this->writer_service->changeWorkingTime($writer, $earliest_start, $latest_end, $writing_limit, $this->dic->user()->getId());
-            if ($ok) {
-                $this->tpl->setOnScreenMessage("success", $this->lng->txt("settings_saved"), true);
-            } else {
-                $error = (implode(
-                    '<br>',
-                    array_map(
-                        fn(ValidationError $error) => $this->plugin->txt('failure_' . $error->value),
-                        $writer->getValidationErrors()
-                    )
-                ));
-                $this->tpl->setOnScreenMessage("failure", $error, true);
+    private function validationErrors(Writer $writer): string
+    {
+        if (!empty($writer->getValidationErrors())) {
+            $errors = array_map(
+                fn(ValidationError $error) => $this->plugin->txt('failure_' . $error->value),
+                $writer->getValidationErrors()
+            );
+            return implode(' | ', $errors);
+        }
+        return '';
+    }
+
+    /**
+     * @param WriterItem[] $items
+     * @return array
+     */
+    public function workingTimeFields(array $items)
+    {
+        $settings = $this->orga_service->get();
+
+        $writer = count($items) === 1 ? array_pop($items)?->getWriter() : null;
+        $working_time = $this->assessment_api->workingTime($settings, $writer);
+        [$days, $hours, $minutes] = $working_time->getTimeLimitParts();
+
+        $fields = [];
+        $factory = $this->ui_factory->input()->field();
+
+        $fields['earliest_start'] = $factory->dateTime(
+            $this->plugin->txt("writing_start"),
+            $settings->getWritingStart()
+                ? $this->plugin->txt('label_general') . ' ' . $this->format->date($settings->getWritingStart())
+                : ''
+        )->withUseTime(true)->withValue($working_time->getEarliestStart()?->format('Y-m-d H:i:s'));
+
+        $fields['latest_end'] = $factory->dateTime(
+            $this->plugin->txt("writing_end"),
+            $settings->getWritingEnd()
+                ? $this->plugin->txt('label_general') . ' ' . $this->format->date($settings->getWritingEnd())
+                : ''
+        )->withUseTime(true)->withValue($working_time->getLatestEnd()?->format('Y-m-d H:i:s'));
+
+
+        $fields['writing_limit'] = $factory->optionalGroup(
+            [
+                'days' => $factory->numeric(
+                    $this->plugin->txt("writing_limit_days"),
+                )->withValue($days > 0 ? $days : null),
+                'hours_minutes' => $factory->dateTime(
+                    $this->plugin->txt("writing_limit_hours_minutes"),
+                )->withTimeOnly(true)
+                    ->withValue(new \DateTimeImmutable(
+                        sprintf('%02d:%02d:00', $hours, $minutes),
+                        new \DateTimeZone($this->user->getTimeZone())
+                    ))
+            ],
+            $this->plugin->txt('writing_limit'),
+            $settings->getWritingLimitMinutes()
+                ? $this->plugin->txt('label_general') . ' ' . $this->format->duration($settings->getWritingLimitMinutes() * 60)
+                : ''
+        );
+        if (!$working_time->hasTimeLimitFromStart()) {
+            $fields['writing_limit'] = $fields['writing_limit']->withValue(null);
+        }
+
+        return $fields;
+    }
+
+
+    /**
+     * Apply the data of the working time form to a writer
+     */
+    private function workingTimeDataToWriter(array $data, Writer $writer): void
+    {
+        $writer->setEarliestStart($data['earliest_start'] ?? null);
+        $writer->setLatestEnd($data['latest_end'] ?? null);
+        $limit = null;
+        if (isset($data['writing_limit'])) {
+            if (isset($data['writing_limit']['days'])) {
+                $limit = (int) $data['writing_limit']['days'] * 24 * 60;
             }
-            $this->ctrl->redirect($this, 'showItems');
+            if (isset($data['writing_limit']['hours_minutes'])) {
+                [$hours, $minutes] = explode(':', $data['writing_limit']['hours_minutes']->format('H:i'));
+                $limit = (int) $limit + (int) $hours * 60 + (int) $minutes;
+            }
+        }
+        if (empty($limit) && $this->getSettings()->getWritingLimitMinutes() === null) {
+            // use null to keep the time limit unset
+            $writer->setTimeLimitMinutes(null);
+        } else {
+            // use 0 to reset a time limit from the task
+            $writer->setTimeLimitMinutes((int) $limit);
         }
     }
 
-    protected function deleteWorkingTime()
+    /**
+     * @param WriterItem[] $items
+     * @param array        $data
+     */
+    public function workingTimeChange(array $items, array $data)
+    {
+        $dummy = $this->writer_service->new();
+        $this->workingTimeDataToWriter($data, $dummy);
+
+        $changed = [];
+        $unchanged = [];
+        foreach ($items as $item) {
+            if ($this->writer_service->changeWorkingTime(
+                $item->getWriter(),
+                $dummy->getEarliestStart(),
+                $dummy->getLatestEnd(),
+                $dummy->getTimeLimitMinutes()
+            )
+            ) {
+                $changed[] = $item->getUserData()->getListname(true);
+            } else {
+                $unchanged[] = $item->getUserData()->getListname(true)
+                    . ': ' . $this->validationErrors($item->getWriter());
+            }
+        }
+
+        $this->multiFeedback(
+            $changed,
+            $unchanged,
+            $this->plugin->txt('change_working_time_done'),
+            $this->plugin->txt('change_working_time_failed')
+        );
+
+        $this->ctrl->redirect($this, 'showItems');
+    }
+
+    protected function workingTimeDelete()
     {
         foreach ($this->confirmationIds() as $writer_id) {
             $writer = $this->writer_service->oneByWriterId($writer_id);
-            $this->writer_service->removeWorkingTime($writer, $this->dic->user()->getId());
+            $this->writer_service->removeWorkingTime($writer);
         }
         $this->tpl->setOnScreenMessage("success", $this->plugin->txt(
             count($this->confirmationIds()) == 1 ? 'one_working_time_deleted' : 'x_working_times_deleted'
@@ -189,15 +294,14 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
     }
 
     /**
-     * @param WriterItem[] $writer_items
+     * @param WriterItem[] $items
      * @param array $data
-     * @return void
      */
-    public function changeLocation(array $writer_items, array $data)
+    public function changeLocation(array $items, array $data)
     {
         $location = $data['location'] !== "" ? (int) $data['location'] : null;
 
-        foreach ($writer_items as $item) {
+        foreach ($items as $item) {
             $writer = $item->getWriter();
             $writer->setLocation($location);
             $this->writer_service->save($writer);
@@ -300,8 +404,15 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
                     : ($item->getAuthorizedFromFullname() ?? $unknown))
         };
 
+        $working_time = $this->assessment_api->workingTime($this->getSettings(), $writer);
+
         $working_start = $writer->getWorkingStart()?->setTimezone($timezone);
         $working_end = $writer->getWritingAuthorized()?->setTimezone($timezone);
+        $working_duration = null;
+        if ($working_start !== null && $working_end !== null) {
+            $working_duration = $working_start->diff($working_end)->i;
+        }
+
         $exam_start = $writer->getEarliestStart() ?? $this->getSettings()->getWritingStart()?->setTimezone($timezone);
         $exam_end = $writer->getLatestEnd() ?? $this->getSettings()->getWritingEnd()?->setTimezone($timezone);
         $assessment_duration = $writer->getTimeLimitMinutes() ?? $this->getSettings()->getWritingLimitMinutes();
@@ -309,7 +420,6 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
             $assessment_duration = $exam_start->diff($exam_end)->i;
         }
 
-        $exam_limit_changed = $writer->hasChangedTimeLimit();
 
         return [
             "image" => $avatar,
@@ -322,13 +432,11 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
             "word_count" => $essay_summary?->getWords() ?? 0,
             "working_start" => $working_start,
             "working_end" => $working_end,
-            "working_duration" => $working_start !== null
-                ? date_diff($working_start, $working_end ?? (new \DateTimeImmutable('now', $timezone)))
-                : null,
+            "working_duration" => $working_duration,
             "assessment_start" => $exam_start,
             "assessment_end" => $exam_end,
             "assessment_duration" => $assessment_duration ?? "",
-            "time_limit_changed" => $exam_limit_changed,
+            "time_limit_changed" => $writer->hasChangedTimeLimit(),
             "authorized" => $writer->getWritingAuthorized()?->setTimezone($timezone),
             "authorized_from" => $writer->getWritingAuthorized() !== null && $writer->getUserId() === $writer->getWritingAuthorizedBy()
                 ? $this->plugin->txt("participant")
@@ -337,11 +445,6 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
             "excluded_from" => $item->getExecludedFromFullname() ?? $unknown,
             "pdf_version" => $essay_summary?->hasPdfUploads() ?? false
         ];
-    }
-
-    private function intervalFormat(bool $has_days, bool $has_seconds): string
-    {
-        return ($has_days ? "%D:" : "") . "%H:%I" . ($has_seconds ? ":%S" : "");
     }
 
     public function getColumns(?array $additional_parameters): array
@@ -356,37 +459,37 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
         $has_started = $settings->getWritingStart() !== null ? $settings->getWritingStart() < new \DateTimeImmutable() : true;
         $date_without_seconds = $this->user->getDateTimeFormat();
         $date_with_seconds = $df->dateFormat()->amend($date_without_seconds)->colon()->seconds()->get();
+
+        $has_days = true;
         if (!empty($settings->getWritingLimitMinutes())) {
-            $long_exam = $settings->getWritingLimitMinutes() > 1440;
-        } elseif ($settings->getWritingStart() !== null) {
-            $long_exam = date_diff($settings->getWritingStart(), $working_end ?? new \DateTimeImmutable('now'))->d > 0;
-        } else {
-            $long_exam = true;
+            $has_days = $settings->getWritingLimitMinutes() > 1440;
+        } elseif ($settings->getWritingStart() !== null && $settings->getWritingEnd() !== null) {
+            $has_days = date_diff($settings->getWritingStart(), $settings->getWritingEnd())->d > 0;
         }
-        $a_interval_format = $this->intervalFormat($long_exam, false);
-        $w_interval_format = $this->intervalFormat($long_exam, true);
+        $a_interval_format = ($has_days ? "%D " . $this->plugin->txt('days') . " " : "") . "%H:%I";
+        $w_interval_format = ($has_days ? "%D " . $this->plugin->txt('days') . " " : "") . "%H:%I:%S";
 
         return $this->setInitialVisible($this->filterColumns(array_filter([
             "image" => $cfp->image($this->lng->txt("image"))->withIsOptional(true, false)->withIsSortable(false),
             "name" => $cf->text($this->lng->txt("name"))->withIsOptional(false, true)->withIsSortable(true),
-            "login" => $cf->text($this->lng->txt("login"))->withIsOptional(false, true)->withIsSortable(true),
-            "pseudonym" => $cf->text($this->plugin->txt("pseudonym"))->withIsOptional(true, true)->withIsSortable(true),
-            "location" => $location_avaiable ? $cf->text($this->plugin->txt("location"))->withIsOptional(true, $location_avaiable)->withIsSortable(true) : null,
+            "login" => $cf->text($this->lng->txt("login"))->withIsOptional(true, false)->withIsSortable(true),
+            "pseudonym" => $cf->text($this->plugin->txt("pseudonym"))->withIsOptional(true, false)->withIsSortable(true),
+            "location" => $location_avaiable ? $cf->text($this->plugin->txt("location"))->withIsOptional(true, false)->withIsSortable(true) : null,
             "status" => $cf->status($this->plugin->txt("essay_status"))->withIsOptional(true, true)->withIsSortable(true),
-            "writing_last_save" => $cfp->nullableDate($this->plugin->txt("writing_last_save"), $date_with_seconds)->withIsOptional(true, $has_started)->withIsSortable(true),
-            "word_count" => $cf->number($this->plugin->txt('word_count'))->withIsOptional(false, $has_started)->withIsSortable(true),
-            "working_start" => $cfp->nullableDate($this->plugin->txt("working_start"), $date_with_seconds)->withIsOptional(true, $has_started)->withIsSortable(true),
-            "working_end" => $cfp->nullableDate($this->plugin->txt("working_end"), $date_with_seconds)->withIsOptional(true, $has_started)->withIsSortable(true),
-            "working_duration" => $cfp->interval($this->plugin->txt("working_duration"), $w_interval_format)->withIsOptional(true, $has_started)->withIsSortable(true),
+            "writing_last_save" => $cfp->nullableDate($this->plugin->txt("writing_last_save"), $date_with_seconds)->withIsOptional(true, false)->withIsSortable(true),
+            "word_count" => $cf->number($this->plugin->txt('word_count'))->withIsOptional(true, false)->withIsSortable(true),
+            "pdf_version" => $cf->boolean($this->plugin->txt("pdf_version"), $this->lng->txt("yes"), $this->lng->txt("no"))->withIsOptional(true, false)->withIsSortable(true),
+            "working_start" => $cfp->nullableDate($this->plugin->txt("working_start"), $date_with_seconds)->withIsOptional(true, false)->withIsSortable(true),
+            "working_end" => $cfp->nullableDate($this->plugin->txt("working_end"), $date_with_seconds)->withIsOptional(true, false)->withIsSortable(true),
+            "working_duration" => $cfp->interval($this->plugin->txt("working_duration"), $w_interval_format)->withIsOptional(true, false)->withIsSortable(true),
             "assessment_start" => $cfp->nullableDate($this->plugin->txt("assessment_start"), $date_without_seconds)->withIsOptional(true, false)->withIsSortable(true),
             "assessment_end" => $cfp->nullableDate($this->plugin->txt("assessment_end"), $date_without_seconds)->withIsOptional(true, false)->withIsSortable(true),
-            "assessment_duration" => $cfp->interval($this->plugin->txt("assessment_duration"), $a_interval_format)->withIsOptional(true, $duration_avaiable)->withIsSortable(true),
-            "time_limit_changed" => $cf->boolean($this->plugin->txt("time_limit_changed"), $this->lng->txt("yes"), $this->lng->txt("no"))->withIsOptional(true, true)->withIsSortable(true),
-            "authorized" => $cfp->nullableDate($this->plugin->txt("writing_autorized_at"), $date_without_seconds)->withIsOptional(true, $has_started)->withIsSortable(true),
+            "assessment_duration" => $cfp->interval($this->plugin->txt("assessment_duration"), $a_interval_format)->withIsOptional(true, false)->withIsSortable(true),
+            "time_limit_changed" => $cf->boolean($this->plugin->txt("time_limit_changed"), $this->lng->txt("yes"), $this->lng->txt("no"))->withIsOptional(true, false)->withIsSortable(true),
+            "authorized" => $cfp->nullableDate($this->plugin->txt("writing_autorized_at"), $date_without_seconds)->withIsOptional(true, true)->withIsSortable(true),
             "authorized_from" => $cf->text($this->plugin->txt("writing_autorized_from"))->withIsOptional(true, false)->withIsSortable(true),
-            "excluded" => $cfp->nullableDate($this->plugin->txt("writing_excluded_at"), $date_without_seconds)->withIsOptional(true, $has_started)->withIsSortable(true),
+            "excluded" => $cfp->nullableDate($this->plugin->txt("writing_excluded_at"), $date_without_seconds)->withIsOptional(true, true)->withIsSortable(true),
             "excluded_from" => $cf->text($this->plugin->txt("writing_excluded_from"))->withIsOptional(true, false)->withIsSortable(true),
-            "pdf_version" => $cf->boolean($this->plugin->txt("pdf_version"), $this->lng->txt("yes"), $this->lng->txt("no"))->withIsOptional(true, false)->withIsSortable(true),
         ])));
     }
 
@@ -483,53 +586,38 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
             "delete_working_time",
             $this->plugin->txt("delete_individual_working_time"),
             $this->lng->txt("delete"),
-            "",
-            $this->ctrl->getLinkTarget($this, 'deleteWorkingTime'),
+            $this->plugin->txt("delete_individual_working_time_confirmation"),
+            $this->ctrl->getLinkTarget($this, 'workingTimeDelete'),
             fn(WriterItem $item) => $item->getUserData()->getListname(true),
-            fn(WriterItem $item) => $item->getWriter()->hasChangedTimeLimit(),
+            fn(WriterItem $item) => $item->getWriter()->hasChangedTimeLimit() && $item->getWriter()->canChangeWorkingTime(),
             Action\Type::Standard
         );
     }
 
     protected function workingTimeChangeAction()
     {
+        // dummy writer for working time validation and error store
+        $writer = $this->writer_service->new();
+
         return $this->plugin_ui_factory->table()->action()->form(
             "change_working_time",
             $this->plugin->txt("change_working_time"),
             $this->lng->txt("change"),
-            [$this, "workingTimeChangeFields"],
-            [$this, "workingTimeChange"],
+            $this->workingTimeFields(...),
+            $this->workingTimeChange(...),
             fn(WriterItem $item) => $item->getWriter()->canChangeWorkingTime(),
             Action\Type::Standard
-        )->withTransformations([$this->workingTimeValidation()]);
-    }
-
-    private function workingTimeValidation(): \ILIAS\Refinery\Constraint
-    {
-        $error_store = new ValidationErrorStore();
-        $assessment_api = $this->assessment_api;
-        $validation = function (array $data) use ($error_store, $assessment_api) {
-            $earliest_start = $data['earliest_start'] ?? null;
-            $latest_end = $data['latest_end'] ?? null;
-            $writing_limit = (int) ($data['writing_limit_days'] ?? 0) * 24 * 60;
-            if ($data['writing_limit_hours_minutes'] instanceof \DateTimeInterface) {
-                list($hours, $minutes) = explode(':', $data['writing_limit_hours_minutes']->format('H:i'));
-                $writing_limit += (int) $hours * 60 + (int) $minutes;
-            }
-            $writer_validator = new IndividualValidator($earliest_start, $latest_end, $writing_limit, null);
-            $working_time_service = $this->assessment_api->workingTime($this->getSettings(), $writer_validator);
-            return $working_time_service->validate($error_store);
-        };
-        $error = function (\Closure $cls, array $data) use ($error_store): string {
-            return (implode(
-                '<br>',
-                array_map(
-                    fn(ValidationError $error) => $this->plugin->txt('failure_' . $error->value),
-                    $error_store->getValidationErrors()
-                )
-            ));
-        };
-        return $this->refinery->custom()->constraint($validation, $error);
+        )->withTransformations([
+            $this->refinery->custom()->constraint(
+                function (array $data) use ($writer) {
+                    $this->workingTimeDataToWriter($data, $writer);
+                    return $this->assessment_api->workingTime($this->getSettings(), $writer)
+                        ->validate($writer);
+                },
+                function (Closure $cls, array $data) use ($writer): string {
+                    return $this->validationErrors($writer);
+                }
+            )]);
     }
 
     /**
@@ -601,15 +689,13 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
             fn(WriterItem $item) => $this->hasLocations(),
             Action\Type::Standard
         );
-
-
     }
 
     /**
-     * @param WriterItem[] $writer
+     * @param WriterItem[] $items
      * @return array
      */
-    public function changeLocationFields(array $writer)
+    public function changeLocationFields(array $items)
     {
         $options = [];
         foreach ($this->getLocations() as $id => $location) {
@@ -617,11 +703,14 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
         }
         $location_input = $this->ui_factory->input()->field()->select($this->plugin->txt("location"), $options);
 
-        if (count($writer) === 1 && $writer[0]?->getWriter()?->getLocation() !== null) {
-            $location_input = $location_input->withValue($writer[0]->getWriter()->getLocation());
+        if (count($items) === 1 && $items[0]?->getWriter()?->getLocation() !== null) {
+            $location_input = $location_input->withValue($items[0]->getWriter()->getLocation());
         }
 
-        return ["location" => $location_input];
+        return [
+            "info" => $this->getTableActionInfoField($items),
+            "location" => $location_input
+        ];
     }
 
     protected function pdfVersionDownloadAction()
@@ -697,10 +786,7 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
     private function getTableActionConfirmFields(array $items): array
     {
         $fields = [
-            'info' => $this->plugin_ui_factory->field()->info($this->plugin->txt('participants'))
-                                              ->withInfo($this->ui_factory->listing()->unordered(
-                                                  array_map(fn(WriterItem $item) => $item->getUserData()->getListname(true), $items)
-                                              )),
+            'info' => $this->getTableActionInfoField($items),
             'reason' => $this->ui_factory->input()->field()->textarea(
                 $this->plugin->txt('logged_reason'),
                 $this->plugin->txt('logged_reason_info')
@@ -708,6 +794,17 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
         ];
 
         return $fields;
+    }
+
+    /**
+     * @param WriterItem[] $items
+     */
+    private function getTableActionInfoField(array $items): Input
+    {
+        return $this->plugin_ui_factory->field()->info($this->plugin->txt('participants'))
+            ->withInfo($this->ui_factory->listing()->unordered(
+                array_map(fn(WriterItem $item) => $item->getUserData()->getListname(true), $items)
+            ));
     }
 
     public function getTableItems(?array $ids = null, ?array $filter_data = null): \Generator

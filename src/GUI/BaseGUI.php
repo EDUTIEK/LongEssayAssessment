@@ -157,6 +157,38 @@ abstract class BaseGUI
     }
 
     /**
+     * Send a feedback message for an operation that affects multiple items
+     * Some items may successfully be chenged, other not
+     * @param string[] $changed
+     * @param string[] $unchanged
+     * @param string $success_txt
+     * @param string $failed_txt
+     * @return void
+     */
+    protected function multiFeedback(array $changed, array $unchanged, string $success_txt, string $failed_txt): void
+    {
+        $messages = [
+            $this->plugin->txt(count($changed) ? $success_txt : $failed_txt),
+        ];
+
+        if (count($changed)) {
+            $messages[] = $this->renderer->render($this->ui_factory->listing()->unordered($changed));
+        }
+        if (count($unchanged)) {
+            if (count($changed)) {
+                $messages[] = $this->plugin->txt('multi_feedback_unchanged');
+            }
+            $messages[] = $this->renderer->render($this->ui_factory->listing()->unordered($unchanged));
+        }
+
+        if (count($changed)) {
+            $this->success(implode('<br>', $messages), true);
+        } else {
+            $this->failure(implode('<br>', $messages), true);
+        }
+    }
+
+    /**
      * Raise a permission error
      * This may be needed if wrong ids for editing records are given
      */

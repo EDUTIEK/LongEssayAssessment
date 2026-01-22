@@ -194,7 +194,7 @@ class GradesAdminGUI extends BaseGUI implements DataTableParent
             [$this, "save"],
             fn(GradeItem $x) => $this->can_edit,
             Action\Type::Single
-        );
+        )->withActionButtons([$this->ui_factory->button()->standard('')]);
     }
 
     public function save(GradeItem $item, array $data)

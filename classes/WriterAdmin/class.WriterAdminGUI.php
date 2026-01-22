@@ -53,7 +53,7 @@ class WriterAdminGUI extends WriterTableGUI
                 $cmd = $this->ctrl->getCmd('showItems');
                 switch ($cmd) {
                     case 'showItems':
-                    case 'deleteWorkingTime':
+                    case 'workingTimeDelete':
                         $this->$cmd();
                         break;
 
@@ -129,13 +129,13 @@ class WriterAdminGUI extends WriterTableGUI
 // todo: activate when implemented
 //            $this->viewProccessingAction(),
 //            $this->exportStepsAction(),
-//            $this->addLogEntryAction(),
+            $this->addLogEntryAction(),
             $this->mailToWriterAction(),
 //            $this->authorizeWritingAction(),
 //            $this->unauthorizeWritingAction(),
-//            $this->workingTimeChangeAction(),
-//            $this->workingTimeDeleteAction(),
-//            $this->changeLocationAction(),
+            $this->workingTimeChangeAction(),
+            $this->workingTimeDeleteAction(),
+            $this->changeLocationAction(),
 //            $this->pdfVersionDownloadAction(),
 //            $this->editPdfVersionAction(),
             $this->excludeParticipantAction(),
@@ -155,6 +155,7 @@ class WriterAdminGUI extends WriterTableGUI
              "status",
              "writing_last_save",
              "word_count",
+             "pdf_version",
              "working_start",
              "working_end",
              "working_duration",
@@ -166,7 +167,7 @@ class WriterAdminGUI extends WriterTableGUI
              "authorized_from",
              "excluded",
              "excluded_from",
-             "pdf_version"
+
         ];
     }
 
@@ -185,10 +186,6 @@ class WriterAdminGUI extends WriterTableGUI
 
     protected function initialVisibleColumns(): array
     {
-        $location_avaiable = $has_started = $duration_avaiable = true;
-        return ["name", "login", "pseudonym", $location_avaiable ? "location" : null,  "status",
-                $has_started ? "working_start" : null, $has_started ? "working_end" : null,
-                $has_started ? "working_duration" : null, $duration_avaiable ? "assessment_duration" : null,
-                "time_limit_changed", $has_started ? "authorized" : null, $has_started ? "excluded" : null];
+        return ["name", "login", "status", "working_start", "working_end", "time_limit_changed", "authorized", "excluded"];
     }
 }

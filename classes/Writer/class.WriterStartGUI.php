@@ -57,7 +57,7 @@ class WriterStartGUI extends BaseGUI
 
         // get or create - permission is already checked
         $this->writer = $this->assessment_api->writer()->getByUserId($this->user->getId());
-        $this->working_time = $this->assessment_api->workingTime($this->orga_settings, $this->writer);
+        $this->working_time = $this->assessment_api->workingTime($this->writer);
     }
 
     public function executeCommand(): void

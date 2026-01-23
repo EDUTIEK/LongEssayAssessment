@@ -73,7 +73,7 @@ class StartPageGUI extends BaseGUI
         $this->system_format = $this->system_api->format($this->dic->user()->getId());
         $this->assessment_format = $this->assessment_api->format($this->orga_settings);
 
-        $this->working_time = $this->assessment_api->workingTime($this->orga_settings, $this->writer);
+        $this->working_time = $this->assessment_api->workingTime($this->writer);
         $this->essays = $this->essay_task_api->essay(false)->allByWriterId($this->writer->getId());
 
         $this->is_written = $this->writer->getWritingAuthorized() !== null;

@@ -3,32 +3,28 @@
 namespace ILIAS\Plugin\LongEssayAssessment\GUI\Writer;
 
 use Closure;
-use Edutiek\AssessmentService\Assessment\Data\Writer;
-use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
-use ILIAS\Plugin\LongEssayAssessment\UI\Input\BlankForm;
-use ILIAS\Plugin\LongEssayAssessment\UI\Table\Helper\ConfirmationIds;
-use Edutiek\AssessmentService\Assessment\OrgaSettings\FullService as OrgaService;
 use Edutiek\AssessmentService\Assessment\Data\OrgaSettings;
-use Edutiek\AssessmentService\Assessment\Writer\FullService as WriterService;
-use Edutiek\AssessmentService\Assessment\WorkingTime\FullService as WorkingTimeService;
-use Edutiek\AssessmentService\System\User\ReadService as UserService;
-use Edutiek\AssessmentService\System\Format\Service as FormatService;
-use Edutiek\AssessmentService\EssayTask\Essay\ClientService as EssayService;
-use Edutiek\AssessmentService\EssayTask\AssessmentStatus\FullService as AssessmentStatus;
-use ILIAS\Plugin\LongEssayAssessment\BaseObjectData;
-use ILIAS\UI\Component\Modal\RoundTrip;
-use Edutiek\AssessmentService\Assessment\LogEntry\Type as LogEntryType;
-use Edutiek\AssessmentService\Assessment\LogEntry\MentionUser as LogEntryMention;
 use Edutiek\AssessmentService\Assessment\Data\ValidationError;
+use Edutiek\AssessmentService\Assessment\Data\Writer;
 use Edutiek\AssessmentService\Assessment\Data\WritingStatus;
-use ILIAS\Plugin\LongEssayAssessment\Assessment\Data\ValidationErrorStore;
-use ILIAS\Plugin\LongEssayAssessment\Assessment\WorkingTime\IndividualValidator;
+use Edutiek\AssessmentService\Assessment\LogEntry\MentionUser as LogEntryMention;
+use Edutiek\AssessmentService\Assessment\LogEntry\Type as LogEntryType;
+use Edutiek\AssessmentService\Assessment\OrgaSettings\FullService as OrgaService;
+use Edutiek\AssessmentService\Assessment\Writer\FullService as WriterService;
+use Edutiek\AssessmentService\EssayTask\AssessmentStatus\FullService as AssessmentStatus;
+use Edutiek\AssessmentService\EssayTask\Essay\ClientService as EssayService;
+use Edutiek\AssessmentService\System\Format\Service as FormatService;
+use Edutiek\AssessmentService\System\User\ReadService as UserService;
+use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
+use ILIAS\Plugin\LongEssayAssessment\BaseObjectData;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\Action;
+use ILIAS\Plugin\LongEssayAssessment\UI\Table\DataTableParent;
+use ILIAS\Plugin\LongEssayAssessment\UI\Table\FilterParent;
+use ILIAS\Plugin\LongEssayAssessment\UI\Table\Helper\ConfirmationIds;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\Helper\HasColumns;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\Helper\HasFilterFields;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\Helper\InitialVisibleColumns;
-use ILIAS\Plugin\LongEssayAssessment\UI\Table\DataTableParent;
-use ILIAS\Plugin\LongEssayAssessment\UI\Table\FilterParent;
+use ILIAS\UI\Component\Modal\RoundTrip;
 use ILIAS\UI\Implementation\Component\Input\Input;
 
 abstract class WriterTableGUI extends BaseGUI implements DataTableParent, FilterParent
@@ -172,7 +168,7 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
         $settings = $this->orga_service->get();
 
         $writer = count($items) === 1 ? array_pop($items)?->getWriter() : null;
-        $working_time = $this->assessment_api->workingTime($settings, $writer);
+        $working_time = $this->assessment_api->workingTime($writer);
         [$days, $hours, $minutes] = $working_time->getTimeLimitParts();
 
         $fields = [];
@@ -404,7 +400,7 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
                     : ($item->getAuthorizedFromFullname() ?? $unknown))
         };
 
-        $working_time = $this->assessment_api->workingTime($this->getSettings(), $writer);
+        $working_time = $this->assessment_api->workingTime($writer);
 
         $working_start = $writer->getWorkingStart()?->setTimezone($timezone);
         $working_end = $writer->getWritingAuthorized()?->setTimezone($timezone);
@@ -611,7 +607,7 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
             $this->refinery->custom()->constraint(
                 function (array $data) use ($writer) {
                     $this->workingTimeDataToWriter($data, $writer);
-                    return $this->assessment_api->workingTime($this->getSettings(), $writer)
+                    return $this->assessment_api->workingTime($writer)
                         ->validate($writer);
                 },
                 function (Closure $cls, array $data) use ($writer): string {

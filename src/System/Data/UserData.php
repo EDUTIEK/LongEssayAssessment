@@ -8,13 +8,13 @@ use DateTimeZone;
 
 class UserData extends \Edutiek\AssessmentService\System\Data\UserData
 {
-    private string $login;
-    private ?string $title;
-    private string $firstname;
-    private string $lastname;
-    private ?string $matriculation;
-    private string $language;
-    private DateTimeZone $timezone;
+    private string $login = '';
+    private ?string $title = null;
+    private string $firstname = '';
+    private string $lastname = '';
+    private ?string $matriculation = null;
+    private string $language = '';
+    private ?DateTimeZone $timezone;
 
     public function __construct(
         private int $id,
@@ -79,6 +79,6 @@ class UserData extends \Edutiek\AssessmentService\System\Data\UserData
 
     public function getTimezone(): DateTimeZone
     {
-        return $this->timezone;
+        return $this->timezone ?? new DateTimeZone('Europe/Berlin');;
     }
 }

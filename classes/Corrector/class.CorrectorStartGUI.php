@@ -446,25 +446,10 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
             }
         }
 
-        $messages = [
-            $this->plugin->txt(count($changed) ? 'authorize_correction_done' : 'authorize_correction_failed'),
-        ];
+        $this->multiFeedback($changed, $unchanged,
+            $this->plugin->txt('authorize_correction_done'),
+            $this->plugin->txt('authorize_correction_failed'));
 
-        if (count($changed)) {
-            $messages[] = $this->renderer->render($this->ui_factory->listing()->unordered($changed));
-        }
-        if (count($unchanged)) {
-            if (count($changed)) {
-                $messages[] = $this->plugin->txt('authorize_correction_unchanged');
-            }
-            $messages[] = $this->renderer->render($this->ui_factory->listing()->unordered($unchanged));
-        }
-
-        if (count($changed)) {
-            $this->success(implode('<br>', $messages), true);
-        } else {
-            $this->failure(implode('<br>', $messages), true);
-        }
 
         $this->ctrl->redirect($this);
     }

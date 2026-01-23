@@ -119,25 +119,9 @@ class CorrectionAdminGUI extends BaseGUI
             }
         }
 
-        $messages = [
-            $this->plugin->txt(count($changed) ? 'remove_authorizations_done' : 'remove_authorizations_failed'),
-        ];
-
-        if (count($changed)) {
-            $messages[] = $this->renderer->render($this->ui_factory->listing()->unordered($changed));
-        }
-        if (count($unchanged)) {
-            if (count($changed)) {
-                $messages[] = $this->plugin->txt('remove_authorizations_unchanged');
-            }
-            $messages[] = $this->renderer->render($this->ui_factory->listing()->unordered($unchanged));
-        }
-
-        if (count($changed)) {
-            $this->success(implode('<br>', $messages), true);
-        } else {
-            $this->failure(implode('<br>', $messages), true);
-        }
+        $this->multiFeedback($changed, $unchanged,
+        $this->plugin->txt('remove_authorizations_done'),
+            $this->plugin->txt('remove_authorizations_failed'));
 
         $this->ctrl->redirect($this);
     }
@@ -355,16 +339,6 @@ class CorrectionAdminGUI extends BaseGUI
         $this->openMailForm(array_unique($logins), 'showItems');
     }
 
-    private function viewStitchDecisionAction(): Action\Direct
-    {
-        return $this->plugin_ui_factory->table()->action()->direct(
-            "view_stitch_decision",
-            $this->plugin->txt('view_stitch_comment'),
-            [$this, "viewStitchDecision"],
-            fn(CorrectionItem $item) => !empty($item->getWriter()->getStitchComment()),
-            Action\Type::Single
-        );
-    }
 
     public function viewStitchDecision(CorrectionItem $item)
     {

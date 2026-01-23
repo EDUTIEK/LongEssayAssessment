@@ -249,7 +249,36 @@ abstract class Table implements TableParent, FilterParent, Component\Component
             $this->getFilterInputActivation(),
             true,
             true
-        );
+        )->withAdditionalOnLoadCode(function ($id) {
+            return "$(document).ready(function () {
+                        function updateMultiSelectedValues() {
+                        console.log('updateMultiSelectedValues');
+                        
+                        $('.c-field-multiselect').each(function () {
+                            var selected = [];
+                            console.log($(this).closest('div.il-popover-container').find('label.input-group-addon').text());
+                            
+                            $(this).find('input[type=\"checkbox\"]:checked').each(function () {
+                                var text = $(this).siblings('.c-field-multiselect__label-text').text();
+                                console.log(text);
+                                selected.push(text);
+                            });
+                            
+                            $(this).closest('div.il-popover-container').find('span.il-filter-field').text(selected.join(', '));;
+                        });
+                    }
+                
+                    // Run on page load
+                    updateMultiSelectedValues();
+                
+                    // Run after every checkbox change
+                    $(document).on('change', '.c-field-multiselect input[type=\"checkbox\"]', function () {
+                        updateMultiSelectedValues();
+                    });
+                
+                });
+            ";
+        });
     }
 
     protected function addModal(Component\Modal\Modal $modal)

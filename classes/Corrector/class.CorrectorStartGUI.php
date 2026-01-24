@@ -441,7 +441,7 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
                 if ($result->isOk()) {
                     $changed[] = $writer->getPseudonym();
                 } else {
-                    $unchanged[] = $writer->getPseudonym() . ': ' . implode(', ', $result->messages());
+                    $unchanged[] = $writer->getPseudonym() . ': ' . implode(', ', $result->failures());
                 }
             }
         }
@@ -449,7 +449,6 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
         $this->multiFeedback($changed, $unchanged,
             $this->plugin->txt('authorize_correction_done'),
             $this->plugin->txt('authorize_correction_failed'));
-
 
         $this->ctrl->redirect($this);
     }

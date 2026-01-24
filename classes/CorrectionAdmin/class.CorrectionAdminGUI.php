@@ -113,7 +113,7 @@ class CorrectionAdminGUI extends BaseGUI
                 if ($result->isOk()) {
                     $changed[] = $name;
                 } else {
-                    $unchanged[] = $name . ': ' . implode(', ', $result->messages());
+                    $unchanged[] = $name . ': ' . implode(', ', $result->failures());
                     ;
                 }
             }

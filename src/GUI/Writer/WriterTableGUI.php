@@ -4,7 +4,6 @@ namespace ILIAS\Plugin\LongEssayAssessment\GUI\Writer;
 
 use Closure;
 use Edutiek\AssessmentService\Assessment\Data\OrgaSettings;
-use Edutiek\AssessmentService\Assessment\Data\ValidationError;
 use Edutiek\AssessmentService\Assessment\Data\Writer;
 use Edutiek\AssessmentService\Assessment\Data\WritingStatus;
 use Edutiek\AssessmentService\Assessment\LogEntry\MentionUser as LogEntryMention;
@@ -13,6 +12,7 @@ use Edutiek\AssessmentService\Assessment\OrgaSettings\FullService as OrgaService
 use Edutiek\AssessmentService\Assessment\Writer\FullService as WriterService;
 use Edutiek\AssessmentService\EssayTask\AssessmentStatus\FullService as AssessmentStatus;
 use Edutiek\AssessmentService\EssayTask\Essay\ClientService as EssayService;
+use Edutiek\AssessmentService\System\Data\Result;
 use Edutiek\AssessmentService\System\Format\Service as FormatService;
 use Edutiek\AssessmentService\System\User\ReadService as UserService;
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
@@ -147,18 +147,6 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
         // TODO: implement unauthorize
     }
 
-    private function validationErrors(Writer $writer): string
-    {
-        if (!empty($writer->getValidationErrors())) {
-            $errors = array_map(
-                fn(ValidationError $error) => $this->plugin->txt('failure_' . $error->value),
-                $writer->getValidationErrors()
-            );
-            return implode(' | ', $errors);
-        }
-        return '';
-    }
-
     /**
      * @param WriterItem[] $items
      * @return array
@@ -253,17 +241,17 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
         $changed = [];
         $unchanged = [];
         foreach ($items as $item) {
-            if ($this->writer_service->changeWorkingTime(
+            $result = $this->writer_service->changeWorkingTime(
                 $item->getWriter(),
                 $dummy->getEarliestStart(),
                 $dummy->getLatestEnd(),
                 $dummy->getTimeLimitMinutes()
-            )
-            ) {
+            );
+            if ($result->isOk()) {
                 $changed[] = $item->getUserData()->getListname(true);
             } else {
                 $unchanged[] = $item->getUserData()->getListname(true)
-                    . ': ' . $this->validationErrors($item->getWriter());
+                    . ': ' . implode(', ', $result->failures());
             }
         }
 
@@ -593,7 +581,7 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
     protected function workingTimeChangeAction()
     {
         // dummy writer for working time validation and error store
-        $writer = $this->writer_service->new();
+        $result = new Result();
 
         return $this->plugin_ui_factory->table()->action()->form(
             "change_working_time",
@@ -605,13 +593,13 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
             Action\Type::Standard
         )->withTransformations([
             $this->refinery->custom()->constraint(
-                function (array $data) use ($writer) {
+                function (array $data) use ($result) {
+                    $writer = $this->writer_service->new();
                     $this->workingTimeDataToWriter($data, $writer);
-                    return $this->assessment_api->workingTime($writer)
-                        ->validate($writer);
+                    return $this->assessment_api->workingTime($writer)->validate($result)->isOk();
                 },
-                function (Closure $cls, array $data) use ($writer): string {
-                    return $this->validationErrors($writer);
+                function (Closure $cls, array $data) use ($result): string {
+                    return $result->isOk()? '' : implode(', ', $result->failures());
                 }
             )]);
     }
@@ -631,7 +619,6 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
             $minutes = $limit % 60;
             return [$days, $hours, $minutes];
         };
-
 
         if ($writer === null || !$writer->hasChangedTimeLimit()) {
             $settings = $this->getSettings();
@@ -669,7 +656,7 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
                 $this->plugin->txt("writing_limit_hours_minutes"),
                 $this->plugin->txt('label_general') . ' '
             )->withTimeOnly(true)
-                                                     ->withValue($writing_limit_hours_minutes)
+             ->withValue($writing_limit_hours_minutes)
         ];
     }
 
@@ -724,7 +711,6 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
     {
         return $this->ui_factory->modal()->roundtrip("Test", []);
     }
-
 
     protected function editPdfVersionAction()
     {

@@ -19,9 +19,6 @@ use Edutiek\AssessmentService\System\Transform\FullService as TransformService;
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\BaseObjectData;
 use ILIAS\UI\Component\Input\Container\Form\Standard;
-use Edutiek\AssessmentService\Assessment\Data\ValidationError;
-use Edutiek\AssessmentService\Assessment\Data\DisabledGroup;
-use ILIAS\Data\URI;
 
 /**
  * Organisational Settings
@@ -147,7 +144,9 @@ class OrgaSettingsGUI extends BaseGUI
             $orga_settings->setForwardingUrl(null);
         }
 
-        if ($this->orga_settings_service->validate($orga_settings)) {
+        $result = $this->orga_settings_service->validate($orga_settings);
+
+        if ($result->isOk()) {
             $this->properties_service->save($properties);
             $this->entity_service->secure($orga_settings, OrgaSettings::class);
             $this->orga_settings_service->save($orga_settings);
@@ -157,14 +156,7 @@ class OrgaSettingsGUI extends BaseGUI
             $this->success($this->lng->txt("settings_saved"), true);
             $this->ctrl->redirect($this, "editSettings");
         }
-
-        $this->failure(implode(
-            '<br>',
-            array_map(
-                fn(ValidationError $error) => $this->plugin->txt('failure_' . $error->value),
-                $orga_settings->getValidationErrors()
-            )
-        ));
+        $this->failure($this->plugin->txt('failure_form_validation'), false, $result->failures());
     }
 
     private function buildForm(): Standard

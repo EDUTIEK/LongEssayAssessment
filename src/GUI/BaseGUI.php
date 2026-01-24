@@ -141,18 +141,27 @@ abstract class BaseGUI
         $this->tpl->setContent($this->renderer->render($this->components));
     }
 
-    protected function success(string $message, bool $keep = false): void
+    protected function success(string $message, bool $keep = false, array $details = []): void
     {
+        if (!empty($details)) {
+            $message .= $this->renderer->render($this->ui_factory->listing()->unordered($details));
+        }
         $this->tpl->setOnScreenMessage(ilGlobalTemplateInterface::MESSAGE_TYPE_SUCCESS, $message, $keep);
     }
 
-    protected function failure(string $message, bool $keep = false): void
+    protected function failure(string $message, bool $keep = false, array $details = []): void
     {
+        if (!empty($details)) {
+            $message .= $this->renderer->render($this->ui_factory->listing()->unordered($details));
+        }
         $this->tpl->setOnScreenMessage(ilGlobalTemplateInterface::MESSAGE_TYPE_FAILURE, $message, $keep);
     }
 
-    protected function info(string $message, bool $keep = false): void
+    protected function info(string $message, bool $keep = false, array $details = []): void
     {
+        if (!empty($details)) {
+            $message .= $this->renderer->render($this->ui_factory->listing()->unordered($details));
+        }
         $this->tpl->setOnScreenMessage(ilGlobalTemplateInterface::MESSAGE_TYPE_INFO, $message, $keep);
     }
 

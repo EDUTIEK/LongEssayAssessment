@@ -46,7 +46,7 @@ class WritingStepRepo implements \Edutiek\AssessmentService\EssayTask\Data\Writi
 
     public function allByEssayId(int $essay_id): array
     {
-        return $this->repo->queryAllBy(['essay_id' => $essay_id]);
+        return $this->repo->queryAllBy(['essay_id' => $essay_id], ['id' => 'ASC']);
     }
 
     public function create(WritingStep $entity): void

@@ -110,7 +110,7 @@ class WriterAdminGUI extends WriterTableGUI
         return [
 // todo: activate when implemented
             $this->viewProccessingAction(),
-//            $this->exportStepsAction(),
+            $this->exportStepsAction(),
             $this->addLogEntryAction(),
             $this->mailToWriterAction(),
             $this->authorizeWritingAction(),

@@ -127,10 +127,14 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
         //
         return $sight_modal;
     }
+
     public function exportSteps(WriterItem $writer)
     {
-        //TODO: Implement export steps
+        $id = $this->essay_task_api->writingSteps()->createExport($writer->getId());
+        $this->system_api->tempDelivery()->sendFile($id, Disposition::ATTACHMENT);
+        $this->system_api->tempStorage()->deleteFile($id);
     }
+
     public function addLogEntry(WriterItem $writer, array $data)
     {
         $this->assessment_api->logEntry()->addEntry(

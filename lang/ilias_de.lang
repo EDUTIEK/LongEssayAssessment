@@ -266,7 +266,8 @@ log_type_working_time#:#Zeitanpassung
 log_type_authorize#:#Freigabe
 log_type_note#:#Notiz
 log_type_all#:#Alle
-log_entry_text#:#Notiz
+log_entry_text#:#Protokollierte Notiz
+log_entry_text_info#:#Bitte geben Sie mindesten 5 Zeichen ein
 alert_text#:#Text
 alert_recipient#:#Empfänger
 alert_recipient_all#:#Alle
@@ -274,7 +275,7 @@ add_log_entry_for writer#:#Protokolleintrag hinzufügen
 create_log_entry#:#Notiz hinzufügen
 create_alert#:#Benachrichtigung senden
 alert_created#:#Benachrichtigung wurde gesendet.
-log_entry_created#:#Notiz wurde hinzugefügt.
+log_entry_created#:#Protokolleintrag wurde hinzugefügt.
 corrector_assignment_changed#:#Korrekturzuweisung wurde geändert.
 writing_excluded_from#:#ausgeschlossen von
 repeal_exclude_participant#:#Ausschluss aufheben
@@ -877,6 +878,4 @@ grade#:#Note
 finalization#:#Abschluss
 procedure#:#Verfahren
 date#:#Datum
-logged_reason#:#Protokollierte Begründung
-logged_reason_info#:#Bitte geben Sie mindesten 5 Zeichen ein
 multi_feedback_unchanged#:#Unverändert:

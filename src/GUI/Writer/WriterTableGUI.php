@@ -561,10 +561,10 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
             "add_log_entry",
             $this->plugin->txt("add_log_entry_for writer"),# Todo: Fix language entry
             $this->lng->txt("add"),
-            [$this, "addLogEntryFields"],
-            [$this, "addLogEntry"],
+            $this->getTableActionConfirmFields(...),
+            $this->addLogEntry(...),
             fn(WriterItem $writer) => true,
-            Action\Type::Single
+            Action\Type::Standard
         );
     }
 
@@ -820,8 +820,8 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
         $fields = [
             'info' => $this->getTableActionInfoField($items),
             'reason' => $this->ui_factory->input()->field()->textarea(
-                $this->plugin->txt('logged_reason'),
-                $this->plugin->txt('logged_reason_info')
+                $this->plugin->txt('log_entry_text'),
+                $this->plugin->txt('log_entry_text_info')
             )->withAdditionalTransformation($this->refinery->string()->hasMinLength(5))
         ];
 

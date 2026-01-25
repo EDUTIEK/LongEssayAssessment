@@ -219,7 +219,7 @@ class WriterUploadGUI extends BaseGUI
             $this->return();
         }
 
-        $this->writer_service->authorizeWriting($this->writer, $this->user->getId(), false);
+        $this->writer_service->authorizeWriting($this->writer, false);
         $this->ctrl->setParameterByClass(WriterStartGUI::class, 'returned', '1');
         $this->return();
     }

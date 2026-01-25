@@ -114,14 +114,16 @@ class CorrectionAdminGUI extends BaseGUI
                     $changed[] = $name;
                 } else {
                     $unchanged[] = $name . ': ' . implode(', ', $result->failures());
-                    ;
                 }
             }
         }
 
-        $this->multiFeedback($changed, $unchanged,
-        $this->plugin->txt('remove_authorizations_done'),
-            $this->plugin->txt('remove_authorizations_failed'));
+        $this->multiFeedback(
+            $changed,
+            $unchanged,
+            $this->plugin->txt('remove_authorizations_done'),
+            $this->plugin->txt('remove_authorizations_failed')
+        );
 
         $this->ctrl->redirect($this);
     }

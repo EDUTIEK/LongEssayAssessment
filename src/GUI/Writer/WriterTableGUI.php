@@ -138,13 +138,63 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
 
         $this->openMailForm($logins, 'showItems');
     }
-    public function authorizeWriting(WriterItem $writer)
+
+    public function authorizeWriting()
     {
-        // TODO: implement authorize
+        $writer_ids = $this->confirmationIds();
+        $changed = [];
+        $unchanged = [];
+
+        foreach ($writer_ids as $writer_id) {
+            if (($writer = $this->writer_service->oneByWriterId($writer_id)) !== null) {
+                $user = $this->user_service->getUser($writer->getUserId());
+                $name = ($user?->getListname(false) ?? $this->plugin->txt('unknown')) . ' (' . $writer->getPseudonym() . ')';
+                $result = $this->writer_service->authorizeWriting($writer, true);
+                if ($result->isOk()) {
+                    $changed[] = $name;
+                } else {
+                    $unchanged[] = $name . ': ' . implode(', ', $result->failures());
+                }
+            }
+        }
+
+        $this->multiFeedback(
+            $changed,
+            $unchanged,
+            $this->plugin->txt(count($changed) == 1 ? 'writing_authorized' : 'writings_authorized'),
+            $this->plugin->txt('authorize_writings_none_possible')
+        );
+
+        $this->ctrl->redirect($this);
     }
-    public function unauthorizeWriting(WriterItem $writer)
+    public function unauthorizeWriting()
     {
-        // TODO: implement unauthorize
+        $writer_ids = $this->confirmationIds();
+        $changed = [];
+        $unchanged = [];
+
+        foreach ($writer_ids as $writer_id) {
+            if (($writer = $this->writer_service->oneByWriterId($writer_id)) !== null) {
+                $user = $this->user_service->getUser($writer->getUserId());
+                $name = ($user?->getListname(false) ?? $this->plugin->txt('unknown')) . ' (' . $writer->getPseudonym() . ')';
+                $result = $this->writer_service->removeWritingAuthorization($writer);
+                if ($result->isOk()) {
+                    $changed[] = $name;
+                } else {
+                    $unchanged[] = $name . ': ' . implode(', ', $result->failures());
+                }
+            }
+        }
+
+        $this->multiFeedback(
+            $changed,
+            $unchanged,
+            $this->plugin->txt(count($changed) == 1 ? 'writing_unauthorized' : 'writings_unauthorized'),
+            $this->plugin->txt('unauthorize_writings_none_possible')
+        );
+
+        $this->ctrl->redirect($this);
+
     }
 
     /**
@@ -544,7 +594,7 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
             $this->plugin->txt("authorize_writing"),
             $this->plugin->txt("authorize_writing_confirmation"),
             $this->ctrl->getFormAction($this, 'authorizeWriting'),
-            fn(WriterItem $item) => "Item " . $item->getId(),
+            fn(WriterItem $item) => $item->getUserData()->getListname(true),
             fn(WriterItem $item) => $item->getWriter()->canGetAuthorized(),
             Action\Type::Standard
         );
@@ -558,7 +608,7 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
             $this->plugin->txt("unauthorize_writing"),
             $this->plugin->txt("unauthorize_writing_confirmation"),
             $this->ctrl->getFormAction($this, 'unauthorizeWriting'),
-            fn(WriterItem $item) => "Item " . $item->getId(),
+            fn(WriterItem $item) => $item->getUserData()->getListname(true),
             fn(WriterItem $item) => $item->getWriter()->canGetUnauthorized(),
             Action\Type::Standard
         );
@@ -599,7 +649,7 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
                     return $this->assessment_api->workingTime($writer)->validate($result)->isOk();
                 },
                 function (Closure $cls, array $data) use ($result): string {
-                    return $result->isOk()? '' : implode(', ', $result->failures());
+                    return $result->isOk() ? '' : implode(', ', $result->failures());
                 }
             )]);
     }

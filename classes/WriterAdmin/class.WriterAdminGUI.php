@@ -31,6 +31,8 @@ class WriterAdminGUI extends WriterTableGUI
             default:
                 $cmd = $this->ctrl->getCmd('showItems');
                 switch ($cmd) {
+                    case 'authorizeWriting':
+                    case 'unauthorizeWriting':
                     case 'showItems':
                     case 'workingTimeDelete':
                         $this->$cmd();
@@ -110,8 +112,8 @@ class WriterAdminGUI extends WriterTableGUI
 //            $this->exportStepsAction(),
             $this->addLogEntryAction(),
             $this->mailToWriterAction(),
-//            $this->authorizeWritingAction(),
-//            $this->unauthorizeWritingAction(),
+            $this->authorizeWritingAction(),
+            $this->unauthorizeWritingAction(),
             $this->workingTimeChangeAction(),
             $this->workingTimeDeleteAction(),
             $this->changeLocationAction(),

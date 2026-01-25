@@ -31,6 +31,7 @@ class WriterAdminGUI extends WriterTableGUI
             default:
                 $cmd = $this->ctrl->getCmd('showItems');
                 switch ($cmd) {
+                    case 'deliverEssayPdf':
                     case 'authorizeWriting':
                     case 'unauthorizeWriting':
                     case 'showItems':
@@ -108,7 +109,7 @@ class WriterAdminGUI extends WriterTableGUI
     {
         return [
 // todo: activate when implemented
-//            $this->viewProccessingAction(),
+            $this->viewProccessingAction(),
 //            $this->exportStepsAction(),
             $this->addLogEntryAction(),
             $this->mailToWriterAction(),

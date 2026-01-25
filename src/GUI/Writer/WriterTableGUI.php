@@ -15,8 +15,12 @@ use Edutiek\AssessmentService\EssayTask\Essay\ClientService as EssayService;
 use Edutiek\AssessmentService\System\Data\Result;
 use Edutiek\AssessmentService\System\Format\Service as FormatService;
 use Edutiek\AssessmentService\System\User\ReadService as UserService;
+use Edutiek\AssessmentService\System\File\Disposition;
+use Edutiek\AssessmentService\System\File\Storage as FileStorage;
+use ILIAS\HTTP\StatusCode;
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\BaseObjectData;
+use ILIAS\Plugin\LongEssayAssessment\EssayTask\Data\Essay;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\Action;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\DataTableParent;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\FilterParent;
@@ -44,6 +48,7 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
     protected EssayService $essay_service;
     protected AssessmentStatus $assessment_status;
     protected FormatService $format;
+    private FileStorage $file_storage;
 
     public function __construct(BaseObjectData $object)
     {
@@ -54,6 +59,7 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
         $this->essay_service = $this->essay_task_api->essay(true);
         $this->assessment_status = $this->essay_task_api->assessmentStatus();
         $this->format = $this->system_api->format($this->user->getId());
+        $this->file_storage = $this->system_api->fileStorage();
     }
 
     public function viewProcessing(WriterItem $writer): RoundTrip
@@ -63,15 +69,30 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
         $content = [];
 
         if ($this->getSettings()->getMultiTasks()) {
-            $essay = [];
+            /** @var Essay $essays */
+            $essays = [];
             foreach ($this->essay_service->allByWriterId($writer->getId()) as $e) {
-                $essay[$e->getTaskId()] = $e;
+                $essays[$e->getTaskId()] = $e;
             }
 
             foreach ($this->task_api->manager()->all() as $task_info) {
-                $content[] = $this->ui_factory->panel()->standard($task_info->getTitle(), [
-                    $this->ui_factory->legacy($essay[$task_info->getId()]?->getWrittenText() ?? "")
-                ]);
+                $essay = $essays[$task_info->getId()];
+                if ($essay?->getPdfVersion() !== null) {
+                    $file_info = $this->file_storage->getFileInfo($essay->getPdfVersion());
+                    $this->ctrl->setParameter($this, 'writer_id', $essay->getWriterId());
+                    $this->ctrl->setParameter($this, 'task_id', $essay->getTaskId());
+                    $content[] = $this->ui_factory->panel()->standard($task_info->getTitle(), [
+                        $this->plugin_ui_factory->viewer()->pdf(
+                            $this->ctrl->getLinkTarget($this, 'deliverEssayPdf'),
+                            $file_info->getFileName()
+                        )
+                    ]);
+
+                } else {
+                    $content[] = $this->ui_factory->panel()->standard($task_info->getTitle(), [
+                        $this->ui_factory->legacy($this->displayContent($essay[$task_info->getId()]?->getWrittenText() ?? ""))
+                    ]);
+                }
             }
         } else {
             $essay = $this->essay_service->allByWriterId($writer->getId());
@@ -87,24 +108,24 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
             $this->plugin->txt("submission"),
             $content
         );
-        $reload_button = $this->ui_factory->button()->standard($this->lng->txt("refresh"), "")
-                                          ->withLoadingAnimationOnClick(true)
-                                          ->withOnLoadCode(
-                                              function ($id) use ($link) {
-                                                  return
-                                                      "$('#{$id}').click(function() { 
-                                                        n_url = '{$link}';
-                                                        text = $('#$id').html();
-                                                        $('#$id').html('...');
-                                                        il.UI.core.replaceContent($(this).closest('.modal').attr('id'), n_url, 'component');
-                                                        $('#$id').html(text);
-                                                        il.UI.button.deactivateLoadingAnimation('$id');
-                                                        return false;
-                                                      });";
-                                              }
-                                          );
-
-        return $sight_modal->withActionButtons([$reload_button]);
+        //        $reload_button = $this->ui_factory->button()->standard($this->lng->txt("refresh"), "")
+        //                                          ->withLoadingAnimationOnClick(true)
+        //                                          ->withOnLoadCode(
+        //                                              function ($id) use ($link) {
+        //                                                  return
+        //                                                      "$('#{$id}').click(function() {
+        //                                                        n_url = '{$link}';
+        //                                                        text = $('#$id').html();
+        //                                                        $('#$id').html('...');
+        //                                                        il.UI.core.replaceContent($(this).closest('.modal').attr('id'), n_url, 'component');
+        //                                                        $('#$id').html(text);
+        //                                                        il.UI.button.deactivateLoadingAnimation('$id');
+        //                                                        return false;
+        //                                                      });";
+        //                                              }
+        //                                          );
+        //
+        return $sight_modal;
     }
     public function exportSteps(WriterItem $writer)
     {
@@ -538,10 +559,10 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
         return $this->plugin_ui_factory->table()->action()->modal(
             "view_processing",
             $this->plugin->txt("view_processing"),
-            [$this, "viewProcessing"],
+            $this->viewProcessing(...),
             fn(WriterItem $item) => $item->getWriter()->canGetSight(),
             Action\Type::Single
-        );
+        )->withUpdateButton(false);
     }
 
     protected function exportStepsAction()
@@ -951,4 +972,22 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
     {
         return $this->ctrl->getFormAction($this, 'showItems');
     }
+
+    public function deliverEssayPdf(): void
+    {
+        $essay = $this->essay_service->oneByWriterIdAndTaskId(
+            $this->get->integer('writer_id'),
+            $this->get->integer('task_id')
+        );
+
+        if ($essay?->getPdfVersion()) {
+            $this->system_api->fileDelivery()->sendFile($essay->getPdfVersion(), Disposition::INLINE);
+        } else {
+            $response = $this->http->response()->withStatus(StatusCode::HTTP_NOT_FOUND);
+            $this->http->saveResponse($response);
+            $this->http->sendResponse();
+            $this->http->close();
+        }
+    }
+
 }

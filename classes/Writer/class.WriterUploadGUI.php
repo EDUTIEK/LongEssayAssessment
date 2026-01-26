@@ -34,6 +34,7 @@ use ILIAS\HTTP\StatusCode;
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\UI\Component\Modal\Modal;
 use ilLongEssayAssessmentUploadHandlerGUI;
+use ILIAS\Plugin\LongEssayAssessment\WriterAdmin\WriterAdminGUI;
 
 /**
  * @ilCtrl_isCalledBy ILIAS\Plugin\LongEssayAssessment\Writer\WriterUploadGUI: ilObjLongEssayAssessmentGUI
@@ -55,11 +56,11 @@ class WriterUploadGUI extends BaseGUI
      */
     private array $essays;
     private ilLongEssayAssessmentUploadHandlerGUI $upload_handler;
+    private $is_admin = false;
 
 
     public function init()
     {
-        $this->essay_service = $this->essay_task_api->essay(false);
         $this->writer_service = $this->assessment_api->writer();
         $this->task_service = $this->task_api->manager();
         $this->file_storage = $this->system_api->fileStorage();
@@ -69,8 +70,17 @@ class WriterUploadGUI extends BaseGUI
             $this->plugin->dic()->uploadTempFile()
         );
         $this->perms = $this->assessment_api->permissions($this->object->getContextId());
-        $this->writer = $this->writer_service->getByUserId($this->user->getId());
+
+        $writer_id = $this->get->integer('writer_id');
+        if ($writer_id !== null && $this->perms->canMaintainWriters()) {
+            $this->writer = $this->writer_service->oneByWriterId($writer_id);
+            $this->ctrl->saveParameter($this, 'writer_id');
+            $this->is_admin = true;
+        } else {
+            $this->writer = $this->writer_service->getByUserId($this->user->getId());
+        }
         $this->tasks = $this->task_service->all();
+        $this->essay_service = $this->essay_task_api->essay($this->is_admin);
         $this->essays = $this->essay_service->getByWriterId($this->writer->getId());
     }
 
@@ -82,18 +92,46 @@ class WriterUploadGUI extends BaseGUI
 
     private function return()
     {
-        $this->ctrl->redirectToURL($this->ctrl->getLinkTargetByClass(WriterStartGUI::class));
+        if ($this->is_admin) {
+            $this->ctrl->redirectToURL($this->ctrl->getLinkTargetByClass(WriterAdminGUI::class));
+        } else {
+            $this->ctrl->redirectToURL($this->ctrl->getLinkTargetByClass(WriterStartGUI::class));
+        }
     }
 
     public function preview(): void
     {
-        if (!$this->perms->canWrite() && !$this->perms->canReviewWrittenAssessment()) {
+        if (!$this->is_admin && !$this->perms->canWrite() && !$this->perms->canReviewWrittenAssessment()) {
             $this->failure($this->lng->txt('permission_denied'), true);
             $this->return();
         }
 
-        if ($this->perms->canWrite()) {
+        if ($this->is_admin) {
+            $this->info($this->plugin->txt('writer_admin_pdf_replace_info'));
+        } elseif ($this->perms->canWrite()) {
             $this->info($this->plugin->txt(count($this->tasks) == 1 ? 'writer_authorize_pdf_info' : 'writer_authorize_pdfs_info'));
+        }
+
+        // Info about the writer
+        if ($this->is_admin) {
+            $user = $this->system_api->user()->getUser($this->writer->getUserId());
+            $properties = [
+                $this->lng->txt('name') => $user?->getFullname(true) ?? $this->plugin->txt('unknown'),
+                $this->plugin->txt('pseudonym') => $this->writer->getPseudonym()
+            ];
+            if ($this->writer->getLocation()) {
+                $properties[$this->plugin->txt('location')] = $this->assessment_api->location()->one(
+                    $this->writer->getLocation()
+                )?->getTitle();
+            }
+
+            $settings = $this->assessment_api->orgaSettings()->get();
+            $properties[$this->plugin->txt('writing_status')] = $this->assessment_api->format($settings)->writingStatus($this->writer);
+
+            $this->add($this->ui_factory->panel()->standard(
+                $this->plugin->txt('participant'),
+                $this->ui_factory->listing()->descriptive($properties)
+            ));
         }
 
         $incomplete_tasks = [];
@@ -108,11 +146,12 @@ class WriterUploadGUI extends BaseGUI
                     $this->ctrl->getLinkTarget($this, 'deliver'),
                     $file_info->getFileName()
                 );
-            } else {
+            } elseif (empty($essay->getWrittenText())) {
                 $incomplete_tasks[] = $task;
                 $content[] = $this->ui_factory->legacy('<p>' . $this->plugin->txt('writer_upload_pdf_missing') . '</p>');
             }
-            if ($this->perms->canWrite()) {
+
+            if ($this->perms->canWrite() || $this->perms->canMaintainWriters()) {
                 $this->add($modal = $this->upload($task->getId()));
                 if ($modal) {
                     $content[] = $this->ui_factory->button()->standard('upload', '')->withOnClick($modal->getShowSignal())->withLabel($this->plugin->txt($file_info ? 'writer_replace_pdf' : 'writer_upload_pdf'));
@@ -141,6 +180,12 @@ class WriterUploadGUI extends BaseGUI
                 }
             }
 
+            if (!empty($essay->getWrittenText())) {
+                $content[] = $this->ui_factory->divider()->horizontal();
+                $content[] = $this->ui_factory->card()->standard($this->plugin->txt('pdf_version_header_writing'))
+                                              ->withSections([$this->ui_factory->legacy($this->displayContent($essay->getWrittenText()))]);
+            }
+
             $this->add($this->ui_factory->panel()->standard($task->getTitle(), $content));
         }
 
@@ -157,15 +202,16 @@ class WriterUploadGUI extends BaseGUI
                 ), $incomplete_tasks)
             ));
 
+
         $this->add($this->ui_factory->button()->primary(
             $this->plugin->txt('writer_authorize_pdf'),
             $this->ctrl->getLinkTarget($this, 'authorize')
-        )->withOnClick($modal->getShowSignal()));
+        )->withOnClick($modal->getShowSignal())->withUnavailableAction($this->writer->isAuthorized()));
 
         $this->add(
             $this->ui_factory->button()->standard(
                 $this->lng->txt('cancel'),
-                $this->ctrl->getLinkTargetByClass(WriterStartGUI::class)
+                $this->ctrl->getLinkTarget($this, 'return')
             )
         );
 
@@ -174,7 +220,7 @@ class WriterUploadGUI extends BaseGUI
 
     public function delete(): void
     {
-        if (!$this->perms->canWrite()) {
+        if (!$this->is_admin && !$this->perms->canWrite()) {
             $this->failure($this->lng->txt('permission_denied'), true);
             $this->ctrl->redirect($this);
         }
@@ -214,12 +260,12 @@ class WriterUploadGUI extends BaseGUI
      */
     public function authorize(): void
     {
-        if (!$this->perms->canWrite()) {
+        if (!$this->perms->canWrite() && !$this->is_admin) {
             $this->failure($this->lng->txt('permission_denied'), true);
             $this->return();
         }
 
-        $this->writer_service->authorizeWriting($this->writer, false);
+        $this->writer_service->authorizeWriting($this->writer, $this->is_admin);
         $this->ctrl->setParameterByClass(WriterStartGUI::class, 'returned', '1');
         $this->return();
     }
@@ -239,7 +285,7 @@ class WriterUploadGUI extends BaseGUI
         if ($result->status() == ResultStatus::BLOCK) {
             return null;
         } elseif ($result->status() == ResultStatus::ASK) {
-            $question = $this->ui_factory->messageBox()->confirmation($this->lng->txt('writer_upload_question') . ' '
+            $question = $this->ui_factory->messageBox()->confirmation($this->plugin->txt('confirm_upload_file') . ' '
                 . implode(' ', $result->messages()));
         }
 

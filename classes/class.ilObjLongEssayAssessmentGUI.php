@@ -25,6 +25,7 @@ use ILIAS\Plugin\LongEssayAssessment\Settings\DocumentationSettingsGUI;
 use ILIAS\Plugin\LongEssayAssessment\Dashboard\DashboardGUI;
 use ILIAS\UI\Component\Input\Field\Radio;
 use ILIAS\Plugin\LongEssayAssessment\FixationGUI;
+use ILIAS\HTTP\Wrapper\ArrayBasedRequestWrapper;
 
 /**
  * Plugin GUI Class
@@ -48,6 +49,7 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
     private ilHelpGUI $help;
     private Permissions\ReadService $permissions;
     private Assessment $assessment;
+    private ArrayBasedRequestWrapper $query;
 
     /**
      * Definition of the plugin specific sub tabs
@@ -99,11 +101,13 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
         global $DIC;
 
         $this->plugin = ilLongEssayAssessmentPlugin::getInstance();
+
         $this->help = $DIC->help();
 
         if (isset($this->object)) {
             $this->assessment = $this->plugin->dic()->assessment($this->object->getAssId(), $DIC->user()->getId());
             $this->permissions = $this->assessment->permissions($this->object->getContextId());
+            $this->query = $DIC->http()->wrapper()->query();
 
             $this->tpl->setDescription($this->object->getDescription());
 
@@ -209,6 +213,11 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                     //                    }
                     //                    break;
                 case strtolower(WriterUploadGUI::class):
+                    if ($this->query->has('writer_id') && $this->permissions->canMaintainWriters()) {
+                        $this->activateTab('tab_writer_admin');
+                        $this->ctrl->forwardCommand(new WriterUploadGUI($this->object));
+                        break;
+                    }
                     if ($this->permissions->canViewWriterScreen()) {
                         $this->activateTab('tab_writer', 'tab_writer_start');
                         $this->ctrl->forwardCommand(new WriterUploadGUI($this->object));

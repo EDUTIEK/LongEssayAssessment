@@ -467,13 +467,9 @@ authorize_correction_failed#:#In Ihrer Auswahl waren keine Korrekturen, die frei
 no_authorizations_to_remove#:#In Ihrer Auswahl waren keine Korrektur-Freigaben, die zurückgenommen werden können. Das Zurücknehmen ist nur möglich, wenn die Korrektur einer Abgabe noch nicht abgeschlossen ist.
 download_instructions#:#Aufgabenstellung herunterladen
 download_solution#:#Lösungshinweise herunterladen
-authorize_pdf_version_info#:#Wenn eine PDF-Abgabe hinzugefügt oder geändert wird, wird eine bisherige Freigabe je nach Einstellung zurückgezogen oder durch Sie erneuert.
 pdf_version#:#PDF-Abgabe
 pdf_version_edit#:#PDF-Abgabe editieren
 pdf_version_upload#:#PDF-Abgabe hochladen
-pdf_version_info_already_uploaded#:#Wenn Sie die vorhandene PDF-Abgabe entfernen oder ersetzen, werden die Markierungen und Bemerkungen bereits begonnener Korrekturen verworfen!
-pdf_version_info_started_essay#:#Der Teilnehmer hat bereits mit einem Text begonnen. Möchten Sie diese Ergebnisse wirklich mit einer PDF-Abgabe ergänzen? Die Markierungen und Bemerkungen bereits begonnener Korrekturen werden dabei verworfen.
-pdf_version_warning_authorized_essay#:#Der Teilnehmer hat bereits einen Text abgegeben und freigegeben. Möchten Sie diese Ergebnisse wirklich mit einer PDF-Abgabe ergänzen? Die Markierungen und Bemerkungen bereits begonnener Korrekturen werden dabei verworfen.
 pdf_version_download#:#PDF-Abgabe herunterladen
 download#:#Herunterladen
 pdf_version_header_writing#:#Text aus der Schreiboberfläche (wird hinzugefügt)
@@ -663,6 +659,7 @@ new_file#:#Neue Datei
 upload_file#:#Datei hochladen
 replace_file#:#Datei ersetzen
 delete_file#:#Datei löschen
+confirm_upload_file#:#Möchten Sie eine Datei hochladen?
 confirm_delete_file#:#Möchten Sie die Datei löschen?
 file_deleted#:#Die Datei wurde gelöscht.
 writer_upload_pdf_missing#:#Es ist noch keine PDF-Datei vorhanden.
@@ -879,3 +876,4 @@ finalization#:#Abschluss
 procedure#:#Verfahren
 date#:#Datum
 multi_feedback_unchanged#:#Unverändert:
+writer_admin_pdf_replace_info#:#Wenn Sie eine PDF-Datei hochladen oder löschen, wird die Freigabe zur Korrektur aufgehoben. Alle Markierungen und Bemerkungen bereits begonnener Korrekturen werden verworfen.

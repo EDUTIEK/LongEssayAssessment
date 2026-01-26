@@ -30,6 +30,7 @@ use ILIAS\Plugin\LongEssayAssessment\UI\Table\Helper\HasFilterFields;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\Helper\InitialVisibleColumns;
 use ILIAS\UI\Component\Modal\RoundTrip;
 use ILIAS\UI\Implementation\Component\Input\Input;
+use ILIAS\Plugin\LongEssayAssessment\Writer\WriterUploadGUI;
 
 abstract class WriterTableGUI extends BaseGUI implements DataTableParent, FilterParent
 {
@@ -428,9 +429,10 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
         $this->ctrl->redirect($this);
     }
 
-    public function editPdfVersion(array $writer)
+    public function editPdfVersion(WriterItem $writer)
     {
-        //TODO: edit pdf version page
+        $this->ctrl->setParameterByClass(WriterUploadGUI::class, 'writer_id', $writer->getId());
+        $this->ctrl->redirectByClass(WriterUploadGUI::class);
     }
 
     public function getColumnMapping(
@@ -452,16 +454,7 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
             $avatar = $this->ui_factory->symbol()->avatar()->letter($user_data?->getLogin() ?? $unknown);
         }
 
-        $status = match($writer->getWritingStatus()) {
-            WritingStatus::NOT_STARTED => $this->plugin->txt("status_writing_not_started"),
-            WritingStatus::STARTED => $this->plugin->txt("status_writing_started"),
-            WritingStatus::EXCLUDED => $this->plugin->txt("writing_excluded_from") . " " .
-                ($item->getExecludedFromFullname() ?? $unknown),
-            WritingStatus::AUTHORIZED => $this->plugin->txt("writing_authorized_from") . " " .
-                ($writer->getUserId() === $writer->getWritingAuthorizedBy()
-                    ? $this->plugin->txt("participant")
-                    : ($item->getAuthorizedFromFullname() ?? $unknown))
-        };
+        $status = $this->assessment_api->format($this->getSettings())->writingStatus($writer);
 
         $working_time = $this->assessment_api->workingTime($writer);
 
@@ -792,7 +785,7 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
         return $this->plugin_ui_factory->table()->action()->direct(
             "pdf_version_edit",
             $this->plugin->txt("pdf_version_edit"),
-            [$this, "editPdfVersion"],
+            $this->editPdfVersion(...),
             fn(WriterItem $writer) => true,
             Action\Type::Single
         );

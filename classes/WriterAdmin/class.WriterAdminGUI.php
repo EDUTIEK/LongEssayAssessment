@@ -32,6 +32,7 @@ class WriterAdminGUI extends WriterTableGUI
                 $cmd = $this->ctrl->getCmd('showItems');
                 switch ($cmd) {
                     case 'deliverEssayPdf':
+                    case 'editPdfVersion':
                     case 'authorizeWriting':
                     case 'unauthorizeWriting':
                     case 'showItems':
@@ -119,7 +120,7 @@ class WriterAdminGUI extends WriterTableGUI
             $this->workingTimeDeleteAction(),
             $this->changeLocationAction(),
 //            $this->pdfVersionDownloadAction(),
-//            $this->editPdfVersionAction(),
+            $this->editPdfVersionAction(),
             $this->excludeParticipantAction(),
             $this->repealExcludeParticipantAction(),
             $this->removeWriterAction(),

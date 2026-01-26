@@ -4,6 +4,7 @@ namespace ILIAS\Plugin\LongEssayAssessment\System\File;
 
 use Edutiek\AssessmentService\System\Data\FileInfo;
 use Edutiek\AssessmentService\System\File\Storage;
+use ILIAS\FileDelivery\Delivery;
 use ILIAS\Filesystem\Stream\Streams;
 use ILIAS\Plugin\LongEssayAssessment\System\Data\FileInfo as FileInfoModel;
 use ILIAS\ResourceStorage\Consumer\Consumers;
@@ -24,6 +25,16 @@ readonly class StorageAdapter implements Storage
     ) {
     }
 
+    public function asciiFilename(string $filename): string
+    {
+        return Delivery::returnASCIIFileName($filename);
+    }
+
+    public function newInfo(): FileInfo
+    {
+        return new FileInfoModel();
+    }
+
     public function hasFile(?string $id): bool
     {
         $resource_id = $this->manager->find($id ?? '');
@@ -36,7 +47,7 @@ readonly class StorageAdapter implements Storage
         if ($resource_id !== null) {
             $resource = $this->manager->getResource($resource_id);
 
-            return (new FileInfoModel())
+            return $this->newInfo()
                 ->setId($id)
                 ->setFileName($resource->getCurrentRevision()->getTitle())
                 ->setMimeType($resource->getCurrentRevision()->getInformation()->getMimeType())

@@ -472,6 +472,7 @@ pdf_version_edit#:#PDF-Abgabe editieren
 pdf_version_upload#:#PDF-Abgabe hochladen
 pdf_version_download#:#PDF-Abgabe herunterladen
 download#:#Herunterladen
+download_writing#:#Abgabe herunterladen
 pdf_version_header_writing#:#Text aus der Schreiboberfläche (wird hinzugefügt)
 pdf_version_upload_not_allowed_by_corrections#:#Sie können keine PDF-Abgabe hochladen, da eine Korrektur bereits freigegeben ist.
 pdf_version_upload_successful_auth#:#Die PDF-Abgabe wurde erfolgreich hochgeladen und freigegeben.

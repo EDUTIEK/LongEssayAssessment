@@ -21,6 +21,7 @@ use ILIAS\HTTP\StatusCode;
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\BaseObjectData;
 use ILIAS\Plugin\LongEssayAssessment\EssayTask\Data\Essay;
+use ILIAS\Plugin\LongEssayAssessment\System\Data\FileInfo;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\Action;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\DataTableParent;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\FilterParent;
@@ -435,6 +436,34 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
         $this->ctrl->redirectByClass(WriterUploadGUI::class);
     }
 
+    /**
+     * @param WriterItem[] $items
+     * @return void
+     */
+    public function downloadWriting(array $items)
+    {
+        if ($this->getSettings()->getMultiTasks() || count($items) > 1) {
+            $file_id = $this->assessment_api->pdfCreation()->createWritingZip(
+                array_map(fn(WriterItem $item) => $item->getId(), $items)
+            );
+            $filename = 'writings.zip';
+            $mimetype = 'application/zip';
+        } else {
+            $task = $this->task_api->manager()->first();
+            $writer_id = reset($items)->getId();
+            $file_id = $this->assessment_api->pdfCreation()->createWritingPdf($task->getId(), $writer_id);
+            $filename = 'task' . $task->getId() . '_writer' . $writer_id . '-writing.pdf';
+            $mimetype = 'application/pdf';
+        }
+
+        $this->system_api->fileDelivery()->sendFile(
+            $file_id,
+            Disposition::ATTACHMENT,
+            (new FileInfo())->setFileName($filename)->setMimeType($mimetype)
+        );
+        $this->system_api->fileStorage()->deleteFile($file_id);
+    }
+
     public function getColumnMapping(
         WriterItem|\ILIAS\Plugin\LongEssayAssessment\UI\Table\Item $item,
         ?array $additional_parameters
@@ -567,7 +596,7 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
         return $this->plugin_ui_factory->table()->action()->direct(
             "export_steps",
             $this->plugin->txt("export_steps"),
-            [$this, "exportSteps"],
+            $this->exportSteps(...),
             fn(WriterItem $item) => $item->getWriter()->canGetSight(),
             Action\Type::Single
         );
@@ -598,7 +627,7 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
         return $this->plugin_ui_factory->table()->action()->direct(
             "mail_to_writer",
             $this->plugin->txt("mail_to_writer"),
-            [$this, "mailToWriter"],
+            $this->mailToWriter(...),
             fn(WriterItem $writer) => true,
             Action\Type::Standard
         );
@@ -735,8 +764,8 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
             "change_location",
             $this->plugin->txt("change_location"),
             $this->lng->txt("save"),
-            [$this, "changeLocationFields"],
-            [$this, "changeLocation"],
+            $this->changeLocationFields(...),
+            $this->changeLocation(...),
             fn(WriterItem $item) => $this->hasLocations(),
             Action\Type::Standard
         );
@@ -764,21 +793,17 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
         ];
     }
 
-    protected function pdfVersionDownloadAction()
+    protected function downloadWritingAction()
     {
-        return $this->plugin_ui_factory->table()->action()->modal(
-            "pdf_version_download",
-            $this->plugin->txt("pdf_version_download"),
-            [$this, "pdfVersionDownloadModal"],
-            fn(WriterItem $item) => $item->getEssaySummary()?->hasPdfUploads() ?? false,
-            Action\Type::Single
+        return $this->plugin_ui_factory->table()->action()->direct(
+            "download_writing",
+            $this->plugin->txt("download_writing"),
+            $this->downloadWriting(...),
+            fn(WriterItem $item) => true,
+            Action\Type::Standard
         );
     }
 
-    public function pdfVersionDownloadModal(WriterItem $writer): RoundTrip
-    {
-        return $this->ui_factory->modal()->roundtrip("Test", []);
-    }
 
     protected function editPdfVersionAction()
     {

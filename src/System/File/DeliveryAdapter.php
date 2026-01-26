@@ -47,6 +47,11 @@ readonly class DeliveryAdapter implements \Edutiek\AssessmentService\System\File
     ) {
     }
 
+    public function asciiFilename(string $filename): string
+    {
+        return Delivery::returnASCIIFileName($filename);
+    }
+
     public function sendFile(string $id, Disposition $disposition, ?FileInfo $info = null): never
     {
         try {

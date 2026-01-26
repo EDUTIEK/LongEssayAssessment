@@ -109,7 +109,6 @@ class WriterAdminGUI extends WriterTableGUI
     public function getTableActions(): array
     {
         return [
-// todo: activate when implemented
             $this->viewProccessingAction(),
             $this->exportStepsAction(),
             $this->addLogEntryAction(),
@@ -119,7 +118,7 @@ class WriterAdminGUI extends WriterTableGUI
             $this->workingTimeChangeAction(),
             $this->workingTimeDeleteAction(),
             $this->changeLocationAction(),
-//            $this->pdfVersionDownloadAction(),
+            $this->downloadWritingAction(),
             $this->editPdfVersionAction(),
             $this->excludeParticipantAction(),
             $this->repealExcludeParticipantAction(),

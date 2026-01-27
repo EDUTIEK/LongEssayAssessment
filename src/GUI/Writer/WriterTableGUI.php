@@ -69,42 +69,33 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
         $link = $this->request->getUri()->__toString();
 
         $content = [];
+        $tasks = $this->task_api->manager()->all();
 
-        if ($this->getSettings()->getMultiTasks()) {
-            /** @var Essay $essays */
-            $essays = [];
-            foreach ($this->essay_service->allByWriterId($writer->getId()) as $e) {
-                $essays[$e->getTaskId()] = $e;
+        foreach ($tasks as $task_info) {
+            $essay = $this->essay_service->oneByWriterIdAndTaskId($writer->getId(), $task_info->getId());
+
+            $parts = [];
+            if (!empty($essay?->getWrittenText()) && !$essay?->hasPdfFromWrittenText()) {
+                $parts[] = $this->ui_factory->legacy($this->displayContent($essay->getWrittenText() ?? ""));
             }
 
-            foreach ($this->task_api->manager()->all() as $task_info) {
-                $essay = $essays[$task_info->getId()];
-                if ($essay?->getPdfVersion() !== null) {
-                    $file_info = $this->file_storage->getFileInfo($essay->getPdfVersion());
-                    $this->ctrl->setParameter($this, 'writer_id', $essay->getWriterId());
-                    $this->ctrl->setParameter($this, 'task_id', $essay->getTaskId());
-                    $content[] = $this->ui_factory->panel()->standard($task_info->getTitle(), [
-                        $this->plugin_ui_factory->viewer()->pdf(
-                            $this->ctrl->getLinkTarget($this, 'deliverEssayPdf'),
-                            $file_info->getFileName()
-                        )
-                    ]);
+            if (!empty($essay?->getPdfVersion())) {
+                $file_info = $this->file_storage->getFileInfo($essay->getPdfVersion());
+                $this->ctrl->setParameter($this, 'writer_id', $essay->getWriterId());
+                $this->ctrl->setParameter($this, 'task_id', $essay->getTaskId());
 
-                } else {
-                    $content[] = $this->ui_factory->panel()->standard($task_info->getTitle(), [
-                        $this->ui_factory->legacy($this->displayContent($essay[$task_info->getId()]?->getWrittenText() ?? ""))
-                    ]);
-                }
+                $parts[] = $this->plugin_ui_factory->viewer()->pdf(
+                    $this->ctrl->getLinkTarget($this, 'deliverEssayPdf'),
+                    $file_info->getFileName()
+                );
             }
-        } else {
-            $essay = $this->essay_service->allByWriterId($writer->getId());
-            $essay = !empty($essay) ? array_pop($essay) : null;
 
-            $content[] = $this->ui_factory->legacy($essay?->getWrittenText() ?? "");
+            if (count($tasks) > 1) {
+                $content[] = $this->ui_factory->panel()->standard($task_info->getTitle(), $parts);
+            } else {
+                $content = $parts;
+            }
         }
-
-        $task_infos = $this->task_api->manager()->all();
-        $essay = $this->essay_service->allByWriterId($writer->getId());
 
         $sight_modal = $this->ui_factory->modal()->roundtrip(
             $this->plugin->txt("submission"),

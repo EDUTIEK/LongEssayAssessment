@@ -29,6 +29,11 @@ class EssayRepo implements \Edutiek\AssessmentService\EssayTask\Data\EssayRepo
     {
     }
 
+    public function some(array $ids): array
+    {
+        return $this->repo->queryAllBy(['id' => $ids]);
+    }
+
     public function new(): Essay
     {
         return $this->repo->new();

@@ -207,12 +207,15 @@ class CorrectionTableParent implements DataTableParent, FilterParent
             $filter = array_merge($filter, $filter_data);
         }
         if (!empty($ids)) {
-            $filter['id'] = $ids;
+            $filter['essay_id'] = $ids;
         }
 
         foreach ($this->corrections_view->some($filter) as $view) {
+            if ($view->getEssay() === null) {
+                continue;
+            }
             yield new CorrectionItem(
-                $view->getWriter()->getId(),
+                $view->getEssay()->getId(),
                 $view->getWriter(),
                 $view->getWriterData(),
                 $view->getWriterDisplay(),
@@ -232,15 +235,15 @@ class CorrectionTableParent implements DataTableParent, FilterParent
     public function getTableItem(int $id): \ILIAS\Plugin\LongEssayAssessment\UI\Table\Item
     {
         $corrections_view = $this->plugin->dic()->view()->corrections();
-        $view = $corrections_view->some(['id' => $id, 'ass_id' => $this->ass_ids]);
+        $view = $corrections_view->some(['essay_id' => $id, 'ass_id' => $this->ass_ids]);
         $view = empty($view) ? null : $view[0];
 
         if ($view === null) {
-            throw new \Exception("Writer with id $id not found");
+            throw new \Exception("Essay with id $id not found");
         }
 
         return new CorrectionItem(
-            $view->getWriter()->getId(),
+            $view->getEssay()->getId(),
             $view->getWriter(),
             $view->getWriterData(),
             $view->getWriterDisplay(),

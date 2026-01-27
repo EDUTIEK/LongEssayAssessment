@@ -34,6 +34,7 @@ use Edutiek\AssessmentService\Task\CorrectionProcess\FullService as CorrectionPr
 use ILIAS\Plugin\LongEssayAssessment\GUI\Correction\CorrectionTableParent;
 use ILIAS\Plugin\LongEssayAssessment\GUI\Correction\CorrectionItem;
 use Edutiek\AssessmentService\Assessment\Data\CombinedStatus;
+use ILIAS\UI\Component\Input\Input;
 
 /**
  * Correction Admin GUI class
@@ -78,7 +79,7 @@ class CorrectionAdminGUI extends BaseGUI
         return $this->plugin_ui_factory->table()->action()->export(
             "export",
             $this->plugin->txt('correction_admin_table_export'),
-            $this->plugin->txt('correction_admin_table_export_filename') . '_' . $this->task_info->getId()
+            $this->plugin->txt('correction_admin_table_export_filename')
         );
     }
 
@@ -93,7 +94,8 @@ class CorrectionAdminGUI extends BaseGUI
             $label,
             $this->plugin->txt("remove_authorizations_confirmation"),
             $this->ctrl->getFormAction($this, "removeAuthorizations"),
-            fn(CorrectionItem $item) => $item->getWriterName(),
+            fn(CorrectionItem $item) => $item->getWriterName()
+                . ($this->object->getMultiTasks() ? ', ' . $item->getTaskSettings()->getTitle() : ''),
             fn(CorrectionItem $item) => true,
             Action\Type::Standard,
         );
@@ -101,20 +103,22 @@ class CorrectionAdminGUI extends BaseGUI
 
     private function removeAuthorizations()
     {
-        $writer_ids = $this->confirmationIds();
+        $essays = $this->essay_service->some($this->confirmationIds());
         $changed = [];
         $unchanged = [];
 
-        foreach ($writer_ids as $writer_id) {
-            if (($writer = $this->writer_service->oneByWriterId($writer_id)) !== null) {
-                $user = $this->user_service->getUser($writer->getUserId());
-                $name = ($user?->getListname(false) ?? $this->plugin->txt('unknown')) . ' (' . $writer->getPseudonym() . ')';
-                $result = $this->correction_process->removeAuthorizations($this->task_info->getId(), $writer);
-                if ($result->isOk()) {
-                    $changed[] = $name;
-                } else {
-                    $unchanged[] = $name . ': ' . implode(', ', $result->failures());
-                }
+        foreach ($essays as $essay) {
+            $writer = $this->writer_service->oneByWriterId($essay->getWriterId());
+            $user = $this->user_service->getUser($writer->getUserId());
+            $task = $this->task_api->manager()->one($essay->getTaskId());
+            $name = ($user?->getListname(false) ?? $this->plugin->txt('unknown')) . ' (' . $writer->getPseudonym() . ')'
+                . ($this->object->getMultiTasks() ? ' - ' . $task->getTitle() : '');
+
+            $result = $this->correction_process->removeAuthorizations($essay->getTaskId(), $writer);
+            if ($result->isOk()) {
+                $changed[] = $name;
+            } else {
+                $unchanged[] = $name . ': ' . implode(', ', $result->failures());
             }
         }
 
@@ -150,8 +154,8 @@ class CorrectionAdminGUI extends BaseGUI
             "change_corrector",
             $this->plugin->txt('change_corrector'),
             $this->lng->txt("submit"),
-            [$this, 'changeCorrectorFields'],
-            [$this, 'changeCorrector'],
+            $this->changeCorrectorFields(...),
+            $this->changeCorrector(...),
             fn(CorrectionItem $item) => true,
             Action\Type::Standard
         )->withContent([
@@ -305,6 +309,7 @@ class CorrectionAdminGUI extends BaseGUI
     private function mailToWriterOrCorrectorFields(array $items): array
     {
         $fields = [
+            'info' => $this->getTableActionInfoField($items),
             'writer' => $this->ui_factory->input()->field()->checkbox($this->plugin->txt('participant'))
         ];
 
@@ -527,6 +532,18 @@ class CorrectionAdminGUI extends BaseGUI
             $this->removeAuthorizationsAction(),
             $this->exportTableAction(),
         ];
+    }
+
+    /**
+     * @param CorrectionItem[] $items
+     */
+    private function getTableActionInfoField(array $items): Input
+    {
+        return $this->plugin_ui_factory->field()->info($this->plugin->txt('writing_parts'))
+             ->withInfo($this->ui_factory->listing()->unordered(
+                 array_map(fn(CorrectionItem $item) => $item->getWriterName()
+                  . ($this->object->getMultiTasks() ? ', ' . $item->getTaskSettings()->getTitle() : ''), $items)
+             ));
     }
 
     protected function hasLocations(): bool

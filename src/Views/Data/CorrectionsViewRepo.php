@@ -43,11 +43,11 @@ class CorrectionsViewRepo extends ViewRepo implements \Edutiek\AssessmentService
         $sql .= "({$sub_sql}) AS corrections ";
         $sql .= "FROM {$this->writer_repo->table()} AS w ";
         $sql .= "JOIN {$this->task_repo->table()} AS t ON w.ass_id = t.ass_id ";
-        $sql .= "LEFT JOIN {$this->essay_repo->table()} AS e ON w.id = e.writer_id ";
+        $sql .= "LEFT JOIN {$this->essay_repo->table()} AS e ON w.id = e.writer_id AND t.task_id = e.task_id ";
         $sql .= "LEFT JOIN usr_data AS u ON u.usr_id = w.user_id ";
         $sql .= "LEFT JOIN object_reference AS r ON w.ass_id = r.obj_id ";
         $sql .= "WHERE " . ($this->where($filter) ?? "1") . " ";
-        $sql .= "GROUP BY writer_id, essay_id, user_id, location_id, authorized_by, excluded_by ";
+        $sql .= "GROUP BY writer_id, task_id, essay_id, user_id, location_id, authorized_by, excluded_by ";
 
         $query = $this->db->query($sql);
         $result = [];
@@ -78,6 +78,7 @@ class CorrectionsViewRepo extends ViewRepo implements \Edutiek\AssessmentService
                 $this->user_data_repo->dehydratedInstance($row['excluded_by'])
             );
         }
+
         array_map(fn(\ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\HydrationInterface $r) => $r->hydrate(), [
             $this->writer_repo, $this->location_repo, $this->user_data_repo, $this->user_display_repo, $this->task_repo,
             $this->properties_repo, $this->corrector_repo, $this->corrector_assignment_repo, $this->corrector_summary_repo
@@ -103,11 +104,12 @@ class CorrectionsViewRepo extends ViewRepo implements \Edutiek\AssessmentService
     public function whereCondition(string $key, mixed $value): ?string
     {
         return match($key) {
-            "id" => is_array($value) ? $this->db->in("w.id", $value, false, "integer") : "w.id = " . $this->db->quote($value, "integer"),
+            "writer_id" => is_array($value) ? $this->db->in("w.id", $value, false, "integer") : "w.id = " . $this->db->quote($value, "integer"),
+            "essay_id" => is_array($value) ? $this->db->in("e.id", $value, false, "integer") : "e.id = " . $this->db->quote($value, "integer"),
             "ass_id", "obj_id" => is_array($value) ? $this->db->in("w.ass_id", $value, false, "integer") : "w.ass_id = " . $this->db->quote($value, "integer"),
             "ref_id" => is_array($value) ? $this->db->in("r.ref_id", $value, false, "integer") : "r.ref_id = " . $this->db->quote($value, "integer"),
             "task_id", "task" => is_array($value) ? $this->db->in("t.task_id", $value, false, "integer") : "t.task_id = " . $this->db->quote($value, "integer"),
-            "name" => $this->db->like("CONCAT(u.firstname, u.lastname, u.login, u.email,w.pseudonym)", "text", "%". $value . "%", true),
+            "name" => $this->db->like("CONCAT(u.firstname, u.lastname, u.login, u.email,w.pseudonym)", "text", "%" . $value . "%", true),
             "time_limit_changed" => ($value == "1" ? "NOT" : "") . "(w.earliest_start IS NULL AND w.latest_end IS NULL AND w.time_limit_minutes IS NULL)",
             "location" => "writer.location = " . $this->db->quote($value, "integer"),
             default => null,

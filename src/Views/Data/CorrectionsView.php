@@ -9,7 +9,7 @@ use Edutiek\AssessmentService\Views\Data\EssayTaskSummary;
 use Edutiek\AssessmentService\Assessment\Data\Writer;
 use Edutiek\AssessmentService\Assessment\Data\Location;
 use Edutiek\AssessmentService\EssayTask\Data\Essay;
-use ILIAS\Plugin\LongEssayAssessment\Task\Data\Settings as Task;
+use Edutiek\AssessmentService\Task\Data\Settings as Task;
 
 class CorrectionsView extends \Edutiek\AssessmentService\Views\Data\CorrectionsView
 {
@@ -25,7 +25,7 @@ class CorrectionsView extends \Edutiek\AssessmentService\Views\Data\CorrectionsV
         private readonly ?UserData $finalized_by_data,
         private readonly ?UserData $authorized_by_data,
         private readonly ?UserData $excluded_by_data
-    ){
+    ) {
     }
 
     public function getTask(): Task

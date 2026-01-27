@@ -988,4 +988,15 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
             ]);
         }
     }
+
+    public function step_57(): void
+    {
+        if (!$this->db->tableColumnExists('xlas_et_essay', 'pdf_from_written_text')) {
+            $this->db->addTableColumn('xlas_et_essay', 'pdf_from_written_text', [
+                'type' => ilDBConstants::T_INTEGER,
+                'notnull' => true,
+                'default' => 0
+            ]);
+        }
+    }
 }

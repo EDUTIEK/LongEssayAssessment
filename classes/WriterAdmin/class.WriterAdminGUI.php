@@ -33,6 +33,7 @@ class WriterAdminGUI extends WriterTableGUI
                 switch ($cmd) {
                     case 'deliverEssayPdf':
                     case 'editPdfVersion':
+                    case 'changeTextToPdf':
                     case 'authorizeWriting':
                     case 'unauthorizeWriting':
                     case 'showItems':
@@ -110,16 +111,17 @@ class WriterAdminGUI extends WriterTableGUI
     {
         return [
             $this->viewProccessingAction(),
+            $this->downloadWritingAction(),
             $this->exportStepsAction(),
             $this->addLogEntryAction(),
             $this->mailToWriterAction(),
-            $this->authorizeWritingAction(),
-            $this->unauthorizeWritingAction(),
             $this->workingTimeChangeAction(),
             $this->workingTimeDeleteAction(),
             $this->changeLocationAction(),
-            $this->downloadWritingAction(),
+            $this->authorizeWritingAction(),
+            $this->unauthorizeWritingAction(),
             $this->editPdfVersionAction(),
+            $this->changeTextToPdfAction(),
             $this->excludeParticipantAction(),
             $this->repealExcludeParticipantAction(),
             $this->removeWriterAction(),

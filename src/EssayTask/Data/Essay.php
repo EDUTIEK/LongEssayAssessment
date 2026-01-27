@@ -40,6 +40,7 @@ class Essay extends \Edutiek\AssessmentService\EssayTask\Data\Essay
     private ?DateTimeImmutable $last_change = null;
     private int $service_version = 0;
     private ?DateTimeImmutable $first_change = null;
+    private int $pdf_from_written_text = 0;
 
     public function getId(): int
     {
@@ -129,6 +130,17 @@ class Essay extends \Edutiek\AssessmentService\EssayTask\Data\Essay
     public function setFirstChange(?DateTimeImmutable $first_change): self
     {
         $this->first_change = $first_change;
+        return $this;
+    }
+
+    public function hasPdfFromWrittenText(): bool
+    {
+        return (bool) $this->pdf_from_written_text;
+    }
+
+    public function setPdfFromWrittenText(bool $pdf_from_written_text): self
+    {
+        $this->pdf_from_written_text = (int) $pdf_from_written_text;
         return $this;
     }
 }

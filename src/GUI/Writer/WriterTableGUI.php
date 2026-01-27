@@ -464,6 +464,46 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
         $this->system_api->fileStorage()->deleteFile($file_id);
     }
 
+    public function changeTextToPdf()
+    {
+        $writer_ids = $this->confirmationIds();
+        $changed = [];
+        $unchanged = [];
+
+        foreach ($writer_ids as $writer_id) {
+            if (($writer = $this->writer_service->oneByWriterId($writer_id)) !== null) {
+                $user = $this->user_service->getUser($writer->getUserId());
+                $name = ($user?->getListname(false) ?? $this->plugin->txt('unknown')) . ' (' . $writer->getPseudonym() . ')';
+
+                $is_changed = false;
+                foreach ($this->task_api->manager()->all() as $task) {
+                    $essay = $this->essay_service->oneByWriterIdAndTaskId($writer->getId(), $task->getId());
+                    if (!empty($essay?->getWrittenText()) && empty($essay->getPdfVersion())) {
+                        $this->essay_service->textToPdf($essay);
+                        $is_changed = true;
+                    }
+                }
+
+                if ($is_changed) {
+                    $this->writer_service->authorizeWriting($writer, true);
+                    $changed[] = $name;
+                } else {
+                    $unchanged[] = $name;
+                }
+            }
+        }
+
+        $this->multiFeedback(
+            $changed,
+            $unchanged,
+            $this->plugin->txt('change_text_to_pdf_success'),
+            $this->plugin->txt('change_text_to_pdf_none_possible')
+        );
+
+        $this->ctrl->redirect($this);
+
+    }
+
     public function getColumnMapping(
         WriterItem|\ILIAS\Plugin\LongEssayAssessment\UI\Table\Item $item,
         ?array $additional_parameters
@@ -804,6 +844,19 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
         );
     }
 
+    protected function changeTextToPdfAction()
+    {
+        return $this->plugin_ui_factory->table()->action()->confirmation(
+            "change_text_to_pdf",
+            $this->plugin->txt("change_text_to_pdf"),
+            $this->plugin->txt("change_text_to_pdf"),
+            $this->plugin->txt("change_text_to_pdf_confirmation"),
+            $this->ctrl->getFormAction($this, 'changeTextToPdf'),
+            fn(WriterItem $item) => $item->getUserData()->getListname(true),
+            fn(WriterItem $item) => true,
+            Action\Type::Standard
+        );
+    }
 
     protected function editPdfVersionAction()
     {

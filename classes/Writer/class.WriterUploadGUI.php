@@ -180,7 +180,7 @@ class WriterUploadGUI extends BaseGUI
                 }
             }
 
-            if (!empty($essay->getWrittenText())) {
+            if (!empty($essay->getWrittenText() && !$essay->hasPdfFromWrittenText())) {
                 $content[] = $this->ui_factory->divider()->horizontal();
                 $content[] = $this->ui_factory->card()->standard($this->plugin->txt('pdf_version_header_writing'))
                                               ->withSections([$this->ui_factory->legacy($this->displayContent($essay->getWrittenText()))]);

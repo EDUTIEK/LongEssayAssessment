@@ -1106,7 +1106,7 @@ class CorrectorAdminService extends BaseService
                 $sum += $points;
                 $count_authorized++;
                 $count_by_level[$grade] = ($count_by_level[$grade] ?? 0) + 1;
-                $count_by_point[(int)ceil($points)] = ($count_by_point[$points] ?? 0) + 1;
+                $count_by_point[(int)ceil($points)] = ($count_by_point[(int)ceil($points)] ?? 0) + 1;
                 if (in_array($grade, $passed_levels)) {
                     $count_passed++;
                 }

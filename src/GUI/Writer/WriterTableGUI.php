@@ -617,7 +617,7 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
             "view_processing",
             $this->plugin->txt("view_processing"),
             $this->viewProcessing(...),
-            fn(WriterItem $item) => $item->getWriter()->canGetSight(),
+            fn(WriterItem $item) => true,
             Action\Type::Single
         )->withUpdateButton(false);
     }

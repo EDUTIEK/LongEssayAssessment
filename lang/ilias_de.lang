@@ -444,7 +444,7 @@ assign_location#:#Teilnahmeort zuweisen
 change_location#:#Teilnahmeort ändern
 location_assigned#:#Teilnahmeort erfolgreich zugewiesen.
 closing_message#:#Abschlussmeldung
-closing_message_info#:#Die Abschlussmeldung wird den Teilnehmenden nach der Abgabe im Reiter Meine Abgabe angezeigt.
+closing_message_info#:#Die Abschlussmeldung wird den Teilnehmenden nach der Abgabe im Reiter "Meine Abgabe" angezeigt.
 solution_is_not_available#:#Die Lösungshinweise werden aktuell nicht angezeigt. Sie können unter „Organisation ► Lösungshinweise verfügbar“ aktiviert werden.
 task_instructions_file#:#Aufgabenstellung als PDF
 task_solution_file#:#Lösungshinweise als PDF
@@ -774,7 +774,7 @@ essay_import_user_not_existing#:#User existiert nicht
 essay_import_same_file_exists#:#Gleiche Datei existiert
 essay_import_another_file_exists#:#Unterschiedliche Datei existiert bereits
 essay_import_invalid_zip_format#:#Invalides ZIP Format
-online_info#:#Die Aufgabe muss online geschalten sein, damit die bearbeitet und korrigiert werden kann. Andernfalls ist ist der Zugriff nur mit der Berechtigung "Einstellungen bearbeiten" möglich.
+online_info#:#Die Aufgabe muss online geschalten sein, damit sie bearbeitet und korrigiert werden kann. Andernfalls ist ist der Zugriff nur mit der Berechtigung "Einstellungen bearbeiten" möglich.
 is_template_info#:#Die Aufgabe kann als Vorlage für neue Aufgaben verwendet werden, die im Magazin auf der gleichen oder einer untergeordneten Magazinebene erstellt werden. Sie können Vorlagen verbergen, indem Sie ihre Berechtigung "Anzeigen" entfernen oder die Aufgabe einem nicht sichtbaren Objekteblock zuordnen.
 single_task#:#Einzelaufgabe
 single_task_info#:#Nur eine Aufgabenstellung ermöglichen. Die Bewertung kann dadurch mit Erst- und Zweitkorrektur durchgeführt werden. Diese Einstellung ist nicht änderbar.

@@ -190,7 +190,7 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
           'own_grade' => !$multi_task ? $cf->text($this->plugin->txt('own_grade'))->withIsOptional(true, true) : null,
           'other_correction' => $other_corrections ? $cf->text($this->plugin->txt('other_corrections'))->withIsOptional(true, false) : null,
           'result' => $cf->status($this->plugin->txt('result'))->withIsOptional(true, true)->withIsSortable(true),
-          'final_points' => $cfp->nullableNumber($this->plugin->txt("result") . ': ' . $this->plugin->txt('points'))->withIsOptional(true, false),
+          'final_points' => $cfp->nullableNumber($this->plugin->txt("result") . ': ' . $this->plugin->txt('points'))->withDecimals(true)->withIsOptional(true, false),
           'final_grade' => !$multi_task ? $cf->text($this->plugin->txt("result") . ': ' . $this->plugin->txt('grade'))->withIsOptional(true, false) : null,
         ];
     }

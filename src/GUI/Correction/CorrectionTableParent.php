@@ -179,7 +179,7 @@ class CorrectionTableParent implements DataTableParent, FilterParent
 
         $columns += [
             "result" => $cf->text($res)->withIsOptional(true, true)->withIsSortable(false),
-            "points" => $cfp->nullableNumber($res . ': ' . $this->plugin->txt("points"))->withIsOptional(true, false)->withIsSortable(true),
+            "points" => $cfp->nullableNumber($res . ': ' . $this->plugin->txt("points"))->withDecimals(true)->withIsOptional(true, false)->withIsSortable(true),
             "grade" => $cf->text($res . ': ' . $this->plugin->txt("grade"))->withIsOptional(true, false)->withIsSortable(true),
 
             "finalized" => $cf->text($fin)->withIsOptional(true, true)->withIsSortable(false),

@@ -35,6 +35,7 @@ use ILIAS\Plugin\LongEssayAssessment\GUI\Correction\CorrectionTableParent;
 use ILIAS\Plugin\LongEssayAssessment\GUI\Correction\CorrectionItem;
 use Edutiek\AssessmentService\Assessment\Data\CombinedStatus;
 use ILIAS\UI\Component\Input\Input;
+use ILIAS\Plugin\LongEssayAssessment\Jump;
 
 /**
  * Correction Admin GUI class
@@ -384,20 +385,22 @@ class CorrectionAdminGUI extends BaseGUI
         // TODO: implement download
     }
 
-    private function viewCorrectionAction(): Action\Direct
+    public function viewCorrection()
     {
-        return $this->plugin_ui_factory->table()->action()->direct(
-            "view_correction",
-            $this->plugin->txt('view_correction'),
-            [$this, "viewCorrections"],
-            fn(CorrectionItem $item) => true,
-            Action\Type::Single
+        $this->assessment_api->appService()->openCorrector(
+            $this->object->getContextId(),
+            \ilObjLongEssayAssessmentGUI::_link($this->object->getRefId(), Jump::CORRECTOR_ADMIN, true),
+            $this->get->integer('task_id'),
+            $this->get->integer('writer_id'),
+            true
         );
     }
 
-    public function viewCorrections(CorrectionItem $item)
+    public function viewCorrectionLink(int $task_id, int $writer_id): string
     {
-        //TODO: implement open corrector
+        $this->ctrl->setParameter($this, 'task_id', $task_id);
+        $this->ctrl->setParameter($this, 'writer_id', $writer_id);
+        return $this->ctrl->getLinkTarget($this, 'viewCorrection');
     }
 
     public function executeCommand()
@@ -411,6 +414,7 @@ class CorrectionAdminGUI extends BaseGUI
                     case 'showItems':
                     case 'removeAuthorizations':
                     case 'mailToWriterOrCorrector':
+                    case 'viewCorrection':
                         $this->$cmd();
                         break;
 
@@ -433,7 +437,13 @@ class CorrectionAdminGUI extends BaseGUI
         $multi = $this->getSettings()->getMultiTasks();
         $has_started = $this->getSettings()->getWritingStart() !== null ? $this->getSettings()->getWritingStart() < new \DateTimeImmutable() : true;
 
-        $table_parent = new CorrectionTableParent($this->dic, $this->plugin, [$this->object->getAssId()], $this->ctrl->getFormAction($this));
+        $table_parent = new CorrectionTableParent(
+            $this->dic,
+            $this->plugin,
+            [$this->object->getAssId()],
+            $this->ctrl->getFormAction($this),
+            $this->viewCorrectionLink(...)
+        );
         $table_parent->setHasColumns(
             array_merge(
                 ["image", "name", "login", "pseudonym", $location_avaiable ? "location" : null, "status", $multi ? "task" : null,
@@ -523,12 +533,11 @@ class CorrectionAdminGUI extends BaseGUI
     public function getTableActions(): array
     {
         return [
-//            $this->viewCorrectionAction(),
 //            $this->downloadWrittenPdfAction(),
 //            $this->downloadCorrectedPdfAction(),
+//            $this->exportStepsAction(),
             $this->mailToWriterOrCorrectorAction(),
             $this->changeCorrectorAction(),
-//            $this->exportStepsAction(),
             $this->removeAuthorizationsAction(),
             $this->exportTableAction(),
         ];

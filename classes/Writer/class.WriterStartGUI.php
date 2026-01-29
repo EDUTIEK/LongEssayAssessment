@@ -34,6 +34,7 @@ use Edutiek\AssessmentService\EssayTask\Data\WritingSettings as WritingSettings;
 use Edutiek\AssessmentService\EssayTask\Data\WritingType;
 use ILIAS\StaticURL\Builder\StandardURIBuilder;
 use Edutiek\AssessmentService\System\Config\Frontend;
+use ILIAS\Plugin\LongEssayAssessment\Jump;
 
 /**
  * @ilCtrl_isCalledBy ILIAS\Plugin\LongEssayAssessment\Writer\WriterStartGUI: ilObjLongEssayAssessmentGUI
@@ -193,7 +194,7 @@ class WriterStartGUI extends BaseGUI
         }
         $this->assessment_api->appService()->openWriter(
             $this->object->getContextId(),
-            $this->getReturnUrl()
+            \ilObjLongEssayAssessmentGUI::_link($this->object->getRefId(), Jump::WRITER, true)
         );
     }
 
@@ -204,7 +205,7 @@ class WriterStartGUI extends BaseGUI
         }
         $this->assessment_api->appService()->openWriter(
             $this->object->getContextId(),
-            $this->getReturnUrl()
+            \ilObjLongEssayAssessmentGUI::_link($this->object->getRefId(), Jump::WRITER, true)
         );
     }
 
@@ -299,16 +300,5 @@ class WriterStartGUI extends BaseGUI
                 $this->system_api->fileDelivery()->sendFile($resource->getFileId(), Disposition::ATTACHMENT);
             }
         }
-    }
-
-    private function getReturnUrl(): string
-    {
-        $builder = new StandardURIBuilder(ILIAS_HTTP_PATH, false);
-
-        return (string) $builder->build(
-            'xlas',
-            new ReferenceId($this->object->getRefId()),
-            ['writer']
-        );
     }
 }

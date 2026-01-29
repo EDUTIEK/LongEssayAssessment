@@ -40,6 +40,7 @@ use ILIAS\Plugin\LongEssayAssessment\UI\Table\Helper\HighligtedColumns;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\Helper\InitialVisibleColumns;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\Helper\HasFilterFields;
 use ILIAS\Plugin\LongEssayAssessment\View\Data\CorrectionsViewRepo;
+use Closure;
 
 class CorrectionTableParent implements DataTableParent, FilterParent
 {
@@ -64,8 +65,16 @@ class CorrectionTableParent implements DataTableParent, FilterParent
      */
     private array $actions = [];
 
-    public function __construct(Container $dic, \ilLongEssayAssessmentPlugin $plugin, private array $ass_ids, private string $base_action)
-    {
+    /**
+     * @param Closure(int $task_id, int $writer_id): string $correction_link
+     */
+    public function __construct(
+        Container $dic,
+        \ilLongEssayAssessmentPlugin $plugin,
+        private array $ass_ids,
+        private string $base_action,
+        private Closure $correction_link,
+    ) {
         $this->lng = $dic->language();
         $this->plugin = $plugin;
         $this->ui_factory = $dic->ui()->factory();
@@ -96,6 +105,7 @@ class CorrectionTableParent implements DataTableParent, FilterParent
             $ass_format,
             $task_format,
             $item,
+            $this->correction_link,
         );
     }
 
@@ -110,7 +120,7 @@ class CorrectionTableParent implements DataTableParent, FilterParent
 
         $columns = [
             "image" => $cfp->image($this->lng->txt("image"))->withIsOptional(true, false)->withIsSortable(false),
-            "name" => $cf->text($this->lng->txt("name"))->withIsOptional(false)->withIsSortable(true),
+            "name" => $cf->link($this->lng->txt("name"))->withIsOptional(false)->withIsSortable(true),
             "login" => $cf->text($this->lng->txt("login"))->withIsOptional(true, false)->withIsSortable(true),
             "pseudonym" => $cf->text($this->plugin->txt("pseudonym"))->withIsOptional(true, false)->withIsSortable(true),
             "location" => $cf->text($this->plugin->txt("location"))->withIsOptional(true, false)->withIsSortable(true),

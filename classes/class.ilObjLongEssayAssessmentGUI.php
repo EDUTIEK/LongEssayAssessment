@@ -26,6 +26,9 @@ use ILIAS\Plugin\LongEssayAssessment\Dashboard\DashboardGUI;
 use ILIAS\UI\Component\Input\Field\Radio;
 use ILIAS\Plugin\LongEssayAssessment\FixationGUI;
 use ILIAS\HTTP\Wrapper\ArrayBasedRequestWrapper;
+use ILIAS\StaticURL\Builder\StandardURIBuilder;
+use ILIAS\Data\ReferenceId;
+use ILIAS\Plugin\LongEssayAssessment\Jump;
 
 /**
  * Plugin GUI Class
@@ -58,16 +61,33 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
      */
     private $subtabs = [];
 
+    /**
+     * Get a permanent link
+     * @param int $ref_id ILIAS ref_id of the current assessment
+     * @param Jump $jump target to jump to
+     * @param bool $returned - indicate a return from a web app
+     * @see self::_goto()
+     */
+    public static function _link(int $ref_id, Jump $jump, bool $returned = false): string
+    {
+        $builder = new StandardURIBuilder(ILIAS_HTTP_PATH, false);
+
+        return (string) $builder->build(
+            'xlas',
+            new ReferenceId($ref_id),
+            $returned ? [$jump->value, 'returned'] : [$jump->value]
+        );
+    }
 
     /**
      * Redirection for goto links
      * Overrides standard function for plugins to use the own plugin dispatcher
      * Special treatment of a direct return from the writer or corrector web app
+     * @see self::_link()
      */
     public static function _goto($a_target): void
     {
         global $DIC;
-
 
         $t = explode("_", $a_target[0]);
         $ref_id = (int) $t[0];
@@ -81,11 +101,15 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                     $class_name = 'ilias\plugin\longessayassessment\corrector\correctorstartgui';
                 }
                 if ($t[1] == 'correctoradmin') {
-                    $class_name = 'ilias\plugin\longessayassessment\correctoradmin\correctoradmingui';
+                    $class_name = 'ilias\plugin\longessayassessment\correctionadmin\correctionadmingui';
                 }
                 if (isset($class_name)) {
+
+                    if ($t[2] ?? null === 'returned') {
+                        $DIC->ctrl()->setParameterByClass($class_name, "returned", '1');
+                    }
+
                     $DIC->ctrl()->setParameterByClass(self::class, "ref_id", $ref_id);
-                    $DIC->ctrl()->setParameterByClass($class_name, "returned", '1');
                     $DIC->ctrl()->redirectByClass(array(ilLongEssayAssessmentDispatchGUI::class, self::class, $class_name), "");
                 }
             }

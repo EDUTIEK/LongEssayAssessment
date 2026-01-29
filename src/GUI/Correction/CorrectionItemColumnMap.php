@@ -14,6 +14,7 @@ use ILIAS\Plugin\LongEssayAssessment\UI\Table\ColumnMappingArray;
 use Edutiek\AssessmentService\Assessment\Data\CombinedStatus;
 use Edutiek\AssessmentService\Assessment\Data\Writer;
 use Edutiek\AssessmentService\Assessment\Data\CorrectionStatus;
+use Closure;
 
 /**
  * Map from CorrectionItem to CorrectionAdminGUI table columns, which acts like an array.
@@ -26,6 +27,9 @@ class CorrectionItemColumnMap extends ColumnMappingArray
     private static array $grading_status = [];
     private static ?string $unknown = null;
 
+    /**
+     * @param Closure(int $task_id, int $writer_id): string $correction_link
+     */
     public function __construct(
         private \ilLanguage $lng,
         private \ilPlugin $plng,
@@ -36,6 +40,7 @@ class CorrectionItemColumnMap extends ColumnMappingArray
         private AssFormService $ass_format,
         private TaskFormService $task_format,
         private CorrectionItem $item,
+        private Closure $correction_link,
     ) {
     }
 
@@ -89,7 +94,10 @@ class CorrectionItemColumnMap extends ColumnMappingArray
 
         return match($key) {
             "image" => $this->image(),
-            "name" => $item->getWriterName() ?? $this->unknown(),
+            'name' => $this->ui_factory->link()->standard(
+                $item->getWriterName() ?? $this->unknown(),
+                ($this->correction_link)($item->getTaskSettings()->getTaskId(), $item->getWriter()->getId())
+            ),
             "login" => $item->getWriterLogin() ?? "",
             "pseudonym" => $item->getWriter()->getPseudonym(),
             "location" => $item->getLocation()?->getTitle() ?? "",

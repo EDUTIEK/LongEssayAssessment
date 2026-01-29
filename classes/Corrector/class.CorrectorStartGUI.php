@@ -39,6 +39,7 @@ use ILIAS\StaticURL\Builder\StandardURIBuilder;
 use Edutiek\AssessmentService\Assessment\Data\CorrectionProcedure;
 use Edutiek\AssessmentService\Assessment\Data\Writer;
 use Edutiek\AssessmentService\Task\CorrectionProcess\FullService as CorrectionProcess;
+use ILIAS\Plugin\LongEssayAssessment\Jump;
 
 /**
  *Start page for correctors
@@ -421,7 +422,7 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
         }
         $this->assessment_api->appService()->openCorrector(
             $this->object->getContextId(),
-            $this->getReturnUrl(),
+            \ilObjLongEssayAssessmentGUI::_link($this->object->getRefId(), Jump::CORRECTOR, true),
             $this->get->integer('task_id'),
             $this->get->integer('writer_id'),
         );
@@ -446,9 +447,12 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
             }
         }
 
-        $this->multiFeedback($changed, $unchanged,
+        $this->multiFeedback(
+            $changed,
+            $unchanged,
             $this->plugin->txt('authorize_correction_done'),
-            $this->plugin->txt('authorize_correction_failed'));
+            $this->plugin->txt('authorize_correction_failed')
+        );
 
         $this->ctrl->redirect($this);
     }
@@ -530,14 +534,4 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
         return $this->ctrl->getLinkTarget($this, 'applyFilter');
     }
 
-    private function getReturnUrl(): string
-    {
-        $builder = new StandardURIBuilder(ILIAS_HTTP_PATH, false);
-
-        return (string) $builder->build(
-            'xlas',
-            new ReferenceId($this->object->getRefId()),
-            ['corrector']
-        );
-    }
 }

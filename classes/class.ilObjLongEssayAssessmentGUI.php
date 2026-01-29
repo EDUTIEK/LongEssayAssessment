@@ -653,7 +653,7 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
             ];
             $tabs[] = [
                 'id' => 'tab_dashboard_log',
-                'txt' => $this->plugin->txt('tab_writer_admin_log'),
+                'txt' => $this->plugin->txt('tab_exam_log'),
                 'url' => $this->ctrl->getLinkTargetByClass(strtolower(ProtocolGUI::class))
             ];
         }

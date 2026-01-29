@@ -19,6 +19,8 @@ use ILIAS\UI\Component\Input\Container\Form\Standard;
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\BaseObjectData;
 use Edutiek\AssessmentService\Assessment\Data\Alert;
+use Edutiek\AssessmentService\System\Spreadsheet\ExportType;
+use Edutiek\AssessmentService\System\File\Disposition;
 
 /**
  * @ilCtrl_isCalledBy ILIAS\Plugin\LongEssayAssessment\Dashboard\ProtocolGUI: ilObjLongEssayAssessmentGUI
@@ -71,7 +73,7 @@ class ProtocolGUI extends BaseGUI
 
         $this->toolbar->addSeparator();
         $button_export = $this->ui_factory->button()->standard(
-            $this->plugin->txt("export_log"),
+            $this->plugin->txt("exam_log_export"),
             $this->ctrl->getLinkTarget($this, 'exportLog')
         );
         $this->toolbar->addComponent($button_export);
@@ -103,8 +105,8 @@ class ProtocolGUI extends BaseGUI
         }
 
         $items_log_entry = [];
-        foreach ($this->log_entry_service->all() as $log_entry)  {
-            $items_log_entry[] = $protocol_factory->logEntry($log_entry->getCategory(), $log_entry->getEntry()?? "", $log_entry->getTimestamp());
+        foreach ($this->log_entry_service->all() as $log_entry) {
+            $items_log_entry[] = $protocol_factory->logEntry($log_entry->getCategory(), $log_entry->getEntry() ?? "", $log_entry->getTimestamp());
         }
 
         $this->add(
@@ -139,7 +141,7 @@ class ProtocolGUI extends BaseGUI
                 $ret = $this->ctrl->getLinkTarget($this);
                 $close = new Signal((new \ILIAS\Data\UUID\Factory())->uuid4AsString());
                 $modal = $modal->withOnClose($close)
-                               ->withAdditionalOnLoadCode(fn ($id) => "$(document).on('$close', function() {window.location.replace('$ret');});");
+                               ->withAdditionalOnLoadCode(fn($id) => "$(document).on('$close', function() {window.location.replace('$ret');});");
 
                 $this->add($modal->withOnLoad($modal->getShowSignal()));
                 $this->showStartPage();
@@ -172,7 +174,7 @@ class ProtocolGUI extends BaseGUI
         }
     }
 
-    private function buildFormModalWriterNotice() : Standard
+    private function buildFormModalWriterNotice(): Standard
     {
         $options = array_replace(
             ["-1" => $this->plugin->txt("alert_recipient_all")],
@@ -198,7 +200,7 @@ class ProtocolGUI extends BaseGUI
         );
     }
 
-    private function buildFormModalLogEntry() : Standard
+    private function buildFormModalLogEntry(): Standard
     {
 
         $inputs = [
@@ -229,7 +231,7 @@ class ProtocolGUI extends BaseGUI
 
         foreach ($this->user_service->getUsersByIds($user_ids) as $usr_id => $user) {
             if (isset($writers[$usr_id])) {
-                $out[(string)$writers[$usr_id]->getId()] = $user->getListname(true);
+                $out[(string) $writers[$usr_id]->getId()] = $user->getListname(true);
             }
         }
 
@@ -238,8 +240,14 @@ class ProtocolGUI extends BaseGUI
 
     private function exportLog()
     {
-        // TODO: implement csv download
-        #$filename = ilFileDelivery::returnASCIIFilename($this->plugin->txt('export_log_file_prefix') .' ' . $this->object->getTitle()) . '.csv';
-        #$this->common_services->fileHelper()->deliverData($this->log_entry_service->createCsv(), $filename, 'text/csv');
+        $file_id = $this->log_entry_service->export(ExportType::CSV);
+        $this->system_api->fileDelivery()->sendFile(
+            $file_id,
+            Disposition::ATTACHMENT,
+            $this->system_api->fileStorage()->newInfo()
+                ->setFileName($this->plugin->txt('exam_log') . '.csv')
+                ->setMimeType('text/csv')
+        );
+        $this->system_api->fileStorage()->deleteFile($file_id);
     }
 }

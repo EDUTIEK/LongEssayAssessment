@@ -66,7 +66,7 @@ tab_writer_start#:#Meine Aufgabe
 tab_corrector#:#Meine Korrektur
 tab_corrector_start#:#Abgaben
 tab_writer_admin#:#Teilnahmeverwaltung
-tab_writer_admin_log#:#Aufsichtsprotokoll
+tab_exam_log#:#Prüfungsprotokoll
 tab_corrector_admin#:#Korrekturverwaltung
 tab_corrector_export#:#Abgaben exportieren
 tab_dashboard#:#Aufsicht
@@ -350,8 +350,8 @@ via_stitch_decision#:#per Stichentscheid
 remove_writer#:#Teilnahme entfernen
 remove_writer_confirmation#:#Sind Sie sicher, dass Sie die Teilnehmer-Daten unwiderruflich entfernen möchten?<br>Bitte bestätigen Sie das durch Eingabe einer Begründung. Ihre Aktion wird mit dieser Begründung protokolliert.
 remove_writer_success#:#Teilnahme erfolgreich entfernt.
-export_log#:#Aufsichtsprotokoll exportieren
-export_log_file_prefix#:#Aufsichtsprotokoll
+exam_log_export#:#Prüfungsprotokoll exportieren
+exam_log#:#Prüfungsprotokoll
 log_time#:#Zeit
 log_until#:#Bis
 log_category#:#Kategorie

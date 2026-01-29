@@ -132,9 +132,9 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
     {
         $this->assessment_api->logEntry()->addEntry(
             LogEntryType::WRITER_NOTE,
-            LogEntryMention::fromSystem($writer->getWriter()->getUserId()),
             LogEntryMention::fromSystem($this->user->getId()),
-            $data['entry'] ?? ""
+            LogEntryMention::fromSystem($writer->getWriter()->getUserId()),
+            $data['reason'] ?? ""
         );
 
         $this->tpl->setOnScreenMessage("success", $this->plugin->txt("log_entry_created"), true);
@@ -644,13 +644,6 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
             fn(WriterItem $writer) => true,
             Action\Type::Standard
         );
-    }
-
-    public function addLogEntryFields(WriterItem $writer)
-    {
-        return [
-            $this->ui_factory->input()->field()->textarea($this->plugin->txt("log_entry_text")),
-        ];
     }
 
     protected function mailToWriterAction()

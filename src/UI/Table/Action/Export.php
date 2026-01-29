@@ -4,6 +4,7 @@ namespace ILIAS\Plugin\LongEssayAssessment\UI\Table\Action;
 
 use ILIAS\UI\Implementation\Component\Table\Data;
 use ILIAS\UI\Implementation\Component\Table\Column\Column;
+use ILIAS\UI\Implementation\Component\Link\Standard as Link;
 use ILIAS\Plugin\LongEssayAssessment\UI\Item\FormGroup;
 use ILIAS\Plugin\LongEssayAssessment\UI\Item\FormItem;
 use ILIAS\Filesystem\Stream\Stream;
@@ -12,6 +13,8 @@ use ILIAS\UI\Component\Table\DataRow;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\Item;
 use ILIAS\UI\Component\Component;
 use ILIAS\Data\Range;
+use Exception;
+use Throwable;
 
 class Export extends Action
 {
@@ -102,7 +105,7 @@ class Export extends Action
             $c = 0;
             $r++;
             foreach ($columns as $column) {
-                $excel->setCell($r, $c++, $row[$column]??"");
+                $excel->setCell($r, $c++, $this->cellContent($row[$column] ?? ""));
             }
         }
         $tmp = $excel->writeToTmpFile();
@@ -122,11 +125,25 @@ class Export extends Action
         foreach ($rows as $row) {
             $csv->addRow();
             foreach ($columns as $column) {
-                $csv->addColumn($row[$column]??"");
+                $csv->addColumn($this->cellContent($row[$column] ?? ""));
             }
         }
 
         return Streams::ofString($csv->getCSVString());
+    }
+
+
+    private function cellContent(mixed $value): string
+    {
+        try {
+            if ($value instanceof Link) {
+                return $value->getLabel();
+            }
+            return (string) $value;
+        }
+        catch(Throwable $e) {
+            return 'Unsupported Type' . gettype($value);
+        }
     }
 
     private function itemToRow(FormItem $item): array

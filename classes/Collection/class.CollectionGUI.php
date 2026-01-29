@@ -134,7 +134,12 @@ class CollectionGUI
         $corrections = $this->corrections_view->visibleCorrectors($ass_ids);
 
         $this->ctrl->setParameter($this, 'ref_id', $this->object->getRefId());
-        $table_parent = new CorrectionTableParent($this->dic, $this->plugin, $ass_ids, $this->ctrl->getFormAction($this, "correctionStatus"));
+        $table_parent = new CorrectionTableParent(
+            $this->dic,
+            $this->plugin,
+            $ass_ids,
+            $this->ctrl->getFormAction($this, "correctionStatus")
+        );
         $table_parent
             ->setHasColumns(
                 array_merge(

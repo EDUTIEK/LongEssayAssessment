@@ -40,7 +40,7 @@ class CorrectionItemColumnMap extends ColumnMappingArray
         private AssFormService $ass_format,
         private TaskFormService $task_format,
         private CorrectionItem $item,
-        private Closure $correction_link,
+        private ?Closure $correction_link = null,
     ) {
     }
 
@@ -94,10 +94,12 @@ class CorrectionItemColumnMap extends ColumnMappingArray
 
         return match($key) {
             "image" => $this->image(),
-            'name' => $this->ui_factory->link()->standard(
-                $item->getWriterName() ?? $this->unknown(),
-                ($this->correction_link)($item->getTaskSettings()->getTaskId(), $item->getWriter()->getId())
-            ),
+            'name' => isset($this->correction_link)
+                ? $this->ui_factory->link()->standard(
+                    $item->getWriterName() ?? $this->unknown(),
+                    ($this->correction_link)($item->getTaskSettings()->getTaskId(), $item->getWriter()->getId())
+                )
+                : $item->getWriterName() ?? $this->unknown(),
             "login" => $item->getWriterLogin() ?? "",
             "pseudonym" => $item->getWriter()->getPseudonym(),
             "location" => $item->getLocation()?->getTitle() ?? "",

@@ -73,7 +73,7 @@ class CorrectionTableParent implements DataTableParent, FilterParent
         \ilLongEssayAssessmentPlugin $plugin,
         private array $ass_ids,
         private string $base_action,
-        private Closure $correction_link,
+        private ?Closure $correction_link = null,
     ) {
         $this->lng = $dic->language();
         $this->plugin = $plugin;
@@ -119,13 +119,15 @@ class CorrectionTableParent implements DataTableParent, FilterParent
         $date_with_seconds = $df->dateFormat()->amend($date_without_seconds)->colon()->seconds()->get();
 
         $columns = [
+            "assessment" => $cf->text($this->plugin->txt("assessment"))->withIsOptional(false)->withIsSortable(true),
             "image" => $cfp->image($this->lng->txt("image"))->withIsOptional(true, false)->withIsSortable(false),
-            "name" => $cf->link($this->lng->txt("name"))->withIsOptional(false)->withIsSortable(true),
+            "name" => isset($this->correction_link)
+                ? $cf->link($this->lng->txt("name"))->withIsOptional(false)->withIsSortable(true)
+                : $cf->text($this->lng->txt("name"))->withIsOptional(false)->withIsSortable(true),
             "login" => $cf->text($this->lng->txt("login"))->withIsOptional(true, false)->withIsSortable(true),
             "pseudonym" => $cf->text($this->plugin->txt("pseudonym"))->withIsOptional(true, false)->withIsSortable(true),
             "location" => $cf->text($this->plugin->txt("location"))->withIsOptional(true, false)->withIsSortable(true),
-            "assessment" => $cf->text($this->plugin->txt("assessment"))->withIsOptional(true, true)->withIsSortable(true),
-            "task" => $cf->text($this->plugin->txt("task"))->withIsOptional(true, true)->withIsSortable(true),
+            "task" => $cf->text($this->plugin->txt("task"))->withIsOptional(false)->withIsSortable(true),
             "status" => $cf->status($this->plugin->txt("status"))->withIsOptional(true, true)->withIsSortable(true),
             "writing_last_save" => $cfp->nullableDate(
                 $this->plugin->txt("writing_last_save"),

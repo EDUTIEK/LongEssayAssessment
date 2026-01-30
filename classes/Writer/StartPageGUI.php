@@ -456,7 +456,7 @@ class StartPageGUI extends BaseGUI
         foreach ($tasks as $task) {
             $items = $this->writingItems($task);
             if ($items) {
-                $title = $is_one ? $this->plugin->txt('task') : $task->getTitle();
+                $title = $is_one ? $this->plugin->txt('assessment') : $task->getTitle();
                 $popover = $this->ui_factory->popover()->listing($items)->withTitle($title);
                 $this->add($popover);
                 $add($this->ui_factory->button()->shy($title, '#')->withOnClick($popover->getShowSignal()));

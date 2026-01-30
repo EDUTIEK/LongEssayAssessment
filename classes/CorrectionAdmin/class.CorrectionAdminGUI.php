@@ -164,22 +164,29 @@ class CorrectionAdminGUI extends BaseGUI
         ])->withTransformations([$this, "changeCorrectorCheck"]);
     }
 
+    /**
+     * @param CorrectionItem[] $items
+     */
     public function changeCorrectorCheck(array $items): array
     {
         $writer_ids = array_map(fn(CorrectionItem $item) => $item->getWriter()->getId(), $items);
 
         return [
             $this->refinery->custom()->constraint(
-                function (array $var) use ($writer_ids) {
-                    $result = $this->assignment_service->assignMultiple(
-                        $this->task_info->getId(),
-                        $var["first_corrector"] ?? CorrectorAssignmentsService::UNCHANGED_CORRECTOR_ASSIGNMENT,
-                        $var["second_corrector"] ?? CorrectorAssignmentsService::UNCHANGED_CORRECTOR_ASSIGNMENT,
-                        $var["stitch_corrector"] ?? CorrectorAssignmentsService::UNCHANGED_CORRECTOR_ASSIGNMENT,
-                        $writer_ids,
-                        true
-                    );
-                    return count($result['invalid']) === 0;
+                function (array $var) use ($items) {
+                    $valid = true;
+                    foreach ($items as $item) {
+                        $result = $this->assignment_service->assignMultiple(
+                            $item->getTaskSettings()->getTaskId(),
+                            $data["first_corrector"] ?? CorrectorAssignmentsService::UNCHANGED_CORRECTOR_ASSIGNMENT,
+                            $data["second_corrector"] ?? CorrectorAssignmentsService::UNCHANGED_CORRECTOR_ASSIGNMENT,
+                            $data["stitch_corrector"] ?? CorrectorAssignmentsService::UNCHANGED_CORRECTOR_ASSIGNMENT,
+                            [$item->getWriter()->getId()],
+                            true
+                        );
+                        $valid = $valid && empty($result['invalid']);
+                    }
+                    return $valid;
                 },
                 $this->plugin->txt("invalid_assignment_combinations_error")
             )
@@ -198,7 +205,6 @@ class CorrectionAdminGUI extends BaseGUI
         ];
 
         $corrector_ids = [];
-
         foreach ($this->corrector_service->all() as $corrector) {
             $corrector_ids[$corrector->getId()] = $corrector->getUserId();
         }
@@ -208,61 +214,41 @@ class CorrectionAdminGUI extends BaseGUI
             $corrector_list[$id] = $names[$user_id];
         }
 
+        $assigned = [];
+        if (count($items) == 1) { // Pre set the assigned correctors if its just one corrector
+            $item = reset($items);
+            foreach ($this->assignment_service->allByTaskIdAndWriterId(
+                $item->getTaskSettings()->getTaskId(), $item->getWriter()->getId()) as $assignment) {
+                $assigned[$assignment->getPosition()->value] = $assignment->getCorrectorId();
+            }
+        }
+
         $fields = [];
         $fields["first_corrector"] = $this->ui_factory->input()->field()->select(
             $this->correctorLabel(0),
             $corrector_list
-        )->withRequired(true)
-                                                      ->withValue(CorrectorAssignmentsService::UNCHANGED_CORRECTOR_ASSIGNMENT)
-                                                      ->withAdditionalTransformation($this->refinery->kindlyTo()->int());
+        )->withRequired(true)->withValue(
+            $assigned[0] ?? CorrectorAssignmentsService::UNCHANGED_CORRECTOR_ASSIGNMENT
+        )->withAdditionalTransformation($this->refinery->kindlyTo()->int());
 
         if ($this->correction_settings->getRequiredCorrectors() > 1) {
             $fields["second_corrector"] = $this->ui_factory->input()->field()->select(
                 $this->correctorLabel(1),
                 $corrector_list
-            )->withRequired(true)
-                                                           ->withValue(CorrectorAssignmentsService::UNCHANGED_CORRECTOR_ASSIGNMENT)
-                                                           ->withAdditionalTransformation($this->refinery->kindlyTo()->int());
+            )->withRequired(true)->withValue(
+                $assigned[1] ?? CorrectorAssignmentsService::UNCHANGED_CORRECTOR_ASSIGNMENT
+            )->withAdditionalTransformation($this->refinery->kindlyTo()->int());
 
             if (count($items) == 1 && $items[0]->getWriter()->getCombinedStatus() === CombinedStatus::STITCH_NEEDED) {
                 $fields["stitch_corrector"] = $this->ui_factory->input()->field()->select(
                     $this->correctorLabel(2),
                     $corrector_list
-                )->withRequired(true)
-                                                               ->withValue(CorrectorAssignmentsService::UNCHANGED_CORRECTOR_ASSIGNMENT)
-                                                               ->withAdditionalTransformation($this->refinery->kindlyTo()->int());
+                )->withRequired(true)->withValue(
+                    $assigned[2] ?? CorrectorAssignmentsService::UNCHANGED_CORRECTOR_ASSIGNMENT
+                )->withAdditionalTransformation($this->refinery->kindlyTo()->int());
             }
         }
 
-        if (count($items) == 1) { // Pre set the assigned correctors if its just one corrector
-            $item = array_pop($items);
-            $assignments = [];
-            foreach ($this->assignment_service->allByWriterId($item->getWriter()->getId()) as $assignment) {
-                $assignments[$assignment->getPosition()->value] = $assignment;
-            }
-
-            $fields["first_corrector"] = $fields["first_corrector"]->withValue(
-                isset($assignments[0]) ?
-                    $assignments[0]->getCorrectorId() :
-                    CorrectorAssignmentsService::UNCHANGED_CORRECTOR_ASSIGNMENT
-            );
-
-            if ($this->correction_settings->getRequiredCorrectors() > 1) {
-                $fields["second_corrector"] = $fields["second_corrector"]->withValue(
-                    isset($assignments[1]) ?
-                        $assignments[1]->getCorrectorId() :
-                        CorrectorAssignmentsService::UNCHANGED_CORRECTOR_ASSIGNMENT
-                );
-
-                if ($item->getWriter()->getCombinedStatus() === CombinedStatus::STITCH_NEEDED) {
-                    $fields["stitch_corrector"] = $fields["stitch_corrector"]->withValue(
-                        isset($assignments[2]) ?
-                            $assignments[2]->getCorrectorId() :
-                            CorrectorAssignmentsService::UNCHANGED_CORRECTOR_ASSIGNMENT
-                    );
-                }
-            }
-        }
         return $fields;
     }
 
@@ -278,15 +264,21 @@ class CorrectionAdminGUI extends BaseGUI
         };
     }
 
+    /**
+     * @param CorrectionItem[] $items
+     */
     public function changeCorrector(array $items, array $data)
     {
-        $this->assignment_service->assignMultiple(
-            $this->task_info->getId(),
-            $data["first_corrector"] ?? CorrectorAssignmentsService::UNCHANGED_CORRECTOR_ASSIGNMENT,
-            $data["second_corrector"] ?? CorrectorAssignmentsService::UNCHANGED_CORRECTOR_ASSIGNMENT,
-            $data["stitch_corrector"] ?? CorrectorAssignmentsService::UNCHANGED_CORRECTOR_ASSIGNMENT,
-            array_map(fn(CorrectionItem $x) => $x->getWriter()->getId(), $items)
-        );
+        foreach ($items as $item) {
+            $this->assignment_service->assignMultiple(
+                $item->getTaskSettings()->getTaskId(),
+                $data["first_corrector"] ?? CorrectorAssignmentsService::UNCHANGED_CORRECTOR_ASSIGNMENT,
+                $data["second_corrector"] ?? CorrectorAssignmentsService::UNCHANGED_CORRECTOR_ASSIGNMENT,
+                $data["stitch_corrector"] ?? CorrectorAssignmentsService::UNCHANGED_CORRECTOR_ASSIGNMENT,
+                [$item->getWriter()->getId()]
+            );
+        }
+
         $this->tpl->setOnScreenMessage("success", $this->plugin->txt("corrector_assignment_changed"), true);
         $this->ctrl->redirect($this, 'showItems');
     }

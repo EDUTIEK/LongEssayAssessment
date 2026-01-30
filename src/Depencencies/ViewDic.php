@@ -19,6 +19,9 @@ use ILIAS\Plugin\LongEssayAssessment\Task\Data\CorrectorAssignment;
 use ILIAS\Plugin\LongEssayAssessment\Task\Data\CorrectorSummary;
 use ILIAS\Plugin\LongEssayAssessment\Assessment\Data\Corrector;
 use Edutiek\AssessmentService\Views\Api\ForClients;
+use ILIAS\Plugin\LongEssayAssessment\View\Data\StatisticViewRepo;
+use ILIAS\Plugin\LongEssayAssessment\Assessment\Data\GradeLevel;
+use ILIAS\Plugin\LongEssayAssessment\Assessment\Data\CorrectionSettings;
 
 class ViewDic implements ForClients
 {
@@ -59,4 +62,19 @@ class ViewDic implements ForClients
             new \DateTimeZone($this->dic->user()->getTimeZone())
         );
     }
+
+    public function statistic()
+    {
+        return new StatisticViewRepo(
+            $this->dic->database(),
+            $this->add(Writer::class),
+            $this->add(Corrector::class),
+            $this->add(GradeLevel::class),
+            $this->add(CorrectorSummary::class),
+            $this->add(CorrectionSettings::class),
+            $this->dic[AssessmentDic::class]->repositories()->properties(),
+            $this->dic[SystemDic::class]->userDataRepo(),
+        );
+    }
+
 }

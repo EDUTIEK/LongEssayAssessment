@@ -25,10 +25,17 @@ use ILIAS\Plugin\LongEssayAssessment\Settings\DocumentationSettingsGUI;
 use ILIAS\Plugin\LongEssayAssessment\Dashboard\DashboardGUI;
 use ILIAS\UI\Component\Input\Field\Radio;
 use ILIAS\Plugin\LongEssayAssessment\FixationGUI;
+<<<<<<< Updated upstream
 use ILIAS\HTTP\Wrapper\ArrayBasedRequestWrapper;
 use ILIAS\StaticURL\Builder\StandardURIBuilder;
 use ILIAS\Data\ReferenceId;
 use ILIAS\Plugin\LongEssayAssessment\Jump;
+=======
+use ILIAS\Plugin\LongEssayAssessment\CorrectionAdmin\CorrectorAdminStatisticsGUI;
+use ILIAS\Plugin\LongEssayAssessment\CorrectionAdmin\CorrectorAdminWriterStatisticsGUI;
+use ILIAS\Plugin\LongEssayAssessment\Writer\WriterStatisticsGUI;
+use ILIAS\Plugin\LongEssayAssessment\Corrector\CorrectorStatisticsGUI;
+>>>>>>> Stashed changes
 
 /**
  * Plugin GUI Class
@@ -230,12 +237,12 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                         $this->ctrl->forwardCommand(new WriterStartGUI($this->object));
                     }
                     break;
-                    //                case 'ilias\plugin\longessayassessment\writer\writerstatisticsgui':
-                    //                    if ($this->permissions->canViewWriterStatistics()) {
-                    //                        $this->activateTab('tab_writer', 'tab_writer_statistic');
-                    //                        $this->ctrl->forwardCommand(new \ILIAS\Plugin\LongEssayAssessment\Writer\WriterStatisticsGUI($this));
-                    //                    }
-                    //                    break;
+                case strtolower(WriterStatisticsGUI::class):
+                    if ($this->permissions->canViewWriterStatistics()) {
+                        $this->activateTab('tab_writer', 'tab_writer_statistic');
+                        $this->ctrl->forwardCommand(new WriterStatisticsGUI($this->object));
+                    }
+                    break;
                 case strtolower(WriterUploadGUI::class):
                     if ($this->query->has('writer_id') && $this->permissions->canMaintainWriters()) {
                         $this->activateTab('tab_writer_admin');
@@ -300,31 +307,30 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                         $this->ctrl->forwardCommand(new FixationGUI($this->object));
                     }
                     break;
-
-                    //                case 'ilias\plugin\longessayassessment\correctoradmin\correctoradminstatisticsgui':
-                    //                    if ($this->permissions->canMaintainCorrectors()) {
-                    //                        $cmd = $this->ctrl->getCmd('showStartPage');
-                    //                        $active_sub = 'tab_corrector_adm_statistic';
-                    //                        $this->activateTab('tab_corrector_admin', $active_sub);
-                    //                        $this->ctrl->forwardCommand(new \ILIAS\Plugin\LongEssayAssessment\CorrectorAdmin\CorrectorAdminStatisticsGUI($this));
-                    //                    }
-                    //                    break;
-                    //                case 'ilias\plugin\longessayassessment\correctoradmin\correctoradminwriterstatisticsgui':
-                    //                    if ($this->permissions->canMaintainCorrectors()) {
-                    //                        $cmd = $this->ctrl->getCmd('showStartPage');
-                    //                        $active_sub = 'tab_writer_statistic';
-                    //                        $this->activateTab('tab_corrector_admin', $active_sub);
-                    //                        $this->ctrl->forwardCommand(new \ILIAS\Plugin\LongEssayAssessment\CorrectorAdmin\CorrectorAdminWriterStatisticsGUI($this));
-                    //                    }
-                    //                    break;
-                    //                case 'ilias\plugin\longessayassessment\corrector\correctorstatisticsgui':
-                    //                    if ($this->permissions->canViewCorrectorScreen()) {
-                    //                        $cmd = $this->ctrl->getCmd('showStartPage');
-                    //                        $active_sub = 'tab_corrector_statistic';
-                    //                        $this->activateTab('tab_corrector', $active_sub);
-                    //                        $this->ctrl->forwardCommand(new \ILIAS\Plugin\LongEssayAssessment\Corrector\CorrectorStatisticsGUI($this));
-                    //                    }
-                    //                    break;
+                case strtolower(CorrectorAdminStatisticsGUI::class):
+                    if ($this->permissions->canViewCorrectionStatistics()) {
+                        $cmd = $this->ctrl->getCmd('showStartPage');
+                        $active_sub = 'tab_corrector_adm_statistic';
+                        $this->activateTab('tab_corrector_admin', $active_sub);
+                        $this->ctrl->forwardCommand(new CorrectorAdminStatisticsGUI($this->object));
+                    }
+                    break;
+                case strtolower(CorrectorAdminWriterStatisticsGUI::class):
+                    if ($this->permissions->canMaintainCorrectors()) {
+                        $cmd = $this->ctrl->getCmd('showStartPage');
+                        $active_sub = 'tab_writer_statistic';
+                        $this->activateTab('tab_corrector_admin', $active_sub);
+                        $this->ctrl->forwardCommand(new CorrectorAdminWriterStatisticsGUI($this->object));
+                    }
+                    break;
+                case strtolower(CorrectorStatisticsGUI::class):
+                    if ($this->permissions->canViewCorrectionStatistics()) {
+                        $cmd = $this->ctrl->getCmd('showStartPage');
+                        $active_sub = 'tab_corrector_statistic';
+                        $this->activateTab('tab_corrector', $active_sub);
+                        $this->ctrl->forwardCommand(new CorrectorStatisticsGUI($this->object));
+                    }
+                    break;
                 default:
                     $this->tpl->setOnScreenMessage(Gti::MESSAGE_TYPE_FAILURE, 'Unsupported cmdClass: ' . $next_class, true);
             }
@@ -359,7 +365,7 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
             $switches['ref'] = $this->ui_factory->input()->field()->group([
                 'id' => array_reduce(
                     $this->templates(),
-                    fn(Radio $r, array $o) => $r->withOption(...$o),
+                    fn (Radio $r, array $o) => $r->withOption(...$o),
                     $this->ui_factory->input()->field()->radio($txt('template'))
                 ),
             ], $txt('use_template'));
@@ -601,12 +607,14 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
             //                    'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessayassessment\corrector\correctorcriteriagui')
             //                ];
             //            }
-            //            $tabs[] = [
-            //                'id' => 'tab_corrector_statistic',
-            //                'txt' => $this->plugin->txt('tab_corrector_statistic'),
-            //                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessayassessment\corrector\correctorstatisticsgui')
-            //            ];
-            //        }
+            if ($this->permissions->canViewCorrectionStatistics()) {
+                $tabs[] = [
+                    'id' => 'tab_corrector_statistic',
+                    'txt' => $this->plugin->txt('tab_corrector_statistic'),
+                    'url' => $this->ctrl->getLinkTargetByClass(strtolower(CorrectorStatisticsGUI::class))
+                ];
+            }
+
             //        if ($this->permissions->canWriteCorrectionReport()) {
             //            $tabs[] = [
             //                'id' => 'tab_correction_report',
@@ -629,14 +637,14 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
             ];
 
         }
-        //        if ($this->permissions->canViewWriterStatistics()) {
-        //            $tabs[] = [
-        //                'id' => 'tab_writer_statistic',
-        //                'txt' => $this->plugin->txt('tab_statistic'),
-        //                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessayassessment\writer\writerstatisticsgui')
-        //            ];
-        //
-        //        }
+        if ($this->permissions->canViewWriterStatistics()) {
+            $tabs[] = [
+                'id' => 'tab_writer_statistic',
+                'txt' => $this->plugin->txt('tab_statistic'),
+                'url' => $this->ctrl->getLinkTargetByClass(strtolower(WriterStatisticsGUI::class))
+            ];
+
+        }
         if (!empty($tabs)) {
             $this->tabs->addTab('tab_writer', $this->plugin->txt('tab_writer'), $tabs[0]['url']);
             $this->subtabs['tab_writer'] = $tabs;
@@ -689,16 +697,18 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                 'txt' => $this->plugin->txt('tab_corrector_list'),
                 'url' => $this->ctrl->getLinkTargetByClass(strtolower(CorrectorGUI::class), "showItems")
             ];
-            //            $tabs[] = [
-            //                'id' => 'tab_corrector_adm_statistic',
-            //                'txt' => $this->plugin->txt('tab_corrector_admin_statistic'),
-            //                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessayassessment\correctorAdmin\correctoradminstatisticsgui', "showStartPage")
-            //            ];
-            //            $tabs[] = [
-            //                'id' => 'tab_writer_statistic',
-            //                'txt' => $this->plugin->txt('tab_writer_statistic'),
-            //                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessayassessment\correctorAdmin\correctoradminwriterstatisticsgui', "showStartPage")
-            //            ];
+            if ($this->permissions->canViewCorrectionStatistics()) {
+                $tabs[] = [
+                    'id' => 'tab_corrector_adm_statistic',
+                    'txt' => $this->plugin->txt('tab_corrector_admin_statistic'),
+                    'url' => $this->ctrl->getLinkTargetByClass(strtolower(CorrectorAdminStatisticsGUI::class), "showStartPage")
+                ];
+            }
+            $tabs[] = [
+                'id' => 'tab_writer_statistic',
+                'txt' => $this->plugin->txt('tab_writer_statistic'),
+                'url' => $this->ctrl->getLinkTargetByClass(strtolower(CorrectorAdminWriterStatisticsGUI::class), "showStartPage")
+            ];
         }
         if (!empty($tabs)) {
             $this->tabs->addTab('tab_corrector_admin', $this->plugin->txt('tab_corrector_admin'), $tabs[0]['url']);

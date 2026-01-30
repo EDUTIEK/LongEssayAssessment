@@ -36,13 +36,13 @@ class DashboardGUI extends WriterTableGUI
     public function showItems(): void
     {
         $lsp_f = $this->plugin_ui_factory->liveStatusPanel();
-        $live_panel = $lsp_f->panel("Status", $this->ctrl->getLinkTarget($this, "liveData"))
+        $live_panel = $lsp_f->panel("Schreib-Status", $this->ctrl->getLinkTarget($this, "liveData"))
         ->withAdditionalProperties([
             $lsp_f->property('online', 'Online', 0, '#online'),
             $lsp_f->property('offline', 'Offline', 0, '#offline'),
-            $lsp_f->property('connection', 'Verbindungsprobleme', 0, '#connection'),
             $lsp_f->property('battery', 'niedriger Batteriestatus', 0, '#battery'),
-            $lsp_f->property('locked', 'gesperrte Bildschirme', 0, '#locked'),
+            $lsp_f->property('locked', 'gesperrter Bildschirm', 0, '#locked'),
+            $lsp_f->property('multi', 'Mehrfach-Login', 0, '#multi'),
         ]);
 
         $table = $this->plugin_ui_factory->table()->dataTable('writer_admin_table', $this);

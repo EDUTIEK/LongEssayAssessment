@@ -49,6 +49,11 @@ class SettingsRepo implements \Edutiek\AssessmentService\Task\Data\SettingsRepo
         return $this->repo->countBy(['ass_id' => $ass_id]);
     }
 
+    public function idsByAssId(int $ass_id): array
+    {
+        return $this->repo->queryIntegersBy(['ass_id' => $ass_id], 'task_id');
+    }
+
     public function allByAssId(int $ass_id): array
     {
         return $this->repo->queryAllBy(['ass_id' => $ass_id]);

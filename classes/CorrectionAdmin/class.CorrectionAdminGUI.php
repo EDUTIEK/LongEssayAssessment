@@ -3,6 +3,7 @@
 namespace ILIAS\Plugin\LongEssayAssessment\CorrectionAdmin;
 
 use Edutiek\AssessmentService\Assessment\Data\CorrectionStatus;
+use Edutiek\AssessmentService\Assessment\Data\WritingTask;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\DataTableParent;
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Test\Participants\TableAction;
@@ -218,7 +219,9 @@ class CorrectionAdminGUI extends BaseGUI
         if (count($items) == 1) { // Pre set the assigned correctors if its just one corrector
             $item = reset($items);
             foreach ($this->assignment_service->allByTaskIdAndWriterId(
-                $item->getTaskSettings()->getTaskId(), $item->getWriter()->getId()) as $assignment) {
+                $item->getTaskSettings()->getTaskId(),
+                $item->getWriter()->getId()
+            ) as $assignment) {
                 $assigned[$assignment->getPosition()->value] = $assignment->getCorrectorId();
             }
         }
@@ -339,12 +342,6 @@ class CorrectionAdminGUI extends BaseGUI
         $this->openMailForm(array_unique($logins), 'showItems');
     }
 
-
-    public function viewStitchDecision(CorrectionItem $item)
-    {
-        //TODO: implement open corrector
-    }
-
     private function downloadCorrectedPdfAction(): Action\Direct
     {
         return $this->plugin_ui_factory->table()->action()->direct(
@@ -368,13 +365,19 @@ class CorrectionAdminGUI extends BaseGUI
             $this->plugin->txt('download_written_pdf'),
             [$this, "downloadWrittenPdf"],
             fn(CorrectionItem $item) => $item->getWriter()->canDownloadWrittenPdf(),
-            Action\Type::Single
+            Action\Type::Standard
         );
     }
 
-    public function downloadWrittenPdf(CorrectionItem $item)
+    /**
+     * @param CorrectionItem[] $items
+     */
+    public function downloadWrittenPdf(array $items)
     {
-        // TODO: implement download
+        $writings = array_map(fn(CorrectionItem $item) =>
+            new WritingTask($item->getWriter()->getId(), $item->getTaskSettings()->getTaskId()), $items);
+
+        $this->assessment_api->export()->downloadWritings($writings, false);
     }
 
     public function viewCorrection()
@@ -525,7 +528,7 @@ class CorrectionAdminGUI extends BaseGUI
     public function getTableActions(): array
     {
         return [
-//            $this->downloadWrittenPdfAction(),
+            $this->downloadWrittenPdfAction(),
 //            $this->downloadCorrectedPdfAction(),
 //            $this->exportStepsAction(),
             $this->mailToWriterOrCorrectorAction(),

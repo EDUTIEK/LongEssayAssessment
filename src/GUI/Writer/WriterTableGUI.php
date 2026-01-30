@@ -433,26 +433,11 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
      */
     public function downloadWriting(array $items)
     {
-        if ($this->getSettings()->getMultiTasks() || count($items) > 1) {
-            $file_id = $this->assessment_api->pdfCreation()->createWritingZip(
-                array_map(fn(WriterItem $item) => $item->getId(), $items)
-            );
-            $filename = 'writings.zip';
-            $mimetype = 'application/zip';
-        } else {
-            $task = $this->task_api->manager()->first();
-            $writer_id = reset($items)->getId();
-            $file_id = $this->assessment_api->pdfCreation()->createWritingPdf($task->getId(), $writer_id);
-            $filename = 'task' . $task->getId() . '_writer' . $writer_id . '-writing.pdf';
-            $mimetype = 'application/pdf';
-        }
-
-        $this->system_api->fileDelivery()->sendFile(
-            $file_id,
-            Disposition::ATTACHMENT,
-            (new FileInfo())->setFileName($filename)->setMimeType($mimetype)
+        $writer_ids = array_map(fn(WriterItem $item) => $item->getId(), $items);
+        $this->assessment_api->export()->downloadWritings(
+            $this->assessment_api->writingTask()->allByWriterIds($writer_ids),
+            false
         );
-        $this->system_api->fileStorage()->deleteFile($file_id);
     }
 
     public function changeTextToPdf()

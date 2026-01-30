@@ -51,6 +51,11 @@ class WriterRepo implements \Edutiek\AssessmentService\Assessment\Data\WriterRep
         return $this->repo->queryOneBy(['user_id' => $user_id, 'ass_id' => $ass_id]);
     }
 
+    public function idsByAssId(int $ass_id): array
+    {
+        return $this->repo->queryIntegersBy(['ass_id' => $ass_id], 'id');
+    }
+
     public function allByUserIdsAndAssId(array $user_ids, int $ass_id): array
     {
         return $this->repo->queryAllBy(['user_id' => $user_ids, 'ass_id' => $ass_id]);

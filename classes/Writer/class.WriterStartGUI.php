@@ -20,6 +20,7 @@ declare(strict_types=1);
 
 namespace ILIAS\Plugin\LongEssayAssessment\Writer;
 
+use Edutiek\AssessmentService\Assessment\Data\WritingTask;
 use ILIAS\Data\ReferenceId;
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use Edutiek\AssessmentService\Task\Data\ResourceType;
@@ -216,16 +217,10 @@ class WriterStartGUI extends BaseGUI
         }
 
         $task_id = $this->get->integer('task_id', 0);
-        $file_id = $this->assessment_api->pdfCreation()->createWritingPdf($task_id, $this->writer->getId());
-
-        $filename = 'task' . $task_id . '_writer' . $this->writer->getId() . '-writing.pdf';
-        $this->system_api->fileDelivery()->sendFile(
-            $file_id,
-            Disposition::ATTACHMENT,
-            (new FileInfo())->setFileName($filename)->setMimeType('application/pdf')
+        $this->assessment_api->export()->downloadWritings(
+            [new WritingTask($this->writer->getId(), $task_id)],
+            false
         );
-
-        $this->system_api->fileStorage()->deleteFile($file_id);
     }
 
     public function downloadCorrectedPdf(): void

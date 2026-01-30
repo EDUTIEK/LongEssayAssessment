@@ -1,6 +1,9 @@
 <?php
 
 use ILIAS\Plugin\LongEssayAssessment\Collection\CollectionGUI;
+use ILIAS\Plugin\LongEssayAssessment\Collection\CollectionCorrectorAdminStatisticsGUI;
+use ILIAS\Plugin\LongEssayAssessment\Collection\CollectionWriterStatisticsGUI;
+use ILIAS\Plugin\LongEssayAssessment\Collection\CollectionWriterAdminStatisticsGUI;
 
 class ilLongEssayAssessmentCollectionUIHookGUI extends ilUIHookPluginGUI
 {
@@ -65,8 +68,8 @@ class ilLongEssayAssessmentCollectionUIHookGUI extends ilUIHookPluginGUI
                     }
                 }
             }
-            if($this->query->has("cmdClass") && $this->query->retrieve("cmdClass", $this->refinery->kindlyTo()->string()) ===
-                str_replace('\\', '', CollectionGUI::class))
+            if($this->query->has("cmdClass") && in_array($this->query->retrieve("cmdClass", $this->refinery->kindlyTo()->string()),
+                    array_map(fn($class) => str_replace('\\', '', $class), [CollectionGUI::class, CollectionCorrectorAdminStatisticsGUI::class, CollectionWriterAdminStatisticsGUI::class, CollectionWriterStatisticsGUI::class])))
             {
                 $this->lng->loadLanguageModule("crs");
                 $this->restoreTabs("Course");

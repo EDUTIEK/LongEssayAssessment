@@ -38,6 +38,7 @@ class CollectionGUI
     private \ILIAS\DI\Container $dic;
     private \ilObjUser $user;
     private \ILIAS\Plugin\LongEssayAssessment\View\Data\CorrectionsViewRepo $corrections_view;
+    private \ILIAS\Plugin\LongEssayAssessment\View\Data\StatisticViewRepo $statistic_repo;
 
     public function __construct()
     {
@@ -46,6 +47,7 @@ class CollectionGUI
         $this->object = \ilObjectFactory::getInstanceByRefId($this->ref_id);
         $this->plugin = \ilLongEssayAssessmentPlugin::getInstance();
         $this->corrections_view = $this->plugin->dic()->view()->corrections();
+        $this->statistic_repo = $this->plugin->dic()->view()->statistic();
 
         $this->ctrl = $DIC->ctrl();
         $this->access = $DIC->access();
@@ -71,8 +73,8 @@ class CollectionGUI
         $this->plugin_dic = PluginDIC::getInstance($this->dic, $this->plugin);
         $this->collection_node = $this->tree->getNodeData($this->object->getRefId());
         $this->assessment_nodes = $this->tree->getSubTree($this->collection_node, true, ['xlas']);
-        array_filter($this->assessment_nodes, fn($x) => $this->access->checkAccess('read', '', $x['ref_id']));
-        $this->plugin_objects = array_map(fn($x) => new \ilObjLongEssayAssessment($x['ref_id']), $this->assessment_nodes);
+        array_filter($this->assessment_nodes, fn ($x) => $this->access->checkAccess('read', '', $x['ref_id']));
+        $this->plugin_objects = array_map(fn ($x) => new \ilObjLongEssayAssessment($x['ref_id']), $this->assessment_nodes);
     }
 
     private function prepareOutput()
@@ -104,9 +106,40 @@ class CollectionGUI
     {
         $this->prepareOutput();
         $next_class = $this->ctrl->getNextClass($this);
-
         switch ($next_class) {
-
+            case strtolower(CollectionWriterStatisticsGUI::class):
+                $this->setTabs("statistic");
+                $nodes = array_filter(
+                    $this->assessment_nodes,
+                    function (array $node) {
+                        $permission = $this->plugin_dic->assessment($node['obj_id'], $this->user->getId())->permissions($node['ref_id']);
+                        return $permission->canViewWriterStatistics();
+                    }
+                );
+                $this->ctrl->forwardCommand(new CollectionWriterStatisticsGUI($this->plugin, $this->plugin_dic, $this->dic, $nodes));
+                break;
+            case strtolower(CollectionCorrectorAdminStatisticsGUI::class):
+                $this->setTabs("corrector_statistic");
+                $nodes = array_filter(
+                    $this->assessment_nodes,
+                    function (array $node) {
+                        $permission = $this->plugin_dic->assessment($node['obj_id'], $this->user->getId())->permissions($node['ref_id']);
+                        return $permission->canViewCorrectionStatistics();
+                    }
+                );
+                $this->ctrl->forwardCommand(new CollectionCorrectorAdminStatisticsGUI($this->plugin, $this->plugin_dic, $this->dic, $nodes));
+                break;
+            case strtolower(CollectionWriterAdminStatisticsGUI::class):
+                $this->setTabs("writer_statistic");
+                $nodes = array_filter(
+                    $this->assessment_nodes,
+                    function (array $node) {
+                        $permission = $this->plugin_dic->assessment($node['obj_id'], $this->user->getId())->permissions($node['ref_id']);
+                        return $permission->canMaintainCorrectors();
+                    }
+                );
+                $this->ctrl->forwardCommand(new CollectionWriterAdminStatisticsGUI($this->plugin, $this->plugin_dic, $this->dic, $nodes));
+                break;
             default:
                 $cmd = $this->ctrl->getCmd('list');
                 switch ($cmd) {
@@ -125,9 +158,9 @@ class CollectionGUI
 
     private function correctionStatus()
     {
-        $ass_ids = array_map(fn(array $node) => $node['obj_id'], array_filter(
+        $ass_ids = array_map(fn (array $node) => $node['obj_id'], array_filter(
             $this->assessment_nodes,
-            fn(array $node) => $this->plugin_dic->assessment($node['obj_id'], $this->user->getId())->permissions($node['ref_id'])->canMaintainCorrectors()
+            fn (array $node) => $this->plugin_dic->assessment($node['obj_id'], $this->user->getId())->permissions($node['ref_id'])->canMaintainCorrectors()
         ));
 
         $multi = $this->corrections_view->hasMultiTasks($ass_ids);
@@ -146,7 +179,7 @@ class CollectionGUI
                     ["image", "name", "login", "pseudonym", "location", "status", "assessment"],
                     $multi ? ["task"] : [],
                     ["writing_last_save", "word_count", "pdf_version", "result", "points", "grade", "finalized", "finalized_date", "finalized_name", "finalized_from_status"],
-                    ...array_map(fn($p) => ["corr_{$p}", "corr_{$p}_name", "corr_{$p}_status", "corr_{$p}_points", $multi ? "corr_{$p}_grade" : null, "corr_{$p}_authorized"], range(0, $corrections - 1))
+                    ...array_map(fn ($p) => ["corr_{$p}", "corr_{$p}_name", "corr_{$p}_status", "corr_{$p}_points", $multi ? "corr_{$p}_grade" : null, "corr_{$p}_authorized"], range(0, $corrections - 1))
                 )
             )->setInitialVisibleColumns(["name", "login", "pseudonym", "location", "assessment", "task", "status", "writing_last_save", "word_count", "corr_1", "corr_2", "result"])
         ->setTableActions([$this->plugin_dic->uiFactory()->table()->action()->export('export', $this->lng->txt('export'), 'xlas_corrections_export.xlsx')]);
@@ -155,6 +188,17 @@ class CollectionGUI
         $table = $this->plugin_dic->uiFactory()->table()->dataTable('correction_admin_table', $table_parent);
         $table->executeAction();
         $this->tpl->setContent($this->uiRenderer->render($table));
+    }
+
+    private function statistic()
+    {
+        $ass_ids = array_map(fn (array $node) => $node['obj_id'], array_filter(
+            $this->assessment_nodes,
+            function (array $node) {
+                $permission = $this->plugin_dic->assessment($node['obj_id'], $this->user->getId())->permissions($node['ref_id']);
+                return $permission->canViewWriterStatistics();
+            }
+        ));
     }
 
     private function list()
@@ -191,19 +235,19 @@ class CollectionGUI
         $this->ctrl->setParameter($this, 'ref_id', $this->object->getRefId());
 
         $this->tabs->addSubTab('list', $this->plugin->txt('objs_xlas'), $this->ctrl->getLinkTarget($this, 'list'));
-        if ($this->atleastOnePermission('ViewWriterStatistics')) {
-            $this->tabs->addSubTab('statistic', $this->plugin->txt('statistic'), $this->ctrl->getLinkTarget($this, 'statistic'));
-        }
         if ($this->atleastOnePermission('MaintainCorrectors')) {
             $this->tabs->addSubTab('correctionStatus', $this->plugin->txt('tab_correction_status'), $this->ctrl->getLinkTarget($this, 'correctionStatus'));
         }
-        // todo: show when implemented
-        //        if ($this->atleastOnePermission('MaintainWriters')) {
-        //            $this->tabs->addSubTab('writer_statistic', $this->plugin->txt('tab_writer_statistic'), $this->ctrl->getLinkTarget($this, 'writerStatistic'));
-        //        }
-        //        if ($this->atleastOnePermission('MaintainCorrectors')) {
-        //            $this->tabs->addSubTab('corrector_statistic', $this->plugin->txt('tab_corrector_admin_statistic'), $this->ctrl->getLinkTarget($this, 'correctorStatistic'));
-        //        }
+        if ($this->atleastOnePermission('ViewWriterStatistics')) {
+            $this->tabs->addSubTab('statistic', $this->plugin->txt('tab_statistic'), $this->ctrl->getLinkTargetByClass([CollectionWriterStatisticsGUI::class]));
+        }
+        if ($this->atleastOnePermission('ViewCorrectionStatistics')) {
+            $this->tabs->addSubTab('corrector_statistic', $this->plugin->txt('tab_corrector_admin_statistic'), $this->ctrl->getLinkTargetByClass([CollectionCorrectorAdminStatisticsGUI::class]));
+        }
+        if ($this->atleastOnePermission('MaintainCorrectors')) {
+            $this->tabs->addSubTab('writer_statistic', $this->plugin->txt('tab_writer_statistic'), $this->ctrl->getLinkTargetByClass([CollectionWriterAdminStatisticsGUI::class]));
+        }
+
         $this->tabs->activateSubTab($activate_tab);
     }
 
@@ -225,7 +269,7 @@ class CollectionGUI
         $func = "can" . $perm;
         return array_filter(
             $this->plugin_objects,
-            fn($obj) => $this->plugin_dic->assessment($obj->getAssId(), $this->user->getId())->permissions($obj->getContextId())->$func()
+            fn ($obj) => $this->plugin_dic->assessment($obj->getAssId(), $this->user->getId())->permissions($obj->getContextId())->$func()
         );
     }
 

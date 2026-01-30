@@ -14,6 +14,7 @@ class Statistic implements Component
     private ?float $not_passed_quota = null;
     private ?float $average_points = null;
     private ?array $grades = null;
+    private ?array $points = null;
     private string $title;
     private ?string $description = null;
     private string $count_label;
@@ -122,13 +123,18 @@ class Statistic implements Component
         return $clone;
     }
 
-    /**
-     * @inheritDoc
-     */
     public function withGrades(array $grades): Statistic
     {
         $clone = clone $this;
         $clone->grades = $grades;
+
+        return $clone;
+    }
+
+    public function withPoints(array $points): Statistic
+    {
+        $clone = clone $this;
+        $clone->points = $points;
 
         return $clone;
     }
@@ -171,6 +177,11 @@ class Statistic implements Component
     public function getGrades(): ?array
     {
         return $this->grades;
+    }
+
+    public function getPoints(): ?array
+    {
+        return $this->points;
     }
 
     public function getTitle(): string

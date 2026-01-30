@@ -25,17 +25,14 @@ use ILIAS\Plugin\LongEssayAssessment\Settings\DocumentationSettingsGUI;
 use ILIAS\Plugin\LongEssayAssessment\Dashboard\DashboardGUI;
 use ILIAS\UI\Component\Input\Field\Radio;
 use ILIAS\Plugin\LongEssayAssessment\FixationGUI;
-<<<<<<< Updated upstream
 use ILIAS\HTTP\Wrapper\ArrayBasedRequestWrapper;
 use ILIAS\StaticURL\Builder\StandardURIBuilder;
 use ILIAS\Data\ReferenceId;
 use ILIAS\Plugin\LongEssayAssessment\Jump;
-=======
 use ILIAS\Plugin\LongEssayAssessment\CorrectionAdmin\CorrectorAdminStatisticsGUI;
 use ILIAS\Plugin\LongEssayAssessment\CorrectionAdmin\CorrectorAdminWriterStatisticsGUI;
 use ILIAS\Plugin\LongEssayAssessment\Writer\WriterStatisticsGUI;
 use ILIAS\Plugin\LongEssayAssessment\Corrector\CorrectorStatisticsGUI;
->>>>>>> Stashed changes
 
 /**
  * Plugin GUI Class

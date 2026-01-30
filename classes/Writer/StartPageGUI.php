@@ -478,7 +478,7 @@ class StartPageGUI extends BaseGUI
         $panels = [];
         foreach ($tasks as $task) {
             $panels[] = $this->ui_factory->panel()->standard(
-                $is_one ? $this->plugin->txt('task') : $task->getTitle(),
+                $is_one ? $this->plugin->txt('assessment') : $task->getTitle(),
                 [
                     ...$info,
                     ...$this->writingItems($task)

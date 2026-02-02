@@ -40,6 +40,9 @@ use Edutiek\AssessmentService\Assessment\Data\CorrectionProcedure;
 use Edutiek\AssessmentService\Assessment\Data\Writer;
 use Edutiek\AssessmentService\Task\CorrectionProcess\FullService as CorrectionProcess;
 use ILIAS\Plugin\LongEssayAssessment\Jump;
+use ILIAS\Plugin\LongEssayAssessment\GUI\Correction\CorrectionItem;
+use Edutiek\AssessmentService\Assessment\Data\WritingTask;
+use ILIAS\Plugin\LongEssayAssessment\GUI\Writer\WriterItem;
 
 /**
  *Start page for correctors
@@ -209,21 +212,21 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
     {
         return [
             // todo: activate actions
-//            $this->downloadWrittenPDFAction(),
+              $this->downloadWrittenPdfAction(),
 //            $this->downloadCorrectedPdfAction(),
               $this->authorizeCorrectionAction(),
 //            $this->removeAuthorizationAction()
         ];
     }
 
-    private function downloadWrittenPDFAction(): Table\Action\Direct
+    private function downloadWrittenPdfAction(): Table\Action\Direct
     {
         return $this->plugin_ui_factory->table()->action()->direct(
             "download_written_pdf",
             $this->plugin->txt("download_written_pdf"),
             [$this, "downloadWrittenPdf"],
             fn(CorrectorStartItem $x) => true,
-            Table\Action\Type::Single
+            Table\Action\Type::Standard
         );
     }
 
@@ -457,16 +460,18 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
         $this->ctrl->redirect($this);
     }
 
-    protected function downloadWrittenPdf()
+    /**
+     * @param CorrectorStartItem[] $items
+     * @return void
+     */
+    public function downloadWrittenPdf(array $items)
     {
-        //        $params = $this->request->getQueryParams();
-        //        $writer_id = (int) ($params['writer_id'] ?? 0);
-        //
-        //        $service = $this->localDI->getWriterAdminService($this->object->getId());
-        //        $repoWriter = $this->localDI->getWriterRepo()->getWriterById($writer_id);
-        //
-        //        $filename = 'task' . $this->object->getId() . '_writer' . $repoWriter->getId(). '-writing.pdf';
-        //        $this->common_services->fileHelper()->deliverData($service->getWritingAsPdf($this->object, $repoWriter, true), $filename, 'application/pdf');
+        $writings = array_map(fn(CorrectorStartItem $item) =>
+        new WritingTask($item->getAssignment()->getWriterId(), $item->getAssignment()->getTaskId()), $items);
+
+        $this->assessment_api->export()->downloadWritings($writings, true);
+
+
     }
 
     protected function downloadCorrectedPdf()

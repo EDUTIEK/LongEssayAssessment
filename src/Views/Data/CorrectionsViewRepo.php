@@ -80,7 +80,7 @@ class CorrectionsViewRepo extends ViewRepo implements \Edutiek\AssessmentService
         }
 
         array_map(fn(\ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\HydrationInterface $r) => $r->hydrate(), [
-            $this->writer_repo, $this->location_repo, $this->user_data_repo, $this->user_display_repo, $this->task_repo,
+            $this->writer_repo, $this->location_repo, $this->essay_repo, $this->user_data_repo, $this->user_display_repo, $this->task_repo,
             $this->properties_repo, $this->corrector_repo, $this->corrector_assignment_repo, $this->corrector_summary_repo
         ]);
 

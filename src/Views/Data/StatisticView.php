@@ -35,7 +35,7 @@ class StatisticView extends \Edutiek\AssessmentService\Views\Data\StatisticView
         $point_sum = 0;
         $sum_finalized = 0;
 
-        foreach($grading_objects??[] as $obj){
+        foreach ($grading_objects??[] as $obj) {
             $this->passed += $obj->isPassed() ? 1 : 0;
             $this->not_passed += $obj->isPassed() ? 0 : 1;
             $this->attended += $obj->isAttended() ? 1 : 0;
@@ -47,9 +47,9 @@ class StatisticView extends \Edutiek\AssessmentService\Views\Data\StatisticView
             $point_key = (string)abs($obj->getPoints()??0);
             $grade_key = $obj->getGrade();
 
-            $this->points_counts[$point_key] = $this->points_counts[$point_key] ?? 0 + 1;
-            if($grade_key !== null) {
-                $this->grade_counts[$grade_key] = $this->grade_counts[$grade_key] ?? 0 + 1;
+            $this->points_counts[$point_key] = ($this->points_counts[$point_key] ?? 0) + 1;
+            if ($grade_key !== null) {
+                $this->grade_counts[$grade_key] = ($this->grade_counts[$grade_key] ?? 0) + 1;
             }
         }
 

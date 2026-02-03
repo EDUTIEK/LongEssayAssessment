@@ -42,23 +42,26 @@ class ToolProvider extends AbstractDynamicToolProvider
     private readonly int $ref_id;
     private readonly int $obj_id;
     private readonly RequestVariables $get;
-    private readonly ilLongEssayAssessmentPlugin $plugin;
-    private readonly BaseObjectData $object;
-    private readonly Permissions $permissions;
-    private readonly FixationGUI $fixation_gui;
+    private ?ilLongEssayAssessmentPlugin $plugin;
+    private ?BaseObjectData $object;
+    private ?Permissions $permissions;
+    private ?FixationGUI $fixation_gui;
 
     public function __construct(Container $dic)
     {
         parent::__construct($dic);
         $this->get = new RequestVariables($dic->http()->wrapper()->query(), $dic->refinery());
         $this->ref_id = $this->get->integer('ref_id');
-        $this->plugin = ilLongEssayAssessmentPlugin::getInstance();
-        $this->object = new ilObjLongEssayAssessment($this->ref_id);
-        $this->permissions = $this->plugin->dic()->assessment(
-            $this->object->getAssId(),
-            $this->dic->user()->getId()
-        )->permissions($this->object->getContextId());
-        $this->fixation_gui = new FixationGUI($this->object);
+
+        if (ilObject::_lookupType($this->ref_id, true) === 'xlas') {
+            $this->plugin = ilLongEssayAssessmentPlugin::getInstance();
+            $this->object = new ilObjLongEssayAssessment($this->ref_id);
+            $this->permissions = $this->plugin->dic()->assessment(
+                $this->object->getAssId(),
+                $this->dic->user()->getId()
+            )->permissions($this->object->getContextId());
+            $this->fixation_gui = new FixationGUI($this->object);
+        }
     }
 
     public function isInterestedInContexts(): ContextCollection

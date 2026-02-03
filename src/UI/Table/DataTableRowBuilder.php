@@ -2,6 +2,7 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\UI\Table;
 
+use ILIAS\UI\Component\Link\Standard as Link;
 use ILIAS\UI\Component\Table\DataRowBuilder;
 use ILIAS\Data\Range;
 use ILIAS\Data\Order;
@@ -45,11 +46,21 @@ class DataTableRowBuilder implements \Iterator
 
     private function uasort()
     {
-        list($order_field, $order_direction) = $this->order->join([], fn ($ret, $key, $value) => [$key, $value]);
-        usort($this->items, fn (Item $a, Item $b) => $this->columns[$a->getId()][$order_field] <=> $this->columns[$b->getId()][$order_field]);
+        list($order_field, $order_direction) = $this->order->join([], fn($ret, $key, $value) => [$key, $value]);
+        usort($this->items, fn(Item $a, Item $b) =>
+            $this->sortValue($a->getId(), $order_field) <=> $this->sortValue($b->getId(), $order_field));
         if ($order_direction === 'DESC') {
             $this->items = array_reverse($this->items);
         }
+    }
+
+    private function sortValue(int $column_id, $key)
+    {
+        $value = $this->columns[$column_id][$key];
+        if ($value instanceof Link) {
+            return $value->getLabel();
+        }
+        return $value;
     }
 
     private function column(int $id): array
@@ -57,7 +68,7 @@ class DataTableRowBuilder implements \Iterator
         $array = [];
         $column = $this->columns[$id];
 
-        foreach($this->visible_column_ids as $key) { //reduce to visible fields and convert to array (for ArrayAccess)
+        foreach ($this->visible_column_ids as $key) { //reduce to visible fields and convert to array (for ArrayAccess)
             $array[$key] = $column[$key] ?? null;
         }
         return $array;

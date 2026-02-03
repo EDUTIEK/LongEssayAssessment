@@ -42,6 +42,7 @@ use ILIAS\Plugin\LongEssayAssessment\UI\Statistic\StatisticRenderer;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\Table;
 use ILIAS\Plugin\LongEssayAssessment\UI\Protocol\Group as ProtocolGroup;
 use ILIAS\Plugin\LongEssayAssessment\UI\Input\Info;
+use ILIAS\Plugin\LongEssayAssessment\UI\Viewer\ComponentSwitch;
 
 //inherit from DecoratedRender to align your renderer with other potential renders in ILIAS to allow manipulations from
 //different sources to be chained behind each other.
@@ -88,6 +89,7 @@ class PluginRenderer extends DecoratedRenderer
             case ($component instanceof AudioPlayer):
             case ($component instanceof VideoPlayer):
             case ($component instanceof ImageViewer):
+            case ($component instanceof ComponentSwitch):
                 return $this->viewer_render->render($component, $root);
             case ($component instanceof Table):
             case ($component instanceof ProtocolGroup):

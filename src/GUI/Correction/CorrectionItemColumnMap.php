@@ -115,7 +115,7 @@ class CorrectionItemColumnMap extends ColumnMappingArray
             "finalized_date" => $item->getWriter()->getCorrectionFinalized()?->setTimezone($this->timezone),
             "finalized_name" => $item->getWriter()->isCorrectionFinalized() ? ($item->getFinalizedByName() ?? "") : '',
             "finalized_from_status" => $item->getWriter()->isCorrectionFinalized() ? ($this->ass_format->finalizedFromStatus($item->getWriter())) : '',
-            "pdf_version" => $item->getEssay()?->hasPDFVersion() ?? false,
+            "pdf_version" => $item->getEssay()?->hasPdfVersion() ?? false,
 
             "corr_0" => $item->getCorrectorDataByPosition(0) !== null
                 ? (($item->getCorrectorDataByPosition(0)?->getListname(true) ?? $this->unknown()) . " - " . $this->task_format->correctionResult($item->getSummaryByPosition(0)))

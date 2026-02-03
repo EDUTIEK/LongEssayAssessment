@@ -141,7 +141,7 @@ class CollectionGUI
                 $this->ctrl->forwardCommand(new CollectionWriterAdminStatisticsGUI($this->plugin, $this->plugin_dic, $this->dic, $nodes));
                 break;
             default:
-                $cmd = $this->ctrl->getCmd('list');
+                $cmd = $this->ctrl->getCmd('correctionStatus');
                 switch ($cmd) {
                     case 'correctionStatus':
                     case 'list':
@@ -234,7 +234,7 @@ class CollectionGUI
     {
         $this->ctrl->setParameter($this, 'ref_id', $this->object->getRefId());
 
-        $this->tabs->addSubTab('list', $this->plugin->txt('objs_xlas'), $this->ctrl->getLinkTarget($this, 'list'));
+        // $this->tabs->addSubTab('list', $this->plugin->txt('objs_xlas'), $this->ctrl->getLinkTarget($this, 'list'));
         if ($this->atleastOnePermission('MaintainCorrectors')) {
             $this->tabs->addSubTab('correctionStatus', $this->plugin->txt('tab_correction_status'), $this->ctrl->getLinkTarget($this, 'correctionStatus'));
         }

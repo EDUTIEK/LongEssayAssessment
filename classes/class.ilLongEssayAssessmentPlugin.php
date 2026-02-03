@@ -24,9 +24,11 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin implements \i
 
     private const LANGUAGES = ['de'];
     private const PLUGIN_PATH = 'public/Customizing/global/plugins/Services/Repository/RepositoryObject/LongEssayAssessment';
+    private const ASSETS_PATH = 'components/EDUTIEK/LongEssayAssessment';
 
     protected Container $ilias_dic;
-    protected ilLanguage $lng;    protected ilDBInterface $db;
+    protected ilLanguage $lng;
+    protected ilDBInterface $db;
     /**
      * @var ilCronJob[]
      */
@@ -37,11 +39,11 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin implements \i
     /**
      * Get the title icon
      * Used for object list, creation, gui
-     * used by info, export and permission tabe
+     * used by info, export, permission table
      */
     public static function _getIcon(string $a_type): string
     {
-        return 'components/EDUTIEK/LongEssayAssessment/images/icon_xlas.svg';
+        return self::ASSETS_PATH . '/images/icon_xlas.svg';
     }
 
     public function __construct(
@@ -56,6 +58,12 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin implements \i
         $this->db = $DIC->database();
 
         parent::__construct($db, $component_repository, $id);
+    }
+
+
+    public function asset(string $sub_path): string
+    {
+        return self::ASSETS_PATH . '/' . $sub_path;
     }
 
     /**
@@ -250,7 +258,7 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin implements \i
      */
     public function getTemplate(string $a_template, bool $a_par1 = true, bool $a_par2 = true): ilTemplate
     {
-        return new ilTemplate( $a_template, $a_par1, $a_par2, self::PLUGIN_PATH);
+        return new ilTemplate($a_template, $a_par1, $a_par2, self::PLUGIN_PATH);
     }
 
     private function getJobClasses()
@@ -270,7 +278,7 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin implements \i
         $jobs = [];
 
         foreach ($this->getJobClasses() as $id => $class_name) {
-            $jobs[] =  $this->getJobObject($class_name);
+            $jobs[] = $this->getJobObject($class_name);
         }
 
         return $jobs;
@@ -279,7 +287,7 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin implements \i
     public function getCronJobInstance($jobId): ilCronJob
     {
         $jobs = $this->getJobClasses();
-        if(!isset($jobs[$jobId])) {
+        if (!isset($jobs[$jobId])) {
             throw new ilCronException(
                 "Job [$jobId] not found."
             );

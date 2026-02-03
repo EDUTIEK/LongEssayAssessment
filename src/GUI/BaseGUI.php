@@ -115,6 +115,7 @@ abstract class BaseGUI
         } else {
             $this->task_info = $manager_service->first();
         }
+        $this->addContentCss();
     }
 
     /**
@@ -274,21 +275,21 @@ abstract class BaseGUI
      */
     public function addContentCss(): void
     {
-        $this->tpl->addCss($this->plugin->getDirectory() . '/templates/css/content.css');
+        $this->tpl->addCss($this->plugin->asset('css/content.css'));
 
         if (!empty($settings = $settings = $this->essay_task_api->writingSettings()->get())) {
             switch ($settings->getHeadlineScheme()) {
                 case HeadlineScheme::SINGLE:
-                    $this->tpl->addCss($this->plugin->getDirectory() . '/templates/css/headlines-single.css');
+                    $this->tpl->addCss($this->plugin->asset('css/headlines-single.css'));
                     break;
                 case HeadlineScheme::THREE:
-                    $this->tpl->addCss($this->plugin->getDirectory() . '/templates/css/headlines-three.css');
+                    $this->tpl->addCss($this->plugin->asset('css/headlines-three.css'));
                     break;
                 case HeadlineScheme::EDUTIEK:
-                    $this->tpl->addCss($this->plugin->getDirectory() . '/templates/css/headlines-edutiek.css');
+                    $this->tpl->addCss($this->plugin->asset('css/headlines-edutiek.css'));
                     break;
                 case HeadlineScheme::NUMERIC:
-                    $this->tpl->addCss($this->plugin->getDirectory() . '/templates/css/headlines-numeric.css');
+                    $this->tpl->addCss($this->plugin->asset('css/headlines-numeric.css'));
                     break;
             }
         }

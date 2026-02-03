@@ -245,6 +245,7 @@ class StartPageGUI extends BaseGUI
         if ($this->working_time->isStarted()) {
             $task_settings = $this->task_api->settings($task->getId())->get();
             if ($task_settings->getInstructions()) {
+                $this->ctrl->setParameter($this->target, 'task_id', (string) $task->getId());
                 $items[] = $this->ui_factory->item()->standard(
                     $this->ui_factory->link()->standard(
                         $this->plugin->txt('view_instructions'),

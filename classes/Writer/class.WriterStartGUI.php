@@ -230,15 +230,11 @@ class WriterStartGUI extends BaseGUI
         }
 
         $task_id = $this->get->integer('task_id', 0);
-        $file_id = $this->assessment_api->pdfCreation()->createCorrectionPdf($task_id, $this->writer->getId());
-        $filename = 'task' . $task_id . '_writer' . $this->writer->getId() . '-correction.pdf';
-        $this->system_api->fileDelivery()->sendFile(
-            $file_id,
-            Disposition::ATTACHMENT,
-            (new FileInfo())->setFileName($filename)->setMimeType('application/pdf')
+        $this->assessment_api->export()->downloadCorrections(
+            [new WritingTask($this->writer->getId(), $task_id)],
+            false,
+            $this->assessment_api->correctionSettings()->get()->getAnonymizeCorrectors()
         );
-
-        $this->system_api->fileStorage()->deleteFile($file_id);
     }
 
     public function downloadCorrectionReportsPdf(): void

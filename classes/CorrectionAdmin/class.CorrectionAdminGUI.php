@@ -134,22 +134,6 @@ class CorrectionAdminGUI extends BaseGUI
         $this->ctrl->redirect($this);
     }
 
-    private function exportStepsAction(): Action\Direct
-    {
-        return $this->plugin_ui_factory->table()->action()->direct(
-            "export_steps",
-            $this->plugin->txt('export_steps'),
-            [$this, "exportSteps"],
-            fn(CorrectionItem $item) => $item->getWriter()->canGetSight(),
-            Action\Type::Single
-        );
-    }
-
-    public function exportSteps(CorrectionItem $item): void
-    {
-        // TODO: implement download
-    }
-
     private function changeCorrectorAction(): Action\Form
     {
         return $this->plugin_ui_factory->table()->action()->form(
@@ -349,13 +333,19 @@ class CorrectionAdminGUI extends BaseGUI
             $this->plugin->txt('download_corrected_pdf'),
             [$this, "downloadCorrectedPdf"],
             fn(CorrectionItem $item) => $item->canDownloadCorrectionPdf(),
-            Action\Type::Single
+            Action\Type::Standard
         );
     }
 
-    public function downloadCorrectedPdf(CorrectionItem $item)
+    /**
+     * @param CorrectionItem[] $items
+     */
+    public function downloadCorrectedPdf(array $items)
     {
-        // TODO: implement download
+        $writings = array_map(fn(CorrectionItem $item) =>
+        new WritingTask($item->getWriter()->getId(), $item->getTaskSettings()->getTaskId()), $items);
+
+        $this->assessment_api->export()->downloadCorrections($writings, false, false);
     }
 
     private function downloadWrittenPdfAction(): Action\Direct
@@ -529,8 +519,7 @@ class CorrectionAdminGUI extends BaseGUI
     {
         return [
             $this->downloadWrittenPdfAction(),
-//            $this->downloadCorrectedPdfAction(),
-//            $this->exportStepsAction(),
+            $this->downloadCorrectedPdfAction(),
             $this->mailToWriterOrCorrectorAction(),
             $this->changeCorrectorAction(),
             $this->removeAuthorizationsAction(),

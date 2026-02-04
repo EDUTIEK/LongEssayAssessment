@@ -34,6 +34,7 @@ class Essay extends \Edutiek\AssessmentService\EssayTask\Data\Essay
     private string $uuid = '';
     private int $writer_id = 0;
     private ?string $written_text = null;
+    private int $word_count = 0;
     private string $raw_text_hash = '';
     private ?string $pdf_version = null;
     private int $task_id = 0;
@@ -76,8 +77,15 @@ class Essay extends \Edutiek\AssessmentService\EssayTask\Data\Essay
     public function setWrittenText(?string $written_text): self
     {
         $this->written_text = $written_text;
+        $this->word_count = str_word_count($written_text ?? "");
+
         return $this;
     }
+    public function getWordCount(): int
+    {
+        return $this->word_count ?? parent::getWordCount();
+    }
+
     public function getRawTextHash(): string
     {
         return $this->raw_text_hash;

@@ -25,6 +25,8 @@ use Edutiek\AssessmentService\Assessment\Data\CorrectionStatus;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Key;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Sequence;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Table;
+use Edutiek\AssessmentService\Assessment\Data\WritingStatus;
+use Edutiek\AssessmentService\Assessment\Data\CombinedStatus;
 
 #[Table(name: 'xlas_as_writer')]
 class Writer extends \Edutiek\AssessmentService\Assessment\Data\Writer
@@ -43,7 +45,9 @@ class Writer extends \Edutiek\AssessmentService\Assessment\Data\Writer
     private ?int $final_grade_level_id = null;
     private ?DateTimeImmutable $writing_authorized = null;
     private ?int $writing_authorized_by = null;
+    private ?int $writing_status = WritingStatus::NOT_STARTED->value;
     private string $correction_status = CorrectionStatus::OPEN->value;
+    private ?int $combined_status = CombinedStatus::WRITING_NOT_STARTED->value;
     private ?DateTimeImmutable $correction_status_changed = null;
     private ?int $correction_status_changed_by = null;
     private ?DateTimeImmutable $writing_excluded = null;
@@ -123,6 +127,7 @@ class Writer extends \Edutiek\AssessmentService\Assessment\Data\Writer
     public function setWorkingStart(?DateTimeImmutable $working_start): self
     {
         $this->working_start = $working_start;
+        $this->updateWritingStatus();
         return $this;
     }
     public function getFinalPoints(): ?float
@@ -150,6 +155,7 @@ class Writer extends \Edutiek\AssessmentService\Assessment\Data\Writer
     public function setWritingAuthorized(?DateTimeImmutable $writing_authorized): self
     {
         $this->writing_authorized = $writing_authorized;
+        $this->updateWritingStatus();
         return $this;
     }
     public function getWritingAuthorizedBy(): ?int
@@ -168,6 +174,7 @@ class Writer extends \Edutiek\AssessmentService\Assessment\Data\Writer
     public function setWritingExcluded(?DateTimeImmutable $writing_excluded): self
     {
         $this->writing_excluded = $writing_excluded;
+        $this->updateWritingStatus();
         return $this;
     }
     public function getWritingExcludedBy(): ?int
@@ -215,7 +222,18 @@ class Writer extends \Edutiek\AssessmentService\Assessment\Data\Writer
     public function setCorrectionStatus(CorrectionStatus $status): self
     {
         $this->correction_status = $status->value;
+        $this->updateCombinedStatus();
         return $this;
+    }
+
+    public function getWritingStatus(): WritingStatus
+    {
+        return WritingStatus::tryFrom($this->writing_status) ?? parent::getWritingStatus();
+    }
+
+    public function getCombinedStatus(): CombinedStatus
+    {
+        return CombinedStatus::tryFrom($this->combined_status) ?? parent::getCombinedStatus();
     }
 
     public function getCorrectionStatusChanged(): ?DateTimeImmutable
@@ -249,5 +267,16 @@ class Writer extends \Edutiek\AssessmentService\Assessment\Data\Writer
     {
         $this->finalized_from_status = $finalized_from_status?->value;
         return $this;
+    }
+
+    private function updateWritingStatus(): void
+    {
+        $this->writing_status = parent::getWritingStatus()->value;
+        $this->updateCombinedStatus(); // if writing status changed, update combined status too
+    }
+
+    private function updateCombinedStatus(): void
+    {
+        $this->combined_status = parent::getCombinedStatus()->value;
     }
 }

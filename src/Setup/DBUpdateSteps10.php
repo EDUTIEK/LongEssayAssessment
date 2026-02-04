@@ -52,7 +52,7 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
     {
         $this->prepare($db);
 
-        $execution_log = new ilDBStepExecutionDB($this->db, fn() => new \DateTime());
+        $execution_log = new ilDBStepExecutionDB($this->db, fn () => new \DateTime());
         $step_reader = new ilDBStepReader();
 
         $last_started_step = $execution_log->getLastStartedStep(self::class);
@@ -998,5 +998,103 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
                 'default' => 0
             ]);
         }
+    }
+
+    public function step_58(): void
+    {
+        if (!$this->db->tableColumnExists('xlas_et_essay', 'word_count')) {
+            $this->db->addTableColumn('xlas_et_essay', 'word_count', [
+                'type' => ilDBConstants::T_INTEGER,
+                'notnull' => true,
+                'default' => 0
+            ]);
+        }
+    }
+
+    public function step_59(): void
+    {
+        /** possible candidate for a migration script */
+        if ($this->db->tableColumnExists('xlas_et_essay', 'word_count')) {
+            $counts = [];
+            $query = $this->db->query('SELECT id, written_text FROM xlas_et_essay');
+
+            while ($row = $this->db->fetchAssoc($query)) {
+                if (!empty($row['written_text'])) {
+                    $counts[$row['id']] = str_word_count($row['written_text']);
+                }
+            }
+
+            if($this->db->tableExists('xlas_temp_essay')) {
+                $this->db->dropTable('xlas_temp_essay');
+            }
+
+            $this->db->createTable('xlas_temp_essay', [
+                'id' => ['notnull' => 1, 'type' => ilDBConstants::T_INTEGER],
+                'word_count' => ['notnull' => 1, 'type' => ilDBConstants::T_INTEGER]
+            ]);
+            $iqa = fn ($a) => array_map(fn ($b) => $this->db->quote($b, ilDBConstants::T_INTEGER), $a);
+            $values = array_map(fn ($k, $v) => "($k, $v)", $iqa(array_keys($counts)), $iqa($counts));
+            $this->db->manipulate("INSERT INTO xlas_temp_essay (id, word_count) VALUES " . implode(',', $values));
+            $this->db->manipulate("UPDATE xlas_et_essay e JOIN xlas_temp_essay t ON e.id = t.id SET e.word_count = t.word_count");
+            $this->db->dropTable('xlas_temp_essay');
+        }
+    }
+
+    public function step_60(): void
+    {
+        if (!$this->db->tableColumnExists('xlas_as_writer', 'writing_status')) {
+            $this->db->addTableColumn('xlas_as_writer', 'writing_status', [
+                'notnull' => 1,
+                'type' => ilDBConstants::T_INTEGER,
+                'length' => 1,
+                'default' => 0
+            ]);
+            $this->db->addIndex('xlas_as_writer', ['writing_status'], 'iws');
+        }
+    }
+
+    public function step_61(): void
+    {
+        $update = "UPDATE xlas_as_writer
+                    SET writing_status = CASE
+                     WHEN writing_excluded IS NOT NULL THEN 1  -- EXCLUDED
+                     WHEN writing_authorized IS NOT NULL THEN 2 -- AUTHORIZED
+                     WHEN working_start IS NOT NULL THEN 3     -- STARTED
+                     ELSE 4                                    -- NOT_STARTED
+                END";
+
+        $this->db->manipulate($update);
+    }
+
+    public function step_62(): void
+    {
+        if (!$this->db->tableColumnExists('xlas_as_writer', 'combined_status')) {
+            $this->db->addTableColumn('xlas_as_writer', 'combined_status', [
+                'notnull' => 1,
+                'type' => ilDBConstants::T_INTEGER,
+                'length' => 1,
+                'default' => 0
+            ]);
+            $this->db->addIndex('xlas_as_writer', ['combined_status'], 'ics');
+        }
+    }
+
+    public function step_63(): void
+    {
+        $update = "UPDATE xlas_as_writer
+                    SET combined_status = CASE
+                        -- If NOT AUTHORIZED, combined_status = writing_status
+                        WHEN writing_status <> 2 THEN writing_status
+                        -- writing_status = AUTHORIZED -> depends on correction_status
+                        WHEN correction_status = 'open' THEN 5           -- OPEN
+                        WHEN correction_status = 'stitch' THEN 6         -- STITCH_NEEDED
+                        WHEN correction_status = 'finalized' THEN 7      -- FINALIZED
+                        WHEN correction_status = 'approximation' THEN 8  -- APPROXIMATION
+                        WHEN correction_status = 'consulting' THEN 9     -- CONSULTING                        
+                        ELSE 2                                           -- WRITING_AUTHORIZED as fallback
+                    END";
+
+        $this->db->manipulate($update);
+
     }
 }

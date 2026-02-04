@@ -96,9 +96,9 @@ class CorrectionAdminGUI extends BaseGUI
             $label,
             $this->plugin->txt("remove_authorizations_confirmation"),
             $this->ctrl->getFormAction($this, "removeAuthorizations"),
-            fn (CorrectionItem $item) => $item->getWriterName()
+            fn(CorrectionItem $item) => $item->getWriterName()
                 . ($this->object->getMultiTasks() ? ', ' . $item->getTaskSettings()->getTitle() : ''),
-            fn (CorrectionItem $item) => true,
+            fn(CorrectionItem $item) => true,
             Action\Type::Standard,
         );
     }
@@ -142,7 +142,7 @@ class CorrectionAdminGUI extends BaseGUI
             $this->lng->txt("submit"),
             $this->changeCorrectorFields(...),
             $this->changeCorrector(...),
-            fn (CorrectionItem $item) => true,
+            fn(CorrectionItem $item) => true,
             Action\Type::Standard
         )->withContent([
             $this->ui_factory->messageBox()->info($this->plugin->txt("change_corrector_info"))
@@ -154,7 +154,7 @@ class CorrectionAdminGUI extends BaseGUI
      */
     public function changeCorrectorCheck(array $items): array
     {
-        $writer_ids = array_map(fn (CorrectionItem $item) => $item->getWriter()->getId(), $items);
+        $writer_ids = array_map(fn(CorrectionItem $item) => $item->getWriter()->getId(), $items);
 
         return [
             $this->refinery->custom()->constraint(
@@ -193,7 +193,7 @@ class CorrectionAdminGUI extends BaseGUI
         foreach ($this->corrector_service->all() as $corrector) {
             $corrector_ids[$corrector->getId()] = $corrector->getUserId();
         }
-        $names = array_map(fn (UserData $u) => $u->getListname(true), $this->user_service->getUsersByIds($corrector_ids));
+        $names = array_map(fn(UserData $u) => $u->getListname(true), $this->user_service->getUsersByIds($corrector_ids));
 
         foreach ($corrector_ids as $id => $user_id) {
             $corrector_list[$id] = $names[$user_id];
@@ -278,7 +278,7 @@ class CorrectionAdminGUI extends BaseGUI
             $this->plugin->txt('mail_to_writer_or_corrector'),
             $this->mailToWriterOrCorrectorFields(...),
             $this->mailToWriterOrCorrector(...),
-            fn (CorrectionItem $item) => true,
+            fn(CorrectionItem $item) => true,
             Action\Type::Standard
         );
     }
@@ -293,7 +293,7 @@ class CorrectionAdminGUI extends BaseGUI
             'writer' => $this->ui_factory->input()->field()->checkbox($this->plugin->txt('participant'))
         ];
 
-        $num = array_reduce($items, fn (int $n, CorrectionItem $i) => $n = max($n, $i->getAssignedCorrectorsCount()), 0);
+        $num = array_reduce($items, fn(int $n, CorrectionItem $i) => $n = max($n, $i->getAssignedCorrectorsCount()), 0);
 
         if ($num > 0) {
             for ($i = 0; $i < $num; $i++) {
@@ -354,7 +354,7 @@ class CorrectionAdminGUI extends BaseGUI
             "download_written_pdf",
             $this->plugin->txt('download_written_pdf'),
             [$this, "downloadWrittenPdf"],
-            fn (CorrectionItem $item) => $item->getWriter()->canDownloadWrittenPdf(),
+            fn(CorrectionItem $item) => $item->getWriter()->canDownloadWrittenPdf(),
             Action\Type::Standard
         );
     }
@@ -364,7 +364,7 @@ class CorrectionAdminGUI extends BaseGUI
      */
     public function downloadWrittenPdf(array $items)
     {
-        $writings = array_map(fn (CorrectionItem $item) =>
+        $writings = array_map(fn(CorrectionItem $item) =>
             new WritingTask($item->getWriter()->getId(), $item->getTaskSettings()->getTaskId()), $items);
 
         $this->assessment_api->export()->downloadWritings($writings, false);
@@ -434,7 +434,7 @@ class CorrectionAdminGUI extends BaseGUI
             array_merge(
                 ["image", "name", "login", "pseudonym", $location_avaiable ? "location" : null, "status", $multi ? "task" : null,
                          "writing_last_save", "word_count", "pdf_version", "result", "points", "grade", "finalized", "finalized_date", "finalized_name", "finalized_from_status"],
-                ...array_map(fn ($p) => ["corr_{$p}", "corr_{$p}_name", "corr_{$p}_status", "corr_{$p}_points", $multi ? "corr_{$p}_grade" : null, "corr_{$p}_authorized"], range(0, $corrections - 1)),
+                ...array_map(fn($p) => ["corr_{$p}", "corr_{$p}_name", "corr_{$p}_status", "corr_{$p}_points", $multi ? "corr_{$p}_grade" : null, "corr_{$p}_authorized"], range(0, $corrections - 1)),
             )
         )->setInitialVisibleColumns(["name", "login", "pseudonym", "location", "status", $has_started ? "writing_last_save" : null, $has_started ? "word_count" : null, "corr_1", "corr_2", "result"])
          ->setHasFilterFields(["name", $multi ? "task" : null, "location", "min_words", "max_words", "status", "assigned", "pdf_version"])
@@ -460,10 +460,12 @@ class CorrectionAdminGUI extends BaseGUI
 
         $toolbar->setFormAction($this->ctrl->getFormAction($this));
 
-        $this->toolbar->addComponent($this->ui_factory->button()->primary(
-            $this->plugin->txt('assign_writers'),
-            $this->ctrl->getLinkTarget($this, "confirmAssignWriters")
-        ));
+        //        $this->toolbar->addComponent($this->ui_factory->button()->primary(
+        //            $this->plugin->txt('assign_writers'),
+        //            $this->ctrl->getLinkTarget($this, "confirmAssignWriters")
+        //        ));
+
+        $this->toolbar->addComponent($this->ui_factory->legacy($this->plugin->txt('assign_writers')));
 
         $this->toolbar->addComponent($this->ui_factory->button()->standard(
             $this->plugin->txt("assignment_excel_export"),
@@ -488,31 +490,25 @@ class CorrectionAdminGUI extends BaseGUI
 
         $this->toolbar->addSeparator();
 
-        if ($this->getCorrectionSettings()->isStitchPossible()) {
-            $toolbar->addComponent($this->ui_factory->button()->standard(
-                $this->plugin->txt("do_stich_decision"),
-                $this->ctrl->getLinkTarget($this, "stitchDecision")
-            )->withUnavailableAction($this->writer_service->hasStitchDecisions()));
-        }
 
-        $toolbar->addComponent($this->ui_factory->button()->standard(
-            $this->plugin->txt("export_corrections"),
-            $this->ctrl->getLinkTarget($this, "exportCorrections")
-        ));
-
-        $toolbar->addComponent($this->ui_factory->button()->standard(
-            $this->plugin->txt("export_results"),
-            $this->ctrl->getLinkTarget($this, "exportResults")
-        ));
-
-        $toolbar->addSeparator();
-
-        if ($this->getCorrectionSettings()->getReportsEnabled()) {
-            $toolbar->addComponent($this->ui_factory->button()->standard(
-                $this->plugin->txt("download_correction_reports"),
-                $this->ctrl->getLinkTarget($this, "downloadReportsPdf")
-            ));
-        }
+        //        $toolbar->addComponent($this->ui_factory->button()->standard(
+        //            $this->plugin->txt("export_corrections"),
+        //            $this->ctrl->getLinkTarget($this, "exportCorrections")
+        //        ));
+        //
+        //        $toolbar->addComponent($this->ui_factory->button()->standard(
+        //            $this->plugin->txt("export_results"),
+        //            $this->ctrl->getLinkTarget($this, "exportResults")
+        //        ));
+        //
+        //        $toolbar->addSeparator();
+        //
+        //        if ($this->getCorrectionSettings()->getReportsEnabled()) {
+        //            $toolbar->addComponent($this->ui_factory->button()->standard(
+        //                $this->plugin->txt("download_correction_reports"),
+        //                $this->ctrl->getLinkTarget($this, "downloadReportsPdf")
+        //            ));
+        //        }
     }
 
     private function correctorAssignmentSpreadsheetExport(): void
@@ -579,7 +575,7 @@ class CorrectionAdminGUI extends BaseGUI
     {
         return [
             $this->downloadWrittenPdfAction(),
-            $this->downloadCorrectedPdfAction(),
+            // $this->downloadCorrectedPdfAction(),
             $this->mailToWriterOrCorrectorAction(),
             $this->changeCorrectorAction(),
             $this->removeAuthorizationsAction(),
@@ -594,7 +590,7 @@ class CorrectionAdminGUI extends BaseGUI
     {
         return $this->plugin_ui_factory->field()->info($this->plugin->txt('writing_parts'))
              ->withInfo($this->ui_factory->listing()->unordered(
-                 array_map(fn (CorrectionItem $item) => $item->getWriterName()
+                 array_map(fn(CorrectionItem $item) => $item->getWriterName()
                   . ($this->object->getMultiTasks() ? ', ' . $item->getTaskSettings()->getTitle() : ''), $items)
              ));
     }

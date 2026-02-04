@@ -46,13 +46,7 @@ class WriterViewRepo extends ViewRepo implements \Edutiek\AssessmentService\View
         $sql = "SELECT w.id AS writer_id, w.user_id AS user_id, w.location AS location_id, GROUP_CONCAT(e.id SEPARATOR ',') AS essay_ids, ";
         $sql .= "w.writing_authorized_by as authorized_by, w.writing_excluded_by as excluded_by, ";
         $sql .= "MAX(e.last_change) AS newest_last_change, ";
-        $sql .= "SUM(CASE
-            WHEN e.written_text IS NULL OR TRIM(e.written_text) = '' THEN 0
-            ELSE
-                LENGTH(TRIM(e.written_text))
-                - LENGTH(REPLACE(TRIM(e.written_text), ' ', ''))
-                + 1
-            END) AS total_word_count, ";
+        $sql .= "SUM(e.word_count) AS total_word_count, ";
         $sql .= "CASE WHEN MAX(e.pdf_version) IS NOT NULL THEN 1 ELSE 0 END AS has_pdf_version ";
         $sql .= "FROM {$this->writer_repo->table()} AS w ";
         $sql .= "LEFT JOIN {$this->essay_repo->table()} AS e ON w.id = e.writer_id ";
@@ -83,21 +77,6 @@ class WriterViewRepo extends ViewRepo implements \Edutiek\AssessmentService\View
             $this->writer_repo, $this->location_repo, $this->user_data_repo, $this->user_display_repo
         ]);
 
-        //Apply backend filtering for composed complex values
-        $result = array_filter($result, function (WriterView $wv) use ($filter) {
-            $status = $wv->getWriter()->getWritingStatus();
-            if (!empty($filter['status']) && !in_array($wv->getWriter()->getWritingStatus()->value, $filter['status'])) {
-                return false;
-            }
-            if (!empty($filter['min_words'] ?? null) && ($wv->getEssayTaskSummary()?->getWords() ?? 0) < (int) $filter['min_words']) {
-                return false;
-            }
-            if (!empty($filter['max_words'] ?? null) && ($wv->getEssayTaskSummary()?->getWords() ?? 0) > (int) $filter['max_words']) {
-                return false;
-            }
-            return true;
-        });
-
         return $result;
     }
 
@@ -110,6 +89,7 @@ class WriterViewRepo extends ViewRepo implements \Edutiek\AssessmentService\View
             "name" => $this->db->like("CONCAT(u.firstname, u.lastname, u.login, u.email,w.pseudonym)", "text", "%". $value . "%", true),
             "time_limit_changed" => ($value == "1" ? "NOT" : "") . "(w.earliest_start IS NULL AND w.latest_end IS NULL AND w.time_limit_minutes IS NULL)",
             "location" => "w.location = " . $this->db->quote($value, "integer"),
+            "status" => is_array($value) ? $this->db->in("w.writing_status", $value, false, "integer") : "w.writing_status = " . $this->db->quote($value, "integer"),
             default => null,
         };
     }
@@ -118,6 +98,8 @@ class WriterViewRepo extends ViewRepo implements \Edutiek\AssessmentService\View
     {
         return match($key) {
             "pdf_version" => "MAX(e.pdf_version) IS " . ($value == "2" ? "" : "NOT") . " NULL",
+            "min_words" => "total_word_count >= " . $this->db->quote($value, "integer"),
+            "max_words" => "total_word_count <= " . $this->db->quote($value, "integer"),
             default => null,
         };
     }

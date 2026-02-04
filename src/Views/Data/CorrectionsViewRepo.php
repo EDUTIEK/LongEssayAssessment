@@ -29,6 +29,9 @@ class CorrectionsViewRepo extends ViewRepo implements \Edutiek\AssessmentService
 
     public function some(array $filter, ?int $limit = null, ?int $offset = null): array
     {
+        $limit = $limit !== null ? 'LIMIT ' . $limit : '';
+        $offset = $offset !== null ? 'OFFSET ' . $offset : '';
+
         $sub_sql = "SELECT GROUP_CONCAT(CONCAT('[', ca.position, ',', ca.id, ',', COALESCE(cs.id, 'null'), ',', COALESCE(cc.id, 'null'), ',', COALESCE(cc.user_id, 'null'), ']') SEPARATOR ',') ";
         $sub_sql .= "FROM {$this->corrector_assignment_repo->table()} AS ca ";
         $sub_sql .= "LEFT JOIN {$this->corrector_repo->table()} AS cc ON ca.corrector_id = cc.id ";
@@ -48,6 +51,7 @@ class CorrectionsViewRepo extends ViewRepo implements \Edutiek\AssessmentService
         $sql .= "LEFT JOIN object_reference AS r ON w.ass_id = r.obj_id ";
         $sql .= "WHERE " . ($this->where($filter) ?? "1") . " ";
         $sql .= "GROUP BY writer_id, task_id, essay_id, user_id, location_id, authorized_by, excluded_by ";
+        $sql .= "{$limit} {$offset}";
 
         $query = $this->db->query($sql);
         $result = [];
@@ -84,20 +88,6 @@ class CorrectionsViewRepo extends ViewRepo implements \Edutiek\AssessmentService
             $this->properties_repo, $this->corrector_repo, $this->corrector_assignment_repo, $this->corrector_summary_repo
         ]);
 
-        //Apply backend filtering for composed complex values
-        $result = array_filter($result, function (CorrectionsView $wv) use ($filter) {
-            if (!empty($filter['status']) && !in_array($wv->getWriter()->getCombinedStatus()->value, $filter['status'])) {
-                return false;
-            }
-            if (!empty($filter['min_words'] ?? null) && ($wv->getEssay()?->getWordCount() ?? 0) < (int) $filter['min_words']) {
-                return false;
-            }
-            if (!empty($filter['max_words'] ?? null) && ($wv->getEssay()?->getWordCount() ?? 0) > (int) $filter['max_words']) {
-                return false;
-            }
-            return true;
-        });
-
         return $result;
     }
 
@@ -111,7 +101,10 @@ class CorrectionsViewRepo extends ViewRepo implements \Edutiek\AssessmentService
             "task_id", "task" => is_array($value) ? $this->db->in("t.task_id", $value, false, "integer") : "t.task_id = " . $this->db->quote($value, "integer"),
             "name" => $this->db->like("CONCAT(u.firstname, u.lastname, u.login, u.email,w.pseudonym)", "text", "%" . $value . "%", true),
             "time_limit_changed" => ($value == "1" ? "NOT" : "") . "(w.earliest_start IS NULL AND w.latest_end IS NULL AND w.time_limit_minutes IS NULL)",
-            "location" => "writer.location = " . $this->db->quote($value, "integer"),
+            "location" => "w.location = " . $this->db->quote($value, "integer"),
+            "min_words" => "e.word_count >= " . $this->db->quote($value, "integer"),
+            "max_words" => "e.word_count <= " . $this->db->quote($value, "integer"),
+            "status" => is_array($value) ? $this->db->in("w.writing_status", $value, false, "integer") : "w.writing_status = " . $this->db->quote($value, "integer"),
             default => null,
         };
     }

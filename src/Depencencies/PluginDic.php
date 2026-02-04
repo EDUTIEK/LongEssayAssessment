@@ -30,6 +30,7 @@ use Edutiek\AssessmentService\System\Api\ForClients as SystemClientApi;
 use Edutiek\AssessmentService\System\Api\ForConstraints as ConstraintApi;
 use Edutiek\AssessmentService\System\Api\ForEvents as EventApi;
 use Edutiek\AssessmentService\System\Api\ForServices as SystemServicesApi;
+use Edutiek\AssessmentService\System\EventHandling\Dispatcher;
 use Edutiek\AssessmentService\Task\Api\Factory as TaskFactory;
 use Edutiek\AssessmentService\Task\Api\ForClients as TaskClientApi;
 use Edutiek\AssessmentService\Task\Api\ForTypes as TaskTypesApi;
@@ -304,5 +305,10 @@ class PluginDic
     public function view()
     {
         return $this->dic[ViewDic::class] ??= new ViewDic($this->dic);
+    }
+
+    public function eventDispatcher(): Dispatcher
+    {
+        return $this->dic[EventApi::class]->systemDispatcher($this->dic->user()->getId());
     }
 }

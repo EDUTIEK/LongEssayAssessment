@@ -14,6 +14,7 @@ use ILIAS\Plugin\LongEssayAssessment\UI\PluginRenderer;
 use ILIAS\Setup\ImplementationOfInterfaceFinder;
 use ILIAS\Plugin\LongEssayAssessment\Cron\CronJobInterface;
 use ILIAS\Plugin\LongEssayAssessment\Cron\CronJob;
+use Edutiek\AssessmentService\System\EventHandling\Events\UserRemoved;
 
 /**
  * Basic plugin file
@@ -235,21 +236,17 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin implements \i
 
     /**
      * Handle an event
-     * @deprecated - needs refactoring
-     * @todo: refactor
      */
     public function handleEvent($a_component, $a_event, $a_parameter)
     {
-        // todo refacoring
-        //        if ('Services/User' == $a_component && 'deleteUser' == $a_event) {
-        //            $usr_id = $a_parameter['usr_id'];
-        //            $di = LongEssayAssessmentDI::getInstance();
-        //            $writer_repo = $di->getWriterRepo();
-        //            $writer = $writer_repo->getWritersByUserId($usr_id);
-        //            foreach ($writer as $w) {
-        //                $writer_repo->deleteWriter($w->getId());
-        //            }
-        //        }
+        try {
+            if ($a_component === 'Services/User' && $a_event === 'deleteUser' && isset($a_parameter['usr_id'])) {
+                $usr_id = (int) $a_parameter['usr_id'];
+                $this->dic()->eventDispatcher()->dispatchEvent(new UserRemoved($usr_id));
+            }
+        } catch (Throwable $e) {
+            $this->ilias_dic->logger()->xlas()->error($e);
+        }
     }
 
     /**

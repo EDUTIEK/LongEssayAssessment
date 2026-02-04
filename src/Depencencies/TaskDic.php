@@ -71,7 +71,7 @@ class TaskDic implements \Edutiek\AssessmentService\Task\Api\Dependencies
 
     public function eventDispatcher(int $ass_id, int $user_id): Dispatcher
     {
-        return $this->dic[EventApi::class]->dispatcher($ass_id, $user_id);
+        return $this->dic[EventApi::class]->assessmentDispatcher($ass_id, $user_id);
     }
 
     public function constraintCollector(int $ass_id, int $user_id): Collector

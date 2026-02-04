@@ -96,9 +96,9 @@ class CorrectionAdminGUI extends BaseGUI
             $label,
             $this->plugin->txt("remove_authorizations_confirmation"),
             $this->ctrl->getFormAction($this, "removeAuthorizations"),
-            fn(CorrectionItem $item) => $item->getWriterName()
+            fn (CorrectionItem $item) => $item->getWriterName()
                 . ($this->object->getMultiTasks() ? ', ' . $item->getTaskSettings()->getTitle() : ''),
-            fn(CorrectionItem $item) => true,
+            fn (CorrectionItem $item) => true,
             Action\Type::Standard,
         );
     }
@@ -142,7 +142,7 @@ class CorrectionAdminGUI extends BaseGUI
             $this->lng->txt("submit"),
             $this->changeCorrectorFields(...),
             $this->changeCorrector(...),
-            fn(CorrectionItem $item) => true,
+            fn (CorrectionItem $item) => true,
             Action\Type::Standard
         )->withContent([
             $this->ui_factory->messageBox()->info($this->plugin->txt("change_corrector_info"))
@@ -154,7 +154,7 @@ class CorrectionAdminGUI extends BaseGUI
      */
     public function changeCorrectorCheck(array $items): array
     {
-        $writer_ids = array_map(fn(CorrectionItem $item) => $item->getWriter()->getId(), $items);
+        $writer_ids = array_map(fn (CorrectionItem $item) => $item->getWriter()->getId(), $items);
 
         return [
             $this->refinery->custom()->constraint(
@@ -193,7 +193,7 @@ class CorrectionAdminGUI extends BaseGUI
         foreach ($this->corrector_service->all() as $corrector) {
             $corrector_ids[$corrector->getId()] = $corrector->getUserId();
         }
-        $names = array_map(fn(UserData $u) => $u->getListname(true), $this->user_service->getUsersByIds($corrector_ids));
+        $names = array_map(fn (UserData $u) => $u->getListname(true), $this->user_service->getUsersByIds($corrector_ids));
 
         foreach ($corrector_ids as $id => $user_id) {
             $corrector_list[$id] = $names[$user_id];
@@ -278,7 +278,7 @@ class CorrectionAdminGUI extends BaseGUI
             $this->plugin->txt('mail_to_writer_or_corrector'),
             $this->mailToWriterOrCorrectorFields(...),
             $this->mailToWriterOrCorrector(...),
-            fn(CorrectionItem $item) => true,
+            fn (CorrectionItem $item) => true,
             Action\Type::Standard
         );
     }
@@ -293,7 +293,7 @@ class CorrectionAdminGUI extends BaseGUI
             'writer' => $this->ui_factory->input()->field()->checkbox($this->plugin->txt('participant'))
         ];
 
-        $num = array_reduce($items, fn(int $n, CorrectionItem $i) => $n = max($n, $i->getAssignedCorrectorsCount()), 0);
+        $num = array_reduce($items, fn (int $n, CorrectionItem $i) => $n = max($n, $i->getAssignedCorrectorsCount()), 0);
 
         if ($num > 0) {
             for ($i = 0; $i < $num; $i++) {
@@ -354,7 +354,7 @@ class CorrectionAdminGUI extends BaseGUI
             "download_written_pdf",
             $this->plugin->txt('download_written_pdf'),
             [$this, "downloadWrittenPdf"],
-            fn(CorrectionItem $item) => $item->getWriter()->canDownloadWrittenPdf(),
+            fn (CorrectionItem $item) => $item->getWriter()->canDownloadWrittenPdf(),
             Action\Type::Standard
         );
     }
@@ -364,7 +364,7 @@ class CorrectionAdminGUI extends BaseGUI
      */
     public function downloadWrittenPdf(array $items)
     {
-        $writings = array_map(fn(CorrectionItem $item) =>
+        $writings = array_map(fn (CorrectionItem $item) =>
             new WritingTask($item->getWriter()->getId(), $item->getTaskSettings()->getTaskId()), $items);
 
         $this->assessment_api->export()->downloadWritings($writings, false);
@@ -400,6 +400,8 @@ class CorrectionAdminGUI extends BaseGUI
                     case 'removeAuthorizations':
                     case 'mailToWriterOrCorrector':
                     case 'viewCorrection':
+                    case 'correctorAssignmentSpreadsheetExport':
+                    case 'correctorAssignmentSpreadsheetImport':
                         $this->$cmd();
                         break;
 
@@ -411,8 +413,7 @@ class CorrectionAdminGUI extends BaseGUI
     }
     public function showItems()
     {
-        // todo: add toolbar
-        // $this->buildToolbar($this->toolbar);
+        $this->buildToolbar($this->toolbar);
 
         $location_avaiable = $this->hasLocations();
         $corrections = $this->getCorrectionSettings()->getRequiredCorrectors();
@@ -433,7 +434,7 @@ class CorrectionAdminGUI extends BaseGUI
             array_merge(
                 ["image", "name", "login", "pseudonym", $location_avaiable ? "location" : null, "status", $multi ? "task" : null,
                          "writing_last_save", "word_count", "pdf_version", "result", "points", "grade", "finalized", "finalized_date", "finalized_name", "finalized_from_status"],
-                ...array_map(fn($p) => ["corr_{$p}", "corr_{$p}_name", "corr_{$p}_status", "corr_{$p}_points", $multi ? "corr_{$p}_grade" : null, "corr_{$p}_authorized"], range(0, $corrections - 1)),
+                ...array_map(fn ($p) => ["corr_{$p}", "corr_{$p}_name", "corr_{$p}_status", "corr_{$p}_points", $multi ? "corr_{$p}_grade" : null, "corr_{$p}_authorized"], range(0, $corrections - 1)),
             )
         )->setInitialVisibleColumns(["name", "login", "pseudonym", "location", "status", $has_started ? "writing_last_save" : null, $has_started ? "word_count" : null, "corr_1", "corr_2", "result"])
          ->setHasFilterFields(["name", $multi ? "task" : null, "location", "min_words", "max_words", "status", "assigned", "pdf_version"])
@@ -452,7 +453,7 @@ class CorrectionAdminGUI extends BaseGUI
         if ($authorized_essay_exists) {
             if (empty($correctors)) {
                 $this->tpl->setOnScreenMessage("info", $this->plugin->txt('info_missing_correctors'), false);
-            } elseif (!empty($this->assignment_service->countMissing())) {
+            } elseif (!empty($this->assignment_service->countMissingCorrectors())) {
                 $this->tpl->setOnScreenMessage("info", $this->plugin->txt('info_missing_assignments'), false);
             }
         }
@@ -464,27 +465,26 @@ class CorrectionAdminGUI extends BaseGUI
             $this->ctrl->getLinkTarget($this, "confirmAssignWriters")
         ));
 
-        //Todo: use table actions
-        //        $this->toolbar->addComponent($this->ui_factory->button()->standard(
-        //            $this->plugin->txt("assignment_excel_export"),
-        //            $this->ctrl->getLinkTarget($this, "correctorAssignmentSpreadsheetExport")
-        //        ));
+        $this->toolbar->addComponent($this->ui_factory->button()->standard(
+            $this->plugin->txt("assignment_excel_export"),
+            $this->ctrl->getLinkTarget($this, "correctorAssignmentSpreadsheetExport")
+        ));
 
         $this->toolbar->addComponent($this->ui_factory->button()->standard(
             $this->plugin->txt("assignment_excel_import"),
             $this->ctrl->getLinkTarget($this, "correctorAssignmentSpreadsheetImport")
         ));
 
-        //        $this->toolbar->addComponent($this->ui_factory->button()->toggle(
-        //            $this->plugin->txt("assignment_excel_export_auth"),
-        //            "#",
-        //            "#",
-        //            $this->spreadsheetAssignmentToggle()
-        //        )->withAdditionalOnLoadCode(
-        //            function ($id) {
-        //                return "$('#{$id}').on( 'click', function() {  document.cookie = 'xlas_exass=' + ($( this ).hasClass('on') ? 'on' : 'off'); } );";
-        //            }
-        //        ));
+        $this->toolbar->addComponent($this->ui_factory->button()->toggle(
+            $this->plugin->txt("assignment_excel_export_auth"),
+            "#",
+            "#",
+            $this->spreadsheetAssignmentToggle()
+        )->withAdditionalOnLoadCode(
+            function ($id) {
+                return "$('#{$id}').on( 'click', function() {  document.cookie = 'xlas_exass=' + ($( this ).hasClass('on') ? 'on' : 'off'); } );";
+            }
+        ));
 
         $this->toolbar->addSeparator();
 
@@ -515,6 +515,66 @@ class CorrectionAdminGUI extends BaseGUI
         }
     }
 
+    private function correctorAssignmentSpreadsheetExport(): void
+    {
+        $this->assignment_service->exportAssignmentSpreadsheet($this->spreadsheetAssignmentToggle());
+    }
+
+    private function correctorAssignmentSpreadsheetImport(): void
+    {
+        $upload_handler = new \ilLongEssayAssessmentUploadHandlerGUI(
+            $this->system_api->tempStorage(),
+            $this->plugin->dic()->uploadTempFile()
+        );
+
+        $form = $this->ui_factory->input()->container()->form()->standard(
+            $this->ctrl->getFormAction($this, "correctorAssignmentSpreadsheetImport"),
+            ["excel" => $this->ui_factory->input()->field()->file(
+                $upload_handler,
+                $this->plugin->txt("assignment_excel_import"),
+                $this->plugin->txt("assignment_excel_import_info")
+            )->withRequired(true)]
+        );
+
+        if ($this->request->getMethod() === "POST") {
+            $form = $form->withRequest($this->request);
+
+            if ($data = $form->getData()) {
+                $upload_id = (string) current($data['excel']);
+                $stored = $this->system_api->tempStorage()->saveFile(
+                    $upload_handler->getApiStream($upload_id),
+                    $upload_handler->getApiInfo($upload_id)
+                );
+
+                try {
+                    $data = $this->assignment_service->importSpreadsheet($stored->getId());
+                    $possible_errors = $this->assignment_service->assignSpreadsheetData($data, true);
+                    if (!empty($possible_errors)) {
+                        $possible_errors = array_merge([$this->lng->txt('corrector_assignment_change_file_failure')], $possible_errors);
+
+                        $error = $this->lng->txt('corrector_assignment_change_file_failure') .
+                            '<p class="small">' .
+                            nl2br(implode("\n", $possible_errors)) .
+                            '</p>';
+
+                        $this->tpl->setOnScreenMessage("failure", implode("\n&nbsp;", $possible_errors), false);
+                    } else {
+                        $this->tpl->setOnScreenMessage("success", $this->lng->txt('corrector_assignment_change_file_success'), true);
+                        $this->assignment_service->assignSpreadsheetData($data, false);
+                        $this->ctrl->redirect($this);
+                    }
+
+                    $this->system_api->tempStorage()->deleteFile($stored->getId());
+                } catch (\Exception $exception) {
+                    $this->system_api->tempStorage()->deleteFile($stored->getId());
+                    $this->tpl->setOnScreenMessage("failure", $this->plugin->txt("corrector_assignment_change_file_failure") . $exception->getMessage(), false);
+                }
+            }
+        }
+
+        $this->tpl->setContent($this->renderer->render($form));
+    }
+
     public function getTableActions(): array
     {
         return [
@@ -534,7 +594,7 @@ class CorrectionAdminGUI extends BaseGUI
     {
         return $this->plugin_ui_factory->field()->info($this->plugin->txt('writing_parts'))
              ->withInfo($this->ui_factory->listing()->unordered(
-                 array_map(fn(CorrectionItem $item) => $item->getWriterName()
+                 array_map(fn (CorrectionItem $item) => $item->getWriterName()
                   . ($this->object->getMultiTasks() ? ', ' . $item->getTaskSettings()->getTitle() : ''), $items)
              ));
     }
@@ -567,5 +627,15 @@ class CorrectionAdminGUI extends BaseGUI
     protected function getCorrectionSettings(): CorrectionSettings
     {
         return $this->correction_settings ??= $this->assessment_api->correctionSettings()->get();
+    }
+
+    protected function spreadsheetAssignmentToggle()
+    {
+        $cookie = $this->request->getCookieParams();
+        if (isset($cookie['xlas_exass'])) {
+            return $cookie['xlas_exass'] === "on";
+        } else {
+            return false;
+        }
     }
 }

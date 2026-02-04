@@ -54,8 +54,8 @@ readonly class CorrectorSnippetRepo implements \Edutiek\AssessmentService\Task\D
         $this->repo->deleteAllBy(['ass_id' => $ass_id, 'corrector_id' => $corrector_id, 'key' => $key]);
     }
 
-    public function deleteByCorrectorId(int $ass_id, int $corrector_id): void
+    public function deleteByCorrectorId(int $corrector_id): void
     {
-        $this->repo->deleteAllBy(['ass_id' => $ass_id, 'corrector_id' => $corrector_id]);
+        $this->repo->deleteAllBy(['corrector_id' => $corrector_id]);
     }
 }

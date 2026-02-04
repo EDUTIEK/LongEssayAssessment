@@ -53,4 +53,9 @@ class CorrectorTaskPrefsRepo implements \Edutiek\AssessmentService\Task\Data\Cor
     {
         $this->repo->deleteAllBy(['task_id' => $task_id]);
     }
+
+    public function deleteByCorrectorId(int $corrector_id): void
+    {
+        $this->repo->deleteAllBy(['corrector_id' => $corrector_id]);
+    }
 }

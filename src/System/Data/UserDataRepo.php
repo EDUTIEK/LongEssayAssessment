@@ -51,6 +51,7 @@ class UserDataRepo implements \Edutiek\AssessmentService\System\Data\UserDataRep
             $this->user->getFirstname(),
             $this->user->getLastname(),
             empty($this->user->getMatriculation()) ? null : $this->user->getMatriculation(),
+            $this->user->getEmail(),
             $this->user->getLanguage(),
             new DateTimeZone($this->user->getTimeZone())
         );
@@ -109,6 +110,7 @@ class UserDataRepo implements \Edutiek\AssessmentService\System\Data\UserDataRep
                 (string) $row['firstname'] ?? '',
                 (string) $row['lastname'] ?? '',
                 $row['matriculation'] ?? null,
+                $row['email'] ?? null,
                 $languages[$row['usr_id']] ?? $default_language,
                 $timezones[$row['usr_id']] ?? $default_timezone
             );
@@ -167,6 +169,7 @@ class UserDataRepo implements \Edutiek\AssessmentService\System\Data\UserDataRep
                 !empty($row['title']) ? (string) $row['title'] : null,
                 (string) $row['firstname'] ?? '',
                 (string) $row['lastname'] ?? '',
+                (string) $row['matriculation'] ?? '',
                 $row['email'] ?? null,
                 $languages[$row['usr_id']] ?? $default_language,
                 $timezones[$row['usr_id']] ?? $default_timezone

@@ -15,6 +15,7 @@ class UserData extends \Edutiek\AssessmentService\System\Data\UserData
     private ?string $matriculation = null;
     private string $language = '';
     private ?DateTimeZone $timezone;
+    private string $email;
 
     public function __construct(
         private int $id,
@@ -27,6 +28,7 @@ class UserData extends \Edutiek\AssessmentService\System\Data\UserData
         string $firstname,
         string $lastname,
         ?string $matriculation,
+        string $email,
         string $language,
         DateTimeZone $timezone
     ): self {
@@ -35,6 +37,7 @@ class UserData extends \Edutiek\AssessmentService\System\Data\UserData
         $this->firstname = $firstname;
         $this->lastname = $lastname;
         $this->matriculation = $matriculation;
+        $this->email = $email;
         $this->language = $language;
         $this->timezone = $timezone;
 
@@ -70,6 +73,11 @@ class UserData extends \Edutiek\AssessmentService\System\Data\UserData
     public function getMatriculation(): ?string
     {
         return $this->matriculation;
+    }
+
+    public function getEmail(): string
+    {
+        return $this->email;
     }
 
     public function getLanguage(): string

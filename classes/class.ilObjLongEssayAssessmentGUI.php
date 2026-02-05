@@ -33,6 +33,7 @@ use ILIAS\Plugin\LongEssayAssessment\CorrectionAdmin\CorrectorAdminStatisticsGUI
 use ILIAS\Plugin\LongEssayAssessment\CorrectionAdmin\CorrectorAdminWriterStatisticsGUI;
 use ILIAS\Plugin\LongEssayAssessment\Writer\WriterStatisticsGUI;
 use ILIAS\Plugin\LongEssayAssessment\Corrector\CorrectorStatisticsGUI;
+use ILIAS\Plugin\LongEssayAssessment\Corrector\CorrectorTemplateGUI;
 
 /**
  * Plugin GUI Class
@@ -257,6 +258,12 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                         $this->ctrl->forwardCommand(new CorrectorStartGUI($this->object));
                     }
                     break;
+                case strtolower(CorrectorTemplateGUI::class):
+                    if ($this->permissions->canViewCorrectorScreen()) {
+                        $this->activateTab('tab_corrector', 'tab_corrector_template');
+                        $this->ctrl->forwardCommand(new CorrectorTemplateGUI($this->object));
+                    }
+                    break;
                     //                case 'ilias\plugin\longessayassessment\corrector\correctorcriteriagui':
                     //                    if ($this->permissions->canViewCorrectorScreen()) {
                     //                        $this->activateTab('tab_corrector', 'tab_corrector_criteria');
@@ -362,7 +369,7 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
             $switches['ref'] = $this->ui_factory->input()->field()->group([
                 'id' => array_reduce(
                     $this->templates(),
-                    fn (Radio $r, array $o) => $r->withOption(...$o),
+                    fn(Radio $r, array $o) => $r->withOption(...$o),
                     $this->ui_factory->input()->field()->radio($txt('template'))
                 ),
             ], $txt('use_template'));
@@ -597,13 +604,18 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                 'txt' => $this->plugin->txt('tab_corrector_start'),
                 'url' => $this->ctrl->getLinkTargetByClass(strtolower(CorrectorStartGUI::class))
             ];
-            //            if($this->permissions->canViewCorrectorScreen()) {
+            $tabs[] = [
+                'id' => 'tab_corrector_template',
+                'txt' => $this->plugin->txt('tab_corrector_template'),
+                'url' => $this->ctrl->getLinkTargetByClass(strtolower(CorrectorTemplateGUI::class))
+            ];
+
             //                $tabs[] = [
             //                    'id' => 'tab_corrector_criteria',
             //                    'txt' => $this->plugin->txt('tab_criteria'),
             //                    'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessayassessment\corrector\correctorcriteriagui')
             //                ];
-            //            }
+
             if ($this->permissions->canViewCorrectionStatistics()) {
                 $tabs[] = [
                     'id' => 'tab_corrector_statistic',

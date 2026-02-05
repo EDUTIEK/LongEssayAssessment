@@ -47,7 +47,7 @@ class CorrectorRepo implements \Edutiek\AssessmentService\Assessment\Data\Correc
 
     public function hasByCorrectorIdAndAssId(int $corrector_id, int $ass_id): bool
     {
-        return $this->repo->hasBy(['corrector_id' => $corrector_id, 'ass_id' => $ass_id]);
+        return $this->repo->hasBy(['id' => $corrector_id, 'ass_id' => $ass_id]);
     }
 
     public function one(int $id): ?Corrector

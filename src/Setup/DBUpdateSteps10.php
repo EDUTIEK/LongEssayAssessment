@@ -52,7 +52,7 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
     {
         $this->prepare($db);
 
-        $execution_log = new ilDBStepExecutionDB($this->db, fn () => new \DateTime());
+        $execution_log = new ilDBStepExecutionDB($this->db, fn() => new \DateTime());
         $step_reader = new ilDBStepReader();
 
         $last_started_step = $execution_log->getLastStartedStep(self::class);
@@ -1024,7 +1024,7 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
                 }
             }
 
-            if($this->db->tableExists('xlas_temp_essay')) {
+            if ($this->db->tableExists('xlas_temp_essay')) {
                 $this->db->dropTable('xlas_temp_essay');
             }
 
@@ -1032,8 +1032,8 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
                 'id' => ['notnull' => 1, 'type' => ilDBConstants::T_INTEGER],
                 'word_count' => ['notnull' => 1, 'type' => ilDBConstants::T_INTEGER]
             ]);
-            $iqa = fn ($a) => array_map(fn ($b) => $this->db->quote($b, ilDBConstants::T_INTEGER), $a);
-            $values = array_map(fn ($k, $v) => "($k, $v)", $iqa(array_keys($counts)), $iqa($counts));
+            $iqa = fn($a) => array_map(fn($b) => $this->db->quote($b, ilDBConstants::T_INTEGER), $a);
+            $values = array_map(fn($k, $v) => "($k, $v)", $iqa(array_keys($counts)), $iqa($counts));
             $this->db->manipulate("INSERT INTO xlas_temp_essay (id, word_count) VALUES " . implode(',', $values));
             $this->db->manipulate("UPDATE xlas_et_essay e JOIN xlas_temp_essay t ON e.id = t.id SET e.word_count = t.word_count");
             $this->db->dropTable('xlas_temp_essay');
@@ -1096,5 +1096,26 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
 
         $this->db->manipulate($update);
 
+    }
+
+    public function step_64(): void
+    {
+        if (!$this->db->tableExists('xlas_ta_corr_template')) {
+            $fields = [
+                'id' => ['notnull' => 1, 'type' => ilDBConstants::T_INTEGER],
+                'task_id' => ['notnull' => 1, 'type' => ilDBConstants::T_INTEGER],
+                'corrector_id' => ['notnull' => 1, 'type' => ilDBConstants::T_INTEGER],
+                'shared' => ['notnull' => 1, 'type' => ilDBConstants::T_INTEGER],
+                'content' => ['type' => ilDBConstants::T_TEXT]
+            ];
+            $this->db->createTable('xlas_ta_corr_template', $fields);
+            $this->db->addPrimaryKey('xlas_ta_corr_template', ['id']);
+            $this->db->addIndex("xlas_ta_corr_template", ["task_id"], "i1");
+            $this->db->addIndex("xlas_ta_corr_template", ["corrector_id"], "i2");
+
+            if (!$this->db->sequenceExists('xlas_ta_corr_template')) {
+                $this->db->createSequence('xlas_ta_corr_template');
+            }
+        }
     }
 }

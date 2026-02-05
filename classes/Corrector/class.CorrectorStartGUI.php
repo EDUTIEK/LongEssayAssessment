@@ -7,7 +7,6 @@ namespace ILIAS\Plugin\LongEssayAssessment\Corrector;
 use Edutiek\AssessmentService\Assessment\Format\FullService as FormatService;
 use Edutiek\AssessmentService\Assessment\Permissions\ReadService as PermissionService;
 use Edutiek\AssessmentService\Assessment\TaskInterfaces\GradingPosition;
-use ILIAS\Data\ReferenceId;
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\BaseObjectData;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\DataTableParent;
@@ -35,14 +34,10 @@ use Edutiek\AssessmentService\Assessment\TaskInterfaces\GradingStatus;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\Helper\ConfirmationIds;
 use DateTimeZone;
-use ILIAS\StaticURL\Builder\StandardURIBuilder;
 use Edutiek\AssessmentService\Assessment\Data\CorrectionProcedure;
-use Edutiek\AssessmentService\Assessment\Data\Writer;
 use Edutiek\AssessmentService\Task\CorrectionProcess\FullService as CorrectionProcess;
 use ILIAS\Plugin\LongEssayAssessment\Jump;
-use ILIAS\Plugin\LongEssayAssessment\GUI\Correction\CorrectionItem;
 use Edutiek\AssessmentService\Assessment\Data\WritingTask;
-use ILIAS\Plugin\LongEssayAssessment\GUI\Writer\WriterItem;
 
 /**
  *Start page for correctors

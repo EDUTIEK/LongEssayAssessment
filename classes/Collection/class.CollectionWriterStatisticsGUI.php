@@ -90,16 +90,16 @@ class CollectionWriterStatisticsGUI
         $assessments = $data['by_assessment'];
 
         $general_statistic = $puf->statistic()->statistic(
-            $this->plugin->txt('corrections_all'),
+            $this->plugin->txt('total_statistic'),
             $general->getCount(),
             $this->plugin->txt('essay_count'),
             $general->getAttended(),
-            $this->plugin->txt('correction_final')
+            $this->plugin->txt('essay_final')
         )->withNotAttended($general->getNotAttended())
-                                 ->withNotPassed($general->getNotPassed())
-                                 ->withPassed($general->getPassed())
-                                 ->withAveragePoints($general->getAveragePoints() ?? 0)
-                                 ->withNotPassedQuota($general->getNotPassedQuota() ?? 0);
+         ->withNotPassed($general->getNotPassed())
+         ->withPassed($general->getPassed())
+         ->withAveragePoints($general->getAveragePoints() ?? 0)
+         ->withNotPassedQuota($general->getNotPassedQuota() ?? 0);
 
         if ($general->isGradesUniform()) {
             $general_statistic = $general_statistic->withGrades($general->getGradeCounts());
@@ -122,10 +122,10 @@ class CollectionWriterStatisticsGUI
                 $ass_statistic->getAttended(),
                 $this->plugin->txt('essay_final')
             )->withNotAttended($ass_statistic->getNotAttended())
-                             ->withNotPassed($ass_statistic->getNotPassed())
-                             ->withPassed($ass_statistic->getPassed())
-                             ->withAveragePoints($ass_statistic->getAveragePoints() ?? 0)
-                             ->withNotPassedQuota($ass_statistic->getNotPassedQuota() ?? 0);
+             ->withNotPassed($ass_statistic->getNotPassed())
+             ->withPassed($ass_statistic->getPassed())
+             ->withAveragePoints($ass_statistic->getAveragePoints() ?? 0)
+             ->withNotPassedQuota($ass_statistic->getNotPassedQuota() ?? 0);
 
             if ($ass_statistic->isGradesUniform()) {
                 $statistic = $statistic->withGrades($ass_statistic->getGradeCounts());

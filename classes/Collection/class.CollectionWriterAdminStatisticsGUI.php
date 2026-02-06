@@ -102,7 +102,7 @@ class CollectionWriterAdminStatisticsGUI
         $user = $data['by_user'];
 
         $general_statistic = $puf->statistic()->statistic(
-            $this->plugin->txt('corrections_all'),
+            $this->plugin->txt('total_statistic'),
             $general->getCount(),
             $this->plugin->txt('essay_count'),
             $general->getAttended(),
@@ -124,7 +124,7 @@ class CollectionWriterAdminStatisticsGUI
         $sections = [
             $puf->statistic()->statisticSection($this->plugin->txt("total_statistic")),
             $general_statistic,
-            $puf->statistic()->statisticSection($this->plugin->txt("writer_statistic")),
+            $puf->statistic()->statisticSection($this->plugin->txt("writers")),
         ];
 
         foreach ($user as $user_statistic) {

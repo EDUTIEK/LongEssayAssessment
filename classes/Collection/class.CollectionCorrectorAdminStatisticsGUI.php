@@ -134,11 +134,10 @@ class CollectionCorrectorAdminStatisticsGUI
             $this->plugin->txt('correction_count'),
             $general->getAttended(),
             $this->plugin->txt('correction_final')
-        )->withNotAttended($general->getNotAttended())
-                                 ->withNotPassed($general->getNotPassed())
-                                 ->withPassed($general->getPassed())
-                                 ->withAveragePoints($general->getAveragePoints() ?? 0)
-                                 ->withNotPassedQuota($general->getNotPassedQuota() ?? 0);
+        )->withNotPassed($general->getNotPassed())
+         ->withPassed($general->getPassed())
+         ->withAveragePoints($general->getAveragePoints() ?? 0)
+         ->withNotPassedQuota($general->getNotPassedQuota() ?? 0);
 
         if ($general->isGradesUniform()) {
             $general_statistic = $general_statistic->withGrades($general->getGradeCounts());
@@ -151,7 +150,7 @@ class CollectionCorrectorAdminStatisticsGUI
         $sections = [
             $puf->statistic()->statisticSection($this->plugin->txt("total_statistic")),
             $general_statistic,
-            $puf->statistic()->statisticSection($this->plugin->txt("corrector_statistic")),
+            $puf->statistic()->statisticSection($this->plugin->txt("correctors")),
         ];
 
         foreach ($correctors as $corrector_statistic) {
@@ -161,11 +160,10 @@ class CollectionCorrectorAdminStatisticsGUI
                 $this->plugin->txt('correction_count'),
                 $corrector_statistic->getAttended(),
                 $this->plugin->txt('correction_final')
-            )->withNotAttended($corrector_statistic->getNotAttended())
-                             ->withNotPassed($corrector_statistic->getNotPassed())
-                             ->withPassed($corrector_statistic->getPassed())
-                             ->withAveragePoints($corrector_statistic->getAveragePoints() ?? 0)
-                             ->withNotPassedQuota($corrector_statistic->getNotPassedQuota() ?? 0);
+            ) ->withNotPassed($corrector_statistic->getNotPassed())
+              ->withPassed($corrector_statistic->getPassed())
+              ->withAveragePoints($corrector_statistic->getAveragePoints() ?? 0)
+              ->withNotPassedQuota($corrector_statistic->getNotPassedQuota() ?? 0);
 
             if ($corrector_statistic->isGradesUniform()) {
                 $statistic = $statistic->withGrades($corrector_statistic->getGradeCounts());

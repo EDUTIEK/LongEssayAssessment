@@ -58,11 +58,10 @@ class CorrectorStatisticsGUI extends BaseGUI
         $general_statistic = $puf->statistic()->statistic(
             $this->plugin->txt('corrections_all'),
             $general->getCount(),
-            $this->plugin->txt('essay_count'),
+            $this->plugin->txt('correction_count'),
             $general->getAttended(),
             $this->plugin->txt('correction_final')
-        )->withNotAttended($general->getNotAttended())
-         ->withNotPassed($general->getNotPassed())
+        )->withNotPassed($general->getNotPassed())
          ->withPassed($general->getPassed())
          ->withAveragePoints($general->getAveragePoints()??0)
          ->withNotPassedQuota($general->getNotPassedQuota()??0);
@@ -76,16 +75,15 @@ class CorrectorStatisticsGUI extends BaseGUI
         }
 
         $own_statistic = $puf->statistic()->statistic(
-            $this->plugin->txt('tab_corrector'),
+            $this->plugin->txt('corrections_my'),
             $own->getCount(),
             $this->plugin->txt('correction_count'),
             $own->getAttended(),
             $this->plugin->txt('correction_final')
-        )->withNotAttended($own->getNotAttended())
-                                 ->withNotPassed($own->getNotPassed())
-                                 ->withPassed($own->getPassed())
-                                 ->withAveragePoints($own->getAveragePoints()??0)
-                                 ->withNotPassedQuota($own->getNotPassedQuota()??0);
+        )->withNotPassed($own->getNotPassed())
+         ->withPassed($own->getPassed())
+         ->withAveragePoints($own->getAveragePoints()??0)
+         ->withNotPassedQuota($own->getNotPassedQuota()??0);
 
         if ($own->isGradesUniform()) {
             $own_statistic = $own_statistic->withGrades($own->getGradeCounts());

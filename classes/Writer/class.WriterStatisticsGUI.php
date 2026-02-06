@@ -56,10 +56,10 @@ class WriterStatisticsGUI extends BaseGUI
             $general->getAttended(),
             $this->plugin->txt('essay_final')
         )->withNotAttended($general->getNotAttended())
-                                 ->withNotPassed($general->getNotPassed())
-                                 ->withPassed($general->getPassed())
-                                 ->withAveragePoints($general->getAveragePoints()??0)
-                                 ->withNotPassedQuota($general->getNotPassedQuota()??0);
+         ->withNotPassed($general->getNotPassed())
+         ->withPassed($general->getPassed())
+         ->withAveragePoints($general->getAveragePoints()??0)
+         ->withNotPassedQuota($general->getNotPassedQuota()??0);
 
         if ($general->isGradesUniform()) {
             $general_statistic = $general_statistic->withGrades($general->getGradeCounts());
@@ -74,8 +74,6 @@ class WriterStatisticsGUI extends BaseGUI
             $general_statistic = $general_statistic->withOwnGrade($grade?->getGrade() ?? "");
         }
 
-        $this->tpl->setContent($this->renderer->render(
-            $puf->statistic()->graphStatisticGroup($this->plugin->txt("statistic"), [$general_statistic])
-        ));
+        $this->tpl->setContent($this->renderer->render([$general_statistic]));
     }
 }

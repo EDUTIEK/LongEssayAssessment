@@ -886,6 +886,6 @@ corrector_template_label#:#Vorlage
 corrector_template_info#:#Mit dieser Vorlage wird das Gutachten bei der Korrektur automatisch befüllt. Wenn Sie die Vorlage ändern, bleiben ihre bereits geschriebenen Gutachten erhalten.
 share_corrector_template#:#Eigene Vorlage teilen
 adopt_corrector_template#:#Andere Vorlage übernehmen
-adopt_corrector_template_message#:#Wählen Sie einen Korrektoren, dess Vorlage Sie für sich übernehmen möchten. Sie bekommen die Vorlage vorab in einer Vorschau angezeigt.
+adopt_corrector_template_message#:#Wählen Sie einen Korrektoren, dessen Vorlage Sie für sich übernehmen möchten. Sie bekommen die Vorlage vorab in einer Vorschau angezeigt.
 adopt_corrector_template_confirm#:#Übernehmen
 corrector_template_adopted#:#Die Vorlage wurde übernommen

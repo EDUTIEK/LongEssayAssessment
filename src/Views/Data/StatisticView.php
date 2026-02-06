@@ -40,16 +40,17 @@ class StatisticView extends \Edutiek\AssessmentService\Views\Data\StatisticView
             $this->not_passed += $obj->isPassed() ? 0 : 1;
             $this->attended += $obj->isAttended() ? 1 : 0;
             $this->not_attended += $obj->isAttended() ? 0 : 1;
-            $point_sum += $obj->getPoints() ?? 0;
+            $point_sum += $obj->isFinalized() ? ($obj->getPoints() ?? 0) : 0;
             $sum_finalized = $obj->isFinalized() ? 1 : 0;
 
+            if($obj->isFinalized()) { // Only count finalized grades and points
+                $point_key = (string)abs($obj->getPoints()??0);
+                $grade_key = $obj->getGrade();
 
-            $point_key = (string)abs($obj->getPoints()??0);
-            $grade_key = $obj->getGrade();
-
-            $this->points_counts[$point_key] = ($this->points_counts[$point_key] ?? 0) + 1;
-            if ($grade_key !== null) {
-                $this->grade_counts[$grade_key] = ($this->grade_counts[$grade_key] ?? 0) + 1;
+                $this->points_counts[$point_key] = ($this->points_counts[$point_key] ?? 0) + 1;
+                if ($grade_key !== null) {
+                    $this->grade_counts[$grade_key] = ($this->grade_counts[$grade_key] ?? 0) + 1;
+                }
             }
         }
 

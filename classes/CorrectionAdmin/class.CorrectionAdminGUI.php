@@ -332,7 +332,7 @@ class CorrectionAdminGUI extends BaseGUI
             "download_corrected_pdf",
             $this->plugin->txt('download_corrected_pdf'),
             [$this, "downloadCorrectedPdf"],
-            fn(CorrectionItem $item) => $item->canDownloadCorrectionPdf(),
+            fn (CorrectionItem $item) => $item->canDownloadCorrectionPdf(),
             Action\Type::Standard
         );
     }
@@ -342,7 +342,7 @@ class CorrectionAdminGUI extends BaseGUI
      */
     public function downloadCorrectedPdf(array $items)
     {
-        $writings = array_map(fn(CorrectionItem $item) =>
+        $writings = array_map(fn (CorrectionItem $item) =>
         new WritingTask($item->getWriter()->getId(), $item->getTaskSettings()->getTaskId()), $items);
 
         $this->assessment_api->export()->downloadCorrections($writings, false, false);
@@ -528,12 +528,14 @@ class CorrectionAdminGUI extends BaseGUI
             ["excel" => $this->ui_factory->input()->field()->file(
                 $upload_handler,
                 $this->plugin->txt("assignment_excel_import"),
-                $this->plugin->txt("assignment_excel_import_info")
+                $this->plugin->txt($this->getSettings()->getMultiTasks() ? "assignment_excel_import_info_multi" : "assignment_excel_import_info"),
             )->withRequired(true)]
         );
+        $components = [$form];
 
         if ($this->request->getMethod() === "POST") {
             $form = $form->withRequest($this->request);
+            $components = [$form];
 
             if ($data = $form->getData()) {
                 $upload_id = (string) current($data['excel']);
@@ -546,16 +548,16 @@ class CorrectionAdminGUI extends BaseGUI
                     $data = $this->assignment_service->importSpreadsheet($stored->getId());
                     $possible_errors = $this->assignment_service->assignSpreadsheetData($data, true);
                     if (!empty($possible_errors)) {
-                        $possible_errors = array_merge([$this->lng->txt('corrector_assignment_change_file_failure')], $possible_errors);
-
-                        $error = $this->lng->txt('corrector_assignment_change_file_failure') .
-                            '<p class="small">' .
+                        $message = $this->ui_factory->messageBox()->failure(
+                            $this->plugin->txt('corrector_assignment_change_file_failure')
+                            . '<p class="small">' .
                             nl2br(implode("\n", $possible_errors)) .
-                            '</p>';
+                            '</p>'
+                        );
+                        $components = array_merge([$message], $components);
 
-                        $this->tpl->setOnScreenMessage("failure", implode("\n&nbsp;", $possible_errors), false);
                     } else {
-                        $this->tpl->setOnScreenMessage("success", $this->lng->txt('corrector_assignment_change_file_success'), true);
+                        $this->tpl->setOnScreenMessage("success", $this->plugin->txt('corrector_assignment_change_file_success'), true);
                         $this->assignment_service->assignSpreadsheetData($data, false);
                         $this->ctrl->redirect($this);
                     }
@@ -568,7 +570,7 @@ class CorrectionAdminGUI extends BaseGUI
             }
         }
 
-        $this->tpl->setContent($this->renderer->render($form));
+        $this->tpl->setContent($this->renderer->render($components));
     }
 
     public function getTableActions(): array

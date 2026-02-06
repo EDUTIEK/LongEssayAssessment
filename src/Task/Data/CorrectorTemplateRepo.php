@@ -54,6 +54,11 @@ readonly class CorrectorTemplateRepo implements \Edutiek\AssessmentService\Task\
         return $this->repo->queryAllBy(['task_id' => $task_id]);
     }
 
+    public function sharableCorrectorIds(int $task_id): array
+    {
+        return $this->repo->queryIntegersBy(['task_id' => $task_id, 'shared' => 1], 'corrector_id');
+    }
+
     public function save(CorrectorTemplate $entity): void
     {
         $this->repo->replace($entity);

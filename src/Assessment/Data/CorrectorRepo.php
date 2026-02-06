@@ -60,6 +60,11 @@ class CorrectorRepo implements \Edutiek\AssessmentService\Assessment\Data\Correc
         return $this->repo->queryOneBy(['user_id' => $user_id, 'ass_id' => $ass_id]);
     }
 
+    public function some(array $ids): array
+    {
+        return $this->repo->queryAllBy(['id' => $ids]);
+    }
+
     public function allByAssId(int $ass_id): array
     {
         return $this->repo->queryAllBy(['ass_id' => $ass_id]);

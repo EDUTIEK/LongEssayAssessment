@@ -9,7 +9,7 @@ use ILIAS\UI\Implementation\Component\Input\Container\Form\Form;
 use ILIAS\UI\Implementation\Component\JavaScriptBindable;
 use ILIAS\UI\Implementation\Component\SignalGeneratorInterface;
 
-class BlankForm extends Form
+class BlankForm extends Form implements C\JavaScriptBindable
 {
     use JavaScriptBindable;
 

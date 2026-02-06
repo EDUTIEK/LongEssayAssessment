@@ -66,7 +66,7 @@ tab_writer_start#:#Meine Aufgabe
 tab_corrector#:#Meine Korrektur
 tab_corrector_start#:#Abgaben
 tab_writer_admin#:#Teilnahmeverwaltung
-tab_writer_admin_log#:#Aufsichtsprotokoll
+tab_exam_log#:#Prüfungsprotokoll
 tab_corrector_admin#:#Korrekturverwaltung
 tab_corrector_export#:#Abgaben exportieren
 tab_dashboard#:#Aufsicht
@@ -152,8 +152,8 @@ review_period#:#Einsichtnahme (für freigegebene Abgaben)
 result#:#Ergebnis
 submission#:#Abgabe
 view_submission#:#Abgabe ansehen
-download_written_submission#:#Geschriebene Abgabe herunterladen
-download_corrected_submission#:#Korrigierte Abgabe herunterladen
+download_written_submission#:#Abgabe-Datei
+download_corrected_submission#:#Korrektur-Datei
 task_resources#:#Hilfsmittel zur Aufgabe
 available#:#Verfügbar
 participant#:#Teilnehmer
@@ -163,7 +163,7 @@ assign_writers#:#Korrektoren zuweisen
 1_assigned_corrector#:#Ein Korrektor wurde erfolgreich zugewiesen.
 n_assigned_correctors#:#%s Korrektoren wurden erfolgreich zugewiesen.
 view_correction#:#Korrektur einsehen
-change_corrector#:#Korrekturzuweisung ändern
+change_corrector#:#Korrekturzuweisung
 correctable_exams#:#Zu korrigierende Abgaben
 writing_status#:#Abgabe
 writing_status_not_written#:#nicht teilgenommen
@@ -175,7 +175,7 @@ correction_status_writing_not_started#:#nicht teilgenommen
 correction_status_writing_started#:#in Teilnahme
 correction_status_writing_authorized#:#Abgabe freigegeben
 correction_status_not_possible#:#nicht möglich
-correction_status_open#:#offen
+correction_status_open#:#Korrektur offen
 correction_status_finished#:#abgeschlossen
 correction_status_stitch#:#im Stichentscheid
 correction_status_approximation#:#in Annäherung
@@ -198,8 +198,8 @@ grading_pos_first#:#Erstkorrektur
 grading_pos_second#:#Zweitkorrektur
 grading_pos_stitch#:#Stichentscheid
 assignment_pos_single#:#Korrektor
-assignment_pos_first#:#Erstkorrektur
-assignment_pos_second#:#Zweitkorrektur
+assignment_pos_first#:#Erstkorrektor
+assignment_pos_second#:#Zweitkorrektor
 assignment_pos_sticht#:#Stichentscheider
 assignment_pos_x#:#%s. Korrektur
 assignment_pos_empty#:#nicht ausgewählt
@@ -261,19 +261,14 @@ alert_send#:#Gesendet
 log_type_alert#:#Benachrichtigung
 log_entry_entered#:#Eingetragen
 log_entries#:#Protokolleinträge
-log_entry_writing_post_authorized#:#Die Abgabe von %s wurde durch %s nachträglich freigegeben.
-log_entry_working_time_changed#:#Die Bearbeitungszeit von %s wurde durch %s angepasst.
-log_entry_working_time_deleted#:#Die Anpassung der Bearbeitungszeit von %s wurde durch %s entfernt.
 log_entry_working_time_note#:#Zeitanpassung: %s
-log_entry_writer_note#:#Notiz zu Teilnehmer %s von %s.
-log_entry_writer_exclusion#:#Die Teilnahme von %s wurde durch %s ausgeschlossen.
-log_entry_writer_removal#:#Die Teilnahme von %s wurde durch %s entfernt.
 log_type_exclusion#:#Ausschluss
 log_type_working_time#:#Zeitanpassung
 log_type_authorize#:#Freigabe
 log_type_note#:#Notiz
 log_type_all#:#Alle
-log_entry_text#:#Notiz
+log_entry_text#:#Protokollierte Notiz
+log_entry_text_info#:#Bitte geben Sie mindesten 5 Zeichen ein
 alert_text#:#Text
 alert_recipient#:#Empfänger
 alert_recipient_all#:#Alle
@@ -281,13 +276,12 @@ add_log_entry_for writer#:#Protokolleintrag hinzufügen
 create_log_entry#:#Notiz hinzufügen
 create_alert#:#Benachrichtigung senden
 alert_created#:#Benachrichtigung wurde gesendet.
-log_entry_created#:#Notiz wurde hinzugefügt.
+log_entry_created#:#Protokolleintrag wurde hinzugefügt.
 corrector_assignment_changed#:#Korrekturzuweisung wurde geändert.
 writing_excluded_from#:#ausgeschlossen von
 repeal_exclude_participant#:#Ausschluss aufheben
 repeal_exclude_participant_confirmation#:#Wollen Sie den Ausschluss des folgenden Teilnahme wirklich aufheben?
 missing_essay#:#Aufsatz konnte nicht gefunden werden.
-log_entry_writer_repealed_exclusion#:#Der Ausschluss der Teilnahme von %s wurde durch %s aufgehoben.
 essay_not_excluded#:#Die Teilnahme wurde nicht ausgeschlossen und der Ausschluss kann daher nicht aufgehoben werden.
 exclude_writer_repeal_success#:#Ausschluss der Teilnahme erfolgreich aufgehoben.
 resource_availability_before#:#Vor Start der Bearbeitung
@@ -334,18 +328,15 @@ assign_not_needed#:#Es gibt keine freigegebenen Abgaben mit fehlender Korrekturz
 assign_not_available#:#Es sind keine Korrektoren verfügbar, die zugewiesen werden könnten!
 assign_missing_correctors#:#Fehlende Korrekturzuweisungen: %s
 assign_available_correctors#:#Verfügbare Korrekturkräfte: %s
-required_correctors#:#Anzahl Korrekturen
 mutual_visibility#:#Gegenseitige Sichtbarkeit
 mutual_visibility_info#:#Korrektoren derselben Abgabe können ihre Korrekturen gegenseitig sehen, sobald sie freigegeben sind.
 max_points#:#Maximale Punkte
-max_auto_distance#:#Maximaler Punkteunterschied
-max_auto_distance_info#:#Maximaler Unterschied zwischen niedrigster und höchster Punktzahl, bei der eine Durchschnittsnote gebildet werden kann und kein Stichentscheid notwendig ist
 tab_correction_settings#:#Korrektur
 tab_correction_items#:#Abgaben
 correction_settings#:#Korrektur-Einstellungen
 message_no_correction_items#:#Ihnen sind noch keine Abgaben zur Korrektur zugewiesen.
 correction_period#:#Korrektur-Zeitraum
-final_grade#:#Endnote
+final_grade#:#End-Note
 actions#:#Aktionen
 delete_writer_data#:#Alle Teilnahmedaten entfernen
 delete_writer_data_confirmation#:#Sind Sie sicher, dass Sie alle Teilnahmedaten unwiderruflich entfernen möchten?
@@ -360,8 +351,8 @@ via_stitch_decision#:#per Stichentscheid
 remove_writer#:#Teilnahme entfernen
 remove_writer_confirmation#:#Sind Sie sicher, dass Sie die Teilnehmer-Daten unwiderruflich entfernen möchten?<br>Bitte bestätigen Sie das durch Eingabe einer Begründung. Ihre Aktion wird mit dieser Begründung protokolliert.
 remove_writer_success#:#Teilnahme erfolgreich entfernt.
-export_log#:#Aufsichtsprotokoll exportieren
-export_log_file_prefix#:#Aufsichtsprotokoll
+exam_log_export#:#Prüfungsprotokoll exportieren
+exam_log#:#Prüfungsprotokoll
 log_time#:#Zeit
 log_until#:#Bis
 log_category#:#Kategorie
@@ -374,10 +365,6 @@ log_cat_note#:#Notiz
 log_cat_working_time#:#Zeitanpassung
 log_cat_exclusion#:#Ausschluss
 log_cat_alert#:#Benachrichtigung
-correction_filter_not_started#:#fällig
-correction_filter_started#:#selbst begonnen
-correction_filter_authorized#:#selbst freigegeben
-correction_filter_stitch#:#Stichentscheid notwendig
 export_steps#:#Bearbeitungsschritte exportieren
 view_instructions#:#Aufgabenstellung ansehen
 view_solution#:#Lösungshinweise ansehen
@@ -402,20 +389,18 @@ potential_authorizations_not_started#:#Noch nicht gestartet, aber in Bearbeitung
 potential_authorizations_writing#:#In Bearbeitung und in Bearbeitungszeit: %s
 potential_authorizations_after#:#Nach Bearbeitungszeit, aber noch nicht zur Korrektur abgegeben: %s
 settings_stitch_required#:#Stichentscheid
-stitch_when_distance#:#Bei abweichenden Punkten
-stitch_when_decimals#:#Wenn der Punktedurchschnitt keine ganze Zahl ist
 remove_authorization#:#Korrektur-Freigabe zurückziehen
 remove_authorizations#:#Korrektur-Freigaben zurückziehen
 confirm_remove_authorizations_for#:#Möchten Sie die Freigabe der Korrektur(en) für %s zurückziehen? Diese Aktion wird protokolliert.
-remove_authorizations_for_done#:#Die Korrektur-Freigaben für %s wurden zurückgezogen.
-remove_authorizations_for_failed#:#Die Korrektur-Freigaben für %s konnten nicht zurückgezogen werden.
-log_entry_removed_authorization#:#Die Freigabe der Korrekturen für %s wurde durch %s zurückgezogen.
+remove_authorizations_done#:#Die Korrektur-Freigaben wurden zurückgezogen.
+remove_authorizations_changed#:#Zurückgezogen:
+remove_authorizations_unchanged#:#Unverändert:
+remove_authorizations_failed#:#Ihre Auswahl enthält keine Freigaben die zurückgezogen können.
 remove_own_authorization#:#Freigaben zurückziehen
 remove_own_authorization_for#:#Freigaben für %s zurückziehen
 confirm_remove_own_authorization#:#Möchten Sie folgende Korrektur-Freigabe zurückziehen? Diese Aktion wird protokolliert.
 remove_own_authorization_done#:#Ihre Korrektur-Freigaben wurden zurückgezogen.
 remove_own_authorization_failed#:#Ihre Korrektur-Freigaben für %s konnte nicht zurückgezogen werden.
-log_entry_removed_own_authorization#:#Die Freigabe der eigenen Korrektur für %s wurde durch %s zurückgezogen.
 own_position#:#Funktion
 filter_own_position#:#Nach Korrekturfunktion filtern
 own_correction#:#Eigene Korrekturen
@@ -460,7 +445,7 @@ assign_location#:#Teilnahmeort zuweisen
 change_location#:#Teilnahmeort ändern
 location_assigned#:#Teilnahmeort erfolgreich zugewiesen.
 closing_message#:#Abschlussmeldung
-closing_message_info#:#Die Abschlussmeldung wird den Teilnehmenden nach der Abgabe im Reiter Meine Abgabe angezeigt.
+closing_message_info#:#Die Abschlussmeldung wird den Teilnehmenden nach der Abgabe im Reiter "Meine Abgabe" angezeigt.
 solution_is_not_available#:#Die Lösungshinweise werden aktuell nicht angezeigt. Sie können unter „Organisation ► Lösungshinweise verfügbar“ aktiviert werden.
 task_instructions_file#:#Aufgabenstellung als PDF
 task_solution_file#:#Lösungshinweise als PDF
@@ -484,14 +469,9 @@ no_authorizations_to_remove#:#In Ihrer Auswahl waren keine Korrektur-Freigaben, 
 no_corrections_to_authorize#:#In Ihrer Auswahl waren keine Korrekturen, die freigegeben werden können.
 download_instructions#:#Aufgabenstellung herunterladen
 download_solution#:#Lösungshinweise herunterladen
-authorize_pdf_version_info#:#Wenn eine PDF-Abgabe hinzugefügt oder geändert wird, wird eine bisherige Freigabe je nach Einstellung zurückgezogen oder durch Sie erneuert.
 pdf_version#:#PDF-Abgabe
 pdf_version_edit#:#PDF-Abgabe editieren
 pdf_version_upload#:#PDF-Abgabe hochladen
-pdf_version_info_already_uploaded#:#Wenn Sie die vorhandene PDF-Abgabe entfernen oder ersetzen, werden die Markierungen und Bemerkungen bereits begonnener Korrekturen verworfen!
-pdf_version_info_started_essay#:#Der Teilnehmer hat bereits mit einem Text begonnen. Möchten Sie diese Ergebnisse wirklich mit einer PDF-Abgabe ergänzen? Die Markierungen und Bemerkungen bereits begonnener Korrekturen werden dabei verworfen.
-pdf_version_warning_authorized_essay#:#Der Teilnehmer hat bereits einen Text abgegeben und freigegeben. Möchten Sie diese Ergebnisse wirklich mit einer PDF-Abgabe ergänzen? Die Markierungen und Bemerkungen bereits begonnener Korrekturen werden dabei verworfen.
-log_entry_writing_removed_authorized#:#Die Freigabe der Abgabe von %s wurde durch %s zurückgezogen.
 pdf_version_download#:#PDF-Abgabe herunterladen
 download#:#Herunterladen
 download_writing#:#Abgabe herunterladen
@@ -588,13 +568,12 @@ pdf_left_margin_info#:#Minimum:  5
 pdf_right_margin#:#Rechter Rand (mm)
 pdf_right_margin_info#:#Minimum:  5
 unknown#:#unbekannt
-log_entry_note#:#Notiz von %s:
 import_missing_column#:#In der Datei fehlt eine Spalte mit dem Titel %s.
 import_line_user_not_found#:#Zeile %s: das Konto „%s” wurde nicht gefunden.
 import_line_writer_repeated#:#Zeile %s: das Konto „%s” wird wiederholt.
 import_line_corrector_repeated#:#Zeile %s: das Konto „%s” ist mehrfach zur Korrektur eingetragen.
 assignment_excel_import_info#:#Die Korrekturzuweisungen werden vom Blatt mit dem Titel „Teilnehmer” einer Excel-Datei importiert, dessen erste Zeile die Spaltenbezeichnungen enthält. Sie muss die Bezeichnungen „Anmeldename” für den Teilnehmer, „Korrektor 1” für den Korrektor und evtl. „Korrektor 2” für eine Zweitkorrektur und „Korrektor 3” für den Stichentscheider enthalten. Die Export-Datei besitzt bereits das korrekte Format. In diesen Spalten werden Anmeldenamen von Benutzerkonten eingetragen, die im System existieren müssen. Falls sie noch nicht als Teilnehmer oder Korrektor eingetragen sind, wird das automatisch gemacht.
-assignment_excel_import_info_multi#:#Die Korrekturzuweisungen werden vvom Blatt mit dem Titel „Teilnehmer” einer Excel-Datei importiert, dessen erste Zeile die Spaltenbezeichnungen enthält. Sie muss die Bezeichnungen „Anmeldename” für den Teilnehmer und die Aufgabennamen für die Korrektoren der jeweiligen Aufgabe enthalten. Die Export-Datei besitzt bereits das korrekte Format. In diesen Spalten werden Anmeldenamen von Benutzerkonten eingetragen, die im System existieren müssen. Falls sie noch nicht als Teilnehmer oder Korrektor eingetragen sind, wird das automatisch gemacht.
+assignment_excel_import_info_multi#:#Die Korrekturzuweisungen werden vom Blatt mit dem Titel „Teilnehmer” einer Excel-Datei importiert, dessen erste Zeile die Spaltenbezeichnungen enthält. Sie muss die Bezeichnungen „Anmeldename” für den Teilnehmer und die Aufgabennamen für die Korrektoren der jeweiligen Aufgabe enthalten. Die Export-Datei besitzt bereits das korrekte Format. In diesen Spalten werden Anmeldenamen von Benutzerkonten eingetragen, die im System existieren müssen. Falls sie noch nicht als Teilnehmer oder Korrektor eingetragen sind, wird das automatisch gemacht.
 add_all_course_tutors#:#Kursbetreuung hinzufügen
 confirm_add_all_course_tutors#:#Möchten Sie die Kursbetreuung zur Korrektur hinzufügen?
 tutors_added#:#Die Kursbetreuung wurde zur Korrektur hinzugefügt
@@ -711,10 +690,8 @@ x_hours#:#%s Stunden
 x_minutes#:#%s Minuten
 x_seconds#:#%s Sekunden
 message_form_not_saved#:#Ihre Eingaben sind noch nicht gespeichert.
-failure_form_validation:#Die Formulareingaben sind fehlerhaft
-failure_latest_end_before_earliest_start#:#Das späteste Bearbeitungs-Ende liegt vor dem frühesten Bearbeitungs-Start.
-failure_time_limit_too_long#:#Die begrenzte Bearbeitungsdauer überschreitet das verfügbare Zeitfenster.
-delete_individual_working_time#:#Anpassung entfernen
+failure_form_validation#:#Die Formulareingaben sind fehlerhaft
+delete_individual_working_time#:#Zeitanpassung entfernen
 delete_individual_working_time_confirmation#:#Möchten Sie die indivuduelle Anpassung der Bearbeitungzeit entfernen?
 one_working_time_deleted#:#Die Anpassung der Bearbeitungszeit wurde entfernt.
 x_working_times_deleted#:#%s Anpassungen der Bearbeitungszeit wurden entfernt.

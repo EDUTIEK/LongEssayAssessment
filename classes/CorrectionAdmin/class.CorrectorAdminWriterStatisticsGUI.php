@@ -48,7 +48,7 @@ class CorrectorAdminWriterStatisticsGUI  extends BaseGUI
         $general = $this->statistic_repo->oneAssessment($this->object->getAssId(), []);
 
         $general_statistic = $puf->statistic()->statistic(
-            $this->plugin->txt('corrections_all'),
+            $this->plugin->txt('total_statistic'),
             $general->getCount(),
             $this->plugin->txt('essay_count'),
             $general->getAttended(),
@@ -68,8 +68,6 @@ class CorrectorAdminWriterStatisticsGUI  extends BaseGUI
         }
 
 
-        $this->tpl->setContent($this->renderer->render(
-            $puf->statistic()->graphStatisticGroup($this->plugin->txt("statistic"), [$general_statistic])
-        ));
+        $this->tpl->setContent($this->renderer->render([$general_statistic]));
     }
 }

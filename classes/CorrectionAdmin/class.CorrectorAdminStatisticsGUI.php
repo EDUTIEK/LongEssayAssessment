@@ -55,8 +55,7 @@ class CorrectorAdminStatisticsGUI extends BaseGUI
             $this->plugin->txt('correction_count'),
             $general->getAttended(),
             $this->plugin->txt('correction_final')
-        )->withNotAttended($general->getNotAttended())
-         ->withNotPassed($general->getNotPassed())
+        )->withNotPassed($general->getNotPassed())
          ->withPassed($general->getPassed())
          ->withAveragePoints($general->getAveragePoints()??0)
          ->withNotPassedQuota($general->getNotPassedQuota()??0);
@@ -73,7 +72,7 @@ class CorrectorAdminStatisticsGUI extends BaseGUI
         $sections = [
             $puf->statistic()->statisticSection($this->plugin->txt("total_statistic")),
             $general_statistic,
-            $puf->statistic()->statisticSection($this->plugin->txt("corrector_statistic"))
+            $puf->statistic()->statisticSection($this->plugin->txt("correctors"))
         ];
 
         foreach ($correctors as $corrector) {
@@ -83,11 +82,10 @@ class CorrectorAdminStatisticsGUI extends BaseGUI
                 $this->plugin->txt('correction_count'),
                 $corrector->getAttended(),
                 $this->plugin->txt('correction_final')
-            )->withNotAttended($corrector->getNotAttended())
-                                     ->withNotPassed($corrector->getNotPassed())
-                                     ->withPassed($corrector->getPassed())
-                                     ->withAveragePoints($corrector->getAveragePoints()??0)
-                                     ->withNotPassedQuota($corrector->getNotPassedQuota()??0);
+            )->withNotPassed($corrector->getNotPassed())
+             ->withPassed($corrector->getPassed())
+             ->withAveragePoints($corrector->getAveragePoints()??0)
+             ->withNotPassedQuota($corrector->getNotPassedQuota()??0);
 
             if ($corrector->isGradesUniform()) {
                 $statistic = $statistic->withGrades($corrector->getGradeCounts());

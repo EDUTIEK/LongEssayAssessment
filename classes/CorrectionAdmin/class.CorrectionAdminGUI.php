@@ -332,7 +332,7 @@ class CorrectionAdminGUI extends BaseGUI
             "download_corrected_pdf",
             $this->plugin->txt('download_corrected_pdf'),
             [$this, "downloadCorrectedPdf"],
-            fn (CorrectionItem $item) => $item->canDownloadCorrectionPdf(),
+            fn(CorrectionItem $item) => $item->canDownloadCorrectionPdf(),
             Action\Type::Standard
         );
     }
@@ -342,7 +342,7 @@ class CorrectionAdminGUI extends BaseGUI
      */
     public function downloadCorrectedPdf(array $items)
     {
-        $writings = array_map(fn (CorrectionItem $item) =>
+        $writings = array_map(fn(CorrectionItem $item) =>
         new WritingTask($item->getWriter()->getId(), $item->getTaskSettings()->getTaskId()), $items);
 
         $this->assessment_api->export()->downloadCorrections($writings, false, false);
@@ -434,7 +434,7 @@ class CorrectionAdminGUI extends BaseGUI
             array_merge(
                 ["image", "name", "login", "pseudonym", $location_avaiable ? "location" : null, "status", $multi ? "task" : null,
                          "writing_last_save", "word_count", "pdf_version", "result", "points", "grade", "finalized", "finalized_date", "finalized_name", "finalized_from_status"],
-                ...array_map(fn($p) => ["corr_{$p}", "corr_{$p}_name", "corr_{$p}_status", "corr_{$p}_points", $multi ? "corr_{$p}_grade" : null, "corr_{$p}_authorized"], range(0, $corrections - 1)),
+                ...array_map(fn ($p) => ["corr_{$p}", "corr_{$p}_name", "corr_{$p}_status", "corr_{$p}_points", $multi ? "corr_{$p}_grade" : null, "corr_{$p}_authorized"], range(0, $corrections - 1)),
             )
         )->setInitialVisibleColumns(["name", "login", "pseudonym", "location", "status", $has_started ? "writing_last_save" : null, $has_started ? "word_count" : null, "corr_1", "corr_2", "result"])
          ->setHasFilterFields(["name", $multi ? "task" : null, "location", "min_words", "max_words", "status", "assigned", "pdf_version"])
@@ -592,7 +592,7 @@ class CorrectionAdminGUI extends BaseGUI
     {
         return $this->plugin_ui_factory->field()->info($this->plugin->txt('writing_parts'))
              ->withInfo($this->ui_factory->listing()->unordered(
-                 array_map(fn(CorrectionItem $item) => $item->getWriterName()
+                 array_map(fn (CorrectionItem $item) => $item->getWriterName()
                   . ($this->object->getMultiTasks() ? ', ' . $item->getTaskSettings()->getTitle() : ''), $items)
              ));
     }

@@ -128,7 +128,7 @@ class CorrectionTableParent implements DataTableParent, FilterParent
             "pseudonym" => $cf->text($this->plugin->txt("pseudonym"))->withIsOptional(true, false)->withIsSortable(true),
             "location" => $cf->text($this->plugin->txt("location"))->withIsOptional(true, false)->withIsSortable(true),
             "task" => $cf->text($this->plugin->txt("task"))->withIsOptional(false)->withIsSortable(true),
-            "status" => $cf->status($this->plugin->txt("status"))->withIsOptional(true, true)->withIsSortable(true),
+            "status" => $cf->status($this->plugin->txt("correction_status"))->withIsOptional(true, true)->withIsSortable(true),
             "writing_last_save" => $cfp->nullableDate(
                 $this->plugin->txt("writing_last_save"),
                 $date_with_seconds

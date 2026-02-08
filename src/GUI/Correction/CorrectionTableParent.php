@@ -21,7 +21,7 @@ use Edutiek\AssessmentService\System\User\ReadService as UserService;
 use Edutiek\AssessmentService\EssayTask\Essay\ClientService as EssayService;
 use Edutiek\AssessmentService\Task\AssessmentStatus\FullService as AssessmentStatus;
 use ILIAS\Plugin\LongEssayAssessment\BaseObjectData;
-use Edutiek\AssessmentService\Task\CorrectorSummary\FullService as SummaryService;
+use Edutiek\AssessmentService\Task\CorrectorSummary\ReadService as SummaryService;
 use Edutiek\AssessmentService\Task\CorrectorAssignments\FullService as CorrectorAssignmentsService;
 use Edutiek\AssessmentService\Assessment\Corrector\FullService as CorrectorService;
 use Edutiek\AssessmentService\Assessment\Data\Location;

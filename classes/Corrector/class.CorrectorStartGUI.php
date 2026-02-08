@@ -248,8 +248,7 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
                 . $this->format_service->correctionResult($x->getSummary()),
             fn(CorrectorStartItem $x) =>
                 $this->correction_process->canAuthorize($x->getAssignment())
-                && $x->getSummary()->getPoints() !== null
-                && !(empty($x->getSummary()->getSummaryText() && empty($x->getSummary()->getSummaryPdf()))),
+                && $x->getSummary()?->isComplete(),
             Table\Action\Type::Standard
         );
     }

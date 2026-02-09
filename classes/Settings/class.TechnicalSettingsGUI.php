@@ -104,6 +104,11 @@ class TechnicalSettingsGUI extends BaseGUI
                     $this->plugin->txt('formatting_options_full'),
                     $this->plugin->txt('formatting_options_full_info')
                 )
+                ->withOption(
+                    FormattingOptions::EXTENDED->value,
+                    $this->plugin->txt('formatting_options_extended'),
+                    $this->plugin->txt('formatting_options_extended_info')
+                )
                 ->withValue($writing_settings->getFormattingOptions()->value);
 
             $fields['notice_boards'] = $factory->select(

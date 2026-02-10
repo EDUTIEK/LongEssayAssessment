@@ -9,11 +9,13 @@ Bug fixes:
 - Performance of deleting pdf files and page images
 - Correction summary editor display (#45916)
 - Missing paragraph numbers > 99 in PDF (#45999)
-- Use smaller font for PDF from editor text (#45781)
+- Use a smaller font for PDF from editor text (#45781)
+- Use smaller shapes in PDF correction (#45781)
 - Export only corrections for authorized essays and add results overview (#46350)
 - Missing hint why an assigned corrector cannot be deleted (#45997)
 - Removed decimal places in points (#46851)
 - Fix paging in data tables
+- Use the legacy PDF.js library for PDF display in writer app (#45292)
 
 ## Version 3.7 (2025-08-15)
 

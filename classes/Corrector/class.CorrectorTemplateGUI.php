@@ -156,7 +156,7 @@ class CorrectorTemplateGUI extends BaseGUI
             $this->ctrl->getLinkTarget($this, 'adopt')
         );
         $this->ctrl->clearParameters($this);
-        $cancel = $this->ui_factory->button()->standard($this->lng->txt('cancel'), 'edit');
+        $cancel = $this->ui_factory->button()->standard($this->lng->txt('cancel'), $this->ctrl->getLinkTarget($this, 'edit'));
 
         $panel = $this->ui_factory->panel()->standard($this->plugin->txt('adopt_corrector_template'), [
             $form, $adopt, $cancel,

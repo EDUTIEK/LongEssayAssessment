@@ -115,6 +115,7 @@ abstract class BaseGUI
         } else {
             $this->task_info = $manager_service->first();
         }
+
         $this->addContentCss();
     }
 
@@ -241,33 +242,22 @@ abstract class BaseGUI
      */
     public function displayText(?string $html): string
     {
-        return '<div style="max-width: 60em;">' . $html . '</div>';
+        return $this->displayContent($html, HeadlineScheme::THREE);
     }
 
     /**
      * Display an essay content
      * @todo: merge with displayText in a new UI element
      */
-    public function displayContent(?string $html): string
+    public function displayContent(?string $html, ?HeadlineScheme $scheme = null): string
     {
-        $headline_class = "";
-        if (!empty($settings = $this->essay_task_api->writingSettings()->get())) {
-            switch ($settings->getHeadlineScheme()) {
-                case HeadlineScheme::SINGLE:
-                    $headline_class = "headlines-single";
-                    break;
-                case HeadlineScheme::THREE:
-                    $headline_class = "headlines-three";
-                    break;
-                case HeadlineScheme::EDUTIEK:
-                    $headline_class = "headlines-edutiek";
-                    break;
-                case HeadlineScheme::NUMERIC:
-                    $headline_class = "headlines-numeric";
-                    break;
-            }
-        }
-        return '<div class="long-essay-content ' . $headline_class . ' ">' . $html . '</div>';
+        $scheme = $scheme ?? $this->essay_task_api->writingSettings()->get()->getHeadlineScheme();
+        $headline_class = $scheme->class();
+
+        $html = $this->system_api->htmlProcessing()->secureContent($html);
+
+        return '<div class="xlas-content ' . $headline_class
+            . ' " style="max-width: 60em;">' . $html . '</div>';
     }
 
     /**
@@ -276,23 +266,7 @@ abstract class BaseGUI
     public function addContentCss(): void
     {
         $this->tpl->addCss($this->plugin->asset('css/content.css'));
-
-        if (!empty($settings = $settings = $this->essay_task_api->writingSettings()->get())) {
-            switch ($settings->getHeadlineScheme()) {
-                case HeadlineScheme::SINGLE:
-                    $this->tpl->addCss($this->plugin->asset('css/headlines-single.css'));
-                    break;
-                case HeadlineScheme::THREE:
-                    $this->tpl->addCss($this->plugin->asset('css/headlines-three.css'));
-                    break;
-                case HeadlineScheme::EDUTIEK:
-                    $this->tpl->addCss($this->plugin->asset('css/headlines-edutiek.css'));
-                    break;
-                case HeadlineScheme::NUMERIC:
-                    $this->tpl->addCss($this->plugin->asset('css/headlines-numeric.css'));
-                    break;
-            }
-        }
+        $this->tpl->addCss($this->plugin->asset('css/headlines.css'));
     }
 
 

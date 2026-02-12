@@ -1,21 +1,22 @@
 /**
  * Style of written contents
+ * (font size in em needed for zoom on ReviewContentScreen)
  */
 
-.mce-content-body, .long-essay-content {
+.xlas-content {
     font-family: serif;
-    font-size: 1em;
-    max-width: 60em;
-    max-height: 20em;
-    overflow: scroll;
+    font-size: 1rem;
     line-height: 150%;
+    text-align: justify;
 }
-.mce-content-body h1, .long-essay-content h1,
-.mce-content-body h2, .long-essay-content h2,
-.mce-content-body h3, .long-essay-content h3,
-.mce-content-body h4, .long-essay-content h4,
-.mce-content-body h5, .long-essay-content h5,
-.mce-content-body h6, .long-essay-content h6 {
+
+.xlas-content h1,
+.xlas-content h2,
+.xlas-content h3,
+.xlas-content h4,
+.xlas-content h5,
+.xlas-content h6 {
+    font-family: serif;
     font-size: 1em;
     font-weight: bold;
     padding: 0;
@@ -24,57 +25,104 @@
     min-height: 1.5em;
 }
 
-.mce-content-body ol, .long-essay-content ol,
-.mce-content-body ul, .long-essay-content ul {
+.xlas-content ol,
+.xlas-content ul {
     margin-left: 10px;
     margin-bottom: 20px;
 }
 
-.mce-content-body li, .long-essay-content li {
+.xlas-content li {
     margin-left: 20px;
     margin-bottom: 5px;
     min-height: 1.5em;
 }
 
-.mce-content-body p, .long-essay-content p,
-.mce-content-body pre, .long-essay-content pre
-{
+.xlas-content p,
+.xlas-content pre {
     margin-top: 0;
     margin-bottom: 10px;
     min-height: 1.5em;
+    text-align: justify;
 }
 
-.mce-content-body, .long-essay-content, .tox-menu {
+.xlas-content pre {
+    max-width: 150mm;               /* dompdf needs a fixed value here */
+    white-space: pre-wrap;          /* keep line breaks and break if needed */
+    word-wrap: break-word;          /* legacy setting (older browsers) */
+    overflow-wrap: break-word;      /* modern variant of word-wrap */
+}
+
+.xlas-content {
     counter-reset: h1 h2 h3 h4 h5 h6;
 }
-.mce-content-body h1, .long-essay-content h1, .tox-menu h1 {
+
+.xlas-content h1 {
     counter-increment: h1;
     counter-reset: h2 h3 h4 h5 h6;
 }
-.mce-content-body h2, .long-essay-content h2, .tox-menu h2 {
+
+.xlas-content h2 {
     counter-increment: h2;
     counter-reset: h3 h4 h5 h6;
 }
-.mce-content-body h3, .long-essay-content h3, .tox-menu h3 {
+
+.xlas-content h3 {
     counter-increment: h3;
     counter-reset: h4 h5 h6;
 }
-.mce-content-body h4, .long-essay-content h4, .tox-menu h4 {
+
+.xlas-content h4 {
     counter-increment: h4;
     counter-reset: h5 h6;
 }
-.mce-content-body h5, .long-essay-content h5, .tox-menu h5 {
+
+.xlas-content h5 {
     counter-increment: h5;
     counter-reset: h6;
 }
-.mce-content-body h6, .long-essay-content h6, .tox-menu h6 {
+
+.xlas-content h6 {
     counter-increment: h6;
 }
 
-/*
-    Make font sizes in the tiny formats menu independent from changing font sizes in the content area
-    May be refined by headlines css files
-*/
-.tox-menu p, .tox-menu h1, .tox-menu h2, .tox-menu h3, .tox-menu h4, .tox-menu h5, .tox-menu h6, .tox-menu pre, .tox-menu li   {
-    font-size:1em!important;
+.xlas-content table {
+    border-collapse: collapse;
+    border: 1px solid gray;
+    width: 100%;
+    table-layout: fixed;
+}
+
+.xlas-content tr {
+    vertical-align: top;
+}
+
+.xlas-content td,
+.xlas-content th {
+    border: 1px solid gray;
+    min-width: 1em;
+    min-height: 1em;
+    padding: 5px;
+}
+
+/**
+ * Pagebreak in printing
+ */
+.xlas-content hr {
+    page-break-before: always;
+    height: 0;
+    width: 0;
+    border: 0;
+    margin: 0;
+}
+
+/**
+ * Pagebreak in tiny
+ */
+.xlas-content .mce-pagebreak {
+    width: calc(100% + 40px);
+    height: 1px;
+    height: 20px;
+    background-color: #eeeeee;
+    border-top: 1px solid #ccc;
+    margin-left: -20px;
 }

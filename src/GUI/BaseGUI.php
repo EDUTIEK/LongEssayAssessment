@@ -238,7 +238,6 @@ abstract class BaseGUI
 
     /**
      * Display an HTML text in readable width
-     * @todo: merge with displayContent in a new UI element
      */
     public function displayText(?string $html): string
     {
@@ -266,9 +265,7 @@ abstract class BaseGUI
     public function addContentCss(): void
     {
         $this->tpl->addCss($this->plugin->asset('css/content.css'));
-        $this->tpl->addCss($this->plugin->asset('css/headlines.css'));
     }
-
 
     /**
      * Open the mail form for sending a mail to accounts

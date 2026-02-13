@@ -5,6 +5,12 @@
 use Edutiek\AssessmentService\System\Config\Service;
 use Edutiek\AssessmentService\System\Data\Config;
 use ILIAS\DI\Container;
+use ILIAS\UI\Component\Input\Container\Form\Standard;
+use ILIAS\UI\Factory as UiFactory;
+use ILIAS\UI\Renderer;
+use ILIAS\Data\Color;
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ServerRequestInterface;
 
 /**
  * Plugin Configuration GUI
@@ -23,6 +29,10 @@ class ilLongEssayAssessmentConfigGUI extends ilPluginConfigGUI
     protected ilLanguage $lng;
     protected ilGlobalTemplateInterface $tpl;
     protected ilToolbarGUI $toolbar;
+    protected UiFactory $ui_factory;
+    protected Renderer $renderer;
+    /** @var RequestInterface|ServerRequestInterface */
+    protected RequestInterface $request;
 
     protected Service $service;
     private Config $config;
@@ -43,122 +53,121 @@ class ilLongEssayAssessmentConfigGUI extends ilPluginConfigGUI
         $this->tpl = $DIC->ui()->mainTemplate();
         $this->toolbar = $DIC->toolbar();
         $this->help = $DIC->help();
+        $this->ui_factory = $this->dic->ui()->factory();
+        $this->renderer = $this->dic->ui()->renderer();
+        $this->request = $this->dic->http()->request();
 
         $this->service = $this->plugin->dic()->system()->config();
         $this->config = $this->service->getConfig();
 
-        switch ($this->dic->ctrl()->getNextClass()) {
-            case 'ilpropertyformgui':
-                $this->dic->ctrl()->forwardCommand($this->initConfigForm());
+        switch ($cmd) {
+            case "configure":
+            case "saveConfig":
+                $this->$cmd();
                 break;
-
-            default:
-                switch ($cmd) {
-                    case "configure":
-                    case "saveConfig":
-                        $this->$cmd();
-                        break;
-                }
         }
     }
 
-    /**
-     * Show base configuration screen
-     */
     protected function configure()
     {
         $this->help->setScreenIdComponent($this->getPluginObject()->getId());
         $this->help->setScreenId("adm");
 
-        $form = $this->initConfigForm();
-        $this->tpl->setContent($form->getHtml());
+        $form = $this->buildForm();
+        $this->tpl->setContent($this->renderer->render($form));
     }
 
-    /**
-     * Save the basic settings
-     */
     protected function saveConfig()
     {
-        $form = $this->initConfigForm();
-        if ($form->checkInput()) {
-            $this->config->setWriterUrl((string) $form->getInput('writer_url'));
-            $this->config->setCorrectorUrl((string) $form->getInput('corrector_url'));
-            $this->config->setPrimaryColor((string) $form->getInput('primary_color'));
-            $this->config->setPrimaryTextColor((string) $form->getInput('primary_text_color'));
-            $this->config->setSimulateOffline((bool) $form->getInput('simulate_offline'));
-            $this->config->setPathToGhostscript((string) $form->getInput('path_to_ghostscript'));
-            $this->config->setHashAlgo((string) $form->getInput('hash_algo'));
+        $form = $this->buildForm()->withRequest($this->request);
+        $data = $form->getData();
+
+        if ($data !== null) {
+
+            $this->config->setPrimaryColor($this->colorValue($data['prod']['primary_color']));
+            $this->config->setPrimaryTextColor($this->colorValue($data['prod']['primary_text_color']));
+
+            $this->config->setPathToGhostscript($data['prod']['path_to_ghostscript'] ?? null);
+            $this->config->setHashAlgo((string) $data['prod']['hash_algo'] ?? '');
+
+            $this->config->setWriterUrl($data['dev']['writer_url'] ?? null);
+            $this->config->setCorrectorUrl($data['dev']['corrector_url'] ?? null);
+            $this->config->setSimulateOffline((bool) $data['dev']['simulate_offline'] ?? false);
 
             $this->service->saveConfig($this->config);
-
             $this->tpl->setOnScreenMessage("success", $this->lng->txt("settings_saved"), true);
             $this->ctrl->redirect($this, 'configure');
+
         }
-        $form->setValuesByPost();
-        $this->tpl->setContent($form->getHtml());
+        $this->tpl->setContent($this->renderer->render($form));
     }
 
-    /**
-     * Initialize the configuration form
-     * @return ilPropertyFormGUI form object
-     */
-    protected function initConfigForm()
+
+    protected function buildForm(): Standard
     {
-        $form = new ilPropertyFormGUI();
 
-        $form->setFormAction($this->ctrl->getFormAction($this));
-        $form->setTitle($this->plugin->txt('configuration'));
+        $factory = $this->ui_factory->input()->field();
 
-        $primary_color = new ilColorPickerInputGUI($this->plugin->txt('primary_color'), 'primary_color');
-        $primary_color->setInfo($this->plugin->txt('primary_color_info'));
-        $primary_color->setValue($this->config->getPrimaryColor());
-        $form->addItem($primary_color);
+        $prod = [];
 
-        $primary_text_color = new ilColorPickerInputGUI($this->plugin->txt('primary_text_color'), 'primary_text_color');
-        $primary_text_color->setInfo($this->plugin->txt('primary_text_color_info'));
-        $primary_text_color->setValue($this->config->getPrimaryTextColor());
-        $form->addItem($primary_text_color);
+        $prod['primary_color'] = $factory->colorPicker(
+            $this->plugin->txt('primary_color'),
+            $this->plugin->txt('primary_color_info')
+        )->withValue('#' . $this->config->getPrimaryColor() ?? Config::DEFAULT_PRIMARY_COLOR);
 
-        $ghostscript = $this->service->getPathToGhostscript();
-        $used_info = sprintf(
-            $this->plugin->txt('ghostscript_used'),
-            '<strong>' . (empty($ghostscript) ? $this->plugin->txt('ghostscript_imagick') : $ghostscript) . '</strong>'
+        $prod['primary_text_color'] = $factory->colorPicker(
+            $this->plugin->txt('primary_text_color'),
+            $this->plugin->txt('primary_text_color_info')
+        )->withValue('#' . $this->config->getPrimaryTextColor() ?? Config::DEFAULT_PRIMARY_TEXT_COLOR);
+
+        $prod['path_to_ghostscript'] = $factory->text(
+            $this->plugin->txt('path_to_ghostscript'),
+            $this->plugin->txt('path_to_ghostscript_info') . '<br>' . sprintf(
+                $this->plugin->txt('ghostscript_used'),
+                '<strong>' . $this->service->getPathToGhostscript() . '</strong>'
+            )
+        )->withValue($this->config->getPathToGhostscript() ?? '');
+
+        $prod['hash_algo'] = $factory->select(
+            $this->plugin->txt('hash_algo'),
+            $this->config->getHashAlgoOptions(),
+            $this->plugin->txt('hash_algo_info')
+        )->withValue($this->config->getHashAlgo() ?? Config::DEFAULT_HASH_ALGO);
+
+        $dev = [];
+
+        $dev['writer_url'] = $factory->text(
+            $this->plugin->txt('writer_url'),
+            $this->plugin->txt('writer_url_info')
+        )->withValue($this->config->getWriterUrl() ?? '');
+
+        $dev['corrector_url'] = $factory->text(
+            $this->plugin->txt('corrector_url'),
+            $this->plugin->txt('corrector_url_info')
+        )->withValue($this->config->getCorrectorUrl() ?? '');
+
+        $dev['simulate_offline'] = $factory->checkbox(
+            $this->plugin->txt('simulate_offline'),
+            $this->plugin->txt('simulate_offline_info')
+        )->withValue($this->config->getSimulateOffline());
+
+        $sections = [
+            'prod' => $factory->section($prod, $this->plugin->txt('configuration')),
+            'dev' => $factory->section(
+                $dev,
+                $this->plugin->txt('developer_settings'),
+                $this->plugin->txt('developer_settings_info')
+            )
+        ];
+
+        return $this->ui_factory->input()->container()->form()->standard(
+            $this->ctrl->getFormAction($this, 'saveConfig'),
+            $sections,
         );
+    }
 
-        $path_to_ghostscript = new ilTextInputGUI($this->plugin->txt('path_to_ghostscript'), 'path_to_ghostscript');
-        $path_to_ghostscript->setInfo($this->plugin->txt('path_to_ghostscript_info') . '<br>' . $used_info);
-        $path_to_ghostscript->setValue($this->config->getPathToGhostscript());
-        $form->addItem($path_to_ghostscript);
-
-        $hash_header = new ilFormSectionHeaderGUI();
-        $form->addItem($hash_header);
-        $hash_algo = new ilSelectInputGUI($this->plugin->txt('hash_algo'), 'hash_algo');
-        $hash_algo->setOptions(array_combine(hash_algos(), hash_algos()));
-        $hash_algo->setValue($this->config->getHashAlgo());
-        $form->addItem($hash_algo);
-
-
-        $developer = new ilFormSectionHeaderGUI();
-        $developer->setTitle($this->plugin->txt('developer_settings'));
-        $developer->setInfo($this->plugin->txt('developer_settings_info'));
-        $form->addItem($developer);
-
-        $writer_url = new ilTextInputGUI($this->plugin->txt('writer_url'), 'writer_url');
-        $writer_url->setInfo($this->plugin->txt('writer_url_info'));
-        $writer_url->setValue($this->config->getWriterUrl());
-        $form->addItem($writer_url);
-
-        $corrector_url = new ilTextInputGUI($this->plugin->txt('corrector_url'), 'corrector_url');
-        $corrector_url->setInfo($this->plugin->txt('corrector_url_info'));
-        $corrector_url->setValue($this->config->getCorrectorUrl());
-        $form->addItem($corrector_url);
-
-        $simulate = new ilCheckboxInputGUI($this->plugin->txt('simulate_offline'), 'simulate_offline');
-        $simulate->setInfo($this->plugin->txt('simulate_offline_info'));
-        $simulate->setChecked($this->config->getSimulateOffline());
-        $form->addItem($simulate);
-
-        $form->addCommandButton('saveConfig', $this->lng->txt('save'));
-        return $form;
+    private function colorValue(Color $color)
+    {
+        return str_replace("#", "", $color->asHex());
     }
 }

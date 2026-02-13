@@ -674,9 +674,8 @@ copy_grade_level#:#Notenstufen kopieren
 copy_grade_level_successful#:#Notenstufe erfolgreich kopiert.
 copy_grade_level_info#:#Beim Kopieren der Notenstufen werden die bestehenden Notenstufen ersetzt.
 path_to_ghostscript#:#Pfad zu Ghostscript
-path_to_ghostscript_info#:#Ghostscript wird benötigt, um hochgeladene PDF-Dateien zu verarbeiten. Konfigurieren Sie hier den Pfad zum direkten Aufruf von ghostscript auf Ihrem Server. Als Fallback wird ein für die ILIAS-Vorschau konfigurierter Pfad oder „/usr/bin/gs” als Standard verwendet. Falls der Pfad nicht ausführbar ist, wird Ghostscript über die PHP-Erweiterung Imagick verwendet. Das kann bei großen PDF-Dateien zu Ressourcen-Problemen führen.
+path_to_ghostscript_info#:#Ghostscript wird benötigt, um hochgeladene PDF-Dateien zu verarbeiten. Konfigurieren Sie hier den Pfad zum direkten Aufruf von ghostscript auf Ihrem Server. Als Fallback wird ein für die ILIAS-Vorschau konfigurierter Pfad oder „/usr/bin/gs” als Standard verwendet.
 ghostscript_used#:#Aktuell verwendet: %s
-ghostscript_imagick#:#PHP-Erweiterung Imagick
 writing_limit#:#Zeitbegrenzung
 writing_limit_info#:#Begrenzt die Dauer zur Bearbeitung ab dem Betätigen des Schalters „Bearbeitung starten”. Nach dieser Dauer werden neue Eingaben nicht mehr akzeptiert, vorher getätigte können aber noch übertragen und freigegeben werden.
 writing_limit_days#:#Tage
@@ -758,6 +757,8 @@ by_csv_used_time#:#Eingereichte Zeit
 by_csv_logged_in#:#Prüfling eingelogged?
 by_csv_given_up#:#Prüfling abgegeben?
 by_csv_pdf_hash#:#Hash-wert
+hash_algo#:#Prüfsummen-Berechnung
+hash_algo_info#:#Die ausgewählte Methode wird zur Berechnung von Prüfsummen hochgeladener oder erstellter Dateien verwendet.
 essay_import_column_file#:#Datei
 essay_import_column_id#:#ID
 essay_import_column_user#:#User

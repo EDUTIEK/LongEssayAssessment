@@ -26,14 +26,12 @@ use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Table;
 #[Table(name: 'xlas_sy_config')]
 class Config extends \Edutiek\AssessmentService\System\Data\Config
 {
-    public const DEFAULT_HASH_ALGO = 'sha256';
-
     #[Key]
     private int $id = 0;
     private ?string $writer_url = null;
     private ?string $corrector_url = null;
-    private ?string $primary_color = '04427E';
-    private ?string $primary_text_color = 'FFFFFF';
+    private ?string $primary_color = self::DEFAULT_PRIMARY_COLOR;
+    private ?string $primary_text_color = self::DEFAULT_PRIMARY_TEXT_COLOR;
     private bool $simulate_offline = false;
     private ?string $path_to_ghostscript = null;
     private string $hash_algo = self::DEFAULT_HASH_ALGO;
@@ -113,6 +111,6 @@ class Config extends \Edutiek\AssessmentService\System\Data\Config
 
     private function nullify(?string $string): ?string
     {
-        return $string === '' ?  null : $string;
+        return $string === '' ? null : $string;
     }
 }

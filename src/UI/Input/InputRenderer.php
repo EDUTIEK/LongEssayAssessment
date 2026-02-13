@@ -43,6 +43,7 @@ use ILIAS\UI\Implementation\Component\Tree\Expandable;
 use ILIAS\UI\Implementation\Component\Tree\Node\Node;
 use ILIAS\UI\Implementation\Component\ViewControl\Pagination;
 use ILIAS\UI\Implementation\Component\ViewControl\Sortation;
+use ILIAS\UI\Implementation\Render\ResourceRegistry;
 use ILIAS\UI\Implementation\Render\Template;
 use ILIAS\UI\Renderer as RendererInterface;
 use ILIAS\UI\Component\Input\Container\Form\FormInput;
@@ -299,23 +300,19 @@ class InputRenderer extends \ILIAS\UI\Implementation\Component\Input\Field\Rende
 
     protected function initTinyMCE(TinyMCE $component, string $form_id) : TinyMCE
     {
-        if (!$this->tiny_mce_js_included) {
-            $this->tpl->addJavaScript('node_modules/tinymce/tinymce.min.js');
-        }
+        $this->tpl->addJavaScript('node_modules/tinymce/tinymce.min.js');
 
-        $tpl = $this->getTemplate("tpl.tiny_mce.js", true, true);
-        // todo: use user language
-        $tpl->setVariable("LANG", "de");
-        // todo: use EDUTIEK content style with headline styles
-        $tpl->setVariable("CONTENT_CSS",
-            ilUtil::getNewContentStyleSheetLocation() . ','
-            . ilUtil::getStyleSheetLocation('output', 'delos.css'));
-        $tpl->setVariable("ARIA_TEXT", "Editor");
+        // development
+        // $this->tpl->addJavaScript('Customizing/global/plugins/Services/Repository/RepositoryObject/LongEssayAssessment/resources/js/xlas.js');
+
+        // production:
+        $this->tpl->addJavaScript('components/EDUTIEK/LongEssayAssessment/js/xlas.min.js');
 
         $component = $component->withAdditionalOnLoadCode(
-            function ($id) use ($component, $tpl, $form_id) {
-                $tpl->setVariable("ID", $form_id);
-                return $tpl->get();
+            function ($id) use ($component, $form_id) {
+                $opt = $component->getFormattingOptions()->value;
+                $scheme = $component->getHeadlineScheme()->value;
+                return "il.Xlas.TinyHelper.init('$form_id', 'de', '$opt', '$scheme');";
             }
         );
 

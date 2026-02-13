@@ -1,0 +1,9 @@
+{
+  "name": "long-essay-assesment",
+  "version": "10.0.0",
+  "license": "GPL-3.0-or-later",
+  "devDependencies": {
+    "@rollup/plugin-terser": "^0.4.4",
+    "rollup-plugin-import-css": "^4.2.0"
+  }
+}

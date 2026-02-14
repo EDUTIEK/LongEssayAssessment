@@ -32,8 +32,12 @@ class Config extends \Edutiek\AssessmentService\System\Data\Config
     private ?string $corrector_url = null;
     private ?string $primary_color = self::DEFAULT_PRIMARY_COLOR;
     private ?string $primary_text_color = self::DEFAULT_PRIMARY_TEXT_COLOR;
+    private ?string $corrector1_color = self::DEFAULT_CORRECTOR1_COLOR;
+    private ?string $corrector2_color = self::DEFAULT_CORRECTOR2_COLOR;
+    private ?string $corrector3_color = self::DEFAULT_CORRECTOR3_COLOR;
     private bool $simulate_offline = false;
     private ?string $path_to_ghostscript = null;
+    private ?string $path_to_pdftk = null;
     private string $hash_algo = self::DEFAULT_HASH_ALGO;
 
     public function getId(): int
@@ -81,6 +85,40 @@ class Config extends \Edutiek\AssessmentService\System\Data\Config
         $this->primary_text_color = $primary_text_color;
         return $this;
     }
+
+    public function getCorrector1Color(): ?string
+    {
+        return $this->nullify($this->corrector1_color);
+    }
+
+    public function setCorrector1Color(?string $corrector1_color): self
+    {
+        $this->corrector1_color = $corrector1_color;
+        return $this;
+    }
+
+    public function getCorrector2Color(): ?string
+    {
+        return $this->nullify($this->corrector2_color);
+    }
+
+    public function setCorrector2Color(?string $corrector2_color): self
+    {
+        $this->corrector2_color = $corrector2_color;
+        return $this;
+    }
+
+    public function getCorrector3Color(): ?string
+    {
+        return $this->nullify($this->corrector3_color);
+    }
+
+    public function setCorrector3Color(?string $corrector3_color): self
+    {
+        $this->corrector3_color = $corrector3_color;
+        return $this;
+    }
+
     public function getSimulateOffline(): bool
     {
         return $this->simulate_offline;
@@ -99,6 +137,16 @@ class Config extends \Edutiek\AssessmentService\System\Data\Config
         $this->path_to_ghostscript = $path_to_ghostscript;
         return $this;
     }
+    public function getPathToPdftk(): ?string
+    {
+        return $this->nullify($this->path_to_pdftk);
+    }
+
+    public function setPathToPdftk(?string $path_to_pdftk): self
+    {
+        $this->path_to_pdftk = $path_to_pdftk;
+        return $this;
+    }
     public function getHashAlgo(): string
     {
         return $this->hash_algo;
@@ -113,4 +161,5 @@ class Config extends \Edutiek\AssessmentService\System\Data\Config
     {
         return $string === '' ? null : $string;
     }
+
 }

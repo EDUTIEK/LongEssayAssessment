@@ -2,7 +2,7 @@
 
 /* Copyright (c) 2021 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-use Edutiek\AssessmentService\System\Config\Service;
+use Edutiek\AssessmentService\System\Config\FullService as ConfigService;
 use Edutiek\AssessmentService\System\Data\Config;
 use ILIAS\DI\Container;
 use ILIAS\UI\Component\Input\Container\Form\Standard;
@@ -34,7 +34,7 @@ class ilLongEssayAssessmentConfigGUI extends ilPluginConfigGUI
     /** @var RequestInterface|ServerRequestInterface */
     protected RequestInterface $request;
 
-    protected Service $service;
+    protected ConfigService $service;
     private Config $config;
 
     /**
@@ -87,7 +87,12 @@ class ilLongEssayAssessmentConfigGUI extends ilPluginConfigGUI
             $this->config->setPrimaryColor($this->colorValue($data['prod']['primary_color']));
             $this->config->setPrimaryTextColor($this->colorValue($data['prod']['primary_text_color']));
 
+            $this->config->setCorrector1Color($this->colorValue($data['prod']['corrector1_color']));
+            $this->config->setCorrector2Color($this->colorValue($data['prod']['corrector2_color']));
+            $this->config->setCorrector3Color($this->colorValue($data['prod']['corrector3_color']));
+
             $this->config->setPathToGhostscript($data['prod']['path_to_ghostscript'] ?? null);
+            $this->config->setPathToPdftk($data['prod']['path_to_pdftk'] ?? null);
             $this->config->setHashAlgo((string) $data['prod']['hash_algo'] ?? '');
 
             $this->config->setWriterUrl($data['dev']['writer_url'] ?? null);
@@ -120,6 +125,21 @@ class ilLongEssayAssessmentConfigGUI extends ilPluginConfigGUI
             $this->plugin->txt('primary_text_color_info')
         )->withValue('#' . $this->config->getPrimaryTextColor() ?? Config::DEFAULT_PRIMARY_TEXT_COLOR);
 
+        $prod['corrector1_color'] = $factory->colorPicker(
+            $this->plugin->txt('corrector1_color'),
+            $this->plugin->txt('corrector1_color_info')
+        )->withValue('#' . $this->config->getCorrector1Color() ?? Config::DEFAULT_CORRECTOR1_COLOR);
+
+        $prod['corrector2_color'] = $factory->colorPicker(
+            $this->plugin->txt('corrector2_color'),
+            $this->plugin->txt('corrector2_color_info')
+        )->withValue('#' . $this->config->getCorrector2Color() ?? Config::DEFAULT_CORRECTOR2_COLOR);
+
+        $prod['corrector3_color'] = $factory->colorPicker(
+            $this->plugin->txt('corrector3_color'),
+            $this->plugin->txt('corrector3_color_info')
+        )->withValue('#' . $this->config->getCorrector3Color() ?? Config::DEFAULT_CORRECTOR3_COLOR);
+
         $prod['path_to_ghostscript'] = $factory->text(
             $this->plugin->txt('path_to_ghostscript'),
             $this->plugin->txt('path_to_ghostscript_info') . '<br>' . sprintf(
@@ -127,6 +147,15 @@ class ilLongEssayAssessmentConfigGUI extends ilPluginConfigGUI
                 '<strong>' . $this->service->getPathToGhostscript() . '</strong>'
             )
         )->withValue($this->config->getPathToGhostscript() ?? '');
+
+        $prod['path_to_pdftk'] = $factory->text(
+            $this->plugin->txt('path_to_pdftk'),
+            $this->plugin->txt('path_to_pdftk_info') . '<br>' . sprintf(
+                $this->plugin->txt('pdftk_used'),
+                '<strong>' . $this->service->getPathToPdftk() . '</strong>'
+            )
+        )->withValue($this->config->getPathToPdftk() ?? '');
+
 
         $prod['hash_algo'] = $factory->select(
             $this->plugin->txt('hash_algo'),

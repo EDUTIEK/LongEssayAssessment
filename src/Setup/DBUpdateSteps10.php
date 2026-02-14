@@ -1118,4 +1118,20 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
             }
         }
     }
+
+    public function step_65(): void
+    {
+        $this->db->modifyTableColumn('xlas_sy_config', 'primary_color', ['type' => ilDBConstants::T_TEXT, 'length' => 10]);
+        $this->db->modifyTableColumn('xlas_sy_config', 'primary_text_color', ['type' => ilDBConstants::T_TEXT, 'length' => 10]);
+        $this->db->addTableColumn('xlas_sy_config', 'corrector1_color', ['type' => ilDBConstants::T_TEXT, 'length' => 10]);
+        $this->db->addTableColumn('xlas_sy_config', 'corrector2_color', ['type' => ilDBConstants::T_TEXT, 'length' => 10]);
+        $this->db->addTableColumn('xlas_sy_config', 'corrector3_color', ['type' => ilDBConstants::T_TEXT, 'length' => 10]);
+    }
+
+    public function step_66(): void
+    {
+        $this->db->modifyTableColumn('xlas_sy_config', 'path_to_ghostscript', ['type' => ilDBConstants::T_TEXT, 'length' => 250]);
+        $this->db->addTableColumn('xlas_sy_config', 'path_to_pdftk', ['type' => ilDBConstants::T_TEXT, 'length' => 150]);
+    }
+
 }

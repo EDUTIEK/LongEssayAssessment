@@ -674,8 +674,11 @@ copy_grade_level#:#Notenstufen kopieren
 copy_grade_level_successful#:#Notenstufe erfolgreich kopiert.
 copy_grade_level_info#:#Beim Kopieren der Notenstufen werden die bestehenden Notenstufen ersetzt.
 path_to_ghostscript#:#Pfad zu Ghostscript
-path_to_ghostscript_info#:#Ghostscript wird benötigt, um hochgeladene PDF-Dateien zu verarbeiten. Konfigurieren Sie hier den Pfad zum direkten Aufruf von ghostscript auf Ihrem Server. Als Fallback wird ein für die ILIAS-Vorschau konfigurierter Pfad oder „/usr/bin/gs” als Standard verwendet.
+path_to_ghostscript_info#:#Ghostscript wird benötigt, um hochgeladene PDF-Dateien zu verarbeiten. Konfigurieren Sie hier den Pfad zum direkten Aufruf von ghostscript auf Ihrem Server. Als Fallback wird ein für die ILIAS-Vorschau konfigurierter Pfad oder „/usr/bin/gs” verwendet.
 ghostscript_used#:#Aktuell verwendet: %s
+path_to_pdftk#:#Pfad zu PDFtk
+path_to_pdftk_info#:#PDFtk wird benötigt, um PDF-Dateien zu erzeugen. Konfigurieren Sie hier den Pfad zum direkten Aufruf von PDFtk auf Ihrem Server. Als Fallback wird „/usr/bin/pdftk” verwendet.
+pdftk_used#:#Aktuell verwendet: %s
 writing_limit#:#Zeitbegrenzung
 writing_limit_info#:#Begrenzt die Dauer zur Bearbeitung ab dem Betätigen des Schalters „Bearbeitung starten”. Nach dieser Dauer werden neue Eingaben nicht mehr akzeptiert, vorher getätigte können aber noch übertragen und freigegeben werden.
 writing_limit_days#:#Tage
@@ -899,3 +902,9 @@ adopt_corrector_template_confirm#:#Übernehmen
 corrector_template_adopted#:#Die Vorlage wurde übernommen
 corrections_my#:#Meine Korrekturen
 corrector_statistic#:#Korrektor-Notenstatistik
+corrector1_color#:#Markierungsfarbe Erstkorrektur
+corrector1_color_info#:#Mit dieser Farbe werden Textmarkierungen bei der Erstkorrektur vorgenommen
+corrector2_color#:#Markierungsfarbe Zweitkorrektur
+corrector2_color_info#:#Mit dieser Farbe werden Textmarkierungen bei der Zweitkorrektur vorgenommen
+corrector3_color#:#Markierungsfarbe Stichentscheid
+corrector3_color_info#:#Mit dieser Farbe werden Textmarkierungen beim Stichentscheid vorgenommen

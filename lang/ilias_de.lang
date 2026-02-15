@@ -492,7 +492,7 @@ tab_corrector_statistic#:#Notenstatistik
 statistic#:#Notenstatistik
 correction_count#:#Korrekturen
 correction_final#:#davon freigegeben
-essay_count#:#Abgaben
+essay_count#:#Teilnahmen
 essay_final#:#davon abgeschlossen
 essay_not_passed_quota#:#Durchfallquote
 essay_average_points#:#Durchschnittspunkte
@@ -908,3 +908,7 @@ corrector2_color#:#Markierungsfarbe Zweitkorrektur
 corrector2_color_info#:#Mit dieser Farbe werden Textmarkierungen bei der Zweitkorrektur vorgenommen
 corrector3_color#:#Markierungsfarbe Stichentscheid
 corrector3_color_info#:#Mit dieser Farbe werden Textmarkierungen beim Stichentscheid vorgenommen
+finalize_unsubmitted#:#Nichtabgabe bewerten
+finalize_unsubmitted_confirmation#:#Wollen Sie diese Teilnahmen ohne Punkte und Note als nicht abgegeben bewerten?
+finalize_unsubmitted_done#:#Diese Teilnahmen wurden als nicht abgegeben bewertet.
+finalize_unsubmitted_failed#:#Ihre Auswahl enthält Teilnahmen, die nicht als Nichtabgaben bewertet werden konnten.

@@ -388,6 +388,54 @@ class CorrectionAdminGUI extends BaseGUI
         return $this->ctrl->getLinkTarget($this, 'viewCorrection');
     }
 
+    public function setUnsubmittedAsFinalizedAction()
+    {
+        return $this->plugin_ui_factory->table()->action()->confirmation(
+            'finalize_unsubmitted',
+            $this->plugin->txt('finalize_unsubmitted'),
+            $this->plugin->txt('finalize_unsubmitted'),
+            $this->plugin->txt('finalize_unsubmitted_confirmation'),
+            $this->ctrl->getFormAction($this, "finalizeUnsubmitted"),
+            fn(CorrectionItem $item) => $item->getWriterName()
+                . ($this->object->getMultiTasks() ? ', ' . $item->getTaskSettings()->getTitle() : ''),
+            fn(CorrectionItem $item) => $item->getWriter()->canFinalizedUnsubmitted(),
+            Action\Type::Standard,
+        );
+    }
+
+    private function finalizeUnsubmitted()
+    {
+        $essays = $this->essay_service->some($this->confirmationIds());
+        $changed = [];
+        $unchanged = [];
+
+
+
+        foreach ($essays as $essay) {
+            $writer = $this->writer_service->oneByWriterId($essay->getWriterId());
+            $user = $this->user_service->getUser($writer->getUserId());
+            $task = $this->task_api->manager()->one($essay->getTaskId());
+            $name = ($user?->getListname(false) ?? $this->plugin->txt('unknown')) . ' (' . $writer->getPseudonym() . ')'
+                . ($this->object->getMultiTasks() ? ' - ' . $task->getTitle() : '');
+
+            $result = $this->writer_service->setUnsubmittedAsGraded($writer);
+            if ($result) {
+                $changed[] = $name;
+            } else {
+                $unchanged[] = $name;
+            }
+        }
+
+        $this->multiFeedback(
+            $changed,
+            $unchanged,
+            $this->plugin->txt('finalize_unsubmitted_done'),
+            $this->plugin->txt('finalize_unsubmitted_failed')
+        );
+
+        $this->ctrl->redirect($this);
+    }
+
     public function executeCommand()
     {
         $next_class = $this->ctrl->getNextClass();
@@ -402,6 +450,7 @@ class CorrectionAdminGUI extends BaseGUI
                     case 'viewCorrection':
                     case 'correctorAssignmentSpreadsheetExport':
                     case 'correctorAssignmentSpreadsheetImport':
+                    case 'finalizeUnsubmitted':
                         $this->$cmd();
                         break;
 
@@ -580,6 +629,7 @@ class CorrectionAdminGUI extends BaseGUI
             //$this->downloadCorrectedPdfAction(),
             $this->mailToWriterOrCorrectorAction(),
             $this->changeCorrectorAction(),
+            $this->setUnsubmittedAsFinalizedAction(),
             $this->removeAuthorizationsAction(),
             $this->exportTableAction(),
         ];

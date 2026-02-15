@@ -72,7 +72,10 @@ class StatisticRenderer extends AbstractComponentRenderer
         $chart = [];
 
         $items[$component->getCountLabel()] = (string)$component->getCount();
-        $items[$component->getFinalLabel()] = (string)$component->getFinal();
+
+        if($component->getFinal() !== null) {
+            $items[$component->getFinalLabel()] = (string)$component->getFinal();
+        }
 
         if($component->getNotAttended() !== null) {
             $items[$this->pluginTxt('statistic_not_attended')] = (string)$component->getNotAttended();
@@ -144,7 +147,11 @@ class StatisticRenderer extends AbstractComponentRenderer
                 } elseif ($record instanceof Statistic) {
 
                     $properties[$record->getCountLabel()] = (string)$record->getCount();
-                    $properties[$record->getFinalLabel()] = (string)$record->getFinal();
+
+                    if($record->getFinal() !== null)
+                    {
+                        $properties[$record->getFinalLabel()] = (string)$record->getFinal();
+                    }
 
                     if($record->getNotAttended() !== null) {
                         $properties[$this->pluginTxt('statistic_not_attended')] = (string)$record->getNotAttended();

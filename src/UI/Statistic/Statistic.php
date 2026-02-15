@@ -26,13 +26,11 @@ class Statistic implements Component
     private ?array $pseudonym = null;
     private ?string $own_grade = null;
 
-    public function __construct(string $title, int $count, string $count_label, int $final, string $final_label)
+    public function __construct(string $title, int $count, string $count_label)
     {
         $this->title = $title;
         $this->count = $count;
         $this->count_label = $count_label;
-        $this->final = $final;
-        $this->final_label = $final_label;
     }
 
     public function withTitle(string $title): Statistic
@@ -75,7 +73,7 @@ class Statistic implements Component
         return $clone;
     }
 
-    public function withFinal(int $final): Statistic
+    public function withFinal(?int $final): Statistic
     {
         $clone = clone $this;
         $clone->final = $final;
@@ -144,7 +142,7 @@ class Statistic implements Component
         return $this->count;
     }
 
-    public function getFinal(): int
+    public function getFinal(): ?int
     {
         return $this->final;
     }

@@ -4,9 +4,9 @@ namespace ILIAS\Plugin\LongEssayAssessment\UI\Statistic;
 
 class StatisticFactory
 {
-    public function statistic(string $title, int $count, string $count_label, int $final, string $final_label): Statistic
+    public function statistic(string $title, int $count, string $count_label): Statistic
     {
-        return new Statistic($title, $count, $count_label, $final, $final_label);
+        return new Statistic($title, $count, $count_label);
     }
 
     public function statisticSection(string $title): StatisticSection

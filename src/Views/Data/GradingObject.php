@@ -2,31 +2,21 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\View\Data;
 
+use Edutiek\AssessmentService\Assessment\Data\Properties;
+use Edutiek\AssessmentService\System\Data\UserData;
+
 class GradingObject extends \Edutiek\AssessmentService\Views\Data\GradingObject
 {
-    /**
-     * @param int      $reference
-     * @param int      $writer_id
-     * @param bool     $attended
-     * @param bool     $finalized
-     * @param int|null $points
-     * @param string|null $grade
-     * @param bool     $passed
-     */
     public function __construct(
-        private int $reference,
+        private Properties $assessment,
+        private UserData $user,
         private int $writer_id,
         private bool $attended,
         private bool $finalized,
-        private ?int $points,
+        private ?float $points,
         private ?string $grade,
         private bool $passed,
     ) {}
-
-    public function getReference(): int
-    {
-        return $this->reference;
-    }
 
     public function getWriterId(): int
     {
@@ -43,7 +33,7 @@ class GradingObject extends \Edutiek\AssessmentService\Views\Data\GradingObject
         return $this->finalized;
     }
 
-    public function getPoints(): ?int
+    public function getPoints(): ?float
     {
         return $this->points;
     }
@@ -56,5 +46,15 @@ class GradingObject extends \Edutiek\AssessmentService\Views\Data\GradingObject
     public function isPassed(): bool
     {
         return $this->passed;
+    }
+
+    public function getAssessment(): Properties
+    {
+        return $this->assessment;
+    }
+
+    public function getUserData(): UserData
+    {
+        return $this->user;
     }
 }

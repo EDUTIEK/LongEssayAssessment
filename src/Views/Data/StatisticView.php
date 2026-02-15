@@ -4,6 +4,7 @@ namespace ILIAS\Plugin\LongEssayAssessment\View\Data;
 
 use Edutiek\AssessmentService\System\Data\UserData;
 use Edutiek\AssessmentService\Assessment\Data\GradeLevel;
+use Edutiek\AssessmentService\Assessment\Data\Properties;
 
 class StatisticView extends \Edutiek\AssessmentService\Views\Data\StatisticView
 {
@@ -41,9 +42,9 @@ class StatisticView extends \Edutiek\AssessmentService\Views\Data\StatisticView
             $this->attended += $obj->isAttended() ? 1 : 0;
             $this->not_attended += $obj->isAttended() ? 0 : 1;
             $point_sum += $obj->isFinalized() ? ($obj->getPoints() ?? 0) : 0;
-            $sum_finalized = $obj->isFinalized() ? 1 : 0;
+            $sum_finalized += $obj->isFinalized() ? 1 : 0;
 
-            if($obj->isFinalized()) { // Only count finalized grades and points
+            if ($obj->isFinalized()) { // Only count finalized grades and points
                 $point_key = (string)abs($obj->getPoints()??0);
                 $grade_key = $obj->getGrade();
 
@@ -127,4 +128,59 @@ class StatisticView extends \Edutiek\AssessmentService\Views\Data\StatisticView
     {
         return $this->grades_uniform;
     }
+
+    public function getUsers(): array
+    {
+        return array_unique(array_map(fn (GradingObject $go) => $go->getUserData(), $this->grading_objects??[]));
+    }
+
+    public function getAssessments(): array
+    {
+        return array_unique(array_map(fn (GradingObject $go) => $go->getAssessment(), $this->grading_objects??[]));
+    }
+
+    public function fromUser(UserData $user): self
+    {
+        $user_id = $user->getId();
+
+        $grading_objects = array_filter(
+            $this->getGradingObjects() ?? [],
+            fn (GradingObject $go) => $go->getUserData()->getId() === $user_id
+        );
+        $grade_counts = array_map(fn ($x) => 0, $this->getGradeCounts());
+        $points_counts = array_map(fn ($x) => 0, $this->getPointsCounts());
+
+        return new self($user, $grading_objects, $points_counts, $grade_counts, $this->isMaxPointUniform(), $this->isGradesUniform());
+    }
+
+    public function fromAssessent(Properties $assessment): self
+    {
+        $ass_id = $assessment->getAssId();
+
+        $grading_objects = array_filter(
+            $this->getGradingObjects() ?? [],
+            fn (GradingObject $go) => $go->getAssessment()->getAssId() === $ass_id
+        );
+        $grade_counts = array_map(fn ($x) => 0, $this->getGradeCounts());
+        $points_counts = array_map(fn ($x) => 0, $this->getPointsCounts());
+
+        return new self($assessment->getTitle(), $grading_objects, $points_counts, $grade_counts, $this->isMaxPointUniform(), $this->isGradesUniform());
+    }
+
+    public function fromUserAndAssessemnt(UserData $user, Properties $assessment): self
+    {
+        $ass_id = $assessment->getAssId();
+        $user_id = $user->getId();
+
+        $grading_objects = array_filter(
+            $this->getGradingObjects() ?? [],
+            fn (GradingObject $go) => $go->getUserData()->getId() === $user_id && $go->getAssessment()->getAssId() === $ass_id
+        );
+
+        $grade_counts = array_map(fn ($x) => 0, $this->getGradeCounts());
+        $points_counts = array_map(fn ($x) => 0, $this->getPointsCounts());
+
+        return new self($user, $grading_objects, $points_counts, $grade_counts, $this->isMaxPointUniform(), $this->isGradesUniform());
+    }
+
 }

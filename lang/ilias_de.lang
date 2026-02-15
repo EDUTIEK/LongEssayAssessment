@@ -912,3 +912,4 @@ finalize_unsubmitted#:#Nichtabgabe bewerten
 finalize_unsubmitted_confirmation#:#Wollen Sie diese Teilnahmen ohne Punkte und Note als nicht abgegeben bewerten?
 finalize_unsubmitted_done#:#Diese Teilnahmen wurden als nicht abgegeben bewertet.
 finalize_unsubmitted_failed#:#Ihre Auswahl enthält Teilnahmen, die nicht als Nichtabgaben bewertet werden konnten.
+writers#:#Teilnehmer

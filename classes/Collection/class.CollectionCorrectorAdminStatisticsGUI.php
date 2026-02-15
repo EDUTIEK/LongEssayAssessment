@@ -150,10 +150,9 @@ class CollectionCorrectorAdminStatisticsGUI
         {
             $assessment_general = $general->fromAssessent($assessment);
 
-            $sections += [
-                $puf->statistic()->statisticSection($assessment->getTitle()),
-                $this->buildStatistic($assessment_general, false)
-            ];
+            $sections [] = $puf->statistic()->statisticSection($assessment->getTitle());
+            $sections [] = $this->buildStatistic($assessment_general, false);
+
             foreach ($correctors as $corrector) {
                 $corrector_statistic = $assessment_general->fromUser($corrector);
                 $sections[] = $this->buildStatistic($corrector_statistic, false);

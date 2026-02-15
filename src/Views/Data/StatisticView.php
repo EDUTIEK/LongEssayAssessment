@@ -131,12 +131,12 @@ class StatisticView extends \Edutiek\AssessmentService\Views\Data\StatisticView
 
     public function getUsers(): array
     {
-        return array_unique(array_map(fn (GradingObject $go) => $go->getUserData(), $this->grading_objects??[]));
+        return array_unique(array_map(fn (GradingObject $go) => $go->getUserData(), $this->grading_objects??[]), SORT_REGULAR);
     }
 
     public function getAssessments(): array
     {
-        return array_unique(array_map(fn (GradingObject $go) => $go->getAssessment(), $this->grading_objects??[]));
+        return array_unique(array_map(fn (GradingObject $go) => $go->getAssessment(), $this->grading_objects??[]), SORT_REGULAR);
     }
 
     public function fromUser(UserData $user): self

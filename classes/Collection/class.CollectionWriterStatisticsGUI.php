@@ -7,12 +7,15 @@ use ILIAS\Plugin\LongEssayAssessment\BaseObjectData;
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\Dependencies\PluginDic;
 use ILIAS\UI\Component\Input\Container\Filter;
+use ILIAS\Plugin\LongEssayAssessment\StatisticHelper;
 
 /**
  * @ilCtrl_isCalledBy ILIAS\Plugin\LongEssayAssessment\Collection\CollectionWriterStatisticsGUI: ILIAS\Plugin\LongEssayAssessment\Collection\CollectionGUI
  */
 class CollectionWriterStatisticsGUI
 {
+    use StatisticHelper;
+
     private StatisticViewRepo $statistic_repo;
     private \Edutiek\AssessmentService\Assessment\Data\Writer $writer;
     private \ilCtrlInterface $ctrl;
@@ -25,7 +28,7 @@ class CollectionWriterStatisticsGUI
      */
     private array $ass_ids;
 
-    public function __construct(private \ilPlugin $plugin, private PluginDIC $plugin_dic, private \ILIAS\DI\Container $dic, private array $object_nodes)
+    public function __construct(protected \ilLongEssayAssessmentPlugin $plugin, private PluginDIC $plugin_dic, private \ILIAS\DI\Container $dic, private array $object_nodes)
     {
         $this->statistic_repo = $this->plugin->dic()->view()->statistic();
         $this->ctrl  =  $dic->ctrl();
@@ -85,56 +88,17 @@ class CollectionWriterStatisticsGUI
 
         $ass_ids = array_filter($this->ass_ids, fn ($x) => in_array($x, $filter_data['context']));
 
-        $data = $this->statistic_repo->someAssessments(['ass_id' => $ass_ids]);
-        $general = $data['general'];
-        $assessments = $data['by_assessment'];
-
-        $general_statistic = $puf->statistic()->statistic(
-            $this->plugin->txt('total_statistic'),
-            $general->getCount(),
-            $this->plugin->txt('essay_count'),
-            $general->getAttended(),
-            $this->plugin->txt('essay_final')
-        )->withNotAttended($general->getNotAttended())
-         ->withNotPassed($general->getNotPassed())
-         ->withPassed($general->getPassed())
-         ->withAveragePoints($general->getAveragePoints() ?? 0)
-         ->withNotPassedQuota($general->getNotPassedQuota() ?? 0);
-
-        if ($general->isGradesUniform()) {
-            $general_statistic = $general_statistic->withGrades($general->getGradeCounts());
-        }
-
-        if ($general->isMaxPointUniform()) {
-            $general_statistic = $general_statistic->withPoints($general->getPointsCounts());
-        }
+        $general = $this->statistic_repo->someAssessments(['ass_id' => $ass_ids]);
+        $general_statistic = $this->buildStatistic($general, true, $this->plugin->txt('total_statistic'));
 
         $sections = [
             $puf->statistic()->statisticSection($this->plugin->txt("total_statistic")),
             $general_statistic
         ];
 
-        foreach ($assessments as $ass_statistic) {
-            $statistic = $puf->statistic()->statistic(
-                $ass_statistic->getTitle(),
-                $ass_statistic->getCount(),
-                $this->plugin->txt('essay_count'),
-                $ass_statistic->getAttended(),
-                $this->plugin->txt('essay_final')
-            )->withNotAttended($ass_statistic->getNotAttended())
-             ->withNotPassed($ass_statistic->getNotPassed())
-             ->withPassed($ass_statistic->getPassed())
-             ->withAveragePoints($ass_statistic->getAveragePoints() ?? 0)
-             ->withNotPassedQuota($ass_statistic->getNotPassedQuota() ?? 0);
-
-            if ($ass_statistic->isGradesUniform()) {
-                $statistic = $statistic->withGrades($ass_statistic->getGradeCounts());
-            }
-
-            if ($general->isMaxPointUniform()) {
-                $statistic = $statistic->withPoints($ass_statistic->getPointsCounts());
-            }
-            $sections[] = $statistic;
+        foreach ($general->getAssessments() as $assessment) {
+            $ass_statistic = $general->fromAssessent($assessment);
+            $sections[] = $this->buildStatistic($ass_statistic, true);
         }
 
         if (count($sections) > 2) {

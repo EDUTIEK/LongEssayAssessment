@@ -6,18 +6,30 @@ use ILIAS\Plugin\LongEssayAssessment\BaseObjectData;
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\View\Data\StatisticViewRepo;
 use ILIAS\Plugin\LongEssayAssessment\View\Data\StatisticView;
+use Edutiek\AssessmentService\System\User\ReadService as UserService;
+use Edutiek\AssessmentService\Assessment\Corrector\FullService as CorrectorService;
+use Edutiek\AssessmentService\Assessment\Data\Corrector;
+use ILIAS\Plugin\LongEssayAssessment\StatisticHelper;
+use ilFileDelivery;
+use ILIAS\Data\UUID\Factory as UUID;
 
 /**
  * @ilCtrl_isCalledBy ILIAS\Plugin\LongEssayAssessment\CorrectionAdmin\CorrectorAdminStatisticsGUI: ilObjLongEssayAssessmentGUI
  */
 class CorrectorAdminStatisticsGUI extends BaseGUI
 {
+    use StatisticHelper;
+
     private StatisticViewRepo $statistic_repo;
+    private UserService $user_service;
+    private CorrectorService $corrector_service;
 
     public function __construct(BaseObjectData $object)
     {
         parent::__construct($object);
         $this->statistic_repo = $this->plugin->dic()->view()->statistic();
+        $this->user_service = $this->system_api->user();
+        $this->corrector_service = $this->assessment_api->corrector();
     }
 
     /**
@@ -46,28 +58,14 @@ class CorrectorAdminStatisticsGUI extends BaseGUI
 
     public function showStartPage()
     {
+        $this->toolbar->addComponent($this->ui_factory->button()->primary(
+            $this->plugin->txt("export_statistics"),
+            $this->ctrl->getLinkTarget($this, "exportCSV")
+        ));
+
         $puf = $this->plugin_ui_factory;
-        list($general, $correctors) = $this->statistic_repo->someCorrections(['ass_id' => $this->object->getAssId()]);
-
-        $general_statistic = $puf->statistic()->statistic(
-            $this->plugin->txt('corrections_all'),
-            $general->getCount(),
-            $this->plugin->txt('correction_count'),
-            $general->getAttended(),
-            $this->plugin->txt('correction_final')
-        )->withNotPassed($general->getNotPassed())
-         ->withPassed($general->getPassed())
-         ->withAveragePoints($general->getAveragePoints()??0)
-         ->withNotPassedQuota($general->getNotPassedQuota()??0);
-
-        if ($general->isGradesUniform()) {
-            $general_statistic = $general_statistic->withGrades($general->getGradeCounts());
-        }
-
-        if ($general->isMaxPointUniform()) {
-            $general_statistic = $general_statistic->withPoints($general->getPointsCounts());
-        }
-
+        $general = $this->statistic_repo->someCorrections(['ass_id' => $this->object->getAssId()]);
+        $general_statistic = $this->buildStatistic($general, false, $this->plugin->txt('corrections_all'));
 
         $sections = [
             $puf->statistic()->statisticSection($this->plugin->txt("total_statistic")),
@@ -75,30 +73,39 @@ class CorrectorAdminStatisticsGUI extends BaseGUI
             $puf->statistic()->statisticSection($this->plugin->txt("correctors"))
         ];
 
-        foreach ($correctors as $corrector) {
-            $statistic = $puf->statistic()->statistic(
-                $corrector->getUser()->getFullname(true),
-                $corrector->getCount(),
-                $this->plugin->txt('correction_count'),
-                $corrector->getAttended(),
-                $this->plugin->txt('correction_final')
-            )->withNotPassed($corrector->getNotPassed())
-             ->withPassed($corrector->getPassed())
-             ->withAveragePoints($corrector->getAveragePoints()??0)
-             ->withNotPassedQuota($corrector->getNotPassedQuota()??0);
-
-            if ($corrector->isGradesUniform()) {
-                $statistic = $statistic->withGrades($corrector->getGradeCounts());
-            }
-
-            if ($general->isMaxPointUniform()) {
-                $statistic = $statistic->withPoints($corrector->getPointsCounts());
-            }
-            $sections[] = $statistic;
+        $users = $this->user_service->getUsersByIds(array_map(fn(Corrector $corrector) => $corrector->getUserId(), $this->corrector_service->all()));
+        foreach ($users as $user) {
+            $corrector_statistic = $general->fromUser($user);
+            $sections[] = $this->buildStatistic($corrector_statistic, false);
         }
 
         $this->tpl->setContent($this->renderer->render(
             $puf->statistic()->extendableStatisticGroup($this->plugin->txt("statistic"), $sections)
         ));
+    }
+
+    public function exportCSV(): void
+    {
+        $general = $this->statistic_repo->someCorrections(['ass_id' => $this->object->getAssId()]);
+        $views = [];
+
+        foreach ($general->getUsers() as $user) {
+            $views[] =  $general->fromUser($user);
+        }
+
+        $users = $this->user_service->getUsersByIds(array_map(fn(Corrector $corrector) => $corrector->getUserId(), $this->corrector_service->all()));
+        foreach ($users as $user) {
+            $views[] =  $general->fromUser($user);
+        }
+
+        $csv = $this->buildStatisticExport($views, false, false);
+
+        $storage = $this->dic->filesystem()->temp();
+        $basedir = ILIAS_DATA_DIR . '/' . CLIENT_ID . '/temp';
+        $file = 'xlas/'. (new UUID)->uuid4AsString() . '.csv';
+        $storage->write($file, $csv->getCSVString());
+        $filename = ilFileDelivery::returnASCIIFilename($this->plugin->txt('export_statistics_corrector_file')). '.csv';
+
+        ilFileDelivery::deliverFileAttached($basedir . '/' . $file, $filename, 'text/csv', true);
     }
 }

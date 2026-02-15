@@ -7,12 +7,17 @@ use ILIAS\Plugin\LongEssayAssessment\BaseObjectData;
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\Dependencies\PluginDic;
 use ILIAS\UI\Component\Input\Container\Filter;
+use ILIAS\Plugin\LongEssayAssessment\StatisticHelper;
+use ILIAS\Data\UUID\Factory as UUID;
+use ilFileDelivery;
 
 /**
  * @ilCtrl_isCalledBy ILIAS\Plugin\LongEssayAssessment\Collection\CollectionWriterAdminStatisticsGUI: ILIAS\Plugin\LongEssayAssessment\Collection\CollectionGUI
  */
 class CollectionWriterAdminStatisticsGUI
 {
+    use StatisticHelper;
+
     private StatisticViewRepo $statistic_repo;
     private \Edutiek\AssessmentService\Assessment\Data\Writer $writer;
     private \ilCtrlInterface $ctrl;
@@ -25,12 +30,16 @@ class CollectionWriterAdminStatisticsGUI
      */
     private array $ass_ids;
     private \ILIAS\Refinery\Factory $refinery;
+    private \ilToolbarGUI $toolbar;
+    protected \ilLanguage $lng;
 
-    public function __construct(private \ilPlugin $plugin, private PluginDIC $plugin_dic, private \ILIAS\DI\Container $dic, private array $object_nodes)
+    public function __construct(protected \ilLongEssayAssessmentPlugin $plugin, private PluginDIC $plugin_dic, private \ILIAS\DI\Container $dic, private array $object_nodes)
     {
         $this->statistic_repo = $this->plugin->dic()->view()->statistic();
         $this->ctrl  =  $dic->ctrl();
         $this->tpl = $dic->ui()->mainTemplate();
+        $this->toolbar = $dic->toolbar();
+        $this->lng = $dic->language();
         $this->renderer = $dic->ui()->renderer();
         $this->ui_service = $dic->uiService();
         $this->ui_factory = $dic->ui()->factory();
@@ -78,17 +87,18 @@ class CollectionWriterAdminStatisticsGUI
                                          ->withAdditionalTransformation($this->refinery->to()->listOf($this->refinery->to()->int()))
                                          ->withValue($this->ass_ids),
             "name" => $this->ui_factory->input()->field()->text($this->plugin->txt("participants"))
-                                        ->withValue(""),
-            "finalized" => $this->ui_factory->input()->field()->numeric($this->plugin->txt("min_finalized_corrections"))
-                                           ->withAdditionalTransformation($this->refinery->int()->isGreaterThanOrEqual(0))
-                                           ->withAdditionalTransformation($this->refinery->to()->int())
-                                           ->withValue(1)
-        ], [true, true, true], true, true);
+                                        ->withValue("")
+        ], [true, true], true, true);
         return $filter_gui;
     }
 
     public function showStartPage()
     {
+        $this->toolbar->addComponent($this->ui_factory->button()->primary(
+            $this->plugin->txt("export_statistics"),
+            $this->ctrl->getLinkTarget($this, "exportCSV")
+        ));
+        
         $puf = $this->plugin_dic->uiFactory();
 
         $filter_gui = $this->buildFilter() ;
@@ -97,57 +107,24 @@ class CollectionWriterAdminStatisticsGUI
         $ass_ids = array_filter($this->ass_ids, fn ($x) => in_array($x, $filter_data['context']));
         $filter_data['ass_id'] = $ass_ids;
 
-        $data = $this->statistic_repo->someWriter($filter_data);
-        $general = $data['general'];
-        $user = $data['by_user'];
-
-        $general_statistic = $puf->statistic()->statistic(
-            $this->plugin->txt('total_statistic'),
-            $general->getCount(),
-            $this->plugin->txt('essay_count'),
-            $general->getAttended(),
-            $this->plugin->txt('correction_final')
-        )->withNotAttended($general->getNotAttended())
-                                 ->withNotPassed($general->getNotPassed())
-                                 ->withPassed($general->getPassed())
-                                 ->withAveragePoints($general->getAveragePoints() ?? 0)
-                                 ->withNotPassedQuota($general->getNotPassedQuota() ?? 0);
-
-        if ($general->isGradesUniform()) {
-            $general_statistic = $general_statistic->withGrades($general->getGradeCounts());
-        }
-
-        if ($general->isMaxPointUniform()) {
-            $general_statistic = $general_statistic->withPoints($general->getPointsCounts());
-        }
+        $general = $this->statistic_repo->someAssessments($filter_data);
+        $general_statistic = $this->buildStatistic($general, true, $this->plugin->txt('total_statistic'));
 
         $sections = [
             $puf->statistic()->statisticSection($this->plugin->txt("total_statistic")),
             $general_statistic,
-            $puf->statistic()->statisticSection($this->plugin->txt("writers")),
         ];
 
-        foreach ($user as $user_statistic) {
-            $statistic = $puf->statistic()->statistic(
-                $user_statistic->getTitle(),
-                $user_statistic->getCount(),
-                $this->plugin->txt('essay_count'),
-                $user_statistic->getAttended(),
-                $this->plugin->txt('essay_final')
-            )->withNotAttended($user_statistic->getNotAttended())
-                             ->withNotPassed($user_statistic->getNotPassed())
-                             ->withPassed($user_statistic->getPassed())
-                             ->withAveragePoints($user_statistic->getAveragePoints() ?? 0)
-                             ->withNotPassedQuota($user_statistic->getNotPassedQuota() ?? 0);
+        foreach($general->getAssessments() as $assessment) {
+            $assessment_statistic = $general->fromAssessent($assessment);
+            $sections[] = $this->buildStatistic($assessment_statistic, true);
+        }
 
-            if ($user_statistic->isGradesUniform()) {
-                $statistic = $statistic->withGrades($user_statistic->getGradeCounts());
-            }
+        $sections[] = $puf->statistic()->statisticSection($this->plugin->txt("writers"));
 
-            if ($general->isMaxPointUniform()) {
-                $statistic = $statistic->withPoints($user_statistic->getPointsCounts());
-            }
-            $sections[] = $statistic;
+        foreach ($general->getUsers() as $user) {
+            $user_statistic = $general->fromUser($user);
+            $sections[] = $this->buildStatistic($user_statistic, true);
         }
 
         if (count($sections) > 3) {
@@ -158,5 +135,31 @@ class CollectionWriterAdminStatisticsGUI
         } else {
             $this->tpl->setContent($this->renderer->render([$filter_gui,  $general_statistic]));
         }
+    }
+
+    public function exportCSV(): void
+    {
+        $filter_gui = $this->buildFilter() ;
+        $filter_data = $this->ui_service->filter()->getData($filter_gui) ?? ['context' => []];
+
+        $ass_ids = array_filter($this->ass_ids, fn ($x) => in_array($x, $filter_data['context']));
+        $filter_data['ass_id'] = $ass_ids;
+
+        $general  = $this->statistic_repo->someCorrections($filter_data);
+        $views = [];
+
+        foreach ($general->getUsers() as $user) {
+            $views[] =  $general->fromUser($user);
+        }
+
+        $csv = $this->buildStatisticExport($views, false, true);
+
+        $storage = $this->dic->filesystem()->temp();
+        $basedir = ILIAS_DATA_DIR . '/' . CLIENT_ID . '/temp';
+        $file = 'xlas/'. (new UUID)->uuid4AsString() . '.csv';
+        $storage->write($file, $csv->getCSVString());
+        $filename = ilFileDelivery::returnASCIIFilename($this->plugin->txt('export_statistics_writer_file')). '.csv';
+
+        ilFileDelivery::deliverFileAttached($basedir . '/' . $file, $filename, 'text/csv', true);
     }
 }

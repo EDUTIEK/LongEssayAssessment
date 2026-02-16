@@ -626,7 +626,7 @@ class CorrectionAdminGUI extends BaseGUI
     {
         return [
             $this->downloadWrittenPdfAction(),
-            $this->downloadCorrectedPdfAction(),
+            //$this->downloadCorrectedPdfAction(),
             $this->mailToWriterOrCorrectorAction(),
             $this->changeCorrectorAction(),
             $this->setUnsubmittedAsFinalizedAction(),

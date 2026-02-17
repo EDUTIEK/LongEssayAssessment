@@ -152,7 +152,7 @@ class CollectionWriterAdminStatisticsGUI
             $views[] =  $general->fromUser($user);
         }
 
-        $csv = $this->buildStatisticExport($views, false, true);
+        $csv = $this->buildStatisticExport($views, false, false);
 
         $storage = $this->dic->filesystem()->temp();
         $basedir = ILIAS_DATA_DIR . '/' . CLIENT_ID . '/temp';

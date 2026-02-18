@@ -120,4 +120,9 @@ readonly class StorageAdapter implements Storage
             return null;
         }
     }
+
+    public function getReadableRoot(): string
+    {
+        return  ILIAS_DATA_DIR . '/' . CLIENT_ID . '/storage';
+    }
 }

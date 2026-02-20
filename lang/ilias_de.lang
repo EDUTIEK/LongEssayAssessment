@@ -490,8 +490,8 @@ download_corrected_pdf#:#Korrektur-Datei herunterladen
 download_corrected_pdf_for#:#Korrektur-Datei von %s herunterladen
 tab_corrector_statistic#:#Notenstatistik
 statistic#:#Notenstatistik
-correction_count#:#Korrekturen
-correction_final#:#davon freigegeben
+correction_count#:#Einzelkorrekturen
+correction_final#:#davon final freigegeben
 essay_count#:#Teilnahmen
 essay_final#:#davon abgeschlossen
 essay_not_passed_quota#:#Durchfallquote

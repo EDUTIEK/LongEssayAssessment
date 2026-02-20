@@ -217,7 +217,7 @@ class WriterStartGUI extends BaseGUI
         }
 
         $task_id = $this->get->integer('task_id', 0);
-        $this->assessment_api->export()->downloadWritings(
+        $this->assessment_api->export($this->object->getContextId())->downloadWritings(
             [new WritingTask($this->writer->getId(), $task_id)],
             false
         );
@@ -230,7 +230,7 @@ class WriterStartGUI extends BaseGUI
         }
 
         $task_id = $this->get->integer('task_id', 0);
-        $this->assessment_api->export()->downloadCorrections(
+        $this->assessment_api->export($this->object->getContextId())->downloadCorrections(
             [new WritingTask($this->writer->getId(), $task_id)],
             false,
             $this->assessment_api->correctionSettings()->get()->getAnonymizeCorrectors()
@@ -243,7 +243,7 @@ class WriterStartGUI extends BaseGUI
             $this->raisePermissionError();
         }
 
-        $file_id = $this->assessment_api->pdfCreation()->createCorrectionReport($this->object->getAssId());
+        $file_id = $this->assessment_api->pdfCreation($this->object->getContextId())->createCorrectionReport($this->object->getAssId());
         $filename = 'assessment' . $this->object->getId() . '-reports.pdf';
         $this->system_api->fileDelivery()->sendFile(
             $file_id,

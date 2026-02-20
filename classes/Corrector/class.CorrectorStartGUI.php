@@ -463,7 +463,7 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
         $writings = array_map(fn(CorrectorStartItem $item) =>
         new WritingTask($item->getAssignment()->getWriterId(), $item->getAssignment()->getTaskId()), $items);
 
-        $this->assessment_api->export()->downloadWritings($writings, true);
+        $this->assessment_api->export($this->object->getContextId())->downloadWritings($writings, true);
 
 
     }

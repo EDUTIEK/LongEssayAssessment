@@ -345,7 +345,7 @@ class CorrectionAdminGUI extends BaseGUI
         $writings = array_map(fn(CorrectionItem $item) =>
         new WritingTask($item->getWriter()->getId(), $item->getTaskSettings()->getTaskId()), $items);
 
-        $this->assessment_api->export()->downloadCorrections($writings, false, false);
+        $this->assessment_api->export($this->object->getContextId())->downloadCorrections($writings, false, false);
     }
 
     private function downloadWrittenPdfAction(): Action\Direct
@@ -367,7 +367,7 @@ class CorrectionAdminGUI extends BaseGUI
         $writings = array_map(fn(CorrectionItem $item) =>
             new WritingTask($item->getWriter()->getId(), $item->getTaskSettings()->getTaskId()), $items);
 
-        $this->assessment_api->export()->downloadWritings($writings, false);
+        $this->assessment_api->export($this->object->getContextId())->downloadWritings($writings, false);
     }
 
     public function viewCorrection()
@@ -626,7 +626,7 @@ class CorrectionAdminGUI extends BaseGUI
     {
         return [
             $this->downloadWrittenPdfAction(),
-            //$this->downloadCorrectedPdfAction(),
+            $this->downloadCorrectedPdfAction(),
             $this->mailToWriterOrCorrectorAction(),
             $this->changeCorrectorAction(),
             $this->setUnsubmittedAsFinalizedAction(),

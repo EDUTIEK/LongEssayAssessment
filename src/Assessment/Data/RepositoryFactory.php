@@ -10,6 +10,7 @@ use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\RepositoryFactory as Fact
 use ilAccessHandler;
 use ilObjectDataCache;
 use ilObjectFactory;
+use ilTree;
 
 class RepositoryFactory implements \Edutiek\AssessmentService\Assessment\Data\Repositories
 {
@@ -19,6 +20,7 @@ class RepositoryFactory implements \Edutiek\AssessmentService\Assessment\Data\Re
         Generate $g,
         ilDBInterface $db,
         private readonly ilAccessHandler $access,
+        private readonly ilTree $tree,
         private readonly ilObjectDataCache $data_cache,
         private readonly ilObjectFactory $object_factory
     ) {
@@ -49,6 +51,11 @@ class RepositoryFactory implements \Edutiek\AssessmentService\Assessment\Data\Re
     public function properties(): PropertiesRepo
     {
         return $this->instances[PropertiesRepo::class] ??= new PropertiesRepo($this->data_cache, $this->object_factory);
+    }
+
+    public function contextInfo(): ContextInfoRepo
+    {
+        return $this->instances[ContextInfoRepo::class] ??= new ContextInfoRepo($this->tree);
     }
 
     public function correctionSettings(): CorrectionSettingsRepo

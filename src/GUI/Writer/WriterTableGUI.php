@@ -434,7 +434,7 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
     public function downloadWriting(array $items)
     {
         $writer_ids = array_map(fn(WriterItem $item) => $item->getId(), $items);
-        $this->assessment_api->export()->downloadWritings(
+        $this->assessment_api->export($this->object->getContextId())->downloadWritings(
             $this->assessment_api->writingTask()->allByWriterIds($writer_ids),
             false
         );

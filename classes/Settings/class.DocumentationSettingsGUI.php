@@ -75,7 +75,7 @@ class DocumentationSettingsGUI extends BaseGUI
     protected function updateOrder(PdfPurpose $purpose)
     {
         if ($this->request->getMethod() == "POST") {
-            $parts = $this->assessment_api->pdfCreation()->getSortedParts($purpose);
+            $parts = $this->assessment_api->pdfCreation($this->object->getContextId())->getSortedParts($purpose);
             $post = $this->request->getParsedBody() ?? [];
             $active = !empty($post) && isset($post['active'])
                 ? $post['active']
@@ -90,7 +90,7 @@ class DocumentationSettingsGUI extends BaseGUI
                 $part->setPosition($this->post->integer($part->getKey(), (++$i) * 10));
             }
 
-            $this->assessment_api->pdfCreation()->saveSortedParts($purpose, $parts);
+            $this->assessment_api->pdfCreation($this->object->getContextId())->saveSortedParts($purpose, $parts);
             $this->success($this->lng->txt("settings_saved"), true);
         }
         $this->ctrl->redirect($this, "edit");
@@ -98,7 +98,7 @@ class DocumentationSettingsGUI extends BaseGUI
 
     protected function buildOrder(string $title, PdfPurpose $purpose, string $cmd): Ordering
     {
-        $parts = $this->assessment_api->pdfCreation()->getSortedParts($purpose);
+        $parts = $this->assessment_api->pdfCreation($this->object->getContextId())->getSortedParts($purpose);
 
         $df = new \ILIAS\Data\Factory();
         $url_builder = new URLBuilder($df->uri(ILIAS_HTTP_PATH . '/' . $this->ctrl->getFormAction($this, $cmd)));

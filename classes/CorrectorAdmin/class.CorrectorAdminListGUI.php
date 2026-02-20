@@ -56,7 +56,7 @@ class CorrectorAdminListGUI extends WriterListGUI
 
         $count_total = count($this->writers);
         $count_filtered = 0;
-        $filter_gui = $this->filterForm();
+        $filter_gui = $this->filterForm("xlas_corrections_list_filter", self::FILTER_YES);
         $filter_data = $this->ui_service->filter()->getData($filter_gui) ?? [];
 
         $user_data = \ilUserUtil::getNamePresentation(array_unique(array_map(fn (Writer $x) => $x->getUserId(), $this->writers)), true, true, "", true);

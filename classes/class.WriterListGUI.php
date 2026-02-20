@@ -295,7 +295,7 @@ abstract class WriterListGUI
         return true;
     }
 
-    public function filterForm(): Standard
+    public function filterForm(string $ui_id, ?string $defailt_authorized = null): Standard
     {
         $link = $this->ctrl->getLinkTarget($this->parent, $this->parent_cmd);
         $locations = [];
@@ -319,7 +319,7 @@ abstract class WriterListGUI
         $filter["authorized"] = $this->uiFactory->input()->field()->select(
             $this->plugin->txt("filter_authorized"),
             [self::FILTER_YES => $this->plugin->txt("yes"), self::FILTER_NO => $this->plugin->txt("no")]
-        );
+        )->withValue($defailt_authorized);
         $filter["words"] = $this->uiFactory->input()->field()->select(
             $this->plugin->txt("filter_words"),
             ["m100" => $more_than(100), "m50" => $more_than(50), "m10" => $more_than(10),
@@ -327,7 +327,7 @@ abstract class WriterListGUI
         );
 
         return $this->ui_service->filter()->standard(
-            "abc1",
+            $ui_id,
             $link,
             array_merge($filter, $this->filterInputs()),
             array_merge([true, true, true, true], $this->filterInputActivation()),

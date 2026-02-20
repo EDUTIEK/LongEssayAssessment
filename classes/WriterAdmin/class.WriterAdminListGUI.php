@@ -26,7 +26,7 @@ class WriterAdminListGUI extends WriterListGUI
         $count_total = count($this->getWriters());
         $count_filtered = 0;
 
-        $filter_gui = $this->filterForm();
+        $filter_gui = $this->filterForm("xlas_writer_list_filter");
         $filter_data = $this->ui_service->filter()->getData($filter_gui) ?? [];
 
         foreach($this->getWriters() as $writer) {

@@ -233,8 +233,8 @@ class CorrectionTableParent implements DataTableParent, FilterParent
                 $view->getWriterDisplay(),
                 $view->getLocation(),
                 $view->getEssay(),
-                array_map(fn(Correction $c) => $c->getCorrectorSummary(), $view->getCorrections()),
-                array_map(fn(Correction $c) => $c->getCorrectorData(), $view->getCorrections()),
+                array_map(fn (Correction $c) => $c->getCorrectorSummary(), $view->getCorrections()),
+                array_map(fn (Correction $c) => $c->getCorrectorData(), $view->getCorrections()),
                 $view->getFinalizedByData(),
                 $view->getAuthorizedByData(),
                 $view->getExcludedByData(),
@@ -261,8 +261,8 @@ class CorrectionTableParent implements DataTableParent, FilterParent
             $view->getWriterDisplay(),
             $view->getLocation(),
             $view->getEssay(),
-            array_map(fn(Correction $c) => $c->getCorrectorSummary(), $view->getCorrections()),
-            array_map(fn(Correction $c) => $c->getCorrectorData(), $view->getCorrections()),
+            array_map(fn (Correction $c) => $c->getCorrectorSummary(), $view->getCorrections()),
+            array_map(fn (Correction $c) => $c->getCorrectorData(), $view->getCorrections()),
             $view->getFinalizedByData(),
             $view->getAuthorizedByData(),
             $view->getExcludedByData(),
@@ -307,7 +307,15 @@ class CorrectionTableParent implements DataTableParent, FilterParent
             "location" => $this->ui_factory->input()->field()->multiselect($this->plugin->txt("locations"), $locations),
             "min_words" => $this->ui_factory->input()->field()->numeric($this->plugin->txt("min_word_count")),
             "max_words" => $this->ui_factory->input()->field()->numeric($this->plugin->txt("max_word_count")),
-            "status" => $this->ui_factory->input()->field()->multiSelect($this->plugin->txt("status"), $status),
+            "status" => $this->ui_factory->input()->field()->multiSelect($this->plugin->txt("status"), $status)
+                                                           ->withValue(array_map( fn (CombinedStatus $x) => (string) $x->value, [
+                                                               CombinedStatus::WRITING_AUTHORIZED,
+                                                               CombinedStatus::OPEN,
+                                                               CombinedStatus::APPROXIMATION,
+                                                               CombinedStatus::CONSULTING,
+                                                               CombinedStatus::STITCH_NEEDED,
+                                                               CombinedStatus::FINALIZED]
+                                                           )),// Default are all writings, authorized and above
             "assigned" => $this->ui_factory->input()->field()->select(
                 $this->plugin->txt("filter_assigned"),
                 [self::FILTER_YES => $this->plugin->txt("yes"), self::FILTER_NO => $this->plugin->txt("no")]

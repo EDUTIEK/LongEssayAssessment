@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace ILIAS\Plugin\LongEssayAssessment\Dependencies;
 
 use DateTimeInterface;
-use Edutiek\AssessmentService\System\BackgroundTask\ClientManager as BackgroundTaskManager;
+use Edutiek\AssessmentService\System\BackgroundTask\SystemManager as BackgroundTaskManager;
 use Edutiek\AssessmentService\System\Session\Storage as SessionStorage;
 use ilDatePresentation;
 use ilDateTime;

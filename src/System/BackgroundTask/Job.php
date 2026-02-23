@@ -9,32 +9,40 @@ use ILIAS\BackgroundTasks\Observer;
 use ILIAS\BackgroundTasks\Value;
 use ILIAS\BackgroundTasks\Types\SingleType;
 use ILIAS\BackgroundTasks\Implementation\Values\ScalarValues\StringValue;
-use ILIAS\BackgroundTasks\Implementation\Values\ScalarValues\IntegerValue;
 use ILIAS\BackgroundTasks\Types\Type;
 use ilLongEssayAssessmentPlugin;
 
 class Job extends AbstractJob
 {
     /**
+     * Run a cron job of an assessment system component
+     *
      * @param Value[] $input
      * @param Observer $observer
-     * @return Value
+     * @return Value    wrapped file id if the job creates a file
+     *
+     * @todo: component name is implicitly used as a dic function to create the component
      */
     public function run(array $input, Observer $observer): Value
     {
         $dic = ilLongEssayAssessmentPlugin::getInstance()->dic();
 
-        // return $this->wrapScalar();
-        $input = array_map(fn($x) => $x->getValue(), $input);
-        $dic->{$input[0]}(...json_decode($input[1]))->backgroundTask($input[2])->run(...json_decode($input[3]));
-        // (new ($input[0]))->run(...);
+        $component = $input[0]->getValue();                     // component that runs the job e.g. 'essayTask'
+        $job = $input[1]->getValue();                           // class name of the job in the component e.g. 'GenerateEssayImages'
 
-        return $this->wrapScalar(0);
+        $component_args = json_decode($input[2]->getValue());   // args to initialize the component e.g. ass_id, user_id
+        $service_args = json_decode($input[3]->getValue());     // args to initialize the service e.g. context_id
+        $args = json_decode($input[4]->getValue());             // args provided for the run() function of the job
+
+        $file_id = $dic->{$component}(...$component_args)->backgroundTasks(...$service_args)->run($job, $args);
+
+        // job may have created a file for download
+        return $this->wrapScalar((string) $file_id);
     }
 
     public function getExpectedTimeOfTaskInSeconds(): int
     {
-        return 60;
+        return 3600;
     }
 
     public function getInputTypes(): array
@@ -50,7 +58,7 @@ class Job extends AbstractJob
 
     public function getOutputType(): Type
     {
-        return new SingleType(IntegerValue::class);
+        return new SingleType(StringValue::class);
     }
 
     public function isStateless(): bool

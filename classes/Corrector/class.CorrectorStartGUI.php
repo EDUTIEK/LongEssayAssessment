@@ -206,11 +206,11 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
     public function getTableActions(): array
     {
         return [
-            // todo: activate actions
-              $this->downloadWrittenPdfAction(),
-//            $this->downloadCorrectedPdfAction(),
-              $this->authorizeCorrectionAction(),
-//            $this->removeAuthorizationAction()
+            $this->downloadWrittenPdfAction(),
+            $this->downloadCorrectedPdfAction(),
+            $this->authorizeCorrectionAction(),
+            // todo: support removeAuthorizationAction
+            // $this->removeAuthorizationAction()
         ];
     }
 
@@ -220,7 +220,7 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
             "download_written_pdf",
             $this->plugin->txt("download_written_pdf"),
             [$this, "downloadWrittenPdf"],
-            fn(CorrectorStartItem $x) => true,
+            fn(CorrectorStartItem $x) => $this->settings->getDownloadWriting(),
             Table\Action\Type::Standard
         );
     }
@@ -231,8 +231,8 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
             "download_corrected_pdf",
             $this->plugin->txt("download_corrected_pdf"),
             [$this, "downloadCorrectedPdf"],
-            fn(CorrectorStartItem $x) => true,
-            Table\Action\Type::Single
+            fn(CorrectorStartItem $x) => $this->settings->getDownloadCorrection(),
+            Table\Action\Type::Standard
         );
     }
 
@@ -456,29 +456,33 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
 
     /**
      * @param CorrectorStartItem[] $items
-     * @return void
      */
     public function downloadWrittenPdf(array $items)
     {
-        $writings = array_map(fn(CorrectorStartItem $item) =>
-        new WritingTask($item->getAssignment()->getWriterId(), $item->getAssignment()->getTaskId()), $items);
+        if ($this->settings->getDownloadWriting()) {
+            $writings = array_map(fn(CorrectorStartItem $item) =>
+            new WritingTask($item->getAssignment()->getWriterId(), $item->getAssignment()->getTaskId()), $items);
 
-        $this->assessment_api->export($this->object->getContextId())->downloadWritings($writings, true);
-
-
+            $background = $this->assessment_api->export($this->object->getContextId())->downloadWritings($writings, true);
+            if ($background) {
+                $this->info($this->plugin->txt('download_in_background_started'));
+            }
+        }
     }
-
-    protected function downloadCorrectedPdf()
+    /**
+     * @param CorrectorStartItem[] $items
+     */
+    public function downloadCorrectedPdf(array $items)
     {
-        //        $params = $this->request->getQueryParams();
-        //        $writer_id = (int) ($params['writer_id'] ?? 0);
-        //
-        //        $service = $this->localDI->getCorrectorAdminService($this->object->getId());
-        //        $repoWriter = $this->localDI->getWriterRepo()->getWriterById($writer_id);
-        //        $repoCorrector = $this->localDI->getCorrectorRepo()->getCorrectorByUserId($this->dic->user()->getId(), $this->settings->getTaskId());
-        //
-        //        $filename = 'task' . $this->object->getId() . '_writer' . $repoWriter->getId(). '-correction.pdf';
-        //        $this->common_services->fileHelper()->deliverData($service->getCorrectionAsPdf($this->object, $repoWriter, $repoCorrector, true), $filename, 'application/pdf');
+        if ($this->settings->getDownloadCorrection()) {
+            $writings = array_map(fn(CorrectorStartItem $item) =>
+            new WritingTask($item->getAssignment()->getWriterId(), $item->getAssignment()->getTaskId()), $items);
+
+            $background = $this->assessment_api->export($this->object->getContextId())->downloadCorrections($writings, true, false);
+            if ($background) {
+                $this->info($this->plugin->txt('download_in_background_started'));
+            }
+        }
     }
 
 

@@ -20,6 +20,9 @@ class Manager implements SystemManager
     ) {
     }
 
+    /**
+     * @param class-string<ComponentJob> $job
+     */
     public function create(string $title, string $component, string $job, array $component_args, array $service_args, array $job_args): void
     {
         $task = $this->factory->createTask(Job::class, [
@@ -30,13 +33,15 @@ class Manager implements SystemManager
         $bucket->setUserId($this->user->getId());
         $bucket->setTitle($title);
 
-        if (is_a($job, ComponentJob::class, true) && $job::withDownload()) {
-            $download = $this->factory->createTask(Download::class, [$task]);
+        if ($job::withDownload()) {
+            $download = $this->factory->createTask(Download::class, [$task, $job::allowDelete()]);
             $bucket->setTask($download);
         } else {
             $bucket->setTask($task);
         }
 
         $this->manager->run($bucket);
+
+
     }
 }

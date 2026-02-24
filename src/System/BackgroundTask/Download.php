@@ -17,12 +17,17 @@ use Edutiek\AssessmentService\System\File\Storage as Storage;
 use Edutiek\AssessmentService\System\File\Delivery as Delivery;
 use Edutiek\AssessmentService\System\File\Disposition;
 use ILIAS\BackgroundTasks\Implementation\Tasks\AbstractUserInteraction;
+use ILIAS\UI\Component\Table\Column\Boolean;
+use ILIAS\BackgroundTasks\Implementation\Values\ScalarValues\BooleanValue;
 
 /**
  * Download a file created in  a background task
  */
 class Download extends AbstractUserInteraction
 {
+    private const OPTION_DOWNLOAD = 'download';
+    private const OPTION_REMOVE = 'remove';
+
     private Storage $storage;
     private Delivery $delivery;
 
@@ -40,8 +45,13 @@ class Download extends AbstractUserInteraction
     public function getOptions(array $input): array
     {
         return [
-            new UserInteractionOption("download", "download")
+            new UserInteractionOption("download", self::OPTION_DOWNLOAD)
         ];
+    }
+
+    public function getRemoveOption(): Option
+    {
+        return new UserInteractionOption('remove', self::OPTION_REMOVE);
     }
 
     /**
@@ -52,17 +62,27 @@ class Download extends AbstractUserInteraction
     public function interaction(array $input, Option $user_selected_option, Bucket $bucket): Value
     {
         $file_id = (string) $input[0]->getValue();
-        $this->delivery->sendFile($file_id, Disposition::ATTACHMENT);
+        $delete = (bool) $input[1]->getValue();
+
+        switch ($user_selected_option->getValue()) {
+            case self::OPTION_DOWNLOAD:
+                $this->delivery->sendFile($file_id, Disposition::ATTACHMENT);
+                break;
+            case self::OPTION_REMOVE:
+                if ($delete) {
+                    $this->storage->deleteFile($file_id);
+                }
+                break;
+        }
+
         return new StringValue();
     }
 
-    /**
-     * @return Type[] Class-Name of the IO
-     */
     public function getInputTypes(): array
     {
         return [
             new SingleType(StringValue::class),
+            new SingleType(BooleanValue::class),
         ];
     }
 

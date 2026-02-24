@@ -1134,4 +1134,22 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
         $this->db->addTableColumn('xlas_sy_config', 'path_to_pdftk', ['type' => ilDBConstants::T_TEXT, 'length' => 150]);
     }
 
+    public function step_67(): void
+    {
+        if (!$this->db->tableColumnExists('xlas_as_corr_settings', 'download_writing')) {
+            $this->db->addTableColumn(
+                'xlas_as_corr_settings',
+                'download_writing',
+                ['type' => ilDBConstants::T_INTEGER, 'notnull' => 1, 'default' => 1]
+            );
+        }
+        if (!$this->db->tableColumnExists('xlas_as_corr_settings', 'download_correction')) {
+            $this->db->addTableColumn(
+                'xlas_as_corr_settings',
+                'download_correction',
+                ['type' => ilDBConstants::T_INTEGER, 'notnull' => 1, 'default' => 1]
+            );
+        }
+    }
+
 }

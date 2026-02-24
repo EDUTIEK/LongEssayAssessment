@@ -52,6 +52,8 @@ class CorrectionSettings extends \Edutiek\AssessmentService\Assessment\Data\Corr
     private bool $reports_enabled = false;
     private ?DateTimeImmutable $reports_available_start = null;
     private ?int $max_points = null;
+    private bool $download_writing = true;
+    private bool $download_correction = true;
 
     public function getAssId(): int
     {
@@ -233,6 +235,28 @@ class CorrectionSettings extends \Edutiek\AssessmentService\Assessment\Data\Corr
     public function setMaxPoints(?int $max_points): self
     {
         $this->max_points = $max_points;
+        return $this;
+    }
+
+    public function getDownloadWriting(): bool
+    {
+        return $this->download_writing;
+    }
+
+    public function setDownloadWriting(bool $download_writing): self
+    {
+        $this->download_writing = $download_writing;
+        return $this;
+    }
+
+    public function getDownloadCorrection(): bool
+    {
+        return $this->download_correction;
+    }
+
+    public function setDownloadCorrection(bool $download_correction): self
+    {
+        $this->download_correction = $download_correction;
         return $this;
     }
 }

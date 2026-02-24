@@ -345,7 +345,10 @@ class CorrectionAdminGUI extends BaseGUI
         $writings = array_map(fn(CorrectionItem $item) =>
         new WritingTask($item->getWriter()->getId(), $item->getTaskSettings()->getTaskId()), $items);
 
-        $this->assessment_api->export($this->object->getContextId())->downloadCorrections($writings, false, false);
+        $background = $this->assessment_api->export($this->object->getContextId())->downloadCorrections($writings, false, false);
+        if ($background) {
+            $this->info($this->plugin->txt('download_in_background_started'));
+        }
     }
 
     private function downloadWrittenPdfAction(): Action\Direct
@@ -367,7 +370,10 @@ class CorrectionAdminGUI extends BaseGUI
         $writings = array_map(fn(CorrectionItem $item) =>
             new WritingTask($item->getWriter()->getId(), $item->getTaskSettings()->getTaskId()), $items);
 
-        $this->assessment_api->export($this->object->getContextId())->downloadWritings($writings, false);
+        $background = $this->assessment_api->export($this->object->getContextId())->downloadWritings($writings, false);
+        if ($background) {
+            $this->info($this->plugin->txt('download_in_background_started'));
+        }
     }
 
     public function viewCorrection()

@@ -917,3 +917,4 @@ allow_download_writing#:#Abgaben herunterladen
 allow_download_writing_info#:#Korrektoren können auf ihrer Startseite einzelne oder mehrere Abgaben als PDF herunterladen.
 allow_download_correction#:#Korrekturen herunterladen
 allow_download_correction_info#:#Korrektoren können auf ihrer Startseite einzelne oder mehrere Korrekturen als PDF herunterladen. Eine PDF-Datei enthält die eigene Korrektur einer Abgabe und die anderer Korrektoren, sofern sie freigegeben sind.
+download_in_background_started#:#Die Datei wird im Hintergrund erzeugt und kann anschließend über das Glocken-Symbol in der Kopfzeile heruntergeladen werden.

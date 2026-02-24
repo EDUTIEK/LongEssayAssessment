@@ -212,7 +212,7 @@ class WriterStartGUI extends BaseGUI
 
     public function downloadWriterPdf(): void
     {
-        if (!$this->perms->canViewWriterScreen()) {
+        if (!$this->perms->canReviewWrittenAssessment()) {
             $this->raisePermissionError();
         }
 

@@ -287,7 +287,7 @@ class StartPageGUI extends BaseGUI
 
         $items[] = $this->ui_factory->listing()->descriptive($properties);
 
-        if ($this->perms->canReviewWrittenAssessment() && $this->writer->getWritingAuthorized()) {
+        if ($this->perms->canReviewWrittenAssessment()) {
             foreach ($tasks as $task) {
                 $this->ctrl->setParameter($this->target, 'task_id', (string) $task->getId());
                 $items[] = $this->ui_factory->item()->standard(
@@ -301,12 +301,16 @@ class StartPageGUI extends BaseGUI
         }
 
         if ($this->perms->canReviewCorrectedAssessment()) {
-            $items[] = $this->ui_factory->item()->standard(
-                $this->ui_factory->link()->standard(
-                    $this->plugin->txt('download_corrected_submission'),
-                    $this->ctrl->getLinkTarget($this->target, 'downloadCorrectedPdf')
-                )
-            )->withLeadIcon($this->ui_factory->symbol()->icon()->standard('file', '', 'medium'));
+            foreach ($tasks as $task) {
+                $this->ctrl->setParameter($this->target, 'task_id', (string) $task->getId());
+                $items[] = $this->ui_factory->item()->standard(
+                    $this->ui_factory->link()->standard(
+                        $this->plugin->txt('download_corrected_submission') .
+                        (count($tasks) > 1 ? ' (' . $task->getTitle() . ')' : ''),
+                        $this->ctrl->getLinkTarget($this->target, 'downloadCorrectedPdf')
+                    )
+                )->withLeadIcon($this->ui_factory->symbol()->icon()->standard('file', '', 'medium'));
+            }
         }
 
         if ($this->perms->canDownloadCorrectionReports() && $this->assessment_api->corrector()->hasReports()) {

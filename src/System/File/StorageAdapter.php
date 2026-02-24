@@ -9,8 +9,10 @@ use ILIAS\Filesystem\Stream\Streams;
 use ILIAS\Plugin\LongEssayAssessment\System\Data\FileInfo as FileInfoModel;
 use ILIAS\ResourceStorage\Consumer\Consumers;
 use ILIAS\ResourceStorage\Manager\Manager;
+use ILIAS\ResourceStorage\Information;
 use ILIAS\ResourceStorage\Stakeholder\ResourceStakeholder;
 use Psr\Http\Message\StreamInterface as Stream;
+use ILIAS\ResourceStorage\Information\FileInformation;
 
 /**
  * Adapter of the ILIAS resource storage (IRSS) service for the assessment-service
@@ -49,12 +51,32 @@ readonly class StorageAdapter implements Storage
 
             return $this->newInfo()
                 ->setId($id)
-                ->setFileName($resource->getCurrentRevision()->getTitle())
+                ->setFileName($resource->getCurrentRevision()->getInformation()->getTitle())
                 ->setMimeType($resource->getCurrentRevision()->getInformation()->getMimeType())
                 ->setSize($resource->getCurrentRevision()->getInformation()->getSize());
         }
         return null;
     }
+
+    public function updateFileInfo(FileInfo $info): void
+    {
+        $resource_id = $this->manager->find($info->getId() ?? '');
+        if ($resource_id !== null) {
+            $revision = $this->manager->getCurrentRevision($resource_id);
+            $revision_info = $revision->getInformation();
+            $revision->setInformation(
+                (new FileInformation())
+                ->setTitle($info->getFileName() ?? $revision_info->getTitle())
+                ->setMimeType($info->getMimeType() ?? $revision_info->getMimeType())
+                ->setSize($info->getSize() ?? $revision_info->getSize())
+                ->setCreationDate($revision_info->getCreationDate())
+                ->setSuffix($revision_info->getSuffix())
+            );
+            $revision->setTitle($info->getFileName() ?? $revision_info->getTitle());
+            $this->manager->updateRevision($revision);
+        }
+    }
+
 
     public function getFileStream(?string $id): mixed
     {
@@ -93,6 +115,7 @@ readonly class StorageAdapter implements Storage
             );
         }
 
+        $this->updateFileInfo($info->setId((string) $resource_id));
         return $this->getFileInfo((string) $resource_id);
     }
 

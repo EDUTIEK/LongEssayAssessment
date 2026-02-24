@@ -63,7 +63,7 @@ readonly class DeliveryAdapter implements \Edutiek\AssessmentService\System\File
             $absolute_path = $stream->getMetadata('uri');
 
             $delivery = new Delivery($absolute_path, $this->http);
-            $delivery->setDownloadFileName($info?->getFileName() ?? $resource->getCurrentRevision()->getTitle());
+            $delivery->setDownloadFileName($info?->getFileName() ?? $resource->getCurrentRevision()->getInformation()->getTitle());
             $delivery->setMimeType($info?->getMimeType() ?? $resource->getCurrentRevision()->getInformation()->getMimeType());
             $delivery->setDisposition($disposition->value);
             $delivery->deliver();

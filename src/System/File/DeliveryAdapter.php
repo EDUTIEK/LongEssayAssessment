@@ -52,7 +52,7 @@ readonly class DeliveryAdapter implements \Edutiek\AssessmentService\System\File
         return Delivery::returnASCIIFileName($filename);
     }
 
-    public function sendFile(string $id, Disposition $disposition, ?FileInfo $info = null): never
+    public function sendFile(string $id, Disposition $disposition, ?FileInfo $info = null): void
     {
         try {
             $identification = $this->manager->find($id);
@@ -66,6 +66,7 @@ readonly class DeliveryAdapter implements \Edutiek\AssessmentService\System\File
             $delivery->setDownloadFileName($info?->getFileName() ?? $resource->getCurrentRevision()->getInformation()->getTitle());
             $delivery->setMimeType($info?->getMimeType() ?? $resource->getCurrentRevision()->getInformation()->getMimeType());
             $delivery->setDisposition($disposition->value);
+            $delivery->setExitAfter(false);
             $delivery->deliver();
         } catch (Exception $e) {
             $response = $this->http->response()->withStatus(500);
@@ -78,7 +79,7 @@ readonly class DeliveryAdapter implements \Edutiek\AssessmentService\System\File
         }
     }
 
-    public function sendData(string $data, Disposition $disposition, ?FileInfo $info): never
+    public function sendData(string $data, Disposition $disposition, ?FileInfo $info): void
     {
         try {
             $delivery = new Delivery(Delivery::DIRECT_PHP_OUTPUT, $this->http);

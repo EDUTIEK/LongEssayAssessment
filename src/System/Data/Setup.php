@@ -30,7 +30,6 @@ readonly class Setup extends \Edutiek\AssessmentService\System\Data\Setup
         private string $backend_url,
         private string $default_path_to_ghostscript,
         private string $absolute_temp_path,
-        private string $relative_temp_path,
         private string $default_language,
         private DateTimeZone $default_timezone
     ) {
@@ -54,11 +53,6 @@ readonly class Setup extends \Edutiek\AssessmentService\System\Data\Setup
     public function getAbsoluteTempPath(): string
     {
         return $this->absolute_temp_path;
-    }
-
-    public function getRelativeTempPath(): string
-    {
-        return $this->relative_temp_path;
     }
 
     public function getDefaultPathToGhostscript(): ?string

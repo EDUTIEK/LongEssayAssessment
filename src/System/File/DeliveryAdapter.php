@@ -27,7 +27,7 @@ use ILIAS\FileDelivery\Delivery;
 use ILIAS\Filesystem\Stream\Streams;
 use ILIAS\HTTP\Services as HttpServices;
 use ILIAS\ResourceStorage\Manager\Manager;
-use ILIAS\ResourceStorage\StorageHandler\StorageHandlerFactory;
+use ILIAS\ResourceStorage\Consumer\Consumers;
 
 /**
  * Adapter of the ILIAS delivery functions for the assessment-service
@@ -36,14 +36,11 @@ use ILIAS\ResourceStorage\StorageHandler\StorageHandlerFactory;
  */
 readonly class DeliveryAdapter implements \Edutiek\AssessmentService\System\File\Delivery
 {
-    /**
-     * todo: try consumer instead of StorageHandlerFactory
-     * @see \ILIAS\Plugin\LongEssayAssessment\System\File\StorageAdapter::getReadablePath
-     */
     public function __construct(
         private Manager $manager,
-        private StorageHandlerFactory $handler_factory,
-        private HttpServices $http
+        private Consumers $consumers,
+        private HttpServices $http,
+        private string $temp_dir
     ) {
     }
 
@@ -52,22 +49,53 @@ readonly class DeliveryAdapter implements \Edutiek\AssessmentService\System\File
         return Delivery::returnASCIIFileName($filename);
     }
 
+    public function sendTempFile(string $file_path, Disposition $disposition, ?FileInfo $info = null): void
+    {
+        try {
+            $temp_dir = realpath($this->temp_dir);
+            $file_path = realpath($file_path);
+
+            if (substr($file_path, 0, strlen($temp_dir)) !== $temp_dir) {
+                throw new Exception('File path is not within the temporary directory');
+            }
+
+            $filename = $info?->getFileName() ?? 'download';
+            $mimetype = $info?->getMimeType() ?? '';
+
+            $delivery = new Delivery($file_path, $this->http);
+            $delivery->setDownloadFileName($filename);
+            $delivery->setMimeType($mimetype);
+            $delivery->setDisposition($disposition->value);
+            $delivery->deliver();
+            $delivery->close();
+
+        } catch (Exception $e) {
+            $response = $this->http->response()->withStatus(500);
+            $stream = $response->getBody();
+            $stream->write($e->getMessage());
+
+            $this->http->saveResponse($response);
+            $this->http->sendResponse();
+            $this->http->close();
+        }
+    }
+
     public function sendFile(string $id, Disposition $disposition, ?FileInfo $info = null): void
     {
         try {
-            $identification = $this->manager->find($id);
-            $resource = $this->manager->getResource($identification);
-            $handler = $this->handler_factory->getHandlerForStorageId($resource->getStorageID());
+            $resource_id = $this->manager->find($id);
+            $revision = $this->manager->getCurrentRevision($resource_id);
+            $filename = $info?->getFileName() ?? $revision->getInformation()->getTitle();
+            $mimetype = $info?->getMimeType() ?? $revision->getInformation()->getMimeType();
+            $file_path = $this->consumers->stream($resource_id)->getStream()->getMetadata('uri');
 
-            $stream = $handler->getStream($resource->getCurrentRevision());
-            $absolute_path = $stream->getMetadata('uri');
-
-            $delivery = new Delivery($absolute_path, $this->http);
-            $delivery->setDownloadFileName($info?->getFileName() ?? $resource->getCurrentRevision()->getInformation()->getTitle());
-            $delivery->setMimeType($info?->getMimeType() ?? $resource->getCurrentRevision()->getInformation()->getMimeType());
+            $delivery = new Delivery($file_path, $this->http);
+            $delivery->setDownloadFileName($filename);
+            $delivery->setMimeType($mimetype);
             $delivery->setDisposition($disposition->value);
-            $delivery->setExitAfter(false);
             $delivery->deliver();
+            $delivery->close();
+
         } catch (Exception $e) {
             $response = $this->http->response()->withStatus(500);
             $stream = $response->getBody();

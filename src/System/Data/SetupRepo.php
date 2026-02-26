@@ -11,11 +11,12 @@ use DateTimeZone;
 
 class SetupRepo implements \Edutiek\AssessmentService\System\Data\SetupRepo
 {
+    private const TEMP_DIR = ILIAS_DATA_DIR . '/' . CLIENT_ID . '/temp';
+
     private ?Setup $setup = null;
 
     public function __construct(
         private readonly ilIniFile $client_ini,
-        private readonly \ILIAS\Filesystem\Filesystem $web_fs,
         private readonly ilLanguage $lng
     ) {
     }
@@ -23,9 +24,10 @@ class SetupRepo implements \Edutiek\AssessmentService\System\Data\SetupRepo
     public function one(): Setup
     {
         if ($this->setup === null) {
-            if (!$this->web_fs->hasDir('temp')) {
-                $this->web_fs->createDir('temp');
+            if (!is_dir(self::TEMP_DIR)) {
+                mkdir(self::TEMP_DIR);
             }
+
             $this->setup = new Setup(
                 $this->client_ini->readVariable('client', 'name'),
                 ILIAS_HTTP_PATH
@@ -33,8 +35,7 @@ class SetupRepo implements \Edutiek\AssessmentService\System\Data\SetupRepo
                     . '/vendor/edutiek/assessment-service/node_modules',
                 ILIAS_HTTP_PATH . '/xlas_rest.php',
                 $this->getDefaultPathToGhostscript(),
-                ILIAS_ABSOLUTE_PATH . '/public/' . ILIAS_WEB_DIR . '/' . CLIENT_ID . '/temp',
-                ILIAS_WEB_DIR . '/' . CLIENT_ID . '/temp',
+                self::TEMP_DIR,
                 $this->lng->getDefaultLanguage(),
                 new DateTimeZone(date_default_timezone_get())
             );

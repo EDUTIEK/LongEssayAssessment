@@ -55,7 +55,6 @@ class SystemDic implements \Edutiek\AssessmentService\System\Api\Dependencies
     {
         return new SetupRepo(
             $this->dic->clientIni(),
-            $this->dic->filesystem()->web(),
             $this->dic->language()
         );
     }
@@ -65,7 +64,8 @@ class SystemDic implements \Edutiek\AssessmentService\System\Api\Dependencies
         return new StorageAdapter(
             $this->dic->resourceStorage()->manage(),
             $this->dic->resourceStorage()->consume(),
-            new Stakeholder(SYSTEM_USER_ID)
+            new Stakeholder(SYSTEM_USER_ID),
+            $this->setupRepo()->one()->getAbsoluteTempPath()
         );
     }
 
@@ -73,8 +73,9 @@ class SystemDic implements \Edutiek\AssessmentService\System\Api\Dependencies
     {
         return new DeliveryAdapter(
             $this->dic->resourceStorage()->manage(),
-            $this->dic[InitResourceStorage::D_STORAGE_HANDLERS],
-            $this->dic->http()
+            $this->dic->resourceStorage()->consume(),
+            $this->dic->http(),
+            $this->setupRepo()->one()->getAbsoluteTempPath()
         );
     }
 
@@ -83,7 +84,8 @@ class SystemDic implements \Edutiek\AssessmentService\System\Api\Dependencies
         return new StorageAdapter(
             $this->dic->resourceStorage()->manage(),
             $this->dic->resourceStorage()->consume(),
-            new ilTemporaryStakeholder()
+            new ilTemporaryStakeholder(),
+            $this->setupRepo()->one()->getAbsoluteTempPath()
         );
     }
 

@@ -2,6 +2,9 @@
 
 ## Upcoming version 
 
+Corrector Web App:
+- Change labels and headline in correction summary
+
 Bug fixes:
 - Missing correction report of second corrector (#45778)
 - Too early deletion of notes in the backend

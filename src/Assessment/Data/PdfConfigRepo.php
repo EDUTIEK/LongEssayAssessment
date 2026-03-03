@@ -39,6 +39,11 @@ class PdfConfigRepo implements \Edutiek\AssessmentService\Assessment\Data\PdfCon
         return $this->repo->queryOneBy(['id' => $id]);
     }
 
+    public function allByAssId(int $ass_id): array
+    {
+        return $this->repo->queryAllBy(['ass_id' => $ass_id], ['position' => "ASC"]);
+    }
+
     public function allByAssIdAndPurpose(int $ass_id, string $purpose): array
     {
         return $this->repo->queryAllBy(['ass_id' => $ass_id, 'purpose' => $purpose], ['position' => "ASC"]);

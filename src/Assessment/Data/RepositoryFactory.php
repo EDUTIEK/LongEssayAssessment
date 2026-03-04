@@ -68,6 +68,11 @@ class RepositoryFactory implements \Edutiek\AssessmentService\Assessment\Data\Re
         return $this->repo(CorrectorRepo::class, Corrector::class);
     }
 
+    public function exportSettings(): ExportSettingsRepo
+    {
+        return $this->repo(ExportSettingsRepo::class, ExportSettings::class);
+    }
+
     public function gradeLevel(): GradeLevelRepo
     {
         return $this->repo(GradeLevelRepo::class, GradeLevel::class);

@@ -1152,4 +1152,16 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
         }
     }
 
+    public function step_68(): void
+    {
+        if (!$this->db->tableExists('xlas_as_exp_settings')) {
+            $fields = [
+                'ass_id' => ['notnull' => 1, 'type' => ilDBConstants::T_INTEGER],
+                'result_export_format' => ['type' => ilDBConstants::T_TEXT, 'length' => 20, 'default' => 'edutiek']
+            ];
+            $this->db->createTable('xlas_as_exp_settings', $fields);
+            $this->db->addPrimaryKey('xlas_as_exp_settings', ['ass_id']);
+        }
+    }
+
 }

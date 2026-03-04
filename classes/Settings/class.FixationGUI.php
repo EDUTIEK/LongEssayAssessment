@@ -66,7 +66,7 @@ class FixationGUI
             'grade_levels'
         ],
         'tab_documentation_settings' => [
-            'pdf_settings',
+            'docu_settings',
             'pdf_config'
         ]
 
@@ -82,7 +82,7 @@ class FixationGUI
         'correction_functions' => ['correction_functions'],
         'rating_settings' => ['rating_settings'],
         'grade_levels' => ['grades'],
-        'pdf_settings' => ['pdf_settings', 'format', 'feedback_mode'],
+        'docu_settings' => ['docu_settings', 'result_format', 'pdf_format', 'feedback_mode'],
         'pdf_config' => ['pdf_config'],
     ];
 
@@ -96,8 +96,8 @@ class FixationGUI
         'correction_functions' => 'correction_functions',
         'rating_settings' => 'rating_settings',
         'grade_levels' => 'grade_levels',
-        'pdf_settings' => 'pdf_settings',
-        'pdf_config' => 'corrected_pdf',
+        'docu_settings' => 'docu_settings',
+        'pdf_config' => 'corrected_pdf_config',
     ];
 
     private bool $can_edit = false;

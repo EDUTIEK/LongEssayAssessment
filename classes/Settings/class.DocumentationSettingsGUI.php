@@ -8,6 +8,7 @@ use Edutiek\AssessmentService\Assessment\Data\PdfSettings;
 use Edutiek\AssessmentService\Assessment\PdfSettings\FullService as PdfSettingsService;
 use Edutiek\AssessmentService\Task\AssessmentStatus\FullService as StatusService;
 use Edutiek\AssessmentService\System\Entity\FullService as EntityService;
+use Edutiek\AssessmentService\Assessment\Export\FullService as ExportService;
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\BaseObjectData;
 use Edutiek\AssessmentService\Assessment\PdfCreation\PdfPurpose;
@@ -22,9 +23,11 @@ use ILIAS\UI\Implementation\Component\Input\Container\Form\Standard;
 use ILIAS\UI\Component\Table\Ordering;
 use ILIAS\UI\Component\Input\Container\Form\Form;
 use ILIAS\UI\Component\Component;
+use Edutiek\AssessmentService\Assessment\Data\ResultExportFormat;
+use Edutiek\AssessmentService\Assessment\Data\ExportSettings;
 
 /**
- * Technical settings
+ * Documentation settings
  *
  * @ilCtrl_isCalledBy ILIAS\Plugin\LongEssayAssessment\Settings\DocumentationSettingsGUI: ilObjLongEssayAssessmentGUI
  */
@@ -32,12 +35,14 @@ class DocumentationSettingsGUI extends BaseGUI
 {
     private PdfSettingsService $pdf_settings_service;
     private EntityService $entity_service;
+    private ExportService $export_service;
 
     public function __construct(BaseObjectData $object)
     {
         parent::__construct($object);
 
         $this->pdf_settings_service = $this->assessment_api->pdfSettings();
+        $this->export_service = $this->assessment_api->export($object->getContextId());
         $this->entity_service = $this->system_api->entity();
     }
 
@@ -176,9 +181,9 @@ class DocumentationSettingsGUI extends BaseGUI
         $components = [
             $this->fixation_gui->setVisibility(
                 'tab_documentation_settings',
-                'pdf_settings',
+                'docu_settings',
                 $this->plugin_ui_factory->container()->bindable(
-                    $this->ui_factory->panel()->standard($this->plugin->txt('pdf_settings'), $form)
+                    $this->ui_factory->panel()->standard($this->plugin->txt('docu_settings'), $form)
                 )
             ),
 
@@ -186,7 +191,7 @@ class DocumentationSettingsGUI extends BaseGUI
                 'tab_documentation_settings',
                 'pdf_config',
                 $this->plugin_ui_factory->container()->bindable(
-                    $this->ui_factory->panel()->standard($this->plugin->txt('corrected_pdf'), $order)
+                    $this->ui_factory->panel()->standard($this->plugin->txt('corrected_pdf_config'), $order)
                 )
             ),
         ];
@@ -196,12 +201,21 @@ class DocumentationSettingsGUI extends BaseGUI
 
     private function buildForm(): Form
     {
+        $export_settings = $this->export_service->getSettings();
         $pdf_settings = $this->pdf_settings_service->get();
         $factory = $this->ui_factory->input()->field();
 
         $fields = [];
 
-        $fields['format'] = $factory->radio(
+        $fields['result_format'] = $factory->radio(
+            $this->plugin->txt('result_export_format'),
+            $this->plugin->txt('result_export_format_info'),
+        )->withOption(ResultExportFormat::EDUTIEK->value, $this->plugin->txt('result_export_format_edutiek'))
+            ->withOption(ResultExportFormat::EXAMIS->value, $this->plugin->txt('result_export_format_examis'))
+            ->withOption(ResultExportFormat::JUSTA->value, $this->plugin->txt('result_export_format_justa'))
+            ->withValue($export_settings->getResultExportFormat()->value);
+
+        $fields['pdf_format'] = $factory->radio(
             $this->plugin->txt('pdf_format'),
             $this->plugin->txt('pdf_format_info'),
         )->withOption(PdfFormat::EDUTIEK->value, $this->plugin->txt('pdf_format_edutiek'))
@@ -224,12 +238,17 @@ class DocumentationSettingsGUI extends BaseGUI
 
     private function updateSettings(array $data): void
     {
+        $export_settings = $this->export_service->getSettings();
         $pdf_settings = $this->pdf_settings_service->get();
 
-        $pdf_settings->setFormat(PdfFormat::tryFrom($data['format']) ?? PdfFormat::EDUTIEK);
+        $export_settings->setResultExportFormat(ResultExportFormat::tryFrom($data['result_format']));
+        $pdf_settings->setFormat(PdfFormat::tryFrom($data['pdf_format']) ?? PdfFormat::EDUTIEK);
         $pdf_settings->setFeedbackMode(
             PdfFeedbackMode::tryFrom($data['feedback_mode']) ?? PdfFeedbackMode::SIDE_BY_SIDE
         );
+
+        $this->entity_service->secure($export_settings, ExportSettings::class);
+        $this->export_service->saveSettings($export_settings);
 
         $this->entity_service->secure($pdf_settings, PdfSettings::class);
         $this->pdf_settings_service->save($pdf_settings);

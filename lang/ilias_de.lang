@@ -827,12 +827,12 @@ corrected_pdf#:#Korrektur-Datei
 config_written_pdf#:#Aufbau Abgabe-Datei
 config_corrected_pdf#:#Aufbau Korrektur-Datei
 pdf_format#:#Format für Deckblatt und Kopfzeile
-pdf_format_info#:#Gibt an, nach welchem Format das Deckblatt und die Kopfzeile der generierten Seiten dargestellt werden.
+pdf_format_info#:#Gibt an, nach welchem Format das Deckblatt und die Kopfzeile der PDF-Dateien dargestellt werden.
 pdf_format_edutiek#:#EDUTIEK
 pdf_format_by#:#Staatsprüfungen Bayern
 pdf_format_nrw#:#Staatsprüfungen Nordrhein-Westfalen
 pdf_feedback_mode#:#Format für kommentierte Abgabeseiten
-pdf_feedback_mode_info#:#Gibt an, wie die Abgabe und die zugehörigen Kommentare dargestellt werden.
+pdf_feedback_mode_info#:#Gibt an, wie die Abgabe und die zugehörigen Kommentare im Korrektur-PDF dargestellt werden.
 pdf_feedback_mode_sidebyside#:#Querformat/Nebeneinander
 pdf_feedback_mode_sequence#:#Hochformat/Abwechselnd
 enable_summary_pdf#:#Gutachten als PDF
@@ -918,3 +918,10 @@ allow_download_writing_info#:#Korrektoren können auf ihrer Startseite einzelne 
 allow_download_correction#:#Korrekturen herunterladen
 allow_download_correction_info#:#Korrektoren können auf ihrer Startseite einzelne oder mehrere Korrekturen als PDF herunterladen. Eine PDF-Datei enthält die eigene Korrektur einer Abgabe und die anderer Korrektoren, sofern sie freigegeben sind.
 download_in_background_started#:#Die Datei wird im Hintergrund erzeugt und kann anschließend über das Glocken-Symbol in der Kopfzeile heruntergeladen werden.
+result_export_format#:#Format Ergebnisdatei
+result_export_format_info#:#In diesem Format wird die Ergebnisdatei ins Dokumentations-Archiv geschrieben.
+result_export_format_edutiek#:#EDUTIEK
+result_export_format_examis#:#examIS
+result_export_format_justa#:#Justa
+docu_settings#:#Einstellungen zur Ausgabe
+corrected_pdf_config#:#Aufbau Korrektur-Datei

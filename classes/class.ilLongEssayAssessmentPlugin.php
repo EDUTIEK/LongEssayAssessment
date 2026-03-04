@@ -15,6 +15,7 @@ use ILIAS\Setup\ImplementationOfInterfaceFinder;
 use ILIAS\Plugin\LongEssayAssessment\Cron\CronJobInterface;
 use ILIAS\Plugin\LongEssayAssessment\Cron\CronJob;
 use Edutiek\AssessmentService\System\EventHandling\Events\UserRemoved;
+use ILIAS\Plugin\LongEssayAssessment\UI\Container\ContainerRenderer;
 
 /**
  * Basic plugin file
@@ -190,6 +191,16 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin implements \i
         return function () use ($dic, $renderer) {
             return new PluginRenderer(
                 $renderer($dic),
+                new ContainerRenderer(
+                    $dic["ui.factory"],
+                    $dic[PluginTemplateFactory::class],
+                    $dic["lng"],
+                    $dic["ui.javascript_binding"],
+                    $dic["ui.pathresolver"],
+                    $dic["ui.data_factory"],
+                    $dic["help.text_retriever"],
+                    $dic["ui.upload_limit_resolver"]
+                ),
                 new ItemRenderer(
                     $dic["ui.factory"],
                     $dic[PluginTemplateFactory::class],

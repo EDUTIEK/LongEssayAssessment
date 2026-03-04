@@ -54,6 +54,7 @@ use ILIAS\Plugin\LongEssayAssessment\UI\Tree\TreeFactory;
 use ILIAS\Plugin\LongEssayAssessment\UI\UIService;
 use ILIAS\Plugin\LongEssayAssessment\UI\Viewer\ViewerFactory;
 use ilLongEssayAssessmentPlugin;
+use ILIAS\Plugin\LongEssayAssessment\UI\Container\ContainerFactory;
 
 /**
  * Local Dependency Injection Container of the Plugin
@@ -109,7 +110,9 @@ class PluginDic
         $dic[Factory::class] = function (Container $dic) {
             $data_factory = new \ILIAS\Data\Factory();
             $refinery = new \ILIAS\Refinery\Factory($data_factory, $dic["lng"]);
+
             return new Factory(
+                new ContainerFactory(),
                 new InputFactory(
                     $dic->ui()->factory()->input()->field(),
                     $dic["ui.signal_generator"],

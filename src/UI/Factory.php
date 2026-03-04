@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace ILIAS\Plugin\LongEssayAssessment\UI;
 
 use ILIAS\Plugin\LongEssayAssessment\UI;
+use ILIAS\Plugin\LongEssayAssessment\UI\Container\ContainerFactory;
 use ILIAS\Plugin\LongEssayAssessment\UI\Input\InputFactory;
 use ILIAS\Plugin\LongEssayAssessment\UI\IconFactory;
 use ILIAS\Plugin\LongEssayAssessment\UI\Item\ItemFactory;
@@ -23,9 +24,10 @@ use ILIAS\Plugin\LongEssayAssessment\UI\LiveStatusPanel\Factory as LiveStatusPan
 class Factory
 {
     public function __construct(
+        private ContainerFactory $container_factory,
         private InputFactory $field_factory,
-        private IconFactory  $icon_factory,
-        private ItemFactory  $item_factory,
+        private IconFactory $icon_factory,
+        private ItemFactory $item_factory,
         private StatisticFactory $statistic_factory,
         private ViewerFactory $viewer_factory,
         private TableFactory $table_factory,
@@ -34,6 +36,11 @@ class Factory
         private LiveStatusPanelFactory $live_status_panel_factory,
     ) {
 
+    }
+
+    public function container(): ContainerFactory
+    {
+        return $this->container_factory;
     }
 
     public function field(): InputFactory

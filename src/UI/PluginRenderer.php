@@ -22,6 +22,7 @@ namespace ILIAS\Plugin\LongEssayAssessment\UI;
 
 use ILIAS\UI\Implementation\Render\DecoratedRenderer;
 use ILIAS\UI\Renderer;
+use ILIAS\Plugin\LongEssayAssessment\UI\Container\ContainerRenderer;
 use ILIAS\Plugin\LongEssayAssessment\UI\Input\TinyMCE;
 use ILIAS\Plugin\LongEssayAssessment\UI\Viewer\PdfViewer;
 use ILIAS\Plugin\LongEssayAssessment\UI\Viewer\AudioPlayer;
@@ -43,11 +44,13 @@ use ILIAS\Plugin\LongEssayAssessment\UI\Table\Table;
 use ILIAS\Plugin\LongEssayAssessment\UI\Protocol\Group as ProtocolGroup;
 use ILIAS\Plugin\LongEssayAssessment\UI\Input\Info;
 use ILIAS\Plugin\LongEssayAssessment\UI\Viewer\ComponentSwitch;
+use ILIAS\Plugin\LongEssayAssessment\UI\Container\Bindable;
 
 //inherit from DecoratedRender to align your renderer with other potential renders in ILIAS to allow manipulations from
 //different sources to be chained behind each other.
 class PluginRenderer extends DecoratedRenderer
 {
+    private ContainerRenderer $container_render;
     private ItemRenderer $item_renderer;
     private ViewerRenderer $viewer_render;
     protected InputRenderer $field_render;
@@ -55,12 +58,14 @@ class PluginRenderer extends DecoratedRenderer
 
     public function __construct(
         Renderer $default,
+        ContainerRenderer $container_render,
         ItemRenderer $item_renderer,
         InputRenderer $field_render,
         StatisticRenderer $statistic_renderer,
         ViewerRenderer $viewer_render,
     ) {
         parent::__construct($default);
+        $this->container_render = $container_render;
         $this->item_renderer = $item_renderer;
         $this->field_render = $field_render;
         $this->statistic_renderer = $statistic_renderer;
@@ -72,6 +77,8 @@ class PluginRenderer extends DecoratedRenderer
     protected function manipulateRendering($component, Renderer $root): ?string
     {
         switch (true) {
+            case ($component instanceof Bindable):
+                return $this->container_render->render($component, $root);
             case ($component instanceof FormItem):
             case ($component instanceof FormGroup):
                 return $this->item_renderer->render($component, $root);

@@ -1,6 +1,44 @@
 (function (il) {
     'use strict';
 
+    /**
+     * Handling fixation of settings
+     */
+    class Fixation {
+
+        constructor() {
+            this.nodes = [];
+            //this.toggleNodes = this.toggleNodes.bind(this);
+        }
+
+        addNode(id, visible) {
+            const node = document.getElementById(id);
+            if (node) {
+                this.nodes.push(node);
+                if (!visible) {
+                    node.classList.add('ilNoDisplay');
+                }
+            }
+        }
+
+        toggleNodes() {
+           this.nodes.forEach(n => n.classList.toggle('ilNoDisplay'));
+        }
+
+        enableTemplate(target_url, value) {
+            const target = new URL(window.location.origin + window.location.pathname.split('/').slice(0, -1).join('/') + '/' + target_url);
+            target.searchParams.set('enable', value);
+            window.location = target;
+        }
+
+        updateGroup = function(target_url, group, value) {
+            const target = new URL(window.location.origin + window.location.pathname.split('/').slice(0, -1).join('/') + '/' + target_url);
+            target.searchParams.set('group', group);
+            target.searchParams.set('enable', value);
+            window.location = target;
+        }
+    }
+
     var contentCss = "/**\n * Style of written contents\n *\n * This file should be identical in the ILIAS plugin, the assessment service and all web apps\n *\n * All styles are defined for a common top element with the class 'xlas-content'\n * The top element can be either the <body> in TinyMCE or a surrounding <div> for content display\n *\n * Font size is set in rem for the top element and in em for sub elements\n *\n * The top element can have an additional class for the used headline scheme:\n * - 'headlines-single' has the same size and no prefix for all headlines\n * - 'headlines-three' has three different sizes for h1, h2 and h3 and no prefix for all headlines\n * - 'headlines-numeric' has the same size a prefix like '1.1.1.1.1.1' for all headlines\n * - 'headlines-edutiek' has the same size and a prefix line 'A.', 'I.', '1.', 'a.', 'aa.', '(1)' for the headlines\n */\n\n.xlas-content {\n    font-family: serif;\n    font-size: 1rem;\n    line-height: 150%;\n    text-align: justify;\n}\n\n.xlas-content p,\n.xlas-content pre {\n    margin-top: 0;\n    margin-bottom: 10px;\n    min-height: 1.5em;\n    text-align: justify;\n}\n\n.xlas-content pre {\n    max-width: 80em;                /* dompdf needs a fixed value */\n    white-space: pre-wrap;          /* keep line breaks and break if needed */\n    word-wrap: break-word;          /* legacy setting (older browsers) */\n    overflow-wrap: break-word;      /* modern variant of word-wrap */\n}\n\n.xlas-content ol,\n.xlas-content ul {\n    margin: 0;\n    padding: 0;\n    margin-bottom: 10px;\n}\n\n.xlas-content li {\n    margin: 0;\n    margin-left: 40px;\n    min-height: 1.5em;\n}\n\n.xlas-content li + li {\n    margin-top: 10px;\n}\n\n.xlas-content li > ol,\n.xlas-content li > ul {\n    margin-top: 10px;\n    margin-bottom: 0;\n}\n\n.xlas-content table {\n    border-collapse: collapse;\n    border: 1px solid gray;\n    width: 100%;\n    table-layout: fixed;\n    margin-bottom: 10px;\n}\n\n.xlas-content tr {\n    vertical-align: top;\n}\n\n.xlas-content td,\n.xlas-content th {\n    border: 1px solid gray;\n    min-width: 1em;\n    min-height: 1em;\n    padding: 5px;\n}\n\n/**\n * Page break in printing\n */\n.xlas-content hr {\n    page-break-before: always;\n    height: 0;\n    width: 0;\n    border: 0;\n    margin: 0;\n}\n\n/**\n * Page break in tiny\n */\n.xlas-content .mce-pagebreak {\n    width: calc(100% + 40px);\n    height: 1px;\n    height: 20px;\n    background-color: #eeeeee;\n    border-top: 1px solid #ccc;\n    margin-left: -20px;\n}\n\n/**\n * Headlines in general\n */\n\n.xlas-content {\n    counter-reset: xlas-h1 xlas-h2 xlas-h3 xlas-h4 xlas-h5 xlas-h6;\n}\n\n.xlas-content h1,\n.xlas-content h2,\n.xlas-content h3,\n.xlas-content h4,\n.xlas-content h5,\n.xlas-content h6 {\n    font-family: serif;\n    font-size: 1em;\n    font-weight: bold;\n    padding: 0;\n    margin-top: 0;\n    margin-bottom: 10px;\n    min-height: 1.5em;\n}\n\n.xlas-content h1 {\n    counter-increment: xlas-h1;\n    counter-reset: xlas-h2 xlas-h3 xlas-h4 xlas-h5 xlas-h6;\n}\n\n.xlas-content h2 {\n    counter-increment: xlas-h2;\n    counter-reset: xlas-h3 xlas-h4 xlas-h5 xlas-h6;\n}\n\n.xlas-content h3 {\n    counter-increment: xlas-h3;\n    counter-reset: xlas-h4 xlas-h5 xlas-h6;\n}\n\n.xlas-content h4 {\n    counter-increment: xlas-h4;\n    counter-reset: xlas-h5 xlas-h6;\n}\n\n.xlas-content h5 {\n    counter-increment: xlas-h5;\n    counter-reset: xlas-h6;\n}\n\n.xlas-content h6 {\n    counter-increment: xlas-h6;\n}\n\n/**\n * Three level headline style\n */\n\n.xlas-content.headlines-three h1 {\n    font-size: 1.3em !important;\n}\n\n.xlas-content.headlines-three h2 {\n    font-size: 1.15em !important;\n}\n\n.xlas-content.headlines-three h3 {\n    font-size: 1.0em !important;\n}\n\n/**\n * Numeric headline style\n */\n\n.xlas-content.headlines-numeric h1::before {\n    content: counter(xlas-h1, decimal) \" \";\n}\n\n.xlas-content.headlines-numeric h2::before {\n    content: counter(xlas-h1, decimal) \".\" counter(xlas-h2, decimal) \" \";\n}\n\n.xlas-content.headlines-numeric h3::before {\n    content: counter(xlas-h1, decimal) \".\" counter(xlas-h2, decimal) \".\" counter(xlas-h3, decimal) \" \";\n}\n\n.xlas-content.headlines-numeric h4::before {\n    content: counter(xlas-h1, decimal) \".\" counter(xlas-h2, decimal) \".\" counter(xlas-h3, decimal) \".\" counter(xlas-h4, decimal) \" \";\n}\n\n.xlas-content.headlines-numeric h5::before {\n    content: counter(xlas-h1, decimal) \".\" counter(xlas-h2, decimal) \".\" counter(xlas-h3, decimal) \".\" counter(xlas-h4, decimal) \".\" counter(xlas-h5, decimal) \" \";\n}\n\n.xlas-content.headlines-numeric h6::before {\n    content: counter(xlas-h1, decimal) \".\" counter(xlas-h2, decimal) \".\" counter(xlas-h3, decimal) \".\" counter(xlas-h4, decimal) \".\" counter(xlas-h5, decimal) \".\" counter(xlas-h6, decimal) \" \";\n}\n\n/**\n * Edutiek headline style\n */\n\n.xlas-content.headlines-edutiek h1::before {\n    content: counter(xlas-h1, upper-latin) \". \";\n}\n\n.xlas-content.headlines-edutiek h2::before {\n    content: counter(xlas-h2, upper-roman) \". \";\n}\n\n.xlas-content.headlines-edutiek h3::before {\n    content: counter(xlas-h3, decimal) \". \";\n}\n\n.xlas-content.headlines-edutiek h4::before {\n    content: counter(xlas-h4, lower-latin) \". \";\n}\n\n.xlas-content.headlines-edutiek h5::before {\n    content: counter(xlas-h5, lower-latin) counter(xlas-h5, lower-latin) \". \";\n}\n\n.xlas-content.headlines-edutiek h6::before {\n    content: \"(\" counter(xlas-h6, decimal) \") \";\n}\n";
 
     var tinyTexts = {
@@ -704,6 +742,7 @@
     }
 
     il.Xlas = il.Xlas || {};
+    il.Xlas.Fixation = il.Xlas.Fixation || new Fixation();
     il.Xlas.TinyHelper = il.Xlas.TinyHelper || new TinyHelper();
 
 })(il);

@@ -21,6 +21,7 @@ use Edutiek\AssessmentService\Assessment\Data\PdfFeedbackMode;
 use ILIAS\UI\Implementation\Component\Input\Container\Form\Standard;
 use ILIAS\UI\Component\Table\Ordering;
 use ILIAS\UI\Component\Input\Container\Form\Form;
+use ILIAS\UI\Component\Component;
 
 /**
  * Technical settings
@@ -96,22 +97,35 @@ class DocumentationSettingsGUI extends BaseGUI
         $this->ctrl->redirect($this, "edit");
     }
 
-    protected function buildOrder(string $title, PdfPurpose $purpose, string $cmd): Ordering
+    protected function buildOrder(string $title, PdfPurpose $purpose, string $cmd): Component
     {
         $parts = $this->assessment_api->pdfCreation($this->object->getContextId())->getSortedParts($purpose);
 
-        $df = new \ILIAS\Data\Factory();
-        $url_builder = new URLBuilder($df->uri(ILIAS_HTTP_PATH . '/' . $this->ctrl->getFormAction($this, $cmd)));
 
-        $ordering = $this->ui_factory->table()->ordering(
-            $title,
-            [
-                "active" => $this->plugin_ui_factory->table()->column()->checkbox($this->lng->txt('active'), "active"),
-                "title" => $this->ui_factory->table()->column()->text($this->lng->txt('title')),
-            ],
-            $this->orderingBinding($parts),
-            $url_builder->buildURI(),
-        )->withRequest($this->request);
+        if ($this->fixation_gui->isDisabled('tab_documentation_settings', 'pdf_config')) {
+            $titles = [];
+            foreach ($parts as $part) {
+                if ($part->getIsActive()) {
+                    $titles[] = $part->getTitle();
+                }
+            }
+            $ordering = $this->ui_factory->listing()->unordered($titles);
+
+        } else {
+            $df = new \ILIAS\Data\Factory();
+            $url_builder = new URLBuilder($df->uri(ILIAS_HTTP_PATH . '/' . $this->ctrl->getFormAction($this, $cmd)));
+
+            $ordering = $this->ui_factory->table()->ordering(
+                '',
+                [
+                    "active" => $this->plugin_ui_factory->table()->column()->checkbox($this->lng->txt('active'), "active"),
+                    "title" => $this->ui_factory->table()->column()->text($this->lng->txt('title')),
+                ],
+                $this->orderingBinding($parts),
+                $url_builder->buildURI(),
+            )->withRequest($this->request);
+
+        }
 
         return $ordering;
     }
@@ -157,10 +171,27 @@ class DocumentationSettingsGUI extends BaseGUI
             }
         }
 
-        $written_order = $this->buildOrder($this->plugin->txt('written_pdf'), PdfPurpose::WRITING, "updateWritingOrder");
-        $correction_order = $this->buildOrder($this->plugin->txt('corrected_pdf'), PdfPurpose::CORRECTION, "updateCorrectionOrder");
+        $order = $this->buildOrder($this->plugin->txt('corrected_pdf'), PdfPurpose::CORRECTION, "updateCorrectionOrder");
 
-        $this->tpl->setContent($this->renderer->render([$form, $correction_order]));
+        $components = [
+            $this->fixation_gui->setVisibility(
+                'tab_documentation_settings',
+                'pdf_settings',
+                $this->plugin_ui_factory->container()->bindable(
+                    $this->ui_factory->panel()->standard($this->plugin->txt('pdf_settings'), $form)
+                )
+            ),
+
+            $this->fixation_gui->setVisibility(
+                'tab_documentation_settings',
+                'pdf_config',
+                $this->plugin_ui_factory->container()->bindable(
+                    $this->ui_factory->panel()->standard($this->plugin->txt('corrected_pdf'), $order)
+                )
+            ),
+        ];
+
+        $this->tpl->setContent($this->renderer->render($components));
     }
 
     private function buildForm(): Form
@@ -168,7 +199,6 @@ class DocumentationSettingsGUI extends BaseGUI
         $pdf_settings = $this->pdf_settings_service->get();
         $factory = $this->ui_factory->input()->field();
 
-        $sections = [];
         $fields = [];
 
         $fields['format'] = $factory->radio(
@@ -177,33 +207,28 @@ class DocumentationSettingsGUI extends BaseGUI
         )->withOption(PdfFormat::EDUTIEK->value, $this->plugin->txt('pdf_format_edutiek'))
             ->withOption(PdfFormat::BY->value, $this->plugin->txt('pdf_format_by'))
             ->withOption(PdfFormat::NRW->value, $this->plugin->txt('pdf_format_nrw'))
-            ->withValue($pdf_settings->getFormat()->value)
-            ->withRequired(true);
+            ->withValue($pdf_settings->getFormat()->value);
 
         $fields['feedback_mode'] = $factory->radio(
             $this->plugin->txt('pdf_feedback_mode'),
             $this->plugin->txt('pdf_feedback_mode_info'),
         )->withOption(PdfFeedbackMode::SIDE_BY_SIDE->value, $this->plugin->txt('pdf_feedback_mode_sidebyside'))
             ->withOption(PdfFeedbackMode::SEQUENCE->value, $this->plugin->txt('pdf_feedback_mode_sequence'))
-            ->withValue($pdf_settings->getFeedbackMode()->value)
-            ->withRequired(true);
+            ->withValue($pdf_settings->getFeedbackMode()->value);
 
-        $sections['pdf'] = $factory->section(
-            $fields,
-            $this->plugin->txt('pdf_settings'),
-            $this->plugin->txt('pdf_settings_info')
+        return $this->ui_factory->input()->container()->form()->standard(
+            $this->ctrl->getFormAction($this),
+            $this->fixation_gui->disableBySetting('tab_documentation_settings', $fields)
         );
-
-        return $this->ui_factory->input()->container()->form()->standard($this->ctrl->getFormAction($this), $sections);
     }
 
     private function updateSettings(array $data): void
     {
         $pdf_settings = $this->pdf_settings_service->get();
 
-        $pdf_settings->setFormat(PdfFormat::tryFrom($data['pdf']['format']) ?? PdfFormat::EDUTIEK);
+        $pdf_settings->setFormat(PdfFormat::tryFrom($data['format']) ?? PdfFormat::EDUTIEK);
         $pdf_settings->setFeedbackMode(
-            PdfFeedbackMode::tryFrom($data['pdf']['feedback_mode']) ?? PdfFeedbackMode::SIDE_BY_SIDE
+            PdfFeedbackMode::tryFrom($data['feedback_mode']) ?? PdfFeedbackMode::SIDE_BY_SIDE
         );
 
         $this->entity_service->secure($pdf_settings, PdfSettings::class);

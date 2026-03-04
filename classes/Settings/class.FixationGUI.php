@@ -35,6 +35,7 @@ use Edutiek\AssessmentService\Assessment\OrgaSettings\FullService as OrgaSetting
 use ILIAS\Plugin\LongEssayAssessment\Settings\OrgaSettingsGUI;
 use ILIAS\Plugin\LongEssayAssessment\Common\Http\RequestVariables;
 use ilObjLongEssayAssessmentGUI;
+use ILIAS\Plugin\LongEssayAssessment\UI\Container\Bindable;
 
 /**
  * @ilCtrl_IsCalledBy ILIAS\Plugin\LongEssayAssessment\FixationGUI: ilObjLongEssayAssessmentGUI
@@ -61,7 +62,14 @@ class FixationGUI
             'rating_settings',
             'correction_functions',
         ],
-        'tab_grades' => ['grade_levels']
+        'tab_grades' => [
+            'grade_levels'
+        ],
+        'tab_documentation_settings' => [
+            'pdf_settings',
+            'pdf_config'
+        ]
+
     ];
 
     /**
@@ -74,16 +82,22 @@ class FixationGUI
         'correction_functions' => ['correction_functions'],
         'rating_settings' => ['rating_settings'],
         'grade_levels' => ['grades'],
+        'pdf_settings' => ['pdf_settings', 'format', 'feedback_mode'],
+        'pdf_config' => ['pdf_config'],
     ];
 
     /**
-     * Lang
+     * Language variables
+     * - Key is the name of thesettings group
+     * - Value is the language variable
      */
     private const LANG_VARS = [
         'correctors' => 'correctors_per_writer',
         'correction_functions' => 'correction_functions',
         'rating_settings' => 'rating_settings',
         'grade_levels' => 'grade_levels',
+        'pdf_settings' => 'pdf_settings',
+        'pdf_config' => 'corrected_pdf',
     ];
 
     private bool $can_edit = false;
@@ -99,9 +113,13 @@ class FixationGUI
 
         $this->get = new RequestVariables($this->http->wrapper()->query(), $DIC->refinery());
 
-        // todo: move to resources
         $main_tpl = $DIC->ui()->mainTemplate();
-        $main_tpl->addJavaScript('Customizing/global/plugins/Services/Repository/RepositoryObject/LongEssayAssessment/templates/default/DisabledGroup/disabled-group.js');
+
+        // development
+        //        $main_tpl->addJavaScript('Customizing/global/plugins/Services/Repository/RepositoryObject/LongEssayAssessment/resources/js/xlas.js');
+
+        // production:
+        $main_tpl->addJavaScript('components/EDUTIEK/LongEssayAssessment/js/xlas.min.js');
 
         $this->plugin = ilLongEssayAssessmentPlugin::getInstance();
 
@@ -131,7 +149,7 @@ class FixationGUI
     }
 
     /**
-     * Update the fixation of a settins group
+     * Update the fixation of a settings group
      */
     private function updateGroup(): void
     {
@@ -146,6 +164,24 @@ class FixationGUI
         }
 
         $this->ctrl->redirectToUrl($return_url);
+    }
+
+    /**
+     * Set the visibility of a Bindable UI Container and register to show/hide it
+     */
+    public function setVisibility(string $tab, string $key, Bindable $component): Bindable
+    {
+        $disabled_inputs = $this->disabledInputs($tab);
+        $visible = $this->can_edit;
+
+        if (in_array($key, $disabled_inputs, true)) {
+            $component = $component
+                ->withAdditionalOnLoadCode(
+                    fn($id) => "il.Xlas.Fixation.addNode('$id', " . ($visible ? 'true' : 'false') . ")"
+                );
+        }
+
+        return $component;
     }
 
     /**
@@ -164,7 +200,7 @@ class FixationGUI
                 $sections[$key] = $section
                     ->withDisabled(true)
                     ->withAdditionalOnLoadCode(
-                        fn($id) => "il.EDUTIEK.disableInput($id, $visible)"
+                        fn($id) => "il.Xlas.Fixation.addNode('$id', " . ($visible ? 'true' : 'false') . ")"
                     );
             }
         }
@@ -218,7 +254,7 @@ class FixationGUI
         $url = json_encode($this->getUrl('updateTemplate'));
 
         return $this->ui_factory->button()->toggle($this->plugin->txt('template_toggle'), $click, $click, $active)
-            ->withAdditionalOnLoadCode(fn($id) => "$(document).on('$click', () => {il.EDUTIEK.enableTemplate($url, $value);})");
+            ->withAdditionalOnLoadCode(fn($id) => "$(document).on('$click', () => {il.Xlas.Fixation.enableTemplate($url, $value);})");
     }
 
     /**
@@ -228,7 +264,7 @@ class FixationGUI
     {
         $click = $this->signal_generator->create();
         return $this->ui_factory->button()->toggle($this->plugin->txt('fixation_hide_toggle'), $click, $click)
-            ->withAdditionalOnLoadCode(fn($id) => "$(document).on('$click', il.EDUTIEK.toggleDisabledInputs)");
+            ->withAdditionalOnLoadCode(fn($id) => "$(document).on('$click', () => {il.Xlas.Fixation.toggleNodes()})");
     }
 
     /**
@@ -250,7 +286,7 @@ class FixationGUI
 
             return [
                 $toggle,
-                "\$(document).on($toggle_event, () => {il.EDUTIEK.updateGroup($post_url, $group, $value);});",
+                "\$(document).on($toggle_event, () => {il.Xlas.Fixation.updateGroup($post_url, $group, $value);});",
             ];
         };
 

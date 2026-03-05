@@ -34,6 +34,9 @@ abstract class CriteriaGUI extends BaseGUI implements DataTableParent
     {
         parent::__construct($objectGUI);
 
+        $this->initTools(true, false);
+        $this->criterion_service = $this->task_api->ratingCriterion($this->task_info->getId());
+
         $this->table_factory = $this->plugin_ui_factory->table();
         $this->correction_settings_service = $this->task_api->correctionSettings();
         $this->correction_settings = $this->correction_settings_service->get();
@@ -47,9 +50,6 @@ abstract class CriteriaGUI extends BaseGUI implements DataTableParent
 
     public function executeCommand()
     {
-        $this->initTools(true, false);
-        $this->criterion_service = $this->task_api->ratingCriterion($this->task_info->getId());
-
         $cmd = $this->ctrl->getCmd('showItems');
 
         switch ($cmd) {
@@ -60,7 +60,7 @@ abstract class CriteriaGUI extends BaseGUI implements DataTableParent
             case 'publishRatingCriterion':
                 $this->allowShareInContext() ? $this->$cmd() : $this->tpl->setContent('not allowed command: ' . $cmd);
                 break;
-
+            case 'listCriterion':
             case 'deleteItems':
             case 'copyCriteria':
             case 'copyItems':
@@ -289,4 +289,6 @@ abstract class CriteriaGUI extends BaseGUI implements DataTableParent
         $this->criterion_service->save($criterion);
         $this->tpl->setOnScreenMessage("success", $this->lng->txt("settings_saved"), true);
     }
+
+
 }

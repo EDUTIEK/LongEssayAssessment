@@ -21,14 +21,30 @@ declare(strict_types=1);
 namespace ILIAS\Plugin\LongEssayAssessment\Task\Data;
 
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Table;
+use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Key;
+use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Sequence;
 
 #[Table(name: 'xlas_ta_corr_ta_prefs')]
 class CorrectorTaskPrefs extends \Edutiek\AssessmentService\Task\Data\CorrectorTaskPrefs
 {
     // todo: add id with #key and #sequence
+    #[Key]
+    #[Sequence]
+    private int $id = 0;
     private int $task_id = 0;
     private int $corrector_id = 0;
     private bool $criterion_copy = false;
+
+    public function getId(): int
+    {
+        return $this->id;
+    }
+
+    public function setId(int $id): self
+    {
+        $this->id = $id;
+        return $this;
+    }
 
     public function getTaskId(): int
     {

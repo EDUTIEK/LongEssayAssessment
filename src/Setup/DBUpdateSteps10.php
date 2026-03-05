@@ -1183,4 +1183,49 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
         }
     }
 
+
+    public function step_70(): void
+    {
+        if (!$this->db->tableColumnExists('xlas_ta_corr_ta_prefs', 'id')) {
+            // add new primary column and create sequence table
+            $this->db->addTableColumn(
+                'xlas_ta_corr_ta_prefs',
+                'id',
+                ['type' => ilDBConstants::T_INTEGER, 'notnull' => 1, 'default' => 0]
+            );
+            $this->db->createSequence('xlas_ta_corr_ta_prefs', 1);
+
+            // remove posssible duplicates
+            $result = $this->db->query("SELECT corrector_id, task_id, MAX(criterion_copy) as criterion_copy_max, COUNT(criterion_copy)  as dublicate_count FROM xlas_ta_corr_ta_prefs WHERE id = 0 GROUP BY corrector_id, task_id HAVING dublicate_count > 1");
+            while ($row = $this->db->fetchAssoc($result)) {
+                $this->db->manipulateF(
+                    "DELETE FROM xlas_ta_corr_ta_prefs WHERE corrector_id = %s AND task_id = %s",
+                    [ilDBConstants::T_INTEGER, ilDBConstants::T_INTEGER],
+                    [$row['corrector_id'], $row['task_id']]
+                );
+                $id = $this->db->nextId('xlas_ta_corr_ta_prefs');
+                $this->db->insert('xlas_ta_corr_ta_prefs', [
+                        'id' => [ilDBConstants::T_INTEGER, $id],
+                        'corrector_id' => [ilDBConstants::T_INTEGER, $row['corrector_id']],
+                        'task_id' => [ilDBConstants::T_INTEGER, $row['task_id']],
+                        'criterion_copy' => [ilDBConstants::T_INTEGER, $row['criterion_copy_max']]
+                    ]);
+            }
+
+            // add missing primary ids
+            $result = $this->db->query("SELECT corrector_id, task_id FROM xlas_ta_corr_ta_prefs WHERE id = 0");
+            while ($row = $this->db->fetchAssoc($result)) {
+                $id = $this->db->nextId('xlas_ta_corr_ta_prefs');
+                $this->db->manipulateF(
+                    "UPDATE xlas_ta_corr_ta_prefs SET id = %s WHERE corrector_id = %s AND task_id = %s AND id = 0",
+                    [ilDBConstants::T_INTEGER, ilDBConstants::T_INTEGER, ilDBConstants::T_INTEGER],
+                    [$id, $row['corrector_id'], $row['task_id']]
+                );
+            }
+
+            // declare primary and set to not null
+            $this->db->addPrimaryKey('xlas_ta_corr_ta_prefs', ['id']);
+            $this->db->modifyTableColumn('xlas_ta_corr_ta_prefs', 'id', ['type' => ilDBConstants::T_INTEGER, 'notnull' => 1]);
+        }
+    }
 }

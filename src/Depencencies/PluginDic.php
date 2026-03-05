@@ -140,10 +140,12 @@ class PluginDic
                     $dic->language()
                 ),
                 new TreeFactory(
+                    $this->plugin(),
                     $dic["ui.factory.tree"],
                     $dic["ui.factory.symbol.icon"],
                     $dic->repositoryTree(),
                     $dic->access(),
+                    $dic->user(),
                     $dic->language(),
                     $dic->http(),
                     $dic->refinery(),

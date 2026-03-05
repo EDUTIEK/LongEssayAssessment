@@ -15,10 +15,12 @@ class TreeFactory
     private \ilLanguage $lng;
 
     public function __construct(
+        private \ilLongEssayAssessmentPlugin $plugin,
         UiTreeFactory $tree_factory,
         UiIconFactory $icon_factory,
         \ilTree $repo_tree,
         \ilAccessHandler $access,
+        private \ilObjUser $user,
         \ilLanguage $lng,
         protected \ILIAS\HTTP\Services $http,
         protected \ILIAS\Refinery\Factory $refinery,
@@ -50,7 +52,36 @@ class TreeFactory
         );
     }
 
+    public function task(
+        ?int $start_ref_id,
+        ?int $current_ref_id,
+        bool $is_subtree
+    ): RepositoryTaskTree {
+        return new RepositoryTaskTree(
+            $this->plugin,
+            $this->tree_factory,
+            $this->icon_factory,
+            $this->repo_tree,
+            $this->access,
+            $this->user,
+            $this->lng,
+            $start_ref_id,
+            $current_ref_id,
+            $is_subtree
+        );
+    }
+
     public function repositorySelect(int $ref_id, string $title, callable|array $view_callback, ?string $uri_or_target = null) : RepositorySelectModal
+    {
+        return $this->modal($ref_id, $title, $view_callback, fn(...$x) => $this->repository(...$x), $uri_or_target);
+    }
+
+    public function taskSelect(int $ref_id, string $title, callable|array $view_callback, ?string $uri_or_target = null) : RepositorySelectModal
+    {
+        return $this->modal($ref_id, $title, $view_callback, fn(...$x) => $this->task(...$x), $uri_or_target);
+    }
+
+    private function modal(int $ref_id, string $title, callable|array $view_callback, callable $tree_factory, ?string $uri_or_target = null) : RepositorySelectModal
     {
         if($uri_or_target !== null && !preg_match('/\Ahttp[s]?:\/\//', $uri_or_target)) {
             $uri_or_target =  rtrim(ILIAS_HTTP_PATH, '/') . "/" . ltrim($uri_or_target, '/');
@@ -67,6 +98,7 @@ class TreeFactory
             $ref_id,
             $title,
             $view_callback,
+            $tree_factory,
             $uri_or_target,
         );
     }

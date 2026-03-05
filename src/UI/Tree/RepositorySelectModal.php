@@ -16,6 +16,7 @@ class RepositorySelectModal
     private URLBuilder $url_builder;
     private URLBuilderToken $return_signal_token;
     private URLBuilderToken $ref_id_token;
+    private URLBuilderToken $type_token;
     private URLBuilderToken $action_token;
     private ?string $message = null;
     private string $permission = 'maintain_task';
@@ -34,6 +35,7 @@ class RepositorySelectModal
         protected int $ref_id,
         protected string $title,
         protected $view_callback,
+        protected $tree_factory_callback,
         ?string $uri = null,
     ) {
         $this->query = $this->http->wrapper()->query();
@@ -43,7 +45,7 @@ class RepositorySelectModal
         global $DIC;
         $query_params_namespace = ['xlas', 'copy'];
         $url_builder = new URLBuilder($here_uri);
-        list($this->url_builder, $this->return_signal_token, $this->ref_id_token, $this->action_token) = $url_builder->acquireParameters($query_params_namespace, "return_signal", "ref_id", "action");
+        list($this->url_builder, $this->return_signal_token, $this->ref_id_token, $this->type_token, $this->action_token) = $url_builder->acquireParameters($query_params_namespace, "return_signal", "ref_id", "type", "action");
     }
 
     protected function getTitle(): string
@@ -113,6 +115,15 @@ class RepositorySelectModal
         }
 
         return $this->query->retrieve($this->ref_id_token->getName(), $this->refinery->kindlyTo()->int());
+    }
+
+    public function getSelectedType() : int
+    {
+        if(!$this->query->has($this->type_token->getName()) || !$this->hasSelected()) {
+            throw new \ilException("There wasn't a selection yet.");
+        }
+
+        return $this->query->retrieve($this->type_token->getName(), $this->refinery->kindlyTo()->string());
     }
 
     public function showAsync()
@@ -217,7 +228,7 @@ class RepositorySelectModal
         $here = $this->ref_id;
         $current_ref_id = $current_ref_id ?? $here;
 
-        $tree = $this->tree_factory->repository(
+        $tree = ($this->tree_factory_callback)(
             $start_ref_id,
             $current_ref_id,
             $is_subtree
@@ -237,17 +248,19 @@ class RepositorySelectModal
             $replace_signal = $modal->getReplaceSignal();
         }
 
-        $tree->setExpandCallback(function ($ref_id) use ($replace_signal) {
+        $tree->setExpandCallback(function ($ref_id, $type) use ($replace_signal) {
             return $this->url_builder
                 ->withParameter($this->action_token, "tree")
                 ->withParameter($this->ref_id_token, $ref_id)
+                ->withParameter($this->type_token, $type)
                 ->withParameter($this->return_signal_token, $replace_signal)->buildURI()->__toString();
         });
 
-        $tree->setOnclickCallback(function ($ref_id) use ($replace_signal) {
+        $tree->setOnclickCallback(function ($ref_id, $type) use ($replace_signal) {
             return $this->url_builder
                 ->withParameter($this->action_token, "preview")
                 ->withParameter($this->ref_id_token, $ref_id)
+                ->withParameter($this->type_token, $type)
                 ->withParameter($this->return_signal_token, $replace_signal)->buildURI()->__toString();
         });
 

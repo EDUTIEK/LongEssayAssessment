@@ -207,13 +207,13 @@ class RepositoryTree implements TreeRecursion
             && $this->expand_callback !== null
             && ($this->is_subtree || !in_array($ref_id, $this->current_path)) // current path is already rendered
         ) {
-            $node = $node->withAsyncURL(($this->expand_callback)($ref_id));
+            $node = $node->withAsyncURL(($this->expand_callback)($ref_id, $type));
         }
 
         if ($clickable && $this->onclick_signal !== null) {
             $signal = $this->onclick_signal;
             if ($this->onclick_callback !== null) {
-                $signal = $signal->withAsyncRenderUrl(($this->onclick_callback)($ref_id));
+                $signal = $signal->withAsyncRenderUrl(($this->onclick_callback)($ref_id, $type));
             }
 
             $node = $node->withOnClick($signal);

@@ -61,7 +61,7 @@ abstract class ExportOption extends \ILIAS\Export\ExportHandler\Consumer\ExportO
 
     public function getExportOptionId(): string
     {
-        return 'xlas_exp_' . $this->getServiceExportType()->value;
+        return 'xlas' . $this->getServiceExportType()->value;
     }
 
     /**
@@ -161,7 +161,12 @@ abstract class ExportOption extends \ILIAS\Export\ExportHandler\Consumer\ExportO
         $service = $this->service($context->exportObject()->getId(), $context->exportObject()->getRefId());
 
         if (!is_array($file_ids)) {
-            $file_ids = array_map(fn(ExportFile $file) => $file->getFileId(), $service->getFiles());
+            $file_ids = [];
+            foreach ($service->getFiles() as $file) {
+                if ($file->getType() === $this->getServiceExportType()) {
+                    $file_ids[] = $file->getFileId();
+                }
+            }
         }
 
         $collection_builder = $context->fileCollectionBuilder();

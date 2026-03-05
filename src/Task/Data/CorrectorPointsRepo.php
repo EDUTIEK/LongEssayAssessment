@@ -105,4 +105,9 @@ class CorrectorPointsRepo implements \Edutiek\AssessmentService\Task\Data\Correc
         }
     }
 
+    public function deleteWithoutCriteria(int $task_id, int $corrector_id): void
+    {
+        $this->repo->deleteAllBy(['criterion_id' => 'NULL', 'task_id' => $task_id, 'corrector_id' => $corrector_id]);
+    }
+
 }

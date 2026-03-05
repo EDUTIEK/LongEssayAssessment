@@ -663,11 +663,11 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
         // Writer Admin Tab
         $tabs = [];
         if ($this->permissions->canViewDashboard()) {
-            $tabs[] = [
-                'id' => 'tab_dashboard',
-                'txt' => $this->plugin->txt('tab_dashboard'),
-                'url' => $this->ctrl->getLinkTargetByClass(strtolower(DashboardGUI::class))
-            ];
+            //            $tabs[] = [
+            //                'id' => 'tab_dashboard',
+            //                'txt' => $this->plugin->txt('tab_dashboard'),
+            //                'url' => $this->ctrl->getLinkTargetByClass(strtolower(DashboardGUI::class))
+            //            ];
             $tabs[] = [
                 'id' => 'tab_dashboard_log',
                 'txt' => $this->plugin->txt('tab_exam_log'),

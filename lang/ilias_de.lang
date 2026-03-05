@@ -925,3 +925,8 @@ result_export_format_examis#:#examIS
 result_export_format_justa#:#Justa
 docu_settings#:#Einstellungen zur Ausgabe
 corrected_pdf_config#:#Aufbau Korrektur-Datei
+export_type_results#:#Ergebnisse
+export_type_documentation#:#Dokumentation
+export_type_log#:#Prüfungsprotokoll
+export_type_reports#:#Korrekturberichte
+export_file_created#:#Die Export-Datei wurde erzeugt.

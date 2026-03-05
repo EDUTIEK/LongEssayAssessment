@@ -1164,4 +1164,23 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
         }
     }
 
+    public function step_69(): void
+    {
+        if (!$this->db->tableExists('xlas_as_exp_file')) {
+            $fields = [
+                'id' => ['notnull' => 1, 'type' => ilDBConstants::T_INTEGER],
+                'ass_id' => ['notnull' => 1, 'type' => ilDBConstants::T_INTEGER],
+                'file_id' => ['notnull' => 1, 'type' => ilDBConstants::T_TEXT, 'length' => 64],
+                'type' => ['type' => ilDBConstants::T_TEXT, 'length' => 50, 'notnull' => 1]
+            ];
+            $this->db->createTable('xlas_as_exp_file', $fields);
+            $this->db->addPrimaryKey('xlas_as_exp_file', ['id']);
+            $this->db->addIndex('xlas_as_exp_file', ['ass_id'], 'i1');
+
+            if (!$this->db->sequenceExists('xlas_as_exp_file')) {
+                $this->db->createSequence('xlas_as_exp_file');
+            }
+        }
+    }
+
 }

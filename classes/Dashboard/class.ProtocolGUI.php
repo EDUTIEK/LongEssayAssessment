@@ -49,7 +49,7 @@ class ProtocolGUI extends BaseGUI
             case 'showStartPage':
             case 'createAlert':
             case 'createLogEntry':
-            case 'exportLog':
+                //case 'exportLog':
                 $this->$cmd();
                 break;
 
@@ -71,12 +71,12 @@ class ProtocolGUI extends BaseGUI
                                                 ->withOnClick($modal_writer_notice->getShowSignal());
         $this->toolbar->addComponent($button_writer_notice);
 
-        $this->toolbar->addSeparator();
-        $button_export = $this->ui_factory->button()->standard(
-            $this->plugin->txt("exam_log_export"),
-            $this->ctrl->getLinkTarget($this, 'exportLog')
-        );
-        $this->toolbar->addComponent($button_export);
+        //        $this->toolbar->addSeparator();
+        //        $button_export = $this->ui_factory->button()->standard(
+        //            $this->plugin->txt("exam_log_export"),
+        //            $this->ctrl->getLinkTarget($this, 'exportLog')
+        //        );
+        //        $this->toolbar->addComponent($button_export);
 
         $protocol_factory = $this->plugin_ui_factory->protocol();
         $alerts = $this->alert_service->all();

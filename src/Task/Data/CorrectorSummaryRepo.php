@@ -44,7 +44,7 @@ class CorrectorSummaryRepo implements \Edutiek\AssessmentService\Task\Data\Corre
         $where = ['ass_id' => $ass_id];
 
         if ($corrector_id !== null) {
-            $where['summary.corrector_id'] = $corrector_id;
+            $where['corrector_id'] = $corrector_id;
         }
 
         $query = "

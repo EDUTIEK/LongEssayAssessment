@@ -56,6 +56,7 @@ class Writer extends \Edutiek\AssessmentService\Assessment\Data\Writer
     private ?int $location = null;
     private int $review_notification = 0;
     private ?string $finalized_from_status = null;
+    private ?string $imported_status = null;
 
     public function getId(): int
     {
@@ -278,5 +279,16 @@ class Writer extends \Edutiek\AssessmentService\Assessment\Data\Writer
     private function updateCombinedStatus(): void
     {
         $this->combined_status = parent::getCombinedStatus()->value;
+    }
+
+    public function getImportedStatus(): ?string
+    {
+        return $this->imported_status;
+    }
+
+    public function setImportedStatus(?string $imported_status): self
+    {
+        $this->imported_status = $imported_status;
+        return $this;
     }
 }

@@ -1228,4 +1228,14 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
             $this->db->modifyTableColumn('xlas_ta_corr_ta_prefs', 'id', ['type' => ilDBConstants::T_INTEGER, 'notnull' => 1]);
         }
     }
+
+    public function step_71(): void
+    {
+        if (!$this->db->tableColumnExists('xlas_as_writer', 'imported_status')) {
+            $this->db->addTableColumn('xlas_as_writer', 'imported_status', [
+                'type' => ilDBConstants::T_TEXT,
+                'length' => 50,
+            ]);
+        }
+    }
 }

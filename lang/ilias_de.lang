@@ -921,7 +921,7 @@ download_in_background_started#:#Die Datei wird im Hintergrund erzeugt und kann 
 result_export_format#:#Format Ergebnisdatei
 result_export_format_info#:#In diesem Format wird die Ergebnisdatei ins Dokumentations-Archiv geschrieben.
 result_export_format_edutiek#:#EDUTIEK
-result_export_format_examis#:#examIS
+result_export_format_examis#:#ExamIS
 result_export_format_justa#:#Justa
 docu_settings#:#Einstellungen zur Ausgabe
 corrected_pdf_config#:#Aufbau Korrektur-Datei

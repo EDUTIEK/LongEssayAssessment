@@ -929,4 +929,5 @@ export_type_results#:#Ergebnisse
 export_type_documentation#:#Dokumentation
 export_type_log#:#Prüfungsprotokoll
 export_type_reports#:#Korrekturberichte
+export_type_hashes#:#Prüfsummen
 export_file_created#:#Die Export-Datei wurde erzeugt.

@@ -1238,4 +1238,14 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
             ]);
         }
     }
+
+    public function step_72(): void
+    {
+        if (!$this->db->tableColumnExists('xlas_et_essay', 'pdf_hash')) {
+            $this->db->addTableColumn('xlas_et_essay', 'pdf_hash', [
+                'type' => ilDBConstants::T_TEXT,
+                'length' => 250,
+            ]);
+        }
+    }
 }

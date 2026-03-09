@@ -311,12 +311,12 @@ class WriterUploadGUI extends BaseGUI
 
             $uploaded = current($data['file_id'] ?? []);
             if ($uploaded) {
-                $existing = $essay->getPdfVersion();
                 $stored = $this->file_storage->saveFile(
                     $this->upload_handler->getApiStream($uploaded),
                     $this->upload_handler->getApiInfo($uploaded)
                 );
-                $this->essay_service->replacePdf($essay, $stored->getId());
+                $hash = $this->upload_handler->getApiHash($uploaded);
+                $this->essay_service->replacePdf($essay, $stored->getId(), $hash);
                 $this->success($this->plugin->txt("writer_upload_pdf_finished"), true);
             }
 

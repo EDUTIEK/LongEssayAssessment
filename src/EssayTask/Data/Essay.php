@@ -42,6 +42,7 @@ class Essay extends \Edutiek\AssessmentService\EssayTask\Data\Essay
     private int $service_version = 0;
     private ?DateTimeImmutable $first_change = null;
     private int $pdf_from_written_text = 0;
+    private ?string $pdf_hash = null;
 
     public function getId(): int
     {
@@ -149,6 +150,17 @@ class Essay extends \Edutiek\AssessmentService\EssayTask\Data\Essay
     public function setPdfFromWrittenText(bool $pdf_from_written_text): self
     {
         $this->pdf_from_written_text = (int) $pdf_from_written_text;
+        return $this;
+    }
+
+    public function getPdfHash(): ?string
+    {
+        return $this->pdf_hash;
+    }
+
+    public function setPdfHash(?string $pdf_hash): self
+    {
+        $this->pdf_hash = $pdf_hash;
         return $this;
     }
 }

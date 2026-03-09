@@ -20,7 +20,8 @@ class UploadTempFile
         private Filesystems $filesystems,
         private FileUpload $upload,
         private SessionValues $session_values,
-        private UUIDFactory $uuid_factory
+        private UUIDFactory $uuid_factory,
+        private string $hash_algo
     ) {
     }
 
@@ -60,6 +61,14 @@ class UploadTempFile
     {
         if ($this->has($identifier)) {
             return (int) $this->filesystems->temp()->getSize($identifier, DataSize::Byte)->getSize();
+        }
+        return null;
+    }
+
+    public function getHash(string $identifier): ?string
+    {
+        if ($this->has($identifier)) {
+            return hash($this->hash_algo, $this->filesystems->temp()->read($identifier));
         }
         return null;
     }

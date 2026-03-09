@@ -168,7 +168,8 @@ class PluginDic
                 $dic->filesystem(),
                 $dic->upload(),
                 $this->sessionValues(UploadTempFile::class),
-                new UUIDFactory()
+                new UUIDFactory(),
+                $this->system()->config()->getConfig()->getHashAlgo()
             );
         };
 

@@ -9,6 +9,7 @@ use Edutiek\AssessmentService\Assessment\Data\Properties;
 class StatisticView extends \Edutiek\AssessmentService\Views\Data\StatisticView
 {
     private int $count;
+    private int $finalized;
     private int $passed = 0;
     private int $not_passed = 0;
     private int $attended = 0;
@@ -37,14 +38,15 @@ class StatisticView extends \Edutiek\AssessmentService\Views\Data\StatisticView
         $sum_finalized = 0;
 
         foreach ($grading_objects??[] as $obj) {
-            $this->passed += $obj->isPassed() ? 1 : 0;
-            $this->not_passed += $obj->isPassed() ? 0 : 1;
             $this->attended += $obj->isAttended() ? 1 : 0;
             $this->not_attended += $obj->isAttended() ? 0 : 1;
-            $point_sum += $obj->isFinalized() ? ($obj->getPoints() ?? 0) : 0;
-            $sum_finalized += $obj->isFinalized() ? 1 : 0;
 
             if ($obj->isFinalized()) { // Only count finalized grades and points
+                $this->passed += $obj->isPassed() ? 1 : 0;
+                $this->not_passed += $obj->isPassed() ? 0 : 1;
+                $point_sum += $obj->getPoints() ?? 0;
+                $sum_finalized += 1;
+
                 $point_key = (string)abs($obj->getPoints()??0);
                 $grade_key = $obj->getGrade();
 
@@ -54,7 +56,7 @@ class StatisticView extends \Edutiek\AssessmentService\Views\Data\StatisticView
                 }
             }
         }
-
+        $this->finalized = $sum_finalized;
         $this->average_points = $sum_finalized > 0 ? $point_sum / $sum_finalized : null;
         $this->not_passed_quota = $this->count > 0 ? $this->not_passed / $this->count : null;
     }
@@ -62,6 +64,11 @@ class StatisticView extends \Edutiek\AssessmentService\Views\Data\StatisticView
     public function getCount(): int
     {
         return $this->count;
+    }
+
+    public function getFinalized(): int
+    {
+        return $this->finalized;
     }
 
     public function getPassed(): int

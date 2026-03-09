@@ -491,7 +491,8 @@ download_corrected_pdf_for#:#Korrektur-Datei von %s herunterladen
 tab_corrector_statistic#:#Notenstatistik
 statistic#:#Notenstatistik
 correction_count#:#Einzelkorrekturen
-correction_final#:#davon final freigegeben
+correction_final#:#davon freigegeben
+correction_final_pre_graded#:#davon vorbenotet oder freigegeben
 essay_count#:#Teilnahmen
 essay_final#:#davon abgeschlossen
 essay_not_passed_quota#:#Durchfallquote
@@ -931,3 +932,4 @@ export_type_log#:#Prüfungsprotokoll
 export_type_reports#:#Korrekturberichte
 export_type_hashes#:#Prüfsummen
 export_file_created#:#Die Export-Datei wurde erzeugt.
+corrector#:#Korrektor

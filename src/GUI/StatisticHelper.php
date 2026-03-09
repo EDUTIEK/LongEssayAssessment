@@ -32,7 +32,7 @@ trait StatisticHelper
         if ($is_writer) {
             $statistic = $statistic->withNotAttended($view->getNotAttended());
         } else {
-            $statistic = $statistic->withfinal($view->getAttended())
+            $statistic = $statistic->withFinal($view->getFinalized())
                                    ->withFinalLabel($this->plugin->txt('correction_final'));
         }
 

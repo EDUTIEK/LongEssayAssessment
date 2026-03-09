@@ -45,7 +45,6 @@ class CollectionWriterAdminStatisticsGUI
         $this->ui_factory = $dic->ui()->factory();
         $this->refinery = $dic->refinery();
         $this->ass_ids = array_map(fn (array $node) => $node['obj_id'], $this->object_nodes);
-
     }
 
     /**
@@ -77,14 +76,13 @@ class CollectionWriterAdminStatisticsGUI
         $context = [];
         $corr = [];
 
-        foreach($this->object_nodes as $node) {
+        foreach ($this->object_nodes as $node) {
             $context[(int) $node["obj_id"]] = $node["title"];
         }
 
         $base_action = $this->ctrl->getFormAction($this, 'showStartPage');
         $filter_gui = $this->ui_service->filter()->standard("xlas_statistics", $base_action, [
             "context" => $this->ui_factory->input()->field()->multiSelect($this->plugin->txt("statistic_context_filter"), $context)
-                                         ->withAdditionalTransformation($this->refinery->to()->listOf($this->refinery->to()->int()))
                                          ->withValue($this->ass_ids),
             "name" => $this->ui_factory->input()->field()->text($this->plugin->txt("participants"))
                                         ->withValue("")
@@ -115,9 +113,24 @@ class CollectionWriterAdminStatisticsGUI
             $general_statistic,
         ];
 
-        foreach($general->getAssessments() as $assessment) {
-            $assessment_statistic = $general->fromAssessent($assessment);
-            $sections[] = $this->buildStatistic($assessment_statistic, true);
+        if (count($ass_ids) > 1) {
+            foreach ($general->getAssessments() as $assessment) {
+                $assessments[$assessment->getAssId()] = $assessment;
+            }
+
+            foreach ($ass_ids as $ass_id) {
+                $assessment = $assessments[$ass_id] ??
+                    $this->plugin_dic->assessment($ass_id, $this->dic->user()->getId())->properties()->get();
+                $assessment_statistic = $general->fromAssessent($assessment);
+                $sections[] = $this->buildStatistic($assessment_statistic, true);
+            }
+
+            $sections[] = $puf->statistic()->statisticSection($this->plugin->txt("writers"));
+
+            foreach ($general->getUsers() as $user) {
+                $user_statistic = $general->fromUser($user);
+                $sections[] = $this->buildStatistic($user_statistic, true);
+            }
         }
 
         $sections[] = $puf->statistic()->statisticSection($this->plugin->txt("writers"));
@@ -129,7 +142,8 @@ class CollectionWriterAdminStatisticsGUI
 
         if (count($sections) > 3) {
             $this->tpl->setContent(
-                $this->renderer->render([$filter_gui, $puf->statistic()->extendableStatisticGroup($this->plugin->txt("statistic"), $sections)]
+                $this->renderer->render(
+                    [$filter_gui, $puf->statistic()->extendableStatisticGroup($this->plugin->txt("statistic"), $sections)]
                 )
             );
         } else {
@@ -149,7 +163,10 @@ class CollectionWriterAdminStatisticsGUI
         $views = [];
 
         foreach ($general->getUsers() as $user) {
-            $views[] =  $general->fromUser($user);
+            $view = $general->fromUser($user);
+            if (!empty($view->getGradingObjects())) {
+                $views[] = $view;
+            }
         }
 
         $csv = $this->buildStatisticExport($views, false, false);

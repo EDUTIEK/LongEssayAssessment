@@ -88,9 +88,8 @@ class CollectionCorrectorAdminStatisticsGUI
         $base_action = $this->ctrl->getFormAction($this, 'showStartPage');
         $filter_gui = $this->ui_service->filter()->standard("xlas_statistics", $base_action, [
             "context" => $this->ui_factory->input()->field()->multiSelect($this->plugin->txt("statistic_context_filter"), $context)
-                                         ->withAdditionalTransformation($this->refinery->to()->listOf($this->refinery->to()->int()))
                                          ->withValue($this->ass_ids),
-            "name" => $this->ui_factory->input()->field()->text($this->plugin->txt("participants"))
+            "name" => $this->ui_factory->input()->field()->text($this->plugin->txt("corrector"))
                                         ->withValue(""),
         ], [true, true], true, true);
         return $filter_gui;
@@ -146,8 +145,7 @@ class CollectionCorrectorAdminStatisticsGUI
 
         $correctors = $general->getUsers();
 
-        foreach($general->getAssessments() as $assessment)
-        {
+        foreach ($general->getAssessments() as $assessment) {
             $assessment_general = $general->fromAssessent($assessment);
 
             $sections [] = $puf->statistic()->statisticSection($assessment->getTitle());
@@ -180,10 +178,13 @@ class CollectionCorrectorAdminStatisticsGUI
         $correctors = $general->getUsers();
         $views = [];
 
-        foreach($general->getAssessments() as $assessment) {
+        foreach ($general->getAssessments() as $assessment) {
             $assessment_general = $general->fromAssessent($assessment);
             foreach ($correctors as $corrector) {
-                $views[] = $assessment_general->fromUser($corrector);
+                $view = $assessment_general->fromUser($corrector);
+                if (!empty($view->getGradingObjects())) {
+                    $views[] = $view;
+                }
             }
         }
 

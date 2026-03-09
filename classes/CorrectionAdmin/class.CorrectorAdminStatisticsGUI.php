@@ -73,7 +73,7 @@ class CorrectorAdminStatisticsGUI extends BaseGUI
             $puf->statistic()->statisticSection($this->plugin->txt("correctors"))
         ];
 
-        $users = $this->user_service->getUsersByIds(array_map(fn(Corrector $corrector) => $corrector->getUserId(), $this->corrector_service->all()));
+        $users = $this->user_service->getUsersByIds(array_map(fn (Corrector $corrector) => $corrector->getUserId(), $this->corrector_service->all()));
         foreach ($users as $user) {
             $corrector_statistic = $general->fromUser($user);
             $sections[] = $this->buildStatistic($corrector_statistic, false);
@@ -93,9 +93,12 @@ class CorrectorAdminStatisticsGUI extends BaseGUI
             $views[] =  $general->fromUser($user);
         }
 
-        $users = $this->user_service->getUsersByIds(array_map(fn(Corrector $corrector) => $corrector->getUserId(), $this->corrector_service->all()));
+        $users = $this->user_service->getUsersByIds(array_map(fn (Corrector $corrector) => $corrector->getUserId(), $this->corrector_service->all()));
         foreach ($users as $user) {
-            $views[] =  $general->fromUser($user);
+            $view = $general->fromUser($user);
+            if (!empty($view->getGradingObjects())) {
+                $views[] = $view;
+            }
         }
 
         $csv = $this->buildStatisticExport($views, false, false);

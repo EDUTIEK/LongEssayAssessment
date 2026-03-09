@@ -24,14 +24,17 @@ class StatisticViewRepo extends ViewRepo implements \Edutiek\AssessmentService\V
 
     }
 
-    public function someCorrections(array $filter): StatisticView
+    public function someCorrections(array $filter, bool $include_pre_graded = false): StatisticView
     {
-        $sql = "SELECT w.ass_id as ass_id, cs.writer_id as writer_id, c.user_id as user_id, cs.points as points, cs.corection_authorized as authorized, g.grade as grade, g.passed as passed FROM {$this->corrector_summary_repo->table()} AS cs ";
+        $sql = "SELECT w.ass_id as ass_id, cs.writer_id as writer_id, c.user_id as user_id, cs.points as points, ";
+        $sql .= "cs.corection_authorized as authorized, cs.pre_graded as pre_graded, g.grade as grade, g.passed as passed ";
+        $sql .= "FROM {$this->corrector_summary_repo->table()} AS cs ";
         $sql .= "LEFT JOIN {$this->writer_repo->table()} AS w ON (cs.writer_id = w.id) ";
         $sql .= "LEFT JOIN {$this->corrector_repo->table()} AS c ON (cs.corrector_id = c.id) ";
         $sql .= "LEFT JOIN {$this->grade_repo->table()} AS g ON (cs.points >= g.min_points AND w.ass_id = g.ass_id) ";
         $sql .= "LEFT JOIN usr_data AS u ON u.usr_id = c.user_id ";
         $sql .= "WHERE NOT EXISTS ( SELECT 1 FROM xlas_as_grade_level AS g2 WHERE g2.min_points > g.min_points AND cs.points >= g2.min_points AND w.ass_id = g2.ass_id) ";
+        $sql .= "AND w.id IS NOT NULL ";
         $sql .= "AND " . ($this->where($filter) ?? "1") . " ";
         $sql .= "HAVING " . ($this->having($filter) ?? "1") . " ";
 
@@ -50,7 +53,7 @@ class StatisticViewRepo extends ViewRepo implements \Edutiek\AssessmentService\V
                 $this->user_data_repo->dehydratedInstance($row['user_id']),
                 $row['writer_id'] !== null,
                 true,
-                $row['authorized'] !== null,
+                $row['authorized'] !== null  || ($row['pre_graded'] !== null && $include_pre_graded),
                 $row['points'],
                 $row['grade'],
                 (bool) $row['passed']

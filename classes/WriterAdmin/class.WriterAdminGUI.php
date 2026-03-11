@@ -85,7 +85,7 @@ class WriterAdminGUI extends WriterTableGUI
     public function assignWriters(array $a_usr_ids, $a_type = null)
     {
         if (count($a_usr_ids) <= 0) {
-            $this->tpl->setOnScreenMessage("failure", $this->plugin->txt('no_writer_set'), true);
+            $this->tpl->setOnScreenMessage("failure", $this->plugin->txt('missing_user_id'), true);
             $this->ctrl->redirect($this, "showStartPage");
         }
 

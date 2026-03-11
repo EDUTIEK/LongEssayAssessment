@@ -184,11 +184,11 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
           'task' => $multi_task ? $cf->text($this->plugin->txt('task'))->withIsOptional(true, true) : null,
           'combined_status' => $cf->status($this->plugin->txt('correction_status'))->withIsOptional(true, true),
           'own_status' => $cf->status($this->plugin->txt('own_status'))->withIsOptional(true, true),
-          'own_points' => $cfp->nullableNumber($this->plugin->txt('own_points'))->withIsOptional(true, true),
+          'own_points' => $cfp->decimal($this->plugin->txt('own_points'), 1)->withDelimiter(',', '.')->withIsOptional(true, true),
           'own_grade' => !$multi_task ? $cf->text($this->plugin->txt('own_grade'))->withIsOptional(true, true) : null,
           'other_correction' => $other_corrections ? $cf->text($this->plugin->txt('other_corrections'))->withIsOptional(true, false) : null,
           'result' => $cf->status($this->plugin->txt('result'))->withIsOptional(true, true)->withIsSortable(true),
-          'final_points' => $cfp->nullableNumber($this->plugin->txt("result") . ': ' . $this->plugin->txt('points'))->withDecimals(true)->withIsOptional(true, false),
+          'final_points' => $cfp->decimal($this->plugin->txt("result") . ': ' . $this->plugin->txt('points'), 1)->withDelimiter(',', '.')->withIsOptional(true, false),
           'final_grade' => !$multi_task ? $cf->text($this->plugin->txt("result") . ': ' . $this->plugin->txt('grade'))->withIsOptional(true, false) : null,
         ];
     }

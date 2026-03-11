@@ -51,6 +51,7 @@ class CorrectionsViewRepo extends ViewRepo implements \Edutiek\AssessmentService
         $sql .= "LEFT JOIN object_reference AS r ON w.ass_id = r.obj_id ";
         $sql .= "WHERE " . ($this->where($filter) ?? "1") . " ";
         $sql .= "GROUP BY writer_id, task_id, essay_id, user_id, location_id, authorized_by, excluded_by ";
+        $sql .= "HAVING " . ($this->having($filter) ?? "1") . " ";
         $sql .= "{$limit} {$offset}";
 
         $query = $this->db->query($sql);
@@ -104,7 +105,7 @@ class CorrectionsViewRepo extends ViewRepo implements \Edutiek\AssessmentService
             "location" => "w.location = " . $this->db->quote($value, "integer"),
             "min_words" => "e.word_count >= " . $this->db->quote($value, "integer"),
             "max_words" => "e.word_count <= " . $this->db->quote($value, "integer"),
-            "status" => is_array($value) ? $this->db->in("w.writing_status", $value, false, "integer") : "w.writing_status = " . $this->db->quote($value, "integer"),
+            "status" => is_array($value) ? $this->db->in("w.combined_status", $value, false, "integer") : "w.writing_status = " . $this->db->quote($value, "integer"),
             default => null,
         };
     }

@@ -449,7 +449,7 @@ abstract class Table implements TableParent, FilterParent, Component\Component
             echo($this->renderer->renderAsync([
                 $this->ui_factory->modal()->roundtrip(
                     $action->label(),
-                    [$this->ui_factory->messageBox()->failure($this->lng->txt("no_items"))]
+                    [$this->ui_factory->messageBox()->failure($this->plugin->txt("no_items"))]
                 )
             ]));
             exit();

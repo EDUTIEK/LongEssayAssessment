@@ -165,7 +165,7 @@ class CorrectionTableParent implements DataTableParent, FilterParent
                 "corr_{$p}" => $cf->text($cor)->withIsOptional(true, true)->withIsSortable(false),
                 "corr_{$p}_name" => $cf->text($cor . ': ' . $this->lng->txt("name"))->withIsOptional(true, false)->withIsSortable(true),
                 "corr_{$p}_status" => $cf->status($cor . ': ' . $this->plugin->txt("status"))->withIsOptional(true, false)->withIsSortable(true),
-                "corr_{$p}_points" => $cfp->nullableNumber($cor . ': ' . $this->plugin->txt("points"))->withIsOptional(true, false)->withIsSortable(true),
+                "corr_{$p}_points" => $cfp->decimal($cor . ': ' . $this->plugin->txt("points"), 1)->withDelimiter(',', '.')->withIsOptional(true, false)->withIsSortable(true),
             ];
 
             $columns["corr_{$p}_grade"] = $cf->text($cor . ': ' . $this->lng->txt("grade"))->withIsOptional(true, false)->withIsSortable(true); // Should be disabled for multi-task
@@ -181,7 +181,7 @@ class CorrectionTableParent implements DataTableParent, FilterParent
 
         $columns += [
             "result" => $cf->text($res)->withIsOptional(true, true)->withIsSortable(false),
-            "points" => $cfp->nullableNumber($res . ': ' . $this->plugin->txt("points"))->withDecimals(true)->withIsOptional(true, false)->withIsSortable(true),
+            "points" => $cfp->decimal($res . ': ' . $this->plugin->txt("points"), 1)->withDelimiter(',', '.')->withDecimals(true)->withIsOptional(true, false)->withIsSortable(true),
             "grade" => $cf->text($res . ': ' . $this->plugin->txt("grade"))->withIsOptional(true, false)->withIsSortable(true),
 
             "finalized" => $cf->text($fin)->withIsOptional(true, true)->withIsSortable(false),
@@ -307,7 +307,7 @@ class CorrectionTableParent implements DataTableParent, FilterParent
             "location" => $this->ui_factory->input()->field()->multiselect($this->plugin->txt("locations"), $locations),
             "min_words" => $this->ui_factory->input()->field()->numeric($this->plugin->txt("min_word_count")),
             "max_words" => $this->ui_factory->input()->field()->numeric($this->plugin->txt("max_word_count")),
-            "status" => $this->ui_factory->input()->field()->multiSelect($this->plugin->txt("status"), $status)
+            "status" => $this->ui_factory->input()->field()->multiSelect($this->plugin->txt("correction_status"), $status)
                                                            ->withValue(array_map( fn (CombinedStatus $x) => (string) $x->value, [
                                                                CombinedStatus::WRITING_AUTHORIZED,
                                                                CombinedStatus::OPEN,

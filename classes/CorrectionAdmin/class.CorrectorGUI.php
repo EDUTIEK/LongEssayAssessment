@@ -404,7 +404,7 @@ class CorrectorGUI extends BaseGUI implements DataTableParent
     public function addCorrectorsCallback(array $a_usr_ids, $a_type = null)
     {
         if (count($a_usr_ids) <= 0) {
-            $this->tpl->setOnScreenMessage("failure", $this->plugin->txt('missing_corrector_id'), true);
+            $this->tpl->setOnScreenMessage("failure", $this->plugin->txt('missing_user_id'), true);
             $this->ctrl->redirect($this, "showItems");
         }
 

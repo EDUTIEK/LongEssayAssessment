@@ -236,10 +236,8 @@ essay_status#:#Abgabe-Status
 search_participants#:#Teilnehmer suchen
 assign_writer_success#:#Teilnahme erfolgreich hinzugefügt.
 exclude_writer_success#:#Teilnahme erfolgreich ausgeschlossen.
-missing_writer_id#:#Teilnahmenummer fehlt.
 missing_writer#:#Teilnahme konnte nicht gefunden werden.
 grade_level#:#Notenstufe
-no_writer_set#:#Kein Teilnahme angegeben.
 exclude_participant_confirmation#:#Wollen Sie die folgenden Teilnahmen wirklich von der Bearbeitung ausschließen?
 exclude#:#Ausschließen
 authorize_writing_confirmation#:#Wollen Sie die Abgabe der folgenden Teilnahme wirklich freigeben?
@@ -253,7 +251,7 @@ tab_corrector_list#:#Korrektoren
 search_correctors#:#Korrektoren suchen
 remove_corrector#:#Korrektor entfernen
 remove_corrector_confirmation#:#Wollen Sie den folgenden Korrektor wirklich entfernen?
-missing_corrector_id#:#Korrektornummer fehlt.
+missing_user_id#:#Es konnten keine Benutzer hinzugefügt werden.
 missing_corrector#:#Korrektor konnte nicht gefunden werden.
 remove_writer_pending_assignments#:#Korrektor konnte nicht entfernt werden, da er noch als Erst- oder Zweitkorrektur eingetragen ist.
 remove_corrector_success#:#Korrektor(en) wurden erfolgreich entfernt.
@@ -933,3 +931,4 @@ export_type_reports#:#Korrekturberichte
 export_type_hashes#:#Prüfsummen
 export_file_created#:#Die Export-Datei wurde erzeugt.
 corrector#:#Korrektor
+no_items#:#Keine ausgewählten Einträge können diese Aktion ausführen.

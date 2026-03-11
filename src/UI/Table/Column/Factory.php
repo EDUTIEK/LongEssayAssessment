@@ -38,4 +38,9 @@ class Factory
     {
         return new Checkbox($this->language, $title, $name);
     }
+
+    public function decimal(string $title, int $decimals) : Decimal
+    {
+        return (new Decimal($this->language, $title))->withDecimals($decimals);
+    }
 }

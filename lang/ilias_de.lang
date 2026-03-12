@@ -901,4 +901,4 @@ export_type_reports#:#Korrekturberichte
 export_type_hashes#:#Prüfsummen
 export_file_created#:#Die Export-Datei wurde erzeugt.
 corrector#:#Korrektor
-no_items#:#Keine ausgewählten Einträge können diese Aktion ausführen.
+no_items#:#Die Aktion ist für keinen der ausgewählten Einträge ausführbar.

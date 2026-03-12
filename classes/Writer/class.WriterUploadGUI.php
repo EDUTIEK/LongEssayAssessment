@@ -125,8 +125,7 @@ class WriterUploadGUI extends BaseGUI
                 )?->getTitle();
             }
 
-            $settings = $this->assessment_api->orgaSettings()->get();
-            $properties[$this->plugin->txt('writing_status')] = $this->assessment_api->format($settings)->writingStatus($this->writer);
+            $properties[$this->plugin->txt('writing_status')] = $this->assessment_api->format()->writingStatus($this->writer);
 
             $this->add($this->ui_factory->panel()->standard(
                 $this->plugin->txt('participant'),

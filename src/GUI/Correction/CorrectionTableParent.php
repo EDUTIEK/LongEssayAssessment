@@ -92,7 +92,7 @@ class CorrectionTableParent implements DataTableParent, FilterParent
         $task_api = $this->plugin->dic()->task($item->getWriter()->getAssId(), $this->user->getId());
         $grading_service = $assessment_api->assessmentGrading();
         $sys_format = $system_api->format($this->user->getId());
-        $ass_format = $assessment_api->format($assessment_api->orgaSettings()->get());
+        $ass_format = $assessment_api->format();
         $task_format = $task_api->format();
 
         return new CorrectionItemColumnMap(
@@ -233,8 +233,8 @@ class CorrectionTableParent implements DataTableParent, FilterParent
                 $view->getWriterDisplay(),
                 $view->getLocation(),
                 $view->getEssay(),
-                array_map(fn (Correction $c) => $c->getCorrectorSummary(), $view->getCorrections()),
-                array_map(fn (Correction $c) => $c->getCorrectorData(), $view->getCorrections()),
+                array_map(fn(Correction $c) => $c->getCorrectorSummary(), $view->getCorrections()),
+                array_map(fn(Correction $c) => $c->getCorrectorData(), $view->getCorrections()),
                 $view->getFinalizedByData(),
                 $view->getAuthorizedByData(),
                 $view->getExcludedByData(),
@@ -261,8 +261,8 @@ class CorrectionTableParent implements DataTableParent, FilterParent
             $view->getWriterDisplay(),
             $view->getLocation(),
             $view->getEssay(),
-            array_map(fn (Correction $c) => $c->getCorrectorSummary(), $view->getCorrections()),
-            array_map(fn (Correction $c) => $c->getCorrectorData(), $view->getCorrections()),
+            array_map(fn(Correction $c) => $c->getCorrectorSummary(), $view->getCorrections()),
+            array_map(fn(Correction $c) => $c->getCorrectorData(), $view->getCorrections()),
             $view->getFinalizedByData(),
             $view->getAuthorizedByData(),
             $view->getExcludedByData(),
@@ -273,29 +273,8 @@ class CorrectionTableParent implements DataTableParent, FilterParent
 
     public function getFilterInputs(): array
     {
-        $status = [
-            (string) CombinedStatus::WRITING_EXCLUDED->value => $this->plugin->txt(
-                CombinedStatus::WRITING_EXCLUDED->langVar()
-            ),
-            (string) CombinedStatus::WRITING_NOT_STARTED->value => $this->plugin->txt(
-                CombinedStatus::WRITING_NOT_STARTED->langVar()
-            ),
-            (string) CombinedStatus::WRITING_STARTED->value => $this->plugin->txt(
-                CombinedStatus::WRITING_STARTED->langVar()
-            ),
-            (string) CombinedStatus::WRITING_AUTHORIZED->value => $this->plugin->txt(
-                CombinedStatus::WRITING_AUTHORIZED->langVar()
-            ),
-            (string) CombinedStatus::OPEN->value => $this->plugin->txt(CombinedStatus::OPEN->langVar()),
-            (string) CombinedStatus::APPROXIMATION->value => $this->plugin->txt(
-                CombinedStatus::APPROXIMATION->langVar()
-            ),
-            (string) CombinedStatus::CONSULTING->value => $this->plugin->txt(CombinedStatus::CONSULTING->langVar()),
-            (string) CombinedStatus::STITCH_NEEDED->value => $this->plugin->txt(
-                CombinedStatus::STITCH_NEEDED->langVar()
-            ),
-            (string) CombinedStatus::FINALIZED->value => $this->plugin->txt(CombinedStatus::FINALIZED->langVar()),
-        ];
+        // use pseudo assessment it - not relevant for the options
+        $status = $this->plugin->dic()->assessment(0, $this->user->getId())->format()->combinedStatusOptions();
         $locations = [];
         foreach ($this->getLocations() as $location) {
             $locations[$location->getId()] = $location->getTitle();
@@ -308,8 +287,9 @@ class CorrectionTableParent implements DataTableParent, FilterParent
             "min_words" => $this->ui_factory->input()->field()->numeric($this->plugin->txt("min_word_count")),
             "max_words" => $this->ui_factory->input()->field()->numeric($this->plugin->txt("max_word_count")),
             "status" => $this->ui_factory->input()->field()->multiSelect($this->plugin->txt("correction_status"), $status)
-                                                           ->withValue(array_map( fn (CombinedStatus $x) => (string) $x->value, [
-                                                               CombinedStatus::WRITING_AUTHORIZED,
+                                                           ->withValue(array_map(
+                                                               fn(CombinedStatus $x) => (string) $x->value,
+                                                               [
                                                                CombinedStatus::OPEN,
                                                                CombinedStatus::APPROXIMATION,
                                                                CombinedStatus::CONSULTING,

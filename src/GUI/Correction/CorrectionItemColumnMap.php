@@ -45,11 +45,6 @@ class CorrectionItemColumnMap extends ColumnMappingArray
     ) {
     }
 
-    private function correctionStatus(CombinedStatus $status): string
-    {
-        return $this->plugin->txt($status->langVar());
-    }
-
     private function finalized(CorrectionItem $item)
     {
         if ($item->getWriter()->isCorrectionFinalized()) {
@@ -94,7 +89,7 @@ class CorrectionItemColumnMap extends ColumnMappingArray
             "location" => $item->getLocation()?->getTitle() ?? "",
             "assessment" => $item->getAssessmentProperties()->getTitle(),
             "task" => $item->getTaskSettings()->getTitle(),
-            "status" => $this->correctionStatus($item->getWriter()->getCombinedStatus()),
+            "status" => $this->ass_format->combinedStatus($item->getWriter()),
             "writing_last_save" => $item->getEssay()?->getLastChange()?->setTimezone($this->timezone),
             "word_count" => $item->getEssay()?->getWordCount() ?? 0,
             "result" => $this->ass_format->finalResult($item->getWriter()),

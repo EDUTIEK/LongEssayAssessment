@@ -168,23 +168,7 @@ view_correction#:#Korrektur einsehen
 change_corrector#:#Korrekturzuweisung
 correctable_exams#:#Zu korrigierende Abgaben
 writing_status#:#Abgabe
-writing_status_not_written#:#nicht teilgenommen
-writing_status_not_authorized#:#nicht abgegeben
-writing_status_authorized#:#freigegeben
 correction_status#:#Gesamt-Status
-correction_status_writing_excluded#:#ausgeschlossen
-correction_status_writing_not_started#:#nicht teilgenommen
-correction_status_writing_started#:#in Teilnahme
-correction_status_writing_authorized#:#Abgabe freigegeben
-correction_status_not_possible#:#nicht möglich
-correction_status_open#:#Korrektur offen
-correction_status_finished#:#abgeschlossen
-correction_status_stitch#:#im Stichentscheid
-correction_status_approximation#:#in Annäherung
-correction_status_consulting#:#in Beratung
-correction_status_finalized#:#Korrektur abgeschlossen
-correction_status_stitch_needed#:#Stichentscheid notwendig
-correction_status_finished#:#abgeschlossen
 own_grading#:#Eigene Note
 own_status#:#Eigene Korrektur
 own_points#:#Eigene Punkte
@@ -735,16 +719,6 @@ working_duration#:#Bearbeitung: Dauer
 assessment_period#:#Aufgabe: Zeitraum
 assessment_duration#:#Aufgabe: Dauer
 time_limit_changed#:#Zeitanpassung
-writing_autorized_at#:#Freigegeben am
-writing_autorized_from#:#Freigegeben von
-writing_excluded_at#:#Ausgeschlossen am
-writing_excluded_from#:#Ausgeschlossen von
-status_writing_not_started#:#nicht gestartet
-status_writing_started#:#gestartet
-status_writing_excluded#:#ausgeschlossen
-status_writing_authorized#:#freigegeben
-status_writing_excluded_from#:#ausgeschlossen von
-status_writing_autorized_from#:#freigegeben von
 src_template#:#Verwendete Vorlage
 use_template#:#Vorlage verwenden
 assessment#:#Aufgabe

@@ -10,6 +10,7 @@ use Edutiek\AssessmentService\Assessment\LogEntry\MentionUser as LogEntryMention
 use Edutiek\AssessmentService\Assessment\LogEntry\Type as LogEntryType;
 use Edutiek\AssessmentService\Assessment\OrgaSettings\FullService as OrgaService;
 use Edutiek\AssessmentService\Assessment\Writer\FullService as WriterService;
+use Edutiek\AssessmentService\Assessment\Format\FullService as AssessmentFormat;
 use Edutiek\AssessmentService\EssayTask\AssessmentStatus\FullService as AssessmentStatus;
 use Edutiek\AssessmentService\EssayTask\Essay\ClientService as EssayService;
 use Edutiek\AssessmentService\System\Data\Result;
@@ -49,7 +50,8 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
     protected ?array $location = null;
     protected EssayService $essay_service;
     protected AssessmentStatus $assessment_status;
-    protected FormatService $format;
+    protected AssessmentFormat $assessment_format;
+    protected FormatService $system_format;
     private FileStorage $file_storage;
 
     public function __construct(BaseObjectData $object)
@@ -60,7 +62,8 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
         $this->orga_service = $this->assessment_api->orgaSettings();
         $this->essay_service = $this->essay_task_api->essay(true);
         $this->assessment_status = $this->essay_task_api->assessmentStatus();
-        $this->format = $this->system_api->format($this->user->getId());
+        $this->assessment_format = $this->assessment_api->format();
+        $this->system_format = $this->system_api->format($this->user->getId());
         $this->file_storage = $this->system_api->fileStorage();
     }
 
@@ -233,14 +236,14 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
         $fields['earliest_start'] = $factory->dateTime(
             $this->plugin->txt("writing_start"),
             $settings->getWritingStart()
-                ? $this->plugin->txt('label_general') . ' ' . $this->format->date($settings->getWritingStart())
+                ? $this->plugin->txt('label_general') . ' ' . $this->system_format->date($settings->getWritingStart())
                 : ''
         )->withUseTime(true)->withValue($working_time->getEarliestStart()?->format('Y-m-d H:i:s'));
 
         $fields['latest_end'] = $factory->dateTime(
             $this->plugin->txt("writing_end"),
             $settings->getWritingEnd()
-                ? $this->plugin->txt('label_general') . ' ' . $this->format->date($settings->getWritingEnd())
+                ? $this->plugin->txt('label_general') . ' ' . $this->system_format->date($settings->getWritingEnd())
                 : ''
         )->withUseTime(true)->withValue($working_time->getLatestEnd()?->format('Y-m-d H:i:s'));
 
@@ -260,7 +263,7 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
             ],
             $this->plugin->txt('writing_limit'),
             $settings->getWritingLimitMinutes()
-                ? $this->plugin->txt('label_general') . ' ' . $this->format->duration($settings->getWritingLimitMinutes() * 60)
+                ? $this->plugin->txt('label_general') . ' ' . $this->system_format->duration($settings->getWritingLimitMinutes() * 60)
                 : ''
         );
         if (!$working_time->hasTimeLimitFromStart()) {
@@ -502,8 +505,7 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
             $avatar = $this->ui_factory->symbol()->avatar()->letter($user_data?->getLogin() ?? $unknown);
         }
 
-        $status = $this->assessment_api->format($this->getSettings())->writingStatus($writer);
-
+        $status = $this->assessment_format->writingStatus($writer);
         $working_time = $this->assessment_api->workingTime($writer);
 
         $working_start = $writer->getWorkingStart()?->setTimezone($timezone);
@@ -951,12 +953,7 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
     {
         $field = $this->ui_factory->input()->field();
 
-        $status = [
-            (string) WritingStatus::NOT_STARTED->value => $this->plugin->txt("status_writing_not_started"),
-            (string) WritingStatus::STARTED->value => $this->plugin->txt("status_writing_started"),
-            (string) WritingStatus::EXCLUDED->value => $this->plugin->txt("status_writing_excluded"),
-            (string) WritingStatus::AUTHORIZED->value => $this->plugin->txt("status_writing_authorized"),
-        ];
+        $status = $this->assessment_format->writingStatusOptions();
 
         return $this->filterFilterFields([
             "name" => $field->text($this->plugin->txt("participants")),

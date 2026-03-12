@@ -19,7 +19,7 @@ use Edutiek\AssessmentService\Task\Data\CorrectorSummary;
 use Edutiek\AssessmentService\System\Data\UserData;
 use ILIAS\Plugin\LongEssayAssessment\Task\Data\CorrectorAssignment;
 use Edutiek\AssessmentService\Assessment\AssessmentGrading\ReadService as AssessmentGradingService;
-use Edutiek\AssessmentService\Task\Format\FullService as EssayTaskFormatService;
+use Edutiek\AssessmentService\Task\Format\FullService as TaskFormatService;
 use Edutiek\AssessmentService\Assessment\Data\CorrectionSettings;
 use Edutiek\AssessmentService\Assessment\Data\OrgaSettings;
 use Edutiek\AssessmentService\Task\CorrectorAssignments\FullService as AssignmentService;
@@ -52,7 +52,7 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
     private int $ready_items = 0;
     private CorrectionSettings $settings;
     private AssessmentGradingService $grading_service;
-    private EssayTaskFormatService $format_service;
+    private TaskFormatService $task_format;
     private OrgaSettings $orga_settings;
     private AssignmentService $assignment_service;
     private UserService $user_service;
@@ -61,8 +61,8 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
     private WriterService $writer_service;
     private AssesmentStatusService $assessment_status_service;
     private ?int $row_count = null;
-    private SystemFormatService $system_format_service;
-    private FormatService $assessment_format_service;
+    private SystemFormatService $system_format;
+    private FormatService $assessment_format;
     private PermissionService $perms;
     private CorrectionProcess $correction_process;
 
@@ -73,8 +73,10 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
         $this->orga_settings = $this->assessment_api->orgaSettings()->get();
         $this->settings = $this->assessment_api->correctionSettings()->get();
         $this->grading_service = $this->assessment_api->assessmentGrading();
-        $this->format_service = $this->task_api->format();
-        $this->system_format_service = $this->system_api->format($this->user->getId(), new DateTimeZone($this->user->getTimeZone()));
+
+        $this->assessment_format = $this->assessment_api->format();
+        $this->task_format = $this->task_api->format();
+        $this->system_format = $this->system_api->format($this->user->getId(), new DateTimeZone($this->user->getTimeZone()));
 
         $this->assignment_service = $this->task_api->correctorAssignments();
         $this->user_service = $this->system_api->user();
@@ -82,7 +84,6 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
         $this->corrector_service = $this->assessment_api->corrector();
         $this->writer_service = $this->assessment_api->writer();
         $this->assessment_status_service = $this->task_api->assessmentStatus();
-        $this->assessment_format_service = $this->assessment_api->format($this->orga_settings);
         $this->correction_process = $this->task_api->correctionProcess();
     }
 
@@ -119,20 +120,20 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
                 return $this->plugin->txt('assignment_pos_empty');
             }
             return $this->plugin->txt($assignment->getPosition()->languageVariable()) . ": "
-                . $user_data->getListname(false) . ' - ' . $this->format_service->correctionResult($summary, false);
+                . $user_data->getListname(false) . ' - ' . $this->task_format->correctionResult($summary, false);
         };
 
         $grading_service = $this->grading_service;
-        $assessment_format = $this->assessment_format_service;
-        $essay_format = $this->format_service;
+        $assessment_format = $this->assessment_format;
+        $essay_format = $this->task_format;
 
         return new ColumnMappingClosure(function ($key) use ($item, $grading_service, $other_corrector, $assessment_format, $essay_format) {
             return match($key) {
                 'pseudonym' => $this->ui_factory->link()->standard($item->getWriter()->getPseudonym(), $this->itemLinkTarget($item)),
                 'position' => $this->plugin->txt($item->getAssignment()->getPosition()->languageVariable()),
                 'task' => $item->getTaskTitle(),
-                'combined_status' => $this->plugin->txt($item->getCombinedStatus()->langVar()),
-                'own_status' => $this->format_service->gradingStatus($item->getSummary()?->getGradingStatus(), true),
+                'combined_status' => $this->assessment_format->combinedStatus($item->getWriter()),
+                'own_status' => $this->task_format->gradingStatus($item->getSummary()?->getGradingStatus(), true),
                 'own_points' => $item->getSummary()?->getEffectivePoints(),
                 'own_grade' => $item->getSummary() ? $grading_service->getGradLevelForPoints($item->getSummary()->getPoints())?->getGrade() : null,
                 'result' => $assessment_format->finalResult($item->getWriter()),
@@ -225,7 +226,7 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
             $this->plugin->txt('confirm_authorize_correction'),
             $this->ctrl->getFormAction($this, 'authorizeCorrection'),
             fn(CorrectorStartItem $x) => $x->getWriter()->getPseudonym() . ': '
-                . $this->format_service->correctionResult($x->getSummary(), true),
+                . $this->task_format->correctionResult($x->getSummary(), true),
             fn(CorrectorStartItem $x) =>
                 $this->correction_process->canAuthorize($x->getAssignment())
                 && $x->getSummary()?->isComplete(),
@@ -242,7 +243,7 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
             $this->plugin->txt('confirm_remove_own_authorization'),
             $this->ctrl->getFormAction($this, 'removeAuthorization'),
             fn(CorrectorStartItem $x) => $x->getWriter()->getPseudonym() . ': '
-                . $this->format_service->correctionResult($x->getSummary(), true),
+                . $this->task_format->correctionResult($x->getSummary(), true),
             fn(CorrectorStartItem $x) => !empty($x->getSummary()?->getCorrectionAuthorized()),
             Table\Action\Type::Standard
         );
@@ -381,7 +382,7 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
             $table->executeAction();
             $this->tpl->setContent($this->renderer->render($table->getComponents()));
             if ($this->orga_settings->getCorrectionStart() || $this->orga_settings->getCorrectionEnd()) {
-                $period = $this->system_format_service->dateRange($this->orga_settings->getCorrectionStart(), $this->orga_settings->getCorrectionEnd());
+                $period = $this->system_format->dateRange($this->orga_settings->getCorrectionStart(), $this->orga_settings->getCorrectionEnd());
                 $this->tpl->setOnScreenMessage("info", $this->plugin->txt("correction_period") . ': ' . $period, false);
             }
         } else {
@@ -487,13 +488,13 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
         return  [
             "status" => $this->ui_factory->input()->field()->multiSelect(
                 $this->plugin->txt('own_correction'),
-                $this->format_service->gradingStatusOptions()
+                $this->task_format->gradingStatusOptions()
             )
                 ->withValue($stat_value),
             "position" => $multiple_correctors
                 ? $this->ui_factory->input()->field()->select(
                     $this->plugin->txt('own_position'),
-                    $this->format_service->gradingPositionOptions()
+                    $this->task_format->gradingPositionOptions()
                 )
                     ->withValue($pos_value ?? '')
                 : null

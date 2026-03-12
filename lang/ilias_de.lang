@@ -838,10 +838,10 @@ wait_for_first_info#:#Die Zweitkorrektur einer Abgabe kann erst starten, wenn di
 undo_authorization#:#Freigabe zurückziehen
 undo_authorization_info#:#Korrektoren können die Freigabe ihrer Korrektur einer Abgabe zurückziehen, solange die Korrektur dieser Abgabe noch nicht abgeschlossen ist.
 instant_status#:#Korrekturstatus anzeigen
-instant_status_on#:#sofort
-instant_status_on_info#:#Der Beginn der Korrektur einer Abgabe ist sofort in der Korrekturverwaltung sichtbar.
+instant_status_on#:#detailliert
+instant_status_on_info#:#In der Korrekturverwaltung wird beim Status einer Einzelkorrektur zwischen "nicht begonnen", "offen" und "vorbenotet" unterschieden. Der Arbeitsfortschritt eines Korrektors kann so detailliert nachvollzogen werden.
 instant_status_off#:#ab Freigabe
-instant_status_off_info#:#Der Status der Korrektur einer Abgabe wird erst ab der Freigabe durch den Korrektoren sichtbar.
+instant_status_off_info#:#In der Korrekturverwaltung wird der Status einer Einzelkorrektur vor ihrer Freigabe einheitlich als "offen" angezeigt. Damit ist ein Arbeitsfortschritt erst ab Freigabe erkennbar.
 weight#:#Gewichtung
 max_points_info#:#Maximale Punktzahl die vergeben werden kann.
 max_points_info_multi#:#Maximale Punktzahl die für eine Teilaufgabe vergeben werden kann. Die Gesamtpunktzahl ist der Durchschnitt der gewichteten Punktzahlen aller Teilaufgaben.

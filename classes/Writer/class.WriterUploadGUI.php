@@ -315,6 +315,7 @@ class WriterUploadGUI extends BaseGUI
                     $this->upload_handler->getApiInfo($uploaded)
                 );
                 $hash = $this->upload_handler->getApiHash($uploaded);
+                $this->writer_service->setWorkingStart($this->writer);
                 $this->essay_service->replacePdf($essay, $stored->getId(), $hash);
                 $this->success($this->plugin->txt("writer_upload_pdf_finished"), true);
             }

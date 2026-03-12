@@ -170,10 +170,7 @@ class WriterStartGUI extends BaseGUI
     protected function startWorking()
     {
         if ($this->perms->canWrite()) {
-            if ($this->writer->getWorkingStart() === null) {
-                $this->writer->setWorkingStart(\DateTimeImmutable::createFromFormat('U', (string) time()));
-                $this->assessment_api->writer()->save($this->writer);
-            }
+            $this->assessment_api->writer()->setWorkingStart($this->writer);
 
             switch ($this->writing_settings->getWritingType()) {
                 case WritingType::ESSAY_EDITOR:

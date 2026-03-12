@@ -902,3 +902,4 @@ export_type_hashes#:#Prüfsummen
 export_file_created#:#Die Export-Datei wurde erzeugt.
 corrector#:#Korrektor
 no_items#:#Die Aktion ist für keinen der ausgewählten Einträge ausführbar.
+please_select_item#:#Bitte wählen Sie einen oder mehrere Einträge aus der Tabelle aus.

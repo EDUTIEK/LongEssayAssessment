@@ -210,6 +210,22 @@ abstract class Table implements TableParent, FilterParent, Component\Component
         }
     }
 
+    private function showPleaseSelectModal($action, bool $async = false): void
+    {
+        $modal = $this->ui_factory->modal()->roundtrip(
+            $action->label(),
+            [$this->ui_factory->messageBox()->failure($this->plugin->txt("please_select_item"))]
+        );
+
+        if ($async) {
+            $modal->getShowSignal()->getId();
+            echo($this->renderer->renderAsync($modal));
+            exit();
+        } else {
+            $this->addModal($modal->withOnLoad($modal->getShowSignal()));
+        }
+    }
+
     public function currentId(): int
     {
         $array = $this->currentIds();
@@ -340,7 +356,12 @@ abstract class Table implements TableParent, FilterParent, Component\Component
 
     protected function form(Form $action): void
     {
-        $ids = $this->currentIds();
+        try {
+            $ids = $this->currentIds();
+        } catch (\Exception $e) {
+            $this->showPleaseSelectModal($action, true);
+            return;
+        }
         $items = iterator_to_array($this->getTableItems($ids));
 
         $link = $this->getActionFormLink();
@@ -396,7 +417,13 @@ abstract class Table implements TableParent, FilterParent, Component\Component
 
     protected function modal(Modal $action): void
     {
-        $ids = $this->currentIds();
+        try {
+            $ids = $this->currentIds();
+        } catch (\Exception $e) {
+            $this->showPleaseSelectModal($action, true);
+            return;
+        }
+
         $items = iterator_to_array($this->getTableItems($ids));
 
         $modal = $action->modal($items);
@@ -429,7 +456,12 @@ abstract class Table implements TableParent, FilterParent, Component\Component
 
     protected function confirmation(Confirmation $action): void
     {
-        $ids = $this->currentIds();
+        try {
+            $ids = $this->currentIds();
+        } catch (\Exception $e) {
+            $this->showPleaseSelectModal($action, true);
+            return;
+        }
         $items = $this->getTableItems($ids);
 
         $confirmation_items = [];
@@ -469,6 +501,7 @@ abstract class Table implements TableParent, FilterParent, Component\Component
         try {
             $ids = $this->currentIds();
         } catch (\Exception $e) {
+            $this->showPleaseSelectModal($action, false);
             return;
         }
 
@@ -480,7 +513,12 @@ abstract class Table implements TableParent, FilterParent, Component\Component
     {
         $table = $this->getTable();
         $selected_columns = null;
-        $selected_rows = $this->currentIds();
+        try {
+            $selected_rows = $this->currentIds();
+        } catch (\Exception $e) {
+            $this->showPleaseSelectModal($action, true);
+        }
+
         $rows_all_selected = false;
 
         if ($table instanceof UIDataTable) {

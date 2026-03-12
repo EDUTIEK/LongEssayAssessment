@@ -29,7 +29,7 @@ use ILIAS\UI\Implementation\Component\Table\Data as UIDataTable;
 
 abstract class Table implements TableParent, FilterParent, Component\Component
 {
-    private string $title  = "";
+    private string $title = "";
     private ?Filter\Standard $filter = null;
     private ?Component\Component $table = null;
     /**
@@ -96,17 +96,17 @@ abstract class Table implements TableParent, FilterParent, Component\Component
         }
     }
 
-    public function getUiName() : string
+    public function getUiName(): string
     {
         return $this->ui_name;
     }
 
-    public function getTitle() : string
+    public function getTitle(): string
     {
         return $this->title;
     }
 
-    public function setTitle(string $title) : void
+    public function setTitle(string $title): void
     {
         $this->title = $title;
     }
@@ -135,7 +135,7 @@ abstract class Table implements TableParent, FilterParent, Component\Component
         throw new \ilException("Action '$name' not found");
     }
 
-    public function hasActiveAction() : bool
+    public function hasActiveAction(): bool
     {
         return $this->query->has($this->action_parameter_token->getName());
     }
@@ -153,7 +153,7 @@ abstract class Table implements TableParent, FilterParent, Component\Component
         }
     }
 
-    protected function getActionFormLink() : string
+    protected function getActionFormLink(): string
     {
         $action = $this->currentAction();
         $ids = $this->currentIds();
@@ -197,7 +197,7 @@ abstract class Table implements TableParent, FilterParent, Component\Component
                 $this->refinery->in()->series([
                     $this->refinery->custom()->transformation(function ($x) {
                         if (is_array($x) && $x[0] === "ALL_OBJECTS") {
-                            return array_map(fn ($x) => $x->getId(), iterator_to_array($this->getTableItems()));
+                            return array_map(fn($x) => $x->getId(), iterator_to_array($this->getTableItems()));
                         } else {
                             return $x;
                         }
@@ -220,7 +220,7 @@ abstract class Table implements TableParent, FilterParent, Component\Component
         throw new \ilException("too few ids");
     }
 
-    protected function getFilter() : Filter\Standard
+    protected function getFilter(): Filter\Standard
     {
         if ($this->filter !== null) {
             return $this->filter;
@@ -240,7 +240,7 @@ abstract class Table implements TableParent, FilterParent, Component\Component
         return $this->filter_data = $this->ui_service->filter()->getData($filter_gui) ?? [];
     }
 
-    private function buildFilter() : Filter\Standard
+    private function buildFilter(): Filter\Standard
     {
         return $this->ui_service->filter()->standard(
             $this->getUIName() . "_filter",
@@ -289,12 +289,12 @@ abstract class Table implements TableParent, FilterParent, Component\Component
     /**
      * @return Component\Modal\Modal[]
      */
-    protected function getModal() : array
+    protected function getModal(): array
     {
         return $this->modal;
     }
 
-    public function getTable() : Component\Component
+    public function getTable(): Component\Component
     {
         if ($this->table !== null) {
             return $this->table;
@@ -304,12 +304,12 @@ abstract class Table implements TableParent, FilterParent, Component\Component
         $this->table = $table;
         return $table;
     }
-    abstract protected function buildTable() : Component\Component;
+    abstract protected function buildTable(): Component\Component;
 
     /**
      * @return Component\Component[]
      */
-    public function getComponents() : array
+    public function getComponents(): array
     {
         $components = [];
 
@@ -322,7 +322,7 @@ abstract class Table implements TableParent, FilterParent, Component\Component
         return array_merge($components, $this->getModal());
     }
 
-    public function addActionToToolbar(\ilToolbarGUI $toolbar, Action $action, bool $primary = false) : void
+    public function addActionToToolbar(\ilToolbarGUI $toolbar, Action $action, bool $primary = false): void
     {
         $button = $primary ?
             $this->ui_factory->button()->primary($action->label(), "") :
@@ -338,9 +338,9 @@ abstract class Table implements TableParent, FilterParent, Component\Component
         }
     }
 
-    protected function form(Form $action) : void
+    protected function form(Form $action): void
     {
-        $ids  = $this->currentIds();
+        $ids = $this->currentIds();
         $items = iterator_to_array($this->getTableItems($ids));
 
         $link = $this->getActionFormLink();
@@ -371,7 +371,7 @@ abstract class Table implements TableParent, FilterParent, Component\Component
                                      ->__toString();
             $close = new Signal((new \ILIAS\Data\UUID\Factory())->uuid4AsString());
             $modal = $modal->withOnClose($close)
-                           ->withAdditionalOnLoadCode(fn ($id) => "$(document).on('$close', function() {window.location.replace('$ret');});");
+                           ->withAdditionalOnLoadCode(fn($id) => "$(document).on('$close', function() {window.location.replace('$ret');});");
         }
 
         //$form = $this->local_factory->field()->blankForm($link, $fields);
@@ -394,9 +394,9 @@ abstract class Table implements TableParent, FilterParent, Component\Component
         exit();
     }
 
-    protected function modal(Modal $action) : void
+    protected function modal(Modal $action): void
     {
-        $ids  = $this->currentIds();
+        $ids = $this->currentIds();
         $items = iterator_to_array($this->getTableItems($ids));
 
         $modal = $action->modal($items);
@@ -427,9 +427,9 @@ abstract class Table implements TableParent, FilterParent, Component\Component
         exit();
     }
 
-    protected function confirmation(Confirmation $action) : void
+    protected function confirmation(Confirmation $action): void
     {
-        $ids  = $this->currentIds();
+        $ids = $this->currentIds();
         $items = $this->getTableItems($ids);
 
         $confirmation_items = [];
@@ -464,9 +464,14 @@ abstract class Table implements TableParent, FilterParent, Component\Component
         exit();
     }
 
-    protected function direct(Direct $action) : void
+    protected function direct(Direct $action): void
     {
-        $ids = $this->currentIds();
+        try {
+            $ids = $this->currentIds();
+        } catch (\Exception $e) {
+            return;
+        }
+
         $items = iterator_to_array($this->getTableItems($ids));
         $action->action($items);
     }
@@ -479,7 +484,7 @@ abstract class Table implements TableParent, FilterParent, Component\Component
         $rows_all_selected = false;
 
         if ($table instanceof UIDataTable) {
-            $columns = array_filter($table->getColumns(), fn ($x) => !$x instanceof Column\Image);
+            $columns = array_filter($table->getColumns(), fn($x) => !$x instanceof Column\Image);
             $rows_all_selected = count($selected_rows ?? []) >= $table->getDataRetrieval()->getTotalRowCount($table->getFilter(), $table->getAdditionalParameters());
             $modal = $this->ui_factory->modal()->roundtrip(
                 $action->label(),
@@ -491,12 +496,15 @@ abstract class Table implements TableParent, FilterParent, Component\Component
                         "all" => $this->ui_factory->input()->field()->group([], $this->plugin->txt('table_select_columns_all')),
                         "selected" => $this->ui_factory->input()->field()->group(
                             array_map(
-                                fn (Component\Table\Column\Column $c) =>
+                                fn(Component\Table\Column\Column $c) =>
                                 $this->ui_factory->input()->field()->checkbox($c->getTitle())->withValue(!$c->isOptional())->withDisabled(!$c->isOptional()),
                                 $columns
-                            ), $this->plugin->txt('table_select_columns_selected'))
+                            ),
+                            $this->plugin->txt('table_select_columns_selected')
+                        )
                     ], $this->plugin->txt('table_select_columns'))->withValue("visible")
-                ], $this->getActionFormLink()
+                ],
+                $this->getActionFormLink()
             );
 
             if ($this->request->getMethod() === "POST") {
@@ -527,17 +535,17 @@ abstract class Table implements TableParent, FilterParent, Component\Component
     }
 
     # Table Parent fassade
-    public function getTableActions() : array
+    public function getTableActions(): array
     {
         return $this->actions;
     }
 
-    public function getTableItems(?array $ids = null, ?array $filter_data = null) : Generator
+    public function getTableItems(?array $ids = null, ?array $filter_data = null): Generator
     {
         return $this->parent->getTableItems($ids, $filter_data);
     }
 
-    public function getTableItem(int $id) : Item
+    public function getTableItem(int $id): Item
     {
         return $this->parent->getTableItem($id);
     }
@@ -560,7 +568,7 @@ abstract class Table implements TableParent, FilterParent, Component\Component
             return $activation;
         }
 
-        return array_map(fn ($x) => true, $this->getFilterInputs());
+        return array_map(fn($x) => true, $this->getFilterInputs());
     }
 
     public function getFilterBaseAction(): string

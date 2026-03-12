@@ -12,44 +12,44 @@ class CorrectorItem extends Item
         private readonly string $name,
         private readonly string $login,
         private readonly int $first,
-        private readonly ?int $second,
-        private readonly int $not_started,
+        private readonly int $second,
+        private readonly int $stitch,
         private readonly int $open,
         private readonly int $authorized
     ) {
         parent::__construct($id);
     }
-    public function getName() : string
+    public function getName(): string
     {
         return $this->name;
     }
 
-    public function getLogin() : string
+    public function getLogin(): string
     {
         return $this->login;
     }
 
-    public function getFirst() : int
+    public function getFirst(): int
     {
         return $this->first;
     }
 
-    public function getSecond() : ?int
+    public function getSecond(): ?int
     {
         return $this->second;
     }
 
-    public function getNotStarted() : int
+    public function getStitch(): ?int
     {
-        return $this->not_started;
+        return $this->stitch;
     }
 
-    public function getOpen() : int
+    public function getOpen(): int
     {
         return $this->open;
     }
 
-    public function getAuthorized() : int
+    public function getAuthorized(): int
     {
         return $this->authorized;
     }

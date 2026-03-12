@@ -189,13 +189,8 @@ own_grading#:#Eigene Note
 own_status#:#Eigene Korrektur
 own_points#:#Eigene Punkte
 own_grade#:#Eigene Note
-grading_not_started#:#nicht begonnen
 grading_open#:#offen
-grading_pre_graded#:#vorbenotet
 grading_authorized#:#freigegeben
-grading_revised#:#überarbeitet
-grading_approximated#:#angenähert
-grading_consulted#:#beraten
 grading_pos_first#:#Erstkorrektur
 grading_pos_second#:#Zweitkorrektur
 grading_pos_stitch#:#Stichentscheid
@@ -707,6 +702,7 @@ criterion_type_comment_info#:#Das Bewertungskriterium wird bei der Anmerkung zu 
 corrector_single_assignments#:#Korrekturen
 corrector_first_assignments#:#Erstkorrekturen
 corrector_second_assignments#:#Zweitkorrekturen
+corrector_stitch_assignments#:#Stichentscheide
 progress#:#Fortschritt
 corrector_show_assignments#:#Zeige Korrekturen
 corrector_no_assignments#:#Keine zugewiesen

@@ -138,12 +138,12 @@ class CorrectorGUI extends BaseGUI implements DataTableParent
 
         // mail to correctors
         // todo
-//        $modal[] = $modal_mail = $this->ui_factory->modal()->roundtrip('', [])
-//                                 ->withAsyncRenderUrl($this->ctrl->getFormAction($this, 'mailToCorrectorsAsync'));
-//        $button = $this->ui_factory->button()->standard($this->plugin->txt("mail_to_correctors"), '')
-//                                  ->withOnClick($modal_mail->getShowSignal());
-//        $this->toolbar->addComponent($button);
-//
+        //        $modal[] = $modal_mail = $this->ui_factory->modal()->roundtrip('', [])
+        //                                 ->withAsyncRenderUrl($this->ctrl->getFormAction($this, 'mailToCorrectorsAsync'));
+        //        $button = $this->ui_factory->button()->standard($this->plugin->txt("mail_to_correctors"), '')
+        //                                  ->withOnClick($modal_mail->getShowSignal());
+        //        $this->toolbar->addComponent($button);
+        //
         $this->tpl->setContent($this->renderer->render(array_merge($modal, $table->getComponents())));
     }
 
@@ -166,7 +166,7 @@ class CorrectorGUI extends BaseGUI implements DataTableParent
         if ($this->getRequiredCorrectors() > 1) {
             $columns["second"] = $item->getSecond();
         }
-        $columns["not_started"] = $item->getNotStarted();
+        $columns["stitch"] = $item->getStitch();
         $columns["open"] = $item->getOpen();
         $columns["authorized"] = $item->getAuthorized();
 
@@ -188,8 +188,8 @@ class CorrectorGUI extends BaseGUI implements DataTableParent
         } else {
             $columns["first"] = $tf->column()->text($this->plugin->txt('corrector_first_assignments'))->withIsSortable($sortable);
             $columns["second"] = $tf->column()->text($this->plugin->txt('corrector_second_assignments'))->withIsSortable($sortable);
+            $columns["stitch"] = $tf->column()->text($this->plugin->txt('corrector_stitch_assignments'))->withIsSortable($sortable);
         }
-        $columns["not_started"] = $tf->column()->text($this->plugin->txt('grading_not_started'))->withIsSortable($sortable);
         $columns["open"] = $tf->column()->text($this->plugin->txt('grading_open'))->withIsSortable($sortable);
         $columns["authorized"] = $tf->column()->text($this->plugin->txt('grading_authorized'))->withIsSortable($sortable);
         return $columns;
@@ -223,9 +223,9 @@ class CorrectorGUI extends BaseGUI implements DataTableParent
                 $user_data?->getLogin() ?? "",
                 $correction_summary?->getFirstCorrections() ?? 0,
                 $correction_summary?->getSecondCorrections() ?? 0,
-                $correction_summary?->getNotStarted() ?? 0,
+                $correction_summary?->getStitchCorrections() ?? 0,
                 $correction_summary?->getOpenCorrections() ?? 0,
-                $correction_summary?->getAuthorized() ?? 0
+                $correction_summary?->getAuthorizedCorrections() ?? 0
             );
         }
     }
@@ -327,7 +327,7 @@ class CorrectorGUI extends BaseGUI implements DataTableParent
             $writer = $writers[$assignment->getWriterId()];
             $summary = $summaries[$assignment->getWriterId()][$assignment->getTaskId()] ?? null;
             $name = $users[$writer->getUserId()]?->getListname(true) ?? " - ";
-            $status = $this->task_format->correctionResult($summary, false, false);
+            $status = $this->task_format->correctionResult($summary, false);
 
             if ($assignment->getPosition() === GradingPosition::FIRST) {
                 $first[$name] = $status;

@@ -15,6 +15,7 @@ use Edutiek\AssessmentService\Assessment\Data\CombinedStatus;
 use Edutiek\AssessmentService\Assessment\Data\Writer;
 use Edutiek\AssessmentService\Assessment\Data\CorrectionStatus;
 use Closure;
+use Edutiek\AssessmentService\Assessment\Data\CorrectionProcedure;
 
 /**
  * Map from CorrectionItem to CorrectionAdminGUI table columns, which acts like an array.
@@ -32,7 +33,7 @@ class CorrectionItemColumnMap extends ColumnMappingArray
      */
     public function __construct(
         private \ilLanguage $lng,
-        private \ilPlugin $plng,
+        private \ilLongEssayAssessmentPlugin $plugin,
         private Factory $ui_factory,
         private \DateTimeZone $timezone,
         private GradingService $grading,
@@ -46,19 +47,7 @@ class CorrectionItemColumnMap extends ColumnMappingArray
 
     private function correctionStatus(CombinedStatus $status): string
     {
-        return $this->plng->txt($status->langVar());
-    }
-
-    private function gradingStatus(?GradingStatus $status): string
-    {
-        return self::$grading_status[$status?->value] ??= match($status) {
-            GradingStatus::OPEN => $this->plng->txt("grading_open"),
-            GradingStatus::NOT_STARTED => $this->plng->txt("grading_not_started"),
-            GradingStatus::PRE_GRADED => $this->plng->txt("grading_pre_graded"),
-            GradingStatus::AUTHORIZED => $this->plng->txt("grading_authorized"),
-            GradingStatus::REVISED => $this->plng->txt("grading_revised"),
-            default => ""
-        };
+        return $this->plugin->txt($status->langVar());
     }
 
     private function finalized(CorrectionItem $item)
@@ -118,30 +107,33 @@ class CorrectionItemColumnMap extends ColumnMappingArray
             "pdf_version" => $item->getEssay()?->hasPdfVersion() ?? false,
 
             "corr_0" => $item->getCorrectorDataByPosition(0) !== null
-                ? (($item->getCorrectorDataByPosition(0)?->getListname(true) ?? $this->unknown()) . " - " . $this->task_format->correctionResult($item->getSummaryByPosition(0)))
+                ? (($item->getCorrectorDataByPosition(0)?->getListname(true) ?? $this->unknown()) . " - "
+                    . $this->task_format->correctionResult($item->getSummaryByPosition(0), false))
                 : "",
             "corr_0_name" => $item->getCorrectorDataByPosition(0)?->getListname(true),
-            "corr_0_status" => $this->gradingStatus($item->getSummaryByPosition(0)?->getGradingStatus()),
+            "corr_0_status" => $this->task_format->gradingStatus($item->getSummaryByPosition(0)?->getGradingStatus(), false),
             "corr_0_points" => $item->getSummaryByPosition(0)?->getEffectivePoints(),
             "corr_0_grade" => $item->getSummaryByPosition(0)?->isAuthorized() ?
                 $this->grading->getGradLevelForPoints($item->getSummaryByPosition(0)?->getEffectivePoints())?->getGrade() ?? "" : "",
             "corr_0_authorized" => $item->getSummaryByPosition(0)?->isAuthorized() ?? false,
 
             "corr_1" => $item->getCorrectorDataByPosition(1) !== null
-                ? (($item->getCorrectorDataByPosition(1)?->getListname(true) ?? $this->unknown()) . " - " . $this->task_format->correctionResult($item->getSummaryByPosition(1)))
+                ? (($item->getCorrectorDataByPosition(1)?->getListname(true) ?? $this->unknown()) . " - "
+                    . $this->task_format->correctionResult($item->getSummaryByPosition(1), false))
                 : "",
             "corr_1_name" => $item->getCorrectorDataByPosition(1)?->getListname(true),
-            "corr_1_status" => $this->gradingStatus($item->getSummaryByPosition(1)?->getGradingStatus()),
+            "corr_1_status" => $this->task_format->gradingStatus($item->getSummaryByPosition(1)?->getGradingStatus(), false),
             "corr_1_points" => $item->getSummaryByPosition(1)?->getEffectivePoints(),
             "corr_1_grade" => $item->getSummaryByPosition(1)?->isAuthorized() ?
                 $this->grading->getGradLevelForPoints($item->getSummaryByPosition(1)?->getEffectivePoints())?->getGrade() ?? "" : "",
             "corr_1_authorized" => $item->getSummaryByPosition(1)?->isAuthorized() ?? false,
 
             "corr_2" => $item->getCorrectorDataByPosition(2) !== null
-                ? (($item->getCorrectorDataByPosition(2)?->getListname(true) ?? $this->unknown()) . " - " . $this->task_format->correctionResult($item->getSummaryByPosition(2)))
+                ? (($item->getCorrectorDataByPosition(2)?->getListname(true) ?? $this->unknown()) . " - "
+                    . $this->task_format->correctionResult($item->getSummaryByPosition(2), false))
                 : "",
             "corr_2_name" => $item->getCorrectorDataByPosition(2)?->getListname(true),
-            "corr_2_status" => $this->gradingStatus($item->getSummaryByPosition(2)?->getGradingStatus()),
+            "corr_2_status" => $this->task_format->gradingStatus($item->getSummaryByPosition(2)?->getGradingStatus(), false),
             "corr_2_points" => $item->getSummaryByPosition(2)?->getEffectivePoints(),
             "corr_2_grade" => $item->getSummaryByPosition(2)?->isAuthorized() ?
                 $this->grading->getGradLevelForPoints($item->getSummaryByPosition(2)?->getEffectivePoints())?->getGrade() ?? "" : "",

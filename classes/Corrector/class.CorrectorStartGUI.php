@@ -114,46 +114,26 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
 
     public function getColumnMapping(CorrectorStartItem|Item $item, ?array $additional_parameters): array|\ArrayAccess
     {
-        $writing_status = fn(WritingStatus $x) => match($x) {
-            WritingStatus::NOT_STARTED => $this->plugin->txt("writing_status_not_written"),
-            WritingStatus::STARTED => $this->plugin->txt("writing_status_not_authorized"),
-            WritingStatus::EXCLUDED => $this->plugin->txt("writing_status_excluded"),
-            WritingStatus::AUTHORIZED => $this->plugin->txt("writing_status_authorized")
-        };
-
-        $correction_status = fn(CombinedStatus $x) => $this->plugin->txt($x->langVar());
-
-        $grading_status = fn(GradingStatus $x) => match($x) {
-            GradingStatus::NOT_STARTED => $this->plugin->txt('grading_not_started'),
-            GradingStatus::OPEN => $this->plugin->txt('grading_open'),
-            GradingStatus::PRE_GRADED => $this->plugin->txt('grading_pre_graded'),
-            GradingStatus::AUTHORIZED => $this->plugin->txt('grading_authorized'),
-            GradingStatus::REVISED => match($this->settings->getProcedure()) {
-                CorrectionProcedure::APPROXIMATION => $this->plugin->txt('grading_approximated'),
-                CorrectionProcedure::CONSULTING => $this->plugin->txt('grading_consulted'),
-                CorrectionProcedure::NONE => $this->plugin->txt('grading_revised'),
-            }
-        };
-
         $other_corrector = function (?UserData $user_data, ?CorrectorSummary $summary, ?CorrectorAssignment $assignment) {
             if (empty($user_data) || empty($assignment)) {
                 return $this->plugin->txt('assignment_pos_empty');
             }
-            return $this->plugin->txt($assignment->getPosition()->languageVariable()) . ": " . $user_data->getListname(false) . ' - ' . $this->format_service->correctionResult($summary, false, true);
+            return $this->plugin->txt($assignment->getPosition()->languageVariable()) . ": "
+                . $user_data->getListname(false) . ' - ' . $this->format_service->correctionResult($summary, false);
         };
 
         $grading_service = $this->grading_service;
         $assessment_format = $this->assessment_format_service;
         $essay_format = $this->format_service;
 
-        return new ColumnMappingClosure(function ($key) use ($item, $writing_status, $correction_status, $grading_service, $other_corrector, $grading_status, $assessment_format, $essay_format) {
+        return new ColumnMappingClosure(function ($key) use ($item, $grading_service, $other_corrector, $assessment_format, $essay_format) {
             return match($key) {
                 'pseudonym' => $this->ui_factory->link()->standard($item->getWriter()->getPseudonym(), $this->itemLinkTarget($item)),
                 'position' => $this->plugin->txt($item->getAssignment()->getPosition()->languageVariable()),
                 'task' => $item->getTaskTitle(),
-                'combined_status' => $correction_status($item->getCombinedStatus()),
-                'own_status' => $grading_status($item->getSummary()?->getGradingStatus() ?? GradingStatus::NOT_STARTED),
-                'own_points' => $item->getSummary()?->getPoints(),
+                'combined_status' => $this->plugin->txt($item->getCombinedStatus()->langVar()),
+                'own_status' => $this->format_service->gradingStatus($item->getSummary()?->getGradingStatus(), true),
+                'own_points' => $item->getSummary()?->getEffectivePoints(),
                 'own_grade' => $item->getSummary() ? $grading_service->getGradLevelForPoints($item->getSummary()->getPoints())?->getGrade() : null,
                 'result' => $assessment_format->finalResult($item->getWriter()),
                 'other_correction' => $other_corrector($item->getOtherCorrector(), $item->getOtherSummary(), $item->getOtherAssignment()),
@@ -245,7 +225,7 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
             $this->plugin->txt('confirm_authorize_correction'),
             $this->ctrl->getFormAction($this, 'authorizeCorrection'),
             fn(CorrectorStartItem $x) => $x->getWriter()->getPseudonym() . ': '
-                . $this->format_service->correctionResult($x->getSummary()),
+                . $this->format_service->correctionResult($x->getSummary(), true),
             fn(CorrectorStartItem $x) =>
                 $this->correction_process->canAuthorize($x->getAssignment())
                 && $x->getSummary()?->isComplete(),
@@ -262,7 +242,7 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
             $this->plugin->txt('confirm_remove_own_authorization'),
             $this->ctrl->getFormAction($this, 'removeAuthorization'),
             fn(CorrectorStartItem $x) => $x->getWriter()->getPseudonym() . ': '
-                . $this->format_service->correctionResult($x->getSummary()),
+                . $this->format_service->correctionResult($x->getSummary(), true),
             fn(CorrectorStartItem $x) => !empty($x->getSummary()?->getCorrectionAuthorized()),
             Table\Action\Type::Standard
         );
@@ -501,27 +481,20 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
     public function getFilterInputs(): array
     {
 
-        $correction_actions = [
-            GradingStatus::NOT_STARTED->value => $this->plugin->txt('grading_not_started'),
-            GradingStatus::OPEN->value => $this->plugin->txt('grading_open'),
-            GradingStatus::PRE_GRADED->value => $this->plugin->txt('grading_pre_graded'),
-            GradingStatus::AUTHORIZED->value => $this->plugin->txt('grading_authorized'),
-            GradingStatus::REVISED->value => $this->plugin->txt('grading_revised'),
-        ];
         $multiple_correctors = $this->settings->getRequiredCorrectors() > 1;
-        $position = [
-            (string) GradingPosition::FIRST->value => $this->plugin->txt('grading_pos_first'),
-            (string) GradingPosition::SECOND->value => $this->plugin->txt('grading_pos_second'),
-            (string) GradingPosition::STITCH->value => $this->plugin->txt('grading_pos_stitch'),
-        ];
-
         [$stat_value, $pos_value] = $this->assignment_service->getCorrectionFilter($this->corrector->getId());
 
         return  [
-            "status" => $this->ui_factory->input()->field()->multiSelect($this->plugin->txt('own_correction'), $correction_actions)
+            "status" => $this->ui_factory->input()->field()->multiSelect(
+                $this->plugin->txt('own_correction'),
+                $this->format_service->gradingStatusOptions()
+            )
                 ->withValue($stat_value),
             "position" => $multiple_correctors
-                ? $this->ui_factory->input()->field()->select($this->plugin->txt('own_position'), $position)
+                ? $this->ui_factory->input()->field()->select(
+                    $this->plugin->txt('own_position'),
+                    $this->format_service->gradingPositionOptions()
+                )
                     ->withValue($pos_value ?? '')
                 : null
         ];

@@ -186,13 +186,19 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
 
     public function getTableActions(): array
     {
-        return [
-            $this->downloadWrittenPdfAction(),
-            $this->downloadCorrectedPdfAction(),
-            $this->authorizeCorrectionAction(),
-            // todo: support removeAuthorizationAction
-            // $this->removeAuthorizationAction()
-        ];
+        $actions = [];
+        if ($this->settings->getDownloadWriting()) {
+            $actions[] = $this->downloadWrittenPdfAction();
+        }
+        if ($this->settings->getDownloadCorrection()) {
+            $actions[] = $this->downloadCorrectedPdfAction();
+        }
+        $actions[] = $this->authorizeCorrectionAction();
+
+        // todo: support removeAuthorizationAction
+        // $actions[] = $this->removeAuthorizationAction();
+
+        return $actions;
     }
 
     private function downloadWrittenPdfAction(): Table\Action\Direct

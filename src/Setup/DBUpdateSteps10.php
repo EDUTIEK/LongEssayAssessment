@@ -400,18 +400,13 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
         ]);
         $this->ensureTable('xlas_as_dis_groups', [
             'ass_id' => ['type' => ilDBConstants::T_INTEGER, 'notnull' => 1],
-            'name' => ['type' => ilDBConstants::T_TEXT, 'notnull' => 1],
+            'name' => ['type' => ilDBConstants::T_TEXT, 'notnull' => 1, 'length' => 50],
         ]);
     }
 
     public function step_21(): void
     {
-        $this->ensureTable('xlas_et_essay_import', [
-            'id' => ['notnull' => 1, 'type' => ilDBConstants::T_INTEGER],
-            'file_id' => ['notnull' => 1, 'type' => ilDBConstants::T_TEXT],
-            'password' => ['notnull' => 0, 'type' => ilDBConstants::T_TEXT],
-            'expected_hash' => ['notnull' => 0, 'type' => ilDBConstants::T_TEXT],
-        ]);
+        // obsolete
     }
 
     public function step_22(): void
@@ -489,7 +484,7 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
         if (!$this->db->tableColumnExists('xlas_as_orga_settings', 'forwarding_url')) {
             $this->db->addTableColumn('xlas_as_orga_settings', 'forwarding_url', [
                 'type' => ilDBConstants::T_TEXT,
-                'length' => '250',
+                'length' => 250,
                 'default' => null
             ]);
         }
@@ -505,8 +500,8 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
                 'id' => ['notnull' => 1, 'type' => ilDBConstants::T_INTEGER],
                 'task_id' => ['notnull' => 1, 'type' => ilDBConstants::T_INTEGER],
                 'corrector_id' => ['notnull' => 1, 'type' => ilDBConstants::T_INTEGER],
-                'key' => ['notnull' => 1, 'type' => ilDBConstants::T_TEXT, 'length' => '50'],
-                'purpose' => ['notnull' => 1, 'type' => ilDBConstants::T_TEXT, 'length' => '20'],
+                'key' => ['notnull' => 1, 'type' => ilDBConstants::T_TEXT, 'length' => 50],
+                'purpose' => ['notnull' => 1, 'type' => ilDBConstants::T_TEXT, 'length' => 20],
                 'text' => ['type' => ilDBConstants::T_CLOB]
             ];
             $this->db->createTable('xlas_et_corr_snippet', $fields);
@@ -565,9 +560,9 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
             $fields = [
                 'id' => ['notnull' => 1, 'type' => ilDBConstants::T_INTEGER],
                 'ass_id' => ['notnull' => 1, 'type' => ilDBConstants::T_INTEGER],
-                'purpose' => ['notnull' => 1, 'type' => ilDBConstants::T_TEXT, 'length' => '20'],
-                'component' => ['notnull' => 1, 'type' => ilDBConstants::T_TEXT, 'length' => '50'],
-                'key' => ['notnull' => 1, 'type' => ilDBConstants::T_TEXT, 'length' => '50'],
+                'purpose' => ['notnull' => 1, 'type' => ilDBConstants::T_TEXT, 'length' => 20],
+                'component' => ['notnull' => 1, 'type' => ilDBConstants::T_TEXT, 'length' => 50],
+                'key' => ['notnull' => 1, 'type' => ilDBConstants::T_TEXT, 'length' => 50],
                 'active' => ['notnull' => 1, 'type' => ilDBConstants::T_INTEGER],
                 'position' => ['notnull' => 1, 'type' => ilDBConstants::T_INTEGER],
             ];
@@ -614,7 +609,7 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
         if (!$this->db->tableColumnExists('xlas_as_pdf_settings', 'format')) {
             $this->db->addTableColumn('xlas_as_pdf_settings', 'format', [
                 'type' => ilDBConstants::T_TEXT,
-                'length' => '25',
+                'length' => 25,
                 'notnull' => true,
                 'default' => 'edutiek'
             ]);
@@ -623,7 +618,7 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
         if (!$this->db->tableColumnExists('xlas_as_pdf_settings', 'feedback_mode')) {
             $this->db->addTableColumn('xlas_as_pdf_settings', 'feedback_mode', [
                 'type' => ilDBConstants::T_TEXT,
-                'length' => '25',
+                'length' => 25,
                 'notnull' => true,
                 'default' => 'side-by-side'
             ]);
@@ -640,7 +635,7 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
         if (!$this->db->tableColumnExists('xlas_ta_corr_snippet', 'title')) {
             $this->db->addTableColumn('xlas_ta_corr_snippet', 'title', [
                 'type' => ilDBConstants::T_TEXT,
-                'length' => '50',
+                'length' => 50,
                 'default' => null
             ]);
         }
@@ -676,7 +671,7 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
         if (!$this->db->tableColumnExists('xlas_as_writer', 'correction_status')) {
             $this->db->addTableColumn('xlas_as_writer', 'correction_status', [
                 'type' => ilDBConstants::T_TEXT,
-                'length' => '25',
+                'length' => 25,
                 'notnull' => true,
                 'default' => 'open'
             ]);
@@ -717,7 +712,7 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
         if (!$this->db->tableColumnExists('xlas_as_corr_settings', 'procedure')) {
             $this->db->addTableColumn('xlas_as_corr_settings', 'procedure', [
                 'type' => ilDBConstants::T_TEXT,
-                'length' => '25',
+                'length' => 25,
                 'notnull' => true,
                 'default' => 'none'
             ]);
@@ -734,7 +729,7 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
         if (!$this->db->tableColumnExists('xlas_as_corr_settings', 'approximation')) {
             $this->db->addTableColumn('xlas_as_corr_settings', 'approximation', [
                 'type' => ilDBConstants::T_TEXT,
-                'length' => '25',
+                'length' => 25,
                 'notnull' => true,
                 'default' => 'decide'
             ]);
@@ -842,6 +837,7 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
         if (!$this->db->tableColumnExists('xlas_ta_corr_prefs', 'filter_grading_status')) {
             $this->db->addTableColumn('xlas_ta_corr_prefs', 'filter_grading_status', [
                 'type' => ilDBConstants::T_TEXT,
+                'length' => 250,
                 'notnull' => false,
             ]);
         }
@@ -926,6 +922,7 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
         if (!$this->db->tableColumnExists('xlas_ta_corr_comm', 'key')) {
             $this->db->addTableColumn('xlas_ta_corr_comm', 'key', [
                 'type' => ilDBConstants::T_TEXT,
+                'length' => 50,
                 'notnull' => false,
                 'default' => ''
             ]);
@@ -938,6 +935,7 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
         if (!$this->db->tableColumnExists('xlas_ta_corr_points', 'key')) {
             $this->db->addTableColumn('xlas_ta_corr_points', 'key', [
                 'type' => ilDBConstants::T_TEXT,
+                'length' => 50,
                 'notnull' => false,
                 'default' => ''
             ]);
@@ -1024,18 +1022,16 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
                 }
             }
 
-            if ($this->db->tableExists('xlas_temp_essay')) {
-                $this->db->dropTable('xlas_temp_essay');
-            }
-
             $this->db->createTable('xlas_temp_essay', [
                 'id' => ['notnull' => 1, 'type' => ilDBConstants::T_INTEGER],
                 'word_count' => ['notnull' => 1, 'type' => ilDBConstants::T_INTEGER]
-            ]);
+            ], true);
+            $this->db->addPrimaryKey('xlas_temp_essay', ['id']);
+
             $iqa = fn($a) => array_map(fn($b) => $this->db->quote($b, ilDBConstants::T_INTEGER), $a);
             $values = array_map(fn($k, $v) => "($k, $v)", $iqa(array_keys($counts)), $iqa($counts));
-            if ($values !== []) {
-                $this->db->manipulate("INSERT INTO xlas_temp_essay (id, word_count) VALUES (" . implode(',', $values) . ")");
+            if (!empty($values)) {
+                $this->db->manipulate("INSERT INTO xlas_temp_essay (id, word_count) VALUES " . implode(',', $values));
             }
             $this->db->manipulate("UPDATE xlas_et_essay e JOIN xlas_temp_essay t ON e.id = t.id SET e.word_count = t.word_count");
             $this->db->dropTable('xlas_temp_essay');

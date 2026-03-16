@@ -175,6 +175,17 @@ class V10Migration
      */
     private function migrateTable(string $name, array $field_info): void
     {
+        // ensure that an entry exists in xlas_task_settings for each object, even newly created ones
+        // this is important because the table is taken as a source for other ones
+        $query = "
+            INSERT INTO xlas_task_settings(task_id)
+            SELECT obj_id FROM object_data d
+            WHERE d.`type` = 'xlas' 
+            AND NOT EXISTS (SELECT task_id FROM xlas_task_settings WHERE task_id = d.obj_id); 
+        ";
+        $this->db->manipulate($query);
+
+
         $fields = array_keys($field_info);
         $quote_id = $this->db->quoteIdentifier(...);
         $quote = $this->db->quote(...);
@@ -186,7 +197,8 @@ class V10Migration
             // As there is only one new field, this is hard coded (xlas_ta_corr_assign.task_id).
             // The default value for type int(11) is used.
             if (!isset($info['src_table'])) {
-                $what[] = sprintf('%s AS %s', $quote($this->dbDefault($info['Type'] ?? 'int(11)')), $quote_id($field));
+                $what[] = sprintf('%s AS %s', $quote(
+                    $info['Default'] ?? $this->dbDefault($info['Type'] ?? 'int(11)')), $quote_id($field));
             } else {
                 $join[] = $info['src_table'];
                 $what[] = $this->sprintfId('%s.%s AS %s', $info['src_table'], $info['Field'], $field);
@@ -256,7 +268,8 @@ class V10Migration
         return [
             'xlas_writer' => ['xlas_essay' => ['id', 'writer_id']],
             'xlas_editor_settings' => ['xlas_task_settings' => ['task_id', 'task_id']],
-            'xlas_object_settings' => ['xlas_task_settings' => ['obj_id', 'task_id']]
+            'xlas_object_settings' => ['xlas_task_settings' => ['obj_id', 'task_id']],
+            'xlas_corrector_ass' => ['xlas_writer' => ['writer_id', 'id']]
         ];
     }
 
@@ -276,10 +289,10 @@ class V10Migration
             'xlas_as_writer' => [['user_id'], ['location']],
             'xlas_as_corrector' => [['user_id']],
             'xlas_ta_writer_comment' => [['task_id']],
-            'xlas_et_corr_summary' => [['essay_id'], ['essay_id', 'corrector_id']],
+            'xlas_et_corr_summary' => [['essay_id'], ['corrector_id']],
             'xlas_et_corr_comm' => [['essay_id']],
             'xlas_as_token' => [['user_id'], ['valid_until']],
-            'xlas_ta_corr_assign' => [['writer_id', 'corrector_id'], ['corrector_id', 'writer_id']],
+            'xlas_ta_corr_assign' => [['writer_id'], ['corrector_id']],
             'xlas_et_rating_crit' => [['task_id']],
             'xlas_et_writer_history' => [['essay_id'], ['hash_before'], ['hash_after']],
             'xlas_ta_resource' => [['task_id'], ['file_id']],
@@ -364,7 +377,7 @@ class V10Migration
                             'Key' => '',
                             'Default' => null,
                             'Extra' => '',
-                            'comment' => 'get/set DateTime',
+                            'comment' => '',
                             'src_table' => 'xlas_alert',
                         ),
                     'shown_until' =>
@@ -375,7 +388,7 @@ class V10Migration
                             'Key' => '',
                             'Default' => null,
                             'Extra' => '',
-                            'comment' => 'get/set DateTime',
+                            'comment' => '',
                             'src_table' => 'xlas_alert',
                         ),
                 ),
@@ -433,7 +446,7 @@ class V10Migration
                             'Key' => 'PRI',
                             'Default' => null,
                             'Extra' => '',
-                            'comment' => 'Für alle Task-Typen und Tasks des Assessments gleich',
+                            'comment' => '',
                             'src_table' => 'xlas_corr_setting',
                         ),
                     'required_correctors' =>
@@ -532,7 +545,7 @@ class V10Migration
                             'Key' => '',
                             'Default' => null,
                             'Extra' => '',
-                            'comment' => 'get/set DateTime',
+                            'comment' => '',
                             'src_table' => 'xlas_corr_setting',
                         ),
                 ),
@@ -630,7 +643,7 @@ class V10Migration
                             'Key' => 'MUL',
                             'Default' => null,
                             'Extra' => '',
-                            'comment' => 'Alle Tasks werden durch einen Teilnehmer am selben Ort geschrieben',
+                            'comment' => '',
                             'src_table' => 'xlas_location',
                         ),
                 ),
@@ -835,7 +848,7 @@ class V10Migration
                             'Key' => '',
                             'Default' => null,
                             'Extra' => '',
-                            'comment' => 'get/set DateTime',
+                            'comment' => '',
                             'src_table' => 'xlas_task_settings',
                         ),
                     'writing_end' =>
@@ -868,7 +881,7 @@ class V10Migration
                             'Key' => '',
                             'Default' => null,
                             'Extra' => '',
-                            'comment' => 'get/set DateTime',
+                            'comment' => '',
                             'src_table' => 'xlas_task_settings',
                         ),
                     'correction_end' =>
@@ -879,7 +892,7 @@ class V10Migration
                             'Key' => '',
                             'Default' => null,
                             'Extra' => '',
-                            'comment' => 'get/set DateTime',
+                            'comment' => '',
                             'src_table' => 'xlas_task_settings',
                         ),
                     'review_start' =>
@@ -890,7 +903,7 @@ class V10Migration
                             'Key' => '',
                             'Default' => null,
                             'Extra' => '',
-                            'comment' => 'get/set DateTime',
+                            'comment' => '',
                             'src_table' => 'xlas_task_settings',
                         ),
                     'review_end' =>
@@ -901,7 +914,7 @@ class V10Migration
                             'Key' => '',
                             'Default' => null,
                             'Extra' => '',
-                            'comment' => 'get/set DateTime',
+                            'comment' => '',
                             'src_table' => 'xlas_task_settings',
                         ),
                     'keep_available' =>
@@ -945,7 +958,7 @@ class V10Migration
                             'Key' => '',
                             'Default' => null,
                             'Extra' => '',
-                            'comment' => 'get/set DateTime',
+                            'comment' => '',
                             'src_table' => 'xlas_task_settings',
                         ),
                     'solution_available' =>
@@ -1086,7 +1099,7 @@ class V10Migration
                             'Key' => 'MUL',
                             'Default' => null,
                             'Extra' => '',
-                            'comment' => 'get/set DateTime',
+                            'comment' => '',
                             'src_table' => 'xlas_access_token',
                         ),
                 ),
@@ -1141,7 +1154,7 @@ class V10Migration
                             'Key' => '',
                             'Default' => null,
                             'Extra' => '',
-                            'comment' => 'get/set DateTime',
+                            'comment' => '',
                             'src_table' => 'xlas_writer',
                         ),
                     'latest_end' =>
@@ -1152,7 +1165,7 @@ class V10Migration
                             'Key' => '',
                             'Default' => null,
                             'Extra' => '',
-                            'comment' => 'get/set DateTime',
+                            'comment' => '',
                             'src_table' => 'xlas_writer',
                         ),
                     'time_limit_minutes' =>
@@ -1163,7 +1176,7 @@ class V10Migration
                             'Key' => '',
                             'Default' => null,
                             'Extra' => '',
-                            'comment' => ' ',
+                            'comment' => '',
                             'src_table' => 'xlas_writer',
                         ),
                     'working_start' =>
@@ -1174,7 +1187,7 @@ class V10Migration
                             'Key' => '',
                             'Default' => null,
                             'Extra' => '',
-                            'comment' => 'get/set DateTime',
+                            'comment' => '',
                             'src_table' => 'xlas_writer',
                         ),
                     'final_points' =>
@@ -1207,7 +1220,7 @@ class V10Migration
                             'Key' => '',
                             'Default' => null,
                             'Extra' => '',
-                            'comment' => 'get/set DateTime',
+                            'comment' => '',
                             'src_table' => 'xlas_essay',
                         ),
                     'writing_authorized_by' =>
@@ -1229,7 +1242,7 @@ class V10Migration
                             'Key' => '',
                             'Default' => null,
                             'Extra' => '',
-                            'comment' => 'get/set DateTime',
+                            'comment' => '',
                             'src_table' => 'xlas_essay',
                         ),
                     'correction_finalized_by' =>
@@ -1251,7 +1264,7 @@ class V10Migration
                             'Key' => '',
                             'Default' => null,
                             'Extra' => '',
-                            'comment' => 'get/set DateTime',
+                            'comment' => '',
                             'src_table' => 'xlas_essay',
                         ),
                     'writing_excluded_by' =>
@@ -1344,7 +1357,12 @@ class V10Migration
                     'task_id' =>
                         array(
                             'Field' => 'task_id',
-                            'comment' => 'aus task_id von writer',
+                            'Type' => 'int(11)',
+                            'Null' => 'NO',
+                            'Key' => 'MUL',
+                            'Default' => null,
+                            'Extra' => '',
+                            'src_table' => 'xlas_writer',
                         ),
                 ),
             'xlas_ta_resource' =>
@@ -1427,7 +1445,7 @@ class V10Migration
                             'Key' => 'MUL',
                             'Default' => null,
                             'Extra' => '',
-                            'comment' => 'ist eine resourcen-id aus ILIAS ',
+                            'comment' => '',
                             'src_table' => 'xlas_resource',
                         ),
                     'embedded' =>
@@ -1462,7 +1480,7 @@ class V10Migration
                             'Key' => '',
                             'Default' => null,
                             'Extra' => '',
-                            'comment' => 'Bisher gleich, jetzt mehrere Tasks pro Assessment',
+                            'comment' => '',
                             'src_table' => 'xlas_task_settings',
                         ),
                     'position' =>
@@ -1481,7 +1499,7 @@ class V10Migration
                             'Type' => 'varchar(250)',
                             'Null' => 'NO',
                             'Key' => '',
-                            'Default' => 'Teilaufgabe 1',
+                            'Default' => 'Aufgabe',
                             'Extra' => '',
                             'comment' => '',
                             'src_table' => null,
@@ -1716,7 +1734,7 @@ class V10Migration
                             'Key' => 'MUL',
                             'Default' => null,
                             'Extra' => '',
-                            'comment' => 'Falls nicht bereits umbenannt, int null default null',
+                            'comment' => '',
                             'src_table' => 'xlas_corrector_points',
                         ),
                     'criterion_id' =>
@@ -1727,7 +1745,7 @@ class V10Migration
                             'Key' => 'MUL',
                             'Default' => null,
                             'Extra' => '',
-                            'comment' => 'int null default null',
+                            'comment' => '',
                             'src_table' => 'xlas_corrector_points',
                         ),
                     'essay_id' =>
@@ -1738,7 +1756,7 @@ class V10Migration
                             'Key' => 'MUL',
                             'Default' => null,
                             'Extra' => '',
-                            'comment' => 'not null',
+                            'comment' => '',
                             'src_table' => 'xlas_corrector_points',
                         ),
                     'corrector_id' =>
@@ -1749,7 +1767,7 @@ class V10Migration
                             'Key' => 'MUL',
                             'Default' => null,
                             'Extra' => '',
-                            'comment' => 'not null',
+                            'comment' => '',
                             'src_table' => 'xlas_corrector_points',
                         ),
                     'points' =>
@@ -1760,7 +1778,7 @@ class V10Migration
                             'Key' => '',
                             'Default' => null,
                             'Extra' => '',
-                            'comment' => 'double not null',
+                            'comment' => '',
                             'src_table' => 'xlas_corrector_points',
                         ),
                 ),
@@ -1774,7 +1792,7 @@ class V10Migration
                             'Key' => 'PRI',
                             'Default' => null,
                             'Extra' => '',
-                            'comment' => 'Für alles EssayTasks des Assessments gleich',
+                            'comment' => '',
                             'src_table' => 'xlas_corr_setting',
                         ),
                     'criteria_mode' =>
@@ -1976,7 +1994,7 @@ class V10Migration
                             'Key' => '',
                             'Default' => null,
                             'Extra' => '',
-                            'comment' => 'get/set DateTime',
+                            'comment' => '',
                             'src_table' => 'xlas_corrector_summary',
                         ),
                     'correction_authorized_by' =>
@@ -1987,7 +2005,7 @@ class V10Migration
                             'Key' => '',
                             'Default' => null,
                             'Extra' => '',
-                            'comment' => 'ist eine user_id aus ILIAS (neues Datenmodell benötigt)',
+                            'comment' => '',
                             'src_table' => 'xlas_corrector_summary',
                         ),
                 ),
@@ -2001,7 +2019,7 @@ class V10Migration
                             'Key' => 'MUL',
                             'Default' => null,
                             'Extra' => '',
-                            'comment' => 'Nur für eine Task',
+                            'comment' => '',
                             'src_table' => 'xlas_corrector',
                         ),
                     'corrector_id' =>
@@ -2107,7 +2125,7 @@ class V10Migration
                             'Key' => '',
                             'Default' => null,
                             'Extra' => '',
-                            'comment' => 'klarere Bezeichnung',
+                            'comment' => '',
                             'src_table' => 'xlas_essay',
                         ),
                     'service_version' =>
@@ -2128,7 +2146,7 @@ class V10Migration
                             'Key' => '',
                             'Default' => null,
                             'Extra' => '',
-                            'comment' => 'klarere Bezeichnung',
+                            'comment' => '',
                             'src_table' => 'xlas_essay',
                         ),
                 ),
@@ -2217,7 +2235,7 @@ class V10Migration
                             'Key' => 'PRI',
                             'Default' => null,
                             'Extra' => '',
-                            'comment' => 'Neue Tabelle für den Task-Typ EssayTask',
+                            'comment' => '',
                             'src_table' => 'xlas_corr_setting',
                         ),
                     'ass_id' =>
@@ -2228,7 +2246,7 @@ class V10Migration
                             'Key' => '',
                             'Default' => null,
                             'Extra' => '',
-                            'comment' => 'Bisher gleich, jetzt mehrere Tasks pro Assessment',
+                            'comment' => '',
                             'src_table' => 'xlas_corr_setting',
                         ),
                     'max_points' =>
@@ -2239,7 +2257,7 @@ class V10Migration
                             'Key' => '',
                             'Default' => null,
                             'Extra' => '',
-                            'comment' => 'Bei der EssayTask von Hand festgelegt, bei QuestionsTask evtl. aus Fragen berechnet',
+                            'comment' => '',
                             'src_table' => 'xlas_corr_setting',
                         ),
                 ),
@@ -2458,7 +2476,7 @@ class V10Migration
                             'Key' => '',
                             'Default' => null,
                             'Extra' => '',
-                            'comment' => 'ist eine Resourcen-id aus ILIAS ',
+                            'comment' => '',
                             'src_table' => 'xlas_essay_image',
                         ),
                     'thumb_id' =>
@@ -2469,7 +2487,7 @@ class V10Migration
                             'Key' => '',
                             'Default' => null,
                             'Extra' => '',
-                            'comment' => 'ist eine Resourcen-id aus ILIAS ',
+                            'comment' => '',
                             'src_table' => 'xlas_essay_image',
                         ),
                 ),

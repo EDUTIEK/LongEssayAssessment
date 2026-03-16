@@ -1,6 +1,6 @@
 # Change Log
 
-## Version 3.7 (2026-02-27)
+## Version 3.8 (2026-02-27)
 
 Corrector Web App:
 - Change labels and headline in correction summary

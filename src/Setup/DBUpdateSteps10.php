@@ -1034,7 +1034,9 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
             ]);
             $iqa = fn($a) => array_map(fn($b) => $this->db->quote($b, ilDBConstants::T_INTEGER), $a);
             $values = array_map(fn($k, $v) => "($k, $v)", $iqa(array_keys($counts)), $iqa($counts));
-            $this->db->manipulate("INSERT INTO xlas_temp_essay (id, word_count) VALUES " . implode(',', $values));
+            if ($values !== []) {
+                $this->db->manipulate("INSERT INTO xlas_temp_essay (id, word_count) VALUES (" . implode(',', $values) . ")");
+            }
             $this->db->manipulate("UPDATE xlas_et_essay e JOIN xlas_temp_essay t ON e.id = t.id SET e.word_count = t.word_count");
             $this->db->dropTable('xlas_temp_essay');
         }

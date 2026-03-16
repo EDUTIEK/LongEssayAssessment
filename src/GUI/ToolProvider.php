@@ -89,12 +89,18 @@ class ToolProvider extends AbstractDynamicToolProvider
         }
 
         if ($this->permissions->canEditTemplates() && $additional_data->is(self::WITH_FIXATIONS, true)) {
-            $tabs[] = $this->factory
+            $t = $this->factory
                 ->tool($this->identification_provider->contextAwareIdentifier('xlas_disabled_group_tool_tab'))
                 ->withTitle($this->plugin->txt('tools_tab_template'))
                 ->withContent($this->dic->ui()->factory()->legacy($this->dic->ui()->renderer()->render(
                     $this->fixation_gui->toolsContent()
                 )));
+
+            $tabs[] = $t;
+
+            $hide_tools = json_encode([bin2hex($t->getProviderIdentification()->serialize())]);
+            $this->dic->ui()->mainTemplate()->addJavaScript('components/EDUTIEK/LongEssayAssessment/js/close-mainbar-tool.js');
+            $this->dic->ui()->mainTemplate()->addOnLoadCode("il.EDUTIEK.closeTools($hide_tools);");
         }
 
         return $tabs;

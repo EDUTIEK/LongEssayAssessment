@@ -1246,4 +1246,81 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
             ]);
         }
     }
+
+    public function step_73(): void
+    {
+        if ($this->db->tableColumnExists('xlas_as_writer', 'stitch_comment')) {
+            $done = [];
+            $correctors = [];
+
+            $query = "
+                SELECT w.id, w.ass_id, t.task_id as task_id, 
+                w.final_points, w.stitch_comment, w.correction_status_changed, w.correction_status_changed_by
+                FROM xlas_as_writer w
+                JOIN xlas_ta_settings t ON t.ass_id = w.ass_id
+                WHERE stitch_comment IS NOT NULL AND final_points IS NOT NULL
+            ";
+
+            $result = $this->db->query($query);
+
+            foreach ($this->db->fetchAll($result) as $writer) {
+                $writer_id = $writer['id'];
+                $ass_id = $writer['ass_id'];
+                $task_id = $writer['task_id'];
+                $points = $writer['final_points'];
+                $comment = $writer['stitch_comment'];
+                $changed = $writer['correction_status_changed'];
+                $changed_by = $writer['correction_status_changed_by'];
+
+                if (isset($done[$writer_id])) {
+                    continue;
+                }
+
+                $corrector_id = $correctors[$ass_id][$changed_by] ?? null;
+                if ($corrector_id === null) {
+                    $corrector_id = $this->db->nextId('xlas_as_corrector');
+                    $this->db->insert('xlas_as_corrector', [
+                        'id' => [ilDBConstants::T_INTEGER, $corrector_id],
+                        'ass_id' => [ilDBConstants::T_INTEGER, $writer['ass_id']],
+                        'user_id' => [ilDBConstants::T_INTEGER,$writer['correction_status_changed_by']],
+                    ]);
+                    $correctors[$ass_id][$changed_by] = $corrector_id;
+                }
+
+                $assignment_id = $this->db->nextId('xlas_ta_corr_assign');
+                $this->db->insert('xlas_ta_corr_assign', [
+                    'id' => [ilDBConstants::T_INTEGER, $assignment_id],
+                    'task_id' => [ilDBConstants::T_INTEGER, $task_id],
+                    'writer_id' => [ilDBConstants::T_INTEGER, $writer_id],
+                    'corrector_id' => [ilDBConstants::T_INTEGER, $corrector_id],
+                    'position' => [ilDBConstants::T_INTEGER, 2],
+                ]);
+
+                $summary_id = $this->db->nextId('xlas_ta_corr_summary');
+                $this->db->insert('xlas_ta_corr_summary', [
+                    'id' => [ilDBConstants::T_INTEGER, $summary_id],
+                    'task_id' => [ilDBConstants::T_INTEGER, $task_id],
+                    'writer_id' => [ilDBConstants::T_INTEGER, $writer_id],
+                    'corrector_id' => [ilDBConstants::T_INTEGER, $corrector_id],
+                    'points' => [ilDBConstants::T_INTEGER, $points],
+                    'summary_text' => [ilDBConstants::T_TEXT, $comment],
+                    'last_change' => [ilDBConstants::T_DATETIME, $changed],
+                    'corection_authorized' =>  [ilDBConstants::T_DATETIME, $changed],
+                    'correction_authorized_by' =>  [ilDBConstants::T_INTEGER, $changed_by],
+                ]);
+
+                $this->db->update('xlas_as_writer', [
+                    'finalized_from_status' => [ilDBConstants::T_TEXT, 'stitch'],
+                    'correction_status' => [ilDBConstants::T_TEXT, 'finalized'],
+                    'combined_status' => [ilDBConstants::T_INTEGER, 7],
+                ], [
+                   'id' =>  [ilDBConstants::T_INTEGER, $writer_id],
+                ]);
+
+                $done[$writer_id] = true;
+            }
+        }
+
+        $this->db->dropTableColumn('xlas_as_writer', 'stitch_comment');
+    }
 }

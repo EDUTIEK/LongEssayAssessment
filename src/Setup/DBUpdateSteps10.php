@@ -1247,6 +1247,9 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
         }
     }
 
+    /**
+     * Create real corrections for stitch decisions in version 3
+     */
     public function step_73(): void
     {
         if ($this->db->tableColumnExists('xlas_as_writer', 'stitch_comment')) {

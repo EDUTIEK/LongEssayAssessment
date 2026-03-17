@@ -41,7 +41,7 @@ class CorrectorRepo implements \Edutiek\AssessmentService\Assessment\Data\Correc
 
     public function hasReports(): bool
     {
-        $sql = "SELECT id FROM " . $this->repo->table() . " WHERE correction_report IS NOT NULL LIMIT 1";
+        $sql = "SELECT id FROM " . $this->repo->table() . " WHERE correction_report IS NOT NULL";
         return $this->repo->queryOne($sql) !== null;
     }
 

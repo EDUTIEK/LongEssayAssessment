@@ -52,7 +52,6 @@ class Writer extends \Edutiek\AssessmentService\Assessment\Data\Writer
     private ?int $correction_status_changed_by = null;
     private ?DateTimeImmutable $writing_excluded = null;
     private ?int $writing_excluded_by = null;
-    private ?string $stitch_comment = null;
     private ?int $location = null;
     private int $review_notification = 0;
     private ?string $finalized_from_status = null;
@@ -185,15 +184,6 @@ class Writer extends \Edutiek\AssessmentService\Assessment\Data\Writer
     public function setWritingExcludedBy(?int $writing_excluded_by): self
     {
         $this->writing_excluded_by = $writing_excluded_by;
-        return $this;
-    }
-    public function getStitchComment(): ?string
-    {
-        return $this->stitch_comment;
-    }
-    public function setStitchComment(?string $stitch_comment): self
-    {
-        $this->stitch_comment = $stitch_comment;
         return $this;
     }
     public function getLocation(): ?int

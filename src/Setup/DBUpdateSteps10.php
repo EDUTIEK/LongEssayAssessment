@@ -1326,4 +1326,18 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
 
         $this->db->dropTableColumn('xlas_as_writer', 'stitch_comment');
     }
+
+    /**
+     * Exchange width and height of rectangular marks
+     */
+    public function step_74(): void
+    {
+        $query = "
+            UPDATE xlas_ta_corr_comm 
+            SET marks = REPLACE(REPLACE(REPLACE(marks, 'width', 'temp'), 'height', 'width'), 'temp', 'height')
+            WHERE marks IS NOT NULL AND marks <> '[]'
+        ";
+
+        $this->db->manipulate($query);
+    }
 }

@@ -56,11 +56,11 @@ class CorrectorStatisticsGUI extends BaseGUI
     public function showStartPage()
     {
         $puf = $this->plugin_ui_factory;
-        $general = $this->statistic_repo->someCorrections(['ass_id' => $this->object->getAssId()], true);
-        $own = $general->fromUser($this->user_service->getCurrentUser());
+        $general = $this->statistic_repo->someCorrections(['ass_id' => $this->object->getAssId()]);
+        $own = $this->statistic_repo->someCorrections(['ass_id' => $this->object->getAssId(), "corrector_id" => $this->corrector->getId()], true);
 
         $general_statistic = $this->buildStatistic($general, false, $this->plugin->txt('corrections_all'))
-                                  ->withFinalLabel($this->plugin->txt('correction_final_pre_graded'));
+                                  ->withFinalLabel($this->plugin->txt('correction_final'));
         $own_statistic = $this->buildStatistic($own, false, $this->plugin->txt('corrections_my'))
                               ->withFinalLabel($this->plugin->txt('correction_final_pre_graded'));;
 

@@ -588,8 +588,8 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
             "assessment_end" => $cfp->nullableDate($this->plugin->txt("assessment_end"), $date_without_seconds)->withIsOptional(true, false)->withIsSortable(true),
             "assessment_duration" => $cfp->interval($this->plugin->txt("assessment_duration"), $a_interval_format)->withIsOptional(true, false)->withIsSortable(true),
             "time_limit_changed" => $cf->boolean($this->plugin->txt("time_limit_changed"), $this->lng->txt("yes"), $this->lng->txt("no"))->withIsOptional(true, false)->withIsSortable(true),
-            "authorized" => $cfp->nullableDate($this->plugin->txt("writing_autorized_at"), $date_without_seconds)->withIsOptional(true, true)->withIsSortable(true),
-            "authorized_from" => $cf->text($this->plugin->txt("writing_autorized_from"))->withIsOptional(true, false)->withIsSortable(true),
+            "authorized" => $cfp->nullableDate($this->plugin->txt("writing_authorized_at"), $date_without_seconds)->withIsOptional(true, true)->withIsSortable(true),
+            "authorized_from" => $cf->text($this->plugin->txt("writing_authorized_from"))->withIsOptional(true, false)->withIsSortable(true),
             "excluded" => $cfp->nullableDate($this->plugin->txt("writing_excluded_at"), $date_without_seconds)->withIsOptional(true, true)->withIsSortable(true),
             "excluded_from" => $cf->text($this->plugin->txt("writing_excluded_from"))->withIsOptional(true, false)->withIsSortable(true),
         ])));

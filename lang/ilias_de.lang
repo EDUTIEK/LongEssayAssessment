@@ -259,7 +259,10 @@ create_alert#:#Benachrichtigung senden
 alert_created#:#Benachrichtigung wurde gesendet.
 log_entry_created#:#Protokolleintrag wurde hinzugefügt.
 corrector_assignment_changed#:#Korrekturzuweisung wurde geändert.
-writing_excluded_from#:#ausgeschlossen von
+writing_authorized_at#:#Freigegeben am
+writing_authorized_from#:#Freigegeben von
+writing_excluded_at#:#Ausgeschlossen am
+writing_excluded_from#:#Ausgeschlossen von
 repeal_exclude_participant#:#Ausschluss aufheben
 repeal_exclude_participant_confirmation#:#Wollen Sie den Ausschluss des folgenden Teilnahme wirklich aufheben?
 missing_essay#:#Aufsatz konnte nicht gefunden werden.

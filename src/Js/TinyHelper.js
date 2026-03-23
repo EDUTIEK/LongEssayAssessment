@@ -40,7 +40,6 @@ export default class TinyHelper
             valid_styles: this.tinyValidStyles(formatting_options),
             formats: this.tinyFormats(),
             style_formats: this.tinyStyleFormats(formatting_options, headline_scheme),
-            custom_undo_redo_levels: 10,
             text_patterns: false,
             content_style: contentCss,
             browser_spellcheck: true,

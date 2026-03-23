@@ -35,6 +35,8 @@ use ILIAS\Plugin\LongEssayAssessment\Writer\WriterStatisticsGUI;
 use ILIAS\Plugin\LongEssayAssessment\Corrector\CorrectorStatisticsGUI;
 use ILIAS\Plugin\LongEssayAssessment\Corrector\CorrectorTemplateGUI;
 use ILIAS\Plugin\LongEssayAssessment\Corrector\CorrectorCriteriaGUI;
+use Edutiek\AssessmentService\Task\Api\ForClients as TaskApi;
+use Edutiek\AssessmentService\Task\Data\CriteriaMode as CriteriaMode;
 
 /**
  * Plugin GUI Class
@@ -49,6 +51,7 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
     public const CMD_JUMP_TO_ORGA_SETTINGS = 'jumpToOrgaSettings';
     public const CMD_STANDARD = 'standardCommand';
 
+
     /** @var ilObjLongEssayAssessment */
     protected ?ilObject $object = null;
 
@@ -58,6 +61,7 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
     private ilHelpGUI $help;
     private Permissions\ReadService $permissions;
     private Assessment $assessment;
+    private TaskApi $task_api;
     private ArrayBasedRequestWrapper $query;
 
     /**
@@ -136,6 +140,7 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
 
         if (isset($this->object)) {
             $this->assessment = $this->plugin->dic()->assessment($this->object->getAssId(), $DIC->user()->getId());
+            $this->task_api = $this->plugin->dic()->task($this->object->getAssId(), $this->user->getId());
             $this->permissions = $this->assessment->permissions($this->object->getContextId());
             $this->query = $DIC->http()->wrapper()->query();
 
@@ -524,6 +529,7 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
     public function setTabs(): void
     {
         $this->help->setScreenIdComponent($this->getPlugin()->getId());
+        $correction_settings = $this->task_api->correctionSettings()->get();
 
         $this->subtabs = [];
 
@@ -611,11 +617,13 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                 'url' => $this->ctrl->getLinkTargetByClass(strtolower(CorrectorTemplateGUI::class))
             ];
 
-            $tabs[] = [
-                'id' => 'tab_corrector_criteria',
-                'txt' => $this->plugin->txt('tab_criteria'),
-                'url' => $this->ctrl->getLinkTargetByClass(strtolower(CorrectorCriteriaGUI::class))
-            ];
+            if ($correction_settings->getCriteriaMode() !== CriteriaMode::NONE) {
+                $tabs[] = [
+                    'id' => 'tab_corrector_criteria',
+                    'txt' => $this->plugin->txt('tab_criteria'),
+                    'url' => $this->ctrl->getLinkTargetByClass(strtolower(CorrectorCriteriaGUI::class))
+                ];
+            }
 
             if ($this->permissions->canViewCorrectionStatistics()) {
                 $tabs[] = [

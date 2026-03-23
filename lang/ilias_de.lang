@@ -12,25 +12,27 @@ obj_xlas_duplicate#:#Kopieren
 objs_xlas_duplicate#:#Kopiere Langtext-Aufgabe
 obj_xlas_select#:#Wähle Langtext-Aufgabe
 xlas_add#:#Langtext-Aufgabe hinzufügen
-xlas_copy#:#Langtext-Aufgabe kopieren
+xlas_copy#:#Kopieren: Langtext-Aufgabe kopieren
 xlas_new#:#Neue Langtext-Aufgabe
-xlas_read#:#Lesezugriff auf Langtext-Aufgabe
-xlas_write#:#Langtext-Aufgabe bearbeiten
-xlas_delete#:#Langtext-Aufgabe löschen
-xlas_visible#:#Langtext-Aufgabe ist sichtbar
-xlas_edit_permission#:#Zugriffsrecht bearbeiten
-xlas_maintain_task#:#Aufgabenstellung verwalten
-xlas_maintain_writers#:#Durchführung verwalten
-xlas_maintain_correctors#:#Korrektur verwalten
-proctor_writer#:#Durchführung beaufsichtigen
-crs_create_xlas#:#Erstelle Langtext-Aufgabe
-grp_create_xlas#:#Erstelle Langtext-Aufgabe
-fold_create_xlas#:#Erstelle Langtext-Aufgabe
-root_create_xlas#:#Erstelle Langtext-Aufgabe
-cat_create_xlas#:#Erstelle Langtext-Aufgabe
+xlas_read#:#Lesezugriff: Langtext-Aufgabe öffnen (abhängig von eigener Funktion)
+xlas_write#:#Einstellungen bearbeiten: Organisation, Technik, Korrektur, Dokumentation; Exportdateien erzeugen
+xlas_delete#:#Löschen: Langtext-Aufgabe löschen
+xlas_visible#:#Anzeigen: Langtext-Aufgabe ist sichtbar
+xlas_edit_permission#:#Rechteeinstellungen ändern: Zugriffsrechte bearbeiten
+xlas_maintain_task#:#Aufgabenstellung verwalten: Aufgabentext, Lösungshinweise, Hilfsmittel, Bewertungskriterien, Notenstufen
+xlas_maintain_writers#:#Teilnahmen verwalten: Teilnehmer hinzufügen, sperren, entfernen, Bearbeitungszeit anpassen, Freigaben vornehmen/zurückziehen
+xlas_maintain_correctors#:#Korrekturen verwalten: Korrektoren hizufügen, entfenen, zuweisen, Korrekturen einsehen, Freigaben zurückziehen
+xlas_proctor_writer#:#Durchführung beaufsichtigen: Protokolleinträge erzeugen, Benachrichtigungen an Teilnehmer senden
+xlas_edit_templates#:#Vorlage bearbeiten: Aufgabe als Vorlage markieren, Einstellungen festlegen und ausblenden
+crs_create_xlas#:#Langtext-Aufgabe anlegen
+grp_create_xlas#:#Langtext-Aufgabe anlegen
+fold_create_xlas#:#Langtext-Aufgabe anlegen
+root_create_xlas#:#Langtext-Aufgabe anlegen
+cat_create_xlas#:#Langtext-Aufgabe anlegen
 maintain_task#:#Aufgabenstellung verwalten
-maintain_writers#:#Durchführung verwalten
-maintain_correctors#:#Korrektur verwalten
+maintain_writers#:#Teilnahmen verwalten
+maintain_correctors#:#Korrekturen verwalten
+proctor_writer#:#Durchführung beaufsichtigen
 edit_templates#:#Vorlage bearbeiten
 title#:#Titel
 description#:#Beschreibung
@@ -891,7 +893,7 @@ result_export_format#:#Format Ergebnisdatei
 result_export_format_info#:#In diesem Format wird die Ergebnisdatei ins Dokumentations-Archiv geschrieben.
 result_export_format_edutiek#:#EDUTIEK
 result_export_format_examis#:#ExamIS
-result_export_format_justa#:#Justa
+result_export_format_justa#:#JUSTA
 docu_settings#:#Einstellungen zur Ausgabe
 corrected_pdf_config#:#Aufbau Korrektur-Datei
 export_type_results#:#Ergebnisse

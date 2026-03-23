@@ -73,8 +73,8 @@ class CollectionGUI
         $this->plugin_dic = PluginDIC::getInstance($this->dic, $this->plugin);
         $this->collection_node = $this->tree->getNodeData($this->object->getRefId());
         $this->assessment_nodes = $this->tree->getSubTree($this->collection_node, true, ['xlas']);
-        array_filter($this->assessment_nodes, fn ($x) => $this->access->checkAccess('read', '', $x['ref_id']));
-        $this->plugin_objects = array_map(fn ($x) => new \ilObjLongEssayAssessment($x['ref_id']), $this->assessment_nodes);
+        $this->assessment_nodes = array_filter($this->assessment_nodes, fn($x) => $this->access->checkAccess('maintain_correctors', '', $x['ref_id']));
+        $this->plugin_objects = array_map(fn($x) => new \ilObjLongEssayAssessment($x['ref_id']), $this->assessment_nodes);
     }
 
     private function prepareOutput()
@@ -158,10 +158,17 @@ class CollectionGUI
 
     private function correctionStatus()
     {
-        $ass_ids = array_map(fn (array $node) => $node['obj_id'], array_filter(
+        $ass_ids = array_map(fn(array $node) => $node['obj_id'], array_filter(
             $this->assessment_nodes,
-            fn (array $node) => $this->plugin_dic->assessment($node['obj_id'], $this->user->getId())->permissions($node['ref_id'])->canMaintainCorrectors()
+            fn(array $node) => $this->plugin_dic->assessment($node['obj_id'], $this->user->getId())->permissions($node['ref_id'])->canMaintainCorrectors()
         ));
+
+        // todo: improve handling of empty assessment list
+        // quick fix: provide a pseudo id if no assessments should be shown
+        // an empty array would result in a complete list of all assessments
+        if (empty($ass_ids)) {
+            $ass_ids = [0];
+        }
 
         $multi = $this->corrections_view->hasMultiTasks($ass_ids);
         $corrections = $this->corrections_view->visibleCorrectors($ass_ids);
@@ -179,7 +186,7 @@ class CollectionGUI
                     ["image", "name", "login", "pseudonym", "location", "status", "assessment"],
                     $multi ? ["task"] : [],
                     ["writing_last_save", "word_count", "pdf_version", "result", "points", "grade", "finalized", "finalized_date", "finalized_name", "finalized_from_status"],
-                    ...array_map(fn ($p) => ["corr_{$p}", "corr_{$p}_name", "corr_{$p}_status", "corr_{$p}_points", $multi ? "corr_{$p}_grade" : null, "corr_{$p}_authorized"], range(0, $corrections - 1))
+                    ...array_map(fn($p) => ["corr_{$p}", "corr_{$p}_name", "corr_{$p}_status", "corr_{$p}_points", $multi ? "corr_{$p}_grade" : null, "corr_{$p}_authorized"], range(0, $corrections - 1))
                 )
             )->setInitialVisibleColumns(["name", "login", "pseudonym", "location", "assessment", "task", "status", "writing_last_save", "word_count", "corr_1", "corr_2", "result"])
         ->setTableActions([$this->plugin_dic->uiFactory()->table()->action()->export('export', $this->lng->txt('export'), 'xlas_corrections_export.xlsx')]);
@@ -192,7 +199,7 @@ class CollectionGUI
 
     private function statistic()
     {
-        $ass_ids = array_map(fn (array $node) => $node['obj_id'], array_filter(
+        $ass_ids = array_map(fn(array $node) => $node['obj_id'], array_filter(
             $this->assessment_nodes,
             function (array $node) {
                 $permission = $this->plugin_dic->assessment($node['obj_id'], $this->user->getId())->permissions($node['ref_id']);
@@ -269,7 +276,7 @@ class CollectionGUI
         $func = "can" . $perm;
         return array_filter(
             $this->plugin_objects,
-            fn ($obj) => $this->plugin_dic->assessment($obj->getAssId(), $this->user->getId())->permissions($obj->getContextId())->$func()
+            fn($obj) => $this->plugin_dic->assessment($obj->getAssId(), $this->user->getId())->permissions($obj->getContextId())->$func()
         );
     }
 

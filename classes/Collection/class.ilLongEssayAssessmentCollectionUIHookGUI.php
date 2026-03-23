@@ -35,22 +35,21 @@ class ilLongEssayAssessmentCollectionUIHookGUI extends ilUIHookPluginGUI
     }
 
 
-    function modifyGUI($a_comp, $a_part, $a_par = array()): void
+    public function modifyGUI($a_comp, $a_part, $a_par = array()): void
     {
-        if ($a_part == "tabs")
-        {
-            if(in_array($this->context_type, ['crs', 'grp'])) {
+        if ($a_part == "tabs") {
+            if (in_array($this->context_type, ['crs', 'grp'])) {
 
                 $ref_id = $this->query->has('ref_id')
                     ? $this->query->retrieve('ref_id', $this->refinery->kindlyTo()->int())
                     : null;
-                if($ref_id !== null){
+                if ($ref_id !== null) {
                     $data = $this->tree->getNodeData($ref_id);
                     $xlas_childs = $this->tree->getSubTree($data, false, ['xlas']);
 
-                    array_filter($xlas_childs, fn($x) => $this->access->checkAccess('read', '', $x));
+                    $xlas_childs = array_filter($xlas_childs, fn($x) => $this->access->checkAccess('maintain_correctors', '', $x));
 
-                    if( count($xlas_childs) > 1 ) {
+                    if (count($xlas_childs) > 1) {
                         /**
                          * @var ilTabsGUI $tabs;
                          */
@@ -63,14 +62,15 @@ class ilLongEssayAssessmentCollectionUIHookGUI extends ilUIHookPluginGUI
                         );
                         $last = array_pop($tabs->target);
 
-                        array_splice($tabs->target, 1, 0 , [$last]);
+                        array_splice($tabs->target, 1, 0, [$last]);
                         $this->saveTabs("Course");
                     }
                 }
             }
-            if($this->query->has("cmdClass") && in_array($this->query->retrieve("cmdClass", $this->refinery->kindlyTo()->string()),
-                    array_map(fn($class) => str_replace('\\', '', $class), [CollectionGUI::class, CollectionCorrectorAdminStatisticsGUI::class, CollectionWriterAdminStatisticsGUI::class, CollectionWriterStatisticsGUI::class])))
-            {
+            if ($this->query->has("cmdClass") && in_array(
+                $this->query->retrieve("cmdClass", $this->refinery->kindlyTo()->string()),
+                array_map(fn($class) => str_replace('\\', '', $class), [CollectionGUI::class, CollectionCorrectorAdminStatisticsGUI::class, CollectionWriterAdminStatisticsGUI::class, CollectionWriterStatisticsGUI::class])
+            )) {
                 $this->lng->loadLanguageModule("crs");
                 $this->restoreTabs("Course");
                 $this->tabs->activateTab("edutiek");
@@ -82,7 +82,7 @@ class ilLongEssayAssessmentCollectionUIHookGUI extends ilUIHookPluginGUI
      * Save the tabs for reuse on the plugin pages
      * @param string $a_context context for which the tabs should be saved
      */
-    protected function saveTabs(string $a_context) : void
+    protected function saveTabs(string $a_context): void
     {
         $this->setArrayInSession($a_context, 'TabTarget', $this->tabs->target);
         $this->setArrayInSession($a_context, 'TabSubTarget', $this->tabs->sub_target);
@@ -92,7 +92,7 @@ class ilLongEssayAssessmentCollectionUIHookGUI extends ilUIHookPluginGUI
      * Restore the tabs for reuse on the plugin pages
      * @param string $a_context context for which the tabs should be saved
      */
-    protected function restoreTabs(string $a_context) : void
+    protected function restoreTabs(string $a_context): void
     {
         // reuse the tabs that were saved from the parent gui
         if (!empty($target = $this->getArrayFromSession($a_context, 'TabTarget'))) {
@@ -103,17 +103,16 @@ class ilLongEssayAssessmentCollectionUIHookGUI extends ilUIHookPluginGUI
         }
     }
 
-    protected function setArrayInSession(string $a_context, string $name, array $array) : void
+    protected function setArrayInSession(string $a_context, string $name, array $array): void
     {
         ilSession::set(__class__ . '.' . $a_context . '.' . $name, serialize($array));
     }
 
-    protected function getArrayFromSession(string $a_context, string $name) : ?array
+    protected function getArrayFromSession(string $a_context, string $name): ?array
     {
         try {
             return unserialize(ilSession::get(__class__ . '.' . $a_context . '.' . $name));
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             return null;
         }
     }

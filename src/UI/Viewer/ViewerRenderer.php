@@ -24,12 +24,18 @@ use ILIAS\UI\Implementation\Render\AbstractComponentRenderer;
 use ILIAS\UI\Renderer;
 use ILIAS\UI\Component\Component;
 use LogicException;
+use ILIAS\UI\Implementation\Render\ResourceRegistry;
 
 class ViewerRenderer extends AbstractComponentRenderer
 {
     protected function getComponentInterfaceName(): array
     {
         return [PdfViewer::class, AudioPlayer::class, VideoPlayer::class, ImageViewer::class, ComponentSwitch::class];
+    }
+
+    public function registerResources(ResourceRegistry $registry): void
+    {
+        $registry->register('components/EDUTIEK/LongEssayAssessment/js/xlas.min1.js');
     }
 
     public function render(Component $component, Renderer $default_renderer): string

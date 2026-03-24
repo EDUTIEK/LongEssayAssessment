@@ -306,7 +306,7 @@ class InputRenderer extends \ILIAS\UI\Implementation\Component\Input\Field\Rende
         // $this->tpl->addJavaScript('Customizing/global/plugins/Services/Repository/RepositoryObject/LongEssayAssessment/resources/js/xlas.js');
 
         // production:
-        $this->tpl->addJavaScript('components/EDUTIEK/LongEssayAssessment/js/xlas.min.js');
+        $this->tpl->addJavaScript('components/EDUTIEK/LongEssayAssessment/js/xlas.min1.js');
 
         $component = $component->withAdditionalOnLoadCode(
             function ($id) use ($component, $form_id) {

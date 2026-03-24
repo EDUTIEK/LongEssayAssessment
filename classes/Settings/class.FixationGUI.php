@@ -119,7 +119,7 @@ class FixationGUI
         //        $main_tpl->addJavaScript('Customizing/global/plugins/Services/Repository/RepositoryObject/LongEssayAssessment/resources/js/xlas.js');
 
         // production:
-        $main_tpl->addJavaScript('components/EDUTIEK/LongEssayAssessment/js/xlas.min.js');
+        $main_tpl->addJavaScript('components/EDUTIEK/LongEssayAssessment/js/xlas.min1.js');
 
         $this->plugin = ilLongEssayAssessmentPlugin::getInstance();
 

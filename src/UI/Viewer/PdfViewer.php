@@ -20,13 +20,22 @@ declare(strict_types=1);
 
 namespace ILIAS\Plugin\LongEssayAssessment\UI\Viewer;
 
+use ILIAS\UI\Implementation\Component\JavaScriptBindable;
+
 /**
  * Implementation of the viewer for PDF files
  */
-class PdfViewer extends Media
+class PdfViewer extends Media implements \ILIAS\UI\Component\JavaScriptBindable
 {
+    use JavaScriptBindable;
+
     public static function supportedMimeTypes(): array
     {
         return ['application/pdf'];
+    }
+
+    public function getCanonicalName(): string
+    {
+        return "PDF viewer";
     }
 }

@@ -46,7 +46,19 @@ class ViewerRenderer extends AbstractComponentRenderer
 
     public function renderPdfViewer(PdfViewer $component, Renderer $default_renderer): string
     {
+        $url = $component->getUrl();
+        if (empty(parse_url($url, PHP_URL_HOST))) {
+            $url = ILIAS_HTTP_PATH . '/' . ltrim($url, '/');
+        }
+
+        $component = $component->withOnLoadCode(function ($id) use ($url) {
+            return "il.Xlas.PdfViewer.init('$id', '$url');";
+        });
+
+        $id = $this->bindJavaScript($component);
+
         $tpl = $this->getTemplate("tpl.pdf_viewer.html", true, true);
+        $tpl->setVariable('ID', $id);
         $tpl->setVariable('URL', $component->getUrl());
         if ($component->getCaption() !== null) {
             $tpl->setVariable('CAPTION', $component->getCaption());

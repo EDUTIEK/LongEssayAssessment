@@ -38,6 +38,142 @@
         }
     }
 
+    /**
+     * Available events are: events: create, update, delete, select, pageChanged.
+     * The data is in event.detail.
+     *
+     * @typedef {{
+     *     id: {string},
+     *     page: {number},
+     *     intern: {Object},
+     *     text: {string},
+     * }} Annotation
+     *
+     * @param {string} parent   id of the parent element to add the iframe
+     * @param {string} viewer   url of the viewer html (source of iframe, without parameter)
+     * @param {string} pdf      url of the pdf file to load
+     * @param {{viewOnly: bool}} options init pdfjs in view only or not.
+     *
+     * @return {{
+     *   on: {function(string, function(CustomEvent)): void},
+     *   off: {function(string, function(CustomEvent)): void},
+     *   getAll: {Promise<CustomEvent>},
+     *   get: {function(string): Promise<Annotation>},
+     *   update: {function(string): Promise},
+     *   setAll: {function(Annotation[]): Promise},
+     *   add: {function(Annotation): Promise},
+     *   delete: {function(string): Promise},
+     *   selected: {function(): Promise<Annotation|null>},
+     *   select: {function(string): Promise},
+     *   currentPage: {function(): Promise<number>},
+     *   destroy: {function(): void},
+     *   rebuild: {function(): void},
+     *   setViewOnly: {function(bool): Promise},
+     * }}
+     */
+    var createPDFJsApi = (parent, viewer, pdf, options = {}) => {
+        let currentRequest = Promise.resolve();
+        const t = new EventTarget();
+        const dispatch = (name, detail = null) => t.dispatchEvent(new CustomEvent(name, {detail}));
+        const nextId = ((i = 0) => () => ++i)();
+        const pending = {};
+        const frame = document.createElement('iframe');
+        const ready = (function(){
+            const ret = {};
+            ret.promise = new Promise(function(resolve, reject){
+                ret.resolve = resolve;
+                ret.reject = reject;
+            });
+            return ret;
+        })();
+        const iframeParams = new URLSearchParams({file: pdf});
+        if (options.viewOnly) {
+            iframeParams.set('viewOnly', 'yes');
+        }
+        frame.src = viewer + '?' + iframeParams;
+        frame.style.width = '100%';
+        frame.style.height = '100%';
+        parent.appendChild(frame);
+
+        window.addEventListener('message', dispatchOrRespond);
+
+        return {
+            on: t.addEventListener.bind(t),
+            off: t.removeEventListener.bind(t),
+            getAll: () => requestUnsafe('getAll'),
+            get: id => requestUnsafe('get', id),
+            update: entry => request('update', entry),
+            setAll: newOnes => request('setAll', newOnes),
+            add: newOne => request('add', newOne),
+            'delete': id => request('delete', id),
+            selected: () => requestUnsafe('selected'),
+            select: id => requestUnsafe('select', id),
+            currentPage: () => requestUnsafe('currentPage'),
+            destroy: () => {
+                window.removeEventListener('message', dispatchOrRespond);
+                iframe.remove();
+            },
+            rebuild: () => {
+                window.addEventListener('message', dispatchOrRespond);
+                parent.appendChild(frame);
+            },
+            setViewOnly: viewOnly => request('viewOnly', viewOnly),
+        };
+
+        function request(name, ...args)
+        {
+            return currentRequest = currentRequest.then(() => requestUnsafe(name, ...args));
+        }
+
+        function requestUnsafe(name, ...args)
+        {
+            return new Promise(ret => {
+                const id = nextId();
+                pending[id] = ret;
+                return ready.promise.then(() => frame.contentWindow.postMessage({id, name, args}));
+            });
+        }
+
+        function respond(response)
+        {
+            if(!pending[response.id]){
+                return;
+            }
+            const ret = pending[response.id];
+            delete pending[response.id];
+            ret(response.value);
+        }
+
+        function dispatchOrRespond(event)
+        {
+            if(event.source !== frame.contentWindow){
+                return;
+            }
+
+            if(event.data.emit){
+                if(event.data.emit.name === 'ready'){
+                    ready.resolve();
+                }
+                dispatch(event.data.emit.name, event.data.emit.detail);
+                return;
+            }
+
+            if(event.data.response){
+                respond(event.data.response);
+                return;
+            }
+        }
+    };
+
+    class PdfViewer
+    {
+      init(id, url) {
+        const element = document.getElementById(id);
+        console.log(url);
+        createPDFJsApi(element, 'components/EDUTIEK/LongEssayAssessment/annotate-pdf/pdfjs-dist/web/viewer.html', url, {viewOnly: true});
+      }
+    }
+
     var contentCss = "/**\n * Style of written contents\n *\n * This file should be identical in the ILIAS plugin, the assessment service and all web apps\n *\n * All styles are defined for a common top element with the class 'xlas-content'\n * The top element can be either the <body> in TinyMCE or a surrounding <div> for content display\n *\n * Font size is set in rem for the top element and in em for sub elements\n *\n * The top element can have an additional class for the used headline scheme:\n * - 'headlines-single' has the same size and no prefix for all headlines\n * - 'headlines-three' has three different sizes for h1, h2 and h3 and no prefix for all headlines\n * - 'headlines-numeric' has the same size a prefix like '1.1.1.1.1.1' for all headlines\n * - 'headlines-edutiek' has the same size and a prefix line 'A.', 'I.', '1.', 'a.', 'aa.', '(1)' for the headlines\n */\n\n.xlas-content {\n    font-family: serif;\n    font-size: 1rem;\n    line-height: 150%;\n    text-align: justify;\n}\n\n.xlas-content p,\n.xlas-content pre {\n    margin-top: 0;\n    margin-bottom: 10px;\n    min-height: 1.5em;\n    text-align: justify;\n}\n\n.xlas-content pre {\n    max-width: 80em;                /* dompdf needs a fixed value */\n    white-space: pre-wrap;          /* keep line breaks and break if needed */\n    word-wrap: break-word;          /* legacy setting (older browsers) */\n    overflow-wrap: break-word;      /* modern variant of word-wrap */\n}\n\n.xlas-content ol,\n.xlas-content ul {\n    margin: 0;\n    padding: 0;\n    margin-bottom: 10px;\n}\n\n.xlas-content li {\n    margin: 0;\n    margin-left: 40px;\n    min-height: 1.5em;\n}\n\n.xlas-content li + li {\n    margin-top: 10px;\n}\n\n.xlas-content li > ol,\n.xlas-content li > ul {\n    margin-top: 10px;\n    margin-bottom: 0;\n}\n\n.xlas-content table {\n    border-collapse: collapse;\n    border: 1px solid gray;\n    width: 100%;\n    table-layout: fixed;\n    margin-bottom: 10px;\n}\n\n.xlas-content tr {\n    vertical-align: top;\n}\n\n.xlas-content td,\n.xlas-content th {\n    border: 1px solid gray;\n    min-width: 1em;\n    min-height: 1em;\n    padding: 5px;\n}\n\n.xlas-content td[data-mce-selected=\"1\"],\n.xlas-content th[data-mce-selected=\"1\"] {\n    border: 2px solid blue;\n}\n\n/**\n * Page break in printing\n */\n.xlas-content hr {\n    page-break-before: always;\n    height: 0;\n    width: 0;\n    border: 0;\n    margin: 0;\n}\n\n/**\n * Page break in tiny\n */\n.xlas-content .mce-pagebreak {\n    width: calc(100% + 40px);\n    height: 1px;\n    height: 20px;\n    background-color: #eeeeee;\n    border-top: 1px solid #ccc;\n    margin-left: -20px;\n}\n\n/**\n * Headlines in general\n */\n\n.xlas-content {\n    counter-reset: xlas-h1 xlas-h2 xlas-h3 xlas-h4 xlas-h5 xlas-h6;\n}\n\n.xlas-content h1,\n.xlas-content h2,\n.xlas-content h3,\n.xlas-content h4,\n.xlas-content h5,\n.xlas-content h6 {\n    font-family: serif;\n    font-size: 1em;\n    font-weight: bold;\n    padding: 0;\n    margin-top: 0;\n    margin-bottom: 10px;\n    min-height: 1.5em;\n}\n\n.xlas-content h1 {\n    counter-increment: xlas-h1;\n    counter-reset: xlas-h2 xlas-h3 xlas-h4 xlas-h5 xlas-h6;\n}\n\n.xlas-content h2 {\n    counter-increment: xlas-h2;\n    counter-reset: xlas-h3 xlas-h4 xlas-h5 xlas-h6;\n}\n\n.xlas-content h3 {\n    counter-increment: xlas-h3;\n    counter-reset: xlas-h4 xlas-h5 xlas-h6;\n}\n\n.xlas-content h4 {\n    counter-increment: xlas-h4;\n    counter-reset: xlas-h5 xlas-h6;\n}\n\n.xlas-content h5 {\n    counter-increment: xlas-h5;\n    counter-reset: xlas-h6;\n}\n\n.xlas-content h6 {\n    counter-increment: xlas-h6;\n}\n\n/**\n * Three level headline style\n */\n\n.xlas-content.headlines-three h1 {\n    font-size: 1.3em !important;\n}\n\n.xlas-content.headlines-three h2 {\n    font-size: 1.15em !important;\n}\n\n.xlas-content.headlines-three h3 {\n    font-size: 1.0em !important;\n}\n\n/**\n * Numeric headline style\n */\n\n.xlas-content.headlines-numeric h1::before {\n    content: counter(xlas-h1, decimal) \" \";\n}\n\n.xlas-content.headlines-numeric h2::before {\n    content: counter(xlas-h1, decimal) \".\" counter(xlas-h2, decimal) \" \";\n}\n\n.xlas-content.headlines-numeric h3::before {\n    content: counter(xlas-h1, decimal) \".\" counter(xlas-h2, decimal) \".\" counter(xlas-h3, decimal) \" \";\n}\n\n.xlas-content.headlines-numeric h4::before {\n    content: counter(xlas-h1, decimal) \".\" counter(xlas-h2, decimal) \".\" counter(xlas-h3, decimal) \".\" counter(xlas-h4, decimal) \" \";\n}\n\n.xlas-content.headlines-numeric h5::before {\n    content: counter(xlas-h1, decimal) \".\" counter(xlas-h2, decimal) \".\" counter(xlas-h3, decimal) \".\" counter(xlas-h4, decimal) \".\" counter(xlas-h5, decimal) \" \";\n}\n\n.xlas-content.headlines-numeric h6::before {\n    content: counter(xlas-h1, decimal) \".\" counter(xlas-h2, decimal) \".\" counter(xlas-h3, decimal) \".\" counter(xlas-h4, decimal) \".\" counter(xlas-h5, decimal) \".\" counter(xlas-h6, decimal) \" \";\n}\n\n/**\n * Edutiek headline style\n */\n\n.xlas-content.headlines-edutiek h1::before {\n    content: counter(xlas-h1, upper-latin) \". \";\n}\n\n.xlas-content.headlines-edutiek h2::before {\n    content: counter(xlas-h2, upper-roman) \". \";\n}\n\n.xlas-content.headlines-edutiek h3::before {\n    content: counter(xlas-h3, decimal) \". \";\n}\n\n.xlas-content.headlines-edutiek h4::before {\n    content: counter(xlas-h4, lower-latin) \". \";\n}\n\n.xlas-content.headlines-edutiek h5::before {\n    content: counter(xlas-h5, lower-latin) counter(xlas-h5, lower-latin) \". \";\n}\n\n.xlas-content.headlines-edutiek h6::before {\n    content: \"(\" counter(xlas-h6, decimal) \") \";\n}\n";
 
     var tinyTexts = {
@@ -741,6 +877,7 @@
 
     il.Xlas = il.Xlas || {};
     il.Xlas.Fixation = il.Xlas.Fixation || new Fixation();
+    il.Xlas.PdfViewer = il.Xlas.PdfViewer || new PdfViewer();
     il.Xlas.TinyHelper = il.Xlas.TinyHelper || new TinyHelper();
 
 })(il);

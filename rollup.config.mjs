@@ -1,10 +1,12 @@
 /**
- * Rollup configuration for building the plugin asset
+ * Rollup configuration for building the plugin assets
+ *
  * USAGE: npx rollup --config rollup.config.mjs
  */
 
-import css from "./node_modules/rollup-plugin-import-css/dist/index.js";
-import terser from './node_modules/@rollup/plugin-terser/dist/es/index.js';
+import css from "rollup-plugin-import-css";
+import terser from '@rollup/plugin-terser';
+import copy from 'rollup-plugin-copy';
 
 export default {
   external: ['ilias'],
@@ -26,7 +28,14 @@ export default {
         plugins: [terser({})],
       }
   ],
-  plugins: [css()],
+  plugins: [
+    css(),
+    copy({
+      targets: [
+        {src: 'node_modules/annotate-pdf', dest: 'resources'}
+      ]
+    })
+  ],
   treeshake: false
 };
 

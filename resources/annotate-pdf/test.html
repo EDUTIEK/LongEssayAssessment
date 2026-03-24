@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+    <body style="margin: 0">
+        <div style="width: 99%; height: 99vh;" id="root"></div>
+        <script src="pdfjs-api.js" type="module"></script>
+        <script type="module">
+            import createPDFJsApi from './pdfjs-api.js';
+            window.pdfjs = createPDFJsApi(root,
+                './pdfjs-dist/web/viewer.html',
+                'http://localhost:4300/pdfjs-dist/web/compressed.tracemonkey-pldi-09.pdf');
+            ['create', 'update', 'delete', 'select'].forEach(event => pdfjs.on(event, save));
+
+            window.state = JSON.parse(localStorage.getItem('saved') || '{"all": [], "selected": null}');
+            window.init = state;
+            console.log(init);
+            pdfjs.setAll(init.all).then(() => init.selected && pdfjs.select(init.selected));
+
+            function save(event)
+            {
+                console.log(event.type, event.detail);
+
+                Promise.all([
+                    pdfjs.getAll(),
+                    pdfjs.selected(),
+                ]).then(([all, sel]) => {
+                    window.state = {all, selected: sel ? sel.id : null};
+                    localStorage.setItem('saved', JSON.stringify(state));
+                });
+            }
+        </script>
+    </body>
+</html>

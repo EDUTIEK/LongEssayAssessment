@@ -1,0 +1,4 @@
+#editorFreeText, #editorInk, #editorStamp, #printButton, #downloadButton, #presentationMode, #editorHighlightThickness, #editorHighlightVisibility, #secondaryOpenFile, #secondaryOpenFile + .visibleMediumView + .horizontalToolbarSeparator, #viewBookmark, #viewBookmarkSeparator, .annotate-pdf-hide
+{
+    display: none!important;
+}

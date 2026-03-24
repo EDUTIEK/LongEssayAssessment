@@ -7,7 +7,7 @@ use ILIAS\Setup\Environment;
 
 class ResourcesCopiedObjective implements Setup\Objective
 {
-    public const ILIAS_ROOT = __DIR__ . "/../../../../../../../../../..";
+    private const ILIAS_ROOT = __DIR__ . "/../../../../../../../../../..";
 
     public function getHash(): string
     {
@@ -33,21 +33,34 @@ class ResourcesCopiedObjective implements Setup\Objective
 
     public function achieve(Environment $environment): Environment
     {
-        $root = self::ILIAS_ROOT;
-        $source_path = "$root/public/Customizing/global/plugins/Services/Repository/RepositoryObject/LongEssayAssessment/resources";
-        $dest_path = "$root/public/components/EDUTIEK/LongEssayAssessment";
-
-        foreach (glob("$source_path/*") as $folder) {
-            if (is_dir($folder)) {
-                mkdir("$dest_path/" . basename($folder) , 0777, true);
-                foreach (glob("$folder/*") as $file) {
-                    copy($file, $dest_path . '/' . basename($folder) . '/'. basename($file));
-                };
-            }
-        }
-
+        $source = self::ILIAS_ROOT . '/public/Customizing/global/plugins/Services/Repository/RepositoryObject/LongEssayAssessment/resources';
+        $dest = self::ILIAS_ROOT . '/public/components/EDUTIEK';
+        $this->copy($source, $dest, "LongEssayAssessment");
 
         return $environment;
+    }
+
+    /**
+     * Copy a directory recursively
+     * @param string $source    absolute path of the source file or directory
+     * @param string $dest      absolute path of destination parent directory
+     * @param string $name      new name of the source within the destination parent
+     */
+    private function copy(string $source, string $dest, string $name)
+    {
+        $target = $dest . '/' . $name;
+
+        if (is_dir($source)) {
+            if (!is_dir($target)) {
+                mkdir($target, 0777, true);
+            }
+            foreach (glob("$source/*") as $content) {
+                $this->copy($content, $target, basename($content));
+            };
+        }
+        if (is_file($source)) {
+            copy($source, $target);
+        }
     }
 
     public function isApplicable(Environment $environment): bool

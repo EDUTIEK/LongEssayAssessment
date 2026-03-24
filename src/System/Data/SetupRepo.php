@@ -12,6 +12,7 @@ use DateTimeZone;
 class SetupRepo implements \Edutiek\AssessmentService\System\Data\SetupRepo
 {
     private const TEMP_DIR = ILIAS_DATA_DIR . '/' . CLIENT_ID . '/temp';
+    private const ARTI_DIR = ILIAS_DATA_DIR . '/' . CLIENT_ID . '/xlas';
 
     private ?Setup $setup = null;
 
@@ -28,6 +29,10 @@ class SetupRepo implements \Edutiek\AssessmentService\System\Data\SetupRepo
                 mkdir(self::TEMP_DIR);
             }
 
+            if (!is_dir(self::ARTI_DIR)) {
+                mkdir(self::ARTI_DIR);
+            }
+
             $this->setup = new Setup(
                 $this->client_ini->readVariable('client', 'name'),
                 ILIAS_HTTP_PATH
@@ -36,6 +41,7 @@ class SetupRepo implements \Edutiek\AssessmentService\System\Data\SetupRepo
                 ILIAS_HTTP_PATH . '/xlas_rest.php',
                 $this->getDefaultPathToGhostscript(),
                 self::TEMP_DIR,
+                self::ARTI_DIR,
                 $this->lng->getDefaultLanguage(),
                 new DateTimeZone(date_default_timezone_get())
             );

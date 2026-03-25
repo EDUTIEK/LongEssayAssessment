@@ -1420,7 +1420,7 @@ class V10Migration
                     'type' =>
                         array(
                             'Field' => 'type',
-                            'Type' => 'varchar(10)',
+                            'Type' => 'varchar(20)',
                             'Null' => 'NO',
                             'Key' => '',
                             'Default' => null,

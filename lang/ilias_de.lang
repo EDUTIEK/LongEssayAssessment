@@ -272,7 +272,7 @@ resource_availability_before#:#Vor Start der Bearbeitung
 resource_availability_during#:#Nach Start der Bearbeitung
 resource_availability_after#:#Mit Verfügbarkeit der Lösungshinweise
 resource_embedded#:#Eingebettet
-resource_embedded_info#:#Der Weblink wird in der Schreiboberfläche eingebettet angezeigt. Bitte beachten Sie, dass viele Websites das nicht erlauben.
+resource_embedded_info#:#Der Weblink wird in der Schreiboberfläche eingebettet angezeigt. Bitte beachten Sie, dass viele Websites das nicht erlauben. Überprüfen Sie in der Tabelle der Hilfsmittel durch Klick auf den Link. Die Seite sollte im Vorschau-Fenster angezeigt werden.
 resource_file_description#:#Die Datei kann vorab, während der Bearbeitung oder ab Verfügbarkeit der Lösungshinweise angesehen oder heruntergeladen werden.
 resource_weblink#:#Weblink
 resource_edit#:#Hilfsmittel bearbeiten

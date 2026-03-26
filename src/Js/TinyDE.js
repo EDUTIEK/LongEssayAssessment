@@ -53,7 +53,7 @@ export default {
     "Cell styles": "Zellstil",
     "Cell type": "Zelltyp",
     "Center": "Zentriert",
-    "Characters": "Zeichen",
+    "Characters": "Zeichen (mit Leerzeichen)",
     "Characters (no spaces)": "Zeichen (ohne Leerzeichen)",
     "Circle": "Kreis",
     "Class": "Klasse",

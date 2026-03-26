@@ -1330,7 +1330,7 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
     /**
      * Exchange width and height of rectangular marks
      */
-    public function step_74(): void
+    public function step_74() : void
     {
         $query = "
             UPDATE xlas_ta_corr_comm 
@@ -1338,6 +1338,12 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
             WHERE marks IS NOT NULL AND marks <> '[]'
         ";
 
+        $this->db->manipulate($query);
+    }
+
+    public function step_75() : void
+    {
+        $query = "UPDATE xlas_ta_resource SET `type` = 'instructions' WHERE `type` = 'instruct'";
         $this->db->manipulate($query);
     }
 }

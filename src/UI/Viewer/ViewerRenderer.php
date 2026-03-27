@@ -88,6 +88,7 @@ class ViewerRenderer extends AbstractComponentRenderer
         $tpl = $this->getTemplate("tpl.component_switch.html", true, true);
         $switch = $component->getSwitchSignal();
 
+        /** @var ComponentSwitch $component */
         $component = $component->withOnLoadCode(function ($id) use ($switch) {
             $ida = $id . "_A";
             $idb = $id . "_B";

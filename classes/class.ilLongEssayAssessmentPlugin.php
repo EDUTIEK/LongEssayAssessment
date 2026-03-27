@@ -190,6 +190,7 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin implements \i
         //be aware that you can not provide the renderer itself for the closure since its state changes
         return function () use ($dic, $renderer) {
             return new PluginRenderer(
+                $dic['ui.resource_registry'],
                 $renderer($dic),
                 new ContainerRenderer(
                     $dic["ui.factory"],

@@ -21,6 +21,7 @@ declare(strict_types=1);
 namespace ILIAS\Plugin\LongEssayAssessment\UI;
 
 use ILIAS\UI\Implementation\Render\DecoratedRenderer;
+use ILIAS\UI\Implementation\Render\ResourceRegistry;
 use ILIAS\UI\Renderer;
 use ILIAS\Plugin\LongEssayAssessment\UI\Container\ContainerRenderer;
 use ILIAS\Plugin\LongEssayAssessment\UI\Input\TinyMCE;
@@ -50,26 +51,16 @@ use ILIAS\Plugin\LongEssayAssessment\UI\Container\Bindable;
 //different sources to be chained behind each other.
 class PluginRenderer extends DecoratedRenderer
 {
-    private ContainerRenderer $container_render;
-    private ItemRenderer $item_renderer;
-    private ViewerRenderer $viewer_render;
-    protected InputRenderer $field_render;
-    protected StatisticRenderer $statistic_renderer;
-
     public function __construct(
+        private ResourceRegistry $registry,
         Renderer $default,
-        ContainerRenderer $container_render,
-        ItemRenderer $item_renderer,
-        InputRenderer $field_render,
-        StatisticRenderer $statistic_renderer,
-        ViewerRenderer $viewer_render,
+        private ContainerRenderer $container_render,
+        private ItemRenderer $item_renderer,
+        private InputRenderer $field_render,
+        private StatisticRenderer $statistic_renderer,
+        private ViewerRenderer $viewer_render,
     ) {
         parent::__construct($default);
-        $this->container_render = $container_render;
-        $this->item_renderer = $item_renderer;
-        $this->field_render = $field_render;
-        $this->statistic_renderer = $statistic_renderer;
-        $this->viewer_render = $viewer_render;
     }
 
 
@@ -78,25 +69,30 @@ class PluginRenderer extends DecoratedRenderer
     {
         switch (true) {
             case ($component instanceof Bindable):
+                $this->container_render->registerResources($this->registry);
                 return $this->container_render->render($component, $root);
             case ($component instanceof FormItem):
             case ($component instanceof FormGroup):
+                $this->item_renderer->registerResources($this->registry);
                 return $this->item_renderer->render($component, $root);
             case ($component instanceof ItemListInput):
             case ($component instanceof Numeric):
             case ($component instanceof BlankForm):
             case ($component instanceof TinyMCE):
             case ($component instanceof Info):
+                $this->field_render->registerResources($this->registry);
                 return $this->field_render->render($component, $root);
             case ($component instanceof Statistic):
             case ($component instanceof GraphStatisticGroup):
             case ($component instanceof ExtendableStatisticGroup):
+                $this->statistic_renderer->registerResources($this->registry);
                 return $this->statistic_renderer->render($component, $root);
             case ($component instanceof PdfViewer):
             case ($component instanceof AudioPlayer):
             case ($component instanceof VideoPlayer):
             case ($component instanceof ImageViewer):
             case ($component instanceof ComponentSwitch):
+                $this->viewer_render->registerResources($this->registry);
                 return $this->viewer_render->render($component, $root);
             case ($component instanceof Table):
             case ($component instanceof ProtocolGroup):

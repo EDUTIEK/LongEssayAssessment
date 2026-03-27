@@ -192,7 +192,7 @@ class CollectionGUI
         ->setTableActions([$this->plugin_dic->uiFactory()->table()->action()->export('export', $this->lng->txt('export'), 'xlas_corrections_export.xlsx')]);
 
         $table_parent->setInitialVisibleColumns([]);
-        $table = $this->plugin_dic->uiFactory()->table()->dataTable('correction_admin_table', $table_parent);
+        $table = $this->plugin_dic->uiFactory()->table()->dataTable('correction_status_table', $table_parent);
         $table->executeAction();
         $this->tpl->setContent($this->uiRenderer->render($table));
     }

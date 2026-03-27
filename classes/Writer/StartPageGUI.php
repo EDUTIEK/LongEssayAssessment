@@ -242,9 +242,9 @@ class StartPageGUI extends BaseGUI
     private function writingItems(Task $task): array
     {
         $items = [];
-        if ($this->working_time->isStarted()) {
+        if ($this->perms->canViewInstructions()) {
             $task_settings = $this->task_api->settings($task->getId())->get();
-            if ($task_settings->getInstructions()) {
+            if ($task_settings->getInstructions() || $this->task_api->resource($task->getId())->oneByType(ResourceType::INSTRUCTIONS)) {
                 $this->ctrl->setParameter($this->target, 'task_id', (string) $task->getId());
                 $items[] = $this->ui_factory->item()->standard(
                     $this->ui_factory->link()->standard(
@@ -252,16 +252,6 @@ class StartPageGUI extends BaseGUI
                         $this->ctrl->getLinkTarget($this->target, 'viewInstructions')
                     )
                 )->withLeadIcon($this->ui_factory->symbol()->icon()->standard('impr', '', 'medium'));
-            }
-            $resource = $this->task_api->resource($task->getId())->oneByType(ResourceType::INSTRUCTIONS);
-            if ($resource) {
-                $this->ctrl->setParameter($this->target, 'task_id', (string) $task->getId());
-                $items[] = $this->ui_factory->item()->standard(
-                    $this->ui_factory->link()->standard(
-                        $this->plugin->txt('download_instructions'),
-                        $this->ctrl->getLinkTarget($this->target, 'downloadInstructions')
-                    )
-                )->withLeadIcon($this->ui_factory->symbol()->icon()->standard('file', '', 'medium'));
             }
         }
         return array_merge($items, $this->writing_resources[$task->getId()] ?? []);
@@ -362,7 +352,7 @@ class StartPageGUI extends BaseGUI
 
         $items = [];
         $task_settings = $this->task_api->settings($task->getId())->get();
-        if ($task_settings->getSolution()) {
+        if ($task_settings->getSolution() || $this->task_api->resource($task->getId())->oneByType(ResourceType::SOLUTION)) {
             $this->ctrl->setParameter($this->target, 'task_id', (string) $task->getId());
             $items[] = $this->ui_factory->item()->standard(
                 $this->ui_factory->link()->standard(
@@ -370,15 +360,6 @@ class StartPageGUI extends BaseGUI
                     $this->ctrl->getLinkTarget($this->target, 'viewSolution')
                 )
             )->withLeadIcon($this->ui_factory->symbol()->icon()->standard('impr', '', 'medium'));
-        }
-        if ($this->task_api->resource($task->getId())->oneByType(ResourceType::SOLUTION)) {
-            $this->ctrl->setParameter($this->target, 'task_id', (string) $task->getId());
-            $items[] = $this->ui_factory->item()->standard(
-                $this->ui_factory->link()->standard(
-                    $this->plugin->txt('download_solution'),
-                    $this->ctrl->getLinkTarget($this->target, 'downloadSolution')
-                )
-            )->withLeadIcon($this->ui_factory->symbol()->icon()->standard('file', '', 'medium'));
         }
         return array_merge($items, $this->solution_resources[$task->getId()] ?? []);
     }

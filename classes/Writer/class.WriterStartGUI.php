@@ -77,8 +77,10 @@ class WriterStartGUI extends BaseGUI
             'viewDescription',
             'viewClosingMessage',
             'viewInstructions',
+            'deliverInstructions',
             'downloadInstructions',
             'viewSolution',
+            'deliverSolution',
             'downloadSolution' => $this->$cmd(),
             default => $this->tpl->setContent('unknown command: ' . $cmd),
         };
@@ -129,16 +131,35 @@ class WriterStartGUI extends BaseGUI
             $this->ctrl->getLinkTarget($this, 'showStartPage')
         ));
 
-        if (time() <= $this->orga_settings->getWritingStart()?->getTimestamp()) {
+        if (!$this->perms->canViewInstructions()) {
             return;
         }
         $task_id = $this->get->integer('task_id', 0);
         $task_settings = $this->task_api->settings($task_id)->get();
 
-        $this->renderContent($this->ui_factory->panel()->standard(
+        $this->add($this->ui_factory->panel()->standard(
             $this->plugin->txt('task_instructions'),
             $this->ui_factory->legacy($this->displayText($task_settings->getInstructions()))
         ));
+
+        $resource = $this->task_api->resource($task_id)->oneByType(ResourceType::INSTRUCTIONS);
+        if ($resource) {
+            $this->ctrl->saveParameter($this, 'task_id');
+            $this->add($this->ui_factory->panel()->standard(
+                $this->plugin->txt('task_instructions_file'),
+                [
+                    $this->plugin_ui_factory->viewer()->pdf(
+                        $this->ctrl->getLinkTarget($this, 'deliverInstructions')
+                    ),
+                    $this->ui_factory->link()->standard(
+                        $this->plugin->txt('download_instructions'),
+                        $this->ctrl->getLinkTarget($this, 'downloadInstructions')
+                    )
+                ]
+            ));
+        }
+
+        $this->show();
     }
 
     public function downloadResourceFile(): void
@@ -251,15 +272,21 @@ class WriterStartGUI extends BaseGUI
         $this->system_api->fileStorage()->deleteFile($file_id);
     }
 
-    public function downloadInstructions(): void
+
+    public function deliverInstructions(Disposition $disposition = Disposition::INLINE): void
     {
-        if (time() >= $this->orga_settings->getWritingStart()?->getTimestamp()) {
+        if ($this->perms->canViewInstructions()) {
             $task_id = $this->get->integer('task_id');
-            $resource = $this->task_api->resource($task_id)->oneByType(ResourceType::SOLUTION);
+            $resource = $this->task_api->resource($task_id)->oneByType(ResourceType::INSTRUCTIONS);
             if ($resource) {
-                $this->system_api->fileDelivery()->sendFile($resource->getFileId(), Disposition::ATTACHMENT);
+                $this->system_api->fileDelivery()->sendFile($resource->getFileId(), $disposition);
             }
         }
+    }
+
+    public function downloadInstructions(): void
+    {
+        $this->deliverInstructions(Disposition::ATTACHMENT);
     }
 
     public function viewSolution(): void
@@ -269,24 +296,51 @@ class WriterStartGUI extends BaseGUI
             $this->ctrl->getLinkTarget($this, 'showStartPage')
         ));
 
-        if ($this->perms->canViewSolution()) {
-            $task_id = $this->get->integer('task_id', 0);
-            $task_settings = $this->task_api->settings($task_id)->get();
-            $this->renderContent($this->ui_factory->panel()->standard(
-                $this->plugin->txt('task_solution'),
-                $this->ui_factory->legacy($this->displayText($task_settings->getSolution()))
+        if (!$this->perms->canViewSolution()) {
+            return;
+        }
+
+        $task_id = $this->get->integer('task_id', 0);
+        $task_settings = $this->task_api->settings($task_id)->get();
+        $this->add($this->ui_factory->panel()->standard(
+            $this->plugin->txt('task_solution'),
+            $this->ui_factory->legacy($this->displayText($task_settings->getSolution()))
+        ));
+
+        $resource = $this->task_api->resource($task_id)->oneByType(ResourceType::SOLUTION);
+        if ($resource) {
+            $this->ctrl->saveParameter($this, 'task_id');
+            $this->add($this->ui_factory->panel()->standard(
+                $this->plugin->txt('task_solution_file'),
+                [
+                    $this->plugin_ui_factory->viewer()->pdf(
+                        $this->ctrl->getLinkTarget($this, 'deliverSolution')
+                    ),
+                    $this->ui_factory->link()->standard(
+                        $this->plugin->txt('download_solution'),
+                        $this->ctrl->getLinkTarget($this, 'downloadSolution')
+                    )
+
+                ]
             ));
         }
+
+        $this->show();
     }
 
-    public function downloadSolution(): void
+    public function deliverSolution(Disposition $disposition = Disposition::INLINE): void
     {
         if ($this->perms->canViewSolution()) {
             $task_id = $this->get->integer('task_id');
             $resource = $this->task_api->resource($task_id)->oneByType(ResourceType::SOLUTION);
             if ($resource) {
-                $this->system_api->fileDelivery()->sendFile($resource->getFileId(), Disposition::ATTACHMENT);
+                $this->system_api->fileDelivery()->sendFile($resource->getFileId(), $disposition);
             }
         }
+    }
+
+    public function downloadSolution(): void
+    {
+        $this->deliverSolution(Disposition::ATTACHMENT);
     }
 }

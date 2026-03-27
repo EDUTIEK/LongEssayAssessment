@@ -106,9 +106,7 @@ class WriterUploadGUI extends BaseGUI
             $this->return();
         }
 
-        if ($this->is_admin) {
-            $this->info($this->plugin->txt('writer_admin_pdf_replace_info'));
-        } elseif ($this->perms->canWrite()) {
+        if (!$this->is_admin && $this->perms->canWrite()) {
             $this->info($this->plugin->txt(count($this->tasks) == 1 ? 'writer_authorize_pdf_info' : 'writer_authorize_pdfs_info'));
         }
 

@@ -862,7 +862,6 @@ finalization#:#Abschluss
 procedure#:#Verfahren
 date#:#Datum
 multi_feedback_unchanged#:#Unverändert:
-writer_admin_pdf_replace_info#:#Wenn Sie eine PDF-Datei hochladen oder löschen, wird die Freigabe zur Korrektur aufgehoben. Alle Markierungen und Bemerkungen bereits begonnener Korrekturen werden verworfen.
 writing_parts#:#Abgaben
 tab_corrector_template#:#Gutachten-Vorlage
 edit_corrector_template#:#Eigene Gutachten-Vorlage bearbeiten

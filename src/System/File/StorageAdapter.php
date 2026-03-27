@@ -49,10 +49,9 @@ readonly class StorageAdapter implements Storage
         $resource_id = $this->manager->find($id ?? '');
         if ($resource_id !== null) {
             $resource = $this->manager->getResource($resource_id);
-
             return $this->newInfo()
                 ->setId($id)
-                ->setFileName($resource->getCurrentRevision()->getInformation()->getTitle())
+                ->setFileName($resource->getCurrentRevision()->getTitle())
                 ->setMimeType($resource->getCurrentRevision()->getInformation()->getMimeType())
                 ->setSize($resource->getCurrentRevision()->getInformation()->getSize());
         }

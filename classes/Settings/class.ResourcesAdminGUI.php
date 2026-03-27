@@ -114,21 +114,6 @@ class ResourcesAdminGUI extends BaseGUI implements DataTableParent
         );
     }
 
-    /**
-     * @deprecated
-     */
-    protected function previewAction(): Action\Modal
-    {
-        return $this->table_factory->action()->modal(
-            "preview",
-            $this->lng->txt('preview'),
-            [$this, "previewModal"],
-            fn(
-                ResourceItem $x
-            ) => ($x->getType() === ResourceType::FILE || ($x->isEmbedded() && $x->getType() === ResourceType::URL)),
-            Action\Type::Single
-        );
-    }
 
     protected function downloadAction(): Action\Direct
     {
@@ -137,20 +122,6 @@ class ResourcesAdminGUI extends BaseGUI implements DataTableParent
             $this->lng->txt('download'),
             fn(ResourceItem $x) => $this->downloadResourceFile($x->getIdentifier()),
             fn(ResourceItem $x) => $x->getType() === ResourceType::FILE,
-            Action\Type::Single
-        );
-    }
-
-    /**
-     * @deprecated
-     */
-    protected function openAction(): Action\Direct
-    {
-        return $this->table_factory->action()->direct(
-            "open",
-            $this->lng->txt('open'),
-            fn(ResourceItem $x) => $this->ctrl->redirectToURL($x->getUrl()),
-            fn(ResourceItem $x) => $x->getType() === ResourceType::URL,
             Action\Type::Single
         );
     }

@@ -385,7 +385,7 @@ class StartPageGUI extends BaseGUI
                             $this->ctrl->setParameter($this->target, 'task_id', (string) $task->getId());
                             $item = $this->ui_factory->item()->standard(
                                 $this->ui_factory->link()->standard(
-                                    $file_info->getFileName(),
+                                    $resource->getTitle(),
                                     $this->ctrl->getLinkTarget($this->target, 'downloadResourceFile')
                                 )
                             )   ->withDescription((string) $resource->getDescription())

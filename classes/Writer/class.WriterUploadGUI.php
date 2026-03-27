@@ -203,7 +203,8 @@ class WriterUploadGUI extends BaseGUI
         $this->add($this->ui_factory->button()->primary(
             $this->plugin->txt('writer_authorize_pdf'),
             $this->ctrl->getLinkTarget($this, 'authorize')
-        )->withOnClick($modal->getShowSignal())->withUnavailableAction($this->writer->isAuthorized()));
+        )->withOnClick($modal->getShowSignal())
+            ->withUnavailableAction($this->writer->isAuthorized() || count($incomplete_tasks) == count($this->tasks)));
 
         $this->add(
             $this->ui_factory->button()->standard(

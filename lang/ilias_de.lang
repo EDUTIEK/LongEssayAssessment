@@ -366,7 +366,7 @@ simulate_offline#:#Netzwerkunterbrechung simulieren
 simulate_offline_info#:#Anfragen aus der Schreiboberfläche und Korrekturoberfläche werden mit dem Status SERVICE_UNAVAILABLE (503) zurückgewiesen. Damit können Netzwerkprobleme während des Schreibens oder Korrigierens einer Abgabe simuliert werden.
 message_writing_to_continue#:#Ihre Bearbeitung wurde noch nicht zur Korrektur abgegeben. Klicken Sie auf „Bearbeitung fortsetzen”, um weiterzuschreiben oder die Bearbeitung abzugeben.
 message_writing_to_authorize#:#Ihre Bearbeitung ist noch nicht zur Korrektur abgegeben. Klicken Sie auf „Bearbeitung schreibgeschützt einsehen”, um sie zu überprüfen und abzugeben.
-message_writing_to_authorize_pdf#:#Ihre Bearbeitung ist noch nicht zur Korrektur abgegeben. Klicken Sie auf „Vorschau zur Abgabe”, um sie zu überprüfen und abzugeben.
+message_writing_to_authorize_pdf#:#Ihre Bearbeitung ist noch nicht zur Korrektur abgegeben. Klicken Sie auf „Hochladen und abgeben...”, um sie zu überprüfen und abzugeben.
 message_writing_not_authorized#:#Sie haben Ihre Bearbeitung nicht zur Korrektur abgegeben. Wenden Sie sich an die Prüfungsleitung, wenn Ihre Bearbeitung doch bewertet werden soll.
 warning_potential_later_assignments#:#Es gibt noch Teilnehmende, die möglicherweise nachträglich zugewiesen werden müssen.
 potential_authorizations_not_started#:#Noch nicht gestartet, aber in Bearbeitungszeit: %s
@@ -635,7 +635,7 @@ writing_type_pdf_upload#:#PDF-Abgabe
 writing_type_pdf_upload_info#:#Die Texte werden von allen Teilnehmenden einheitlich als PDF-Abgabe hochgeladen. Während der Bearbeitungszeit kann eine hochgeladene Datei ersetzt werden. Die Abgabe zur Korrektur muss bestätigt werden. Danach ist keine Änderung mehr möglich.
 writer_upload_pdf#:#PDF-Abgabe hochladen
 writer_replace_pdf#:#PDF-Abgabe ersetzen
-writer_review_pdf#:#Vorschau zur Abgabe
+writer_review_pdf#:#Hochladen und abgeben...
 writer_authorize_pdf#:#Abgabe zur Korrektur
 writer_authorize_pdf_info#:#Bitte überprüfen Sie, ob Sie die Datei in dieser Form zur Korrektur abgeben möchten. Nach der Abgabe ist keine weitere Bearbeitung mehr möglich!
 writer_authorize_pdfs_info#:#Bitte überprüfen Sie, ob Sie die Dateien in dieser Form zur Bewertung abgeben möchten. Klicken Sie dann auf "Zur Korrektur abgeben" unter den Vorschauen. Nach der Abgabe ist keine weitere Bearbeitung mehr möglich!

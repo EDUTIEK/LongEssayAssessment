@@ -15,7 +15,7 @@ class IconFactory
 
     private function icon_path(string $name): string
     {
-        return "components/EDUTIEK/LongEssayAssessment/images/icon_". $name . ".svg";
+        return \ilLongEssayAssessmentPlugin::assetPath() . "/images/icon_" . $name . ".svg";
     }
 
     /**

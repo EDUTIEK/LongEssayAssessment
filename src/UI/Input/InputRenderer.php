@@ -89,7 +89,7 @@ class InputRenderer extends \ILIAS\UI\Implementation\Component\Input\Field\Rende
         }
     }
 
-    protected function applyStep(Numeric $component, Template $tpl) : ?string
+    protected function applyStep(Numeric $component, Template $tpl): ?string
     {
         $step = $component->getStep();
         if ($step != 1.) {
@@ -99,7 +99,7 @@ class InputRenderer extends \ILIAS\UI\Implementation\Component\Input\Field\Rende
         return $step;
     }
 
-    protected function renderCustomNumericField(Numeric $component) : string
+    protected function renderCustomNumericField(Numeric $component): string
     {
         $tpl = $this->getTemplate("tpl.numeric.html", true, true);
         $this->applyName($component, $tpl);
@@ -207,7 +207,7 @@ class InputRenderer extends \ILIAS\UI\Implementation\Component\Input\Field\Rende
      * @param $name
      * @return mixed|string
      */
-    protected function getTemplatePath($name) : string
+    protected function getTemplatePath($name): string
     {
         if (in_array($name, $this->getPluginTemplateFiles())) {
             return "Input/$name";
@@ -220,7 +220,7 @@ class InputRenderer extends \ILIAS\UI\Implementation\Component\Input\Field\Rende
     {
         if ($this->files_cache === null) {
 
-            $this->files_cache =  array_filter(scandir(dirname(__FILE__). "/../../../templates/default/Input"), function ($item) {
+            $this->files_cache = array_filter(scandir(dirname(__FILE__) . "/../../../templates/default/Input"), function ($item) {
                 return str_starts_with($item, "tpl.");
             });
 
@@ -270,7 +270,7 @@ class InputRenderer extends \ILIAS\UI\Implementation\Component\Input\Field\Rende
      * @param ItemListInput $input
      * @return ItemListInput
      */
-    protected function registerItemListInputSignals(ItemListInput $input):ItemListInput
+    protected function registerItemListInputSignals(ItemListInput $input): ItemListInput
     {
         $trigger_load = $input->getTriggerLoadSignal();
         $data_source = $input->getListDataSource();
@@ -292,13 +292,13 @@ class InputRenderer extends \ILIAS\UI\Implementation\Component\Input\Field\Rende
         return $input;
     }
 
-    public function setGlobalTemplate(\ilGlobalPageTemplate $template) : InputRenderer
+    public function setGlobalTemplate(\ilGlobalPageTemplate $template): InputRenderer
     {
         $this->tpl = $template;
         return $this;
     }
 
-    protected function initTinyMCE(TinyMCE $component, string $form_id) : TinyMCE
+    protected function initTinyMCE(TinyMCE $component, string $form_id): TinyMCE
     {
         $this->tpl->addJavaScript('node_modules/tinymce/tinymce.min.js');
 
@@ -306,7 +306,7 @@ class InputRenderer extends \ILIAS\UI\Implementation\Component\Input\Field\Rende
         // $this->tpl->addJavaScript('Customizing/global/plugins/Services/Repository/RepositoryObject/LongEssayAssessment/resources/js/xlas.js');
 
         // production:
-        $this->tpl->addJavaScript('components/EDUTIEK/LongEssayAssessment/js/xlas.min1.js');
+        $this->tpl->addJavaScript(\ilLongEssayAssessmentPlugin::assetPath() . '/js/xlas.min.js');
 
         $component = $component->withAdditionalOnLoadCode(
             function ($id) use ($component, $form_id) {

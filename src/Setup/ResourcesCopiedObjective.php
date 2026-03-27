@@ -31,11 +31,22 @@ class ResourcesCopiedObjective implements Setup\Objective
         ];
     }
 
+    /**
+     * Copy the resources to a versioned component directory
+     * @see \ilLongEssayAssessmentPlugin::assetPath()
+     */
     public function achieve(Environment $environment): Environment
     {
-        $source = self::ILIAS_ROOT . '/public/Customizing/global/plugins/Services/Repository/RepositoryObject/LongEssayAssessment/resources';
-        $dest = self::ILIAS_ROOT . '/public/components/EDUTIEK';
-        $this->copy($source, $dest, "LongEssayAssessment");
+        $plugin = self::ILIAS_ROOT . '/public/Customizing/global/plugins/Services/Repository/RepositoryObject/LongEssayAssessment';
+        $source = $plugin . '/resources';
+        $dest = self::ILIAS_ROOT . '/public/components/EDUTIEK/LongEssayAssessment';
+
+        $version = 'vers';
+        $sub_version = 'sub';
+        include($plugin . '/plugin.php');
+        $name = $version . '.' . $sub_version;
+
+        $this->copy($source, $dest, $name);
 
         return $environment;
     }

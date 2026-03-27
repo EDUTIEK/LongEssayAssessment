@@ -1,4 +1,5 @@
 <?php
+
 /* Copyright (c) 2021 ILIAS open source, Extended GPL, see docs/LICENSE */
 
 // alphanumerical ID of the plugin; never change this
@@ -6,6 +7,10 @@ $id = 'xlas';
 
 // code version; must be changed for all code changes
 $version = '4.0';
+
+// sub version must be changes for all changes on resource files
+$sub_version = '2';
+
 // ilias min and max version; must always reflect the versions that should
 // run with the plugin
 $ilias_min_version = '10.0';

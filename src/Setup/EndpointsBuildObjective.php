@@ -36,7 +36,7 @@ class EndpointsBuildObjective implements Setup\Objective
         $root = self::ILIAS_ROOT;
         $public_path = "$root/public";
         $plugin_path = "$public_path/Customizing/global/plugins/Services/Repository/RepositoryObject/LongEssayAssessment";
-        copy("$plugin_path/resources/xlas_rest.php", "$public_path/xlas_rest.php");
+        copy("$plugin_path/endpoints/xlas_rest.php", "$public_path/xlas_rest.php");
 
         return $environment;
     }

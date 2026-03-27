@@ -20,7 +20,7 @@ export default {
       },
     },
     {
-        file: './resources/js/xlas.min1.js',
+        file: './resources/js/xlas.min.js',
         format: 'iife',
         globals: {
           ilias: 'il'

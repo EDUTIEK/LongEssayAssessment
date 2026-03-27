@@ -26,7 +26,7 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin implements \i
 
     private const LANGUAGES = ['de'];
     private const PLUGIN_PATH = 'public/Customizing/global/plugins/Services/Repository/RepositoryObject/LongEssayAssessment';
-    private const ASSETS_PATH = 'components/EDUTIEK/LongEssayAssessment';
+    private const ASSETS_MAIN_PATH = 'components/EDUTIEK/LongEssayAssessment';
 
     protected Container $ilias_dic;
     protected ilLanguage $lng;
@@ -37,6 +37,28 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin implements \i
     private array $cron_objects = [];
     private ?array $cron_classes = null;
     protected static $instance;
+    protected static $asset_path = null;
+
+
+    /**
+     * Get the url path to the assets directory of the plugin
+     * composer install will copy the assets in a versioned sub directory
+     * Increase the sub_version in plugin.php to ensure up to date assests
+     *
+     * @see \ILIAS\Plugin\LongEssayAssessment\Setup\ResourcesCopiedObjective::achieve
+     */
+    public static function assetPath(): string
+    {
+        if (self::$asset_path === null) {
+            $version = 'vers';
+            $sub_version = 'sub';
+            include(__DIR__ . '/../plugin.php');
+            $name = $version . '.' . $sub_version;
+            self::$asset_path = self::ASSETS_MAIN_PATH . '/' . $name;
+        }
+
+        return self::$asset_path;
+    }
 
     /**
      * Get the title icon
@@ -45,7 +67,7 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin implements \i
      */
     public static function _getIcon(string $a_type): string
     {
-        return self::ASSETS_PATH . '/images/icon_xlas.svg';
+        return self::assetPath() . '/images/icon_xlas.svg';
     }
 
     public function __construct(
@@ -65,7 +87,7 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin implements \i
 
     public function asset(string $sub_path): string
     {
-        return self::ASSETS_PATH . '/' . $sub_path;
+        return self::assetPath() . '/' . $sub_path;
     }
 
     /**

@@ -35,7 +35,7 @@ class ViewerRenderer extends AbstractComponentRenderer
 
     public function registerResources(ResourceRegistry $registry): void
     {
-        $registry->register('components/EDUTIEK/LongEssayAssessment/js/xlas.min1.js');
+        $registry->register(\ilLongEssayAssessmentPlugin::assetPath() . '/js/xlas.min.js');
     }
 
     public function render(Component $component, Renderer $default_renderer): string
@@ -57,8 +57,10 @@ class ViewerRenderer extends AbstractComponentRenderer
             $url = ILIAS_HTTP_PATH . '/' . ltrim($url, '/');
         }
 
-        $component = $component->withOnLoadCode(function ($id) use ($url) {
-            return "il.Xlas.PdfViewer.init('$id', '$url');";
+        $viewer = \ilLongEssayAssessmentPlugin::assetPath() . '/annotate-pdf/pdfjs-dist/web/viewer.html';
+
+        $component = $component->withOnLoadCode(function ($id) use ($viewer, $url) {
+            return "il.Xlas.PdfViewer.init('$id', '$viewer', '$url');";
         });
 
         $id = $this->bindJavaScript($component);

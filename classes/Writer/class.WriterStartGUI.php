@@ -105,10 +105,10 @@ class WriterStartGUI extends BaseGUI
             $this->ctrl->getLinkTarget($this, 'showStartPage')
         ));
 
-        $this->renderContent($this->ui_factory->panel()->standard(
+        $this->add($this->ui_factory->panel()->standard(
             $this->plugin->txt('task_description'),
             $this->ui_factory->legacy($this->displayText($this->orga_settings->getDescription()))
-        ));
+        ))->show();
     }
 
     public function viewClosingMessage(): void
@@ -118,10 +118,10 @@ class WriterStartGUI extends BaseGUI
             $this->ctrl->getLinkTarget($this, 'showStartPage')
         ));
 
-        $this->renderContent($this->ui_factory->panel()->standard(
+        $this->add($this->ui_factory->panel()->standard(
             $this->plugin->txt('closing_message'),
             $this->ui_factory->legacy($this->displayText($this->orga_settings->getClosingMessage()))
-        ));
+        ))->show();
     }
 
     public function viewInstructions(): void

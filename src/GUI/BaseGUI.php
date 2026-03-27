@@ -120,7 +120,7 @@ abstract class BaseGUI
     }
 
     /**
-     * Add a component(s) to to be shown
+     * Add component(s) to to be shown
      * @param UiComponent|UiComponent[]|null $component
      */
     protected function add(UiComponent|array|null $component): static
@@ -261,8 +261,9 @@ abstract class BaseGUI
 
     /**
      * Add the css for displaying essay content
+     * @todo add as a resource for a new UI element
      */
-    public function addContentCss(): void
+    private function addContentCss(): void
     {
         $this->tpl->addCss($this->plugin->asset('css/content.css'));
     }
@@ -292,13 +293,5 @@ abstract class BaseGUI
                 ],
             )
         );
-    }
-
-    /**
-     * @param Component|Component[] $render_me
-     */
-    protected function renderContent($render_me): void
-    {
-        $this->tpl->setContent($this->renderer->render($render_me));
     }
 }

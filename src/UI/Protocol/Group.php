@@ -20,9 +20,9 @@ use ILIAS\Plugin\LongEssayAssessment\UI\IconFactory;
 
 class Group implements Component
 {
-    const MODE_ATTR = "mode";
-    const PAGE_ATTR = "page";
-    const PAGE_SIZE = 10;
+    public const MODE_ATTR = "mode";
+    public const PAGE_ATTR = "page";
+    public const PAGE_SIZE = 10;
 
     /**
      * @var Item[]
@@ -41,8 +41,7 @@ class Group implements Component
         HttpService $http,
         private RefineryFactory $refinery,
         private DateFormat $date_format
-
-    ){
+    ) {
         $df = new \ILIAS\Data\Factory();
         $uri = $df->uri($http->request()->getUri()->__toString());
 
@@ -67,12 +66,12 @@ class Group implements Component
         return 'ProtocolGroup';
     }
 
-    public function withAdditionalItems(array $items) : self
+    public function withAdditionalItems(array $items): self
     {
         $clone = clone $this;
 
         $mode = $this->getCurrentMode();
-        if($mode !== EntryType::ALL) {
+        if ($mode !== EntryType::ALL) {
             $items = array_filter($items, fn(Item $item) => $item->type() == $mode);
         }
 
@@ -83,9 +82,9 @@ class Group implements Component
     /**
      * @return Component[]
      */
-    public function getComponents() : array
+    public function getComponents(): array
     {
-        usort($this->items, function(Item $a, Item $b) {
+        usort($this->items, function (Item $a, Item $b) {
             return $b->sortBy()->getTimestamp() - $a->sortBy()->getTimestamp();
         });
 
@@ -96,12 +95,12 @@ class Group implements Component
         $start = $current_page * self::PAGE_SIZE;
         $end = ($current_page * self::PAGE_SIZE) + self::PAGE_SIZE;
 
-        foreach($this->items as $item) {
-            $count ++;
-            if($count <= $start || $count > $end) {
+        foreach ($this->items as $item) {
+            $count++;
+            if ($count <= $start || $count > $end) {
                 continue;
             }
-            if($item instanceof Alert) {
+            if ($item instanceof Alert) {
                 $items[] = $this->buildAlert($item);
             } elseif ($item instanceof LogEntry) {
                 $items[] = $this->buildLogEntry($item);
@@ -116,7 +115,7 @@ class Group implements Component
         );
     }
 
-    private function buildAlert(Alert $alert) : GroupItem
+    private function buildAlert(Alert $alert): GroupItem
     {
         $icon_factory = $this->icon_factory;
         $recipient = $alert->getRecipient() !== null
@@ -132,7 +131,7 @@ class Group implements Component
                                ));
     }
 
-    private function buildLogEntry(LogEntry $log_entry) : GroupItem
+    private function buildLogEntry(LogEntry $log_entry): GroupItem
     {
         $icon_factory = $this->icon_factory;
         $icon = match($log_entry->getCategory()) {
@@ -162,7 +161,7 @@ class Group implements Component
                                           ->withCurrentPage($this->getCurrentPage());
 
             $uis[] = $pagination;
-            if(is_array($component)) {
+            if (is_array($component)) {
                 foreach ($component as $subcomp) {
                     $uis[] = $subcomp;
                 }
@@ -182,7 +181,7 @@ class Group implements Component
         $modes = array_column(EntryType::cases(), 'value');
         $actions = [];
 
-        foreach($modes as $mode) {
+        foreach ($modes as $mode) {
             $actions[$this->lng->txt("log_type_" . $mode)] = $this->url_builder->withParameter($this->mode_token, $mode)->buildURI()->__toString();
         }
 
@@ -193,23 +192,29 @@ class Group implements Component
                                 ->withActive($this->lng->txt("log_type_" . $active));
     }
 
-    private function getCurrentPage() : int
+    private function getCurrentPage(): int
     {
         $page = "";
-        if($this->query->has($this->page_token->getName())) {
+        if ($this->query->has($this->page_token->getName())) {
             $page = $this->query->retrieve($this->page_token->getName(), $this->refinery->to()->string());
         }
         return !empty($page) ? intval($page) : 0;
     }
 
-    private function getCurrentMode() : EntryType
+    private function getCurrentMode(): EntryType
     {
-        if($this->mode !== null) {
+        if ($this->mode !== null) {
             return $this->mode;
         }
-        $mode =  $this->query->has($this->mode_token->getName())
+        $mode = $this->query->has($this->mode_token->getName())
             ? $this->query->retrieve($this->mode_token->getName(), $this->refinery->kindlyTo()->string())
             : EntryType::ALL->value;
+
+        if (EntryType::tryFrom($mode) !== null) {
+            \ilSession::set('long_essay_assessment_protocol_mode', $mode);
+        } else {
+            $mode = (string) \ilSession::get('long_essay_assessment_protocol_mode');
+        }
 
         return $this->mode = (EntryType::tryFrom($mode) ?? EntryType::ALL);
     }

@@ -69,7 +69,8 @@ class SetupAgent implements Agent
             new \ilDatabaseUpdateStepsExecutedObjective(new DBUpdateSteps10()),
             new \ilComponentInstallPluginObjective("LongEssayAssessment"),
             new \ilComponentUpdatePluginObjective("LongEssayAssessment"),
-            new \ilComponentActivatePluginsObjective("LongEssayAssessment")
+            new \ilComponentActivatePluginsObjective("LongEssayAssessment"),
+            new \ilPluginLanguageUpdatedObjective("LongEssayAssessment")
         );
 
     }

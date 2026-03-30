@@ -13,6 +13,9 @@ use Edutiek\AssessmentService\Task\Data\Settings as Task;
 
 class CorrectionsView extends \Edutiek\AssessmentService\Views\Data\CorrectionsView
 {
+    public const FILTER_YES = "1";
+    public const FILTER_NO = "2";
+
     public function __construct(
         private readonly Task $task,
         private readonly Properties $assessment_properties,

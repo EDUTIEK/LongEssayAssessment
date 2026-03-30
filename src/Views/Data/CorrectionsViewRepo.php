@@ -57,6 +57,12 @@ class CorrectionsViewRepo extends ViewRepo implements \Edutiek\AssessmentService
         $query = $this->db->query($sql);
         $result = [];
 
+        $filter_assigned = match($filter['assigned'] ?? null) {
+            CorrectionsView::FILTER_YES => true,
+            CorrectionsView::FILTER_NO => false,
+            default => null
+        };
+
         while ($row = $this->db->fetchAssoc($query)) {
             $corrections = [];
             $cor_result = json_decode('[' . $row['corrections'] . ']', true);
@@ -67,6 +73,9 @@ class CorrectionsViewRepo extends ViewRepo implements \Edutiek\AssessmentService
                     $this->corrector_repo->dehydratedInstance((int) $corrector_id),
                     $this->user_data_repo->dehydratedInstance((int) $user_id)
                 );
+            }
+            if (empty($corrections) === $filter_assigned) {
+                continue;
             }
 
             $result[] = new CorrectionsView(

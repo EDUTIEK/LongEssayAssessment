@@ -5,6 +5,7 @@ namespace ILIAS\Plugin\LongEssayAssessment\GUI\Correction;
 use Edutiek\AssessmentService\Assessment\Data\CorrectionStatus;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\DataTableParent;
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
+use ILIAS\Plugin\LongEssayAssessment\View\Data\CorrectionsView;
 use ILIAS\Test\Participants\TableAction;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\Action;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\FilterParent;
@@ -50,8 +51,6 @@ class CorrectionTableParent implements DataTableParent, FilterParent
     use InitialVisibleColumns;
     use HasFilterFields;
 
-    public const FILTER_YES = "1";
-    public const FILTER_NO = "2";
     private ?array $location = null;
     private ?int $visible_correctors = null;
     private \ilLanguage $lng;
@@ -298,11 +297,11 @@ class CorrectionTableParent implements DataTableParent, FilterParent
                                                            )),// Default are all writings, authorized and above
             "assigned" => $this->ui_factory->input()->field()->select(
                 $this->plugin->txt("filter_assigned"),
-                [self::FILTER_YES => $this->plugin->txt("yes"), self::FILTER_NO => $this->plugin->txt("no")]
+                [CorrectionsView::FILTER_YES => $this->plugin->txt("yes"), CorrectionsView::FILTER_NO => $this->plugin->txt("no")]
             ),
             "pdf_version" => $this->ui_factory->input()->field()->select(
                 $this->plugin->txt("filter_pdf_version"),
-                [self::FILTER_YES => $this->plugin->txt("yes"), self::FILTER_NO => $this->plugin->txt("no")]
+                [CorrectionsView::FILTER_YES => $this->plugin->txt("yes"), CorrectionsView::FILTER_NO => $this->plugin->txt("no")]
             )
         ];
 

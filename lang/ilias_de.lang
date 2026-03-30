@@ -752,7 +752,9 @@ essay_import_hash#:#Hash
 essay_import_password#:#Passwort
 essay_import_use_password#:#Passwort verwenden
 essay_import_zip_only_valid#:#Fehlerfreie Einträge importieren
-essay_import_successful#:#Es wurden erfolgreich %d Einträge importiert.
+essay_imported_one#:#Eine Abgabe wurde importiert.
+essay_imported_n#:#%d Abgaben wurde importiert.
+essay_imported_none#:#Es wurde keine Abgabe importiert.
 essay_import_table#:#Abgaben importieren
 essay_import_file_missing#:#Datei fehlt
 essay_import_user_not_existing#:#User existiert nicht

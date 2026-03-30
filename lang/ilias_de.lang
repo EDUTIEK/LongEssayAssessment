@@ -482,12 +482,13 @@ essay_average_points#:#Durchschnittspunkte
 grade_distribution#:#Notenverteilung
 corrections_all#:#Alle Korrekturen
 essay_correction_finlized#:#Alle Abgaben
-corrector_assignment_change_file_success#:#Die Korrekturzuweisungen aus der Datei wurden vorgenommen.
-corrector_assignment_change_file_failure#:#Die Datei konnte nicht korrekt ausgewertet werden. Es wurden keine Änderungen vorgenommen.
-assignment_excel#:#Korrekturzuweisung
-assignment_excel_export#:#Export
-assignment_excel_import#:#Import
-assignment_excel_export_auth#:#nur Freigegebene
+corrector_assignments_dropdown#:#Korrektur-Zuweisungen
+corrector_assignments_auto#:#Automatisch zuweisen...
+corrector_assignments_export_all#:#Zuweisungsdatei für alle Abgaben exportieren
+corrector_assignments_export_authorized#:#Zuweisungsdatei für freigegebene Abgaben exportieren
+corrector_assignments_import#:#Zuweisungsdatei importieren...
+corrector_assignments_import_success#:#Die Korrekturzuweisungen aus der Datei wurden vorgenommen.
+corrector_assignments_import_failure#:#Die Datei konnte nicht korrekt ausgewertet werden. Es wurden keine Änderungen vorgenommen.
 resource_title#:#Titel zur Anzeige
 word_count#:#Wörter
 filter_authorized#:#Freigegeben

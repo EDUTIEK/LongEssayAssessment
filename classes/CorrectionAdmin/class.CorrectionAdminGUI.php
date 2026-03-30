@@ -454,7 +454,8 @@ class CorrectionAdminGUI extends BaseGUI
                     case 'removeAuthorizations':
                     case 'mailToWriterOrCorrector':
                     case 'viewCorrection':
-                    case 'correctorAssignmentSpreadsheetExport':
+                    case 'correctorAssignmentSpreadsheetExportAll':
+                    case 'correctorAssignmentSpreadsheetExportAuthorized':
                     case 'correctorAssignmentSpreadsheetImport':
                     case 'finalizeUnsubmitted':
                         $this->$cmd();
@@ -515,60 +516,36 @@ class CorrectionAdminGUI extends BaseGUI
 
         $toolbar->setFormAction($this->ctrl->getFormAction($this));
 
-        //        $this->toolbar->addComponent($this->ui_factory->button()->primary(
-        //            $this->plugin->txt('assign_writers'),
-        //            $this->ctrl->getLinkTarget($this, "confirmAssignWriters")
-        //        ));
-
-        $this->toolbar->addComponent($this->ui_factory->legacy($this->plugin->txt('assign_writers')));
-
-        $this->toolbar->addComponent($this->ui_factory->button()->standard(
-            $this->plugin->txt("assignment_excel_export"),
-            $this->ctrl->getLinkTarget($this, "correctorAssignmentSpreadsheetExport")
-        ));
-
-        $this->toolbar->addComponent($this->ui_factory->button()->standard(
-            $this->plugin->txt("assignment_excel_import"),
-            $this->ctrl->getLinkTarget($this, "correctorAssignmentSpreadsheetImport")
-        ));
-
-        $this->toolbar->addComponent($this->ui_factory->button()->toggle(
-            $this->plugin->txt("assignment_excel_export_auth"),
-            "#",
-            "#",
-            $this->spreadsheetAssignmentToggle()
-        )->withAdditionalOnLoadCode(
-            function ($id) {
-                return "$('#{$id}').on( 'click', function() {  document.cookie = 'xlas_exass=' + ($( this ).hasClass('on') ? 'on' : 'off'); } );";
-            }
-        ));
+        $this->toolbar->addComponent($this->ui_factory->dropdown()->standard([
+//            $this->ui_factory->button()->shy(
+//                        $this->plugin->txt('corrector_assignments_auto'),
+//                        $this->ctrl->getLinkTarget($this, "confirmAssignCorrectors")
+//            ),
+            $this->ui_factory->button()->shy(
+                $this->plugin->txt("corrector_assignments_export_all"),
+                $this->ctrl->getLinkTarget($this, "correctorAssignmentSpreadsheetExportAll")
+            ),
+            $this->ui_factory->button()->shy(
+                $this->plugin->txt("corrector_assignments_export_authorized"),
+                $this->ctrl->getLinkTarget($this, "correctorAssignmentSpreadsheetExportAuthorized")
+            ),
+            $this->ui_factory->button()->shy(
+                $this->plugin->txt("corrector_assignments_import"),
+                $this->ctrl->getLinkTarget($this, "correctorAssignmentSpreadsheetImport")
+            )
+        ])->withLabel($this->plugin->txt('corrector_assignments_dropdown')));
 
         $this->toolbar->addSeparator();
-
-
-        //        $toolbar->addComponent($this->ui_factory->button()->standard(
-        //            $this->plugin->txt("export_corrections"),
-        //            $this->ctrl->getLinkTarget($this, "exportCorrections")
-        //        ));
-        //
-        //        $toolbar->addComponent($this->ui_factory->button()->standard(
-        //            $this->plugin->txt("export_results"),
-        //            $this->ctrl->getLinkTarget($this, "exportResults")
-        //        ));
-        //
-        //        $toolbar->addSeparator();
-        //
-        //        if ($this->getCorrectionSettings()->getReportsEnabled()) {
-        //            $toolbar->addComponent($this->ui_factory->button()->standard(
-        //                $this->plugin->txt("download_correction_reports"),
-        //                $this->ctrl->getLinkTarget($this, "downloadReportsPdf")
-        //            ));
-        //        }
     }
 
-    private function correctorAssignmentSpreadsheetExport(): void
+    private function correctorAssignmentSpreadsheetExportAll(): void
     {
-        $this->assignment_service->exportAssignmentSpreadsheet($this->spreadsheetAssignmentToggle());
+        $this->assignment_service->exportAssignmentSpreadsheet(false);
+    }
+
+    private function correctorAssignmentSpreadsheetExportAuthorized(): void
+    {
+        $this->assignment_service->exportAssignmentSpreadsheet(true);
     }
 
     private function correctorAssignmentSpreadsheetImport(): void
@@ -582,7 +559,7 @@ class CorrectionAdminGUI extends BaseGUI
             $this->ctrl->getFormAction($this, "correctorAssignmentSpreadsheetImport"),
             ["excel" => $this->ui_factory->input()->field()->file(
                 $upload_handler,
-                $this->plugin->txt("assignment_excel_import"),
+                $this->plugin->txt("corrector_assignments_import"),
                 $this->plugin->txt($this->getSettings()->getMultiTasks() ? "assignment_excel_import_info_multi" : "assignment_excel_import_info"),
             )->withRequired(true)]
         );
@@ -604,7 +581,7 @@ class CorrectionAdminGUI extends BaseGUI
                     $possible_errors = $this->assignment_service->assignSpreadsheetData($data, true);
                     if (!empty($possible_errors)) {
                         $message = $this->ui_factory->messageBox()->failure(
-                            $this->plugin->txt('corrector_assignment_change_file_failure')
+                            $this->plugin->txt('corrector_assignments_import_failure')
                             . '<p class="small">' .
                             nl2br(implode("\n", $possible_errors)) .
                             '</p>'
@@ -612,7 +589,7 @@ class CorrectionAdminGUI extends BaseGUI
                         $components = array_merge([$message], $components);
 
                     } else {
-                        $this->tpl->setOnScreenMessage("success", $this->plugin->txt('corrector_assignment_change_file_success'), true);
+                        $this->tpl->setOnScreenMessage("success", $this->plugin->txt('corrector_assignments_import_success'), true);
                         $this->assignment_service->assignSpreadsheetData($data, false);
                         $this->ctrl->redirect($this);
                     }
@@ -620,7 +597,7 @@ class CorrectionAdminGUI extends BaseGUI
                     $this->system_api->tempStorage()->deleteFile($stored->getId());
                 } catch (\Exception $exception) {
                     $this->system_api->tempStorage()->deleteFile($stored->getId());
-                    $this->tpl->setOnScreenMessage("failure", $this->plugin->txt("corrector_assignment_change_file_failure") . $exception->getMessage(), false);
+                    $this->tpl->setOnScreenMessage("failure", $this->plugin->txt("corrector_assignments_import_failure") . $exception->getMessage(), false);
                 }
             }
         }
@@ -681,15 +658,5 @@ class CorrectionAdminGUI extends BaseGUI
     protected function getCorrectionSettings(): CorrectionSettings
     {
         return $this->correction_settings ??= $this->assessment_api->correctionSettings()->get();
-    }
-
-    protected function spreadsheetAssignmentToggle()
-    {
-        $cookie = $this->request->getCookieParams();
-        if (isset($cookie['xlas_exass'])) {
-            return $cookie['xlas_exass'] === "on";
-        } else {
-            return false;
-        }
     }
 }

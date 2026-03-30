@@ -49,7 +49,6 @@ class ProtocolGUI extends BaseGUI
             case 'showStartPage':
             case 'createAlert':
             case 'createLogEntry':
-                //case 'exportLog':
                 $this->$cmd();
                 break;
 
@@ -70,13 +69,6 @@ class ProtocolGUI extends BaseGUI
         $button_writer_notice = $this->ui_factory->button()->standard($this->plugin->txt("create_alert"), '#')
                                                 ->withOnClick($modal_writer_notice->getShowSignal());
         $this->toolbar->addComponent($button_writer_notice);
-
-        //        $this->toolbar->addSeparator();
-        //        $button_export = $this->ui_factory->button()->standard(
-        //            $this->plugin->txt("exam_log_export"),
-        //            $this->ctrl->getLinkTarget($this, 'exportLog')
-        //        );
-        //        $this->toolbar->addComponent($button_export);
 
         $protocol_factory = $this->plugin_ui_factory->protocol();
         $alerts = $this->alert_service->all();
@@ -236,18 +228,5 @@ class ProtocolGUI extends BaseGUI
         }
 
         return $out;
-    }
-
-    private function exportLog()
-    {
-        $file_id = $this->log_entry_service->export(ExportType::CSV);
-        $this->system_api->fileDelivery()->sendFile(
-            $file_id,
-            Disposition::ATTACHMENT,
-            $this->system_api->fileStorage()->newInfo()
-                ->setFileName($this->plugin->txt('exam_log') . '.csv')
-                ->setMimeType('text/csv')
-        );
-        $this->system_api->fileStorage()->deleteFile($file_id);
     }
 }

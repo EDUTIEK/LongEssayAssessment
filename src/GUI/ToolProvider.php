@@ -99,8 +99,8 @@ class ToolProvider extends AbstractDynamicToolProvider
             $tabs[] = $t;
 
             $hide_tools = json_encode([bin2hex($t->getProviderIdentification()->serialize())]);
-            $this->dic->ui()->mainTemplate()->addJavaScript(ilLongEssayAssessmentPlugin::assetPath() . '/js/close-mainbar-tool.js');
-            $this->dic->ui()->mainTemplate()->addOnLoadCode("il.EDUTIEK.closeTools($hide_tools);");
+            $this->dic->ui()->mainTemplate()->addJavaScript(ilLongEssayAssessmentPlugin::assetPath() . '/js/xlas.min.js');
+            $this->dic->ui()->mainTemplate()->addOnLoadCode("il.Xlas.ToolsHandler.closeTools($hide_tools);");
         }
 
         return $tabs;

@@ -9,7 +9,7 @@ $id = 'xlas';
 $version = '4.0';
 
 // sub version must be changes for all changes on resource files
-$sub_version = '2';
+$sub_version = '3';
 
 // ilias min and max version; must always reflect the versions that should
 // run with the plugin

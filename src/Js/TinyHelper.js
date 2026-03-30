@@ -23,6 +23,10 @@ export default class TinyHelper
      */
     init(id, lang = 'de', formatting_options = 'extended', headline_scheme = 'three')
     {
+        const url = new URL(window.location.toLocaleString()).searchParams;
+        const name = document.querySelector('textarea#' + id).name;
+        const storageKey = 'xlas_tiny_' + url.get('cmdNode') + '_' + url.get('ref_id') + '_' + name;
+
         tinymce.addI18n("de", tinyDE);
 
         tinymce.init({
@@ -50,6 +54,9 @@ export default class TinyHelper
             paste_merge_formats: true,    // default
             paste_tab_spaces: 4,          // default
             smart_paste: false,           // don't create hyperlinks automatically
+            setup: (editor) => {
+                editor.on('init', () => {this.handleDraft(id, storageKey, editor);});
+            },
             paste_data_images: false,     // don't paste images
             paste_remove_styles_if_webkit: true,  // default
             paste_webkit_styles: 'none',          // default
@@ -241,5 +248,24 @@ export default class TinyHelper
             default:
                 return '';
         }
+    }
+
+    saveDraft (storageKey, editor){
+        localStorage.setItem(storageKey, editor.getContent({ format: 'html' }));
+    };
+
+    handleDraft(id, storageKey, editor){
+        const stored = localStorage.getItem(storageKey);
+        const title = document.querySelector(`label[for="${id}"]`).textContent;
+        if (stored && stored !== editor.getContent()) {
+            const loadDraft = window.confirm(t('loadDraft').replace('%title%', title));
+
+            if (loadDraft) {
+                editor.setContent(stored);
+            } else {
+                localStorage.removeItem(storageKey);
+            }
+        }
+        editor.on('change input undo redo setcontent blur', () => {this.saveDraft(storageKey, editor);})
     }
 }

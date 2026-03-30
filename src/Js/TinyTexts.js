@@ -25,5 +25,6 @@ export default {
     "settingsAlignCenter": "Zentriert",
     "settingsAlignRight": "Rechtsbündig",
     "settingsAlignJustify": "Blocksatz",
-    "tinyHelperIframeAriaText": "Editor"
+    "tinyHelperIframeAriaText": "Editor",
+    "loadDraft": "In Ihrem Browser sind ungespeicherte Änderungen zu \"%title%\" gespeichert. Möchten Sie diese laden?"
 }

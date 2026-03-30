@@ -169,7 +169,11 @@ class CorrectorTemplateGUI extends BaseGUI
     {
         $action = $this->ctrl->getFormAction($this, "edit");
 
-        $corrector_ids = $this->templates_service->getSharableCorrectorIds($this->task_info->getId());
+        $corrector_ids = array_filter(
+            $this->templates_service->getSharableCorrectorIds($this->task_info->getId()),
+            fn($id) => $id !== $this->corrector->getId()
+        );
+
         $correctors = $this->corrector_service->some($corrector_ids);
         /** @var UserData[] $users */
         $users = $this->system_api->user()->getUsersByIds(array_map(fn(Corrector $c) => $c->getUserId(), $correctors));

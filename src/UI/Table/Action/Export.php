@@ -28,6 +28,13 @@ class Export extends Action
         return true;
     }
 
+    /**
+     * @param Component|Data|FormGroup $table
+     * @param array|null $selected_columns  null means all visible columns
+     * @param array|null $selected_rows
+     * @param bool $all_rows_selected
+     * @return Stream
+     */
     public function export(Component|Data|FormGroup $table, ?array $selected_columns = null, ?array $selected_rows = null, bool $all_rows_selected = false): Stream
     {
         $header = [];
@@ -35,7 +42,14 @@ class Export extends Action
 
         switch (true) {
             case $table instanceof Data:
-                if($selected_columns !== null) {
+
+                // neeed to get the visible columns correctly
+                [$table, $view_controls] = $table->applyViewControls(
+                    $table->getFilter() ?? [],
+                    $table->getAdditionalParameters()
+                );
+
+                if ($selected_columns !== null) {
                     $columns = array_filter(
                         $table->getColumns(),
                         fn($key) => in_array($key, $selected_columns),
@@ -45,12 +59,12 @@ class Export extends Action
                 } else {
                     $columns = $table->getVisibleColumns();
                 }
-                $header = array_map(fn (Column $c) => $c->getTitle(), $columns);
+                $header = array_map(fn(Column $c) => $c->getTitle(), $columns);
 
                 $rows_generator = $table->getDataRetrieval()->getRows(
                     $table->getRowBuilder()->withVisibleColumns($columns),
                     array_keys($columns),
-                    empty($selected_rows) || $all_rows_selected ? new Range(0, PHP_INT_MAX): $table->getRange(),
+                    empty($selected_rows) || $all_rows_selected ? new Range(0, PHP_INT_MAX) : $table->getRange(),
                     $table->getOrder(),
                     $table->getFilter(),
                     $table->getAdditionalParameters()
@@ -60,7 +74,7 @@ class Export extends Action
                 /** @var DataRow $row */
                 foreach ($rows_generator as $row) {
                     $r = [];
-                    if(empty($selected_rows) || in_array((int)$row->getId(), $selected_rows)) {
+                    if (empty($selected_rows) || in_array((int) $row->getId(), $selected_rows)) {
                         foreach ($columns as $key => $column) {
                             $r[$key] = $row->getCellContent($key);
                         }
@@ -69,8 +83,8 @@ class Export extends Action
                 }
                 break;
             case $table instanceof FormGroup:
-                $rows = array_map(fn (FormItem $i) => $this->itemToRow($i), $table->getItems());
-                if($selected_columns !== null) {
+                $rows = array_map(fn(FormItem $i) => $this->itemToRow($i), $table->getItems());
+                if ($selected_columns !== null) {
                     $header = array_intersect_key($this->rowsToHeader($rows), array_flip($selected_columns));
                 } else {
                     $header = $this->rowsToHeader($rows);
@@ -140,8 +154,7 @@ class Export extends Action
                 return $value->getLabel();
             }
             return (string) $value;
-        }
-        catch(Throwable $e) {
+        } catch (Throwable $e) {
             return 'Unsupported Type' . gettype($value);
         }
     }

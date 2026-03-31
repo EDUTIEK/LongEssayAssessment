@@ -496,7 +496,6 @@ class CorrectionAdminGUI extends BaseGUI
          ->setHasFilterFields(["name", $multi ? "task" : null, "location", "min_words", "max_words", "status", "assigned", "pdf_version"])
         ->setTableActions($this->getTableActions());
 
-        $table_parent->setInitialVisibleColumns([]);
         $table = $this->plugin_ui_factory->table()->dataTable('correction_admin_table', $table_parent);
         $table->executeAction();
         $this->tpl->setContent($this->renderer->render($table));

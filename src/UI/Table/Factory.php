@@ -3,17 +3,14 @@
 namespace ILIAS\Plugin\LongEssayAssessment\UI\Table;
 
 use ILIAS\UI;
-use ILIAS\UI\Component\Input\Container\Filter;
 use ILIAS\Refinery;
 use ILIAS\HTTP\Wrapper\ArrayBasedRequestWrapper;
-use ILIAS\UI\Component\Modal\RoundTrip;
-use ILIAS\Plugin\LongEssayAssessment\UI\Implementation as LocalUI;
 use Psr\Http\Message\ServerRequestInterface;
 use ILIAS\UI\Renderer;
 use ILIAS\UI\URLBuilder;
-use ILIAS\UI\URLBuilderToken;
 use ILIAS\Plugin\LongEssayAssessment\Dependencies\PluginDic;
 use ILIAS\FileDelivery\Services as FileDeliveryServices;
+use Edutiek\AssessmentService\System\Format\FullService as FormatService;
 
 class Factory
 {
@@ -30,14 +27,15 @@ class Factory
         protected ArrayBasedRequestWrapper $query,
         protected ServerRequestInterface $request,
         protected FileDeliveryServices $delivery,
-        protected \ilLanguage $lng
+        protected \ilLanguage $lng,
+        protected FormatService $format_service
     ) {
         $this->action_factory = new Action\Factory();
         $this->data_factory = new \ILIAS\Data\Factory();
-        $this->column_factory = new Column\Factory($this->lng);
+        $this->column_factory = new Column\Factory($this->lng, $this->format_service);
     }
 
-    public function action() : Action\Factory
+    public function action(): Action\Factory
     {
         return $this->action_factory;
     }
@@ -52,7 +50,7 @@ class Factory
         DataTableParent $parent,
         ?string $uri = null
     ) {
-        if($uri !== null) {
+        if ($uri !== null) {
             $table_uri = $this->data_factory->uri($uri);
         } else {
             $table_uri = $this->data_factory->uri($this->request->getUri()->__toString());
@@ -77,7 +75,7 @@ class Factory
         FormGroupParent $parent,
         ?string $uri = null
     ) {
-        if($uri !== null) {
+        if ($uri !== null) {
             $table_uri = $this->data_factory->uri($uri);
         } else {
             $table_uri = $this->data_factory->uri($this->request->getUri()->__toString());

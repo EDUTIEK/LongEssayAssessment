@@ -137,7 +137,8 @@ class PluginDic
                     $dic->http()->wrapper()->query(),
                     $dic->http()->request(),
                     $dic->fileDelivery(),
-                    $dic->language()
+                    $dic->language(),
+                    $this->system()->format($dic->user()->getId())
                 ),
                 new TreeFactory(
                     $this->plugin(),

@@ -44,6 +44,10 @@ use ILIAS\FileDelivery\Services as FileDeliveryServices;
 class DataTable extends Table implements DataRetrieval, DataTableParent
 {
     use SmallView;
+
+    private ?Order $default_order = null;
+    private ?Range $default_range = null;
+
     public function __construct(
         string $ui_name,
         protected DataTableParent $dt_parent,
@@ -98,6 +102,14 @@ class DataTable extends Table implements DataRetrieval, DataTableParent
         if (!empty($this->actions) && !$small_view && $this->isActionEnabled()) {
             $actions = $this->getDataTableActions();
             $table = $table->withActions($actions);
+        }
+
+        if($this->getDefaultOrder() !== null){
+            $table = $table->withOrder($this->getDefaultOrder());
+        }
+
+        if($this->getDefaultRange()){
+            $table = $table->withRange($this->getDefaultRange());
         }
 
         if (!empty($this->getFilterInputActivation())) {
@@ -213,6 +225,38 @@ class DataTable extends Table implements DataRetrieval, DataTableParent
     public function getColumns(?array $additional_parameters): array
     {
         return array_filter($this->dt_parent->getColumns($additional_parameters)); // use array filter to remove all null values
+    }
+
+    /**
+     * Set the default order for the table
+     * @param string|null $field
+     * @param Direction   $direction
+     * @return void
+     */
+    public function setDefaultOrder(?string $field, Direction $direction = Direction::DESCENDING): void
+    {
+
+        $this->default_order = $field !== null ? new Order($field, $direction->value) : null;
+    }
+
+    private function getDefaultOrder(): ?Order
+    {
+        return $this->default_order;
+    }
+
+    /**
+     * Set the default length for the table
+     * @param int|null $length
+     * @return void
+     */
+    public function setDefaultLength(?int $length = 10): void
+    {
+        $this->default_range = $length !== null ? new Range(0, $length) : null;
+    }
+
+    private function getDefaultRange(): ?Range
+    {
+        return $this->default_range;
     }
 
 }

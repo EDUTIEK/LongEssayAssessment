@@ -543,6 +543,20 @@ abstract class Table implements TableParent, FilterParent, Component\Component
                     ], $this->plugin->txt('table_select_columns'))->withValue("visible")
                 ],
                 $this->getActionFormLink()
+            )->withOnLoadCode(
+                function ($id){
+                    // Close modal on form submit cause it stays open when downloading
+                    return "$(document).ready(function () {
+                                const dialog = document.getElementById('$id');
+                                const form = dialog.querySelector('form.c-form');
+                                
+                                form.addEventListener('submit', (event) => {
+                                  setTimeout(() => {
+                                    dialog.close();
+                                  }, 100); // small delay
+                                });
+                           });";
+                }
             );
 
             if ($this->request->getMethod() === "POST") {

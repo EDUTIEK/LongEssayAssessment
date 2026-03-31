@@ -124,13 +124,6 @@ class CollectionWriterAdminStatisticsGUI
                 $assessment_statistic = $general->fromAssessent($assessment);
                 $sections[] = $this->buildStatistic($assessment_statistic, true);
             }
-
-            $sections[] = $puf->statistic()->statisticSection($this->plugin->txt("writers"));
-
-            foreach ($general->getUsers() as $user) {
-                $user_statistic = $general->fromUser($user);
-                $sections[] = $this->buildStatistic($user_statistic, true);
-            }
         }
 
         $sections[] = $puf->statistic()->statisticSection($this->plugin->txt("writers"));
@@ -159,7 +152,7 @@ class CollectionWriterAdminStatisticsGUI
         $ass_ids = array_filter($this->ass_ids, fn ($x) => in_array($x, $filter_data['context']));
         $filter_data['ass_id'] = $ass_ids;
 
-        $general  = $this->statistic_repo->someCorrections($filter_data);
+        $general  = $this->statistic_repo->someAssessments($filter_data);
         $views = [];
 
         foreach ($general->getUsers() as $user) {

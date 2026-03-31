@@ -27,6 +27,7 @@ use ILIAS\UI\Component\Component;
 use ILIAS\Export\ImportStatus\Exception\ilException;
 use ILIAS\Plugin\LongEssayAssessment\BaseObjectData;
 use Edutiek\AssessmentService\Assessment\Data\GradeLevel;
+use ILIAS\Plugin\LongEssayAssessment\UI\Table\Direction;
 
 /**
  * Resources Administration
@@ -92,6 +93,8 @@ class GradesAdminGUI extends BaseGUI implements DataTableParent
 
         $components[] = $table = $this->table_factory->dataTable("grade_table", $this);
         $table->setTitle($this->plugin->txt('grade_levels'));
+        $table->setDefaultOrder('points', Direction::DESCENDING);
+        $table->setDefaultLength(99999);
 
         if ($this->can_edit) {
             $table->addActionToToolbar($this->toolbar, $table->getActionByName("add_grade_level"), true);

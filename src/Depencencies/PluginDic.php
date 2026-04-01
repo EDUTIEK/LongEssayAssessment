@@ -50,6 +50,7 @@ use ILIAS\Plugin\LongEssayAssessment\UI\PluginTemplateFactory;
 use ILIAS\Plugin\LongEssayAssessment\UI\Protocol\Factory as ProtocolFactory;
 use ILIAS\Plugin\LongEssayAssessment\UI\Statistic\StatisticFactory;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\Factory as TableFactory;
+use ILIAS\Plugin\LongEssayAssessment\UI\Table\Storage as TableStorage;
 use ILIAS\Plugin\LongEssayAssessment\UI\Tree\TreeFactory;
 use ILIAS\Plugin\LongEssayAssessment\UI\UIService;
 use ILIAS\Plugin\LongEssayAssessment\UI\Viewer\ViewerFactory;
@@ -131,6 +132,17 @@ class PluginDic
                 new TableFactory(
                     $this,
                     $dic->ui()->factory(),
+                    new \ILIAS\UI\Implementation\Component\Table\Factory(
+                        $dic["ui.signal_generator"],
+                        $dic['ui.factory.input.viewcontrol'],
+                        $dic['ui.factory.input.container.viewcontrol'],
+                        $dic["ui.data_factory"],
+                        $dic["ui.factory.table.column"],
+                        $dic["ui.factory.table.action"],
+                        new TableStorage($dic->user()),
+                        new \ILIAS\UI\Implementation\Component\Table\DataRowBuilder(),
+                        new \ILIAS\UI\Implementation\Component\Table\OrderingRowBuilder()
+                    ),
                     $dic->uiService(),
                     $dic->ui()->renderer(),
                     $dic->refinery(),

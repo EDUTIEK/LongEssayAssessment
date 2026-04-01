@@ -21,6 +21,7 @@ class Factory
     public function __construct(
         protected PluginDic $pdic,
         protected UI\Factory $ui_factory,
+        protected UI\Component\Table\Factory $ui_table_factory,
         protected \ilUIService $ui_service,
         protected Renderer $renderer,
         protected Refinery\Factory $refinery,
@@ -67,7 +68,25 @@ class Factory
                 $ui_name . "_item"
             );
 
-        return new DataTable($ui_name, $parent, $url_builder, $csrf_token, $row_id_token, $action_parameter_token, $this->ui_factory, $this->pdic->uiFactory(), $this->ui_service, $this->renderer, $this->refinery, $this->query, $this->request, $this->delivery, $this->pdic->plugin(), $this->lng);
+        return new DataTable(
+            $ui_name,
+            $parent,
+            $url_builder,
+            $csrf_token,
+            $row_id_token,
+            $action_parameter_token,
+            $this->ui_factory,
+            $this->ui_table_factory,
+            $this->pdic->uiFactory(),
+            $this->ui_service,
+            $this->renderer,
+            $this->refinery,
+            $this->query,
+            $this->request,
+            $this->delivery,
+            $this->pdic->plugin(),
+            $this->lng
+        );
     }
 
     public function formGroup(

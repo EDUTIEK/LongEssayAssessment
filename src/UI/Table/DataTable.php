@@ -56,6 +56,7 @@ class DataTable extends Table implements DataRetrieval, DataTableParent
         URLBuilderToken $row_id_token,
         URLBuilderToken $action_parameter_token,
         UI\Factory $ui_factory,
+        protected UI\Component\Table\Factory $ui_table_factory,
         LocalUI\Factory $local_factory,
         \ilUIService $ui_service,
         Renderer $renderer,
@@ -90,9 +91,11 @@ class DataTable extends Table implements DataRetrieval, DataTableParent
 
     protected function buildTable(): \ILIAS\UI\Component\Component
     {
-        $tf = $this->ui_factory->table();
-
-        $table = $tf->data($this->getTitle(), $this->getColumns($this->getAdditionalParameter()), $this)
+        $table = $this->ui_table_factory->data(
+            $this->getTitle(),
+            $this->getColumns($this->getAdditionalParameter()),
+            $this
+        )
                     ->withId($this->getUIName() . "_table")
                     ->withRequest($this->request)
                     ->withAdditionalParameters($this->getAdditionalParameter());
@@ -104,11 +107,11 @@ class DataTable extends Table implements DataRetrieval, DataTableParent
             $table = $table->withActions($actions);
         }
 
-        if($this->getDefaultOrder() !== null){
+        if ($this->getDefaultOrder() !== null) {
             $table = $table->withOrder($this->getDefaultOrder());
         }
 
-        if($this->getDefaultRange()){
+        if ($this->getDefaultRange()) {
             $table = $table->withRange($this->getDefaultRange());
         }
 

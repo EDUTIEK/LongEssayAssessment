@@ -261,15 +261,7 @@ class WriterStartGUI extends BaseGUI
             $this->raisePermissionError();
         }
 
-        $file_id = $this->assessment_api->pdfCreation($this->object->getContextId())->createCorrectionReport($this->object->getAssId());
-        $filename = 'assessment' . $this->object->getId() . '-reports.pdf';
-        $this->system_api->fileDelivery()->sendFile(
-            $file_id,
-            Disposition::ATTACHMENT,
-            (new FileInfo())->setFileName($filename)->setMimeType('application/pdf')
-        );
-
-        $this->system_api->fileStorage()->deleteFile($file_id);
+        $this->assessment_api->export($this->object->getContextId())->downloadReport();
     }
 
 

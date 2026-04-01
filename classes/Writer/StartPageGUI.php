@@ -306,7 +306,7 @@ class StartPageGUI extends BaseGUI
         if ($this->perms->canDownloadCorrectionReports() && $this->assessment_api->corrector()->hasReports()) {
             $items[] = $this->ui_factory->item()->standard(
                 $this->ui_factory->link()->standard(
-                    $this->plugin->txt('download_correction_reports'),
+                    $this->plugin->txt('correction_reports'),
                     $this->ctrl->getLinkTarget($this->target, 'downloadCorrectionReportsPdf')
                 )
             )->withLeadIcon($this->ui_factory->symbol()->icon()->standard('file', '', 'medium'));

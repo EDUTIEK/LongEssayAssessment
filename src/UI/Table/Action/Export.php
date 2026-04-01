@@ -15,11 +15,17 @@ use ILIAS\UI\Component\Component;
 use ILIAS\Data\Range;
 use Exception;
 use Throwable;
+use Psr\Http\Message\ServerRequestInterface;
 
 class Export extends Action
 {
+    private ServerRequestInterface $request;
+
     public function __construct(string $name, string $button_label, protected string $filename, protected ExportType $export_type)
     {
+        global $DIC;
+        $this->request = $DIC->http()->request();
+
         parent::__construct($name, $button_label, Type::Multi);
     }
 
@@ -42,6 +48,16 @@ class Export extends Action
 
         switch (true) {
             case $table instanceof Data:
+
+                // Apply the stored view control data.
+                // This is needed to get the visible columns correctly.
+                // The query parameters mut be deleted,
+                // otherwise all selected columns will be deleted if export is executed directly after a selection change
+                $table = $table->withRequest($this->request->withQueryParams([]));
+                [$table, $view_controls] = $table->applyViewControls(
+                    $table->getFilter() ?? [],
+                    $table->getAdditionalParameters()
+                );
 
                 if ($selected_columns !== null) {
                     $columns = array_filter(

@@ -43,12 +43,6 @@ class Export extends Action
         switch (true) {
             case $table instanceof Data:
 
-                // neeed to get the visible columns correctly
-                [$table, $view_controls] = $table->applyViewControls(
-                    $table->getFilter() ?? [],
-                    $table->getAdditionalParameters()
-                );
-
                 if ($selected_columns !== null) {
                     $columns = array_filter(
                         $table->getColumns(),

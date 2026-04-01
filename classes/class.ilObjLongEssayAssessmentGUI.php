@@ -4,6 +4,7 @@
 
 use Edutiek\AssessmentService\Assessment\Api\ForClients as Assessment;
 use Edutiek\AssessmentService\Assessment\Permissions;
+use ILIAS\Plugin\LongEssayAssessment\Corrector\CorrectorReportGUI;
 use ILIAS\Plugin\LongEssayAssessment\Settings\CorrectionSettingsGUI;
 use ILIAS\Plugin\LongEssayAssessment\Settings\OrgaSettingsGUI;
 use ILIAS\Plugin\LongEssayAssessment\Settings\InstructionSettingsGUI;
@@ -276,12 +277,12 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                         $this->ctrl->forwardCommand(new CorrectorCriteriaGUI($this->object));
                     }
                     break;
-                    //                case 'ilias\plugin\longessayassessment\corrector\correctionreportgui':
-                    //                    if ($this->permissions->canWriteCorrectionReport()) {
-                    //                        $this->activateTab('tab_corrector', 'tab_correction_report');
-                    //                        $this->ctrl->forwardCommand(new \ILIAS\Plugin\LongEssayAssessment\Corrector\CorrectionReportGUI($this));
-                    //                    }
-                    //                    break;
+                case strtolower(CorrectorReportGUI::class):
+                    if ($this->permissions->canWriteCorrectionReport()) {
+                        $this->activateTab('tab_corrector', 'tab_correction_report');
+                        $this->ctrl->forwardCommand(new CorrectorReportGUI($this->object));
+                    }
+                    break;
                 case strtolower(DashboardGUI::class):
                     if ($this->permissions->canViewDashboard()) {
                         $this->activateTab('tab_dashboard', 'tab_dashboard');
@@ -633,12 +634,13 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                 ];
             }
 
-            //        if ($this->permissions->canWriteCorrectionReport()) {
-            //            $tabs[] = [
-            //                'id' => 'tab_correction_report',
-            //                'txt' => $this->plugin->txt('tab_correction_report'),
-            //                'url' => $this->ctrl->getLinkTargetByClass('ilias\plugin\longessayassessment\corrector\correctionreportgui')
-            //            ];
+            if ($this->permissions->canWriteCorrectionReport()) {
+                $tabs[] = [
+                    'id' => 'tab_correction_report',
+                    'txt' => $this->plugin->txt('tab_correction_report'),
+                    'url' => $this->ctrl->getLinkTargetByClass(CorrectorReportGUI::class)
+                ];
+            }
         }
         if (!empty($tabs)) {
             $this->tabs->addTab('tab_corrector', $this->plugin->txt('tab_corrector'), $tabs[0]['url']);

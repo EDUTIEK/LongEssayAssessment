@@ -47,7 +47,7 @@ class StatisticView extends \Edutiek\AssessmentService\Views\Data\StatisticView
                 $point_sum += $obj->getPoints() ?? 0;
                 $sum_finalized += 1;
 
-                $point_key = (string)abs($obj->getPoints()??0);
+                $point_key = (string)round($obj->getPoints()??0, 0);
                 $grade_key = $obj->getGrade();
 
                 $this->points_counts[$point_key] = ($this->points_counts[$point_key] ?? 0) + 1;

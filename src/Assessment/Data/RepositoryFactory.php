@@ -112,4 +112,19 @@ class RepositoryFactory implements \Edutiek\AssessmentService\Assessment\Data\Re
     {
         return $this->repo(DisabledGroupRepo::class, DisabledGroup::class);
     }
+
+    public function notificationSettings(): NotificationSettingsRepo
+    {
+        return $this->repo(NotificationSettingsRepo::class, NotificationSettings::class);
+    }
+
+    public function notificationUser(): NotificationUserRepo
+    {
+        return $this->repo(NotificationUserRepo::class, NotificationUser::class);
+    }
+
+    public function notificationQueue(): NotificationQueueRepo
+    {
+        return $this->repo(NotificationQueueRepo::class, NotificationQueue::class);
+    }
 }

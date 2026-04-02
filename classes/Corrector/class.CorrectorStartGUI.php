@@ -286,7 +286,7 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
     private function buildCorrectorStartItem(CorrectorAssignment $assignment): CorrectorStartItem
     {
         $writer = $this->writer_service->oneByWriterId($assignment->getWriterId());
-        $title = $settings = $this->task_api->settings($assignment->getId())->get()->getTitle();
+        $title = $settings = $this->task_api->settings($assignment->getTaskId())->get()->getTitle();
         $co_assignment = $co_user_data = $co_summary = $own_summary = null;
 
         if ($this->settings->getRequiredCorrectors() > 1) {

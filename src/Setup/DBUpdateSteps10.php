@@ -1308,8 +1308,8 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
                     'points' => [ilDBConstants::T_INTEGER, $points],
                     'summary_text' => [ilDBConstants::T_TEXT, $comment],
                     'last_change' => [ilDBConstants::T_DATETIME, $changed],
-                    'corection_authorized' =>  [ilDBConstants::T_DATETIME, $changed],
-                    'correction_authorized_by' =>  [ilDBConstants::T_INTEGER, $changed_by],
+                    'corection_authorized' => [ilDBConstants::T_DATETIME, $changed],
+                    'correction_authorized_by' => [ilDBConstants::T_INTEGER, $changed_by],
                 ]);
 
                 $this->db->update('xlas_as_writer', [
@@ -1317,7 +1317,7 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
                     'correction_status' => [ilDBConstants::T_TEXT, 'finalized'],
                     'combined_status' => [ilDBConstants::T_INTEGER, 7],
                 ], [
-                   'id' =>  [ilDBConstants::T_INTEGER, $writer_id],
+                   'id' => [ilDBConstants::T_INTEGER, $writer_id],
                 ]);
 
                 $done[$writer_id] = true;
@@ -1330,7 +1330,7 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
     /**
      * Exchange width and height of rectangular marks
      */
-    public function step_74() : void
+    public function step_74(): void
     {
         $query = "
             UPDATE xlas_ta_corr_comm 
@@ -1341,9 +1341,64 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
         $this->db->manipulate($query);
     }
 
-    public function step_75() : void
+    public function step_75(): void
     {
         $query = "UPDATE xlas_ta_resource SET `type` = 'instructions' WHERE `type` = 'instruct'";
         $this->db->manipulate($query);
     }
+
+    public function step_76(): void
+    {
+        if (!$this->db->tableExists('xlas_as_noti_settings')) {
+            $fields = [
+                'id' => ['notnull' => 1, 'type' => ilDBConstants::T_INTEGER],
+                'ass_id' => ['notnull' => 1, 'type' => ilDBConstants::T_INTEGER],
+                'type' => ['type' => ilDBConstants::T_TEXT, 'length' => 50, 'notnull' => 1],
+                'active' => ['notnull' => 1, 'type' => ilDBConstants::T_INTEGER],
+                'subject' => ['type' => ilDBConstants::T_TEXT, 'length' => 250, 'notnull' => 1],
+                'body' => ['type' => ilDBConstants::T_CLOB],
+            ];
+            $this->db->createTable('xlas_as_noti_settings', $fields);
+            $this->db->addPrimaryKey('xlas_as_noti_settings', ['id']);
+
+            if (!$this->db->sequenceExists('xlas_as_noti_settings')) {
+                $this->db->createSequence('xlas_as_noti_settings');
+            }
+        }
+
+        if (!$this->db->tableExists('xlas_as_noti_users')) {
+            $fields = [
+                'id' => ['notnull' => 1, 'type' => ilDBConstants::T_INTEGER],
+                'ass_id' => ['notnull' => 1, 'type' => ilDBConstants::T_INTEGER],
+                'user_id' => ['notnull' => 1, 'type' => ilDBConstants::T_INTEGER],
+                'type' => ['type' => ilDBConstants::T_TEXT, 'length' => 50, 'notnull' => 1],
+            ];
+            $this->db->createTable('xlas_as_noti_users', $fields);
+            $this->db->addPrimaryKey('xlas_as_noti_users', ['id']);
+            $this->db->addIndex('xlas_as_noti_users', ['user_id'], 'i1');
+
+            if (!$this->db->sequenceExists('xlas_as_noti_users')) {
+                $this->db->createSequence('xlas_as_noti_users');
+            }
+        }
+
+        if (!$this->db->tableExists('xlas_as_noti_queue')) {
+            $fields = [
+                'id' => ['notnull' => 1, 'type' => ilDBConstants::T_INTEGER],
+                'ass_id' => ['notnull' => 1, 'type' => ilDBConstants::T_INTEGER],
+                'user_id' => ['notnull' => 1, 'type' => ilDBConstants::T_INTEGER],
+                'type' => ['type' => ilDBConstants::T_TEXT, 'length' => 50, 'notnull' => 1],
+                'added' => ['type' => ilDBConstants::T_TIMESTAMP, 'notnull' => 1]
+            ];
+            $this->db->createTable('xlas_as_noti_queue', $fields);
+            $this->db->addPrimaryKey('xlas_as_noti_queue', ['id']);
+            $this->db->addIndex('xlas_as_noti_queue', ['user_id'], 'i1');
+            $this->db->addIndex('xlas_as_noti_queue', ['added'], 'i2');
+
+            if (!$this->db->sequenceExists('xlas_as_noti_queue')) {
+                $this->db->createSequence('xlas_as_noti_queue');
+            }
+        }
+    }
+
 }

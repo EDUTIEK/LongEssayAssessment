@@ -43,7 +43,7 @@ readonly class NotificationQueueRepo implements \Edutiek\AssessmentService\Asses
 
     public function save(NotificationQueue $entity): void
     {
-        $this->repo->update($entity);
+        $this->repo->replace($entity);
     }
 
     public function delete(NotificationQueue $entity): void

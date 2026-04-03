@@ -32,7 +32,7 @@ class NotificationQueue extends \Edutiek\AssessmentService\Assessment\Data\Notif
 {
     #[Key]
     #[Sequence]
-    private int $id;
+    private int $id = 0;
     private int $ass_id = 0;
     private int $user_id = 0;
     private string $type = NotificationType::WRITER_CORRECTION_FINALIZED->value;

@@ -62,6 +62,11 @@ class UserDataRepo implements \Edutiek\AssessmentService\System\Data\UserDataRep
         return ilObjUser::getUserIdByLogin($login);
     }
 
+    public function loginById(int $id): string
+    {
+        return ilObjUser::_lookupLogin($id);
+    }
+
     /**
      * @param int[] $ids
      * @return UserData[] indexed by usr_id
@@ -128,6 +133,9 @@ class UserDataRepo implements \Edutiek\AssessmentService\System\Data\UserDataRep
         return $this->dehydrated[$key_value] ??= new UserData($key_value);
     }
 
+    /**
+     * todo: avoide code duplication with queryUsers
+     */
     public function hydrate(): void
     {
         $default_language = $this->lng->getDefaultLanguage();

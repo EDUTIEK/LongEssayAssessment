@@ -48,6 +48,6 @@ readonly class NotificationSettingsRepo implements \Edutiek\AssessmentService\As
 
     public function save(NotificationSettings $entity): void
     {
-        $this->repo->update($entity);
+        $this->repo->replace($entity);
     }
 }

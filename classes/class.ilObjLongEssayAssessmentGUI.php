@@ -6,6 +6,7 @@ use Edutiek\AssessmentService\Assessment\Api\ForClients as Assessment;
 use Edutiek\AssessmentService\Assessment\Permissions;
 use ILIAS\Plugin\LongEssayAssessment\Corrector\CorrectorReportGUI;
 use ILIAS\Plugin\LongEssayAssessment\Settings\CorrectionSettingsGUI;
+use ILIAS\Plugin\LongEssayAssessment\Settings\NotificationSettingsGUI;
 use ILIAS\Plugin\LongEssayAssessment\Settings\OrgaSettingsGUI;
 use ILIAS\Plugin\LongEssayAssessment\Settings\InstructionSettingsGUI;
 use ilGlobalTemplateInterface as Gti;
@@ -234,6 +235,12 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                     if ($this->permissions->canEditTechnicalSettings()) {
                         $this->activateTab('tab_assessment', 'tab_correction_settings');
                         $this->ctrl->forwardCommand(new CorrectionSettingsGUI($this->object));
+                    }
+                    break;
+                case strtolower(NotificationSettingsGUI::class):
+                    if ($this->permissions->canEditOrgaSettings()) {
+                        $this->activateTab('tab_assessment', 'tab_notifications');
+                        $this->ctrl->forwardCommand(new NotificationSettingsGUI($this->object));
                     }
                     break;
                 case strtolower(WriterStartGUI::class):
@@ -599,6 +606,14 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                 'url' => $this->ctrl->getLinkTargetByClass(DocumentationSettingsGUI::class)
             ];
         }
+        if ($this->permissions->canEditOrgaSettings()) {
+            $tabs[] = [
+                'id' => 'tab_notifications',
+                'txt' => $this->plugin->txt('tab_notifications'),
+                'url' => $this->ctrl->getLinkTargetByClass(NotificationSettingsGUI::class)
+            ];
+        }
+
         if (!empty($tabs)) {
             $this->tabs->addTab('tab_assessment', $this->plugin->txt('tab_task'), $tabs[0]['url']);
             $this->subtabs['tab_assessment'] = $tabs;

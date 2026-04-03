@@ -43,7 +43,7 @@ readonly class NotificationUserRepo implements \Edutiek\AssessmentService\Assess
 
     public function save(NotificationUser $entity): void
     {
-        $this->repo->update($entity);
+        $this->repo->replace($entity);
     }
 
     public function deleteByAssIdAndType(int $ass_id, NotificationType $type): void

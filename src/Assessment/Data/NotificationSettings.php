@@ -30,7 +30,7 @@ class NotificationSettings extends \Edutiek\AssessmentService\Assessment\Data\No
 {
     #[Key]
     #[Sequence]
-    private int $id;
+    private int $id = 0;
     private int $ass_id = 0;
     private string $type = NotificationType::WRITER_CORRECTION_FINALIZED->value;
     private bool $active = false;

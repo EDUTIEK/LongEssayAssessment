@@ -91,7 +91,7 @@ class NotificationSettingsGUI extends BaseGUI
             $sub['body'] = $factory->textarea(
                 $this->plugin->txt('notification_body'),
                 $this->plugin->txt('notification_body_info')
-                . '<br />' . $this->notification->getPlaceholderInfo()
+                . '<br />' . nl2br($this->notification->getPlaceholderInfo($setting->getType()))
             )->withValue($setting->getBody());
 
             $fields[$setting->getType()->value] = $factory->optionalGroup(

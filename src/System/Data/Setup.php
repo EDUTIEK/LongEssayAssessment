@@ -21,6 +21,7 @@ declare(strict_types=1);
 namespace ILIAS\Plugin\LongEssayAssessment\System\Data;
 
 use DateTimeZone;
+use Edutiek\AssessmentService\System\Config\CronJobId;
 
 readonly class Setup extends \Edutiek\AssessmentService\System\Data\Setup
 {
@@ -32,7 +33,8 @@ readonly class Setup extends \Edutiek\AssessmentService\System\Data\Setup
         private string $absolute_temp_path,
         private string $absolute_artifacts_path,
         private string $default_language,
-        private DateTimeZone $default_timezone
+        private DateTimeZone $default_timezone,
+        private array $active_cron_jobs
     ) {
     }
 
@@ -74,5 +76,10 @@ readonly class Setup extends \Edutiek\AssessmentService\System\Data\Setup
     public function getDefaultTimezone(): DateTimeZone
     {
         return $this->default_timezone;
+    }
+
+    public function isCronJobActive(CronJobId $job_id): bool
+    {
+        return in_array($job_id, $this->active_cron_jobs);
     }
 }

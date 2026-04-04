@@ -22,6 +22,7 @@ namespace ILIAS\Plugin\LongEssayAssessment\Dependencies;
 
 use Edutiek\AssessmentService\Assessment\Api\Factory as AssessmentFactory;
 use Edutiek\AssessmentService\Assessment\Api\ForClients as AssessmentApi;
+use Edutiek\AssessmentService\Assessment\Api\ForCron as CronApi;
 use Edutiek\AssessmentService\Assessment\Api\ForRest as RestApi;
 use Edutiek\AssessmentService\EssayTask\Api\Factory as EssayTaskFactory;
 use Edutiek\AssessmentService\EssayTask\Api\ForClients as EssayTaskApi;
@@ -299,6 +300,11 @@ class PluginDic
     public function assessment(int $ass_id, int $user_id): AssessmentApi
     {
         return ($this->dic[AssessmentFactory::class])->forClients($ass_id, $user_id);
+    }
+
+    public function cron(int $user_id): CronApi
+    {
+        return ($this->dic[AssessmentFactory::class])->forCron($user_id);
     }
 
     public function rest(): RestApi

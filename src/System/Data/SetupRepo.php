@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace ILIAS\Plugin\LongEssayAssessment\System\Data;
 
+use ilCronManager;
 use ilIniFile;
 use ilLongEssayAssessmentPlugin;
 use ilLanguage;
 use DateTimeZone;
+use Edutiek\AssessmentService\System\Config\CronJobId;
 
 class SetupRepo implements \Edutiek\AssessmentService\System\Data\SetupRepo
 {
@@ -18,7 +20,8 @@ class SetupRepo implements \Edutiek\AssessmentService\System\Data\SetupRepo
 
     public function __construct(
         private readonly ilIniFile $client_ini,
-        private readonly ilLanguage $lng
+        private readonly ilLanguage $lng,
+        private readonly ilCronManager $cron,
     ) {
     }
 
@@ -33,6 +36,13 @@ class SetupRepo implements \Edutiek\AssessmentService\System\Data\SetupRepo
                 mkdir(self::ARTI_DIR);
             }
 
+            $job_ids = [];
+            foreach (CronJobId::all() as $job_id) {
+                if ($this->cron->isJobActive($job_id->value)) {
+                    $job_ids[] = $job_id;
+                }
+            }
+
             $this->setup = new Setup(
                 $this->client_ini->readVariable('client', 'name'),
                 ILIAS_HTTP_PATH
@@ -43,7 +53,8 @@ class SetupRepo implements \Edutiek\AssessmentService\System\Data\SetupRepo
                 self::TEMP_DIR,
                 self::ARTI_DIR,
                 $this->lng->getDefaultLanguage(),
-                new DateTimeZone(date_default_timezone_get())
+                new DateTimeZone(date_default_timezone_get()),
+                $job_ids
             );
         }
 

@@ -3,6 +3,7 @@
 /* Copyright (c) 2021 ILIAS open source, Extended GPL, see docs/LICENSE */
 
 use ILIAS\DI\Container;
+use ILIAS\Plugin\LongEssayAssessment\Cron\ReviewNotification;
 use ILIAS\Plugin\LongEssayAssessment\Dependencies\PluginDic;
 use ILIAS\Plugin\LongEssayAssessment\Setup\DBUpdateSteps10;
 use ILIAS\Plugin\LongEssayAssessment\UI\PluginTemplateFactory;
@@ -295,7 +296,7 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin implements \i
     private function getJobClasses()
     {
         return $this->cron_classes ??= [
-            //ReviewNotificationCronJob::id() => ReviewNotificationCronJob::class
+            ReviewNotification::id => ReviewNotification::class
         ];
     }
 

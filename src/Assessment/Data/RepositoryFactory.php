@@ -55,7 +55,7 @@ class RepositoryFactory implements \Edutiek\AssessmentService\Assessment\Data\Re
 
     public function contextInfo(): ContextInfoRepo
     {
-        return $this->instances[ContextInfoRepo::class] ??= new ContextInfoRepo($this->tree);
+        return $this->instances[ContextInfoRepo::class] ??= new ContextInfoRepo($this->tree, $this->access);
     }
 
     public function correctionSettings(): CorrectionSettingsRepo

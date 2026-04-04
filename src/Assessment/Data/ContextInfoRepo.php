@@ -20,7 +20,12 @@ declare(strict_types=1);
 
 namespace ILIAS\Plugin\LongEssayAssessment\Assessment\Data;
 
+use ILIAS\Data\ReferenceId;
+use ILIAS\StaticURL\Builder\StandardURIBuilder;
 use ilTree;
+use ilAccessHandler;
+use ilObject;
+use ilLink;
 
 class ContextInfoRepo implements \Edutiek\AssessmentService\Assessment\Data\ContextInfoRepo
 {
@@ -28,6 +33,7 @@ class ContextInfoRepo implements \Edutiek\AssessmentService\Assessment\Data\Cont
 
     public function __construct(
         private readonly ilTree $tree,
+        private readonly ilAccessHandler $access,
     ) {
     }
 
@@ -40,5 +46,16 @@ class ContextInfoRepo implements \Edutiek\AssessmentService\Assessment\Data\Cont
             $node['title'] ?? '',
             $node['description'] ?? '',
         );
+    }
+
+    public function link(int $ass_id, int $user_id): string
+    {
+        foreach (ilObject::_getAllReferences($ass_id) as $ref_id) {
+            if ($this->access->checkAccessOfUser($user_id, 'read', '', $ref_id)) {
+                $builder = new StandardURIBuilder(ILIAS_HTTP_PATH, false);
+                return (string) $builder->build('xlas', new ReferenceId($ref_id));
+            }
+        }
+        return '';
     }
 }

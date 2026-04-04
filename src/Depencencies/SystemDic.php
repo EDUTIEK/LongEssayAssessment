@@ -6,6 +6,7 @@ namespace ILIAS\Plugin\LongEssayAssessment\Dependencies;
 
 use DateTimeInterface;
 use Edutiek\AssessmentService\System\BackgroundTask\SystemManager as BackgroundTaskManager;
+use Edutiek\AssessmentService\System\Mail\Delivery as MailDelivery;
 use Edutiek\AssessmentService\System\Session\Storage as SessionStorage;
 use ilDatePresentation;
 use ilDateTime;
@@ -23,6 +24,7 @@ use ILIAS\Plugin\LongEssayAssessment\System\File\DeliveryAdapter;
 use ILIAS\Plugin\LongEssayAssessment\System\File\Stakeholder;
 use ILIAS\Plugin\LongEssayAssessment\System\File\StorageAdapter;
 use ILIAS\Plugin\LongEssayAssessment\System\Log\LogAdapter;
+use ILIAS\Plugin\LongEssayAssessment\System\Mail\DeliveryAdapter as MailDeliveryAdapter;
 use ILIAS\Plugin\LongEssayAssessment\System\Session\SessionAdapter;
 use ilTemporaryStakeholder;
 use ilUserQuery;
@@ -55,7 +57,8 @@ class SystemDic implements \Edutiek\AssessmentService\System\Api\Dependencies
     {
         return new SetupRepo(
             $this->dic->clientIni(),
-            $this->dic->language()
+            $this->dic->language(),
+            $this->dic->cron()->manager()
         );
     }
 
@@ -131,5 +134,12 @@ class SystemDic implements \Edutiek\AssessmentService\System\Api\Dependencies
     public function log(): LogAdapter
     {
         return new LogAdapter($this->dic->logger()->xlas());
+    }
+
+    public function mailDelivery(): MailDelivery
+    {
+        return new MailDeliveryAdapter(
+            $this->dic->database()
+        );
     }
 }

@@ -592,8 +592,8 @@ mail_to_writer#:#Mail an Teilnehmer
 mail_to_writers#:#Mail an Teilnehmende
 mail_to_writer_or_corrector#:#Mail an Teilnehmer/Korrektor(en)
 mail_to_writers_or_correctors#:#Mail an Teilnehmende/Korrektoren
-review_notification_cron_job#:#Benachrichtigung zur Einsichtnahme von Langtext-Aufgaben
-review_notification_cron_job_desc#:#Teilnehmende erhalten eine Mail-Benachrichtigung, wenn die Korrektur abgeschlossen ist, der Einsichtnahme-Zeitraum begonnen hat und Benachrichtigungen im Reiter Aufgabenstellungen > Organisation aktiviert sind.
+cron_review_notification_title#:#Benachrichtigung zur Einsichtnahme von Langtext-Aufgaben
+cron_review_notification_description#:#Teilnehmende erhalten eine Mail-Benachrichtigung, wenn ihre Korrektur abgeschlossen ist, der Einsichtnahme-Zeitraum begonnen hat und die Benachrichtigung im Reiter Aufgabenstellungen > Benachrichtigungen aktiviert ist.
 review_notification_text#:#Zusätzliche Informationen
 review_notification_text_info#:#Die Informationen werden den Teilnehmenden in der Mail-Benachrichtigung zur Einsichtnahme angezeigt.
 total_statistic#:#Gesamt-Notenstatistik

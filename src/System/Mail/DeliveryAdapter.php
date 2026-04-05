@@ -47,10 +47,12 @@ class DeliveryAdapter implements \Edutiek\AssessmentService\System\Mail\Delivery
             $logins[$row->usr_id] = $row->login;
         }
 
+        $filter = fn($array, $keys) => array_filter($array, fn($value, $key) => in_array($key, $keys), ARRAY_FILTER_USE_BOTH);
+
         $this->getMail()->enqueue(
-            implode(', ', array_intersect_key($logins, $to_ids)),
-            implode(', ', array_intersect_key($logins, $cc_ids)),
-            implode(', ', array_intersect_key($logins, $bc_ids)),
+            implode(', ', $filter($logins, $to_ids)),
+            implode(', ', $filter($logins, $cc_ids)),
+            implode(', ', $filter($logins, $bc_ids)),
             $subject,
             $body,
             [],

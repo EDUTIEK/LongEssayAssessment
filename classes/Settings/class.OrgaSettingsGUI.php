@@ -132,10 +132,6 @@ class OrgaSettingsGUI extends BaseGUI
         if ($orga_settings->getReviewEnabled()) {
             $orga_settings->setReviewStart($data['task']['review']['review_start'] ?? null);
             $orga_settings->setReviewEnd($data['task']['review']['review_end'] ?? null);
-            $orga_settings->setReviewNotification(!empty($data['task']['review']['review_notification']));
-            if ($orga_settings->getReviewNotification()) {
-                $orga_settings->setReviewNotifText($data['task']['review']['review_notification']['review_notification_text'] ?? null);
-            }
         }
 
         if (!empty($data['task']['forwarding'])) {
@@ -354,22 +350,7 @@ class OrgaSettingsGUI extends BaseGUI
             )
                 ->withUseTime(true)
                 ->withValue($orga_settings->getReviewEnd()?->setTimezone($this->user_timezone)),
-            'review_notification' => $factory->optionalGroup(
-                [
-                    "review_notification_text" => $factory->textarea(
-                        $this->plugin->txt("review_notification_text"),
-                        $this->plugin->txt("review_notification_text_info")
-                    )
-                        ->withValue($orga_settings->getReviewNotifText() ?? ""),
-                ],
-                $this->plugin->txt("review_notification_enabled"),
-                $this->plugin->txt("review_notification_info")
-            )
         ];
-
-        if (!$orga_settings->getReviewNotification()) {
-            $review_settings['review_notification'] = $review_settings['review_notification']->withValue(null);
-        }
 
         $fields_settings['review'] = $factory->optionalGroup(
             $review_settings,

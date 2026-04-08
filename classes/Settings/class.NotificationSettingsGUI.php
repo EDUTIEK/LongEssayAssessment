@@ -100,7 +100,7 @@ class NotificationSettingsGUI extends BaseGUI
                 $this->lang->txt($setting->getType()->descriptionLangVar())
             );
             // strange but effective
-            if (!$setting->isActive()) {
+            if (!$setting->getActive()) {
                 $fields[$setting->getType()->value] = $fields[$setting->getType()->value]->withValue(null);
             }
         }

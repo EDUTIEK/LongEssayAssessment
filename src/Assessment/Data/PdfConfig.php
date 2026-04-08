@@ -44,7 +44,7 @@ class PdfConfig extends PdfConfigAbstract
     }
     public function setId(int $id): self
     {
-        $this->ass_id = $id;
+        $this->id = $id;
         return $this;
     }
 

@@ -75,6 +75,11 @@ class CorrectorRepo implements \Edutiek\AssessmentService\Assessment\Data\Correc
         return $this->repo->queryAllBy(['user_id' => $user_id]);
     }
 
+    public function idsByAssId(int $ass_id): array
+    {
+        return $this->repo->queryIntegersBy(['ass_id' => $ass_id], 'id');
+    }
+
     public function save(Corrector $entity): void
     {
         $this->repo->replace($entity);

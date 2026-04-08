@@ -18,25 +18,27 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
-use ILIAS\Filesystem\Util\LegacyPathHelper;
-use Edutiek\AssessmentService\System\Api\ForClients as SystemApi;
 use Edutiek\AssessmentService\Assessment\Api\ForClients as AssessmentApi;
-use Edutiek\AssessmentService\EssayTask\Api\ForClients as EssayTaskApi;
-use Edutiek\AssessmentService\Task\Api\ForClients as TaskApi;
-use Edutiek\AssessmentService\System\Entity\KeyCase;
 use Edutiek\AssessmentService\Assessment\Data\CorrectionSettings;
+use Edutiek\AssessmentService\Assessment\Data\DisabledGroup;
+use Edutiek\AssessmentService\Assessment\Data\GradeLevel;
+use Edutiek\AssessmentService\Assessment\Data\Location;
 use Edutiek\AssessmentService\Assessment\Data\OrgaSettings;
 use Edutiek\AssessmentService\Assessment\Data\PdfSettings;
-use Edutiek\AssessmentService\Assessment\Data\Location;
-use Edutiek\AssessmentService\Assessment\Data\GradeLevel;
-use Edutiek\AssessmentService\Assessment\Data\DisabledGroup;
-use Edutiek\AssessmentService\Task\Data\Settings as TaskSettings;
+use Edutiek\AssessmentService\Assessment\Data\PdfConfig;
+use Edutiek\AssessmentService\Assessment\Data\ExportSettings;
+use Edutiek\AssessmentService\Assessment\Data\NotificationSettings;
+use Edutiek\AssessmentService\EssayTask\Api\ForClients as EssayTaskApi;
+use Edutiek\AssessmentService\EssayTask\Data\WritingSettings as EssayWritingSettings;
+use Edutiek\AssessmentService\System\Api\ForClients as SystemApi;
+use Edutiek\AssessmentService\System\Entity\KeyCase;
+use Edutiek\AssessmentService\Task\Api\ForClients as TaskApi;
 use Edutiek\AssessmentService\Task\Data\CorrectionSettings as TaskCorrectionSettings;
 use Edutiek\AssessmentService\Task\Data\RatingCriterion as TaskRatingCriterion;
-use Edutiek\AssessmentService\EssayTask\Data\TaskSettings as EssayTaskSettings;
-use Edutiek\AssessmentService\EssayTask\Data\WritingSettings as EssayWritingSettings;
-use ILIAS\Filesystem\Stream\Streams;
 use Edutiek\AssessmentService\Task\Data\Resource;
+use Edutiek\AssessmentService\Task\Data\Settings as TaskSettings;
+use ILIAS\Filesystem\Stream\Streams;
+use ILIAS\Filesystem\Util\LegacyPathHelper;
 
 class ilLongEssayAssessmentExporter extends ilXmlExporter
 {
@@ -132,6 +134,13 @@ class ilLongEssayAssessmentExporter extends ilXmlExporter
 
         $this->addEntityXml(
             $writer,
+            'AssessmentExportSettings',
+            $this->assessment_api->export($this->object->getContextId())->getSettings(),
+            ExportSettings::class
+        );
+
+        $this->addEntityXml(
+            $writer,
             'AssessmentCorrectionSettings',
             $this->assessment_api->correctionSettings()->get(),
             CorrectionSettings::class
@@ -147,6 +156,14 @@ class ilLongEssayAssessmentExporter extends ilXmlExporter
 
         foreach ($this->assessment_api->disabledGroup()->all() as $group) {
             $this->addEntityXml($writer, 'AssessmentDisabledGroup', $group, DisabledGroup::class);
+        }
+
+        foreach ($this->assessment_api->pdfCreation($this->object->getContextId())->getAllConfig() as $config) {
+            $this->addEntityXml($writer, 'AssessmentPdfConfig', $config, PdfConfig::class);
+        }
+
+        foreach ($this->assessment_api->notification()->allSettings() as $notification) {
+            $this->addEntityXml($writer, 'AssessmentNotificationSettings', $notification, NotificationSettings::class);
         }
 
         $this->addEntityXml(

@@ -69,7 +69,7 @@ class NotificationSettings extends \Edutiek\AssessmentService\Assessment\Data\No
         return $this;
     }
 
-    public function isActive(): bool
+    public function getActive(): bool
     {
         return $this->active;
     }

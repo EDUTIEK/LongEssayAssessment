@@ -55,6 +55,11 @@ class TokenRepo implements \Edutiek\AssessmentService\Assessment\Data\TokenRepo
         $this->repo->deleteAllBy(['ass_id' => $ass_id]);
     }
 
+    public function deleteByUserId(int $user_id): void
+    {
+        $this->repo->deleteAllBy(['user_id' => $user_id]);
+    }
+
     public function deleteByIdsAndPurpose(int $user_id, int $ass_id, TokenPurpose $purpose): void
     {
         $this->repo->deleteAllBy(['user_id' => $user_id, 'ass_id' => $ass_id, 'purpose' => $purpose->value]);

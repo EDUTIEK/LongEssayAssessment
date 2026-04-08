@@ -18,27 +18,29 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
-use Edutiek\AssessmentService\Assessment\Data\DisabledGroup;
-use ILIAS\Filesystem\Filesystem;
-use ILIAS\Filesystem\Util\LegacyPathHelper;
-use Edutiek\AssessmentService\System\Api\ForClients as SystemApi;
 use Edutiek\AssessmentService\Assessment\Api\ForClients as AssessmentApi;
-use Edutiek\AssessmentService\EssayTask\Api\ForClients as EssayTaskApi;
-use Edutiek\AssessmentService\Task\Api\ForClients as TaskApi;
-use Edutiek\AssessmentService\System\Entity\KeyCase;
 use Edutiek\AssessmentService\Assessment\Data\CorrectionSettings;
+use Edutiek\AssessmentService\Assessment\Data\DisabledGroup;
+use Edutiek\AssessmentService\Assessment\Data\GradeLevel as GradeLevel;
+use Edutiek\AssessmentService\Assessment\Data\Location as Location;
 use Edutiek\AssessmentService\Assessment\Data\OrgaSettings;
 use Edutiek\AssessmentService\Assessment\Data\PdfSettings;
-use Edutiek\AssessmentService\Assessment\Data\Location as Location;
-use Edutiek\AssessmentService\Assessment\Data\GradeLevel as GradeLevel;
+use Edutiek\AssessmentService\Assessment\Data\PdfConfig;
+use Edutiek\AssessmentService\Assessment\Data\ExportSettings;
+use Edutiek\AssessmentService\Assessment\Data\NotificationSettings;
 use Edutiek\AssessmentService\Assessment\TaskInterfaces\TaskInfo;
 use Edutiek\AssessmentService\Assessment\TaskInterfaces\TaskType;
-use Edutiek\AssessmentService\Task\Data\Settings as TaskSettings;
+use Edutiek\AssessmentService\EssayTask\Api\ForClients as EssayTaskApi;
+use Edutiek\AssessmentService\EssayTask\Data\WritingSettings as EssayWritingSettings;
+use Edutiek\AssessmentService\System\Api\ForClients as SystemApi;
+use Edutiek\AssessmentService\System\Entity\KeyCase;
+use Edutiek\AssessmentService\Task\Api\ForClients as TaskApi;
 use Edutiek\AssessmentService\Task\Data\CorrectionSettings as TaskCorrectionSettings;
 use Edutiek\AssessmentService\Task\Data\RatingCriterion as TaskRatingCriterion;
-use Edutiek\AssessmentService\EssayTask\Data\WritingSettings as EssayWritingSettings;
-use Edutiek\AssessmentService\EssayTask\Data\TaskSettings as EssayTaskSettings;
 use Edutiek\AssessmentService\Task\Data\Resource;
+use Edutiek\AssessmentService\Task\Data\Settings as TaskSettings;
+use ILIAS\Filesystem\Filesystem;
+use ILIAS\Filesystem\Util\LegacyPathHelper;
 use ILIAS\Plugin\LongEssayAssessment\System\Data\FileInfo as FileInfoModel;
 
 class ilLongEssayAssessmentImporter extends ilXmlImporter
@@ -131,6 +133,12 @@ class ilLongEssayAssessmentImporter extends ilXmlImporter
                     $this->assessment_api->pdfSettings()->save($entity->setAssId($ass_id));
                     break;
 
+                case 'AssessmentExportSettings':
+                    $entity = $this->assessment_api->export($this->object->getContextId())->getSettings();
+                    $this->applyRow($row = $this->getRow($element), $entity, ExportSettings::class);
+                    $this->assessment_api->export($this->object->getContextId())->saveSettings($entity->setAssId($ass_id));
+                    break;
+
                 case 'AssessmentCorrectionSettings':
                     $entity = $this->assessment_api->correctionSettings()->get();
                     $this->applyRow($row = $this->getRow($element), $entity, CorrectionSettings::class);
@@ -153,6 +161,18 @@ class ilLongEssayAssessmentImporter extends ilXmlImporter
                     $entity = $this->assessment_api->disabledGroup()->new();
                     $this->applyRow($row = $this->getRow($element), $entity, DisabledGroup::class);
                     $this->assessment_api->disabledGroup()->save($entity->setAssId($ass_id));
+                    break;
+
+                case 'AssessmentPdfConfig':
+                    $entity = $this->assessment_api->pdfCreation($this->object->getContextId())->newConfig();
+                    $this->applyRow($row = $this->getRow($element), $entity, PdfConfig::class);
+                    $this->assessment_api->pdfCreation($this->object->getContextId())->saveConfig($entity->setAssId($ass_id)->setId(0));
+                    break;
+
+                case 'AssessmentNotificationSettings':
+                    $entity = $this->assessment_api->notification()->newSettings();
+                    $this->applyRow($row = $this->getRow($element), $entity, NotificationSettings::class);
+                    $this->assessment_api->notification()->saveSettings($entity->setAssId($ass_id)->setId(0));
                     break;
 
                 case 'TaskCorrectionSettings':
@@ -180,7 +200,7 @@ class ilLongEssayAssessmentImporter extends ilXmlImporter
                     $entity = $this->task_api->ratingCriterion(0)->new();
                     $this->applyRow($row = $this->getRow($element), $entity, TaskRatingCriterion::class);
                     $task_id = $task_id_match[$entity->getTaskId()];
-                    $this->task_api->ratingCriterion($task_id)->save($entity->setTaskId($task_id)->setCorrectorId(null));
+                    $this->task_api->ratingCriterion($task_id)->save($entity->setTaskId($task_id)->setCorrectorId(null)->setId(0));
                     break;
 
                 case 'TaskResource':
@@ -192,7 +212,7 @@ class ilLongEssayAssessmentImporter extends ilXmlImporter
                     if ($file_id !== null) {
                         $file_id = $this->addFile($file_id, $file_name);
                     }
-                    $this->task_api->resource($task_id)->save($entity->setTaskId($task_id)->setFileId($file_id));
+                    $this->task_api->resource($task_id)->save($entity->setTaskId($task_id)->setFileId($file_id)->setId(0));
             }
         }
 

@@ -50,4 +50,9 @@ readonly class NotificationSettingsRepo implements \Edutiek\AssessmentService\As
     {
         $this->repo->replace($entity);
     }
+
+    public function deleteByAssId(int $ass_id): void
+    {
+        $this->repo->deleteAllBy(['ass_id' => $ass_id]);
+    }
 }

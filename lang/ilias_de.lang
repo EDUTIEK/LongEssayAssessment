@@ -911,9 +911,14 @@ corrector#:#Korrektor
 no_items#:#Die Aktion ist für keinen der ausgewählten Einträge ausführbar.
 please_select_item#:#Bitte wählen Sie einen oder mehrere Einträge aus der Tabelle aus.
 tab_notifications#:#Benachrichtigungen
+notification_settings#:#Benachrichtigungen
+notification_type#:#Anlass
+notification_active#:#Aktiv
 notification_logins#:#Empfänger-Logins
 notification_logins_info#:#Geben Sie die Logins durch Komma getrennt ein. Leerzeichen werden ignoriert.
 notification_subject#:#Betreff
 notification_subject_info#:#Max 250 Zeichen, gleiche Platzhalter wie im Inhalt möglich.
 notification_body#:#Inhalt
 notification_body_info#:#Sie können die folgenden Platzhalter verwenden:
+notification_recipient#:#Empfänger
+edit_notification#:#Benachrichtigung bearbeiten

@@ -4,31 +4,40 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\Settings;
 
+use Edutiek\AssessmentService\Assessment\Data\NotificationSettings;
 use Edutiek\AssessmentService\Assessment\Data\NotificationUser;
 use Edutiek\AssessmentService\Assessment\Notification\FullService as NotificationService;
 use Edutiek\AssessmentService\System\Language\ReadService as LanguageService;
 use Edutiek\AssessmentService\System\User\ReadService as UserService;
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\BaseObjectData;
-use ILIAS\UI\Component\Input\Container\Form\Standard;
+use ILIAS\Plugin\LongEssayAssessment\UI\Table\DataTableParent;
+use ILIAS\Plugin\LongEssayAssessment\UI\Table\Item;
+use ILIAS\Plugin\LongEssayAssessment\UI\Table\Action;
+use Generator;
+use InvalidArgumentException;
+use Edutiek\AssessmentService\Assessment\Data\NotificationType;
+use Edutiek\AssessmentService\System\Entity\FullService as EntityService;
 
 /**
  * Notification settings
  *
  * @ilCtrl_isCalledBy ILIAS\Plugin\LongEssayAssessment\Settings\NotificationSettingsGUI: ilObjLongEssayAssessmentGUI
  */
-class NotificationSettingsGUI extends BaseGUI
+class NotificationSettingsGUI extends BaseGUI implements DataTableParent
 {
     private NotificationService $notification;
-    private LanguageService $lang;
+    private LanguageService $service_lang;
     private UserService $users;
+    private EntityService $entity_service;
 
     public function __construct(BaseObjectData $object)
     {
         parent::__construct($object);
 
         $this->notification = $this->assessment_api->notification();
-        $this->lang = $this->assessment_api->language($this->user->getId());
+        $this->entity_service = $this->system_api->entity();
+        $this->service_lang = $this->assessment_api->language($this->user->getId());
         $this->users = $this->system_api->user();
     }
 
@@ -36,9 +45,11 @@ class NotificationSettingsGUI extends BaseGUI
     {
         $this->initTools(false, true);
 
-        $cmd = $this->ctrl->getCmd('editSettings');
+        $cmd = $this->ctrl->getCmd('showItems');
         switch ($cmd) {
-            case "editSettings":
+            case "showItems":
+            case "editItem":
+            case "updateItem":
                 $this->$cmd();
                 break;
 
@@ -47,94 +58,111 @@ class NotificationSettingsGUI extends BaseGUI
         }
     }
 
-    protected function editSettings()
+    protected function showItems()
     {
-        $form = $this->buildForm();
-        if ($this->request->getMethod() == "POST") {
-            $form = $form->withRequest($this->request);
-            $data = $form->getData();
+        $table = $this->plugin_ui_factory->table()->dataTable("notification_settings", $this);
+        $table->setTitle($this->plugin->txt('notification_settings'));
+        $table->setDefaultLength(count(NotificationType::availableTypes()));
+        $table->executeAction();
 
-            $result = $form->getInputGroup()->getContent();
-            if ($result->isOK()) {
-                $this->updateSettings($data);
-            }
-        }
-
-        $this->add($form)->show();
+        $this->add($table)->show();
     }
 
-    private function buildForm(): Standard
+    public function buildItem(NotificationSettings $setting): NotificationSettingsItem
     {
-        $factory = $this->ui_factory->input()->field();
-
-        $fields = [];
-        foreach ($this->notification->allSettings() as $setting) {
-            $sub = [];
-
-            if ($setting->getType()->hasConfiguredUsers()) {
-                $sub['logins'] = $factory->text(
-                    $this->plugin->txt('notification_logins'),
-                    $this->plugin->txt('notification_logins_info'),
-                )->withValue($this->userIdsToLoginList(
-                    array_map(
-                        fn(NotificationUser $user) => $user->getUserId(),
-                        $this->notification->usersByType($setting->getType())
-                    )
-                ));
-            }
-
-            $sub['subject'] = $factory->text(
-                $this->plugin->txt('notification_subject'),
-                $this->plugin->txt('notification_subject_info')
-            )->withValue($setting->getSubject());
-
-            $sub['body'] = $factory->textarea(
-                $this->plugin->txt('notification_body'),
-                $this->plugin->txt('notification_body_info')
-                . '<br />' . nl2br($this->notification->getPlaceholderInfo($setting->getType()))
-            )->withValue($setting->getBody());
-
-            $fields[$setting->getType()->value] = $factory->optionalGroup(
-                $sub,
-                $this->lang->txt($setting->getType()->titleLangVar()),
-                $this->lang->txt($setting->getType()->descriptionLangVar())
-            );
-            // strange but effective
-            if (!$setting->getActive()) {
-                $fields[$setting->getType()->value] = $fields[$setting->getType()->value]->withValue(null);
-            }
-        }
-
-        return $this->ui_factory->input()->container()->form()->standard(
-            $this->ctrl->getFormAction($this),
-            $fields
+        return new NotificationSettingsItem(
+            $setting->getId(),
+            $setting->getType(),
+            $setting->getActive(),
+            $setting->getSubject(),
+            $setting->getBody()
         );
     }
 
-    private function updateSettings(array $data): void
+    private function buildFields(NotificationSettingsItem $item): array
     {
-        foreach ($this->notification->allSettings() as $setting) {
-            $sub = $data[$setting->getType()->value] ?? null;
-            if (is_array($sub)) {
-                $setting->setActive(true);
-                $setting->setSubject((string) $sub['subject']);
-                $setting->setBody((string) $sub['body']);
-                $this->notification->saveSettings($setting);
+        $factory = $this->ui_factory->input()->field();
+        $fields = [];
 
-                if ($setting->getType()->hasConfiguredUsers()) {
-                    $this->notification->saveUsers(
-                        $setting->getType(),
-                        $this->loginListToUserIds((string) $sub['logins'])
-                    );
-                }
-            } else {
-                $setting->setActive(false);
-                $this->notification->saveSettings($setting);
-            }
+        $fields['active'] = $factory->checkbox(
+            $this->plugin->txt('notification_active'),
+            $this->plugin->txt('notification_active_info'),
+        )->withValue($item->isActive());
+
+        if ($item->getType()->hasConfiguredUsers()) {
+            $fields['logins'] = $factory->text(
+                $this->plugin->txt('notification_logins'),
+                $this->plugin->txt('notification_logins_info'),
+            )->withValue($this->userIdsToLoginList(
+                array_map(
+                    fn(NotificationUser $user) => $user->getUserId(),
+                    $this->notification->usersByType($item->getType())
+                )
+            ));
         }
 
+        $fields['subject'] = $factory->text(
+            $this->plugin->txt('notification_subject'),
+            $this->plugin->txt('notification_subject_info')
+        )->withValue($item->getSubject());
+
+        $fields['body'] = $factory->textarea(
+            $this->plugin->txt('notification_body'),
+            $this->plugin->txt('notification_body_info')
+            . '<br />' . nl2br($this->notification->getPlaceholderInfo($item->getType()))
+        )->withValue($item->getBody());
+
+        return ['settings' => $this->ui_factory->input()->field()->section(
+            $fields,
+            $this->service_lang->txt($item->getType()->titleLangVar()),
+            $this->service_lang->txt($item->getType()->descriptionLangVar())
+        )];
+    }
+
+    private function save(NotificationSettingsItem $item, array $data): void
+    {
+        $setting = $this->notification->settingsById($item->getId());
+        if ($setting === null) {
+            throw new InvalidArgumentException('Notification settings with ID ' . $item->getId() . ' not found');
+        }
+
+        $setting->setActive((bool) ($data['settings']['active'] ?? false));
+        $setting->setSubject((string) ($data['settings']['subject'] ?? ''));
+        $setting->setBody((string) ($data['settings']['body'] ?? ''));
+        if ($setting->getType()->hasConfiguredUsers()) {
+            $this->notification->saveUsers(
+                $setting->getType(),
+                $this->loginListToUserIds((string) ($data['settings']['logins']))
+            );
+        }
+
+        $this->entity_service->secure($setting, NotificationSettings::class);
+        $this->notification->saveSettings($setting);
+
         $this->success($this->lng->txt("settings_saved"), true);
-        $this->ctrl->redirect($this, "editSettings");
+        $this->ctrl->redirect($this, "showItems");
+    }
+
+    private function recipients(NotificationSettingsItem $item)
+    {
+        switch ($item->getType()) {
+            case NotificationType::WRITER_CORRECTION_FINALIZED:
+                return $this->service_lang->txt('writer');
+            case NotificationType::CORRECTOR_AUTHORIZATION_REMOVED:
+            case NotificationType::CORRECTOR_PROCEDURE_STARTED:
+            case NotificationType::CORRECTOR_WRITING_CHANGED:
+                return $this->service_lang->txt('corrector');
+            default:
+                if ($item->getType()->hasConfiguredUsers()) {
+                    return $this->userIdsToLoginList(
+                        array_map(
+                            fn(NotificationUser $user) => $user->getUserId(),
+                            $this->notification->usersByType($item->getType())
+                        )
+                    );
+                }
+        }
+        return '';
     }
 
     /**
@@ -181,5 +209,72 @@ class NotificationSettingsGUI extends BaseGUI
             }
         }
         return $entries;
+    }
+
+    /**
+     * @param NotificationSettingsItem $item
+     */
+    public function getColumnMapping(Item $item, ?array $additional_parameters): array|\ArrayAccess
+    {
+        return [
+            "type" => $this->service_lang->txt($item->getType()->titleLangVar()),
+            "subject" => $item->getSubject(),
+            "active" => $item->isActive(),
+            'recipients' => $this->recipients($item)
+        ];
+    }
+
+    public function getColumns(?array $additional_parameters): array
+    {
+        $tf = $this->ui_factory->table();
+
+        return [
+            "type" => $tf->column()->text($this->plugin->txt('notification_type'))->withIsSortable(false),
+            "subject" => $tf->column()->text($this->plugin->txt('notification_subject'))->withIsSortable(false),
+            "recipients" => $tf->column()->text($this->plugin->txt('notification_recipient'))->withIsSortable(false),
+            "active" => $tf->column()->boolean($this->lng->txt('active'), $this->lng->txt('yes'), $this->lng->txt('no'))->withIsSortable(false),
+        ];
+    }
+
+    public function getTotalRowCount(?array $filter_data, ?array $additional_parameters): ?int
+    {
+        return count(NotificationType::availableTypes());
+    }
+
+    public function getTableActions(): array
+    {
+        return [$this->editAction()];
+    }
+
+    public function editAction()
+    {
+        return $this->plugin_ui_factory->table()->action()->form(
+            "edit_item",
+            $this->plugin->txt('edit_notification'),
+            $this->lng->txt('save'),
+            $this->buildFields(...),
+            $this->save(...),
+            fn(Item $item) => true,
+            Action\Type::Single
+        );
+    }
+
+    public function getTableItems(?array $ids = null, ?array $filter_data = null): Generator
+    {
+        // no ids and filter needed
+        foreach ($this->notification->allSettings() as $setting) {
+            if ($ids === null || in_array($setting->getId(), $ids)) {
+                yield $this->buildItem($setting);
+            }
+        }
+    }
+
+    public function getTableItem(int $id): Item
+    {
+        $settings = $this->notification->settingsById($id);
+        if ($settings === null) {
+            throw new InvalidArgumentException('Notification settings with ID ' . $id . ' not found');
+        }
+        return $this->buildItem($settings);
     }
 }

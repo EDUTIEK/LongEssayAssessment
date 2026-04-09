@@ -36,6 +36,11 @@ readonly class NotificationSettingsRepo implements \Edutiek\AssessmentService\As
         return $this->repo->new();
     }
 
+    public function one(int $id): ?NotificationSettings
+    {
+        return $this->repo->queryOneBy(['id' => $id]);
+    }
+
     public function oneByAssIdAndType(int $ass_id, NotificationType $type): ?NotificationSettings
     {
         return $this->repo->queryOneBy(['ass_id' => $ass_id, 'type' => $type->value]);

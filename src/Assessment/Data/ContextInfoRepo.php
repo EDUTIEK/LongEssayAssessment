@@ -52,7 +52,8 @@ class ContextInfoRepo implements \Edutiek\AssessmentService\Assessment\Data\Cont
     {
         foreach (ilObject::_getAllReferences($ass_id) as $ref_id) {
             if ($this->access->checkAccessOfUser($user_id, 'read', '', $ref_id)) {
-                $builder = new StandardURIBuilder(ILIAS_HTTP_PATH, false);
+                $url = str_replace('/xlas_rest.php', '', ILIAS_HTTP_PATH);
+                $builder = new StandardURIBuilder($url, false);
                 return (string) $builder->build('xlas', new ReferenceId($ref_id));
             }
         }

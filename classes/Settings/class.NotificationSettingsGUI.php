@@ -18,6 +18,7 @@ use Generator;
 use InvalidArgumentException;
 use Edutiek\AssessmentService\Assessment\Data\NotificationType;
 use Edutiek\AssessmentService\System\Entity\FullService as EntityService;
+use Edutiek\AssessmentService\Assessment\Data\CorrectionProcedure as CorrectionProcedure;
 
 /**
  * Notification settings
@@ -30,11 +31,13 @@ class NotificationSettingsGUI extends BaseGUI implements DataTableParent
     private LanguageService $service_lang;
     private UserService $users;
     private EntityService $entity_service;
+    private CorrectionProcedure $procedure;
 
     public function __construct(BaseObjectData $object)
     {
         parent::__construct($object);
 
+        $this->procedure = $this->assessment_api->correctionSettings()->get()->getProcedure();
         $this->notification = $this->assessment_api->notification();
         $this->entity_service = $this->system_api->entity();
         $this->service_lang = $this->assessment_api->language($this->user->getId());
@@ -110,12 +113,12 @@ class NotificationSettingsGUI extends BaseGUI implements DataTableParent
             $this->plugin->txt('notification_body'),
             $this->plugin->txt('notification_body_info')
             . '<br />' . nl2br($this->notification->getPlaceholderInfo($item->getType()))
-        )->withValue($item->getBody());
+        )->withValue((string) $item->getBody());
 
         return ['settings' => $this->ui_factory->input()->field()->section(
             $fields,
-            $this->service_lang->txt($item->getType()->titleLangVar()),
-            $this->service_lang->txt($item->getType()->descriptionLangVar())
+            $this->service_lang->txt($item->getType()->titleLangVar($this->procedure)),
+            $this->service_lang->txt($item->getType()->descriptionLangVar($this->procedure))
         )];
     }
 
@@ -217,7 +220,7 @@ class NotificationSettingsGUI extends BaseGUI implements DataTableParent
     public function getColumnMapping(Item $item, ?array $additional_parameters): array|\ArrayAccess
     {
         return [
-            "type" => $this->service_lang->txt($item->getType()->titleLangVar()),
+            "type" => $this->service_lang->txt($item->getType()->titleLangVar($this->procedure)),
             "subject" => $item->getSubject(),
             "active" => $item->isActive(),
             'recipients' => $this->recipients($item)

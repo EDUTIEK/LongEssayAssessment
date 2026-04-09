@@ -827,7 +827,7 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
             $this->plugin->txt("change_text_to_pdf_confirmation"),
             $this->ctrl->getFormAction($this, 'changeTextToPdf'),
             fn(WriterItem $item) => $item->getUserData()->getListname(true),
-            fn(WriterItem $item) => $item->getWriter()->isCorrectionOpen(),
+            fn(WriterItem $item) => !$item->getWriter()->isAuthorized(),
             Action\Type::Standard
         );
     }

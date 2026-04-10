@@ -2,41 +2,33 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\CorrectionAdmin;
 
-use Edutiek\AssessmentService\Assessment\Data\CorrectionStatus;
-use Edutiek\AssessmentService\Assessment\Data\WritingTask;
-use ILIAS\Plugin\LongEssayAssessment\UI\Table\DataTableParent;
-use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
-use ILIAS\Test\Participants\TableAction;
-use ILIAS\Plugin\LongEssayAssessment\UI\Table\Action;
-use ILIAS\Plugin\LongEssayAssessment\UI\Table\FilterParent;
-use ILIAS\Plugin\LongEssayAssessment\UI\Table\Helper\ConfirmationIds;
-use Edutiek\AssessmentService\Task\Data\ResourceType;
-use Edutiek\AssessmentService\Task\Data\Settings;
-use Edutiek\AssessmentService\Task\Settings\FullService as SettingsService;
-use Edutiek\AssessmentService\Assessment\Data\OrgaSettings;
-use Edutiek\AssessmentService\Assessment\TaskInterfaces\GradingStatus;
-use Edutiek\AssessmentService\Assessment\Data\Writer;
-use Edutiek\AssessmentService\Assessment\OrgaSettings\FullService as OrgaService;
-use Edutiek\AssessmentService\Assessment\Writer\FullService as WriterService;
-use Edutiek\AssessmentService\System\User\ReadService as UserService;
-use Edutiek\AssessmentService\EssayTask\Essay\ClientService as EssayService;
-use Edutiek\AssessmentService\Task\AssessmentStatus\FullService as AssessmentStatus;
-use ILIAS\Plugin\LongEssayAssessment\BaseObjectData;
-use Edutiek\AssessmentService\Task\CorrectorSummary\ReadService as SummaryService;
-use Edutiek\AssessmentService\Task\CorrectorAssignments\FullService as CorrectorAssignmentsService;
-use Edutiek\AssessmentService\Assessment\Corrector\FullService as CorrectorService;
-use Edutiek\AssessmentService\Assessment\Data\Location;
 use Edutiek\AssessmentService\Assessment\AssessmentGrading\ReadService as GradingService;
-use Edutiek\AssessmentService\Assessment\Data\CorrectionSettings;
-use ILIAS\UI\Implementation\Component\Modal\RoundTrip;
-use Edutiek\AssessmentService\System\Data\UserData;
-use ILIAS\Refinery\Transformation;
-use Edutiek\AssessmentService\Task\CorrectionProcess\FullService as CorrectionProcess;
-use ILIAS\Plugin\LongEssayAssessment\GUI\Correction\CorrectionTableParent;
-use ILIAS\Plugin\LongEssayAssessment\GUI\Correction\CorrectionItem;
+use Edutiek\AssessmentService\Assessment\Corrector\FullService as CorrectorService;
+use Edutiek\AssessmentService\Assessment\Data\AssignFilter;
 use Edutiek\AssessmentService\Assessment\Data\CombinedStatus;
-use ILIAS\UI\Component\Input\Input;
+use Edutiek\AssessmentService\Assessment\Data\CorrectionSettings;
+use Edutiek\AssessmentService\Assessment\Data\Location;
+use Edutiek\AssessmentService\Assessment\Data\OrgaSettings;
+use Edutiek\AssessmentService\Assessment\Data\WritingTask;
+use Edutiek\AssessmentService\Assessment\Writer\FullService as WriterService;
+use Edutiek\AssessmentService\EssayTask\Essay\ClientService as EssayService;
+use Edutiek\AssessmentService\System\Data\UserData;
+use Edutiek\AssessmentService\System\User\ReadService as UserService;
+use Edutiek\AssessmentService\Task\AssessmentStatus\FullService as AssessmentStatus;
+use Edutiek\AssessmentService\Task\CorrectionProcess\FullService as CorrectionProcess;
+use Edutiek\AssessmentService\Task\CorrectorAssignments\FullService as CorrectorAssignmentsService;
+use Edutiek\AssessmentService\Task\CorrectorSummary\ReadService as SummaryService;
+use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
+use ILIAS\Plugin\LongEssayAssessment\BaseObjectData;
+use ILIAS\Plugin\LongEssayAssessment\GUI\Correction\CorrectionItem;
+use ILIAS\Plugin\LongEssayAssessment\GUI\Correction\CorrectionTableParent;
 use ILIAS\Plugin\LongEssayAssessment\Jump;
+use ILIAS\Plugin\LongEssayAssessment\UI\Table\Action;
+use ILIAS\Plugin\LongEssayAssessment\UI\Table\Helper\ConfirmationIds;
+use ILIAS\UI\Component\Input\Input;
+use ILIAS\UI\Component\Modal\RoundTrip;
+
+use function ILIAS\UI\examples\Input\Field\Url\with_value;
 
 /**
  * Correction Admin GUI class
@@ -454,6 +446,7 @@ class CorrectionAdminGUI extends BaseGUI
                     case 'removeAuthorizations':
                     case 'mailToWriterOrCorrector':
                     case 'viewCorrection':
+                    case 'correctorAssignmentAuto':
                     case 'correctorAssignmentSpreadsheetExportAll':
                     case 'correctorAssignmentSpreadsheetExportAuthorized':
                     case 'correctorAssignmentSpreadsheetImport':
@@ -469,6 +462,16 @@ class CorrectionAdminGUI extends BaseGUI
     }
     public function showItems()
     {
+        if (!empty($this->writer_service->correctableIds())) {
+            if (!$this->corrector_service->hasAny()) {
+                $this->tpl->setOnScreenMessage("info", $this->plugin->txt('info_missing_correctors'), false);
+            } elseif (0 < $missing = $this->assignment_service->countMissingAssignments()) {
+                $this->tpl->setOnScreenMessage("info", $missing == 1
+                    ? $this->plugin->txt('info_missing_assignment')
+                    : sprintf($this->plugin->txt('info_missing_assignments'), $missing), false);
+            }
+        }
+
         $this->buildToolbar($this->toolbar);
 
         $location_avaiable = $this->hasLocations();
@@ -498,28 +501,19 @@ class CorrectionAdminGUI extends BaseGUI
 
         $table = $this->plugin_ui_factory->table()->dataTable('correction_admin_table', $table_parent);
         $table->executeAction();
-        $this->tpl->setContent($this->renderer->render($table));
+
+        $this->add($table)->show();
     }
 
     public function buildToolbar(\ilToolbarGUI $toolbar)
     {
-        $authorized_essay_exists = false;
-
-        if ($authorized_essay_exists) {
-            if (empty($correctors)) {
-                $this->tpl->setOnScreenMessage("info", $this->plugin->txt('info_missing_correctors'), false);
-            } elseif (!empty($this->assignment_service->countMissingCorrectors())) {
-                $this->tpl->setOnScreenMessage("info", $this->plugin->txt('info_missing_assignments'), false);
-            }
-        }
-
         $toolbar->setFormAction($this->ctrl->getFormAction($this));
 
         $this->toolbar->addComponent($this->ui_factory->dropdown()->standard([
-//            $this->ui_factory->button()->shy(
-//                        $this->plugin->txt('corrector_assignments_auto'),
-//                        $this->ctrl->getLinkTarget($this, "confirmAssignCorrectors")
-//            ),
+            $this->ui_factory->button()->shy(
+                $this->plugin->txt('corrector_assignments_auto'),
+                ''
+            )->withOnClick($this->buildAutoAssignmentsModal()->getShowSignal()),
             $this->ui_factory->button()->shy(
                 $this->plugin->txt("corrector_assignments_export_all"),
                 $this->ctrl->getLinkTarget($this, "correctorAssignmentSpreadsheetExportAll")
@@ -535,6 +529,67 @@ class CorrectionAdminGUI extends BaseGUI
         ])->withLabel($this->plugin->txt('corrector_assignments_dropdown')));
 
         $this->toolbar->addSeparator();
+    }
+
+    private function buildAutoAssignmentsModal(): RoundTrip
+    {
+        $fields = [];
+
+        if ($this->getSettings()->getMultiTasks()) {
+            $options = [0 => $this->plugin->txt("corrector_assignments_auto_all_tasks")];
+            foreach ($this->task_api->manager()->all() as $task_info) {
+                $options[$task_info->getId()] = $task_info->getTitle();
+            }
+            $fields['task'] = $this->ui_factory->input()->field()->select(
+                $this->plugin->txt('task'),
+                $options
+            )
+                ->withRequired(true)
+                ->withValue(0);
+        }
+
+        $fields['filter'] = $this->ui_factory->input()->field()->radio(
+            $this->plugin->txt('corrector_assignments_auto_filter')
+        )
+            ->withOption(AssignFilter::ALL->value, $this->plugin->txt('corrector_assignments_auto_filter_all'))
+            ->withOption(AssignFilter::CORRECTABLE->value, $this->plugin->txt('corrector_assignments_auto_filter_correctable'))
+            ->withValue(AssignFilter::ALL->value);
+
+        $modal = $this->ui_factory->modal()->roundtrip(
+            $this->plugin->txt('corrector_assignments_auto_title'),
+            [],
+            $fields,
+            $this->ctrl->getFormAction($this, 'correctorAssignmentAuto')
+        )
+            ->withSubmitLabel($this->plugin->txt('corrector_assignments_auto_assign'));
+
+        $this->add($modal);
+        return $modal;
+    }
+
+    private function correctorAssignmentAuto(): void
+    {
+        $data = $this->buildAutoAssignmentsModal()->withRequest($this->request)->getData();
+
+        $task_id = null;
+        if ($this->getSettings()->getMultiTasks()) {
+            $task_id = (int) ($data['task'] ?? null);
+            if ($task_id == 0) {
+                $task_id = null;
+            }
+        }
+
+        $filter = AssignFilter::tryFrom($data['filter'] ?? null) ?? AssignFilter::ALL;
+        $assigned = $this->assignment_service->assignMissing($filter, $task_id);
+
+        if ($assigned == 0) {
+            $this->failure($this->plugin->txt('0_assigned_correctors'), true);
+        } elseif ($assigned == 1) {
+            $this->success($this->plugin->txt('1_assigned_corrector'), true);
+        } else {
+            $this->success(sprintf($this->plugin->txt('n_assigned_correctors'), $assigned), true);
+        }
+        $this->ctrl->redirect($this);
     }
 
     private function correctorAssignmentSpreadsheetExportAll(): void

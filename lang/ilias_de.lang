@@ -489,6 +489,12 @@ corrector_assignments_export_authorized#:#Zuweisungsdatei für freigegebene Abga
 corrector_assignments_import#:#Zuweisungsdatei importieren...
 corrector_assignments_import_success#:#Die Korrekturzuweisungen aus der Datei wurden vorgenommen.
 corrector_assignments_import_failure#:#Die Datei konnte nicht korrekt ausgewertet werden. Es wurden keine Änderungen vorgenommen.
+corrector_assignments_auto_title#:#Fehlende Korrekturen zuweisen
+corrector_assignments_auto_filter#:#Zuweisungen
+corrector_assignments_auto_all_tasks#:#Alle Teilaufgaben
+corrector_assignments_auto_filter_all#:#Für alle Teilnehmer
+corrector_assignments_auto_filter_correctable#:#Für alle korrigierbaren Abgaben
+corrector_assignments_auto_assign#:#Zuweisungen vornehmen
 resource_title#:#Titel zur Anzeige
 word_count#:#Wörter
 filter_authorized#:#Freigegeben
@@ -529,8 +535,9 @@ change_text_to_pdf_confirmation#:#Die folgenden Abgabe können von Text eine PDF
 change_text_to_pdf_none_possible#:#Ihre Auswahl enthält keine Abgaben, die umgewandelt werden könnten.
 change_text_to_pdf_success#:#Die ausgewählten Textabgaben wurden in PDF-Abgaben umgewandelt.
 pdf_from_text#:#Konvertierte Textabgabe
-info_missing_correctors#:#Es gibt Abgaben zur Korrektur, aber Sie haben noch keine Korrektoren zugewiesen. Wechseln Sie zu „Korrektoren”, um Benutzer als Korrektoren hinzuzufügen. Anschließend können Sie diese den Abgaben zuweisen.
-info_missing_assignments#:#Es fehlen noch Korrekturzuweisungen.
+info_missing_correctors#:#Es gibt korrigierbare Abgaben, aber es sind noch keine Korrektoren verfügbar. Wechseln Sie zu „Korrektoren”, um Benutzer als Korrektoren hinzuzufügen. Anschließend können Sie diese den Abgaben zuweisen.
+info_missing_assignment#:#Eine korrigierbare Abgabe benötigt noch eine Korrekturzuweisung.
+info_missing_assignments#:#%s korrigierbare Abgabe benötigen noch eine Korrekturzuweisung.
 processing_settings#:#Weiterverarbeitung
 processing_settings_info#:#Diese Einstellungen gelten für die Weiterverarbeitungen des geschriebenen Textes zur Korrektur. Da sie die Markierungsfunktion bei der Korrektur beeinflussen, können sie nicht mehr verändert werden, wenn es bereits Korrekturen mit Markierungen gibt.
 add_paragraph_numbers#:#Absatznummern generieren

@@ -69,7 +69,7 @@ class ImportEssayGUI extends BaseGUI implements DataRetrieval
             'file' => $this->ui_factory->input()->field()->file(
                 $this->upload_handler,
                 $this->plugin->txt('essay_import_zip_name')
-            )->withAcceptedMimeTypes(['application/x-zip-compressed']),
+            )->withAcceptedMimeTypes(['application/zip', 'application/x-zip', 'application/x-zip-compressed', 'multipart/zip']),
             'hash' => $this->ui_factory->input()->field()->text($this->plugin->txt('essay_import_hash')),
             'password' => $this->ui_factory->input()->field()->optionalGroup([
                 'value' => $this->ui_factory->input()->field()->text($this->plugin->txt('essay_import_password')),

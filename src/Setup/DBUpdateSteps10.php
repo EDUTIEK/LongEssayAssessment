@@ -1401,4 +1401,78 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
         }
     }
 
+    public function step_77(): void
+    {
+        if ($this->db->tableExists('xlas_et_essay_import')) {
+            $this->db->dropTable('xlas_et_essay_import');
+        }
+    }
+
+    public function step_78(): void
+    {
+        if (!$this->db->indexExistsByFields('xlas_as_alert', ['ass_id'])) {
+            $this->db->addIndex('xlas_as_alert', ['ass_id'], 'i2');
+        }
+        if (!$this->db->indexExistsByFields('xlas_as_corrector', ['ass_id'])) {
+            $this->db->addIndex('xlas_as_corrector', ['ass_id'], 'i2');
+        }
+        if (!$this->db->indexExistsByFields('xlas_as_dis_groups', ['ass_id'])) {
+            $this->db->addIndex('xlas_as_dis_groups', ['ass_id'], 'i1');
+        }
+        if (!$this->db->indexExistsByFields('xlas_as_grade_level', ['ass_id'])) {
+            $this->db->addIndex('xlas_as_grade_level', ['ass_id'], 'i1');
+        }
+        if (!$this->db->indexExistsByFields('xlas_as_location', ['ass_id'])) {
+            $this->db->addIndex('xlas_as_location', ['ass_id'], 'i1');
+        }
+        if (!$this->db->indexExistsByFields('xlas_as_log_entry', ['ass_id'])) {
+            $this->db->addIndex('xlas_as_log_entry', ['ass_id'], 'i1');
+        }
+        if ($this->db->indexExistsByFields('xlas_as_noti_queue', ['added'])) {
+            $this->db->dropIndexByFields('xlas_as_noti_queue', ['added']);
+        }
+        if (!$this->db->indexExistsByFields('xlas_as_noti_queue', ['ass_id'])) {
+            $this->db->addIndex('xlas_as_noti_queue', ['ass_id'], 'i2');
+        }
+        if (!$this->db->indexExistsByFields('xlas_as_noti_queue', ['type'])) {
+            $this->db->addIndex('xlas_as_noti_queue', ['type'], 'i3');
+        }
+        if (!$this->db->indexExistsByFields('xlas_as_noti_settings', ['ass_id'])) {
+            $this->db->addIndex('xlas_as_noti_settings', ['ass_id'], 'i1');
+        }
+        if (!$this->db->indexExistsByFields('xlas_as_noti_users', ['ass_id'])) {
+            $this->db->addIndex('xlas_as_noti_users', ['ass_id'], 'i2');
+        }
+        if (!$this->db->indexExistsByFields('xlas_as_token', ['ass_id'])) {
+            $this->db->addIndex('xlas_as_token', ['ass_id'], 'i3');
+        }
+        if (!$this->db->indexExistsByFields('xlas_as_writer', ['ass_id'])) {
+            $this->db->addIndex('xlas_as_writer', ['ass_id'], 'i3');
+        }
+        if (!$this->db->indexExistsByFields('xlas_ta_corr_comm', ['corrector_id'])) {
+            $this->db->addIndex('xlas_ta_corr_comm', ['corrector_id'], 'idc');
+        }
+        if (!$this->db->indexExistsByFields('xlas_ta_corr_points', ['criterion_id'])) {
+            $this->db->addIndex('xlas_ta_corr_points', ['criterion_id'], 'i2');
+        }
+        if (!$this->db->indexExistsByFields('xlas_ta_corr_snippet', ['corrector_id'])) {
+            $this->db->addIndex('xlas_ta_corr_snippet', ['corrector_id'], 'i2');
+        }
+        if (!$this->db->indexExistsByFields('xlas_ta_corr_ta_prefs', ['task_id'])) {
+            $this->db->addIndex('xlas_ta_corr_ta_prefs', ['task_id'], 'i1');
+        }
+        if (!$this->db->indexExistsByFields('xlas_ta_corr_ta_prefs', ['corrector_id'])) {
+            $this->db->addIndex('xlas_ta_corr_ta_prefs', ['corrector_id'], 'i2');
+        }
+        if (!$this->db->indexExistsByFields('xlas_ta_rating_crit', ['corrector_id'])) {
+            $this->db->addIndex('xlas_ta_rating_crit', ['corrector_id'], 'i2');
+        }
+        if (!$this->db->indexExistsByFields('xlas_ta_settings', ['ass_id'])) {
+            $this->db->addIndex('xlas_ta_settings', ['ass_id'], 'i1');
+        }
+        if (!$this->db->indexExistsByFields('xlas_ta_writer_anno', ['writer_id'])) {
+            $this->db->addIndex('xlas_ta_writer_anno', ['writer_id'], 'i3');
+        }
+    }
+
 }

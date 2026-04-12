@@ -1475,4 +1475,31 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
         }
     }
 
+    public function step_79(): void
+    {
+        $query = "
+            SELECT s.ass_id, s.review_notif_text AS txt 
+            FROM xlas_as_orga_settings s 
+            WHERE s.review_notification > 0
+        ";
+        $result = $this->db->query($query);
+        while ($row = $this->db->fetchAssoc($result)) {
+            $id = $this->db->nextId('xlas_as_noti_settings');
+            $subject = "Die Einsichtnahme für die Abgaben „[assessment_title]“ hat begonnen";
+            $body = "Hallo [fullname],\n\n"
+                . "Ihre Abgabe wurde korrigiert und steht nun zur Einsichtnahme bereit.\n\n"
+                . empty($row['txt']) ? "" : $row['txt'] . "\n\n"
+                . "Wählen Sie den folgenden Link, um auf den Inhalt der Abgabe zuzugreifen:\n"
+                . "[assessment_link]";
+
+            $this->db->insert('xlas_as_noti_settings', [
+                'id' => [ilDBConstants::T_INTEGER, $id],
+                'ass_id' => [ilDBConstants::T_INTEGER, $row['ass_id']],
+                'type' => [ilDBConstants::T_TEXT, 'writer_correction_finalized'],
+                'active' => [ilDBConstants::T_INTEGER, 1],
+                'subject' => [ilDBConstants::T_TEXT, $subject],
+                'body' => [ilDBConstants::T_TEXT, $body],
+            ]);
+        }
+    }
 }

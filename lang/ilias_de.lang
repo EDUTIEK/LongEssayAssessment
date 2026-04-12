@@ -592,9 +592,6 @@ review_enabled#:#Einsichtnahme aktiviert
 review_info#:#Hier stellen Sie ein, ob und wann den Teilnehmenden ein eine Datei im Format PDF mit ihrer korrigierten Abgabe zur Einsichtnahme auf ihrer Startseite zum Herunterladen angeboten werden soll.
 review_notification_enabled#:#Benachrichtigung aktiviert
 review_notification_info#:#Teilnehmende erhalten eine Mail-Benachrichtigung, wenn die Korrektur abgeschlossen ist und der Einsichtnahme-Zeitraum begonnen hat.
-mail_review_notification_subject#:#Die Einsichtnahme für die Abgaben „%s“ hat begonnen
-mail_review_notification_body#:#Ihre Abgabe wurde korrigiert und steht nun zur Einsichtnahme bereit.
-mail_permanent_link#:#Wählen Sie den folgenden Link, um auf den Inhalt der Abgabe zuzugreifen:
 mail_to_writer#:#Mail an Teilnehmer
 mail_to_writers#:#Mail an Teilnehmende
 mail_to_writer_or_corrector#:#Mail an Teilnehmer/Korrektor(en)

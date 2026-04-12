@@ -49,8 +49,6 @@ class OrgaSettings extends \Edutiek\AssessmentService\Assessment\Data\OrgaSettin
     private ?DateTimeImmutable $result_available_date = null;
     private bool $solution_available = false;
     private bool $review_enabled = false;
-    private bool $review_notification = false;
-    private ?string $review_notif_text = null;
     private bool $statistics_available = false;
     private ?string $forwarding_url = null;
     private bool $template = false;
@@ -228,24 +226,6 @@ class OrgaSettings extends \Edutiek\AssessmentService\Assessment\Data\OrgaSettin
     public function setReviewEnabled(bool $review_enabled): self
     {
         $this->review_enabled = $review_enabled;
-        return $this;
-    }
-    public function getReviewNotification(): bool
-    {
-        return $this->review_notification;
-    }
-    public function setReviewNotification(bool $review_notification): self
-    {
-        $this->review_notification = $review_notification;
-        return $this;
-    }
-    public function getReviewNotifText(): ?string
-    {
-        return $this->review_notif_text;
-    }
-    public function setReviewNotifText(?string $review_notif_text): self
-    {
-        $this->review_notif_text = $review_notif_text;
         return $this;
     }
     public function getStatisticsAvailable(): bool

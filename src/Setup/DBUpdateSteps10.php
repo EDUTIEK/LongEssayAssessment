@@ -1502,4 +1502,14 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
             ]);
         }
     }
+
+    public function step_80(): void
+    {
+        if ($this->db->tableColumnExists('xlas_as_orga_settings', 'review_notification')) {
+            $this->db->dropTableColumn('xlas_as_orga_settings', 'review_notification');
+        }
+        if ($this->db->tableColumnExists('xlas_as_orga_settings', 'review_notif_text')) {
+            $this->db->dropTableColumn('xlas_as_orga_settings', 'review_notif_text');
+        }
+    }
 }

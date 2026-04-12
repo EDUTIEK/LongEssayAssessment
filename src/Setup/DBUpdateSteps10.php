@@ -1488,7 +1488,7 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
             $subject = "Die Einsichtnahme für die Abgaben „[assessment_title]“ hat begonnen";
             $body = "Hallo [fullname],\n\n"
                 . "Ihre Abgabe wurde korrigiert und steht nun zur Einsichtnahme bereit.\n\n"
-                . empty($row['txt']) ? "" : $row['txt'] . "\n\n"
+                . (empty($row['txt']) ? "" : $row['txt'] . "\n\n")
                 . "Wählen Sie den folgenden Link, um auf den Inhalt der Abgabe zuzugreifen:\n"
                 . "[assessment_link]";
 
@@ -1498,7 +1498,7 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
                 'type' => [ilDBConstants::T_TEXT, 'writer_correction_finalized'],
                 'active' => [ilDBConstants::T_INTEGER, 1],
                 'subject' => [ilDBConstants::T_TEXT, $subject],
-                'body' => [ilDBConstants::T_TEXT, $body],
+                'body' => [ilDBConstants::T_CLOB, $body],
             ]);
         }
     }

@@ -75,24 +75,52 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
      */
     public function uninstall(\ilDBInterface $db): void
     {
-        // todo: remove all stored files
-
         $this->prepare($db);
-        $this->v10_migration->removeNewTables();
         $this->db->manipulate("DELETE FROM il_db_steps WHERE `class` = " . $this->db->quote(self::class));
 
-        $this->db->dropTable("xlas_as_pdf_config");
-        $this->db->dropTable("xlas_ta_corr_settings");
-        $this->db->dropTable("xlas_ta_corr_prefs");
-        $this->db->dropTable("xlas_ta_corr_ta_prefs");
-        $this->db->dropTable("xlas_ta_rating_crit");
-        $this->db->dropTable("xlas_ta_corr_comm");
-        $this->db->dropTable("xlas_ta_corr_points");
-        $this->db->dropTable("xlas_ta_corr_summary");
-        $this->db->dropTable("xlas_as_dis_groups");
-        $this->db->dropTable("xlas_ta_writer_anno");
-        $this->db->dropTable("xlas_ta_writer_comment");
-        $this->db->dropTable("xlas_ta_corr_snippet");
+        $tables = [
+            'xlas_as_alert',
+            'xlas_as_corr_settings',
+            'xlas_as_corrector',
+            'xlas_as_dis_groups',
+            'xlas_as_exp_file',
+            'xlas_as_exp_settings',
+            'xlas_as_grade_level',
+            'xlas_as_location',
+            'xlas_as_log_entry',
+            'xlas_as_noti_queue',
+            'xlas_as_noti_settings',
+            'xlas_as_noti_users',
+            'xlas_as_orga_settings',
+            'xlas_as_pdf_config',
+            'xlas_as_pdf_settings',
+            'xlas_as_token',
+            'xlas_as_writer',
+            'xlas_et_essay',
+            'xlas_et_essay_image',
+            'xlas_et_write_settings',
+            'xlas_et_writer_history',
+            'xlas_et_writer_notice',
+            'xlas_et_writer_prefs',
+            'xlas_sy_config',
+            'xlas_ta_corr_assign',
+            'xlas_ta_corr_comm',
+            'xlas_ta_corr_points',
+            'xlas_ta_corr_prefs',
+            'xlas_ta_corr_settings',
+            'xlas_ta_corr_snippet',
+            'xlas_ta_corr_summary',
+            'xlas_ta_corr_ta_prefs',
+            'xlas_ta_corr_template',
+            'xlas_ta_rating_crit',
+            'xlas_ta_resource',
+            'xlas_ta_settings',
+            'xlas_ta_writer_anno'
+        ];
+
+        foreach ($tables as $table) {
+            $this->db->dropTable($table, false);
+        }
     }
 
     private function ensureTable(string $name, array $fields): void

@@ -12,11 +12,11 @@ use ILIAS\Plugin\LongEssayAssessment\UI\Item\ItemRenderer;
 use ILIAS\Plugin\LongEssayAssessment\UI\Statistic\StatisticRenderer;
 use ILIAS\Plugin\LongEssayAssessment\UI\Viewer\ViewerRenderer;
 use ILIAS\Plugin\LongEssayAssessment\UI\PluginRenderer;
+use ILIAS\ResourceStorage\Identification\ResourceIdentification;
 use ILIAS\Setup\ImplementationOfInterfaceFinder;
-use ILIAS\Plugin\LongEssayAssessment\Cron\CronJobInterface;
-use ILIAS\Plugin\LongEssayAssessment\Cron\CronJob;
 use Edutiek\AssessmentService\System\EventHandling\Events\UserRemoved;
 use ILIAS\Plugin\LongEssayAssessment\UI\Container\ContainerRenderer;
+use ILIAS\Plugin\LongEssayAssessment\System\File\Stakeholder;
 
 /**
  * Basic plugin file
@@ -150,6 +150,16 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin implements \i
     protected function uninstallCustom(): void
     {
         (new DBUpdateSteps10())->uninstall($this->db);
+
+        $manager = $this->ilias_dic->resourceStorage()->manage();
+        $stakeholder = new Stakeholder(SYSTEM_USER_ID);
+
+        $query = "SELECT rid FROM il_resource_stkh_u WHERE stakeholder_id = 'LongEssayAssessment'";
+        $result = $this->db->query($query);
+        while ($row = $this->db->fetchAssoc($result)) {
+            $manager->remove(new ResourceIdentification((string) $row['rid']), $stakeholder);
+        }
+        $this->db->manipulate("DELETE FROM il_resource_stkh WHERE id = 'LongEssayAssessment'");
     }
 
     public static function getInstance(): self

@@ -1,8 +1,10 @@
 <?php
+
 /* Copyright (c) 2021 ILIAS open source, Extended GPL, see docs/LICENSE */
 
 namespace ILIAS\Plugin\LongEssayAssessment\Settings;
 
+use ilException;
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\UI\Component\Table\PresentationRow;
 use ILIAS\UI\Factory;
@@ -82,6 +84,10 @@ class CriteriaAdminGUI extends CriteriaGUI
 
         if ($this->allowChangeInContext()) {
             $table->addActionToToolbar($this->toolbar, $table->getActionByName("add_criteria"), true);
+
+            $select = $this->buildRepositoryTaskSelect();
+            list($btn, $components[]) = $select->getToolbarComponents($this->plugin->txt("copy_criteria"));
+            $this->toolbar->addComponent($btn);
         } else {
             $table->disableAction(true);
         }
@@ -91,18 +97,17 @@ class CriteriaAdminGUI extends CriteriaGUI
         }
         $components[] = $table;
         $this->tpl->setContent($this->renderer->render($components));
-
     }
 
-    protected function settingsAction() : Action\Form
+    protected function settingsAction(): Action\Form
     {
-        $form =  $this->table_factory->action()->form(
+        $form = $this->table_factory->action()->form(
             "criteria_settings",
             $this->lng->txt('settings'),
             $this->lng->txt('save'),
-            fn (CriteriaItem $item) => $this->buildSettingsFields(),
-            fn (CriteriaItem $item, array $data) => $this->saveSettings($data),
-            fn (CriteriaItem $x) => $this->allowChangeInContext(),
+            fn(CriteriaItem $item) => $this->buildSettingsFields(),
+            fn(CriteriaItem $item, array $data) => $this->saveSettings($data),
+            fn(CriteriaItem $x) => $this->allowChangeInContext(),
             Action\Type::Global
         );
         switch ($this->correction_settings->getCriteriaMode()) {
@@ -155,58 +160,48 @@ class CriteriaAdminGUI extends CriteriaGUI
         }
     }
 
+    /**
+     * Copy criteria from another object
+     */
+    protected function copyCriteria(): void
+    {
+        if ($this->getCorrectorIdFromContext() !== null) {
+            throw new ilException("Operation not permitted");
+        }
+        $select = $this->buildRepositoryTaskSelect();
 
-    // TODO: This feature need a task selector, when select rating criterions to copy. will skip for now.
-//    /**
-//     * Copy criteria from another object
-//     */
-//    protected function copyCriteria() : void
-//    {
-//        if ($this->getCorrectorIdFromContext() !== null) {
-//            throw new ilException("Operation not permitted");
-//        }
-//        $select = $this->buildRepositorySelect();
-//
-//        if ($select->hasSelected()) {
-//            $copy_object = new \ilObjLongEssayAssessment($select->getSelectedId());
-//            $copy_assessment_api = $this->plugin->dic()->assessment($copy_object->getAssId(), $this->user->getId());
-//            $copy_grade_service = $copy_assessment_api->r();
-//
-//            foreach ($criteria as $criterion) {
-//                $new = clone $criterion;
-//                $new->setId(0);
-//                $new->setCorrectorId(null);
-//                $new->setObjectId($this->object->getId());
-//                $this->object_repo->save($new);
-//            }
-//
-//            $this->tpl->setOnScreenMessage("success", $this->plugin->txt('copy_criteria_successful'), true);
-//            $this->ctrl->redirect($this, "showItems");
-//        } else {
-//            $select->showAsync();
-//        }
-//    }
-//
-//    protected function buildRepositorySelect() : RepositorySelectModal
-//    {
-//        return $this->plugin_ui_factory->tree()->repositorySelect(
-//            $this->object->getRefId(),
-//            $this->plugin->txt("copy_criteria"),
-//            [$this, "listCriterion"],
-//            $this->ctrl->getLinkTarget($this, 'copyCriteria', null, true)
-//        )->setPermission("maintain_task")
-//                             ->setMessage($this->plugin->txt('copy_criteria_info'));
-//    }
-//
-//    public function listCriterion(int $ref_id) : Component
-//    {
-//        $this->copy_context = $ref_id;
-//
-//        $table = $this->table_factory->dataTable("copy_criteria", $this);
-//        $table->setAdditionalParameter($this->setSmallView());
-//
-//        return $table->getTable();
-//    }
+        if ($select->hasSelected()) {
+            $task_id = $select->getSelectedTaskId();
+            $this->criterion_service->copyFromTask($this->task_info->getId(), $task_id);
+
+            $this->tpl->setOnScreenMessage("success", $this->plugin->txt('copy_criteria_successful'), true);
+            $this->ctrl->redirect($this, "showItems");
+        } else {
+            $select->showAsync();
+        }
+    }
+
+    protected function buildRepositoryTaskSelect(): RepositorySelectModal
+    {
+        return $this->plugin_ui_factory->tree()->repositoryTaskSelect(
+            $this->object->getRefId(),
+            $this->plugin->txt("copy_criteria"),
+            $this->listCriterion(...),
+            $this->ctrl->getLinkTarget($this, 'copyCriteria', null, true)
+        )->setPermission("maintain_task")
+         ->setMessage($this->plugin->txt('copy_criteria_info'));
+    }
+
+    public function listCriterion(int $ref_id, int $task_id): Component
+    {
+        $this->copy_context = $ref_id;
+        $this->criterion_service = $this->task_api->ratingCriterion($task_id);
+
+        $table = $this->table_factory->dataTable("copy_criteria", $this);
+        $table->setAdditionalParameter($this->setSmallView());
+
+        return $table->getTable();
+    }
 
     public function getTableActions(): array
     {

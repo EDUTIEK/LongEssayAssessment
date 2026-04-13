@@ -345,7 +345,7 @@ class GradesAdminGUI extends BaseGUI implements DataTableParent
         return $this->plugin_ui_factory->tree()->repositorySelect(
             $this->object->getRefId(),
             $this->plugin->txt("copy_grade_level"),
-            [$this, "listGrades"],
+            $this->listGrades(...),
             $this->ctrl->getLinkTarget($this, 'copyGrades', null, true)
         )->setPermission("maintain_task")
          ->setMessage($this->plugin->txt('copy_grade_level_info'));

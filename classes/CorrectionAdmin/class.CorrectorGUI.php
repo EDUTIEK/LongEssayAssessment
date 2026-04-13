@@ -488,7 +488,7 @@ class CorrectorGUI extends BaseGUI implements DataTableParent
         return $this->plugin_ui_factory->tree()->repositorySelect(
             $this->object->getRefId(),
             $this->plugin->txt("correctors"),
-            [$this, "listCorrectors"],
+            $this->listCorrectors(...),
             $this->ctrl->getLinkTarget($this, 'copyCorrectors', null, true)
         )->setPermission("maintain_correctors");
     }

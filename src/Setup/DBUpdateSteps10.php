@@ -188,7 +188,7 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
                 $maxPoints = null;
                 foreach ($summaries as $summary) {
                     if ($summary->correction_authorized === null) {
-                        continue;// At least one correction is not authorized
+                        continue 2; // At least one correction is not authorized
                     }
                     if ($summary->points !== null) {
                         $minPoints = (isset($minPoints) ? min($minPoints, $summary->points) : $summary->points);
@@ -1511,5 +1511,38 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
         if ($this->db->tableColumnExists('xlas_as_orga_settings', 'review_notif_text')) {
             $this->db->dropTableColumn('xlas_as_orga_settings', 'review_notif_text');
         }
+    }
+
+    /**
+     * Add missing write settings, keeping defaults from version 3
+     */
+    public function step_81(): void
+    {
+        $query = "SELECT s.ass_id FROM xlas_as_orga_settings s WHERE NOT EXISTS (SELECT 1 FROM xlas_et_write_settings w WHERE w.ass_id = s.ass_id)";
+        $result = $this->db->query($query);
+        while ($row = $this->db->fetchAssoc($result)) {
+            $this->db->insert('xlas_et_write_settings', [
+                'ass_id' => [ilDBConstants::T_INTEGER, $row['ass_id']],
+                'headline_scheme' => [ilDBConstants::T_TEXT, 'three'],
+                'formatting_options' => [ilDBConstants::T_TEXT, 'medium'],
+                'notice_boards' => [ilDBConstants::T_INTEGER, 0],
+                'copy_allowed' => [ilDBConstants::T_INTEGER, 0],
+                'add_paragraph_numbers' => [ilDBConstants::T_INTEGER, 1],
+                'add_correction_margin' => [ilDBConstants::T_INTEGER, 0],
+                'left_correction_margin' => [ilDBConstants::T_INTEGER, 0],
+                'allow_spellcheck' => [ilDBConstants::T_INTEGER, 0],
+                'writing_type' => [ilDBConstants::T_TEXT, 'essay_editor'],
+            ]);
+        }
+    }
+
+    /**
+     * Add missing initial service version for version 10
+     * Missing service version for version 3 were added in
+     * @see \ILIAS\Plugin\LongEssayAssessment\Setup\DBUpdateSteps9::step_23
+     */
+    public function step_82(): void
+    {
+        $this->db->manipulate("UPDATE xlas_et_essay SET service_version = 20241213 WHERE service_version = 0");
     }
 }

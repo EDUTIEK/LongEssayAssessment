@@ -1,32 +1,30 @@
 # Change Log
 
-## Version 3.4 (2024-11-04)
-Plugin:
-- Configure path to ghostscript in the plugin (with fallback)
+Please look at the [changelog of version 3](https://github.com/EDUTIEK/LongEssayAssessment/blob/release3_ilias9/CHANGELOG.md)
+for changes in that version.
 
-Bug fixes:
-- Avoid endless loop when PDF file is uploaded in addition to written text
+## Version 10.0 (2026-04-14)
 
-## Version 3.3 (2024-10-23)
-Plugin:
-- GitHub workflow to create self-contained release packages
-- Activatable grade statistics for writers
-- Adds a graph and general visual fixes to grade stats
-- Copy grade level from other essays in grade level organisation
-- New submission type "PDF upload" for participants
+This is the initial version for ILIAS 10. The plugin and its web apps have been completely refactored for better extensibility in the future.
 
-Writer and Corrector web apps:
-- Update of all frameworks and libraries 
-- update of TinyMCE to version 7.3.0
-- Accessibility improvements (structure, tab sequence, hotkeys, labels)
-- Word / character counter in writer app 
-
-Bug fixes:
-- Avoid conflicts of composer packages with ILIAS 9
-- Fix deprecated dynamic property in PHP 9.2
-- Fix counting of not attended assessments in grade statistics
-
-## Version 3.2 (2024-09-10)
-- First published version for ILIAS 9
-- Corresponds functionally to version 2.4 for ILIAS 8
-- See branch release2_ilias8 for further history
+- Partial questions with different correctors
+- Images, audio and video as resources for writing
+- Extended text formatting (alignment, tables)
+- More choices for pseudonymisation
+- Formal approximation or consulting procedure for two correctors
+- Stitch decision by a separate corrector with full correction features
+- Data protection of unfinished correction status
+- Configurable download possibility for correctors
+- Templates for correction summaries
+- Upload of a PDF file as a correction summary
+- selectable correction features (comments, partial points, ratings)
+- Three documentation and result export formats
+- Selection and ordering of parts in a correction PDF
+- Configuration of mail notifications for writers, correctors and admins
+- Configurable table views in writing and correction administration
+- Import of PDF exams from another system
+- collective dowload of writings and corrections 
+- Use of the export tab for all kinds of exports
+- Use of background tasks for all long-lasting exports
+- Set objects as templates for the creation of other objects
+- Fix and hide settings in templates

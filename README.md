@@ -1,6 +1,3 @@
-**PLEASE NOTE:** This version (release_3_ilias9) requires ILIAS 9.
-The version for ILIAS 8 is found in the branch release2_ilias8.
-
 # LongEssayAssessment
 Plugin for the LMS ILIAS open source to realize exams with writing of long texts.
 
@@ -16,10 +13,9 @@ Please look at the [EDUTIEK-Anleitung](docs/EDUTIEK-Anleitung.pdf) for a detaile
 
 ## Branches and Versions
 
-The plugin is published for ILIAS in different branches:
+This branch (release_10) requires ILIAS 10. The plugin is published for ILIAS in different branches:
 
-* **release1_ilias7** will be maintained until end of 2024. It will receive bug fixes mainly.
-* **release2_ilias8** will be maintained until April 2025 and will receive bug fixes as well as small features without breaking existing functionality and data. It may receive security fixes until end of 2025.
+* **release10** is the current branch for ILIAS 10.
 * **release3_ilias9** will be maintained until April 2026 and will receive bug fixes as well as small features without breaking existing functionality and data. It may receive security fixes until end of 2026.
 * **devX_iliasY** are development branches. Please do not use them.
 
@@ -27,22 +23,25 @@ Please consult the [CHANGELOG](CHANGELOG.md) to see the changes of different ver
 
 ## System Requirements
 
-This version (release_3_ilias9) requires **ILIAS 9** with minor version **9.0** or higher.
+This version (release_10) requires **ILIAS 10** with minor version **10.6** or higher.
 
 The requirements of this plugin are nearly the same as for ILIAS with the following exceptions:
 
-* **PHP 8.1** or **PHP 8.2** is required. 
+* **PHP 8.2** or **PHP 8.3** is required. 
 
 * The following PHP extensions are required by the plugin: **curl, dom, gd, imagick, json, xml, xsl**. On Debian/Ubuntu execute:
 
 ````
     apt-get install php8.2-curl, php8.2-dom, php8.2-gd, php8.2-imagick, php8.2-json, php8.2-xml, php8.2-xsl
 ````
-The PHP imagick extension uses Imagemagick and ghostscript to convert uploaded PDF files to images. On Debian/Ubuntu execute:
+The PHP imagick extension uses [Imagemagick](https://imagemagick.org) and [ghostscript](https://ghostscript.com) to convert uploaded PDF files to images. 
+Furthermore it uses [PDFtk](https://www.pdflabs.com/tools/pdftk-server/) to merge PDF parts for documentation.
+On Debian/Ubuntu execute:
 
  ````
     apt-get install ghostscript
     apt-get install imagemagick
+    apt-get install pdftk
 ````
 
 ImageMagick must be allowed to convert PDF files. To enable this please edit the file `/etc/ImageMagick-6/policy.xml` and 
@@ -65,7 +64,7 @@ A correct **time zone** must be configured in ILIAS for the processing of time i
 
 ## Plugin Configuration
 
-ImageMagick may run into resource limits when uploading larger PDF files of participant submissions. A direct processing by **ghostscript** is better. You can set the path to the ghostscript executable in the plugin configuration. The path used by ILIAS for file previews or `/usr/bin/gs` is used as default when this path is not configured. If ghostscript can't be used directly, the PDF file processing will use ImageMagick.
+ImageMagick may run into resource limits when uploading larger PDF files of participant submissions. A direct processing by **ghostscript** is better. You can set the path to the ghostscript executable in the plugin configuration. If ghostscript can't be used directly, the PDF file processing will use ImageMagick.
 
 
 ## Installation and Update
@@ -75,10 +74,10 @@ ImageMagick may run into resource limits when uploading larger PDF files of part
 3. Execute `composer install --no-dev` in the ILIAS main directory.
 4. Install or update the plugin in the ILIAS plugin administration.
 
-**Optional for Cron Support:**
-1. Install [LongEssayAssessmentCron](https://github.com/EDUTIEK/LongEssayAssessmentCron) as described in its [documentation](https://github.com/EDUTIEK/LongEssayAssessmentCron/?tab=readme-ov-file#installation). 
-2. Activate the cron jobs of the `Plugin/LongEssayAssessmentCron` component in the administration menu item _System Settings and Maintenance > General Settings > Cron Jobs_ according to your needs.
+**Optional Overview**
+
+The plugin installation will also install a second plugin *LongEssayAssessmentCollection*. Activate this plugin to get an extra tab on the course level. It will show a table of corrections in all LongEssayAssessment objects of that course and statistics for correctors and participants.
 
 ## Known Issues
 
-The writing and correction of exams is tested with Firefox and Chrome, so modern Chromium based browser should work. We know about issues with older Safari browsers. Please test with you local system before writing an exam and offer a tryout service for students who should write on their own device.
+The writing and correction of exams is tested with Firefox and Chrome, so modern Chromium based browser should work. We know about issues with older Safari browsers. Please test with you local system before writing an exam and offer a tryout service for students who write on their own device.

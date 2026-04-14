@@ -465,23 +465,23 @@ class DBUpdateSteps9 implements \ilDatabaseUpdateSteps
         }
     }
 
-    // extra step to set a missing service versions
-
     /**
      * Extra step to set missing service versions for version 3
-     * Missing service versios for version 10 will be added in Steps for 10
+     * Missing service versions for version 10 will be added in Steps for 10
      * @see \ILIAS\Plugin\LongEssayAssessment\Setup\DBUpdateSteps10::step_82
      */
     public function step_23(): void
     {
-        $queries = [
-            "UPDATE xlas_essay SET service_version = 20210923 WHERE service_version = 0 AND writing_authorized < '2023-12-18 00:00:00'",
-            "UPDATE xlas_essay SET service_version = 20231218 WHERE service_version = 0 AND writing_authorized < '2024-06-03 00:00:00'",
-            "UPDATE xlas_essay SET service_version = 20240603 WHERE service_version = 0",
-        ];
+        if ($this->db->tableExists('xlas_essay')) {
+            $queries = [
+                "UPDATE xlas_essay SET service_version = 20210923 WHERE service_version = 0 AND writing_authorized < '2023-12-18 00:00:00'",
+                "UPDATE xlas_essay SET service_version = 20231218 WHERE service_version = 0 AND writing_authorized < '2024-06-03 00:00:00'",
+                "UPDATE xlas_essay SET service_version = 20240603 WHERE service_version = 0",
+            ];
 
-        foreach ($queries as $query) {
-            $this->db->manipulate($query);
+            foreach ($queries as $query) {
+                $this->db->manipulate($query);
+            }
         }
     }
 }

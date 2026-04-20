@@ -14,6 +14,7 @@ use Edutiek\AssessmentService\Assessment\TaskInterfaces\TaskManager as TaskManag
 use Edutiek\AssessmentService\System\Entity\FullService as EntityService;
 use Edutiek\AssessmentService\Task\CorrectionSettings\FullService as TaskCorrectionSettingsService;
 use Edutiek\AssessmentService\Task\Data\CorrectionSettings as EssayCorrectionSettings;
+use Edutiek\AssessmentService\Task\Data\PdfMarking;
 use Edutiek\AssessmentService\Task\Data\Settings as TaskSettings;
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\BaseObjectData;
@@ -150,6 +151,7 @@ class CorrectionSettingsGUI extends BaseGUI
 
             // Correction functions
 
+            $task_settings->setPdfMarking(PdfMarking::tryFrom($data['correction_functions']['pdf_marking']) ?? PdfMarking::IMAGES);
             $task_settings->setEnableComments(((bool) $data['correction_functions']['enable_comments']));
             $task_settings->setEnablePartialPoints(((bool) $data['correction_functions']['enable_partial_points']));
             if (isset($data['correction_functions']['enable_comment_ratings']) && is_array($data['correction_functions']['enable_comment_ratings'])) {
@@ -405,6 +407,13 @@ class CorrectionSettingsGUI extends BaseGUI
         // Functions
 
         $fields = [];
+
+        $fields['pdf_marking'] = $factory->radio(
+            $this->plugin->txt('pdf_marking'),
+        )->withOption('images', $this->plugin->txt('pdf_marking_images'), $this->plugin->txt('pdf_marking_images_info'))
+            ->withOption('direct', $this->plugin->txt('pdf_marking_direct'), $this->plugin->txt('pdf_marking_direct_info'))
+            ->withValue($task_settings->getPdfMarking()->value);
+
 
         $fields["enable_comments"] = $factory->checkbox(
             $this->plugin->txt('enable_comments'),

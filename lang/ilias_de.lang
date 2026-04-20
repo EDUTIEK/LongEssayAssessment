@@ -927,3 +927,8 @@ notification_body#:#Inhalt
 notification_body_info#:#Sie können die folgenden Platzhalter verwenden:
 notification_recipient#:#Empfänger
 edit_notification#:#Benachrichtigung bearbeiten
+pdf_marking#:#Markierungsfunktion
+pdf_marking_images#:#Auf Seitenbildern
+pdf_marking_images_info#:#PDF-Abgaben werden zur Korrektur in Seitenbilder umgewandelt. Die Markierung erfolgt darauf mit verschiedenen Zeichwerkzeugen.
+pdf_marking_direct#:#Direkt im PDF (experimentell)
+pdf_marking_direct_info#:#Die Markierung erfolgt direkt in der PDF-Datei. Es kann Text markiert und Freihand gezeichnet werden. Die Markierungen werden mit ihren Kommentaren als Annotationen in der PDF-Datei gespeichert.

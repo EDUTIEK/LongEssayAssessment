@@ -1573,4 +1573,16 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
     {
         $this->db->manipulate("UPDATE xlas_et_essay SET service_version = 20241213 WHERE service_version = 0");
     }
+
+    public function step_83(): void
+    {
+        if (!$this->db->tableColumnExists('xlas_ta_corr_settings', 'pdf_marking')) {
+            $this->db->addTableColumn('xlas_ta_corr_settings', 'pdf_marking', [
+                'type' => ilDBConstants::T_TEXT,
+                'length' => 10,
+                'notnull' => true,
+                'default' => 'images',
+            ]);
+        }
+    }
 }

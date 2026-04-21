@@ -380,11 +380,10 @@ remove_authorizations_done#:#Die Korrektur-Freigaben wurden zurückgezogen.
 remove_authorizations_changed#:#Zurückgezogen:
 remove_authorizations_unchanged#:#Unverändert:
 remove_authorizations_failed#:#Ihre Auswahl enthält keine Freigaben die zurückgezogen können.
-remove_own_authorization#:#Freigaben zurückziehen
-remove_own_authorization_for#:#Freigaben für %s zurückziehen
-confirm_remove_own_authorization#:#Möchten Sie folgende Korrektur-Freigabe zurückziehen? Diese Aktion wird protokolliert.
-remove_own_authorization_done#:#Ihre Korrektur-Freigaben wurden zurückgezogen.
-remove_own_authorization_failed#:#Ihre Korrektur-Freigaben für %s konnte nicht zurückgezogen werden.
+remove_own_authorization#:#Eigene Freigabe zurückziehen
+confirm_remove_own_authorization#:#Möchten Sie folgende Korrektur-Freigaben zurückziehen? Diese Aktion wird protokolliert.
+remove_own_authorization_done#:#Ihre Korrektur-Freigabe wurde zurückgezogen.
+remove_own_authorization_failed#:#In Ihrer Auswahl waren keine Korrekturen, deren Freigabe zurückgezogen werden kann.
 own_position#:#Funktion
 filter_own_position#:#Nach Korrekturfunktion filtern
 own_correction#:#Eigene Korrekturen
@@ -446,11 +445,7 @@ authorize_correction#:#Korrektur freigeben
 authorize_correction_for#:#Korrektur für %s freigeben
 confirm_authorize_correction#:#Möchten Sie die folgenden Korrekturen freigeben?
 authorize_correction_done#:#Ihre Korrektur wurde freigegeben.
-authorize_correction_changed#:#Freigegeben:
-authorize_correction_unchanged#:#Unverändert:
 authorize_correction_failed#:#In Ihrer Auswahl waren keine Korrekturen, die freigegeben werden können.
-no_authorizations_to_remove#:#In Ihrer Auswahl waren keine Korrektur-Freigaben, die zurückgenommen werden können. Das Zurücknehmen ist nur möglich, wenn die Korrektur einer Abgabe noch nicht abgeschlossen ist.
-no_corrections_to_authorize#:#In Ihrer Auswahl waren keine Korrekturen, die freigegeben werden können.
 download_instructions#:#Aufgabenstellung herunterladen
 download_solution#:#Lösungshinweise herunterladen
 pdf_version#:#PDF-Abgabe
@@ -848,7 +843,7 @@ first_and_second_corrector#:#Erst- und Zweitkorrektor
 wait_for_first#:#Auf Erstkorrektur warten
 wait_for_first_info#:#Die Zweitkorrektur einer Abgabe kann erst starten, wenn die Erstkorrektur freigegeben ist.
 undo_authorization#:#Freigabe zurückziehen
-undo_authorization_info#:#Korrektoren können die Freigabe ihrer Korrektur einer Abgabe zurückziehen, solange die Korrektur dieser Abgabe noch nicht abgeschlossen ist.
+undo_authorization_info#:#Korrektoren können die Freigabe ihrer Korrektur einer Abgabe zurückziehen, solange die Korrektur dieser Abgabe noch offen ist.
 instant_status#:#Korrekturstatus anzeigen
 instant_status_on#:#detailliert
 instant_status_on_info#:#In der Korrekturverwaltung wird beim Status einer Einzelkorrektur zwischen "nicht begonnen", "offen" und "vorbenotet" unterschieden. Der Arbeitsfortschritt eines Korrektors kann so detailliert nachvollzogen werden.

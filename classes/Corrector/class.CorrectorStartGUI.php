@@ -195,8 +195,9 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
         }
         $actions[] = $this->authorizeCorrectionAction();
 
-        // todo: support removeAuthorizationAction
-        // $actions[] = $this->removeAuthorizationAction();
+        if ($this->settings->getUndoAuthorization()) {
+            $actions[] = $this->removeAuthorizationAction();
+        }
 
         return $actions;
     }
@@ -234,7 +235,7 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
             fn(CorrectorStartItem $x) => $x->getWriter()->getPseudonym() . ': '
                 . $this->task_format->correctionResult($x->getSummary(), true),
             fn(CorrectorStartItem $x) =>
-                $this->correction_process->canAuthorize($x->getAssignment())
+                $this->correction_process->canAuthorizeOwnCorrection($x->getAssignment())
                 && $x->getSummary()?->isComplete(),
             Table\Action\Type::Standard
         );
@@ -250,7 +251,7 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
             $this->ctrl->getFormAction($this, 'removeAuthorization'),
             fn(CorrectorStartItem $x) => $x->getWriter()->getPseudonym() . ': '
                 . $this->task_format->correctionResult($x->getSummary(), true),
-            fn(CorrectorStartItem $x) => !empty($x->getSummary()?->getCorrectionAuthorized()),
+            fn(CorrectorStartItem $x) => $this->correction_process->canRemoveOwnAuthorization($x->getAssignment()),
             Table\Action\Type::Standard
         );
     }
@@ -422,7 +423,7 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
             $assignment = $this->assignment_service->oneById($assignment_id);
             $writer = $this->writer_service->oneByWriterId($assignment?->getWriterId() ?? 0);
             if ($writer !== null && $assignment !== null) {
-                $result = $this->correction_process->authorizeCorrection($assignment);
+                $result = $this->correction_process->authorizeOwnCorrection($assignment);
                 if ($result->isOk()) {
                     $changed[] = $writer->getPseudonym();
                 } else {
@@ -434,8 +435,8 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
         $this->multiFeedback(
             $changed,
             $unchanged,
-            $this->plugin->txt('authorize_correction_done'),
-            $this->plugin->txt('authorize_correction_failed')
+            $this->plugin->txt('remove_own_authorization_done'),
+            $this->plugin->txt('remove_own_authorization_failed')
         );
 
         $this->ctrl->redirect($this);
@@ -472,15 +473,31 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
         }
     }
 
-
-
     protected function removeAuthorization()
     {
-        $success = false;
+        $assignment_ids = $this->confirmationIds();
+        $changed = [];
+        $unchanged = [];
 
-        if ($success) {
-            $this->tpl->setOnScreenMessage("success", $this->plugin->txt('remove_own_authorization_done'), true);
+        foreach ($assignment_ids as $assignment_id) {
+            $assignment = $this->assignment_service->oneById($assignment_id);
+            $writer = $this->writer_service->oneByWriterId($assignment?->getWriterId() ?? 0);
+            if ($writer !== null && $assignment !== null) {
+                $result = $this->correction_process->removeOwnAuthorization($assignment);
+                if ($result->isOk()) {
+                    $changed[] = $writer->getPseudonym();
+                } else {
+                    $unchanged[] = $writer->getPseudonym() . ': ' . implode(', ', $result->failures());
+                }
+            }
         }
+
+        $this->multiFeedback(
+            $changed,
+            $unchanged,
+            $this->plugin->txt('remove_own_authorization_done'),
+            $this->plugin->txt('remove_own_authorization_failed')
+        );
 
         $this->ctrl->redirect($this);
     }

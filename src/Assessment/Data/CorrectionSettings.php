@@ -46,6 +46,7 @@ class CorrectionSettings extends \Edutiek\AssessmentService\Assessment\Data\Corr
     private bool $revision_between = false;
     private bool $stitch_after_procedure = false;
     private bool $undo_authorization = false;
+    private bool $undo_first_authorization = false;
     private bool $instant_status = false;
     private string $pseudonymization = Pseudonymization::WRITER_ID->value;
     private bool $anonymize_correctors = false;
@@ -179,6 +180,15 @@ class CorrectionSettings extends \Edutiek\AssessmentService\Assessment\Data\Corr
     public function setUndoAuthorization(bool $undo_authorization): self
     {
         $this->undo_authorization = $undo_authorization;
+        return $this;
+    }
+    public function getUndoFirstAuthorization(): bool
+    {
+        return $this->undo_first_authorization;
+    }
+    public function setUndoFirstAuthorization(bool $undo_first_authorization): self
+    {
+        $this->undo_first_authorization = $undo_first_authorization;
         return $this;
     }
     public function getInstantStatus(): bool

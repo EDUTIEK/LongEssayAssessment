@@ -93,8 +93,9 @@ class CorrectionSettingsGUI extends BaseGUI
                 if ($assessment_settings->getRequiredCorrectors() === 2) {
                     $subdata = $data['correctors']['required_correctors'][1];
 
-                    $assessment_settings->setMutualVisibility((int) $subdata['mutual_visibility']);
-                    $assessment_settings->setWaitForFirst((int) $subdata['wait_for_first']);
+                    $assessment_settings->setMutualVisibility((bool) $subdata['mutual_visibility']);
+                    $assessment_settings->setWaitForFirst((bool) $subdata['wait_for_first']);
+                    $assessment_settings->setUndoFirstAuthorization((bool) $subdata['undo_first_authorization']);
 
                     if ($subdata['handle_distance'][0] === 'procedure') {
                         $assessment_settings->setProcedureWhenDistance(true);
@@ -264,6 +265,10 @@ class CorrectionSettingsGUI extends BaseGUI
                     $this->plugin->txt('wait_for_first'),
                     $this->plugin->txt('wait_for_first_info')
                 )->withValue($assessment_settings->getWaitForFirst()),
+                'undo_first_authorization' => $factory->checkbox(
+                    $this->plugin->txt('undo_first_authorization'),
+                    $this->plugin->txt('undo_first_authorization_info')
+                )->withValue($assessment_settings->getUndoFirstAuthorization()),
                 'handle_distance' => $factory->switchableGroup(
                     [
                         'average' => $average,

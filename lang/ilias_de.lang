@@ -384,6 +384,12 @@ remove_own_authorization#:#Eigene Freigabe zurückziehen
 confirm_remove_own_authorization#:#Möchten Sie folgende Korrektur-Freigaben zurückziehen? Diese Aktion wird protokolliert.
 remove_own_authorization_done#:#Ihre Korrektur-Freigabe wurde zurückgezogen.
 remove_own_authorization_failed#:#In Ihrer Auswahl waren keine Korrekturen, deren Freigabe zurückgezogen werden kann.
+remove_first_authorization#:#Freigabe Erstkorrektur zurückziehen
+confirm_remove_first_authorization#:#Möchten Sie die Freigabe der Erstkorrektur zurückziehen? Diese Aktion wird protokolliert.
+remove_first_authorization_reason#:#Begründung
+remove_first_authorization_reason_info#:#Diese Begründung wird in eine E-Mail-Benachrichtigung an den Erstkorrektor eingefügt.
+remove_first_authorization_done#:#Die Freigabe der Erstkorrektur wurde zurückgezogen.
+remove_first_authorization_failed#:#Die Freigabe der Erstkorrektur konnte nicht zurückgezogen werden.
 own_position#:#Funktion
 filter_own_position#:#Nach Korrekturfunktion filtern
 own_correction#:#Eigene Korrekturen
@@ -844,6 +850,8 @@ wait_for_first#:#Auf Erstkorrektur warten
 wait_for_first_info#:#Die Zweitkorrektur einer Abgabe kann erst starten, wenn die Erstkorrektur freigegeben ist.
 undo_authorization#:#Freigabe zurückziehen
 undo_authorization_info#:#Korrektoren können die Freigabe ihrer Korrektur einer Abgabe zurückziehen, solange die Korrektur dieser Abgabe noch offen ist.
+undo_first_authorization#:#Freigabe Erstkorrektur zurückziehen
+undo_first_authorization_info#:#Zweitkorrektoren können die Freigabe der Erstkorrektur zurückziehen, solange ihre eigene Freigabe noch offen ist.
 instant_status#:#Korrekturstatus anzeigen
 instant_status_on#:#detailliert
 instant_status_on_info#:#In der Korrekturverwaltung wird beim Status einer Einzelkorrektur zwischen "nicht begonnen", "offen" und "vorbenotet" unterschieden. Der Arbeitsfortschritt eines Korrektors kann so detailliert nachvollzogen werden.

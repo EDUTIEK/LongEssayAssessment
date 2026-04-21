@@ -1585,4 +1585,15 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
             ]);
         }
     }
+
+    public function step_84(): void
+    {
+        if (!$this->db->tableColumnExists('xlas_as_corr_settings', 'undo_first_authorization')) {
+            $this->db->addTableColumn('xlas_as_corr_settings', 'undo_first_authorization', [
+                'type' => ilDBConstants::T_INTEGER,
+                'notnull' => true,
+                'default' => false,
+            ]);
+        }
+    }
 }

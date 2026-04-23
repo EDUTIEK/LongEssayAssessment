@@ -128,11 +128,12 @@ class V10Migration
     {
         return $this->pregMatch($type, [
             'varchar\\(.*' => ilDBConstants::T_TEXT,
-            '.*text.*' => ilDBConstants::T_TEXT,
+            'longtext' => ilDBConstants::T_CLOB,
+            'text' => ilDBConstants::T_TEXT,
             '.*int\\(.*' => ilDBConstants::T_INTEGER,
             'datetime' => ilDBConstants::T_TIMESTAMP,
             'double' => ilDBConstants::T_FLOAT,
-        ]);
+        ]) ?? $type;
     }
 
     /**
@@ -341,7 +342,7 @@ class V10Migration
                     'message' =>
                         array(
                             'Field' => 'message',
-                            'Type' => 'longtext',
+                            'Type' => 'text',
                             'Null' => 'NO',
                             'Key' => '',
                             'Default' => null,
@@ -682,7 +683,7 @@ class V10Migration
                     'entry' =>
                         array(
                             'Field' => 'entry',
-                            'Type' => 'longtext',
+                            'Type' => 'text',
                             'Null' => 'YES',
                             'Key' => '',
                             'Default' => null,
@@ -1400,7 +1401,7 @@ class V10Migration
                     'description' =>
                         array(
                             'Field' => 'description',
-                            'Type' => 'longtext',
+                            'Type' => 'text',
                             'Null' => 'YES',
                             'Key' => '',
                             'Default' => null,
@@ -1563,7 +1564,7 @@ class V10Migration
                     'comment' =>
                         array(
                             'Field' => 'comment',
-                            'Type' => 'longtext',
+                            'Type' => 'text',
                             'Null' => 'YES',
                             'Key' => '',
                             'Default' => null,
@@ -1623,7 +1624,7 @@ class V10Migration
                     'marks' =>
                         array(
                             'Field' => 'marks',
-                            'Type' => 'varchar(4000)',
+                            'Type' => 'longtext',
                             'Null' => 'YES',
                             'Key' => '',
                             'Default' => null,
@@ -2175,7 +2176,7 @@ class V10Migration
                     'description' =>
                         array(
                             'Field' => 'description',
-                            'Type' => 'longtext',
+                            'Type' => 'text',
                             'Null' => 'YES',
                             'Key' => '',
                             'Default' => null,

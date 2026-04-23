@@ -1573,4 +1573,66 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
     {
         $this->db->manipulate("UPDATE xlas_et_essay SET service_version = 20241213 WHERE service_version = 0");
     }
+
+    public function step_83(): void
+    {
+        if (!$this->db->tableColumnExists('xlas_ta_corr_settings', 'pdf_marking')) {
+            $this->db->addTableColumn('xlas_ta_corr_settings', 'pdf_marking', [
+                'type' => ilDBConstants::T_TEXT,
+                'length' => 10,
+                'notnull' => true,
+                'default' => 'images',
+            ]);
+        }
+    }
+
+    public function step_84(): void
+    {
+        if (!$this->db->tableColumnExists('xlas_as_corr_settings', 'undo_first_authorization')) {
+            $this->db->addTableColumn('xlas_as_corr_settings', 'undo_first_authorization', [
+                'type' => ilDBConstants::T_INTEGER,
+                'notnull' => true,
+                'default' => false,
+            ]);
+        }
+    }
+
+    /**
+     * Extend text field lengths
+     * - All fields edited with TinyMCE should be LONGTEXT (T_CLOB)
+     * - Marks must be LONGTEXT, because freehand drawing creates long coordinate lists
+     *
+     * Notes:
+     * - ILIAS support only T_TEXT and T_CLOB
+     * - T_TEXT without length maps to mariadb TEXT
+     * - T_TEXT with length maps to mariadb VARCHAR, max length is 4000
+     * - T_CLOB maps to mariadb LONGTEXT (CLOB in mariadb is ALIAS for LONGTEXT)
+     */
+    public function step_85(): void
+    {
+        $this->db->modifyTableColumn('xlas_as_corrector', 'correction_report', ['type' => ilDBConstants::T_CLOB, 'notnull' => false]);
+        $this->db->modifyTableColumn('xlas_as_orga_settings', 'description', ['type' => ilDBConstants::T_CLOB, 'notnull' => false]);
+        $this->db->modifyTableColumn('xlas_as_orga_settings', 'closing_message', ['type' => ilDBConstants::T_CLOB, 'notnull' => false]);
+        $this->db->modifyTableColumn('xlas_et_essay', 'written_text', ['type' => ilDBConstants::T_CLOB, 'notnull' => false]);
+        $this->db->modifyTableColumn('xlas_et_writer_history', 'content', ['type' => ilDBConstants::T_CLOB, 'notnull' => false]);
+        $this->db->modifyTableColumn('xlas_et_writer_notice', 'note_text', ['type' => ilDBConstants::T_CLOB, 'notnull' => false]);
+        $this->db->modifyTableColumn('xlas_ta_corr_comm', 'marks', ['type' => ilDBConstants::T_CLOB, 'notnull' => false]);
+        $this->db->modifyTableColumn('xlas_ta_corr_summary', 'summary_text', ['type' => ilDBConstants::T_CLOB, 'notnull' => false]);
+        $this->db->modifyTableColumn('xlas_ta_corr_summary', 'revision_text', ['type' => ilDBConstants::T_CLOB, 'notnull' => false]);
+        $this->db->modifyTableColumn('xlas_ta_corr_template', 'content', ['type' => ilDBConstants::T_CLOB, 'notnull' => false]);
+        $this->db->modifyTableColumn('xlas_ta_settings', 'instructions', ['type' => ilDBConstants::T_CLOB, 'notnull' => false]);
+        $this->db->modifyTableColumn('xlas_ta_settings', 'solution', ['type' => ilDBConstants::T_CLOB, 'notnull' => false]);
+    }
+
+    /**
+     * Shorten text fields lengths
+     * - These fields don't have long data
+     */
+    public function step_86(): void
+    {
+        $this->db->modifyTableColumn('xlas_as_noti_settings', 'body', ['type' => ilDBConstants::T_TEXT, 'notnull' => false]);
+        $this->db->modifyTableColumn('xlas_ta_corr_snippet', 'text', ['type' => ilDBConstants::T_TEXT, 'notnull' => false]);
+        $this->db->modifyTableColumn('xlas_ta_corr_summary', 'summary_pdf', ['type' => ilDBConstants::T_TEXT, 'length' => 50, 'notnull' => false]);
+        $this->db->modifyTableColumn('xlas_ta_writer_anno', 'comment', ['type' => ilDBConstants::T_TEXT, 'notnull' => false]);
+    }
 }

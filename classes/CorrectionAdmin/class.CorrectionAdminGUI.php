@@ -77,38 +77,63 @@ class CorrectionAdminGUI extends BaseGUI
         );
     }
 
-    private function removeAuthorizationsAction(): Action\Confirmation
+    private function removeAuthorizationsAction(): Action\Form
     {
         $label = $this->correction_settings->getRequiredCorrectors() == 1
             ? $this->plugin->txt('remove_authorization')
             : $this->plugin->txt('remove_authorizations');
-        return $this->plugin_ui_factory->table()->action()->confirmation(
+        return $this->plugin_ui_factory->table()->action()->form(
             "removeAuthorization",
             $label,
             $label,
-            $this->plugin->txt("remove_authorizations_confirmation"),
-            $this->ctrl->getFormAction($this, "removeAuthorizations"),
-            fn(CorrectionItem $item) => $item->getWriterName()
-                . ($this->object->getMultiTasks() ? ', ' . $item->getTaskSettings()->getTitle() : ''),
-            fn(CorrectionItem $item) => true,
+            $this->removeAuthorizationsFields(...),
+            $this->removeAuthorizations(...),
+            $this->removeAuthorizationsEnabled(...),
             Action\Type::Standard,
         );
     }
 
-    private function removeAuthorizations()
+
+    private function removeAuthorizationsEnabled(CorrectionItem $item): bool
     {
-        $essays = $this->essay_service->some($this->confirmationIds());
+        foreach ([0, 1, 2] as $pos) {
+            if ($item->getSummaryByPosition($pos)?->isAuthorized()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * @param CorrectionItem[] $items
+     * @return Input[]
+     */
+    private function removeAuthorizationsFields(array $items): array
+    {
+        $items = array_filter($items, fn(CorrectionItem $item) => $this->removeAuthorizationsEnabled($item));
+
+        $fields = [
+            'info' => $this->getTableActionInfoField($items),
+        ];
+
+        return $fields;
+    }
+
+    /**
+     * @param CorrectionItem[] $items
+     */
+    private function removeAuthorizations(array $items, array $data)
+    {
         $changed = [];
         $unchanged = [];
 
-        foreach ($essays as $essay) {
-            $writer = $this->writer_service->oneByWriterId($essay->getWriterId());
+        foreach ($items as $item) {
+            $writer = $this->writer_service->oneByWriterId($item->getWriter()->getId());
             $user = $this->user_service->getUser($writer->getUserId());
-            $task = $this->task_api->manager()->one($essay->getTaskId());
             $name = ($user?->getListname(false) ?? $this->plugin->txt('unknown')) . ' (' . $writer->getPseudonym() . ')'
-                . ($this->object->getMultiTasks() ? ' - ' . $task->getTitle() : '');
+                . ($this->object->getMultiTasks() ? ' - ' . $item->getTaskSettings()->getTitle() : '');
 
-            $result = $this->correction_process->removeAuthorizations($essay->getTaskId(), $writer);
+            $result = $this->correction_process->removeAuthorizations($item->getTaskSettings()->getTaskId(), $writer);
             if ($result->isOk()) {
                 $changed[] = $name;
             } else {

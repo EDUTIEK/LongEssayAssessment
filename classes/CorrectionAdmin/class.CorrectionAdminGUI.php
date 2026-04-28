@@ -16,6 +16,7 @@ use Edutiek\AssessmentService\System\Data\UserData;
 use Edutiek\AssessmentService\System\User\ReadService as UserService;
 use Edutiek\AssessmentService\Task\AssessmentStatus\FullService as AssessmentStatus;
 use Edutiek\AssessmentService\Task\CorrectionProcess\FullService as CorrectionProcess;
+use Edutiek\AssessmentService\Task\CorrectionProcess\ProcessStep;
 use Edutiek\AssessmentService\Task\CorrectorAssignments\FullService as CorrectorAssignmentsService;
 use Edutiek\AssessmentService\Task\CorrectorSummary\ReadService as SummaryService;
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
@@ -112,8 +113,28 @@ class CorrectionAdminGUI extends BaseGUI
     {
         $items = array_filter($items, fn(CorrectionItem $item) => $this->removeAuthorizationsEnabled($item));
 
+        $writing_tasks = [];
+        foreach ($items as $item) {
+            $writing_tasks[] = new WritingTask($item->getWriter()->getId(), $item->getTaskSettings()->getTaskId());
+        }
+
+        $step = $this->ui_factory->input()->field()->radio(
+            $this->plugin->txt('remove_correction_step'),
+            $this->plugin->txt('remove_correction_step_info')
+        );
+        foreach ($this->correction_process->getRemovableStepsOptions($writing_tasks) as $value => $label) {
+            $step = $step->withOption($value, $label);
+            $step = $step->withValue($step->getValue() ?? $value);
+        }
+
         $fields = [
             'info' => $this->getTableActionInfoField($items),
+            'step' => $step,
+            'reason' => $this->ui_factory->input()->field()->textarea(
+                $this->plugin->txt('remove_correction_step_note'),
+                $this->plugin->txt('remove_correction_step_note_info')
+            )->withAdditionalTransformation($this->refinery->string()->hasMinLength(5))
+
         ];
 
         return $fields;
@@ -133,7 +154,19 @@ class CorrectionAdminGUI extends BaseGUI
             $name = ($user?->getListname(false) ?? $this->plugin->txt('unknown')) . ' (' . $writer->getPseudonym() . ')'
                 . ($this->object->getMultiTasks() ? ' - ' . $item->getTaskSettings()->getTitle() : '');
 
-            $result = $this->correction_process->removeAuthorizations($item->getTaskSettings()->getTaskId(), $writer);
+            $step = ProcessStep::tryFrom((int) $data['step']);
+            if ($step === null) {
+                $this->failure($this->plugin->txt('remove_correction_step_not_found'), true);
+                $this->ctrl->redirect($this);
+            }
+            $reason = $data['reason'];
+
+            $result = $this->correction_process->removeEqualOrHigherSteps(
+                $item->getTaskSettings()->getTaskId(),
+                $writer,
+                $step,
+                $reason
+            );
             if ($result->isOk()) {
                 $changed[] = $name;
             } else {

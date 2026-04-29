@@ -472,8 +472,8 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
         $this->multiFeedback(
             $changed,
             $unchanged,
-            $this->plugin->txt('remove_own_authorization_done'),
-            $this->plugin->txt('remove_own_authorization_failed')
+            $this->plugin->txt('authorize_correction_done'),
+            $this->plugin->txt('authorize_correction_failed')
         );
 
         $this->ctrl->redirect($this);

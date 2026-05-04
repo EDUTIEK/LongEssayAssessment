@@ -82,7 +82,10 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
      */
     public static function _link(int $ref_id, Jump $jump, bool $returned = false): string
     {
-        $builder = new StandardURIBuilder(ILIAS_HTTP_PATH, false);
+        global $DIC;
+
+        $static_url = $DIC['static_url'];
+        $builder = $static_url->builder();
 
         return (string) $builder->build(
             'xlas',

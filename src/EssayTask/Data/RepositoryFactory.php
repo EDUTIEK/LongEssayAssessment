@@ -30,6 +30,11 @@ class RepositoryFactory implements \Edutiek\AssessmentService\EssayTask\Data\Rep
         return $this->repo(EssayImageRepo::class, EssayImage::class, $this->db);
     }
 
+    public function markedPdf(): MarkedPdfRepo
+    {
+        return $this->repo(MarkedPdfRepo::class, MarkedPdf::class, $this->db);
+    }
+
     public function writingStep(): WritingStepRepo
     {
         return $this->repo(WritingStepRepo::class, WritingStep::class);

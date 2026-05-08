@@ -99,6 +99,7 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
             'xlas_as_writer',
             'xlas_et_essay',
             'xlas_et_essay_image',
+            'xlas_et_marked_pdf',
             'xlas_et_write_settings',
             'xlas_et_writer_history',
             'xlas_et_writer_notice',
@@ -1635,5 +1636,31 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
         $this->db->modifyTableColumn('xlas_ta_corr_snippet', 'text', ['type' => ilDBConstants::T_TEXT, 'notnull' => false]);
         $this->db->modifyTableColumn('xlas_ta_corr_summary', 'summary_pdf', ['type' => ilDBConstants::T_TEXT, 'length' => 50, 'notnull' => false]);
         $this->db->modifyTableColumn('xlas_ta_writer_anno', 'comment', ['type' => ilDBConstants::T_TEXT, 'notnull' => false]);
+    }
+
+    /**
+     * PDF file with correction marks from one or all correctors
+     */
+    public function step_87(): void
+    {
+        if (!$this->db->tableExists('xlas_et_marked_pdf')) {
+            $fields = [
+                'id' => ['notnull' => 1, 'type' => ilDBConstants::T_INTEGER],
+                'task_id' => ['notnull' => 1, 'type' => ilDBConstants::T_INTEGER],
+                'writer_id' => ['notnull' => 1, 'type' => ilDBConstants::T_INTEGER],
+                'corrector_id' => ['notnull' => 1, 'type' => ilDBConstants::T_INTEGER],
+                'own_pdf' => ['notnull' => 1, 'type' => ilDBConstants::T_TEXT, 'length' => 50],
+                'sum_pdf' => ['notnull' => 1, 'type' => ilDBConstants::T_TEXT, 'length' => 50],
+            ];
+            $this->db->createTable('xlas_et_marked_pdf', $fields);
+            $this->db->addPrimaryKey('xlas_et_marked_pdf', ['id']);
+            $this->db->addIndex("xlas_et_marked_pdf", ["task_id"], "i1");
+            $this->db->addIndex("xlas_et_marked_pdf", ["writer_id"], "i2");
+            $this->db->addIndex("xlas_et_marked_pdf", ["corrector_id"], "i3");
+
+            if (!$this->db->sequenceExists('xlas_et_marked_pdf')) {
+                $this->db->createSequence('xlas_et_marked_pdf');
+            }
+        }
     }
 }

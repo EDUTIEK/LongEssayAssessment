@@ -39,6 +39,21 @@ class MarkedPdfRepo implements \Edutiek\AssessmentService\EssayTask\Data\MarkedP
         return $this->repo->queryOneBy(['task_id' => $task_id, 'writer_id' => $writer_id, 'corrector_id' => $corrector_id]);
     }
 
+    public function allByTaskId(int $task_id): array
+    {
+        return $this->repo->queryAllBy(['task_id' => $task_id]);
+    }
+
+    public function allByWriterId(int $writer_id): array
+    {
+        return $this->repo->queryAllBy(['writer_id' => $writer_id]);
+    }
+
+    public function allByCorrectorId(int $corrector_id): array
+    {
+        return $this->repo->queryAllBy(['corrector_id' => $corrector_id]);
+    }
+
     public function allByTaskIdAndWriterId(int $task_id, int $writer_id): array
     {
         return $this->repo->queryAllBy(['task_id' => $task_id, 'writer_id' => $writer_id]);
@@ -52,20 +67,5 @@ class MarkedPdfRepo implements \Edutiek\AssessmentService\EssayTask\Data\MarkedP
     public function delete(int $id): void
     {
         $this->repo->deleteAllBy(['id' => $id]);
-    }
-
-    public function deleteByTaskId(int $task_id): void
-    {
-        $this->repo->deleteAllBy(['task_id' => $task_id]);
-    }
-
-    public function deleteByWriterId(int $writer_id): void
-    {
-        $this->repo->deleteAllBy(['writer_id' => $writer_id]);
-    }
-
-    public function deleteByCorrectorId(int $corrector_id): void
-    {
-        $this->repo->deleteAllBy(['corrector_id' => $corrector_id]);
     }
 }

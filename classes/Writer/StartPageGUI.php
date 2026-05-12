@@ -147,7 +147,7 @@ class StartPageGUI extends BaseGUI
                 $back_text = $this->plugin->txt('message_writing_authorized_link');
                 $message .= '<p><a href="' . $back_url . '">' . $back_text . '</a></p>';
 
-                return [$this->ui_factory->legacy('<div class="alert alert-success" role="alert">' . $message . '</div>')];
+                return [$this->plugin_ui_factory->legacy('<div class="alert alert-success" role="alert">' . $message . '</div>')];
             } else {
                 $this->info($this->plugin->txt('message_writing_authorized'));
             }
@@ -206,7 +206,7 @@ class StartPageGUI extends BaseGUI
         $properties = [];
 
         if ($this->orga_settings->getDescription()) {
-            $parts[] = $this->ui_factory->legacy($this->displayText($this->orga_settings->getDescription()));
+            $parts[] = $this->plugin_ui_factory->legacy($this->displayText($this->orga_settings->getDescription()));
         }
 
         if ($this->working_time->isNowBeforeAllowedTime()) {
@@ -264,7 +264,7 @@ class StartPageGUI extends BaseGUI
         $tasks = $this->task_manager->all();
 
         if ($this->perms->canViewResult()) {
-            $items[] = $this->ui_factory->legacy($this->assessment_format->finalResult($this->writer));
+            $items[] = $this->plugin_ui_factory->legacy($this->assessment_format->finalResult($this->writer));
             $items[] = $this->ui_factory->divider()->horizontal();
         } else {
             $properties[$this->plugin->txt('label_available')] = $this->assessment_format->resultAvailability();
@@ -458,7 +458,7 @@ class StartPageGUI extends BaseGUI
         $is_one = count($tasks) === 1;
 
         $info = $this->working_time->isStarted() ? [] :
-            [$this->ui_factory->legacy($this->plugin->txt('task_instructions_info') . '<br />')];
+            [$this->plugin_ui_factory->legacy($this->plugin->txt('task_instructions_info') . '<br />')];
 
 
         $panels = [];

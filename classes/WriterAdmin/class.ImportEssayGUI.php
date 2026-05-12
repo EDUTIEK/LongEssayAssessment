@@ -147,7 +147,7 @@ class ImportEssayGUI extends BaseGUI
 
         if ($overwrites > 0) {
             $modal = $this->ui_factory->modal()->roundtrip($this->plugin->txt('essay_import'), [
-                $this->ui_factory->legacy('<span>' . sprintf($this->plugin->txt('essay_import_confirmation'), $overwrites) . '</span>'),
+                $this->plugin_ui_factory->legacy('<span>' . sprintf($this->plugin->txt('essay_import_confirmation'), $overwrites) . '</span>'),
             ], [], $this->ctrl->getLinkTarget($this, 'import'))->withActionButtons([
                 $this->ui_factory->button()->primary($this->plugin->txt('essay_import_no_overwrite'), $this->ctrl->getLinkTarget($this, 'import')),
                 $this->ui_factory->button()->standard($this->plugin->txt('essay_import_overwrite'), $this->ctrl->getLinkTarget($this, 'importOverwrite'))

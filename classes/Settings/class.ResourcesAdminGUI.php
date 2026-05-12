@@ -457,7 +457,7 @@ class ResourcesAdminGUI extends BaseGUI implements DataTableParent
             $components[] = $this->componentOfFile($item, $link);
         } elseif ($item->isEmbedded() && $item->getType() === ResourceType::URL) {
             $url = $item->getUrl();
-            $components[] = $this->ui_factory->legacy("<iframe src=\"$url\" width=\"100%\" height=\"500px\"></iframe>");
+            $components[] = $this->plugin_ui_factory->legacy("<iframe src=\"$url\" width=\"100%\" height=\"500px\"></iframe>");
         }
 
         $title = $this->lng->txt("preview") . ": " . $item->getTitle();

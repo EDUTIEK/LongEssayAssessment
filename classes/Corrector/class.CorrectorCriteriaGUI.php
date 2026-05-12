@@ -112,7 +112,7 @@ class CorrectorCriteriaGUI extends CriteriaGUI
                 $mode_message = $this->plugin->txt('criteria_mode_corrector_info');
                 break;
         }
-        $components[] = $this->ui_factory->panel()->standard($this->plugin->txt('criteria_mode'), $this->ui_factory->legacy($mode_message));
+        $components[] = $this->ui_factory->panel()->standard($this->plugin->txt('criteria_mode'), $this->plugin_ui_factory->legacy($mode_message));
 
         $table = $this->table();
 

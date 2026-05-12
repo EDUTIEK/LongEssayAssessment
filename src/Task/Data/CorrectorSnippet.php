@@ -34,7 +34,7 @@ class CorrectorSnippet extends \Edutiek\AssessmentService\Task\Data\CorrectorSni
     private int $corrector_id = 0;
     private string $key = '';
     private string $purpose = '';
-    private ?string $title = null;
+    private ?string $shortcut = null;
     private ?string $text = null;
 
 
@@ -92,14 +92,14 @@ class CorrectorSnippet extends \Edutiek\AssessmentService\Task\Data\CorrectorSni
         return $this;
     }
 
-    public function getTitle(): ?string
+    public function getShortcut(): ?string
     {
-        return $this->title;
+        return $this->shortcut;
     }
 
-    public function setTitle(?string $title): self
+    public function setShortcut(?string $shortcut): self
     {
-        $this->title = $title;
+        $this->shortcut = $shortcut;
         return $this;
     }
 

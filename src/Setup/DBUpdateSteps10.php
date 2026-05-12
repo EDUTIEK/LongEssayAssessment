@@ -1663,4 +1663,16 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
             }
         }
     }
+
+    public function step_88(): void
+    {
+        if ($this->db->tableColumnExists('xlas_ta_corr_snippet', 'title')) {
+            $this->db->dropTableColumn('xlas_ta_corr_snippet', 'title');
+        }
+
+        if (!$this->db->tableColumnExists('xlas_ta_corr_snippet', 'shortcut')) {
+            $this->db->addTableColumn('xlas_ta_corr_snippet', 'shortcut', [
+                'type' => ilDBConstants::T_TEXT, 'length' => 20, 'notnull' => 0, 'default' => null]);
+        }
+    }
 }

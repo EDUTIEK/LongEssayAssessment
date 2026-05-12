@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace ILIAS\Plugin\LongEssayAssessment\System\Data;
 
-use ilCronManager;
 use ilIniFile;
 use ilLongEssayAssessmentPlugin;
 use ilLanguage;
 use DateTimeZone;
 use Edutiek\AssessmentService\System\Config\CronJobId;
+use ILIAS\Cron\Job\JobManager;
 
 class SetupRepo implements \Edutiek\AssessmentService\System\Data\SetupRepo
 {
@@ -21,7 +21,7 @@ class SetupRepo implements \Edutiek\AssessmentService\System\Data\SetupRepo
     public function __construct(
         private readonly ilIniFile $client_ini,
         private readonly ilLanguage $lng,
-        private readonly ilCronManager $cron,
+        private readonly JobManager $cron,
     ) {
     }
 

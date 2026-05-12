@@ -17,12 +17,14 @@ use ILIAS\Setup\ImplementationOfInterfaceFinder;
 use Edutiek\AssessmentService\System\EventHandling\Events\UserRemoved;
 use ILIAS\Plugin\LongEssayAssessment\UI\Container\ContainerRenderer;
 use ILIAS\Plugin\LongEssayAssessment\System\File\Stakeholder;
+use ILIAS\Cron\CronJob;
+use ILIAS\Cron\CronException;
 use ILIAS\Plugin\LongEssayAssessment\Cron\FileCleanup;
 
 /**
  * Basic plugin file
  */
-class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin implements \ilCronJobProvider
+class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin implements \ILIAS\Cron\Job\JobProvider
 {
     public const ID = 'xlas';   // must be public for GUI and List GUI
 
@@ -35,7 +37,7 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin implements \i
     protected ilDBInterface $db;
     protected ilIniFile $client_ini;
     /**
-     * @var ilCronJob[]
+     * @var CronJob[]
      */
     private array $cron_objects = [];
     private ?array $cron_classes = null;
@@ -328,7 +330,7 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin implements \i
         ];
     }
 
-    private function getJobObject(string $class_name): ilCronJob
+    private function getJobObject(string $class_name): CronJob
     {
         return $this->cron_objects[$class_name] ??= new $class_name($this, $this->dic(), $this->ilias_dic);
     }
@@ -344,11 +346,11 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin implements \i
         return $jobs;
     }
 
-    public function getCronJobInstance($jobId): ilCronJob
+    public function getCronJobInstance($jobId): CronJob
     {
         $jobs = $this->getJobClasses();
         if (!isset($jobs[$jobId])) {
-            throw new ilCronException(
+            throw new CronException(
                 "Job [$jobId] not found."
             );
         }

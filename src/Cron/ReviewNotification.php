@@ -3,12 +3,13 @@
 namespace ILIAS\Plugin\LongEssayAssessment\Cron;
 
 use Edutiek\AssessmentService\System\Config\CronJobId;
-use ilCronJobResult;
-use ILIAS\Cron\Schedule\CronJobScheduleType;
 use ilLongEssayAssessmentPlugin;
 use ilObjUser;
+use ILIAS\Cron\CronJob;
+use ILIAS\Cron\Job\Schedule\JobScheduleType;
+use ILIAS\Cron\Job\JobResult;
 
-class ReviewNotification extends \ilCronJob
+class ReviewNotification extends CronJob
 {
     public const id = CronJobId::REVIEW_NOTIFICATION->value;
 
@@ -47,9 +48,9 @@ class ReviewNotification extends \ilCronJob
         return true;
     }
 
-    public function getDefaultScheduleType(): CronJobScheduleType
+    public function getDefaultScheduleType(): JobScheduleType
     {
-        return CronJobScheduleType::SCHEDULE_TYPE_IN_HOURS;
+        return JobScheduleType::IN_HOURS;
     }
 
     public function getDefaultScheduleValue(): ?int
@@ -57,16 +58,16 @@ class ReviewNotification extends \ilCronJob
         return 1;
     }
 
-    public function run(): ilCronJobResult
+    public function run(): JobResult
     {
         $result = $this->plugin->dic()->cron($this->user->getId())->reviewNotifications()->run();
 
         if ($result->isOk()) {
-            $cron_result = new ilCronJobResult();
-            $cron_result->setStatus(ilCronJobResult::STATUS_OK);
+            $cron_result = new JobResult();
+            $cron_result->setStatus(JobResult::STATUS_OK);
         } else {
-            $cron_result = new ilCronJobResult();
-            $cron_result->setStatus(ilCronJobResult::STATUS_FAIL);
+            $cron_result = new JobResult();
+            $cron_result->setStatus(JobResult::STATUS_FAIL);
             $cron_result->setMessage(implode(' | ', $result->failures()));
         }
 

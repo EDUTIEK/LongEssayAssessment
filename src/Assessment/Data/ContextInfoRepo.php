@@ -26,6 +26,7 @@ use ilTree;
 use ilAccessHandler;
 use ilObject;
 use ilLink;
+use ILIAS\StaticURL\Builder\URIBuilder;
 
 class ContextInfoRepo implements \Edutiek\AssessmentService\Assessment\Data\ContextInfoRepo
 {
@@ -34,6 +35,7 @@ class ContextInfoRepo implements \Edutiek\AssessmentService\Assessment\Data\Cont
     public function __construct(
         private readonly ilTree $tree,
         private readonly ilAccessHandler $access,
+        private readonly URIBuilder $uri_builder
     ) {
     }
 
@@ -52,9 +54,8 @@ class ContextInfoRepo implements \Edutiek\AssessmentService\Assessment\Data\Cont
     {
         foreach (ilObject::_getAllReferences($ass_id) as $ref_id) {
             if ($this->access->checkAccessOfUser($user_id, 'read', '', $ref_id)) {
-                $url = str_replace('/xlas_rest.php', '', ILIAS_HTTP_PATH);
-                $builder = new StandardURIBuilder($url, false);
-                return (string) $builder->build('xlas', new ReferenceId($ref_id));
+                $url = (string) $this->uri_builder->build('xlas', new ReferenceId($ref_id));
+                return str_replace('/xlas_rest.php', '', $url);
             }
         }
         return '';

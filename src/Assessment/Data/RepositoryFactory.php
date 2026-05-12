@@ -11,6 +11,7 @@ use ilAccessHandler;
 use ilObjectDataCache;
 use ilObjectFactory;
 use ilTree;
+use ILIAS\StaticURL\Builder\URIBuilder;
 
 class RepositoryFactory implements \Edutiek\AssessmentService\Assessment\Data\Repositories
 {
@@ -22,7 +23,8 @@ class RepositoryFactory implements \Edutiek\AssessmentService\Assessment\Data\Re
         private readonly ilAccessHandler $access,
         private readonly ilTree $tree,
         private readonly ilObjectDataCache $data_cache,
-        private readonly ilObjectFactory $object_factory
+        private readonly ilObjectFactory $object_factory,
+        private readonly URIBuilder $uri_builder
     ) {
         $this->g = $g;
         $this->db = $db;
@@ -55,7 +57,7 @@ class RepositoryFactory implements \Edutiek\AssessmentService\Assessment\Data\Re
 
     public function contextInfo(): ContextInfoRepo
     {
-        return $this->instances[ContextInfoRepo::class] ??= new ContextInfoRepo($this->tree, $this->access);
+        return $this->instances[ContextInfoRepo::class] ??= new ContextInfoRepo($this->tree, $this->access, $this->uri_builder);
     }
 
     public function correctionSettings(): CorrectionSettingsRepo

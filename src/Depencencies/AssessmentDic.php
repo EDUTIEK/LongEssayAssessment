@@ -53,7 +53,8 @@ class AssessmentDic implements \Edutiek\AssessmentService\Assessment\Api\Depende
                 $dic->access(),
                 $dic->repositoryTree(),
                 $dic["ilObjDataCache"],
-                new ilObjectFactory()
+                new ilObjectFactory(),
+                $dic['static_url']->builder()
             );
         };
 

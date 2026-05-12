@@ -14,7 +14,7 @@ trait DataRetrievalFactory
     {
         return new class($this) implements DataRetrieval
         {
-            public function __construct(private DataRetrievalFactory $parent){}
+            public function __construct(private mixed $parent){}
 
             public function getRows(
                 DataRowBuilder $row_builder,
@@ -24,7 +24,7 @@ trait DataRetrievalFactory
                 ?array $filter_data,
                 ?array $additional_parameters
             ): Generator {
-                return $this->parent->getRows($row_builder, $visible_column_ids, $range, $order, $filter_data, $additional_parameters);
+                yield from $this->parent->getRows($row_builder, $visible_column_ids, $range, $order, $filter_data, $additional_parameters);
             }
 
             public function getTotalRowCount(?array $filter_data, ?array $additional_parameters): ?int

@@ -88,7 +88,7 @@ class Renderer extends AbstractComponentRenderer
 
     private function liveNumber(string $id, int $value): Component
     {
-        return $this->getUIFactory()->legacy("<span id='{$id}'>{$value}</span>");
+        return $this->getUIFactory()->legacy()->content("<span id='{$id}'>{$value}</span>");
     }
 
     private function javascript(string $url, int $interval = 5000): Component
@@ -112,7 +112,7 @@ class Renderer extends AbstractComponentRenderer
                 }
             }, {$interval})
         });";
-        return $this->getUIFactory()->legacy("")->withOnLoadCode(fn ($id) => $js_code);
+        return $this->getUIFactory()->legacy()->content("")->withOnLoadCode(fn ($id) => $js_code);
     }
 
 

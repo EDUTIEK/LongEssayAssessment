@@ -8,7 +8,7 @@ use ILIAS\UI\Implementation\Component\Input\Field\Factory;
 use ILIAS\UI\Implementation\Component\Input\Field\FormInput;
 use ILIAS\UI\Implementation\Component\Input\Field\Textarea;
 use ILIAS\UI\Implementation\Component\SignalGeneratorInterface;
-use ILIAS\UI\Component\Input\Field\ColorPicker;
+use ILIAS\UI\Component\Input\Field\ColorSelect;
 
 class InputFactory
 {
@@ -112,8 +112,8 @@ class InputFactory
         return new Info($this->data_factory, $this->refinery, $label, $byline);
     }
 
-    public function colorSelect(string $label, ?string $byline = null): ColorPicker
+    public function colorSelect(string $label, ?string $byline = null): ColorSelect
     {
-        return $this->input_factory->colorPicker($label, $byline);
+        return $this->input_factory->colorSelect($label, $byline);
     }
 }

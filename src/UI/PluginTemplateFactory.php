@@ -39,7 +39,7 @@ class PluginTemplateFactory implements TemplateFactory
         if (!str_starts_with($path, "components/ILIAS/UI/src/templates/")) {
             if (file_exists($this->plugin->getDirectory() . "/templates/default/" . $path)) {
                 $tpl = $this->plugin->getTemplate($path, $purge_unfilled_vars, $purge_unused_blocks);
-                return new ilTemplateWrapper($this->global_tpl, $tpl);
+                return new ilTemplateWrapper($tpl);
             }
         }
 

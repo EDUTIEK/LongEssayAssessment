@@ -21,13 +21,18 @@ trait DataRetrievalFactory
                 array $visible_column_ids,
                 Range $range,
                 Order $order,
-                ?array $filter_data,
-                ?array $additional_parameters
+                mixed $additional_viewcontrol_data,
+                mixed $filter_data,
+                mixed $additional_parameters
             ): Generator {
                 yield from $this->parent->getRows($row_builder, $visible_column_ids, $range, $order, $filter_data, $additional_parameters);
             }
 
-            public function getTotalRowCount(?array $filter_data, ?array $additional_parameters): ?int
+            public function getTotalRowCount(
+                mixed $additional_viewcontrol_data,
+                mixed $filter_data,
+                mixed $additional_parameters
+            ): ?int
             {
                 return $this->parent->getTotalRowCount($filter_data, $additional_parameters);
             }

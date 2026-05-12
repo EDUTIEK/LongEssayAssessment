@@ -41,6 +41,15 @@ class Factory
                 public function loadLanguageModule(string $a_module): void
                 {
                 }
+
+                public function getLangKey(): string
+                {
+                    return "de";
+                }
+
+                public function toJS($key): void
+                {
+                }
             },
             $this->http,
             $this->refinery,

@@ -113,7 +113,7 @@ class Group implements Component
         $resources = $this->ui_factory->item()->group($this->lng->txt("log_entries"), $items);
 
         return array_merge(
-            [$this->buildModeControl(), $this->ui_factory->legacy("</br></br>")],
+            [$this->buildModeControl(), $this->ui_factory->legacy()->content("</br></br>")],
             $this->surroundWithPagination($resources)
         );
     }

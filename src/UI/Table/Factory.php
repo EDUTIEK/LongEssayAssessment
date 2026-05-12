@@ -57,7 +57,7 @@ class Factory
         DataRetrieval $data_retrieval
     ): Data
     {
-        return $this->ui_factory->table()->data($title, $columns, $data_retrieval);
+        return $this->ui_factory->table()->data($data_retrieval, $title, $columns);
     }
 
     public function ordering(
@@ -67,7 +67,7 @@ class Factory
         URI $target_url
     ): Ordering
     {
-        return $this->ui_factory->table()->ordering($title, $columns, $retrieval, $target_url);
+        return $this->ui_factory->table()->ordering($retrieval, $target_url, $title, $columns);
     }
 
     public function dataTable(

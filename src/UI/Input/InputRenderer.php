@@ -26,7 +26,6 @@ use ILIAS\UI\Implementation\Component\Input\Field\Tag;
 use ILIAS\UI\Implementation\Component\Input\Field\Textarea;
 use ILIAS\UI\Implementation\Component\Item\Notification;
 use ILIAS\UI\Implementation\Component\Layout\Page\Standard;
-use ILIAS\UI\Implementation\Component\Legacy\Legacy;
 use ILIAS\UI\Implementation\Component\Link\Bulky;
 use ILIAS\UI\Implementation\Component\MainControls\MainBar;
 use ILIAS\UI\Implementation\Component\MainControls\MetaBar;
@@ -170,7 +169,7 @@ class InputRenderer extends \ILIAS\UI\Implementation\Component\Input\Field\Rende
             }
         );
 
-        $tpl = $this->getPreparedTextareaTemplate($component);
+        list($tpl, $component) = $this->getPreparedTextareaTemplate($component);
 
         $label_id = $this->createId();
         $tpl->setVariable('ID', $label_id);

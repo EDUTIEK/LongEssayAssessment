@@ -228,6 +228,12 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin implements \i
         if (!$this->isActive()) {
             return $renderer;
         }
+
+        // This initiates the old structure of the ui framework outsite the new ILIAS component initialization.
+        // This is a dirty hack until we can access the resources within the internal UI component space.
+        $ui_framework = new InitUIFramework();
+        $ui_framework->init($dic);
+
         $this->dic(); // init plugin dic
         $dic->language()->loadLanguageModule($this->getPrefix());
         //else return own renderer with origin as default

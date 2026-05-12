@@ -143,7 +143,7 @@ class StatisticRenderer extends AbstractComponentRenderer
                 $chart = null;
 
                 if($record instanceof StatisticSection) {
-                    return [$ui_factory->legacy("<h4>" . $record->getTitle() . "</h4>")];
+                    return [$ui_factory->legacy()->content("<h4>" . $record->getTitle() . "</h4>")];
                 } elseif ($record instanceof Statistic) {
 
                     $properties[$record->getCountLabel()] = (string)$record->getCount();

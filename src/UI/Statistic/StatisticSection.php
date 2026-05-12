@@ -3,9 +3,11 @@
 namespace ILIAS\Plugin\LongEssayAssessment\UI\Statistic;
 
 use ILIAS\UI\Component\Component;
+use ILIAS\UI\Implementation\Component\ComponentHelper;
 
 class StatisticSection implements Component
 {
+    use ComponentHelper;
     private string $title;
 
     public function __construct(string $title)

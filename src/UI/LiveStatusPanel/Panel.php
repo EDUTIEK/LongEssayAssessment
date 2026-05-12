@@ -3,9 +3,12 @@
 namespace ILIAS\Plugin\LongEssayAssessment\UI\LiveStatusPanel;
 
 use ILIAS\UI\Component\Component;
+use ILIAS\UI\Implementation\Component\ComponentHelper;
 
 class Panel implements Component
 {
+    use ComponentHelper;
+
     private int $interval = 5000;
 
     /**

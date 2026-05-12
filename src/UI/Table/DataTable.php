@@ -20,7 +20,6 @@ declare(strict_types=1);
 
 namespace ILIAS\Plugin\LongEssayAssessment\UI\Table;
 
-use ILIAS\UI\Component\Table\DataRetrieval;
 use ILIAS\UI\Component\Table\Column\Column;
 use ILIAS\UI\Component\Table\DataRowBuilder;
 use ILIAS\Data\Range;
@@ -40,10 +39,11 @@ use ILIAS\Plugin\LongEssayAssessment\UI\Table\Helper\SmallView;
 use ILIAS\UI\Component\Table\OrderingBinding;
 use Closure;
 use ILIAS\FileDelivery\Services as FileDeliveryServices;
+use ILIAS\Plugin\LongEssayAssessment\UI\Table\Helper\DataRetrievalFactory;
 
-class DataTable extends Table implements DataRetrieval, DataTableParent
+class DataTable extends Table implements DataTableParent
 {
-    use SmallView;
+    use SmallView, DataRetrievalFactory;
 
     private ?Order $default_order = null;
     private ?Range $default_range = null;
@@ -91,10 +91,10 @@ class DataTable extends Table implements DataRetrieval, DataTableParent
 
     protected function buildTable(): \ILIAS\UI\Component\Component
     {
-        $table = $this->ui_table_factory->data(
+        $table = $this->local_factory->table()->standard(
             $this->getTitle(),
             $this->getColumns($this->getAdditionalParameter()),
-            $this
+            $this->getDataRetrival()
         )
                     ->withId($this->getUIName() . "_table")
                     ->withRequest($this->request)

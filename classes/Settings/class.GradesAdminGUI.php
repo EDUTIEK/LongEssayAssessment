@@ -11,7 +11,6 @@ use ILIAS\UI\Implementation\Component\ReplaceSignal;
 use ILIAS\DI\Exceptions\Exception;
 use ILIAS\Data\Range;
 use ILIAS\Data\Order;
-use ILIAS\UI\Component\Table\DataRetrieval;
 use ILIAS\UI\Component\Table\DataRowBuilder;
 use ILIAS\UI\Implementation\Component\Table\Table;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\DataTableParent;

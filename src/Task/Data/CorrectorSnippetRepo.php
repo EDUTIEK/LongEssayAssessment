@@ -22,6 +22,7 @@ namespace ILIAS\Plugin\LongEssayAssessment\Task\Data;
 
 use Edutiek\AssessmentService\Task\Data\CorrectorSnippet;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\RepositoryInterface;
+use Edutiek\AssessmentService\Task\Data\CorrectorSnippetPurpose;
 
 readonly class CorrectorSnippetRepo implements \Edutiek\AssessmentService\Task\Data\CorrectorSnippetRepo
 {
@@ -44,6 +45,11 @@ readonly class CorrectorSnippetRepo implements \Edutiek\AssessmentService\Task\D
         return $this->repo->queryAllBy(['ass_id' => $ass_id, 'corrector_id' => $corrector_id]);
     }
 
+    public function allByCorrectorIdAndPurpose(int $ass_id, int $corrector_id, CorrectorSnippetPurpose $purpose): array
+    {
+        return $this->repo->queryAllBy(['ass_id' => $ass_id, 'corrector_id' => $corrector_id, 'purpose' => $purpose->value]);
+    }
+
     public function save(CorrectorSnippet $entity): void
     {
         $this->repo->replace($entity);
@@ -57,5 +63,10 @@ readonly class CorrectorSnippetRepo implements \Edutiek\AssessmentService\Task\D
     public function deleteByCorrectorId(int $corrector_id): void
     {
         $this->repo->deleteAllBy(['corrector_id' => $corrector_id]);
+    }
+
+    public function deleteByCorrectorIdAndPurpose(int $ass_id, int $corrector_id, CorrectorSnippetPurpose $purpose): void
+    {
+        $this->repo->deleteAllBy(['ass_id' => $ass_id, 'corrector_id' => $corrector_id, 'purpose' => $purpose->value]);
     }
 }

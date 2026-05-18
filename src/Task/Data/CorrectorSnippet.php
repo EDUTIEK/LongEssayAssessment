@@ -20,6 +20,7 @@ declare(strict_types=1);
 
 namespace ILIAS\Plugin\LongEssayAssessment\Task\Data;
 
+use Edutiek\AssessmentService\Task\Data\CorrectorSnippetPurpose;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Key;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Sequence;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Table;
@@ -81,14 +82,14 @@ class CorrectorSnippet extends \Edutiek\AssessmentService\Task\Data\CorrectorSni
         return $this;
     }
 
-    public function getPurpose(): string
+    public function getPurpose(): CorrectorSnippetPurpose
     {
-        return $this->purpose;
+        return CorrectorSnippetPurpose::tryFrom($this->purpose) ?? CorrectorSnippetPurpose::FOR_COMMENT;
     }
 
-    public function setPurpose(string $purpose): self
+    public function setPurpose(CorrectorSnippetPurpose $purpose): self
     {
-        $this->purpose = $purpose;
+        $this->purpose = $purpose->value;
         return $this;
     }
 

@@ -26,7 +26,6 @@ readonly class StorageAdapter implements Storage
         private Consumers $consumers,
         private ilDBInterface $db,
         private ResourceStakeholder $stakeholder,
-        private string $temp_dir
     ) {
     }
 
@@ -161,19 +160,5 @@ readonly class StorageAdapter implements Storage
     public function getReadableRoot(): string
     {
         return  ILIAS_DATA_DIR . '/' . CLIENT_ID . '/storage';
-    }
-
-    public function copyAsTempFile(string $id): string
-    {
-        $temp_file = tempnam($this->temp_dir, 'xlas');
-        $file_path = $this->getReadablePath($id);
-
-        if ($temp_file !== null) {
-            file_put_contents($temp_file, file_get_contents($this->getReadablePath($id)));
-        } else {
-            file_put_contents($temp_file, '');
-        }
-
-        return $temp_file;
     }
 }

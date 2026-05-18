@@ -8,6 +8,7 @@ class FileInfo extends \Edutiek\AssessmentService\System\Data\FileInfo
     private ?string $mime = null;
     private ?string $name = null;
     private ?int $size = null;
+    private bool $disposable = false;
 
     public function getId(): ?string
     {
@@ -49,6 +50,17 @@ class FileInfo extends \Edutiek\AssessmentService\System\Data\FileInfo
     public function setSize(?int $size): FileInfo
     {
         $this->size = $size;
+        return $this;
+    }
+
+    public function getDisposable(): bool
+    {
+        return $this->disposable;
+    }
+
+    public function setDisposable(bool $disposable): FileInfo
+    {
+        $this->disposable = $disposable;
         return $this;
     }
 }

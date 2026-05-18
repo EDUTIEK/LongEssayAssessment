@@ -37,8 +37,7 @@ use ILIAS\ResourceStorage\Consumer\Consumers;
 readonly class DeliveryAdapter implements \Edutiek\AssessmentService\System\File\Delivery
 {
     public function __construct(
-        private Manager $manager,
-        private Consumers $consumers,
+        private StorageAdapter $storage,
         private HttpServices $http,
         private string $temp_dir
     ) {
@@ -49,49 +48,30 @@ readonly class DeliveryAdapter implements \Edutiek\AssessmentService\System\File
         return Delivery::returnASCIIFileName($filename);
     }
 
-    public function sendTempFile(string $file_path, Disposition $disposition, ?FileInfo $info = null): void
-    {
-        try {
-            $temp_dir = realpath($this->temp_dir);
-            $file_path = realpath($file_path);
-
-            if (substr($file_path, 0, strlen($temp_dir)) !== $temp_dir) {
-                throw new Exception('File path is not within the temporary directory');
-            }
-
-            $filename = $info?->getFileName() ?? 'download';
-            $mimetype = $info?->getMimeType() ?? '';
-
-            $delivery = new Delivery($file_path, $this->http);
-            $delivery->setDownloadFileName($filename);
-            $delivery->setMimeType($mimetype);
-            $delivery->setDisposition($disposition->value);
-            $delivery->deliver();
-            $delivery->close();
-
-        } catch (Exception $e) {
-            $response = $this->http->response()->withStatus(500);
-            $stream = $response->getBody();
-            $stream->write($e->getMessage());
-
-            $this->http->saveResponse($response);
-            $this->http->sendResponse();
-            $this->http->close();
-        }
-    }
-
     public function sendFile(string $id, Disposition $disposition, ?FileInfo $info = null): void
     {
         try {
-            $resource_id = $this->manager->find($id);
-            $revision = $this->manager->getCurrentRevision($resource_id);
-            $filename = $info?->getFileName() ?? $revision->getInformation()->getTitle();
-            $mimetype = $info?->getMimeType() ?? $revision->getInformation()->getMimeType();
-            $file_path = $this->consumers->stream($resource_id)->getStream()->getMetadata('uri');
+            $info = $info ?? $this->storage->getFileInfo($id);
+            $file_path = $this->storage->getReadablePath($id);
+            if ($info === null || $file_path === null) {
+                throw new Exception('File not found');
+            }
+
+            // file can be deleted - make a copy to send and delete
+            if ($info->getDisposable()) {
+                $temp_file = realpath(tempnam($this->temp_dir, 'xlas'));
+                if ($temp_file === false) {
+                    throw new Exception("Can't create temporary file to deliver");
+                }
+                file_put_contents($temp_file, file_get_contents($file_path));
+                $this->storage->deleteFile($id);
+
+                $file_path = $temp_file;
+            }
 
             $delivery = new Delivery($file_path, $this->http);
-            $delivery->setDownloadFileName($filename);
-            $delivery->setMimeType($mimetype);
+            $delivery->setDownloadFileName($info?->getFileName() ?? 'download');
+            $delivery->setMimeType($info?->getMimeType() ?? '');
             $delivery->setDisposition($disposition->value);
             $delivery->deliver();
             $delivery->close();

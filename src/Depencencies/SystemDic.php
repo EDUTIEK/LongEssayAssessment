@@ -69,15 +69,13 @@ class SystemDic implements \Edutiek\AssessmentService\System\Api\Dependencies
             $this->dic->resourceStorage()->consume(),
             $this->dic->database(),
             new Stakeholder(SYSTEM_USER_ID),
-            $this->setupRepo()->one()->getAbsoluteTempPath()
         );
     }
 
     public function fileDelivery(): DeliveryAdapter
     {
         return new DeliveryAdapter(
-            $this->dic->resourceStorage()->manage(),
-            $this->dic->resourceStorage()->consume(),
+            $this->fileStorage(),
             $this->dic->http(),
             $this->setupRepo()->one()->getAbsoluteTempPath()
         );
@@ -90,13 +88,16 @@ class SystemDic implements \Edutiek\AssessmentService\System\Api\Dependencies
             $this->dic->resourceStorage()->consume(),
             $this->dic->database(),
             new ilTemporaryStakeholder(),
-            $this->setupRepo()->one()->getAbsoluteTempPath()
         );
     }
 
     public function tempDelivery(): DeliveryAdapter
     {
-        return $this->fileDelivery();
+        return new DeliveryAdapter(
+            $this->tempStorage(),
+            $this->dic->http(),
+            $this->setupRepo()->one()->getAbsoluteTempPath()
+        );
     }
 
     public function userDataRepo(): UserDataRepo

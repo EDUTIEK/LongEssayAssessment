@@ -1,5 +1,11 @@
 # Change Log
 
+## Upcoming version
+
+Bug fixes:
+- Fix TCPDF errors in correction PDF generation
+- Fix sorting of criteria in corrector web app
+
 ## Version 3.8 (2026-02-27)
 
 Corrector Web App:

@@ -390,7 +390,7 @@ class DBUpdateSteps9 implements \ilDatabaseUpdateSteps
                     'points' => ['float', $row['points']]
                 ]);
 
-                $ilDB->manipulate("UPDATE xlas_corrector_comment SET points = 0 where id = " . $ilDB->quote('integer', $row['comment_id']));
+                $ilDB->manipulate("UPDATE xlas_corrector_comment SET points = 0 where id = " . $ilDB->quote($row['comment_id'], 'integer'));
             }
 
             $ilDB->dropTableColumn('xlas_corrector_comment', 'points');

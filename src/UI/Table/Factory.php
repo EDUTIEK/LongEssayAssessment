@@ -11,6 +11,11 @@ use ILIAS\UI\URLBuilder;
 use ILIAS\Plugin\LongEssayAssessment\Dependencies\PluginDic;
 use ILIAS\FileDelivery\Services as FileDeliveryServices;
 use Edutiek\AssessmentService\System\Format\FullService as FormatService;
+use ILIAS\UI\Component\Table\DataRetrieval;
+use ILIAS\UI\Component\Table\Data;
+use ILIAS\Plugin\LongEssayAssessment\UI\Table\Helper\OrderingRetrival;
+use ILIAS\Data\URI;
+use ILIAS\UI\Component\Table\Ordering;
 
 class Factory
 {
@@ -44,6 +49,25 @@ class Factory
     public function column(): Column\Factory
     {
         return $this->column_factory;
+    }
+
+    public function standard(
+        string $title,
+        array $columns,
+        DataRetrieval $data_retrieval
+    ): Data
+    {
+        return $this->ui_factory->table()->data($title, $columns, $data_retrieval);
+    }
+
+    public function ordering(
+        string $title,
+        array $columns,
+        OrderingRetrival $retrieval,
+        URI $target_url
+    ): Ordering
+    {
+        return $this->ui_factory->table()->ordering($title, $columns, $retrieval, $target_url);
     }
 
     public function dataTable(

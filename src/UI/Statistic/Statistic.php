@@ -3,9 +3,12 @@
 namespace ILIAS\Plugin\LongEssayAssessment\UI\Statistic;
 
 use ILIAS\UI\Component\Component;
+use ILIAS\UI\Implementation\Component\ComponentHelper;
 
 class Statistic implements Component
 {
+    use ComponentHelper;
+
     private ?int $count = null;
     private ?int $final = null;
     private ?int $not_attended = null;

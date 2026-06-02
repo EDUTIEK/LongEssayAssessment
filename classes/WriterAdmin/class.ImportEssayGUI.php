@@ -29,12 +29,13 @@ use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\BaseObjectData;
 use ILIAS\UI\Component\Input\Container\Form\Standard as StandardForm;
 use ILIAS\UI\Component\Table\Data as Table;
-use ILIAS\UI\Component\Table\DataRetrieval;
 use ILIAS\UI\Component\Table\DataRowBuilder;
 use ilLongEssayAssessmentUploadHandlerGUI;
+use ILIAS\Plugin\LongEssayAssessment\UI\Table\Helper\DataRetrievalFactory;
 
-class ImportEssayGUI extends BaseGUI implements DataRetrieval
+class ImportEssayGUI extends BaseGUI
 {
+    use DataRetrievalFactory;
     private readonly ilLongEssayAssessmentUploadHandlerGUI $upload_handler;
     private readonly ImportService $import;
 
@@ -132,7 +133,7 @@ class ImportEssayGUI extends BaseGUI implements DataRetrieval
             'boolean' => $column->boolean($c->getTitle(), $ok, $nok),
         }, $this->import->tableColumns());
 
-        $this->add($this->ui_factory->table()->data($this->plugin->txt('essay_import_table'), $columns, $this)
+        $this->add($this->plugin_ui_factory->table()->standard($this->plugin->txt('essay_import_table'), $columns, $this->getDataRetrival())
             ->withRequest($this->dic->http()->request()));
 
         $files = $this->import->relevantFiles();
@@ -146,7 +147,7 @@ class ImportEssayGUI extends BaseGUI implements DataRetrieval
 
         if ($overwrites > 0) {
             $modal = $this->ui_factory->modal()->roundtrip($this->plugin->txt('essay_import'), [
-                $this->ui_factory->legacy('<span>' . sprintf($this->plugin->txt('essay_import_confirmation'), $overwrites) . '</span>'),
+                $this->plugin_ui_factory->legacy('<span>' . sprintf($this->plugin->txt('essay_import_confirmation'), $overwrites) . '</span>'),
             ], [], $this->ctrl->getLinkTarget($this, 'import'))->withActionButtons([
                 $this->ui_factory->button()->primary($this->plugin->txt('essay_import_no_overwrite'), $this->ctrl->getLinkTarget($this, 'import')),
                 $this->ui_factory->button()->standard($this->plugin->txt('essay_import_overwrite'), $this->ctrl->getLinkTarget($this, 'importOverwrite'))

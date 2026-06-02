@@ -145,7 +145,7 @@ class CorrectorTemplateGUI extends BaseGUI
             'preview' => $this->plugin_ui_factory->field()->info(
                 $user?->getListname(false) ?? $this->plugin->txt('unknown'),
             )->withInfo(
-                $this->ui_factory->legacy($this->displayContent($template->getContent()))
+                $this->plugin_ui_factory->legacy($this->displayContent($template->getContent()))
             )
         ];
         $form = $this->plugin_ui_factory->field()->blankForm('#', $fields);

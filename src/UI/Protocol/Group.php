@@ -17,9 +17,12 @@ use ILIAS\HTTP\Services as HttpService;
 use ILIAS\HTTP\Wrapper\ArrayBasedRequestWrapper as QueryService;
 use ILIAS\Refinery\Factory as RefineryFactory;
 use ILIAS\Plugin\LongEssayAssessment\UI\IconFactory;
+use ILIAS\UI\Implementation\Component\ComponentHelper;
 
 class Group implements Component
 {
+    use ComponentHelper;
+
     public const MODE_ATTR = "mode";
     public const PAGE_ATTR = "page";
     public const PAGE_SIZE = 10;

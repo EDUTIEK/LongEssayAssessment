@@ -114,6 +114,7 @@ class PluginDic
             $refinery = new \ILIAS\Refinery\Factory($data_factory, $dic["lng"]);
 
             return new Factory(
+                $dic->ui()->factory(),
                 new ContainerFactory(),
                 new InputFactory(
                     $dic->ui()->factory()->input()->field(),

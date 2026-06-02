@@ -25,6 +25,7 @@ class ilLongEssayAssessmentConfigGUI extends ilPluginConfigGUI
 
     private Container $dic;
     private ilLongEssayAssessmentPlugin $plugin;
+    private \ILIAS\Plugin\LongEssayAssessment\UI\Factory $plugin_ui_factory;
     protected ilCtrl $ctrl;
     protected ilLanguage $lng;
     protected ilGlobalTemplateInterface $tpl;
@@ -54,6 +55,7 @@ class ilLongEssayAssessmentConfigGUI extends ilPluginConfigGUI
         $this->toolbar = $DIC->toolbar();
         $this->help = $DIC->help();
         $this->ui_factory = $this->dic->ui()->factory();
+        $this->plugin_ui_factory = $this->plugin->dic()->uiFactory();
         $this->renderer = $this->dic->ui()->renderer();
         $this->request = $this->dic->http()->request();
 
@@ -112,30 +114,31 @@ class ilLongEssayAssessmentConfigGUI extends ilPluginConfigGUI
     {
 
         $factory = $this->ui_factory->input()->field();
+        $pfactory = $this->plugin_ui_factory->field();
 
         $prod = [];
 
-        $prod['primary_color'] = $factory->colorPicker(
+        $prod['primary_color'] = $pfactory->colorSelect(
             $this->plugin->txt('primary_color'),
             $this->plugin->txt('primary_color_info')
         )->withValue('#' . $this->config->getPrimaryColor() ?? Config::DEFAULT_PRIMARY_COLOR);
 
-        $prod['primary_text_color'] = $factory->colorPicker(
+        $prod['primary_text_color'] = $pfactory->colorSelect(
             $this->plugin->txt('primary_text_color'),
             $this->plugin->txt('primary_text_color_info')
         )->withValue('#' . $this->config->getPrimaryTextColor() ?? Config::DEFAULT_PRIMARY_TEXT_COLOR);
 
-        $prod['corrector1_color'] = $factory->colorPicker(
+        $prod['corrector1_color'] = $pfactory->colorSelect(
             $this->plugin->txt('corrector1_color'),
             $this->plugin->txt('corrector1_color_info')
         )->withValue('#' . $this->config->getCorrector1Color() ?? Config::DEFAULT_CORRECTOR1_COLOR);
 
-        $prod['corrector2_color'] = $factory->colorPicker(
+        $prod['corrector2_color'] = $pfactory->colorSelect(
             $this->plugin->txt('corrector2_color'),
             $this->plugin->txt('corrector2_color_info')
         )->withValue('#' . $this->config->getCorrector2Color() ?? Config::DEFAULT_CORRECTOR2_COLOR);
 
-        $prod['corrector3_color'] = $factory->colorPicker(
+        $prod['corrector3_color'] = $pfactory->colorSelect(
             $this->plugin->txt('corrector3_color'),
             $this->plugin->txt('corrector3_color_info')
         )->withValue('#' . $this->config->getCorrector3Color() ?? Config::DEFAULT_CORRECTOR3_COLOR);

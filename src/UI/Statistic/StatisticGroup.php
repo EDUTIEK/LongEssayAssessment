@@ -3,10 +3,11 @@
 namespace ILIAS\Plugin\LongEssayAssessment\UI\Statistic;
 
 use ILIAS\UI\Component\Component;
+use ILIAS\UI\Implementation\Component\ComponentHelper;
 
 abstract class StatisticGroup implements Component
 {
-
+    use ComponentHelper;
     private string $title;
     /**
      * @var Statistic[]

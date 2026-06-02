@@ -6,10 +6,11 @@ use ILIAS\UI\Implementation\Component\JavaScriptBindable;
 use ILIAS\UI\Implementation\Component\SignalGeneratorInterface;
 use ILIAS\UI\Component\Signal;
 use ILIAS\UI\Component\Component;
+use ILIAS\UI\Implementation\Component\ComponentHelper;
 
 class ComponentSwitch implements \ILIAS\UI\Component\JavaScriptBindable
 {
-    use JavaScriptBindable;
+    use JavaScriptBindable, ComponentHelper;
 
     /**
      * @var SignalGeneratorInterface

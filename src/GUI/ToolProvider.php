@@ -85,14 +85,14 @@ class ToolProvider extends AbstractDynamicToolProvider
             $tabs[] = $this->factory
                 ->tool($this->identification_provider->contextAwareIdentifier('xlas_tab_task'))
                 ->withTitle($this->plugin->txt('tools_tab_tasks'))
-                ->withContent($this->dic->ui()->factory()->legacy()->content($this->dic->ui()->renderer()->render($this->multiTaskContent())));
+                ->withContent($this->plugin->dic()->uiFactory()->legacy($this->dic->ui()->renderer()->render($this->multiTaskContent())));
         }
 
         if ($this->permissions->canEditTemplates() && $additional_data->is(self::WITH_FIXATIONS, true)) {
             $t = $this->factory
                 ->tool($this->identification_provider->contextAwareIdentifier('xlas_disabled_group_tool_tab'))
                 ->withTitle($this->plugin->txt('tools_tab_template'))
-                ->withContent($this->dic->ui()->factory()->legacy()->content($this->dic->ui()->renderer()->render(
+                ->withContent($this->plugin->dic()->uiFactory()->legacy($this->dic->ui()->renderer()->render(
                     $this->fixation_gui->toolsContent()
                 )));
 

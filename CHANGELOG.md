@@ -1,10 +1,11 @@
 # Change Log
 
-## Upcoming version
+## Version 3.9 (2026-05-06)
 
 Bug fixes:
 - Fix TCPDF errors in correction PDF generation
 - Fix sorting of criteria in corrector web app
+- Fix potential update locking problem in writer app
 
 ## Version 3.8 (2026-02-27)
 

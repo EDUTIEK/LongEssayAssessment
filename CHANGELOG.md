@@ -1,6 +1,6 @@
 # Change Log
 
-## Version 3.9 (2026-05-06)
+## Version 3.9 (2026-06-05)
 
 Bug fixes:
 - Fix TCPDF errors in correction PDF generation

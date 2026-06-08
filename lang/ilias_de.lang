@@ -836,10 +836,10 @@ procedure_approximation#:#Annäherungsverfahren
 procedure_approximation_info#:#Im Annäherungsverfahren hat der Erstkorrektor seine Bewertung zu überprüfen und das Ergebnis (Änderung oder Beibehaltung der vergebenen Punktzahl) mit kurzer Begründung zu dokumentieren. Der Zweitkorrektor wird in gleicher Weise einbezogen, falls der Erstkorrektor dies veranlasst. Andernfalls hat es mit der Überprüfung durch den Erstkorrektor sein Bewenden.
 procedure_consulting#:#Beratungsverfahren
 procedure_consulting_info#:#Beide Korrektoren müssen eine Beratungspunktzahl eingeben. Nur der Zweitkorrektor darf eine Begründung als Beratungsvermerk eingeben. Die Eingaben aus der Beratung werden gesondert gespeichert.
-revision_between#:#Bewertungskorridor
-revision_between_info#:#Eine überarbeitete Punktzahl muss zwischen den ursprünglichen Bewertungen beider Korrektoren liegen.
+revision_between#:#Bewertungskorridor im Verfahren
+revision_between_info#:#Eine im Annäherungs- oder Beratungsverfahren vergebene Punktzahl muss zwischen den ursprünglichen Bewertungen (einschließlich) beider Korrektoren liegen.
 stitch_after_procedure#:#Stichentscheid
-stitch_after_procedure_info#:#Ist nach dem Verfahren der Korrektoren weiterhin eine Ausnahmebehandlung nötig, muss ein Stichentscheid durch einen dritten Korrektor erfolgen, der in der Korrekturverwaltung manuell bestimmt wird. Andernfalls wird eine Durchschnittspunktzahl gebildet.
+stitch_after_procedure_info#:#Ist nach dem Verfahren der Korrektoren der maximale Punkteunterschied weiterhin überschritten, muss ein Stichentscheid durch einen dritten Korrektor erfolgen, der in der Korrekturverwaltung manuell bestimmt wird. Die durch den Stichentscheider vergebene Punktzahl muss immer zwischen den im Verfahren vergebenen Bewertungen (einschließlich) beider Korrektoren liegen. Falls kein Stichentscheid erforderlich ist, wird eine Durchschnittspunktzahl gebildet.
 no_manual_decimals#:#Ganzzahlige Punkte
 no_manual_decimals_info#:#Bei der manuellen Eingabe der Bewertung dürfen nur ganzzahlige Punkte vergeben werden.
 correctors_per_writer#:#Korrektoren pro Abgabe

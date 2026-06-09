@@ -32,6 +32,7 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin implements \i
     protected Container $ilias_dic;
     protected ilLanguage $lng;
     protected ilDBInterface $db;
+    protected ilIniFile $client_ini;
     /**
      * @var ilCronJob[]
      */
@@ -81,6 +82,7 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin implements \i
         $this->ilias_dic = $DIC;
         $this->lng = $DIC->language();
         $this->db = $DIC->database();
+        $this->client_ini = $DIC->clientIni();
 
         parent::__construct($db, $component_repository, $id);
     }
@@ -177,6 +179,14 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin implements \i
     public function hasLanguage($a_lang_code): bool
     {
         return in_array($a_lang_code, self::LANGUAGES);
+    }
+
+    /**
+     * Check if the direct pdf marking function is available
+     */
+    public function hasPdfMarkingDirect(): bool
+    {
+        return !empty($this->client_ini->readVariable('xlas', "pdf_marking_direct"));
     }
 
     /**

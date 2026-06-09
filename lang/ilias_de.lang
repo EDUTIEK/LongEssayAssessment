@@ -940,4 +940,5 @@ remove_correction_step_info#:#Schritt, bis zu dem einschließlich die Freigaben 
 remove_correction_step_note#:#Begründung
 remove_correction_step_note_info#:#Diese Begründung wird protokolliert und an die betroffenen Korrektoren gesendet. Bitte geben Sie mindestens 5 Zeichen ein.
 remove_correction_step_not_found#:#Es worde keine Schritt gefunden, der zurückgenommen werden könnte.
+settings_disabled_by_authorized_corrections#:#Einige Einstellungen sind gesperrt, da bereits Korrekturen freigegeben wurden.
 

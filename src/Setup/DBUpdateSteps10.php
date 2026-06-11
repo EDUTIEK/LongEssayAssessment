@@ -142,6 +142,35 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
         }
     }
 
+    /**
+     * Legacy helpers like ilDBUpdateNewObjectType expect global $ilDB and $DIC->database().
+     */
+    private function runWithLegacyDIC(callable $callback): void
+    {
+        $previous_dic = $GLOBALS['DIC'] ?? null;
+        $previous_il_db = $GLOBALS['ilDB'] ?? null;
+
+        $GLOBALS['DIC'] = new \ILIAS\DI\Container();
+        $GLOBALS['DIC']['ilDB'] = $this->db;
+        $GLOBALS['ilDB'] = $this->db;
+
+        try {
+            $callback();
+        } finally {
+            if ($previous_dic !== null) {
+                $GLOBALS['DIC'] = $previous_dic;
+            } else {
+                unset($GLOBALS['DIC']);
+            }
+
+            if ($previous_il_db !== null) {
+                $GLOBALS['ilDB'] = $previous_il_db;
+            } else {
+                unset($GLOBALS['ilDB']);
+            }
+        }
+    }
+
     public function step_1(): void
     {
         $this->v10_migration->createNewTables();
@@ -451,22 +480,18 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
 
     public function step_23(): void
     {
-        // ilDBUpdateNewObjectType needs the global database
-        global $DIC;
-        if (!isset($DIC['ilDB'])) {
-            $DIC['ilDB'] = $this->db;
-        }
-
-        require_once __DIR__ . '/../../../../../../../../../../components/ILIAS/Migration/DBUpdate_3560/classes/class.ilDBUpdateNewObjectType.php';
-        $type_id = ilDBUpdateNewObjectType::addNewType('xlas', 'Long Essay Assessment');
-        $ops_id = ilDBUpdateNewObjectType::addCustomRBACOperation('maintain_task', 'Maintain Task Definition', 'object', 3200);
-        ilDBUpdateNewObjectType::addRBACOperation($type_id, $ops_id);
-        $ops_id = ilDBUpdateNewObjectType::addCustomRBACOperation('maintain_writers', 'Maintain Writers', 'object', 3210);
-        ilDBUpdateNewObjectType::addRBACOperation($type_id, $ops_id);
-        $ops_id = ilDBUpdateNewObjectType::addCustomRBACOperation('maintain_correctors', 'Maintain Correctors', 'object', 3220);
-        ilDBUpdateNewObjectType::addRBACOperation($type_id, $ops_id);
-        $ops_id = ilDBUpdateNewObjectType::addCustomRBACOperation('edit_templates', 'Edit Templates', 'object', 3230);
-        ilDBUpdateNewObjectType::addRBACOperation($type_id, $ops_id);
+        $this->runWithLegacyDIC(function (): void {
+            require_once __DIR__ . '/../../../../../../../../../../components/ILIAS/Migration/DBUpdate_3560/classes/class.ilDBUpdateNewObjectType.php';
+            $type_id = ilDBUpdateNewObjectType::addNewType('xlas', 'Long Essay Assessment');
+            $ops_id = ilDBUpdateNewObjectType::addCustomRBACOperation('maintain_task', 'Maintain Task Definition', 'object', 3200);
+            ilDBUpdateNewObjectType::addRBACOperation($type_id, $ops_id);
+            $ops_id = ilDBUpdateNewObjectType::addCustomRBACOperation('maintain_writers', 'Maintain Writers', 'object', 3210);
+            ilDBUpdateNewObjectType::addRBACOperation($type_id, $ops_id);
+            $ops_id = ilDBUpdateNewObjectType::addCustomRBACOperation('maintain_correctors', 'Maintain Correctors', 'object', 3220);
+            ilDBUpdateNewObjectType::addRBACOperation($type_id, $ops_id);
+            $ops_id = ilDBUpdateNewObjectType::addCustomRBACOperation('edit_templates', 'Edit Templates', 'object', 3230);
+            ilDBUpdateNewObjectType::addRBACOperation($type_id, $ops_id);
+        });
     }
 
     /** Version 3 step #126 */
@@ -982,16 +1007,12 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
 
     public function step_54(): void
     {
-        // ilDBUpdateNewObjectType needs the global database
-        global $DIC;
-        if (!isset($DIC['ilDB'])) {
-            $DIC['ilDB'] = $this->db;
-        }
-
-        require_once __DIR__ . '/../../../../../../../../../../components/ILIAS/Migration/DBUpdate_3560/classes/class.ilDBUpdateNewObjectType.php';
-        $type_id = \ilDBUpdateNewObjectType::getObjectTypeId('xlas');
-        $ops_id = \ilDBUpdateNewObjectType::addCustomRBACOperation('proctor_writer', 'Proctor Assessment', 'object', 3240);
-        \ilDBUpdateNewObjectType::addRBACOperation($type_id, $ops_id);
+        $this->runWithLegacyDIC(function (): void {
+            require_once __DIR__ . '/../../../../../../../../../../components/ILIAS/Migration/DBUpdate_3560/classes/class.ilDBUpdateNewObjectType.php';
+            $type_id = \ilDBUpdateNewObjectType::getObjectTypeId('xlas');
+            $ops_id = \ilDBUpdateNewObjectType::addCustomRBACOperation('proctor_writer', 'Proctor Assessment', 'object', 3240);
+            \ilDBUpdateNewObjectType::addRBACOperation($type_id, $ops_id);
+        });
     }
 
     public function step_55(): void

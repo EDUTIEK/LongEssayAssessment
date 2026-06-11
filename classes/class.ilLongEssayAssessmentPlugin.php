@@ -231,10 +231,16 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin implements \I
             return $renderer;
         }
 
-        // This initiates the old structure of the ui framework outsite the new ILIAS component initialization.
-        // This is a dirty hack until we can access the resources within the internal UI component space.
-        $ui_framework = new InitUIFramework();
-        $ui_framework->init($dic);
+        if (!$dic->offsetExists('ui.resource_registry')) {
+            $dic['ui.resource_registry'] = static fn ($c) =>
+                new \ILIAS\UI\Implementation\Render\ilResourceRegistry($c['tpl']);
+        }
+        if (!$dic->offsetExists('ui.pathresolver')) {
+            $dic['ui.pathresolver'] = static fn () => new \ilImagePathResolver();
+        }
+        if (!$dic->offsetExists('ui.data_factory')) {
+            $dic['ui.data_factory'] = static fn ($c) => $c[\ILIAS\Data\Factory::class];
+        }
 
         $this->dic(); // init plugin dic
         $dic->language()->loadLanguageModule($this->getPrefix());

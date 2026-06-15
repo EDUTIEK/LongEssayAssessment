@@ -129,10 +129,10 @@ class FileCleanupCronJob extends CronJob
      */
     private function cleanupTempWebDir(): int
     {
+        $deleted = 0;
         $fs = $this->global_dic->filesystem()->web();
         if ($fs->hasDir('temp')) {
             $data = $fs->listContents('temp', false);
-            $deleted = 0;
             foreach ($data as $file) {
                 if (substr(basename($file->getPath()), 0, 3) == 'LAS') {
                     $ts = $fs->getTimestamp($file->getPath());

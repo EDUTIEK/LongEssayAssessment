@@ -231,6 +231,15 @@ class TaskRepository extends RecordRepo
         return $this->getSingleRecord($query, Resource::model());
     }
 
+    /**
+     * @return string[]
+     */
+    public function getResourceFileIds(): array
+    {
+        $query = "SELECT file_id FROM xlas_resource WHERE file_id IS NOT NULL";
+        return $this->getStringList($query, 'file_id', false);
+    }
+
     public function ifResourceExistsByFileId(string $a_file_id): bool
     {
         return $this->getResourceByFileId($a_file_id) != null;
@@ -337,6 +346,18 @@ class TaskRepository extends RecordRepo
     {
         $this->db->manipulate("DELETE FROM xlas_location" .
             " WHERE task_id = " . $this->db->quote($a_task_id, "integer"));
+    }
+
+    public function deleteOrphanedResources(): void
+    {
+        $query = "
+            DELETE FROM xlas_resource
+            WHERE NOT EXISTS (
+                SELECT 1 FROM object_data o WHERE o.obj_id = xlas_resource.task_id
+            )
+        ";
+
+        $this->db->manipulate($query);
     }
 
 }

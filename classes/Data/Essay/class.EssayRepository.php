@@ -52,6 +52,29 @@ class EssayRepository extends RecordRepo
     }
 
     /**
+     * @return string[]
+     */
+    public function getEssayFileIds(): array
+    {
+        $query = "SELECT pdf_version FROM xlas_essay WHERE pdf_version IS NOT NULL";
+        return $this->getStringList($query, 'pdf_version', false);
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getEssayImageFileIds(): array
+    {
+        $query1 = "SELECT file_id FROM xlas_essay_image WHERE file_id IS NOT NULL";
+        $query2 = "SELECT thumb_id FROM xlas_essay_image WHERE thumb_id IS NOT NULL";
+
+        return array_merge(
+            $this->getStringList($query1, 'file_id', false),
+            $this->getStringList($query2, 'thumb_id', false)
+        );
+    }
+
+    /**
      * @param int $a_task_id
      * @return Essay[]
      */
@@ -334,8 +357,9 @@ class EssayRepository extends RecordRepo
 
     public function deleteEssayByTaskId(int $a_task_id)
     {
-        $this->db->manipulate("DELETE FROM xlas_essay" .
-            " WHERE task_id = " . $this->db->quote($a_task_id, "integer"));
+        $this->db->manipulate("DELETE essay_image FROM xlas_essay_image AS essay_image"
+            . " LEFT JOIN xlas_essay AS essay ON (essay_image.essay_id = essay.id)"
+            . " WHERE essay.task_id = " . $this->db->quote($a_task_id, "integer"));
 
         $this->db->manipulate("DELETE writer_notice FROM xlas_writer_notice AS writer_notice"
             . " LEFT JOIN xlas_essay AS essay ON (writer_notice.essay_id = essay.id)"
@@ -359,12 +383,16 @@ class EssayRepository extends RecordRepo
         $this->db->manipulate("DELETE corrector_points FROM xlas_corrector_points AS corrector_points"
             . " LEFT JOIN xlas_essay AS essay ON (corrector_points.essay_id = essay.id)"
             . " WHERE essay.task_id = " . $this->db->quote($a_task_id, "integer"));
+
+        $this->db->manipulate("DELETE FROM xlas_essay" .
+            " WHERE task_id = " . $this->db->quote($a_task_id, "integer"));
     }
 
     public function deleteEssayByWriterId(int $a_writer_id)
     {
-        $this->db->manipulate("DELETE FROM xlas_essay" .
-            " WHERE writer_id = " . $this->db->quote($a_writer_id, "integer"));
+        $this->db->manipulate("DELETE essay_image FROM xlas_essay_image AS essay_image"
+            . " LEFT JOIN xlas_essay AS essay ON (essay_image.essay_id = essay.id)"
+            . " WHERE essay.writer_id = " . $this->db->quote($a_writer_id, "integer"));
 
         $this->db->manipulate("DELETE writer_notice FROM xlas_writer_notice AS writer_notice"
             . " LEFT JOIN xlas_essay AS essay ON (writer_notice.essay_id = essay.id)"
@@ -385,6 +413,9 @@ class EssayRepository extends RecordRepo
         $this->db->manipulate("DELETE corrector_points FROM xlas_corrector_points AS corrector_points"
             . " LEFT JOIN xlas_essay AS essay ON (corrector_points.essay_id = essay.id)"
             . " WHERE essay.writer_id = " . $this->db->quote($a_writer_id, "integer"));
+
+        $this->db->manipulate("DELETE FROM xlas_essay" .
+            " WHERE writer_id = " . $this->db->quote($a_writer_id, "integer"));
     }
     
     public function deleteEssayImagesByEssayId(int $essay_id)
@@ -582,6 +613,31 @@ class EssayRepository extends RecordRepo
     {
         $this->db->manipulate("DELETE FROM xlas_corrector_points"
             . " WHERE essay_id = " . $this->db->quote($a_essay_id, "integer"));
+    }
+
+    public function deleteOrphanedEssays(): void
+    {
+        $query = "
+            DELETE FROM xlas_essay
+            WHERE NOT EXISTS (
+                SELECT 1 FROM object_data o WHERE o.obj_id = xlas_essay.task_id
+            )
+        ";
+
+        $this->db->manipulate($query);
+    }
+
+    public function deleteOrphanedEssayImages(): void
+    {
+        $query = "
+            DELETE FROM xlas_essay_image
+            WHERE NOT EXISTS (
+                SELECT 1 FROM xlas_essay e JOIN object_data o ON e.task_id = o.obj_id
+                WHERE e.id = xlas_essay_image.essay_id
+            )
+        ";
+
+        $this->db->manipulate($query);
     }
 
 }

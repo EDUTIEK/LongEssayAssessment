@@ -12,12 +12,14 @@ use ILIAS\Plugin\LongEssayAssessment\WriterAdmin\PDFVersionResourceStakeholder;
 use ILIAS\Plugin\LongEssayAssessment\WriterAdmin\EssayImageResourceStakeholder;
 use ILIAS\Plugin\LongEssayAssessment\UI\Implementation\StatisticRenderer;
 use ILIAS\Plugin\LongEssayAssessment\UI\Implementation\ViewerRenderer;
+use ILIAS\Plugin\LongEssayAssessment\WriterAdmin\FileCleanupCronJob;
+use ILIAS\Plugin\LongEssayAssessment\WriterAdmin\ReviewNotificationCronJob;
 
 /**
  * Basic plugin file
  * @author Fred Neumann <fred.neumann@ilias.de>
  */
-class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
+class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin implements \ilCronJobProvider
 {
     const ID = "xlas";
 
@@ -27,9 +29,17 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
     /** @var Container */
     protected $dic;
 
+    /** @var LongEssayAssessmentDI */
+    protected $localDI;
+
     /** @var self */
     protected static $instance;
 
+    /**
+     * @var ilCronJob[]
+     */
+    private array $cron_objects = [];
+    private ?array $cron_classes = null;
 
     /**
      * Constructor.
@@ -52,8 +62,8 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
     {
         parent::init();
 
-        $di = LongEssayAssessmentDI::getInstance();
-        $di->init($this);
+        $this->localDI = LongEssayAssessmentDI::getInstance();
+        $this->localDI->init($this);
     }
 
     /**
@@ -417,6 +427,41 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin
                 $writer_repo->deleteWriter($w->getId());
             }
         }
+    }
+
+    private function getJobClasses()
+    {
+        return $this->cron_classes ??= [
+            FileCleanupCronJob::id() => FileCleanupCronJob::class,
+            ReviewNotificationCronJob::id() => ReviewNotificationCronJob::class,
+        ];
+    }
+
+    private function getJobObject(string $class_name): ilCronJob
+    {
+        return $this->cron_objects[$class_name] ??= new $class_name($this, $this->localDI, $this->dic);
+    }
+
+    public function getCronJobInstances(): array
+    {
+        $jobs = [];
+
+        foreach ($this->getJobClasses() as $id => $class_name) {
+            $jobs[] = $this->getJobObject($class_name);
+        }
+
+        return $jobs;
+    }
+
+    public function getCronJobInstance($jobId): ilCronJob
+    {
+        $jobs = $this->getJobClasses();
+        if (!isset($jobs[$jobId])) {
+            throw new ilCronException(
+                "Job [$jobId] not found."
+            );
+        }
+        return $this->getJobObject($jobs[$jobId]);
     }
 
 }

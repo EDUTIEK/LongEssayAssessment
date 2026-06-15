@@ -178,6 +178,7 @@ abstract class ServiceContext implements BaseContext
     /**
      * Delete all temporary files that are older than 1 hour
      * Don't delete more than 1000 files at once
+     * @see \ILIAS\Plugin\LongEssayAssessment\WriterAdmin\fileCleanupCronJob::cleanupTempWebDir
      */
     protected function cleanupTempWebDir()
     {

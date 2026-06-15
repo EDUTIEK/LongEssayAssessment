@@ -2595,3 +2595,17 @@ if (!$ilDB->tableExists('xlas_corr_snippet')) {
     }
 }
 ?>
+<#130>
+<?php
+// add indices for file references
+
+if (!$this->db->indexExistsByFields('xlas_essay', ['pdf_version'])) {
+    $this->db->addIndex('xlas_essay', ['pdf_version'], 'i5');
+}
+if (!$this->db->indexExistsByFields('xlas_essay_image', ['file_id'])) {
+    $this->db->addIndex('xlas_essay_image', ['file_id'], 'i2');
+}
+if (!$this->db->indexExistsByFields('xlas_essay_image', ['thumb_id'])) {
+    $this->db->addIndex('xlas_essay_image', ['thumb_id'], 'i3');
+}
+?>

@@ -13,6 +13,7 @@ use ILIAS\Plugin\LongEssayAssessment\Data\Task\TaskSettings;
 use ILIAS\Plugin\LongEssayAssessment\LongEssayAssessmentDI;
 use ILIAS\Plugin\LongEssayAssessment\Task\ResourceResourceStakeholder;
 use ILIAS\Plugin\LongEssayAssessment\WriterAdmin\PDFVersionResourceStakeholder;
+use ILIAS\Plugin\LongEssayAssessment\WriterAdmin\EssayImageResourceStakeholder;
 
 /**
  * Repository object
@@ -135,6 +136,15 @@ class ilObjLongEssayAssessment extends ilObjectPlugin
         foreach($old_essays as $essay) {
             if($essay->getPdfVersion() !== null && ($identifier = $this->resource->manage()->find($essay->getPdfVersion()))) {
                 $this->resource->manage()->remove($identifier, new PDFVersionResourceStakeholder());
+            }
+            $old_images = $essay_repo->getEssayImagesByEssayID($essay->getId());
+            foreach ($old_images as $image) {
+                if ($image->getFileId() !== null && ($identifier = $this->resource->manage()->find($image->getFileId()))) {
+                    $this->resource->manage()->remove($identifier, new EssayImageResourceStakeholder());
+                }
+                if ($image->getThumbId() !== null && ($identifier = $this->resource->manage()->find($image->getThumbId()))) {
+                    $this->resource->manage()->remove($identifier, new EssayImageResourceStakeholder());
+                }
             }
         }
 

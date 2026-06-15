@@ -591,7 +591,7 @@ mail_to_writer#:#Mail an Teilnehmer
 mail_to_writers#:#Mail an Teilnehmende
 mail_to_writer_or_corrector#:#Mail an Teilnehmer/Korrektor(en)
 mail_to_writers_or_correctors#:#Mail an Teilnehmende/Korrektoren
-review_notification_cron_job#:#Benachrichtigung zur Einsichtnahme von Langtext-Aufgaben
+review_notification_cron_job#:#Langtext-Aufgaben: Benachrichtigung zur Einsichtnahme
 review_notification_cron_job_desc#:#Teilnehmende erhalten eine Mail-Benachrichtigung, wenn die Korrektur abgeschlossen ist, der Einsichtnahme-Zeitraum begonnen hat und Benachrichtigungen im Reiter Aufgabenstellungen > Organisation aktiviert sind.
 review_notification_text#:#Zusätzliche Informationen
 review_notification_text_info#:#Die Informationen werden den Teilnehmenden in der Mail-Benachrichtigung zur Einsichtnahme angezeigt.
@@ -705,3 +705,5 @@ corrections_export#:#Korrekturen-Export
 corrections_export_started#:#Der Korrekturen-Export wurde gestartet. Sie werden über das Glocken-Symbol in der Kopfzeile informiert, wenn der Export verfügbar ist. Dort können sie ihn herunterladen.
 message_action_with_disabled_items#:#Die Aktion kann nicht für alle ausgewählten Einträge ausgeführt werden. Bitte wählen Sie diese ab.
 message_remove_corrector_with_assignments#:#Sie haben Korrektoren mit zugewiesenen Abgaben ausgewählt. Bitte entfernen Sie die Zuweisungen, um die Korrektoren entfernen zu können.
+file_cleanup_cron_job#:#Langtext-Aufgaben: Unbenutzte Dateien entfernen
+file_cleanup_cron_job_desc#:#Entfernt Dateien von Langtext-Aufgaben, die nicht mehr benötigt werden. Temporäre Dateien aus der PDF-Generierung werden entfernt, wenn sie älter als eine Stunde sind. Dateien gelöschter Aufgaben oder Teilnahmen werden entfernt, wenn sie älter als ein Tag sind.

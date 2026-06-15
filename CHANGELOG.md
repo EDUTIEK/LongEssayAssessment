@@ -1,5 +1,15 @@
 # Change Log
 
+## Version 3.10 (2026-06-10)
+
+Plugin:
+- support cron jobs directly (separate plugin is obsolete)
+- add cronjob to delete unused data and files
+
+Bug fixes:
+- fix deletion of essay data by task id and writer id
+- cleanup files when object is deleted
+
 ## Version 3.9 (2026-06-05)
 
 Bug fixes:

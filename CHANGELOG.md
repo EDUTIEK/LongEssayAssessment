@@ -25,6 +25,7 @@ Bug fixes / Refactorings
 - Prepare custom UI elements for later use in ILIAS 11
 - Extend database field lengths for textual content
 - Disable some correction settings if corrections are authorized
+- Remove unused access to the current user from the service
 
 ## Version 10.0 (2026-04-14)
 

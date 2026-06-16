@@ -102,7 +102,6 @@ class SystemDic implements \Edutiek\AssessmentService\System\Api\Dependencies
         return new UserDataRepo(
             $this->dic->database(),
             $this->dic->language(),
-            $this->dic->user(),
             new ilUserQuery()
         );
     }

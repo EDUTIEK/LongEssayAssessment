@@ -3,6 +3,29 @@
 Please look at the [changelog of version 3](https://github.com/EDUTIEK/LongEssayAssessment/blob/release3_ilias9/CHANGELOG.md)
 for changes in that version.
 
+## Upcoming Version
+
+New functions, visible changes
+
+- Remove own authorization as a first corrector
+- Remove the authorization of the first corrector as a second corrector
+- Remove correction steps as an administrator, keep data to resume
+- Show missing logins at mass import of essay pdfs
+- Disable correction settings when authorized corrections exist
+
+Bug fixes / Refactorings
+
+- Font access for PDF creation
+- Notification of correctors on changed writing content
+- Link function for changed StaticUrlBuilder
+- Database update from version 3 for points in comments
+- Clean up obsolete correction data when a correction is finalized
+- Front page and consulting page in correction pdf for NRW
+- Sorting of criteria in corrector web app
+- Prepare custom UI elements for later use in ILIAS 11
+- Extend database field lengths for textual content
+- Disable some correction settings if corrections are authorized
+
 ## Version 10.0 (2026-04-14)
 
 This is the initial version for ILIAS 10. The plugin and its web apps have been completely refactored for better extensibility in the future.

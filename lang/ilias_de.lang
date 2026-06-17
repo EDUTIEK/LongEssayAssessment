@@ -941,4 +941,5 @@ remove_correction_step_note#:#Begründung
 remove_correction_step_note_info#:#Diese Begründung wird protokolliert und an die betroffenen Korrektoren gesendet. Bitte geben Sie mindestens 5 Zeichen ein.
 remove_correction_step_not_found#:#Es worde keine Schritt gefunden, der zurückgenommen werden könnte.
 settings_disabled_by_authorized_corrections#:#Einige Einstellungen sind gesperrt, da bereits Korrekturen freigegeben wurden.
-
+cron_file_cleanup_title#:#Langtext-Aufgaben: Unbenutzte Dateien entfernen
+cron_file_cleanup_description#:#Entfernt Dateien von Langtext-Aufgaben, die nicht mehr benötigt werden und älter als ein Tag sind.

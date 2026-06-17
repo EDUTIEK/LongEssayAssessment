@@ -56,6 +56,11 @@ class CorrectorSummaryRepo implements \Edutiek\AssessmentService\Task\Data\Corre
         return $this->repo->queryOne($query) !== null;
     }
 
+    public function allFileIds(): array
+    {
+        return $this->repo->queryStrings("SELECT summary_pdf FROM " . $this->repo->table() . " WHERE summary_pdf IS NOT NULL", 'summary_pdf');
+    }
+
     /**
      * @param int $ass_id
      * @return CorrectorSummary[]

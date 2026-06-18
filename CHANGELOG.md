@@ -12,6 +12,7 @@ New functions, visible changes
 - Remove correction steps as an administrator, keep data to resume
 - Show missing logins at mass import of essay pdfs
 - Disable correction settings when authorized corrections exist
+- New cron job to delete unused files that are older than one day
 
 Bug fixes / Refactorings
 
@@ -26,6 +27,7 @@ Bug fixes / Refactorings
 - Extend database field lengths for textual content
 - Disable some correction settings if corrections are authorized
 - Remove unused access to the current user from the service
+- Deletion of files when an assessment is deleted
 
 ## Version 10.0 (2026-04-14)
 

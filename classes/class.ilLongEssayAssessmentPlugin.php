@@ -17,6 +17,7 @@ use ILIAS\Setup\ImplementationOfInterfaceFinder;
 use Edutiek\AssessmentService\System\EventHandling\Events\UserRemoved;
 use ILIAS\Plugin\LongEssayAssessment\UI\Container\ContainerRenderer;
 use ILIAS\Plugin\LongEssayAssessment\System\File\Stakeholder;
+use ILIAS\Plugin\LongEssayAssessment\Cron\FileCleanup;
 
 /**
  * Basic plugin file
@@ -316,7 +317,8 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin implements \i
     private function getJobClasses()
     {
         return $this->cron_classes ??= [
-            ReviewNotification::id => ReviewNotification::class
+            ReviewNotification::id => ReviewNotification::class,
+            FileCleanup::id => FileCleanup::class
         ];
     }
 

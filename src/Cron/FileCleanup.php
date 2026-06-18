@@ -8,7 +8,7 @@ use ILIAS\Cron\Schedule\CronJobScheduleType;
 use ilLongEssayAssessmentPlugin;
 use ilObjUser;
 
-class FileCleanupCronJob extends \ilCronJob
+class FileCleanup extends \ilCronJob
 {
     public const id = CronJobId::FILE_CLEANUP->value;
 

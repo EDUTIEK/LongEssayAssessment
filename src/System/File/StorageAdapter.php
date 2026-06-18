@@ -45,8 +45,8 @@ readonly class StorageAdapter implements Storage
         $query = "SELECT DISTINCT i.rid FROM il_resource_info i JOIN il_resource_stkh_u u
                     WHERE u.rid = i.rid
                     AND u.stakeholder_id = %s
-                    AND i.creation_date < %s";
-
+                    AND i.creation_date < %s
+        ";
         $result = $this->db->queryF($query, [\ilDBConstants::T_TEXT, \ilDBConstants::T_INTEGER], [$this->stakeholder->getId(), time() - (24 * 3600)]);
 
         return array_map(fn($row) => strval($row['rid']), $this->db->fetchAll($result));

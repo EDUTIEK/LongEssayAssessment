@@ -28,6 +28,8 @@ Bug fixes / Refactorings
 - Disable some correction settings if corrections are authorized
 - Remove unused access to the current user from the service
 - Deletion of files when an assessment is deleted
+- Default values for a new rating cterion
+- Paging change after modal edit in resources and croteria administration
 
 ## Version 10.0 (2026-04-14)
 

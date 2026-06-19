@@ -288,6 +288,7 @@ abstract class CriteriaGUI extends BaseGUI implements DataTableParent
         $this->entity_service->secure($criterion, RatingCriterion::class);
         $this->criterion_service->save($criterion);
         $this->tpl->setOnScreenMessage("success", $this->lng->txt("settings_saved"), true);
+        $this->ctrl->redirect($this, "showItems");
     }
 
 

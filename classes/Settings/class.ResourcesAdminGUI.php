@@ -274,6 +274,7 @@ class ResourcesAdminGUI extends BaseGUI implements DataTableParent
         }
 
         $this->success($this->lng->txt("settings_saved"), true);
+        $this->ctrl->redirect($this, 'showItems');
     }
 
     protected function showItems(): void

@@ -43,7 +43,8 @@ use ILIAS\Plugin\LongEssayAssessment\UI\Table\Helper\DataRetrievalFactory;
 
 class DataTable extends Table implements DataTableParent
 {
-    use SmallView, DataRetrievalFactory;
+    use SmallView;
+    use DataRetrievalFactory;
 
     private ?Order $default_order = null;
     private ?Range $default_range = null;
@@ -91,7 +92,9 @@ class DataTable extends Table implements DataTableParent
 
     protected function buildTable(): \ILIAS\UI\Component\Component
     {
-        $table = $this->local_factory->table()->standard(
+        // needed to use the exchanged user preferences based storage for view controls
+        // todo: check with ILIAS 11
+        $table = $this->ui_table_factory->data(
             $this->getTitle(),
             $this->getColumns($this->getAdditionalParameter()),
             $this->getDataRetrival()

@@ -671,6 +671,7 @@
                 body_class: 'xlas-content ' + this.contentClass(headline_scheme),     // used by content.css
                 plugins: 'lists charmap wordcount table pagebreak',
                 toolbar: this.tinyToolbar(formatting_options),
+                toolbar_mode: 'wrap',
                 valid_elements: this.tinyValidElements(formatting_options),
                 valid_styles: this.tinyValidStyles(formatting_options),
                 formats: this.tinyFormats(),

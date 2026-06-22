@@ -3,9 +3,9 @@
 Please look at the [changelog of version 3](https://github.com/EDUTIEK/LongEssayAssessment/blob/release3_ilias9/CHANGELOG.md)
 for changes in that version.
 
-## Upcoming Version
+## Version 10.1 (2026-06-22)
 
-New functions, visible changes
+New functions, Visible Changes
 
 - Remove own authorization as a first corrector
 - Remove the authorization of the first corrector as a second corrector
@@ -30,6 +30,13 @@ Bug fixes / Refactorings
 - Deletion of files when an assessment is deleted
 - Default values for a new rating cterion
 - Paging change after modal edit in resources and croteria administration
+- Avoid potential locking problem with text updates in web apps
+- Reduce sending interval of open correction changes to 1 second (as in with writing app)
+- Prevent applying snippet to disabled comments
+- Restore zoom function for correction summary
+- Fix display of other correctors revision title and statement
+- Force multi line display of editor toolbar
+- Fix initial column display for admin view in correction web app
 
 ## Version 10.0 (2026-04-14)
 

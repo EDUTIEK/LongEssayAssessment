@@ -132,10 +132,10 @@ class CorrectionSettingsGUI extends BaseGUI
 
             // Rating settings
 
+            $single_task_settings = [];
             if (!$this->has_authorized_corrections) {
                 $assessment_settings->setMaxPoints((int) $data['rating_settings']['max_points']);
 
-                $single_task_settings = [];
                 if ($orga_settings->getMultiTasks()) {
                     foreach ($this->manager_service->all() as $task_info) {
                         $settings = $this->task_api->settings($task_info->getId())->get();
@@ -168,21 +168,21 @@ class CorrectionSettingsGUI extends BaseGUI
                     $task_settings->setPositiveRating('');
                     $task_settings->setNegativeRating('');
                 }
-
-                $this->entity_service->secure($assessment_settings, AssessmentCorrectionSettings::class);
-                $this->assessment_correction_settings_service->save($assessment_settings);
-
-                $this->entity_service->secure($task_settings, EssayCorrectionSettings::class);
-                $this->task_correction_settings_service->save($task_settings);
-
-                foreach ($single_task_settings as $settings) {
-                    $this->entity_service->secure($settings, TaskSettings::class);
-                    $this->task_api->settings($settings->getTaskId())->save($settings);
-                }
-
-                $this->tpl->setOnScreenMessage("success", $this->lng->txt("settings_saved"), true);
-                $this->ctrl->redirect($this, "editSettings");
             }
+
+            $this->entity_service->secure($assessment_settings, AssessmentCorrectionSettings::class);
+            $this->assessment_correction_settings_service->save($assessment_settings);
+
+            $this->entity_service->secure($task_settings, EssayCorrectionSettings::class);
+            $this->task_correction_settings_service->save($task_settings);
+
+            foreach ($single_task_settings as $settings) {
+                $this->entity_service->secure($settings, TaskSettings::class);
+                $this->task_api->settings($settings->getTaskId())->save($settings);
+            }
+
+            $this->tpl->setOnScreenMessage("success", $this->lng->txt("settings_saved"), true);
+            $this->ctrl->redirect($this, "editSettings");
         }
 
         if ($this->has_authorized_corrections) {

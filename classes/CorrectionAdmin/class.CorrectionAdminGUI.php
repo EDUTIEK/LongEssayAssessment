@@ -16,6 +16,7 @@ use Edutiek\AssessmentService\System\Data\UserData;
 use Edutiek\AssessmentService\System\User\ReadService as UserService;
 use Edutiek\AssessmentService\Task\AssessmentStatus\FullService as AssessmentStatus;
 use Edutiek\AssessmentService\Task\CorrectionProcess\FullService as CorrectionProcess;
+use Edutiek\AssessmentService\Task\CorrectionProcess\ProcessStep;
 use Edutiek\AssessmentService\Task\CorrectorAssignments\FullService as CorrectorAssignmentsService;
 use Edutiek\AssessmentService\Task\CorrectorSummary\ReadService as SummaryService;
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
@@ -77,38 +78,95 @@ class CorrectionAdminGUI extends BaseGUI
         );
     }
 
-    private function removeAuthorizationsAction(): Action\Confirmation
+    private function removeAuthorizationsAction(): Action\Form
     {
         $label = $this->correction_settings->getRequiredCorrectors() == 1
             ? $this->plugin->txt('remove_authorization')
             : $this->plugin->txt('remove_authorizations');
-        return $this->plugin_ui_factory->table()->action()->confirmation(
+        return $this->plugin_ui_factory->table()->action()->form(
             "removeAuthorization",
             $label,
             $label,
-            $this->plugin->txt("remove_authorizations_confirmation"),
-            $this->ctrl->getFormAction($this, "removeAuthorizations"),
-            fn(CorrectionItem $item) => $item->getWriterName()
-                . ($this->object->getMultiTasks() ? ', ' . $item->getTaskSettings()->getTitle() : ''),
-            fn(CorrectionItem $item) => true,
+            $this->removeAuthorizationsFields(...),
+            $this->removeAuthorizations(...),
+            $this->removeAuthorizationsEnabled(...),
             Action\Type::Standard,
         );
     }
 
-    private function removeAuthorizations()
+
+    private function removeAuthorizationsEnabled(CorrectionItem $item): bool
     {
-        $essays = $this->essay_service->some($this->confirmationIds());
+        foreach ([0, 1, 2] as $pos) {
+            if ($item->getSummaryByPosition($pos)?->isAuthorized()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * @param CorrectionItem[] $items
+     * @return Input[]
+     */
+    private function removeAuthorizationsFields(array $items): array
+    {
+        $items = array_filter($items, fn(CorrectionItem $item) => $this->removeAuthorizationsEnabled($item));
+
+        $writing_tasks = [];
+        foreach ($items as $item) {
+            $writing_tasks[] = new WritingTask($item->getWriter()->getId(), $item->getTaskSettings()->getTaskId());
+        }
+
+        $step = $this->ui_factory->input()->field()->radio(
+            $this->plugin->txt('remove_correction_step'),
+            $this->plugin->txt('remove_correction_step_info')
+        );
+        foreach ($this->correction_process->getRemovableStepsOptions($writing_tasks) as $value => $label) {
+            $step = $step->withOption($value, $label);
+            $step = $step->withValue($step->getValue() ?? $value);
+        }
+
+        $fields = [
+            'info' => $this->getTableActionInfoField($items),
+            'step' => $step,
+            'reason' => $this->ui_factory->input()->field()->textarea(
+                $this->plugin->txt('remove_correction_step_note'),
+                $this->plugin->txt('remove_correction_step_note_info')
+            )->withAdditionalTransformation($this->refinery->string()->hasMinLength(5))
+
+        ];
+
+        return $fields;
+    }
+
+    /**
+     * @param CorrectionItem[] $items
+     */
+    private function removeAuthorizations(array $items, array $data)
+    {
         $changed = [];
         $unchanged = [];
 
-        foreach ($essays as $essay) {
-            $writer = $this->writer_service->oneByWriterId($essay->getWriterId());
+        foreach ($items as $item) {
+            $writer = $this->writer_service->oneByWriterId($item->getWriter()->getId());
             $user = $this->user_service->getUser($writer->getUserId());
-            $task = $this->task_api->manager()->one($essay->getTaskId());
             $name = ($user?->getListname(false) ?? $this->plugin->txt('unknown')) . ' (' . $writer->getPseudonym() . ')'
-                . ($this->object->getMultiTasks() ? ' - ' . $task->getTitle() : '');
+                . ($this->object->getMultiTasks() ? ' - ' . $item->getTaskSettings()->getTitle() : '');
 
-            $result = $this->correction_process->removeAuthorizations($essay->getTaskId(), $writer);
+            $step = ProcessStep::tryFrom((int) $data['step']);
+            if ($step === null) {
+                $this->failure($this->plugin->txt('remove_correction_step_not_found'), true);
+                $this->ctrl->redirect($this);
+            }
+            $reason = $data['reason'];
+
+            $result = $this->correction_process->removeEqualOrHigherSteps(
+                $item->getTaskSettings()->getTaskId(),
+                $writer,
+                $step,
+                $reason
+            );
             if ($result->isOk()) {
                 $changed[] = $name;
             } else {

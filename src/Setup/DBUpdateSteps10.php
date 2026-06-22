@@ -76,6 +76,7 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
     public function uninstall(\ilDBInterface $db): void
     {
         $this->prepare($db);
+        $this->db->manipulate("DELETE FROM il_db_steps WHERE `class` = " . $this->db->quote(DBUpdateSteps9::class));
         $this->db->manipulate("DELETE FROM il_db_steps WHERE `class` = " . $this->db->quote(self::class));
 
         $tables = [

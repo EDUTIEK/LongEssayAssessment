@@ -14,6 +14,7 @@ use Edutiek\AssessmentService\Assessment\TaskInterfaces\TaskManager as TaskManag
 use Edutiek\AssessmentService\System\Entity\FullService as EntityService;
 use Edutiek\AssessmentService\Task\CorrectionSettings\FullService as TaskCorrectionSettingsService;
 use Edutiek\AssessmentService\Task\Data\CorrectionSettings as EssayCorrectionSettings;
+use Edutiek\AssessmentService\Task\Data\PdfMarking;
 use Edutiek\AssessmentService\Task\Data\Settings as TaskSettings;
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\BaseObjectData;
@@ -33,6 +34,7 @@ class CorrectionSettingsGUI extends BaseGUI
     private EntityService $entity_service;
     private DateTimeZone $user_timezone;
     private TaskManager $manager_service;
+    private bool $has_authorized_corrections;
 
     public function __construct(BaseObjectData $object)
     {
@@ -44,6 +46,7 @@ class CorrectionSettingsGUI extends BaseGUI
         $this->entity_service = $this->system_api->entity();
         $this->user_timezone = new DateTimeZone($this->user->getTimeZone());
         $this->manager_service = $this->task_api->manager();
+        $this->has_authorized_corrections = $this->task_api->assessmentStatus()->hasAuthorizedSummaries();
     }
 
     /**
@@ -92,8 +95,9 @@ class CorrectionSettingsGUI extends BaseGUI
                 if ($assessment_settings->getRequiredCorrectors() === 2) {
                     $subdata = $data['correctors']['required_correctors'][1];
 
-                    $assessment_settings->setMutualVisibility((int) $subdata['mutual_visibility']);
-                    $assessment_settings->setWaitForFirst((int) $subdata['wait_for_first']);
+                    $assessment_settings->setMutualVisibility((bool) $subdata['mutual_visibility']);
+                    $assessment_settings->setWaitForFirst((bool) $subdata['wait_for_first']);
+                    $assessment_settings->setUndoFirstAuthorization((bool) $subdata['undo_first_authorization']);
 
                     if ($subdata['handle_distance'][0] === 'procedure') {
                         $assessment_settings->setProcedureWhenDistance(true);
@@ -128,38 +132,42 @@ class CorrectionSettingsGUI extends BaseGUI
 
             // Rating settings
 
-            $assessment_settings->setMaxPoints((int) $data['rating_settings']['max_points']);
-
             $single_task_settings = [];
-            if ($orga_settings->getMultiTasks()) {
-                foreach ($this->manager_service->all() as $task_info) {
-                    $settings = $this->task_api->settings($task_info->getId())->get();
-                    $settings->setWeight($data['rating_settings']['weight' . $task_info->getId()]);
-                    $single_task_settings[] = $settings;
+            if (!$this->has_authorized_corrections) {
+                $assessment_settings->setMaxPoints((int) $data['rating_settings']['max_points']);
+
+                if ($orga_settings->getMultiTasks()) {
+                    foreach ($this->manager_service->all() as $task_info) {
+                        $settings = $this->task_api->settings($task_info->getId())->get();
+                        $settings->setWeight($data['rating_settings']['weight' . $task_info->getId()]);
+                        $single_task_settings[] = $settings;
+                    }
                 }
 
-            }
-
-            $assessment_settings->setNoManualDecimals(((bool) $data['rating_settings']['no_manual_decimals']));
-            if (isset($data['rating_settings']['enable_summary_pdf']) && is_array($data['rating_settings']['enable_summary_pdf'])) {
-                $task_settings->setEnableSummaryPdf(true);
-                $task_settings->setSummaryPdfAdvice((string) $data['rating_settings']['enable_summary_pdf']['summary_pdf_advice']);
-            } else {
-                $task_settings->setEnableSummaryPdf(false);
+                $assessment_settings->setNoManualDecimals(((bool) $data['rating_settings']['no_manual_decimals']));
+                if (isset($data['rating_settings']['enable_summary_pdf']) && is_array($data['rating_settings']['enable_summary_pdf'])) {
+                    $task_settings->setEnableSummaryPdf(true);
+                    $task_settings->setSummaryPdfAdvice((string) $data['rating_settings']['enable_summary_pdf']['summary_pdf_advice']);
+                } else {
+                    $task_settings->setEnableSummaryPdf(false);
+                }
             }
 
             // Correction functions
 
-            $task_settings->setEnableComments(((bool) $data['correction_functions']['enable_comments']));
-            $task_settings->setEnablePartialPoints(((bool) $data['correction_functions']['enable_partial_points']));
-            if (isset($data['correction_functions']['enable_comment_ratings']) && is_array($data['correction_functions']['enable_comment_ratings'])) {
-                $task_settings->setEnableCommentRatings(true);
-                $task_settings->setPositiveRating((string) $data['correction_functions']['enable_comment_ratings']['positive_rating']);
-                $task_settings->setNegativeRating((string) $data['correction_functions']['enable_comment_ratings']['negative_rating']);
-            } else {
-                $task_settings->setEnableCommentRatings(false);
-                $task_settings->setPositiveRating('');
-                $task_settings->setNegativeRating('');
+            if (!$this->has_authorized_corrections) {
+                $task_settings->setPdfMarking(PdfMarking::tryFrom($data['correction_functions']['pdf_marking'] ?? '') ?? PdfMarking::IMAGES);
+                $task_settings->setEnableComments(((bool) $data['correction_functions']['enable_comments']));
+                $task_settings->setEnablePartialPoints(((bool) $data['correction_functions']['enable_partial_points']));
+                if (isset($data['correction_functions']['enable_comment_ratings']) && is_array($data['correction_functions']['enable_comment_ratings'])) {
+                    $task_settings->setEnableCommentRatings(true);
+                    $task_settings->setPositiveRating((string) $data['correction_functions']['enable_comment_ratings']['positive_rating']);
+                    $task_settings->setNegativeRating((string) $data['correction_functions']['enable_comment_ratings']['negative_rating']);
+                } else {
+                    $task_settings->setEnableCommentRatings(false);
+                    $task_settings->setPositiveRating('');
+                    $task_settings->setNegativeRating('');
+                }
             }
 
             $this->entity_service->secure($assessment_settings, AssessmentCorrectionSettings::class);
@@ -175,6 +183,10 @@ class CorrectionSettingsGUI extends BaseGUI
 
             $this->tpl->setOnScreenMessage("success", $this->lng->txt("settings_saved"), true);
             $this->ctrl->redirect($this, "editSettings");
+        }
+
+        if ($this->has_authorized_corrections) {
+            $this->info($this->plugin->txt("settings_disabled_by_authorized_corrections"), false);
         }
 
         $this->add($form)->show();
@@ -262,6 +274,10 @@ class CorrectionSettingsGUI extends BaseGUI
                     $this->plugin->txt('wait_for_first'),
                     $this->plugin->txt('wait_for_first_info')
                 )->withValue($assessment_settings->getWaitForFirst()),
+                'undo_first_authorization' => $factory->checkbox(
+                    $this->plugin->txt('undo_first_authorization'),
+                    $this->plugin->txt('undo_first_authorization_info')
+                )->withValue($assessment_settings->getUndoFirstAuthorization()),
                 'handle_distance' => $factory->switchableGroup(
                     [
                         'average' => $average,
@@ -399,12 +415,22 @@ class CorrectionSettingsGUI extends BaseGUI
         }
 
         if (!empty($fields)) {
-            $sections['rating_settings'] = $factory->section($fields, $this->plugin->txt('rating_settings'));
+            $sections['rating_settings'] = $factory->section($fields, $this->plugin->txt('rating_settings'))
+                ->withDisabled($this->has_authorized_corrections);
         }
 
         // Functions
 
         $fields = [];
+
+        if ($this->plugin->hasPdfMarkingDirect()) {
+            $fields['pdf_marking'] = $factory->radio(
+                $this->plugin->txt('pdf_marking'),
+            )->withOption('images', $this->plugin->txt('pdf_marking_images'), $this->plugin->txt('pdf_marking_images_info'))
+                ->withOption('direct', $this->plugin->txt('pdf_marking_direct'), $this->plugin->txt('pdf_marking_direct_info'))
+                ->withValue($task_settings->getPdfMarking()->value);
+        }
+
 
         $fields["enable_comments"] = $factory->checkbox(
             $this->plugin->txt('enable_comments'),
@@ -443,7 +469,8 @@ class CorrectionSettingsGUI extends BaseGUI
             $fields['enable_comment_ratings'] = $fields['enable_comment_ratings']->withValue(null);
         }
 
-        $sections['correction_functions'] = $factory->section($fields, $this->plugin->txt('correction_functions'));
+        $sections['correction_functions'] = $factory->section($fields, $this->plugin->txt('correction_functions'))
+        ->withDisabled($this->has_authorized_corrections);
 
         return $this->ui_factory->input()->container()->form()->standard(
             $this->ctrl->getFormAction($this),

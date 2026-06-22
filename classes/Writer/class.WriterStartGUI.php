@@ -107,7 +107,7 @@ class WriterStartGUI extends BaseGUI
 
         $this->add($this->ui_factory->panel()->standard(
             $this->plugin->txt('task_description'),
-            $this->ui_factory->legacy($this->displayText($this->orga_settings->getDescription()))
+            $this->plugin_ui_factory->legacy($this->displayText($this->orga_settings->getDescription()))
         ))->show();
     }
 
@@ -120,7 +120,7 @@ class WriterStartGUI extends BaseGUI
 
         $this->add($this->ui_factory->panel()->standard(
             $this->plugin->txt('closing_message'),
-            $this->ui_factory->legacy($this->displayText($this->orga_settings->getClosingMessage()))
+            $this->plugin_ui_factory->legacy($this->displayText($this->orga_settings->getClosingMessage()))
         ))->show();
     }
 
@@ -139,7 +139,7 @@ class WriterStartGUI extends BaseGUI
 
         $this->add($this->ui_factory->panel()->standard(
             $this->plugin->txt('task_instructions'),
-            $this->ui_factory->legacy($this->displayText($task_settings->getInstructions()))
+            $this->plugin_ui_factory->legacy($this->displayText($task_settings->getInstructions()))
         ));
 
         $resource = $this->task_api->resource($task_id)->oneByType(ResourceType::INSTRUCTIONS);
@@ -296,7 +296,7 @@ class WriterStartGUI extends BaseGUI
         $task_settings = $this->task_api->settings($task_id)->get();
         $this->add($this->ui_factory->panel()->standard(
             $this->plugin->txt('task_solution'),
-            $this->ui_factory->legacy($this->displayText($task_settings->getSolution()))
+            $this->plugin_ui_factory->legacy($this->displayText($task_settings->getSolution()))
         ));
 
         $resource = $this->task_api->resource($task_id)->oneByType(ResourceType::SOLUTION);

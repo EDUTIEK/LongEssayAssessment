@@ -67,6 +67,7 @@ class SystemDic implements \Edutiek\AssessmentService\System\Api\Dependencies
         return new StorageAdapter(
             $this->dic->resourceStorage()->manage(),
             $this->dic->resourceStorage()->consume(),
+            $this->dic->database(),
             new Stakeholder(SYSTEM_USER_ID),
             $this->setupRepo()->one()->getAbsoluteTempPath()
         );
@@ -87,6 +88,7 @@ class SystemDic implements \Edutiek\AssessmentService\System\Api\Dependencies
         return new StorageAdapter(
             $this->dic->resourceStorage()->manage(),
             $this->dic->resourceStorage()->consume(),
+            $this->dic->database(),
             new ilTemporaryStakeholder(),
             $this->setupRepo()->one()->getAbsoluteTempPath()
         );
@@ -102,7 +104,6 @@ class SystemDic implements \Edutiek\AssessmentService\System\Api\Dependencies
         return new UserDataRepo(
             $this->dic->database(),
             $this->dic->language(),
-            $this->dic->user(),
             new ilUserQuery()
         );
     }

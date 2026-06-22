@@ -26,9 +26,12 @@ use ILIAS\Plugin\LongEssayAssessment\UI\Table\Action\Export;
 use ILIAS\FileDelivery\Services as FileDeliveryServices;
 use ILIAS\Data\Range;
 use ILIAS\UI\Implementation\Component\Table\Data as UIDataTable;
+use ILIAS\UI\Implementation\Component\ComponentHelper;
 
 abstract class Table implements TableParent, FilterParent, Component\Component
 {
+    use ComponentHelper;
+
     private string $title = "";
     private ?Filter\Standard $filter = null;
     private ?Component\Component $table = null;

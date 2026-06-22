@@ -12,7 +12,6 @@ use Edutiek\AssessmentService\Assessment\Export\FullService as ExportService;
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\BaseObjectData;
 use Edutiek\AssessmentService\Assessment\PdfCreation\PdfPurpose;
-use ILIAS\UI\Component\Table\OrderingBinding;
 use ILIAS\UI\Component\Table\OrderingRowBuilder;
 use Generator;
 use Edutiek\AssessmentService\Assessment\PdfCreation\PdfConfigPart;
@@ -25,6 +24,7 @@ use ILIAS\UI\Component\Input\Container\Form\Form;
 use ILIAS\UI\Component\Component;
 use Edutiek\AssessmentService\Assessment\Data\ResultExportFormat;
 use Edutiek\AssessmentService\Assessment\Data\ExportSettings;
+use ILIAS\Plugin\LongEssayAssessment\UI\Table\Helper\OrderingRetrival;
 
 /**
  * Documentation settings
@@ -120,13 +120,13 @@ class DocumentationSettingsGUI extends BaseGUI
             $df = new \ILIAS\Data\Factory();
             $url_builder = new URLBuilder($df->uri(ILIAS_HTTP_PATH . '/' . $this->ctrl->getFormAction($this, $cmd)));
 
-            $ordering = $this->ui_factory->table()->ordering(
+            $ordering = $this->plugin_ui_factory->table()->ordering(
                 '',
                 [
                     "active" => $this->plugin_ui_factory->table()->column()->checkbox($this->lng->txt('active'), "active"),
                     "title" => $this->ui_factory->table()->column()->text($this->lng->txt('title')),
                 ],
-                $this->orderingBinding($parts),
+                $this->orderingRetrival($parts),
                 $url_builder->buildURI(),
             )->withRequest($this->request);
 
@@ -135,9 +135,9 @@ class DocumentationSettingsGUI extends BaseGUI
         return $ordering;
     }
 
-    private function orderingBinding(array $parts)
+    private function orderingRetrival(array $parts)
     {
-        return new class ($parts) implements OrderingBinding {
+        return new class ($parts) implements OrderingRetrival {
             /**
              * @param PdfConfigPart[] $parts
              */

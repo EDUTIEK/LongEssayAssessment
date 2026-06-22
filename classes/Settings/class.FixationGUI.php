@@ -101,6 +101,7 @@ class FixationGUI
     ];
 
     private bool $can_edit = false;
+    private UI\Factory $plugin_ui_factory;
 
     public function __construct(
         private BaseObjectData $object,
@@ -123,6 +124,7 @@ class FixationGUI
         $this->service = $assessment_api->disabledGroup();
         $this->settings = $assessment_api->orgaSettings();
         $this->can_edit = $assessment_api->permissions($this->object->getContextId())->canEditTemplates();
+        $this->plugin_ui_factory = $this->plugin->dic()->uiFactory();
     }
 
     public function executeCommand(): void
@@ -217,18 +219,18 @@ class FixationGUI
     public function toolsContent(): array
     {
         $template_content = [
-            $this->ui_factory->legacy('<p class="small">' . $this->plugin->txt('template_info') . '</p>'),
+            $this->plugin_ui_factory->legacy('<p class="small">' . $this->plugin->txt('template_info') . '</p>'),
             $this->templateToggle(),
         ];
 
         $fixing_content = [
-            $this->ui_factory->legacy('<p class="small">' . $this->plugin->txt('fixation_info') . '</p>'),
+            $this->plugin_ui_factory->legacy('<p class="small">' . $this->plugin->txt('fixation_info') . '</p>'),
             $this->hideToggle()
         ];
         foreach (array_keys(self::TABS) as $tab) {
             $fixing_content = array_merge($fixing_content, [
                 $this->ui_factory->divider()->horizontal(),
-                $this->ui_factory->legacy('<strong>' . $this->plugin->txt($tab) . '</strong>'),
+                $this->plugin_ui_factory->legacy('<strong>' . $this->plugin->txt($tab) . '</strong>'),
                 ...$this->fixingToggles($tab)
             ]);
         }

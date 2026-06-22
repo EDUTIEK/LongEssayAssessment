@@ -341,19 +341,19 @@ class CorrectorGUI extends BaseGUI implements DataTableParent
                 $this->ui_factory->panel()->standard($this->plugin->txt('corrector_first_assignments'), [
                     !empty($first)
                         ? $this->ui_factory->listing()->characteristicValue()->text($first)
-                        : $this->ui_factory->legacy($this->plugin->txt("corrector_no_assignments")),
+                        : $this->plugin_ui_factory->legacy($this->plugin->txt("corrector_no_assignments")),
                 ]),
                 $this->ui_factory->panel()->standard($this->plugin->txt('corrector_second_assignments'), [
                     !empty($second)
                         ? $this->ui_factory->listing()->characteristicValue()->text($second)
-                        : $this->ui_factory->legacy($this->plugin->txt("corrector_no_assignments")),
+                        : $this->plugin_ui_factory->legacy($this->plugin->txt("corrector_no_assignments")),
                 ]),
             ];
         } else {
             $components = [
                 !empty($first)
                     ? $this->ui_factory->listing()->characteristicValue()->text($first)
-                    : $this->ui_factory->legacy($this->plugin->txt("corrector_no_assignments"))
+                    : $this->plugin_ui_factory->legacy($this->plugin->txt("corrector_no_assignments"))
             ];
         }
 
@@ -520,7 +520,7 @@ class CorrectorGUI extends BaseGUI implements DataTableParent
         $correctors = $service->corrector()->all();
 
         if (empty($correctors)) {
-            return $this->ui_factory->legacy($this->plugin->txt("no_correctors"));
+            return $this->plugin_ui_factory->legacy($this->plugin->txt("no_correctors"));
         }
 
         $user_data = $this->user_service->getUsersByIds(array_map(fn(Corrector $x) => $x->getUserId(), $correctors));

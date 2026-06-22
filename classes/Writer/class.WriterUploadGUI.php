@@ -145,7 +145,7 @@ class WriterUploadGUI extends BaseGUI
                 );
             } elseif (empty($essay->getWrittenText())) {
                 $incomplete_tasks[] = $task;
-                $content[] = $this->ui_factory->legacy('<p>' . $this->plugin->txt('writer_upload_pdf_missing') . '</p>');
+                $content[] = $this->plugin_ui_factory->legacy('<p>' . $this->plugin->txt('writer_upload_pdf_missing') . '</p>');
             }
 
             if ($this->perms->canWrite() || $this->perms->canMaintainWriters()) {
@@ -180,7 +180,7 @@ class WriterUploadGUI extends BaseGUI
             if (!empty($essay->getWrittenText() && !$essay->hasPdfFromWrittenText())) {
                 $content[] = $this->ui_factory->divider()->horizontal();
                 $content[] = $this->ui_factory->card()->standard($this->plugin->txt('pdf_version_header_writing'))
-                                              ->withSections([$this->ui_factory->legacy($this->displayContent($essay->getWrittenText()))]);
+                                              ->withSections([$this->plugin_ui_factory->legacy($this->displayContent($essay->getWrittenText()))]);
             }
 
             $this->add($this->ui_factory->panel()->standard($task->getTitle(), $content));

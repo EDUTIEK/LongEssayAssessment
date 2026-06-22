@@ -15,6 +15,8 @@ use ILIAS\Plugin\LongEssayAssessment\UI\Table\Factory as TableFactory;
 use ILIAS\Plugin\LongEssayAssessment\UI\Protocol\Factory as ProtocolFactory;
 use ILIAS\Plugin\LongEssayAssessment\UI\Tree\TreeFactory;
 use ILIAS\Plugin\LongEssayAssessment\UI\LiveStatusPanel\Factory as LiveStatusPanelFactory;
+use ILIAS\UI\Component\Legacy\Legacy;
+use ILIAS\UI\Factory as UIFactory;
 
 /**
  * Class Factory
@@ -24,6 +26,7 @@ use ILIAS\Plugin\LongEssayAssessment\UI\LiveStatusPanel\Factory as LiveStatusPan
 class Factory
 {
     public function __construct(
+        private UIFactory $ui_factory,
         private ContainerFactory $container_factory,
         private InputFactory $field_factory,
         private IconFactory $icon_factory,
@@ -36,6 +39,11 @@ class Factory
         private LiveStatusPanelFactory $live_status_panel_factory,
     ) {
 
+    }
+
+    public function legacy(string $content): Legacy
+    {
+        return $this->ui_factory->legacy($content);
     }
 
     public function container(): ContainerFactory

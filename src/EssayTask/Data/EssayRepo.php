@@ -49,6 +49,13 @@ class EssayRepo implements \Edutiek\AssessmentService\EssayTask\Data\EssayRepo
         return $this->repo->queryOneBy(['writer_id' => $writer_id, 'task_id' => $task_id]);
     }
 
+    /** @return string[] */
+    public function allFileIds(): array
+    {
+        return $this->repo->queryStrings("SELECT pdf_version FROM " . $this->repo->table() . " WHERE pdf_version IS NOT NULL", 'pdf_version');
+
+    }
+
     public function allByAssId(int $ass_id): array
     {
         $query = "

@@ -39,6 +39,11 @@ class ExportFileRepo implements \Edutiek\AssessmentService\Assessment\Data\Expor
         return $this->repo->queryOneBy(['id' => $id]);
     }
 
+    public function allFileIds(): array
+    {
+        return $this->repo->queryStrings("SELECT file_id FROM " . $this->repo->table(), 'file_id');
+    }
+
     public function allByAssId(int $ass_id): array
     {
         return $this->repo->queryAllBy(['ass_id' => $ass_id]);

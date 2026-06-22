@@ -21,6 +21,7 @@ declare(strict_types=1);
 namespace ILIAS\Plugin\LongEssayAssessment\Task\Data;
 
 use Edutiek\AssessmentService\Task\Data\CriteriaMode;
+use Edutiek\AssessmentService\Task\Data\PdfMarking;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Key;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Table;
 
@@ -37,6 +38,7 @@ class CorrectionSettings extends \Edutiek\AssessmentService\Task\Data\Correction
     private bool $enable_partial_points = true;
     private bool $enable_summary_pdf = true;
     private ?string $summary_pdf_advice = null;
+    private string $pdf_marking = PdfMarking::IMAGES->value;
 
     public function getAssId(): int
     {
@@ -127,6 +129,17 @@ class CorrectionSettings extends \Edutiek\AssessmentService\Task\Data\Correction
     public function setSummaryPdfAdvice(?string $summary_pdf_advice): self
     {
         $this->summary_pdf_advice = $summary_pdf_advice;
+        return $this;
+    }
+
+    public function getPdfMarking(): PdfMarking
+    {
+        return PdfMarking::tryFrom($this->pdf_marking) ?? PdfMarking::IMAGES;
+    }
+
+    public function setPdfMarking(PdfMarking $pdf_marking): self
+    {
+        $this->pdf_marking = $pdf_marking->value;
         return $this;
     }
 }

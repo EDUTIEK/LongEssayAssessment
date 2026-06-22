@@ -52,6 +52,15 @@ class EssayImageRepo implements \Edutiek\AssessmentService\EssayTask\Data\EssayI
         $this->repo->deleteAllBy(['id' => $id]);
     }
 
+    /** @return string[] */
+    public function allFileIds(): array
+    {
+        return array_merge(
+            $this->repo->queryStrings("SELECT file_id FROM " . $this->repo->table() . " WHERE file_id IS NOT NULL", 'file_id'),
+            $this->repo->queryStrings("SELECT thumb_id FROM " . $this->repo->table() . " WHERE thumb_id IS NOT NULL", 'thumb_id')
+        );
+    }
+
     public function allByEssayId(int $essay_id): array
     {
         $images = [];

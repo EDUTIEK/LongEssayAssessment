@@ -79,7 +79,7 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
 
             $parts = [];
             if (!empty($essay?->getWrittenText()) && !$essay?->hasPdfFromWrittenText()) {
-                $parts[] = $this->ui_factory->legacy($this->displayContent($essay->getWrittenText() ?? ""));
+                $parts[] = $this->plugin_ui_factory->legacy($this->displayContent($essay->getWrittenText() ?? ""));
             }
 
             if (!empty($essay?->getPdfVersion())) {

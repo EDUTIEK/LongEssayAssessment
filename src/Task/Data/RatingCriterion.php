@@ -32,10 +32,10 @@ class RatingCriterion extends \Edutiek\AssessmentService\Task\Data\RatingCriteri
     private int $id = 0;
     private string $title = '';
     private ?string $description = null;
-    private int $points = 0;
+    private int $points = 1;
     private ?int $corrector_id = null;
     private int $task_id = 0;
-    private int $general = 0;
+    private int $general = 1;
 
     public function getId(): int
     {

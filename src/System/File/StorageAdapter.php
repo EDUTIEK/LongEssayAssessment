@@ -13,6 +13,7 @@ use ILIAS\ResourceStorage\Information;
 use ILIAS\ResourceStorage\Stakeholder\ResourceStakeholder;
 use Psr\Http\Message\StreamInterface as Stream;
 use ILIAS\ResourceStorage\Information\FileInformation;
+use ilDBInterface;
 
 /**
  * Adapter of the ILIAS resource storage (IRSS) service for the assessment-service
@@ -23,6 +24,7 @@ readonly class StorageAdapter implements Storage
     public function __construct(
         private Manager $manager,
         private Consumers $consumers,
+        private ilDBInterface $db,
         private ResourceStakeholder $stakeholder,
         private string $temp_dir
     ) {
@@ -36,6 +38,18 @@ readonly class StorageAdapter implements Storage
     public function newInfo(): FileInfo
     {
         return new FileInfoModel();
+    }
+
+    public function dayOldFileIds(): array
+    {
+        $query = "SELECT DISTINCT i.rid FROM il_resource_info i JOIN il_resource_stkh_u u
+                    WHERE u.rid = i.rid
+                    AND u.stakeholder_id = %s
+                    AND i.creation_date < %s
+        ";
+        $result = $this->db->queryF($query, [\ilDBConstants::T_TEXT, \ilDBConstants::T_INTEGER], [$this->stakeholder->getId(), time() - (24 * 3600)]);
+
+        return array_map(fn($row) => strval($row['rid']), $this->db->fetchAll($result));
     }
 
     public function hasFile(?string $id): bool

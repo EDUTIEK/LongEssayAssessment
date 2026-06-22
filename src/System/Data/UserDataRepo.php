@@ -23,7 +23,6 @@ class UserDataRepo implements \Edutiek\AssessmentService\System\Data\UserDataRep
     public function __construct(
         private ilDBInterface $db,
         private ilLanguage $lng,
-        private ilObjUser $user,
         private ilUserQuery $user_query
     ) {
     }
@@ -39,22 +38,6 @@ class UserDataRepo implements \Edutiek\AssessmentService\System\Data\UserDataRep
     public function some(array $ids): array
     {
         return $this->queryUsers($ids);
-    }
-
-    public function current(): ?UserData
-    {
-        return (new UserData(
-            $this->user->getId(),
-        ))->setValues(
-            $this->user->getLogin(),
-            empty($this->user->getTitle()) ? null : $this->user->getTitle(),
-            $this->user->getFirstname(),
-            $this->user->getLastname(),
-            empty($this->user->getMatriculation()) ? null : $this->user->getMatriculation(),
-            $this->user->getEmail(),
-            $this->user->getLanguage(),
-            new DateTimeZone($this->user->getTimeZone())
-        );
     }
 
     public function idByLogin(string $login): int

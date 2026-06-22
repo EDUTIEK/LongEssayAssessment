@@ -134,6 +134,12 @@ interface RepositoryInterface extends HydrationInterface
     public function queryIntegers(string $query, string $key): array;
 
     /**
+     * Get a list of strings from an SQL query
+     * @return string[]
+     */
+    public function queryStrings(string $query, string $key): array;
+
+    /**
      * Get a model object with properties set from a database row array
      * @param array<int|string, string> $row
      * @return A

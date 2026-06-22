@@ -152,6 +152,7 @@ class NotificationSettingsGUI extends BaseGUI implements DataTableParent
             case NotificationType::WRITER_CORRECTION_FINALIZED:
                 return $this->service_lang->txt('writer');
             case NotificationType::CORRECTOR_AUTHORIZATION_REMOVED:
+            case NotificationType::CORRECTOR_FIRST_AUTHORIZATION_REMOVED:
             case NotificationType::CORRECTOR_PROCEDURE_STARTED:
             case NotificationType::CORRECTOR_WRITING_CHANGED:
                 return $this->service_lang->txt('corrector');

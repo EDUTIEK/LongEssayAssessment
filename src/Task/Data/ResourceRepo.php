@@ -50,6 +50,11 @@ class ResourceRepo implements \Edutiek\AssessmentService\Task\Data\ResourceRepo
         return $this->repo->queryOneBy(['file_id' => $file_id]);
     }
 
+    public function allFileIds(): array
+    {
+        return $this->repo->queryStrings("SELECT file_id FROM " . $this->repo->table() . " WHERE file_id IS NOT NULL", 'file_id');
+    }
+
     public function allByTaskId(int $task_id): array
     {
         return $this->repo->queryAllBy(['task_id' => $task_id]);

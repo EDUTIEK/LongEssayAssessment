@@ -39,6 +39,15 @@ class MarkedPdfRepo implements \Edutiek\AssessmentService\EssayTask\Data\MarkedP
         return $this->repo->queryOneBy(['task_id' => $task_id, 'writer_id' => $writer_id, 'corrector_id' => $corrector_id]);
     }
 
+    /** @return string[] */
+    public function allFileIds(): array
+    {
+        return array_merge(
+            $this->repo->queryStrings("SELECT own_pdf FROM " . $this->repo->table() . " WHERE own_pdf IS NOT NULL", 'own_pdf'),
+            $this->repo->queryStrings("SELECT sum_pdf FROM " . $this->repo->table() . " WHERE sum_pdf IS NOT NULL", 'sum_pdf')
+        );
+    }
+
     public function allByTaskId(int $task_id): array
     {
         return $this->repo->queryAllBy(['task_id' => $task_id]);

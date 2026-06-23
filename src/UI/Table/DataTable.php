@@ -93,11 +93,10 @@ class DataTable extends Table implements DataTableParent
     protected function buildTable(): \ILIAS\UI\Component\Component
     {
         // needed to use the exchanged user preferences based storage for view controls
-        // todo: check with ILIAS 11
         $table = $this->ui_table_factory->data(
+            $this->getDataRetrival(),
             $this->getTitle(),
             $this->getColumns($this->getAdditionalParameter()),
-            $this->getDataRetrival()
         )
                     ->withId($this->getUIName() . "_table")
                     ->withRequest($this->request)

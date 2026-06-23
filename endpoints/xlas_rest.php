@@ -16,8 +16,10 @@
  *
  *********************************************************************/
 
-require_once '../vendor/composer/vendor/autoload.php';
+require_once __DIR__ . '/../vendor/composer/vendor/autoload.php';
+require_once __DIR__ . '/../artifacts/bootstrap_default.php';
+
+entry_point("ILIAS Legacy Initialisation Adapter");
 
 ilContext::init(ilContext::CONTEXT_REST);
-ilInitialisation::initILIAS();
 ilLongEssayAssessmentPlugin::getInstance()->dic()->rest()->service()->handle();

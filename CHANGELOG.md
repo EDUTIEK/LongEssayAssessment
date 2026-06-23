@@ -3,9 +3,16 @@
 Please look at the [changelog of version 3](https://github.com/EDUTIEK/LongEssayAssessment/blob/release3_ilias9/CHANGELOG.md)
 for changes in that version.
 
+## Upcoming version
+
+Bug fixes
+
+- Wrong redirect after failed writer adding
+
+
 ## Version 10.1 (2026-06-22)
 
-New functions, Visible Changes
+New functions, Visible changes
 
 - Remove own authorization as a first corrector
 - Remove the authorization of the first corrector as a second corrector

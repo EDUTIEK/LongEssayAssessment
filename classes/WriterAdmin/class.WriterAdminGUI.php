@@ -86,7 +86,7 @@ class WriterAdminGUI extends WriterTableGUI
     {
         if (count($a_usr_ids) <= 0) {
             $this->tpl->setOnScreenMessage("failure", $this->plugin->txt('missing_user_id'), true);
-            $this->ctrl->redirect($this, "showStartPage");
+            $this->ctrl->redirect($this, "showItems");
         }
 
         foreach ($a_usr_ids as $id) {

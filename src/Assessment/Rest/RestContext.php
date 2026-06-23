@@ -59,9 +59,6 @@ readonly class RestContext implements \Edutiek\AssessmentService\Assessment\Apps
         // REST calls from the web app should not write the user session of ILIAS in general
         // Session expire is set for specific calls that indicate a user activity
         ilSession::enableWebAccessWithoutSession(true);
-
-        // Init a missing user, access handling, html, language
-        RestInit::initRestUser($user_id);
     }
 
     /**

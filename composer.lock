@@ -246,12 +246,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/EDUTIEK/assessment-service.git",
-                "reference": "f31b2d424234e8710ef09bb1de3890a65374f81e"
+                "reference": "86c413a8c35c77c7089484ee6c0d27761f37c6ee"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EDUTIEK/assessment-service/zipball/f31b2d424234e8710ef09bb1de3890a65374f81e",
-                "reference": "f31b2d424234e8710ef09bb1de3890a65374f81e",
+                "url": "https://api.github.com/repos/EDUTIEK/assessment-service/zipball/86c413a8c35c77c7089484ee6c0d27761f37c6ee",
+                "reference": "86c413a8c35c77c7089484ee6c0d27761f37c6ee",
                 "shasum": ""
             },
             "require": {
@@ -262,7 +262,7 @@
                 "ext-xml": "*",
                 "ext-xsl": "*",
                 "mustache/mustache": "^2.14",
-                "php": ">=8.2 <8.4",
+                "php": ">=8.2 <8.5",
                 "phpoffice/phpspreadsheet": "^2.2",
                 "slim/psr7": "^1.7",
                 "slim/slim": "^4.14",
@@ -286,6 +286,10 @@
                 {
                     "name": "Lukas Scharmer",
                     "email": "lscharmer@databay.de"
+                },
+                {
+                    "name": "Fabian Wolf",
+                    "email": "wolf@databay.de"
                 }
             ],
             "description": "Backend service for long essay assessments",
@@ -293,7 +297,7 @@
                 "source": "https://github.com/EDUTIEK/assessment-service/tree/acc-annot",
                 "issues": "https://github.com/EDUTIEK/assessment-service/issues"
             },
-            "time": "2026-06-03T14:40:55+00:00"
+            "time": "2026-06-23T08:39:20+00:00"
         },
         {
             "name": "fig/http-message-util",

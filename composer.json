@@ -3,6 +3,10 @@
     {
       "type": "vcs",
       "url": "git@github.com:EDUTIEK/assessment-service.git"
+    },
+    {
+      "type": "vcs",
+      "url": "git@github.com:EDUTIEK/dompdf.git"
     }
   ],
   "require": {
@@ -10,7 +14,8 @@
     "edutiek/assessment-service": "dev-acc-annot",
     "psr/container": "^2.0.2",
     "psr/http-message": "^2.0",
-    "psr/log": "^3.0.2"
+    "psr/log": "^3.0.2",
+    "dompdf/dompdf": "dev-gs-font-patch"
   },
   "scripts": {
     "pre-install-cmd": [

@@ -65,30 +65,33 @@ class PluginDic
 {
     protected static ?self $instance = null;
     protected Container $dic;
+    protected ilLongEssayAssessmentPlugin $plugin;
 
     /**
      * Get the dependency injection container of the plugin
-     *
-     * Init the local autoload of all external plugin dependencies
-     *  This is separated from init() to avoid conflicts with other package versions in ILIAS
-     *  Note: init() is called from the ilPlugin constructor in ILIAS initialisation
-     *
-     *  The local autoload needs only to be initialized:
-     *  - for the GUI of the plugin
-     *  - for the entry points of REST calls
-     *  - maybe later for a cron job
+     * Initialize the ui components and the assessment-service
      */
     public static function getInstance(Container $dic, ilLongEssayAssessmentPlugin $plugin): self
     {
-        require_once __DIR__ . '/../../vendor/autoload.php';
-        return self::$instance ??= new self($dic, $plugin);
+        return (self::$instance ??= new self($dic, $plugin));
     }
 
     protected function __construct(Container $dic, ilLongEssayAssessmentPlugin $plugin)
     {
         $this->dic = $dic;
+        $this->plugin = $plugin;
+    }
 
-        $dic[ilLongEssayAssessmentPlugin::class] = $plugin;
+    /**
+     * Init the UI components of the plugin
+     * The closures may lazy-load assessment service components
+     */
+    public function initUI(): self
+    {
+        $dic = $this->dic;
+        if ($dic->offsetExists(DataConstraints::class)) {
+            return $this;
+        }
 
         $dic[DataConstraints::class] = function () use ($dic) {
             return new DataConstraints(
@@ -100,7 +103,7 @@ class PluginDic
         $dic[PluginTemplateFactory::class] = function () use ($dic) {
             return new PluginTemplateFactory(
                 $dic["ui.template_factory"],
-                $dic[ilLongEssayAssessmentPlugin::class],
+                $this->plugin,
                 $dic->ui()->mainTemplate()
             );
         };
@@ -112,6 +115,9 @@ class PluginDic
         $dic[Factory::class] = function (Container $dic) {
             $data_factory = new \ILIAS\Data\Factory();
             $refinery = new \ILIAS\Refinery\Factory($data_factory, $dic["lng"]);
+
+            // lazy, needed for format functions
+            $this->initService();
 
             return new Factory(
                 $dic->ui()->factory(),
@@ -170,7 +176,7 @@ class PluginDic
                 new ProtocolFactory(
                     $dic[IconFactory::class],
                     $dic->ui()->factory(),
-                    $dic[ilLongEssayAssessmentPlugin::class],
+                    $this->plugin(),
                     $dic->http(),
                     $dic->refinery()
                 ),
@@ -179,6 +185,9 @@ class PluginDic
         };
 
         $dic[UploadTempFile::class] = function (Container $dic) {
+            // lazy, needed for hashAlgo
+            $this->initService();
+
             return new UploadTempFile(
                 $dic->filesystem(),
                 $dic->upload(),
@@ -189,8 +198,30 @@ class PluginDic
         };
 
         $dic[UIService::class] = function (Container $dic) {
-            return new UIService($dic[ilLongEssayAssessmentPlugin::class], $dic["lng"], $dic["refinery"]);
+            return new UIService($this->plugin, $dic["lng"], $dic["refinery"]);
         };
+
+        return $this;
+    }
+
+    /**
+     * Init the assessment service (with autoload)
+     *
+     * To avoid conflicts with ILIAS dependencies, this should only be called:
+     *  - For the GUI of the plugin
+     *  - For the entry points of REST calls
+     *  - For a cron job of the plugin
+     */
+    public function initService(): self
+    {
+        $dic = $this->dic;
+        if ($dic->offsetExists(Generate::class)) {
+            return $this;
+        }
+
+        require_once __DIR__ . '/../../vendor/autoload.php';
+
+        // Generation of data model artifacts
 
         $dic[Generate::class] = function (Container $dic) {
             return new Generate(ModelObjective::PATH());
@@ -261,6 +292,8 @@ class PluginDic
                 $dic[TaskFactory::class]->forEvents(),
             ]);
         };
+
+        return $this;
     }
 
     public function constraints(): DataConstraints
@@ -270,7 +303,7 @@ class PluginDic
 
     public function plugin(): ilLongEssayAssessmentPlugin
     {
-        return $this->dic[ilLongEssayAssessmentPlugin::class];
+        return $this->plugin;
     }
 
     public function uiFactory(): Factory

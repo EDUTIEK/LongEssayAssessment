@@ -70,7 +70,7 @@ class CollectionGUI
 
     private function init()
     {
-        $this->plugin_dic = PluginDIC::getInstance($this->dic, $this->plugin);
+        $this->plugin_dic = $this->plugin->dic();
         $this->collection_node = $this->tree->getNodeData($this->object->getRefId());
         $this->assessment_nodes = $this->tree->getSubTree($this->collection_node, true, ['xlas']);
         $this->assessment_nodes = array_filter($this->assessment_nodes, fn($x) => $this->access->checkAccess('maintain_correctors', '', $x['ref_id']));

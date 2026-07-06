@@ -97,11 +97,13 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin implements \I
     }
 
     /**
-     * Get the dependency injection container of the plugin
+     * Get the fully loaded dependency injection container of the plugin
      */
     public function dic(): PluginDic
     {
-        return PluginDic::getInstance($this->ilias_dic, $this);
+        return PluginDic::getInstance($this->ilias_dic, $this)
+            ->initUI()
+            ->initService();
     }
 
     public function allowCopy(): bool
@@ -232,17 +234,20 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin implements \I
         }
 
         if (!$dic->offsetExists('ui.resource_registry')) {
-            $dic['ui.resource_registry'] = static fn ($c) =>
+            $dic['ui.resource_registry'] = static fn($c) =>
                 new \ILIAS\UI\Implementation\Render\ilResourceRegistry($c['tpl']);
         }
         if (!$dic->offsetExists('ui.pathresolver')) {
-            $dic['ui.pathresolver'] = static fn () => new \ilImagePathResolver();
+            $dic['ui.pathresolver'] = static fn() => new \ilImagePathResolver();
         }
         if (!$dic->offsetExists('ui.data_factory')) {
-            $dic['ui.data_factory'] = static fn ($c) => $c[\ILIAS\Data\Factory::class];
+            $dic['ui.data_factory'] = static fn($c) => $c[\ILIAS\Data\Factory::class];
         }
 
-        $this->dic(); // init plugin dic
+        // Initialize only the UI components of the plugin, not the assessment-service
+        // this avoids autoload conflicts with ILIAS outside the plugin, e.g. Mustache
+        PluginDic::getInstance($dic, $this)->initUI();
+
         $dic->language()->loadLanguageModule($this->getPrefix());
         //else return own renderer with origin as default
         //be aware that you can not provide the renderer itself for the closure since its state changes

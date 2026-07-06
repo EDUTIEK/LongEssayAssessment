@@ -2,15 +2,16 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\Cron;
 
-use Edutiek\AssessmentService\System\Config\CronJobId;
-use ilCronJobResult;
-use ILIAS\Cron\Schedule\CronJobScheduleType;
 use ilLongEssayAssessmentPlugin;
 use ilObjUser;
+use ILIAS\Cron\CronJob;
+use ILIAS\Cron\Job\Schedule\JobScheduleType;
+use ILIAS\Cron\Job\JobResult;
 
-class FileCleanup extends \ilCronJob
+class FileCleanup extends CronJob
 {
-    public const id = CronJobId::FILE_CLEANUP->value;
+    /** @see CronJobId::FILE_CLEANUP  */
+    public const string id = 'xlas_file_cleanup';
 
     private ilLongEssayAssessmentPlugin $plugin;
     private ilObjUser $user;
@@ -47,9 +48,9 @@ class FileCleanup extends \ilCronJob
         return true;
     }
 
-    public function getDefaultScheduleType(): CronJobScheduleType
+    public function getDefaultScheduleType(): JobScheduleType
     {
-        return CronJobScheduleType::SCHEDULE_TYPE_IN_DAYS;
+        return JobScheduleType::IN_DAYS;
     }
 
     public function getDefaultScheduleValue(): ?int
@@ -57,17 +58,17 @@ class FileCleanup extends \ilCronJob
         return 1;
     }
 
-    public function run(): ilCronJobResult
+    public function run(): JobResult
     {
         $result = $this->plugin->dic()->cron($this->user->getId())->fileCleanupHandler()->run();
 
         if ($result->isOk()) {
-            $cron_result = new ilCronJobResult();
-            $cron_result->setStatus(ilCronJobResult::STATUS_OK);
+            $cron_result = new JobResult();
+            $cron_result->setStatus(JobResult::STATUS_OK);
             $cron_result->setMessage(implode(' | ', $result->notes()));
         } else {
-            $cron_result = new ilCronJobResult();
-            $cron_result->setStatus(ilCronJobResult::STATUS_FAIL);
+            $cron_result = new JobResult();
+            $cron_result->setStatus(JobResult::STATUS_FAIL);
             $cron_result->setMessage(implode(' | ', $result->failures()));
         }
 

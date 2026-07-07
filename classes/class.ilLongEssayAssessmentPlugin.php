@@ -330,7 +330,7 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin implements \i
 
     private function getJobObject(string $class_name): ilCronJob
     {
-        return $this->cron_objects[$class_name] ??= new $class_name($this, $this->dic(), $this->ilias_dic);
+        return $this->cron_objects[$class_name] ??= new $class_name();
     }
 
     public function getCronJobInstances(): array

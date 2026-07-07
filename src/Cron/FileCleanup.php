@@ -2,7 +2,6 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\Cron;
 
-use Edutiek\AssessmentService\System\Config\CronJobId;
 use ilCronJobResult;
 use ILIAS\Cron\Schedule\CronJobScheduleType;
 use ilLongEssayAssessmentPlugin;
@@ -10,7 +9,11 @@ use ilObjUser;
 
 class FileCleanup extends \ilCronJob
 {
-    public const id = CronJobId::FILE_CLEANUP->value;
+    /**
+     * @var string
+     * @see CronJobId::FILE_CLEANUP
+     */
+    public const id = 'xlas_file_cleanup';
 
     private ilLongEssayAssessmentPlugin $plugin;
     private ilObjUser $user;

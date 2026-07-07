@@ -2,7 +2,6 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\Cron;
 
-use Edutiek\AssessmentService\System\Config\CronJobId;
 use ilCronJobResult;
 use ILIAS\Cron\Schedule\CronJobScheduleType;
 use ilLongEssayAssessmentPlugin;
@@ -10,7 +9,11 @@ use ilObjUser;
 
 class ReviewNotification extends \ilCronJob
 {
-    public const id = CronJobId::REVIEW_NOTIFICATION->value;
+    /**
+     * @var string
+     * @see CronJobId::REVIEW_NOTIFICATION
+     */
+    public const id = 'xlas_review_notification';
 
     private ilLongEssayAssessmentPlugin $plugin;
     private ilObjUser $user;

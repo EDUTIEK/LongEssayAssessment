@@ -19,6 +19,6 @@ class ExportOptionHashes extends ExportOption
      */
     public function getLabel(): string
     {
-        return  '';
+        return  parent::getLabel();
     }
 }

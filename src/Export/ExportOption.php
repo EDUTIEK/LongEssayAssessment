@@ -137,17 +137,23 @@ abstract class ExportOption extends \ILIAS\Export\ExportHandler\Consumer\ExportO
         ilExportHandlerConsumerContextInterface $context
     ): void {
         $service = $this->service($context->exportObject()->getId(), $context->exportObject()->getRefId());
-        $background = $service->createFile($this->getServiceExportType());
-        if ($background) {
+        $result = $service->createFile($this->getServiceExportType());
+        if (!empty($result->failures())) {
+            $this->tpl->setOnScreenMessage(
+                ilGlobalTemplateInterface::MESSAGE_TYPE_FAILURE,
+                implode('<br />', $result->failures()),
+                true
+            );
+        } elseif (!empty($result->notes())) {
             $this->tpl->setOnScreenMessage(
                 ilGlobalTemplateInterface::MESSAGE_TYPE_INFO,
-                $this->plugin->txt('download_in_background_started'),
+                implode('<br />', $result->notes()),
                 true
             );
         } else {
             $this->tpl->setOnScreenMessage(
-                ilGlobalTemplateInterface::MESSAGE_TYPE_SUCCESS,
-                $this->plugin->txt('export_file_created'),
+                $result->isOk() ? ilGlobalTemplateInterface::MESSAGE_TYPE_SUCCESS : ilGlobalTemplateInterface::MESSAGE_TYPE_FAILURE,
+                $this->plugin->txt($result->isOk() ? 'export_file_created' : 'export_file_not_created'),
                 true
             );
         }

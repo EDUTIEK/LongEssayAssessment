@@ -15,11 +15,10 @@ class ExportOptionHashes extends ExportOption
 
     /**
      * Label in the Export dropdown
-     * Prevent this option in the dropdown by returning an empty label
+     * Prevent this option in the dropdown by returning an empty label (works only in ILIAS 10, not in ILIAS 11)
      */
     public function getLabel(): string
     {
         return  '';
     }
-
 }

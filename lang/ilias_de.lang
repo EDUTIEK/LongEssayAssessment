@@ -914,6 +914,7 @@ export_type_log#:#Prüfungsprotokoll
 export_type_reports#:#Korrekturberichte
 export_type_hashes#:#Prüfsummen
 export_file_created#:#Die Export-Datei wurde erzeugt.
+export_file_not_created#:#Die Export-Datei konnte nicht erzeugt werden.
 corrector#:#Korrektor
 no_items#:#Die Aktion ist für keinen der ausgewählten Einträge ausführbar.
 please_select_item#:#Bitte wählen Sie einen oder mehrere Einträge aus der Tabelle aus.

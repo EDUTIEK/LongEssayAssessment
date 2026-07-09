@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "aee84b7cd69c8d9c0f4db117abe75d78",
+    "content-hash": "fea5d68b46a5df54a3ee0231fe4ab9a6",
     "packages": [
         {
             "name": "composer/pcre",
@@ -246,12 +246,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/EDUTIEK/assessment-service.git",
-                "reference": "2c42e9f12f5f7e328591d89792c510340165c133"
+                "reference": "33e77f190219980d7838dade8a1d2e5d9f6ed617"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EDUTIEK/assessment-service/zipball/2c42e9f12f5f7e328591d89792c510340165c133",
-                "reference": "2c42e9f12f5f7e328591d89792c510340165c133",
+                "url": "https://api.github.com/repos/EDUTIEK/assessment-service/zipball/33e77f190219980d7838dade8a1d2e5d9f6ed617",
+                "reference": "33e77f190219980d7838dade8a1d2e5d9f6ed617",
                 "shasum": ""
             },
             "require": {
@@ -298,7 +298,7 @@
                 "source": "https://github.com/EDUTIEK/assessment-service/tree/acc-annot",
                 "issues": "https://github.com/EDUTIEK/assessment-service/issues"
             },
-            "time": "2026-07-09T10:01:48+00:00"
+            "time": "2026-07-09T18:05:55+00:00"
         },
         {
             "name": "fig/http-message-util",
@@ -1921,8 +1921,8 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": ">=8.3 <8.5"
+        "php": ">=8.2 <8.4"
     },
     "platform-dev": {},
-    "plugin-api-version": "2.6.0"
+    "plugin-api-version": "2.9.0"
 }

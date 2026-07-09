@@ -24,6 +24,7 @@ use DateTimeImmutable;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Key;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Sequence;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Table;
+use Edutiek\AssessmentService\System\HtmlProcessing\ServiceVersion;
 
 #[Table(name: 'xlas_et_essay')]
 class Essay extends \Edutiek\AssessmentService\EssayTask\Data\Essay
@@ -123,13 +124,13 @@ class Essay extends \Edutiek\AssessmentService\EssayTask\Data\Essay
         $this->last_change = $last_change;
         return $this;
     }
-    public function getServiceVersion(): int
+    public function getServiceVersion(): ServiceVersion
     {
-        return $this->service_version;
+        return ServiceVersion::tryFrom($this->service_version) ?? ServiceVersion::current();
     }
-    public function setServiceVersion(int $service_version): self
+    public function setServiceVersion(ServiceVersion $service_version): self
     {
-        $this->service_version = $service_version;
+        $this->service_version = $service_version->value;
         return $this;
     }
     public function getFirstChange(): ?DateTimeImmutable

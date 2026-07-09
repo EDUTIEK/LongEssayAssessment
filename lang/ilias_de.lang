@@ -813,10 +813,10 @@ pdf_format_info#:#Gibt an, nach welchem Format das Deckblatt und die Kopfzeile d
 pdf_format_edutiek#:#EDUTIEK
 pdf_format_by#:#Jur. Staatsprüfungen Bayern
 pdf_format_nrw#:#Jur. Staatsprüfungen Nordrhein-Westfalen
-pdf_feedback_mode#:#Format für kommentierte Abgabeseiten
-pdf_feedback_mode_info#:#Gibt an, wie die Abgabe und die zugehörigen Kommentare im Korrektur-PDF dargestellt werden.
-pdf_feedback_mode_sidebyside#:#Querformat/Nebeneinander
-pdf_feedback_mode_sequence#:#Hochformat/Abwechselnd
+pdf_feedback_mode#:#Format für kommentierte Abgabe
+pdf_feedback_mode_info#:#Gibt an, wie die Abgabe und die zugehörigen Anmerkungen im Korrektur-PDF dargestellt werden.
+pdf_feedback_mode_sidebyside#:#Querformat, Anmerkungen rechts
+pdf_feedback_mode_sequence#:#Hochformat, Anmerkungen am Ende
 enable_summary_pdf#:#Gutachten als PDF
 enable_summary_pdf_info#:#Ermöglicht anstelle eines textuellen Gutachtens ein Gutachten als PDF-Datei (z.B. einen Begründungsbogen) hochzuladen.
 summary_pdf_advice#:#Anleitung zum PDF-Gutachten

@@ -293,11 +293,11 @@ class CorrectionAdminGUI extends BaseGUI
     {
         return match($assignment_position) {
             0 => $this->correction_settings->getRequiredCorrectors() > 1
-                    ? $this->plugin->txt("assignment_pos_first")
-                    : $this->plugin->txt("assignment_pos_single"),
-            1 => $this->plugin->txt("assignment_pos_second"),
-            2 => $this->plugin->txt("assignment_pos_stitch"),
-            default => sprintf($this->plugin->txt("assignment_pos_x"), $assignment_position + 1)
+                    ? $this->plugin->txt("grading_pos_first")
+                    : $this->plugin->txt("grading_pos_single"),
+            1 => $this->plugin->txt("grading_pos_second"),
+            2 => $this->plugin->txt("grading_pos_stitch"),
+            default => sprintf($this->plugin->txt("grading_pos_x"), $assignment_position + 1)
         };
     }
 

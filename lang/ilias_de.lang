@@ -177,15 +177,12 @@ own_points#:#Eigene Punkte
 own_grade#:#Eigene Note
 grading_open#:#offen
 grading_authorized#:#freigegeben
+grading_pos_single#:#Korrektur
 grading_pos_first#:#Erstkorrektur
 grading_pos_second#:#Zweitkorrektur
 grading_pos_stitch#:#Stichentscheid
-assignment_pos_single#:#Korrektor
-assignment_pos_first#:#Erstkorrektor
-assignment_pos_second#:#Zweitkorrektor
-assignment_pos_stitch#:#Stichentscheider
-assignment_pos_x#:#%s. Korrektur
-assignment_pos_empty#:#nicht ausgewählt
+grading_pos_x#:#%s. Korrektur
+grading_pos_empty#:#nicht ausgewählt
 other_corrections#:#Andere Korrekturen
 start_correction#:#Angezeigte Korrekturen starten
 assigned_writings#:#Zugeteilte Abgaben

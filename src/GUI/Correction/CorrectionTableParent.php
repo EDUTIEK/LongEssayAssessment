@@ -143,7 +143,7 @@ class CorrectionTableParent implements DataTableParent, FilterParent
         $visible_correctors = $this->getVisibleCorrectors();
         foreach (range(0, 2) as $p) {
             if ($visible_correctors == 1) {
-                $cor = $this->plugin->txt("assignment_pos_single");
+                $cor = $this->plugin->txt("grading_pos_single");
             } else {
                 switch ($p) {
                     case 0:
@@ -156,7 +156,7 @@ class CorrectionTableParent implements DataTableParent, FilterParent
                         $cor = $this->plugin->txt("grading_pos_stitch");
                         break;
                     default:
-                        $cor = $this->plugin->txt("assignment_pos_other");
+                        $cor = sprintf($this->plugin->txt("grading_pos_x"), $p);
                         break;
                 }
             }

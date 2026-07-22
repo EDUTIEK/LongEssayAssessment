@@ -181,17 +181,17 @@ class DocumentationSettingsGUI extends BaseGUI
         $components = [
             $this->fixation_gui->setVisibility(
                 'tab_documentation_settings',
-                'docu_settings',
+                'pdf_config',
                 $this->plugin_ui_factory->container()->bindable(
-                    $this->ui_factory->panel()->standard($this->plugin->txt('docu_settings'), $form)
+                    $this->ui_factory->panel()->standard($this->plugin->txt('corrected_pdf_config'), $order)
                 )
             ),
 
             $this->fixation_gui->setVisibility(
                 'tab_documentation_settings',
-                'pdf_config',
+                'docu_settings',
                 $this->plugin_ui_factory->container()->bindable(
-                    $this->ui_factory->panel()->standard($this->plugin->txt('corrected_pdf_config'), $order)
+                    $this->ui_factory->panel()->standard($this->plugin->txt('docu_settings'), $form)
                 )
             ),
         ];

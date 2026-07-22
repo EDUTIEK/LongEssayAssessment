@@ -55,13 +55,14 @@ export default class TinyHelper
             paste_merge_formats: true,    // default
             paste_tab_spaces: 4,          // default
             smart_paste: false,           // don't create hyperlinks automatically
-            setup: (editor) => {
-                editor.on('init', () => {this.handleDraft(id, storageKey, editor);});
-            },
+            // setup: (editor) => {
+            //     editor.on('init', () => {this.handleDraft(id, storageKey, editor);});
+            // },
             paste_data_images: false,     // don't paste images
             paste_remove_styles_if_webkit: true,  // default
             paste_webkit_styles: 'none',          // default
             table_appearance_options: false,
+            table_tab_navigation: true,
             table_advtab: false,
             table_cell_advtab: false,
             table_row_advtab: false,
@@ -98,7 +99,9 @@ export default class TinyHelper
         switch (formatting_options) {
             case 'extended':
                 return '@[style|border|colspan|rowspan],'
-                    + 'p/div,br,strong/b,em/i,u,s,ol,ul,li,h1,h2,h3,h4,h5,h6,pre,code,blockquote,span,sub,sup,table,thead,tbody,th,tr,td,hr,'
+                  // #td/#th: pad empty cells with &nbsp; so caret/arrow-key navigation works after reload
+                  // (fresh inserts already get this; loaded HTML with custom valid_elements does not otherwise)
+                  + 'p/div,br,strong/b,em/i,u,s,ol,ul,li,h1,h2,h3,h4,h5,h6,pre,code,blockquote,span,sub,sup,table,thead,tbody,#th,tr,#td,hr,'
                     + 'img[class<mce-pagebreak|src|data-mce-resize|data-mce-placeholder|data-mce-selected]';
             case 'full':
                 return 'p/div,br,strong/b,em/i,u,ol,ul,li,h1,h2,h3,h4,h5,h6,pre';

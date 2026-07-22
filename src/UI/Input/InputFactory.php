@@ -104,7 +104,7 @@ class InputFactory
 
     public function tinyMCE($label, $byline = null): TinyMCE
     {
-        return new TinyMCE($this->data_factory, $this->refinery, $label, $byline);
+        return (new TinyMCE($this->data_factory, $this->refinery, $label, $byline))->withoutStripTags();
     }
 
     public function info($label, $byline = null): Info

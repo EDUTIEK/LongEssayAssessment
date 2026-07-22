@@ -80,11 +80,6 @@
     padding: 5px;
 }
 
-.xlas-content td[data-mce-selected="1"],
-.xlas-content th[data-mce-selected="1"] {
-    border: 2px solid blue;
-}
-
 /**
  * Page break in printing
  */

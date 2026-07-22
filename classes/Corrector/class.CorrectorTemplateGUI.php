@@ -76,8 +76,10 @@ class CorrectorTemplateGUI extends BaseGUI
         $this->setToolbar();
         $this->addCopyForm();
 
-        $panel = $this->ui_factory->panel()->standard($this->plugin->txt('edit_corrector_template'), $form);
-        $this->add($panel)->show();
+        // In ILIAS 11 Tiny does not like to be in a form
+        // $panel = $this->ui_factory->panel()->standard($this->plugin->txt('edit_corrector_template'), $form);
+
+        $this->add($form)->show();
     }
 
     private function update(array $data): void
@@ -141,14 +143,17 @@ class CorrectorTemplateGUI extends BaseGUI
         $corrector = $this->corrector_service->oneById($template->getCorrectorId());
         $user = $this->system_api->user()->getUser($corrector?->getUserId() ?? 0);
 
-        $fields = [
-            'preview' => $this->plugin_ui_factory->field()->info(
-                $user?->getListname(false) ?? $this->plugin->txt('unknown'),
-            )->withInfo(
-                $this->plugin_ui_factory->legacy($this->displayContent($template->getContent()))
-            )
-        ];
-        $form = $this->plugin_ui_factory->field()->blankForm('#', $fields);
+        $content = $this->plugin_ui_factory->legacy($this->displayContent($template->getContent()));
+
+        // blank form brings error in ILIAS 11
+        //        $fields = [
+        //            'preview' => $this->plugin_ui_factory->field()->info(
+        //                $user?->getListname(false) ?? $this->plugin->txt('unknown'),
+        //            )->withInfo(
+        //                $this->plugin_ui_factory->legacy($this->displayContent($template->getContent()))
+        //            )
+        //        ];
+        //        $form = $this->plugin_ui_factory->field()->blankForm('#', $fields);
 
         $this->ctrl->setParameter($this, 'share_id', $template->getCorrectorId());
         $adopt = $this->ui_factory->button()->primary(
@@ -159,7 +164,7 @@ class CorrectorTemplateGUI extends BaseGUI
         $cancel = $this->ui_factory->button()->standard($this->lng->txt('cancel'), $this->ctrl->getLinkTarget($this, 'edit'));
 
         $panel = $this->ui_factory->panel()->standard($this->plugin->txt('adopt_corrector_template'), [
-            $form, $adopt, $cancel,
+            $content, $adopt, $cancel,
         ]);
 
         $this->add($panel);

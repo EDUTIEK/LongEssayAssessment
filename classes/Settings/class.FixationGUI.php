@@ -66,8 +66,8 @@ class FixationGUI
             'grade_levels'
         ],
         'tab_documentation_settings' => [
-            'docu_settings',
-            'pdf_config'
+            'pdf_config',
+            'docu_settings'
         ]
 
     ];

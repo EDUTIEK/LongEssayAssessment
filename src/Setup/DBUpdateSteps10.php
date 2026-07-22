@@ -1696,4 +1696,22 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
                 'type' => ilDBConstants::T_TEXT, 'length' => 20, 'notnull' => 0, 'default' => null]);
         }
     }
+
+    public function step_89(): void
+    {
+        if (!$this->db->tableColumnExists('xlas_ta_corr_prefs', 'default_shape')) {
+            $this->db->addTableColumn('xlas_ta_corr_prefs', 'default_shape', [
+                'type' => ilDBConstants::T_TEXT, 'length' => 20, 'notnull' => 0, 'default' => null]);
+        }
+
+        if (!$this->db->tableColumnExists('xlas_ta_corr_prefs', 'display_labels')) {
+            $this->db->addTableColumn('xlas_ta_corr_prefs', 'display_labels', [
+                'type' => ilDBConstants::T_INTEGER, 'notnull' => 1, 'default' => 0]);
+        }
+
+        if (!$this->db->tableColumnExists('xlas_ta_corr_prefs', 'select_words')) {
+            $this->db->addTableColumn('xlas_ta_corr_prefs', 'select_words', [
+                'type' => ilDBConstants::T_INTEGER, 'notnull' => 1, 'default' => 1]);
+        }
+    }
 }

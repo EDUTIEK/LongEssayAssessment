@@ -31,6 +31,9 @@ class CorrectorPrefs extends \Edutiek\AssessmentService\Task\Data\CorrectorPrefs
     private float $essay_page_zoom = 0;
     private float $essay_text_zoom = 0;
     private float $summary_text_zoom = 0;
+    private ?string $default_shape = null;
+    private bool $display_labels = false;
+    private bool $select_words = true;
     private ?string $filter_grading_status = null;
     private ?int $filter_assigned_position = null;
 
@@ -68,6 +71,33 @@ class CorrectorPrefs extends \Edutiek\AssessmentService\Task\Data\CorrectorPrefs
     public function setSummaryTextZoom(float $summary_text_zoom): self
     {
         $this->summary_text_zoom = $summary_text_zoom;
+        return $this;
+    }
+    public function getDefaultShape(): ?string
+    {
+        return $this->default_shape;
+    }
+    public function setDefaultShape(?string $default_shape): self
+    {
+        $this->default_shape = $default_shape;
+        return $this;
+    }
+    public function getDisplayLabels(): bool
+    {
+        return $this->display_labels;
+    }
+    public function setDisplayLabels(bool $display_labels): self
+    {
+        $this->display_labels = $display_labels;
+        return $this;
+    }
+    public function getSelectWords(): bool
+    {
+        return $this->select_words;
+    }
+    public function setSelectWords(bool $select_words): self
+    {
+        $this->select_words = $select_words;
         return $this;
     }
     public function getFilterGradingStatus(): ?string

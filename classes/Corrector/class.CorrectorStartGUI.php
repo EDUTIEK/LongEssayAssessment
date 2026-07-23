@@ -583,21 +583,22 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
         $comb_value = array_filter((array) $comb_value, fn($val) => isset($comb_options[$val]));
 
         return  [
-            "status" => $this->ui_factory->input()->field()->multiSelect(
-                $this->plugin->txt('own_correction'),
-                $stat_options,
-            )->withValue($stat_value),
-
             "position" => $multiple_correctors ?
                 $this->ui_factory->input()->field()->select(
                     $this->plugin->txt('own_position'),
                     $pos_options,
                 )->withValue($pos_value ?? '') : null,
 
+
             "combined_status" => $this->ui_factory->input()->field()->multiSelect(
                 $this->plugin->txt("correction_status"),
                 $comb_options,
             )->withValue($comb_value),
+
+            "status" => $this->ui_factory->input()->field()->multiSelect(
+                $this->plugin->txt('own_correction'),
+                $stat_options,
+            )->withValue($stat_value),
         ];
     }
 

@@ -194,7 +194,9 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
         if ($this->settings->getDownloadCorrection()) {
             $actions[] = $this->downloadCorrectedPdfAction();
         }
-        $actions[] = $this->authorizeCorrectionAction();
+
+        $actions[] = $this->authorizeCorrectionAction(false);
+        $actions[] = $this->authorizeCorrectionAction(true);
 
         if ($this->settings->getUndoAuthorization()) {
             $actions[] = $this->removeAuthorizationAction();
@@ -229,10 +231,10 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
         );
     }
 
-    private function authorizeCorrectionAction(): Table\Action\Confirmation
+    private function authorizeCorrectionAction(bool $multi): Table\Action\Confirmation
     {
         return $this->plugin_ui_factory->table()->action()->confirmation(
-            "authorizeCorrection",
+            "authorizeCorrection" . ($multi ? "Multi" : ""),
             $this->plugin->txt('authorize_correction'),
             $this->plugin->txt('authorize_correction'),
             $this->plugin->txt('confirm_authorize_correction'),
@@ -241,8 +243,8 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
                 . $this->task_format->correctionResult($x->getSummary(), true),
             fn(CorrectorStartItem $x) =>
                 $this->correction_process->canAuthorizeOwnCorrection($x->getAssignment())
-                && $x->getSummary()?->isComplete(),
-            Table\Action\Type::Standard
+                && $x->getSummary()?->isComplete() && ($multi || $x->getSummary()?->isPregraded()),
+            $multi ? Table\Action\Type::Multi : Table\Action\Type::Single,
         );
     }
 
@@ -490,7 +492,7 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
             $assignment = $this->assignment_service->oneById($assignment_id);
             $writer = $this->writer_service->oneByWriterId($assignment?->getWriterId() ?? 0);
             if ($writer !== null && $assignment !== null) {
-                $result = $this->correction_process->authorizeOwnCorrection($assignment);
+                $result = $this->correction_process->authorizeOwnCorrection($assignment, true);
                 if ($result->isOk()) {
                     $changed[] = $writer->getPseudonym();
                 } else {

@@ -7,8 +7,10 @@ namespace ILIAS\Plugin\LongEssayAssessment\Settings;
 use Edutiek\AssessmentService\Assessment\Data\PdfSettings;
 use Edutiek\AssessmentService\Assessment\PdfSettings\FullService as PdfSettingsService;
 use Edutiek\AssessmentService\Task\AssessmentStatus\FullService as StatusService;
+use Edutiek\AssessmentService\Task\CorrectionSettings\FullService as TaskCorrectionSettingsService;
 use Edutiek\AssessmentService\System\Entity\FullService as EntityService;
 use Edutiek\AssessmentService\Assessment\Export\FullService as ExportService;
+use Edutiek\AssessmentService\Task\Data\PdfMarking;
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\BaseObjectData;
 use Edutiek\AssessmentService\Assessment\PdfCreation\PdfPurpose;
@@ -36,6 +38,7 @@ class DocumentationSettingsGUI extends BaseGUI
     private PdfSettingsService $pdf_settings_service;
     private EntityService $entity_service;
     private ExportService $export_service;
+    private TaskCorrectionSettingsService $correction_settings_service;
 
     public function __construct(BaseObjectData $object)
     {
@@ -44,6 +47,7 @@ class DocumentationSettingsGUI extends BaseGUI
         $this->pdf_settings_service = $this->assessment_api->pdfSettings();
         $this->export_service = $this->assessment_api->export($object->getContextId());
         $this->entity_service = $this->system_api->entity();
+        $this->correction_settings_service = $this->task_api->correctionSettings();
     }
 
     /**
@@ -203,6 +207,7 @@ class DocumentationSettingsGUI extends BaseGUI
     {
         $export_settings = $this->export_service->getSettings();
         $pdf_settings = $this->pdf_settings_service->get();
+        $correction_settings = $this->correction_settings_service->get();
         $factory = $this->ui_factory->input()->field();
 
         $fields = [];
@@ -228,7 +233,8 @@ class DocumentationSettingsGUI extends BaseGUI
             $this->plugin->txt('pdf_feedback_mode_info'),
         )->withOption(PdfFeedbackMode::SIDE_BY_SIDE->value, $this->plugin->txt('pdf_feedback_mode_sidebyside'))
             ->withOption(PdfFeedbackMode::SEQUENCE->value, $this->plugin->txt('pdf_feedback_mode_sequence'))
-            ->withValue($pdf_settings->getFeedbackMode()->value);
+            ->withValue($pdf_settings->getFeedbackMode()->value)
+            ->withDisabled($correction_settings->getPdfMarking() == PdfMarking::TEXT);
 
         return $this->ui_factory->input()->container()->form()->standard(
             $this->ctrl->getFormAction($this),

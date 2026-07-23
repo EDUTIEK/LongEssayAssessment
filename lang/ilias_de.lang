@@ -446,11 +446,11 @@ invalid_assignment_combinations_error#:#Diese Korrekturzuweisung führt in einig
 remove_authorizations_confirmation#:#Möchten Sie die Freigaben für die Korrektur(en) folgender Teilnahmen zurückziehen? Diese Aktion wird protokolliert.
 remove_authorizations_no_valid_essays#:#In der Auswahl gab es keine Korrektur(en), die zurückgenommen werden können.
 change_corrector_info#:#Bitte beachten Sie folgendes, wenn es bereits Korrekturen gibt: <ul><li>Korrekturen werden auf neuen Korrektor übretragen</li><li>Korrektoren von bereits freigegebenen Korrekturen können nicht geändert werden</li><li>An Bewertungskriterien vergebene Punkte werden beim Übertragen entfernt</li><li>Korrekturen entfernter Korrektoren werden ebenfalls permanent entfernt</li></ul>
-authorize_correction#:#Korrektur freigeben
+authorize_correction#:#Vorbenotete Korrektur freigeben
 authorize_correction_for#:#Korrektur für %s freigeben
 confirm_authorize_correction#:#Möchten Sie die folgenden Korrekturen freigeben?
 authorize_correction_done#:#Ihre Korrektur wurde freigegeben.
-authorize_correction_failed#:#In Ihrer Auswahl waren keine Korrekturen, die freigegeben werden können.
+authorize_correction_failed#:#In Ihrer Auswahl waren keine Korrekturen, die freigegeben werden können. Sie können in dieser Liste nur Korrekturen freigeben, die Sie in der Korrekturoberfläche bereits vorbenotet haben. Filtern Sie nach "Eigene Korrekturen: offen" und wählen Sie "Angezeigte Korrekturen" starten, um diese Abgaben in der Korrekturoberfläche vorzubenoten oder direkt freizugeben.
 download_instructions#:#Aufgabenstellung herunterladen
 download_solution#:#Lösungshinweise herunterladen
 pdf_version#:#PDF-Abgabe
@@ -813,7 +813,7 @@ pdf_format_edutiek#:#EDUTIEK
 pdf_format_by#:#Jur. Staatsprüfungen Bayern
 pdf_format_nrw#:#Jur. Staatsprüfungen Nordrhein-Westfalen
 pdf_feedback_mode#:#Format für kommentierte Abgabe
-pdf_feedback_mode_info#:#Gibt an, wie die Abgabe und die zugehörigen Anmerkungen im Korrektur-PDF dargestellt werden.
+pdf_feedback_mode_info#:#Gibt an, wie die Abgabe und die zugehörigen Anmerkungen im Korrektur-PDF dargestellt werden. Bei direkter PDF-Markierung ist nur das Hochformat mit Anmerkungen am Ende möglich.
 pdf_feedback_mode_sidebyside#:#Querformat, Anmerkungen rechts
 pdf_feedback_mode_sequence#:#Hochformat, Anmerkungen am Ende
 enable_summary_pdf#:#Gutachten als PDF

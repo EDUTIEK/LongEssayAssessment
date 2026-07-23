@@ -437,12 +437,30 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
         if (!$is_empty_before_filter) {
             $table->executeAction();
             $this->tpl->setContent($this->renderer->render($table->getComponents()));
-            if ($this->orga_settings->getCorrectionStart() || $this->orga_settings->getCorrectionEnd()) {
-                $period = $this->system_format->dateRange($this->orga_settings->getCorrectionStart(), $this->orga_settings->getCorrectionEnd());
-                $this->tpl->setOnScreenMessage("info", $this->plugin->txt("correction_period") . ': ' . $period, false);
-            }
+        }
+
+        $messages = [];
+
+        if ($is_empty_before_filter) {
+            $messages[] = $this->plugin->txt("message_no_correction_items");
         } else {
-            $this->tpl->setOnScreenMessage("info", $this->plugin->txt("message_no_correction_items"), false);
+            $assignments = $this->assignment_service->allByCorrectorId($this->corrector->getId(), true);
+            $todo = $this->correction_process->getAssignmentsToDo($assignments);
+            if (empty($todo)) {
+                $messages[] = $this->plugin->txt("message_no_corrections_todo");
+            } else {
+                $messages[] = $this->plugin->txt("message_corrections_todo")
+                    . $this->renderer->render($this->ui_factory->listing()->unordered(array_keys($todo)));
+            }
+        }
+
+        if ($this->orga_settings->getCorrectionStart() || $this->orga_settings->getCorrectionEnd()) {
+            $period = $this->system_format->dateRange($this->orga_settings->getCorrectionStart(), $this->orga_settings->getCorrectionEnd());
+            $messages[] = $this->plugin->txt("correction_period") . ': ' . $period;
+        }
+
+        if (!empty($messages)) {
+            $this->tpl->setOnScreenMessage("info", implode('<br />', $messages), false);
         }
     }
 

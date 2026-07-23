@@ -315,7 +315,9 @@ max_points#:#Maximale Punkte
 tab_correction_settings#:#Korrektur
 tab_correction_items#:#Abgaben
 correction_settings#:#Korrektur-Einstellungen
-message_no_correction_items#:#Ihnen sind noch keine Abgaben zur Korrektur zugewiesen.
+message_no_correction_items#:#Sie haben noch keine korrigierbaren Abgaben.
+message_no_corrections_todo#:#Aktuell stehen keine Korrektur-Aufgaben für Sie an.
+message_corrections_todo#:#Sie haben anstehende Korrekturaufgaben:
 correction_period#:#Korrektur-Zeitraum
 final_grade#:#End-Note
 actions#:#Aktionen

@@ -9,7 +9,9 @@ use Edutiek\AssessmentService\Assessment\CorrectionSettings\FullService as Asses
 use Edutiek\AssessmentService\Assessment\Data\AssignMode;
 use Edutiek\AssessmentService\Assessment\Data\CorrectionProcedure;
 use Edutiek\AssessmentService\Assessment\Data\CorrectionSettings as AssessmentCorrectionSettings;
+use Edutiek\AssessmentService\Assessment\Data\PdfFeedbackMode;
 use Edutiek\AssessmentService\Assessment\OrgaSettings\FullService as OrgaSettingsService;
+use Edutiek\AssessmentService\Assessment\PdfSettings\FullService as PdfSettingsService;
 use Edutiek\AssessmentService\Assessment\TaskInterfaces\TaskManager as TaskManager;
 use Edutiek\AssessmentService\System\Entity\FullService as EntityService;
 use Edutiek\AssessmentService\Task\CorrectionSettings\FullService as TaskCorrectionSettingsService;
@@ -31,6 +33,7 @@ class CorrectionSettingsGUI extends BaseGUI
     private OrgaSettingsService $orga_settings_service;
     private AssessmentCorrectionSettingsService $assessment_correction_settings_service;
     private TaskCorrectionSettingsService $task_correction_settings_service;
+    private PdfSettingsService $pdf_settings_service;
     private EntityService $entity_service;
     private DateTimeZone $user_timezone;
     private TaskManager $manager_service;
@@ -43,6 +46,7 @@ class CorrectionSettingsGUI extends BaseGUI
         $this->orga_settings_service = $this->assessment_api->orgaSettings();
         $this->assessment_correction_settings_service = $this->assessment_api->correctionSettings();
         $this->task_correction_settings_service = $this->task_api->correctionSettings();
+        $this->pdf_settings_service = $this->assessment_api->pdfSettings();
         $this->entity_service = $this->system_api->entity();
         $this->user_timezone = new DateTimeZone($this->user->getTimeZone());
         $this->manager_service = $this->task_api->manager();
@@ -175,6 +179,11 @@ class CorrectionSettingsGUI extends BaseGUI
 
             $this->entity_service->secure($task_settings, EssayCorrectionSettings::class);
             $this->task_correction_settings_service->save($task_settings);
+
+            if ($task_settings->getPdfMarking() == PdfMarking::TEXT) {
+                $pdf_settings = $this->pdf_settings_service->get();
+                $this->pdf_settings_service->save($pdf_settings->setFeedbackMode(PdfFeedbackMode::SEQUENCE));
+            }
 
             foreach ($single_task_settings as $settings) {
                 $this->entity_service->secure($settings, TaskSettings::class);

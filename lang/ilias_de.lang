@@ -813,7 +813,7 @@ pdf_format_edutiek#:#EDUTIEK
 pdf_format_by#:#Jur. Staatsprüfungen Bayern
 pdf_format_nrw#:#Jur. Staatsprüfungen Nordrhein-Westfalen
 pdf_feedback_mode#:#Format für kommentierte Abgabe
-pdf_feedback_mode_info#:#Gibt an, wie die Abgabe und die zugehörigen Anmerkungen im Korrektur-PDF dargestellt werden.
+pdf_feedback_mode_info#:#Gibt an, wie die Abgabe und die zugehörigen Anmerkungen im Korrektur-PDF dargestellt werden. Bei direkter PDF-Markierung ist nur das Hochformat mit Anmerkungen am Ende möglich.
 pdf_feedback_mode_sidebyside#:#Querformat, Anmerkungen rechts
 pdf_feedback_mode_sequence#:#Hochformat, Anmerkungen am Ende
 enable_summary_pdf#:#Gutachten als PDF

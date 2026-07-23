@@ -273,7 +273,8 @@ class CorrectionTableParent implements DataTableParent, FilterParent
     public function getFilterInputs(): array
     {
         // use pseudo assessment it - not relevant for the options
-        $status = $this->plugin->dic()->assessment(0, $this->user->getId())->format()->combinedStatusOptions();
+        $status = $this->plugin->dic()->assessment(0, $this->user->getId())->format()->combinedStatusOptions(true);
+
         $locations = [];
         foreach ($this->getLocations() as $location) {
             $locations[$location->getId()] = $location->getTitle();

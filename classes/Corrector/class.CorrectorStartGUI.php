@@ -379,18 +379,30 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
         if ($this->get->string('cmdFilter') == 'reset') {
             $status = null;
             $position = null;
+            $combined = null;
         } else {
             $status = null;
             if (is_array($filter_data['status'] ?? null)) {
                 $status = [];
                 foreach ($filter_data['status'] as $value) {
-                    $status[] = GradingStatus::tryFrom($value);
+                    if (!empty($enum = GradingStatus::tryFrom($value))) {
+                        $status[] = $enum;
+                    }
+                }
+            }
+            $combined = null;
+            if (is_array($filter_data['combined_status'] ?? null)) {
+                $combined = [];
+                foreach ($filter_data['combined_status'] as $value) {
+                    if (!empty($enum = CombinedStatus::tryFrom($value))) {
+                        $combined[] = $enum;
+                    }
                 }
             }
             $position = (isset($filter_data['position']) && $filter_data['position'] !== '') ? (int) $filter_data['position'] : null;
         }
 
-        $this->assignment_service->saveCorrectorFilter($this->corrector->getId(), $status, $position);
+        $this->assignment_service->saveCorrectorFilter($this->corrector->getId(), $status, $combined, $position);
         $this->ctrl->redirect($this, 'showStartPage');
     }
 
@@ -425,12 +437,30 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
         if (!$is_empty_before_filter) {
             $table->executeAction();
             $this->tpl->setContent($this->renderer->render($table->getComponents()));
-            if ($this->orga_settings->getCorrectionStart() || $this->orga_settings->getCorrectionEnd()) {
-                $period = $this->system_format->dateRange($this->orga_settings->getCorrectionStart(), $this->orga_settings->getCorrectionEnd());
-                $this->tpl->setOnScreenMessage("info", $this->plugin->txt("correction_period") . ': ' . $period, false);
-            }
+        }
+
+        $messages = [];
+
+        if ($is_empty_before_filter) {
+            $messages[] = $this->plugin->txt("message_no_correction_items");
         } else {
-            $this->tpl->setOnScreenMessage("info", $this->plugin->txt("message_no_correction_items"), false);
+            $assignments = $this->assignment_service->allByCorrectorId($this->corrector->getId(), true);
+            $todo = $this->correction_process->getAssignmentsToDo($assignments);
+            if (empty($todo)) {
+                $messages[] = $this->plugin->txt("message_no_corrections_todo");
+            } else {
+                $messages[] = $this->plugin->txt("message_corrections_todo")
+                    . $this->renderer->render($this->ui_factory->listing()->unordered(array_keys($todo)));
+            }
+        }
+
+        if ($this->orga_settings->getCorrectionStart() || $this->orga_settings->getCorrectionEnd()) {
+            $period = $this->system_format->dateRange($this->orga_settings->getCorrectionStart(), $this->orga_settings->getCorrectionEnd());
+            $messages[] = $this->plugin->txt("correction_period") . ': ' . $period;
+        }
+
+        if (!empty($messages)) {
+            $this->tpl->setOnScreenMessage("info", implode('<br />', $messages), false);
         }
     }
 
@@ -558,23 +588,35 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
 
     public function getFilterInputs(): array
     {
-
         $multiple_correctors = $this->settings->getRequiredCorrectors() > 1;
-        [$stat_value, $pos_value] = $this->assignment_service->getCorrectionFilter($this->corrector->getId());
+
+        $stat_options = $this->task_format->gradingStatusOptions();
+        $comb_options = $this->assessment_api->format()->combinedStatusOptions(false);
+        $pos_options = $this->task_format->gradingPositionOptions();
+
+        [$stat_value, $comb_value, $pos_value] = $this->assignment_service->getCorrectionFilter($this->corrector->getId());
+
+        // ensure that only selectable filter values are used
+        $stat_value = array_filter((array) $stat_value, fn($val) => isset($stat_options[$val]));
+        $comb_value = array_filter((array) $comb_value, fn($val) => isset($comb_options[$val]));
 
         return  [
+            "position" => $multiple_correctors ?
+                $this->ui_factory->input()->field()->select(
+                    $this->plugin->txt('own_position'),
+                    $pos_options,
+                )->withValue($pos_value ?? '') : null,
+
+
+            "combined_status" => $this->ui_factory->input()->field()->multiSelect(
+                $this->plugin->txt("correction_status"),
+                $comb_options,
+            )->withValue($comb_value),
+
             "status" => $this->ui_factory->input()->field()->multiSelect(
                 $this->plugin->txt('own_correction'),
-                $this->task_format->gradingStatusOptions()
-            )
-                ->withValue($stat_value),
-            "position" => $multiple_correctors
-                ? $this->ui_factory->input()->field()->select(
-                    $this->plugin->txt('own_position'),
-                    $this->task_format->gradingPositionOptions()
-                )
-                    ->withValue($pos_value ?? '')
-                : null
+                $stat_options,
+            )->withValue($stat_value),
         ];
     }
 

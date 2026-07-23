@@ -35,6 +35,7 @@ class CorrectorPrefs extends \Edutiek\AssessmentService\Task\Data\CorrectorPrefs
     private bool $display_labels = false;
     private bool $select_words = true;
     private ?string $filter_grading_status = null;
+    private ?string $filter_combined_status = null;
     private ?int $filter_assigned_position = null;
 
     public function getCorrectorId(): int
@@ -107,6 +108,15 @@ class CorrectorPrefs extends \Edutiek\AssessmentService\Task\Data\CorrectorPrefs
     public function setFilterGradingStatus(?string $filter_grading_status): self
     {
         $this->filter_grading_status = $filter_grading_status;
+        return $this;
+    }
+    public function getFilterCombinedStatus(): ?string
+    {
+        return $this->filter_combined_status;
+    }
+    public function setFilterCombinedStatus(?string $filter_combined_status): self
+    {
+        $this->filter_combined_status = $filter_combined_status;
         return $this;
     }
     public function getFilterAssignedPosition(): ?int

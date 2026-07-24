@@ -218,7 +218,71 @@ class CorrectionSettingsGUI extends BaseGUI
 
             // multi correctors
 
-            $fields['max_auto_distance'] = $this->plugin_ui_factory->field()->numeric(
+            $revision_between = $factory->checkbox(
+                $this->plugin->txt('revision_between'),
+                $this->plugin->txt('revision_between_info')
+            )->withValue($assessment_settings->getRevisionBetween());
+
+
+            $average = $factory->group(
+                [],
+                $this->plugin->txt('average_when_distance'),
+                $this->plugin->txt('average_when_distance_info')
+            );
+
+            $no_procedure = $factory->group(
+                [],
+                $this->plugin->txt('procedure_none'),
+                $this->plugin->txt('procedure_none_info')
+            );
+
+            $approximation = $factory->group(
+                [
+                    'revision_between' => $revision_between,
+                ],
+                $this->plugin->txt('procedure_approximation'),
+                $this->plugin->txt('procedure_approximation_info')
+            );
+
+            $consulting = $factory->group(
+                [
+                    'revision_between' => $revision_between,
+                ],
+                $this->plugin->txt('procedure_consulting'),
+                $this->plugin->txt('procedure_consulting_info')
+            );
+
+            $procedure = $factory->switchableGroup(
+                [
+                    CorrectionProcedure::NONE->value => $no_procedure,
+                    CorrectionProcedure::APPROXIMATION->value => $approximation,
+                    CorrectionProcedure::CONSULTING->value => $consulting,
+                ],
+                $this->plugin->txt('procedure_setting_label'),
+            )->withValue($assessment_settings->getProcedure()->value);
+
+
+            $stitch_disabled = $factory->group(
+                [],
+                $this->plugin->txt('stitch_disabled'),
+                $this->plugin->txt('stitch_disabled_info')
+            );
+
+            $stitch_after_procedure = $factory->group(
+                [],
+                $this->plugin->txt('stitch_after_procedure'),
+                $this->plugin->txt('stitch_after_procedure_info')
+            );
+
+            $stitch_setting = $factory->switchableGroup(
+                [
+                    'stitch_diabled' => $stitch_disabled,
+                    'stitch_after_procedure' => $stitch_after_procedure
+                ],
+                $this->plugin->txt('stitch_setting_label'),
+            );
+
+            $max_auto_distance = $this->plugin_ui_factory->field()->numeric(
                 $this->plugin->txt('max_auto_distance'),
                 $this->plugin->txt('max_auto_distance_info')
             )
@@ -231,44 +295,16 @@ class CorrectionSettingsGUI extends BaseGUI
                 ->withAdditionalTransformation($this->constraints->maximum(1000000000))
                 ->withValue((empty($assessment_settings->getMaxAutoDistance()) ? 0.0 : $assessment_settings->getMaxAutoDistance()));
 
-            $fields['procedure'] = $factory->radio($this->plugin->txt('correction_procedure'))
-                ->withOption(CorrectionProcedure::NONE->value, $this->plugin->txt('procedure_none'))
-                ->withOption(
-                    CorrectionProcedure::APPROXIMATION->value,
-                    $this->plugin->txt('procedure_approximation'),
-                    $this->plugin->txt('procedure_approximation_info')
-                )
-                ->withOption(
-                    CorrectionProcedure::CONSULTING->value,
-                    $this->plugin->txt('procedure_consulting'),
-                    $this->plugin->txt('procedure_consulting_info')
-                )
-                ->withValue($assessment_settings->getProcedure()->value);
 
-            $fields['revision_between'] = $factory->checkbox(
-                $this->plugin->txt('revision_between'),
-                $this->plugin->txt('revision_between_info')
-            )
-                ->withValue($assessment_settings->getRevisionBetween());
-
-            $fields['stitch_after_procedure'] = $factory->checkbox(
-                $this->plugin->txt('stitch_after_procedure'),
-                $this->plugin->txt('stitch_after_procedure_info')
-            )
-                ->withValue($assessment_settings->getStitchAfterProcedure());
-
-            $average = $factory->group(
-                [],
-                $this->plugin->txt('average_when_distance'),
-                $this->plugin->txt('average_when_distance_info')
-            );
-
-            $procedure = $factory->group(
-                $fields,
+            $clearance = $factory->group(
+                [
+                    'max_auto_distance' => $max_auto_distance,
+                    'procedure' => $procedure,
+                    'stitch' => $stitch_setting
+                ],
                 $this->plugin->txt('procedure_when_distance'),
                 $this->plugin->txt('procedure_when_distance_info')
             );
-
 
             $single = $factory->group(
                 [],
@@ -290,10 +326,10 @@ class CorrectionSettingsGUI extends BaseGUI
                 'handle_distance' => $factory->switchableGroup(
                     [
                         'average' => $average,
-                        'procedure' => $procedure
+                        'clearance' => $clearance
                     ],
                     $this->plugin->txt('handle_distance'),
-                )->withValue($assessment_settings->getProcedureWhenDistance() ? 'procedure' : 'average')
+                )->withValue($assessment_settings->getProcedureWhenDistance() || $assessment_settings->getStitchAfterProcedure() ? 'clearance' : 'average')
             ], $this->plugin->txt('first_and_second_corrector'));
 
             $fields = [];

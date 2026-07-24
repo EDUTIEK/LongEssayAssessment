@@ -452,7 +452,7 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
                 $messages[] = $this->plugin->txt("message_no_corrections_todo");
             } else {
                 $messages[] = $this->plugin->txt("message_corrections_todo")
-                    . $this->renderer->render($this->ui_factory->listing()->unordered(array_keys($todo)));
+                        . " " . implode(', ', array_keys($todo));
             }
         }
 

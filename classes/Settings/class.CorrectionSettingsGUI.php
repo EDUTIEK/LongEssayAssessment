@@ -103,17 +103,28 @@ class CorrectionSettingsGUI extends BaseGUI
                     $assessment_settings->setWaitForFirst((bool) $subdata['wait_for_first']);
                     $assessment_settings->setUndoFirstAuthorization((bool) $subdata['undo_first_authorization']);
 
-                    if ($subdata['handle_distance'][0] === 'procedure') {
-                        $assessment_settings->setProcedureWhenDistance(true);
-                        $assessment_settings->setMaxAutoDistance((float) $subdata['handle_distance'][1]['max_auto_distance']);
+                    if ($subdata['handle_distance'][0] === 'clearance') {
+                        $clearance = $subdata['handle_distance'][1];
+                        $assessment_settings->setMaxAutoDistance((float) $clearance['max_auto_distance']);
+
                         $assessment_settings->setProcedure(CorrectionProcedure::tryFrom(
-                            $subdata['handle_distance'][1]['procedure'] ?? CorrectionProcedure::NONE
+                            $clearance['procedure'][0] ?? CorrectionProcedure::NONE
                         ));
-                        $assessment_settings->setRevisionBetween(!empty($subdata['handle_distance'][1]['revision_between']));
-                        $assessment_settings->setStitchAfterProcedure(!empty($subdata['handle_distance'][1]['stitch_after_procedure']));
+                        if (isset($clearance['procedure'][1]['revision_between'])) {
+                            $assessment_settings->setRevisionBetween((bool) $clearance['procedure'][1]['revision_between']);
+                        }
+
+                        $assessment_settings->setStitchAfterProcedure((bool) $clearance['stitch'][0]);
+
                     } else {
-                        $assessment_settings->setProcedureWhenDistance(false);
+                        $assessment_settings->setProcedure(CorrectionProcedure::NONE);
+                        $assessment_settings->setStitchAfterProcedure(false);
                     }
+
+                    $assessment_settings->setProcedureWhenDistance(
+                        $assessment_settings->getProcedure() !== CorrectionProcedure::NONE
+                        || $assessment_settings->getStitchAfterProcedure()
+                    );
                 }
             }
 
@@ -276,11 +287,11 @@ class CorrectionSettingsGUI extends BaseGUI
 
             $stitch_setting = $factory->switchableGroup(
                 [
-                    'stitch_diabled' => $stitch_disabled,
-                    'stitch_after_procedure' => $stitch_after_procedure
+                    '0' => $stitch_disabled,
+                    '1' => $stitch_after_procedure
                 ],
                 $this->plugin->txt('stitch_setting_label'),
-            );
+            )->withValue($assessment_settings->getStitchAfterProcedure() ? '1' : '0');
 
             $max_auto_distance = $this->plugin_ui_factory->field()->numeric(
                 $this->plugin->txt('max_auto_distance'),

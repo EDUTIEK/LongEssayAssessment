@@ -432,14 +432,12 @@ class CorrectionSettingsGUI extends BaseGUI
 
         $fields = [];
 
-        if ($this->plugin->hasPdfMarkingDirect()) {
-            $fields['pdf_marking'] = $factory->radio(
-                $this->plugin->txt('pdf_marking'),
-            )->withOption('images', $this->plugin->txt('pdf_marking_images'), $this->plugin->txt('pdf_marking_images_info'))
-                ->withOption('direct', $this->plugin->txt('pdf_marking_direct'), $this->plugin->txt('pdf_marking_direct_info'))
-                ->withValue($task_settings->getPdfMarking()->value);
-        }
-
+        $fields['pdf_marking'] = $factory->radio(
+            $this->plugin->txt('pdf_marking'),
+            $this->plugin->txt('pdf_marking_info')
+        )->withOption('images', $this->plugin->txt('pdf_marking_images'), $this->plugin->txt('pdf_marking_images_info'))
+            ->withOption('direct', $this->plugin->txt('pdf_marking_direct'), $this->plugin->txt('pdf_marking_direct_info'))
+            ->withValue($task_settings->getPdfMarking()->value);
 
         $fields["enable_comments"] = $factory->checkbox(
             $this->plugin->txt('enable_comments'),

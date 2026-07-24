@@ -931,10 +931,11 @@ notification_body_info#:#Sie können die folgenden Platzhalter verwenden:
 notification_recipient#:#Empfänger
 edit_notification#:#Benachrichtigung bearbeiten
 pdf_marking#:#Markierungsfunktion für PDFs
-pdf_marking_images#:#Auf Seitenbildern
-pdf_marking_images_info#:#PDF-Abgaben werden zur Korrektur in Seitenbilder umgewandelt. Die Markierung erfolgt darauf mit verschiedenen Zeichwerkzeugen.
-pdf_marking_direct#:#Direkt im PDF
-pdf_marking_direct_info#:#Die Markierung erfolgt direkt in der PDF-Datei. Es kann Text auf verschiedene Weise markiert werden. Die Markierungen werden mit ihren Anmerkungen in der PDF-Datei gespeichert.
+pdf_marking_info#:#<br />Bitte wählen Sie die Markierungsfunktion passen zu Ihrer Aufgabe vorab. Bei einer nachträglichen Änderung müsen alle Korrketureingaben verworfen werden. Daher ist die Einstellung nur änderbar, solange keine Korrekturen freigegeben sind.
+pdf_marking_images#:#Bildbasiert
+pdf_marking_images_info#:#Die Seiten des Abgabe-PDFs werden zur Korrektur als Bilder angezeigt. Darauf können Linien oder Kreise mit Symbolen frei positioniert werden. Texte in der PDF-Datei sind nicht durchsuchbar. Diese Funktion eignet sich gut für gescannte handschriftliche Abgaben.
+pdf_marking_direct#:#Textbasiert (Pilot)
+pdf_marking_direct_info#:#Das Abgabe-PDF wird zur Korrektur direkt dargestellt und ist durchsuchbar. Textinhalte können auf verschiedene Weise markiert werden. Es sind noch keine frei positionierten Markierungen möglich, daher ist diese Funktion für gescannte Abgaben noch nicht geeignet.
 remove_correction_step#:#Korrektur-Schritt zurücknehmen
 remove_correction_step_info#:#Schritt, bis zu dem einschließlich die Freigaben zurückgezogen werden sollen. Alle darüberliegenden Freigaben werden ebenfalls zurückgezogen.
 remove_correction_step_note#:#Begründung

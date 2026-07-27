@@ -823,22 +823,27 @@ summary_pdf_advice_info#:#Diese Anleitung wird im Formular zum Hochladen eines P
 tab_documentation_settings#:#Dokumentation
 correction_procedure_settings#:#Ausnahmebehandlung
 handle_distance#:#Bei abweichenden Punkten
-average_when_distance#:#Durchschnitt bilden
-average_when_distance_info#:#Die Gesamtpunktzahl wird automatisch aus dem Durchschnitt der Erst- und Zweitkorrektur gebildet.
+average_when_distance#:#Immer Durchschnitt bilden
+average_when_distance_info#:#Die Gesamtpunktzahl wird immer automatisch aus dem Durchschnitt der Erst- und Zweitkorrektur gebildet.
 procedure_when_distance#:#Abweichende Punkte klären
 procedure_when_distance_info#:#Weichen die Punkte aus Erst- und Zweitkorrektur zu stark voneinander ab, wird eine eindeutige Punktzahl in einem Verfahren zwischen den Korrektoren und/oder per Stichentscheid ermittelt.
 max_auto_distance#:#Maximaler Punkteunterschied
 max_auto_distance_info#:#Maximal erlaubter Unterschied zwischen niedrigster und höchster Punktzahl
 correction_procedure#:#Verfahren der Korrektoren
+procedure_setting_label#:#1. Zwischen Korrektoren
 procedure_none#:#Kein Verfahren
+procedure_none_info#:#Die Korrektur geht sofort in den Stichentscheid (falls aktiv) oder es wird ein Durchschitt gebildet.
 procedure_approximation#:#Annäherungsverfahren
 procedure_approximation_info#:#Im Annäherungsverfahren hat der Erstkorrektor seine Bewertung zu überprüfen und das Ergebnis (Änderung oder Beibehaltung der vergebenen Punktzahl) mit kurzer Begründung zu dokumentieren. Der Zweitkorrektor wird in gleicher Weise einbezogen, falls der Erstkorrektor dies veranlasst. Andernfalls hat es mit der Überprüfung durch den Erstkorrektor sein Bewenden.
 procedure_consulting#:#Beratungsverfahren
 procedure_consulting_info#:#Beide Korrektoren müssen eine Beratungspunktzahl eingeben. Nur der Zweitkorrektor darf eine Begründung als Beratungsvermerk eingeben. Die Eingaben aus der Beratung werden gesondert gespeichert.
-revision_between#:#Bewertungskorridor im Verfahren
-revision_between_info#:#Eine im Annäherungs- oder Beratungsverfahren vergebene Punktzahl muss zwischen den ursprünglichen Bewertungen (einschließlich) beider Korrektoren liegen.
+revision_between#:#Bewertungskorridor
+revision_between_info#:#Eine neu vergebene Punktzahl muss zwischen den ursprünglichen Bewertungen (einschließlich) beider Korrektoren liegen.
+stitch_setting_label#:#2. Stichentscheid
+stitch_disabled#:#Kein Stichentscheid
+stitch_disabled_info#:#Nach der Korrektur oder einem Verfahren zwischen den Korrektoren wird ein Durchschnitt gebildet.
 stitch_after_procedure#:#Stichentscheid
-stitch_after_procedure_info#:#Ist nach dem Verfahren der Korrektoren der maximale Punkteunterschied weiterhin überschritten, muss ein Stichentscheid durch einen dritten Korrektor erfolgen, der in der Korrekturverwaltung manuell bestimmt wird. Die durch den Stichentscheider vergebene Punktzahl muss immer zwischen den im Verfahren vergebenen Bewertungen (einschließlich) beider Korrektoren liegen. Falls kein Stichentscheid erforderlich ist, wird eine Durchschnittspunktzahl gebildet.
+stitch_after_procedure_info#:#Überschreiten die Bewertungen aus Erst- und Zweitkorrektur (gegebenenfalls auch nach Abschluss eines Annäherungs- oder Beratungsverfahrens) den maximal erlaubten Unterschied, muss ein Stichentscheid durch einen dritten Korrektor erfolgen, der in der Korrekturverwaltung manuell bestimmt wird. Die durch den Stichentscheider vergebene Punktzahl muss immer zwischen den im Verfahren vergebenen Bewertungen (einschließlich) beider Korrektoren liegen. Falls kein Stichentscheid erforderlich ist, wird eine Durchschnittspunktzahl gebildet.
 no_manual_decimals#:#Ganzzahlige Punkte
 no_manual_decimals_info#:#Bei der manuellen Eingabe der Bewertung dürfen nur ganzzahlige Punkte vergeben werden.
 correctors_per_writer#:#Korrektoren pro Abgabe
@@ -931,10 +936,11 @@ notification_body_info#:#Sie können die folgenden Platzhalter verwenden:
 notification_recipient#:#Empfänger
 edit_notification#:#Benachrichtigung bearbeiten
 pdf_marking#:#Markierungsfunktion für PDFs
-pdf_marking_images#:#Auf Seitenbildern
-pdf_marking_images_info#:#PDF-Abgaben werden zur Korrektur in Seitenbilder umgewandelt. Die Markierung erfolgt darauf mit verschiedenen Zeichwerkzeugen.
-pdf_marking_direct#:#Direkt im PDF
-pdf_marking_direct_info#:#Die Markierung erfolgt direkt in der PDF-Datei. Es kann Text auf verschiedene Weise markiert werden. Die Markierungen werden mit ihren Anmerkungen in der PDF-Datei gespeichert.
+pdf_marking_info#:#<br />Bitte wählen Sie die Markierungsfunktion passend zu Ihrer Aufgabe vorab. Bei einer nachträglichen Änderung müsen alle Korrketureingaben verworfen werden. Daher ist die Einstellung nur änderbar, solange keine Korrekturen freigegeben sind.
+pdf_marking_images#:#Bildbasiert
+pdf_marking_images_info#:#Die Seiten des Abgabe-PDFs werden zur Korrektur als Bilder angezeigt. Darauf können Linien oder Kreise mit Symbolen frei positioniert werden. Texte in der PDF-Datei sind nicht durchsuchbar. Diese Funktion eignet sich gut für gescannte handschriftliche Abgaben.
+pdf_marking_direct#:#Textbasiert (Pilot)
+pdf_marking_direct_info#:#Das Abgabe-PDF wird zur Korrektur direkt dargestellt und ist durchsuchbar. Textinhalte können auf verschiedene Weise markiert werden. Es sind noch keine frei positionierten Markierungen möglich, daher ist diese Funktion für gescannte Abgaben noch nicht geeignet.
 remove_correction_step#:#Korrektur-Schritt zurücknehmen
 remove_correction_step_info#:#Schritt, bis zu dem einschließlich die Freigaben zurückgezogen werden sollen. Alle darüberliegenden Freigaben werden ebenfalls zurückgezogen.
 remove_correction_step_note#:#Begründung

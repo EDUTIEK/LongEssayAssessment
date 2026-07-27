@@ -164,11 +164,11 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
           'pseudonym' => $cf->link($this->plugin->txt('pseudonym'))->withIsOptional(false, true),
           'position' => !$multi_task && $other_corrections ? $cf->status($this->plugin->txt('own_position'))->withIsOptional(true, true) : null,
           'task' => $multi_task ? $cf->text($this->plugin->txt('task'))->withIsOptional(true, true) : null,
-          'combined_status' => $cf->status($this->plugin->txt('correction_status'))->withIsOptional(true, true),
           'own_status' => $cf->status($this->plugin->txt('own_status'))->withIsOptional(true, true),
           'own_points' => $cfp->decimal($this->plugin->txt('own_points'))->withIsOptional(true, true),
           'own_grade' => !$multi_task ? $cf->text($this->plugin->txt('own_grade'))->withIsOptional(true, true) : null,
           'other_correction' => $other_corrections ? $cf->text($this->plugin->txt('other_corrections'))->withIsOptional(true, false) : null,
+          'combined_status' => $cf->status($this->plugin->txt('correction_status'))->withIsOptional(true, true),
           'result' => $cf->status($this->plugin->txt('result'))->withIsOptional(true, true)->withIsSortable(true),
           'final_points' => $cfp->decimal($this->plugin->txt("result") . ': ' . $this->plugin->txt('points'))->withIsOptional(true, false),
           'final_grade' => !$multi_task ? $cf->text($this->plugin->txt("result") . ': ' . $this->plugin->txt('grade'))->withIsOptional(true, false) : null,
@@ -452,7 +452,7 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
                 $messages[] = $this->plugin->txt("message_no_corrections_todo");
             } else {
                 $messages[] = $this->plugin->txt("message_corrections_todo")
-                    . $this->renderer->render($this->ui_factory->listing()->unordered(array_keys($todo)));
+                        . " " . implode(', ', array_keys($todo));
             }
         }
 
@@ -609,16 +609,15 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
                     $pos_options,
                 )->withValue($pos_value ?? '') : null,
 
+            "status" => $this->ui_factory->input()->field()->multiSelect(
+                $this->plugin->txt('own_correction'),
+                $stat_options,
+            )->withValue($stat_value),
 
             "combined_status" => $this->ui_factory->input()->field()->multiSelect(
                 $this->plugin->txt("correction_status"),
                 $comb_options,
             )->withValue($comb_value),
-
-            "status" => $this->ui_factory->input()->field()->multiSelect(
-                $this->plugin->txt('own_correction'),
-                $stat_options,
-            )->withValue($stat_value),
         ];
     }
 

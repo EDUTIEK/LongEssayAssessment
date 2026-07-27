@@ -187,15 +187,6 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin implements \I
     }
 
     /**
-     * Check if the direct pdf marking function is available
-     */
-    public function hasPdfMarkingDirect(): bool
-    {
-        return true;
-        //return !empty($this->client_ini->readVariable('xlas', "pdf_marking_direct"));
-    }
-
-    /**
      * Get the default Language with fallback to a supported langguage
      */
     public function getDefaultLanguage(): string

@@ -246,12 +246,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/EDUTIEK/assessment-service.git",
-                "reference": "f58a6660f3323d2af041ac91c83b9200b9271d52"
+                "reference": "9080ed8ecd955ceb8066995591a5898b2efbd822"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EDUTIEK/assessment-service/zipball/f58a6660f3323d2af041ac91c83b9200b9271d52",
-                "reference": "f58a6660f3323d2af041ac91c83b9200b9271d52",
+                "url": "https://api.github.com/repos/EDUTIEK/assessment-service/zipball/9080ed8ecd955ceb8066995591a5898b2efbd822",
+                "reference": "9080ed8ecd955ceb8066995591a5898b2efbd822",
                 "shasum": ""
             },
             "require": {
@@ -261,7 +261,7 @@
                 "ext-json": "*",
                 "ext-xml": "*",
                 "ext-xsl": "*",
-                "mustache/mustache": "^2.14",
+                "mustache/mustache": "^3.0",
                 "php": ">=8.2 <8.5",
                 "phpoffice/phpspreadsheet": "^2.2",
                 "slim/psr7": "^1.7",
@@ -298,7 +298,7 @@
                 "source": "https://github.com/EDUTIEK/assessment-service/tree/acc-annot",
                 "issues": "https://github.com/EDUTIEK/assessment-service/issues"
             },
-            "time": "2026-07-23T22:07:17+00:00"
+            "time": "2026-07-27T07:32:21+00:00"
         },
         {
             "name": "fig/http-message-util",
@@ -610,30 +610,33 @@
         },
         {
             "name": "mustache/mustache",
-            "version": "v2.14.2",
+            "version": "v3.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/bobthecow/mustache.php.git",
-                "reference": "e62b7c3849d22ec55f3ec425507bf7968193a6cb"
+                "reference": "bd4fb2e45ac2df0570c0f4da6898054a950d1ed0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/bobthecow/mustache.php/zipball/e62b7c3849d22ec55f3ec425507bf7968193a6cb",
-                "reference": "e62b7c3849d22ec55f3ec425507bf7968193a6cb",
+                "url": "https://api.github.com/repos/bobthecow/mustache.php/zipball/bd4fb2e45ac2df0570c0f4da6898054a950d1ed0",
+                "reference": "bd4fb2e45ac2df0570c0f4da6898054a950d1ed0",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.2.4"
+                "php": ">=5.6"
             },
             "require-dev": {
-                "friendsofphp/php-cs-fixer": "~1.11",
-                "phpunit/phpunit": "~3.7|~4.0|~5.0"
+                "friendsofphp/php-cs-fixer": "~2.19.3",
+                "yoast/phpunit-polyfills": "^2.0"
             },
             "type": "library",
             "autoload": {
-                "psr-0": {
-                    "Mustache": "src/"
-                }
+                "psr-4": {
+                    "Mustache\\": "src/"
+                },
+                "classmap": [
+                    "src/compat.php"
+                ]
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
@@ -654,9 +657,9 @@
             ],
             "support": {
                 "issues": "https://github.com/bobthecow/mustache.php/issues",
-                "source": "https://github.com/bobthecow/mustache.php/tree/v2.14.2"
+                "source": "https://github.com/bobthecow/mustache.php/tree/v3.2.0"
             },
-            "time": "2022-08-23T13:07:01+00:00"
+            "time": "2026-05-10T04:13:08+00:00"
         },
         {
             "name": "nikic/fast-route",

@@ -239,8 +239,18 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
             $this->plugin->txt('authorize_correction'),
             $this->plugin->txt('confirm_authorize_correction'),
             $this->ctrl->getFormAction($this, 'authorizeCorrection'),
-            fn(CorrectorStartItem $x) => $x->getWriter()->getPseudonym() . ': '
-                . $this->task_format->correctionResult($x->getSummary(), true),
+            function (CorrectorStartItem $x) {
+
+                $warning = $this->correction_process->getAuthorizationWarning(
+                    $x->getWriter(),
+                    (int) $x->getSummary()?->getTaskId(),
+                    (int) $x->getSummary()?->getCorrectorId()
+                );
+
+                return $x->getWriter()->getPseudonym() . ': '
+                . $this->task_format->correctionResult($x->getSummary(), true)
+                . ($warning ? ' - ' . $warning : '');
+            },
             fn(CorrectorStartItem $x) =>
                 $this->correction_process->canAuthorizeOwnCorrection($x->getAssignment())
                 && $x->getSummary()?->isComplete() && ($multi || $x->getSummary()?->isPregraded()),

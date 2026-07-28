@@ -924,6 +924,7 @@ no_items#:#Die Aktion ist für keinen der ausgewählten Einträge ausführbar.
 please_select_item#:#Bitte wählen Sie einen oder mehrere Einträge aus der Tabelle aus.
 tab_notifications#:#Benachrichtigungen
 notification_settings#:#Benachrichtigungen
+notification_position#:#Nr.
 notification_type#:#Anlass
 notification_active#:#Aktiv
 notification_active_info#:#Die Benachrichtigung wird gesendet, wenn der Anlass gegeben ist.
@@ -934,6 +935,7 @@ notification_subject_info#:#Max 250 Zeichen, gleiche Platzhalter wie im Inhalt m
 notification_body#:#Inhalt
 notification_body_info#:#Sie können die folgenden Platzhalter verwenden:
 notification_recipient#:#Empfänger
+notification_recipient_empty#:#frei bestimmbar
 edit_notification#:#Benachrichtigung bearbeiten
 pdf_marking#:#Markierungsfunktion für PDFs
 pdf_marking_info#:#<br />Bitte wählen Sie die Markierungsfunktion passend zu Ihrer Aufgabe vorab. Bei einer nachträglichen Änderung müsen alle Korrketureingaben verworfen werden. Daher ist die Einstellung nur änderbar, solange keine Korrekturen freigegeben sind.

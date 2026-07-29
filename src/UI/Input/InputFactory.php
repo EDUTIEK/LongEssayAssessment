@@ -104,7 +104,13 @@ class InputFactory
 
     public function tinyMCE($label, $byline = null): TinyMCE
     {
-        return (new TinyMCE($this->data_factory, $this->refinery, $label, $byline))->withoutStripTags();
+        $tiny = new TinyMCE($this->data_factory, $this->refinery, $label, $byline);
+
+        // this method comes with ILIAs 10.9
+        if (method_exists($tiny, 'withoutStripTags')) {
+            return $tiny->withoutStripTags();
+        }
+        return $tiny;
     }
 
     public function info($label, $byline = null): Info

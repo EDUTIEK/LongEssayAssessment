@@ -71,6 +71,7 @@ class ViewDic implements ForClients
             $this->add(Corrector::class),
             $this->add(GradeLevel::class),
             $this->add(CorrectorSummary::class),
+            $this->add(CorrectorAssignment::class),
             $this->add(CorrectionSettings::class),
             $this->dic[AssessmentDic::class]->repositories()->properties(),
             $this->dic[SystemDic::class]->userDataRepo(),

@@ -17,6 +17,7 @@ class StatisticViewRepo extends ViewRepo implements \Edutiek\AssessmentService\V
         private readonly RepositoryInterface $corrector_repo,
         private readonly RepositoryInterface $grade_repo,
         private readonly RepositoryInterface $corrector_summary_repo,
+        private readonly RepositoryInterface $corrector_assignment_repo,
         private readonly RepositoryInterface $correction_settings_repo,
         private readonly PropertiesRepo $properties_repo,
         private readonly UserDataRepo $user_data_repo,
@@ -28,7 +29,8 @@ class StatisticViewRepo extends ViewRepo implements \Edutiek\AssessmentService\V
     {
         $sql = "SELECT w.ass_id as ass_id, cs.writer_id as writer_id, c.user_id as user_id, cs.points as points, ";
         $sql .= "cs.corection_authorized as authorized, cs.pre_graded as pre_graded, g.grade as grade, g.passed as passed ";
-        $sql .= "FROM {$this->corrector_summary_repo->table()} AS cs ";
+        $sql .= "FROM {$this->corrector_assignment_repo->table()} AS ca ";
+        $sql .= "LEFT JOIN {$this->corrector_summary_repo->table()} AS cs ON (ca.writer_id = cs.writer_id AND ca.corrector_id = cs.corrector_id AND ca.task_id = cs.task_id)";
         $sql .= "LEFT JOIN {$this->writer_repo->table()} AS w ON (cs.writer_id = w.id) ";
         $sql .= "LEFT JOIN {$this->corrector_repo->table()} AS c ON (cs.corrector_id = c.id) ";
         $sql .= "LEFT JOIN {$this->grade_repo->table()} AS g ON (cs.points >= g.min_points AND w.ass_id = g.ass_id) ";

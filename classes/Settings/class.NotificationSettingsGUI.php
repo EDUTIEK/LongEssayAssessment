@@ -65,20 +65,21 @@ class NotificationSettingsGUI extends BaseGUI implements DataTableParent
     {
         $table = $this->plugin_ui_factory->table()->dataTable("notification_settings", $this);
         $table->setTitle($this->plugin->txt('notification_settings'));
-        $table->setDefaultLength(count(NotificationType::availableTypes()));
+        $table->setDefaultLength(count($this->notification->availableSettings()));
         $table->executeAction();
 
         $this->add($table)->show();
     }
 
-    public function buildItem(NotificationSettings $setting): NotificationSettingsItem
+    public function buildItem(NotificationSettings $setting, int $position): NotificationSettingsItem
     {
         return new NotificationSettingsItem(
             $setting->getId(),
             $setting->getType(),
             $setting->getActive(),
             $setting->getSubject(),
-            $setting->getBody()
+            $setting->getBody(),
+            $position,
         );
     }
 
@@ -155,18 +156,22 @@ class NotificationSettingsGUI extends BaseGUI implements DataTableParent
             case NotificationType::CORRECTOR_FIRST_AUTHORIZATION_REMOVED:
             case NotificationType::CORRECTOR_PROCEDURE_STARTED:
             case NotificationType::CORRECTOR_WRITING_CHANGED:
+            case NotificationType::CORRECTOR_STITCH_NEEDED:
                 return $this->service_lang->txt('corrector');
             default:
                 if ($item->getType()->hasConfiguredUsers()) {
-                    return $this->userIdsToLoginList(
+                    $list = $this->userIdsToLoginList(
                         array_map(
                             fn(NotificationUser $user) => $user->getUserId(),
                             $this->notification->usersByType($item->getType())
                         )
                     );
+                    if (!empty($list)) {
+                        return $list;
+                    }
                 }
         }
-        return '';
+        return $this->plugin->txt('notification_recipient_empty');
     }
 
     /**
@@ -221,6 +226,7 @@ class NotificationSettingsGUI extends BaseGUI implements DataTableParent
     public function getColumnMapping(Item $item, ?array $additional_parameters): array|\ArrayAccess
     {
         return [
+            "position" => $item->getPosition(),
             "type" => $this->service_lang->txt($item->getType()->titleLangVar($this->procedure)),
             "subject" => $item->getSubject(),
             "active" => $item->isActive(),
@@ -233,6 +239,7 @@ class NotificationSettingsGUI extends BaseGUI implements DataTableParent
         $tf = $this->ui_factory->table();
 
         return [
+            "position" => $tf->column()->number($this->plugin->txt('notification_position'))->withIsSortable(false),
             "type" => $tf->column()->text($this->plugin->txt('notification_type'))->withIsSortable(false),
             "subject" => $tf->column()->text($this->plugin->txt('notification_subject'))->withIsSortable(false),
             "recipients" => $tf->column()->text($this->plugin->txt('notification_recipient'))->withIsSortable(false),
@@ -242,7 +249,7 @@ class NotificationSettingsGUI extends BaseGUI implements DataTableParent
 
     public function getTotalRowCount(?array $filter_data, ?array $additional_parameters): ?int
     {
-        return count(NotificationType::availableTypes());
+        return count($this->notification->availableSettings());
     }
 
     public function getTableActions(): array
@@ -266,9 +273,10 @@ class NotificationSettingsGUI extends BaseGUI implements DataTableParent
     public function getTableItems(?array $ids = null, ?array $filter_data = null): Generator
     {
         // no ids and filter needed
-        foreach ($this->notification->allSettings() as $setting) {
+        $pos = 1;
+        foreach ($this->notification->availableSettings() as $setting) {
             if ($ids === null || in_array($setting->getId(), $ids)) {
-                yield $this->buildItem($setting);
+                yield $this->buildItem($setting, $pos++);
             }
         }
     }
@@ -279,6 +287,6 @@ class NotificationSettingsGUI extends BaseGUI implements DataTableParent
         if ($settings === null) {
             throw new InvalidArgumentException('Notification settings with ID ' . $id . ' not found');
         }
-        return $this->buildItem($settings);
+        return $this->buildItem($settings, 0);
     }
 }

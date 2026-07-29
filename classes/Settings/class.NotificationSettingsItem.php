@@ -13,6 +13,7 @@ class NotificationSettingsItem extends Item
         protected bool $active,
         protected string $subject,
         protected ?string $body,
+        protected int $position,
     ) {
         parent::__construct($id);
     }
@@ -40,5 +41,10 @@ class NotificationSettingsItem extends Item
     public function getBody(): ?string
     {
         return $this->body;
+    }
+
+    public function getPosition(): int
+    {
+        return $this->position;
     }
 }

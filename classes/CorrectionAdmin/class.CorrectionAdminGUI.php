@@ -520,14 +520,8 @@ class CorrectionAdminGUI extends BaseGUI
     }
     public function showItems()
     {
-        if (!empty($this->writer_service->correctableIds())) {
-            if (!$this->corrector_service->hasAny()) {
-                $this->tpl->setOnScreenMessage("info", $this->plugin->txt('info_missing_correctors'), false);
-            } elseif (0 < $missing = $this->assignment_service->countMissingAssignments()) {
-                $this->tpl->setOnScreenMessage("info", $missing == 1
-                    ? $this->plugin->txt('info_missing_assignment')
-                    : sprintf($this->plugin->txt('info_missing_assignments'), $missing), false);
-            }
+        if (!empty($info = $this->assignment_service->getMissingAssignmentsInfo())) {
+            $this->info($info, false);
         }
 
         $this->buildToolbar($this->toolbar);

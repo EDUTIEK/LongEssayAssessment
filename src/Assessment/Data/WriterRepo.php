@@ -85,6 +85,14 @@ class WriterRepo implements \Edutiek\AssessmentService\Assessment\Data\WriterRep
         ], 'id');
     }
 
+    public function stitchableIds(int $ass_id): array
+    {
+        return $this->repo->queryIntegersBy([
+            'ass_id' => $ass_id,
+            'correction_status' => CorrectionStatus::STITCH->value,
+        ], 'id');
+    }
+
     public function save(Writer $entity): void
     {
         $this->repo->replace($entity);
@@ -98,10 +106,5 @@ class WriterRepo implements \Edutiek\AssessmentService\Assessment\Data\WriterRep
     public function deleteByAssId(int $ass_id): void
     {
         $this->repo->deleteAllBy(['ass_id' => $ass_id]);
-    }
-
-    public function hasStitchDecisions(int $ass_id): bool
-    {
-        return $this->repo->hasBy(['ass_id' => $ass_id, "correction_status" => CorrectionStatus::STITCH->value]);
     }
 }

@@ -35,9 +35,10 @@ class CorrectorAssignmentRepo implements \Edutiek\AssessmentService\Task\Data\Co
         return $this->repo->new();
     }
 
-    public function countByWriterIds(array $writer_ids): int
+    public function countByWriterIds(array $writer_ids, array $positions): int
     {
-        return $this->repo->countBy(['writer_id' => $writer_ids, 'position' => [GradingPosition::FIRST->value, GradingPosition::SECOND->value]]);
+        return $this->repo->countBy(['writer_id' => $writer_ids, 'position' =>
+            array_map(fn($position) => $position->value, $positions)]);
     }
 
     public function hasByIds(int $writer_id, int $corrector_id, int $task_id): bool

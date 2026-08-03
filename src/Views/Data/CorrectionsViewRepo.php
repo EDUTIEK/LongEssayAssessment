@@ -47,7 +47,6 @@ class CorrectionsViewRepo extends ViewRepo implements \Edutiek\AssessmentService
         $sql .= "FROM {$this->writer_repo->table()} AS w ";
         $sql .= "JOIN {$this->task_repo->table()} AS t ON w.ass_id = t.ass_id ";
         $sql .= "LEFT JOIN {$this->essay_repo->table()} AS e ON w.id = e.writer_id AND t.task_id = e.task_id ";
-        $sql .= "LEFT JOIN usr_data AS u ON u.usr_id = w.user_id ";
         $sql .= "LEFT JOIN object_reference AS r ON w.ass_id = r.obj_id ";
         $sql .= "WHERE " . ($this->where($filter) ?? "1") . " ";
         $sql .= "GROUP BY writer_id, task_id, essay_id, user_id, location_id, authorized_by, excluded_by ";
@@ -109,7 +108,6 @@ class CorrectionsViewRepo extends ViewRepo implements \Edutiek\AssessmentService
             "ass_id", "obj_id" => is_array($value) ? $this->db->in("w.ass_id", $value, false, "integer") : "w.ass_id = " . $this->db->quote($value, "integer"),
             "ref_id" => is_array($value) ? $this->db->in("r.ref_id", $value, false, "integer") : "r.ref_id = " . $this->db->quote($value, "integer"),
             "task_id", "task" => is_array($value) ? $this->db->in("t.task_id", $value, false, "integer") : "t.task_id = " . $this->db->quote($value, "integer"),
-            "name" => $this->db->like("CONCAT(u.firstname, u.lastname, u.login, u.email,w.pseudonym)", "text", "%" . $value . "%", true),
             "time_limit_changed" => ($value == "1" ? "NOT" : "") . "(w.earliest_start IS NULL AND w.latest_end IS NULL AND w.time_limit_minutes IS NULL)",
             "location" => "w.location = " . $this->db->quote($value, "integer"),
             "min_words" => "e.word_count >= " . $this->db->quote($value, "integer"),
@@ -123,6 +121,17 @@ class CorrectionsViewRepo extends ViewRepo implements \Edutiek\AssessmentService
     {
         return match($key) {
             "pdf_version" => "MAX(e.pdf_version) IS " . ($value == "2" ? "" : "NOT") . " NULL",
+            "corrector" => !empty($value) ? "EXISTS (
+                SELECT 1 FROM {$this->corrector_repo->table()} AS cc
+                LEFT JOIN {$this->corrector_assignment_repo->table()} AS ca ON ca.corrector_id = cc.id
+                LEFT JOIN usr_data AS u ON u.usr_id = cc.user_id
+                WHERE CONCAT(u.firstname, u.lastname, u.login, u.email) LIKE {$this->db->quote('%'.$value.'%', 'text')} AND ca.writer_id = w.id
+            )" : null,
+            "name" => !empty($value) ? "EXISTS (
+                SELECT 1 FROM {$this->writer_repo->table()} AS wu 
+                LEFT JOIN usr_data AS u ON u.usr_id = wu.user_id
+                WHERE CONCAT(u.firstname, u.lastname, u.login, u.email, wu.pseudonym) LIKE {$this->db->quote('%'.$value.'%', 'text')} AND u.usr_id = w.user_id
+            )" : null,
             default => null,
         };
     }
@@ -135,7 +144,6 @@ class CorrectionsViewRepo extends ViewRepo implements \Edutiek\AssessmentService
         $sql .= "FROM {$this->writer_repo->table()} AS w ";
         $sql .= "JOIN {$this->task_repo->table()} AS t ON w.ass_id = t.ass_id ";
         $sql .= "LEFT JOIN {$this->essay_repo->table()} AS e ON w.id = e.writer_id ";
-        $sql .= "LEFT JOIN usr_data AS u ON u.usr_id = w.user_id ";
         $sql .= "LEFT JOIN object_reference AS r ON w.ass_id = r.obj_id ";
         $sql .= "WHERE " . ($this->where($filter) ?? "1") . " ";
 

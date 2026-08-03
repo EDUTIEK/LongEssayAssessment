@@ -50,7 +50,6 @@ class WriterViewRepo extends ViewRepo implements \Edutiek\AssessmentService\View
         $sql .= "CASE WHEN MAX(e.pdf_version) IS NOT NULL THEN 1 ELSE 0 END AS has_pdf_version ";
         $sql .= "FROM {$this->writer_repo->table()} AS w ";
         $sql .= "LEFT JOIN {$this->essay_repo->table()} AS e ON w.id = e.writer_id ";
-        $sql .= "LEFT JOIN usr_data AS u ON u.usr_id = w.user_id ";
         $sql .= "LEFT JOIN object_reference AS r ON w.ass_id = r.obj_id ";
         $sql .= "WHERE " . ($this->where($filter) ?? "1") . " ";
         $sql .= "GROUP BY writer_id, user_id, location_id, authorized_by, excluded_by ";
@@ -86,7 +85,6 @@ class WriterViewRepo extends ViewRepo implements \Edutiek\AssessmentService\View
             "id" => is_array($value) ? $this->db->in("w.id", $value, false, "integer") : "w.id = " . $this->db->quote($value, "integer"),
             "ass_id", "obj_id" => is_array($value) ? $this->db->in("w.ass_id", $value, false, "integer") : "w.ass_id = " . $this->db->quote($value, "integer"),
             "ref_id" => is_array($value) ? $this->db->in("r.ref_id", $value, false, "integer") : "r.ref_id = " . $this->db->quote($value, "integer"),
-            "name" => $this->db->like("CONCAT(u.firstname, u.lastname, u.login, u.email,w.pseudonym)", "text", "%". $value . "%", true),
             "time_limit_changed" => ($value == "1" ? "NOT" : "") . "(w.earliest_start IS NULL AND w.latest_end IS NULL AND w.time_limit_minutes IS NULL)",
             "location" => "w.location = " . $this->db->quote($value, "integer"),
             "status" => is_array($value) ? $this->db->in("w.writing_status", $value, false, "integer") : "w.writing_status = " . $this->db->quote($value, "integer"),
@@ -100,6 +98,11 @@ class WriterViewRepo extends ViewRepo implements \Edutiek\AssessmentService\View
             "pdf_version" => "MAX(e.pdf_version) IS " . ($value == "2" ? "" : "NOT") . " NULL",
             "min_words" => "total_word_count >= " . $this->db->quote($value, "integer"),
             "max_words" => "total_word_count <= " . $this->db->quote($value, "integer"),
+            "name" => !empty($value) ? "EXISTS (
+                SELECT 1 FROM {$this->writer_repo->table()} AS wu 
+                LEFT JOIN usr_data AS u ON u.usr_id = wu.user_id
+                WHERE CONCAT(u.firstname, u.lastname, u.login, u.email, wu.pseudonym) LIKE {$this->db->quote('%'.$value.'%', 'text')} AND u.usr_id = w.user_id
+            )" : null,
             default => null,
         };
     }

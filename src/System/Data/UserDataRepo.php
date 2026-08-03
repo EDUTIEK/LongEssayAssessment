@@ -27,6 +27,20 @@ class UserDataRepo implements \Edutiek\AssessmentService\System\Data\UserDataRep
     ) {
     }
 
+    public function new(int $id): UserData
+    {
+        return (new UserData($id))->setValues(
+            '',
+            null,
+            $this->lng->txt('unknown'),
+            (string) $id,
+            null,
+            '',
+            $this->lng->getDefaultLanguage(),
+            new DateTimeZone(date_default_timezone_get())
+        );
+    }
+
     public function one(int $id): ?UserData
     {
         foreach ($this->queryUsers([$id]) as $user) {
@@ -90,9 +104,7 @@ class UserDataRepo implements \Edutiek\AssessmentService\System\Data\UserDataRep
 
         $result = $query->query();
         foreach ($result['set'] ?? [] as $row) {
-            $users[(int) $row['usr_id']] = (new UserData(
-                (int) $row['usr_id']
-            ))->setValues(
+            $users[(int) $row['usr_id']] = $this->new((int) $row['usr_id'])->setValues(
                 (string) $row['login'],
                 !empty($row['title']) ? (string) $row['title'] : null,
                 (string) $row['firstname'] ?? '',
@@ -104,6 +116,12 @@ class UserDataRepo implements \Edutiek\AssessmentService\System\Data\UserDataRep
             );
         }
 
+        foreach ($ids as $id) {
+            if (!isset($users[$id])) {
+                $users[$id] = $this->new($id);
+            }
+        }
+
         return $users;
     }
 
@@ -113,7 +131,7 @@ class UserDataRepo implements \Edutiek\AssessmentService\System\Data\UserDataRep
             return null;
         }
 
-        return $this->dehydrated[$key_value] ??= new UserData($key_value);
+        return $this->dehydrated[$key_value] ??= $this->new((int) $key_value);
     }
 
     /**

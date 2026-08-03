@@ -3,12 +3,46 @@
 Please look at the [changelog of version 3](https://github.com/EDUTIEK/LongEssayAssessment/blob/release3_ilias9/CHANGELOG.md)
 for changes in that version.
 
-## Upcoming version
+## Version 10.2 (2026-08-03)
 
-Bug fixes
+New functions, Visible changes
 
-- Wrong redirect after failed writer adding
+- Add text-based PDF marking for correction (pilot)
+- Add maintenance lists, import and export for text snippets
+- Add auto-completion for text snippets
+- Use corrector colors in section headers
+- Add description texts of rating criteria in corrector web app
+- Improve authorization and pre-grading dialogs
+- Allow bulk authorization only for pre-graded corrections
+- Restructure settings for correction procedure and stitch decision
+- Change oder of sections on the documentation settings page
+- Add a notification of a corrector that is chosen for stitch decision
+- Show a message of open tasks to correctors on their start screen
+- Show a message of open assignments in correction administration
+- Require a revert of correction authorizations to revert a writing authorization
+- Require a revert of writing authorization to change a writing content
+- Remove correction data if writing content is changed
+- Show part of partial points in correction PDF only if some exist
+- Add a filter for the status of the whole correction to the corrector start screen
 
+Bug fixes / Refactorings
+
+- Update TinyMCE to version 8.7 with improved arrow navigation in tables
+- Update of components in writer and corrector web apps
+- Fix compatibility issues with ILIAS 10.9 and 11
+- Fix wrong redirect after failed adding of a writer
+- Fix item status display after pre-grading is set
+- Revise scrollbar visibility in corrector web app
+- Don't show criteria overview of unauthorized other corrections in PDF
+- Allow a view of unassigned corrections from correction administration 
+- Don't use real corrector initials for correction
+- Fix correction PDF file name
+- Improve cleanup of obsolete and temporary files
+- Ensure an existing default language
+- Fix a parsing error if a comment has no marks
+- Fix title and font sizes of correction PDF
+- Fix wrong encoding in PDF creation
+- Fix the display of deleted user data
 
 ## Version 10.1 (2026-06-22)
 

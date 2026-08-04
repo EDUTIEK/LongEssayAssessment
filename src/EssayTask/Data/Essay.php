@@ -103,7 +103,7 @@ class Essay extends \Edutiek\AssessmentService\EssayTask\Data\Essay
     }
     public function setPdfVersion(?string $pdf_version): self
     {
-        $this->pdf_version = $pdf_version;
+        $this->pdf_version = empty($pdf_version) ? null : $pdf_version;
         return $this;
     }
     public function getTaskId(): int

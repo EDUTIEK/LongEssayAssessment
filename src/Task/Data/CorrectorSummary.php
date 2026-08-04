@@ -79,7 +79,7 @@ class CorrectorSummary extends \Edutiek\AssessmentService\Task\Data\CorrectorSum
     }
     public function setSummaryPdf(?string $summary_pdf): self
     {
-        $this->summary_pdf = $summary_pdf;
+        $this->summary_pdf = empty($summary_pdf) ? null : $summary_pdf;
         return $this;
     }
     public function getPoints(): ?float
@@ -185,12 +185,12 @@ class CorrectorSummary extends \Edutiek\AssessmentService\Task\Data\CorrectorSum
         return $this;
     }
 
-    public function getRequireOtherRevision() : bool
+    public function getRequireOtherRevision(): bool
     {
         return $this->require_other_revision;
     }
 
-    public function setRequireOtherRevision(bool $require_other_revision) : self
+    public function setRequireOtherRevision(bool $require_other_revision): self
     {
         $this->require_other_revision = $require_other_revision;
         return $this;

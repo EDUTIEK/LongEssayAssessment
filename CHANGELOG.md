@@ -5,6 +5,8 @@ for changes in that version.
 
 ## Upcoming version (in Git)
 - Force storing null for optional files (fixing creation from older templates)
+- Fix error importing essays of type NRW
+- Support a default essay import type with logins + '.pdf' as filenames in the ZIP
 
 ## Version 10.2 (2026-08-03)
 

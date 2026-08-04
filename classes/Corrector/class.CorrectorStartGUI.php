@@ -205,7 +205,7 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
         if ($this->settings->getUndoFirstAuthorization()) {
             $actions[] = $this->removeFirstAuthorizationAction();
         }
-
+        $actions[] = $this->exportTableAction();
         return $actions;
     }
 
@@ -639,6 +639,12 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
     public function getFilterBaseAction(): string
     {
         return $this->ctrl->getLinkTarget($this, 'applyFilter');
+    }
+
+
+    public function exportTableAction(): Table\Action\Export
+    {
+        return $this->plugin_ui_factory->table()->action()->export('export', $this->plugin->txt('table_export'), $this->plugin->txt('corrector_start_table_export_filename'));
     }
 
 }

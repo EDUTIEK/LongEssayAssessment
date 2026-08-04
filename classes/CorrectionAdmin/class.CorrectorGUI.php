@@ -203,7 +203,7 @@ class CorrectorGUI extends BaseGUI implements DataTableParent
 
     public function getTableActions(): array
     {
-        return [$this->assignmentsAction(), $this->mailAction(), $this->removeAction()];
+        return [$this->assignmentsAction(), $this->mailAction(), $this->removeAction(), $this->exportTableAction()];
     }
 
     public function getTableItems(?array $ids = null, ?array $filter_data = null): Generator
@@ -528,5 +528,10 @@ class CorrectorGUI extends BaseGUI implements DataTableParent
         return $this->ui_factory->listing()->unordered(
             array_map(fn(Corrector $x) => $user_data[$x->getUserId()]?->getListname(true) ?? " - ", $correctors)
         );
+    }
+
+    public function exportTableAction(): Action\Export
+    {
+        return $this->table_factory->action()->export('export', $this->plugin->txt('table_export'), $this->plugin->txt('corrector_table_export_filename'));
     }
 }

@@ -189,7 +189,7 @@ class CollectionGUI
                     ...array_map(fn($p) => ["corr_{$p}", "corr_{$p}_name", "corr_{$p}_status", "corr_{$p}_points", $multi ? "corr_{$p}_grade" : null, "corr_{$p}_authorized"], range(0, $corrections - 1))
                 )
             )->setInitialVisibleColumns(["name", "login", "pseudonym", "location", "assessment", "task", "status", "writing_last_save", "word_count", "corr_1", "corr_2"])
-        ->setTableActions([$this->plugin_dic->uiFactory()->table()->action()->export('export', $this->lng->txt('export'), 'xlas_corrections_export')]);
+        ->setTableActions([$this->plugin_dic->uiFactory()->table()->action()->export('export', $this->plugin->txt('table_export'), $this->plugin->txt('correction_status_table_export_filename'))]);
 
         $table_parent->setInitialVisibleColumns([]);
         $table = $this->plugin_dic->uiFactory()->table()->dataTable('correction_status_table', $table_parent);

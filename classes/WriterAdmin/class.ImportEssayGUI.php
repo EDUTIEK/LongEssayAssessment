@@ -66,7 +66,11 @@ class ImportEssayGUI extends BaseGUI
     private function buildForm(): StandardForm
     {
         $inputs = [
-            'title' => $this->ui_factory->input()->field()->section([], $this->plugin->txt('essay_import')),
+            'title' => $this->ui_factory->input()->field()->section(
+                [],
+                $this->plugin->txt('essay_import'),
+                $this->plugin->txt('essay_import_description')
+            ),
             'file' => $this->ui_factory->input()->field()->file(
                 $this->upload_handler,
                 $this->plugin->txt('essay_import_zip_name')

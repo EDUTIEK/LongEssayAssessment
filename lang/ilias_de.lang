@@ -749,6 +749,7 @@ essay_import_column_comment#:#Bemerkung
 essay_import_column_hash_ok#:#Hash ok
 upload_zip#:#ZIP hochladen
 essay_import#:#Abgaben importieren
+essay_import_description#:#Wählen Sie eine ZIP-Datei, welche die Abgaben als PDF-Dateien enthält. Im Standardfall muss ein Dateiname vor dem ".pdf" dem Login-Namen eines ILIAS-Kontos entsprechen. Die Teilnahme wird dann automatisch erstellt, falls noch nicht vorhanden. Spezielle Importformate werden anhand der enthaltenen Dateien automatisch erkannt.
 essay_import_zip_name#:#ZIP Datei
 essay_import_confirmation#:#Wie soll mit bestehenden Dateien verfahren werden?
 essay_import_overwrite#:#Bestehende Einträge überschreiben

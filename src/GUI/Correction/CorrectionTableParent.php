@@ -282,6 +282,7 @@ class CorrectionTableParent implements DataTableParent, FilterParent
 
         $filter = [
             "name" => $this->ui_factory->input()->field()->text($this->plugin->txt("participants")),
+            "corrector" => $this->ui_factory->input()->field()->text($this->plugin->txt("correctors")),
             "task" => $this->ui_factory->input()->field()->multiselect($this->plugin->txt("task"), $this->getTasks()),
             "location" => $this->ui_factory->input()->field()->multiselect($this->plugin->txt("locations"), $locations),
             "min_words" => $this->ui_factory->input()->field()->numeric($this->plugin->txt("min_word_count")),
@@ -317,7 +318,7 @@ class CorrectionTableParent implements DataTableParent, FilterParent
 
     public function getFilterInputActivation(): array
     {
-        $act = ["name" => true, "task" => true, "location" => true, "min_words" => true, "max_words" => true, "status" => true, "assigned" => true, "pdf_version" => true];
+        $act = ["name" => true, "corrector" => true, "task" => true, "location" => true, "min_words" => true, "max_words" => true, "status" => true, "assigned" => true, "pdf_version" => true];
 
         if (!empty($this->getHasFilterFields())) {
             $act = $this->filterFilterFields($act);

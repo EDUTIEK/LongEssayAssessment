@@ -246,7 +246,9 @@ class CorrectionAdminGUI extends BaseGUI
         $names = array_map(fn(UserData $u) => $u->getListname(true), $this->user_service->getUsersByIds($corrector_ids));
 
         foreach ($corrector_ids as $id => $user_id) {
-            $corrector_list[$id] = $names[$user_id];
+            if(isset($names[$user_id])) {
+                $corrector_list[$id] = $names[$user_id];
+            }
         }
 
         $assigned = [];
@@ -548,7 +550,7 @@ class CorrectionAdminGUI extends BaseGUI
                 ...array_map(fn($p) => ["corr_{$p}", "corr_{$p}_name", "corr_{$p}_status", "corr_{$p}_points", $multi ? "corr_{$p}_grade" : null, "corr_{$p}_authorized"], range(0, $corrections - 1)),
             )
         )->setInitialVisibleColumns(["name", "login", "pseudonym", "location", "status", $has_started ? "writing_last_save" : null, $has_started ? "word_count" : null, "corr_1", "corr_2", "result"])
-         ->setHasFilterFields(["name", $multi ? "task" : null, "location", "min_words", "max_words", "status", "assigned", "pdf_version"])
+         ->setHasFilterFields(["name", "corrector", $multi ? "task" : null, "location", "min_words", "max_words", "status", "assigned", "pdf_version"])
         ->setTableActions($this->getTableActions());
 
         $table = $this->plugin_ui_factory->table()->dataTable('correction_admin_table', $table_parent);

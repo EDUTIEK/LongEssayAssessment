@@ -1722,4 +1722,11 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
                 'type' => ilDBConstants::T_TEXT, 'length' => 250, 'notnull' => 0, 'default' => null]);
         }
     }
+
+    public function step_91(): void
+    {
+        $this->db->manipulate("UPDATE xlas_et_essay SET pdf_version = null where pdf_version = ''");
+        $this->db->manipulate("UPDATE xlas_ta_corr_summary SET summary_pdf = null where summary_pdf = ''");
+        $this->db->manipulate("UPDATE xlas_ta_resource SET file_id = null where file_id = ''");
+    }
 }

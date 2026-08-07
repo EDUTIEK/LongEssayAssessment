@@ -146,7 +146,7 @@ class PluginDic
                         $dic['ui.factory.input.container.viewcontrol'],
                         $dic["ui.data_factory"],
                         $dic["ui.factory.table.column"],
-                        $dic["ui.factory.table.action"],
+                        new \ILIAS\UI\Implementation\Component\Table\Action\Factory(),
                         new TableStorage($dic->user()),
                         new \ILIAS\UI\Implementation\Component\Table\DataRowBuilder(),
                         new \ILIAS\UI\Implementation\Component\Table\OrderingRowBuilder()

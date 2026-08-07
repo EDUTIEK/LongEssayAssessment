@@ -57,40 +57,40 @@ class DashboardGUI extends WriterTableGUI
     public function getTableActions(): array
     {
         return [
-// todo: activate when implemented
-//            $this->viewProccessingAction(),
-//            $this->addLogEntryAction(),
-//            $this->unauthorizeWritingAction(),
-//            $this->workingTimeChangeAction(),
-//            $this->workingTimeDeleteAction(),
-//            $this->changeLocationAction(),
-            $this->exportTableAction()
+            $this->viewProccessingAction(),
+            // $this->sendAlertAction(),
+            $this->addLogEntryAction(),
+            $this->exportTableAction(),
+            $this->workingTimeChangeAction(),
+            $this->workingTimeDeleteAction(),
+            $this->changeLocationAction(),
+            $this->unauthorizeWritingAction(),
         ];
     }
 
     protected function hasColumns(): array
     {
         return [
-            "image",
-     "name",
-     "login",
-     "pseudonym",
-     "location",
-     "status",
-     "writing_last_save",
-     "word_count",
-     "pdf_version",
-     "working_start",
-     "working_end",
-     "working_duration",
-     "assessment_start",
-     "assessment_end",
-     "assessment_duration",
-     "time_limit_changed",
-     "authorized",
-     "authorized_from",
-     "excluded",
-     "excluded_from",
+             "image",
+             "name",
+             "login",
+             "pseudonym",
+             "location",
+             "status",
+             "writing_last_save",
+             "word_count",
+             "pdf_version",
+             "working_start",
+             "working_end",
+             "working_duration",
+             "assessment_start",
+             "assessment_end",
+             "assessment_duration",
+             "time_limit_changed",
+             "authorized",
+             "authorized_from",
+             "excluded",
+             "excluded_from",
 ];
     }
 

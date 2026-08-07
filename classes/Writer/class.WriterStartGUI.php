@@ -58,7 +58,10 @@ class WriterStartGUI extends BaseGUI
         $this->writing_settings = $this->essay_task_api->writingSettings()->get();
 
         // get or create - permission is already checked
-        $this->writer = $this->assessment_api->writer()->getByUserId($this->user->getId());
+        $this->writer = $this->assessment_api->writer()->oneByUserId($this->user->getId())
+            ?? $this->assessment_api->writer()->new()
+                ->setAssId($this->object->getAssId())
+                ->setUserId($this->user->getId());
         $this->working_time = $this->assessment_api->workingTime($this->writer);
     }
 

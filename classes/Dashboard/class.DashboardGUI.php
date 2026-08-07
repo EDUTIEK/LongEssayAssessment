@@ -21,8 +21,8 @@ class DashboardGUI extends WriterTableGUI
             default:
                 $cmd = $this->ctrl->getCmd('showItems');
                 switch ($cmd) {
+                    case 'deliverEssayPdf':
                     case 'showItems':
-                    case 'deleteWorkingTime':
                     case 'liveData':
                     case 'unauthorizeWriting':
                     case 'workingTimeDelete':
@@ -58,6 +58,7 @@ class DashboardGUI extends WriterTableGUI
     {
         return [
             $this->viewProccessingAction(),
+            // TODO
             // $this->sendAlertAction(),
             $this->addLogEntryAction(),
             $this->exportTableAction(),
@@ -118,9 +119,9 @@ class DashboardGUI extends WriterTableGUI
         echo(json_encode([
             'online' => rand(50, 100),
             'offline' => rand(1, 10),
-            'connection' => rand(1, 15),
             'battery' => rand(1, 25),
             'locked' => rand(1, 5),
+            'multi' => rand(1, 15),
         ]));
         exit();
     }

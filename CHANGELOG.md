@@ -18,6 +18,7 @@ Bug Fixes / Refactorings
 - Fix php error on statistics pages in ILIAS 11 with PHP 8.4
 - Fix failing table export in ILIAS 11
 - Don't create a writer entry when just the start page is viewed
+- Extend user session on update call from writer app
 
 ## Version 10.2 (2026-08-03)
 

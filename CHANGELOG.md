@@ -8,12 +8,15 @@ for changes in that version.
 New functions, Visible changes
 - Add Corrector as Filter in Correction Admin and Collection View
 - Support a default essay import type with logins + '.pdf' as filenames in the ZIP
+- Add table export to writer administration, writing dashboard and corrector start screen
 
 Bug Fixes / Refactorings
 
-- Force storing null for optional files (fixing creation from older templates)
+- Force storing of null for optional files (fixing creation from older templates)
 - Fix error importing essays of type NRW
 - Fix issue with the voting view in LiveVoting plugin
+- Fix php error on statistics pages in ILIAS 11 with PHP 8.4
+- Fix failing table export in ILIAS 11
 
 ## Version 10.2 (2026-08-03)
 

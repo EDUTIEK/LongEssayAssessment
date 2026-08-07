@@ -48,7 +48,7 @@ class DashboardGUI extends WriterTableGUI
             $lsp_f->property('multi', 'Mehrfach-Login', 0, '#multi'),
         ]);
 
-        $table = $this->plugin_ui_factory->table()->dataTable('writer_admin_table', $this);
+        $table = $this->plugin_ui_factory->table()->dataTable('dashboard_table', $this);
         $table->executeAction();
         $this->tpl->setContent($this->renderer->render([$live_panel, $table]));
     }

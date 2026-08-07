@@ -50,7 +50,7 @@ use ilUtil;
 
 class InputRenderer extends \ILIAS\UI\Implementation\Component\Input\Field\Renderer
 {
-    private \ilGlobalPageTemplate $tpl; // if this is not defined and lead to arrow use $this->setGlobalTemplate after init
+    private \ilGlobalTemplateInterface $tpl; // if this is not defined and lead to arrow use $this->setGlobalTemplate after init
     private bool $tiny_mce_js_included = false;
 
     /**
@@ -291,7 +291,7 @@ class InputRenderer extends \ILIAS\UI\Implementation\Component\Input\Field\Rende
         return $input;
     }
 
-    public function setGlobalTemplate(\ilGlobalPageTemplate $template): InputRenderer
+    public function setGlobalTemplate(\ilGlobalTemplateInterface $template): InputRenderer
     {
         $this->tpl = $template;
         return $this;

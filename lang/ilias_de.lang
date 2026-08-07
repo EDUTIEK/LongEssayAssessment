@@ -785,8 +785,13 @@ table_select_columns#:#Spalten
 table_select_columns_visible#:#Sichtbare Spalten
 table_select_columns_all#:#Alle Spalten
 table_select_columns_selected#:#Spalten auswählen
-correction_admin_table_export#:#Tabelle exportieren
+table_export#:#Tabelle exportieren
 correction_admin_table_export_filename#:#Korrekturentabelle
+corrector_table_export_filename#:#Korrektorentabelle
+corrector_start_table_export_filename#:#Korrekturentabelle
+writer_admin_table_export_filename#:#Teilnahmetabelle
+dashboard_table_export_filename#:#Aufsichtstabelle
+correction_status_table_export_filename#:#Korrekturstatustabelle
 min_word_count#:#Wörter mindestens
 max_word_count#:#Wörter maximal
 predefined_settings#:#Voreinstellungen

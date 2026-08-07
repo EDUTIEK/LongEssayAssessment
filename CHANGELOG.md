@@ -13,6 +13,7 @@ Bug Fixes / Refactorings
 
 - Force storing null for optional files (fixing creation from older templates)
 - Fix error importing essays of type NRW
+- Fix issue with the voting view in LiveVoting plugin
 
 ## Version 10.2 (2026-08-03)
 

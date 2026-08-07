@@ -3,6 +3,7 @@
 namespace ILIAS\Plugin\LongEssayAssessment\Dashboard;
 
 use ILIAS\Plugin\LongEssayAssessment\GUI\Writer\WriterTableGUI;
+use ILIAS\Plugin\LongEssayAssessment\UI\Table\Action\Export;
 
 /**
  * Dashboard GUI class
@@ -23,6 +24,8 @@ class DashboardGUI extends WriterTableGUI
                     case 'showItems':
                     case 'deleteWorkingTime':
                     case 'liveData':
+                    case 'unauthorizeWriting':
+                    case 'workingTimeDelete':
                         $this->$cmd();
                         break;
 
@@ -61,6 +64,7 @@ class DashboardGUI extends WriterTableGUI
 //            $this->workingTimeChangeAction(),
 //            $this->workingTimeDeleteAction(),
 //            $this->changeLocationAction(),
+            $this->exportTableAction()
         ];
     }
 
@@ -119,5 +123,10 @@ class DashboardGUI extends WriterTableGUI
             'locked' => rand(1, 5),
         ]));
         exit();
+    }
+
+    public function exportTableAction(): Export
+    {
+        return $this->plugin_ui_factory->table()->action()->export('export', $this->plugin->txt('table_export'), $this->plugin->txt('dashboard_table_export_filename'));
     }
 }

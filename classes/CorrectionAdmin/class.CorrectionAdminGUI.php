@@ -73,7 +73,7 @@ class CorrectionAdminGUI extends BaseGUI
     {
         return $this->plugin_ui_factory->table()->action()->export(
             "export",
-            $this->plugin->txt('correction_admin_table_export'),
+            $this->plugin->txt('table_export'),
             $this->plugin->txt('correction_admin_table_export_filename')
         );
     }

@@ -1708,4 +1708,24 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
         $this->db->manipulate("UPDATE xlas_ta_corr_summary SET summary_pdf = null where summary_pdf = ''");
         $this->db->manipulate("UPDATE xlas_ta_resource SET file_id = null where file_id = ''");
     }
+
+    public function step_92(): void
+    {
+        if (!$this->db->tableExists('xlas_as_writer_client')) {
+            $fields = [
+                'writer_id' => ['notnull' => 1, 'type' => ilDBConstants::T_INTEGER],
+                'token_id' => ['notnull' => 1, 'type' => ilDBConstants::T_INTEGER],
+                'first_access' => ['notnull' => 1, 'type' => ilDBConstants::T_TIMESTAMP],
+                'last_access' => ['notnull' => 1, 'type' => ilDBConstants::T_TIMESTAMP],
+                'ip' => ['notnull' => 0, 'type' => ilDBConstants::T_TEXT, 'length' => 50],
+                'user_agent' => ['notnull' => 0, 'type' => ilDBConstants::T_TEXT, 'length' => 600],
+                'platform' => ['notnull' => 0, 'type' => ilDBConstants::T_TEXT, 'length' => 50],
+                'battery' => ['notnull' => 0, 'type' => ilDBConstants::T_FLOAT],
+                'hidden' => ['notnull' => 0, 'type' => ilDBConstants::T_INTEGER],
+            ];
+            $this->db->createTable('xlas_as_writer_client', $fields);
+            $this->db->addPrimaryKey('xlas_as_writer_client', ['writer_id', 'token_id']);
+            $this->db->addIndex("xlas_as_writer_client", ["last_access"], "i1");
+        }
+    }
 }

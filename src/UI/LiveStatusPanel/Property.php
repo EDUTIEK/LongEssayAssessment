@@ -9,7 +9,8 @@ class Property
         private string $title,
         private int $initial_value,
         private ?string $filter_url = null,
-    ){
+        private bool $active = false,
+    ) {
     }
 
     public function getId(): string
@@ -31,5 +32,10 @@ class Property
     public function getInitialValue(): int
     {
         return $this->initial_value;
+    }
+
+    public function isActive(): bool
+    {
+        return $this->active;
     }
 }

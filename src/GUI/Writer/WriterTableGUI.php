@@ -55,6 +55,8 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
     protected FormatService $system_format;
     private FileStorage $file_storage;
 
+    protected ?string $client_filter = null;
+
     public function __construct(BaseObjectData $object)
     {
         parent::__construct($object);
@@ -934,6 +936,10 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
             $filter['id'] = $ids;
         }
 
+        if (!empty($this->client_filter)) {
+            $filter['client'] = $this->client_filter;
+        }
+
         foreach ($writer_view->some($filter) as $view) {
             yield new WriterItem(
                 $view->getWriter()->getId(),
@@ -977,16 +983,6 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
         $status = $this->assessment_format->writingStatusOptions();
 
         return $this->filterFilterFields([
-            'client' => $this->ui_factory->input()->field()->select(
-                $this->plugin->txt("filter_client_status"),
-                [
-                    ClientFilterOptions::ONLINE->value => $this->plugin->txt("client_filter_online"),
-                    ClientFilterOptions::OFFLINE->value => $this->plugin->txt("client_filter_offline"),
-                    ClientFilterOptions::LOW_BATTERY->value => $this->plugin->txt("client_filter_low_battery"),
-                    ClientFilterOptions::HIDDEN->value => $this->plugin->txt("client_filter_hidden"),
-                    ClientFilterOptions::MULTI_SESSIONS->value => $this->plugin->txt("client_filter_multi_sessions")
-                ]
-            ),
             "name" => $field->text($this->plugin->txt("participants")),
             "location" => $field->multiselect($this->plugin->txt("locations"), $this->getLocations()),
             "status" => $field->multiSelect($this->plugin->txt("essay_status"), $status),

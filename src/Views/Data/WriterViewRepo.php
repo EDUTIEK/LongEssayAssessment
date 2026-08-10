@@ -145,6 +145,7 @@ class WriterViewRepo extends ViewRepo implements \Edutiek\AssessmentService\View
     public function clientFilterCounts(int $ass_id): array
     {
         $counts = [
+            'all' => 0,
             ClientFilterOptions::ONLINE->value => 0,
             ClientFilterOptions::OFFLINE->value => 0,
             ClientFilterOptions::LOW_BATTERY->value => 0,
@@ -182,6 +183,7 @@ class WriterViewRepo extends ViewRepo implements \Edutiek\AssessmentService\View
             if (($row['sessions'] ?? null) > 1) {
                 $counts[ClientFilterOptions::MULTI_SESSIONS->value]++;
             }
+            $counts['all']++;
         }
 
         return $counts;

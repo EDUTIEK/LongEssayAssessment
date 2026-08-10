@@ -965,9 +965,10 @@ battery_status#:#Batterie-Status
 client_hidden#:#Ausgeblendet
 user_agent#:#Browser-Kennung
 client_platform#:#System-Kennung
+client_filter_all#:#Alle
 client_filter_online#:#Online
 client_filter_offline#:#Offline
 client_filter_low_battery#:#Niedriger Batteriestatus
 client_filter_hidden#:#Ausgeblendet
 client_filter_multi_sessions#:#Mehrfach-Sitzungen
-filter_client_status#:#Status Schreiboberfläche
+filter_client_status#:#Status Schreiboberflächen

@@ -17,6 +17,9 @@ class DashboardGUI extends WriterTableGUI
 {
     public function executeCommand()
     {
+        $this->client_filter = $this->get->string('client_filter', 'all');
+        $this->ctrl->saveParameter($this, 'client_filter');
+
         $next_class = $this->ctrl->getNextClass();
 
         switch ($next_class) {
@@ -40,21 +43,71 @@ class DashboardGUI extends WriterTableGUI
 
     public function showItems(): void
     {
+        $counts = $this->views->writer()->clientFilterCounts($this->object->getAssId());
+
         $lsp_f = $this->plugin_ui_factory->liveStatusPanel();
         $live_panel = $lsp_f->panel($this->plugin->txt('filter_client_status'), $this->ctrl->getLinkTarget($this, "liveData"))
         ->withAdditionalProperties([
-            $lsp_f->property(ClientFilterOptions::ONLINE->value, $this->plugin->txt('client_filter_online'), 0, '#online'),
-            $lsp_f->property(ClientFilterOptions::OFFLINE->value, $this->plugin->txt('client_filter_offline'), 0, '#offline'),
-            $lsp_f->property(ClientFilterOptions::LOW_BATTERY->value, $this->plugin->txt('client_filter_low_battery'), 0, '#battery'),
-            $lsp_f->property(ClientFilterOptions::HIDDEN->value, $this->plugin->txt('client_filter_hidden'), 0, '#locked'),
-            $lsp_f->property(ClientFilterOptions::MULTI_SESSIONS->value, $this->plugin->txt('client_filter_multi_sessions'), 0, '#multi'),
+            $lsp_f->property(
+                'all',
+                $this->plugin->txt('client_filter_all'),
+                $counts['all'],
+                $this->linkClientFilter('all'),
+                $this->client_filter == 'all'
+            ),
+            $lsp_f->property(
+                ClientFilterOptions::ONLINE->value,
+                $this->plugin->txt('client_filter_online'),
+                $counts[ClientFilterOptions::ONLINE->value],
+                $this->linkClientFilter(ClientFilterOptions::ONLINE->value),
+                $this->client_filter == ClientFilterOptions::ONLINE->value,
+            ),
+            $lsp_f->property(
+                ClientFilterOptions::OFFLINE->value,
+                $this->plugin->txt('client_filter_offline'),
+                $counts[ClientFilterOptions::OFFLINE->value],
+                $this->linkClientFilter(ClientFilterOptions::OFFLINE->value),
+                $this->client_filter == ClientFilterOptions::OFFLINE->value,
+            ),
+            $lsp_f->property(
+                ClientFilterOptions::LOW_BATTERY->value,
+                $this->plugin->txt('client_filter_low_battery'),
+                $counts[ClientFilterOptions::LOW_BATTERY->value],
+                $this->linkClientFilter(ClientFilterOptions::LOW_BATTERY->value),
+                $this->client_filter == ClientFilterOptions::LOW_BATTERY->value,
+            ),
+            $lsp_f->property(
+                ClientFilterOptions::HIDDEN->value,
+                $this->plugin->txt('client_filter_hidden'),
+                $counts[ClientFilterOptions::HIDDEN->value],
+                $this->linkClientFilter(ClientFilterOptions::HIDDEN->value),
+                $this->client_filter == ClientFilterOptions::HIDDEN->value,
+            ),
+            $lsp_f->property(
+                ClientFilterOptions::MULTI_SESSIONS->value,
+                $this->plugin->txt('client_filter_multi_sessions'),
+                $counts[ClientFilterOptions::MULTI_SESSIONS->value],
+                $this->linkClientFilter(ClientFilterOptions::MULTI_SESSIONS->value),
+                $this->client_filter == ClientFilterOptions::MULTI_SESSIONS->value,
+            )
         ]);
 
         $table = $this->plugin_ui_factory->table()->dataTable('dashboard_table', $this);
+
         $table->executeAction();
+
+        if (!empty($client_filter = $this->get->string('client_filter'))) {
+        }
+
         $this->tpl->setContent($this->renderer->render([$live_panel, $table]));
     }
 
+
+    private function linkClientFilter(string $value)
+    {
+        $this->ctrl->setParameter($this, 'client_filter', $value);
+        return $this->ctrl->getLinkTarget($this, "showItems");
+    }
 
     public function getTableActions(): array
     {
@@ -98,7 +151,6 @@ class DashboardGUI extends WriterTableGUI
     protected function hasFilterFields(): array
     {
         return [
-            "client",
             "name",
             "location",
             "status",

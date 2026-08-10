@@ -18,6 +18,9 @@ use ILIAS\Plugin\LongEssayAssessment\System\Data\UserDisplayRepo;
 
 class WriterViewRepo extends ViewRepo implements \Edutiek\AssessmentService\Views\Data\WriterViewRepo
 {
+    private float $battery_threshold;
+    private string $offline_threshold;
+
     /**
      * @param ilDBInterface       $db
      * @param RepositoryInterface<Writer> $writer_repo
@@ -37,6 +40,8 @@ class WriterViewRepo extends ViewRepo implements \Edutiek\AssessmentService\View
         private readonly UserDisplayRepo $user_display_repo,
         private readonly DateTimeZone $time_zone
     ) {
+        $this->battery_threshold = 0.5;
+        $this->offline_threshold = DateTimeImmutable::createFromFormat("U", time() - 60)->setTimezone($this->time_zone)->format("Y-m-d H:i:s");
 
     }
 
@@ -115,9 +120,6 @@ class WriterViewRepo extends ViewRepo implements \Edutiek\AssessmentService\View
 
     public function havingCondition(string $key, mixed $value): ?string
     {
-        $battery_threshold = 0.5;
-        $offline_threshold = DateTimeImmutable::createFromFormat("U", time() - 5 * 60)->setTimezone($this->time_zone)->format("Y-m-d H:i:s");
-
         return match($key) {
             "pdf_version" => "MAX(e.pdf_version) IS " . ($value == "2" ? "" : "NOT") . " NULL",
             "min_words" => "total_word_count >= " . $this->db->quote($value, "integer"),
@@ -129,14 +131,59 @@ class WriterViewRepo extends ViewRepo implements \Edutiek\AssessmentService\View
             )" : null,
             "location" => $this->db->in('location_id', $value, false, "integer"),
             "client" => match($value) {
-                ClientFilterOptions::ONLINE->value => "last_access >= " . $this->db->quote($offline_threshold, "text"),
-                ClientFilterOptions::OFFLINE->value => "last_access IS NULL || last_access < " . $this->db->quote($offline_threshold, "text"),
-                ClientFilterOptions::LOW_BATTERY->value => "battery < " . $this->db->quote($battery_threshold, "float"),
+                ClientFilterOptions::ONLINE->value => "last_access >= " . $this->db->quote($this->offline_threshold, "text"),
+                ClientFilterOptions::OFFLINE->value => "last_access IS NULL || last_access < " . $this->db->quote($this->offline_threshold, "text"),
+                ClientFilterOptions::LOW_BATTERY->value => "battery < " . $this->db->quote($this->battery_threshold, "float"),
                 ClientFilterOptions::HIDDEN->value => "hidden = 1",
                 ClientFilterOptions::MULTI_SESSIONS->value => "sessions > 1",
                 default => null,
             },
             default => null,
         };
+    }
+
+    public function clientFilterCounts(int $ass_id): array
+    {
+        $counts = [
+            ClientFilterOptions::ONLINE->value => 0,
+            ClientFilterOptions::OFFLINE->value => 0,
+            ClientFilterOptions::LOW_BATTERY->value => 0,
+            ClientFilterOptions::HIDDEN->value => 0,
+            ClientFilterOptions::MULTI_SESSIONS->value => 0,
+        ];
+
+
+        $sql = "SELECT w.id, 
+            COUNT(c.token_id) AS sessions, 
+            MAX(c.last_access) AS last_access, 
+            MAX(CASE WHEN c.session_id IS NULL THEN NULL ELSE c.battery END) AS battery, 
+            MAX(CASE WHEN c.session_id IS NULL THEN NULL ELSE c.hidden END) AS hidden
+            FROM {$this->writer_repo->table()} AS w 
+            LEFT JOIN {$this->client_repo->table()} AS c ON w.id = c.writer_id 
+            WHERE w.ass_id = %s
+            GROUP BY w.id
+            ";
+
+        $query = $this->db->queryF($sql, ['integer'], [$ass_id]);
+        $result = [];
+
+        while ($row = $this->db->fetchAssoc($query)) {
+            if (($row['last_access'] ?? '') >= $this->offline_threshold) {
+                $counts[ClientFilterOptions::ONLINE->value]++;
+            } else {
+                $counts[ClientFilterOptions::OFFLINE->value]++;
+            }
+            if (($row['battery'] ?? $this->battery_threshold) < $this->battery_threshold) {
+                $counts[ClientFilterOptions::LOW_BATTERY->value]++;
+            }
+            if (($row['hidden'] ?? null) == 1) {
+                $counts[ClientFilterOptions::HIDDEN->value]++;
+            }
+            if (($row['sessions'] ?? null) > 1) {
+                $counts[ClientFilterOptions::MULTI_SESSIONS->value]++;
+            }
+        }
+
+        return $counts;
     }
 }

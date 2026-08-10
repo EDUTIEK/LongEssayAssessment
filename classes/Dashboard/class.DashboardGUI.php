@@ -3,6 +3,7 @@
 namespace ILIAS\Plugin\LongEssayAssessment\Dashboard;
 
 use Edutiek\AssessmentService\Views\Data\ClientFilterOptions;
+use ILIAS\Plugin\LongEssayAssessment\BaseObjectData;
 use ILIAS\Plugin\LongEssayAssessment\GUI\Writer\WriterTableGUI;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\Action\Export;
 
@@ -115,13 +116,7 @@ class DashboardGUI extends WriterTableGUI
 
     protected function liveData(): void
     {
-        echo(json_encode([
-            ClientFilterOptions::ONLINE->value => rand(50, 100),
-            ClientFilterOptions::OFFLINE->value => rand(1, 10),
-            ClientFilterOptions::LOW_BATTERY->value => rand(1, 25),
-            ClientFilterOptions::HIDDEN->value => rand(1, 5),
-            ClientFilterOptions::MULTI_SESSIONS->value => rand(1, 15),
-        ]));
+        echo(json_encode($this->views->writer()->clientFilterCounts($this->object->getAssId())));
         exit();
     }
 

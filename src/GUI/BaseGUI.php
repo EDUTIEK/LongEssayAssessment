@@ -10,6 +10,7 @@ use Edutiek\AssessmentService\EssayTask\Api\ForClients as EssayTaskApi;
 use Edutiek\AssessmentService\System\Data\HeadlineScheme;
 use Edutiek\AssessmentService\System\Api\ForClients as SystemApi;
 use Edutiek\AssessmentService\Task\Api\ForClients as TaskApi;
+use Edutiek\AssessmentService\Views\Api\ForClients as ViewsApi;
 use ilCtrl;
 use ilGlobalTemplateInterface;
 use ILIAS\DI\Container;
@@ -61,6 +62,8 @@ abstract class BaseGUI
     protected AssessmentApi $assessment_api;
     protected EssayTaskApi $essay_task_api;
     protected TaskApi $task_api;
+    protected Dependencies\ViewDic $views;
+
     protected PluginUiFactory $plugin_ui_factory;
     protected PluginUIService $plugin_ui_service;
     protected DataConstraints $constraints;
@@ -98,6 +101,7 @@ abstract class BaseGUI
         $this->assessment_api = $this->plugin->dic()->assessment($this->object->getAssId(), $this->user->getId());
         $this->task_api = $this->plugin->dic()->task($this->object->getAssId(), $this->user->getId());
         $this->essay_task_api = $this->plugin->dic()->essayTask($this->object->getAssId(), $this->user->getId());
+        $this->views = $this->plugin->dic()->view();
 
         $this->plugin_ui_factory = $this->plugin->dic()->uiFactory();
         $this->plugin_ui_service = $this->plugin->dic()->uiService();

@@ -29,28 +29,38 @@ readonly class WriterClientRepo implements \Edutiek\AssessmentService\Assessment
     {
     }
 
-    public function new() : WriterClient
+    public function new(): WriterClient
     {
         return $this->repo->new();
     }
 
-    public function oneByWriterIdAndTokenId(int $writer_id, int $token_id) : ?WriterClient
+    public function oneByWriterIdAndSessionId(int $writer_id, string $session_id): ?WriterClient
+    {
+        return $this->repo->queryOneBy(['writer_id' => $writer_id, 'session_id' => $session_id]);
+    }
+
+    public function oneByWriterIdAndTokenId(int $writer_id, int $token_id): ?WriterClient
     {
         return $this->repo->queryOneBy(['writer_id' => $writer_id, 'token_id' => $token_id]);
     }
 
-    public function allByWriterId(int $writer_id) : array
+    public function allByWriterId(int $writer_id): array
     {
         return $this->repo->queryAllBy(['writer_id' => $writer_id], ['last_access' => 'asc']);
     }
 
 
-    public function save(WriterClient $client) : void
+    public function save(WriterClient $client): void
     {
         $this->repo->replace($client);
     }
 
-    public function deleteByWriterId(int $writer_id) : void
+    public function deleteByWriterIdAndTokenId(int $writer_id, int $token_id): void
+    {
+        $this->repo->deleteAllBy(['writer_id' => $writer_id, 'token_id' => $token_id]);
+    }
+
+    public function deleteByWriterId(int $writer_id): void
     {
         $this->repo->deleteAllBy(['writer_id' => $writer_id]);
     }

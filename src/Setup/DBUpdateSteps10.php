@@ -1727,6 +1727,7 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
             $this->db->createTable('xlas_as_writer_client', $fields);
             $this->db->addPrimaryKey('xlas_as_writer_client', ['writer_id', 'token_id']);
             $this->db->addIndex("xlas_as_writer_client", ["last_access"], "i1");
+            $this->db->addIndex("xlas_as_writer_client", ["session_id"], "i2");
         }
     }
 }

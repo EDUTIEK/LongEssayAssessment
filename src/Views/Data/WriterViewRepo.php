@@ -7,6 +7,7 @@ use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\RepositoryInterface;
 use ILIAS\Plugin\LongEssayAssessment\System\Data\UserDataRepo;
 use ILIAS\Plugin\LongEssayAssessment\System\Data\UserDisplayRepo;
 use Edutiek\AssessmentService\Assessment\Data\Writer;
+use Edutiek\AssessmentService\Assessment\Data\WriterClient;
 use Edutiek\AssessmentService\Assessment\Data\Location;
 use Edutiek\AssessmentService\EssayTask\Data\Essay;
 use ilDBInterface;
@@ -18,6 +19,7 @@ class WriterViewRepo extends ViewRepo implements \Edutiek\AssessmentService\View
     /**
      * @param ilDBInterface       $db
      * @param RepositoryInterface<Writer> $writer_repo
+     * @param RepositoryInterface<WriterClient> $client_repo
      * @param RepositoryInterface<Location> $location_repo
      * @param RepositoryInterface<Essay> $essay_repo
      * @param UserDataRepo        $user_data_repo
@@ -26,6 +28,7 @@ class WriterViewRepo extends ViewRepo implements \Edutiek\AssessmentService\View
     public function __construct(
         private readonly ilDBInterface $db,
         private readonly RepositoryInterface $writer_repo,
+        private readonly RepositoryInterface $client_repo,
         private readonly RepositoryInterface $location_repo,
         private readonly RepositoryInterface $essay_repo,
         private readonly UserDataRepo $user_data_repo,
@@ -45,10 +48,14 @@ class WriterViewRepo extends ViewRepo implements \Edutiek\AssessmentService\View
 
         $sql = "SELECT w.id AS writer_id, w.user_id AS user_id, w.location AS location_id, GROUP_CONCAT(e.id SEPARATOR ',') AS essay_ids, ";
         $sql .= "w.writing_authorized_by as authorized_by, w.writing_excluded_by as excluded_by, ";
+        $sql .= "MAX(c.last_access) AS newest_last_access, ";
+        $sql .= "MAX(c.battery) AS newest_battery, ";
+        $sql .= "MAX(c.hidden) AS newest_hidden, ";
         $sql .= "MAX(e.last_change) AS newest_last_change, ";
         $sql .= "SUM(e.word_count) AS total_word_count, ";
         $sql .= "CASE WHEN MAX(e.pdf_version) IS NOT NULL THEN 1 ELSE 0 END AS has_pdf_version ";
         $sql .= "FROM {$this->writer_repo->table()} AS w ";
+        $sql .= "LEFT JOIN {$this->client_repo->table()} AS c ON w.id = c.writer_id AND c.session_id IS NOT NULL ";
         $sql .= "LEFT JOIN {$this->essay_repo->table()} AS e ON w.id = e.writer_id ";
         $sql .= "LEFT JOIN object_reference AS r ON w.ass_id = r.obj_id ";
         $sql .= "WHERE " . ($this->where($filter) ?? "1") . " ";
@@ -101,7 +108,7 @@ class WriterViewRepo extends ViewRepo implements \Edutiek\AssessmentService\View
             "name" => !empty($value) ? "EXISTS (
                 SELECT 1 FROM {$this->writer_repo->table()} AS wu 
                 LEFT JOIN usr_data AS u ON u.usr_id = wu.user_id
-                WHERE CONCAT(u.firstname, u.lastname, u.login, u.email, wu.pseudonym) LIKE {$this->db->quote('%'.$value.'%', 'text')} AND u.usr_id = w.user_id
+                WHERE CONCAT(u.firstname, u.lastname, u.login, u.email, wu.pseudonym) LIKE {$this->db->quote('%' . $value . '%', 'text')} AND u.usr_id = w.user_id
             )" : null,
             default => null,
         };

@@ -1715,7 +1715,7 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
             $fields = [
                 'writer_id' => ['notnull' => 1, 'type' => ilDBConstants::T_INTEGER],
                 'token_id' => ['notnull' => 1, 'type' => ilDBConstants::T_INTEGER],
-                'session_id' => ['notnull' => 1, 'type' => ilDBConstants::T_TEXT, 'length' => 260],
+                'session_id' => ['notnull' => 0, 'type' => ilDBConstants::T_TEXT, 'length' => 260],
                 'first_access' => ['notnull' => 1, 'type' => ilDBConstants::T_TIMESTAMP],
                 'last_access' => ['notnull' => 1, 'type' => ilDBConstants::T_TIMESTAMP],
                 'ip' => ['notnull' => 0, 'type' => ilDBConstants::T_TEXT, 'length' => 50],

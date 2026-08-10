@@ -938,15 +938,6 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
         }
 
         return new WriterItem($view->getWriter()->getId(), $view->getWriter(), $view->getWriterData(), $view->getWriterDisplay(), $view->getEssayTaskSummary(), $view->getAuthorizedByData(), $view->getExcludedByData());
-
-        //        $writer = $this->writer_service->oneByWriterId($id);
-        //        $essay_status = $this->assessment_status->oneWriterEssaySummary($writer->getId());
-        //        $user = $this->user_service->getUser($writer->getUserId());
-        //        $user_display = $this->user_service->getUserDisplay($writer->getUserId(), null);
-        //        $authorized_from = $writer->getWritingAuthorizedBy() !== null ? $users[$writer->getWritingAuthorizedBy()] ?? null : null;
-        //        $excluded_from = $writer->getWritingExcludedBy() !== null ? $users[$writer->getWritingExcludedBy()] ?? null : null;
-        //
-        //        return new WriterItem($writer->getId(), $writer, $user, $user_display, $essay_status, $authorized_from, $excluded_from);
     }
 
     public function getFilterInputs(): array

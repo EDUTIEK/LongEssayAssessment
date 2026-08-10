@@ -36,7 +36,7 @@ class WriterClient extends \Edutiek\AssessmentService\Assessment\Data\WriterClie
     private int $writer_id = 0;
     #[Key]
     private int $token_id = 0;
-    private string $session_id = '';
+    private ?string $session_id = null;
     private DateTimeImmutable $first_access;
     private DateTimeImmutable $last_access;
     private ?string $ip = null;
@@ -73,14 +73,14 @@ class WriterClient extends \Edutiek\AssessmentService\Assessment\Data\WriterClie
     /**
      * PHP session id when the token was created
      */
-    public function getSessionId(): string
+    public function getSessionId(): ?string
     {
         return $this->session_id;
     }
 
-    public function setSessionId(string $session_id): static
+    public function setSessionId(?string $session_id): static
     {
-        $this->session_id = substr($session_id, 0, 260);
+        $this->session_id = isset($session_id) ? substr($session_id, 0, 260) : null;
         return $this;
     }
 

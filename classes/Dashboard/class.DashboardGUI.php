@@ -2,6 +2,7 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\Dashboard;
 
+use Edutiek\AssessmentService\Views\Data\ClientFilterOptions;
 use ILIAS\Plugin\LongEssayAssessment\GUI\Writer\WriterTableGUI;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\Action\Export;
 
@@ -39,13 +40,13 @@ class DashboardGUI extends WriterTableGUI
     public function showItems(): void
     {
         $lsp_f = $this->plugin_ui_factory->liveStatusPanel();
-        $live_panel = $lsp_f->panel("Schreib-Status", $this->ctrl->getLinkTarget($this, "liveData"))
+        $live_panel = $lsp_f->panel($this->plugin->txt('filter_client_status'), $this->ctrl->getLinkTarget($this, "liveData"))
         ->withAdditionalProperties([
-            $lsp_f->property('online', 'Online', 0, '#online'),
-            $lsp_f->property('offline', 'Offline', 0, '#offline'),
-            $lsp_f->property('battery', 'niedriger Batteriestatus', 0, '#battery'),
-            $lsp_f->property('locked', 'gesperrter Bildschirm', 0, '#locked'),
-            $lsp_f->property('multi', 'Mehrfach-Login', 0, '#multi'),
+            $lsp_f->property(ClientFilterOptions::ONLINE->value, $this->plugin->txt('client_filter_online'), 0, '#online'),
+            $lsp_f->property(ClientFilterOptions::OFFLINE->value, $this->plugin->txt('client_filter_offline'), 0, '#offline'),
+            $lsp_f->property(ClientFilterOptions::LOW_BATTERY->value, $this->plugin->txt('client_filter_low_battery'), 0, '#battery'),
+            $lsp_f->property(ClientFilterOptions::HIDDEN->value, $this->plugin->txt('client_filter_hidden'), 0, '#locked'),
+            $lsp_f->property(ClientFilterOptions::MULTI_SESSIONS->value, $this->plugin->txt('client_filter_multi_sessions'), 0, '#multi'),
         ]);
 
         $table = $this->plugin_ui_factory->table()->dataTable('dashboard_table', $this);
@@ -96,13 +97,13 @@ class DashboardGUI extends WriterTableGUI
     protected function hasFilterFields(): array
     {
         return [
+            "client",
             "name",
             "location",
             "status",
             "time_limit_changed",
             "min_words",
             "max_words",
-            "pdf_version"
         ];
     }
 
@@ -115,11 +116,11 @@ class DashboardGUI extends WriterTableGUI
     protected function liveData(): void
     {
         echo(json_encode([
-            'online' => rand(50, 100),
-            'offline' => rand(1, 10),
-            'battery' => rand(1, 25),
-            'locked' => rand(1, 5),
-            'multi' => rand(1, 15),
+            ClientFilterOptions::ONLINE->value => rand(50, 100),
+            ClientFilterOptions::OFFLINE->value => rand(1, 10),
+            ClientFilterOptions::LOW_BATTERY->value => rand(1, 25),
+            ClientFilterOptions::HIDDEN->value => rand(1, 5),
+            ClientFilterOptions::MULTI_SESSIONS->value => rand(1, 15),
         ]));
         exit();
     }

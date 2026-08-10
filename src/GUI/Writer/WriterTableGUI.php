@@ -18,6 +18,7 @@ use Edutiek\AssessmentService\System\Format\Service as FormatService;
 use Edutiek\AssessmentService\System\User\ReadService as UserService;
 use Edutiek\AssessmentService\System\File\Disposition;
 use Edutiek\AssessmentService\System\File\Storage as FileStorage;
+use Edutiek\AssessmentService\Views\Data\ClientFilterOptions;
 use ILIAS\HTTP\StatusCode;
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\BaseObjectData;
@@ -976,6 +977,16 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
         $status = $this->assessment_format->writingStatusOptions();
 
         return $this->filterFilterFields([
+            'client' => $this->ui_factory->input()->field()->select(
+                $this->plugin->txt("filter_client_status"),
+                [
+                    ClientFilterOptions::ONLINE->value => $this->plugin->txt("client_filter_online"),
+                    ClientFilterOptions::OFFLINE->value => $this->plugin->txt("client_filter_offline"),
+                    ClientFilterOptions::LOW_BATTERY->value => $this->plugin->txt("client_filter_low_battery"),
+                    ClientFilterOptions::HIDDEN->value => $this->plugin->txt("client_filter_hidden"),
+                    ClientFilterOptions::MULTI_SESSIONS->value => $this->plugin->txt("client_filter_multi_sessions")
+                ]
+            ),
             "name" => $field->text($this->plugin->txt("participants")),
             "location" => $field->multiselect($this->plugin->txt("locations"), $this->getLocations()),
             "status" => $field->multiSelect($this->plugin->txt("essay_status"), $status),
@@ -995,6 +1006,7 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
     public function getFilterInputActivation(): ?array
     {
         return $this->filterFilterFields([
+            "client" => true,
             "name" => true,
             "location" => $this->hasLocations(),
             "status" => true,

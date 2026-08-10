@@ -8,6 +8,7 @@ use Edutiek\AssessmentService\Assessment\Data\Location;
 use Edutiek\AssessmentService\Assessment\Data\Writer;
 use Edutiek\AssessmentService\Assessment\Data\WriterClient;
 use Edutiek\AssessmentService\EssayTask\Data\Essay;
+use Edutiek\AssessmentService\Views\Data\ClientFilterOptions;
 use Edutiek\AssessmentService\Views\Data\ClientSummary;
 use ilDBInterface;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\HydrationInterface;
@@ -107,7 +108,6 @@ class WriterViewRepo extends ViewRepo implements \Edutiek\AssessmentService\View
             "ass_id", "obj_id" => is_array($value) ? $this->db->in("w.ass_id", $value, false, "integer") : "w.ass_id = " . $this->db->quote($value, "integer"),
             "ref_id" => is_array($value) ? $this->db->in("r.ref_id", $value, false, "integer") : "r.ref_id = " . $this->db->quote($value, "integer"),
             "time_limit_changed" => ($value == "1" ? "NOT" : "") . "(w.earliest_start IS NULL AND w.latest_end IS NULL AND w.time_limit_minutes IS NULL)",
-            "location" => "w.location = " . $this->db->quote($value, "integer"),
             "status" => is_array($value) ? $this->db->in("w.writing_status", $value, false, "integer") : "w.writing_status = " . $this->db->quote($value, "integer"),
             default => null,
         };
@@ -115,6 +115,9 @@ class WriterViewRepo extends ViewRepo implements \Edutiek\AssessmentService\View
 
     public function havingCondition(string $key, mixed $value): ?string
     {
+        $battery_threshold = 0.5;
+        $offline_threshold = DateTimeImmutable::createFromFormat("U", time() - 5 * 60)->setTimezone($this->time_zone)->format("Y-m-d H:i:s");
+
         return match($key) {
             "pdf_version" => "MAX(e.pdf_version) IS " . ($value == "2" ? "" : "NOT") . " NULL",
             "min_words" => "total_word_count >= " . $this->db->quote($value, "integer"),
@@ -124,6 +127,15 @@ class WriterViewRepo extends ViewRepo implements \Edutiek\AssessmentService\View
                 LEFT JOIN usr_data AS u ON u.usr_id = wu.user_id
                 WHERE CONCAT(u.firstname, u.lastname, u.login, u.email, wu.pseudonym) LIKE {$this->db->quote('%' . $value . '%', 'text')} AND u.usr_id = w.user_id
             )" : null,
+            "location" => $this->db->in('location_id', $value, false, "integer"),
+            "client" => match($value) {
+                ClientFilterOptions::ONLINE->value => "last_access >= " . $this->db->quote($offline_threshold, "text"),
+                ClientFilterOptions::OFFLINE->value => "last_access IS NULL || last_access < " . $this->db->quote($offline_threshold, "text"),
+                ClientFilterOptions::LOW_BATTERY->value => "battery < " . $this->db->quote($battery_threshold, "float"),
+                ClientFilterOptions::HIDDEN->value => "hidden = 1",
+                ClientFilterOptions::MULTI_SESSIONS->value => "sessions > 1",
+                default => null,
+            },
             default => null,
         };
     }

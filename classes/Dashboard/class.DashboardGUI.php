@@ -72,27 +72,25 @@ class DashboardGUI extends WriterTableGUI
     protected function hasColumns(): array
     {
         return [
-             "image",
-             "name",
-             "login",
-             "pseudonym",
-             "location",
-             "status",
-             "writing_last_save",
-             "word_count",
-             "pdf_version",
-             "working_start",
-             "working_end",
-             "working_duration",
-             "assessment_start",
-             "assessment_end",
-             "assessment_duration",
-             "time_limit_changed",
-             "authorized",
-             "authorized_from",
-             "excluded",
-             "excluded_from",
-];
+            "image",
+            "name",
+            "login",
+            "pseudonym",
+            "location",
+            "status",
+            "sessions",
+            "first_access",
+            "last_access",
+            "battery",
+            "hidden",
+            "writing_last_save",
+            "word_count",
+            "time_limit_changed",
+            "authorized",
+            "authorized_from",
+            "excluded",
+            "excluded_from",
+        ];
     }
 
     protected function hasFilterFields(): array

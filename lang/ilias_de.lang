@@ -957,3 +957,11 @@ remove_correction_step_not_found#:#Es worde keine Schritt gefunden, der zurückg
 settings_disabled_by_authorized_corrections#:#Einige Einstellungen sind gesperrt, da bereits Korrekturen freigegeben wurden.
 cron_file_cleanup_title#:#Langtext-Aufgaben: Unbenutzte Dateien entfernen
 cron_file_cleanup_description#:#Entfernt Dateien von Langtext-Aufgaben, die nicht mehr benötigt werden und älter als ein Tag sind.
+started_sessions#:#Sitzungen
+first_access#:#Erster Zugriff
+last_access#:#Letzter Zugriff
+ip_address#:#IP-Adresse
+battery_status#:#Batterie-Status
+client_hidden#:#Ausgeblendet
+user_agent#:#Browser-Kennung
+client_platform#:#System-Kennung

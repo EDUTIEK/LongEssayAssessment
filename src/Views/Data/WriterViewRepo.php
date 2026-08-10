@@ -2,17 +2,18 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\View\Data;
 
+use DateTimeImmutable;
+use DateTimeZone;
+use Edutiek\AssessmentService\Assessment\Data\Location;
+use Edutiek\AssessmentService\Assessment\Data\Writer;
+use Edutiek\AssessmentService\Assessment\Data\WriterClient;
+use Edutiek\AssessmentService\EssayTask\Data\Essay;
+use Edutiek\AssessmentService\Views\Data\ClientSummary;
+use ilDBInterface;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\HydrationInterface;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\RepositoryInterface;
 use ILIAS\Plugin\LongEssayAssessment\System\Data\UserDataRepo;
 use ILIAS\Plugin\LongEssayAssessment\System\Data\UserDisplayRepo;
-use Edutiek\AssessmentService\Assessment\Data\Writer;
-use Edutiek\AssessmentService\Assessment\Data\WriterClient;
-use Edutiek\AssessmentService\Assessment\Data\Location;
-use Edutiek\AssessmentService\EssayTask\Data\Essay;
-use ilDBInterface;
-use DateTimeZone;
-use DateTimeImmutable;
 
 class WriterViewRepo extends ViewRepo implements \Edutiek\AssessmentService\Views\Data\WriterViewRepo
 {
@@ -46,16 +47,18 @@ class WriterViewRepo extends ViewRepo implements \Edutiek\AssessmentService\View
         $limit = $limit !== null ? 'LIMIT ' . $limit : '';
         $offset = $offset !== null ? 'OFFSET ' . $offset : '';
 
-        $sql = "SELECT w.id AS writer_id, w.user_id AS user_id, w.location AS location_id, GROUP_CONCAT(e.id SEPARATOR ',') AS essay_ids, ";
+        $sql = "SELECT w.id AS writer_id, w.user_id AS user_id, w.location AS location_id, GROUP_CONCAT(DISTINCT e.id SEPARATOR ',') AS essay_ids, ";
         $sql .= "w.writing_authorized_by as authorized_by, w.writing_excluded_by as excluded_by, ";
-        $sql .= "MAX(c.last_access) AS newest_last_access, ";
-        $sql .= "MAX(c.battery) AS newest_battery, ";
-        $sql .= "MAX(c.hidden) AS newest_hidden, ";
+        $sql .= "COUNT(c.token_id) AS sessions, ";
+        $sql .= "MIN(c.first_access) AS first_access, ";
+        $sql .= "MAX(c.last_access) AS last_access, ";
+        $sql .= "MAX(CASE WHEN c.session_id IS NULL THEN NULL ELSE c.battery END) AS battery, ";
+        $sql .= "MAX(CASE WHEN c.session_id IS NULL THEN NULL ELSE c.hidden END) AS hidden, ";
         $sql .= "MAX(e.last_change) AS newest_last_change, ";
         $sql .= "SUM(e.word_count) AS total_word_count, ";
         $sql .= "CASE WHEN MAX(e.pdf_version) IS NOT NULL THEN 1 ELSE 0 END AS has_pdf_version ";
         $sql .= "FROM {$this->writer_repo->table()} AS w ";
-        $sql .= "LEFT JOIN {$this->client_repo->table()} AS c ON w.id = c.writer_id AND c.session_id IS NOT NULL ";
+        $sql .= "LEFT JOIN {$this->client_repo->table()} AS c ON w.id = c.writer_id ";
         $sql .= "LEFT JOIN {$this->essay_repo->table()} AS e ON w.id = e.writer_id ";
         $sql .= "LEFT JOIN object_reference AS r ON w.ass_id = r.obj_id ";
         $sql .= "WHERE " . ($this->where($filter) ?? "1") . " ";
@@ -72,7 +75,18 @@ class WriterViewRepo extends ViewRepo implements \Edutiek\AssessmentService\View
                 $this->user_data_repo->dehydratedInstance($row['user_id']),
                 $this->user_display_repo->dehydratedInstance($row['user_id']),
                 $this->location_repo->dehydratedInstance($row['location_id']),
-                new EssayTaskSummary($row['newest_last_change'] !== null ? new DateTimeImmutable($row['newest_last_change'], $this->time_zone) : null, (bool) $row['has_pdf_version'], (int) $row['total_word_count']),
+                new ClientSummary(
+                    (int) $row['sessions'],
+                    $row['first_access'] !== null ? new DateTimeImmutable($row['first_access'], $this->time_zone) : null,
+                    $row['last_access'] !== null ? new DateTimeImmutable($row['last_access'], $this->time_zone) : null,
+                    $row['battery'] !== null ? (float) $row['battery'] : null,
+                    $row['hidden'] !== null ? (bool) $row['hidden'] : null,
+                ),
+                new EssayTaskSummary(
+                    $row['newest_last_change'] !== null ? new DateTimeImmutable($row['newest_last_change'], $this->time_zone) : null,
+                    (bool) $row['has_pdf_version'],
+                    (int) $row['total_word_count']
+                ),
                 $this->user_data_repo->dehydratedInstance($row['authorized_by']),
                 $this->user_data_repo->dehydratedInstance($row['excluded_by'])
             );

@@ -492,6 +492,7 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
     ): array {
         $timezone = new \DateTimeZone($this->user->getTimeZone());
         $writer = $item->getWriter();
+        $client = $item->getClientSummary();
         $user_data = $item->getUserData();
         $user_display = $item->getUserDisplay();
         $essay_summary = $item->getEssaySummary();
@@ -545,7 +546,12 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
                 : ($item->getAuthorizedFromFullname() ?? $unknown),
             "excluded" => $writer->getWritingExcluded()?->setTimezone($timezone),
             "excluded_from" => $item->getExecludedFromFullname() ?? $unknown,
-            "pdf_version" => $essay_summary?->hasPdfUploads() ?? false
+            "pdf_version" => $essay_summary?->hasPdfUploads() ?? false,
+            "sessions" => empty($client->getSessions()) ? null : $client->getSessions(),
+            "first_access" => $client->getFirstAccess(),
+            'last_access' => $client->getLastAccess(),
+            'battery' => $client->getBattery() === null ? null : $client->getBattery() * 100,
+            'hidden' => $client->getHidden(),
         ];
     }
 
@@ -578,6 +584,11 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
             "pseudonym" => $cf->text($this->plugin->txt("pseudonym"))->withIsOptional(true, false)->withIsSortable(true),
             "location" => $location_avaiable ? $cf->text($this->plugin->txt("location"))->withIsOptional(true, false)->withIsSortable(true) : null,
             "status" => $cf->status($this->plugin->txt("essay_status"))->withIsOptional(true, true)->withIsSortable(true),
+            "sessions" => $cfp->nullableNumber($this->plugin->txt('started_sessions'))->withIsOptional(true, true)->withIsSortable(true),
+            "first_access" => $cfp->nullableDate($this->plugin->txt("first_access"), $date_without_seconds)->withIsOptional(true, true)->withIsSortable(true),
+            "last_access" => $cfp->nullableDate($this->plugin->txt("last_access"), $date_without_seconds)->withIsOptional(true, true)->withIsSortable(true),
+            "battery" => $cfp->nullableNumber($this->plugin->txt("battery_status"))->withIsOptional(true, true)->withIsSortable(true)->withUnit('%'),
+            "hidden" => $cfp->nullableBool($this->plugin->txt("client_hidden"), $this->lng->txt("yes"), $this->lng->txt("no"))->withIsOptional(true, true)->withIsSortable(true),
             "writing_last_save" => $cfp->nullableDate($this->plugin->txt("writing_last_save"), $date_with_seconds)->withIsOptional(true, false)->withIsSortable(true),
             "word_count" => $cf->number($this->plugin->txt('word_count'))->withIsOptional(true, false)->withIsSortable(true),
             "pdf_version" => $cf->boolean($this->plugin->txt("pdf_version"), $this->lng->txt("yes"), $this->lng->txt("no"))->withIsOptional(true, false)->withIsSortable(true),
@@ -592,7 +603,7 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
             "authorized_from" => $cf->text($this->plugin->txt("writing_authorized_from"))->withIsOptional(true, false)->withIsSortable(true),
             "excluded" => $cfp->nullableDate($this->plugin->txt("writing_excluded_at"), $date_without_seconds)->withIsOptional(true, true)->withIsSortable(true),
             "excluded_from" => $cf->text($this->plugin->txt("writing_excluded_from"))->withIsOptional(true, false)->withIsSortable(true),
-        ])));
+         ])));
     }
 
     public function getTotalRowCount(?array $filter_data, ?array $additional_parameters): ?int
@@ -923,7 +934,16 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
         }
 
         foreach ($writer_view->some($filter) as $view) {
-            yield new WriterItem($view->getWriter()->getId(), $view->getWriter(), $view->getWriterData(), $view->getWriterDisplay(), $view->getEssayTaskSummary(), $view->getAuthorizedByData(), $view->getExcludedByData());
+            yield new WriterItem(
+                $view->getWriter()->getId(),
+                $view->getWriter(),
+                $view->getWriterData(),
+                $view->getWriterDisplay(),
+                $view->getClientSummary(),
+                $view->getEssayTaskSummary(),
+                $view->getAuthorizedByData(),
+                $view->getExcludedByData()
+            );
         }
     }
 
@@ -937,7 +957,16 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
             throw new \Exception("Writer with id $id not found");
         }
 
-        return new WriterItem($view->getWriter()->getId(), $view->getWriter(), $view->getWriterData(), $view->getWriterDisplay(), $view->getEssayTaskSummary(), $view->getAuthorizedByData(), $view->getExcludedByData());
+        return new WriterItem(
+            $view->getWriter()->getId(),
+            $view->getWriter(),
+            $view->getWriterData(),
+            $view->getWriterDisplay(),
+            $view->getClientSummary(),
+            $view->getEssayTaskSummary(),
+            $view->getAuthorizedByData(),
+            $view->getExcludedByData()
+        );
     }
 
     public function getFilterInputs(): array

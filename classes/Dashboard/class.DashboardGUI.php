@@ -6,6 +6,7 @@ use Edutiek\AssessmentService\Views\Data\ClientFilterOptions;
 use ILIAS\Plugin\LongEssayAssessment\BaseObjectData;
 use ILIAS\Plugin\LongEssayAssessment\GUI\Writer\WriterTableGUI;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\Action\Export;
+use ilSession;
 
 /**
  * Dashboard GUI class
@@ -17,9 +18,6 @@ class DashboardGUI extends WriterTableGUI
 {
     public function executeCommand()
     {
-        $this->client_filter = $this->get->string('client_filter', 'all');
-        $this->ctrl->saveParameter($this, 'client_filter');
-
         $next_class = $this->ctrl->getNextClass();
 
         switch ($next_class) {
@@ -43,6 +41,7 @@ class DashboardGUI extends WriterTableGUI
 
     public function showItems(): void
     {
+        $this->handleClientFilter();
         $counts = $this->views->writer()->clientFilterCounts($this->object->getAssId());
 
         $lsp_f = $this->plugin_ui_factory->liveStatusPanel();
@@ -95,18 +94,25 @@ class DashboardGUI extends WriterTableGUI
         $table = $this->plugin_ui_factory->table()->dataTable('dashboard_table', $this);
 
         $table->executeAction();
-
-        if (!empty($client_filter = $this->get->string('client_filter'))) {
-        }
-
         $this->tpl->setContent($this->renderer->render([$live_panel, $table]));
     }
 
+    private function handleClientFilter()
+    {
+        $this->client_filter = $this->get->string('client_filter', null);
+        if (empty($this->client_filter)) {
+            $this->client_filter = ilSession::get(self::class . '.client_filter') ?? 'all';
+        } else {
+            ilSession::set(self::class . '.client_filter', $this->client_filter);
+        }
+    }
 
     private function linkClientFilter(string $value)
     {
         $this->ctrl->setParameter($this, 'client_filter', $value);
-        return $this->ctrl->getLinkTarget($this, "showItems");
+        $link = $this->ctrl->getLinkTarget($this, "showItems");
+        $this->ctrl->clearParameterByClass(self::class, 'client_filter');
+        return $link;
     }
 
     public function getTableActions(): array

@@ -58,8 +58,8 @@ class WriterViewRepo extends ViewRepo implements \Edutiek\AssessmentService\View
         $sql .= "COUNT(c.token_id) AS sessions, ";
         $sql .= "MIN(c.first_access) AS first_access, ";
         $sql .= "MAX(c.last_access) AS last_access, ";
-        $sql .= "MAX(CASE WHEN c.session_id IS NULL THEN NULL ELSE c.battery END) AS battery, ";
-        $sql .= "MAX(CASE WHEN c.session_id IS NULL THEN NULL ELSE c.hidden END) AS hidden, ";
+        $sql .= "MAX(c.battery) AS battery, ";
+        $sql .= "MAX(c.hidden) AS hidden, ";
         $sql .= "MAX(e.last_change) AS newest_last_change, ";
         $sql .= "SUM(e.word_count) AS total_word_count, ";
         $sql .= "CASE WHEN MAX(e.pdf_version) IS NOT NULL THEN 1 ELSE 0 END AS has_pdf_version ";

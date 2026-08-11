@@ -248,6 +248,7 @@ log_type_all#:#Alle
 log_entry_text#:#Protokollierte Notiz
 log_entry_text_info#:#Bitte geben Sie mindesten 5 Zeichen ein
 alert_text#:#Text
+alert_text_info#:#Die Benachrichtigung als Pop-Up in der Schreiboberfläche angezeigt. Alle gesendeten Benachrichtigungen können über ein Glockensymbol in der Kopfleiste der Schreiboberfläche abgerufen werden.
 alert_recipient#:#Empfänger
 alert_recipient_all#:#Alle
 add_log_entry_for writer#:#Protokolleintrag hinzufügen
@@ -960,6 +961,8 @@ cron_file_cleanup_description#:#Entfernt Dateien von Langtext-Aufgaben, die nich
 started_sessions#:#Sitzungen
 first_access#:#Erster Zugriff
 last_access#:#Letzter Zugriff
+writer_first_access_long#:#Erster Zugriff: Aufruf der Schreiboberfläche
+writer_last_access_long#:#Letzter Zugriff: Aktualisierung der Schreiboberfläche
 ip_address#:#IP-Adresse
 battery_status#:#Batterie-Status
 client_hidden#:#Ausgeblendet

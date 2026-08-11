@@ -47,7 +47,6 @@ class ProtocolGUI extends BaseGUI
         $cmd = $this->ctrl->getCmd('showStartPage');
         switch ($cmd) {
             case 'showStartPage':
-            case 'createAlert':
             case 'createLogEntry':
                 $this->$cmd();
                 break;
@@ -64,11 +63,6 @@ class ProtocolGUI extends BaseGUI
         $button_log_entry = $this->ui_factory->button()->primary($this->plugin->txt("create_log_entry"), '#')
                                             ->withOnClick($modal_log_entry->getShowSignal());
         $this->toolbar->addComponent($button_log_entry);
-
-        $this->add($modal_writer_notice = $this->buildFormModalWriterNotice());
-        $button_writer_notice = $this->ui_factory->button()->standard($this->plugin->txt("create_alert"), '#')
-                                                ->withOnClick($modal_writer_notice->getShowSignal());
-        $this->toolbar->addComponent($button_writer_notice);
 
         $protocol_factory = $this->plugin_ui_factory->protocol();
         $alerts = $this->alert_service->all();
@@ -109,38 +103,6 @@ class ProtocolGUI extends BaseGUI
         $this->show();
     }
 
-    private function createAlert()
-    {
-        if ($this->request->getMethod() == "POST") {
-            $modal = $this->buildFormModalWriterNotice()
-                          ->withRequest($this->request);
-            $data = $modal->getData();
-
-            // inputs are ok => save data
-            if (is_array($data) && array_key_exists("text", $data) && array_key_exists("recipient", $data) && strlen($data["text"]) > 0) {
-                $alert = $this->alert_service->new();
-                $alert->setShownFrom(new \DateTimeImmutable('now'));
-                $alert->setMessage($data['text']);
-
-                if ($data['recipient'] != -1 && $this->writer_service->has($data['recipient'])) {
-                    $alert->setWriterId($data['recipient']);
-                }
-                $this->alert_service->create($alert);
-
-                $this->tpl->setOnScreenMessage("success", $this->plugin->txt("alert_created"), true);
-                $this->ctrl->redirect($this, "showStartPage");
-            } else {
-                $ret = $this->ctrl->getLinkTarget($this);
-                $close = new Signal((new \ILIAS\Data\UUID\Factory())->uuid4AsString());
-                $modal = $modal->withOnClose($close)
-                               ->withAdditionalOnLoadCode(fn($id) => "$(document).on('$close', function() {window.location.replace('$ret');});");
-
-                $this->add($modal->withOnLoad($modal->getShowSignal()));
-                $this->showStartPage();
-            }
-        }
-    }
-
     private function createLogEntry()
     {
         if ($this->request->getMethod() == "POST") {
@@ -164,32 +126,6 @@ class ProtocolGUI extends BaseGUI
                 $this->showStartPage();
             }
         }
-    }
-
-    private function buildFormModalWriterNotice(): Standard
-    {
-        $options = array_replace(
-            ["-1" => $this->plugin->txt("alert_recipient_all")],
-            $this->getWriterNameOptions()
-        );
-
-        $inputs = [
-            "recipient" => $this->ui_factory->input()->field()
-                                                     ->select($this->plugin->txt("alert_recipient"), $options)
-                                                     ->withAdditionalTransformation($this->refinery->kindlyTo()->int())
-                                                     ->withRequired(true),
-            "text" => $this->ui_factory->input()->field()
-                                                ->textarea($this->plugin->txt("alert_text"))
-                                                ->withRequired(true)
-        ];
-        return $this->ui_factory->modal()->roundtrip(
-            $this->plugin->txt("create_alert"),
-            [],
-            $inputs,
-            $this->ctrl->getFormAction($this, "createAlert")
-        )->withSubmitLabel(
-            $this->lng->txt("send")
-        );
     }
 
     private function buildFormModalLogEntry(): Standard

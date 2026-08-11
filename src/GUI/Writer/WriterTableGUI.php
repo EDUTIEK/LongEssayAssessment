@@ -906,7 +906,7 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
     /**
      * @param WriterItem[] $items
      */
-    private function getTableActionConfirmFields(array $items): array
+    protected function getTableActionConfirmFields(array $items): array
     {
         $fields = [
             'info' => $this->getTableActionInfoField($items),
@@ -922,7 +922,7 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
     /**
      * @param WriterItem[] $items
      */
-    private function getTableActionInfoField(array $items): Input
+    protected function getTableActionInfoField(array $items): Input
     {
         return $this->plugin_ui_factory->field()->info($this->plugin->txt('participants'))
             ->withInfo($this->ui_factory->listing()->unordered(

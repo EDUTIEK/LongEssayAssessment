@@ -36,6 +36,8 @@ use Edutiek\AssessmentService\Task\Data\ResourceType;
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\BaseObjectData;
 use ILIAS\UI\Component\Component;
+use ILIAS\UI\Component\Component as UiComponent;
+use ILIAS\UI\Component\Modal\RoundTrip;
 
 class StartPageGUI extends BaseGUI
 {
@@ -79,11 +81,12 @@ class StartPageGUI extends BaseGUI
         $this->is_written = $this->writer->getWritingAuthorized() !== null;
     }
 
-    public function showPage(): void
+    /**
+     * @return UiComponent[]
+     */
+    public function build(): array
     {
         [$this->solution_resources, $this->writing_resources] = $this->fetchResources();
-
-        $this->fillToolbar();
 
         if ($this->is_written || $this->working_time->isNowAfterAllowedTime()) {
             $this->add([
@@ -103,7 +106,7 @@ class StartPageGUI extends BaseGUI
             ]);
         }
 
-        $this->show();
+        return $this->components();
     }
 
     private function screenMessage(): array
@@ -154,50 +157,6 @@ class StartPageGUI extends BaseGUI
         }
 
         return [];
-    }
-
-    private function fillToolbar(): void
-    {
-        if (!$this->working_time->isStarted()) {
-            if ($this->perms->canWrite()) {
-                $start_modal = $this->ui_factory->modal()->interruptive(
-                    $this->plugin->txt('start_working'),
-                    $this->plugin->txt($this->working_time->hasTimeLimitFromStart() ? 'start_working_time_limited' : 'start_working_time_unlimited'),
-                    $this->ctrl->getLinkTarget($this->target, 'startWorking')
-                )->withActionButtonLabel($this->plugin->txt('start_working'));
-                $this->add($start_modal);
-                $button = $this->ui_factory->button()->primary($this->plugin->txt('start_working'), '#')->withOnClick($start_modal->getShowSignal());
-                $this->toolbar->addComponent($button);
-            }
-        } else {
-            switch ($this->writing_settings->getWritingType()) {
-                case WritingType::ESSAY_EDITOR:
-                    if ($this->perms->canWrite()) {
-                        $button = $this->ui_factory->button()->primary(
-                            $this->plugin->txt('continue_writing'),
-                            $this->ctrl->getLinkTarget($this->target, 'startWriter')
-                        );
-                        $this->toolbar->addComponent($button);
-                    } elseif ($this->perms->canReviewWrittenAssessment() && !$this->writer->getWritingAuthorized()) {
-                        $button = $this->ui_factory->button()->standard(
-                            $this->plugin->txt('review_writing'),
-                            $this->ctrl->getLinkTarget($this->target, 'startWritingReview')
-                        );
-                        $this->toolbar->addComponent($button);
-                    }
-                    break;
-
-                case WritingType::PDF_UPLOAD:
-                    if ($this->perms->canWrite() || $this->perms->canReviewWrittenAssessment()) {
-                        $button = $this->ui_factory->button()->primary(
-                            $this->plugin->txt('writer_review_pdf'),
-                            $this->ctrl->getLinkTargetByClass(WriterUploadGUI::class)
-                        );
-                        $this->toolbar->addComponent($button);
-                    }
-                    break;
-            }
-        }
     }
 
     private function infoPanel(): ?Component

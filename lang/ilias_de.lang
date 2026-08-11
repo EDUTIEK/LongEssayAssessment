@@ -978,3 +978,9 @@ filter_client_status#:#Status Schreiboberflächen
 client_sessions#:#Browser-Sitzungen
 client_session_x#:#Sitzung %s
 view_client_sessions#:#Browsersitzungen anzeigen
+dashboard#:#Durchführung beaufsichtigen
+dashboard_info#:#Diese Funktion ist für Präsenzprüfungen vorgesehen. Sie fügt dem Reiter "Aufsicht" eine Übersichtseite hinzu, auf welcher der Schreibstatus verfolgt werden kann. Dazu aktualisiert sie fortaufend Informationen aus der Schreiboberfläche wie Anzahl der Sitzungen, Erster und letzter Zugriff, Batteriestatus, Tab-Ausblendung, IP-Adresse und Browser-Informationen. Die Berechtigung zur Anzeige der Seite wird unter "Rechte" separat vergeben. Zusätzlich werden die Teilnehmer beim Start der Bearbeitung auf die Übermittlung der Daten hingewiesen. Bei abgeschalteter Funktion werden die zusätzlichen Daten nicht erhoben.
+tab_dashboard_page#:#Durchführung beaufsichtigen
+message_dashboard_active#:#In diese Aufgabe wird die Durchführung beaufsichtigt. Dabei sind neben der Bearbeitung die folgenden Daten für die Aufsicht verfügbar:
+start_working_acceptance#:#Ich stimme zu
+constraint_checked_required#:#Sie müssen hier bestätigen.

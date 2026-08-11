@@ -140,6 +140,14 @@ abstract class BaseGUI
     }
 
     /**
+     * @return UiComponent[]
+     */
+    protected function components(): array
+    {
+        return $this->components;
+    }
+
+    /**
      * Show the added components
      */
     protected function show(): void

@@ -53,6 +53,7 @@ class OrgaSettings extends \Edutiek\AssessmentService\Assessment\Data\OrgaSettin
     private ?string $forwarding_url = null;
     private bool $template = false;
     private ?string $src_template_name = null;
+    private bool $dashboard = false;
 
     public function getOnline(): bool
     {
@@ -264,5 +265,15 @@ class OrgaSettings extends \Edutiek\AssessmentService\Assessment\Data\OrgaSettin
     {
         $this->src_template_name = $name;
         return $this;
+    }
+
+    public function getDashboard(): bool
+    {
+        return $this->dashboard;
+    }
+
+    public function setDashboard(bool $dashboard): void
+    {
+        $this->dashboard = $dashboard;
     }
 }

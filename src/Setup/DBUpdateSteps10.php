@@ -1730,4 +1730,12 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
             $this->db->addIndex("xlas_as_writer_client", ["session_id"], "i2");
         }
     }
+
+    public function step_93(): void
+    {
+        if (!$this->db->tableColumnExists('xlas_as_orga_settings', 'dashboard')) {
+            $this->db->addTableColumn('xlas_as_orga_settings', 'dashboard', [
+                'type' => ilDBConstants::T_INTEGER, 'notnull' => 1, 'default' => 0]);
+        }
+    }
 }

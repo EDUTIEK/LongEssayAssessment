@@ -36,6 +36,7 @@ use Edutiek\AssessmentService\EssayTask\Data\WritingType;
 use ILIAS\StaticURL\Builder\StandardURIBuilder;
 use Edutiek\AssessmentService\System\Config\Frontend;
 use ILIAS\Plugin\LongEssayAssessment\Jump;
+use ILIAS\UI\Component\Modal\RoundTrip;
 
 /**
  * @ilCtrl_isCalledBy ILIAS\Plugin\LongEssayAssessment\Writer\WriterStartGUI: ilObjLongEssayAssessmentGUI
@@ -98,7 +99,91 @@ class WriterStartGUI extends BaseGUI
             return;
         }
 
-        (new StartPageGUI($this->object, $this->writer, $this))->showPage();
+        $this->fillStartToolbar();
+        $start_page = new StartPageGUI($this->object, $this->writer, $this);
+        $this->add($start_page->build());
+
+        $this->show();
+    }
+
+    private function fillStartToolbar(): void
+    {
+        if (!$this->working_time->isStarted()) {
+            if ($this->perms->canWrite()) {
+                $this->add($modal = $this->buildStartModal());
+                $this->toolbar->addComponent($this->ui_factory->button()->primary(
+                    $this->plugin->txt('start_working'),
+                    '#'
+                )->withOnClick($modal->getShowSignal()));
+            }
+        } else {
+            switch ($this->writing_settings->getWritingType()) {
+                case WritingType::ESSAY_EDITOR:
+                    if ($this->perms->canWrite()) {
+                        $button = $this->ui_factory->button()->primary(
+                            $this->plugin->txt('continue_writing'),
+                            $this->ctrl->getLinkTarget($this, 'startWriter')
+                        );
+                        $this->toolbar->addComponent($button);
+                    } elseif ($this->perms->canReviewWrittenAssessment() && !$this->writer->getWritingAuthorized()) {
+                        $button = $this->ui_factory->button()->standard(
+                            $this->plugin->txt('review_writing'),
+                            $this->ctrl->getLinkTarget($this, 'startWritingReview')
+                        );
+                        $this->toolbar->addComponent($button);
+                    }
+                    break;
+
+                case WritingType::PDF_UPLOAD:
+                    if ($this->perms->canWrite() || $this->perms->canReviewWrittenAssessment()) {
+                        $button = $this->ui_factory->button()->primary(
+                            $this->plugin->txt('writer_review_pdf'),
+                            $this->ctrl->getLinkTargetByClass(WriterUploadGUI::class)
+                        );
+                        $this->toolbar->addComponent($button);
+                    }
+                    break;
+            }
+        }
+    }
+
+    private function buildStartModal(): RoundTrip
+    {
+        $content = [];
+        $fields = [];
+
+        $content[] = $this->ui_factory->messageBox()->confirmation(
+            $this->plugin->txt($this->working_time->hasTimeLimitFromStart() ? 'start_working_time_limited' : 'start_working_time_unlimited'),
+        );
+
+        if ($this->orga_settings->getDashboard()) {
+            $content[] = $this->plugin_ui_factory->legacy($this->plugin->txt('message_dashboard_active'));
+            $content[] = $this->ui_factory->listing()->unordered([
+                $this->plugin->txt('first_access'),
+                $this->plugin->txt('last_access'),
+                $this->plugin->txt('ip_address'),
+                $this->plugin->txt('user_agent'),
+                $this->plugin->txt('client_platform'),
+                $this->plugin->txt('battery_status'),
+                $this->plugin->txt('hidden'),
+            ]);
+
+            $fields['accept'] = $this->ui_factory->input()->field()->checkbox(
+                $this->plugin->txt('start_working_acceptance')
+            )->withRequired(true)->withAdditionalTransformation($this->plugin->dic()->constraints()->checked());
+        }
+
+        // needed to get the submit button shown if no other fields are added
+        $fields[] = $this->plugin_ui_factory->field()->info('');
+
+        $modal = $this->ui_factory->modal()->roundtrip(
+            $this->plugin->txt('start_working'),
+            $content,
+            $fields,
+            $this->ctrl->getFormAction($this, 'startWorking')
+        )->withSubmitLabel($this->plugin->txt('start_working'));
+
+        return $modal;
     }
 
     public function viewDescription(): void
@@ -193,6 +278,18 @@ class WriterStartGUI extends BaseGUI
      */
     protected function startWorking()
     {
+        if ($this->request->getMethod() == "POST") {
+            $modal = $this->buildStartModal();
+            $modal = $modal->withRequest($this->request);
+            $data = $modal->getData();
+
+            if ($data === null || array_key_exists('accept', $data) && !$data['accept']) {
+                $this->add($modal->withOnLoad($modal->getShowSignal()));
+                $this->showStartPage();
+                return;
+            }
+        }
+
         if ($this->perms->canWrite()) {
             $this->assessment_api->writer()->setWorkingStart($this->writer);
 

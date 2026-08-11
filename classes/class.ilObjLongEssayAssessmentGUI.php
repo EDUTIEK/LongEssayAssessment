@@ -588,7 +588,7 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                 'url' => $this->ctrl->getLinkTargetByClass(CorrectionSettingsGUI::class)
             ];
         }
-        if ($this->permissions->canEditOrgaSettings()) { # TODO: Own permission for the criteria tab?
+        if ($this->permissions->canEditOrgaSettings()) {
             $tabs[] = [
                 'id' => 'tab_criteria',
                 'txt' => $this->plugin->txt('tab_criteria'),
@@ -692,11 +692,13 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
         // Writer Admin Tab
         $tabs = [];
         if ($this->permissions->canViewDashboard()) {
-            $tabs[] = [
-                'id' => 'tab_dashboard',
-                'txt' => $this->plugin->txt('tab_dashboard'),
-                'url' => $this->ctrl->getLinkTargetByClass(strtolower(DashboardGUI::class))
-            ];
+            if ($this->assessment->orgaSettings()->get()->getDashboard()) {
+                $tabs[] = [
+                    'id' => 'tab_dashboard',
+                    'txt' => $this->plugin->txt('tab_dashboard_page'),
+                    'url' => $this->ctrl->getLinkTargetByClass(strtolower(DashboardGUI::class))
+                ];
+            }
             $tabs[] = [
                 'id' => 'tab_dashboard_log',
                 'txt' => $this->plugin->txt('tab_exam_log'),

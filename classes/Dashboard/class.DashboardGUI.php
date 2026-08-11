@@ -5,7 +5,10 @@ namespace ILIAS\Plugin\LongEssayAssessment\Dashboard;
 use Edutiek\AssessmentService\Views\Data\ClientFilterOptions;
 use ILIAS\Plugin\LongEssayAssessment\BaseObjectData;
 use ILIAS\Plugin\LongEssayAssessment\GUI\Writer\WriterTableGUI;
+use ILIAS\Plugin\LongEssayAssessment\GUI\Writer\WriterItem;
+use ILIAS\Plugin\LongEssayAssessment\UI\Table\Action;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\Action\Export;
+use ILIAS\UI\Component\Modal\RoundTrip;
 use ilSession;
 
 /**
@@ -121,6 +124,7 @@ class DashboardGUI extends WriterTableGUI
             $this->viewProccessingAction(),
             // TODO
             // $this->sendAlertAction(),
+            $this->viewClientSessionsAction(),
             $this->addLogEntryAction(),
             $this->exportTableAction(),
             $this->workingTimeChangeAction(),
@@ -182,4 +186,60 @@ class DashboardGUI extends WriterTableGUI
     {
         return $this->plugin_ui_factory->table()->action()->export('export', $this->plugin->txt('table_export'), $this->plugin->txt('dashboard_table_export_filename'));
     }
+
+    protected function viewClientSessionsAction()
+    {
+        return $this->plugin_ui_factory->table()->action()->modal(
+            "view_client_sessions",
+            $this->plugin->txt("view_client_sessions"),
+            $this->viewClientSessions(...),
+            fn(WriterItem $item) => $item->getClientSummary()->getSessions() > 0,
+            Action\Type::Single
+        )->withUpdateButton(false);
+    }
+
+    public function viewClientSessions(WriterItem $writer): RoundTrip
+    {
+        $content = [];
+        $session = 1;
+        $clients = $this->assessment_api->writerClient()->all($writer->getId());
+
+        foreach ($clients as $client) {
+
+            $items = [];
+            if (!empty($client->getFirstAccess())) {
+                $items[$this->plugin->txt('first_access')] = $this->system_format->date($client->getFirstAccess());
+            }
+            if (!empty($client->getLastAccess())) {
+                $items[$this->plugin->txt('last_access')] = $this->system_format->date($client->getLastAccess());
+            }
+            if (!empty($client->getIp())) {
+                $items[$this->plugin->txt('ip_address')] = $client->getIp();
+            }
+            if (!empty($client->getUserAgent())) {
+                $items[$this->plugin->txt('user_agent')] = $client->getUserAgent();
+            }
+            if (!empty($client->getPlatform())) {
+                $items[$this->plugin->txt('client_platform')] = $client->getPlatform();
+            }
+            if (!empty($client->getBattery())) {
+                $items[$this->plugin->txt('battery_status')] = sprintf('%2d', 100 * $client->getBattery()) . '%';
+            }
+            if (!empty($client->getHidden())) {
+                $items[$this->plugin->txt('client_hidden')] = $this->lng->txt($client->getHidden() ? 'yes' : 'no');
+            }
+
+            if (count($items) > 1) {
+                $listing = $this->ui_factory->listing()->descriptive($items);
+                $content[] = $this->ui_factory->panel()->standard(sprintf($this->plugin->txt('client_session_x'), $session++), $listing);
+            }
+        }
+
+        $sight_modal = $this->ui_factory->modal()->roundtrip(
+            $this->plugin->txt("view_client_sessions"),
+            $content
+        );
+        return $sight_modal;
+    }
+
 }

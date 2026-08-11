@@ -972,3 +972,6 @@ client_filter_low_battery#:#Niedriger Batteriestatus
 client_filter_hidden#:#Ausgeblendet
 client_filter_multi_sessions#:#Mehrfach-Sitzungen
 filter_client_status#:#Status Schreiboberflächen
+client_sessions#:#Browser-Sitzungen
+client_session_x#:#Sitzung %s
+view_client_sessions#:#Browsersitzungen anzeigen

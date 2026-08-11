@@ -143,6 +143,7 @@ class DashboardGUI extends WriterTableGUI
             "pseudonym",
             "location",
             "status",
+            "online",
             "sessions",
             "first_access",
             "last_access",
@@ -150,11 +151,7 @@ class DashboardGUI extends WriterTableGUI
             "hidden",
             "writing_last_save",
             "word_count",
-            "time_limit_changed",
-            "authorized",
-            "authorized_from",
-            "excluded",
-            "excluded_from",
+            "time_limit_changed"
         ];
     }
 

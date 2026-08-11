@@ -40,9 +40,11 @@ class WriterViewRepo extends ViewRepo implements \Edutiek\AssessmentService\View
         private readonly UserDisplayRepo $user_display_repo,
         private readonly DateTimeZone $time_zone
     ) {
-        $this->battery_threshold = 0.5;
-        $this->offline_threshold = DateTimeImmutable::createFromFormat("U", time() - 60)->setTimezone($this->time_zone)->format("Y-m-d H:i:s");
-
+        $this->battery_threshold = ClientSummary::BATTERY_THRESHOLD;
+        $this->offline_threshold = DateTimeImmutable::createFromFormat(
+            "U",
+            time() - ClientSummary::ONLINE_THRESHOLD
+        )->setTimezone($this->time_zone)->format("Y-m-d H:i:s");
     }
 
     /**
@@ -87,6 +89,7 @@ class WriterViewRepo extends ViewRepo implements \Edutiek\AssessmentService\View
                     $row['last_access'] !== null ? new DateTimeImmutable($row['last_access'], $this->time_zone) : null,
                     $row['battery'] !== null ? (float) $row['battery'] : null,
                     $row['hidden'] !== null ? (bool) $row['hidden'] : null,
+                    $row['last_access'] !== null ? $row['last_access'] >= $this->offline_threshold : false
                 ),
                 new EssayTaskSummary(
                     $row['newest_last_change'] !== null ? new DateTimeImmutable($row['newest_last_change'], $this->time_zone) : null,

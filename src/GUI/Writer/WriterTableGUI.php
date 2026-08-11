@@ -526,6 +526,11 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
             $assessment_duration = $exam_start->diff($exam_end)->i;
         }
 
+        if ($item->getClientSummary()->isOnline()) {
+            $online_icon = $this->ui_factory->symbol()->icon()->custom('assets/images/standard/icon_ok.svg', $this->lng->txt('online'));
+        } else {
+            $online_icon = $this->ui_factory->symbol()->icon()->custom('assets/images/standard/icon_not_ok.svg', $this->lng->txt('offline'));
+        }
 
         return [
             "image" => $avatar,
@@ -550,6 +555,7 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
             "excluded" => $writer->getWritingExcluded()?->setTimezone($timezone),
             "excluded_from" => $item->getExecludedFromFullname() ?? $unknown,
             "pdf_version" => $essay_summary?->hasPdfUploads() ?? false,
+            "online" => $online_icon,
             "sessions" => empty($client->getSessions()) ? null : $client->getSessions(),
             "first_access" => $client->getFirstAccess(),
             'last_access' => $client->getLastAccess(),
@@ -587,6 +593,7 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
             "pseudonym" => $cf->text($this->plugin->txt("pseudonym"))->withIsOptional(true, false)->withIsSortable(true),
             "location" => $location_avaiable ? $cf->text($this->plugin->txt("location"))->withIsOptional(true, false)->withIsSortable(true) : null,
             "status" => $cf->status($this->plugin->txt("essay_status"))->withIsOptional(true, true)->withIsSortable(true),
+            "online" => $cf->statusIcon($this->lng->txt('online'))->withIsOptional(true, true)->withIsSortable(true),
             "sessions" => $cfp->nullableNumber($this->plugin->txt('started_sessions'))->withIsOptional(true, true)->withIsSortable(true),
             "first_access" => $cfp->nullableDate($this->plugin->txt("first_access"), $date_without_seconds)->withIsOptional(true, true)->withIsSortable(true),
             "last_access" => $cfp->nullableDate($this->plugin->txt("last_access"), $date_without_seconds)->withIsOptional(true, true)->withIsSortable(true),

@@ -58,7 +58,11 @@ class Renderer extends AbstractComponentRenderer
             );
         }
 
-        $properties = array_map($this->property(...), $component->getProperties());
+        $properties = [];
+        foreach ($component->getProperties() as $property) {
+            $properties[] = $this->property($property, $default_renderer);
+        }
+
         $seperator = ["div", "|", false];
 
         $property_listing = $this->getUIFactory()->listing()->property()
@@ -73,16 +77,22 @@ class Renderer extends AbstractComponentRenderer
         return $default_renderer->render([$panel, $js]);
     }
 
-    private function property(Property $prop)
+    private function property(Property $prop, UIRenderer $default_renderer)
     {
 
         $ret = [[$prop->getTitle(), $this->liveNumber($prop->getId(), $prop->getInitialValue()), true]];
 
         if ($prop->getFilterUrl() !== null) {
-            $glyph = $prop->isActive()
-                ? $this->getUIFactory()->symbol()->glyph()->apply($prop->getFilterUrl())
-                : $this->getUIFactory()->symbol()->glyph()->filter($prop->getFilterUrl());
-            $ret[] = ["link", $glyph, false];
+            $button = $this->getUIFactory()->button()->shy(
+                '',
+                $prop->getFilterUrl()
+            )->withSymbol(
+                $prop->isActive()
+                    ? $this->getUIFactory()->symbol()->glyph()->apply()
+                    : $this->getUIFactory()->symbol()->glyph()->filter()
+            );
+            $legacy = $this->getUIFactory()->legacy()->content($default_renderer->render($button));
+            $ret[] = ["link", $legacy, false];
         }
 
         return $ret;

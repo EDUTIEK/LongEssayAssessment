@@ -1738,4 +1738,12 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
                 'type' => ilDBConstants::T_INTEGER, 'notnull' => 1, 'default' => 0]);
         }
     }
+
+    public function step_94(): void
+    {
+        if (!$this->db->tableColumnExists('xlas_as_orga_settings', 'start_password')) {
+            $this->db->addTableColumn('xlas_as_orga_settings', 'start_password', [
+                'type' => ilDBConstants::T_TEXT, 'notnull' => 0, 'length' => 50]);
+        }
+    }
 }

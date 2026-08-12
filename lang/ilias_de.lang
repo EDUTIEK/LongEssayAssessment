@@ -247,14 +247,14 @@ log_type_note#:#Notiz
 log_type_all#:#Alle
 log_entry_text#:#Protokollierte Notiz
 log_entry_text_info#:#Bitte geben Sie mindesten 5 Zeichen ein
+create_alert#:#Direkte Nachricht an Teilnehmer
+alert_created#:#Die Nachricht wurde gesendet.
 alert_text#:#Text
-alert_text_info#:#Die Benachrichtigung als Pop-Up in der Schreiboberfläche angezeigt. Alle gesendeten Benachrichtigungen können über ein Glockensymbol in der Kopfleiste der Schreiboberfläche abgerufen werden.
+alert_text_info#:#Die Nachricht wird als Pop-Up in der Schreiboberfläche angezeigt. Alle gesendeten Nachrichten können über ein Glockensymbol in der Kopfleiste der Schreiboberfläche abgerufen werden.
 alert_recipient#:#Empfänger
 alert_recipient_all#:#Alle
 add_log_entry_for writer#:#Protokolleintrag hinzufügen
 create_log_entry#:#Notiz hinzufügen
-create_alert#:#Benachrichtigung senden
-alert_created#:#Benachrichtigung wurde gesendet.
 log_entry_created#:#Protokolleintrag wurde hinzugefügt.
 corrector_assignment_changed#:#Korrekturzuweisung wurde geändert.
 writing_authorized_at#:#Freigegeben am

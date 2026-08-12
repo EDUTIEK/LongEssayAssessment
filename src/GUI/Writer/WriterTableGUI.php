@@ -1069,4 +1069,71 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
         }
     }
 
+    protected function sendAlertAction()
+    {
+        return $this->plugin_ui_factory->table()->action()->form(
+            "create_alert",
+            $this->plugin->txt("create_alert"),
+            $this->lng->txt("create"),
+            $this->getAlertConfirmFields(...),
+            $this->sendAlert(...),
+            fn(WriterItem $writer) => true,
+            Action\Type::Standard
+        );
+    }
+
+    /**
+     * @param WriterItem[] $items
+     */
+    protected function getAlertConfirmFields(array $items): array
+    {
+        $fields = [];
+
+        if (count($items) == count($this->writer_service->allIds())) {
+            $fields['items'] = $this->plugin_ui_factory->field()->info($this->plugin->txt('participants'))
+                                                       ->withInfo($this->ui_factory->listing()->unordered([
+                                                           $this->plugin->txt(
+                                                               'alert_recipient_all'
+                                                           )]))
+                                                       ->withValue('all');
+        } else {
+            $fields['items'] = $this->getTableActionInfoField($items)
+                                    ->withValue(implode(',', array_map(fn(WriterItem $item) => $item->getId(), $items)));
+        }
+
+        $fields['message'] = $this->ui_factory->input()->field()->textarea(
+            $this->plugin->txt('alert_text'),
+            $this->plugin->txt('alert_text_info')
+        )->withAdditionalTransformation($this->refinery->string()->hasMinLength(5));
+
+        return $fields;
+    }
+
+    public function sendAlert(WriterItem $writer, array $data)
+    {
+        $alert_service = $this->assessment_api->alert();
+        $time = new \DateTimeImmutable('now');
+
+        $items = $data['items'] ?? '';
+        $message = $data['message'] ?? '';
+
+        if ($items === 'all') {
+            $alert = $alert_service->new()
+                                   ->setShownFrom($time)
+                                   ->setMessage($message);
+            $alert_service->create($alert);
+        } else {
+            foreach (explode(',', $items) as $id) {
+                $alert = $alert_service->new()
+                                       ->setShownFrom($time)
+                                       ->setMessage($message)
+                                       ->setWriterId((int) $id);
+                $alert_service->create($alert);
+            }
+        }
+
+        $this->tpl->setOnScreenMessage("success", $this->plugin->txt("alert_created"), true);
+        $this->ctrl->redirect($this);
+    }
+
 }

@@ -116,6 +116,8 @@ class OrgaSettingsGUI extends BaseGUI
             }
         }
         $orga_settings->setWritingLimitMinutes($limit > 0 ? $limit : null);
+        $orga_settings->setStartPassword(empty($data['task']['start_password']) ? null : (string) $data['task']['start_password']);
+        $orga_settings->setDashboard(!empty($data['task']['dashboard']));
         $orga_settings->setKeepAvailable(!empty($data['task']['keep_essay_available']));
         $orga_settings->setSolutionAvailable(!empty($data['task']['solution_available']));
         $orga_settings->setSolutionAvailableDate($data['task']['solution_available']['solution_available_date'] ?? null);
@@ -168,7 +170,7 @@ class OrgaSettingsGUI extends BaseGUI
             ->withValue($properties->getTitle());
 
         $fields_object['description'] = $factory->textarea($this->lng->txt("description"))
-            ->withValue($properties->getDescription());// Exclude from RTE
+            ->withValue($properties->getDescription());
 
         $fields_object['online'] = $factory->checkbox(
             $this->lng->txt('online'),
@@ -260,6 +262,19 @@ class OrgaSettingsGUI extends BaseGUI
         if ($limit === 0) {
             $fields_settings['writing_limit'] = $fields_settings['writing_limit']->withValue(null);
         }
+
+        $fields_settings['start_password'] = $factory->text(
+            $this->plugin->txt("start_password"),
+            $this->plugin->txt("start_password_info")
+        )
+            ->withMaxLength(50)
+            ->withValue((string) $orga_settings->getStartPassword());
+
+        $fields_settings['dashboard'] = $factory->checkbox(
+            $this->plugin->txt('dashboard'),
+            $this->plugin->txt('dashboard_info')
+        )
+            ->withValue($orga_settings->getDashboard());
 
         $fields_settings['location'] = $factory->tag(
             $this->plugin->txt("locations"),

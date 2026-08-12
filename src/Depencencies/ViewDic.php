@@ -9,6 +9,7 @@ use ILIAS\Plugin\LongEssayAssessment\EssayTask\Data\RepositoryFactory as EssayTa
 use ILIAS\Plugin\LongEssayAssessment\Dependencies\SystemDic;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\RepositoryFactory as FactoryTrait;
 use ILIAS\Plugin\LongEssayAssessment\Assessment\Data\Writer;
+use ILIAS\Plugin\LongEssayAssessment\Assessment\Data\WriterClient;
 use ILIAS\Plugin\LongEssayAssessment\Assessment\Data\Location;
 use ILIAS\Plugin\LongEssayAssessment\EssayTask\Data\Essay;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Generate;
@@ -38,6 +39,7 @@ class ViewDic implements ForClients
         return new WriterViewRepo(
             $this->dic->database(),
             $this->add(Writer::class),
+            $this->add(WriterClient::class),
             $this->add(Location::class),
             $this->add(Essay::class),
             $this->dic[SystemDic::class]->userDataRepo(),

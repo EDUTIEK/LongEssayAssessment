@@ -6,6 +6,7 @@ use Edutiek\AssessmentService\Assessment\Data\Writer;
 use Edutiek\AssessmentService\System\Data\UserData;
 use Edutiek\AssessmentService\System\Data\UserDisplay;
 use Edutiek\AssessmentService\EssayTask\AssessmentStatus\WriterEssaySummary;
+use Edutiek\AssessmentService\Views\Data\ClientSummary;
 use Edutiek\AssessmentService\Views\Data\EssayTaskSummary;
 
 class WriterItem extends \ILIAS\Plugin\LongEssayAssessment\UI\Table\Item
@@ -15,6 +16,7 @@ class WriterItem extends \ILIAS\Plugin\LongEssayAssessment\UI\Table\Item
         private Writer $writer,
         private UserData $user_data,
         private UserDisplay $user_display,
+        private ClientSummary $client_summary,
         private WriterEssaySummary|EssayTaskSummary|null $essay_summary,
         private ?UserData $authorized_from,
         private ?UserData $excluded_from,
@@ -42,6 +44,11 @@ class WriterItem extends \ILIAS\Plugin\LongEssayAssessment\UI\Table\Item
         return $this->essay_summary;
     }
 
+    public function getClientSummary(): ClientSummary
+    {
+        return $this->client_summary;
+    }
+
     public function getAuthorizedFrom(): ?UserData
     {
         return $this->authorized_from;
@@ -63,7 +70,7 @@ class WriterItem extends \ILIAS\Plugin\LongEssayAssessment\UI\Table\Item
      *         null if there is no person found
      * @return string|null
      */
-    public function getExecludedFromFullname() : ?string
+    public function getExecludedFromFullname(): ?string
     {
         return $this->writer->isExcluded() ? $this->getExcludedFrom()?->getListname(true) : '';
     }
@@ -74,7 +81,7 @@ class WriterItem extends \ILIAS\Plugin\LongEssayAssessment\UI\Table\Item
      *         null if there is no person found
      * @return string|null
      */
-    public function getAuthorizedFromFullname() : ?string
+    public function getAuthorizedFromFullname(): ?string
     {
         return $this->writer->isAuthorized() ? $this->getAuthorizedFrom()?->getListname(true) : '';
     }

@@ -75,11 +75,14 @@ class Renderer extends AbstractComponentRenderer
 
     private function property(Property $prop)
     {
-        $glyph = $this->getUIFactory()->symbol()->glyph();
+
         $ret = [[$prop->getTitle(), $this->liveNumber($prop->getId(), $prop->getInitialValue()), true]];
 
         if ($prop->getFilterUrl() !== null) {
-            $ret[] = ["link", $glyph->filter($prop->getFilterUrl()), false];
+            $glyph = $prop->isActive()
+                ? $this->getUIFactory()->symbol()->glyph()->apply($prop->getFilterUrl())
+                : $this->getUIFactory()->symbol()->glyph()->filter($prop->getFilterUrl());
+            $ret[] = ["link", $glyph, false];
         }
 
         return $ret;
@@ -112,7 +115,7 @@ class Renderer extends AbstractComponentRenderer
                 }
             }, {$interval})
         });";
-        return $this->getUIFactory()->legacy()->content("")->withOnLoadCode(fn ($id) => $js_code);
+        return $this->getUIFactory()->legacy()->content("")->withOnLoadCode(fn($id) => $js_code);
     }
 
 

@@ -20,8 +20,9 @@ export default class TinyHelper
      * @param {string} lang
      * @param {string} formatting_options
      * @param {string} headline_scheme
+     * @oaram {string} disabled
      */
-    init(id, lang = 'de', formatting_options = 'extended', headline_scheme = 'three')
+    init(id, lang = 'de', formatting_options = 'extended', headline_scheme = 'three', disabled = '0')
     {
         const url = new URL(window.location.toLocaleString()).searchParams;
         const name = document.querySelector('textarea#' + id).name;
@@ -33,6 +34,7 @@ export default class TinyHelper
             license_key: 'gpl',
             language: lang,
             selector: 'textarea#' + id,
+            readonly: disabled == '1',
             menubar: false,
             statusbar: true,
             branding: false,

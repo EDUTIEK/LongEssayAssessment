@@ -312,7 +312,8 @@ class InputRenderer extends \ILIAS\UI\Implementation\Component\Input\Field\Rende
             function ($id) use ($component, $form_id) {
                 $opt = $component->getFormattingOptions()->value;
                 $scheme = $component->getHeadlineScheme()->value;
-                return "il.Xlas.TinyHelper.init('$form_id', 'de', '$opt', '$scheme');";
+                $disabled = $component->isDisabled() ? '1' : '0';
+                return "il.Xlas.TinyHelper.init('$form_id', 'de', '$opt', '$scheme', '$disabled');";
             }
         );
 

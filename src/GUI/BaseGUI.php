@@ -110,7 +110,7 @@ abstract class BaseGUI
 
         $this->get = new RequestVariables($this->dic->http()->wrapper()->query(), $this->dic->refinery());
         $this->post = new RequestVariables($this->dic->http()->wrapper()->post(), $this->dic->refinery());
-        $this->fixation_gui = new FixationGUI($this->object);
+        $this->fixation_gui = FixationGUI::getInstance($this->object->getAssId(), $this->object->getContextId());
 
         $manager_service = $this->task_api->manager();
         $task_id = $this->get->integer('task_id', null) ?? (int) $this->session->get('task_id');
@@ -230,7 +230,7 @@ abstract class BaseGUI
      *
      * @param $with_task_selection - show the tool for fixations, if allowed
      */
-    protected function initTools(bool $with_task_selection = false, bool $with_fixations = false): void
+    protected function initTools(bool $with_task_selection = false, bool $with_fixations = false, string $tab = ''): void
     {
         $tools_data = $this->dic->globalScreen()->tool()->context()->current()->getAdditionalData();
         $tools_data->add(ToolProvider::GUI_CLASS, static::class);
@@ -245,6 +245,7 @@ abstract class BaseGUI
 
         if ($with_fixations && $this->assessment_api->permissions($this->object->getContextId())->canEditTemplates()) {
             $tools_data->add(ToolProvider::WITH_FIXATIONS, true);
+            $tools_data->add(ToolProvider::TAB, $tab);
         }
     }
 

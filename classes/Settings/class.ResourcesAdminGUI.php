@@ -39,6 +39,7 @@ use ilLongEssayAssessmentUploadHandlerGUI;
 use ILIAS\Plugin\LongEssayAssessment\UI\Viewer\Media;
 use ILIAS\UI\Component\Component;
 use ILIAS\UI\Implementation\Component\Modal\Lightbox;
+use ILIAS\Export\ImportStatus\Exception\ilException;
 
 /**
  * Resources Administration
@@ -56,6 +57,7 @@ class ResourcesAdminGUI extends BaseGUI implements DataTableParent
     private FileDelivery $file_delivery;
     private ilLongEssayAssessmentUploadHandlerGUI $upload_handler;
     private FormatService $format_service;
+    private bool $can_edit;
 
     public function __construct(BaseObjectData $object)
     {
@@ -70,11 +72,13 @@ class ResourcesAdminGUI extends BaseGUI implements DataTableParent
             $this->file_storage,
             $this->plugin->dic()->uploadTempFile()
         );
+
+        $this->can_edit = !$this->fixation_gui->isDisabled('tab_resources', 'resources');
     }
 
     public function executeCommand(): void
     {
-        $this->initTools(true, true);
+        $this->initTools(true, true, 'tab_resources');
         $this->resource_service = $this->task_api->resource($this->task_info->getId());
 
         $cmd = $this->ctrl->getCmd('showItems');
@@ -110,7 +114,9 @@ class ResourcesAdminGUI extends BaseGUI implements DataTableParent
             $this->lng->txt('delete'),
             $this->plugin->txt('delete_resource_confirmation'),
             $this->ctrl->getFormAction($this, 'deleteItem'),
-            fn(ResourceItem $x) => $this->buildConfirmationNames($x)
+            fn(ResourceItem $x) => $this->buildConfirmationNames($x),
+            fn(ResourceItem $x) => $this->can_edit,
+            Action\Type::Standard
         );
     }
 
@@ -134,7 +140,7 @@ class ResourcesAdminGUI extends BaseGUI implements DataTableParent
             $this->plugin->txt('save'),
             [$this, "buildFields"],
             [$this, "save"],
-            fn(ResourceItem $item) => true,
+            fn(ResourceItem $item) => $this->can_edit,
             Action\Type::Single
         );
     }
@@ -147,7 +153,7 @@ class ResourcesAdminGUI extends BaseGUI implements DataTableParent
             $this->plugin->txt('save'),
             fn(ResourceItem $item) => $this->buildFields($item),
             fn(ResourceItem $item, array $data) => $this->save($item, $data),
-            fn($x) => true,
+            fn($x) => $this->can_edit,
             Action\Type::Global
         );
     }
@@ -283,13 +289,21 @@ class ResourcesAdminGUI extends BaseGUI implements DataTableParent
         $table->setTitle($this->plugin->txt('task_resources'));
         $table->executeAction();
 
-        $table->addActionToToolbar($this->toolbar, $table->getActionByName("create"), true);
+        if ($this->can_edit) {
+            $table->addActionToToolbar($this->toolbar, $table->getActionByName("create"), true);
+        } else {
+            $table->disableAction(true);
+        }
 
         $this->add($table->getComponents())->show();
     }
 
     protected function deleteItem(): void
     {
+        if (!$this->can_edit) {
+            throw new ilException("Operation not permitted");
+        }
+
         $ids = $this->confirmationIds();
 
         foreach ($ids as $id) {

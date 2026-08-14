@@ -32,6 +32,7 @@ class NotificationSettingsGUI extends BaseGUI implements DataTableParent
     private UserService $users;
     private EntityService $entity_service;
     private CorrectionProcedure $procedure;
+    private bool $is_fixed;
 
     public function __construct(BaseObjectData $object)
     {
@@ -42,11 +43,13 @@ class NotificationSettingsGUI extends BaseGUI implements DataTableParent
         $this->entity_service = $this->system_api->entity();
         $this->service_lang = $this->assessment_api->language($this->user->getId());
         $this->users = $this->system_api->user();
+
+        $this->is_fixed = $this->fixation_gui->isDisabled('tab_notifications', 'notification_settings');
     }
 
     public function executeCommand()
     {
-        $this->initTools(false, true);
+        $this->initTools(false, true, 'tab_notifications');
 
         $cmd = $this->ctrl->getCmd('showItems');
         switch ($cmd) {
@@ -67,7 +70,9 @@ class NotificationSettingsGUI extends BaseGUI implements DataTableParent
         $table->setTitle($this->plugin->txt('notification_settings'));
         $table->setDefaultLength(count($this->notification->availableSettings()));
         $table->executeAction();
-
+        if ($this->is_fixed) {
+            $table->disableAction(true);
+        }
         $this->add($table)->show();
     }
 
@@ -265,7 +270,7 @@ class NotificationSettingsGUI extends BaseGUI implements DataTableParent
             $this->lng->txt('save'),
             $this->buildFields(...),
             $this->save(...),
-            fn(Item $item) => true,
+            fn(Item $item) => !$this->is_fixed,
             Action\Type::Single
         );
     }

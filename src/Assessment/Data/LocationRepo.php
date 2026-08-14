@@ -41,7 +41,7 @@ class LocationRepo implements \Edutiek\AssessmentService\Assessment\Data\Locatio
 
     public function allByAssId(int $ass_id): array
     {
-        return $this->repo->queryAllBy(['ass_id' => $ass_id]);
+        return $this->repo->queryAllBy(['ass_id' => $ass_id], ['title' => 'asc']);
     }
 
     public function save(Location $entity): void

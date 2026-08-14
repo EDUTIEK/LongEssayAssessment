@@ -74,6 +74,11 @@ tab_corrector_export#:#Abgaben exportieren
 tab_dashboard#:#Aufsicht
 tab_correction_status#:#Korrekturstatus
 object_settings#:#Objekt-Einstellungen
+type_settings#:#Aufgabentyp
+info_settings#:#Informationen zur Teilnahme
+writing_organisation#:#Schreib-Ablauf
+correction_organisation#:#Korrektur-Ablauf
+review_organisation#:#Bekanntgaben für Teilnehmer
 participation_type#:#Teilnahme
 participation_type_fixed#:#Vorgegeben
 participation_type_fixed_info#:#Die Teilnahme wird vorab über eine Liste festgelegt. Andere Benutzer können weder auf die Hilfsmittel noch auf die Lösungshinweise zugreifen.
@@ -188,6 +193,7 @@ start_correction#:#Angezeigte Korrekturen starten
 assigned_writings#:#Zugeteilte Abgaben
 min_points#:#Min. Punkte
 min_points_caption#:#Minimal benötigte Punkte zum Erreichen dieser Notenstufe.
+grades_list#:#Notenstufen-Liste
 add_grade_level#:#Notenstufe hinzufügen
 grade_levels#:#Notenstufen
 edit_grade_level#:#Notenstufe bearbeiten
@@ -411,6 +417,8 @@ criteria_corrector_finalized_message#:#Sie haben bereits abgeschlossene Korrektu
 criteria_corrector_authorized_message#:#Sie haben bereits freigegebene Korrekturen. Ziehen Sie diese unter „Abgaben” zurück, wenn Sie hier etwas ändern müssen.
 criteria_corrector_points_purge_message#:#Sie haben bereits Punkte in Anmerkungen ohne Kriterien vergeben. Wenn Sie Kriterien für Anmerkungen erstellen, werden diese gelöscht!
 criteria#:#Bewertungskriterien
+criteria_settings#:#Kriterien-Einstellungen
+criteria_list#:#Kriterien-Liste
 criteria_add#:#Bewertungskriterium hinzufügen
 criteria_edit#:#Bewertungskriterium bearbeiten
 criteria_max_point#:#Max. Punkte
@@ -429,7 +437,7 @@ copy_criteria_failure#:#Bewertungskriteri konnte nicht kopiert werden.
 criteria_from#:#Bewertungskriterien von %s
 locations#:#Teilnahmeorte
 location#:#Teilnahmeort
-locations_info#:#Den Teilnehmenden kann in der Teilnahmeverwaltung ein Teilnahmeort zugewiesen werden, der in der Abgabe- und Korrektur-Datei angezeigt wird.
+locations_info#:#Den Teilnehmenden kann in der Teilnahmeverwaltung ein Teilnahmeort zugewiesen werden, der unter "Meine Aufgabe" angezeigt wird. Der Teilnahmeort wird auch in der Abgabe- und Korrektur-Datei angezeigt wird.
 assign_location#:#Teilnahmeort zuweisen
 change_location#:#Teilnahmeort ändern
 location_assigned#:#Teilnahmeort erfolgreich zugewiesen.
@@ -930,7 +938,7 @@ corrector#:#Korrektor
 no_items#:#Die Aktion ist für keinen der ausgewählten Einträge ausführbar.
 please_select_item#:#Bitte wählen Sie einen oder mehrere Einträge aus der Tabelle aus.
 tab_notifications#:#Benachrichtigungen
-notification_settings#:#Benachrichtigungen
+notification_settings#:#Benachrichtigungs-Einstellungen
 notification_position#:#Nr.
 notification_type#:#Anlass
 notification_active#:#Aktiv

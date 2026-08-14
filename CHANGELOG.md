@@ -9,6 +9,11 @@ New functions, Visible changes
 - Add Corrector as Filter in Correction Admin and Collection View
 - Support a default essay import type with logins + '.pdf' as filenames in the ZIP
 - Add table export to writer administration, writing dashboard and corrector start screen
+- Add an optional writing supervision screen if the online editor is used
+- Request the writers' acceptance for additional data shown on the supervision screen
+- Add an optional start password for the writing and request it in the start modal
+- Move the notification of writers from the protocol to the supervision and writer admin
+- Subdivide the organizational settings and make their settings fixable
 
 Bug Fixes / Refactorings
 
@@ -19,6 +24,7 @@ Bug Fixes / Refactorings
 - Fix failing table export in ILIAS 11
 - Don't create a writer entry when just the start page is viewed
 - Extend user session on update call from writer app
+- Fix wrong assignment of locations to writers
 
 ## Version 10.2 (2026-08-03)
 

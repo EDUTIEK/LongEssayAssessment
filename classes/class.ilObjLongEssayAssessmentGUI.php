@@ -65,6 +65,7 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
     private Assessment $assessment;
     private TaskApi $task_api;
     private ArrayBasedRequestWrapper $query;
+    private FixationGUI $fixation_gui;
 
     /**
      * Definition of the plugin specific sub tabs
@@ -148,6 +149,7 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
             $this->task_api = $this->plugin->dic()->task($this->object->getAssId(), $this->user->getId());
             $this->permissions = $this->assessment->permissions($this->object->getContextId());
             $this->query = $DIC->http()->wrapper()->query();
+            $this->fixation_gui = FixationGUI::getInstance($this->object->getAssId(), $this->object->getContextId());
 
             $this->tpl->setDescription($this->object->getDescription());
 
@@ -211,7 +213,7 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                     }
                     break;
                 case strtolower(CriteriaAdminGUI::class):
-                    if ($this->permissions->canEditContentSettings()) { # TODO: Das muss anders
+                    if ($this->permissions->canEditContentSettings()) {
                         $this->activateTab('tab_assessment', 'tab_criteria');
                         $this->ctrl->forwardCommand(new CriteriaAdminGUI($this->object));
                     }
@@ -325,7 +327,7 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                     break;
                 case strtolower(FixationGUI::class):
                     if ($this->permissions->canEditTemplates()) {
-                        $this->ctrl->forwardCommand(new FixationGUI($this->object));
+                        $this->ctrl->forwardCommand($this->fixation_gui);
                     }
                     break;
                 case strtolower(CorrectorAdminStatisticsGUI::class):
@@ -546,70 +548,70 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
 
         // Assessment Definition Tab
         $tabs = [];
-        if ($this->permissions->canEditOrgaSettings()) {
+        if ($this->permissions->canEditOrgaSettings() && $this->fixation_gui->hasVisibleGroups('tab_orga_settings')) {
             $tabs[] = [
                 'id' => 'tab_orga_settings',
                 'txt' => $this->plugin->txt('tab_orga_settings'),
                 'url' => $this->ctrl->getLinkTargetByClass(OrgaSettingsGUI::class)
             ];
         }
-        if ($this->permissions->canEditContentSettings()) {
+        if ($this->permissions->canEditContentSettings() && $this->fixation_gui->hasVisibleGroups('tab_instructions_settings')) {
             $tabs[] = [
                 'id' => 'tab_instructions_settings',
                 'txt' => $this->plugin->txt('tab_instructions_settings'),
                 'url' => $this->ctrl->getLinkTargetByClass(InstructionSettingsGUI::class)
             ];
         }
-        if ($this->permissions->canEditContentSettings()) {
+        if ($this->permissions->canEditContentSettings() && $this->fixation_gui->hasVisibleGroups('tab_solution_settings')) {
             $tabs[] = [
                 'id' => 'tab_solution_settings',
                 'txt' => $this->plugin->txt('tab_solution_settings'),
                 'url' => $this->ctrl->getLinkTargetByClass(SolutionSettingsGUI::class)
             ];
         }
-        if ($this->permissions->canEditContentSettings()) {
+        if ($this->permissions->canEditContentSettings() && $this->fixation_gui->hasVisibleGroups('tab_resources')) {
             $tabs[] = [
                 'id' => 'tab_resources',
                 'txt' => $this->plugin->txt('tab_resources'),
                 'url' => $this->ctrl->getLinkTargetByClass(ResourcesAdminGUI::class)
             ];
         }
-        if ($this->permissions->canEditTechnicalSettings()) {
+        if ($this->permissions->canEditTechnicalSettings() && $this->fixation_gui->hasVisibleGroups('tab_technical_settings')) {
             $tabs[] = [
                 'id' => 'tab_technical_settings',
                 'txt' => $this->plugin->txt('tab_technical_settings'),
                 'url' => $this->ctrl->getLinkTargetByClass(TechnicalSettingsGUI::class)
             ];
         }
-        if ($this->permissions->canEditTechnicalSettings()) {
+        if ($this->permissions->canEditTechnicalSettings() && $this->fixation_gui->hasVisibleGroups('tab_correction_settings')) {
             $tabs[] = [
                 'id' => 'tab_correction_settings',
                 'txt' => $this->plugin->txt('tab_correction_settings'),
                 'url' => $this->ctrl->getLinkTargetByClass(CorrectionSettingsGUI::class)
             ];
         }
-        if ($this->permissions->canEditOrgaSettings()) {
+        if ($this->permissions->canEditOrgaSettings() && $this->fixation_gui->hasVisibleGroups('tab_criteria')) {
             $tabs[] = [
                 'id' => 'tab_criteria',
                 'txt' => $this->plugin->txt('tab_criteria'),
                 'url' => $this->ctrl->getLinkTargetByClass(CriteriaAdminGUI::class)
             ];
         }
-        if ($this->permissions->canEditGrades()) {
+        if ($this->permissions->canEditGrades() && $this->fixation_gui->hasVisibleGroups('tab_grades')) {
             $tabs[] = [
                 'id' => 'tab_grades',
                 'txt' => $this->plugin->txt('tab_grades'),
                 'url' => $this->ctrl->getLinkTargetByClass(GradesAdminGUI::class)
             ];
         }
-        if ($this->permissions->canEditDocumentationSettings()) {
+        if ($this->permissions->canEditDocumentationSettings() && $this->fixation_gui->hasVisibleGroups('tab_documentation_settings')) {
             $tabs[] = [
                 'id' => 'tab_documentation_settings',
                 'txt' => $this->plugin->txt('tab_documentation_settings'),
                 'url' => $this->ctrl->getLinkTargetByClass(DocumentationSettingsGUI::class)
             ];
         }
-        if ($this->permissions->canEditOrgaSettings()) {
+        if ($this->permissions->canEditOrgaSettings() && $this->fixation_gui->hasVisibleGroups('tab_notifications')) {
             $tabs[] = [
                 'id' => 'tab_notifications',
                 'txt' => $this->plugin->txt('tab_notifications'),

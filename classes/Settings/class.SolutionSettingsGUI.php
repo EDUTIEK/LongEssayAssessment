@@ -51,7 +51,7 @@ class SolutionSettingsGUI extends BaseGUI
 
     public function executeCommand(): void
     {
-        $this->initTools(true, true);
+        $this->initTools(true, true, 'tab_solution_settings');
         $this->settings_service = $this->task_api->settings($this->task_info->getId());
         $this->resource_service = $this->task_api->resource($this->task_info->getId());
         $this->settings = $this->settings_service->get();
@@ -139,7 +139,10 @@ class SolutionSettingsGUI extends BaseGUI
             ->withAcceptedMimeTypes(['application/pdf'])
             ->withValue($this->resource !== null && $this->resource->getFileId() !== null ? [$this->resource->getFileId()] : []);
 
-        $sections["form"] = $factory->section($fields, $this->plugin->txt('tab_solution_settings'));
+        $sections["form"] = $factory->section(
+            $this->fixation_gui->disableBySetting('tab_solution_settings', $fields),
+            $this->plugin->txt('tab_solution_settings')
+        );
 
         return $this->ui_factory->input()->container()->form()->standard($this->ctrl->getFormAction($this), $sections);
     }

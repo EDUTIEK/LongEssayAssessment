@@ -25,7 +25,6 @@ abstract class CriteriaGUI extends BaseGUI implements DataTableParent
     protected \Edutiek\AssessmentService\Task\AssessmentStatus\FullService $assessment_status;
     protected \Edutiek\AssessmentService\Task\RatingCriterion\FullService $criterion_service;
     protected \ILIAS\Plugin\LongEssayAssessment\UI\Table\Factory $table_factory;
-    #private \Edutiek\AssessmentService\Assessment\Corrector\Service $corrector_service;
 
     protected ?int $copy_context = null;
     private ?bool $has_authorized_corrections = null;
@@ -34,7 +33,6 @@ abstract class CriteriaGUI extends BaseGUI implements DataTableParent
     {
         parent::__construct($objectGUI);
 
-        $this->initTools(true, false);
         $this->criterion_service = $this->task_api->ratingCriterion($this->task_info->getId());
 
         $this->table_factory = $this->plugin_ui_factory->table();
@@ -42,10 +40,6 @@ abstract class CriteriaGUI extends BaseGUI implements DataTableParent
         $this->correction_settings = $this->correction_settings_service->get();
         $this->assessment_status = $this->task_api->assessmentStatus();
         $this->entity_service = $this->system_api->entity();
-
-        #$this->corrector_service = $this->assessment_api->corrector();
-        #$this->corrector_pref_service = $this->essay_task_api->
-
     }
 
     public function executeCommand()

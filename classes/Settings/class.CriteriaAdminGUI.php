@@ -15,6 +15,7 @@ use ILIAS\Plugin\LongEssayAssessment\Task\Data\RatingCriterion;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\Action;
 use ILIAS\Plugin\LongEssayAssessment\Criteria\CriteriaGUI;
 use ILIAS\Plugin\LongEssayAssessment\Criteria\CriteriaItem;
+use ILIAS\Plugin\LongEssayAssessment\BaseObjectData;
 
 /**
  * Resources Administration
@@ -24,6 +25,22 @@ use ILIAS\Plugin\LongEssayAssessment\Criteria\CriteriaItem;
  */
 class CriteriaAdminGUI extends CriteriaGUI
 {
+    private bool $is_settings_fixed;
+    private bool $is_edit_fixed;
+
+    public function __construct(BaseObjectData $object)
+    {
+        parent::__construct($object);
+        $this->is_settings_fixed = $this->fixation_gui->isDisabled('tab_criteria', 'criteria_settings');
+        $this->is_edit_fixed = $this->fixation_gui->isDisabled('tab_criteria', 'criteria_edit');
+    }
+
+    public function executeCommand()
+    {
+        $this->initTools(false, true, 'tab_criteria');
+        parent::executeCommand();
+    }
+
     protected function getRatingCriteriaFromContext(): array
     {
         return $this->criterion_service->allByCorrectorId(null);
@@ -41,6 +58,9 @@ class CriteriaAdminGUI extends CriteriaGUI
 
     protected function allowChangeInContext(): bool
     {
+        if ($this->is_edit_fixed) {
+            return false;
+        }
         switch ($this->correction_settings->getCriteriaMode()) {
             case CriteriaMode::NONE:
                 return false;
@@ -53,7 +73,7 @@ class CriteriaAdminGUI extends CriteriaGUI
 
     protected function allowSettingsInContext(): bool
     {
-        return !$this->hasAuthorizedCorrections();
+        return !$this->is_settings_fixed && !$this->hasAuthorizedCorrections();
     }
 
     protected function allowShareInContext(): bool

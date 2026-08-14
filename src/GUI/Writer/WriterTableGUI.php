@@ -818,7 +818,7 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
         }
         $location_input = $this->ui_factory->input()->field()->select($this->plugin->txt("location"), $options);
 
-        if (count($items) === 1 && $items[0]?->getWriter()?->getLocation() !== null) {
+        if (count($items) === 1 && isset($options[$items[0]?->getWriter()?->getLocation() ?? 0])) {
             $location_input = $location_input->withValue($items[0]->getWriter()->getLocation());
         }
 

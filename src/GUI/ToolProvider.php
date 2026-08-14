@@ -36,6 +36,7 @@ class ToolProvider extends AbstractDynamicToolProvider
 {
     final public const WITH_TASK_SELECTION = 'xlas_task_selection';
     final public const WITH_FIXATIONS = 'xlas_fixations';
+    final public const TAB = 'xlas_tab';
     final public const GUI_CLASS = 'gui_class';
 
     private readonly string $gui_class;
@@ -60,7 +61,7 @@ class ToolProvider extends AbstractDynamicToolProvider
                 $this->object->getAssId(),
                 $this->dic->user()->getId()
             )->permissions($this->object->getContextId());
-            $this->fixation_gui = new FixationGUI($this->object);
+            $this->fixation_gui = FixationGUI::getInstance($this->object->getAssId(), $this->object->getContextId());
         }
     }
 
@@ -93,7 +94,9 @@ class ToolProvider extends AbstractDynamicToolProvider
                 ->tool($this->identification_provider->contextAwareIdentifier('xlas_disabled_group_tool_tab'))
                 ->withTitle($this->plugin->txt('tools_tab_template'))
                 ->withContent($this->plugin->dic()->uiFactory()->legacy($this->dic->ui()->renderer()->render(
-                    $this->fixation_gui->toolsContent()
+                    $this->fixation_gui->toolsContent(
+                        $additional_data->exists(self::TAB) ? $additional_data->get(self::TAB) : ''
+                    )
                 )));
 
             $tabs[] = $t;

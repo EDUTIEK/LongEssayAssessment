@@ -41,7 +41,7 @@ class TechnicalSettingsGUI extends BaseGUI
      */
     public function executeCommand()
     {
-        $this->initTools(false, true);
+        $this->initTools(false, true, 'tab_technical_settings');
 
         $cmd = $this->ctrl->getCmd('editSettings');
         switch ($cmd) {
@@ -180,7 +180,10 @@ class TechnicalSettingsGUI extends BaseGUI
             );
         }
 
-        $form = $this->ui_factory->input()->container()->form()->standard($this->ctrl->getFormAction($this), $sections);
+        $form = $this->ui_factory->input()->container()->form()->standard(
+            $this->ctrl->getFormAction($this),
+            $this->fixation_gui->disableBySetting('tab_technical_settings', $sections)
+        );
 
         // apply inputs
         if ($this->request->getMethod() == "POST") {

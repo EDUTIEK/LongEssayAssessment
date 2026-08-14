@@ -57,7 +57,7 @@ class DocumentationSettingsGUI extends BaseGUI
      */
     public function executeCommand()
     {
-        $this->initTools(false, true);
+        $this->initTools(false, true, 'tab_documentation_settings');
 
         $cmd = $this->ctrl->getCmd('edit');
         switch ($cmd) {

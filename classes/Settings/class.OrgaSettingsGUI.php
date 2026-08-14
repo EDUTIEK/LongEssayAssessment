@@ -55,7 +55,7 @@ class OrgaSettingsGUI extends BaseGUI
      */
     public function executeCommand()
     {
-        $this->initTools(false, true);
+        $this->initTools(false, true, 'tab_orga_settings');
 
         $cmd = $this->ctrl->getCmd('editSettings');
         switch ($cmd) {

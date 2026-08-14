@@ -43,10 +43,10 @@ class GradesAdminGUI extends BaseGUI implements DataTableParent
     private ?int $copy_context = null;
     private \Edutiek\AssessmentService\Assessment\GradeLevel\FullService $grade_service;
     private \Edutiek\AssessmentService\Task\AssessmentStatus\FullService $assessment_status;
-    private bool $can_edit;
     private \Edutiek\AssessmentService\System\Entity\FullService $entity_service;
     protected \ILIAS\Plugin\LongEssayAssessment\UI\Table\Factory $table_factory;
-    private bool $is_disabled;
+    private bool $is_fixed;
+    private bool $can_edit;
 
     public function __construct(BaseObjectData $object)
     {
@@ -56,8 +56,8 @@ class GradesAdminGUI extends BaseGUI implements DataTableParent
         $this->grade_service = $this->assessment_api->gradeLevel();
         $this->assessment_status = $this->task_api->assessmentStatus();
         $this->entity_service = $this->system_api->entity();
-        $this->is_disabled = $this->fixation_gui->isDisabled('tab_grades', 'grades');
-        $this->can_edit = !$this->assessment_status->hasAuthorizedSummaries() && !$this->is_disabled;
+        $this->is_fixed = $this->fixation_gui->isDisabled('tab_grades', 'grades');
+        $this->can_edit = !$this->assessment_status->hasAuthorizedSummaries() && !$this->is_fixed;
     }
 
     /**
@@ -67,7 +67,7 @@ class GradesAdminGUI extends BaseGUI implements DataTableParent
      */
     public function executeCommand()
     {
-        $this->initTools(false, true);
+        $this->initTools(false, true, 'tab_grades');
 
         $cmd = $this->ctrl->getCmd('showItems');
         switch ($cmd) {
@@ -104,7 +104,7 @@ class GradesAdminGUI extends BaseGUI implements DataTableParent
 
             $table->executeAction();
         } else {
-            if (!$this->is_disabled) {
+            if (!$this->is_fixed) {
                 $this->tpl->setOnScreenMessage("info", $this->plugin->txt("grade_level_cannot_edit_used_info"));
             }
             $table->disableAction(true);

@@ -193,6 +193,7 @@ start_correction#:#Angezeigte Korrekturen starten
 assigned_writings#:#Zugeteilte Abgaben
 min_points#:#Min. Punkte
 min_points_caption#:#Minimal benötigte Punkte zum Erreichen dieser Notenstufe.
+grades_list#:#Notenstufen-Liste
 add_grade_level#:#Notenstufe hinzufügen
 grade_levels#:#Notenstufen
 edit_grade_level#:#Notenstufe bearbeiten
@@ -416,6 +417,8 @@ criteria_corrector_finalized_message#:#Sie haben bereits abgeschlossene Korrektu
 criteria_corrector_authorized_message#:#Sie haben bereits freigegebene Korrekturen. Ziehen Sie diese unter „Abgaben” zurück, wenn Sie hier etwas ändern müssen.
 criteria_corrector_points_purge_message#:#Sie haben bereits Punkte in Anmerkungen ohne Kriterien vergeben. Wenn Sie Kriterien für Anmerkungen erstellen, werden diese gelöscht!
 criteria#:#Bewertungskriterien
+criteria_settings#:#Kriterien-Einstellungen
+criteria_list#:#Kriterien-Liste
 criteria_add#:#Bewertungskriterium hinzufügen
 criteria_edit#:#Bewertungskriterium bearbeiten
 criteria_max_point#:#Max. Punkte
@@ -935,7 +938,7 @@ corrector#:#Korrektor
 no_items#:#Die Aktion ist für keinen der ausgewählten Einträge ausführbar.
 please_select_item#:#Bitte wählen Sie einen oder mehrere Einträge aus der Tabelle aus.
 tab_notifications#:#Benachrichtigungen
-notification_settings#:#Benachrichtigungen
+notification_settings#:#Benachrichtigungs-Einstellungen
 notification_position#:#Nr.
 notification_type#:#Anlass
 notification_active#:#Aktiv

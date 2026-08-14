@@ -50,17 +50,47 @@ class FixationGUI
     private SignalGeneratorInterface $signal_generator;
     private DisabledGroupService $service;
     private OrgaSettingsService $settings;
+    private $multi_tasks;
 
     /**
      * GUI tabs that have disabled groups
      * - Key is the id (and language variable) of the tab
-     * - Value is a list of settings groups that are shown on the tab
+     * - Value is a list of keys of settings groups that are shown on the tab
      */
     private const TABS = [
+        'tab_orga_settings' => [
+            'orga_object',
+            'orga_type',
+            'orga_info',
+            'orga_writing',
+            'orga_correction',
+            'orga_review'
+        ],
+        'tab_instructions_settings' => [
+            'task_title',
+            'instructions_text',
+            'instructions_pdf'
+        ],
+        'tab_solution_settings' => [
+            'solution_text',
+            'solution_pdf'
+        ],
+        'tab_resources' => [
+            'resources'
+        ],
+        'tab_technical_settings' => [
+            'tech_editor',
+            'tech_processing'
+        ],
         'tab_correction_settings' => [
             'correctors',
+            'correction_settings',
             'rating_settings',
             'correction_functions',
+        ],
+        'tab_criteria' => [
+          'criteria_settings',
+          'criteria_list'
         ],
         'tab_grades' => [
             'grade_levels'
@@ -68,43 +98,109 @@ class FixationGUI
         'tab_documentation_settings' => [
             'pdf_config',
             'docu_settings'
+        ],
+        'tab_notifications' => [
+            'notification_settings'
         ]
-
     ];
 
     /**
      * Settings groups that can be fixed and disabled
-     * - Key is the name of the settings group
+     * - Key is the name of the settings group that is stored
      * - Value is an array of form input names that belong to the group
      */
     private const GROUPS = [
+        // tab_orga_settings
+        'orga_object' => ['object'],
+        'orga_type' => ['type'],
+        'orga_info' => ['info'],
+        'orga_writing' => ['writing'],
+        'orga_correction' => ['correction'],
+        'orga_review' => ['review'],
+        // tab_instructions_settings
+        'task_title' => ['title'],
+        'instructions_text' => ['task_instructions'],
+        'instructions_pdf' => ['resource_file'],
+        // tab_solution_settings
+        'solution_text' => ['task_solution'],
+        'solution_pdf' => ['resource_file'],
+        // tab_resources
+        'resources' => ['resources'],
+        // tab_technical_settings
+        'tech_editor' => ['editor'],
+        'tech_processing' => ['processing'],
+        // tab_correction_settings
         'correctors' => ['correctors'],
+        'correction_settings' => ['correction'],
         'correction_functions' => ['correction_functions'],
         'rating_settings' => ['rating_settings'],
+        // tab_criteria
+        'criteria_settings' => ['criteria_settings'],
+        'criteria_list' => ['criteria_edit'],
+        // tab_grades
         'grade_levels' => ['grades'],
+        // tab_documentation_settings
         'docu_settings' => ['docu_settings', 'result_format', 'pdf_format', 'feedback_mode'],
         'pdf_config' => ['pdf_config'],
+        // tab_notifications
+        'notification_settings' => ['notification_settings']
     ];
 
     /**
      * Language variables
-     * - Key is the name of thesettings group
+     * - Key is the name of the settings group
      * - Value is the language variable
      */
     private const LANG_VARS = [
+        // tab_orga_settings
+        'orga_object' => 'object_settings',
+        'orga_type' => 'type_settings',
+        'orga_info' => 'info_settings',
+        'orga_writing' => 'writing_organisation',
+        'orga_correction' => 'correction_organisation',
+        'orga_review' => 'review_organisation',
+        // tab_instructions_settings
+        'task_title' => 'title',
+        'instructions_text' => 'task_instructions_text',
+        'instructions_pdf' => 'task_instructions_file',
+        // tab_instructions_settings
+        'solution_text' => 'task_solution_text',
+        'solution_pdf' => 'task_solution_file',
+        // tab_resources
+        'resources' => 'tab_resources',
+        // tab_technical_settings
+        'tech_editor' => 'editor_settings',
+        'tech_processing' => 'processing_settings',
+        // tab_correction_settings
         'correctors' => 'correctors_per_writer',
+        'correction_settings' => 'correction_settings',
         'correction_functions' => 'correction_functions',
         'rating_settings' => 'rating_settings',
-        'grade_levels' => 'grade_levels',
+        // tab_criteria
+        'criteria_settings' => 'criteria_settings',
+        'criteria_list' => 'criteria_list',
+        // tab_grades
+        'grade_levels' => 'grades_list',
+        // tab_documentation_settings
         'docu_settings' => 'docu_settings',
         'pdf_config' => 'corrected_pdf_config',
+        // tab_notifications
+        'notification_settings' => 'notification_settings'
     ];
 
     private bool $can_edit = false;
     private UI\Factory $plugin_ui_factory;
 
+    private static $instances = [];
+
+    public static function getInstance(int $ass_id, int $context_id)
+    {
+        return self::$instances[$ass_id][$context_id] ?? new self($ass_id, $context_id);
+    }
+
     public function __construct(
-        private BaseObjectData $object,
+        int $ass_id,
+        int $context_id
     ) {
         global $DIC;
         $this->ctrl = $DIC->ctrl();
@@ -120,11 +216,13 @@ class FixationGUI
 
         $this->plugin = ilLongEssayAssessmentPlugin::getInstance();
 
-        $assessment_api = $this->plugin->dic()->assessment($this->object->getAssId(), $DIC->user()->getId());
+        $assessment_api = $this->plugin->dic()->assessment($ass_id, $DIC->user()->getId());
         $this->service = $assessment_api->disabledGroup();
         $this->settings = $assessment_api->orgaSettings();
-        $this->can_edit = $assessment_api->permissions($this->object->getContextId())->canEditTemplates();
+        $this->can_edit = $assessment_api->permissions($context_id)->canEditTemplates();
         $this->plugin_ui_factory = $this->plugin->dic()->uiFactory();
+
+        $this->multi_tasks = $this->settings->get()->getMultiTasks();
     }
 
     public function executeCommand(): void
@@ -206,6 +304,26 @@ class FixationGUI
     }
 
     /**
+     * Check if a tab has groups that are visible to the user
+     */
+    public function hasVisibleGroups(string $tab): bool
+    {
+        if ($this->can_edit) {
+            return true;
+        }
+
+        if (isset(self::TABS[$tab])) {
+            foreach (array_keys($this->filterGroups($tab)) as $group) {
+                if (!in_array($group, $this->disabledGroups())) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        return true;
+    }
+
+    /**
      * Check if a form input with a name is disabled and fixed
      */
     public function isDisabled(string $tab, string $name): bool
@@ -216,7 +334,7 @@ class FixationGUI
     /**
      * @return Component[]
      */
-    public function toolsContent(): array
+    public function toolsContent(string $selected_tab = 'tab_resources'): array
     {
         $template_content = [
             $this->plugin_ui_factory->legacy('<p class="small">' . $this->plugin->txt('template_info') . '</p>'),
@@ -228,11 +346,13 @@ class FixationGUI
             $this->hideToggle()
         ];
         foreach (array_keys(self::TABS) as $tab) {
-            $fixing_content = array_merge($fixing_content, [
-                $this->ui_factory->divider()->horizontal(),
-                $this->plugin_ui_factory->legacy('<strong>' . $this->plugin->txt($tab) . '</strong>'),
-                ...$this->fixingToggles($tab)
-            ]);
+            if (empty($selected_tab) || $tab == $selected_tab) {
+                $fixing_content = array_merge($fixing_content, [
+                    $this->ui_factory->divider()->horizontal(),
+                    $this->plugin_ui_factory->legacy('<strong>' . $this->plugin->txt($tab) . '</strong>'),
+                    ...$this->fixingToggles($tab)
+                ]);
+            }
         }
 
         return [
@@ -272,7 +392,7 @@ class FixationGUI
     private function fixingToggles(string $tab): array
     {
         $post_url = $this->getUrl('updateGroup');
-        $groups = array_values(self::TABS[$tab] ?? []);
+        $groups = array_keys($this->filterGroups($tab));
         $disabled = $this->disabledGroups();
 
         $set = function ($group, $value) use ($post_url) {
@@ -315,9 +435,14 @@ class FixationGUI
      */
     private function filterGroups(string $tab): array
     {
+        $omit = [];
+        if ($tab == 'tab_instructions_settings' && !$this->multi_tasks) {
+            $omit[] = 'task_title';
+        }
+
         return array_filter(
             self::GROUPS,
-            fn($key) => in_array($key, self::TABS[$tab] ?? []),
+            fn($key) => in_array($key, self::TABS[$tab] ?? []) && !in_array($key, $omit),
             ARRAY_FILTER_USE_KEY
         );
     }

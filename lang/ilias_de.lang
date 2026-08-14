@@ -78,7 +78,7 @@ type_settings#:#Aufgabentyp
 info_settings#:#Informationen zur Teilnahme
 writing_organisation#:#Schreib-Ablauf
 correction_organisation#:#Korrektur-Ablauf
-review_organisation#:#Bekanntgaben
+review_organisation#:#Bekanntgaben für Teilnehmer
 participation_type#:#Teilnahme
 participation_type_fixed#:#Vorgegeben
 participation_type_fixed_info#:#Die Teilnahme wird vorab über eine Liste festgelegt. Andere Benutzer können weder auf die Hilfsmittel noch auf die Lösungshinweise zugreifen.

@@ -996,3 +996,4 @@ constraint_checked_required#:#Sie müssen hier bestätigen.
 start_password#:#Start-Kennwort
 start_password_info#:#Dieses Kennwort musss, wenn vorhanden, von Teilnehmenden in den Dialogen "Bearbeitung starten" und "Bearbeitung fortsetzen" eingegeben werden.
 start_password_wrong#:#Bitte geben Sie das Passwort ein, das Sie von der Prüfungsaufsicht bekommen haben.
+task_admin#:#Teilaufgaben

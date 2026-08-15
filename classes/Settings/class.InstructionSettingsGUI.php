@@ -125,35 +125,40 @@ class InstructionSettingsGUI extends BaseGUI
 
     private function updateSettings(array $data): void
     {
-        if ($this->object->getMultiTasks()) {
+        if ($this->object->getMultiTasks() && !$this->fixation_gui->isDisabled('task_admin')) {
             $this->settings->setTitle($data['form']['title']);
         }
-        $this->settings->setInstructions(
-            $this->transform_service->trimRichText($data['form']['task_instructions'])
-        );
+        if (!$this->fixation_gui->isDisabled('task_instructions')) {
+            $this->settings->setInstructions(
+                $this->transform_service->trimRichText($data['form']['task_instructions'])
+            );
+        }
+
         $this->entity_service->secure($this->settings, Settings::class);
         $this->settings_service->save($this->settings);
 
-        $id = $data['form']['resource_file'][0] ?? null;
-        if ($id !== $this->resource?->getFileId()) {
-            if ($id !== null) {
-                if ($this->resource === null) {
-                    $this->resource = $this->resource_service->new()->setType(ResourceType::INSTRUCTIONS);
-                } else {
+        if (!$this->fixation_gui->isDisabled('resource_file')) {
+            $id = $data['form']['resource_file'][0] ?? null;
+            if ($id !== $this->resource?->getFileId()) {
+                if ($id !== null) {
+                    if ($this->resource === null) {
+                        $this->resource = $this->resource_service->new()->setType(ResourceType::INSTRUCTIONS);
+                    } else {
+                        $this->file_storage->deleteFile($this->resource->getFileId());
+                    }
+                    $stored = $this->file_storage->saveFile(
+                        $this->upload_handler->getApiStream($id),
+                        $this->upload_handler->getApiInfo($id)
+                    );
+                    $this->resource_service->save(
+                        $this->resource
+                            ->setFileId($stored->getId())
+                            ->setTitle($stored->getFileName())
+                    );
+                } elseif ($this->resource !== null) {
                     $this->file_storage->deleteFile($this->resource->getFileId());
+                    $this->resource_service->delete($this->resource);
                 }
-                $stored = $this->file_storage->saveFile(
-                    $this->upload_handler->getApiStream($id),
-                    $this->upload_handler->getApiInfo($id)
-                );
-                $this->resource_service->save(
-                    $this->resource
-                    ->setFileId($stored->getId())
-                    ->setTitle($stored->getFileName())
-                );
-            } elseif ($this->resource !== null) {
-                $this->file_storage->deleteFile($this->resource->getFileId());
-                $this->resource_service->delete($this->resource);
             }
         }
 
@@ -167,34 +172,40 @@ class InstructionSettingsGUI extends BaseGUI
         $sections = [];
         $fields = [];
 
-        if ($this->object->getMultiTasks()) {
+        if ($this->object->getMultiTasks() && $this->fixation_gui->isVisible('task_admin')) {
             $fields['title'] = $factory->text($this->lng->txt("title"))
-                ->withValue($this->settings->getTitle());
+                ->withValue($this->settings->getTitle())
+                ->withDisabled($this->fixation_gui->isDisabled('task_admin'));
         }
 
-        $fields['task_instructions'] = $this->plugin_ui_factory->field()
-            ->tinyMCE($this->plugin->txt("task_instructions_text"), $this->plugin->txt("task_instructions_info"))
-            ->withValue($this->settings->getInstructions() ?? "");
+        if ($this->fixation_gui->isVisible('task_instructions')) {
+            $fields['task_instructions'] = $this->plugin_ui_factory->field()
+                ->tinyMCE($this->plugin->txt("task_instructions_text"), $this->plugin->txt("task_instructions_info"))
+                ->withValue($this->settings->getInstructions() ?? "")
+                ->withDisabled($this->fixation_gui->isDisabled('task_instructions'));
+        }
 
-        $fields['resource_file'] = $factory->file(
-            $this->upload_handler,
-            $this->plugin->txt("task_instructions_file"),
-            $this->plugin->txt("task_instructions_file_info")
-        )
-            ->withAcceptedMimeTypes(['application/pdf'])
-            ->withValue($this->resource !== null && $this->resource->getFileId() !== null ? [$this->resource->getFileId()] : []);
+        if ($this->fixation_gui->isVisible('resource_file')) {
+            $fields['resource_file'] = $factory->file(
+                $this->upload_handler,
+                $this->plugin->txt("task_instructions_file"),
+                $this->plugin->txt("task_instructions_file_info")
+            )
+                ->withAcceptedMimeTypes(['application/pdf'])
+                ->withValue(
+                    $this->resource !== null && $this->resource->getFileId() !== null ? [$this->resource->getFileId()] : []
+                )
+                ->withDisabled($this->fixation_gui->isDisabled('resource_file'));
+        }
 
-        $sections["form"] = $factory->section(
-            $this->fixation_gui->disableBySetting('tab_instructions_settings', $fields),
-            $this->plugin->txt('tab_instructions_settings')
-        );
+        $sections["form"] = $factory->section($fields, $this->plugin->txt('tab_instructions_settings'));
 
         return $this->ui_factory->input()->container()->form()->standard($this->ctrl->getFormAction($this), $sections);
     }
 
     private function setToolbar(): void
     {
-        if ($this->object->getMultiTasks()) {
+        if ($this->object->getMultiTasks() && !$this->fixation_gui->isDisabled('task_admin')) {
             $this->add($modal = $this->getCreateModal());
 
             $this->toolbar->addComponent($this->ui_factory->button()->primary(

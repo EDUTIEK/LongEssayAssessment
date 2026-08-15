@@ -72,13 +72,12 @@ class ResourcesAdminGUI extends BaseGUI implements DataTableParent
             $this->file_storage,
             $this->plugin->dic()->uploadTempFile()
         );
-
-        $this->can_edit = !$this->fixation_gui->isDisabled('tab_resources', 'resources');
     }
 
     public function executeCommand(): void
     {
         $this->initTools(true, true, 'tab_resources');
+        $this->can_edit = !$this->fixation_gui->isDisabled('resources');
         $this->resource_service = $this->task_api->resource($this->task_info->getId());
 
         $cmd = $this->ctrl->getCmd('showItems');

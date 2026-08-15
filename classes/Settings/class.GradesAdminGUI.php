@@ -56,8 +56,6 @@ class GradesAdminGUI extends BaseGUI implements DataTableParent
         $this->grade_service = $this->assessment_api->gradeLevel();
         $this->assessment_status = $this->task_api->assessmentStatus();
         $this->entity_service = $this->system_api->entity();
-        $this->is_fixed = $this->fixation_gui->isDisabled('tab_grades', 'grades');
-        $this->can_edit = !$this->assessment_status->hasAuthorizedSummaries() && !$this->is_fixed;
     }
 
     /**
@@ -68,6 +66,8 @@ class GradesAdminGUI extends BaseGUI implements DataTableParent
     public function executeCommand()
     {
         $this->initTools(false, true, 'tab_grades');
+        $this->is_fixed = $this->fixation_gui->isDisabled('grades');
+        $this->can_edit = !$this->assessment_status->hasAuthorizedSummaries() && !$this->is_fixed;
 
         $cmd = $this->ctrl->getCmd('showItems');
         switch ($cmd) {

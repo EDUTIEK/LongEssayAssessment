@@ -239,13 +239,15 @@ abstract class BaseGUI
             $this->session->set('task_id', $this->task_info?->getId() ?? '');
             $this->ctrl->setParameter($this, 'task_id', $this->task_info?->getId() ?? '');
             $this->tpl->setTitle($this->object->getTitle() . ' | ' . $this->task_info?->getTitle() ?? 'unknown task');
-
             $tools_data->add(ToolProvider::WITH_TASK_SELECTION, true);
         }
 
-        if ($with_fixations && $this->assessment_api->permissions($this->object->getContextId())->canEditTemplates()) {
-            $tools_data->add(ToolProvider::WITH_FIXATIONS, true);
-            $tools_data->add(ToolProvider::TAB, $tab);
+        if ($with_fixations) {
+            FixationGUI::getInstance($this->object->getAssId(), $this->object->getContextId())->setCurrentTab($tab);
+
+            if ($this->assessment_api->permissions($this->object->getContextId())->canEditTemplates()) {
+                $tools_data->add(ToolProvider::WITH_FIXATIONS, true);
+            }
         }
     }
 

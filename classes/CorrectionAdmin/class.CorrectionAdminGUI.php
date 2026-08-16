@@ -204,24 +204,24 @@ class CorrectionAdminGUI extends BaseGUI
      */
     public function changeCorrectorCheck(array $items): array
     {
-        $writer_ids = array_map(fn(CorrectionItem $item) => $item->getWriter()->getId(), $items);
-
         return [
             $this->refinery->custom()->constraint(
-                function (array $var) use ($items) {
-                    $valid = true;
+                function (array $data) use ($items) {
                     foreach ($items as $item) {
-                        $result = $this->assignment_service->assignMultiple(
+                        $result = $this->assignment_service->assignCorrectors(
                             $item->getTaskSettings()->getTaskId(),
+                            $item->getWriter()->getId(),
                             $data["first_corrector"] ?? CorrectorAssignmentsService::UNCHANGED_CORRECTOR_ASSIGNMENT,
                             $data["second_corrector"] ?? CorrectorAssignmentsService::UNCHANGED_CORRECTOR_ASSIGNMENT,
                             $data["stitch_corrector"] ?? CorrectorAssignmentsService::UNCHANGED_CORRECTOR_ASSIGNMENT,
-                            [$item->getWriter()->getId()],
+                            true,
                             true
                         );
-                        $valid = $valid && empty($result['invalid']);
+                        if ($result->isFailed()) {
+                            return false;
+                        }
                     }
-                    return $valid;
+                    return true;
                 },
                 $this->plugin->txt("invalid_assignment_combinations_error")
             )
@@ -246,7 +246,7 @@ class CorrectionAdminGUI extends BaseGUI
         $names = array_map(fn(UserData $u) => $u->getListname(true), $this->user_service->getUsersByIds($corrector_ids));
 
         foreach ($corrector_ids as $id => $user_id) {
-            if(isset($names[$user_id])) {
+            if (isset($names[$user_id])) {
                 $corrector_list[$id] = $names[$user_id];
             }
         }
@@ -278,7 +278,10 @@ class CorrectionAdminGUI extends BaseGUI
                 $assigned[1] ?? CorrectorAssignmentsService::UNCHANGED_CORRECTOR_ASSIGNMENT
             )->withAdditionalTransformation($this->refinery->kindlyTo()->int());
 
-            if (count($items) == 1 && $items[0]->getWriter()->getCombinedStatus() === CombinedStatus::STITCH_NEEDED) {
+            if (count($items) == 1
+                && ($items[0]->getWriter()->getCombinedStatus() === CombinedStatus::STITCH_NEEDED)
+                    || !empty($assigned[2])
+            ) {
                 $fields["stitch_corrector"] = $this->ui_factory->input()->field()->select(
                     $this->correctorLabel(2),
                     $corrector_list
@@ -308,17 +311,35 @@ class CorrectionAdminGUI extends BaseGUI
      */
     public function changeCorrector(array $items, array $data)
     {
+        $changed = [];
+        $unchanged = [];
+
         foreach ($items as $item) {
-            $this->assignment_service->assignMultiple(
+            $user = $this->user_service->getUser($item->getWriter()->getUserId());
+            $name = ($user?->getListname(false) ?? $this->plugin->txt('unknown')) . ' (' . $item->getWriter()->getPseudonym() . ')';
+
+            $result = $this->assignment_service->assignCorrectors(
                 $item->getTaskSettings()->getTaskId(),
+                $item->getWriter()->getId(),
                 $data["first_corrector"] ?? CorrectorAssignmentsService::UNCHANGED_CORRECTOR_ASSIGNMENT,
                 $data["second_corrector"] ?? CorrectorAssignmentsService::UNCHANGED_CORRECTOR_ASSIGNMENT,
                 $data["stitch_corrector"] ?? CorrectorAssignmentsService::UNCHANGED_CORRECTOR_ASSIGNMENT,
-                [$item->getWriter()->getId()]
             );
+
+            if ($result->isOk()) {
+                $changed[] = $name;
+            } else {
+                $unchanged[] = $name . ': ' . implode(', ', $result->failures());
+            }
         }
 
-        $this->tpl->setOnScreenMessage("success", $this->plugin->txt("corrector_assignment_changed"), true);
+        $this->multiFeedback(
+            $changed,
+            $unchanged,
+            $this->plugin->txt(count($changed) == 1 ? 'corrector_assignment_changed' : 'corrector_assignments_changed'),
+            $this->plugin->txt('corrector_assignments_not_changed')
+        );
+
         $this->ctrl->redirect($this, 'showItems');
     }
 

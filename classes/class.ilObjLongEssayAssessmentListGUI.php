@@ -1,4 +1,5 @@
 <?php
+
 /* Copyright (c) 2021 ILIAS open source, Extended GPL, see docs/LICENSE */
 
 /**
@@ -10,7 +11,6 @@
  */
 class ilObjLongEssayAssessmentListGUI extends ilObjectPluginListGUI
 {
-
     /**
      * Init type
      */
@@ -22,7 +22,7 @@ class ilObjLongEssayAssessmentListGUI extends ilObjectPluginListGUI
     /**
      * Get name of gui class handling the commands
      */
-    public function getGuiClass() : string
+    public function getGuiClass(): string
     {
         return "ilObjLongEssayAssessmentGUI";
     }
@@ -39,16 +39,16 @@ class ilObjLongEssayAssessmentListGUI extends ilObjectPluginListGUI
     /**
      * Get commands
      */
-    public function initCommands() : array
+    public function initCommands(): array
     {
         return array(
             array(
                 "permission" => "read",
-                "cmd" => "standardCommand",
+                "cmd" => "",
                 "default" => true),
             array(
                 "permission" => "write",
-                "cmd" => "jumpToOrgaSettings",
+                "cmd" => "",
                 "txt" => $this->txt("edit"),
                 "default" => false)
         );
@@ -62,7 +62,7 @@ class ilObjLongEssayAssessmentListGUI extends ilObjectPluginListGUI
      *                                "property" (string) => property name
      *                                "value" (string) => property value
      */
-    public function getProperties() : array
+    public function getProperties(): array
     {
         $props = array();
 

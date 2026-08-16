@@ -10,12 +10,14 @@ use ILIAS\UI\Implementation\Component\ComponentHelper;
 
 class Bindable implements \ILIAS\UI\Component\JavaScriptBindable
 {
-    use JavaScriptBindable, ComponentHelper;
+    use JavaScriptBindable;
+    use ComponentHelper;
 
     /**
      * @var Component[]|Component
      */
     protected array|Component $components;
+    protected bool $hidden = false;
 
     public function __construct(array|Component $components)
     {
@@ -30,5 +32,17 @@ class Bindable implements \ILIAS\UI\Component\JavaScriptBindable
     public function getCanonicalName(): string
     {
         return "Bindable";
+    }
+
+    public function getHidden(): bool
+    {
+        return $this->hidden;
+    }
+
+    public function withHidden(bool $hidden): Bindable
+    {
+        $clone = clone($this);
+        $clone->hidden = $hidden;
+        return $clone;
     }
 }

@@ -25,14 +25,11 @@ use ILIAS\Plugin\LongEssayAssessment\BaseObjectData;
  */
 class CriteriaAdminGUI extends CriteriaGUI
 {
-    private bool $is_settings_fixed;
     private bool $is_edit_fixed;
 
     public function __construct(BaseObjectData $object)
     {
         parent::__construct($object);
-        $this->is_settings_fixed = $this->fixation_gui->isDisabled('tab_criteria', 'criteria_settings');
-        $this->is_edit_fixed = $this->fixation_gui->isDisabled('tab_criteria', 'criteria_edit');
     }
 
     public function executeCommand()
@@ -58,22 +55,19 @@ class CriteriaAdminGUI extends CriteriaGUI
 
     protected function allowChangeInContext(): bool
     {
-        if ($this->is_edit_fixed) {
-            return false;
-        }
         switch ($this->correction_settings->getCriteriaMode()) {
             case CriteriaMode::NONE:
                 return false;
             case CriteriaMode::FIXED:
             case CriteriaMode::CORRECTOR:
-                return !$this->hasAuthorizedCorrections();
+                return !$this->fixation_gui->isDisabled('criteria_edit') && !$this->hasAuthorizedCorrections();
         }
         return false;
     }
 
     protected function allowSettingsInContext(): bool
     {
-        return !$this->is_settings_fixed && !$this->hasAuthorizedCorrections();
+        return !$this->fixation_gui->isDisabled('criteria_settings') && !$this->hasAuthorizedCorrections();
     }
 
     protected function allowShareInContext(): bool
@@ -87,18 +81,22 @@ class CriteriaAdminGUI extends CriteriaGUI
         if ($this->hasAuthorizedCorrections()) {
             $this->tpl->setOnScreenMessage('info', $this->plugin->txt('criteria_admin_authorized_message'));
         }
-        switch ($this->correction_settings->getCriteriaMode()) {
-            case CriteriaMode::NONE:
-                $mode_message = $this->plugin->txt('criteria_mode_none_info');
-                break;
-            case CriteriaMode::FIXED:
-                $mode_message = $this->plugin->txt('criteria_mode_fixed_info');
-                break;
-            case CriteriaMode::CORRECTOR:
-                $mode_message = $this->plugin->txt('criteria_mode_corrector_info');
-                break;
+
+        if ($this->fixation_gui->isVisible('criteria_settings')) {
+            switch ($this->correction_settings->getCriteriaMode()) {
+                case CriteriaMode::NONE:
+                    $mode_message = $this->plugin->txt('criteria_mode_none_info');
+                    break;
+                case CriteriaMode::FIXED:
+                    $mode_message = $this->plugin->txt('criteria_mode_fixed_info');
+                    break;
+                case CriteriaMode::CORRECTOR:
+                    $mode_message = $this->plugin->txt('criteria_mode_corrector_info');
+                    break;
+            }
+            $components[] = $this->ui_factory->panel()->standard($this->plugin->txt('criteria_mode'), $this->plugin_ui_factory->legacy($mode_message));
+
         }
-        $components[] = $this->ui_factory->panel()->standard($this->plugin->txt('criteria_mode'), $this->plugin_ui_factory->legacy($mode_message));
 
         $table = $this->table();
 
@@ -108,14 +106,18 @@ class CriteriaAdminGUI extends CriteriaGUI
             $select = $this->buildRepositoryTaskSelect();
             list($btn, $components[]) = $select->getToolbarComponents($this->plugin->txt("copy_criteria"));
             $this->toolbar->addComponent($btn);
-        } else {
-            $table->disableAction(true);
         }
 
         if ($this->allowSettingsInContext()) {
             $table->addActionToToolbar($this->toolbar, $table->getActionByName("criteria_settings"));
         }
-        $components[] = $table;
+
+        if ($this->fixation_gui->isVisible('criteria_edit')) {
+            $components[] = $table;
+        } else {
+            $components[] = $this->plugin_ui_factory->container()->bindable($table)->withHidden(true);
+        }
+
         $this->tpl->setContent($this->renderer->render($components));
     }
 
@@ -147,24 +149,25 @@ class CriteriaAdminGUI extends CriteriaGUI
 
     protected function buildSettingsFields(): array
     {
-        return ['criteria_mode' => $this->ui_factory->input()->field()->radio($this->plugin->txt('criteria_mode'))
-                                                    ->withRequired(true)
-                                                    ->withOption(
-                                                        CriteriaMode::NONE->value,
-                                                        $this->plugin->txt('criteria_mode_none'),
-                                                        $this->plugin->txt('criteria_mode_none_info')
-                                                    )
-                                                    ->withOption(
-                                                        CriteriaMode::FIXED->value,
-                                                        $this->plugin->txt('criteria_mode_fixed'),
-                                                        $this->plugin->txt('criteria_mode_fixed_info')
-                                                    )
-                                                    ->withOption(
-                                                        CriteriaMode::CORRECTOR->value,
-                                                        $this->plugin->txt('criteria_mode_corrector'),
-                                                        $this->plugin->txt('criteria_mode_corrector_info')
-                                                    )
-                                                    ->withValue($this->correction_settings->getCriteriaMode()->value)
+        return [
+            'criteria_mode' => $this->ui_factory->input()->field()->radio($this->plugin->txt('criteria_mode'))
+                ->withRequired(true)
+                ->withOption(
+                    CriteriaMode::NONE->value,
+                    $this->plugin->txt('criteria_mode_none'),
+                    $this->plugin->txt('criteria_mode_none_info')
+                )
+                ->withOption(
+                    CriteriaMode::FIXED->value,
+                    $this->plugin->txt('criteria_mode_fixed'),
+                    $this->plugin->txt('criteria_mode_fixed_info')
+                )
+                ->withOption(
+                    CriteriaMode::CORRECTOR->value,
+                    $this->plugin->txt('criteria_mode_corrector'),
+                    $this->plugin->txt('criteria_mode_corrector_info')
+                )
+                ->withValue($this->correction_settings->getCriteriaMode()->value)
         ];
     }
 
@@ -225,11 +228,20 @@ class CriteriaAdminGUI extends CriteriaGUI
 
     public function getTableActions(): array
     {
-        return [
-            $this->createAction(),
-            $this->editAction(),
-            $this->deleteAction(),
-            $this->settingsAction()
-        ];
+        $actions = [];
+
+        if (!$this->fixation_gui->isDisabled('criteria_edit')) {
+            $actions = [
+                $this->createAction(),
+                $this->editAction(),
+                $this->deleteAction(),
+            ];
+        }
+
+        if (!$this->fixation_gui->isDisabled('criteria_settings')) {
+            $actions[] = $this->settingsAction();
+        }
+
+        return $actions;
     }
 }

@@ -38,7 +38,9 @@ use ILIAS\Plugin\LongEssayAssessment\Corrector\CorrectorStatisticsGUI;
 use ILIAS\Plugin\LongEssayAssessment\Corrector\CorrectorTemplateGUI;
 use ILIAS\Plugin\LongEssayAssessment\Corrector\CorrectorCriteriaGUI;
 use Edutiek\AssessmentService\Task\Api\ForClients as TaskApi;
+use Edutiek\AssessmentService\EssayTask\Api\ForClients as EssayTaskApi;
 use Edutiek\AssessmentService\Task\Data\CriteriaMode as CriteriaMode;
+use Edutiek\AssessmentService\EssayTask\Data\WritingType;
 
 /**
  * Plugin GUI Class
@@ -50,10 +52,6 @@ use Edutiek\AssessmentService\Task\Data\CriteriaMode as CriteriaMode;
  */
 class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
 {
-    public const CMD_JUMP_TO_ORGA_SETTINGS = 'jumpToOrgaSettings';
-    public const CMD_STANDARD = 'standardCommand';
-
-
     /** @var ilObjLongEssayAssessment */
     protected ?ilObject $object = null;
 
@@ -64,6 +62,7 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
     private Permissions\ReadService $permissions;
     private Assessment $assessment;
     private TaskApi $task_api;
+    private EssayTaskApi $essay_task_api;
     private ArrayBasedRequestWrapper $query;
     private FixationGUI $fixation_gui;
 
@@ -133,7 +132,7 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
 
         // no read access or not a special return
         $DIC->ctrl()->setParameterByClass(self::class, "ref_id", $ref_id);
-        $DIC->ctrl()->redirectByClass(array(ilLongEssayAssessmentDispatchGUI::class, self::class), self::CMD_STANDARD);
+        $DIC->ctrl()->redirectByClass(array(ilLongEssayAssessmentDispatchGUI::class, self::class));
     }
 
     protected function afterConstructor(): void
@@ -147,6 +146,7 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
         if (isset($this->object)) {
             $this->assessment = $this->plugin->dic()->assessment($this->object->getAssId(), $DIC->user()->getId());
             $this->task_api = $this->plugin->dic()->task($this->object->getAssId(), $this->user->getId());
+            $this->essay_task_api = $this->plugin->dic()->essayTask($this->object->getAssId(), $this->user->getId());
             $this->permissions = $this->assessment->permissions($this->object->getContextId());
             $this->query = $DIC->http()->wrapper()->query();
             $this->fixation_gui = FixationGUI::getInstance($this->object->getAssId(), $this->object->getContextId());
@@ -178,6 +178,23 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
     public function performCommand($cmd): void
     {
         $next_class = $this->ctrl->getNextClass();
+
+        // Handle the call for as settings tab
+        // The class is determined either by tab_id parameter or the first available settings tab
+        if (empty($next_class) && empty($cmd) && $this->query->has('tab_id')) {
+            $tab_id = $this->query->retrieve('tab_id', $this->refinery->kindlyTo()->string(), '');
+            $tabs = $this->availableSettingsTabs();
+            if (!empty($tabs)) {
+                $next_class = strtolower(reset($tabs)['class']); // first available
+                foreach ($this->availableSettingsTabs() as $tab) {
+                    if ($tab['id'] == $tab_id) {
+                        $next_class = strtolower($tab['class']);        // requested
+                        break;
+                    }
+                }
+            }
+        }
+
         if (!empty($next_class)) {
             switch ($next_class) {
                 case strtolower(ilLongEssayAssessmentUploadHandlerGUI::class):
@@ -359,14 +376,8 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
             }
         } else {
             switch ($cmd) {
-                case self::CMD_JUMP_TO_ORGA_SETTINGS:
-                    $this->checkPermission("write");
-                    $this->$cmd();
-                    break;
-
-                    // list all commands that need read permission here
-                case self::CMD_STANDARD:
-                    $this->$cmd();
+                case '':
+                    $this->standardCommand();
                     break;
 
                 default:
@@ -483,11 +494,11 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
     }
 
     /**
-     * After object has been created -> jump to this command
+     * After the object has been created -> jump to this command
      */
     public function getAfterCreationCmd(): string
     {
-        return self::CMD_JUMP_TO_ORGA_SETTINGS;
+        return '';
     }
 
     /**
@@ -495,7 +506,7 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
      */
     public function getStandardCmd(): string
     {
-        return self::CMD_STANDARD;
+        return '';
     }
 
     /**
@@ -525,12 +536,94 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
         $this->tpl->setOnScreenMessage(Gti::MESSAGE_TYPE_FAILURE, $this->plugin->txt('message_no_admin_writer_corrector'), true);
     }
 
-    /**
-     * Jump to the editing of organisational settings (used in actions menu)
-     */
-    protected function jumpToOrgaSettings()
+    public function availableSettingsTabs()
     {
-        $this->ctrl->redirectByClass(OrgaSettingsGUI::class);
+        $writing_settings = $this->essay_task_api->writingSettings()->get();
+
+        $tabs = [];
+        if ($this->permissions->canEditOrgaSettings() && $this->fixation_gui->hasVisibleGroups('tab_orga_settings')) {
+            $tabs[] = [
+                'id' => 'tab_orga_settings',
+                'txt' => $this->plugin->txt('tab_orga_settings'),
+                'class' => OrgaSettingsGUI::class,
+                'url' => $this->ctrl->getLinkTargetByClass(OrgaSettingsGUI::class)
+            ];
+        }
+        if ($this->permissions->canEditContentSettings() && $this->fixation_gui->hasVisibleGroups('tab_instructions_settings')) {
+            $tabs[] = [
+                'id' => 'tab_instructions_settings',
+                'txt' => $this->plugin->txt('tab_instructions_settings'),
+                'class' => InstructionSettingsGUI::class,
+                'url' => $this->ctrl->getLinkTargetByClass(InstructionSettingsGUI::class)
+            ];
+        }
+        if ($this->permissions->canEditContentSettings() && $this->fixation_gui->hasVisibleGroups('tab_solution_settings')) {
+            $tabs[] = [
+                'id' => 'tab_solution_settings',
+                'txt' => $this->plugin->txt('tab_solution_settings'),
+                'class' => SolutionSettingsGUI::class,
+                'url' => $this->ctrl->getLinkTargetByClass(SolutionSettingsGUI::class)
+            ];
+        }
+        if ($this->permissions->canEditContentSettings() && $this->fixation_gui->hasVisibleGroups('tab_resources')) {
+            $tabs[] = [
+                'id' => 'tab_resources',
+                'txt' => $this->plugin->txt('tab_resources'),
+                'class' => ResourcesAdminGUI::class,
+                'url' => $this->ctrl->getLinkTargetByClass(ResourcesAdminGUI::class)
+            ];
+        }
+        if ($this->permissions->canEditTechnicalSettings() && $this->fixation_gui->hasVisibleGroups('tab_technical_settings')
+            && $writing_settings->getWritingType() == WritingType::ESSAY_EDITOR) {
+            $tabs[] = [
+                'id' => 'tab_technical_settings',
+                'txt' => $this->plugin->txt('tab_technical_settings'),
+                'class' => TechnicalSettingsGUI::class,
+                'url' => $this->ctrl->getLinkTargetByClass(TechnicalSettingsGUI::class)
+            ];
+        }
+        if ($this->permissions->canEditTechnicalSettings() && $this->fixation_gui->hasVisibleGroups('tab_correction_settings')) {
+            $tabs[] = [
+                'id' => 'tab_correction_settings',
+                'txt' => $this->plugin->txt('tab_correction_settings'),
+                'class' => CorrectionSettingsGUI::class,
+                'url' => $this->ctrl->getLinkTargetByClass(CorrectionSettingsGUI::class)
+            ];
+        }
+        if ($this->permissions->canEditOrgaSettings() && $this->fixation_gui->hasVisibleGroups('tab_criteria')) {
+            $tabs[] = [
+                'id' => 'tab_criteria',
+                'txt' => $this->plugin->txt('tab_criteria'),
+                'class' => CriteriaAdminGUI::class,
+                'url' => $this->ctrl->getLinkTargetByClass(CriteriaAdminGUI::class)
+            ];
+        }
+        if ($this->permissions->canEditGrades() && $this->fixation_gui->hasVisibleGroups('tab_grades')) {
+            $tabs[] = [
+                'id' => 'tab_grades',
+                'txt' => $this->plugin->txt('tab_grades'),
+                'class' => GradesAdminGUI::class,
+                'url' => $this->ctrl->getLinkTargetByClass(GradesAdminGUI::class)
+            ];
+        }
+        if ($this->permissions->canEditDocumentationSettings() && $this->fixation_gui->hasVisibleGroups('tab_documentation_settings')) {
+            $tabs[] = [
+                'id' => 'tab_documentation_settings',
+                'txt' => $this->plugin->txt('tab_documentation_settings'),
+                'class' => DocumentationSettingsGUI::class,
+                'url' => $this->ctrl->getLinkTargetByClass(DocumentationSettingsGUI::class)
+            ];
+        }
+        if ($this->permissions->canEditOrgaSettings() && $this->fixation_gui->hasVisibleGroups('tab_notifications')) {
+            $tabs[] = [
+                'id' => 'tab_notifications',
+                'txt' => $this->plugin->txt('tab_notifications'),
+                'class' => NotificationSettingsGUI::class,
+                'url' => $this->ctrl->getLinkTargetByClass(NotificationSettingsGUI::class)
+            ];
+        }
+
+        return $tabs;
     }
 
     /**
@@ -547,78 +640,7 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
         $this->subtabs = [];
 
         // Assessment Definition Tab
-        $tabs = [];
-        if ($this->permissions->canEditOrgaSettings() && $this->fixation_gui->hasVisibleGroups('tab_orga_settings')) {
-            $tabs[] = [
-                'id' => 'tab_orga_settings',
-                'txt' => $this->plugin->txt('tab_orga_settings'),
-                'url' => $this->ctrl->getLinkTargetByClass(OrgaSettingsGUI::class)
-            ];
-        }
-        if ($this->permissions->canEditContentSettings() && $this->fixation_gui->hasVisibleGroups('tab_instructions_settings')) {
-            $tabs[] = [
-                'id' => 'tab_instructions_settings',
-                'txt' => $this->plugin->txt('tab_instructions_settings'),
-                'url' => $this->ctrl->getLinkTargetByClass(InstructionSettingsGUI::class)
-            ];
-        }
-        if ($this->permissions->canEditContentSettings() && $this->fixation_gui->hasVisibleGroups('tab_solution_settings')) {
-            $tabs[] = [
-                'id' => 'tab_solution_settings',
-                'txt' => $this->plugin->txt('tab_solution_settings'),
-                'url' => $this->ctrl->getLinkTargetByClass(SolutionSettingsGUI::class)
-            ];
-        }
-        if ($this->permissions->canEditContentSettings() && $this->fixation_gui->hasVisibleGroups('tab_resources')) {
-            $tabs[] = [
-                'id' => 'tab_resources',
-                'txt' => $this->plugin->txt('tab_resources'),
-                'url' => $this->ctrl->getLinkTargetByClass(ResourcesAdminGUI::class)
-            ];
-        }
-        if ($this->permissions->canEditTechnicalSettings() && $this->fixation_gui->hasVisibleGroups('tab_technical_settings')) {
-            $tabs[] = [
-                'id' => 'tab_technical_settings',
-                'txt' => $this->plugin->txt('tab_technical_settings'),
-                'url' => $this->ctrl->getLinkTargetByClass(TechnicalSettingsGUI::class)
-            ];
-        }
-        if ($this->permissions->canEditTechnicalSettings() && $this->fixation_gui->hasVisibleGroups('tab_correction_settings')) {
-            $tabs[] = [
-                'id' => 'tab_correction_settings',
-                'txt' => $this->plugin->txt('tab_correction_settings'),
-                'url' => $this->ctrl->getLinkTargetByClass(CorrectionSettingsGUI::class)
-            ];
-        }
-        if ($this->permissions->canEditOrgaSettings() && $this->fixation_gui->hasVisibleGroups('tab_criteria')) {
-            $tabs[] = [
-                'id' => 'tab_criteria',
-                'txt' => $this->plugin->txt('tab_criteria'),
-                'url' => $this->ctrl->getLinkTargetByClass(CriteriaAdminGUI::class)
-            ];
-        }
-        if ($this->permissions->canEditGrades() && $this->fixation_gui->hasVisibleGroups('tab_grades')) {
-            $tabs[] = [
-                'id' => 'tab_grades',
-                'txt' => $this->plugin->txt('tab_grades'),
-                'url' => $this->ctrl->getLinkTargetByClass(GradesAdminGUI::class)
-            ];
-        }
-        if ($this->permissions->canEditDocumentationSettings() && $this->fixation_gui->hasVisibleGroups('tab_documentation_settings')) {
-            $tabs[] = [
-                'id' => 'tab_documentation_settings',
-                'txt' => $this->plugin->txt('tab_documentation_settings'),
-                'url' => $this->ctrl->getLinkTargetByClass(DocumentationSettingsGUI::class)
-            ];
-        }
-        if ($this->permissions->canEditOrgaSettings() && $this->fixation_gui->hasVisibleGroups('tab_notifications')) {
-            $tabs[] = [
-                'id' => 'tab_notifications',
-                'txt' => $this->plugin->txt('tab_notifications'),
-                'url' => $this->ctrl->getLinkTargetByClass(NotificationSettingsGUI::class)
-            ];
-        }
-
+        $tabs = $this->availableSettingsTabs();
         if (!empty($tabs)) {
             $this->tabs->addTab('tab_assessment', $this->plugin->txt('tab_task'), $tabs[0]['url']);
             $this->subtabs['tab_assessment'] = $tabs;

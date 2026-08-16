@@ -43,13 +43,12 @@ class NotificationSettingsGUI extends BaseGUI implements DataTableParent
         $this->entity_service = $this->system_api->entity();
         $this->service_lang = $this->assessment_api->language($this->user->getId());
         $this->users = $this->system_api->user();
-
-        $this->is_fixed = $this->fixation_gui->isDisabled('tab_notifications', 'notification_settings');
     }
 
     public function executeCommand()
     {
         $this->initTools(false, true, 'tab_notifications');
+        $this->is_fixed = $this->fixation_gui->isDisabled('notification_settings');
 
         $cmd = $this->ctrl->getCmd('showItems');
         switch ($cmd) {

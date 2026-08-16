@@ -1022,14 +1022,14 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
 
     protected function hasLocations(): bool
     {
-        $location = $this->location ??= $this->assessment_api->location()->allTitles();
+        $location = $this->location ??= $this->assessment_api->location()->allTitlesIndexed();
 
         return !empty($location);
     }
 
     protected function getLocations(): array
     {
-        return $this->location ??= $this->assessment_api->location()->allTitles();
+        return $this->location ??= $this->assessment_api->location()->allTitlesIndexed();
     }
 
     protected function getLocation(?int $id): string

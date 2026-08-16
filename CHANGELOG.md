@@ -13,7 +13,10 @@ New functions, Visible changes
 - Request the writers' acceptance for additional data shown on the supervision screen
 - Add an optional start password for the writing and request it in the start modal
 - Move the notification of writers from the protocol to the supervision and writer admin
-- Subdivide the organizational settings and make their settings fixable
+- Subdivide the organizational settings
+- Allow hiding of all settings except object properties (title, description, online)
+- Don't show a tab if all settings on it are hidden
+- Don't change a corrector assignment for an authorized correction
 
 Bug Fixes / Refactorings
 
@@ -23,8 +26,10 @@ Bug Fixes / Refactorings
 - Fix php error on statistics pages in ILIAS 11 with PHP 8.4
 - Fix failing table export in ILIAS 11
 - Don't create a writer entry when just the start page is viewed
-- Extend user session on update call from writer app
+- Extend the user session on update call from writer app
 - Fix wrong assignment of locations to writers
+- Fix the saving of disabled settings
+- Don't create essay images if marking is done in PDF
 
 ## Version 10.2 (2026-08-03)
 

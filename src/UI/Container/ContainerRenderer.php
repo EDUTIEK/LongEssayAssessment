@@ -42,6 +42,9 @@ class ContainerRenderer extends AbstractComponentRenderer
         $tpl = $this->getTemplate("tpl.bindable.html", true, true);
         $tpl->setVariable('ID', $cid);
         $tpl->setVariable('COMPONENTS', $default_renderer->render($component->getComponents()));
+        if ($component->getHidden()) {
+            $tpl->setVariable('HIDDEN', 'visibility: hidden;');
+        }
         return $tpl->get();
     }
 

@@ -110,6 +110,11 @@ class RepositoryFactory implements \Edutiek\AssessmentService\Assessment\Data\Re
         return $this->repo(WriterRepo::class, Writer::class);
     }
 
+    public function writerClient(): WriterClientRepo
+    {
+        return $this->repo(WriterClientRepo::class, WriterClient::class);
+    }
+
     public function disabledGroup(): DisabledGroupRepo
     {
         return $this->repo(DisabledGroupRepo::class, DisabledGroup::class);

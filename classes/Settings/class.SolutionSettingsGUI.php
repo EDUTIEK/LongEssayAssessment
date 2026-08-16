@@ -51,7 +51,7 @@ class SolutionSettingsGUI extends BaseGUI
 
     public function executeCommand(): void
     {
-        $this->initTools(true, true);
+        $this->initTools(true, true, 'tab_solution_settings');
         $this->settings_service = $this->task_api->settings($this->task_info->getId());
         $this->resource_service = $this->task_api->resource($this->task_info->getId());
         $this->settings = $this->settings_service->get();
@@ -88,32 +88,37 @@ class SolutionSettingsGUI extends BaseGUI
 
     private function updateSettings(array $data): void
     {
-        $this->settings->setSolution(
-            $this->transform_service->trimRichText($data['form']['task_solution'])
-        );
-        $this->entity_service->secure($this->settings, Settings::class);
-        $this->settings_service->save($this->settings);
+        if (!$this->fixation_gui->isDisabled('task_solution')) {
+            $this->settings->setSolution(
+                $this->transform_service->trimRichText($data['form']['task_solution'])
+            );
 
-        $id = $data['form']['resource_file'][0] ?? null;
-        if ($id !== $this->resource?->getFileId()) {
-            if ($id !== null) {
-                if ($this->resource === null) {
-                    $this->resource = $this->resource_service->new()->setType(ResourceType::SOLUTION);
-                } else {
+            $this->entity_service->secure($this->settings, Settings::class);
+            $this->settings_service->save($this->settings);
+        }
+
+        if (!$this->fixation_gui->isDisabled('resource_file')) {
+            $id = $data['form']['resource_file'][0] ?? null;
+            if ($id !== $this->resource?->getFileId()) {
+                if ($id !== null) {
+                    if ($this->resource === null) {
+                        $this->resource = $this->resource_service->new()->setType(ResourceType::SOLUTION);
+                    } else {
+                        $this->file_storage->deleteFile($this->resource->getFileId());
+                    }
+                    $stored = $this->file_storage->saveFile(
+                        $this->upload_handler->getApiStream($id),
+                        $this->upload_handler->getApiInfo($id)
+                    );
+                    $this->resource_service->save(
+                        $this->resource
+                            ->setFileId($stored->getId())
+                            ->setTitle($stored->getFileName())
+                    );
+                } elseif ($this->resource !== null) {
                     $this->file_storage->deleteFile($this->resource->getFileId());
+                    $this->resource_service->delete($this->resource);
                 }
-                $stored = $this->file_storage->saveFile(
-                    $this->upload_handler->getApiStream($id),
-                    $this->upload_handler->getApiInfo($id)
-                );
-                $this->resource_service->save(
-                    $this->resource
-                    ->setFileId($stored->getId())
-                    ->setTitle($stored->getFileName())
-                );
-            } elseif ($this->resource !== null) {
-                $this->file_storage->deleteFile($this->resource->getFileId());
-                $this->resource_service->delete($this->resource);
             }
         }
 
@@ -127,17 +132,23 @@ class SolutionSettingsGUI extends BaseGUI
         $sections = [];
         $fields = [];
 
-        $fields['task_solution'] = $this->plugin_ui_factory->field()
-            ->tinyMCE($this->plugin->txt("task_solution_text"), $this->plugin->txt("task_solution_info"))
-            ->withValue($this->settings->getSolution() ?? "");
+        if ($this->fixation_gui->isVisible('task_solution')) {
+            $fields['task_solution'] = $this->plugin_ui_factory->field()
+                ->tinyMCE($this->plugin->txt("task_solution_text"), $this->plugin->txt("task_solution_info"))
+                ->withValue($this->settings->getSolution() ?? "")
+                ->withDisabled($this->fixation_gui->isDisabled('task_solution'));
+        }
 
-        $fields['resource_file'] = $factory->file(
-            $this->upload_handler,
-            $this->plugin->txt("task_solution_file"),
-            $this->plugin->txt("task_solution_file_info")
-        )
-            ->withAcceptedMimeTypes(['application/pdf'])
-            ->withValue($this->resource !== null && $this->resource->getFileId() !== null ? [$this->resource->getFileId()] : []);
+        if ($this->fixation_gui->isVisible('resource_file')) {
+            $fields['resource_file'] = $factory->file(
+                $this->upload_handler,
+                $this->plugin->txt("task_solution_file"),
+                $this->plugin->txt("task_solution_file_info")
+            )
+                ->withAcceptedMimeTypes(['application/pdf'])
+                ->withValue($this->resource !== null && $this->resource->getFileId() !== null ? [$this->resource->getFileId()] : [])
+                ->withDisabled($this->fixation_gui->isDisabled('resource_file'));
+        }
 
         $sections["form"] = $factory->section($fields, $this->plugin->txt('tab_solution_settings'));
 

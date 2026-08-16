@@ -1708,4 +1708,42 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
         $this->db->manipulate("UPDATE xlas_ta_corr_summary SET summary_pdf = null where summary_pdf = ''");
         $this->db->manipulate("UPDATE xlas_ta_resource SET file_id = null where file_id = ''");
     }
+
+    public function step_92(): void
+    {
+        if (!$this->db->tableExists('xlas_as_writer_client')) {
+            $fields = [
+                'writer_id' => ['notnull' => 1, 'type' => ilDBConstants::T_INTEGER],
+                'token_id' => ['notnull' => 1, 'type' => ilDBConstants::T_INTEGER],
+                'session_id' => ['notnull' => 0, 'type' => ilDBConstants::T_TEXT, 'length' => 260],
+                'first_access' => ['notnull' => 1, 'type' => ilDBConstants::T_TIMESTAMP],
+                'last_access' => ['notnull' => 1, 'type' => ilDBConstants::T_TIMESTAMP],
+                'ip' => ['notnull' => 0, 'type' => ilDBConstants::T_TEXT, 'length' => 50],
+                'user_agent' => ['notnull' => 0, 'type' => ilDBConstants::T_TEXT, 'length' => 600],
+                'platform' => ['notnull' => 0, 'type' => ilDBConstants::T_TEXT, 'length' => 50],
+                'battery' => ['notnull' => 0, 'type' => ilDBConstants::T_FLOAT],
+                'hidden' => ['notnull' => 0, 'type' => ilDBConstants::T_INTEGER],
+            ];
+            $this->db->createTable('xlas_as_writer_client', $fields);
+            $this->db->addPrimaryKey('xlas_as_writer_client', ['writer_id', 'token_id']);
+            $this->db->addIndex("xlas_as_writer_client", ["last_access"], "i1");
+            $this->db->addIndex("xlas_as_writer_client", ["session_id"], "i2");
+        }
+    }
+
+    public function step_93(): void
+    {
+        if (!$this->db->tableColumnExists('xlas_as_orga_settings', 'dashboard')) {
+            $this->db->addTableColumn('xlas_as_orga_settings', 'dashboard', [
+                'type' => ilDBConstants::T_INTEGER, 'notnull' => 1, 'default' => 0]);
+        }
+    }
+
+    public function step_94(): void
+    {
+        if (!$this->db->tableColumnExists('xlas_as_orga_settings', 'start_password')) {
+            $this->db->addTableColumn('xlas_as_orga_settings', 'start_password', [
+                'type' => ilDBConstants::T_TEXT, 'notnull' => 0, 'length' => 50]);
+        }
+    }
 }

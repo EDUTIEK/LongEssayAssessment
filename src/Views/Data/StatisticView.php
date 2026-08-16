@@ -26,7 +26,7 @@ class StatisticView extends \Edutiek\AssessmentService\Views\Data\StatisticView
      * @param bool                 $grades_uniform
      */
     public function __construct(
-        private UserData|string|null $context = null,
+        private UserData|string|null $context,
         private ?array $grading_objects,
         private array $points_counts,
         private array $grade_counts,

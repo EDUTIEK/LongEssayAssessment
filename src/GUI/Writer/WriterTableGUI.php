@@ -18,6 +18,7 @@ use Edutiek\AssessmentService\System\Format\Service as FormatService;
 use Edutiek\AssessmentService\System\User\ReadService as UserService;
 use Edutiek\AssessmentService\System\File\Disposition;
 use Edutiek\AssessmentService\System\File\Storage as FileStorage;
+use Edutiek\AssessmentService\Views\Data\ClientFilterOptions;
 use ILIAS\HTTP\StatusCode;
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\BaseObjectData;
@@ -53,6 +54,8 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
     protected AssessmentFormat $assessment_format;
     protected FormatService $system_format;
     private FileStorage $file_storage;
+
+    protected ?string $client_filter = null;
 
     public function __construct(BaseObjectData $object)
     {
@@ -492,6 +495,7 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
     ): array {
         $timezone = new \DateTimeZone($this->user->getTimeZone());
         $writer = $item->getWriter();
+        $client = $item->getClientSummary();
         $user_data = $item->getUserData();
         $user_display = $item->getUserDisplay();
         $essay_summary = $item->getEssaySummary();
@@ -522,6 +526,11 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
             $assessment_duration = $exam_start->diff($exam_end)->i;
         }
 
+        if ($item->getClientSummary()->isOnline()) {
+            $online_icon = $this->ui_factory->symbol()->icon()->custom('assets/images/standard/icon_ok.svg', $this->lng->txt('online'));
+        } else {
+            $online_icon = $this->ui_factory->symbol()->icon()->custom('assets/images/standard/icon_not_ok.svg', $this->lng->txt('offline'));
+        }
 
         return [
             "image" => $avatar,
@@ -545,7 +554,13 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
                 : ($item->getAuthorizedFromFullname() ?? $unknown),
             "excluded" => $writer->getWritingExcluded()?->setTimezone($timezone),
             "excluded_from" => $item->getExecludedFromFullname() ?? $unknown,
-            "pdf_version" => $essay_summary?->hasPdfUploads() ?? false
+            "pdf_version" => $essay_summary?->hasPdfUploads() ?? false,
+            "online" => $online_icon,
+            "sessions" => empty($client->getSessions()) ? null : $client->getSessions(),
+            "first_access" => $client->getFirstAccess(),
+            'last_access' => $client->getLastAccess(),
+            'battery' => $client->getBattery() === null ? null : $client->getBattery() * 100,
+            'hidden' => $client->getHidden(),
         ];
     }
 
@@ -578,6 +593,12 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
             "pseudonym" => $cf->text($this->plugin->txt("pseudonym"))->withIsOptional(true, false)->withIsSortable(true),
             "location" => $location_avaiable ? $cf->text($this->plugin->txt("location"))->withIsOptional(true, false)->withIsSortable(true) : null,
             "status" => $cf->status($this->plugin->txt("essay_status"))->withIsOptional(true, true)->withIsSortable(true),
+            "online" => $cf->statusIcon($this->lng->txt('online'))->withIsOptional(true, true)->withIsSortable(true),
+            "sessions" => $cfp->nullableNumber($this->plugin->txt('started_sessions'))->withIsOptional(true, true)->withIsSortable(true),
+            "first_access" => $cfp->nullableDate($this->plugin->txt("first_access"), $date_without_seconds)->withIsOptional(true, true)->withIsSortable(true),
+            "last_access" => $cfp->nullableDate($this->plugin->txt("last_access"), $date_without_seconds)->withIsOptional(true, true)->withIsSortable(true),
+            "battery" => $cfp->nullableNumber($this->plugin->txt("battery_status"))->withIsOptional(true, true)->withIsSortable(true)->withUnit('%'),
+            "hidden" => $cfp->nullableBool($this->plugin->txt("client_hidden"), $this->lng->txt("yes"), $this->lng->txt("no"))->withIsOptional(true, true)->withIsSortable(true),
             "writing_last_save" => $cfp->nullableDate($this->plugin->txt("writing_last_save"), $date_with_seconds)->withIsOptional(true, false)->withIsSortable(true),
             "word_count" => $cf->number($this->plugin->txt('word_count'))->withIsOptional(true, false)->withIsSortable(true),
             "pdf_version" => $cf->boolean($this->plugin->txt("pdf_version"), $this->lng->txt("yes"), $this->lng->txt("no"))->withIsOptional(true, false)->withIsSortable(true),
@@ -592,7 +613,7 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
             "authorized_from" => $cf->text($this->plugin->txt("writing_authorized_from"))->withIsOptional(true, false)->withIsSortable(true),
             "excluded" => $cfp->nullableDate($this->plugin->txt("writing_excluded_at"), $date_without_seconds)->withIsOptional(true, true)->withIsSortable(true),
             "excluded_from" => $cf->text($this->plugin->txt("writing_excluded_from"))->withIsOptional(true, false)->withIsSortable(true),
-        ])));
+         ])));
     }
 
     public function getTotalRowCount(?array $filter_data, ?array $additional_parameters): ?int
@@ -797,7 +818,7 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
         }
         $location_input = $this->ui_factory->input()->field()->select($this->plugin->txt("location"), $options);
 
-        if (count($items) === 1 && $items[0]?->getWriter()?->getLocation() !== null) {
+        if (count($items) === 1 && isset($options[$items[0]?->getWriter()?->getLocation() ?? 0])) {
             $location_input = $location_input->withValue($items[0]->getWriter()->getLocation());
         }
 
@@ -885,7 +906,7 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
     /**
      * @param WriterItem[] $items
      */
-    private function getTableActionConfirmFields(array $items): array
+    protected function getTableActionConfirmFields(array $items): array
     {
         $fields = [
             'info' => $this->getTableActionInfoField($items),
@@ -901,7 +922,7 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
     /**
      * @param WriterItem[] $items
      */
-    private function getTableActionInfoField(array $items): Input
+    protected function getTableActionInfoField(array $items): Input
     {
         return $this->plugin_ui_factory->field()->info($this->plugin->txt('participants'))
             ->withInfo($this->ui_factory->listing()->unordered(
@@ -922,8 +943,21 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
             $filter['id'] = $ids;
         }
 
+        if (!empty($this->client_filter)) {
+            $filter['client'] = $this->client_filter;
+        }
+
         foreach ($writer_view->some($filter) as $view) {
-            yield new WriterItem($view->getWriter()->getId(), $view->getWriter(), $view->getWriterData(), $view->getWriterDisplay(), $view->getEssayTaskSummary(), $view->getAuthorizedByData(), $view->getExcludedByData());
+            yield new WriterItem(
+                $view->getWriter()->getId(),
+                $view->getWriter(),
+                $view->getWriterData(),
+                $view->getWriterDisplay(),
+                $view->getClientSummary(),
+                $view->getEssayTaskSummary(),
+                $view->getAuthorizedByData(),
+                $view->getExcludedByData()
+            );
         }
     }
 
@@ -937,16 +971,16 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
             throw new \Exception("Writer with id $id not found");
         }
 
-        return new WriterItem($view->getWriter()->getId(), $view->getWriter(), $view->getWriterData(), $view->getWriterDisplay(), $view->getEssayTaskSummary(), $view->getAuthorizedByData(), $view->getExcludedByData());
-
-        //        $writer = $this->writer_service->oneByWriterId($id);
-        //        $essay_status = $this->assessment_status->oneWriterEssaySummary($writer->getId());
-        //        $user = $this->user_service->getUser($writer->getUserId());
-        //        $user_display = $this->user_service->getUserDisplay($writer->getUserId(), null);
-        //        $authorized_from = $writer->getWritingAuthorizedBy() !== null ? $users[$writer->getWritingAuthorizedBy()] ?? null : null;
-        //        $excluded_from = $writer->getWritingExcludedBy() !== null ? $users[$writer->getWritingExcludedBy()] ?? null : null;
-        //
-        //        return new WriterItem($writer->getId(), $writer, $user, $user_display, $essay_status, $authorized_from, $excluded_from);
+        return new WriterItem(
+            $view->getWriter()->getId(),
+            $view->getWriter(),
+            $view->getWriterData(),
+            $view->getWriterDisplay(),
+            $view->getClientSummary(),
+            $view->getEssayTaskSummary(),
+            $view->getAuthorizedByData(),
+            $view->getExcludedByData()
+        );
     }
 
     public function getFilterInputs(): array
@@ -975,6 +1009,7 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
     public function getFilterInputActivation(): ?array
     {
         return $this->filterFilterFields([
+            "client" => true,
             "name" => true,
             "location" => $this->hasLocations(),
             "status" => true,
@@ -987,14 +1022,14 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
 
     protected function hasLocations(): bool
     {
-        $location = $this->location ??= $this->assessment_api->location()->allTitles();
+        $location = $this->location ??= $this->assessment_api->location()->allTitlesIndexed();
 
         return !empty($location);
     }
 
     protected function getLocations(): array
     {
-        return $this->location ??= $this->assessment_api->location()->allTitles();
+        return $this->location ??= $this->assessment_api->location()->allTitlesIndexed();
     }
 
     protected function getLocation(?int $id): string
@@ -1032,6 +1067,73 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
             $this->http->sendResponse();
             $this->http->close();
         }
+    }
+
+    protected function sendAlertAction()
+    {
+        return $this->plugin_ui_factory->table()->action()->form(
+            "create_alert",
+            $this->plugin->txt("create_alert"),
+            $this->lng->txt("create"),
+            $this->getAlertConfirmFields(...),
+            $this->sendAlert(...),
+            fn(WriterItem $writer) => true,
+            Action\Type::Standard
+        );
+    }
+
+    /**
+     * @param WriterItem[] $items
+     */
+    protected function getAlertConfirmFields(array $items): array
+    {
+        $fields = [];
+
+        if (count($items) == count($this->writer_service->allIds())) {
+            $fields['items'] = $this->plugin_ui_factory->field()->info($this->plugin->txt('participants'))
+                                                       ->withInfo($this->ui_factory->listing()->unordered([
+                                                           $this->plugin->txt(
+                                                               'alert_recipient_all'
+                                                           )]))
+                                                       ->withValue('all');
+        } else {
+            $fields['items'] = $this->getTableActionInfoField($items)
+                                    ->withValue(implode(',', array_map(fn(WriterItem $item) => $item->getId(), $items)));
+        }
+
+        $fields['message'] = $this->ui_factory->input()->field()->textarea(
+            $this->plugin->txt('alert_text'),
+            $this->plugin->txt('alert_text_info')
+        )->withAdditionalTransformation($this->refinery->string()->hasMinLength(5));
+
+        return $fields;
+    }
+
+    public function sendAlert(WriterItem $writer, array $data)
+    {
+        $alert_service = $this->assessment_api->alert();
+        $time = new \DateTimeImmutable('now');
+
+        $items = $data['items'] ?? '';
+        $message = $data['message'] ?? '';
+
+        if ($items === 'all') {
+            $alert = $alert_service->new()
+                                   ->setShownFrom($time)
+                                   ->setMessage($message);
+            $alert_service->create($alert);
+        } else {
+            foreach (explode(',', $items) as $id) {
+                $alert = $alert_service->new()
+                                       ->setShownFrom($time)
+                                       ->setMessage($message)
+                                       ->setWriterId((int) $id);
+                $alert_service->create($alert);
+            }
+        }
+
+        $this->tpl->setOnScreenMessage("success", $this->plugin->txt("alert_created"), true);
+        $this->ctrl->redirect($this);
     }
 
 }

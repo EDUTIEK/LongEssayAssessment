@@ -24,6 +24,11 @@ class Factory
         return new UnboundTimeSpan($this->language, $title, $format);
     }
 
+    public function nullableBool(string $title): NullableBool
+    {
+        return new NullableBool($this->language, $title);
+    }
+
     public function nullableDate(string $title, DateFormat $format): NullableDate
     {
         return new NullableDate($this->language, $title, $format);

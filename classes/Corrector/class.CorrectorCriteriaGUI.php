@@ -1,8 +1,8 @@
 <?php
+
 /* Copyright (c) 2021 ILIAS open source, Extended GPL, see docs/LICENSE */
 
 namespace ILIAS\Plugin\LongEssayAssessment\Corrector;
-
 
 use ILIAS\Plugin\LongEssayAssessment\Criteria\CriteriaGUI;
 use Edutiek\AssessmentService\Assessment\Data\Corrector;
@@ -29,7 +29,6 @@ use Edutiek\AssessmentService\System\Data\UserData;
  */
 class CorrectorCriteriaGUI extends CriteriaGUI
 {
-
     private CorrectionSettings $settings;
     private CorrectorTaskPrefsService $corrector_task_pref_service;
     private CorrectorService $corrector_service;
@@ -48,10 +47,12 @@ class CorrectorCriteriaGUI extends CriteriaGUI
 
     public function executeCommand()
     {
-        if($this->corrector === null) {
+        if ($this->corrector === null) {
             $this->tpl->setContent('unknown corrector ');
             return;
         }
+
+        $this->initTools(true, false);
         parent::executeCommand();
     }
 
@@ -134,13 +135,13 @@ class CorrectorCriteriaGUI extends CriteriaGUI
         $query = $this->dic->http()->wrapper()->query();
 
 
-        if($query->has('publish') && $this->allowShareInContext()) {
+        if ($query->has('publish') && $this->allowShareInContext()) {
             $toggle = $query->retrieve('publish', $this->refinery->kindlyTo()->string()) === 'on';
             $task_prefs = $this->corrector_task_pref_service->get($this->corrector->getId(), $this->task_info->getId());
             $task_prefs->setCriterionCopy($toggle);
             $this->corrector_task_pref_service->save($task_prefs);
 
-            if($toggle) {
+            if ($toggle) {
                 $this->tpl->setOnScreenMessage("success", $this->plugin->txt("criteria_publish_enabled"), true);
             } else {
                 $this->tpl->setOnScreenMessage("success", $this->plugin->txt("criteria_publish_disabled"), true);
@@ -158,11 +159,11 @@ class CorrectorCriteriaGUI extends CriteriaGUI
         $allowed_corrector = $this->corrector_task_pref_service->getEnabledCriterionCopyCorrectorIds($this->task_info->getId());
         $allowed_corrector[] = null;
 
-        if(isset($query["criteria_group"]) && $this->getCorrectorIdFromContext() !== null) {
+        if (isset($query["criteria_group"]) && $this->getCorrectorIdFromContext() !== null) {
             if ($query["criteria_group"] == "group_-1") {
                 $from_corrector_id = null;
             } else {
-                $from_corrector_id =  (int)str_replace("group_", "", $query["criteria_group"]);
+                $from_corrector_id = (int) str_replace("group_", "", $query["criteria_group"]);
             }
 
             if (in_array($from_corrector_id, $allowed_corrector)) {
@@ -172,7 +173,7 @@ class CorrectorCriteriaGUI extends CriteriaGUI
                     $items[] = $this->ui_factory->item()->standard($this->buildItemTitle($criterion))
                                                ->withDescription(nl2br($criterion->getDescription()));
                 }
-                if($from_corrector_id !== null) {
+                if ($from_corrector_id !== null) {
                     $corrector = $this->corrector_service->oneById($from_corrector_id);
                     $title = sprintf(
                         $this->plugin->txt('criteria_from'),
@@ -200,11 +201,11 @@ class CorrectorCriteriaGUI extends CriteriaGUI
         $allowed_corrector[] = null;
         $success = false;
 
-        if(isset($query["criteria_group"]) && $this->getCorrectorIdFromContext() !== null) {
+        if (isset($query["criteria_group"]) && $this->getCorrectorIdFromContext() !== null) {
             if ($query["criteria_group"] == "group_-1") {
                 $from_corrector_id = null;
             } else {
-                $from_corrector_id = (int)str_replace("group_", "", $query["criteria_group"]);
+                $from_corrector_id = (int) str_replace("group_", "", $query["criteria_group"]);
             }
 
             if (in_array($from_corrector_id, $allowed_corrector)) {
@@ -214,7 +215,7 @@ class CorrectorCriteriaGUI extends CriteriaGUI
             }
         }
 
-        if($success) {
+        if ($success) {
             $this->tpl->setOnScreenMessage("success", $this->plugin->txt("copy_criteria_successful"), true);
         } else {
             $this->tpl->setOnScreenMessage("failure", $this->plugin->txt("copy_criteria_failure"), true);
@@ -231,7 +232,7 @@ class CorrectorCriteriaGUI extends CriteriaGUI
         // add button to copy criteria from other corrector
         if ($this->getCorrectorIdFromContext() !== null && $this->allowChangeInContext()) {
             $select = $this->copyGroupSelect();
-            if(!empty($select->getOptions())) {
+            if (!empty($select->getOptions())) {
 
                 $modal = $this->ui_factory->modal()->roundtrip("", [])->withAsyncRenderUrl("#");
                 $signal = new Signal(str_replace(".", "_", uniqid('il_signal_', true)));
@@ -298,28 +299,27 @@ class CorrectorCriteriaGUI extends CriteriaGUI
         $user_ids = [];
         $names = [];
 
-        foreach($this->corrector_service->all() as $corrector) {
+        foreach ($this->corrector_service->all() as $corrector) {
             $user_ids[$corrector->getId()] = $corrector->getUserId();
         }
         $corrector_ids = array_flip($user_ids);
 
-        foreach ($this->user_service->getUsersByIds($user_ids) as $user)
-        {
+        foreach ($this->user_service->getUsersByIds($user_ids) as $user) {
             $corrector_id = $corrector_ids[$user->getId()] ?? null;
             $names[$corrector_id] = $user->getFullname(true);
         }
 
         foreach ($group as $corrector_id) {
-            if($corrector_id == $this->getCorrectorIdFromContext()) {
+            if ($corrector_id == $this->getCorrectorIdFromContext()) {
                 continue;
-            } elseif(isset($names[$corrector_id])) {
+            } elseif (isset($names[$corrector_id])) {
                 $name = $names[$corrector_id];
             } else {
                 continue;
             }
             $items["group_" . $corrector_id] = $name;
         }
-        if(!empty($global)) {
+        if (!empty($global)) {
             $items = array_merge(["group_-1" => $this->plugin->txt('criteria_template')], $items);
         }
         $select = new \ilSelectInputGUI("", "criteria_group");

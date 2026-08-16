@@ -115,6 +115,7 @@ class WriterAdminGUI extends WriterTableGUI
             $this->downloadWritingAction(),
             $this->exportStepsAction(),
             $this->addLogEntryAction(),
+            $this->sendAlertAction(),
             $this->mailToWriterAction(),
             $this->workingTimeChangeAction(),
             $this->workingTimeDeleteAction(),

@@ -60,7 +60,7 @@ class ToolProvider extends AbstractDynamicToolProvider
                 $this->object->getAssId(),
                 $this->dic->user()->getId()
             )->permissions($this->object->getContextId());
-            $this->fixation_gui = new FixationGUI($this->object);
+            $this->fixation_gui = FixationGUI::getInstance($this->object->getAssId(), $this->object->getContextId());
         }
     }
 
@@ -85,7 +85,11 @@ class ToolProvider extends AbstractDynamicToolProvider
             $tabs[] = $this->factory
                 ->tool($this->identification_provider->contextAwareIdentifier('xlas_tab_task'))
                 ->withTitle($this->plugin->txt('tools_tab_tasks'))
-                ->withContent($this->plugin->dic()->uiFactory()->legacy($this->dic->ui()->renderer()->render($this->multiTaskContent())));
+                ->withContent(
+                    $this->plugin->dic()->uiFactory()->legacy($this->dic->ui()->renderer()->render(
+                        $this->multiTaskContent()
+                    ))
+                );
         }
 
         if ($this->permissions->canEditTemplates() && $additional_data->is(self::WITH_FIXATIONS, true)) {

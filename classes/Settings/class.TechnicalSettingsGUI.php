@@ -41,7 +41,7 @@ class TechnicalSettingsGUI extends BaseGUI
      */
     public function executeCommand()
     {
-        $this->initTools(false, true);
+        $this->initTools(false, true, 'tab_technical_settings');
 
         $cmd = $this->ctrl->getCmd('editSettings');
         switch ($cmd) {
@@ -67,7 +67,7 @@ class TechnicalSettingsGUI extends BaseGUI
         $sections = [];
 
         // Editor
-        if ($writing_settings->getWritingType() == WritingType::ESSAY_EDITOR) {
+        if ($this->fixation_gui->isVisible('editor')) {
             $fields = [];
             $fields['headline_scheme'] = $factory->select(
                 $this->plugin->txt('headline_scheme'),
@@ -137,10 +137,12 @@ class TechnicalSettingsGUI extends BaseGUI
             )
                 ->withValue($writing_settings->getAllowSpellcheck());
 
-            $sections['editor'] = $factory->section($fields, $this->plugin->txt('editor_settings'));
+            $sections['editor'] = $factory->section($fields, $this->plugin->txt('editor_settings'))
+                ->withDisabled($this->fixation_gui->isDisabled('editor'));
+        }
 
-            // Processing
-
+        // Processing
+        if ($this->fixation_gui->isVisible('processing')) {
             $fields = [];
 
             $fields['add_paragraph_numbers'] = $factory->checkbox(
@@ -177,10 +179,13 @@ class TechnicalSettingsGUI extends BaseGUI
                 $fields,
                 $this->plugin->txt('processing_settings'),
                 $this->plugin->txt('processing_settings_info')
-            );
+            )->withDisabled($this->fixation_gui->isDisabled('processing'));
         }
 
-        $form = $this->ui_factory->input()->container()->form()->standard($this->ctrl->getFormAction($this), $sections);
+        $form = $this->ui_factory->input()->container()->form()->standard(
+            $this->ctrl->getFormAction($this),
+            $sections
+        );
 
         // apply inputs
         if ($this->request->getMethod() == "POST") {
@@ -192,13 +197,15 @@ class TechnicalSettingsGUI extends BaseGUI
         if (isset($data)) {
 
             if ($writing_settings->getWritingType() == WritingType::ESSAY_EDITOR) {
-                $writing_settings->setHeadlineScheme(HeadlineScheme::tryFrom($data['editor']['headline_scheme']) ?? HeadlineScheme::NUMERIC);
-                $writing_settings->setFormattingOptions(FormattingOptions::tryFrom($data['editor']['formatting_options']) ?? FormattingOptions::FULL);
-                $writing_settings->setNoticeBoards((int) $data['editor']['notice_boards']);
-                $writing_settings->setCopyAllowed((bool) $data['editor']['copy_allowed']);
-                $writing_settings->setAllowSpellcheck((bool) $data['editor']['allow_spellcheck']);
+                if (!$this->fixation_gui->isDisabled('editor')) {
+                    $writing_settings->setHeadlineScheme(HeadlineScheme::tryFrom($data['editor']['headline_scheme']) ?? HeadlineScheme::NUMERIC);
+                    $writing_settings->setFormattingOptions(FormattingOptions::tryFrom($data['editor']['formatting_options']) ?? FormattingOptions::FULL);
+                    $writing_settings->setNoticeBoards((int) $data['editor']['notice_boards']);
+                    $writing_settings->setCopyAllowed((bool) $data['editor']['copy_allowed']);
+                    $writing_settings->setAllowSpellcheck((bool) $data['editor']['allow_spellcheck']);
+                }
 
-                if (!$has_comments) {
+                if (!$has_comments && !$this->fixation_gui->isDisabled('processing')) {
                     $writing_settings->setAddParagraphNumbers((bool) $data['processing']['add_paragraph_numbers']);
                     if (isset($data['processing']['add_correction_margin']) && is_array($data['processing']['add_correction_margin'])) {
                         $writing_settings->setAddCorrectionMargin(true);

@@ -20,130 +20,206 @@ declare(strict_types=1);
 
 namespace ILIAS\Plugin\LongEssayAssessment;
 
-use Edutiek\AssessmentService\Assessment\Data\DisabledGroup as DisabledGroupEntity;
-use Exception;
+use Edutiek\AssessmentService\Assessment\Data\DisabledGroup;
 use ILIAS\UI\Component\Component;
-use ILIAS\UI\Component\Button\Button;
 use ILIAS\UI\Component\Input\Container\Form\FormInput;
 use ILIAS\UI\Component\Input\Field\Group;
 use ILIAS\UI\Component\Input\Field\Section;
 use ILIAS\UI\Factory as UIFactory;
 use ilLongEssayAssessmentPlugin;
-use ILIAS\UI\Implementation\Component\SignalGeneratorInterface;
 use Edutiek\AssessmentService\Assessment\DisabledGroup\FullService as DisabledGroupService;
 use Edutiek\AssessmentService\Assessment\OrgaSettings\FullService as OrgaSettingsService;
 use ILIAS\Plugin\LongEssayAssessment\Settings\OrgaSettingsGUI;
 use ILIAS\Plugin\LongEssayAssessment\Common\Http\RequestVariables;
-use ilObjLongEssayAssessmentGUI;
-use ILIAS\Plugin\LongEssayAssessment\UI\Container\Bindable;
+use ilSession;
 
 /**
  * @ilCtrl_IsCalledBy ILIAS\Plugin\LongEssayAssessment\FixationGUI: ilObjLongEssayAssessmentGUI
  */
 class FixationGUI
 {
+    private const SESSION_REDUCED = self::class . '.reduced';
+
     private \ilCtrlInterface $ctrl;
     private \ILIAS\HTTP\Services $http;
     private RequestVariables $get;
     private ilLongEssayAssessmentPlugin $plugin;
     private UIFactory $ui_factory;
-    private SignalGeneratorInterface $signal_generator;
     private DisabledGroupService $service;
     private OrgaSettingsService $settings;
+    private UI\Factory $plugin_ui_factory;
 
     /**
-     * GUI tabs that have disabled groups
-     * - Key is the id (and language variable) of the tab
-     * - Value is a list of settings groups that are shown on the tab
+     * GUI tabs that have settings groups
+     * tab id => settings group key => form inputs (or sections)
      */
-    private const TABS = [
+    private array $tabs = [
+        'tab_orga_settings' => [
+            'orga_type' => ['type'],
+            'orga_info' => ['info'],
+            'orga_writing' => ['writing'],
+            'orga_correction' => ['correction'],
+            'orga_review' => ['review'],
+        ],
+        'tab_instructions_settings' => [
+            'task_admin' => ['task_admin'],
+            'instructions_text' => ['task_instructions'],
+            'instructions_pdf' => ['resource_file'],
+        ],
+        'tab_solution_settings' => [
+            'solution_text' => ['task_solution'],
+            'solution_pdf' => ['resource_file'],
+        ],
+        'tab_resources' => [
+            'resources' => ['resources'],
+        ],
+        'tab_technical_settings' => [
+            'tech_editor' => ['editor'],
+            'tech_processing' => ['processing'],
+        ],
         'tab_correction_settings' => [
-            'correctors',
-            'rating_settings',
-            'correction_functions',
+            'correctors' => ['correctors'],
+            'correction_settings' => ['correction'],
+            'rating_settings' => ['rating_settings'],
+            'correction_functions' => ['correction_functions'],
+        ],
+        'tab_criteria' => [
+            'criteria_settings' => ['criteria_settings'],
+            'criteria_list' => ['criteria_edit'],
         ],
         'tab_grades' => [
-            'grade_levels'
+            'grade_levels' => ['grades'],
         ],
         'tab_documentation_settings' => [
-            'pdf_config',
-            'docu_settings'
+            'pdf_config' => ['pdf_config'],
+            'docu_settings' => ['docu_settings'],
+        ],
+        'tab_notifications' => [
+            'notification_settings' => ['notification_settings']
         ]
-
-    ];
-
-    /**
-     * Settings groups that can be fixed and disabled
-     * - Key is the name of the settings group
-     * - Value is an array of form input names that belong to the group
-     */
-    private const GROUPS = [
-        'correctors' => ['correctors'],
-        'correction_functions' => ['correction_functions'],
-        'rating_settings' => ['rating_settings'],
-        'grade_levels' => ['grades'],
-        'docu_settings' => ['docu_settings', 'result_format', 'pdf_format', 'feedback_mode'],
-        'pdf_config' => ['pdf_config'],
     ];
 
     /**
      * Language variables
-     * - Key is the name of thesettings group
+     * - Key is the name of the settings group
      * - Value is the language variable
      */
-    private const LANG_VARS = [
+    private array $lang_vars = [
+        // tab_orga_settings
+        'orga_type' => 'type_settings',
+        'orga_info' => 'info_settings',
+        'orga_writing' => 'writing_organisation',
+        'orga_correction' => 'correction_organisation',
+        'orga_review' => 'review_organisation',
+        // tab_instructions_settings
+        'task_admin' => 'task_admin',
+        'instructions_text' => 'task_instructions_text',
+        'instructions_pdf' => 'task_instructions_file',
+        // tab_instructions_settings
+        'solution_text' => 'task_solution_text',
+        'solution_pdf' => 'task_solution_file',
+        // tab_resources
+        'resources' => 'tab_resources',
+        // tab_technical_settings
+        'tech_editor' => 'editor_settings',
+        'tech_processing' => 'processing_settings',
+        // tab_correction_settings
         'correctors' => 'correctors_per_writer',
+        'correction_settings' => 'correction_settings',
         'correction_functions' => 'correction_functions',
         'rating_settings' => 'rating_settings',
-        'grade_levels' => 'grade_levels',
+        // tab_criteria
+        'criteria_settings' => 'criteria_settings',
+        'criteria_list' => 'criteria_list',
+        // tab_grades
+        'grade_levels' => 'grades_list',
+        // tab_documentation_settings
         'docu_settings' => 'docu_settings',
         'pdf_config' => 'corrected_pdf_config',
+        // tab_notifications
+        'notification_settings' => 'notification_settings'
     ];
 
-    private bool $can_edit = false;
-    private UI\Factory $plugin_ui_factory;
+    private bool $can_edit;
+    private bool $reduced;
+    private $current_tab = null;
 
-    public function __construct(
-        private BaseObjectData $object,
+    /** @var string[] All groups that are disabled */
+    private array $disabled_groups = [];
+
+    /** @var string[] Groups of the current tab */
+    private array $current_groups = [];
+
+    /** @var string[] All disabled inputs of the current tab */
+    private array $disabled_inputs = [];
+
+    private static $instance = null;
+
+    public static function getInstance(int $ass_id, int $context_id)
+    {
+        return self::$instance ??= new self($ass_id, $context_id);
+    }
+
+    protected function __construct(
+        int $ass_id,
+        int $context_id
     ) {
         global $DIC;
         $this->ctrl = $DIC->ctrl();
         $this->http = $DIC->http();
         $this->ui_factory = $DIC->ui()->factory();
-        $this->signal_generator = $DIC['ui.signal_generator'];
 
         $this->get = new RequestVariables($this->http->wrapper()->query(), $DIC->refinery());
-
-        $main_tpl = $DIC->ui()->mainTemplate();
-
-        $main_tpl->addJavaScript(ilLongEssayAssessmentPlugin::assetPath() . '/js/xlas.min.js');
-
         $this->plugin = ilLongEssayAssessmentPlugin::getInstance();
+        $this->plugin_ui_factory = $this->plugin->dic()->uiFactory();
 
-        $assessment_api = $this->plugin->dic()->assessment($this->object->getAssId(), $DIC->user()->getId());
+        $assessment_api = $this->plugin->dic()->assessment($ass_id, $DIC->user()->getId());
         $this->service = $assessment_api->disabledGroup();
         $this->settings = $assessment_api->orgaSettings();
-        $this->can_edit = $assessment_api->permissions($this->object->getContextId())->canEditTemplates();
-        $this->plugin_ui_factory = $this->plugin->dic()->uiFactory();
+
+        if (!$this->settings->get()->getMultiTasks()) {
+            unset($this->tabs['tab_instructions_settings']['task_admin']);
+        }
+
+        $this->can_edit = $assessment_api->permissions($context_id)->canEditTemplates();
+        $this->reduced = (bool) ilSession::get(self::SESSION_REDUCED);
+        $this->disabled_groups = array_map(fn(DisabledGroup $g) => $g->getName(), $this->service->all());
+    }
+
+    public function setCurrentTab(string $tab)
+    {
+        $this->current_tab = $tab;
+        $this->current_groups = array_keys($this->tabs[$tab] ?? []);
+        $this->disabled_inputs = array_merge(
+            ...array_map(fn($group) => $this->tabs[$tab][$group] ?? [], $this->disabled_groups)
+        );
     }
 
     public function executeCommand(): void
     {
         $cmd = $this->ctrl->getCmd();
-        if ($this->can_edit && in_array($cmd, ['updateTemplate', 'updateGroup'])) {
+        if ($this->can_edit && in_array($cmd, ['updateTemplate', 'updateReduced', 'updateGroup'])) {
             $this->$cmd();
         }
     }
 
     /**
-     * Update the activation of the oject as a template
+     * Update the activation of the object as a template
      */
     private function updateTemplate(): void
     {
-        $enabled = (bool) $this->get->string('enable');
-        $return_url = $this->get->string('return_url') ?: $this->ctrl->getLinkTargetByClass(OrgaSettingsGUI::class, 'editSettings');
-        $this->settings->save($this->settings->get()->setTemplate($enabled));
-        $this->ctrl->redirectToUrl($return_url);
+        $settings = $this->settings->get();
+        $this->settings->save($settings->setTemplate(!$settings->getTemplate()));
+        $this->returnToTab();
+    }
+
+    /**
+     * Update the reduced view for an admin
+     */
+    private function updateReduced(): void
+    {
+        ilSession::set(self::SESSION_REDUCED, !ilSession::get(self::SESSION_REDUCED));
+        $this->returnToTab();
     }
 
     /**
@@ -151,198 +227,132 @@ class FixationGUI
      */
     private function updateGroup(): void
     {
-        $group_name = (string) $this->get->string('group');
-        $enabled = (bool) $this->get->string('enable');
-        $return_url = $this->get->string('return_url') ?: $this->ctrl->getLinkTargetByClass(OrgaSettingsGUI::class, 'editSettings');
+        $name = (string) $this->get->string('group');
+        if ($name) {
+            $groups = [];
+            foreach ($this->service->all() as $group) {
+                $groups[$group->getName()] = $group;
+            }
 
-        if ($group_name) {
-            $groups = $this->service->all();
-            $groups = $enabled ? array_merge($groups, [$group_name]) : array_filter($groups, fn($g) => $g->getName() !== $group_name);
+            if (isset($groups[$name])) {
+                unset($groups[$name]);
+            } else {
+                $groups[$name] = $name;
+            }
+
             $this->service->saveAll($groups);
         }
-
-        $this->ctrl->redirectToUrl($return_url);
+        $this->returnToTab();
     }
 
     /**
-     * Set the visibility of a Bindable UI Container and register to show/hide it
+     * Get a link with the current settings tab
      */
-    public function setVisibility(string $tab, string $key, Bindable $component): Bindable
+    private function getLinkWithTab(string $cmd)
     {
-        $disabled_inputs = $this->disabledInputs($tab);
-        $visible = $this->can_edit;
-
-        if (in_array($key, $disabled_inputs, true)) {
-            $component = $component
-                ->withAdditionalOnLoadCode(
-                    fn($id) => "il.Xlas.Fixation.addNode('$id', " . ($visible ? 'true' : 'false') . ")"
-                );
-        }
-
-        return $component;
+        $this->ctrl->setParameter($this, 'tab_id', $this->current_tab);
+        return $this->ctrl->getLinkTarget($this, $cmd);
     }
 
     /**
-     * Disable form inputs whose names found in the list of disabled settings
-     * These inputs are disabled and get a CSS class to show/hide them
-     *
+     * Return to the settings tab provided by the link
+     */
+    private function returnToTab()
+    {
+        $tab_id = $this->get->string('tab_id');
+        $this->ctrl->setParameterByClass(\ilObjLongEssayAssessmentGUI::class, 'tab_id', $tab_id);
+        $this->ctrl->redirectByClass(\ilObjLongEssayAssessmentGUI::class);
+    }
+
+    /**
+     * Check if a tab has groups that are visible to the user
+     * Called from the object GUI to set the tabs
+     */
+    public function hasVisibleGroups(string $tab): bool
+    {
+        return ($tab == 'tab_orga_settings' || $this->can_edit && !$this->reduced) || !empty(array_diff(
+            array_keys($this->tabs[$tab] ?? []),
+            $this->disabled_groups
+        ));
+    }
+
+    /**
+     * Omit or disable form sections or inputs that are fixed
+     * Called from the tab's GUI, a current tab must be set
      * @param FormInput[]|Group[]|Section[] $sections
      */
-    public function disableBySetting(string $tab, array $sections): array
+    public function applyFixation(array $sections): array
     {
-        $disabled_inputs = $this->disabledInputs($tab);
-        $visible = $this->can_edit;
-
-        foreach ($sections as $key => $section) {
-            if (in_array($key, $disabled_inputs, true)) {
-                $sections[$key] = $section
-                    ->withDisabled(true)
-                    ->withAdditionalOnLoadCode(
-                        fn($id) => "il.Xlas.Fixation.addNode('$id', " . ($visible ? 'true' : 'false') . ")"
-                    );
+        $applied = [];
+        foreach ($sections as $name => $section) {
+            if ($this->isVisible($name)) {
+                if ($this->isDisabled($name)) {
+                    $section = $section->withDisabled(true);
+                }
+                $applied[$name] = $section;
             }
         }
-        return $sections;
+        return $applied;
     }
 
+
     /**
-     * Check if a form input with a name is disabled and fixed
+     * Check if a form section or input with a name is disabled and fixed
      */
-    public function isDisabled(string $tab, string $name): bool
+    public function isDisabled(string $name): bool
     {
-        return in_array($name, $this->disabledInputs($tab), true);
+        return in_array($name, $this->disabled_inputs);
     }
 
     /**
+     * Check if a form section or input with a name is visible
+     */
+    public function isVisible(string $name): bool
+    {
+        return !in_array($name, $this->disabled_inputs) || $this->can_edit && !$this->reduced;
+    }
+
+    /**
+     * Get the components for the ToolProvider
      * @return Component[]
      */
     public function toolsContent(): array
     {
         $template_content = [
             $this->plugin_ui_factory->legacy('<p class="small">' . $this->plugin->txt('template_info') . '</p>'),
-            $this->templateToggle(),
+            $this->ui_factory->button()->toggle(
+                $this->plugin->txt('template_toggle'),
+                $this->getLinkWithTab('updateTemplate'),
+                $this->getLinkWithTab('updateTemplate'),
+                $this->settings->get()->getTemplate()
+            )
         ];
 
         $fixing_content = [
             $this->plugin_ui_factory->legacy('<p class="small">' . $this->plugin->txt('fixation_info') . '</p>'),
-            $this->hideToggle()
+            $this->ui_factory->button()->toggle(
+                $this->plugin->txt('fixation_hide_toggle'),
+                $this->getLinkWithTab('updateReduced'),
+                $this->getLinkWithTab('updateReduced'),
+                (bool) ilSession::get(self::SESSION_REDUCED),
+            ),
+            $this->ui_factory->divider()->horizontal(),
+            $this->plugin_ui_factory->legacy('<strong>' . $this->plugin->txt($this->current_tab ?? '') . '</strong>'),
         ];
-        foreach (array_keys(self::TABS) as $tab) {
-            $fixing_content = array_merge($fixing_content, [
-                $this->ui_factory->divider()->horizontal(),
-                $this->plugin_ui_factory->legacy('<strong>' . $this->plugin->txt($tab) . '</strong>'),
-                ...$this->fixingToggles($tab)
-            ]);
+
+        foreach ($this->current_groups as $group) {
+            $this->ctrl->setParameter($this, 'group', $group);
+            $fixing_content[] = $this->ui_factory->button()->toggle(
+                $this->plugin->txt($this->lang_vars[$group] ?? $group),
+                $this->getLinkWithTab('updateGroup'),
+                $this->getLinkWithTab('updateGroup'),
+                in_array($group, $this->disabled_groups)
+            );
         }
 
         return [
             $this->ui_factory->panel()->standard($this->plugin->txt('template_title'), $template_content),
             $this->ui_factory->panel()->standard($this->plugin->txt('fixation_title'), $fixing_content),
         ];
-    }
-
-    /**
-     * Get a UI button that toggles the visibility of all fixed inputs on the screen
-     */
-    private function templateToggle(): Button
-    {
-        $active = $this->settings->get()->getTemplate();
-        $value = $active ? "0" : "1";
-        $click = $this->signal_generator->create();
-        $url = json_encode($this->getUrl('updateTemplate'));
-
-        return $this->ui_factory->button()->toggle($this->plugin->txt('template_toggle'), $click, $click, $active)
-            ->withAdditionalOnLoadCode(fn($id) => "$(document).on('$click', () => {il.Xlas.Fixation.enableTemplate($url, $value);})");
-    }
-
-    /**
-     * Get a UI button that toggles the visibility of all fixed inputs on the screen
-     */
-    private function hideToggle(): Button
-    {
-        $click = $this->signal_generator->create();
-        return $this->ui_factory->button()->toggle($this->plugin->txt('fixation_hide_toggle'), $click, $click)
-            ->withAdditionalOnLoadCode(fn($id) => "$(document).on('$click', () => {il.Xlas.Fixation.toggleNodes()})");
-    }
-
-    /**
-     * Get the toggle buttons for fixable settings groups shown on a tab
-     * @throws Exception
-     */
-    private function fixingToggles(string $tab): array
-    {
-        $post_url = $this->getUrl('updateGroup');
-        $groups = array_values(self::TABS[$tab] ?? []);
-        $disabled = $this->disabledGroups();
-
-        $set = function ($group, $value) use ($post_url) {
-            $toggle = $this->signal_generator->create();
-            $toggle_event = json_encode((string) $toggle);
-            $post_url = json_encode($post_url);
-            $group = json_encode($group);
-            $value = json_encode($value);
-
-            return [
-                $toggle,
-                "\$(document).on($toggle_event, () => {il.Xlas.Fixation.updateGroup($post_url, $group, $value);});",
-            ];
-        };
-
-        return array_combine($groups, array_map(
-            function ($group) use ($disabled, $set) {
-                [$on, $ons] = $set($group, 'yes');
-                [$off, $offs] = $set($group, '');
-                return $this->ui_factory->button()
-                    ->toggle($this->plugin->txt(self::LANG_VARS[$group]), $on, $off, in_array($group, $disabled, true))
-                    ->withAdditionalOnLoadCode(fn($id) => $ons . $offs);
-            },
-            $groups
-        ));
-    }
-
-    /**
-     * Get the URL for executing a command
-     * This adds a return url for redirection after the command is executed
-     */
-    private function getUrl(string $cmd): string
-    {
-        $this->ctrl->setParameterByClass(self::class, 'return_url', urlencode((string) $this->http->request()->getUri()));
-        return $this->ctrl->getLinkTargetByClass([ilObjLongEssayAssessmentGUI::class, self::class], $cmd);
-    }
-
-    /**
-     * Get the defined groups filtered by tab
-     */
-    private function filterGroups(string $tab): array
-    {
-        return array_filter(
-            self::GROUPS,
-            fn($key) => in_array($key, self::TABS[$tab] ?? []),
-            ARRAY_FILTER_USE_KEY
-        );
-    }
-
-    /**
-     * Get the names of all settings groups that are fixed
-     * @return string[]
-     */
-    private function disabledGroups(): array
-    {
-        return array_map(
-            fn(DisabledGroupEntity $g) => $g->getName(),
-            $this->service->all()
-        );
-    }
-
-    /**
-     * Get the names of all form inputs that belong to disabled groups of settings
-     * @return string[]
-     */
-    private function disabledInputs(string $tab): array
-    {
-        return array_merge(...array_map(
-            fn($k) => $this->filterGroups($tab)[$k] ?? [],
-            $this->disabledGroups()
-        ));
     }
 }

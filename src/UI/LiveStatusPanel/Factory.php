@@ -33,8 +33,8 @@ class Factory
         return new Panel($title, $live_data_url, $properties);
     }
 
-    public function property(string $id, string $title, int $initial_value, ?string $filter_url = null): Property
+    public function property(string $id, string $title, int $initial_value, ?string $filter_url = null, bool $active = false): Property
     {
-        return new Property($id, $title, $initial_value, $filter_url);
+        return new Property($id, $title, $initial_value, $filter_url, $active);
     }
 }

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8d65c9fbff97dc9b6981774073664c67",
+    "content-hash": "9daa19f7f3b515634cdbdbfbe2ffe9b1",
     "packages": [
         {
             "name": "composer/pcre",
@@ -246,12 +246,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/EDUTIEK/assessment-service.git",
-                "reference": "734525fe1be1a0fe1be5a1e2c16c3638c5c7ca2f"
+                "reference": "83f87b79b5aa894d4f9d852faee7b62be2a9ebae"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EDUTIEK/assessment-service/zipball/734525fe1be1a0fe1be5a1e2c16c3638c5c7ca2f",
-                "reference": "734525fe1be1a0fe1be5a1e2c16c3638c5c7ca2f",
+                "url": "https://api.github.com/repos/EDUTIEK/assessment-service/zipball/83f87b79b5aa894d4f9d852faee7b62be2a9ebae",
+                "reference": "83f87b79b5aa894d4f9d852faee7b62be2a9ebae",
                 "shasum": ""
             },
             "require": {
@@ -299,7 +299,7 @@
                 "source": "https://github.com/EDUTIEK/assessment-service/tree/main",
                 "issues": "https://github.com/EDUTIEK/assessment-service/issues"
             },
-            "time": "2026-08-03T06:43:35+00:00"
+            "time": "2026-08-16T16:55:49+00:00"
         },
         {
             "name": "fig/http-message-util",
@@ -1925,8 +1925,8 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": ">=8.3 <8.5"
+        "php": ">=8.2 <8.4"
     },
     "platform-dev": {},
-    "plugin-api-version": "2.6.0"
+    "plugin-api-version": "2.9.0"
 }

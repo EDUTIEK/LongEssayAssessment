@@ -74,6 +74,11 @@ tab_corrector_export#:#Abgaben exportieren
 tab_dashboard#:#Aufsicht
 tab_correction_status#:#Korrekturstatus
 object_settings#:#Objekt-Einstellungen
+type_settings#:#Aufgabentyp
+info_settings#:#Informationen zur Teilnahme
+writing_organisation#:#Schreib-Ablauf
+correction_organisation#:#Korrektur-Ablauf
+review_organisation#:#Bekanntgaben für Teilnehmer
 participation_type#:#Teilnahme
 participation_type_fixed#:#Vorgegeben
 participation_type_fixed_info#:#Die Teilnahme wird vorab über eine Liste festgelegt. Andere Benutzer können weder auf die Hilfsmittel noch auf die Lösungshinweise zugreifen.
@@ -188,6 +193,7 @@ start_correction#:#Angezeigte Korrekturen starten
 assigned_writings#:#Zugeteilte Abgaben
 min_points#:#Min. Punkte
 min_points_caption#:#Minimal benötigte Punkte zum Erreichen dieser Notenstufe.
+grades_list#:#Notenstufen-Liste
 add_grade_level#:#Notenstufe hinzufügen
 grade_levels#:#Notenstufen
 edit_grade_level#:#Notenstufe bearbeiten
@@ -247,15 +253,18 @@ log_type_note#:#Notiz
 log_type_all#:#Alle
 log_entry_text#:#Protokollierte Notiz
 log_entry_text_info#:#Bitte geben Sie mindesten 5 Zeichen ein
+create_alert#:#Direkte Nachricht an Teilnehmer
+alert_created#:#Die Nachricht wurde gesendet.
 alert_text#:#Text
+alert_text_info#:#Die Nachricht wird als Pop-Up in der Schreiboberfläche angezeigt. Alle gesendeten Nachrichten können über ein Glockensymbol in der Kopfleiste der Schreiboberfläche abgerufen werden.
 alert_recipient#:#Empfänger
 alert_recipient_all#:#Alle
 add_log_entry_for writer#:#Protokolleintrag hinzufügen
 create_log_entry#:#Notiz hinzufügen
-create_alert#:#Benachrichtigung senden
-alert_created#:#Benachrichtigung wurde gesendet.
 log_entry_created#:#Protokolleintrag wurde hinzugefügt.
-corrector_assignment_changed#:#Korrekturzuweisung wurde geändert.
+corrector_assignment_changed#:#Die Korrekturzuweisung wurde geändert.
+corrector_assignments_changed#:#Die Korrekturzuweisungen wurden geändert.
+corrector_assignments_not_changed#:#Es wurde keine Zuweisung geändert.
 writing_authorized_at#:#Freigegeben am
 writing_authorized_from#:#Freigegeben von
 writing_excluded_at#:#Ausgeschlossen am
@@ -410,6 +419,8 @@ criteria_corrector_finalized_message#:#Sie haben bereits abgeschlossene Korrektu
 criteria_corrector_authorized_message#:#Sie haben bereits freigegebene Korrekturen. Ziehen Sie diese unter „Abgaben” zurück, wenn Sie hier etwas ändern müssen.
 criteria_corrector_points_purge_message#:#Sie haben bereits Punkte in Anmerkungen ohne Kriterien vergeben. Wenn Sie Kriterien für Anmerkungen erstellen, werden diese gelöscht!
 criteria#:#Bewertungskriterien
+criteria_settings#:#Kriterien-Einstellungen
+criteria_list#:#Kriterien-Liste
 criteria_add#:#Bewertungskriterium hinzufügen
 criteria_edit#:#Bewertungskriterium bearbeiten
 criteria_max_point#:#Max. Punkte
@@ -428,7 +439,7 @@ copy_criteria_failure#:#Bewertungskriteri konnte nicht kopiert werden.
 criteria_from#:#Bewertungskriterien von %s
 locations#:#Teilnahmeorte
 location#:#Teilnahmeort
-locations_info#:#Den Teilnehmenden kann in der Teilnahmeverwaltung ein Teilnahmeort zugewiesen werden, der in der Abgabe- und Korrektur-Datei angezeigt wird.
+locations_info#:#Den Teilnehmenden kann in der Teilnahmeverwaltung ein Teilnahmeort zugewiesen werden, der unter "Meine Aufgabe" angezeigt wird. Der Teilnahmeort wird auch in der Abgabe- und Korrektur-Datei angezeigt wird.
 assign_location#:#Teilnahmeort zuweisen
 change_location#:#Teilnahmeort ändern
 location_assigned#:#Teilnahmeort erfolgreich zugewiesen.
@@ -442,7 +453,7 @@ task_solution_file_info#:#Die Lösungshinweise können auch als Datei im Format 
 missing_file#:#Die Datei muss hochgeladen werden.
 unchanged#:#nicht Ändern
 same_assigned_corrector_error#:#Erstkorrektur und Zweitkorrektur können nicht identisch sein.
-invalid_assignment_combinations_error#:#Diese Korrekturzuweisung führt in einigen Fällen zu unerlaubten Kombinationen.
+invalid_assignment_combinations_error#:#Diese Kombination führt zu Konflikten.
 remove_authorizations_confirmation#:#Möchten Sie die Freigaben für die Korrektur(en) folgender Teilnahmen zurückziehen? Diese Aktion wird protokolliert.
 remove_authorizations_no_valid_essays#:#In der Auswahl gab es keine Korrektur(en), die zurückgenommen werden können.
 change_corrector_info#:#Bitte beachten Sie folgendes, wenn es bereits Korrekturen gibt: <ul><li>Korrekturen werden auf neuen Korrektor übretragen</li><li>Korrektoren von bereits freigegebenen Korrekturen können nicht geändert werden</li><li>An Bewertungskriterien vergebene Punkte werden beim Übertragen entfernt</li><li>Korrekturen entfernter Korrektoren werden ebenfalls permanent entfernt</li></ul>
@@ -749,6 +760,7 @@ essay_import_column_comment#:#Bemerkung
 essay_import_column_hash_ok#:#Hash ok
 upload_zip#:#ZIP hochladen
 essay_import#:#Abgaben importieren
+essay_import_description#:#Wählen Sie eine ZIP-Datei, welche die Abgaben als PDF-Dateien enthält. Im Standardfall muss ein Dateiname vor dem ".pdf" dem Login-Namen eines ILIAS-Kontos entsprechen. Die Teilnahme wird dann automatisch erstellt, falls noch nicht vorhanden. Spezielle Importformate werden anhand der enthaltenen Dateien automatisch erkannt.
 essay_import_zip_name#:#ZIP Datei
 essay_import_confirmation#:#Wie soll mit bestehenden Dateien verfahren werden?
 essay_import_overwrite#:#Bestehende Einträge überschreiben
@@ -784,8 +796,13 @@ table_select_columns#:#Spalten
 table_select_columns_visible#:#Sichtbare Spalten
 table_select_columns_all#:#Alle Spalten
 table_select_columns_selected#:#Spalten auswählen
-correction_admin_table_export#:#Tabelle exportieren
+table_export#:#Tabelle exportieren
 correction_admin_table_export_filename#:#Korrekturentabelle
+corrector_table_export_filename#:#Korrektorentabelle
+corrector_start_table_export_filename#:#Korrekturentabelle
+writer_admin_table_export_filename#:#Teilnahmetabelle
+dashboard_table_export_filename#:#Aufsichtstabelle
+correction_status_table_export_filename#:#Korrekturstatustabelle
 min_word_count#:#Wörter mindestens
 max_word_count#:#Wörter maximal
 predefined_settings#:#Voreinstellungen
@@ -923,7 +940,7 @@ corrector#:#Korrektor
 no_items#:#Die Aktion ist für keinen der ausgewählten Einträge ausführbar.
 please_select_item#:#Bitte wählen Sie einen oder mehrere Einträge aus der Tabelle aus.
 tab_notifications#:#Benachrichtigungen
-notification_settings#:#Benachrichtigungen
+notification_settings#:#Benachrichtigungs-Einstellungen
 notification_position#:#Nr.
 notification_type#:#Anlass
 notification_active#:#Aktiv
@@ -951,3 +968,34 @@ remove_correction_step_not_found#:#Es worde keine Schritt gefunden, der zurückg
 settings_disabled_by_authorized_corrections#:#Einige Einstellungen sind gesperrt, da bereits Korrekturen freigegeben wurden.
 cron_file_cleanup_title#:#Langtext-Aufgaben: Unbenutzte Dateien entfernen
 cron_file_cleanup_description#:#Entfernt Dateien von Langtext-Aufgaben, die nicht mehr benötigt werden und älter als ein Tag sind.
+started_sessions#:#Sitzungen
+first_access#:#Erster Zugriff
+last_access#:#Letzter Zugriff
+writer_first_access_long#:#Erster Zugriff: Aufruf der Schreiboberfläche
+writer_last_access_long#:#Letzter Zugriff: Aktualisierung der Schreiboberfläche
+ip_address#:#IP-Adresse
+battery_status#:#Batterie-Status
+client_hidden#:#Ausgeblendet
+user_agent#:#Browser-Kennung
+client_platform#:#Betriebssystem
+client_filter_all#:#Alle
+client_filter_online#:#Online
+client_filter_offline#:#Offline
+client_filter_low_battery#:#Niedriger Batteriestatus
+client_filter_hidden#:#Ausgeblendet
+client_filter_multi_sessions#:#Mehrfach-Sitzungen
+filter_client_status#:#Status Schreiboberflächen
+client_sessions#:#Browser-Sitzungen
+client_session_x#:#Sitzung %s
+view_client_sessions#:#Browsersitzungen anzeigen
+dashboard#:#Durchführung beaufsichtigen
+dashboard_info#:#Diese Funktion ist für Präsenzprüfungen vorgesehen. Sie fügt dem Reiter "Aufsicht" eine Übersichtseite hinzu, auf welcher der Schreibstatus verfolgt werden kann. Dazu aktualisiert sie fortaufend Informationen aus der Schreiboberfläche wie Anzahl der Sitzungen, Erster und letzter Zugriff, Batteriestatus, Tab-Ausblendung, IP-Adresse und Browser-Informationen. Die Berechtigung zur Anzeige der Seite wird unter "Rechte" separat vergeben. Zusätzlich werden die Teilnehmer beim Start der Bearbeitung auf die Übermittlung der Daten hingewiesen. Bei abgeschalteter Funktion werden die zusätzlichen Daten nicht erhoben.
+tab_dashboard_page#:#Durchführung beaufsichtigen
+label_dashboard_active#:#Aufsicht
+message_dashboard_active#:#In diese Aufgabe wird die Durchführung beaufsichtigt. Dabei sind neben der Bearbeitung die folgenden Daten für die Aufsicht verfügbar:
+start_working_acceptance#:#Ich stimme der Teilnahme unter Aufsicht zu.
+constraint_checked_required#:#Sie müssen hier bestätigen.
+start_password#:#Start-Kennwort
+start_password_info#:#Dieses Kennwort musss, wenn vorhanden, von Teilnehmenden in den Dialogen "Bearbeitung starten" und "Bearbeitung fortsetzen" eingegeben werden.
+start_password_wrong#:#Bitte geben Sie das Passwort ein, das Sie von der Prüfungsaufsicht bekommen haben.
+task_admin#:#Teilaufgaben

@@ -10,6 +10,7 @@ use Edutiek\AssessmentService\EssayTask\Api\ForClients as EssayTaskApi;
 use Edutiek\AssessmentService\System\Data\HeadlineScheme;
 use Edutiek\AssessmentService\System\Api\ForClients as SystemApi;
 use Edutiek\AssessmentService\Task\Api\ForClients as TaskApi;
+use Edutiek\AssessmentService\Views\Api\ForClients as ViewsApi;
 use ilCtrl;
 use ilGlobalTemplateInterface;
 use ILIAS\DI\Container;
@@ -61,6 +62,8 @@ abstract class BaseGUI
     protected AssessmentApi $assessment_api;
     protected EssayTaskApi $essay_task_api;
     protected TaskApi $task_api;
+    protected Dependencies\ViewDic $views;
+
     protected PluginUiFactory $plugin_ui_factory;
     protected PluginUIService $plugin_ui_service;
     protected DataConstraints $constraints;
@@ -98,6 +101,7 @@ abstract class BaseGUI
         $this->assessment_api = $this->plugin->dic()->assessment($this->object->getAssId(), $this->user->getId());
         $this->task_api = $this->plugin->dic()->task($this->object->getAssId(), $this->user->getId());
         $this->essay_task_api = $this->plugin->dic()->essayTask($this->object->getAssId(), $this->user->getId());
+        $this->views = $this->plugin->dic()->view();
 
         $this->plugin_ui_factory = $this->plugin->dic()->uiFactory();
         $this->plugin_ui_service = $this->plugin->dic()->uiService();
@@ -106,7 +110,7 @@ abstract class BaseGUI
 
         $this->get = new RequestVariables($this->dic->http()->wrapper()->query(), $this->dic->refinery());
         $this->post = new RequestVariables($this->dic->http()->wrapper()->post(), $this->dic->refinery());
-        $this->fixation_gui = new FixationGUI($this->object);
+        $this->fixation_gui = FixationGUI::getInstance($this->object->getAssId(), $this->object->getContextId());
 
         $manager_service = $this->task_api->manager();
         $task_id = $this->get->integer('task_id', null) ?? (int) $this->session->get('task_id');
@@ -133,6 +137,14 @@ abstract class BaseGUI
             $this->components[] = $component;
         }
         return $this;
+    }
+
+    /**
+     * @return UiComponent[]
+     */
+    protected function components(): array
+    {
+        return $this->components;
     }
 
     /**
@@ -218,7 +230,7 @@ abstract class BaseGUI
      *
      * @param $with_task_selection - show the tool for fixations, if allowed
      */
-    protected function initTools(bool $with_task_selection = false, bool $with_fixations = false): void
+    protected function initTools(bool $with_task_selection = false, bool $with_fixations = false, string $tab = ''): void
     {
         $tools_data = $this->dic->globalScreen()->tool()->context()->current()->getAdditionalData();
         $tools_data->add(ToolProvider::GUI_CLASS, static::class);
@@ -227,12 +239,15 @@ abstract class BaseGUI
             $this->session->set('task_id', $this->task_info?->getId() ?? '');
             $this->ctrl->setParameter($this, 'task_id', $this->task_info?->getId() ?? '');
             $this->tpl->setTitle($this->object->getTitle() . ' | ' . $this->task_info?->getTitle() ?? 'unknown task');
-
             $tools_data->add(ToolProvider::WITH_TASK_SELECTION, true);
         }
 
-        if ($with_fixations && $this->assessment_api->permissions($this->object->getContextId())->canEditTemplates()) {
-            $tools_data->add(ToolProvider::WITH_FIXATIONS, true);
+        if ($with_fixations) {
+            FixationGUI::getInstance($this->object->getAssId(), $this->object->getContextId())->setCurrentTab($tab);
+
+            if ($this->assessment_api->permissions($this->object->getContextId())->canEditTemplates()) {
+                $tools_data->add(ToolProvider::WITH_FIXATIONS, true);
+            }
         }
     }
 

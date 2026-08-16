@@ -57,7 +57,7 @@ class DocumentationSettingsGUI extends BaseGUI
      */
     public function executeCommand()
     {
-        $this->initTools(false, true);
+        $this->initTools(false, true, 'tab_documentation_settings');
 
         $cmd = $this->ctrl->getCmd('edit');
         switch ($cmd) {
@@ -111,7 +111,7 @@ class DocumentationSettingsGUI extends BaseGUI
         $parts = $this->assessment_api->pdfCreation($this->object->getContextId())->getSortedParts($purpose);
 
 
-        if ($this->fixation_gui->isDisabled('tab_documentation_settings', 'pdf_config')) {
+        if ($this->fixation_gui->isDisabled('pdf_config')) {
             $titles = [];
             foreach ($parts as $part) {
                 if ($part->getIsActive()) {
@@ -169,38 +169,28 @@ class DocumentationSettingsGUI extends BaseGUI
      */
     protected function edit(): void
     {
-        $form = $this->buildForm();
-        if ($this->request->getMethod() == "POST") {
-            $form = $form->withRequest($this->request);
-            $data = $form->getData();
-            $result = $form->getInputGroup()->getContent();
 
-            if ($result->isOK()) {
-                $this->updateSettings($data);
-            }
+        if ($this->fixation_gui->isVisible('pdf_config')) {
+            $order = $this->buildOrder($this->plugin->txt('corrected_pdf'), PdfPurpose::CORRECTION, "updateCorrectionOrder");
+            $this->add($this->ui_factory->panel()->standard($this->plugin->txt('corrected_pdf_config'), $order));
         }
 
-        $order = $this->buildOrder($this->plugin->txt('corrected_pdf'), PdfPurpose::CORRECTION, "updateCorrectionOrder");
+        if ($this->fixation_gui->isVisible('docu_settings')) {
+            $form = $this->buildForm();
+            if ($this->request->getMethod() == "POST") {
+                $form = $form->withRequest($this->request);
+                $data = $form->getData();
+                $result = $form->getInputGroup()->getContent();
 
-        $components = [
-            $this->fixation_gui->setVisibility(
-                'tab_documentation_settings',
-                'pdf_config',
-                $this->plugin_ui_factory->container()->bindable(
-                    $this->ui_factory->panel()->standard($this->plugin->txt('corrected_pdf_config'), $order)
-                )
-            ),
+                if ($result->isOK()) {
+                    $this->updateSettings($data);
+                }
+            }
 
-            $this->fixation_gui->setVisibility(
-                'tab_documentation_settings',
-                'docu_settings',
-                $this->plugin_ui_factory->container()->bindable(
-                    $this->ui_factory->panel()->standard($this->plugin->txt('docu_settings'), $form)
-                )
-            ),
-        ];
+            $this->add($this->ui_factory->panel()->standard($this->plugin->txt('docu_settings'), $form));
+        }
 
-        $this->tpl->setContent($this->renderer->render($components));
+        $this->show();
     }
 
     private function buildForm(): Form
@@ -218,7 +208,8 @@ class DocumentationSettingsGUI extends BaseGUI
         )->withOption(ResultExportFormat::EDUTIEK->value, $this->plugin->txt('result_export_format_edutiek'))
             ->withOption(ResultExportFormat::EXAMIS->value, $this->plugin->txt('result_export_format_examis'))
             ->withOption(ResultExportFormat::JUSTA->value, $this->plugin->txt('result_export_format_justa'))
-            ->withValue($export_settings->getResultExportFormat()->value);
+            ->withValue($export_settings->getResultExportFormat()->value)
+            ->withDisabled($this->fixation_gui->isDisabled('docu_settings'));
 
         $fields['pdf_format'] = $factory->radio(
             $this->plugin->txt('pdf_format'),
@@ -226,7 +217,8 @@ class DocumentationSettingsGUI extends BaseGUI
         )->withOption(PdfFormat::EDUTIEK->value, $this->plugin->txt('pdf_format_edutiek'))
             ->withOption(PdfFormat::BY->value, $this->plugin->txt('pdf_format_by'))
             ->withOption(PdfFormat::NRW->value, $this->plugin->txt('pdf_format_nrw'))
-            ->withValue($pdf_settings->getFormat()->value);
+            ->withValue($pdf_settings->getFormat()->value)
+            ->withDisabled($this->fixation_gui->isDisabled('docu_settings'));
 
         $fields['feedback_mode'] = $factory->radio(
             $this->plugin->txt('pdf_feedback_mode'),
@@ -234,32 +226,36 @@ class DocumentationSettingsGUI extends BaseGUI
         )->withOption(PdfFeedbackMode::SIDE_BY_SIDE->value, $this->plugin->txt('pdf_feedback_mode_sidebyside'))
             ->withOption(PdfFeedbackMode::SEQUENCE->value, $this->plugin->txt('pdf_feedback_mode_sequence'))
             ->withValue($pdf_settings->getFeedbackMode()->value)
-            ->withDisabled($correction_settings->getPdfMarking() == PdfMarking::TEXT);
+            ->withDisabled($correction_settings->getPdfMarking() == PdfMarking::TEXT)
+            ->withDisabled($this->fixation_gui->isDisabled('docu_settings'));
 
         return $this->ui_factory->input()->container()->form()->standard(
             $this->ctrl->getFormAction($this),
-            $this->fixation_gui->disableBySetting('tab_documentation_settings', $fields)
+            $fields
         );
     }
 
     private function updateSettings(array $data): void
     {
-        $export_settings = $this->export_service->getSettings();
-        $pdf_settings = $this->pdf_settings_service->get();
+        if (!$this->fixation_gui->isDisabled('docu_settings')) {
+            $export_settings = $this->export_service->getSettings();
+            $pdf_settings = $this->pdf_settings_service->get();
 
-        $export_settings->setResultExportFormat(ResultExportFormat::tryFrom($data['result_format']));
-        $pdf_settings->setFormat(PdfFormat::tryFrom($data['pdf_format']) ?? PdfFormat::EDUTIEK);
-        $pdf_settings->setFeedbackMode(
-            PdfFeedbackMode::tryFrom($data['feedback_mode']) ?? PdfFeedbackMode::SIDE_BY_SIDE
-        );
+            $export_settings->setResultExportFormat(ResultExportFormat::tryFrom($data['result_format']));
+            $pdf_settings->setFormat(PdfFormat::tryFrom($data['pdf_format']) ?? PdfFormat::EDUTIEK);
+            $pdf_settings->setFeedbackMode(
+                PdfFeedbackMode::tryFrom($data['feedback_mode']) ?? PdfFeedbackMode::SIDE_BY_SIDE
+            );
 
-        $this->entity_service->secure($export_settings, ExportSettings::class);
-        $this->export_service->saveSettings($export_settings);
+            $this->entity_service->secure($export_settings, ExportSettings::class);
+            $this->export_service->saveSettings($export_settings);
 
-        $this->entity_service->secure($pdf_settings, PdfSettings::class);
-        $this->pdf_settings_service->save($pdf_settings);
+            $this->entity_service->secure($pdf_settings, PdfSettings::class);
+            $this->pdf_settings_service->save($pdf_settings);
 
-        $this->success($this->lng->txt("settings_saved"), true);
+            $this->success($this->lng->txt("settings_saved"), true);
+        }
+
         $this->ctrl->redirect($this, "edit");
     }
 }

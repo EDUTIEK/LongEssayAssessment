@@ -3,6 +3,7 @@
 namespace ILIAS\Plugin\LongEssayAssessment\WriterAdmin;
 
 use ILIAS\Plugin\LongEssayAssessment\GUI\Writer\WriterTableGUI;
+use ILIAS\Plugin\LongEssayAssessment\UI\Table\Action\Export;
 
 /**
  * Writer Admin GUI class
@@ -114,6 +115,7 @@ class WriterAdminGUI extends WriterTableGUI
             $this->downloadWritingAction(),
             $this->exportStepsAction(),
             $this->addLogEntryAction(),
+            $this->sendAlertAction(),
             $this->mailToWriterAction(),
             $this->workingTimeChangeAction(),
             $this->workingTimeDeleteAction(),
@@ -125,6 +127,7 @@ class WriterAdminGUI extends WriterTableGUI
             $this->excludeParticipantAction(),
             $this->repealExcludeParticipantAction(),
             $this->removeWriterAction(),
+            $this->exportTableAction(),
         ];
     }
 
@@ -171,5 +174,10 @@ class WriterAdminGUI extends WriterTableGUI
     protected function initialVisibleColumns(): array
     {
         return ["name", "login", "status", "working_start", "working_end", "time_limit_changed", "authorized", "excluded"];
+    }
+
+    public function exportTableAction(): Export
+    {
+        return $this->plugin_ui_factory->table()->action()->export('export', $this->plugin->txt('table_export'), $this->plugin->txt('writer_admin_table_export_filename'));
     }
 }

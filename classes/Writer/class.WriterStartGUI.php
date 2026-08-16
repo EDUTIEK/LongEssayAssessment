@@ -36,6 +36,9 @@ use Edutiek\AssessmentService\EssayTask\Data\WritingType;
 use ILIAS\StaticURL\Builder\StandardURIBuilder;
 use Edutiek\AssessmentService\System\Config\Frontend;
 use ILIAS\Plugin\LongEssayAssessment\Jump;
+use ILIAS\UI\Component\Modal\RoundTrip;
+use ILIAS\Data\Password;
+use ILIAS\UI\Implementation\Component\Input\Container\Form\Standard;
 
 /**
  * @ilCtrl_isCalledBy ILIAS\Plugin\LongEssayAssessment\Writer\WriterStartGUI: ilObjLongEssayAssessmentGUI
@@ -58,7 +61,10 @@ class WriterStartGUI extends BaseGUI
         $this->writing_settings = $this->essay_task_api->writingSettings()->get();
 
         // get or create - permission is already checked
-        $this->writer = $this->assessment_api->writer()->getByUserId($this->user->getId());
+        $this->writer = $this->assessment_api->writer()->oneByUserId($this->user->getId())
+            ?? $this->assessment_api->writer()->new()
+                ->setAssId($this->object->getAssId())
+                ->setUserId($this->user->getId());
         $this->working_time = $this->assessment_api->workingTime($this->writer);
     }
 
@@ -67,9 +73,9 @@ class WriterStartGUI extends BaseGUI
         $cmd = $this->ctrl->getCmd('showStartPage');
         match ($cmd) {
             'showStartPage',
-            'startWriter',
-            'startWritingReview',
             'startWorking',
+            'continueWriting',
+            'startWritingReview',
             'downloadWriterPdf',
             'downloadCorrectedPdf',
             'downloadCorrectionReportsPdf',
@@ -95,8 +101,144 @@ class WriterStartGUI extends BaseGUI
             return;
         }
 
-        (new StartPageGUI($this->object, $this->writer, $this))->showPage();
+        $this->fillStartToolbar();
+        $start_page = new StartPageGUI($this->object, $this->writer, $this);
+        $this->add($start_page->build());
+
+        $this->show();
     }
+
+    private function fillStartToolbar(): void
+    {
+        if (!$this->working_time->isStarted()) {
+            if ($this->perms->canWrite()) {
+                $this->add($modal = $this->buildStartModal());
+                $this->toolbar->addComponent($this->ui_factory->button()->primary(
+                    $this->plugin->txt('start_working'),
+                    '#'
+                )->withOnClick($modal->getShowSignal()));
+            }
+        } else {
+            switch ($this->writing_settings->getWritingType()) {
+                case WritingType::ESSAY_EDITOR:
+                    if ($this->perms->canWrite()) {
+                        if ($this->orga_settings->getStartPassword()) {
+                            $this->add($modal = $this->buildContinueModal());
+                            $this->toolbar->addComponent($this->ui_factory->button()->primary(
+                                $this->plugin->txt('continue_writing'),
+                                '#'
+                            )->withOnClick($modal->getShowSignal()));
+                        } else {
+                            $this->toolbar->addComponent($this->ui_factory->button()->primary(
+                                $this->plugin->txt('continue_writing'),
+                                $this->ctrl->getLinkTarget($this, 'continueWriting')
+                            ));
+                        }
+                    } elseif ($this->perms->canReviewWrittenAssessment() && !$this->writer->getWritingAuthorized()) {
+                        $this->toolbar->addComponent($this->ui_factory->button()->standard(
+                            $this->plugin->txt('review_writing'),
+                            $this->ctrl->getLinkTarget($this, 'startWritingReview')
+                        ));
+                    }
+                    break;
+
+                case WritingType::PDF_UPLOAD:
+                    if ($this->perms->canWrite() || $this->perms->canReviewWrittenAssessment()) {
+                        $this->toolbar->addComponent($this->ui_factory->button()->primary(
+                            $this->plugin->txt('writer_review_pdf'),
+                            $this->ctrl->getLinkTargetByClass(WriterUploadGUI::class)
+                        ));
+                    }
+                    break;
+            }
+        }
+    }
+
+    private function buildStartModal(): RoundTrip
+    {
+        $content = [];
+        $fields = [];
+
+        $content[] = $this->ui_factory->messageBox()->confirmation(
+            $this->plugin->txt($this->working_time->hasTimeLimitFromStart() ? 'start_working_time_limited' : 'start_working_time_unlimited'),
+        );
+
+        if ($this->orga_settings->getStartPassword() !== null) {
+            $fields['password'] = $this->ui_factory->input()->field()->password(
+                $this->plugin->txt('start_password')
+            )
+             ->withRevelation(true)
+             ->withRequired(true)
+             ->withAdditionalTransformation(
+                 $this->refinery->custom()->constraint(
+                     fn(Password $value): bool => $value->toString() === $this->orga_settings->getStartPassword(),
+                     $this->plugin->txt('start_password_wrong'),
+                 )
+             );
+        }
+
+        if ($this->orga_settings->getDashboard()) {
+            // needed to get the submit button shown if no other fields are added
+            $fields['dashboard'] = $this->plugin_ui_factory->field()->info($this->plugin->txt('label_dashboard_active'))
+            ->withInfo([
+                $this->plugin_ui_factory->legacy($this->plugin->txt('message_dashboard_active')),
+                $this->ui_factory->listing()->unordered([
+                    $this->plugin->txt('first_access'),
+                    $this->plugin->txt('last_access'),
+                    $this->plugin->txt('ip_address'),
+                    $this->plugin->txt('user_agent'),
+                    $this->plugin->txt('client_platform'),
+                    $this->plugin->txt('battery_status'),
+                    $this->plugin->txt('client_hidden'),
+                ])
+            ]);
+
+
+            $fields['accept'] = $this->ui_factory->input()->field()->checkbox(
+                $this->plugin->txt('start_working_acceptance')
+            )->withRequired(true)->withAdditionalTransformation($this->plugin->dic()->constraints()->checked());
+        }
+
+        // needed to get the submit button shown if no other fields are added
+        $fields['dummy'] = $this->plugin_ui_factory->field()->info('');
+
+        $modal = $this->ui_factory->modal()->roundtrip(
+            $this->plugin->txt('start_working'),
+            $content,
+            $fields,
+            $this->ctrl->getFormAction($this, 'startWorking')
+        )->withSubmitLabel($this->plugin->txt('start_working'));
+
+        return $modal;
+    }
+
+    private function buildContinueModal(): RoundTrip
+    {
+        $fields = [];
+        if ($this->orga_settings->getStartPassword() !== null) {
+            $fields['password'] = $this->ui_factory->input()->field()->password(
+                $this->plugin->txt('start_password')
+            )
+               ->withRevelation(true)
+               ->withRequired(true)
+               ->withAdditionalTransformation(
+                   $this->refinery->custom()->constraint(
+                       fn(Password $value): bool => $value->toString() === $this->orga_settings->getStartPassword(),
+                       $this->plugin->txt('start_password_wrong'),
+                   )
+               );
+        }
+
+        $modal = $this->ui_factory->modal()->roundtrip(
+            $this->plugin->txt('continue_writing'),
+            [],
+            $fields,
+            $this->ctrl->getFormAction($this, 'continueWriting')
+        )->withSubmitLabel($this->plugin->txt('continue_writing'));
+
+        return $modal;
+    }
+
 
     public function viewDescription(): void
     {
@@ -186,36 +328,61 @@ class WriterStartGUI extends BaseGUI
     }
 
     /**
-     * Set the working start
+     * Set the working start and open the editor or redirect to the start page for pdf upload
      */
     protected function startWorking()
-    {
-        if ($this->perms->canWrite()) {
-            $this->assessment_api->writer()->setWorkingStart($this->writer);
-
-            switch ($this->writing_settings->getWritingType()) {
-                case WritingType::ESSAY_EDITOR:
-                    $this->ctrl->redirect($this, 'startWriter');
-
-                    // no break
-                case WritingType::PDF_UPLOAD:
-                    $this->ctrl->redirect($this, 'showStartPage');
-            }
-        } else {
-            $this->raisePermissionError();
-        }
-    }
-
-    public function startWriter(): void
     {
         if (!$this->perms->canWrite()) {
             $this->raisePermissionError();
         }
-        $this->assessment_api->appService()->openWriter(
-            $this->object->getContextId(),
-            \ilObjLongEssayAssessmentGUI::_link($this->object->getRefId(), Jump::WRITER, true)
-        );
+
+        $modal = $this->buildStartModal()->withRequest($this->request);
+        if ($modal->getData() === null) {
+            $this->add($modal->withOnLoad($modal->getShowSignal()));
+            $this->showStartPage();
+            return;
+        }
+
+        $this->assessment_api->writer()->setWorkingStart($this->writer);
+
+        if ($this->writing_settings->getWritingType() === WritingType::ESSAY_EDITOR) {
+            $this->assessment_api->appService()->openWriter(
+                $this->object->getContextId(),
+                \ilObjLongEssayAssessmentGUI::_link($this->object->getRefId(), Jump::WRITER, true)
+            );
+        }
+
+        $this->ctrl->redirect($this, 'showStartPage');
     }
+
+    /**
+     * Continue writing in the editor
+     */
+    protected function continueWriting()
+    {
+        if (!$this->perms->canWrite()) {
+            $this->raisePermissionError();
+        }
+
+        if ($this->orga_settings->getStartPassword()) {
+            $modal = $this->buildContinueModal()->withRequest($this->request);
+            if ($modal->getData() === null) {
+                $this->add($modal->withOnLoad($modal->getShowSignal()));
+                $this->showStartPage();
+                return;
+            }
+        }
+
+        if ($this->writing_settings->getWritingType() === WritingType::ESSAY_EDITOR) {
+            $this->assessment_api->appService()->openWriter(
+                $this->object->getContextId(),
+                \ilObjLongEssayAssessmentGUI::_link($this->object->getRefId(), Jump::WRITER, true)
+            );
+        }
+
+        $this->ctrl->redirect($this, 'showStartPage');
+    }
+
 
     public function startWritingReview(): void
     {

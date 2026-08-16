@@ -3,6 +3,34 @@
 Please look at the [changelog of version 3](https://github.com/EDUTIEK/LongEssayAssessment/blob/release3_ilias9/CHANGELOG.md)
 for changes in that version.
 
+## Version 10.3 (2026-08-16)
+
+New functions, Visible changes
+- Add Corrector as Filter in Correction Admin and Collection View
+- Support a default essay import type with logins + '.pdf' as filenames in the ZIP
+- Add table export to writer administration, writing dashboard and corrector start screen
+- Add an optional writing supervision screen if the online editor is used
+- Request the writers' acceptance for additional data shown on the supervision screen
+- Add an optional start password for the writing and request it in the start modal
+- Move the notification of writers from the protocol to the supervision and writer admin
+- Subdivide the organizational settings
+- Allow hiding of all settings except object properties (title, description, online)
+- Don't show a tab if all settings on it are hidden
+- Don't change a corrector assignment for an authorized correction
+
+Bug Fixes / Refactorings
+
+- Force storing of null for optional files (fixing creation from older templates)
+- Fix error importing essays of type NRW
+- Fix issue with the voting view in LiveVoting plugin
+- Fix php error on statistics pages in ILIAS 11 with PHP 8.4
+- Fix failing table export in ILIAS 11
+- Don't create a writer entry when just the start page is viewed
+- Extend the user session on update call from writer app
+- Fix wrong assignment of locations to writers
+- Fix the saving of disabled settings
+- Don't create essay images if marking is done in PDF
+
 ## Version 10.2 (2026-08-03)
 
 New functions, Visible changes

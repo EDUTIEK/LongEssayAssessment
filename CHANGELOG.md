@@ -29,6 +29,7 @@ Bug Fixes / Refactorings
 - Extend the user session on update call from writer app
 - Fix wrong assignment of locations to writers
 - Fix the saving of disabled settings
+- Don't create essay images if marking is done in PDF
 
 ## Version 10.2 (2026-08-03)
 

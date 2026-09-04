@@ -17,6 +17,7 @@ class CorrectorAdminWriterStatisticsGUI extends StatisticsGUI
 {
     private \ILIAS\Plugin\LongEssayAssessment\Data\Writer\WriterRepository $writer_repo;
     private array $writer = [];
+    private array $usernames = [];
 
     public function __construct(\ilObjLongEssayAssessmentGUI $objectGUI)
     {

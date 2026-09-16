@@ -4,6 +4,7 @@ namespace ILIAS\Plugin\LongEssayAssessment\WriterAdmin;
 
 use ILIAS\Plugin\LongEssayAssessment\GUI\Writer\WriterTableGUI;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\Action\Export;
+use ilLongEssayAssessmentPlugin;
 
 /**
  * Writer Admin GUI class
@@ -51,6 +52,9 @@ class WriterAdminGUI extends WriterTableGUI
 
     public function showItems(): void
     {
+        // needed for the pdf viewer in async preview modal
+        $this->tpl->addJavaScript(ilLongEssayAssessmentPlugin::assetPath() . '/js/xlas.min.js');
+
         $this->toolbar->setFormAction($this->ctrl->getFormAction($this));
 
         \ilRepositorySearchGUI::fillAutoCompleteToolbar(

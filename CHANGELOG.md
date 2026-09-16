@@ -3,6 +3,11 @@
 Please look at the [changelog of version 3](https://github.com/EDUTIEK/LongEssayAssessment/blob/release3_ilias9/CHANGELOG.md)
 for changes in that version.
 
+## Upcoming version
+
+Bug Fixes
+- Wrongly initialized notification settings for corrector approximation or consulting
+
 ## Version 10.3 (2026-08-16)
 
 New functions, Visible changes

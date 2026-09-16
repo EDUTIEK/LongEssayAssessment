@@ -6,7 +6,8 @@ for changes in that version.
 ## Upcoming version
 
 Bug Fixes
-- Wrongly initialized notification settings for corrector approximation or consulting
+- Fix wrongly initialized notification settings for corrector approximation or consulting
+- Fix paging in correction administration
 
 ## Version 10.3 (2026-08-16)
 

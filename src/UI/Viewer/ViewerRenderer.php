@@ -57,17 +57,10 @@ class ViewerRenderer extends AbstractComponentRenderer
             $url = ILIAS_HTTP_PATH . '/' . ltrim($url, '/');
         }
 
-        $viewer = \ilLongEssayAssessmentPlugin::assetPath() . '/annotate-pdf/pdfjs-dist/web/viewer.html';
-
-        $component = $component->withOnLoadCode(function ($id) use ($viewer, $url) {
-            return "il.Xlas.PdfViewer.init('$id', '$viewer', '$url');";
-        });
-
-        $id = $this->bindJavaScript($component);
+        $url= \ilLongEssayAssessmentPlugin::assetPath() . "/pdf-viewer/pdfjs-dist/web/viewer.html?file=" . urlencode($url);
 
         $tpl = $this->getTemplate("tpl.pdf_viewer.html", true, true);
-        $tpl->setVariable('ID', $id);
-        $tpl->setVariable('URL', $component->getUrl());
+        $tpl->setVariable('URL', $url);
         if ($component->getCaption() !== null) {
             $tpl->setVariable('CAPTION', $component->getCaption());
         }

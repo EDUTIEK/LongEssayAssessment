@@ -1,0 +1,63 @@
+body
+{
+    display: flex;
+    flex-direction: row;
+}
+
+body > *, #outerContainer
+{
+    width: 50%;
+}
+
+.toolbar
+{
+    display: none!important;
+}
+
+#edutiek-annotations
+{
+    display: flex;
+    flex-direction: column;
+    padding: 30px 20px;
+    box-sizing: border-box;
+    height: 100vh;
+    overflow-y: scroll;
+}
+
+.edutiek-annotation
+{
+    padding: 10px;
+    background-color: #BBBBBB;
+    margin-bottom: 10px;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.edutiek-annotation:hover, .edutiek-annotation.hover
+{
+    background-color: #AAAAAA;
+}
+
+.edutiek-annotation.focus
+{
+    background-color: #777777;
+}
+
+#viewerContainer
+{
+    inset: 0!important;
+}
+
+#mainContainer .highlightAnnotation:hover, .highlightAnnotation.hover
+{
+    background-color: #AAAAAA77;
+    border-radius: 3px;
+    clip-path: unset!important;
+}
+
+#mainContainer .highlightAnnotation.focus
+{
+    background-color: #55555577;
+    border-radius: 3px;
+    clip-path: unset!important;
+}

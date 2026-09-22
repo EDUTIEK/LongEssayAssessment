@@ -9,6 +9,7 @@ Bug Fixes
 - Fix wrongly initialized notification settings for corrector approximation or consulting
 - Fix paging in correction administration
 - Fix broken PDF preview in writing administration
+- Fix permission check to upload assignments
 
 ## Version 10.3 (2026-08-16)
 

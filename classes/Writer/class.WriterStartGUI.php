@@ -20,6 +20,7 @@ declare(strict_types=1);
 
 namespace ILIAS\Plugin\LongEssayAssessment\Writer;
 
+use Edutiek\AssessmentService\Assessment\Data\ExportType;
 use Edutiek\AssessmentService\Assessment\Data\WritingTask;
 use ILIAS\Data\ReferenceId;
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
@@ -427,7 +428,6 @@ class WriterStartGUI extends BaseGUI
         if (!$this->perms->canDownloadCorrectionReports()) {
             $this->raisePermissionError();
         }
-
         $this->assessment_api->export($this->object->getContextId())->downloadReport();
     }
 
@@ -438,7 +438,9 @@ class WriterStartGUI extends BaseGUI
             $task_id = $this->get->integer('task_id');
             $resource = $this->task_api->resource($task_id)->oneByType(ResourceType::INSTRUCTIONS);
             if ($resource) {
-                $this->system_api->fileDelivery()->sendFile($resource->getFileId(), $disposition);
+                $info = $this->system_api->fileStorage()->getFileInfo($resource->getFileId());
+                $info->setFileName($this->assessment_api->fileNameBuilder()->build(ExportType::INSTRUCTION, '.pdf'));
+                $this->system_api->fileDelivery()->sendFile($resource->getFileId(), $disposition, $info);
             }
         }
     }
@@ -493,7 +495,9 @@ class WriterStartGUI extends BaseGUI
             $task_id = $this->get->integer('task_id');
             $resource = $this->task_api->resource($task_id)->oneByType(ResourceType::SOLUTION);
             if ($resource) {
-                $this->system_api->fileDelivery()->sendFile($resource->getFileId(), $disposition);
+                $info = $this->system_api->fileStorage()->getFileInfo($resource->getFileId());
+                $info->setFileName($this->assessment_api->fileNameBuilder()->build(ExportType::SOLUTION, '.pdf'));
+                $this->system_api->fileDelivery()->sendFile($resource->getFileId(), $disposition, $info);
             }
         }
     }

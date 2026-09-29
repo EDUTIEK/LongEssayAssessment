@@ -2,6 +2,7 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\Dashboard;
 
+use Edutiek\AssessmentService\Assessment\Data\ExportType;
 use Edutiek\AssessmentService\Assessment\LogEntry\MentionUser as LogEntryMention;
 use Edutiek\AssessmentService\Assessment\LogEntry\Type as LogEntryType;
 use Edutiek\AssessmentService\Views\Data\ClientFilterOptions;
@@ -182,7 +183,11 @@ class DashboardGUI extends WriterTableGUI
 
     public function exportTableAction(): Export
     {
-        return $this->plugin_ui_factory->table()->action()->export('export', $this->plugin->txt('table_export'), $this->plugin->txt('dashboard_table_export_filename'));
+        return $this->plugin_ui_factory->table()->action()->export(
+            'export',
+            $this->plugin->txt('table_export'),
+            $this->assessment_api->fileNameBuilder()->build(ExportType::DASHBOARD, '')
+        );
     }
 
     protected function viewClientSessionsAction()

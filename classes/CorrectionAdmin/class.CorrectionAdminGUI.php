@@ -7,6 +7,7 @@ use Edutiek\AssessmentService\Assessment\Corrector\FullService as CorrectorServi
 use Edutiek\AssessmentService\Assessment\Data\AssignFilter;
 use Edutiek\AssessmentService\Assessment\Data\CombinedStatus;
 use Edutiek\AssessmentService\Assessment\Data\CorrectionSettings;
+use Edutiek\AssessmentService\Assessment\Data\ExportType;
 use Edutiek\AssessmentService\Assessment\Data\Location;
 use Edutiek\AssessmentService\Assessment\Data\OrgaSettings;
 use Edutiek\AssessmentService\Assessment\Data\WritingTask;
@@ -74,7 +75,7 @@ class CorrectionAdminGUI extends BaseGUI
         return $this->plugin_ui_factory->table()->action()->export(
             "export",
             $this->plugin->txt('table_export'),
-            $this->plugin->txt('correction_admin_table_export_filename')
+            $this->assessment_api->fileNameBuilder()->build(ExportType::CORRECTIONS, '')
         );
     }
 

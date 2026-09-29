@@ -2,6 +2,7 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\WriterAdmin;
 
+use Edutiek\AssessmentService\Assessment\Data\ExportType;
 use ILIAS\Plugin\LongEssayAssessment\GUI\Writer\WriterTableGUI;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\Action\Export;
 use ilLongEssayAssessmentPlugin;
@@ -182,6 +183,10 @@ class WriterAdminGUI extends WriterTableGUI
 
     public function exportTableAction(): Export
     {
-        return $this->plugin_ui_factory->table()->action()->export('export', $this->plugin->txt('table_export'), $this->plugin->txt('writer_admin_table_export_filename'));
+        return $this->plugin_ui_factory->table()->action()->export(
+            'export',
+            $this->plugin->txt('table_export'),
+            $this->assessment_api->fileNameBuilder()->build(ExportType::WRITERS, '')
+        );
     }
 }

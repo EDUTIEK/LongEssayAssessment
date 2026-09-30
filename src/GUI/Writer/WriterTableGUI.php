@@ -832,7 +832,7 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
     {
         return $this->plugin_ui_factory->table()->action()->direct(
             "download_writing",
-            $this->plugin->txt("download_writing"),
+            $this->plugin->txt("download_written_pdf"),
             $this->downloadWriting(...),
             fn(WriterItem $item) => true,
             Action\Type::Standard

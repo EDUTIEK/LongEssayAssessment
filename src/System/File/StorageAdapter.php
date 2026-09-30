@@ -34,6 +34,23 @@ readonly class StorageAdapter implements Storage
         return Delivery::returnASCIIFileName($filename);
     }
 
+    public function sanitizeFilename(string $filename): string
+    {
+        // 1. Forbidden characters on windows: \ / : * ? " < > |
+        // 2. Control characters (ASCII 0-31 und 127) via \p{Cc}
+        // The Modifier 'u' at then end ensures a correct UTF-8 processing
+        $pattern = '/[\\\\\/:\*\?"<>\|]|\p{Cc}/u';
+
+        // Replace forbidden characters by spaces
+        $sanitized = preg_replace($pattern, ' ', $filename);
+
+        // Reduce subsequent spaces
+        $sanitized = preg_replace('/\s+/u', ' ', $sanitized);
+
+        // Remove spaces from start and end
+        return trim($sanitized);
+    }
+
     public function newInfo(): FileInfo
     {
         return new FileInfoModel();

@@ -20,6 +20,8 @@ declare(strict_types=1);
 
 namespace ILIAS\Plugin\LongEssayAssessment\UI\Viewer;
 
+use Edutiek\AssessmentService\System\Data\HeadlineScheme;
+
 class ViewerFactory
 {
     public const VIEWERS = [PdfViewer::class, AudioPlayer::class, VideoPlayer::class, ImageViewer::class];
@@ -42,6 +44,11 @@ class ViewerFactory
     public function image(string $url, string $mime_type, ?string $caption = null): ImageViewer
     {
         return new ImageViewer($url, $mime_type, $caption);
+    }
+
+    public function html(string $html, string $purpose = HtmlContent::FOR_CONTENT, HeadlineScheme $headline_scheme = HeadlineScheme::THREE): HtmlContent
+    {
+        return new HtmlContent($html, $purpose, $headline_scheme);
     }
 
     public function fromMimeType(string $url, string $mime_type, ?string $caption = null): ?Media

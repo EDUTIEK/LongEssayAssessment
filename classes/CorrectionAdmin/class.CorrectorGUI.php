@@ -2,6 +2,7 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\CorrectorAdmin;
 
+use Edutiek\AssessmentService\Assessment\Data\ExportType;
 use Edutiek\AssessmentService\Assessment\TaskInterfaces\GradingPosition;
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\DataTableParent;
@@ -532,6 +533,10 @@ class CorrectorGUI extends BaseGUI implements DataTableParent
 
     public function exportTableAction(): Action\Export
     {
-        return $this->table_factory->action()->export('export', $this->plugin->txt('table_export'), $this->plugin->txt('corrector_table_export_filename'));
+        return $this->table_factory->action()->export(
+            'export',
+            $this->plugin->txt('table_export'),
+            $this->assessment_api->fileNameBuilder()->build(ExportType::CORRECTORS, '')
+        );
     }
 }

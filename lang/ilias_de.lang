@@ -615,8 +615,8 @@ total_statistic#:#Gesamt-Notenstatistik
 tab_writer_statistic#:#Teilnehmer-Notenstatistik
 tab_corrector_admin_statistic#:#Korrektor-Notenstatistik
 min_finalized_corrections#:#Min. abgeschlossene Korrekturen
-export_statistics_writer_file#:#Teilnehmer-Notenstatistik
-export_statistics_corrector_file#:#Korrektor-Notenstatistik
+export_statistics_writer_file#:#Teilnahme-Notenstatistik
+export_statistics_corrector_file#:#Korrektur-Notenstatistik
 export_statistics#:#Notenstatistik exportieren
 grade_levels_empty_notice#:#Es sind noch keine Notenstufen festgelegt. Damit können Abgaben auch ohne Benotung korrigiert werden. Wenn Sie Notenstufen hinzufügen, müssen die Korrekturen mit einer Punkten abgeschlossen werden. Anhand der Notenstufen wird daraus die Note und das Bestehen der Aufgabe ermittelt.
 tab_correction_report#:#Korrekturbericht
@@ -802,7 +802,7 @@ corrector_table_export_filename#:#Korrektorentabelle
 corrector_start_table_export_filename#:#Korrekturentabelle
 writer_admin_table_export_filename#:#Teilnahmetabelle
 dashboard_table_export_filename#:#Aufsichtstabelle
-correction_status_table_export_filename#:#Korrekturstatustabelle
+correction_status_table_export_filename#:#Korrekturstatus
 min_word_count#:#Wörter mindestens
 max_word_count#:#Wörter maximal
 predefined_settings#:#Voreinstellungen

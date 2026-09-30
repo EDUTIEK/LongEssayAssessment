@@ -14,6 +14,7 @@ Bug Fixes
 - Fix paging in correction administration
 - Fix broken PDF preview in writing administration and dashboard
 - Fix permission check to upload assignments
+- Fix initial visibility and naming of the first corrector column in correction administration
 
 ## Version 10.3 (2026-08-16)
 

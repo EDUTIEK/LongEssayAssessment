@@ -207,7 +207,12 @@ class CorrectionTableParent implements DataTableParent, FilterParent
 
     public function getTotalRowCount(?array $filter_data, ?array $additional_parameters): ?int
     {
-        return $this->corrections_view->count($filter_data);
+        $filter = ['ass_id' => $this->ass_ids];
+
+        if (!empty($filter_data)) {
+            $filter = array_merge($filter, $filter_data);
+        }
+        return $this->corrections_view->count($filter);
     }
 
     public function getTableItems(?array $ids = null, ?array $filter_data = null): \Generator

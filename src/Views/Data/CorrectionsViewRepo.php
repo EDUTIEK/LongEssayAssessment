@@ -125,12 +125,12 @@ class CorrectionsViewRepo extends ViewRepo implements \Edutiek\AssessmentService
                 SELECT 1 FROM {$this->corrector_repo->table()} AS cc
                 LEFT JOIN {$this->corrector_assignment_repo->table()} AS ca ON ca.corrector_id = cc.id
                 LEFT JOIN usr_data AS u ON u.usr_id = cc.user_id
-                WHERE CONCAT(u.firstname, u.lastname, u.login, u.email) LIKE {$this->db->quote('%'.$value.'%', 'text')} AND ca.writer_id = w.id
+                WHERE CONCAT(u.firstname, u.lastname, u.login, u.email) LIKE {$this->db->quote('%' . $value . '%', 'text')} AND ca.writer_id = w.id
             )" : null,
             "name" => !empty($value) ? "EXISTS (
                 SELECT 1 FROM {$this->writer_repo->table()} AS wu 
                 LEFT JOIN usr_data AS u ON u.usr_id = wu.user_id
-                WHERE CONCAT(u.firstname, u.lastname, u.login, u.email, wu.pseudonym) LIKE {$this->db->quote('%'.$value.'%', 'text')} AND u.usr_id = w.user_id
+                WHERE CONCAT(u.firstname, u.lastname, u.login, u.email, wu.pseudonym) LIKE {$this->db->quote('%' . $value . '%', 'text')} AND u.usr_id = w.user_id
             )" : null,
             default => null,
         };
@@ -197,7 +197,8 @@ class CorrectionsViewRepo extends ViewRepo implements \Edutiek\AssessmentService
         );
         $row = $this->db->fetchAssoc($query);
 
-        $required = (int) ($row['max_required_correctors'] ?? 1);
+        // older settings may have 0 correctors
+        $required = max((int) ($row['max_required_correctors'] ?? 1), 1);
         if ($required > 1 && ($row['max_stitch_after_procedure'] ?? 0)) {
             $required++;
         }

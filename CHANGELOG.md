@@ -3,7 +3,20 @@
 Please look at the [changelog of version 3](https://github.com/EDUTIEK/LongEssayAssessment/blob/release3_ilias9/CHANGELOG.md)
 for changes in that version.
 
-## Upcoming version (in Git)
+## Upcoming version
+
+New functions, Visible changes
+- Unification of export file names with assessment title and writer pseudonym
+- Allow normal UTF-8 characters in export file names
+
+Bug Fixes
+- Fix wrongly initialized notification settings for corrector approximation or consulting
+- Fix paging in correction administration
+- Fix broken PDF preview in writing administration and dashboard
+- Fix permission check to upload assignments
+- Fix initial visibility and naming of the first corrector column in correction administration
+
+## Version 10.3 (2026-08-16)
 
 New functions, Visible changes
 - Add Corrector as Filter in Correction Admin and Collection View

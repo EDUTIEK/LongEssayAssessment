@@ -13,6 +13,7 @@ use ILIAS\Plugin\LongEssayAssessment\UI\Table\Action;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\Action\Export;
 use ILIAS\UI\Component\Modal\RoundTrip;
 use ilSession;
+use ilLongEssayAssessmentPlugin;
 
 /**
  * Dashboard GUI class
@@ -47,6 +48,9 @@ class DashboardGUI extends WriterTableGUI
 
     public function showItems(): void
     {
+        // needed for the pdf viewer in async preview modal
+        $this->tpl->addJavaScript(ilLongEssayAssessmentPlugin::assetPath() . '/js/xlas.min.js');
+
         $this->handleClientFilter();
         $counts = $this->views->writer()->clientFilterCounts($this->object->getAssId());
 

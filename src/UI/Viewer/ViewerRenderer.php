@@ -25,17 +25,19 @@ use ILIAS\UI\Renderer;
 use ILIAS\UI\Component\Component;
 use LogicException;
 use ILIAS\UI\Implementation\Render\ResourceRegistry;
+use ilLongEssayAssessmentPlugin;
 
 class ViewerRenderer extends AbstractComponentRenderer
 {
     protected function getComponentInterfaceName(): array
     {
-        return [PdfViewer::class, AudioPlayer::class, VideoPlayer::class, ImageViewer::class, ComponentSwitch::class];
+        return [PdfViewer::class, AudioPlayer::class, VideoPlayer::class, ImageViewer::class, ComponentSwitch::class, HtmlContent::class];
     }
 
     public function registerResources(ResourceRegistry $registry): void
     {
         $registry->register(\ilLongEssayAssessmentPlugin::assetPath() . '/js/xlas.min.js');
+        $registry->register(\ilLongEssayAssessmentPlugin::assetPath() . '/css/content.css');
     }
 
     public function render(Component $component, Renderer $default_renderer): string
@@ -45,6 +47,7 @@ class ViewerRenderer extends AbstractComponentRenderer
             $component instanceof AudioPlayer => $this->renderMime('audio_player', $component),
             $component instanceof VideoPlayer => $this->renderMime('video_player', $component),
             $component instanceof ImageViewer => $this->renderMime('image_viewer', $component),
+            $component instanceof HtmlContent => $this->renderHtmlContent($component),
             $component instanceof ComponentSwitch => $this->renderComponentSwitch($component, $default_renderer),
             default => throw new LogicException("Cannot render '" . get_class($component) . "'"),
         };
@@ -57,7 +60,7 @@ class ViewerRenderer extends AbstractComponentRenderer
             $url = ILIAS_HTTP_PATH . '/' . ltrim($url, '/');
         }
 
-        $viewer = \ilLongEssayAssessmentPlugin::assetPath() . '/annotate-pdf/pdfjs-dist/web/viewer.html';
+        $viewer = ilLongEssayAssessmentPlugin::assetPath() . '/annotate-pdf/pdfjs-dist/web/viewer.html';
 
         $component = $component->withOnLoadCode(function ($id) use ($viewer, $url) {
             return "il.Xlas.PdfViewer.init('$id', '$viewer', '$url');";
@@ -107,6 +110,20 @@ class ViewerRenderer extends AbstractComponentRenderer
         $tpl->setVariable('COMPONENTS_A', $default_renderer->render($component->getComponentsA()));
         $tpl->setVariable('COMPONENTS_B', $default_renderer->render($component->getComponentsB()));
         $tpl->setVariable('SWITCH_BUTTON', $default_renderer->render($switch_button));
+
+        return $tpl->get();
+    }
+
+    public function renderHtmlContent(HtmlContent $component): string
+    {
+        $html = ilLongEssayAssessmentPlugin::getInstance()->dic()->system()->htmlProcessing()->secureContent($component->getHtml());
+
+        $tpl = $this->getTemplate("tpl.html_content.html", true, true);
+        $tpl->setVariable('HTML', $html);
+        $tpl->setVariable('HEADLINE_CLASS', $component->getScheme()->class());
+        if ($component->getPurpose() == HtmlContent::FOR_MESSAGE) {
+            $tpl->setVariable('PURPOSE_STYLE', 'font-family: sans-serif;');
+        }
 
         return $tpl->get();
     }

@@ -37,6 +37,7 @@ use ilToolbarGUI;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use ILIAS\UI\Component\Input\Container\Form\Form;
+use ILIAS\Plugin\LongEssayAssessment\UI\Viewer\HtmlContent;
 
 /**
  * Base class for GUI classes (except the plugin guis required by ILIAS)
@@ -120,7 +121,8 @@ abstract class BaseGUI
             $this->task_info = $manager_service->first();
         }
 
-        $this->addContentCss();
+        // needed for HtmlContent in modals
+        $this->tpl->addCss($this->plugin->asset('css/content.css'));
     }
 
     /**
@@ -253,34 +255,33 @@ abstract class BaseGUI
 
     /**
      * Display an HTML text in readable width
+     * @todo replace calls by direct component usage
      */
     public function displayText(?string $html): string
     {
-        return $this->displayContent($html, HeadlineScheme::THREE);
+        return $this->renderer->render(
+            $this->plugin_ui_factory->viewer()->html(
+                $html,
+                HtmlContent::FOR_MESSAGE,
+                HeadlineScheme::THREE
+            )
+        );
     }
 
     /**
      * Display an essay content
-     * @todo: merge with displayText in a new UI element
+     * @todo replace calls by direct component usage
      */
     public function displayContent(?string $html, ?HeadlineScheme $scheme = null): string
     {
         $scheme = $scheme ?? $this->essay_task_api->writingSettings()->get()->getHeadlineScheme();
-        $headline_class = $scheme->class();
-
-        $html = $this->system_api->htmlProcessing()->secureContent($html);
-
-        return '<div class="xlas-content ' . $headline_class
-            . ' " style="max-width: 60em;">' . $html . '</div>';
-    }
-
-    /**
-     * Add the css for displaying essay content
-     * @todo add as a resource for a new UI element
-     */
-    private function addContentCss(): void
-    {
-        $this->tpl->addCss($this->plugin->asset('css/content.css'));
+        return $this->renderer->render(
+            $this->plugin_ui_factory->viewer()->html(
+                $html,
+                HtmlContent::FOR_CONTENT,
+                $scheme
+            )
+        );
     }
 
     /**

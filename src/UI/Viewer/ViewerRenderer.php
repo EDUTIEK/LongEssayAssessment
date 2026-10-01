@@ -122,7 +122,7 @@ class ViewerRenderer extends AbstractComponentRenderer
         $tpl->setVariable('HTML', $html);
         $tpl->setVariable('HEADLINE_CLASS', $component->getScheme()->class());
         if ($component->getPurpose() == HtmlContent::FOR_MESSAGE) {
-            $tpl->setVariable('PURPOSE_STYLE', 'font-family: sans-serif;');
+            $tpl->setVariable('PURPOSE_STYLE', 'font-size: 0.875rem; font-family: sans-serif;');
         }
 
         return $tpl->get();

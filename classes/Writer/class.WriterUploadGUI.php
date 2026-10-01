@@ -35,6 +35,7 @@ use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\UI\Component\Modal\Modal;
 use ilLongEssayAssessmentUploadHandlerGUI;
 use ILIAS\Plugin\LongEssayAssessment\WriterAdmin\WriterAdminGUI;
+use ILIAS\Plugin\LongEssayAssessment\UI\Viewer\HtmlContent;
 
 /**
  * @ilCtrl_isCalledBy ILIAS\Plugin\LongEssayAssessment\Writer\WriterUploadGUI: ilObjLongEssayAssessmentGUI
@@ -178,9 +179,16 @@ class WriterUploadGUI extends BaseGUI
             }
 
             if (!empty($essay->getWrittenText() && !$essay->hasPdfFromWrittenText())) {
+                $scheme = $this->essay_task_api->writingSettings()->get()->getHeadlineScheme();
+
                 $content[] = $this->ui_factory->divider()->horizontal();
                 $content[] = $this->ui_factory->card()->standard($this->plugin->txt('pdf_version_header_writing'))
-                                              ->withSections([$this->plugin_ui_factory->legacy($this->displayContent($essay->getWrittenText()))]);
+                    ->withSections([$this->plugin_ui_factory->viewer()->html(
+                        $essay->getWrittenText(),
+                        HtmlContent::FOR_CONTENT,
+                        $scheme
+                    )
+                ]);
             }
 
             $this->add($this->ui_factory->panel()->standard($task->getTitle(), $content));

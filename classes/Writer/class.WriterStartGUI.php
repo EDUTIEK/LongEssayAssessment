@@ -40,6 +40,8 @@ use ILIAS\Plugin\LongEssayAssessment\Jump;
 use ILIAS\UI\Component\Modal\RoundTrip;
 use ILIAS\Data\Password;
 use ILIAS\UI\Implementation\Component\Input\Container\Form\Standard;
+use ILIAS\Plugin\LongEssayAssessment\UI\Viewer\HtmlContent;
+use Edutiek\AssessmentService\System\Data\HeadlineScheme;
 
 /**
  * @ilCtrl_isCalledBy ILIAS\Plugin\LongEssayAssessment\Writer\WriterStartGUI: ilObjLongEssayAssessmentGUI
@@ -250,7 +252,10 @@ class WriterStartGUI extends BaseGUI
 
         $this->add($this->ui_factory->panel()->standard(
             $this->plugin->txt('task_description'),
-            $this->plugin_ui_factory->legacy($this->displayText($this->orga_settings->getDescription()))
+            $this->plugin_ui_factory->viewer()->html(
+                $this->orga_settings->getDescription(),
+                HtmlContent::FOR_MESSAGE
+            )
         ))->show();
     }
 
@@ -263,7 +268,10 @@ class WriterStartGUI extends BaseGUI
 
         $this->add($this->ui_factory->panel()->standard(
             $this->plugin->txt('closing_message'),
-            $this->plugin_ui_factory->legacy($this->displayText($this->orga_settings->getClosingMessage()))
+            $this->plugin_ui_factory->viewer()->html(
+                $this->orga_settings->getClosingMessage(),
+                HtmlContent::FOR_MESSAGE
+            )
         ))->show();
     }
 
@@ -282,7 +290,10 @@ class WriterStartGUI extends BaseGUI
 
         $this->add($this->ui_factory->panel()->standard(
             $this->plugin->txt('task_instructions'),
-            $this->plugin_ui_factory->legacy($this->displayText($task_settings->getInstructions()))
+            $this->plugin_ui_factory->viewer()->html(
+                $task_settings->getInstructions(),
+                HtmlContent::FOR_MESSAGE
+            )
         ));
 
         $resource = $this->task_api->resource($task_id)->oneByType(ResourceType::INSTRUCTIONS);
@@ -465,7 +476,10 @@ class WriterStartGUI extends BaseGUI
         $task_settings = $this->task_api->settings($task_id)->get();
         $this->add($this->ui_factory->panel()->standard(
             $this->plugin->txt('task_solution'),
-            $this->plugin_ui_factory->legacy($this->displayText($task_settings->getSolution()))
+            $this->plugin_ui_factory->viewer()->html(
+                $task_settings->getSolution(),
+                HtmlContent::FOR_MESSAGE
+            )
         ));
 
         $resource = $this->task_api->resource($task_id)->oneByType(ResourceType::SOLUTION);

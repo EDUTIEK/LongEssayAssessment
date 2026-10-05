@@ -38,6 +38,8 @@ use ILIAS\Plugin\LongEssayAssessment\BaseObjectData;
 use ILIAS\UI\Component\Component;
 use ILIAS\UI\Component\Component as UiComponent;
 use ILIAS\UI\Component\Modal\RoundTrip;
+use ILIAS\Plugin\LongEssayAssessment\UI\Viewer\HtmlContent;
+use Edutiek\AssessmentService\System\Data\HeadlineScheme;
 
 class StartPageGUI extends BaseGUI
 {
@@ -135,7 +137,10 @@ class StartPageGUI extends BaseGUI
         } elseif ($this->writer->getWritingAuthorized()) {
             if ($this->get->has('returned')) {
                 if ($this->orga_settings->getClosingMessage()) {
-                    $message = $this->displayText($this->orga_settings->getClosingMessage());
+                    $message = $this->renderer->render($this->plugin_ui_factory->viewer()->html(
+                        $this->orga_settings->getClosingMessage(),
+                        HtmlContent::FOR_MESSAGE
+                    ));
                 } else {
                     $message = $this->plugin->txt('message_writing_authorized');
                 }
@@ -165,7 +170,7 @@ class StartPageGUI extends BaseGUI
         $properties = [];
 
         if ($this->orga_settings->getDescription()) {
-            $parts[] = $this->plugin_ui_factory->legacy($this->displayText($this->orga_settings->getDescription()));
+            $parts[] = $this->plugin_ui_factory->viewer()->html($this->orga_settings->getDescription(), HtmlContent::FOR_MESSAGE);
         }
 
         if ($this->working_time->isNowBeforeAllowedTime()) {

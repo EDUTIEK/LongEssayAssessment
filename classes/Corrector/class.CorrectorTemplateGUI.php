@@ -14,6 +14,7 @@ use Edutiek\AssessmentService\Task\CorrectorTemplate\FullService as TemplateServ
 use Edutiek\AssessmentService\Task\Data\CorrectorTemplate;
 use Edutiek\AssessmentService\System\Entity\FullService as EntityService;
 use Edutiek\AssessmentService\System\Transform\FullService as TransformService;
+use ILIAS\Plugin\LongEssayAssessment\UI\Viewer\HtmlContent;
 
 /**
  * Edit summary template by corrector
@@ -143,17 +144,7 @@ class CorrectorTemplateGUI extends BaseGUI
         $corrector = $this->corrector_service->oneById($template->getCorrectorId());
         $user = $this->system_api->user()->getUser($corrector?->getUserId() ?? 0);
 
-        $content = $this->plugin_ui_factory->legacy($this->displayContent($template->getContent()));
-
-        // blank form brings error in ILIAS 11
-        //        $fields = [
-        //            'preview' => $this->plugin_ui_factory->field()->info(
-        //                $user?->getListname(false) ?? $this->plugin->txt('unknown'),
-        //            )->withInfo(
-        //                $this->plugin_ui_factory->legacy($this->displayContent($template->getContent()))
-        //            )
-        //        ];
-        //        $form = $this->plugin_ui_factory->field()->blankForm('#', $fields);
+        $content = $this->plugin_ui_factory->viewer()->html($template->getContent());
 
         $this->ctrl->setParameter($this, 'share_id', $template->getCorrectorId());
         $adopt = $this->ui_factory->button()->primary(

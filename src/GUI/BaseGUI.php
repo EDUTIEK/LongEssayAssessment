@@ -253,36 +253,6 @@ abstract class BaseGUI
         }
     }
 
-    /**
-     * Display an HTML text in readable width
-     * @todo replace calls by direct component usage
-     */
-    public function displayText(?string $html): string
-    {
-        return $this->renderer->render(
-            $this->plugin_ui_factory->viewer()->html(
-                $html,
-                HtmlContent::FOR_MESSAGE,
-                HeadlineScheme::THREE
-            )
-        );
-    }
-
-    /**
-     * Display an essay content
-     * @todo replace calls by direct component usage
-     */
-    public function displayContent(?string $html, ?HeadlineScheme $scheme = null): string
-    {
-        $scheme = $scheme ?? $this->essay_task_api->writingSettings()->get()->getHeadlineScheme();
-        return $this->renderer->render(
-            $this->plugin_ui_factory->viewer()->html(
-                $html,
-                HtmlContent::FOR_CONTENT,
-                $scheme
-            )
-        );
-    }
 
     /**
      * Open the mail form for sending a mail to accounts

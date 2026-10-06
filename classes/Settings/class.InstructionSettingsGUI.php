@@ -17,6 +17,7 @@ use Edutiek\AssessmentService\Task\Resource\FullService as ResourceService;
 use Edutiek\AssessmentService\Task\Settings\FullService as SettingsService;
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\BaseObjectData;
+use ILIAS\Plugin\LongEssayAssessment\UI\Input\TinyMCE;
 use ILIAS\UI\Component\Input\Container\Form\Standard;
 use ilLongEssayAssessmentUploadHandlerGUI;
 
@@ -181,6 +182,7 @@ class InstructionSettingsGUI extends BaseGUI
         if ($this->fixation_gui->isVisible('task_instructions')) {
             $fields['task_instructions'] = $this->plugin_ui_factory->field()
                 ->tinyMCE($this->plugin->txt("task_instructions_text"), $this->plugin->txt("task_instructions_info"))
+                ->withPurpose(TinyMCE::FOR_MESSAGE)
                 ->withValue($this->settings->getInstructions() ?? "")
                 ->withDisabled($this->fixation_gui->isDisabled('task_instructions'));
         }

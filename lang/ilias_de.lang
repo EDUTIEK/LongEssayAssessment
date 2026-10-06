@@ -612,8 +612,8 @@ cron_review_notification_description#:#Teilnehmende erhalten eine Mail-Benachric
 review_notification_text#:#Zusätzliche Informationen
 review_notification_text_info#:#Die Informationen werden den Teilnehmenden in der Mail-Benachrichtigung zur Einsichtnahme angezeigt.
 total_statistic#:#Gesamt-Notenstatistik
-tab_writer_statistic#:#Teilnehmer-Notenstatistik
-tab_corrector_admin_statistic#:#Korrektor-Notenstatistik
+tab_writer_statistic#:#Teilnahme-Notenstatistik
+tab_corrector_admin_statistic#:#Korrektur-Notenstatistik
 min_finalized_corrections#:#Min. abgeschlossene Korrekturen
 export_statistics_writer_file#:#Teilnahme-Notenstatistik
 export_statistics_corrector_file#:#Korrektur-Notenstatistik

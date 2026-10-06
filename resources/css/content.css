@@ -22,6 +22,22 @@
     text-align: justify;
 }
 
+.xlas-content.message,
+.xlas-content.message h1,
+.xlas-content.message h2,
+.xlas-content.message h3,
+.xlas-content.message h4,
+.xlas-content.message h5,
+.xlas-content.message h6
+{
+    font-family: sans-serif;
+}
+
+.xlas-content.message
+{
+    font-size: 0.875rem;
+}
+
 .xlas-content p,
 .xlas-content pre {
     margin-top: 0;

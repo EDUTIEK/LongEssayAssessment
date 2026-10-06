@@ -34,6 +34,7 @@ use ILIAS\Plugin\LongEssayAssessment\UI\Table\Helper\InitialVisibleColumns;
 use ILIAS\UI\Component\Modal\RoundTrip;
 use ILIAS\UI\Implementation\Component\Input\Input;
 use ILIAS\Plugin\LongEssayAssessment\Writer\WriterUploadGUI;
+use ILIAS\Plugin\LongEssayAssessment\UI\Viewer\HtmlContent;
 
 abstract class WriterTableGUI extends BaseGUI implements DataTableParent, FilterParent
 {
@@ -79,10 +80,15 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
 
         foreach ($tasks as $task_info) {
             $essay = $this->essay_service->oneByWriterIdAndTaskId($writer->getId(), $task_info->getId());
+            $scheme = $this->essay_task_api->writingSettings()->get()->getHeadlineScheme();
 
             $parts = [];
             if (!empty($essay?->getWrittenText()) && !$essay?->hasPdfFromWrittenText()) {
-                $parts[] = $this->plugin_ui_factory->legacy($this->displayContent($essay->getWrittenText() ?? ""));
+                $parts[] = $this->plugin_ui_factory->viewer()->html(
+                    $essay->getWrittenText(),
+                    HtmlContent::FOR_CONTENT,
+                    $scheme
+                );
             }
 
             if (!empty($essay?->getPdfVersion())) {

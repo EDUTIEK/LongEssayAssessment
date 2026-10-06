@@ -60,7 +60,7 @@ class ViewerRenderer extends AbstractComponentRenderer
             $url = ILIAS_HTTP_PATH . '/' . ltrim($url, '/');
         }
 
-        $url= ilLongEssayAssessmentPlugin::assetPath() . "/pdf-viewer/pdfjs-dist/web/viewer.html?file=" . urlencode($url);
+        $url = ilLongEssayAssessmentPlugin::assetPath() . "/pdf-viewer/pdfjs-dist/web/viewer.html?file=" . urlencode($url);
 
         $tpl = $this->getTemplate("tpl.pdf_viewer.html", true, true);
         $tpl->setVariable('URL', $url);
@@ -113,10 +113,8 @@ class ViewerRenderer extends AbstractComponentRenderer
 
         $tpl = $this->getTemplate("tpl.html_content.html", true, true);
         $tpl->setVariable('HTML', $html);
+        $tpl->setVariable('PURPOSE_CLASS', $component->getPurpose());
         $tpl->setVariable('HEADLINE_CLASS', $component->getScheme()->class());
-        if ($component->getPurpose() == HtmlContent::FOR_MESSAGE) {
-            $tpl->setVariable('PURPOSE_STYLE', 'font-size: 0.875rem; font-family: sans-serif;');
-        }
 
         return $tpl->get();
     }

@@ -6,8 +6,12 @@ for changes in that version.
 ## Upcoming version
 
 New functions, Visible changes
-- Unification of export file names with assessment title and writer pseudonym
+- Add free positioned line and wave in PDF marking functions in corrector web app
+- Set focus to comment input after symbol change in PDF marking in corrector web app
+- Support download of written and maked pdf and uploaded summary in corrector web app
+- Unify export file names with assessment title and writer pseudonym
 - Allow normal UTF-8 characters in export file names
+- Use sans-serif font for instructions, solution, starting message and final message
 
 Bug Fixes
 - Fix wrongly initialized notification settings for corrector approximation or consulting
@@ -15,6 +19,7 @@ Bug Fixes
 - Fix broken PDF preview in writing administration and dashboard
 - Fix permission check to upload assignments
 - Fix initial visibility and naming of the first corrector column in correction administration
+- Fix creation of phantom correctors by assignments import with non existing login names
 
 ## Version 10.3 (2026-08-16)
 

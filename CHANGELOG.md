@@ -8,7 +8,7 @@ for changes in that version.
 New functions, Visible changes
 - Add free positioned line and wave in PDF marking functions in corrector web app
 - Set focus to comment input after symbol change in PDF marking in corrector web app
-- Support download of written and maked pdf and uploaded summary in corrector web app
+- Support download of written pdf and uploaded summary in corrector web app
 - Unify export file names with assessment title and writer pseudonym
 - Allow normal UTF-8 characters in export file names
 - Use sans-serif font for instructions, solution, starting message and final message

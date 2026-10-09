@@ -292,7 +292,7 @@ class WriterStartGUI extends BaseGUI
             $this->plugin->txt('task_instructions'),
             $this->plugin_ui_factory->viewer()->html(
                 $task_settings->getInstructions(),
-                HtmlContent::FOR_MESSAGE
+                HtmlContent::FOR_CONTENT
             )
         ));
 
@@ -478,7 +478,7 @@ class WriterStartGUI extends BaseGUI
             $this->plugin->txt('task_solution'),
             $this->plugin_ui_factory->viewer()->html(
                 $task_settings->getSolution(),
-                HtmlContent::FOR_MESSAGE
+                HtmlContent::FOR_CONTENT
             )
         ));
 

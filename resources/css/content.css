@@ -16,7 +16,7 @@
  */
 
 .xlas-content {
-    font-family: serif;
+    font-family: sans-serif;
     font-size: 1rem;
     line-height: 150%;
     text-align: justify;
@@ -133,7 +133,7 @@
 .xlas-content h4,
 .xlas-content h5,
 .xlas-content h6 {
-    font-family: serif;
+    font-family: sans-serif;
     font-size: 1em;
     font-weight: bold;
     padding: 0;

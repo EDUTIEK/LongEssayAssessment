@@ -136,7 +136,6 @@ class SolutionSettingsGUI extends BaseGUI
         if ($this->fixation_gui->isVisible('task_solution')) {
             $fields['task_solution'] = $this->plugin_ui_factory->field()
                 ->tinyMCE($this->plugin->txt("task_solution_text"), $this->plugin->txt("task_solution_info"))
-                ->withPurpose(TinyMCE::FOR_MESSAGE)
                 ->withValue($this->settings->getSolution() ?? "")
                 ->withDisabled($this->fixation_gui->isDisabled('task_solution'));
         }

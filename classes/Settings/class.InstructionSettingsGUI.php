@@ -182,7 +182,6 @@ class InstructionSettingsGUI extends BaseGUI
         if ($this->fixation_gui->isVisible('task_instructions')) {
             $fields['task_instructions'] = $this->plugin_ui_factory->field()
                 ->tinyMCE($this->plugin->txt("task_instructions_text"), $this->plugin->txt("task_instructions_info"))
-                ->withPurpose(TinyMCE::FOR_MESSAGE)
                 ->withValue($this->settings->getInstructions() ?? "")
                 ->withDisabled($this->fixation_gui->isDisabled('task_instructions'));
         }

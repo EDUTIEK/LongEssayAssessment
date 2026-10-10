@@ -6,12 +6,11 @@ for changes in that version.
 ## Upcoming version
 
 New functions, Visible changes
-- Add free positioned line and wave in PDF marking functions in corrector web app
-- Set focus to comment input after symbol change in PDF marking in corrector web app
-- Support download of written pdf and uploaded summary in corrector web app
+- Use sans-serif font for all contents
 - Unify export file names with assessment title and writer pseudonym
 - Allow normal UTF-8 characters in export file names
-- Use sans-serif font for instructions, solution, starting message and final message
+- Support download of written pdf and uploaded summary in corrector app
+- Set focus to comment input after symbol change in PDF marking in corrector app
 
 Bug Fixes
 - Fix wrongly initialized notification settings for corrector approximation or consulting
@@ -20,6 +19,9 @@ Bug Fixes
 - Fix permission check to upload assignments
 - Fix initial visibility and naming of the first corrector column in correction administration
 - Fix creation of phantom correctors by assignments import with non existing login names
+- Fix number format in exported csv files for opening by excel
+- Fix additional character replacement for snippet auto-complete in corrector app
+- Fix missing scrolling of tables by TinyMCE with tab key in web apps
 
 ## Version 10.3 (2026-08-16)
 

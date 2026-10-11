@@ -3,6 +3,26 @@
 Please look at the [changelog of version 3](https://github.com/EDUTIEK/LongEssayAssessment/blob/release3_ilias9/CHANGELOG.md)
 for changes in that version.
 
+## Version 10.4 (2026-10-11)
+
+New functions, Visible changes
+- Use sans-serif font for all contents
+- Unify export file names with assessment title and writer pseudonym
+- Allow normal UTF-8 characters in export file names
+- Support download of written pdf and uploaded summary in corrector app
+- Set focus to comment input after symbol change in PDF marking in corrector app
+
+Bug Fixes
+- Fix wrongly initialized notification settings for corrector approximation or consulting
+- Fix paging in correction administration
+- Fix broken PDF preview in writing administration and dashboard
+- Fix permission check to upload assignments
+- Fix initial visibility and naming of the first corrector column in correction administration
+- Fix creation of phantom correctors by assignments import with non existing login names
+- Fix number format in exported csv files for opening by excel
+- Fix additional character replacement for snippet auto-complete in corrector app
+- Fix missing scrolling of tables by TinyMCE with tab key in web apps
+
 ## Version 10.3 (2026-08-16)
 
 New functions, Visible changes

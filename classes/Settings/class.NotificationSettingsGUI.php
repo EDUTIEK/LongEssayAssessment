@@ -31,14 +31,12 @@ class NotificationSettingsGUI extends BaseGUI implements DataTableParent
     private LanguageService $service_lang;
     private UserService $users;
     private EntityService $entity_service;
-    private CorrectionProcedure $procedure;
     private bool $is_fixed;
 
     public function __construct(BaseObjectData $object)
     {
         parent::__construct($object);
 
-        $this->procedure = $this->assessment_api->correctionSettings()->get()->getProcedure();
         $this->notification = $this->assessment_api->notification();
         $this->entity_service = $this->system_api->entity();
         $this->service_lang = $this->assessment_api->language($this->user->getId());
@@ -122,8 +120,8 @@ class NotificationSettingsGUI extends BaseGUI implements DataTableParent
 
         return ['settings' => $this->ui_factory->input()->field()->section(
             $fields,
-            $this->service_lang->txt($item->getType()->titleLangVar($this->procedure)),
-            $this->service_lang->txt($item->getType()->descriptionLangVar($this->procedure))
+            $this->service_lang->txt($item->getType()->titleLangVar()),
+            $this->service_lang->txt($item->getType()->descriptionLangVar())
         )];
     }
 
@@ -158,7 +156,8 @@ class NotificationSettingsGUI extends BaseGUI implements DataTableParent
                 return $this->service_lang->txt('writer');
             case NotificationType::CORRECTOR_AUTHORIZATION_REMOVED:
             case NotificationType::CORRECTOR_FIRST_AUTHORIZATION_REMOVED:
-            case NotificationType::CORRECTOR_PROCEDURE_STARTED:
+            case NotificationType::CORRECTOR_APPROXIMATION_STARTED:
+            case NotificationType::CORRECTOR_CONSULTING_STARTED:
             case NotificationType::CORRECTOR_WRITING_CHANGED:
             case NotificationType::CORRECTOR_STITCH_NEEDED:
                 return $this->service_lang->txt('corrector');
@@ -231,7 +230,7 @@ class NotificationSettingsGUI extends BaseGUI implements DataTableParent
     {
         return [
             "position" => $item->getPosition(),
-            "type" => $this->service_lang->txt($item->getType()->titleLangVar($this->procedure)),
+            "type" => $this->service_lang->txt($item->getType()->titleLangVar()),
             "subject" => $item->getSubject(),
             "active" => $item->isActive(),
             'recipients' => $this->recipients($item)

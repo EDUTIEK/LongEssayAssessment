@@ -127,7 +127,7 @@ class CollectionGUI
                         return $permission->canViewCorrectionStatistics();
                     }
                 );
-                $this->ctrl->forwardCommand(new CollectionCorrectorAdminStatisticsGUI($this->plugin, $this->plugin_dic, $this->dic, $nodes));
+                $this->ctrl->forwardCommand(new CollectionCorrectorAdminStatisticsGUI($this->plugin, $this->plugin_dic, $this->dic, $nodes, $this->object));
                 break;
             case strtolower(CollectionWriterAdminStatisticsGUI::class):
                 $this->setTabs("writer_statistic");
@@ -138,7 +138,7 @@ class CollectionGUI
                         return $permission->canMaintainCorrectors();
                     }
                 );
-                $this->ctrl->forwardCommand(new CollectionWriterAdminStatisticsGUI($this->plugin, $this->plugin_dic, $this->dic, $nodes));
+                $this->ctrl->forwardCommand(new CollectionWriterAdminStatisticsGUI($this->plugin, $this->plugin_dic, $this->dic, $nodes, $this->object));
                 break;
             default:
                 $cmd = $this->ctrl->getCmd('correctionStatus');
@@ -189,7 +189,11 @@ class CollectionGUI
                     ...array_map(fn($p) => ["corr_{$p}", "corr_{$p}_name", "corr_{$p}_status", "corr_{$p}_points", $multi ? "corr_{$p}_grade" : null, "corr_{$p}_authorized"], range(0, $corrections - 1))
                 )
             )->setInitialVisibleColumns(["name", "login", "pseudonym", "location", "assessment", "task", "status", "writing_last_save", "word_count", "corr_1", "corr_2"])
-        ->setTableActions([$this->plugin_dic->uiFactory()->table()->action()->export('export', $this->plugin->txt('table_export'), $this->plugin->txt('correction_status_table_export_filename'))]);
+        ->setTableActions([$this->plugin_dic->uiFactory()->table()->action()->export(
+            'export',
+            $this->plugin->txt('table_export'),
+            $this->object->getTitle() . ' - ' . $this->plugin->txt('correction_status_table_export_filename')
+        )]);
 
         $table_parent->setInitialVisibleColumns([]);
         $table = $this->plugin_dic->uiFactory()->table()->dataTable('correction_status_table', $table_parent);

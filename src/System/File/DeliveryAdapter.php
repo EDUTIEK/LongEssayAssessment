@@ -70,6 +70,7 @@ readonly class DeliveryAdapter implements \Edutiek\AssessmentService\System\File
             }
 
             $delivery = new Delivery($file_path, $this->http);
+            $delivery->setConvertFileNameToAsci(false);
             $delivery->setDownloadFileName($info?->getFileName() ?? 'download');
             $delivery->setMimeType($info?->getMimeType() ?? '');
             $delivery->setDisposition($disposition->value);

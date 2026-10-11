@@ -36,10 +36,15 @@ class CollectionCorrectorAdminStatisticsGUI
     private \ilToolbarGUI $toolbar;
     protected \ilLanguage $lng;
 
-    public function __construct(protected \ilLongEssayAssessmentPlugin $plugin, private PluginDIC $plugin_dic, private \ILIAS\DI\Container $dic, private array $object_nodes)
-    {
+    public function __construct(
+        protected \ilLongEssayAssessmentPlugin $plugin,
+        private PluginDIC $plugin_dic,
+        private \ILIAS\DI\Container $dic,
+        private array $object_nodes,
+        private \ilObject $parent
+    ) {
         $this->statistic_repo = $this->plugin->dic()->view()->statistic();
-        $this->ctrl  =  $dic->ctrl();
+        $this->ctrl = $dic->ctrl();
         $this->tpl = $dic->ui()->mainTemplate();
         $this->toolbar = $dic->toolbar();
         $this->lng = $dic->language();
@@ -47,7 +52,7 @@ class CollectionCorrectorAdminStatisticsGUI
         $this->ui_service = $dic->uiService();
         $this->ui_factory = $dic->ui()->factory();
         $this->refinery = $dic->refinery();
-        $this->ass_ids = array_map(fn (array $node) => $node['obj_id'], $this->object_nodes);
+        $this->ass_ids = array_map(fn(array $node) => $node['obj_id'], $this->object_nodes);
         $this->user_data_repo = $this->plugin_dic->system()->user();
         $this->user = $this->dic->user();
     }
@@ -76,7 +81,7 @@ class CollectionCorrectorAdminStatisticsGUI
         }
     }
 
-    protected function buildFilter() : Filter\Standard
+    protected function buildFilter(): Filter\Standard
     {
         $context = [];
         $corr = [];
@@ -132,10 +137,10 @@ class CollectionCorrectorAdminStatisticsGUI
         $filter_gui = $this->buildFilter() ;
         $filter_data = $this->ui_service->filter()->getData($filter_gui) ?? ['context' => []];
 
-        $ass_ids = array_filter($this->ass_ids, fn ($x) => in_array($x, $filter_data['context']));
+        $ass_ids = array_filter($this->ass_ids, fn($x) => in_array($x, $filter_data['context']));
         $filter_data['ass_id'] = $ass_ids;
 
-        $general  = $this->statistic_repo->someCorrections($filter_data);
+        $general = $this->statistic_repo->someCorrections($filter_data);
         $general_statistic = $this->buildStatistic($general, false, $this->plugin->txt('corrections_all'));
 
         $sections = [
@@ -171,10 +176,10 @@ class CollectionCorrectorAdminStatisticsGUI
         $filter_gui = $this->buildFilter() ;
         $filter_data = $this->ui_service->filter()->getData($filter_gui) ?? ['context' => []];
 
-        $ass_ids = array_filter($this->ass_ids, fn ($x) => in_array($x, $filter_data['context']));
+        $ass_ids = array_filter($this->ass_ids, fn($x) => in_array($x, $filter_data['context']));
         $filter_data['ass_id'] = $ass_ids;
 
-        $general  = $this->statistic_repo->someCorrections($filter_data);
+        $general = $this->statistic_repo->someCorrections($filter_data);
         $correctors = $general->getUsers();
         $views = [];
 
@@ -192,9 +197,9 @@ class CollectionCorrectorAdminStatisticsGUI
 
         $storage = $this->dic->filesystem()->temp();
         $basedir = ILIAS_DATA_DIR . '/' . CLIENT_ID . '/temp';
-        $file = 'xlas/'. (new UUID)->uuid4AsString() . '.csv';
+        $file = 'xlas/' . (new UUID())->uuid4AsString() . '.csv';
         $storage->write($file, $csv->getCSVString());
-        $filename = ilFileDelivery::returnASCIIFilename($this->plugin->txt('export_statistics_corrector_file')). '.csv';
+        $filename = ilFileDelivery::returnASCIIFilename($this->parent->getTitle() . ' - ' . $this->plugin->txt('export_statistics_corrector_file')) . '.csv';
 
         ilFileDelivery::deliverFileAttached($basedir . '/' . $file, $filename, 'text/csv', true);
     }

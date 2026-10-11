@@ -13,8 +13,12 @@ use ILIAS\Refinery\DeriveInvokeFromTransform;
 
 class TinyMCE extends Textarea
 {
+    public const FOR_CONTENT = 'content';
+    public const FOR_MESSAGE = 'message';
+
     private ?FormattingOptions $formatting_options;
     private ?HeadlineScheme $headline_scheme;
+    private string $purpose = self::FOR_CONTENT;
 
     public function __construct(
         DataFactory $data_factory,
@@ -25,27 +29,39 @@ class TinyMCE extends Textarea
         FormInput::__construct($data_factory, $refinery, $label, $byline);
     }
 
-    public function getFormattingOptions() : FormattingOptions
+    public function getFormattingOptions(): FormattingOptions
     {
         return $this->formatting_options ?? FormattingOptions::EXTENDED;
     }
 
-    public function withFormattingOptions(FormattingOptions $formatting_options) : TinyMCE
+    public function withFormattingOptions(FormattingOptions $formatting_options): TinyMCE
     {
         $clone = clone($this);
         $clone->formatting_options = $formatting_options;
         return $clone;
     }
 
-    public function getHeadlineScheme() : HeadlineScheme
+    public function getHeadlineScheme(): HeadlineScheme
     {
         return $this->headline_scheme ?? HeadlineScheme::THREE;
     }
 
-    public function withHeadlineScheme(HeadlineScheme $headline_scheme) : TinyMCE
+    public function withHeadlineScheme(HeadlineScheme $headline_scheme): TinyMCE
     {
         $clone = clone($this);
         $clone->headline_scheme = $headline_scheme;
+        return $clone;
+    }
+
+    public function getPurpose(): string
+    {
+        return $this->purpose;
+    }
+
+    public function withPurpose(string $purpose): TinyMCE
+    {
+        $clone = clone($this);
+        $clone->purpose = $purpose;
         return $clone;
     }
 }

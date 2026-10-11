@@ -60,13 +60,13 @@ trait StatisticHelper
         $csv = new \ilCSVWriter();
         $csv->setSeparator(';');
         $csv->setDelimiter('"');
+        if($has_object_title) {
+            $csv->addColumn($this->plugin->txt('assessment'));
+        }
         $csv->addColumn($this->lng->txt('login'));
         $csv->addColumn($this->lng->txt('firstname'));
         $csv->addColumn($this->lng->txt('lastname'));
         $csv->addColumn($this->lng->txt('matriculation'));
-        if($has_object_title) {
-            $csv->addColumn($this->plugin->txt('assessment'));
-        }
         $csv->addColumn($count);
         $csv->addColumn($final);
         $csv->addColumn($this->plugin->txt('statistic_not_attended'));
@@ -83,21 +83,21 @@ trait StatisticHelper
             $csv->addRow();
             $user = $view->getUser();
 
-            $csv->addColumn(mb_convert_encoding($user->getLogin(), 'ISO-8859-1', 'UTF-8'));
-            $csv->addColumn(mb_convert_encoding($user->getFirstname(), 'ISO-8859-1', 'UTF-8'));
-            $csv->addColumn(mb_convert_encoding($user->getLastname(), 'ISO-8859-1', 'UTF-8'));
-            $csv->addColumn(mb_convert_encoding($user->getMatriculation(), 'ISO-8859-1', 'UTF-8'));
             if($has_object_title) {
                 $first = current($view->getAssessments());
                 $csv->addColumn(mb_convert_encoding($first ? $first->getTitle() : "", 'ISO-8859-1', 'UTF-8'));
             }
+            $csv->addColumn(mb_convert_encoding($user->getLogin(), 'ISO-8859-1', 'UTF-8'));
+            $csv->addColumn(mb_convert_encoding($user->getFirstname(), 'ISO-8859-1', 'UTF-8'));
+            $csv->addColumn(mb_convert_encoding($user->getLastname(), 'ISO-8859-1', 'UTF-8'));
+            $csv->addColumn(mb_convert_encoding($user->getMatriculation(), 'ISO-8859-1', 'UTF-8'));
             $csv->addColumn(mb_convert_encoding((string)$view->getCount(), 'ISO-8859-1', 'UTF-8'));
             $csv->addColumn(mb_convert_encoding((string)$view->getAttended(), 'ISO-8859-1', 'UTF-8'));
             $csv->addColumn(mb_convert_encoding((string)$view->getNotAttended(), 'ISO-8859-1', 'UTF-8'));
             $csv->addColumn(mb_convert_encoding((string)$view->getPassed(), 'ISO-8859-1', 'UTF-8'));
             $csv->addColumn(mb_convert_encoding((string)$view->getNotPassed(), 'ISO-8859-1', 'UTF-8'));
-            $csv->addColumn(mb_convert_encoding($view->getNotPassedQuota() !== null ? sprintf('%.2f', $view->getNotPassedQuota()) : "", 'ISO-8859-1', 'UTF-8'));
-            $csv->addColumn(mb_convert_encoding($view->getAveragePoints() !== null ? sprintf('%.2f', $view->getAveragePoints()) : "", 'ISO-8859-1', 'UTF-8'));
+            $csv->addColumn(mb_convert_encoding($view->getNotPassedQuota() !== null ? number_format($view->getNotPassedQuota(), 2, ',', '') : "", 'ISO-8859-1', 'UTF-8'));
+            $csv->addColumn(mb_convert_encoding($view->getAveragePoints() !== null ? number_format($view->getAveragePoints(), 2, ',', '') : "", 'ISO-8859-1', 'UTF-8'));
 
             foreach ($view->getGradeCounts() as $value) {
                 $csv->addColumn(mb_convert_encoding((string)$value, 'ISO-8859-1', 'UTF-8'));

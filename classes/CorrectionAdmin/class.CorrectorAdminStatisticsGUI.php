@@ -2,6 +2,7 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\CorrectionAdmin;
 
+use Edutiek\AssessmentService\Assessment\Data\ExportType;
 use ILIAS\Plugin\LongEssayAssessment\BaseObjectData;
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\View\Data\StatisticViewRepo;
@@ -73,7 +74,7 @@ class CorrectorAdminStatisticsGUI extends BaseGUI
             $puf->statistic()->statisticSection($this->plugin->txt("correctors"))
         ];
 
-        $users = $this->user_service->getUsersByIds(array_map(fn (Corrector $corrector) => $corrector->getUserId(), $this->corrector_service->all()));
+        $users = $this->user_service->getUsersByIds(array_map(fn(Corrector $corrector) => $corrector->getUserId(), $this->corrector_service->all()));
         foreach ($users as $user) {
             $corrector_statistic = $general->fromUser($user);
             $sections[] = $this->buildStatistic($corrector_statistic, false);
@@ -90,10 +91,10 @@ class CorrectorAdminStatisticsGUI extends BaseGUI
         $views = [];
 
         foreach ($general->getUsers() as $user) {
-            $views[] =  $general->fromUser($user);
+            $views[] = $general->fromUser($user);
         }
 
-        $users = $this->user_service->getUsersByIds(array_map(fn (Corrector $corrector) => $corrector->getUserId(), $this->corrector_service->all()));
+        $users = $this->user_service->getUsersByIds(array_map(fn(Corrector $corrector) => $corrector->getUserId(), $this->corrector_service->all()));
         foreach ($users as $user) {
             $view = $general->fromUser($user);
             if (!empty($view->getGradingObjects())) {
@@ -105,9 +106,9 @@ class CorrectorAdminStatisticsGUI extends BaseGUI
 
         $storage = $this->dic->filesystem()->temp();
         $basedir = ILIAS_DATA_DIR . '/' . CLIENT_ID . '/temp';
-        $file = 'xlas/'. (new UUID)->uuid4AsString() . '.csv';
+        $file = 'xlas/' . (new UUID())->uuid4AsString() . '.csv';
         $storage->write($file, $csv->getCSVString());
-        $filename = ilFileDelivery::returnASCIIFilename($this->plugin->txt('export_statistics_corrector_file')). '.csv';
+        $filename = $this->assessment_api->fileNameBuilder()->build(ExportType::CORRECTION_STATISTICS, '.csv');
 
         ilFileDelivery::deliverFileAttached($basedir . '/' . $file, $filename, 'text/csv', true);
     }

@@ -2,6 +2,7 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\Dashboard;
 
+use Edutiek\AssessmentService\Assessment\Data\ExportType;
 use Edutiek\AssessmentService\Assessment\LogEntry\MentionUser as LogEntryMention;
 use Edutiek\AssessmentService\Assessment\LogEntry\Type as LogEntryType;
 use Edutiek\AssessmentService\Views\Data\ClientFilterOptions;
@@ -12,6 +13,7 @@ use ILIAS\Plugin\LongEssayAssessment\UI\Table\Action;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\Action\Export;
 use ILIAS\UI\Component\Modal\RoundTrip;
 use ilSession;
+use ilLongEssayAssessmentPlugin;
 
 /**
  * Dashboard GUI class
@@ -46,6 +48,9 @@ class DashboardGUI extends WriterTableGUI
 
     public function showItems(): void
     {
+        // needed for the pdf viewer in async preview modal
+        $this->tpl->addJavaScript(ilLongEssayAssessmentPlugin::assetPath() . '/js/xlas.min.js');
+
         $this->handleClientFilter();
         $counts = $this->views->writer()->clientFilterCounts($this->object->getAssId());
 
@@ -182,7 +187,11 @@ class DashboardGUI extends WriterTableGUI
 
     public function exportTableAction(): Export
     {
-        return $this->plugin_ui_factory->table()->action()->export('export', $this->plugin->txt('table_export'), $this->plugin->txt('dashboard_table_export_filename'));
+        return $this->plugin_ui_factory->table()->action()->export(
+            'export',
+            $this->plugin->txt('table_export'),
+            $this->assessment_api->fileNameBuilder()->build(ExportType::DASHBOARD, '')
+        );
     }
 
     protected function viewClientSessionsAction()

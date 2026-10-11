@@ -33,7 +33,8 @@ class CollectionWriterAdminStatisticsGUI
     private \ilToolbarGUI $toolbar;
     protected \ilLanguage $lng;
 
-    public function __construct(protected \ilLongEssayAssessmentPlugin $plugin, private PluginDIC $plugin_dic, private \ILIAS\DI\Container $dic, private array $object_nodes)
+    public function __construct(protected \ilLongEssayAssessmentPlugin $plugin, private PluginDIC $plugin_dic, private \ILIAS\DI\Container $dic, private array $object_nodes,
+    private \ilObject $parent)
     {
         $this->statistic_repo = $this->plugin->dic()->view()->statistic();
         $this->ctrl  =  $dic->ctrl();
@@ -168,7 +169,7 @@ class CollectionWriterAdminStatisticsGUI
         $basedir = ILIAS_DATA_DIR . '/' . CLIENT_ID . '/temp';
         $file = 'xlas/'. (new UUID)->uuid4AsString() . '.csv';
         $storage->write($file, $csv->getCSVString());
-        $filename = ilFileDelivery::returnASCIIFilename($this->plugin->txt('export_statistics_writer_file')). '.csv';
+        $filename = ilFileDelivery::returnASCIIFilename($this->parent->getTitle() . ' - ' . $this->plugin->txt('export_statistics_writer_file')). '.csv';
 
         ilFileDelivery::deliverFileAttached($basedir . '/' . $file, $filename, 'text/csv', true);
     }

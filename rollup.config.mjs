@@ -1,7 +1,14 @@
 /**
  * Rollup configuration for building the plugin assets
  *
- * USAGE: npx rollup --config rollup.config.mjs
+ * DEVELOPMENT
+ *    npm ci --ignore-scripts
+ *    npx rollup --config rollup.config.mjs
+ * Then commit the created resources
+ *
+ * PRODUCTION
+ * run composer du in the ilias main directory
+ * This will copy the resources to the public components directory
  */
 
 import css from "rollup-plugin-import-css";
@@ -32,7 +39,7 @@ export default {
     css(),
     copy({
       targets: [
-        {src: 'node_modules/annotate-pdf', dest: 'resources'}
+        {src: 'node_modules/pdf-viewer', dest: 'resources'}
       ]
     })
   ],

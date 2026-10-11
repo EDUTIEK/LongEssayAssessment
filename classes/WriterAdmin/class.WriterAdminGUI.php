@@ -2,8 +2,10 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\WriterAdmin;
 
+use Edutiek\AssessmentService\Assessment\Data\ExportType;
 use ILIAS\Plugin\LongEssayAssessment\GUI\Writer\WriterTableGUI;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\Action\Export;
+use ilLongEssayAssessmentPlugin;
 
 /**
  * Writer Admin GUI class
@@ -51,6 +53,9 @@ class WriterAdminGUI extends WriterTableGUI
 
     public function showItems(): void
     {
+        // needed for the pdf viewer in async preview modal
+        $this->tpl->addJavaScript(ilLongEssayAssessmentPlugin::assetPath() . '/js/xlas.min.js');
+
         $this->toolbar->setFormAction($this->ctrl->getFormAction($this));
 
         \ilRepositorySearchGUI::fillAutoCompleteToolbar(
@@ -178,6 +183,10 @@ class WriterAdminGUI extends WriterTableGUI
 
     public function exportTableAction(): Export
     {
-        return $this->plugin_ui_factory->table()->action()->export('export', $this->plugin->txt('table_export'), $this->plugin->txt('writer_admin_table_export_filename'));
+        return $this->plugin_ui_factory->table()->action()->export(
+            'export',
+            $this->plugin->txt('table_export'),
+            $this->assessment_api->fileNameBuilder()->build(ExportType::WRITERS, '')
+        );
     }
 }

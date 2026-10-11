@@ -80,9 +80,10 @@ class ToolProvider extends AbstractDynamicToolProvider
         }
 
         $tabs = [];
+        $hide_tools = [];
 
         if ($this->object->getMultiTasks() && $additional_data->is(self::WITH_TASK_SELECTION, true)) {
-            $tabs[] = $this->factory
+            $t = $this->factory
                 ->tool($this->identification_provider->contextAwareIdentifier('xlas_tab_task'))
                 ->withTitle($this->plugin->txt('tools_tab_tasks'))
                 ->withContent(
@@ -90,6 +91,8 @@ class ToolProvider extends AbstractDynamicToolProvider
                         $this->multiTaskContent()
                     ))
                 );
+            $tabs[] = $t;
+            $hide_tools[] = bin2hex($t->getProviderIdentification()->serialize());
         }
 
         if ($this->permissions->canEditTemplates() && $additional_data->is(self::WITH_FIXATIONS, true)) {
@@ -99,11 +102,13 @@ class ToolProvider extends AbstractDynamicToolProvider
                 ->withContent($this->plugin->dic()->uiFactory()->legacy($this->dic->ui()->renderer()->render(
                     $this->fixation_gui->toolsContent()
                 )));
-
             $tabs[] = $t;
+            $hide_tools[] = bin2hex($t->getProviderIdentification()->serialize());
+        }
 
-            $hide_tools = json_encode([bin2hex($t->getProviderIdentification()->serialize())]);
+        if ($hide_tools !== []) {
             $this->dic->ui()->mainTemplate()->addJavaScript(ilLongEssayAssessmentPlugin::assetPath() . '/js/xlas.min.js');
+            $hide_tools = json_encode($hide_tools);
             $this->dic->ui()->mainTemplate()->addOnLoadCode("il.Xlas.ToolsHandler.closeTools($hide_tools);");
         }
 

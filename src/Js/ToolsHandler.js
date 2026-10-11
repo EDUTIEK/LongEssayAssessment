@@ -26,8 +26,10 @@ export default class ToolsHandler {
                 tools.forEach((tool, i) => {
                     // tools are "compressed" as an array of [<removable>, <engaged>, <hidden>, <position>]
                     // We only whant to set <engaged> to 0, but if the tool hasn't been set, we need to add it.
-                    value.tools[tool] = value.tools[tool] || [0, 0, 0, 'T:' + i];
-                    value.tools[tool][1] = 0;
+                    if (!value.tools[tool]) { // Only close the tool if it doesn't exist (default is open).
+                        value.tools[tool] = value.tools[tool] || [0, 0, 0, 'T:' + i];
+                        value.tools[tool][1] = 0;
+                    }
                 });
                 document.cookie = entry[0] + '=' + JSON.stringify(value);
             }

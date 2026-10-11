@@ -22,7 +22,7 @@ export default class TinyHelper
      * @param {string} headline_scheme
      * @oaram {string} disabled
      */
-    init(id, lang = 'de', formatting_options = 'extended', headline_scheme = 'three', disabled = '0')
+    init(id, lang = 'de', formatting_options = 'extended', headline_scheme = 'three', disabled = '0', purpose = 'content')
     {
         const url = new URL(window.location.toLocaleString()).searchParams;
         const name = document.querySelector('textarea#' + id).name;
@@ -39,7 +39,7 @@ export default class TinyHelper
             statusbar: true,
             branding: false,
             elementpath: false,
-            body_class: 'xlas-content ' + this.contentClass(headline_scheme),     // used by content.css
+            body_class: 'xlas-content ' + purpose + ' ' + this.contentClass(headline_scheme),     // used by content.css
             plugins: 'lists charmap wordcount table pagebreak',
             toolbar: this.tinyToolbar(formatting_options),
             toolbar_mode: 'wrap',

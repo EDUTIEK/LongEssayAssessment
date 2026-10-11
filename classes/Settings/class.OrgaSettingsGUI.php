@@ -18,6 +18,7 @@ use Edutiek\AssessmentService\System\Entity\FullService as EntityService;
 use Edutiek\AssessmentService\System\Transform\FullService as TransformService;
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\BaseObjectData;
+use ILIAS\Plugin\LongEssayAssessment\UI\Input\TinyMCE;
 use ILIAS\UI\Component\Input\Container\Form\Standard;
 
 /**
@@ -162,6 +163,7 @@ class OrgaSettingsGUI extends BaseGUI
                     $this->plugin->txt("task_description"),
                     $this->plugin->txt("task_description_info")
                 )
+                ->withPurpose(TinyMCE::FOR_MESSAGE)
                 ->withValue($orga_settings->getDescription() ?? "")
                 ->withDisabled($this->fixation_gui->isDisabled('info'));
 
@@ -170,6 +172,7 @@ class OrgaSettingsGUI extends BaseGUI
                     $this->plugin->txt("closing_message"),
                     $this->plugin->txt("closing_message_info")
                 )
+                ->withPurpose(TinyMCE::FOR_MESSAGE)
                 ->withValue($orga_settings->getClosingMessage() ?? "")
                 ->withDisabled($this->fixation_gui->isDisabled('info'));
 

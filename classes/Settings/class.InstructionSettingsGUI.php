@@ -17,6 +17,7 @@ use Edutiek\AssessmentService\Task\Resource\FullService as ResourceService;
 use Edutiek\AssessmentService\Task\Settings\FullService as SettingsService;
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\BaseObjectData;
+use ILIAS\Plugin\LongEssayAssessment\UI\Input\TinyMCE;
 use ILIAS\UI\Component\Input\Container\Form\Standard;
 use ilLongEssayAssessmentUploadHandlerGUI;
 

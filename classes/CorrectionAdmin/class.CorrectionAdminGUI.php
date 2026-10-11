@@ -7,6 +7,7 @@ use Edutiek\AssessmentService\Assessment\Corrector\FullService as CorrectorServi
 use Edutiek\AssessmentService\Assessment\Data\AssignFilter;
 use Edutiek\AssessmentService\Assessment\Data\CombinedStatus;
 use Edutiek\AssessmentService\Assessment\Data\CorrectionSettings;
+use Edutiek\AssessmentService\Assessment\Data\ExportType;
 use Edutiek\AssessmentService\Assessment\Data\Location;
 use Edutiek\AssessmentService\Assessment\Data\OrgaSettings;
 use Edutiek\AssessmentService\Assessment\Data\WritingTask;
@@ -74,7 +75,7 @@ class CorrectionAdminGUI extends BaseGUI
         return $this->plugin_ui_factory->table()->action()->export(
             "export",
             $this->plugin->txt('table_export'),
-            $this->plugin->txt('correction_admin_table_export_filename')
+            $this->assessment_api->fileNameBuilder()->build(ExportType::CORRECTIONS, '')
         );
     }
 
@@ -570,7 +571,7 @@ class CorrectionAdminGUI extends BaseGUI
                          "writing_last_save", "word_count", "pdf_version", "result", "points", "grade", "finalized", "finalized_date", "finalized_name", "finalized_from_status"],
                 ...array_map(fn($p) => ["corr_{$p}", "corr_{$p}_name", "corr_{$p}_status", "corr_{$p}_points", $multi ? "corr_{$p}_grade" : null, "corr_{$p}_authorized"], range(0, $corrections - 1)),
             )
-        )->setInitialVisibleColumns(["name", "login", "pseudonym", "location", "status", $has_started ? "writing_last_save" : null, $has_started ? "word_count" : null, "corr_1", "corr_2", "result"])
+        )->setInitialVisibleColumns(["name", "login", "pseudonym", "location", "status", $has_started ? "writing_last_save" : null, $has_started ? "word_count" : null, "corr_0", "corr_1", "corr_2", "result"])
          ->setHasFilterFields(["name", "corrector", $multi ? "task" : null, "location", "min_words", "max_words", "status", "assigned", "pdf_version"])
         ->setTableActions($this->getTableActions());
 

@@ -3,7 +3,7 @@
 Please look at the [changelog of version 3](https://github.com/EDUTIEK/LongEssayAssessment/blob/release3_ilias9/CHANGELOG.md)
 for changes in that version.
 
-## Upcoming version
+## Version 10.4 (2026-10-11)
 
 New functions, Visible changes
 - Use sans-serif font for all contents

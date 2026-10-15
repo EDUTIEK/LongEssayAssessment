@@ -46,6 +46,11 @@ class RatingCriterionRepo implements \Edutiek\AssessmentService\Task\Data\Rating
         return $criteria;
     }
 
+    public function allByTaskId(int $task_id): array
+    {
+        return $this->repo->queryAllBy(['task_id' => $task_id]);
+    }
+
     public function save(RatingCriterion $entity): void
     {
         $this->repo->replace($entity);

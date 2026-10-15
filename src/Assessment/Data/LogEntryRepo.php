@@ -59,4 +59,10 @@ readonly class LogEntryRepo implements \Edutiek\AssessmentService\Assessment\Dat
     {
         $this->repo->deleteAllBy(['ass_id' => $ass_id]);
     }
+
+    public function allByAssIdAndLoginMentioned(int $ass_id, string $login): array
+    {
+        return $this->repo->queryAllBy("ass_id = $ass_id AND entry LIKE '%[$login]%'");
+    }
+
 }

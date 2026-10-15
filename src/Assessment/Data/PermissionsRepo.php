@@ -49,4 +49,15 @@ class PermissionsRepo implements \Edutiek\AssessmentService\Assessment\Data\Perm
             $this->access->checkAccessOfUser($user_id, 'proctor_writer', '', $context_id, 'xlas', $ass_id)
         );
     }
+
+    public function allByAssIdAndUserId(int $ass_id, int $user_id): array
+    {
+        $permissions = [];
+
+        foreach(\ilObject2::_getAllReferences($ass_id) as $context_id) {
+            $permissions[] = $this->one($ass_id, $context_id, $user_id);
+        }
+        return $permissions;
+    }
+
 }

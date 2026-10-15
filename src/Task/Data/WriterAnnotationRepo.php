@@ -68,4 +68,10 @@ class WriterAnnotationRepo implements \Edutiek\AssessmentService\Task\Data\Write
     {
         $this->repo->deleteAllBy(['task_id' => $task_id]);
     }
+
+    public function allByWriterIdAndTaskId(int $writer_id, int $task_id): array
+    {
+        return $this->repo->queryAllBy(['writer_id' => $writer_id, 'task_id' => $task_id]);
+    }
+
 }

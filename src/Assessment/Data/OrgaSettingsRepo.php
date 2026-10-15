@@ -48,4 +48,9 @@ class OrgaSettingsRepo implements \Edutiek\AssessmentService\Assessment\Data\Org
     {
         $this->repo->deleteAllBy(['ass_id' => $ass_id]);
     }
+
+    public function all(): array
+    {
+        return $this->repo->all();
+    }
 }

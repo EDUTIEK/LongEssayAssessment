@@ -85,6 +85,16 @@ class WriterRepo implements \Edutiek\AssessmentService\Assessment\Data\WriterRep
         ], 'id');
     }
 
+    public function allByAssIdAndUserIdMentioned(int $ass_id, int $user_id): array
+    {
+        return $this->repo->queryAllBy(
+            "ass_id = $user_id" .
+            " AND (writing_authorized_by = $user_id" .
+            " OR writing_excluded_by = $user_id" .
+            " OR correction_status_changed_by = $user_id)"
+        );
+    }
+
     public function stitchableIds(int $ass_id): array
     {
         return $this->repo->queryIntegersBy([

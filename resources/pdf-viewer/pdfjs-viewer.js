@@ -10,21 +10,9 @@ function run()
 
 function init(uiManager)
 {
-    // const s = PDFViewerApplication.pdfViewer.pdfDocument.annotationStorage;
-    // window.suu = s;
-    // console.log('>', s);
-
-    // PDFViewerApplication.pdfViewer._pages[0].annotationLayer.annotationLayer.edutiekElements();
     const root = document.getElementById('edutiek-annotations');
-    PDFViewerApplication.pdfDocument.getPage(1).then(page => {
-        page.getAnnotations().then(an => {
-            console.log(an);
-        });
-    });
-
     PDFViewerApplication.eventBus.on('annotationeditorlayerrendered', event => {
         PDFViewerApplication.pdfViewer._pages[event.pageNumber - 1].annotationLayer.annotationLayer.edutiekElements().forEach(an => {
-            console.log(an);
             if (!annotationEmpty(an)) {
                 root.appendChild(buildAnnotationNode(an));
             }
@@ -44,6 +32,9 @@ function buildAnnotationNode(annotation)
     buildAnnotationNode.c.push({c: annotation.container, n: node});
     node.classList.add('edutiek-annotation');
     node.textContent = annotation.data.contentsObj.str;
+    if (annotation.data.color) {
+        node.style.backgroundColor = '#' + Array.from(annotation.data.color).map(n => (n < 16 ? '0' : '') + n.toString(16)).join('');
+    }
     const click = e => {
         buildAnnotationNode.c.forEach(({c, n}) => (c.classList.remove('focus'), n.classList.remove('focus')));
         annotation.container.classList.add('focus');

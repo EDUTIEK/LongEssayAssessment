@@ -49,7 +49,7 @@ class ilLongEssayAssessmentCollectionUIHookGUI extends ilUIHookPluginGUI
 
                     $xlas_childs = array_filter($xlas_childs, fn($x) => $this->access->checkAccess('maintain_correctors', '', $x));
 
-                    if (count($xlas_childs) > 1) {
+                    if (count($xlas_childs) >= 1) {
                         /**
                          * @var ilTabsGUI $tabs;
                          */

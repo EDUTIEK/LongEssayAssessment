@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "aee84b7cd69c8d9c0f4db117abe75d78",
+    "content-hash": "56a486bf3cc7864227cf6c5aed93b931",
     "packages": [
         {
             "name": "composer/pcre",
@@ -242,16 +242,16 @@
         },
         {
             "name": "edutiek/assessment-service",
-            "version": "dev-acc-annot",
+            "version": "dev-dev_10",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EDUTIEK/assessment-service.git",
-                "reference": "9fea229f969f6cbe35f9cbbde702d5010f788008"
+                "reference": "c4d866a3d8e41d9023decdc9b46652933778280d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EDUTIEK/assessment-service/zipball/9fea229f969f6cbe35f9cbbde702d5010f788008",
-                "reference": "9fea229f969f6cbe35f9cbbde702d5010f788008",
+                "url": "https://api.github.com/repos/EDUTIEK/assessment-service/zipball/c4d866a3d8e41d9023decdc9b46652933778280d",
+                "reference": "c4d866a3d8e41d9023decdc9b46652933778280d",
                 "shasum": ""
             },
             "require": {
@@ -269,6 +269,7 @@
                 "tecnickcom/tc-lib-pdf-parser": "^3.16",
                 "yetanotherape/diff-match-patch": "^1.1"
             },
+            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
@@ -294,10 +295,10 @@
             ],
             "description": "Backend service for long essay assessments",
             "support": {
-                "source": "https://github.com/EDUTIEK/assessment-service/tree/acc-annot",
+                "source": "https://github.com/EDUTIEK/assessment-service/tree/dev_10",
                 "issues": "https://github.com/EDUTIEK/assessment-service/issues"
             },
-            "time": "2026-10-11T20:19:51+00:00"
+            "time": "2026-10-15T14:56:26+00:00"
         },
         {
             "name": "fig/http-message-util",

@@ -171,7 +171,10 @@ class CorrectionSettingsGUI extends BaseGUI
 
             // Correction functions
             if (!$this->has_authorized_corrections && !$this->fixation_gui->isDisabled('correction_functions')) {
-                $task_settings->setPdfMarking(PdfMarking::tryFrom($data['correction_functions']['pdf_marking'] ?? '') ?? PdfMarking::IMAGES);
+                $task_settings->setPdfMarking(PdfMarking::tryFrom($data['correction_functions']['pdf_marking'][0] ?? '') ?? PdfMarking::IMAGES);
+                if ($task_settings->getPdfMarking() === PdfMarking::TEXT) {
+                    $task_settings->setFreeMarking((bool) ($data['correction_functions']['pdf_marking'][1]['pdf_marking_free'] ?? false));
+                }
                 $task_settings->setEnableComments(((bool) $data['correction_functions']['enable_comments']));
                 $task_settings->setEnablePartialPoints(((bool) $data['correction_functions']['enable_partial_points']));
                 if (isset($data['correction_functions']['enable_comment_ratings']) && is_array($data['correction_functions']['enable_comment_ratings'])) {
@@ -478,11 +481,25 @@ class CorrectionSettingsGUI extends BaseGUI
         if ($this->fixation_gui->isVisible('correction_functions')) {
             $fields = [];
 
-            $fields['pdf_marking'] = $factory->radio(
+            $fields['pdf_marking'] = $factory->switchableGroup(
+                [
+                'images' => $factory->group(
+                    [],
+                    $this->plugin->txt('pdf_marking_images'),
+                    $this->plugin->txt('pdf_marking_images_info'),
+                ),
+                'direct' => $factory->group(
+                    ['pdf_marking_free' => $factory->checkbox(
+                        $this->plugin->txt('pdf_marking_free'),
+                        $this->plugin->txt('pdf_marking_free_info')
+                    )->withValue($task_settings->getFreeMarking())],
+                    $this->plugin->txt('pdf_marking_direct'),
+                    $this->plugin->txt('pdf_marking_direct_info'),
+                ),
+            ],
                 $this->plugin->txt('pdf_marking'),
                 $this->plugin->txt('pdf_marking_info')
-            )->withOption('images', $this->plugin->txt('pdf_marking_images'), $this->plugin->txt('pdf_marking_images_info'))
-                ->withOption('direct', $this->plugin->txt('pdf_marking_direct'), $this->plugin->txt('pdf_marking_direct_info'))
+            )
                 ->withValue($task_settings->getPdfMarking()->value);
 
             $fields["enable_comments"] = $factory->checkbox(

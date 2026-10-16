@@ -1746,4 +1746,12 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
                 'type' => ilDBConstants::T_TEXT, 'notnull' => 0, 'length' => 50]);
         }
     }
+
+    public function step_95(): void
+    {
+        if (!$this->db->tableColumnExists('xlas_ta_corr_settings', 'free_marking')) {
+            $this->db->addTableColumn('xlas_ta_corr_settings', 'free_marking', [
+                'type' => ilDBConstants::T_INTEGER, 'notnull' => 1, 'default' => 0]);
+        }
+    }
 }

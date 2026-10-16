@@ -39,6 +39,7 @@ class CorrectionSettings extends \Edutiek\AssessmentService\Task\Data\Correction
     private bool $enable_summary_pdf = true;
     private ?string $summary_pdf_advice = null;
     private string $pdf_marking = PdfMarking::IMAGES->value;
+    private bool $free_marking = true;
 
     public function getAssId(): int
     {
@@ -140,6 +141,17 @@ class CorrectionSettings extends \Edutiek\AssessmentService\Task\Data\Correction
     public function setPdfMarking(PdfMarking $pdf_marking): self
     {
         $this->pdf_marking = $pdf_marking->value;
+        return $this;
+    }
+
+    public function getFreeMarking(): bool
+    {
+        return $this->free_marking;
+    }
+
+    public function setFreeMarking(bool $free_marking): CorrectionSettings
+    {
+        $this->free_marking = $free_marking;
         return $this;
     }
 }

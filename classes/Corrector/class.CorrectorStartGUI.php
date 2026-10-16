@@ -125,11 +125,18 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
                 . $user_data->getListname(false) . ' - ' . $this->task_format->correctionResult($summary, false);
         };
 
+        $other_status = function (?UserData $user_data, ?CorrectorSummary $summary, ?CorrectorAssignment $assignment) {
+            if (empty($user_data) || empty($assignment)) {
+                return $this->plugin->txt('grading_pos_empty');
+            }
+            return $this->task_format->gradingStatus($summary?->getGradingStatus(), false);
+        };
+
         $grading_service = $this->grading_service;
         $assessment_format = $this->assessment_format;
         $essay_format = $this->task_format;
 
-        return new ColumnMappingClosure(function ($key) use ($item, $grading_service, $other_corrector, $assessment_format, $essay_format) {
+        return new ColumnMappingClosure(function ($key) use ($item, $grading_service, $other_corrector, $other_status, $assessment_format, $essay_format) {
             return match($key) {
                 'pseudonym' => $this->ui_factory->link()->standard($item->getWriter()->getPseudonym(), $this->itemLinkTarget($item)),
                 'position' => $this->plugin->txt($item->getAssignment()->getPosition()->languageVariable()),
@@ -139,6 +146,7 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
                 'own_points' => $item->getSummary()?->getEffectivePoints(),
                 'own_grade' => $item->getSummary() ? $grading_service->getGradLevelForPoints($item->getSummary()->getPoints())?->getGrade() : null,
                 'result' => $assessment_format->finalResult($item->getWriter()),
+                'other_status' => $other_status($item->getOtherCorrector(), $item->getOtherSummary(), $item->getOtherAssignment()),
                 'other_correction' => $other_corrector($item->getOtherCorrector(), $item->getOtherSummary(), $item->getOtherAssignment()),
                 'final_points' => $item->getWriter()->getFinalPoints(),
                 'final_grade' => $grading_service->getGradLevelForPoints($item->getWriter()->getFinalPoints())?->getGrade(),
@@ -168,7 +176,8 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
           'own_status' => $cf->status($this->plugin->txt('own_status'))->withIsOptional(true, true),
           'own_points' => $cfp->decimal($this->plugin->txt('own_points'))->withIsOptional(true, true),
           'own_grade' => !$multi_task ? $cf->text($this->plugin->txt('own_grade'))->withIsOptional(true, true) : null,
-          'other_correction' => $other_corrections ? $cf->text($this->plugin->txt('other_corrections'))->withIsOptional(true, false) : null,
+          'other_status' => $other_corrections ? $cf->text($this->plugin->txt('other_correction_status'))->withIsOptional(true, true) : null,
+          'other_correction' => $other_corrections ? $cf->text($this->plugin->txt('other_correction_details'))->withIsOptional(true, false) : null,
           'combined_status' => $cf->status($this->plugin->txt('correction_status'))->withIsOptional(true, true),
           'result' => $cf->status($this->plugin->txt('result'))->withIsOptional(true, true)->withIsSortable(true),
           'final_points' => $cfp->decimal($this->plugin->txt("result") . ': ' . $this->plugin->txt('points'))->withIsOptional(true, false),

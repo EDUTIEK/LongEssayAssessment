@@ -188,7 +188,8 @@ grading_pos_second#:#Zweitkorrektur
 grading_pos_stitch#:#Stichentscheid
 grading_pos_x#:#%s. Korrektur
 grading_pos_empty#:#nicht ausgewählt
-other_corrections#:#Andere Korrekturen
+other_correction_status#:#Andere Korrektur
+other_correction_details#:#Andere: Details
 start_correction#:#Angezeigte Korrekturen starten
 assigned_writings#:#Zugeteilte Abgaben
 min_points#:#Min. Punkte

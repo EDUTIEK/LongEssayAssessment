@@ -960,7 +960,7 @@ pdf_marking_info#:#<br />Bitte wählen Sie die Markierungsfunktion passend zu Ih
 pdf_marking_images#:#Bildbasiert (alt)
 pdf_marking_images_info#:#Die Seiten des Abgabe-PDFs werden zur Korrektur als Bilder angezeigt. Darauf können Linien oder Kreise mit Symbolen frei positioniert werden. Texte in der PDF-Datei sind nicht durchsuchbar. Diese Option wird in Version 11 entfernt.
 pdf_marking_direct#:#Textbasiert (neu)
-pdf_marking_direct_info#:#Das Abgabe-PDF wird zur Korrektur direkt dargestellt und ist durchsuchbar. Textinhalte können auf verschiedene Weise markiert und annotiert werden. Diese Option wird in Version 11 zum Standard.
+pdf_marking_direct_info#:#Das Abgabe-PDF wird zur Korrektur direkt dargestellt und ist durchsuchbar. Textinhalte können auf verschiedene Weise markiert und annotiert werden. Dafür sollte der Text einen Zeilendurchschuss von mindestens 3mm haben. Diese Option wird in Version 11 zum Standard.
 pdf_marking_free#:#Freie Markierung
 pdf_marking_free_info#:#Im PDF können zusätzlich Linien, Rechtecke oder Symbole frei positioniert werden. Diese Option eignet sich für gescannte handschriftliche Abgaben, erzeugt aber keine barrierefreie Dokumentation.
 remove_correction_step#:#Korrektur-Schritt zurücknehmen

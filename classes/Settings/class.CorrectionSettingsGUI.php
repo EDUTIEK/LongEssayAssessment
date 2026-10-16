@@ -194,11 +194,6 @@ class CorrectionSettingsGUI extends BaseGUI
             $this->entity_service->secure($task_settings, EssayCorrectionSettings::class);
             $this->task_correction_settings_service->save($task_settings);
 
-            if ($task_settings->getPdfMarking() == PdfMarking::TEXT) {
-                $pdf_settings = $this->pdf_settings_service->get();
-                $this->pdf_settings_service->save($pdf_settings->setFeedbackMode(PdfFeedbackMode::SEQUENCE));
-            }
-
             foreach ($single_task_settings as $settings) {
                 $this->entity_service->secure($settings, TaskSettings::class);
                 $this->task_api->settings($settings->getTaskId())->save($settings);

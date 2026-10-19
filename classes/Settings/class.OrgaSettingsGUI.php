@@ -150,8 +150,10 @@ class OrgaSettingsGUI extends BaseGUI
                 $this->plugin->txt('writing_type')
             )->withValue($writing_settings->getWritingType()->value);
 
-            $sections['type'] = $factory->section($fields_type, $this->plugin->txt('type_settings'))
-                ->withDisabled($this->fixation_gui->isDisabled('type'));
+            $sections['type'] = $factory->section($fields_type, $this->plugin->txt('type_settings'));
+            if ($this->fixation_gui->isDisabled('type')) {
+                $sections['type'] =  $sections['type']->withDisabled(true);
+            }
         }
 
         // Info

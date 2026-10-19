@@ -35,16 +35,16 @@ class CorrectionSettings extends \Edutiek\AssessmentService\Assessment\Data\Corr
     private int $ass_id = 0;
     private int $required_correctors = 1;
     private bool $no_manual_decimals = false;
-    private float $max_auto_distance = 0;
     private bool $mutual_visibility = false;
     private bool $wait_for_first = false;
     private string $assign_mode = '';
     private bool $procedure_when_distance = false;
-    private bool $procedure_when_decimals = false;
+    private float $max_no_procedure_distance = 0;
     private string $procedure = CorrectionProcedure::NONE->value;
     private string $approximation = CorrectionApproximation::ONE->value;
     private bool $revision_between = false;
-    private bool $stitch_after_procedure = false;
+    private bool $stitch_when_distance = false;
+    private float $max_no_stitch_distance = 0;
     private bool $undo_authorization = false;
     private bool $undo_first_authorization = false;
     private bool $instant_status = false;
@@ -83,15 +83,6 @@ class CorrectionSettings extends \Edutiek\AssessmentService\Assessment\Data\Corr
         $this->no_manual_decimals = $no_manual_decimals;
         return $this;
     }
-    public function getMaxAutoDistance(): float
-    {
-        return $this->max_auto_distance;
-    }
-    public function setMaxAutoDistance(float $max_auto_distance): self
-    {
-        $this->max_auto_distance = $max_auto_distance;
-        return $this;
-    }
     public function getMutualVisibility(): bool
     {
         return $this->mutual_visibility;
@@ -128,13 +119,13 @@ class CorrectionSettings extends \Edutiek\AssessmentService\Assessment\Data\Corr
         $this->procedure_when_distance = $procedure_when_distance;
         return $this;
     }
-    public function getProcedureWhenDecimals(): bool
+    public function getMaxNoProcedureDistance(): float
     {
-        return $this->procedure_when_decimals;
+        return $this->max_no_procedure_distance;
     }
-    public function setProcedureWhenDecimals(bool $procedure_when_decimals): self
+    public function setMaxNoProcedureDistance(float $max_no_procedure_distance): self
     {
-        $this->procedure_when_decimals = $procedure_when_decimals;
+        $this->max_no_procedure_distance = $max_no_procedure_distance;
         return $this;
     }
     public function getProcedure(): CorrectionProcedure
@@ -164,13 +155,22 @@ class CorrectionSettings extends \Edutiek\AssessmentService\Assessment\Data\Corr
         $this->revision_between = $revision_between;
         return $this;
     }
-    public function getStitchAfterProcedure(): bool
+    public function getStitchWhenDistance(): bool
     {
-        return $this->stitch_after_procedure;
+        return $this->stitch_when_distance;
     }
-    public function setStitchAfterProcedure(bool $stitch_after_procedure): self
+    public function setStitchWhenDistance(bool $stitch_when_distance): self
     {
-        $this->stitch_after_procedure = $stitch_after_procedure;
+        $this->stitch_when_distance = $stitch_when_distance;
+        return $this;
+    }
+    public function getMaxNoStitchDistance(): float
+    {
+        return $this->max_no_stitch_distance;
+    }
+    public function setMaxNoStitchDistance(float $max_no_stitch_distance): self
+    {
+        $this->max_no_stitch_distance = $max_no_stitch_distance;
         return $this;
     }
     public function getUndoAuthorization(): bool

@@ -552,7 +552,7 @@ class CorrectionAdminGUI extends BaseGUI
 
         $location_avaiable = $this->hasLocations();
         $corrections = $this->getCorrectionSettings()->getRequiredCorrectors();
-        if ($corrections > 1 && $this->getCorrectionSettings()->getStitchAfterProcedure()) {
+        if ($corrections > 1 && $this->getCorrectionSettings()->getStitchWhenDistance()) {
             $corrections++;
         }
         $multi = $this->getSettings()->getMultiTasks();

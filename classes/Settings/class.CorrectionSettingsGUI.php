@@ -33,7 +33,6 @@ class CorrectionSettingsGUI extends BaseGUI
     private OrgaSettingsService $orga_settings_service;
     private AssessmentCorrectionSettingsService $assessment_correction_settings_service;
     private TaskCorrectionSettingsService $task_correction_settings_service;
-    private PdfSettingsService $pdf_settings_service;
     private EntityService $entity_service;
     private DateTimeZone $user_timezone;
     private TaskManager $manager_service;
@@ -46,7 +45,6 @@ class CorrectionSettingsGUI extends BaseGUI
         $this->orga_settings_service = $this->assessment_api->orgaSettings();
         $this->assessment_correction_settings_service = $this->assessment_api->correctionSettings();
         $this->task_correction_settings_service = $this->task_api->correctionSettings();
-        $this->pdf_settings_service = $this->assessment_api->pdfSettings();
         $this->entity_service = $this->system_api->entity();
         $this->user_timezone = new DateTimeZone($this->user->getTimeZone());
         $this->manager_service = $this->task_api->manager();
@@ -102,28 +100,23 @@ class CorrectionSettingsGUI extends BaseGUI
                     $assessment_settings->setWaitForFirst((bool) $subdata['wait_for_first']);
                     $assessment_settings->setUndoFirstAuthorization((bool) $subdata['undo_first_authorization']);
 
-                    if ($subdata['handle_distance'][0] === 'clearance') {
-                        $clearance = $subdata['handle_distance'][1];
-                        $assessment_settings->setMaxNoProcedureDistance((float) $clearance['max_no_procedure_distance']);
-
-                        $assessment_settings->setProcedure(CorrectionProcedure::tryFrom(
-                            $clearance['procedure'][0] ?? CorrectionProcedure::NONE
-                        ));
-                        if (isset($clearance['procedure'][1]['revision_between'])) {
-                            $assessment_settings->setRevisionBetween((bool) $clearance['procedure'][1]['revision_between']);
-                        }
-
-                        $assessment_settings->setStitchWhenDistance((bool) $clearance['stitch'][0]);
-
+                    // procedure
+                    $assessment_settings->setProcedure(CorrectionProcedure::tryFrom(
+                        $subdata['procedure'][0] ?? CorrectionProcedure::NONE
+                    ));
+                    if ($assessment_settings->getProcedure() === CorrectionProcedure::NONE) {
+                        $assessment_settings->setProcedureWhenDistance(false);
                     } else {
-                        $assessment_settings->setProcedure(CorrectionProcedure::NONE);
-                        $assessment_settings->setStitchWhenDistance(false);
+                        $assessment_settings->setProcedureWhenDistance(true);
+                        $assessment_settings->setMaxNoProcedureDistance((float) $subdata['procedure'][1]['max_no_procedure_distance']);
+                        $assessment_settings->setRevisionBetween((bool) $subdata['procedure'][1]['revision_between']);
                     }
 
-                    $assessment_settings->setProcedureWhenDistance(
-                        $assessment_settings->getProcedure() !== CorrectionProcedure::NONE
-                        || $assessment_settings->getStitchWhenDistance()
-                    );
+                    // stitch
+                    $assessment_settings->setStitchWhenDistance((bool) $subdata['stitch'][0]);
+                    if ($assessment_settings->getStitchWhenDistance()) {
+                        $assessment_settings->setMaxNoStitchDistance((float) $subdata['stitch'][1]['max_no_stitch_distance']);
+                    }
                 }
             }
 
@@ -227,14 +220,21 @@ class CorrectionSettingsGUI extends BaseGUI
             $revision_between = $factory->checkbox(
                 $this->plugin->txt('revision_between'),
                 $this->plugin->txt('revision_between_info')
-            )->withValue($assessment_settings->getRevisionBetween());
-
-            $average = $factory->group(
-                [],
-                $this->plugin->txt('average_when_distance'),
-                $this->plugin->txt('average_when_distance_info')
             );
 
+            $max_distance = $this->plugin_ui_factory->field()->numeric(
+                $this->plugin->txt('max_distance'),
+                $this->plugin->txt('max_distance_info')
+            )
+                ->withStep(0.5)
+                ->withAdditionalTransformation($this->refinery->byTrying([
+                    $this->refinery->KindlyTo()->float(),
+                    $this->refinery->always(0)
+                ]))
+                ->withAdditionalTransformation($this->constraints->minimum(0))
+                ->withAdditionalTransformation($this->constraints->maximum(1000000000));
+
+            // procedure
             $no_procedure = $factory->group(
                 [],
                 $this->plugin->txt('procedure_none'),
@@ -243,7 +243,11 @@ class CorrectionSettingsGUI extends BaseGUI
 
             $approximation = $factory->group(
                 [
-                    'revision_between' => $revision_between,
+                    'max_no_procedure_distance' => $max_distance
+                        ->withValue((empty($assessment_settings->getMaxNoProcedureDistance()) ? 0.0 :
+                            $assessment_settings->getMaxNoProcedureDistance())),
+                    'revision_between' => $revision_between
+                        ->withValue($assessment_settings->getRevisionBetween())
                 ],
                 $this->plugin->txt('procedure_approximation'),
                 $this->plugin->txt('procedure_approximation_info')
@@ -251,64 +255,30 @@ class CorrectionSettingsGUI extends BaseGUI
 
             $consulting = $factory->group(
                 [
-                    'revision_between' => $revision_between,
+                    'max_no_procedure_distance' => $max_distance
+                        ->withValue((empty($assessment_settings->getMaxNoProcedureDistance()) ? 0.0 :
+                            $assessment_settings->getMaxNoProcedureDistance())),
+                    'revision_between' => $revision_between
+                        ->withValue($assessment_settings->getRevisionBetween())
                 ],
                 $this->plugin->txt('procedure_consulting'),
                 $this->plugin->txt('procedure_consulting_info')
             );
 
-            $procedure = $factory->switchableGroup(
-                [
-                    CorrectionProcedure::NONE->value => $no_procedure,
-                    CorrectionProcedure::APPROXIMATION->value => $approximation,
-                    CorrectionProcedure::CONSULTING->value => $consulting,
-                ],
-                $this->plugin->txt('procedure_setting_label'),
-            )->withValue($assessment_settings->getProcedure()->value);
-
-
-            $stitch_disabled = $factory->group(
+            $no_stitch = $factory->group(
                 [],
                 $this->plugin->txt('stitch_disabled'),
                 $this->plugin->txt('stitch_disabled_info')
             );
 
-            $stitch_when_distance = $factory->group(
-                [],
+            $stitch = $factory->group(
+                [
+                    'max_no_stitch_distance' => $max_distance
+                        ->withValue((empty($assessment_settings->getMaxNoStitchDistance()) ? 0.0 :
+                            $assessment_settings->getMaxNoStitchDistance())),
+                ],
                 $this->plugin->txt('stitch_when_distance'),
                 $this->plugin->txt('stitch_when_distance_info')
-            );
-
-            $stitch_setting = $factory->switchableGroup(
-                [
-                    '0' => $stitch_disabled,
-                    '1' => $stitch_when_distance
-                ],
-                $this->plugin->txt('stitch_setting_label'),
-            )->withValue($assessment_settings->getStitchWhenDistance() ? '1' : '0');
-
-            $max_no_procedure_distance = $this->plugin_ui_factory->field()->numeric(
-                $this->plugin->txt('max_no_procedure_distance'),
-                $this->plugin->txt('max_no_procedure_distance_info')
-            )
-                ->withStep(0.5)
-                ->withAdditionalTransformation($this->refinery->byTrying([
-                    $this->refinery->KindlyTo()->float(),
-                    $this->refinery->always(0)
-                ]))
-                ->withAdditionalTransformation($this->constraints->minimum(0))
-                ->withAdditionalTransformation($this->constraints->maximum(1000000000))
-                ->withValue((empty($assessment_settings->getMaxNoProcedureDistance()) ? 0.0 : $assessment_settings->getMaxNoProcedureDistance()));
-
-
-            $clearance = $factory->group(
-                [
-                    'max_no_procedure_distance' => $max_no_procedure_distance,
-                    'procedure' => $procedure,
-                    'stitch' => $stitch_setting
-                ],
-                $this->plugin->txt('procedure_when_distance'),
-                $this->plugin->txt('procedure_when_distance_info')
             );
 
             $single = $factory->group(
@@ -328,13 +298,21 @@ class CorrectionSettingsGUI extends BaseGUI
                     $this->plugin->txt('undo_first_authorization'),
                     $this->plugin->txt('undo_first_authorization_info')
                 )->withValue($assessment_settings->getUndoFirstAuthorization()),
-                'handle_distance' => $factory->switchableGroup(
+                'procedure' => $factory->switchableGroup(
                     [
-                        'average' => $average,
-                        'clearance' => $clearance
+                        CorrectionProcedure::NONE->value => $no_procedure,
+                        CorrectionProcedure::APPROXIMATION->value => $approximation,
+                        CorrectionProcedure::CONSULTING->value => $consulting,
                     ],
-                    $this->plugin->txt('handle_distance'),
-                )->withValue($assessment_settings->getProcedureWhenDistance() || $assessment_settings->getStitchWhenDistance() ? 'clearance' : 'average')
+                    $this->plugin->txt('procedure_setting_label'),
+                )->withValue($assessment_settings->getProcedure()->value),
+                'stitch' => $factory->switchableGroup(
+                    [
+                        '0' => $no_stitch,
+                        '1' => $stitch
+                    ],
+                    $this->plugin->txt('stitch_setting_label'),
+                )->withValue($assessment_settings->getStitchWhenDistance() ? '1' : '0'),
             ], $this->plugin->txt('first_and_second_corrector'));
 
             $fields = [];

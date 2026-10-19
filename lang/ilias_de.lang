@@ -849,19 +849,19 @@ average_when_distance#:#Immer Durchschnitt bilden
 average_when_distance_info#:#Die Gesamtpunktzahl wird immer automatisch aus dem Durchschnitt der Erst- und Zweitkorrektur gebildet.
 procedure_when_distance#:#Abweichende Punkte klären
 procedure_when_distance_info#:#Weichen die Punkte aus Erst- und Zweitkorrektur zu stark voneinander ab, wird eine eindeutige Punktzahl in einem Verfahren zwischen den Korrektoren und/oder per Stichentscheid ermittelt.
-max_no_procedure_distance#:#Maximaler Punkteunterschied
-max_no_procedure_distance_info#:#Maximal erlaubter Unterschied zwischen niedrigster und höchster Punktzahl
+max_distance#:#Maximaler Punkteunterschied
+max_distance_info#:#Maximal erlaubter Unterschied zwischen den Punktzahlen
 correction_procedure#:#Verfahren der Korrektoren
-procedure_setting_label#:#1. Zwischen Korrektoren
+procedure_setting_label#:#Klärungsverfahren
 procedure_none#:#Kein Verfahren
 procedure_none_info#:#Die Korrektur geht sofort in den Stichentscheid (falls aktiv) oder es wird ein Durchschitt gebildet.
 procedure_approximation#:#Annäherungsverfahren
-procedure_approximation_info#:#Im Annäherungsverfahren hat der Erstkorrektor seine Bewertung zu überprüfen und das Ergebnis (Änderung oder Beibehaltung der vergebenen Punktzahl) mit kurzer Begründung zu dokumentieren. Der Zweitkorrektor wird in gleicher Weise einbezogen, falls der Erstkorrektor dies veranlasst. Andernfalls hat es mit der Überprüfung durch den Erstkorrektor sein Bewenden.
+procedure_approximation_info#:#Das Annäherungsverfahren wird eingeleitet, wenn der maximale Punkteunterschied zwischen beiden Korrekturen überschritten ist. Im Annäherungsverfahren hat der Erstkorrektor seine Bewertung zu überprüfen und das Ergebnis (Änderung oder Beibehaltung der vergebenen Punktzahl) mit kurzer Begründung zu dokumentieren. Der Zweitkorrektor wird in gleicher Weise einbezogen, falls der Erstkorrektor dies veranlasst. Andernfalls hat es mit der Überprüfung durch den Erstkorrektor sein Bewenden.
 procedure_consulting#:#Beratungsverfahren
-procedure_consulting_info#:#Beide Korrektoren müssen eine Beratungspunktzahl eingeben. Nur der Zweitkorrektor darf eine Begründung als Beratungsvermerk eingeben. Die Eingaben aus der Beratung werden gesondert gespeichert.
+procedure_consulting_info#:#Das Beratungsverfahren wird eingeleitet, wenn der maximale Punkteunterschied zwischen beiden Korrekturen überschritten ist. Im Beratungsverfahren müssen beide Korrektoren eine Beratungspunktzahl eingeben. Sie können diese in beliebiger Reihenfolge freigeben. Nur der Zweitkorrektor darf eine Begründung als Beratungsvermerk eingeben. Die Eingaben aus der Beratung werden gesondert gespeichert.
 revision_between#:#Bewertungskorridor
 revision_between_info#:#Eine neu vergebene Punktzahl muss zwischen den ursprünglichen Bewertungen (einschließlich) beider Korrektoren liegen.
-stitch_setting_label#:#2. Stichentscheid
+stitch_setting_label#:#Stichentscheid
 stitch_disabled#:#Kein Stichentscheid
 stitch_disabled_info#:#Nach der Korrektur oder einem Verfahren zwischen den Korrektoren wird ein Durchschnitt gebildet.
 stitch_when_distance#:#Stichentscheid

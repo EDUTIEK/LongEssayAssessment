@@ -1768,7 +1768,7 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
         }
         if (!$this->db->tableColumnExists('xlas_as_corr_settings', 'max_no_stitch_distance')) {
             $this->db->addTableColumn('xlas_as_corr_settings', 'max_no_stitch_distance', [
-                'type' => ilDBConstants::T_INTEGER, 'notnull' => 0, 'default' => 0]);
+                'type' => ilDBConstants::T_FLOAT, 'notnull' => 0, 'default' => 0]);
         }
     }
 }

@@ -3,6 +3,17 @@
 Please look at the [changelog of version 3](https://github.com/EDUTIEK/LongEssayAssessment/blob/release3_ilias9/CHANGELOG.md)
 for changes in that version.
 
+## Upcoming 
+
+New functions, Visible changes
+- Optional free positioned marking shapes in text based PDF correction 
+- Different shapes and symbols for the correction of HTML texts from the online editor
+- New column for pure status of other corrections on the corrector start screen
+- New documentation format "Portrait, Annotations on the right side" for the correction of HTML texts
+
+Bug fixes
+- Fix not disabled setting for multiple tasks
+
 ## Version 10.4 (2026-10-11)
 
 New functions, Visible changes

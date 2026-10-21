@@ -927,6 +927,8 @@ allow_download_writing_info#:#Korrektoren können auf ihrer Startseite einzelne 
 allow_download_correction#:#Korrekturen herunterladen
 allow_download_correction_info#:#Korrektoren können auf ihrer Startseite einzelne oder mehrere Korrekturen als PDF herunterladen. Eine PDF-Datei enthält die eigene Korrektur einer Abgabe und die anderer Korrektoren, sofern sie freigegeben sind.
 download_in_background_started#:#Die Datei wird im Hintergrund erzeugt und kann anschließend über das Glocken-Symbol in der Kopfzeile heruntergeladen werden.
+allow_access_statistics#:#Notenstatistik einsehen
+allow_access_statistics_info#:#Unter "Meine Korrektur" kann eine Notenstatistik der eigenen und aller Korrekturen mit Punkte- oder Notenverteilung eingesehen werden.
 result_export_format#:#Format Ergebnisdatei
 result_export_format_info#:#In diesem Format wird die Ergebnisdatei ins Dokumentations-Archiv geschrieben.
 result_export_format_edutiek#:#EDUTIEK

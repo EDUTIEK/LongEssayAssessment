@@ -55,6 +55,7 @@ class CorrectionSettings extends \Edutiek\AssessmentService\Assessment\Data\Corr
     private ?int $max_points = null;
     private bool $download_writing = true;
     private bool $download_correction = true;
+    private bool $access_statistics = true;
 
     public function getAssId(): int
     {
@@ -267,6 +268,17 @@ class CorrectionSettings extends \Edutiek\AssessmentService\Assessment\Data\Corr
     public function setDownloadCorrection(bool $download_correction): self
     {
         $this->download_correction = $download_correction;
+        return $this;
+    }
+
+    public function getAccessStatistics(): bool
+    {
+        return $this->access_statistics;
+    }
+
+    public function setAccessStatistics(bool $access_statistics): CorrectionSettings
+    {
+        $this->access_statistics = $access_statistics;
         return $this;
     }
 }

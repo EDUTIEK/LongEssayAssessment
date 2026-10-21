@@ -130,6 +130,7 @@ class CorrectionSettingsGUI extends BaseGUI
                 $assessment_settings->setAnonymizeCorrectors((bool) $data['correction']['anonymize_correctors']);
                 $assessment_settings->setDownloadWriting((bool) $data['correction']['allow_download_writing']);
                 $assessment_settings->setDownloadCorrection((bool) $data['correction']['allow_download_correction']);
+                $assessment_settings->setAccessStatistics((bool) $data['correction']['allow_access_statistics']);
                 if (isset($data['correction']['reports_enabled']) && is_array($data['correction']['reports_enabled'])) {
                     $assessment_settings->setReportsEnabled(true);
                     $assessment_settings->setReportsAvailableStart($data['correction']['reports_enabled']['reports_available_start']);
@@ -370,6 +371,12 @@ class CorrectionSettingsGUI extends BaseGUI
                 $this->plugin->txt('allow_download_correction'),
                 $this->plugin->txt('allow_download_correction_info')
             )->withValue($assessment_settings->getDownloadCorrection());
+
+            $fields['allow_access_statistics'] = $factory->checkbox(
+                $this->plugin->txt('allow_access_statistics'),
+                $this->plugin->txt('allow_access_statistics_info')
+            )->withValue($assessment_settings->getAccessStatistics());
+
 
             $fields['reports_enabled'] = $factory->optionalGroup(
                 [

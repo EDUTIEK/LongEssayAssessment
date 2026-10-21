@@ -46,8 +46,7 @@ class ilLongEssayAssessmentCollectionUIHookGUI extends ilUIHookPluginGUI
                 if ($ref_id !== null) {
                     $data = $this->tree->getNodeData($ref_id);
                     $xlas_childs = $this->tree->getSubTree($data, false, ['xlas']);
-
-                    $xlas_childs = array_filter($xlas_childs, fn($x) => $this->access->checkAccess('maintain_correctors', '', $x));
+                    $xlas_childs = array_filter($xlas_childs, fn($x) => $this->access->checkAccess('read', '', $x));
 
                     if (count($xlas_childs) >= 1) {
                         /**

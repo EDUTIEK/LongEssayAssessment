@@ -9,10 +9,14 @@ New functions, Visible changes
 - Optional free positioned marking shapes in text based PDF correction 
 - Different shapes and symbols for the correction of HTML texts from the online editor
 - New column for pure status of other corrections on the corrector start screen
-- New documentation format "Portrait, Annotations on the right side" for the correction of HTML texts
+- New documentation format "Portrait, annotations on the right side" for the correction of HTML texts
+- Separate threshold value for stitch decision
+- Switch to activate the grading statistics for correctors
+- Setting to show a corrector start page without filter or paging and with a fixed sorting
 
 Bug fixes
 - Fix not disabled setting for multiple tasks
+- Fix missing user's title in fullname displays
 
 ## Version 10.4 (2026-10-11)
 

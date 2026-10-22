@@ -22,6 +22,7 @@ use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\BaseObjectData;
 use ILIAS\UI\Component\Input\Container\Form\Standard;
 use Edutiek\AssessmentService\Assessment\Data\Pseudonymization;
+use Edutiek\AssessmentService\Assessment\Data\CorrectionSort;
 
 /**
  * Settings for the correction
@@ -124,7 +125,18 @@ class CorrectionSettingsGUI extends BaseGUI
             if (!$this->fixation_gui->isDisabled('correction')) {
                 $assessment_settings->setPseudonymization(Pseudonymization::tryFrom((string) $data['correction']['pseudonymization'])
                     ?? Pseudonymization::WRITER_ID);
-                $assessment_settings->setAssignMode(AssignMode::tryFrom($data['correction']['assign_mode']) ?? AssignMode::RANDOM_EQUAL);
+                // $assessment_settings->setAssignMode(AssignMode::tryFrom($data['correction']['assign_mode']) ?? AssignMode::RANDOM_EQUAL);
+                $assessment_settings->setStartpageFixed($data['correction']['startpage'][0] == 'fixed');
+                if ($assessment_settings->getStartpageFixed()) {
+                    $assessment_settings->setFixedSort1(
+                        CorrectionSort::tryFrom($data['correction']['startpage'][1]['fixed_sort1'])
+                            ?? CorrectionSort::GRADING_POSITION
+                    );
+                    $assessment_settings->setFixedSort2(
+                        CorrectionSort::tryFrom($data['correction']['startpage'][1]['fixed_sort2'])
+                            ?? CorrectionSort::OWN_STATE
+                    );
+                }
                 $assessment_settings->setUndoAuthorization((bool) $data['correction']['undo_authorization']);
                 $assessment_settings->setInstantStatus((bool) $data['correction']['instant_status']);
                 $assessment_settings->setAnonymizeCorrectors((bool) $data['correction']['anonymize_correctors']);
@@ -337,14 +349,33 @@ class CorrectionSettingsGUI extends BaseGUI
                 $this->plugin->txt('pseudonymization_info'),
             )->withRequired(true)->withValue($assessment_settings->getPseudonymization()->value);
 
-            $fields['assign_mode'] = $factory->radio($this->plugin->txt('assign_mode'))
-                ->withRequired(true)
-                ->withOption(
-                    AssignMode::RANDOM_EQUAL->value,
-                    $this->plugin->txt('assign_mode_random_equal'),
-                    $this->plugin->txt('assign_mode_random_equal_info')
-                )
-                ->withValue($assessment_settings->getAssignMode()->value);
+            //            $fields['assign_mode'] = $factory->radio($this->plugin->txt('assign_mode'))
+            //                ->withRequired(true)
+            //                ->withOption(
+            //                    AssignMode::RANDOM_EQUAL->value,
+            //                    $this->plugin->txt('assign_mode_random_equal'),
+            //                    $this->plugin->txt('assign_mode_random_equal_info')
+            //                )
+            //                ->withValue($assessment_settings->getAssignMode()->value);
+
+            $fields['startpage'] = $factory->switchableGroup(
+                [
+                    'full' => $factory->group([], $this->plugin->txt('correction_startpage_full')),
+                    'fixed' => $factory->group([
+                        'fixed_sort1' => $factory->select(
+                            $this->plugin->txt('corrections_sort_1'),
+                            $this->assessment_correction_settings_service->sortOptions()
+                        )
+                            ->withValue($assessment_settings->getFixedSort1()->value),
+                        'fixed_sort2' => $factory->select(
+                            $this->plugin->txt('corrections_sort_2'),
+                            $this->assessment_correction_settings_service->sortOptions()
+                        )
+                            ->withValue($assessment_settings->getFixedSort2()->value),
+                    ], $this->plugin->txt('correction_startpage_fixed'))
+                ],
+                $this->plugin->txt('correction_startpage')
+            )->withValue($assessment_settings->getStartpageFixed() ? 'fixed' : 'full');
 
             $fields['undo_authorization'] = $factory->checkbox(
                 $this->plugin->txt('undo_authorization'),

@@ -22,6 +22,7 @@ use ILIAS\Plugin\LongEssayAssessment\Task\Data\CorrectorAssignment;
 use Edutiek\AssessmentService\Assessment\AssessmentGrading\ReadService as AssessmentGradingService;
 use Edutiek\AssessmentService\Task\Format\FullService as TaskFormatService;
 use Edutiek\AssessmentService\Assessment\Data\CorrectionSettings;
+use Edutiek\AssessmentService\Assessment\Data\CorrectionSort;
 use Edutiek\AssessmentService\Assessment\Data\OrgaSettings;
 use Edutiek\AssessmentService\Task\CorrectorAssignments\FullService as AssignmentService;
 use Edutiek\AssessmentService\System\User\ReadService as UserService;
@@ -169,20 +170,31 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
         $other_corrections = $this->settings->getRequiredCorrectors() > 1;
         $multi_task = $this->orga_settings->getMultiTasks();
 
-        return [
-          'pseudonym' => $cf->link($this->plugin->txt('pseudonym'))->withIsOptional(false, true),
-          'position' => !$multi_task && $other_corrections ? $cf->status($this->plugin->txt('own_position'))->withIsOptional(true, true) : null,
-          'task' => $multi_task ? $cf->text($this->plugin->txt('task'))->withIsOptional(true, true) : null,
-          'own_status' => $cf->status($this->plugin->txt('own_status'))->withIsOptional(true, true),
-          'own_points' => $cfp->decimal($this->plugin->txt('own_points'))->withIsOptional(true, true),
-          'own_grade' => !$multi_task ? $cf->text($this->plugin->txt('own_grade'))->withIsOptional(true, true) : null,
-          'other_status' => $other_corrections ? $cf->text($this->plugin->txt('other_correction_status'))->withIsOptional(true, true) : null,
-          'other_correction' => $other_corrections ? $cf->text($this->plugin->txt('other_correction_details'))->withIsOptional(true, false) : null,
-          'combined_status' => $cf->status($this->plugin->txt('correction_status'))->withIsOptional(true, true),
-          'result' => $cf->status($this->plugin->txt('result'))->withIsOptional(true, true)->withIsSortable(true),
-          'final_points' => $cfp->decimal($this->plugin->txt("result") . ': ' . $this->plugin->txt('points'))->withIsOptional(true, false),
-          'final_grade' => !$multi_task ? $cf->text($this->plugin->txt("result") . ': ' . $this->plugin->txt('grade'))->withIsOptional(true, false) : null,
+        $optional = !$this->settings->getStartpageFixed();
+        $sortable = !$this->settings->getStartpageFixed();
+
+        $columns = [
+          'pseudonym' => $cf->link($this->plugin->txt('pseudonym'))->withIsOptional(false, true)->withIsSortable($sortable),
+          'position' => !$multi_task && $other_corrections ? $cf->status($this->plugin->txt('own_position'))->withIsOptional($optional, true)->withIsSortable($sortable) : null,
+          'task' => $multi_task ? $cf->text($this->plugin->txt('task'))->withIsOptional($optional, true)->withIsSortable($sortable) : null,
+          'own_status' => $cf->status($this->plugin->txt('own_status'))->withIsOptional($optional, true)->withIsSortable($sortable),
+          'own_points' => $cfp->decimal($this->plugin->txt('own_points'))->withIsOptional($optional, true)->withIsSortable($sortable),
+          'own_grade' => !$multi_task ? $cf->text($this->plugin->txt('own_grade'))->withIsOptional($optional, true)->withIsSortable($sortable) : null,
+          'other_status' => $other_corrections ? $cf->text($this->plugin->txt('other_correction_status'))->withIsOptional($optional, true)->withIsSortable($sortable) : null,
+          'other_correction' => $other_corrections ? $cf->text($this->plugin->txt('other_correction_details'))->withIsOptional(true, false)->withIsSortable($sortable) : null,
+          'combined_status' => $cf->status($this->plugin->txt('correction_status'))->withIsOptional($optional, true)->withIsSortable($sortable),
+          'result' => $cf->status($this->plugin->txt('result'))->withIsOptional($optional, true)->withIsSortable(true)->withIsSortable($sortable),
+          'final_points' => $cfp->decimal($this->plugin->txt("result") . ': ' . $this->plugin->txt('points'))->withIsOptional(true, false)->withIsSortable($sortable),
+          'final_grade' => !$multi_task ? $cf->text($this->plugin->txt("result") . ': ' . $this->plugin->txt('grade'))->withIsOptional(true, false)->withIsSortable($sortable) : null,
         ];
+
+        if ($this->settings->getStartpageFixed()) {
+            unset($columns['other_correction']);
+            unset($columns['final_points']);
+            unset($columns['final_grade']);
+        }
+
+        return $columns;
     }
 
     public function getTotalRowCount(?array $filter_data, ?array $additional_parameters): ?int
@@ -317,12 +329,8 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
 
     public function getTableItems(?array $ids = null, ?array $filter_data = null): Generator
     {
-        if (isset($filter_data)) {
-            // filter is already saved
-            $own_assignments = $this->assignment_service->allByCorrectorIdFiltered($this->corrector->getId(), true);
-        } else {
-            $own_assignments = $this->assignment_service->allByCorrectorId($this->corrector->getId(), true);
-        }
+        // filter and sorting are treated by the service, based on the settings
+        $own_assignments = $this->assignment_service->allByCorrectorIdFiltered($this->corrector->getId(), true);
 
         /**
          * @var CorrectorAssignment $own_assignment
@@ -437,33 +445,35 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
         $modals = [];
 
         $table = $this->plugin_ui_factory->table()->dataTable("corrector_start_table", $this);
+        $table->setWithoutPaging($this->settings->getStartpageFixed());
+        $table->setKeepOrder($this->settings->getStartpageFixed());
 
         $filter_data = $table->getFilterData();
-        $is_empty_before_filter = empty($this->getTotalRowCount(null, null));
-        $is_empty_after_filter = empty($this->getTotalRowCount($filter_data, null));
+        $count_all = $this->getTotalRowCount(null, null);
+        $count_filtered = $this->getTotalRowCount($filter_data, null);
 
         if ($this->perms->canCorrect()) {
             $this->ctrl->clearParameters($this);
             $button = $this->ui_factory->button()->primary(
                 $this->plugin->txt('start_correction'),
-                !$is_empty_after_filter ? $this->ctrl->getLinkTarget($this, "startCorrector") : "#"
+                !empty($count_filtered) ? $this->ctrl->getLinkTarget($this, "startCorrector") : "#"
             );
 
-            if ($is_empty_after_filter) {
+            if (empty($count_filtered)) {
                 $this->toolbar->addComponent($button->withUnavailableAction());
             } else {
                 $this->toolbar->addComponent($button);
             }
         }
 
-        if (!$is_empty_before_filter) {
+        if (!empty($count_all)) {
             $table->executeAction();
             $this->tpl->setContent($this->renderer->render($table->getComponents()));
         }
 
         $messages = [];
 
-        if ($is_empty_before_filter) {
+        if (empty($count_all)) {
             $messages[] = $this->plugin->txt("message_no_correction_items");
         } else {
             $assignments = $this->assignment_service->allByCorrectorId($this->corrector->getId(), true);
@@ -610,6 +620,10 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
 
     public function getFilterInputs(): array
     {
+        if ($this->settings->getStartpageFixed()) {
+            return [];
+        }
+
         $multiple_correctors = $this->settings->getRequiredCorrectors() > 1;
 
         $stat_options = $this->task_format->gradingStatusOptions();

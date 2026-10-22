@@ -27,6 +27,7 @@ use Edutiek\AssessmentService\Assessment\Data\CorrectionProcedure;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Key;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Table;
 use Edutiek\AssessmentService\Assessment\Data\Pseudonymization;
+use Edutiek\AssessmentService\Assessment\Data\CorrectionSort;
 
 #[Table(name: 'xlas_as_corr_settings')]
 class CorrectionSettings extends \Edutiek\AssessmentService\Assessment\Data\CorrectionSettings
@@ -56,6 +57,9 @@ class CorrectionSettings extends \Edutiek\AssessmentService\Assessment\Data\Corr
     private bool $download_writing = true;
     private bool $download_correction = true;
     private bool $access_statistics = true;
+    private bool $startpage_fixed = false;
+    private string $fixed_sort1 = CorrectionSort::GRADING_POSITION->value;
+    private string $fixed_sort2 = CorrectionSort::OWN_STATE->value;
 
     public function getAssId(): int
     {
@@ -279,6 +283,39 @@ class CorrectionSettings extends \Edutiek\AssessmentService\Assessment\Data\Corr
     public function setAccessStatistics(bool $access_statistics): CorrectionSettings
     {
         $this->access_statistics = $access_statistics;
+        return $this;
+    }
+
+    public function getStartpageFixed(): bool
+    {
+        return $this->startpage_fixed;
+    }
+
+    public function setStartpageFixed(bool $startpage_fixed): CorrectionSettings
+    {
+        $this->startpage_fixed = $startpage_fixed;
+        return $this;
+    }
+
+    public function getFixedSort1(): CorrectionSort
+    {
+        return CorrectionSort::tryFrom($this->fixed_sort1) ?? CorrectionSort::GRADING_POSITION;
+    }
+
+    public function setFixedSort1(CorrectionSort $fixed_sort1): CorrectionSettings
+    {
+        $this->fixed_sort1 = $fixed_sort1->value;
+        return $this;
+    }
+
+    public function getFixedSort2(): CorrectionSort
+    {
+        return CorrectionSort::tryFrom($this->fixed_sort2) ?? CorrectionSort::OWN_STATE;
+    }
+
+    public function setFixedSort2(CorrectionSort $fixed_sort2): CorrectionSettings
+    {
+        $this->fixed_sort2 = $fixed_sort2->value;
         return $this;
     }
 }

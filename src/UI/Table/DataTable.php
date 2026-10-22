@@ -89,6 +89,7 @@ class DataTable extends Table implements DataTableParent
     }
 
     private array $additional_parameter = [];
+    private bool $without_paging = false;
 
     protected function buildTable(): \ILIAS\UI\Component\Component
     {
@@ -214,7 +215,8 @@ class DataTable extends Table implements DataTableParent
     # DATA TABLE PARENT fassade
     public function getTotalRowCount(?array $filter_data, ?array $additional_parameters): ?int
     {
-        if ($this->smallView($additional_parameters)) {
+        // a negative count hides the pagination and shows all rows within the default range of the ILIAS data table
+        if ($this->smallView($additional_parameters) || $this->without_paging) {
             return -1;
         }
         return $this->dt_parent->getTotalRowCount($filter_data, $additional_parameters);
@@ -263,6 +265,15 @@ class DataTable extends Table implements DataTableParent
     private function getDefaultRange(): ?Range
     {
         return $this->default_range;
+    }
+
+    /**
+     * Show all rows without paging controls
+     * Note: this cuts off all rows after 800
+     */
+    public function setWithoutPaging(bool $without_paging): void
+    {
+        $this->without_paging = $without_paging;
     }
 
 }

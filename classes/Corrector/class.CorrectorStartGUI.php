@@ -448,14 +448,11 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
         $modals = [];
 
         $table = $this->plugin_ui_factory->table()->dataTable("corrector_start_table", $this);
+        $table->setWithoutPaging($this->settings->getStartpageFixed());
 
         $filter_data = $table->getFilterData();
         $count_all = $this->getTotalRowCount(null, null);
         $count_filtered = $this->getTotalRowCount($filter_data, null);
-
-        if ($this->settings->getStartpageFixed()) {
-            // todo prevent a paging
-        }
 
         if ($this->perms->canCorrect()) {
             $this->ctrl->clearParameters($this);

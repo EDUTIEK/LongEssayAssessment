@@ -472,12 +472,12 @@ authorize_correction_failed#:#In Ihrer Auswahl waren keine Korrekturen, die frei
 download_instructions#:#Aufgabenstellung herunterladen
 download_solution#:#Lösungshinweise herunterladen
 pdf_version#:#PDF-Abgabe
-pdf_version_edit#:#PDF-Abgabe editieren
+pdf_version_edit#:#Abgabe ersetzen
 pdf_version_upload#:#PDF-Abgabe hochladen
 pdf_version_download#:#PDF-Abgabe herunterladen
 download#:#Herunterladen
 download_writing#:#Abgabe herunterladen
-pdf_version_header_writing#:#Text aus der Schreiboberfläche (wird hinzugefügt)
+pdf_version_header_writing#:#Text aus der Schreiboberfläche
 pdf_version_upload_not_allowed_by_corrections#:#Sie können keine PDF-Abgabe hochladen, da eine Korrektur bereits freigegeben ist.
 pdf_version_upload_successful_auth#:#Die PDF-Abgabe wurde erfolgreich hochgeladen und freigegeben.
 pdf_version_upload_successful_removed#:#Die PDF-Abgabe wurde erfolgreich entfernt.
@@ -656,6 +656,7 @@ writing_type_essay_editor#:#Online-Editor
 writing_type_essay_editor_info#:#Die Teilnehmenden schreiben ihren Text in einem Online-Editor. Unter „Technik” kann eingestellt werden, welche Möglichkeiten sie dort haben. Einzelne handschriftliche oder anderweitig erstellte Abgaben können in der Teilnahmeverwaltung als PDF-Abgabe hochgeladen werden. Ihre Korrektur unterscheidet sich nur in den Markierungs-Optionen.
 writing_type_pdf_upload#:#PDF-Abgabe
 writing_type_pdf_upload_info#:#Die Texte werden von allen Teilnehmenden einheitlich als PDF-Abgabe hochgeladen. Während der Bearbeitungszeit kann eine hochgeladene Datei ersetzt werden. Die Abgabe zur Korrektur muss bestätigt werden. Danach ist keine Änderung mehr möglich.
+writer_upload_html#:#Abgabetext hochladen
 writer_upload_pdf#:#PDF-Abgabe hochladen
 writer_replace_pdf#:#PDF-Abgabe ersetzen
 writer_review_pdf#:#Hochladen und abgeben...
@@ -666,6 +667,7 @@ writer_upload_pdf_bt_processing#:#Verarbeite PDF-Abgabe von %s
 writer_upload_pdf_bt_success#:#PDF-Abgabe erfolgreich verarbeitet.
 writer_upload_pdf_bt_failure#:#Fehler beim Verarbeiten der PDF-Abgabe.
 writer_upload_pdf_finished#:#Die Datei wurde hochgeladen.
+writer_upload_html_finished#:#Der Abgabetext wurde hochgeladen.
 existing_file#:#Bestehende Datei
 new_file#:#Neue Datei
 upload_file#:#Datei hochladen
@@ -673,6 +675,7 @@ replace_file#:#Datei ersetzen
 delete_file#:#Datei löschen
 confirm_upload_file#:#Möchten Sie eine Datei hochladen?
 confirm_delete_file#:#Möchten Sie die Datei löschen?
+confirm_upload_essay_html_file#:#Hier können Sie einen aus der Schreiboberfläche heruntegeladenen Abgabetext hochladen. Dabei wird ein vorhandener Text überschrieben und ein vorhandenes PDF gelöscht.
 file_deleted#:#Die Datei wurde gelöscht.
 writer_upload_pdf_missing#:#Es ist noch keine PDF-Datei vorhanden.
 writer_upload_pdf_deleted#:#Die PDF-Datei wurde erfolgreich entfernt.

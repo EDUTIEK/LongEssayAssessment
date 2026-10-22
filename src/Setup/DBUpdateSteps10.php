@@ -1795,4 +1795,12 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
                 'type' => ilDBConstants::T_TEXT, 'length' => 20, 'notnull' => 1, 'default' => '']);
         }
     }
+
+    public function step_99(): void
+    {
+        if (!$this->db->tableColumnExists('xlas_as_orga_settings', 'review_mode')) {
+            $this->db->addTableColumn('xlas_as_orga_settings', 'review_mode', [
+                'type' => ilDBConstants::T_TEXT, 'length' => 20, 'notnull' => 1, 'default' => 'both']);
+        }
+    }
 }

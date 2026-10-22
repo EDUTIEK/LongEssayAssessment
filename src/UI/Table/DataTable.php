@@ -48,6 +48,8 @@ class DataTable extends Table implements DataTableParent
 
     private ?Order $default_order = null;
     private ?Range $default_range = null;
+    /** @var null|Closure(Item, Item): int */
+    private bool $keep_order = false;
 
     public function __construct(
         string $ui_name,
@@ -143,7 +145,8 @@ class DataTable extends Table implements DataTableParent
             $range,
             $order,
             $this->actions,
-            $additional_parameters
+            $additional_parameters,
+            $this->keep_order
         );
     }
 
@@ -274,6 +277,14 @@ class DataTable extends Table implements DataTableParent
     public function setWithoutPaging(bool $without_paging): void
     {
         $this->without_paging = $without_paging;
+    }
+
+    /**
+     * Keep the oder delivered by getTableItems()
+     */
+    public function setKeepOrder(bool $keep): void
+    {
+        $this->keep_order = $keep;
     }
 
 }

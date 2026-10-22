@@ -22,6 +22,7 @@ use ILIAS\Plugin\LongEssayAssessment\Task\Data\CorrectorAssignment;
 use Edutiek\AssessmentService\Assessment\AssessmentGrading\ReadService as AssessmentGradingService;
 use Edutiek\AssessmentService\Task\Format\FullService as TaskFormatService;
 use Edutiek\AssessmentService\Assessment\Data\CorrectionSettings;
+use Edutiek\AssessmentService\Assessment\Data\CorrectionSort;
 use Edutiek\AssessmentService\Assessment\Data\OrgaSettings;
 use Edutiek\AssessmentService\Task\CorrectorAssignments\FullService as AssignmentService;
 use Edutiek\AssessmentService\System\User\ReadService as UserService;
@@ -328,12 +329,8 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
 
     public function getTableItems(?array $ids = null, ?array $filter_data = null): Generator
     {
-        if (isset($filter_data)) {
-            // filter is already saved
-            $own_assignments = $this->assignment_service->allByCorrectorIdFiltered($this->corrector->getId(), true);
-        } else {
-            $own_assignments = $this->assignment_service->allByCorrectorId($this->corrector->getId(), true);
-        }
+        // filter and sorting are treated by the service, based on the settings
+        $own_assignments = $this->assignment_service->allByCorrectorIdFiltered($this->corrector->getId(), true);
 
         /**
          * @var CorrectorAssignment $own_assignment
@@ -449,6 +446,7 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
 
         $table = $this->plugin_ui_factory->table()->dataTable("corrector_start_table", $this);
         $table->setWithoutPaging($this->settings->getStartpageFixed());
+        $table->setKeepOrder($this->settings->getStartpageFixed());
 
         $filter_data = $table->getFilterData();
         $count_all = $this->getTotalRowCount(null, null);

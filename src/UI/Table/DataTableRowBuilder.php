@@ -22,6 +22,7 @@ class DataTableRowBuilder implements \Iterator
      * @param Order           $order
      * @param Action\Action[]           $actions
      * @param array           $additional_parameters
+     * @param null|\Closure(Item, Item): int $fixed_sort
      */
     public function __construct(
         private DataRowBuilder $builder,
@@ -32,6 +33,7 @@ class DataTableRowBuilder implements \Iterator
         private Order $order,
         private array $actions,
         ?array $additional_parameters = null,
+        private bool $keep_order = false,
     ) {
         $this->position = $this->range->getStart();
         /**
@@ -41,7 +43,9 @@ class DataTableRowBuilder implements \Iterator
             $this->items[] = $item;
             $this->columns[$item->getId()] = $parent->getColumnMapping($item, $additional_parameters);
         }
-        $this->uasort();
+        if (!$this->keep_order) {
+            $this->uasort();
+        }
     }
 
     private function uasort()

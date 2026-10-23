@@ -308,10 +308,12 @@ class WriterStartGUI extends BaseGUI
                     $this->plugin_ui_factory->viewer()->pdf(
                         $this->ctrl->getLinkTarget($this, 'deliverInstructions')
                     ),
-                    $this->ui_factory->link()->standard(
-                        $this->plugin->txt('download_instructions'),
-                        $this->ctrl->getLinkTarget($this, 'downloadInstructions')
-                    )
+                    $this->ui_factory->item()->standard(
+                        $this->ui_factory->link()->standard(
+                            $this->plugin->txt('download_instructions'),
+                            $this->ctrl->getLinkTarget($this, 'downloadInstructions')
+                        )
+                    )->withLeadIcon($this->ui_factory->symbol()->icon()->standard('file', '', 'medium'))
                 ]
             ));
         }
@@ -545,11 +547,12 @@ class WriterStartGUI extends BaseGUI
                     $this->plugin_ui_factory->viewer()->pdf(
                         $this->ctrl->getLinkTarget($this, 'deliverSolution')
                     ),
-                    $this->ui_factory->link()->standard(
-                        $this->plugin->txt('download_solution'),
-                        $this->ctrl->getLinkTarget($this, 'downloadSolution')
-                    )
-
+                    $this->ui_factory->item()->standard(
+                        $this->ui_factory->link()->standard(
+                            $this->plugin->txt('download_solution'),
+                            $this->ctrl->getLinkTarget($this, 'downloadSolution')
+                        )
+                    )->withLeadIcon($this->ui_factory->symbol()->icon()->standard('file', '', 'medium'))
                 ]
             ));
         }

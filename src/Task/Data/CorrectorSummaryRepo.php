@@ -21,7 +21,9 @@ declare(strict_types=1);
 namespace ILIAS\Plugin\LongEssayAssessment\Task\Data;
 
 use Edutiek\AssessmentService\Task\Data\CorrectorSummary;
+use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\OrCond;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\RepositoryInterface;
+use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Value;
 
 class CorrectorSummaryRepo implements \Edutiek\AssessmentService\Task\Data\CorrectorSummaryRepo
 {
@@ -39,9 +41,25 @@ class CorrectorSummaryRepo implements \Edutiek\AssessmentService\Task\Data\Corre
         return $this->repo->queryOneBy(['id' => $id]);
     }
 
-    public function hasAuthorizedByAssId(int $ass_id, ?int $corrector_id = null): bool
+    public function hasDataByWriterId(?int $writer_id = null): bool
+    {
+        return $this->repo->hasBy([
+            'writer_id' => $writer_id,
+            '*' => new OrCond([
+                'summary_text' => Value::NOT_NULL,
+                'points' => Value::NOT_NULL,
+                'summary_pdf' => Value::NOT_NULL,
+            ])
+        ]);
+    }
+
+    public function hasAuthorizedByAssId(int $ass_id, ?int $writer_id = null, ?int $corrector_id = null): bool
     {
         $where = ['ass_id' => $ass_id];
+
+        if ($writer_id !== null) {
+            $where['writer_id'] = $writer_id;
+        }
 
         if ($corrector_id !== null) {
             $where['corrector_id'] = $corrector_id;

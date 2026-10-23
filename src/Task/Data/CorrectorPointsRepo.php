@@ -62,9 +62,14 @@ class CorrectorPointsRepo implements \Edutiek\AssessmentService\Task\Data\Correc
         $this->repo->deleteAllBy(['corrector_id' => $corrector_id]);
     }
 
+    public function hasByWriterId(int $writer_id): bool
+    {
+        return $this->repo->hasBy(['writer_id' => $writer_id]);
+    }
+
     public function hasByTaskIdAndWriterIdAndCorrectorId(int $task_id, int $writer_id, int $corrector_id): bool
     {
-        return null !== $this->repo->queryOneBy(['task_id,' => $task_id, 'writer_id' => $writer_id, 'corrector_id' => $corrector_id]);
+        return $this->repo->hasBy(['task_id,' => $task_id, 'writer_id' => $writer_id, 'corrector_id' => $corrector_id]);
     }
 
     public function allByTaskIdAndWriterIdAndCorrectorId(int $task_id, int $writer_id, int $corrector_id): array

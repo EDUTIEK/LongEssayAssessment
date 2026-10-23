@@ -458,6 +458,7 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
     public function changeTextToPdf()
     {
         $writer_ids = $this->confirmationIds();
+        $tasks = $this->task_api->manager()->all();
         $changed = [];
         $unchanged = [];
 
@@ -466,20 +467,27 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
                 $user = $this->user_service->getUser($writer->getUserId());
                 $name = ($user?->getListname(false) ?? $this->plugin->txt('unknown')) . ' (' . $writer->getPseudonym() . ')';
 
-                $is_changed = false;
-                foreach ($this->task_api->manager()->all() as $task) {
+                $constraint_result = $this->essay_service->canChangeTextToPdf($writer_id);
+                if ($constraint_result->isBlocked()) {
+                    $unchanged[] = $name . ': ' . implode(', ', $constraint_result->messages());
+                    continue;
+                }
+
+                $failures = 0;
+                foreach ($tasks as $task) {
+                    $note = count($tasks) == 1 ? $name : $name . '- ' . $task->getTitle();
                     $essay = $this->essay_service->oneByWriterIdAndTaskId($writer->getId(), $task->getId());
-                    if (!empty($essay?->getWrittenText()) && empty($essay->getPdfVersion())) {
-                        $this->essay_service->textToPdf($essay);
-                        $is_changed = true;
+                    $result = $this->essay_service->textToPdf($essay);
+                    if ($result->isOk()) {
+                        $changed[] = $note;
+                    } else {
+                        $unchanged[] = $note . ': ' . implode(', ', $result->failures());
+                        $failures++;
                     }
                 }
 
-                if ($is_changed) {
+                if ($failures == 0) {
                     $this->writer_service->authorizeWriting($writer, true);
-                    $changed[] = $name;
-                } else {
-                    $unchanged[] = $name;
                 }
             }
         }
@@ -853,10 +861,21 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
             $this->plugin->txt("change_text_to_pdf"),
             $this->plugin->txt("change_text_to_pdf_confirmation"),
             $this->ctrl->getFormAction($this, 'changeTextToPdf'),
-            fn(WriterItem $item) => $item->getUserData()->getListname(true),
-            fn(WriterItem $item) => !$item->getWriter()->isAuthorized(),
+            $this->changeTextToPdfItemName(...),
+            fn(WriterItem $item) => !$item->getEssaySummary()->hasPdfUploads(),
             Action\Type::Standard
         );
+    }
+
+    protected function changeTextToPdfItemName(WriterItem $item)
+    {
+        $name = $item->getUserData()->getListname(true);
+
+        $result = $this->essay_service->canChangeTextToPdf($item->getWriter()->getId());
+        if (!$result->isOk()) {
+            return $name . ': ' . implode('; ', $result->messages());
+        }
+        return $name;
     }
 
     protected function editPdfVersionAction()

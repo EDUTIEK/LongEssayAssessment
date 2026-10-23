@@ -175,11 +175,13 @@ interface RepositoryInterface extends HydrationInterface
      * Build an SQL condition (without WHERE) based on an array of conditions
      *  - Conditions are an array [ (string) property_name => (string|array|null) property_value(s), ...]
      *  - property_name must be the name of a model's property which is mapped to a database field
-     *  - property_value must be a scalar value, an array of values or null
-     *  - A value is directly compared
-     *  - An array is used for an IN clause
-     *  - null creates an IS NULL clause
-     *  - All given conditions are AND combined
+     *  - property_value must be a scalar value, an array of values, null, a Value object or an OrCond object
+     *      - A value is directly compared
+     *      - An array is used for an IN clause
+     *      - null creates an IS NULL clause
+     *      - A Value object can be used to check for NOT NULL
+     *      - An OrCond object adds the OR-combined conditions, wrapped in parentheses (property_name is ignored)
+     *      - All given conditions are AND combined
      *  - values are automatically cast and quoted according to their database field type
      * Or pass a string instead of an array to this method which will be used directly as the WHERE part ('WHERE' must not be included in the string).
      *

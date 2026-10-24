@@ -221,7 +221,9 @@ working_time_change#:#Zeitanpassung
 essay_status#:#Abgabe-Status
 search_participants#:#Teilnehmer suchen
 assign_writer_success#:#Teilnahme erfolgreich hinzugefügt.
-exclude_writer_success#:#Teilnahme erfolgreich ausgeschlossen.
+writer_excluded#:#Die Teilnahme wurde erfolgreich ausgeschlossen.
+writers_excluded#:#Die Teilnahmen wurden erfolgreich ausgeschlossen.
+exclude_writers_none_possible#:#Es konnten keine Teilnahmen ausgeschlossen werden.
 missing_writer#:#Teilnahme konnte nicht gefunden werden.
 grade_level#:#Notenstufe
 exclude_participant_confirmation#:#Wollen Sie die folgenden Teilnahmen wirklich von der Bearbeitung ausschließen?
@@ -349,7 +351,9 @@ primary_text_color_info#:#Diese Farbe wird in der Schreiboberfläche und Korrekt
 via_stitch_decision#:#per Stichentscheid
 remove_writer#:#Teilnahme entfernen
 remove_writer_confirmation#:#Sind Sie sicher, dass Sie die Teilnehmer-Daten unwiderruflich entfernen möchten?<br>Bitte bestätigen Sie das durch Eingabe einer Begründung. Ihre Aktion wird mit dieser Begründung protokolliert.
-remove_writer_success#:#Teilnahme erfolgreich entfernt.
+writer_removed#:#Die Teilnahme wurde erfolgreich entfernt.
+writers_removed#:#Die Teilnahmen wurden erfolgreich entfernt.
+remove_writers_none_possible#:#Es konnten keine Teilnahmen entfernt werden.
 exam_log_export#:#Prüfungsprotokoll exportieren
 exam_log#:#Prüfungsprotokoll
 log_time#:#Zeit

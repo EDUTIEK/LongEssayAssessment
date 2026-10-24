@@ -380,16 +380,23 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
      */
     public function excludeParticipants(array $items, array $data)
     {
+        $changed = [];
+        $unchanged = [];
         foreach ($items as $item) {
-            $this->writer_service->exclude($item->getWriter(), $data['reason'] ?? null);
+            $name = $this->itemText($item, false);
+            $result = $this->writer_service->exclude($item->getWriter(), $data['reason'] ?? null);
+            if ($result->isOk()) {
+                $changed[] = $name;
+            } else {
+                $unchanged[] = $name . ': ' . implode('; ', $result->failures());
+            }
         }
 
-        $this->success(
-            $this->plugin->txt("exclude_writer_success")
-            . $this->renderer->render($this->ui_factory->listing()->unordered(
-                array_map(fn(WriterItem $item) => $item->getUserData()->getListname(true), $items)
-            )),
-            true
+        $this->multiFeedback(
+            $changed,
+            $unchanged,
+            $this->plugin->txt(count($changed) == 1 ? 'writer_excluded' : 'writers_excluded'),
+            $this->plugin->txt('exclude_writers_none_possible')
         );
 
         $this->ctrl->redirect($this);
@@ -418,16 +425,23 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
      */
     private function removeWriter(array $items, array $data)
     {
+        $changed = [];
+        $unchanged = [];
         foreach ($items as $item) {
-            $this->writer_service->remove($item->getWriter(), $data['reason'] ?? null);
+            $name = $this->itemText($item, false);
+            $result = $this->writer_service->remove($item->getWriter(), $data['reason'] ?? null);
+            if ($result->isOk()) {
+                $changed[] = $name;
+            } else {
+                $unchanged[] = $name . ': ' . implode('; ', $result->failures());
+            }
         }
 
-        $this->success(
-            $this->plugin->txt("remove_writer_success")
-            . $this->renderer->render($this->ui_factory->listing()->unordered(
-                array_map(fn(WriterItem $item) => $item->getUserData()->getListname(true), $items)
-            )),
-            true
+        $this->multiFeedback(
+            $changed,
+            $unchanged,
+            $this->plugin->txt(count($changed) == 1 ? 'writer_removed' : 'writers_removed'),
+            $this->plugin->txt('remove_writers_none_possible')
         );
 
         $this->ctrl->redirect($this);
@@ -467,7 +481,7 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
                 $user = $this->user_service->getUser($writer->getUserId());
                 $name = ($user?->getListname(false) ?? $this->plugin->txt('unknown')) . ' (' . $writer->getPseudonym() . ')';
 
-                $constraint_result = $this->essay_service->canChangeTextToPdf($writer_id);
+                $constraint_result = $this->writer_service->canChangeWritingStatus($writer_id);
                 if ($constraint_result->isBlocked()) {
                     $unchanged[] = $name . ': ' . implode(', ', $constraint_result->messages());
                     continue;
@@ -664,7 +678,7 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
             "add_log_entry",
             $this->plugin->txt("add_log_entry_for writer"),# Todo: Fix language entry
             $this->lng->txt("add"),
-            $this->getTableActionConfirmFields(...),
+            fn(array $items) => $this->getTableActionConfirmFields($items, false),
             $this->addLogEntry(...),
             fn(WriterItem $writer) => true,
             Action\Type::Standard
@@ -690,7 +704,7 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
             $this->plugin->txt("authorize_writing"),
             $this->plugin->txt("authorize_writing_confirmation"),
             $this->ctrl->getFormAction($this, 'authorizeWriting'),
-            fn(WriterItem $item) => $item->getUserData()->getListname(true),
+            fn(WriterItem $item) => $this->itemText($item, false),
             fn(WriterItem $item) => $item->getWriter()->canGetAuthorized(),
             Action\Type::Standard
         );
@@ -704,7 +718,7 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
             $this->plugin->txt("unauthorize_writing"),
             $this->plugin->txt("unauthorize_writing_confirmation"),
             $this->ctrl->getFormAction($this, 'unauthorizeWriting'),
-            fn(WriterItem $item) => $item->getUserData()->getListname(true),
+            fn(WriterItem $item) => $this->itemText($item, true),
             fn(WriterItem $item) => $item->getWriter()->canGetUnauthorized(),
             Action\Type::Standard
         );
@@ -718,7 +732,7 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
             $this->lng->txt("delete"),
             $this->plugin->txt("delete_individual_working_time_confirmation"),
             $this->ctrl->getLinkTarget($this, 'workingTimeDelete'),
-            fn(WriterItem $item) => $item->getUserData()->getListname(true),
+            fn(WriterItem $item) => $this->itemText($item, false),
             fn(WriterItem $item) => $item->getWriter()->hasChangedTimeLimit() && $item->getWriter()->canChangeWorkingTime(),
             Action\Type::Standard
         );
@@ -861,21 +875,22 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
             $this->plugin->txt("change_text_to_pdf"),
             $this->plugin->txt("change_text_to_pdf_confirmation"),
             $this->ctrl->getFormAction($this, 'changeTextToPdf'),
-            $this->changeTextToPdfItemName(...),
+            fn(WriterItem $item) => $this->itemText($item, true),
             fn(WriterItem $item) => !$item->getEssaySummary()->hasPdfUploads(),
             Action\Type::Standard
         );
     }
 
-    protected function changeTextToPdfItemName(WriterItem $item)
+    protected function itemText(WriterItem $item, $check_changing_status = false)
     {
-        $name = $item->getUserData()->getListname(true);
-
-        $result = $this->essay_service->canChangeTextToPdf($item->getWriter()->getId());
-        if (!$result->isOk()) {
-            return $name . ': ' . implode('; ', $result->messages());
+        $text = $item->getUserData()->getListname(true);
+        if ($check_changing_status) {
+            $result = $this->writer_service->canChangeWritingStatus($item->getWriter()->getId());
+            if (!$result->isOk()) {
+                return $text . ': ' . implode('! ', $result->messages());
+            }
         }
-        return $name;
+        return $text;
     }
 
     protected function editPdfVersionAction()
@@ -895,7 +910,7 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
             "exclude_participant",
             $this->plugin->txt("exclude_participant"),
             $this->plugin->txt("exclude_participant"),
-            $this->getTableActionConfirmFields(...),
+            fn(array $items) => $this->getTableActionConfirmFields($items, true),
             $this->excludeParticipants(...),
             fn(WriterItem $item) => $item->getWriter()->canGetExcluded(),
             Action\Type::Standard
@@ -908,7 +923,7 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
             "repeal_exclude_participant",
             $this->plugin->txt("repeal_exclude_participant"),
             $this->plugin->txt("repeal_exclude_participant"),
-            $this->getTableActionConfirmFields(...),
+            fn(array $items) => $this->getTableActionConfirmFields($items, false),
             $this->repealExcludeParticipants(...),
             fn(WriterItem $item) => $item->getWriter()->isExcluded(),
             Action\Type::Standard
@@ -921,7 +936,7 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
             "remove_writer",
             $this->plugin->txt("remove_writer"),
             $this->plugin->txt("remove_writer"),
-            $this->getTableActionConfirmFields(...),
+            fn(array $items) => $this->getTableActionConfirmFields($items, true),
             $this->removeWriter(...),
             fn(WriterItem $item) => true,
             Action\Type::Standard
@@ -931,10 +946,14 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
     /**
      * @param WriterItem[] $items
      */
-    protected function getTableActionConfirmFields(array $items): array
+    protected function getTableActionConfirmFields(array $items, bool $check_changing_status = false): array
     {
+        $list = array_map(fn(WriterItem $item) => $this->itemText($item, $check_changing_status), $items);
+
         $fields = [
-            'info' => $this->getTableActionInfoField($items),
+            'info' => $this->plugin_ui_factory->field()->info(
+                $this->plugin->txt('participants')
+            )->withInfo($this->ui_factory->listing()->unordered($list)),
             'reason' => $this->ui_factory->input()->field()->textarea(
                 $this->plugin->txt('log_entry_text'),
                 $this->plugin->txt('log_entry_text_info')
@@ -949,10 +968,10 @@ abstract class WriterTableGUI extends BaseGUI implements DataTableParent, Filter
      */
     protected function getTableActionInfoField(array $items): Input
     {
+        $list = array_map(fn(WriterItem $item) => $this->itemText($item, false), $items);
+
         return $this->plugin_ui_factory->field()->info($this->plugin->txt('participants'))
-            ->withInfo($this->ui_factory->listing()->unordered(
-                array_map(fn(WriterItem $item) => $item->getUserData()->getListname(true), $items)
-            ));
+            ->withInfo($this->ui_factory->listing()->unordered($list));
     }
 
     public function getTableItems(?array $ids = null, ?array $filter_data = null): \Generator

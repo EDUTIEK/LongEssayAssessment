@@ -14,6 +14,7 @@ New functions, Visible changes
 - Switch to activate the grading statistics for correctors
 - Setting to show a corrector start page without filter or paging and with a fixed sorting
 - Upload an HTML text that is exported from the writer app
+- Unified checks for existing corrections for changes in writer administration
 
 Bug fixes
 - Fix not disabled setting for multiple tasks

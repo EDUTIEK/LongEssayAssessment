@@ -14,11 +14,13 @@ New functions, Visible changes
 - Switch to activate the grading statistics for correctors
 - Setting to show a corrector start page without filter or paging and with a fixed sorting
 - Upload an HTML text that is exported from the writer app
-- Unified checks for existing corrections for changes in writer administration
+- Unified checks for existing corrections at changes in writer administration
+- Check for existing correction content at deletion of a corrector assignment
 
 Bug fixes
 - Fix not disabled setting for multiple tasks
 - Fix missing user's title in fullname displays
+- Fix page count for correction pdfs with uploaded summary
 
 ## Version 10.4 (2026-10-11)
 

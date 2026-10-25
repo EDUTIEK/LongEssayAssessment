@@ -31,7 +31,7 @@ class PdfSettings extends \Edutiek\AssessmentService\Assessment\Data\PdfSettings
     #[Key]
     private int $ass_id = 0;
     private string $format = PdfFormat::EDUTIEK->value;
-    private string $feedback_mode = PdfFeedbackMode::SIDE_BY_SIDE->value;
+    private string $feedback_mode = PdfFeedbackMode::SIDE_LANDSCAPE->value;
 
     public function getAssId(): int
     {
@@ -56,7 +56,7 @@ class PdfSettings extends \Edutiek\AssessmentService\Assessment\Data\PdfSettings
 
     public function getFeedbackMode(): PdfFeedbackMode
     {
-        return PdfFeedbackMode::tryFrom($this->feedback_mode) ?? PdfFeedbackMode::SIDE_BY_SIDE;
+        return PdfFeedbackMode::tryFrom($this->feedback_mode) ?? PdfFeedbackMode::SIDE_LANDSCAPE;
     }
 
     public function setFeedbackMode(PdfFeedbackMode $mode): self

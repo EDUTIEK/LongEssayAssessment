@@ -68,6 +68,11 @@ class ilLongEssayAssessmentUploadHandlerGUI extends AbstractCtrlAwareUploadHandl
         return $this->temp_file->getHash($identifier);
     }
 
+    public function getContent(string $identifier): ?string
+    {
+        return $this->temp_file->getContent($identifier);
+    }
+
     public function getUploadURL(): string
     {
         return $this->ctrl->getLinkTargetByClass([ilLongEssayAssessmentDispatchGUI::class, ilObjLongEssayAssessmentGUI::class, self::class], self::CMD_UPLOAD);

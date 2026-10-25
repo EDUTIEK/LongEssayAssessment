@@ -28,6 +28,7 @@ use Edutiek\AssessmentService\Assessment\Writer\FullService as WriterService;
 use Edutiek\AssessmentService\EssayTask\Data\Essay;
 use Edutiek\AssessmentService\EssayTask\Essay\ClientService as EssayService;
 use Edutiek\AssessmentService\System\ConstraintHandling\ResultStatus;
+use Edutiek\AssessmentService\System\Entity\FullService as EntityService;
 use Edutiek\AssessmentService\System\File\Disposition;
 use Edutiek\AssessmentService\System\File\Storage as FileStorage;
 use ILIAS\HTTP\StatusCode;
@@ -58,13 +59,16 @@ class WriterUploadGUI extends BaseGUI
     private array $essays;
     private ilLongEssayAssessmentUploadHandlerGUI $upload_handler;
     private $is_admin = false;
+    private EntityService $entity_service;
 
 
     public function init()
     {
         $this->writer_service = $this->assessment_api->writer();
         $this->task_service = $this->task_api->manager();
+        $this->essay_service = $this->essay_task_api->essay($this->is_admin);
         $this->file_storage = $this->system_api->fileStorage();
+        $this->entity_service = $this->system_api->entity();
 
         $this->upload_handler = new ilLongEssayAssessmentUploadHandlerGUI(
             $this->file_storage,
@@ -81,7 +85,6 @@ class WriterUploadGUI extends BaseGUI
             $this->writer = $this->writer_service->getByUserId($this->user->getId());
         }
         $this->tasks = $this->task_service->all();
-        $this->essay_service = $this->essay_task_api->essay($this->is_admin);
         $this->essays = $this->essay_service->getByWriterId($this->writer->getId());
     }
 
@@ -144,16 +147,19 @@ class WriterUploadGUI extends BaseGUI
                     $this->ctrl->getLinkTarget($this, 'deliver'),
                     $file_info->getFileName()
                 );
+                $content[] = $this->ui_factory->divider()->horizontal();
+
             } elseif (empty($essay->getWrittenText())) {
                 $incomplete_tasks[] = $task;
                 $content[] = $this->plugin_ui_factory->legacy('<p>' . $this->plugin->txt('writer_upload_pdf_missing') . '</p>');
             }
 
             if ($this->perms->canWrite() || $this->perms->canMaintainWriters()) {
-                $this->add($modal = $this->upload($task->getId()));
+                $this->add($modal = $this->uploadPdf($task->getId()));
                 if ($modal) {
                     $content[] = $this->ui_factory->button()->standard('upload', '')->withOnClick($modal->getShowSignal())->withLabel($this->plugin->txt($file_info ? 'writer_replace_pdf' : 'writer_upload_pdf'));
                 }
+
                 if ($file_info) {
                     $essay = $this->essays[$task->getId()];
                     $result = $this->essay_service->canChange($essay);
@@ -170,11 +176,17 @@ class WriterUploadGUI extends BaseGUI
                             $file_info->getFileName(),
                             $this->ui_factory->image()->standard('./assets/images/standard/icon_file.svg', $this->lng->txt('file'))
                         )]));
+
                         $content[] = $this->ui_factory->button()->standard(
                             $this->plugin->txt('delete_file'),
                             ''
                         )->withOnClick($modal->getShowSignal());
                     }
+                }
+
+                $this->add($modal2 = $this->uploadHtml($task->getId()));
+                if ($modal2) {
+                    $content[] = $this->ui_factory->button()->standard('upload', '')->withOnClick($modal2->getShowSignal())->withLabel($this->plugin->txt('writer_upload_html'));
                 }
             }
 
@@ -277,22 +289,17 @@ class WriterUploadGUI extends BaseGUI
     }
 
     /**
-     * Get an upload modal or handle an upload
+     * Get an upload modal or handle a pdf upload
      * Return null if upload is not possible
      * Redirect if an upload was successfully handled
      */
-    private function upload(?int $task_id = null): ?Modal
+    private function uploadPdf(?int $task_id = null): ?Modal
     {
         $task = $this->task_service->one($task_id ?? $this->get->integer('task_id'));
         $essay = $this->essays[$task->getId()];
         $result = $this->essay_service->canChange($essay);
-
-        $question = null;
         if ($result->status() == ResultStatus::BLOCK) {
             return null;
-        } elseif ($result->status() == ResultStatus::ASK) {
-            $question = $this->ui_factory->messageBox()->confirmation($this->plugin->txt('confirm_upload_file') . ' '
-                . implode(' ', $result->messages()));
         }
 
         $fields = [
@@ -306,9 +313,9 @@ class WriterUploadGUI extends BaseGUI
         $this->ctrl->setParameter($this, 'task_id', $task->getId());
         $modal = $this->ui_factory->modal()->roundtrip(
             $task->getTitle(),
-            $question,
+            null,
             $fields,
-            $this->ctrl->getFormAction($this, 'upload'),
+            $this->ctrl->getFormAction($this, 'uploadPdf'),
         );
 
         if ($this->request->getMethod() === 'POST') {
@@ -325,6 +332,67 @@ class WriterUploadGUI extends BaseGUI
                 $this->writer_service->setWorkingStart($this->writer);
                 $this->essay_service->replacePdf($essay, $stored->getId(), $hash);
                 $this->success($this->plugin->txt("writer_upload_pdf_finished"), true);
+            }
+
+            $this->ctrl->redirect($this);
+        }
+
+        return $modal;
+    }
+
+
+    /**
+     * Get an upload modal or handle an html upload
+     * This is only allowed in writer administration
+     *
+     * Return null if upload is not possible
+     * Redirect if an upload was successfully handled
+     */
+    private function uploadHtml(?int $task_id = null): ?Modal
+    {
+        $task = $this->task_service->one($task_id ?? $this->get->integer('task_id'));
+        $essay = $this->essays[$task->getId()];
+        if (!$this->is_admin) {
+            return null;
+        }
+        $result = $this->essay_service->canChange($essay);
+        if ($result->status() == ResultStatus::BLOCK) {
+            return null;
+        }
+
+        $question = $this->ui_factory->messageBox()->confirmation($this->plugin->txt('confirm_upload_essay_html_file'));
+        $fields = [
+            'file_id' => $this->ui_factory->input()->field()->file(
+                $this->upload_handler,
+                $this->plugin->txt('new_file'),
+                ''
+            )->withAcceptedMimeTypes(['text/html'])
+        ];
+
+        $this->ctrl->setParameter($this, 'task_id', $task->getId());
+        $modal = $this->ui_factory->modal()->roundtrip(
+            $task->getTitle(),
+            $question,
+            $fields,
+            $this->ctrl->getFormAction($this, 'uploadHtml'),
+        );
+
+        if ($this->request->getMethod() === 'POST') {
+            $modal = $modal->withRequest($this->request);
+            $data = $modal->getData() ?? [];
+
+            $uploaded = current($data['file_id'] ?? []);
+            if ($uploaded) {
+                $content = $this->upload_handler->getContent($uploaded);
+
+
+                $this->writer_service->setWorkingStart($this->writer);
+                $this->essay_service->deletePdf($essay);
+                $essay->setWrittenText($content);
+                $this->entity_service->secure($essay, Essay::class);
+                $this->essay_service->save($essay);
+
+                $this->success($this->plugin->txt("writer_upload_html_finished"), true);
             }
 
             $this->ctrl->redirect($this);

@@ -21,6 +21,7 @@ declare(strict_types=1);
 namespace ILIAS\Plugin\LongEssayAssessment\Writer;
 
 use Edutiek\AssessmentService\Assessment\Data\ExportType;
+use Edutiek\AssessmentService\Assessment\Data\ReviewMode;
 use Edutiek\AssessmentService\Assessment\Data\WritingTask;
 use ILIAS\Data\ReferenceId;
 use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
@@ -45,7 +46,7 @@ use Edutiek\AssessmentService\System\Data\HeadlineScheme;
 
 /**
  * @ilCtrl_isCalledBy ILIAS\Plugin\LongEssayAssessment\Writer\WriterStartGUI: ilObjLongEssayAssessmentGUI
- * @ilCtrl_Calls ILIAS\Plugin\LongEssayAssessment\Writer\WriterStartGUI: ILIAS\Plugin\LongEssayAssessment\Writer\WriterStatisticsGUI
+ * @ilCtrl_Calls ILIAS\Plugin\LongEssayAssessment\Writer\WriterStartGUI:
  */
 class WriterStartGUI extends BaseGUI
 {
@@ -81,6 +82,8 @@ class WriterStartGUI extends BaseGUI
             'startWritingReview',
             'downloadWriterPdf',
             'downloadCorrectedPdf',
+            'deliverCorrectedPdf',
+            'viewCorrectedPdf',
             'downloadCorrectionReportsPdf',
             'downloadResourceFile',
             'viewDescription',
@@ -305,10 +308,12 @@ class WriterStartGUI extends BaseGUI
                     $this->plugin_ui_factory->viewer()->pdf(
                         $this->ctrl->getLinkTarget($this, 'deliverInstructions')
                     ),
-                    $this->ui_factory->link()->standard(
-                        $this->plugin->txt('download_instructions'),
-                        $this->ctrl->getLinkTarget($this, 'downloadInstructions')
-                    )
+                    $this->ui_factory->item()->standard(
+                        $this->ui_factory->link()->standard(
+                            $this->plugin->txt('download_instructions'),
+                            $this->ctrl->getLinkTarget($this, 'downloadInstructions')
+                        )
+                    )->withLeadIcon($this->ui_factory->symbol()->icon()->standard('file', '', 'medium'))
                 ]
             ));
         }
@@ -422,7 +427,9 @@ class WriterStartGUI extends BaseGUI
 
     public function downloadCorrectedPdf(): void
     {
-        if (!$this->perms->canReviewCorrectedAssessment()) {
+        if (!$this->perms->canReviewCorrectedAssessment()
+            || $this->orga_settings->getReviewMode() === ReviewMode::VIEWER
+        ) {
             $this->raisePermissionError();
         }
 
@@ -430,8 +437,57 @@ class WriterStartGUI extends BaseGUI
         $this->assessment_api->export($this->object->getContextId())->downloadCorrections(
             [new WritingTask($this->writer->getId(), $task_id)],
             false,
-            $this->assessment_api->correctionSettings()->get()->getAnonymizeCorrectors()
+            $this->assessment_api->correctionSettings()->get()->getAnonymizeCorrectors(),
+            Disposition::ATTACHMENT
         );
+    }
+
+    public function deliverCorrectedPdf(): void
+    {
+        if (!$this->perms->canReviewCorrectedAssessment()
+            || $this->orga_settings->getReviewMode() === ReviewMode::DOWNLOAD) {
+            $this->raisePermissionError();
+        }
+
+        $task_id = $this->get->integer('task_id', 0);
+        $this->assessment_api->export($this->object->getContextId())->downloadCorrections(
+            [new WritingTask($this->writer->getId(), $task_id)],
+            false,
+            $this->assessment_api->correctionSettings()->get()->getAnonymizeCorrectors(),
+            Disposition::INLINE
+        );
+    }
+
+    public function viewCorrectedPdf(): void
+    {
+        if (!$this->perms->canReviewCorrectedAssessment()
+            || $this->orga_settings->getReviewMode() === ReviewMode::DOWNLOAD) {
+            $this->raisePermissionError();
+        }
+
+        $this->toolbar->addComponent($this->ui_factory->button()->standard(
+            $this->lng->txt('back'),
+            $this->ctrl->getLinkTarget($this, 'showStartPage')
+        ));
+
+        $this->ctrl->saveParameter($this, 'task_id');
+        $items = [
+            $this->plugin_ui_factory->viewer()->pdf(
+                $this->ctrl->getLinkTarget($this, 'deliverCorrectedPdf')
+            ),
+        ];
+
+        if ($this->orga_settings->getReviewMode() === ReviewMode::BOTH) {
+            $items[] = $this->ui_factory->item()->standard(
+                $this->ui_factory->link()->standard(
+                    $this->plugin->txt('download_corrected_submission'),
+                    $this->ctrl->getLinkTarget($this, 'downloadCorrectedPdf')
+                )
+            )->withLeadIcon($this->ui_factory->symbol()->icon()->standard('file', '', 'medium'));
+        }
+
+        $this->add($this->ui_factory->panel()->standard($this->plugin->txt('view_corrected_submission'), $items));
+        $this->show();
     }
 
     public function downloadCorrectionReportsPdf(): void
@@ -491,11 +547,12 @@ class WriterStartGUI extends BaseGUI
                     $this->plugin_ui_factory->viewer()->pdf(
                         $this->ctrl->getLinkTarget($this, 'deliverSolution')
                     ),
-                    $this->ui_factory->link()->standard(
-                        $this->plugin->txt('download_solution'),
-                        $this->ctrl->getLinkTarget($this, 'downloadSolution')
-                    )
-
+                    $this->ui_factory->item()->standard(
+                        $this->ui_factory->link()->standard(
+                            $this->plugin->txt('download_solution'),
+                            $this->ctrl->getLinkTarget($this, 'downloadSolution')
+                        )
+                    )->withLeadIcon($this->ui_factory->symbol()->icon()->standard('file', '', 'medium'))
                 ]
             ));
         }

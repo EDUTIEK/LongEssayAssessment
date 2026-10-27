@@ -9,6 +9,7 @@ use DateTimeZone;
 use Edutiek\AssessmentService\Assessment\Data\OrgaSettings;
 use Edutiek\AssessmentService\Assessment\Data\ParticipationType;
 use Edutiek\AssessmentService\Assessment\Data\ResultAvailableType;
+use Edutiek\AssessmentService\Assessment\Data\ReviewMode;
 use Edutiek\AssessmentService\Assessment\Location\FullService as LocationService;
 use Edutiek\AssessmentService\Assessment\OrgaSettings\FullService as OrgaSettingsService;
 use Edutiek\AssessmentService\Assessment\Properties\FullService as PropertiesService;
@@ -150,8 +151,10 @@ class OrgaSettingsGUI extends BaseGUI
                 $this->plugin->txt('writing_type')
             )->withValue($writing_settings->getWritingType()->value);
 
-            $sections['type'] = $factory->section($fields_type, $this->plugin->txt('type_settings'))
-                ->withDisabled($this->fixation_gui->isDisabled('type'));
+            $sections['type'] = $factory->section($fields_type, $this->plugin->txt('type_settings'));
+            if ($this->fixation_gui->isDisabled('type')) {
+                $sections['type'] = $sections['type']->withDisabled(true);
+            }
         }
 
         // Info
@@ -374,6 +377,11 @@ class OrgaSettingsGUI extends BaseGUI
                 $this->plugin->txt("writer_statistics_info")
             )->withValue($orga_settings->getStatisticsAvailable());
 
+            $mode = $factory->radio($this->plugin->txt('review_mode'));
+            foreach ($this->orga_settings_service->reviewModeOptions() as $value => $label) {
+                $mode = $mode->withOption($value, $label);
+            }
+
             $review_settings = [
                 'review_start' => $factory->dateTime(
                     $this->plugin->txt("review_start"),
@@ -387,6 +395,7 @@ class OrgaSettingsGUI extends BaseGUI
                 )
                     ->withUseTime(true)
                     ->withValue($orga_settings->getReviewEnd()?->setTimezone($this->user_timezone)),
+                'review_mode' => $mode->withValue($orga_settings->getReviewMode()->value),
             ];
 
             $fields_review['review'] = $factory->optionalGroup(
@@ -509,6 +518,7 @@ class OrgaSettingsGUI extends BaseGUI
             if ($orga_settings->getReviewEnabled()) {
                 $orga_settings->setReviewStart($data['review']['review']['review_start'] ?? null);
                 $orga_settings->setReviewEnd($data['review']['review']['review_end'] ?? null);
+                $orga_settings->setReviewMode(ReviewMode::tryFrom($data['review']['review']['review_mode']) ?? ReviewMode::BOTH);
             }
         }
 

@@ -191,7 +191,7 @@ class CorrectionsViewRepo extends ViewRepo implements \Edutiek\AssessmentService
     {
         $query = $this->db->query(
             'SELECT MAX(required_correctors) as max_required_correctors, 
-                    MAX(stitch_after_procedure) as max_stitch_after_procedure
+                    MAX(stitch_when_distance) as max_stitch_when_distance
                     FROM xlas_as_corr_settings WHERE '
             . $this->db->in('ass_id', $ass_ids, false, 'integer')
         );
@@ -199,7 +199,7 @@ class CorrectionsViewRepo extends ViewRepo implements \Edutiek\AssessmentService
 
         // older settings may have 0 correctors
         $required = max((int) ($row['max_required_correctors'] ?? 1), 1);
-        if ($required > 1 && ($row['max_stitch_after_procedure'] ?? 0)) {
+        if ($required > 1 && ($row['max_stitch_when_distance'] ?? 0)) {
             $required++;
         }
         return $required;

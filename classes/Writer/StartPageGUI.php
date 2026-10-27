@@ -21,6 +21,7 @@ declare(strict_types=1);
 namespace ILIAS\Plugin\LongEssayAssessment\Writer;
 
 use Edutiek\AssessmentService\Assessment\Data\OrgaSettings;
+use Edutiek\AssessmentService\Assessment\Data\ReviewMode;
 use Edutiek\AssessmentService\Assessment\Data\Writer;
 use Edutiek\AssessmentService\Assessment\Format\FullService as AssessmentFormat;
 use Edutiek\AssessmentService\Assessment\Permissions\ReadService as Permissions;
@@ -255,15 +256,25 @@ class StartPageGUI extends BaseGUI
         }
 
         if ($this->perms->canReviewCorrectedAssessment()) {
+            if ($this->orga_settings->getReviewMode() === ReviewMode::DOWNLOAD) {
+                $txt = 'download_corrected_submission';
+                $cmd = 'downloadCorrectedPdf';
+                $icon = 'file';
+            } else {
+                $txt = 'view_corrected_submission';
+                $cmd = 'viewCorrectedPdf';
+                $icon = 'impr';
+            }
+
             foreach ($tasks as $task) {
                 $this->ctrl->setParameter($this->target, 'task_id', (string) $task->getId());
                 $items[] = $this->ui_factory->item()->standard(
                     $this->ui_factory->link()->standard(
-                        $this->plugin->txt('download_corrected_submission') .
+                        $this->plugin->txt($txt) .
                         (count($tasks) > 1 ? ' (' . $task->getTitle() . ')' : ''),
-                        $this->ctrl->getLinkTarget($this->target, 'downloadCorrectedPdf')
+                        $this->ctrl->getLinkTarget($this->target, $cmd)
                     )
-                )->withLeadIcon($this->ui_factory->symbol()->icon()->standard('file', '', 'medium'));
+                )->withLeadIcon($this->ui_factory->symbol()->icon()->standard($icon, '', 'medium'));
             }
         }
 

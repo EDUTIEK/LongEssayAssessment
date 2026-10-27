@@ -162,7 +162,8 @@ result#:#Ergebnis
 submission#:#Abgabe
 view_submission#:#Abgabe ansehen
 download_written_submission#:#Abgabe-Datei
-download_corrected_submission#:#Korrektur-Datei
+download_corrected_submission#:#Korrektur-Datei herunterladen
+view_corrected_submission#:#Korrektur-Datei ansehen
 task_resources#:#Hilfsmittel zur Aufgabe
 available#:#Verfügbar
 participant#:#Teilnehmer
@@ -188,7 +189,8 @@ grading_pos_second#:#Zweitkorrektur
 grading_pos_stitch#:#Stichentscheid
 grading_pos_x#:#%s. Korrektur
 grading_pos_empty#:#nicht ausgewählt
-other_corrections#:#Andere Korrekturen
+other_correction_status#:#Andere Korrektur
+other_correction_details#:#Andere: Details
 start_correction#:#Angezeigte Korrekturen starten
 assigned_writings#:#Zugeteilte Abgaben
 min_points#:#Min. Punkte
@@ -219,7 +221,9 @@ working_time_change#:#Zeitanpassung
 essay_status#:#Abgabe-Status
 search_participants#:#Teilnehmer suchen
 assign_writer_success#:#Teilnahme erfolgreich hinzugefügt.
-exclude_writer_success#:#Teilnahme erfolgreich ausgeschlossen.
+writer_excluded#:#Die Teilnahme wurde erfolgreich ausgeschlossen.
+writers_excluded#:#Die Teilnahmen wurden erfolgreich ausgeschlossen.
+exclude_writers_none_possible#:#Es konnten keine Teilnahmen ausgeschlossen werden.
 missing_writer#:#Teilnahme konnte nicht gefunden werden.
 grade_level#:#Notenstufe
 exclude_participant_confirmation#:#Wollen Sie die folgenden Teilnahmen wirklich von der Bearbeitung ausschließen?
@@ -324,6 +328,11 @@ max_points#:#Maximale Punkte
 tab_correction_settings#:#Korrektur
 tab_correction_items#:#Abgaben
 correction_settings#:#Korrektur-Einstellungen
+correction_startpage#:#Korrektur-Startseite
+correction_startpage_full#:#mit Filter, Sortierung und mehreren Seiten
+correction_startpage_fixed#:#feste Liste, alle Einträge auf einer Seite
+corrections_sort_1#:#Hauptsortierung
+corrections_sort_2#:#Untersortierung
 message_no_correction_items#:#Sie haben noch keine korrigierbaren Abgaben.
 message_no_corrections_todo#:#Aktuell stehen keine Korrektur-Aufgaben für Sie an.
 message_corrections_todo#:#Sie haben anstehende Korrekturaufgaben:
@@ -342,7 +351,9 @@ primary_text_color_info#:#Diese Farbe wird in der Schreiboberfläche und Korrekt
 via_stitch_decision#:#per Stichentscheid
 remove_writer#:#Teilnahme entfernen
 remove_writer_confirmation#:#Sind Sie sicher, dass Sie die Teilnehmer-Daten unwiderruflich entfernen möchten?<br>Bitte bestätigen Sie das durch Eingabe einer Begründung. Ihre Aktion wird mit dieser Begründung protokolliert.
-remove_writer_success#:#Teilnahme erfolgreich entfernt.
+writer_removed#:#Die Teilnahme wurde erfolgreich entfernt.
+writers_removed#:#Die Teilnahmen wurden erfolgreich entfernt.
+remove_writers_none_possible#:#Es konnten keine Teilnahmen entfernt werden.
 exam_log_export#:#Prüfungsprotokoll exportieren
 exam_log#:#Prüfungsprotokoll
 log_time#:#Zeit
@@ -465,12 +476,12 @@ authorize_correction_failed#:#In Ihrer Auswahl waren keine Korrekturen, die frei
 download_instructions#:#Aufgabenstellung herunterladen
 download_solution#:#Lösungshinweise herunterladen
 pdf_version#:#PDF-Abgabe
-pdf_version_edit#:#PDF-Abgabe editieren
+pdf_version_edit#:#Abgabe ersetzen
 pdf_version_upload#:#PDF-Abgabe hochladen
 pdf_version_download#:#PDF-Abgabe herunterladen
 download#:#Herunterladen
 download_writing#:#Abgabe herunterladen
-pdf_version_header_writing#:#Text aus der Schreiboberfläche (wird hinzugefügt)
+pdf_version_header_writing#:#Text aus der Schreiboberfläche
 pdf_version_upload_not_allowed_by_corrections#:#Sie können keine PDF-Abgabe hochladen, da eine Korrektur bereits freigegeben ist.
 pdf_version_upload_successful_auth#:#Die PDF-Abgabe wurde erfolgreich hochgeladen und freigegeben.
 pdf_version_upload_successful_removed#:#Die PDF-Abgabe wurde erfolgreich entfernt.
@@ -542,7 +553,7 @@ comment_rating_positive_info#:#Anzeigename für positive Bewertungen in den Korr
 comment_rating_positive_default#:#Exzellent
 refresh_page#:# ➜ Seite aktualisieren
 change_text_to_pdf#:#Textabgabe in PDF-Abgabe umwandeln
-change_text_to_pdf_confirmation#:#Die folgenden Abgabe können von Text eine PDF-Abgabe umgewandelt werden, um sie mit grafischen Markierungen zu korrigieren. Bei der Umwandlung gehen Markierungen und Bemerkungen bereits begonnener Korrekturen verloren. Die Abgaben werden zur Korrektur freigegeben.
+change_text_to_pdf_confirmation#:#Die folgenden Abgabe können von Text eine PDF-Abgabe umgewandelt werden. Bei der Umwandlung werden alle Korrektureingaben verworfen und die betroffenen Korrektoren informiert. Die Abgaben werden zur Korrektur freigegeben.
 change_text_to_pdf_none_possible#:#Ihre Auswahl enthält keine Abgaben, die umgewandelt werden könnten.
 change_text_to_pdf_success#:#Die ausgewählten Textabgaben wurden in PDF-Abgaben umgewandelt.
 pdf_from_text#:#Konvertierte Textabgabe
@@ -649,6 +660,7 @@ writing_type_essay_editor#:#Online-Editor
 writing_type_essay_editor_info#:#Die Teilnehmenden schreiben ihren Text in einem Online-Editor. Unter „Technik” kann eingestellt werden, welche Möglichkeiten sie dort haben. Einzelne handschriftliche oder anderweitig erstellte Abgaben können in der Teilnahmeverwaltung als PDF-Abgabe hochgeladen werden. Ihre Korrektur unterscheidet sich nur in den Markierungs-Optionen.
 writing_type_pdf_upload#:#PDF-Abgabe
 writing_type_pdf_upload_info#:#Die Texte werden von allen Teilnehmenden einheitlich als PDF-Abgabe hochgeladen. Während der Bearbeitungszeit kann eine hochgeladene Datei ersetzt werden. Die Abgabe zur Korrektur muss bestätigt werden. Danach ist keine Änderung mehr möglich.
+writer_upload_html#:#Abgabetext hochladen
 writer_upload_pdf#:#PDF-Abgabe hochladen
 writer_replace_pdf#:#PDF-Abgabe ersetzen
 writer_review_pdf#:#Hochladen und abgeben...
@@ -659,6 +671,7 @@ writer_upload_pdf_bt_processing#:#Verarbeite PDF-Abgabe von %s
 writer_upload_pdf_bt_success#:#PDF-Abgabe erfolgreich verarbeitet.
 writer_upload_pdf_bt_failure#:#Fehler beim Verarbeiten der PDF-Abgabe.
 writer_upload_pdf_finished#:#Die Datei wurde hochgeladen.
+writer_upload_html_finished#:#Der Abgabetext wurde hochgeladen.
 existing_file#:#Bestehende Datei
 new_file#:#Neue Datei
 upload_file#:#Datei hochladen
@@ -666,6 +679,7 @@ replace_file#:#Datei ersetzen
 delete_file#:#Datei löschen
 confirm_upload_file#:#Möchten Sie eine Datei hochladen?
 confirm_delete_file#:#Möchten Sie die Datei löschen?
+confirm_upload_essay_html_file#:#Hier können Sie einen aus der Schreiboberfläche heruntegeladenen Abgabetext hochladen. Dabei wird ein vorhandener Text überschrieben und ein vorhandenes PDF gelöscht.
 file_deleted#:#Die Datei wurde gelöscht.
 writer_upload_pdf_missing#:#Es ist noch keine PDF-Datei vorhanden.
 writer_upload_pdf_deleted#:#Die PDF-Datei wurde erfolgreich entfernt.
@@ -829,10 +843,14 @@ pdf_format_info#:#Gibt an, nach welchem Format das Deckblatt und die Kopfzeile d
 pdf_format_edutiek#:#EDUTIEK
 pdf_format_by#:#Jur. Staatsprüfungen Bayern
 pdf_format_nrw#:#Jur. Staatsprüfungen Nordrhein-Westfalen
-pdf_feedback_mode#:#Format für kommentierte Abgabe
-pdf_feedback_mode_info#:#Gibt an, wie die Abgabe und die zugehörigen Anmerkungen im Korrektur-PDF dargestellt werden. Bei direkter PDF-Markierung ist nur das Hochformat mit Anmerkungen am Ende möglich.
-pdf_feedback_mode_sidebyside#:#Querformat, Anmerkungen rechts
+pdf_feedback_mode#:#Format für Anmerkungen
+pdf_feedback_mode_side_landscape#:#Querformat, Anmerkungen rechts
+pdf_feedback_mode_side_landscape_info#:#Verfügbar für Abgaben aus dem Online-Editor und bei der bildbasierten PDF-Markierung, sonst Anmerkungen am Ende
+pdf_feedback_mode_side_portrait#:#Hochformat, Anmerkungen rechts
+pdf_feedback_mode_side_portrait_info#:#Verfügbar für Abgaben aus dem Online-Editor, sonst Anmerkungen am Ende
 pdf_feedback_mode_sequence#:#Hochformat, Anmerkungen am Ende
+pdf_feedback_mode_sequence_info#:#Verfügbar für alle Abgaben und PDF-Markierungen
+enable_summary_pdf#:#Gutachten als PDF
 enable_summary_pdf#:#Gutachten als PDF
 enable_summary_pdf_info#:#Ermöglicht anstelle eines textuellen Gutachtens ein Gutachten als PDF-Datei (z.B. einen Begründungsbogen) hochzuladen.
 summary_pdf_advice#:#Anleitung zum PDF-Gutachten
@@ -844,23 +862,23 @@ average_when_distance#:#Immer Durchschnitt bilden
 average_when_distance_info#:#Die Gesamtpunktzahl wird immer automatisch aus dem Durchschnitt der Erst- und Zweitkorrektur gebildet.
 procedure_when_distance#:#Abweichende Punkte klären
 procedure_when_distance_info#:#Weichen die Punkte aus Erst- und Zweitkorrektur zu stark voneinander ab, wird eine eindeutige Punktzahl in einem Verfahren zwischen den Korrektoren und/oder per Stichentscheid ermittelt.
-max_auto_distance#:#Maximaler Punkteunterschied
-max_auto_distance_info#:#Maximal erlaubter Unterschied zwischen niedrigster und höchster Punktzahl
+max_distance#:#Maximaler Punkteunterschied
+max_distance_info#:#Maximal erlaubter Unterschied zwischen den Punktzahlen
 correction_procedure#:#Verfahren der Korrektoren
-procedure_setting_label#:#1. Zwischen Korrektoren
+procedure_setting_label#:#Klärungsverfahren
 procedure_none#:#Kein Verfahren
 procedure_none_info#:#Die Korrektur geht sofort in den Stichentscheid (falls aktiv) oder es wird ein Durchschitt gebildet.
 procedure_approximation#:#Annäherungsverfahren
-procedure_approximation_info#:#Im Annäherungsverfahren hat der Erstkorrektor seine Bewertung zu überprüfen und das Ergebnis (Änderung oder Beibehaltung der vergebenen Punktzahl) mit kurzer Begründung zu dokumentieren. Der Zweitkorrektor wird in gleicher Weise einbezogen, falls der Erstkorrektor dies veranlasst. Andernfalls hat es mit der Überprüfung durch den Erstkorrektor sein Bewenden.
+procedure_approximation_info#:#Das Annäherungsverfahren wird eingeleitet, wenn der maximale Punkteunterschied zwischen beiden Korrekturen überschritten ist. Im Annäherungsverfahren hat der Erstkorrektor seine Bewertung zu überprüfen und das Ergebnis (Änderung oder Beibehaltung der vergebenen Punktzahl) mit kurzer Begründung zu dokumentieren. Der Zweitkorrektor wird in gleicher Weise einbezogen, falls der Erstkorrektor dies veranlasst. Andernfalls hat es mit der Überprüfung durch den Erstkorrektor sein Bewenden.
 procedure_consulting#:#Beratungsverfahren
-procedure_consulting_info#:#Beide Korrektoren müssen eine Beratungspunktzahl eingeben. Nur der Zweitkorrektor darf eine Begründung als Beratungsvermerk eingeben. Die Eingaben aus der Beratung werden gesondert gespeichert.
+procedure_consulting_info#:#Das Beratungsverfahren wird eingeleitet, wenn der maximale Punkteunterschied zwischen beiden Korrekturen überschritten ist. Im Beratungsverfahren müssen beide Korrektoren eine Beratungspunktzahl eingeben. Sie können diese in beliebiger Reihenfolge freigeben. Nur der Zweitkorrektor darf eine Begründung als Beratungsvermerk eingeben. Die Eingaben aus der Beratung werden gesondert gespeichert.
 revision_between#:#Bewertungskorridor
 revision_between_info#:#Eine neu vergebene Punktzahl muss zwischen den ursprünglichen Bewertungen (einschließlich) beider Korrektoren liegen.
-stitch_setting_label#:#2. Stichentscheid
+stitch_setting_label#:#Stichentscheid
 stitch_disabled#:#Kein Stichentscheid
 stitch_disabled_info#:#Nach der Korrektur oder einem Verfahren zwischen den Korrektoren wird ein Durchschnitt gebildet.
-stitch_after_procedure#:#Stichentscheid
-stitch_after_procedure_info#:#Überschreiten die Bewertungen aus Erst- und Zweitkorrektur (gegebenenfalls auch nach Abschluss eines Annäherungs- oder Beratungsverfahrens) den maximal erlaubten Unterschied, muss ein Stichentscheid durch einen dritten Korrektor erfolgen, der in der Korrekturverwaltung manuell bestimmt wird. Die durch den Stichentscheider vergebene Punktzahl muss immer zwischen den im Verfahren vergebenen Bewertungen (einschließlich) beider Korrektoren liegen. Falls kein Stichentscheid erforderlich ist, wird eine Durchschnittspunktzahl gebildet.
+stitch_when_distance#:#Stichentscheid
+stitch_when_distance_info#:#Überschreiten die Bewertungen aus Erst- und Zweitkorrektur (gegebenenfalls auch nach Abschluss eines Annäherungs- oder Beratungsverfahrens) den maximal erlaubten Unterschied, muss ein Stichentscheid durch einen dritten Korrektor erfolgen, der in der Korrekturverwaltung manuell bestimmt wird. Die durch den Stichentscheider vergebene Punktzahl muss immer zwischen den im Verfahren vergebenen Bewertungen (einschließlich) beider Korrektoren liegen. Falls kein Stichentscheid erforderlich ist, wird eine Durchschnittspunktzahl gebildet.
 no_manual_decimals#:#Ganzzahlige Punkte
 no_manual_decimals_info#:#Bei der manuellen Eingabe der Bewertung dürfen nur ganzzahlige Punkte vergeben werden.
 correctors_per_writer#:#Korrektoren pro Abgabe
@@ -922,6 +940,8 @@ allow_download_writing_info#:#Korrektoren können auf ihrer Startseite einzelne 
 allow_download_correction#:#Korrekturen herunterladen
 allow_download_correction_info#:#Korrektoren können auf ihrer Startseite einzelne oder mehrere Korrekturen als PDF herunterladen. Eine PDF-Datei enthält die eigene Korrektur einer Abgabe und die anderer Korrektoren, sofern sie freigegeben sind.
 download_in_background_started#:#Die Datei wird im Hintergrund erzeugt und kann anschließend über das Glocken-Symbol in der Kopfzeile heruntergeladen werden.
+allow_access_statistics#:#Notenstatistik einsehen
+allow_access_statistics_info#:#Unter "Meine Korrektur" kann eine Notenstatistik der eigenen und aller Korrekturen mit Punkte- oder Notenverteilung eingesehen werden.
 result_export_format#:#Format Ergebnisdatei
 result_export_format_info#:#In diesem Format wird die Ergebnisdatei ins Dokumentations-Archiv geschrieben.
 result_export_format_edutiek#:#EDUTIEK
@@ -955,11 +975,13 @@ notification_recipient#:#Empfänger
 notification_recipient_empty#:#frei bestimmbar
 edit_notification#:#Benachrichtigung bearbeiten
 pdf_marking#:#Markierungsfunktion für PDFs
-pdf_marking_info#:#<br />Bitte wählen Sie die Markierungsfunktion passend zu Ihrer Aufgabe vorab. Bei einer nachträglichen Änderung müsen alle Korrketureingaben verworfen werden. Daher ist die Einstellung nur änderbar, solange keine Korrekturen freigegeben sind.
-pdf_marking_images#:#Bildbasiert
-pdf_marking_images_info#:#Die Seiten des Abgabe-PDFs werden zur Korrektur als Bilder angezeigt. Darauf können Linien oder Kreise mit Symbolen frei positioniert werden. Texte in der PDF-Datei sind nicht durchsuchbar. Diese Funktion eignet sich gut für gescannte handschriftliche Abgaben.
-pdf_marking_direct#:#Textbasiert (Pilot)
-pdf_marking_direct_info#:#Das Abgabe-PDF wird zur Korrektur direkt dargestellt und ist durchsuchbar. Textinhalte können auf verschiedene Weise markiert werden. Es sind noch keine frei positionierten Markierungen möglich, daher ist diese Funktion für gescannte Abgaben noch nicht geeignet.
+pdf_marking_info#:#<br />Bitte wählen Sie die Markierungsfunktion passend zu Ihrer Aufgabe vorab. Bei einer nachträglichen Änderung müsen alle Korrektureingaben verworfen werden. Daher ist die Einstellung nur änderbar, solange keine Korrekturen freigegeben sind.
+pdf_marking_images#:#Bildbasiert (alt)
+pdf_marking_images_info#:#Die Seiten des Abgabe-PDFs werden zur Korrektur als Bilder angezeigt. Darauf können Linien oder Kreise mit Symbolen frei positioniert werden. Texte in der PDF-Datei sind nicht durchsuchbar. Diese Option wird in Version 11 entfernt.
+pdf_marking_direct#:#Textbasiert (neu)
+pdf_marking_direct_info#:#Das Abgabe-PDF wird zur Korrektur direkt dargestellt und ist durchsuchbar. Textinhalte können auf verschiedene Weise markiert und annotiert werden. Dafür sollte der Text einen Zeilendurchschuss von mindestens 3mm haben. Diese Option wird in Version 11 zum Standard.
+pdf_marking_free#:#Freie Markierung
+pdf_marking_free_info#:#Im PDF können zusätzlich Linien, Rechtecke oder Symbole frei positioniert werden. Diese Option eignet sich für gescannte handschriftliche Abgaben, erzeugt aber keine barrierefreie Dokumentation.
 remove_correction_step#:#Korrektur-Schritt zurücknehmen
 remove_correction_step_info#:#Schritt, bis zu dem einschließlich die Freigaben zurückgezogen werden sollen. Alle darüberliegenden Freigaben werden ebenfalls zurückgezogen.
 remove_correction_step_note#:#Begründung
@@ -999,3 +1021,5 @@ start_password#:#Start-Kennwort
 start_password_info#:#Dieses Kennwort musss, wenn vorhanden, von Teilnehmenden in den Dialogen "Bearbeitung starten" und "Bearbeitung fortsetzen" eingegeben werden.
 start_password_wrong#:#Bitte geben Sie das Passwort ein, das Sie von der Prüfungsaufsicht bekommen haben.
 task_admin#:#Teilaufgaben
+collections_not_available#:#Aktuell sind für Sie hier keine Übersichten verfügbar.
+review_mode#:#Bereitstellung

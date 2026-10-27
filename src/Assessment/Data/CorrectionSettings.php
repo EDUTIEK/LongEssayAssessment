@@ -27,6 +27,7 @@ use Edutiek\AssessmentService\Assessment\Data\CorrectionProcedure;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Key;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Table;
 use Edutiek\AssessmentService\Assessment\Data\Pseudonymization;
+use Edutiek\AssessmentService\Assessment\Data\CorrectionSort;
 
 #[Table(name: 'xlas_as_corr_settings')]
 class CorrectionSettings extends \Edutiek\AssessmentService\Assessment\Data\CorrectionSettings
@@ -35,16 +36,16 @@ class CorrectionSettings extends \Edutiek\AssessmentService\Assessment\Data\Corr
     private int $ass_id = 0;
     private int $required_correctors = 1;
     private bool $no_manual_decimals = false;
-    private float $max_auto_distance = 0;
     private bool $mutual_visibility = false;
     private bool $wait_for_first = false;
     private string $assign_mode = '';
     private bool $procedure_when_distance = false;
-    private bool $procedure_when_decimals = false;
+    private float $max_no_procedure_distance = 0;
     private string $procedure = CorrectionProcedure::NONE->value;
     private string $approximation = CorrectionApproximation::ONE->value;
     private bool $revision_between = false;
-    private bool $stitch_after_procedure = false;
+    private bool $stitch_when_distance = false;
+    private float $max_no_stitch_distance = 0;
     private bool $undo_authorization = false;
     private bool $undo_first_authorization = false;
     private bool $instant_status = false;
@@ -55,6 +56,10 @@ class CorrectionSettings extends \Edutiek\AssessmentService\Assessment\Data\Corr
     private ?int $max_points = null;
     private bool $download_writing = true;
     private bool $download_correction = true;
+    private bool $access_statistics = true;
+    private bool $startpage_fixed = false;
+    private string $fixed_sort1 = CorrectionSort::GRADING_POSITION->value;
+    private string $fixed_sort2 = CorrectionSort::OWN_STATE->value;
 
     public function getAssId(): int
     {
@@ -81,15 +86,6 @@ class CorrectionSettings extends \Edutiek\AssessmentService\Assessment\Data\Corr
     public function setNoManualDecimals(bool $no_manual_decimals): self
     {
         $this->no_manual_decimals = $no_manual_decimals;
-        return $this;
-    }
-    public function getMaxAutoDistance(): float
-    {
-        return $this->max_auto_distance;
-    }
-    public function setMaxAutoDistance(float $max_auto_distance): self
-    {
-        $this->max_auto_distance = $max_auto_distance;
         return $this;
     }
     public function getMutualVisibility(): bool
@@ -128,13 +124,13 @@ class CorrectionSettings extends \Edutiek\AssessmentService\Assessment\Data\Corr
         $this->procedure_when_distance = $procedure_when_distance;
         return $this;
     }
-    public function getProcedureWhenDecimals(): bool
+    public function getMaxNoProcedureDistance(): float
     {
-        return $this->procedure_when_decimals;
+        return $this->max_no_procedure_distance;
     }
-    public function setProcedureWhenDecimals(bool $procedure_when_decimals): self
+    public function setMaxNoProcedureDistance(float $max_no_procedure_distance): self
     {
-        $this->procedure_when_decimals = $procedure_when_decimals;
+        $this->max_no_procedure_distance = $max_no_procedure_distance;
         return $this;
     }
     public function getProcedure(): CorrectionProcedure
@@ -164,13 +160,22 @@ class CorrectionSettings extends \Edutiek\AssessmentService\Assessment\Data\Corr
         $this->revision_between = $revision_between;
         return $this;
     }
-    public function getStitchAfterProcedure(): bool
+    public function getStitchWhenDistance(): bool
     {
-        return $this->stitch_after_procedure;
+        return $this->stitch_when_distance;
     }
-    public function setStitchAfterProcedure(bool $stitch_after_procedure): self
+    public function setStitchWhenDistance(bool $stitch_when_distance): self
     {
-        $this->stitch_after_procedure = $stitch_after_procedure;
+        $this->stitch_when_distance = $stitch_when_distance;
+        return $this;
+    }
+    public function getMaxNoStitchDistance(): float
+    {
+        return $this->max_no_stitch_distance;
+    }
+    public function setMaxNoStitchDistance(float $max_no_stitch_distance): self
+    {
+        $this->max_no_stitch_distance = $max_no_stitch_distance;
         return $this;
     }
     public function getUndoAuthorization(): bool
@@ -267,6 +272,50 @@ class CorrectionSettings extends \Edutiek\AssessmentService\Assessment\Data\Corr
     public function setDownloadCorrection(bool $download_correction): self
     {
         $this->download_correction = $download_correction;
+        return $this;
+    }
+
+    public function getAccessStatistics(): bool
+    {
+        return $this->access_statistics;
+    }
+
+    public function setAccessStatistics(bool $access_statistics): CorrectionSettings
+    {
+        $this->access_statistics = $access_statistics;
+        return $this;
+    }
+
+    public function getStartpageFixed(): bool
+    {
+        return $this->startpage_fixed;
+    }
+
+    public function setStartpageFixed(bool $startpage_fixed): CorrectionSettings
+    {
+        $this->startpage_fixed = $startpage_fixed;
+        return $this;
+    }
+
+    public function getFixedSort1(): CorrectionSort
+    {
+        return CorrectionSort::tryFrom($this->fixed_sort1) ?? CorrectionSort::GRADING_POSITION;
+    }
+
+    public function setFixedSort1(CorrectionSort $fixed_sort1): CorrectionSettings
+    {
+        $this->fixed_sort1 = $fixed_sort1->value;
+        return $this;
+    }
+
+    public function getFixedSort2(): CorrectionSort
+    {
+        return CorrectionSort::tryFrom($this->fixed_sort2) ?? CorrectionSort::OWN_STATE;
+    }
+
+    public function setFixedSort2(CorrectionSort $fixed_sort2): CorrectionSettings
+    {
+        $this->fixed_sort2 = $fixed_sort2->value;
         return $this;
     }
 }

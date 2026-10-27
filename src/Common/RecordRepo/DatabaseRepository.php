@@ -212,7 +212,7 @@ class DatabaseRepository implements RepositoryInterface
     }
 
     /**
-     * @param array|string|int|bool|float|null $right
+     * @param array|string|int|bool|float|null|Value|OrCond $right
      */
     private function equals(string $left, $right): string
     {
@@ -221,6 +221,11 @@ class DatabaseRepository implements RepositoryInterface
         if ($right instanceof Value) {
             return $right->condition($quote_id($left));
         }
+
+        if ($right instanceof OrCond) {
+            return '(' . join(' OR ', array_map($this->equals(...), array_keys($right->conditions()), array_values($right->conditions()))) . ')';
+        }
+
         return match (gettype($right)) {
             'integer', 'string', 'float' => $quote_id($left) . ' = ' . $this->db->quote($right, ilDBConstants::T_TEXT),
             'boolean' => $quote_id($left) . ' = ' . $this->db->quote((int) $right, ilDBConstants::T_INTEGER),

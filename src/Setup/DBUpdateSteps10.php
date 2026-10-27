@@ -1767,4 +1767,61 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
                 'type' => ilDBConstants::T_TEXT, 'notnull' => 0, 'length' => 50]);
         }
     }
+
+    public function step_95(): void
+    {
+        if (!$this->db->tableColumnExists('xlas_ta_corr_settings', 'free_marking')) {
+            $this->db->addTableColumn('xlas_ta_corr_settings', 'free_marking', [
+                'type' => ilDBConstants::T_INTEGER, 'notnull' => 1, 'default' => 0]);
+        }
+    }
+
+    public function step_96(): void
+    {
+        if ($this->db->tableColumnExists('xlas_as_corr_settings', 'procedure_when_decimals')) {
+            $this->db->dropTableColumn('xlas_as_corr_settings', 'procedure_when_decimals');
+        }
+        if ($this->db->tableColumnExists('xlas_as_corr_settings', 'max_auto_distance')) {
+            $this->db->renameTableColumn('xlas_as_corr_settings', 'max_auto_distance', 'max_no_procedure_distance');
+        }
+        if ($this->db->tableColumnExists('xlas_as_corr_settings', 'stitch_after_procedure')) {
+            $this->db->renameTableColumn('xlas_as_corr_settings', 'stitch_after_procedure', 'stitch_when_distance');
+        }
+        if (!$this->db->tableColumnExists('xlas_as_corr_settings', 'max_no_stitch_distance')) {
+            $this->db->addTableColumn('xlas_as_corr_settings', 'max_no_stitch_distance', [
+                'type' => ilDBConstants::T_FLOAT, 'notnull' => 0, 'default' => 0]);
+        }
+    }
+
+    public function step_97(): void
+    {
+        if (!$this->db->tableColumnExists('xlas_as_corr_settings', 'access_statistics')) {
+            $this->db->addTableColumn('xlas_as_corr_settings', 'access_statistics', [
+                'type' => ilDBConstants::T_INTEGER, 'notnull' => 0, 'default' => 1]);
+        }
+    }
+
+    public function step_98(): void
+    {
+        if (!$this->db->tableColumnExists('xlas_as_corr_settings', 'startpage_fixed')) {
+            $this->db->addTableColumn('xlas_as_corr_settings', 'startpage_fixed', [
+                'type' => ilDBConstants::T_INTEGER, 'notnull' => 1, 'default' => 0]);
+        }
+        if (!$this->db->tableColumnExists('xlas_as_corr_settings', 'fixed_sort1')) {
+            $this->db->addTableColumn('xlas_as_corr_settings', 'fixed_sort1', [
+                'type' => ilDBConstants::T_TEXT, 'length' => 20, 'notnull' => 1, 'default' => '']);
+        }
+        if (!$this->db->tableColumnExists('xlas_as_corr_settings', 'fixed_sort2')) {
+            $this->db->addTableColumn('xlas_as_corr_settings', 'fixed_sort2', [
+                'type' => ilDBConstants::T_TEXT, 'length' => 20, 'notnull' => 1, 'default' => '']);
+        }
+    }
+
+    public function step_99(): void
+    {
+        if (!$this->db->tableColumnExists('xlas_as_orga_settings', 'review_mode')) {
+            $this->db->addTableColumn('xlas_as_orga_settings', 'review_mode', [
+                'type' => ilDBConstants::T_TEXT, 'length' => 20, 'notnull' => 1, 'default' => 'both']);
+        }
+    }
 }

@@ -37,6 +37,7 @@ use Edutiek\AssessmentService\Task\Api\ForClients as TaskClientApi;
 use Edutiek\AssessmentService\Task\Api\ForTypes as TaskTypesApi;
 use Edutiek\AssessmentService\Views\Api\Factory as ViewsFactory;
 use Edutiek\AssessmentService\Views\Api\ForClients as ViewsClientApi;
+use Edutiek\AssessmentService\Views\Api\ForRest as ViewsRestApi;
 use ILIAS\Data\UUID\Factory as UUIDFactory;
 use ILIAS\DI\Container;
 use ILIAS\Plugin\LongEssayAssessment\Common\Constraints\DataConstraints;
@@ -279,6 +280,10 @@ class PluginDic
             return new TypeApis(
                 $dic[EssayTaskFactory::class]->forServices()
             );
+        };
+
+        $dic[ViewsRestApi::class] = function (Container $dic) {
+            return $dic[ViewsFactory::class]->forRest();
         };
 
         // Constraint Handling

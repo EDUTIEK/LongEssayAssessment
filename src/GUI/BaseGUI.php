@@ -63,7 +63,7 @@ abstract class BaseGUI
     protected AssessmentApi $assessment_api;
     protected EssayTaskApi $essay_task_api;
     protected TaskApi $task_api;
-    protected Dependencies\ViewDic $views;
+    protected ViewsApi $views;
 
     protected PluginUiFactory $plugin_ui_factory;
     protected PluginUIService $plugin_ui_service;

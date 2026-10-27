@@ -54,7 +54,7 @@ readonly class RestContext implements \Edutiek\AssessmentService\Assessment\Apps
     /**
      * Do additional ILIAS initialisations for a REST call
      */
-    public function initCall(int $ass_id, int $context_id, int $user_id): void
+    public function initCall(): void
     {
         // REST calls from the web app should not write the user session of ILIAS in general
         // Session expire is set for specific calls that indicate a user activity

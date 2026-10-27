@@ -28,6 +28,7 @@ use Edutiek\AssessmentService\System\ConstraintHandling\Collector;
 use Edutiek\AssessmentService\System\EventHandling\Dispatcher;
 use Edutiek\AssessmentService\Task\Api\Factory as TaskFactory;
 use Edutiek\AssessmentService\Task\Api\ForAssessment as TaskApi;
+use Edutiek\AssessmentService\Views\Api\ForRest as ViewsRestApi;
 use ILIAS\DI\Container;
 use ILIAS\Plugin\LongEssayAssessment\Assessment\Data\RepositoryFactory;
 use ILIAS\Plugin\LongEssayAssessment\Assessment\Rest\RestContext;
@@ -80,6 +81,11 @@ class AssessmentDic implements \Edutiek\AssessmentService\Assessment\Api\Depende
     public function typeApis(): TypeApiFactory
     {
         return $this->dic[TypeApis::class];
+    }
+
+    public function viewsApi(): ViewsRestApi
+    {
+        return $this->dic[ViewsRestApi::class];
     }
 
     public function repositories(): RepositoryFactory

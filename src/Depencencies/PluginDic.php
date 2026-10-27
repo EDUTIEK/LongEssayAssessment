@@ -35,6 +35,8 @@ use Edutiek\AssessmentService\System\EventHandling\Dispatcher;
 use Edutiek\AssessmentService\Task\Api\Factory as TaskFactory;
 use Edutiek\AssessmentService\Task\Api\ForClients as TaskClientApi;
 use Edutiek\AssessmentService\Task\Api\ForTypes as TaskTypesApi;
+use Edutiek\AssessmentService\Views\Api\Factory as ViewsFactory;
+use Edutiek\AssessmentService\Views\Api\ForClients as ViewsClientApi;
 use ILIAS\Data\UUID\Factory as UUIDFactory;
 use ILIAS\DI\Container;
 use ILIAS\Plugin\LongEssayAssessment\Common\Constraints\DataConstraints;
@@ -241,6 +243,9 @@ class PluginDic
         $dic[TaskDic::class] = function (Container $dic) {
             return new TaskDic($dic);
         };
+        $dic[ViewDic::class] = function (Container $dic) {
+            return new ViewDic($dic);
+        };
 
         // Factories of the assessment service components
 
@@ -255,6 +260,9 @@ class PluginDic
         };
         $dic[TaskFactory::class] = function (Container $dic) {
             return new TaskFactory($dic[TaskDic::class]);
+        };
+        $dic[ViewsFactory::class] = function (Container $dic) {
+            return new ViewsFactory($dic[ViewDic::class]);
         };
 
         // Sub factories for assessment service components
@@ -361,9 +369,9 @@ class PluginDic
         return $this->dic[ContextService::class . "_$ref_id"] ??= new ContextService($ref_id, $this->dic->repositoryTree());
     }
 
-    public function view()
+    public function view(): ViewsClientApi
     {
-        return $this->dic[ViewDic::class] ??= new ViewDic($this->dic);
+        return $this->dic[ViewsFactory::class]->forClients();
     }
 
     public function eventDispatcher(): Dispatcher

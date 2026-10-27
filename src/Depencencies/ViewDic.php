@@ -2,11 +2,7 @@
 
 namespace ILIAS\Plugin\LongEssayAssessment\Dependencies;
 
-use ILIAS\Plugin\LongEssayAssessment\Dependencies\PluginDic;
 use ILIAS\Plugin\LongEssayAssessment\View\Data\WriterViewRepo;
-use ILIAS\Plugin\LongEssayAssessment\Assessment\Data\RepositoryFactory as AssessmentRepositoryFactory;
-use ILIAS\Plugin\LongEssayAssessment\EssayTask\Data\RepositoryFactory as EssayTaskRepositoryFactory;
-use ILIAS\Plugin\LongEssayAssessment\Dependencies\SystemDic;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\RepositoryFactory as FactoryTrait;
 use ILIAS\Plugin\LongEssayAssessment\Assessment\Data\Writer;
 use ILIAS\Plugin\LongEssayAssessment\Assessment\Data\WriterClient;
@@ -15,16 +11,16 @@ use ILIAS\Plugin\LongEssayAssessment\EssayTask\Data\Essay;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Generate;
 use ILIAS\Plugin\LongEssayAssessment\View\Data\CorrectionsViewRepo;
 use ILIAS\Plugin\LongEssayAssessment\Task\Data\Settings as Task;
-use ILIAS\Plugin\LongEssayAssessment\Assessment\Data\Properties;
 use ILIAS\Plugin\LongEssayAssessment\Task\Data\CorrectorAssignment;
 use ILIAS\Plugin\LongEssayAssessment\Task\Data\CorrectorSummary;
 use ILIAS\Plugin\LongEssayAssessment\Assessment\Data\Corrector;
-use Edutiek\AssessmentService\Views\Api\ForClients;
+use Edutiek\AssessmentService\Views\Api\Dependencies;
 use ILIAS\Plugin\LongEssayAssessment\View\Data\StatisticViewRepo;
 use ILIAS\Plugin\LongEssayAssessment\Assessment\Data\GradeLevel;
 use ILIAS\Plugin\LongEssayAssessment\Assessment\Data\CorrectionSettings;
+use ILIAS\Plugin\LongEssayAssessment\View\Data\AssessmentViewRepo;
 
-class ViewDic implements ForClients
+class ViewDic implements Dependencies
 {
     use FactoryTrait;
     public function __construct(
@@ -32,6 +28,13 @@ class ViewDic implements ForClients
     ) {
         $this->db = $this->dic->database();
         $this->g = $dic[Generate::class];
+    }
+
+    public function assessment(): AssessmentViewRepo
+    {
+        return new AssessmentViewRepo(
+            $this->db,
+        );
     }
 
     public function writer(): WriterViewRepo
@@ -65,7 +68,7 @@ class ViewDic implements ForClients
         );
     }
 
-    public function statistic()
+    public function statistic(): StatisticViewRepo
     {
         return new StatisticViewRepo(
             $this->dic->database(),
@@ -79,5 +82,4 @@ class ViewDic implements ForClients
             $this->dic[SystemDic::class]->userDataRepo(),
         );
     }
-
 }

@@ -35,6 +35,11 @@ class TokenRepo implements \Edutiek\AssessmentService\Assessment\Data\TokenRepo
         return $this->repo->new();
     }
 
+    public function oneByToken(string $value): ?Token
+    {
+        return $this->repo->queryOneBy(['token' => $value]);
+    }
+
     public function oneByIdsAndPurpose(int $user_id, int $ass_id, TokenPurpose $purpose): ?Token
     {
         return $this->repo->queryOneBy(['user_id' => $user_id, 'ass_id' => $ass_id, 'purpose' => $purpose->value]);

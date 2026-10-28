@@ -29,7 +29,7 @@ use ILIAS\Plugin\LongEssayAssessment\System\Session\SessionAdapter;
 use ilTemporaryStakeholder;
 use ilUserQuery;
 use ilUserUtil;
-use InitResourceStorage;
+use ILIAS\Plugin\LongEssayAssessment\System\User\AuthHandler;
 
 /**
  *  Dependencies of the assessment services component "System"
@@ -39,6 +39,11 @@ class SystemDic implements \Edutiek\AssessmentService\System\Api\Dependencies
     public function __construct(
         protected Container $dic
     ) {
+    }
+
+    public function authHandler(): AuthHandler
+    {
+        return new AuthHandler($this->dic->logger()->auth(), $this->dic);
     }
 
     public function configRepo(): ConfigRepo

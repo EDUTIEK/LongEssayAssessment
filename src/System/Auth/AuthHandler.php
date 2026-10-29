@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace ILIAS\Plugin\LongEssayAssessment\System\User;
+namespace ILIAS\Plugin\LongEssayAssessment\System\Auth;
 
 use ilObjUser;
 use ilObjectFactory;
@@ -18,10 +18,10 @@ use ilAuthUtils;
 use ilLogger;
 
 /**
- * Authentication handler needed by the asssment service
+ * Authentication handler needed by the assessment service
  * Currently only a local authentication is supported
  */
-readonly class AuthHandler implements \Edutiek\AssessmentService\System\User\AuthHandler
+readonly class AuthHandler implements \Edutiek\AssessmentService\System\Auth\AuthHandler
 {
     public function __construct(
         private ilLogger $logger,

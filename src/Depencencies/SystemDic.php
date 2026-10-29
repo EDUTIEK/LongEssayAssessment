@@ -14,6 +14,7 @@ use ILIAS\DI\Container;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\CacheRepository;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\DatabaseRepository;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Generate;
+use ILIAS\Plugin\LongEssayAssessment\System\Auth\AuthHandler;
 use ILIAS\Plugin\LongEssayAssessment\System\BackgroundTask\Manager as ILIASTaskManager;
 use ILIAS\Plugin\LongEssayAssessment\System\Data\Config;
 use ILIAS\Plugin\LongEssayAssessment\System\Data\ConfigRepo;
@@ -29,7 +30,6 @@ use ILIAS\Plugin\LongEssayAssessment\System\Session\SessionAdapter;
 use ilTemporaryStakeholder;
 use ilUserQuery;
 use ilUserUtil;
-use ILIAS\Plugin\LongEssayAssessment\System\User\AuthHandler;
 
 /**
  *  Dependencies of the assessment services component "System"

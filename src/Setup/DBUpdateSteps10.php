@@ -1803,4 +1803,13 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
                 'type' => ilDBConstants::T_TEXT, 'length' => 20, 'notnull' => 1, 'default' => 'both']);
         }
     }
+
+    public  function step_100(): void
+    {
+        $query = "
+            UPDATE xlas_as_corr_settings SET max_no_stitch_distance = max_no_procedure_distance
+            WHERE stitch_when_distance <> 0    
+        ";
+        $this->db->manipulate($query);
+    }
 }

@@ -34,6 +34,16 @@ readonly class RestContext implements \Edutiek\AssessmentService\Assessment\Apps
     ) {
     }
 
+    public function getHeaders(): array
+    {
+        return $this->http->request()->getHeaders();
+    }
+
+    public function getRequestMethod(): string
+    {
+        return $this->http->request()->getMethod();
+    }
+
     /**
      * Get the route of the current REST call
      */
@@ -83,9 +93,12 @@ readonly class RestContext implements \Edutiek\AssessmentService\Assessment\Apps
     /**
      * Send a response to the application
      */
-    public function sendResponse(int $status_code, string $body): never
+    public function sendResponse(int $status_code, string $body, array $headers = []): never
     {
         $response = $this->http->response()->withStatus($status_code);
+        foreach ($headers as $key => $val) {
+            $response = $response->withHeader($key, $val);
+        }
         $stream = $response->getBody();
         $stream->write($body);
 

@@ -1824,4 +1824,11 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
                 'type' => ilDBConstants::T_TEXT, 'length' => 20, 'notnull' => 1, 'default' => 'both']);
         }
     }
+
+    public function step_100(): void
+    {
+        if ($this->db->tableColumnExists('xlas_as_token', 'purpose')) {
+            $this->db->dropTableColumn('xlas_as_token', 'purpose');
+        }
+    }
 }

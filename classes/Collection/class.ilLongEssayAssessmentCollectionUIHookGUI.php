@@ -67,7 +67,7 @@ class ilLongEssayAssessmentCollectionUIHookGUI extends ilUIHookPluginGUI
                 }
             }
             if ($this->query->has("cmdClass") && in_array(
-                $this->query->retrieve("cmdClass", $this->refinery->kindlyTo()->string()),
+                str_replace(urlencode('\\'), '', $this->query->retrieve("cmdClass", $this->refinery->kindlyTo()->string())),
                 array_map(fn($class) => str_replace('\\', '', $class), [CollectionGUI::class, CollectionCorrectorAdminStatisticsGUI::class, CollectionWriterAdminStatisticsGUI::class, CollectionWriterStatisticsGUI::class])
             )) {
                 $this->lng->loadLanguageModule("crs");

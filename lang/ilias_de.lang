@@ -648,7 +648,7 @@ statistic_context_filter#:#Aufgaben
 statistic_grade_level_inconsistency_info#:#Die Notenstufen der ausgewählten Aufgaben variieren. Einige Teile der angezeigten Notenstatistiken könnten daher weniger aussagekräftig sein.
 result_available_review_error#:#Ergebnis zur Einsichtnahme kann nur ausgewählt werden, wenn die Einsichtnahme aktiviert ist.
 writer_statistics_enabled#:#Notenstatistik verfügbar
-writer_statistics_info#:#Sobald die Ergebnisse angezeigt werden, wird den Teilnehmenden auch eine Notenstatistik angezeigt in der die Note im Zusammenhang mit dieser Abgabe und weiteren Abgaben im gleichen ILIAS-Bereich (dieser Kurs/Gruppe/Ordner/Kategorie) verglichen werden können.
+writer_statistics_info#:#Zeigt Teilnehmenden eine Notenstatistik an, sobald ihr Ergebnis zur Verfügung steht. Die Statistik vergleicht die eigene Note mit der Notenverteilung aller korrigierten Abgaben dieser Aufgabe. Bei aktivierten Übersichten auf Gruppen- oder Kursebene wird sie auch gebündelt mit anderen Aufgaben angezeigt.
 own_assessments#:#Eigene Abgaben
 final_result#:#Eigenes Ergebnis
 tab_statistic#:#Notenstatistik
@@ -757,6 +757,7 @@ time_limit_changed#:#Zeitanpassung
 src_template#:#Verwendete Vorlage
 use_template#:#Vorlage verwenden
 assessment#:#Aufgabe
+assessments#:#Aufgaben
 task#:#Teilaufgabe
 by_csv_id#:#Prüflings-ID
 by_csv_alloc_time#:#Allozierte Zeit

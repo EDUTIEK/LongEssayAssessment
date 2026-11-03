@@ -695,14 +695,14 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                 'url' => $this->ctrl->getLinkTargetByClass(WriterStartGUI::class),
             ];
         }
-        // writer statistics is now implemented in the collection
-        //        if ($this->permissions->canWriterViewWriterStatistics()) {
-        //            $tabs[] = [
-        //                'id' => 'tab_writer_statistic',
-        //                'txt' => $this->plugin->txt('tab_statistic'),
-        //                'url' => $this->ctrl->getLinkTargetByClass(strtolower(WriterStatisticsGUI::class))
-        //            ];
-        //        }
+
+        if ($this->permissions->canWriterViewWriterStatistics()) {
+            $tabs[] = [
+                'id' => 'tab_writer_statistic',
+                'txt' => $this->plugin->txt('tab_statistic'),
+                'url' => $this->ctrl->getLinkTargetByClass(strtolower(WriterStatisticsGUI::class))
+            ];
+        }
 
         if (!empty($tabs)) {
             $this->tabs->addTab('tab_writer', $this->plugin->txt('tab_writer'), $tabs[0]['url']);

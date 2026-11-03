@@ -272,7 +272,7 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                     }
                     break;
                 case strtolower(WriterStatisticsGUI::class):
-                    if ($this->permissions->canViewWriterStatistics()) {
+                    if ($this->permissions->canWriterViewWriterStatistics()) {
                         $this->activateTab('tab_writer', 'tab_writer_statistic');
                         $this->ctrl->forwardCommand(new WriterStatisticsGUI($this->object));
                     }
@@ -307,7 +307,7 @@ class ilObjLongEssayAssessmentGUI extends ilObjectPluginGUI
                     }
                     break;
                 case strtolower(CorrectorStatisticsGUI::class):
-                    if ($this->permissions->canViewCorrectionStatistics()) {
+                    if ($this->permissions->canCorrectorViewCorrectionStatistics()) {
                         $cmd = $this->ctrl->getCmd('showStartPage');
                         $this->activateTab('tab_corrector', 'tab_corrector_statistic');
                         $this->ctrl->forwardCommand(new CorrectorStatisticsGUI($this->object));

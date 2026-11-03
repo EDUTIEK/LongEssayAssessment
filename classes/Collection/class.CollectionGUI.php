@@ -111,7 +111,7 @@ class CollectionGUI
                     $this->assessment_nodes,
                     function (array $node) {
                         $permission = $this->plugin_dic->assessment($node['obj_id'], $this->user->getId())->permissions($node['ref_id']);
-                        return $permission->canViewWriterStatistics();
+                        return $permission->canWriterViewWriterStatistics();
                     }
                 );
                 $this->ctrl->forwardCommand(new CollectionWriterStatisticsGUI($this->plugin, $this->plugin_dic, $this->dic, $nodes));

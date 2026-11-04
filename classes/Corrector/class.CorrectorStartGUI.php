@@ -445,7 +445,7 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
         $modals = [];
 
         $table = $this->plugin_ui_factory->table()->dataTable("corrector_start_table", $this);
-        $table->setWithoutPaging($this->settings->getStartpageFixed());
+        $table->setWithoutPaging(true);
         $table->setKeepOrder($this->settings->getStartpageFixed());
 
         $filter_data = $table->getFilterData();

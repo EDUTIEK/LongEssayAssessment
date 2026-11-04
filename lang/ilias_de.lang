@@ -329,8 +329,8 @@ tab_correction_settings#:#Korrektur
 tab_correction_items#:#Abgaben
 correction_settings#:#Korrektur-Einstellungen
 correction_startpage#:#Korrektur-Startseite
-correction_startpage_full#:#mit Filter, Sortierung und mehreren Seiten
-correction_startpage_fixed#:#feste Liste, alle Einträge auf einer Seite
+correction_startpage_full#:#mit Filter, Sortierung und Spaltenauswahl
+correction_startpage_fixed#:#ohne Filter, mit festgelegten Spalten und vorgegebener Sortierung
 corrections_sort_1#:#Hauptsortierung
 corrections_sort_2#:#Untersortierung
 message_no_correction_items#:#Sie haben noch keine korrigierbaren Abgaben.

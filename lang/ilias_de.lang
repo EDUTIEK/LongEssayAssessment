@@ -510,9 +510,11 @@ corrector_assignments_dropdown#:#Korrektur-Zuweisungen
 corrector_assignments_auto#:#Automatisch zuweisen...
 corrector_assignments_export_all#:#Zuweisungsdatei für alle Abgaben exportieren
 corrector_assignments_export_authorized#:#Zuweisungsdatei für freigegebene Abgaben exportieren
-corrector_assignments_import#:#Zuweisungsdatei importieren...
+corrector_assignments_import#:#Zuweisungsdatei importieren
+corrector_assignments_import_action#:#Zuweisungsdatei importieren...
 corrector_assignments_import_success#:#Die Korrekturzuweisungen aus der Datei wurden vorgenommen.
 corrector_assignments_import_failure#:#Die Datei konnte nicht korrekt ausgewertet werden. Es wurden keine Änderungen vorgenommen.
+corrector_assignments_import_warning#:#Die Änderung der Zuweisungen wird Daten löschen!
 corrector_assignments_auto_title#:#Fehlende Korrekturen zuweisen
 corrector_assignments_auto_filter#:#Zuweisungen
 corrector_assignments_auto_all_tasks#:#Alle Teilaufgaben

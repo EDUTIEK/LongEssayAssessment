@@ -629,7 +629,7 @@ class CorrectionAdminGUI extends BaseGUI
                 $this->ctrl->getLinkTarget($this, "correctorAssignmentSpreadsheetExportAuthorized")
             ),
             $this->ui_factory->button()->shy(
-                $this->plugin->txt("corrector_assignments_import"),
+                $this->plugin->txt("corrector_assignments_import_action"),
                 $this->ctrl->getLinkTarget($this, "correctorAssignmentSpreadsheetImport")
             )
         ])->withLabel($this->plugin->txt('corrector_assignments_dropdown')));
@@ -710,6 +710,15 @@ class CorrectionAdminGUI extends BaseGUI
 
     private function correctorAssignmentSpreadsheetImport(): void
     {
+        // handle a confirmed upload after warnings are shown
+        if ($this->get->has('confirmed_upload_id')) {
+            $data = $this->assignment_service->importSpreadsheet($this->get->string('confirmed_upload_id'));
+            $result = $this->assignment_service->assignSpreadsheetData($data, false);
+            $this->system_api->tempStorage()->deleteFile($this->get->string('confirmed_upload_id'));
+            $this->tpl->setOnScreenMessage("success", $this->plugin->txt('corrector_assignments_import_success'), true);
+            $this->ctrl->redirect($this);
+        }
+
         $upload_handler = new \ilLongEssayAssessmentUploadHandlerGUI(
             $this->system_api->tempStorage(),
             $this->plugin->dic()->uploadTempFile()
@@ -738,23 +747,38 @@ class CorrectionAdminGUI extends BaseGUI
 
                 try {
                     $data = $this->assignment_service->importSpreadsheet($stored->getId());
-                    $possible_errors = $this->assignment_service->assignSpreadsheetData($data, true);
-                    if (!empty($possible_errors)) {
+                    $result = $this->assignment_service->assignSpreadsheetData($data, true);
+                    if ($result->isFailed()) {
                         $message = $this->ui_factory->messageBox()->failure(
-                            $this->plugin->txt('corrector_assignments_import_failure')
-                            . '<p class="small">' .
-                            nl2br(implode("\n", $possible_errors)) .
-                            '</p>'
+                            $this->plugin->txt('corrector_assignments_import_failure') .
+                                $this->renderer->render($this->ui_factory->listing()->unordered($result->failures()))
                         );
+                        $this->system_api->tempStorage()->deleteFile($stored->getId());
                         $components = array_merge([$message], $components);
 
+                    } elseif ($result->hasNotes()) {
+                        $this->ctrl->setParameter($this, 'confirmed_upload_id', $stored->getId());
+                        $message = $this->ui_factory->messageBox()->confirmation(
+                            $this->plugin->txt('corrector_assignments_import_warning') .
+                            $this->renderer->render($this->ui_factory->listing()->unordered($result->notes()))
+                        )->withButtons([
+                            $this->ui_factory->button()->primary(
+                                $this->plugin->txt('corrector_assignments_import'),
+                                $this->ctrl->getLinkTarget($this, 'correctorAssignmentSpreadsheetImport')
+                            ),
+                            $this->ui_factory->button()->standard(
+                                $this->lng->txt('cancel'),
+                                $this->ctrl->getLinkTarget($this)
+                            ),
+                        ]);
+                        $components = array_merge([$message], $components);
                     } else {
                         $this->tpl->setOnScreenMessage("success", $this->plugin->txt('corrector_assignments_import_success'), true);
                         $this->assignment_service->assignSpreadsheetData($data, false);
+                        $this->system_api->tempStorage()->deleteFile($stored->getId());
                         $this->ctrl->redirect($this);
                     }
 
-                    $this->system_api->tempStorage()->deleteFile($stored->getId());
                 } catch (\Exception $exception) {
                     $this->system_api->tempStorage()->deleteFile($stored->getId());
                     $this->tpl->setOnScreenMessage("failure", $this->plugin->txt("corrector_assignments_import_failure") . $exception->getMessage(), false);

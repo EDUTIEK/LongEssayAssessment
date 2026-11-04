@@ -124,7 +124,7 @@ class WriterUploadGUI extends BaseGUI
             if ($this->writer->getLocation()) {
                 $properties[$this->plugin->txt('location')] = $this->assessment_api->location()->one(
                     $this->writer->getLocation()
-                )?->getTitle();
+                )?->getTitle() ?? '';
             }
 
             $properties[$this->plugin->txt('writing_status')] = $this->assessment_api->format()->writingStatus($this->writer);

@@ -302,6 +302,7 @@ class WriterUploadGUI extends BaseGUI
             return null;
         }
 
+        $question = $this->ui_factory->messageBox()->confirmation($this->plugin->txt('confirm_upload_essay_pdf_file'));
         $fields = [
             'file_id' => $this->ui_factory->input()->field()->file(
                 $this->upload_handler,
@@ -313,7 +314,7 @@ class WriterUploadGUI extends BaseGUI
         $this->ctrl->setParameter($this, 'task_id', $task->getId());
         $modal = $this->ui_factory->modal()->roundtrip(
             $task->getTitle(),
-            null,
+            $question,
             $fields,
             $this->ctrl->getFormAction($this, 'uploadPdf'),
         );

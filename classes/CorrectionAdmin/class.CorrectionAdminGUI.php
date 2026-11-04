@@ -29,6 +29,8 @@ use ILIAS\Plugin\LongEssayAssessment\UI\Table\Action;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\Helper\ConfirmationIds;
 use ILIAS\UI\Component\Input\Input;
 use ILIAS\UI\Component\Modal\RoundTrip;
+use Edutiek\AssessmentService\System\Data\Result;
+use ilSession;
 
 use function ILIAS\UI\examples\Input\Field\Url\with_value;
 
@@ -205,9 +207,17 @@ class CorrectionAdminGUI extends BaseGUI
      */
     public function changeCorrectorCheck(array $items): array
     {
+        $all_result = new Result();
         return [
             $this->refinery->custom()->constraint(
-                function (array $data) use ($items) {
+                function (array $data) use ($items, $all_result) {
+
+                    $data['items'] = array_map(fn(CorrectionItem $item) => $item->getId(), $items);
+                    $ignore_key = __METHOD__ . '.ignore_warnings';
+                    $ignore_hash = md5(serialize($data));
+                    $ignore_warnings = ilSession::get($ignore_key) === $ignore_hash;
+                    ilSession::set($ignore_key, '');
+
                     foreach ($items as $item) {
                         $result = $this->assignment_service->assignCorrectors(
                             $item->getTaskSettings()->getTaskId(),
@@ -218,13 +228,33 @@ class CorrectionAdminGUI extends BaseGUI
                             true,
                             true
                         );
-                        if ($result->isFailed()) {
-                            return false;
+                        if (!empty($result->failures())) {
+                            $all_result->addFailure($item->getWriterName() . ': ' . implode('; ', $result->failures()));
+                        } elseif (!empty($result->notes())) {
+                            $all_result->addNote($item->getWriterName() . ': ' . implode('; ', $result->notes()));
                         }
                     }
+                    if (!empty($all_result->failures())) {
+                        return false;
+                    }
+                    if (!empty($all_result->notes()) && !$ignore_warnings) {
+                        ilSession::set($ignore_key, $ignore_hash);
+                        return false;
+                    }
+
                     return true;
                 },
-                $this->plugin->txt("invalid_assignment_combinations_error")
+                function () use ($all_result) {
+                    if (!empty($all_result->failures())) {
+                        return $this->plugin->txt('change_corrector_check_failures')
+                            . $this->renderer->render($this->ui_factory->listing()->unordered($all_result->failures()));
+                    }
+                    if (!empty($all_result->notes())) {
+                        return $this->plugin->txt('change_corrector_check_warnings')
+                            . $this->renderer->render($this->ui_factory->listing()->unordered($all_result->notes()));
+                    }
+                    return '';
+                },
             )
         ];
     }

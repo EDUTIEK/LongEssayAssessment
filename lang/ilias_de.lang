@@ -266,6 +266,10 @@ alert_recipient_all#:#Alle
 add_log_entry_for writer#:#Protokolleintrag hinzufügen
 create_log_entry#:#Notiz hinzufügen
 log_entry_created#:#Protokolleintrag wurde hinzugefügt.
+corrector_assignments_current#:#Aktuell
+corrector_assignments_empty#:#nicht zugewiesen
+corrector_assignments_keep#:#beibehalten
+corrector_assignments_different#:#unterschiedlich
 corrector_assignment_changed#:#Die Korrekturzuweisung wurde geändert.
 corrector_assignments_changed#:#Die Korrekturzuweisungen wurden geändert.
 corrector_assignments_not_changed#:#Es wurde keine Zuweisung geändert.
@@ -467,7 +471,7 @@ same_assigned_corrector_error#:#Erstkorrektur und Zweitkorrektur können nicht i
 invalid_assignment_combinations_error#:#Diese Kombination führt zu Konflikten.
 remove_authorizations_confirmation#:#Möchten Sie die Freigaben für die Korrektur(en) folgender Teilnahmen zurückziehen? Diese Aktion wird protokolliert.
 remove_authorizations_no_valid_essays#:#In der Auswahl gab es keine Korrektur(en), die zurückgenommen werden können.
-change_corrector_info#:#Bitte beachten Sie folgendes, wenn es bereits Korrekturen gibt: <ul><li>Korrekturen werden auf neuen Korrektor übretragen</li><li>Korrektoren von bereits freigegebenen Korrekturen können nicht geändert werden</li><li>An Bewertungskriterien vergebene Punkte werden beim Übertragen entfernt</li><li>Korrekturen entfernter Korrektoren werden ebenfalls permanent entfernt</li></ul>
+change_corrector_info#:#Bitte beachten Sie Folgendes: <ul><li>Das <strong>Ändern einer vorhandenen Zuweisung</strong> ist nur möglich, wenn die jeweilige Korrektur noch nicht freigegeben ist. Die Korrektureingaben bleiben erhalten.</strong></li><li>Das <strong>Entfernen einer vorhandenen Zuweisung</strong> ist nur möglich, wenn die jeweilige Korrektur noch nicht freigegeben ist. Die Korrektureingaben werden nach einer Sicherheitsabfrage gelöscht.</li</ul>
 change_corrector_check_failures#:#Ihre ausgewählte Zuweisung kann nicht durchgeführt werden:
 change_corrector_check_warnings#:#VORSICHT! Ihre ausgewählte Zuweisung wird Daten löschen:
 authorize_correction#:#Vorbenotete Korrektur freigeben

@@ -213,9 +213,8 @@ class CorrectionAdminGUI extends BaseGUI
                 function (array $data) use ($items, $all_result) {
 
                     $data['items'] = array_map(fn(CorrectionItem $item) => $item->getId(), $items);
-                    $ignore_key = __METHOD__ . '.ignore_warnings';
-                    $ignore_hash = md5(serialize($data));
-                    $ignore_warnings = ilSession::get($ignore_key) === $ignore_hash;
+                    $ignore_key = __METHOD__ . '.ignore_warnings_' . md5(serialize($data));
+                    $ignore_warnings = (ilSession::get($ignore_key) ?? 0) > (time() - 30);
                     ilSession::set($ignore_key, '');
 
                     foreach ($items as $item) {
@@ -238,7 +237,7 @@ class CorrectionAdminGUI extends BaseGUI
                         return false;
                     }
                     if (!empty($all_result->notes()) && !$ignore_warnings) {
-                        ilSession::set($ignore_key, $ignore_hash);
+                        ilSession::set($ignore_key, time());
                         return false;
                     }
 

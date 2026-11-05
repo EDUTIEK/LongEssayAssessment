@@ -107,4 +107,11 @@ class WriterRepo implements \Edutiek\AssessmentService\Assessment\Data\WriterRep
     {
         $this->repo->deleteAllBy(['ass_id' => $ass_id]);
     }
+
+    public function removeLocation(int $ass_id, int $location): void
+    {
+        foreach ($this->repo->queryAllBy(['ass_id' => $ass_id, 'location' => $location]) as $writer) {
+            $this->repo->update($writer->setLocation(null));
+        }
+    }
 }

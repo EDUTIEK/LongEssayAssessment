@@ -20,7 +20,6 @@ declare(strict_types=1);
 
 namespace ILIAS\Plugin\LongEssayAssessment\Assessment\Data;
 
-use Edutiek\AssessmentService\Assessment\Data\TokenPurpose;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\RepositoryInterface;
 use Edutiek\AssessmentService\Assessment\Data\Token;
 
@@ -35,14 +34,14 @@ class TokenRepo implements \Edutiek\AssessmentService\Assessment\Data\TokenRepo
         return $this->repo->new();
     }
 
-    public function oneByToken(string $value): ?Token
+    public function oneByUserAndAssId(int $user_id, int $ass_id): ?Token
     {
-        return $this->repo->queryOneBy(['token' => $value]);
+        return $this->repo->queryOneBy(['user_id' => $user_id, 'ass_id' => $ass_id]);
     }
 
-    public function oneByIdsAndPurpose(int $user_id, int $ass_id, TokenPurpose $purpose): ?Token
+    public function oneByToken(string $token): ?Token
     {
-        return $this->repo->queryOneBy(['user_id' => $user_id, 'ass_id' => $ass_id, 'purpose' => $purpose->value]);
+        return $this->repo->queryOneBy(['token' => $token]);
     }
 
     public function save(Token $entity): void
@@ -65,8 +64,8 @@ class TokenRepo implements \Edutiek\AssessmentService\Assessment\Data\TokenRepo
         $this->repo->deleteAllBy(['user_id' => $user_id]);
     }
 
-    public function deleteByIdsAndPurpose(int $user_id, int $ass_id, TokenPurpose $purpose): void
+    public function deleteByUserAndAssId(int $user_id, int $ass_id): void
     {
-        $this->repo->deleteAllBy(['user_id' => $user_id, 'ass_id' => $ass_id, 'purpose' => $purpose->value]);
+        $this->repo->deleteAllBy(['user_id' => $user_id, 'ass_id' => $ass_id]);
     }
 }

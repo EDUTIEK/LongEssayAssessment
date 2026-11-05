@@ -1833,4 +1833,11 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
         ";
         $this->db->manipulate($query);
     }
+
+    public function step_101(): void
+    {
+        if ($this->db->tableColumnExists('xlas_as_token', 'purpose')) {
+            $this->db->dropTableColumn('xlas_as_token', 'purpose');
+        }
+    }
 }

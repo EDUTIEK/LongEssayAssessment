@@ -51,11 +51,11 @@ class AssessmentDic implements \Edutiek\AssessmentService\Assessment\Api\Depende
             return new RepositoryFactory(
                 $dic[Generate::class],
                 $dic->database(),
-                $dic->access(),
+                $dic->access(...),
                 $dic->repositoryTree(),
                 $dic["ilObjDataCache"],
                 new ilObjectFactory(),
-                $dic['static_url']->builder()
+                fn() => $dic['static_url']->builder()
             );
         };
 

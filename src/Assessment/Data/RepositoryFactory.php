@@ -20,11 +20,11 @@ class RepositoryFactory implements \Edutiek\AssessmentService\Assessment\Data\Re
     public function __construct(
         Generate $g,
         ilDBInterface $db,
-        private readonly ilAccessHandler $access,
+        private readonly object $access,
         private readonly ilTree $tree,
         private readonly ilObjectDataCache $data_cache,
         private readonly ilObjectFactory $object_factory,
-        private readonly URIBuilder $uri_builder
+        private readonly object $uri_builder
     ) {
         $this->g = $g;
         $this->db = $db;
@@ -47,7 +47,7 @@ class RepositoryFactory implements \Edutiek\AssessmentService\Assessment\Data\Re
 
     public function permissions(): PermissionsRepo
     {
-        return $this->instances[PermissionsRepo::class] ??= new PermissionsRepo($this->access);
+        return $this->instances[PermissionsRepo::class] ??= new PermissionsRepo(($this->access)());
     }
 
     public function properties(): PropertiesRepo
@@ -57,7 +57,7 @@ class RepositoryFactory implements \Edutiek\AssessmentService\Assessment\Data\Re
 
     public function contextInfo(): ContextInfoRepo
     {
-        return $this->instances[ContextInfoRepo::class] ??= new ContextInfoRepo($this->tree, $this->access, $this->uri_builder);
+        return $this->instances[ContextInfoRepo::class] ??= new ContextInfoRepo($this->tree, ($this->access)(), ($this->uri_builder)());
     }
 
     public function correctionSettings(): CorrectionSettingsRepo

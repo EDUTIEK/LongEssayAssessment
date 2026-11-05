@@ -21,7 +21,6 @@ declare(strict_types=1);
 namespace ILIAS\Plugin\LongEssayAssessment\Assessment\Data;
 
 use DateTimeImmutable;
-use Edutiek\AssessmentService\Assessment\Data\TokenPurpose;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Key;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Sequence;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Table;
@@ -35,7 +34,6 @@ class Token extends \Edutiek\AssessmentService\Assessment\Data\Token
     private int $user_id = 0;
     private string $token = '';
     private string $ip = '';
-    private string $purpose = '';
     private int $ass_id = 0;
     private ?DateTimeImmutable $valid_until = null;
 
@@ -73,15 +71,6 @@ class Token extends \Edutiek\AssessmentService\Assessment\Data\Token
     public function setIp(string $ip): self
     {
         $this->ip = $ip;
-        return $this;
-    }
-    public function getPurpose(): TokenPurpose
-    {
-        return TokenPurpose::tryFrom($this->purpose) ?? TokenPurpose::DATA;
-    }
-    public function setPurpose(TokenPurpose $purpose): self
-    {
-        $this->purpose = $purpose->value;
         return $this;
     }
     public function getAssId(): int

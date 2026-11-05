@@ -46,7 +46,7 @@ class CorrectorSummaryRepo implements \Edutiek\AssessmentService\Task\Data\Corre
         return $this->repo->hasBy([
             'writer_id' => $writer_id,
             '*' => new OrCond([
-                'summary_text' => Value::NOT_NULL,
+                'summary_text' => Value::NOT_EMPTY,
                 'points' => Value::NOT_NULL,
                 'summary_pdf' => Value::NOT_NULL,
             ])

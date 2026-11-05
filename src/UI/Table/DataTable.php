@@ -136,6 +136,11 @@ class DataTable extends Table implements DataTableParent
         ?array $filter_data,
         ?array $additional_parameters
     ): \Generator {
+        if ($this->smallView($additional_parameters) || $this->without_paging) {
+            // prevent \ILIAS\UI\Implementation\Component\Table\TableViewControlPagination::$number_of_rows being used
+            $range = $range->withLength(PHP_INT_MAX)->croppedTo(PHP_INT_MAX);
+        }
+
         yield from new DataTableRowBuilder(
             $row_builder,
             $this->getTableItems(null, $filter_data),
@@ -219,6 +224,7 @@ class DataTable extends Table implements DataTableParent
     {
         // a negative count hides the pagination and shows all rows within the default range of the ILIAS data table
         if ($this->smallView($additional_parameters) || $this->without_paging) {
+            // This is needed!
             return -1;
         }
         return $this->dt_parent->getTotalRowCount($filter_data, $additional_parameters);

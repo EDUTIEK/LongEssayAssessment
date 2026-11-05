@@ -29,6 +29,8 @@ use ILIAS\Plugin\LongEssayAssessment\UI\Table\Action;
 use ILIAS\Plugin\LongEssayAssessment\UI\Table\Helper\ConfirmationIds;
 use ILIAS\UI\Component\Input\Input;
 use ILIAS\UI\Component\Modal\RoundTrip;
+use Edutiek\AssessmentService\System\Data\Result;
+use ilSession;
 
 use function ILIAS\UI\examples\Input\Field\Url\with_value;
 
@@ -205,9 +207,16 @@ class CorrectionAdminGUI extends BaseGUI
      */
     public function changeCorrectorCheck(array $items): array
     {
+        $all_result = new Result();
         return [
             $this->refinery->custom()->constraint(
-                function (array $data) use ($items) {
+                function (array $data) use ($items, $all_result) {
+
+                    $data['items'] = array_map(fn(CorrectionItem $item) => $item->getId(), $items);
+                    $ignore_key = __METHOD__ . '.ignore_warnings_' . md5(serialize($data));
+                    $ignore_warnings = (ilSession::get($ignore_key) ?? 0) > (time() - 30);
+                    ilSession::set($ignore_key, '');
+
                     foreach ($items as $item) {
                         $result = $this->assignment_service->assignCorrectors(
                             $item->getTaskSettings()->getTaskId(),
@@ -218,78 +227,111 @@ class CorrectionAdminGUI extends BaseGUI
                             true,
                             true
                         );
-                        if ($result->isFailed()) {
-                            return false;
+                        if (!empty($result->failures())) {
+                            $all_result->addFailure($item->getWriterName() . ': ' . implode('; ', $result->failures()));
+                        } elseif (!empty($result->notes())) {
+                            $all_result->addNote($item->getWriterName() . ': ' . implode('; ', $result->notes()));
                         }
                     }
+                    if (!empty($all_result->failures())) {
+                        return false;
+                    }
+                    if (!empty($all_result->notes()) && !$ignore_warnings) {
+                        ilSession::set($ignore_key, time());
+                        return false;
+                    }
+
                     return true;
                 },
-                $this->plugin->txt("invalid_assignment_combinations_error")
+                function () use ($all_result) {
+                    if (!empty($all_result->failures())) {
+                        return $this->plugin->txt('change_corrector_check_failures')
+                            . $this->renderer->render($this->ui_factory->listing()->unordered($all_result->failures()));
+                    }
+                    if (!empty($all_result->notes())) {
+                        return $this->plugin->txt('change_corrector_check_warnings')
+                            . $this->renderer->render($this->ui_factory->listing()->unordered($all_result->notes()));
+                    }
+                    return '';
+                },
             )
         ];
     }
 
     /**
      * @param CorrectionItem[] $items
-     * @return array
      */
     public function changeCorrectorFields(array $items): array
     {
+        // Special entries for corrector selection
         $corrector_list = [
-            CorrectorAssignmentsService::UNCHANGED_CORRECTOR_ASSIGNMENT => $this->plugin->txt("unchanged"),
-            CorrectorAssignmentsService::BLANK_CORRECTOR_ASSIGNMENT => $this->lng->txt("remove")
+            CorrectorAssignmentsService::BLANK_CORRECTOR_ASSIGNMENT => $this->plugin->txt("corrector_assignments_empty"),
         ];
+        if (count($items) > 1) {
+            $corrector_list[CorrectorAssignmentsService::UNCHANGED_CORRECTOR_ASSIGNMENT] = $this->plugin->txt("corrector_assignments_keep");
+        }
 
+        // Add available correctors to corrector selection
         $corrector_ids = [];
         foreach ($this->corrector_service->all() as $corrector) {
             $corrector_ids[$corrector->getId()] = $corrector->getUserId();
         }
         $names = array_map(fn(UserData $u) => $u->getListname(true), $this->user_service->getUsersByIds($corrector_ids));
-
         foreach ($corrector_ids as $id => $user_id) {
             if (isset($names[$user_id])) {
                 $corrector_list[$id] = $names[$user_id];
             }
         }
 
+        // Preset the assigned correctors
         $assigned = [];
-        if (count($items) == 1) { // Pre set the assigned correctors if its just one corrector
-            $item = reset($items);
+        foreach ($items as $item) {
+            $item_assigned = [
+                0 => CorrectorAssignmentsService::BLANK_CORRECTOR_ASSIGNMENT,
+                1 => CorrectorAssignmentsService::BLANK_CORRECTOR_ASSIGNMENT,
+                2 => CorrectorAssignmentsService::BLANK_CORRECTOR_ASSIGNMENT,
+            ];
             foreach ($this->assignment_service->allByTaskIdAndWriterId(
                 $item->getTaskSettings()->getTaskId(),
                 $item->getWriter()->getId()
             ) as $assignment) {
-                $assigned[$assignment->getPosition()->value] = $assignment->getCorrectorId();
+                $item_assigned[$assignment->getPosition()->value] = $assignment->getCorrectorId();
+            }
+            foreach ([0, 1, 2] as $pos) {
+                if (!isset($assigned[$pos])) {
+                    $assigned[$pos] = $item_assigned[$pos];
+                } elseif ($assigned[$pos] !== $item_assigned[$pos]) {
+                    $assigned[$pos] = CorrectorAssignmentsService::UNCHANGED_CORRECTOR_ASSIGNMENT;
+                }
             }
         }
 
-        $fields = [];
-        $fields["first_corrector"] = $this->ui_factory->input()->field()->select(
-            $this->correctorLabel(0),
-            $corrector_list
-        )->withRequired(true)->withValue(
-            $assigned[0] ?? CorrectorAssignmentsService::UNCHANGED_CORRECTOR_ASSIGNMENT
-        )->withAdditionalTransformation($this->refinery->kindlyTo()->int());
-
+        // Grading positions that can be assigned
+        $positions = [
+            0 => 'first_corrector'
+        ];
         if ($this->correction_settings->getRequiredCorrectors() > 1) {
-            $fields["second_corrector"] = $this->ui_factory->input()->field()->select(
-                $this->correctorLabel(1),
-                $corrector_list
-            )->withRequired(true)->withValue(
-                $assigned[1] ?? CorrectorAssignmentsService::UNCHANGED_CORRECTOR_ASSIGNMENT
-            )->withAdditionalTransformation($this->refinery->kindlyTo()->int());
+            $positions[1] = 'second_corrector';
+        }
+        if ($assigned[2] !== CorrectorAssignmentsService::BLANK_CORRECTOR_ASSIGNMENT
+            || (count($items) == 1 && ($items[0]->getWriter()->getCombinedStatus() === CombinedStatus::STITCH_NEEDED))
+        ) {
+            $positions[2] = 'stitch_corrector';
+        }
 
-            if (count($items) == 1
-                && ($items[0]->getWriter()->getCombinedStatus() === CombinedStatus::STITCH_NEEDED)
-                    || !empty($assigned[2])
-            ) {
-                $fields["stitch_corrector"] = $this->ui_factory->input()->field()->select(
-                    $this->correctorLabel(2),
-                    $corrector_list
-                )->withRequired(true)->withValue(
-                    $assigned[2] ?? CorrectorAssignmentsService::UNCHANGED_CORRECTOR_ASSIGNMENT
-                )->withAdditionalTransformation($this->refinery->kindlyTo()->int());
-            }
+        // fields for the assignment selection
+        foreach ($positions as $pos => $key) {
+            $fields[$key] = $this->ui_factory->input()->field()->select(
+                $this->correctorLabel($pos),
+                $corrector_list,
+                $this->plugin->txt('corrector_assignments_current') . ': ' . match($assigned[$pos]) {
+                    CorrectorAssignmentsService::BLANK_CORRECTOR_ASSIGNMENT => $this->plugin->txt("corrector_assignments_empty"),
+                    CorrectorAssignmentsService::UNCHANGED_CORRECTOR_ASSIGNMENT => $this->plugin->txt("corrector_assignments_different"),
+                    default => $corrector_list[$assigned[$pos]]
+                }
+            )->withRequired(true)
+                ->withValue($assigned[$pos])
+                ->withAdditionalTransformation($this->refinery->kindlyTo()->int());
         }
 
         return $fields;
@@ -599,7 +641,7 @@ class CorrectionAdminGUI extends BaseGUI
                 $this->ctrl->getLinkTarget($this, "correctorAssignmentSpreadsheetExportAuthorized")
             ),
             $this->ui_factory->button()->shy(
-                $this->plugin->txt("corrector_assignments_import"),
+                $this->plugin->txt("corrector_assignments_import_action"),
                 $this->ctrl->getLinkTarget($this, "correctorAssignmentSpreadsheetImport")
             )
         ])->withLabel($this->plugin->txt('corrector_assignments_dropdown')));
@@ -680,6 +722,15 @@ class CorrectionAdminGUI extends BaseGUI
 
     private function correctorAssignmentSpreadsheetImport(): void
     {
+        // handle a confirmed upload after warnings are shown
+        if ($this->get->has('confirmed_upload_id')) {
+            $data = $this->assignment_service->importSpreadsheet($this->get->string('confirmed_upload_id'));
+            $result = $this->assignment_service->assignSpreadsheetData($data, false);
+            $this->system_api->tempStorage()->deleteFile($this->get->string('confirmed_upload_id'));
+            $this->tpl->setOnScreenMessage("success", $this->plugin->txt('corrector_assignments_import_success'), true);
+            $this->ctrl->redirect($this);
+        }
+
         $upload_handler = new \ilLongEssayAssessmentUploadHandlerGUI(
             $this->system_api->tempStorage(),
             $this->plugin->dic()->uploadTempFile()
@@ -708,28 +759,45 @@ class CorrectionAdminGUI extends BaseGUI
 
                 try {
                     $data = $this->assignment_service->importSpreadsheet($stored->getId());
-                    $possible_errors = $this->assignment_service->assignSpreadsheetData($data, true);
-                    if (!empty($possible_errors)) {
+                    $result = $this->assignment_service->assignSpreadsheetData($data, true);
+                    if ($result->isFailed()) {
                         $message = $this->ui_factory->messageBox()->failure(
-                            $this->plugin->txt('corrector_assignments_import_failure')
-                            . '<p class="small">' .
-                            nl2br(implode("\n", $possible_errors)) .
-                            '</p>'
+                            $this->plugin->txt('corrector_assignments_import_failure') .
+                                $this->renderer->render($this->ui_factory->listing()->unordered($result->failures()))
                         );
+                        $this->system_api->tempStorage()->deleteFile($stored->getId());
                         $components = array_merge([$message], $components);
 
+                    } elseif ($result->hasNotes()) {
+                        $this->ctrl->setParameter($this, 'confirmed_upload_id', $stored->getId());
+                        $message = $this->ui_factory->messageBox()->confirmation(
+                            $this->plugin->txt('corrector_assignments_import_warning') .
+                            $this->renderer->render($this->ui_factory->listing()->unordered($result->notes()))
+                        )->withButtons([
+                            $this->ui_factory->button()->primary(
+                                $this->plugin->txt('corrector_assignments_import'),
+                                $this->ctrl->getLinkTarget($this, 'correctorAssignmentSpreadsheetImport')
+                            ),
+                            $this->ui_factory->button()->standard(
+                                $this->lng->txt('cancel'),
+                                $this->ctrl->getLinkTarget($this)
+                            ),
+                        ]);
+                        $components = array_merge([$message], $components);
                     } else {
                         $this->tpl->setOnScreenMessage("success", $this->plugin->txt('corrector_assignments_import_success'), true);
                         $this->assignment_service->assignSpreadsheetData($data, false);
+                        $this->system_api->tempStorage()->deleteFile($stored->getId());
                         $this->ctrl->redirect($this);
                     }
 
-                    $this->system_api->tempStorage()->deleteFile($stored->getId());
                 } catch (\Exception $exception) {
                     $this->system_api->tempStorage()->deleteFile($stored->getId());
                     $this->tpl->setOnScreenMessage("failure", $this->plugin->txt("corrector_assignments_import_failure") . $exception->getMessage(), false);
                 }
             }
+        } else {
+            $this->info($this->plugin->txt("change_corrector_info"));
         }
 
         $this->tpl->setContent($this->renderer->render($components));

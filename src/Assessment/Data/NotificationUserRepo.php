@@ -36,6 +36,11 @@ readonly class NotificationUserRepo implements \Edutiek\AssessmentService\Assess
         return $this->repo->new();
     }
 
+    public function allByAssId(int $ass_id): array
+    {
+        return $this->repo->queryAllBy(['ass_id' => $ass_id]);
+    }
+
     public function allByAssIdAndType(int $ass_id, NotificationType $type): array
     {
         return $this->repo->queryAllBy(['ass_id' => $ass_id, 'type' => $type->value]);

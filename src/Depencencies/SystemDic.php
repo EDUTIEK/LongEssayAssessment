@@ -120,7 +120,12 @@ class SystemDic implements \Edutiek\AssessmentService\System\Api\Dependencies
     public function tokenRepo(): TokenRepo
     {
         return new TokenRepo(
-            $this->dic[Generate::class]->readModel(Token::class)
+            new CacheRepository(
+                new DatabaseRepository(
+                    $this->dic->database(),
+                    $this->dic[Generate::class]->readModel(Token::class)
+                )
+            )
         );
     }
 

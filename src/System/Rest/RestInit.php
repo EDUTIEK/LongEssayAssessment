@@ -1,6 +1,6 @@
 <?php
 
-namespace ILIAS\Plugin\LongEssayAssessment\Assessment\Rest;
+namespace ILIAS\Plugin\LongEssayAssessment\System\Rest;
 
 use ilObjUser;
 

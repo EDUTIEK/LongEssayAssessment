@@ -24,6 +24,7 @@ use ilDBInterface;
 use ilIniFile;
 use ilSession;
 use ILIAS\HTTP\Services;
+use ILIAS\Plugin\LongEssayAssessment\System\Rest\RestInit;
 
 readonly class RestContext implements \Edutiek\AssessmentService\System\Rest\RestContext
 {
@@ -69,6 +70,17 @@ readonly class RestContext implements \Edutiek\AssessmentService\System\Rest\Res
         // REST calls from the web app should not write the user session of ILIAS in general
         // Session expire is set for specific calls that indicate a user activity
         ilSession::enableWebAccessWithoutSession(true);
+    }
+
+    /**
+     * Init an ILIAS user account with access handling, html, language
+     * This is needed for sending notifications
+     *  todo: check, if needed !!
+     */
+    public function initUser(int $user_id): void
+    {
+        // Init a missing user, access handling, html, language
+        // RestInit::initRestUser($user_id);
     }
 
     /**

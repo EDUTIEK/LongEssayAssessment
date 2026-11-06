@@ -1848,6 +1848,7 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
                 'valid_until' => ['notnull' => 0, 'type' => ilDBConstants::T_TIMESTAMP],
             ];
             $this->db->createTable('xlas_sy_token', $fields);
+            $this->db->createSequence('xlas_sy_token');
             $this->db->addPrimaryKey('xlas_sy_token', ['id']);
             $this->db->addIndex("xlas_sy_token", ['user_id'], 'i1');
             $this->db->addIndex("xlas_sy_token", ['token'], 'i2');

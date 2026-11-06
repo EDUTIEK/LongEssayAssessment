@@ -1825,7 +1825,7 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
         }
     }
 
-    public  function step_100(): void
+    public function step_100(): void
     {
         $query = "
             UPDATE xlas_as_corr_settings SET max_no_stitch_distance = max_no_procedure_distance
@@ -1836,8 +1836,21 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
 
     public function step_101(): void
     {
-        if ($this->db->tableColumnExists('xlas_as_token', 'purpose')) {
-            $this->db->dropTableColumn('xlas_as_token', 'purpose');
+        if ($this->db->tableExists('xlas_as_token')) {
+            $this->db->dropTable('xlas_as_token');
+        }
+
+        if (!$this->db->tableExists('xlas_sy_token')) {
+            $fields = [
+                'id' => ['notnull' => 1, 'type' => ilDBConstants::T_INTEGER],
+                'user_id' => ['notnull' => 1, 'type' => ilDBConstants::T_INTEGER],
+                'token' => ['notnull' => 1, 'type' => ilDBConstants::T_TEXT, 'length' => 50],
+                'valid_until' => ['notnull' => 0, 'type' => ilDBConstants::T_TIMESTAMP],
+            ];
+            $this->db->createTable('xlas_sy_token', $fields);
+            $this->db->addPrimaryKey('xlas_sy_token', ['id']);
+            $this->db->addIndex("xlas_sy_token", ['user_id'], 'i1');
+            $this->db->addIndex("xlas_sy_token", ['token'], 'i2');
         }
     }
 }

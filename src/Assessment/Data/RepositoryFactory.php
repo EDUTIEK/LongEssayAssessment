@@ -100,11 +100,6 @@ class RepositoryFactory implements \Edutiek\AssessmentService\Assessment\Data\Re
         return $this->repo(PdfSettingsRepo::class, PdfSettings::class);
     }
 
-    public function token(): TokenRepo
-    {
-        return $this->repo(TokenRepo::class, Token::class);
-    }
-
     public function writer(): WriterRepo
     {
         return $this->repo(WriterRepo::class, Writer::class);

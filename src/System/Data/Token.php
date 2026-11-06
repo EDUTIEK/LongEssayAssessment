@@ -18,23 +18,21 @@
 
 declare(strict_types=1);
 
-namespace ILIAS\Plugin\LongEssayAssessment\Assessment\Data;
+namespace ILIAS\Plugin\LongEssayAssessment\System\Data;
 
 use DateTimeImmutable;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Key;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Sequence;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Table;
 
-#[Table(name: 'xlas_as_token')]
-class Token extends \Edutiek\AssessmentService\Assessment\Data\Token
+#[Table(name: 'xlas_sy_token')]
+class Token extends \Edutiek\AssessmentService\System\Data\Token
 {
     #[Key]
     #[Sequence]
     private int $id = 0;
     private int $user_id = 0;
     private string $token = '';
-    private string $ip = '';
-    private int $ass_id = 0;
     private ?DateTimeImmutable $valid_until = null;
 
     public function getId(): int
@@ -62,24 +60,6 @@ class Token extends \Edutiek\AssessmentService\Assessment\Data\Token
     public function setToken(string $token): self
     {
         $this->token = $token;
-        return $this;
-    }
-    public function getIp(): string
-    {
-        return $this->ip;
-    }
-    public function setIp(string $ip): self
-    {
-        $this->ip = $ip;
-        return $this;
-    }
-    public function getAssId(): int
-    {
-        return $this->ass_id;
-    }
-    public function setAssId(int $ass_id): self
-    {
-        $this->ass_id = $ass_id;
         return $this;
     }
     public function getValidUntil(): ?DateTimeImmutable

@@ -19,6 +19,8 @@ use ILIAS\Plugin\LongEssayAssessment\System\BackgroundTask\Manager as ILIASTaskM
 use ILIAS\Plugin\LongEssayAssessment\System\Data\Config;
 use ILIAS\Plugin\LongEssayAssessment\System\Data\ConfigRepo;
 use ILIAS\Plugin\LongEssayAssessment\System\Data\SetupRepo;
+use ILIAS\Plugin\LongEssayAssessment\System\Data\Token;
+use ILIAS\Plugin\LongEssayAssessment\System\Data\TokenRepo;
 use ILIAS\Plugin\LongEssayAssessment\System\Data\UserDataRepo;
 use ILIAS\Plugin\LongEssayAssessment\System\Data\UserDisplayRepo;
 use ILIAS\Plugin\LongEssayAssessment\System\File\DeliveryAdapter;
@@ -27,6 +29,7 @@ use ILIAS\Plugin\LongEssayAssessment\System\File\StorageAdapter;
 use ILIAS\Plugin\LongEssayAssessment\System\Log\LogAdapter;
 use ILIAS\Plugin\LongEssayAssessment\System\Mail\DeliveryAdapter as MailDeliveryAdapter;
 use ILIAS\Plugin\LongEssayAssessment\System\Session\SessionAdapter;
+use ILIAS\Plugin\LongEssayAssessment\System\Rest\RestContext;
 use ilTemporaryStakeholder;
 use ilUserQuery;
 use ilUserUtil;
@@ -86,6 +89,15 @@ class SystemDic implements \Edutiek\AssessmentService\System\Api\Dependencies
         );
     }
 
+    public function restContext(): RestContext
+    {
+        return new RestContext(
+            $this->dic["ilClientIniFile"],
+            $this->dic->database(),
+            $this->dic->http()
+        );
+    }
+
     public function tempStorage(): StorageAdapter
     {
         return new StorageAdapter(
@@ -102,6 +114,13 @@ class SystemDic implements \Edutiek\AssessmentService\System\Api\Dependencies
             $this->tempStorage(),
             $this->dic->http(),
             $this->setupRepo()->one()->getAbsoluteTempPath()
+        );
+    }
+
+    public function tokenRepo(): TokenRepo
+    {
+        return new TokenRepo(
+            $this->dic[Generate::class]->readModel(Token::class)
         );
     }
 

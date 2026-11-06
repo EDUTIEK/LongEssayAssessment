@@ -18,14 +18,14 @@
 
 declare(strict_types=1);
 
-namespace ILIAS\Plugin\LongEssayAssessment\Assessment\Rest;
+namespace ILIAS\Plugin\LongEssayAssessment\System\Rest;
 
 use ilDBInterface;
 use ilIniFile;
 use ilSession;
 use ILIAS\HTTP\Services;
 
-readonly class RestContext implements \Edutiek\AssessmentService\Assessment\Apps\RestContext
+readonly class RestContext implements \Edutiek\AssessmentService\System\Rest\RestContext
 {
     public function __construct(
         private ilIniFile $client_ini,
@@ -75,12 +75,12 @@ readonly class RestContext implements \Edutiek\AssessmentService\Assessment\Apps
      * Extend the session of an authenticated user
      * A user may have parallel active sessions
      * We cannot determine the session because the service does not provide its session_id
-     * So continue all active sessions, and try to filter them by ip if the ip is stored in ilias
+     * Continue all active sessions and try to filter them by ip
      */
     public function setAlive(int $user_id): void
     {
         if ($this->client_ini->readVariable("session", "save_ip")) {
-            $session_ids = $this->getActiveSessionIds((int) $user_id, (string) $_SERVER["REMOTE_ADDR"]);
+            $session_ids = $this->getActiveSessionIds($user_id, (string) $_SERVER["REMOTE_ADDR"]);
         } else {
             $session_ids = $this->getActiveSessionIds($user_id);
         }

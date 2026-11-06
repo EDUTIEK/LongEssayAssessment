@@ -31,7 +31,6 @@ use Edutiek\AssessmentService\Task\Api\ForAssessment as TaskApi;
 use Edutiek\AssessmentService\Views\Api\ForRest as ViewsRestApi;
 use ILIAS\DI\Container;
 use ILIAS\Plugin\LongEssayAssessment\Assessment\Data\RepositoryFactory;
-use ILIAS\Plugin\LongEssayAssessment\Assessment\Rest\RestContext;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Generate;
 use ilObjectFactory;
 
@@ -56,14 +55,6 @@ class AssessmentDic implements \Edutiek\AssessmentService\Assessment\Api\Depende
                 $dic["ilObjDataCache"],
                 new ilObjectFactory(),
                 fn() => $dic['static_url']->builder()
-            );
-        };
-
-        $dic[RestContext::class] = function (Container $dic) {
-            return new RestContext(
-                $dic["ilClientIniFile"],
-                $dic->database(),
-                $dic->http()
             );
         };
     }
@@ -91,11 +82,6 @@ class AssessmentDic implements \Edutiek\AssessmentService\Assessment\Api\Depende
     public function repositories(): RepositoryFactory
     {
         return $this->dic[RepositoryFactory::class];
-    }
-
-    public function restContext(): RestContext
-    {
-        return $this->dic[RestContext::class];
     }
 
     public function eventDispatcher(int $ass_id, int $user_id): Dispatcher

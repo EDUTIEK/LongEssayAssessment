@@ -1,29 +1,61 @@
 <?php
 
+declare(strict_types=1);
+
 namespace ILIAS\Plugin\LongEssayAssessment\System\Log;
 
-use Edutiek\AssessmentService\System\Log\FullService;
 use ilComponentLogger;
+use Psr\Log\LoggerInterface;
 
-readonly class LogAdapter implements FullService
+readonly class LogAdapter implements LoggerInterface
 {
     public function __construct(
-        private ilComponentLogger $logger
+        private ilComponentLogger $log
     ) {
     }
 
-    public function error(string $message): void
+    public function emergency(\Stringable|string $message, array $context = []): void
     {
-        $this->logger->error($message);
+        $this->log->emergency((string) $message, $context);
     }
 
-    public function info(string $message): void
+    public function alert(\Stringable|string $message, array $context = []): void
     {
-        $this->logger->info($message);
+        $this->log->alert((string) $message, $context);
     }
 
-    public function debug(string $message): void
+    public function critical(\Stringable|string $message, array $context = []): void
     {
-        $this->logger->debug($message);
+        $this->log->critical((string) $message, $context);
+    }
+
+    public function error(\Stringable|string $message, array $context = []): void
+    {
+        $this->log->error((string) $message, $context);
+    }
+
+    public function warning(\Stringable|string $message, array $context = []): void
+    {
+        $this->log->warning((string) $message, $context);
+    }
+
+    public function notice(\Stringable|string $message, array $context = []): void
+    {
+        $this->log->notice((string) $message, $context);
+    }
+
+    public function info(\Stringable|string $message, array $context = []): void
+    {
+        $this->log->info((string) $message, $context);
+    }
+
+    public function debug(\Stringable|string $message, array $context = []): void
+    {
+        $this->log->debug((string) $message, $context);
+    }
+
+    public function log($level, \Stringable|string $message, array $context = []): void
+    {
+        $this->info((string) $message, $context);
     }
 }

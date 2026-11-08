@@ -9,60 +9,62 @@ use Edutiek\AssessmentService\Assessment\Data\Writer;
 use Edutiek\AssessmentService\Task\Data\CorrectorAssignment;
 use Edutiek\AssessmentService\Assessment\Data\CombinedStatus;
 use Edutiek\AssessmentService\Assessment\TaskInterfaces\GradingStatus;
+use Edutiek\AssessmentService\Task\Data\CorrectionItem;
 
 class CorrectorStartItem extends Item
 {
+    public static function fromCorrectionItem(CorrectionItem $item)
+    {
+        return new self(
+            $item->getAssignmentId(),
+            $item
+        );
+    }
+
     public function __construct(
-        int $id,
-        private Writer $writer,
-        private CombinedStatus $correction_status,
-        private CorrectorAssignment $assignment,
-        private ?CorrectorSummary $summary,
-        private ?string $task_title,
-        private ?CorrectorSummary $other_summary,
-        private ?UserData $other_corrector,
-        private ?CorrectorAssignment $other_assignment
+        protected int $id,
+        private CorrectionItem $item
     ) {
         parent::__construct($id);
     }
 
-    public function getWriter(): Writer
+    public function getCorrectionItem(): CorrectionItem
     {
-        return $this->writer;
+        return $this->item;
     }
 
-    public function getCombinedStatus(): CombinedStatus
+    public function getWriter(): Writer
     {
-        return $this->correction_status;
+        return $this->item->getWriter();
     }
 
     public function getAssignment(): CorrectorAssignment
     {
-        return $this->assignment;
+        return $this->item->getAssignment();
     }
 
     public function getSummary(): ?CorrectorSummary
     {
-        return $this->summary;
+        return $this->item->getSummary();
     }
 
     public function getOtherSummary(): ?CorrectorSummary
     {
-        return $this->other_summary;
+        return $this->item->getOtherSummary();
     }
 
     public function getOtherCorrector(): ?UserData
     {
-        return $this->other_corrector;
+        return $this->item->getOtherCorrector();
     }
 
     public function getTaskTitle(): ?string
     {
-        return $this->task_title;
+        return $this->item->getTaskTitle();
     }
 
     public function getOtherAssignment(): ?CorrectorAssignment
     {
-        return $this->other_assignment;
+        return $this->item->getOtherAssignment();
     }
 }

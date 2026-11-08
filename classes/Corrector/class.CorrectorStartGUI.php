@@ -25,6 +25,7 @@ use Edutiek\AssessmentService\Assessment\Data\CorrectionSettings;
 use Edutiek\AssessmentService\Assessment\Data\CorrectionSort;
 use Edutiek\AssessmentService\Assessment\Data\OrgaSettings;
 use Edutiek\AssessmentService\Task\CorrectorAssignments\FullService as AssignmentService;
+use Edutiek\AssessmentService\Task\CorrectionItems\ReadService as ItemsService;
 use Edutiek\AssessmentService\System\User\ReadService as UserService;
 use Edutiek\AssessmentService\Assessment\Data\Corrector;
 use Edutiek\AssessmentService\Assessment\Corrector\FullService as CorrectorService;
@@ -68,6 +69,7 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
     private FormatService $assessment_format;
     private PermissionService $perms;
     private CorrectionProcess $correction_process;
+    private ItemsService $items_service;
 
     public function __construct(BaseObjectData $object)
     {
@@ -82,6 +84,7 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
         $this->system_format = $this->system_api->format($this->user->getId(), new DateTimeZone($this->user->getTimeZone()));
 
         $this->assignment_service = $this->task_api->correctorAssignments();
+        $this->items_service = $this->task_api->correctionItems();
         $this->user_service = $this->system_api->user();
         $this->corrector = $this->assessment_api->corrector()->oneByUserId($this->user->getId());
         $this->corrector_service = $this->assessment_api->corrector();
@@ -118,40 +121,15 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
 
     public function getColumnMapping(CorrectorStartItem|Item $item, ?array $additional_parameters): array|\ArrayAccess
     {
-        $other_corrector = function (?UserData $user_data, ?CorrectorSummary $summary, ?CorrectorAssignment $assignment) {
-            if (empty($user_data) || empty($assignment)) {
-                return $this->plugin->txt('grading_pos_empty');
-            }
-            return $this->plugin->txt($assignment->getPosition()->languageVariable()) . ": "
-                . $user_data->getListname(false) . ' - ' . $this->task_format->correctionResult($summary, false);
-        };
+        $data = $this->items_service->getDisplayData($item->getCorrectionItem());
 
-        $other_status = function (?UserData $user_data, ?CorrectorSummary $summary, ?CorrectorAssignment $assignment) {
-            if (empty($user_data) || empty($assignment)) {
-                return $this->plugin->txt('grading_pos_empty');
-            }
-            return $this->task_format->gradingStatus($summary?->getGradingStatus(), false);
-        };
-
-        $grading_service = $this->grading_service;
-        $assessment_format = $this->assessment_format;
-        $essay_format = $this->task_format;
-
-        return new ColumnMappingClosure(function ($key) use ($item, $grading_service, $other_corrector, $other_status, $assessment_format, $essay_format) {
+        return new ColumnMappingClosure(function ($key) use ($item, $data) {
             return match($key) {
-                'pseudonym' => $this->ui_factory->link()->standard($item->getWriter()->getPseudonym(), $this->itemLinkTarget($item)),
-                'position' => $this->plugin->txt($item->getAssignment()->getPosition()->languageVariable()),
-                'task' => $item->getTaskTitle(),
-                'combined_status' => $this->assessment_format->combinedStatus($item->getWriter()),
-                'own_status' => $this->task_format->gradingStatus($item->getSummary()?->getGradingStatus(), true),
-                'own_points' => $item->getSummary()?->getEffectivePoints(),
-                'own_grade' => $item->getSummary() ? $grading_service->getGradLevelForPoints($item->getSummary()->getPoints())?->getGrade() : null,
-                'result' => $assessment_format->finalResult($item->getWriter()),
-                'other_status' => $other_status($item->getOtherCorrector(), $item->getOtherSummary(), $item->getOtherAssignment()),
-                'other_correction' => $other_corrector($item->getOtherCorrector(), $item->getOtherSummary(), $item->getOtherAssignment()),
-                'final_points' => $item->getWriter()->getFinalPoints(),
-                'final_grade' => $grading_service->getGradLevelForPoints($item->getWriter()->getFinalPoints())?->getGrade(),
-                default => null
+                'pseudonym' => $this->ui_factory->link()->standard($data['pseudonym'] ?? '', $this->itemLinkTarget($item)),
+                'position' => $data['position_text'],
+                'task' => $data['task_title'],
+                'combined_status' => $data['correction_status_text'],
+                default => $data[$key] ?? null
             };
         });
     }
@@ -340,7 +318,7 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
                 continue;
             }
 
-            $item = $this->buildCorrectorStartItem($own_assignment);
+            $item = CorrectorStartItem::fromCorrectionItem($this->items_service->buildCorrectionItem($own_assignment));
             yield $item;
         }
     }
@@ -348,53 +326,7 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
     public function getTableItem(int $id): Item
     {
         $assignment = $this->assignment_service->oneById($id);
-        return $this->buildCorrectorStartItem($assignment);
-    }
-
-    private function buildCorrectorStartItem(CorrectorAssignment $assignment): CorrectorStartItem
-    {
-        $writer = $this->writer_service->oneByWriterId($assignment->getWriterId());
-        $title = $settings = $this->task_api->settings($assignment->getTaskId())->get()->getTitle();
-        $co_assignment = $co_user_data = $co_summary = $own_summary = null;
-
-        if ($this->settings->getRequiredCorrectors() > 1) {
-
-            foreach ($this->assignment_service->allByWriterId($assignment->getWriterId()) as $a) {
-                if ($a->getWriterId() === $assignment->getWriterId()
-                    && $a->getTaskId() === $assignment->getTaskId()
-                    && $a->getCorrectorId() !== $assignment->getCorrectorId()) {
-                    $co_assignment = $a;
-                }
-            }
-
-            if ($co_assignment !== null) {
-                $co_corrector = $this->corrector_service->oneById($co_assignment->getCorrectorId());
-                $co_user_data = $this->user_service->getUser($co_corrector?->getUserId() ?? -1);
-            }
-        }
-
-        foreach ($this->task_api->correctorSummary()->allByTaskIdAndWriterId(
-            $assignment->getTaskId(),
-            $assignment->getWriterId()
-        ) as $summary) {
-            if ($summary->getCorrectorId() === $assignment->getCorrectorId()) {
-                $own_summary = $summary;
-            }
-            if ($summary->getCorrectorId() === $co_assignment?->getCorrectorId()) {
-                $co_summary = $summary;
-            }
-        }
-        return new CorrectorStartItem(
-            $assignment->getId(),
-            $writer,
-            $writer->getCombinedStatus(),
-            $assignment,
-            $own_summary,
-            $title,
-            $co_summary,
-            $co_user_data,
-            $co_assignment
-        );
+        return CorrectorStartItem::fromCorrectionItem($this->items_service->buildCorrectionItem($assignment));
     }
 
     /**

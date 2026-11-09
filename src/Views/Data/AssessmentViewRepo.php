@@ -36,7 +36,7 @@ class AssessmentViewRepo implements \Edutiek\AssessmentService\Views\Data\Assess
             LEFT JOIN xlas_ta_corr_summary s ON s.corrector_id = c.id 
                 AND s.writer_id = w.id AND s.task_id = a.task_id 
                 AND (s.revised IS NOT NULL OR (s.corection_authorized IS NOT NULL 
-                    AND (w.correction_status = 'stitch' OR w.correction_status = 'finalized')))   
+                    AND w.correction_status <> 'approximation' AND w.correction_status <> 'consulting'))   
             WHERE c.user_id = %s
             AND o.online = 1 AND rd.deleted IS NULL
             GROUP BY ass_id, context_id, parent_title, title, correction_start, correction_end

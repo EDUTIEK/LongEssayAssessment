@@ -309,7 +309,7 @@ class ilLongEssayAssessmentPlugin extends ilRepositoryObjectPlugin implements \I
         try {
             if ($a_component === 'Services/User' && $a_event === 'deleteUser' && isset($a_parameter['usr_id'])) {
                 $usr_id = (int) $a_parameter['usr_id'];
-                $this->dic()->eventDispatcher()->dispatchEvent(new UserRemoved($usr_id));
+                $this->dic()->eventDispatcher()->dispatchEvent(new UserRemoved($usr_id, ilObjUser::_lookupLogin($usr_id)));
             }
         } catch (Throwable $e) {
             $this->ilias_dic->logger()->xlas()->error($e);

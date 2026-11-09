@@ -87,7 +87,7 @@ class ilLongEssayAssessmentConfigGUI extends ilPluginConfigGUI
         $data = $modal->getData();
 
         if ($data === null || !isset($data['login']) || ($user_id = ilObjUser::_loginExists($data['login'])) === null) {
-            $this->tpl->setOnScreenMessage("failure", $this->lng->txt("personal_data_export_cancelled"), true);
+            $this->tpl->setOnScreenMessage("failure", $this->plugin->txt("personal_data_export_cancelled"), true);
             $this->ctrl->redirect($this, 'configure');
             return;
         }
@@ -102,7 +102,7 @@ class ilLongEssayAssessmentConfigGUI extends ilPluginConfigGUI
         $this->help->setScreenId("adm");
 
         $modal = $this->personalDataExportModal();
-        $button = $this->ui_factory->button()->standard($this->lng->txt("personal_data_export"), "")
+        $button = $this->ui_factory->button()->standard($this->plugin->txt("personal_data_export"), "")
             ->withOnClick($modal->getShowSignal());
 
         $this->toolbar->addComponent($button);

@@ -128,7 +128,15 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
                 'pseudonym' => $this->ui_factory->link()->standard($data['pseudonym'] ?? '', $this->itemLinkTarget($item)),
                 'position' => $data['position_text'],
                 'task' => $data['task_title'],
+                'own_status' => $data['grading_status_text'],
+                'own_points' => $data['grading_points'],
+                'own_grade' => $data['grading_grade'],
+                'other_status' => $data['other_status_text'],
+                'other_correction' => $data['other_correction_text'],
                 'combined_status' => $data['correction_status_text'],
+                'result' => $data['final_result_text'],
+                'final_points' => $data['final_points'],
+                'final_grade' => $data['final_grade'],
                 default => $data[$key] ?? null
             };
         });

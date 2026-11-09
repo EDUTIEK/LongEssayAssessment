@@ -22,6 +22,7 @@ namespace ILIAS\Plugin\LongEssayAssessment\Assessment\Data;
 
 use Edutiek\AssessmentService\Assessment\Data\LogEntry;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\RepositoryInterface;
+use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\LikeCond;
 
 readonly class LogEntryRepo implements \Edutiek\AssessmentService\Assessment\Data\LogEntryRepo
 {
@@ -59,4 +60,20 @@ readonly class LogEntryRepo implements \Edutiek\AssessmentService\Assessment\Dat
     {
         $this->repo->deleteAllBy(['ass_id' => $ass_id]);
     }
+
+    public function allByAssIdAndLoginMentioned(int $ass_id, string $login): array
+    {
+        return $this->repo->queryAllBy(["ass_id" => $ass_id, "entry" => new LikeCond('%[' . $login .']%')]);
+    }
+
+    public function removeUserName(string $login): void
+    {
+        /** @var LogEntry $entry */
+        foreach ($this->repo->queryAllBy(["entry" => new LikeCond('%[' . $login .']%')]) as $entry) {
+            $username = preg_quote($login, '/');
+            $entry->setEntry(preg_replace('/«[^»«]*\[' . $username . '\][^»«]*»/u', '« ??? »', $entry->getEntry()));
+            $this->repo->update($entry);
+        }
+    }
+
 }

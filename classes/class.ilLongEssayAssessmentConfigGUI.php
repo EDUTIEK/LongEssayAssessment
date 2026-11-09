@@ -65,9 +65,35 @@ class ilLongEssayAssessmentConfigGUI extends ilPluginConfigGUI
         switch ($cmd) {
             case "configure":
             case "saveConfig":
+            case "downloadPersonalData":
                 $this->$cmd();
                 break;
         }
+    }
+
+    private function personalDataExportModal(): Standard
+    {
+        return $this->ui_factory->modal()->roundtrip(
+            $this->plugin->txt("personal_data_export"),
+            [$this->ui_factory->messageBox()->info($this->plugin->txt("personal_data_export_info"))],
+            ["login" => $this->ui_factory->input()->field()->text($this->lng->txt('login'))],
+            $this->ctrl->getFormAction($this, 'downloadPersonalData')
+        )->withSubmitLabel($this->lng->txt("download"));
+    }
+
+    protected function downloadPersonalData()
+    {
+        $modal = $this->personalDataExportModal()->withRequest($this->request);
+        $data = $modal->getData();
+
+        if ($data === null || !isset($data['login']) || ($user_id = ilObjUser::_loginExists($data['login'])) === null) {
+            $this->tpl->setOnScreenMessage("failure", $this->plugin->txt("personal_data_export_cancelled"), true);
+            $this->ctrl->redirect($this, 'configure');
+            return;
+        }
+
+        $ass_service = $this->plugin->dic()->assessment(0, $this->dic->user()->getId());
+        $ass_service->personalDataExport()->downloadZip($user_id);
     }
 
     protected function configure()
@@ -75,8 +101,14 @@ class ilLongEssayAssessmentConfigGUI extends ilPluginConfigGUI
         $this->help->setScreenIdComponent($this->getPluginObject()->getId());
         $this->help->setScreenId("adm");
 
+        $modal = $this->personalDataExportModal();
+        $button = $this->ui_factory->button()->standard($this->plugin->txt("personal_data_export"), "")
+            ->withOnClick($modal->getShowSignal());
+
+        $this->toolbar->addComponent($button);
+
         $form = $this->buildForm();
-        $this->tpl->setContent($this->renderer->render($form));
+        $this->tpl->setContent($this->renderer->render([$modal, $form]));
     }
 
     protected function saveConfig()

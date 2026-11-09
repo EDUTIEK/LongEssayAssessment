@@ -53,6 +53,11 @@ readonly class TokenRepo implements \Edutiek\AssessmentService\System\Data\Token
         return $this->repo->queryOneBy(['token' => $token]);
     }
 
+    public function allByUserIdAndAssId(int $user_id, int $ass_id): array
+    {
+        return $this->repo->queryAllBy(['user_id' => $user_id, 'ass_id' => $ass_id]);
+    }
+
     public function save(Token $entity): void
     {
         $this->repo->replace($entity);

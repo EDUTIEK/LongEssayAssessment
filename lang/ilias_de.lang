@@ -1033,3 +1033,6 @@ start_password_wrong#:#Bitte geben Sie das Passwort ein, das Sie von der Prüfun
 task_admin#:#Teilaufgaben
 collections_not_available#:#Aktuell sind für Sie hier keine Übersichten verfügbar.
 review_mode#:#Bereitstellung
+personal_data_export#:#Abruf personenbezogener Daten
+personal_data_export_info#:#Geben Sie den Anmeldenamen der Person ein, um einen Export der personenbezogenen Daten zu erstellen. Das heruntergeladene Archiv enthält eine data.json mit allen strukturierten Benutzerdaten sowie alle Dateien mit Personenbezug.
+personal_data_export_cancelled#:#Der Anmeldename konnte nicht gefunden werden.

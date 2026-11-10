@@ -16,7 +16,7 @@ class ResourcesCopiedObjective implements Setup\Objective
 
     public function getLabel(): string
     {
-        return "The public folder is populated with EDUTIEK assets.";
+        return "The public folder is populated with LongEssayAssessment assets.";
     }
 
     public function isNotable(): bool

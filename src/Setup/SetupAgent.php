@@ -85,6 +85,7 @@ class SetupAgent implements Agent
             true,
             new EndpointsBuildObjective(),
             new ResourcesCopiedObjective(),
+            new WebAppsCopiedObjective(),
             new ModelObjective(),
         );
     }

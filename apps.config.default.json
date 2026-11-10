@@ -1,0 +1,10 @@
+{
+  "corrector": {
+    "publicPath": "components/EDUTIEK/Corrector",
+    "backendUrl": "../../../xlas_rest.php"
+  },
+  "writer": {
+    "publicPath": "components/EDUTIEK/Writer",
+    "backendUrl": "../../../xlas_rest.php"
+  }
+}

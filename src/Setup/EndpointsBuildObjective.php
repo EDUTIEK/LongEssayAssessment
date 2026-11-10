@@ -16,7 +16,7 @@ class EndpointsBuildObjective implements Setup\Objective
 
     public function getLabel(): string
     {
-        return "The public folder is populated with EDUTIEK enpoints.";
+        return "The public folder is populated with LongEssayAssessment enpoints.";
     }
 
     public function isNotable(): bool

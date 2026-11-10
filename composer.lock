@@ -88,12 +88,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/EDUTIEK/dompdf.git",
-                "reference": "da56e45645105295ef06afaaeb6cf45ea56196fa"
+                "reference": "15cf5dd15de868ad065d625336fea693388e734f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EDUTIEK/dompdf/zipball/da56e45645105295ef06afaaeb6cf45ea56196fa",
-                "reference": "da56e45645105295ef06afaaeb6cf45ea56196fa",
+                "url": "https://api.github.com/repos/EDUTIEK/dompdf/zipball/15cf5dd15de868ad065d625336fea693388e734f",
+                "reference": "15cf5dd15de868ad065d625336fea693388e734f",
                 "shasum": ""
             },
             "require": {
@@ -147,7 +147,7 @@
             "support": {
                 "source": "https://github.com/EDUTIEK/dompdf/tree/gs-font-patch"
             },
-            "time": "2026-06-29T11:51:36+00:00"
+            "time": "2026-11-03T14:49:54+00:00"
         },
         {
             "name": "dompdf/php-font-lib",
@@ -1707,5 +1707,5 @@
         "php": ">=8.3 <8.5"
     },
     "platform-dev": {},
-    "plugin-api-version": "2.6.0"
+    "plugin-api-version": "2.9.0"
 }

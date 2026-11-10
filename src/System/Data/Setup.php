@@ -22,12 +22,14 @@ namespace ILIAS\Plugin\LongEssayAssessment\System\Data;
 
 use DateTimeZone;
 use Edutiek\AssessmentService\System\Config\CronJobId;
+use Edutiek\AssessmentService\System\Config\Frontend;
 
 readonly class Setup extends \Edutiek\AssessmentService\System\Data\Setup
 {
     public function __construct(
         private string $system_name,
-        private string $frontends_base_url,
+        private string $writer_base_url,
+        private string $corrector_base_url,
         private string $backend_url,
         private string $default_path_to_ghostscript,
         private string $absolute_temp_path,
@@ -43,9 +45,12 @@ readonly class Setup extends \Edutiek\AssessmentService\System\Data\Setup
         return $this->system_name;
     }
 
-    public function getFrontendsBaseUrl(): string
+    public function getFrontendBaseUrl(Frontend $frontend): string
     {
-        return $this->frontends_base_url;
+        return match ($frontend) {
+            Frontend::WRITER => $this->writer_base_url,
+            Frontend::CORRECTOR => $this->corrector_base_url,
+        };
     }
 
     public function getBackendUrl(): string

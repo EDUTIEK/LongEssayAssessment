@@ -9,6 +9,7 @@ use ilLongEssayAssessmentPlugin;
 use ilLanguage;
 use DateTimeZone;
 use Edutiek\AssessmentService\System\Config\CronJobId;
+use Edutiek\AssessmentService\System\Config\Frontend;
 use ILIAS\Cron\Job\JobManager;
 
 class SetupRepo implements \Edutiek\AssessmentService\System\Data\SetupRepo
@@ -43,11 +44,12 @@ class SetupRepo implements \Edutiek\AssessmentService\System\Data\SetupRepo
                 }
             }
 
+            $apps_config = $this->readAppsConfig();
+
             $this->setup = new Setup(
                 $this->client_ini->readVariable('client', 'name'),
-                ILIAS_HTTP_PATH
-                    . '/Customizing/global/plugins/Services/Repository/RepositoryObject/LongEssayAssessment'
-                    . '/vendor/edutiek/assessment-service/node_modules',
+                $this->frontendBaseUrl($apps_config, Frontend::WRITER),
+                $this->frontendBaseUrl($apps_config, Frontend::CORRECTOR),
                 ILIAS_HTTP_PATH . '/xlas_rest.php',
                 $this->getDefaultPathToGhostscript(),
                 self::TEMP_DIR,
@@ -61,6 +63,46 @@ class SetupRepo implements \Edutiek\AssessmentService\System\Data\SetupRepo
         return $this->setup;
     }
 
+
+    /**
+     * Base URL of a published frontend
+     * The URL has no trailing slash
+     * @param array<string, mixed> $config
+     */
+    private function frontendBaseUrl(array $config, Frontend $frontend): string
+    {
+        $public_path = $config[$frontend->value]['publicPath'] ?? null;
+        if (!is_string($public_path) || $public_path === '') {
+            throw new \RuntimeException(
+                "Missing publicPath for '{$frontend->value}' in the LongEssayAssessment apps config."
+            );
+        }
+
+        return rtrim(ILIAS_HTTP_PATH, '/') . '/' . trim($public_path, '/');
+    }
+
+    /**
+     * Prefer a local apps.config.json over apps.config.default.json
+     * @return array<string, mixed>
+     */
+    private function readAppsConfig(): array
+    {
+        $plugin = dirname(__DIR__, 3);
+        $local = $plugin . '/apps.config.json';
+        $default = $plugin . '/apps.config.default.json';
+        $path = is_file($local) ? $local : $default;
+
+        if (!is_file($path)) {
+            throw new \RuntimeException('LongEssayAssessment apps config was not found.');
+        }
+
+        $config = json_decode((string) file_get_contents($path), true);
+        if (!is_array($config)) {
+            throw new \RuntimeException("LongEssayAssessment apps config '$path' is not valid JSON.");
+        }
+
+        return $config;
+    }
 
     /**
      * Get the default path of the ghostscript executable

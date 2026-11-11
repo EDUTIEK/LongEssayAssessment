@@ -16,7 +16,7 @@ class WebAppsCopiedObjective implements Setup\Objective
 
     public function getLabel(): string
     {
-        return "The LongEssayAssessment web apps are copied to their public destination";
+        return "The public folder is populated with LongEssayAssessment web apps.";
     }
 
     public function isNotable(): bool

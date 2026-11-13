@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f9b4ec6df8d0ffdb78313a3301fa503c",
+    "content-hash": "1872ae3615162229d5a2e07a24785e38",
     "packages": [
         {
             "name": "composer/pcre",
@@ -242,16 +242,16 @@
         },
         {
             "name": "edutiek/assessment-service",
-            "version": "dev-dev_11",
+            "version": "dev-pilot_11",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EDUTIEK/assessment-service.git",
-                "reference": "f3b300814a43c24096d87d72e4811637d2fe280d"
+                "reference": "aa91b9998691c0e9a96660754fccde98a525ed50"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EDUTIEK/assessment-service/zipball/f3b300814a43c24096d87d72e4811637d2fe280d",
-                "reference": "f3b300814a43c24096d87d72e4811637d2fe280d",
+                "url": "https://api.github.com/repos/EDUTIEK/assessment-service/zipball/aa91b9998691c0e9a96660754fccde98a525ed50",
+                "reference": "aa91b9998691c0e9a96660754fccde98a525ed50",
                 "shasum": ""
             },
             "require": {
@@ -294,10 +294,10 @@
             ],
             "description": "Backend service for long essay assessments",
             "support": {
-                "source": "https://github.com/EDUTIEK/assessment-service/tree/dev_11",
+                "source": "https://github.com/EDUTIEK/assessment-service/tree/pilot_11",
                 "issues": "https://github.com/EDUTIEK/assessment-service/issues"
             },
-            "time": "2026-11-13T14:39:48+00:00"
+            "time": "2026-11-13T15:09:57+00:00"
         },
         {
             "name": "fig/http-message-util",

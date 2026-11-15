@@ -121,7 +121,7 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
 
     public function getColumnMapping(CorrectorStartItem|Item $item, ?array $additional_parameters): array|\ArrayAccess
     {
-        $data = $this->items_service->getDisplayData($item->getCorrectionItem());
+        $data = $this->items_service->getCorrectorData($item->getCorrectionItem());
 
         return new ColumnMappingClosure(function ($key) use ($item, $data) {
             return match($key) {

@@ -1036,3 +1036,7 @@ review_mode#:#Bereitstellung
 personal_data_export#:#Abruf personenbezogener Daten
 personal_data_export_info#:#Geben Sie den Anmeldenamen der Person ein, um einen Export der personenbezogenen Daten zu erstellen. Das heruntergeladene Archiv enthält eine data.json mit allen strukturierten Benutzerdaten sowie alle Dateien mit Personenbezug.
 personal_data_export_cancelled#:#Der Anmeldename konnte nicht gefunden werden.
+corrector_filter_position#:#Funktion
+corrector_filter_grading_status#:#Eigene Korrektur
+corrector_filter_other_status#:#Andere Korrektur
+corrector_filter_correction_status#:#Gesamt-Status

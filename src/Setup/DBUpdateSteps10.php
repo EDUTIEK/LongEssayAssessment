@@ -1854,4 +1854,23 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
             $this->db->addIndex("xlas_sy_token", ['token'], 'i2');
         }
     }
+
+    public function step_102(): void
+    {
+        if ($this->db->tableColumnExists('xlas_ta_corr_prefs', 'filter_assigned_position')) {
+            $this->db->modifyTableColumn('xlas_ta_corr_prefs', 'filter_assigned_position', [
+                'type' => ilDBConstants::T_TEXT,
+                'length' => 250,
+                'notnull' => false,
+            ]);
+        }
+
+        if (!$this->db->tableColumnExists('xlas_ta_corr_prefs', 'filter_other_status')) {
+            $this->db->addTableColumn('xlas_ta_corr_prefs', 'filter_other_status', [
+                'type' => ilDBConstants::T_TEXT,
+                'length' => 250,
+                'notnull' => false,
+            ]);
+        }
+    }
 }

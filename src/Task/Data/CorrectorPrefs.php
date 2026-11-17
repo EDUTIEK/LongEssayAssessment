@@ -36,7 +36,8 @@ class CorrectorPrefs extends \Edutiek\AssessmentService\Task\Data\CorrectorPrefs
     private bool $select_words = true;
     private ?string $filter_grading_status = null;
     private ?string $filter_combined_status = null;
-    private ?int $filter_assigned_position = null;
+    private ?string $filter_assigned_position = null;
+    private ?string $filter_other_status = null;
 
     public function getCorrectorId(): int
     {
@@ -119,13 +120,24 @@ class CorrectorPrefs extends \Edutiek\AssessmentService\Task\Data\CorrectorPrefs
         $this->filter_combined_status = $filter_combined_status;
         return $this;
     }
-    public function getFilterAssignedPosition(): ?int
+    public function getFilterAssignedPosition(): ?string
     {
         return $this->filter_assigned_position;
     }
-    public function setFilterAssignedPosition(?int $filter_assigned_position): self
+    public function setFilterAssignedPosition(?string $filter_assigned_position): self
     {
         $this->filter_assigned_position = $filter_assigned_position;
+        return $this;
+    }
+
+    public function getFilterOtherStatus(): ?string
+    {
+        return $this->filter_other_status;
+    }
+
+    public function setFilterOtherStatus(?string $filter_other_status): self
+    {
+        $this->filter_other_status = $filter_other_status;
         return $this;
     }
 }

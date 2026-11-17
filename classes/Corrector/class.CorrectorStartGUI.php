@@ -25,7 +25,7 @@ use Edutiek\AssessmentService\Assessment\Data\CorrectionSettings;
 use Edutiek\AssessmentService\Assessment\Data\CorrectionSort;
 use Edutiek\AssessmentService\Assessment\Data\OrgaSettings;
 use Edutiek\AssessmentService\Task\CorrectorAssignments\FullService as AssignmentService;
-use Edutiek\AssessmentService\Task\CorrectionItems\ReadService as ItemsService;
+use Edutiek\AssessmentService\Task\CorrectionItems\FullService as ItemsService;
 use Edutiek\AssessmentService\System\User\ReadService as UserService;
 use Edutiek\AssessmentService\Assessment\Data\Corrector;
 use Edutiek\AssessmentService\Assessment\Corrector\FullService as CorrectorService;
@@ -185,12 +185,8 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
 
     public function getTotalRowCount(?array $filter_data, ?array $additional_parameters): ?int
     {
-        if (isset($filter_data)) {
-            // filter is already saved
-            return count($this->assignment_service->allByCorrectorIdFiltered($this->corrector->getId(), true));
-        } else {
-            return count($this->assignment_service->allByCorrectorId($this->corrector->getId(), true));
-        }
+        // no paging
+        return -1;
     }
 
     public function getTableActions(): array
@@ -315,19 +311,9 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
 
     public function getTableItems(?array $ids = null, ?array $filter_data = null): Generator
     {
-        // filter and sorting are treated by the service, based on the settings
-        $own_assignments = $this->assignment_service->allByCorrectorIdFiltered($this->corrector->getId(), true);
-
-        /**
-         * @var CorrectorAssignment $own_assignment
-         */
-        foreach ($own_assignments as $own_assignment) {
-            if (!empty($ids) && !in_array($own_assignment->getId(), $ids)) {
-                continue;
-            }
-
-            $item = CorrectorStartItem::fromCorrectionItem($this->items_service->buildCorrectionItem($own_assignment));
-            yield $item;
+        foreach ($this->items_service->getItems(true, $ids) as $item) {
+            $start_item = CorrectorStartItem::fromCorrectionItem($item);
+            yield $start_item;
         }
     }
 
@@ -337,44 +323,6 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
         return CorrectorStartItem::fromCorrectionItem($this->items_service->buildCorrectionItem($assignment));
     }
 
-    /**
-     * Apply the filter settings
-     * These are saved in the service to be available when the corrctor app loads its items
-     */
-    public function applyFilter()
-    {
-        $table = $this->plugin_ui_factory->table()->dataTable("corrector_start_table", $this);
-        $filter_data = $table->getFilterData();
-
-        if ($this->get->string('cmdFilter') == 'reset') {
-            $status = null;
-            $position = null;
-            $combined = null;
-        } else {
-            $status = null;
-            if (is_array($filter_data['status'] ?? null)) {
-                $status = [];
-                foreach ($filter_data['status'] as $value) {
-                    if (!empty($enum = GradingStatus::tryFrom($value))) {
-                        $status[] = $enum;
-                    }
-                }
-            }
-            $combined = null;
-            if (is_array($filter_data['combined_status'] ?? null)) {
-                $combined = [];
-                foreach ($filter_data['combined_status'] as $value) {
-                    if (!empty($enum = CombinedStatus::tryFrom($value))) {
-                        $combined[] = $enum;
-                    }
-                }
-            }
-            $position = (isset($filter_data['position']) && $filter_data['position'] !== '') ? (int) $filter_data['position'] : null;
-        }
-
-        $this->assignment_service->saveCorrectorFilter($this->corrector->getId(), $status, $combined, $position);
-        $this->ctrl->redirect($this, 'showStartPage');
-    }
 
     /**
      * Show the items
@@ -564,35 +512,32 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
             return [];
         }
 
-        $multiple_correctors = $this->settings->getRequiredCorrectors() > 1;
+        $filter_options = $this->items_service->getFilterOptions();
+        $filter_values = $this->items_service->getFilterValues();
 
-        $stat_options = $this->task_format->gradingStatusOptions();
-        $comb_options = $this->assessment_api->format()->combinedStatusOptions(false);
-        $pos_options = $this->task_format->gradingPositionOptions();
+        $filter_inputs = [];
+        foreach ($filter_options as $key => $options) {
+            $filter_inputs[$key] = $this->ui_factory->input()->field()->multiSelect(
+                $this->plugin->txt('corrector_filter_' . $key),
+                $options,
+            )->withValue($filter_values[$key] ?? null);
+        }
 
-        [$stat_value, $comb_value, $pos_value] = $this->assignment_service->getCorrectionFilter($this->corrector->getId());
+        return $filter_inputs;
+    }
 
-        // ensure that only selectable filter values are used
-        $stat_value = array_filter((array) $stat_value, fn($val) => isset($stat_options[$val]));
-        $comb_value = array_filter((array) $comb_value, fn($val) => isset($comb_options[$val]));
-
-        return  [
-            "position" => $multiple_correctors ?
-                $this->ui_factory->input()->field()->select(
-                    $this->plugin->txt('own_position'),
-                    $pos_options,
-                )->withValue($pos_value ?? '') : null,
-
-            "status" => $this->ui_factory->input()->field()->multiSelect(
-                $this->plugin->txt('own_correction'),
-                $stat_options,
-            )->withValue($stat_value),
-
-            "combined_status" => $this->ui_factory->input()->field()->multiSelect(
-                $this->plugin->txt("correction_status"),
-                $comb_options,
-            )->withValue($comb_value),
-        ];
+    /**
+     * The filter settings are saved in the service and are also used in the corrector app
+     */
+    public function applyFilter()
+    {
+        if ($this->get->string('cmdFilter') == 'reset') {
+            $this->items_service->saveFilterValues([]);
+        } else {
+            $table = $this->plugin_ui_factory->table()->dataTable("corrector_start_table", $this);
+            $this->items_service->saveFilterValues($table->getFilterData());
+        }
+        $this->ctrl->redirect($this, 'showStartPage');
     }
 
     public function getFilterInputActivation(): ?array

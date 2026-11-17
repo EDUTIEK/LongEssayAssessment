@@ -111,13 +111,13 @@ class CorrectorPrefs extends \Edutiek\AssessmentService\Task\Data\CorrectorPrefs
         $this->filter_grading_status = $filter_grading_status;
         return $this;
     }
-    public function getFilterCombinedStatus(): ?string
+    public function getFilterCorrectionStatus(): ?string
     {
         return $this->filter_combined_status;
     }
-    public function setFilterCombinedStatus(?string $filter_combined_status): self
+    public function setFilterCorrectionStatus(?string $filter_correction_status): self
     {
-        $this->filter_combined_status = $filter_combined_status;
+        $this->filter_combined_status = $filter_correction_status;
         return $this;
     }
     public function getFilterAssignedPosition(): ?string

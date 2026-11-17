@@ -33,6 +33,11 @@ class PermissionsRepo implements \Edutiek\AssessmentService\Assessment\Data\Perm
     ) {
     }
 
+    public function canRead(int $ass_id, int $context_id, int $user_id): bool
+    {
+        return  $this->access->checkAccessOfUser($user_id, 'read', '', $context_id, 'xlas', $ass_id);
+    }
+
     public function one(int $ass_id, int $context_id, int $user_id): Permissions
     {
         return $this->instances[Permissions::class][$ass_id][$context_id][$user_id] ??= new PermissionsModel(
@@ -54,7 +59,7 @@ class PermissionsRepo implements \Edutiek\AssessmentService\Assessment\Data\Perm
     {
         $permissions = [];
 
-        foreach(\ilObject2::_getAllReferences($ass_id) as $context_id) {
+        foreach (\ilObject2::_getAllReferences($ass_id) as $context_id) {
             $permissions[] = $this->one($ass_id, $context_id, $user_id);
         }
         return $permissions;

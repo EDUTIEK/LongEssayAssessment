@@ -41,6 +41,7 @@ class OrgaSettings extends \Edutiek\AssessmentService\Assessment\Data\OrgaSettin
     private ?DateTimeImmutable $writing_end = null;
     private ?int $writing_limit_minutes = null;
     private ?DateTimeImmutable $correction_start = null;
+    private ?DateTimeImmutable $first_correction_end = null;
     private ?DateTimeImmutable $correction_end = null;
     private ?DateTimeImmutable $review_start = null;
     private ?DateTimeImmutable $review_end = null;
@@ -149,6 +150,15 @@ class OrgaSettings extends \Edutiek\AssessmentService\Assessment\Data\OrgaSettin
     public function setCorrectionStart(?DateTimeImmutable $correction_start): self
     {
         $this->correction_start = $correction_start;
+        return $this;
+    }
+    public function getFirstCorrectionEnd(): ?DateTimeImmutable
+    {
+        return $this->first_correction_end;
+    }
+    public function setFirstCorrectionEnd(?DateTimeImmutable $first_correction_end): self
+    {
+        $this->first_correction_end = $first_correction_end;
         return $this;
     }
     public function getCorrectionEnd(): ?DateTimeImmutable

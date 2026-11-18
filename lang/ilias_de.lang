@@ -91,8 +91,10 @@ writing_end#:#Spätestes Bearbeitungs-Ende
 writing_end_info#:#Bis zu diesem Zeitpunkt getätigte Eingaben werden akzeptiert, danach ist die Eingabe gesperrt. Bei Verbindungsproblemen können die im Browser zwischengespeicherten Eingaben auch nachträglich gesendet oder freigegeben werden. Ohne festgelegtes Ende kann die Aufgabe beliebig spät bearbeitet werden.
 correction_start#:#Korrektur-Start
 correction_start_info#:#Ab diesem Zeitpunkt wird unter „Meine Korrektur” die Schaltfläche „Angezeigte Korrekturen starten” angezeigt und sie können die ihnen zugewiesenen und freigegebenen Abgaben kommentieren und bewerten. Ohne festgelegten Start ist das für jede Abgabe möglich, sobald sie freigegeben wurde.
+first_correction_end#:#Ende Erstkorrektur
+first_correction_end_info#:#Das Ende der Erstkorrektur wird informativ angezeigt. Es gibt keine harte Beschränkung.
 correction_end#:#Korrektur-Ende
-correction_end_info#:#Nach diesem Zeitpunkt wird unter „Meine Korrektur” die Schaltfläche „Angezeigte Korrekturen starten” nicht mehr angezeigt und es werden keine Korrektur-Eingaben mehr akzeptiert. Sollten einzelne Korrekturen noch nicht abgeschlossen sein, müssen Sie den Zeitraum für alle verlängern. Ohne festgelegtes Ende werden Korrektur-Eingaben beliebig lange akzeptiert.
+correction_end_info#:#Das Korrektur-Ende wird informativ angezeigt. Es gibt keine harte Beschränkung.
 review_start#:#Einsichtnahme-Start
 review_start_info#:#Ab diesem Zeitpunkt können die Teilnehmenden ein PDF mit ihrer korrigierten Abgabe herunterladen, sofern ihre Korrektur abgeschlossen ist und das Ergebnis feststeht. Ohne festgelegten Start ist das PDF sofort nach dem Abschluss der Korrektur verfügbar.
 review_end#:#Einsichtnahme-Ende

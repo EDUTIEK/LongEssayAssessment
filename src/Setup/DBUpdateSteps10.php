@@ -1873,4 +1873,14 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
             ]);
         }
     }
+
+    public function step_103(): void
+    {
+        if (!$this->db->tableColumnExists('xlas_as_orga_settings', 'first_correction_end')) {
+            $this->db->addTableColumn('xlas_as_orga_settings', 'first_correction_end', [
+                'type' => ilDBConstants::T_TIMESTAMP,
+                'notnull' => false,
+            ]);
+        }
+    }
 }

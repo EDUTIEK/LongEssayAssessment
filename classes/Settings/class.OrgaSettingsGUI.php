@@ -21,6 +21,7 @@ use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\BaseObjectData;
 use ILIAS\Plugin\LongEssayAssessment\UI\Input\TinyMCE;
 use ILIAS\UI\Component\Input\Container\Form\Standard;
+use Edutiek\AssessmentService\Assessment\CorrectionSettings\FullService as CorrectionSettingsService;
 
 /**
  * Organizational Settings
@@ -36,6 +37,7 @@ class OrgaSettingsGUI extends BaseGUI
     private EntityService $entity_service;
     private TransformService $transform_service;
     private DateTimeZone $user_timezone;
+    private CorrectionSettingsService $correction_settings_service;
 
     public function __construct(BaseObjectData $object)
     {
@@ -44,6 +46,7 @@ class OrgaSettingsGUI extends BaseGUI
         $this->properties_service = $this->assessment_api->properties();
         $this->orga_settings_service = $this->assessment_api->orgaSettings();
         $this->writing_settings_service = $this->essay_task_api->writingSettings();
+        $this->correction_settings_service = $this->assessment_api->correctionSettings();
         $this->location_service = $this->assessment_api->location();
         $this->entity_service = $this->system_api->entity();
         $this->transform_service = $this->system_api->transform();
@@ -303,6 +306,19 @@ class OrgaSettingsGUI extends BaseGUI
                     )
                 );
 
+            if ($this->correction_settings_service->get()->getRequiredCorrectors() > 1) {
+                $fields_correction['first_correction_end'] = $factory->dateTime(
+                    $this->plugin->txt("first_correction_end"),
+                    $this->plugin->txt("first_correction_end_info")
+                )
+                    ->withUseTime(true)
+                    ->withValue(
+                        $orga_settings->getFirstCorrectionEnd()?->setTimezone(
+                            $this->user_timezone
+                        )
+                    );
+            }
+
             $fields_correction['correction_end'] = $factory->dateTime(
                 $this->plugin->txt("correction_end"),
                 $this->plugin->txt("correction_end_info")
@@ -493,6 +509,10 @@ class OrgaSettingsGUI extends BaseGUI
         if (!$this->fixation_gui->isDisabled('correction')) {
             $orga_settings->setCorrectionStart($data['correction']['correction_start'] ?? null);
             $orga_settings->setCorrectionEnd($data['correction']['correction_end'] ?? null);
+
+            if ($this->correction_settings_service->get()->getRequiredCorrectors() > 1) {
+                $orga_settings->setFirstCorrectionEnd($data['correction']['first_correction_end'] ?? null);
+            }
         }
 
         if (!$this->fixation_gui->isDisabled('review')) {

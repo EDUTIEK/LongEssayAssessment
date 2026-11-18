@@ -374,9 +374,8 @@ class CorrectorStartGUI extends BaseGUI implements DataTableParent, FilterParent
             }
         }
 
-        if ($this->orga_settings->getCorrectionStart() || $this->orga_settings->getCorrectionEnd()) {
-            $period = $this->system_format->dateRange($this->orga_settings->getCorrectionStart(), $this->orga_settings->getCorrectionEnd());
-            $messages[] = $this->plugin->txt("correction_period") . ': ' . $period;
+        if (!empty($period = $this->assessment_format->correctionPeriod())) {
+            $messages[] = nl2br($period);
         }
 
         if (!empty($messages)) {

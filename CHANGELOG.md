@@ -25,6 +25,7 @@ Bug fixes
 - Fix page count for correction pdfs with uploaded summary
 - Fix missing notification recipients after copy or creation from template
 - Fix an error on the PDF upload page after deletion of an assigned location
+- Hide text snippets tabs when comments are disabled
 
 ## Version 10.4 (2026-10-11)
 

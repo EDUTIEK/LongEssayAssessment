@@ -23,6 +23,8 @@ namespace ILIAS\Plugin\LongEssayAssessment\System\Mail;
 use ilDBInterface;
 use ilMail;
 use ilObjUser;
+use ilMailMimeSenderFactory;
+use ilMimeMail;
 
 /**
  * Adapter of the ILIAS mail delivery functions for the assessment-service
@@ -33,10 +35,11 @@ class DeliveryAdapter implements \Edutiek\AssessmentService\System\Mail\Delivery
 
     public function __construct(
         private readonly ilDBInterface $db,
+        private ilMailMimeSenderFactory $sender_factory
     ) {
     }
 
-    public function deliver(string $subject, string $body, array $to_ids, array $cc_ids = [], array $bc_ids = []): void
+    public function internal(string $subject, string $body, array $to_ids, array $cc_ids = [], array $bc_ids = []): void
     {
         $ids = array_map(fn($id) => (int) $id, array_merge($to_ids, $cc_ids, $bc_ids));
 
@@ -57,7 +60,19 @@ class DeliveryAdapter implements \Edutiek\AssessmentService\System\Mail\Delivery
             $body,
             [],
         );
+    }
 
+    public function external(string $subject, string $body, array $to, array $cc = [], array $bc = []): bool
+    {
+        $mm = new ilMimeMail();
+        $mm->Subject($subject, true);
+        $mm->From($this->sender_factory->system());
+        $mm->To($to);
+        $mm->Cc($cc);
+        $mm->Bcc($bc);
+        $mm->Body($body);
+
+        return $mm->Send();
     }
 
     private function getMail(): ilMail

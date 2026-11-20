@@ -33,6 +33,8 @@ use ILIAS\Plugin\LongEssayAssessment\System\Rest\RestContext;
 use ilTemporaryStakeholder;
 use ilUserQuery;
 use ilUserUtil;
+use ILIAS\Plugin\LongEssayAssessment\System\Data\UserAuthRepo;
+use ILIAS\Plugin\LongEssayAssessment\System\Data\UserAuth;
 
 /**
  *  Dependencies of the assessment services component "System"
@@ -129,6 +131,18 @@ class SystemDic implements \Edutiek\AssessmentService\System\Api\Dependencies
         );
     }
 
+    public function userAuthRepo(): UserAuthRepo
+    {
+        return new UserAuthRepo(
+            new CacheRepository(
+                new DatabaseRepository(
+                    $this->dic->database(),
+                    $this->dic[Generate::class]->readModel(UserAuth::class)
+                )
+            )
+        );
+    }
+
     public function userDataRepo(): UserDataRepo
     {
         return new UserDataRepo(
@@ -170,7 +184,8 @@ class SystemDic implements \Edutiek\AssessmentService\System\Api\Dependencies
     public function mailDelivery(): MailDelivery
     {
         return new MailDeliveryAdapter(
-            $this->dic->database()
+            $this->dic->database(),
+            $this->dic->mail()->mime()->senderFactory()
         );
     }
 }

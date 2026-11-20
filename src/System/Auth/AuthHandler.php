@@ -16,6 +16,10 @@ use ILIAS\TermsOfService\UserSettings as TermsOfServiceUserSettings;
 use ilSecuritySettings;
 use ilAuthUtils;
 use ilLogger;
+use Edutiek\AssessmentService\System\Data\Result;
+use ilSecuritySettingsChecker;
+
+use function ILIAS\UI\examples\Symbol\Glyph\Language\language;
 
 /**
  * Authentication handler needed by the assessment service
@@ -40,6 +44,29 @@ readonly class AuthHandler implements \Edutiek\AssessmentService\System\Auth\Aut
         }
 
         return false;
+    }
+
+    public function changePassword(int $user_id, string $password): Result
+    {
+        $user_obj = new ilObjUser($user_id);
+
+        $custom_error = null;
+        if (!ilSecuritySettingsChecker::isPassword($password, $custom_error)) {
+            return new Result(false, $custom_error ?? $this->dic->language()->txt('passwd_invalid'));
+        }
+
+        $error_lng_var = '';
+        if (!ilSecuritySettingsChecker::isPasswordValidForUserContext($password, $user_obj, $error_lng_var)) {
+            return new Result(false, $this->dic->language()->txt($error_lng_var));
+        }
+
+        if ($user_obj->resetPassword($password)) {
+            $user_obj->setLastPasswordChangeToNow();
+            $user_obj->update();
+            return new Result(true);
+        }
+
+        return new Result(false);
     }
 
     /**

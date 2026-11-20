@@ -1883,4 +1883,18 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
             ]);
         }
     }
+
+    public function step_104(): void
+    {
+        if (!$this->db->tableExists('xlas_sy_user_auth')) {
+            $fields = [
+                'user_id' => ['notnull' => 1, 'type' => ilDBConstants::T_INTEGER],
+                'reset_code' => ['notnull' => 0, 'type' => ilDBConstants::T_TEXT, 'length' => 50],
+                'reset_valid_until' => ['notnull' => 0, 'type' => ilDBConstants::T_TIMESTAMP],
+                'factor_init_code' => ['notnull' => 0, 'type' => ilDBConstants::T_TEXT, 'length' => 50],
+            ];
+            $this->db->createTable('xlas_sy_user_auth', $fields);
+            $this->db->addPrimaryKey('xlas_sy_user_auth', ['user_id']);
+        }
+    }
 }

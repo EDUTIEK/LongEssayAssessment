@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace ILIAS\Plugin\LongEssayAssessment\System\Data;
 
 use ilDBInterface;
-use ILIAS\Plugin\LongEssayAssessment\System\Data\UserData;
 use ilUserQuery;
 use PHPUnit\Exception;
 use DateTimeZone;
@@ -59,9 +58,15 @@ class UserDataRepo implements \Edutiek\AssessmentService\System\Data\UserDataRep
         return ilObjUser::getUserIdByLogin($login);
     }
 
+
     public function loginById(int $id): string
     {
         return ilObjUser::_lookupLogin($id);
+    }
+
+    public function idsByEmail(string $email): array
+    {
+        return ilObjUser::getUserIdsByEmail($email);
     }
 
     /**
@@ -186,5 +191,4 @@ class UserDataRepo implements \Edutiek\AssessmentService\System\Data\UserDataRep
             unset($this->dehydrated[$row['usr_id']]);
         }
     }
-
 }

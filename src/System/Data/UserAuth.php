@@ -44,7 +44,7 @@ class UserAuth extends \Edutiek\AssessmentService\System\Data\UserAuth
         $this->user_id = $user_id;
         return $this;
     }
-    public function getResetCode(): string
+    public function getResetCode(): ?string
     {
         return $this->reset_code;
     }

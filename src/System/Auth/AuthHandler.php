@@ -62,6 +62,7 @@ readonly class AuthHandler implements \Edutiek\AssessmentService\System\Auth\Aut
 
         if ($user_obj->resetPassword($password)) {
             $user_obj->setLastPasswordChangeToNow();
+            $user_obj->setPasswordPolicyResetStatus(false);
             $user_obj->update();
             return new Result(true);
         }
@@ -110,6 +111,16 @@ readonly class AuthHandler implements \Edutiek\AssessmentService\System\Auth\Aut
             (int) ilAuthUtils::_getAuthMode(ilObjUser::_lookupAuthMode($user_id))
         );
     }
+
+    /**
+     * Check if a password change is needed for a user
+     */
+    public function isPasswordChangeNeeded(int $user_id): bool
+    {
+        $user_obj = new ilObjUser($user_id);
+        return $user_obj?->isPasswordChangeDemanded() ?? false;
+    }
+
 
     public function isActive(int $user_id): bool
     {

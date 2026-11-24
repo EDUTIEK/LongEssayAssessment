@@ -20,6 +20,7 @@ class SetupRepo implements \Edutiek\AssessmentService\System\Data\SetupRepo
     private ?Setup $setup = null;
 
     public function __construct(
+        private readonly ilIniFile $ilias_ini,
         private readonly ilIniFile $client_ini,
         private readonly ilLanguage $lng,
         private readonly JobManager $cron,
@@ -50,7 +51,7 @@ class SetupRepo implements \Edutiek\AssessmentService\System\Data\SetupRepo
                 $this->client_ini->readVariable('client', 'name'),
                 $this->frontendBaseUrl($apps_config, Frontend::WRITER),
                 $this->frontendBaseUrl($apps_config, Frontend::CORRECTOR),
-                ILIAS_HTTP_PATH . '/xlas_rest.php',
+                $this->iliasBaseUrl() . '/xlas_rest.php',
                 $this->getDefaultPathToGhostscript(),
                 self::TEMP_DIR,
                 self::ARTI_DIR,
@@ -63,6 +64,30 @@ class SetupRepo implements \Edutiek\AssessmentService\System\Data\SetupRepo
         return $this->setup;
     }
 
+    /**
+     * Base URL of the ILIAS installation
+     * The URL has no trailing slash
+     */
+    private function iliasBaseUrl()
+    {
+        $url = $this->ilias_ini->readVariable('server', 'http_path');
+        if (empty($url)) {
+            $url = ILIAS_HTTP_PATH;
+        }
+        $url = rtrim($url, '/');
+
+        // remove a script or index file
+        $path = parse_url($url, PHP_URL_PATH);
+        if (is_string($path) && !empty($path)) {
+            $basename = pathinfo($path, PATHINFO_BASENAME);
+            $extension = pathinfo($path, PATHINFO_EXTENSION);
+            if ($extension === 'php' || $extension = 'html') {
+                $url = rtrim(str_replace($basename, '', $url), '/');
+            }
+        }
+
+        return $url;
+    }
 
     /**
      * Base URL of a published frontend
@@ -78,7 +103,7 @@ class SetupRepo implements \Edutiek\AssessmentService\System\Data\SetupRepo
             );
         }
 
-        return rtrim(ILIAS_HTTP_PATH, '/') . '/' . trim($public_path, '/');
+        return rtrim($this->iliasBaseUrl(), '/') . '/' . trim($public_path, '/');
     }
 
     /**

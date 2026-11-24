@@ -66,6 +66,7 @@ class SystemDic implements \Edutiek\AssessmentService\System\Api\Dependencies
     public function setupRepo(): SetupRepo
     {
         return new SetupRepo(
+            $this->dic->iliasIni(),
             $this->dic->clientIni(),
             $this->dic->language(),
             $this->dic->cron()->manager()

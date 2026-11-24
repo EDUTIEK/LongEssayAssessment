@@ -50,9 +50,11 @@ readonly class AuthHandler implements \Edutiek\AssessmentService\System\Auth\Aut
     {
         $user_obj = new ilObjUser($user_id);
 
-        $custom_error = null;
-        if (!ilSecuritySettingsChecker::isPassword($password, $custom_error)) {
-            return new Result(false, $custom_error ?? $this->dic->language()->txt('passwd_invalid'));
+        $error = $this->dic->language()->txt('passwd_invalid');
+        if (!ilSecuritySettingsChecker::isPassword($password, $error)) {
+            $error = str_replace('<br />', "\n", $error);
+            $error = str_replace('<br>', "\n", $error);
+            return new Result(false, $error);
         }
 
         $error_lng_var = '';

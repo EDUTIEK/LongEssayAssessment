@@ -51,6 +51,8 @@ class SetupRepo implements \Edutiek\AssessmentService\System\Data\SetupRepo
                 $this->client_ini->readVariable('client', 'name'),
                 $this->frontendBaseUrl($apps_config, Frontend::WRITER),
                 $this->frontendBaseUrl($apps_config, Frontend::CORRECTOR),
+                $this->frontendWithLogin($apps_config, Frontend::WRITER),
+                $this->frontendWithLogin($apps_config, Frontend::CORRECTOR),
                 $this->iliasBaseUrl() . '/xlas_rest.php',
                 $this->getDefaultPathToGhostscript(),
                 self::TEMP_DIR,
@@ -87,6 +89,16 @@ class SetupRepo implements \Edutiek\AssessmentService\System\Data\SetupRepo
         }
 
         return $url;
+    }
+
+    /**
+     * The frontend supports a direct login
+     * This is relevant for generating links in notifications
+     * @param array<string, mixed> $config
+     */
+    private function frontendWithLogin(array $config, Frontend $frontend): bool
+    {
+        return $config[$frontend->value]['withLogin'] ?? false;
     }
 
     /**

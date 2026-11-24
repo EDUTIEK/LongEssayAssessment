@@ -30,6 +30,8 @@ readonly class Setup extends \Edutiek\AssessmentService\System\Data\Setup
         private string $system_name,
         private string $writer_base_url,
         private string $corrector_base_url,
+        private bool $writer_with_Login,
+        private bool $corrector_with_Login,
         private string $backend_url,
         private string $default_path_to_ghostscript,
         private string $absolute_temp_path,
@@ -50,6 +52,14 @@ readonly class Setup extends \Edutiek\AssessmentService\System\Data\Setup
         return match ($frontend) {
             Frontend::WRITER => $this->writer_base_url,
             Frontend::CORRECTOR => $this->corrector_base_url,
+        };
+    }
+
+    public function isFrontendWithLogin(Frontend $frontend): bool
+    {
+        return match ($frontend) {
+            Frontend::WRITER => $this->writer_with_Login,
+            Frontend::CORRECTOR => $this->corrector_with_Login,
         };
     }
 

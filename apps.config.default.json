@@ -1,10 +1,12 @@
 {
   "corrector": {
     "publicPath": "components/EDUTIEK/Corrector",
-    "backendUrl": "../../../xlas_rest.php"
+    "backendUrl": "../../../xlas_rest.php",
+    "withLogin": false
   },
   "writer": {
     "publicPath": "components/EDUTIEK/Writer",
-    "backendUrl": "../../../xlas_rest.php"
+    "backendUrl": "../../../xlas_rest.php",
+    "withLogin": false
   }
 }

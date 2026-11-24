@@ -50,14 +50,23 @@ class ContextInfoRepo implements \Edutiek\AssessmentService\Assessment\Data\Cont
         );
     }
 
-    public function link(int $ass_id, int $user_id): string
+    public function readableContextId(int $ass_id, int $user_id): ?int
     {
         foreach (ilObject::_getAllReferences($ass_id) as $ref_id) {
             if ($this->access->checkAccessOfUser($user_id, 'read', '', $ref_id)) {
-                $url = (string) $this->uri_builder->build('xlas', new ReferenceId($ref_id));
-                return str_replace('/xlas_rest.php', '', $url);
+                return $ref_id;
             }
         }
-        return '';
+        return null;
+    }
+
+    public function link(int $ass_id, int $context_id = null): string
+    {
+        if ($context_id) {
+            $url = (string) $this->uri_builder->build('xlas', new ReferenceId($context_id));
+        } else {
+            $url = ILIAS_HTTP_PATH;
+        }
+        return str_replace('/xlas_rest.php', '', $url);
     }
 }

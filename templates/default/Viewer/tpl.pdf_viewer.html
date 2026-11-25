@@ -1,1 +1,19 @@
-<iframe style="width:100%; height: 500px;" src="{URL}" alt="{CAPTION}" title="{CAPTION}"></iframe>
+<style>
+    .pdf-container {
+        width: 100%;
+        /* max-width: 1000px; */
+        margin: 0 auto;
+        border: none;
+        aspect-ratio: 113 / 100;
+    }
+
+    .pdf-container iframe {
+        width: 100%;
+        height: 100%;
+        border: none;
+        display: block;
+    }
+</style>
+<div class="pdf-container">
+    <iframe src="{URL}" alt="{CAPTION}" title="{CAPTION}"></iframe>
+</div>

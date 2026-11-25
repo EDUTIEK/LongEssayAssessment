@@ -3,6 +3,31 @@
 Please look at the [changelog of version 3](https://github.com/EDUTIEK/LongEssayAssessment/blob/release3_ilias9/CHANGELOG.md)
 for changes in that version.
 
+## Version 10.5 (2026-11-25)
+
+New functions, Visible changes
+- Optional free positioned marking shapes in text-based PDF correction 
+- Different shapes and symbols for the correction of HTML texts from the online editor
+- New column for pure status of other corrections on the corrector start screen
+- New documentation format "Portrait, annotations on the right side" for the correction of HTML texts
+- Separate threshold value for stitch decision
+- Switch to activate the grading statistics for correctors
+- Reactivate the grading statistics for writers
+- Setting to show a corrector start page without a filter and with a fixed sorting
+- Upload an editor text which is exported from the writer app
+- Don't add pages for existing text content when a PDF or editor text is uploaded
+- Unified checks for existing corrections at changes in writer administration
+- Check for existing correction content at deletion of a corrector assignment
+- Check if an uploaded correction summary PDF can be further processed
+
+Bug fixes
+- Fix not disabled setting for multiple tasks
+- Fix missing user's title in name displays
+- Fix page count for correction pdfs with uploaded summary
+- Fix missing notification recipients after copy or creation from template
+- Fix an error on the PDF upload page after deletion of an assigned location
+- Hide text snippets tabs when comments are disabled
+
 ## Version 10.4 (2026-10-11)
 
 New functions, Visible changes

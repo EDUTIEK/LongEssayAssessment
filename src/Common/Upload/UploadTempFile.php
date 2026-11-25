@@ -65,6 +65,14 @@ class UploadTempFile
         return null;
     }
 
+    public function getContent(string $identifier): ?string
+    {
+        if ($this->has($identifier)) {
+            return $this->filesystems->temp()->read($identifier);
+        }
+        return null;
+    }
+
     public function getHash(string $identifier): ?string
     {
         if ($this->has($identifier)) {

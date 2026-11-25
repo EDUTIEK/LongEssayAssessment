@@ -124,6 +124,7 @@ class CorrectionTableParent implements DataTableParent, FilterParent
                 ? $cf->link($this->lng->txt("name"))->withIsOptional(false)->withIsSortable(true)
                 : $cf->text($this->lng->txt("name"))->withIsOptional(false)->withIsSortable(true),
             "login" => $cf->text($this->lng->txt("login"))->withIsOptional(true, false)->withIsSortable(true),
+            "matriculation" => $cf->text($this->lng->txt("matriculation"))->withIsOptional(true, false)->withIsSortable(true),
             "pseudonym" => $cf->text($this->plugin->txt("pseudonym"))->withIsOptional(true, false)->withIsSortable(true),
             "location" => $cf->text($this->plugin->txt("location"))->withIsOptional(true, false)->withIsSortable(true),
             "task" => $cf->text($this->plugin->txt("task"))->withIsOptional(false)->withIsSortable(true),

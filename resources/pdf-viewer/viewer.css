@@ -4,9 +4,9 @@ body
     flex-direction: row;
 }
 
-body > *, #outerContainer
+#outerContainer
 {
-    width: 50%;
+    width: 66%;
 }
 
 .toolbar
@@ -16,18 +16,21 @@ body > *, #outerContainer
 
 #edutiek-annotations
 {
+    width: 33%;
     display: flex;
     flex-direction: column;
     padding: 30px 20px;
     box-sizing: border-box;
     height: 100vh;
     overflow-y: scroll;
+    background-color: white;
+    font-family: sans-serif;
 }
 
 .edutiek-annotation
 {
     padding: 10px;
-    background-color: #BBBBBB;
+    background-color: white;
     margin-bottom: 10px;
     border-radius: 10px;
     cursor: pointer;
@@ -35,7 +38,7 @@ body > *, #outerContainer
 
 .edutiek-annotation:hover, .edutiek-annotation.hover
 {
-    background-color: #AAAAAA;
+    background-color: #BBBBBB;
 }
 
 .edutiek-annotation.focus
@@ -48,16 +51,18 @@ body > *, #outerContainer
     inset: 0!important;
 }
 
-#mainContainer .highlightAnnotation:hover, .highlightAnnotation.hover
+#mainContainer .highlightAnnotation:hover, .highlightAnnotation.hover,
+#mainContainer .inkAnnotation:hover, .inkAnnotation.hover
 {
-    background-color: #AAAAAA77;
+    background-color: #BBBBBB77;
     border-radius: 3px;
     clip-path: unset!important;
 }
 
-#mainContainer .highlightAnnotation.focus
+#mainContainer .highlightAnnotation.focus,
+#mainContainer .inkAnnotation.focus
 {
-    background-color: #55555577;
+    background-color: #99999977;
     border-radius: 3px;
     clip-path: unset!important;
 }

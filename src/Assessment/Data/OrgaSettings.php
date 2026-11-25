@@ -23,6 +23,7 @@ namespace ILIAS\Plugin\LongEssayAssessment\Assessment\Data;
 use DateTimeImmutable;
 use Edutiek\AssessmentService\Assessment\Data\ParticipationType;
 use Edutiek\AssessmentService\Assessment\Data\ResultAvailableType;
+use Edutiek\AssessmentService\Assessment\Data\ReviewMode;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Key;
 use ILIAS\Plugin\LongEssayAssessment\Common\RecordRepo\Attribute\Table;
 
@@ -49,6 +50,7 @@ class OrgaSettings extends \Edutiek\AssessmentService\Assessment\Data\OrgaSettin
     private ?DateTimeImmutable $result_available_date = null;
     private bool $solution_available = false;
     private bool $review_enabled = false;
+    private string $review_mode = ReviewMode::BOTH->value;
     private bool $statistics_available = false;
     private ?string $forwarding_url = null;
     private bool $template = false;
@@ -228,6 +230,15 @@ class OrgaSettings extends \Edutiek\AssessmentService\Assessment\Data\OrgaSettin
     public function setReviewEnabled(bool $review_enabled): self
     {
         $this->review_enabled = $review_enabled;
+        return $this;
+    }
+    public function getReviewMode(): ReviewMode
+    {
+        return ReviewMode::tryFrom($this->review_mode) ?? ReviewMode::BOTH;
+    }
+    public function setReviewMode(ReviewMode $review_mode): self
+    {
+        $this->review_mode = $review_mode->value;
         return $this;
     }
     public function getStatisticsAvailable(): bool

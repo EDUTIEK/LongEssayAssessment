@@ -18,6 +18,7 @@ New functions, Visible changes
 - Don't add pages for existing text content when a PDF or editor text is uploaded
 - Unified checks for existing corrections at changes in writer administration
 - Check for existing correction content at deletion of a corrector assignment
+- Check if an uploaded correction summary PDF can be further processed
 
 Bug fixes
 - Fix not disabled setting for multiple tasks

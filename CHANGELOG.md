@@ -3,7 +3,7 @@
 Please look at the [changelog of version 3](https://github.com/EDUTIEK/LongEssayAssessment/blob/release3_ilias9/CHANGELOG.md)
 for changes in that version.
 
-## Version 10.5 (Upcoming)
+## Version 10.5 (2026-11-25)
 
 New functions, Visible changes
 - Optional free positioned marking shapes in text-based PDF correction 

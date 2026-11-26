@@ -144,9 +144,7 @@ class CorrectorTemplateGUI extends BaseGUI
         $corrector = $this->corrector_service->oneById($template->getCorrectorId());
         $user = $this->system_api->user()->getUser($corrector?->getUserId() ?? 0);
 
-        $content = $this->plugin_ui_factory->legacy(
-            $this->renderer->render($this->plugin_ui_factory->viewer()->html($template->getContent()))
-        );
+        $content = $this->plugin_ui_factory->viewer()->html($template->getContent());
 
         $this->ctrl->setParameter($this, 'share_id', $template->getCorrectorId());
         $adopt = $this->ui_factory->button()->primary(

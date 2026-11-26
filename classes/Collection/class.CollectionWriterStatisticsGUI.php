@@ -8,6 +8,7 @@ use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\Dependencies\PluginDic;
 use ILIAS\UI\Component\Input\Container\Filter;
 use ILIAS\Plugin\LongEssayAssessment\StatisticHelper;
+use Edutiek\AssessmentService\System\User\ReadService as UserService;
 
 /**
  * @ilCtrl_isCalledBy ILIAS\Plugin\LongEssayAssessment\Collection\CollectionWriterStatisticsGUI: ILIAS\Plugin\LongEssayAssessment\Collection\CollectionGUI
@@ -27,10 +28,14 @@ class CollectionWriterStatisticsGUI
      * @var int[]
      */
     private array $ass_ids;
+    private UserService $user_service;
+    private \ilObjUser $user;
 
     public function __construct(protected \ilLongEssayAssessmentPlugin $plugin, private PluginDIC $plugin_dic, private \ILIAS\DI\Container $dic, private array $object_nodes)
     {
         $this->statistic_repo = $this->plugin->dic()->view()->statistic();
+        $this->user_service = $this->plugin->dic()->system()->user();
+        $this->user = $dic->user();
         $this->ctrl  =  $dic->ctrl();
         $this->tpl = $dic->ui()->mainTemplate();
         $this->renderer = $dic->ui()->renderer();
@@ -72,7 +77,7 @@ class CollectionWriterStatisticsGUI
             $context[$node["obj_id"]] = $node["title"];
         }
 
-        $base_action = $this->ctrl->getFormAction($this, 'showStatistics');
+        $base_action = $this->ctrl->getFormAction($this, 'showStartPage');
         return $this->ui_service->filter()->standard("xlas_statistics", $base_action, [
             "context" => $this->ui_factory->input()->field()->multiSelect($this->plugin->txt("objs_xlas"), $context)
             ->withValue($this->ass_ids)
@@ -82,6 +87,7 @@ class CollectionWriterStatisticsGUI
     public function showStartPage()
     {
         $puf = $this->plugin_dic->uiFactory();
+        $user = $this->user_service->getUser($this->user->getId());
 
         $filter_gui = $this->buildFilter() ;
         $filter_data = $this->ui_service->filter()->getData($filter_gui) ?? ['context' => []];
@@ -90,23 +96,34 @@ class CollectionWriterStatisticsGUI
 
         $general = $this->statistic_repo->someAssessments(['ass_id' => $ass_ids]);
         $general_statistic = $this->buildStatistic($general, true, $this->plugin->txt('total_statistic'));
+        $own_general_statistic = $this->buildStatistic($general->fromUser($user), false, $this->plugin->txt('own_assessments'));
 
         $sections = [
-            $puf->statistic()->statisticSection($this->plugin->txt("total_statistic")),
-            $general_statistic
+            $general_statistic,
+            $own_general_statistic,
+            $puf->statistic()->statisticSection($this->plugin->txt("assessments")),
         ];
 
         foreach ($general->getAssessments() as $assessment) {
             $ass_statistic = $general->fromAssessent($assessment);
-            $sections[] = $this->buildStatistic($ass_statistic, true);
+            $statistic =  $this->buildStatistic($ass_statistic, true);
+
+            $gradings = $ass_statistic->fromUser($user)->getGradingObjects();
+            $own_grading = $gradings[array_key_first($gradings)] ?? null;
+
+            if ($own_grading !== null) {
+                $statistic = $statistic->withOwnGrade($own_grading->getGrade());
+            }
+
+            $sections[] = $statistic;
         }
 
-        if (count($sections) > 2) {
+        if (count($sections) > 4) {
             $this->tpl->setContent(
                 $this->renderer->render([$filter_gui, $puf->statistic()->extendableStatisticGroup($this->plugin->txt("statistic"), $sections)])
             );
         } else {
-            $this->tpl->setContent($this->renderer->render([$filter_gui,  $general_statistic]));
+            $this->tpl->setContent($this->renderer->render([$filter_gui,  $general_statistic->withTitle($this->plugin->txt("total_statistic"))]));
         }
     }
 }

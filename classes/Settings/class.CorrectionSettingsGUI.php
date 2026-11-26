@@ -22,6 +22,7 @@ use ILIAS\Plugin\LongEssayAssessment\BaseGUI;
 use ILIAS\Plugin\LongEssayAssessment\BaseObjectData;
 use ILIAS\UI\Component\Input\Container\Form\Standard;
 use Edutiek\AssessmentService\Assessment\Data\Pseudonymization;
+use Edutiek\AssessmentService\Assessment\Data\CorrectionSort;
 
 /**
  * Settings for the correction
@@ -33,7 +34,6 @@ class CorrectionSettingsGUI extends BaseGUI
     private OrgaSettingsService $orga_settings_service;
     private AssessmentCorrectionSettingsService $assessment_correction_settings_service;
     private TaskCorrectionSettingsService $task_correction_settings_service;
-    private PdfSettingsService $pdf_settings_service;
     private EntityService $entity_service;
     private DateTimeZone $user_timezone;
     private TaskManager $manager_service;
@@ -46,7 +46,6 @@ class CorrectionSettingsGUI extends BaseGUI
         $this->orga_settings_service = $this->assessment_api->orgaSettings();
         $this->assessment_correction_settings_service = $this->assessment_api->correctionSettings();
         $this->task_correction_settings_service = $this->task_api->correctionSettings();
-        $this->pdf_settings_service = $this->assessment_api->pdfSettings();
         $this->entity_service = $this->system_api->entity();
         $this->user_timezone = new DateTimeZone($this->user->getTimeZone());
         $this->manager_service = $this->task_api->manager();
@@ -102,28 +101,23 @@ class CorrectionSettingsGUI extends BaseGUI
                     $assessment_settings->setWaitForFirst((bool) $subdata['wait_for_first']);
                     $assessment_settings->setUndoFirstAuthorization((bool) $subdata['undo_first_authorization']);
 
-                    if ($subdata['handle_distance'][0] === 'clearance') {
-                        $clearance = $subdata['handle_distance'][1];
-                        $assessment_settings->setMaxAutoDistance((float) $clearance['max_auto_distance']);
-
-                        $assessment_settings->setProcedure(CorrectionProcedure::tryFrom(
-                            $clearance['procedure'][0] ?? CorrectionProcedure::NONE
-                        ));
-                        if (isset($clearance['procedure'][1]['revision_between'])) {
-                            $assessment_settings->setRevisionBetween((bool) $clearance['procedure'][1]['revision_between']);
-                        }
-
-                        $assessment_settings->setStitchAfterProcedure((bool) $clearance['stitch'][0]);
-
+                    // procedure
+                    $assessment_settings->setProcedure(CorrectionProcedure::tryFrom(
+                        $subdata['procedure'][0] ?? CorrectionProcedure::NONE
+                    ));
+                    if ($assessment_settings->getProcedure() === CorrectionProcedure::NONE) {
+                        $assessment_settings->setProcedureWhenDistance(false);
                     } else {
-                        $assessment_settings->setProcedure(CorrectionProcedure::NONE);
-                        $assessment_settings->setStitchAfterProcedure(false);
+                        $assessment_settings->setProcedureWhenDistance(true);
+                        $assessment_settings->setMaxNoProcedureDistance((float) $subdata['procedure'][1]['max_no_procedure_distance']);
+                        $assessment_settings->setRevisionBetween((bool) $subdata['procedure'][1]['revision_between']);
                     }
 
-                    $assessment_settings->setProcedureWhenDistance(
-                        $assessment_settings->getProcedure() !== CorrectionProcedure::NONE
-                        || $assessment_settings->getStitchAfterProcedure()
-                    );
+                    // stitch
+                    $assessment_settings->setStitchWhenDistance((bool) $subdata['stitch'][0]);
+                    if ($assessment_settings->getStitchWhenDistance()) {
+                        $assessment_settings->setMaxNoStitchDistance((float) $subdata['stitch'][1]['max_no_stitch_distance']);
+                    }
                 }
             }
 
@@ -131,12 +125,24 @@ class CorrectionSettingsGUI extends BaseGUI
             if (!$this->fixation_gui->isDisabled('correction')) {
                 $assessment_settings->setPseudonymization(Pseudonymization::tryFrom((string) $data['correction']['pseudonymization'])
                     ?? Pseudonymization::WRITER_ID);
-                $assessment_settings->setAssignMode(AssignMode::tryFrom($data['correction']['assign_mode']) ?? AssignMode::RANDOM_EQUAL);
+                // $assessment_settings->setAssignMode(AssignMode::tryFrom($data['correction']['assign_mode']) ?? AssignMode::RANDOM_EQUAL);
+                $assessment_settings->setStartpageFixed($data['correction']['startpage'][0] == 'fixed');
+                if ($assessment_settings->getStartpageFixed()) {
+                    $assessment_settings->setFixedSort1(
+                        CorrectionSort::tryFrom($data['correction']['startpage'][1]['fixed_sort1'])
+                            ?? CorrectionSort::GRADING_POSITION
+                    );
+                    $assessment_settings->setFixedSort2(
+                        CorrectionSort::tryFrom($data['correction']['startpage'][1]['fixed_sort2'])
+                            ?? CorrectionSort::OWN_STATE
+                    );
+                }
                 $assessment_settings->setUndoAuthorization((bool) $data['correction']['undo_authorization']);
                 $assessment_settings->setInstantStatus((bool) $data['correction']['instant_status']);
                 $assessment_settings->setAnonymizeCorrectors((bool) $data['correction']['anonymize_correctors']);
                 $assessment_settings->setDownloadWriting((bool) $data['correction']['allow_download_writing']);
                 $assessment_settings->setDownloadCorrection((bool) $data['correction']['allow_download_correction']);
+                $assessment_settings->setAccessStatistics((bool) $data['correction']['allow_access_statistics']);
                 if (isset($data['correction']['reports_enabled']) && is_array($data['correction']['reports_enabled'])) {
                     $assessment_settings->setReportsEnabled(true);
                     $assessment_settings->setReportsAvailableStart($data['correction']['reports_enabled']['reports_available_start']);
@@ -171,7 +177,10 @@ class CorrectionSettingsGUI extends BaseGUI
 
             // Correction functions
             if (!$this->has_authorized_corrections && !$this->fixation_gui->isDisabled('correction_functions')) {
-                $task_settings->setPdfMarking(PdfMarking::tryFrom($data['correction_functions']['pdf_marking'] ?? '') ?? PdfMarking::IMAGES);
+                $task_settings->setPdfMarking(PdfMarking::tryFrom($data['correction_functions']['pdf_marking'][0] ?? '') ?? PdfMarking::IMAGES);
+                if ($task_settings->getPdfMarking() === PdfMarking::TEXT) {
+                    $task_settings->setFreeMarking((bool) ($data['correction_functions']['pdf_marking'][1]['pdf_marking_free'] ?? false));
+                }
                 $task_settings->setEnableComments(((bool) $data['correction_functions']['enable_comments']));
                 $task_settings->setEnablePartialPoints(((bool) $data['correction_functions']['enable_partial_points']));
                 if (isset($data['correction_functions']['enable_comment_ratings']) && is_array($data['correction_functions']['enable_comment_ratings'])) {
@@ -190,11 +199,6 @@ class CorrectionSettingsGUI extends BaseGUI
 
             $this->entity_service->secure($task_settings, EssayCorrectionSettings::class);
             $this->task_correction_settings_service->save($task_settings);
-
-            if ($task_settings->getPdfMarking() == PdfMarking::TEXT) {
-                $pdf_settings = $this->pdf_settings_service->get();
-                $this->pdf_settings_service->save($pdf_settings->setFeedbackMode(PdfFeedbackMode::SEQUENCE));
-            }
 
             foreach ($single_task_settings as $settings) {
                 $this->entity_service->secure($settings, TaskSettings::class);
@@ -229,14 +233,21 @@ class CorrectionSettingsGUI extends BaseGUI
             $revision_between = $factory->checkbox(
                 $this->plugin->txt('revision_between'),
                 $this->plugin->txt('revision_between_info')
-            )->withValue($assessment_settings->getRevisionBetween());
-
-            $average = $factory->group(
-                [],
-                $this->plugin->txt('average_when_distance'),
-                $this->plugin->txt('average_when_distance_info')
             );
 
+            $max_distance = $this->plugin_ui_factory->field()->numeric(
+                $this->plugin->txt('max_distance'),
+                $this->plugin->txt('max_distance_info')
+            )
+                ->withStep(0.5)
+                ->withAdditionalTransformation($this->refinery->byTrying([
+                    $this->refinery->KindlyTo()->float(),
+                    $this->refinery->always(0)
+                ]))
+                ->withAdditionalTransformation($this->constraints->minimum(0))
+                ->withAdditionalTransformation($this->constraints->maximum(1000000000));
+
+            // procedure
             $no_procedure = $factory->group(
                 [],
                 $this->plugin->txt('procedure_none'),
@@ -245,7 +256,11 @@ class CorrectionSettingsGUI extends BaseGUI
 
             $approximation = $factory->group(
                 [
-                    'revision_between' => $revision_between,
+                    'max_no_procedure_distance' => $max_distance
+                        ->withValue((empty($assessment_settings->getMaxNoProcedureDistance()) ? 0.0 :
+                            $assessment_settings->getMaxNoProcedureDistance())),
+                    'revision_between' => $revision_between
+                        ->withValue($assessment_settings->getRevisionBetween())
                 ],
                 $this->plugin->txt('procedure_approximation'),
                 $this->plugin->txt('procedure_approximation_info')
@@ -253,64 +268,30 @@ class CorrectionSettingsGUI extends BaseGUI
 
             $consulting = $factory->group(
                 [
-                    'revision_between' => $revision_between,
+                    'max_no_procedure_distance' => $max_distance
+                        ->withValue((empty($assessment_settings->getMaxNoProcedureDistance()) ? 0.0 :
+                            $assessment_settings->getMaxNoProcedureDistance())),
+                    'revision_between' => $revision_between
+                        ->withValue($assessment_settings->getRevisionBetween())
                 ],
                 $this->plugin->txt('procedure_consulting'),
                 $this->plugin->txt('procedure_consulting_info')
             );
 
-            $procedure = $factory->switchableGroup(
-                [
-                    CorrectionProcedure::NONE->value => $no_procedure,
-                    CorrectionProcedure::APPROXIMATION->value => $approximation,
-                    CorrectionProcedure::CONSULTING->value => $consulting,
-                ],
-                $this->plugin->txt('procedure_setting_label'),
-            )->withValue($assessment_settings->getProcedure()->value);
-
-
-            $stitch_disabled = $factory->group(
+            $no_stitch = $factory->group(
                 [],
                 $this->plugin->txt('stitch_disabled'),
                 $this->plugin->txt('stitch_disabled_info')
             );
 
-            $stitch_after_procedure = $factory->group(
-                [],
-                $this->plugin->txt('stitch_after_procedure'),
-                $this->plugin->txt('stitch_after_procedure_info')
-            );
-
-            $stitch_setting = $factory->switchableGroup(
+            $stitch = $factory->group(
                 [
-                    '0' => $stitch_disabled,
-                    '1' => $stitch_after_procedure
+                    'max_no_stitch_distance' => $max_distance
+                        ->withValue((empty($assessment_settings->getMaxNoStitchDistance()) ? 0.0 :
+                            $assessment_settings->getMaxNoStitchDistance())),
                 ],
-                $this->plugin->txt('stitch_setting_label'),
-            )->withValue($assessment_settings->getStitchAfterProcedure() ? '1' : '0');
-
-            $max_auto_distance = $this->plugin_ui_factory->field()->numeric(
-                $this->plugin->txt('max_auto_distance'),
-                $this->plugin->txt('max_auto_distance_info')
-            )
-                ->withStep(0.5)
-                ->withAdditionalTransformation($this->refinery->byTrying([
-                    $this->refinery->KindlyTo()->float(),
-                    $this->refinery->always(0)
-                ]))
-                ->withAdditionalTransformation($this->constraints->minimum(0))
-                ->withAdditionalTransformation($this->constraints->maximum(1000000000))
-                ->withValue((empty($assessment_settings->getMaxAutoDistance()) ? 0.0 : $assessment_settings->getMaxAutoDistance()));
-
-
-            $clearance = $factory->group(
-                [
-                    'max_auto_distance' => $max_auto_distance,
-                    'procedure' => $procedure,
-                    'stitch' => $stitch_setting
-                ],
-                $this->plugin->txt('procedure_when_distance'),
-                $this->plugin->txt('procedure_when_distance_info')
+                $this->plugin->txt('stitch_when_distance'),
+                $this->plugin->txt('stitch_when_distance_info')
             );
 
             $single = $factory->group(
@@ -330,13 +311,21 @@ class CorrectionSettingsGUI extends BaseGUI
                     $this->plugin->txt('undo_first_authorization'),
                     $this->plugin->txt('undo_first_authorization_info')
                 )->withValue($assessment_settings->getUndoFirstAuthorization()),
-                'handle_distance' => $factory->switchableGroup(
+                'procedure' => $factory->switchableGroup(
                     [
-                        'average' => $average,
-                        'clearance' => $clearance
+                        CorrectionProcedure::NONE->value => $no_procedure,
+                        CorrectionProcedure::APPROXIMATION->value => $approximation,
+                        CorrectionProcedure::CONSULTING->value => $consulting,
                     ],
-                    $this->plugin->txt('handle_distance'),
-                )->withValue($assessment_settings->getProcedureWhenDistance() || $assessment_settings->getStitchAfterProcedure() ? 'clearance' : 'average')
+                    $this->plugin->txt('procedure_setting_label'),
+                )->withValue($assessment_settings->getProcedure()->value),
+                'stitch' => $factory->switchableGroup(
+                    [
+                        '0' => $no_stitch,
+                        '1' => $stitch
+                    ],
+                    $this->plugin->txt('stitch_setting_label'),
+                )->withValue($assessment_settings->getStitchWhenDistance() ? '1' : '0'),
             ], $this->plugin->txt('first_and_second_corrector'));
 
             $fields = [];
@@ -360,14 +349,33 @@ class CorrectionSettingsGUI extends BaseGUI
                 $this->plugin->txt('pseudonymization_info'),
             )->withRequired(true)->withValue($assessment_settings->getPseudonymization()->value);
 
-            $fields['assign_mode'] = $factory->radio($this->plugin->txt('assign_mode'))
-                ->withRequired(true)
-                ->withOption(
-                    AssignMode::RANDOM_EQUAL->value,
-                    $this->plugin->txt('assign_mode_random_equal'),
-                    $this->plugin->txt('assign_mode_random_equal_info')
-                )
-                ->withValue($assessment_settings->getAssignMode()->value);
+            //            $fields['assign_mode'] = $factory->radio($this->plugin->txt('assign_mode'))
+            //                ->withRequired(true)
+            //                ->withOption(
+            //                    AssignMode::RANDOM_EQUAL->value,
+            //                    $this->plugin->txt('assign_mode_random_equal'),
+            //                    $this->plugin->txt('assign_mode_random_equal_info')
+            //                )
+            //                ->withValue($assessment_settings->getAssignMode()->value);
+
+            $fields['startpage'] = $factory->switchableGroup(
+                [
+                    'full' => $factory->group([], $this->plugin->txt('correction_startpage_full')),
+                    'fixed' => $factory->group([
+                        'fixed_sort1' => $factory->select(
+                            $this->plugin->txt('corrections_sort_1'),
+                            $this->assessment_correction_settings_service->sortOptions()
+                        )
+                            ->withValue($assessment_settings->getFixedSort1()->value),
+                        'fixed_sort2' => $factory->select(
+                            $this->plugin->txt('corrections_sort_2'),
+                            $this->assessment_correction_settings_service->sortOptions()
+                        )
+                            ->withValue($assessment_settings->getFixedSort2()->value),
+                    ], $this->plugin->txt('correction_startpage_fixed'))
+                ],
+                $this->plugin->txt('correction_startpage')
+            )->withValue($assessment_settings->getStartpageFixed() ? 'fixed' : 'full');
 
             $fields['undo_authorization'] = $factory->checkbox(
                 $this->plugin->txt('undo_authorization'),
@@ -394,6 +402,12 @@ class CorrectionSettingsGUI extends BaseGUI
                 $this->plugin->txt('allow_download_correction'),
                 $this->plugin->txt('allow_download_correction_info')
             )->withValue($assessment_settings->getDownloadCorrection());
+
+            $fields['allow_access_statistics'] = $factory->checkbox(
+                $this->plugin->txt('allow_access_statistics'),
+                $this->plugin->txt('allow_access_statistics_info')
+            )->withValue($assessment_settings->getAccessStatistics());
+
 
             $fields['reports_enabled'] = $factory->optionalGroup(
                 [
@@ -478,11 +492,25 @@ class CorrectionSettingsGUI extends BaseGUI
         if ($this->fixation_gui->isVisible('correction_functions')) {
             $fields = [];
 
-            $fields['pdf_marking'] = $factory->radio(
+            $fields['pdf_marking'] = $factory->switchableGroup(
+                [
+                'images' => $factory->group(
+                    [],
+                    $this->plugin->txt('pdf_marking_images'),
+                    $this->plugin->txt('pdf_marking_images_info'),
+                ),
+                'direct' => $factory->group(
+                    ['pdf_marking_free' => $factory->checkbox(
+                        $this->plugin->txt('pdf_marking_free'),
+                        $this->plugin->txt('pdf_marking_free_info')
+                    )->withValue($task_settings->getFreeMarking())],
+                    $this->plugin->txt('pdf_marking_direct'),
+                    $this->plugin->txt('pdf_marking_direct_info'),
+                ),
+            ],
                 $this->plugin->txt('pdf_marking'),
                 $this->plugin->txt('pdf_marking_info')
-            )->withOption('images', $this->plugin->txt('pdf_marking_images'), $this->plugin->txt('pdf_marking_images_info'))
-                ->withOption('direct', $this->plugin->txt('pdf_marking_direct'), $this->plugin->txt('pdf_marking_direct_info'))
+            )
                 ->withValue($task_settings->getPdfMarking()->value);
 
             $fields["enable_comments"] = $factory->checkbox(

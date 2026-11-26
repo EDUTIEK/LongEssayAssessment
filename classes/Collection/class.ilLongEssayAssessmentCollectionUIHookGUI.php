@@ -46,10 +46,9 @@ class ilLongEssayAssessmentCollectionUIHookGUI extends ilUIHookPluginGUI
                 if ($ref_id !== null) {
                     $data = $this->tree->getNodeData($ref_id);
                     $xlas_childs = $this->tree->getSubTree($data, false, ['xlas']);
+                    $xlas_childs = array_filter($xlas_childs, fn($x) => $this->access->checkAccess('read', '', $x));
 
-                    $xlas_childs = array_filter($xlas_childs, fn($x) => $this->access->checkAccess('maintain_correctors', '', $x));
-
-                    if (count($xlas_childs) > 1) {
+                    if (count($xlas_childs) >= 1) {
                         /**
                          * @var ilTabsGUI $tabs;
                          */
@@ -68,7 +67,7 @@ class ilLongEssayAssessmentCollectionUIHookGUI extends ilUIHookPluginGUI
                 }
             }
             if ($this->query->has("cmdClass") && in_array(
-                $this->query->retrieve("cmdClass", $this->refinery->kindlyTo()->string()),
+                str_replace(urlencode('\\'), '', $this->query->retrieve("cmdClass", $this->refinery->kindlyTo()->string())),
                 array_map(fn($class) => str_replace('\\', '', $class), [CollectionGUI::class, CollectionCorrectorAdminStatisticsGUI::class, CollectionWriterAdminStatisticsGUI::class, CollectionWriterStatisticsGUI::class])
             )) {
                 $this->lng->loadLanguageModule("crs");

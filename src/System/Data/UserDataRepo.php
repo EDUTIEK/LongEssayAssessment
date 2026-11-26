@@ -100,7 +100,7 @@ class UserDataRepo implements \Edutiek\AssessmentService\System\Data\UserDataRep
         $query->setOrderField('lastname');
         $query->setOrderDirection('asc');
         $query->setUserFilter($ids);
-        $query->setAdditionalFields(['matriculation']);
+        $query->setAdditionalFields(['title', 'matriculation']);
 
         $result = $query->query();
         foreach ($result['set'] ?? [] as $row) {

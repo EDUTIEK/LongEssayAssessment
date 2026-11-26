@@ -48,6 +48,8 @@ class DataTable extends Table implements DataTableParent
 
     private ?Order $default_order = null;
     private ?Range $default_range = null;
+    /** @var null|Closure(Item, Item): int */
+    private bool $keep_order = false;
 
     public function __construct(
         string $ui_name,
@@ -89,6 +91,7 @@ class DataTable extends Table implements DataTableParent
     }
 
     private array $additional_parameter = [];
+    private bool $without_paging = false;
 
     protected function buildTable(): \ILIAS\UI\Component\Component
     {
@@ -133,6 +136,11 @@ class DataTable extends Table implements DataTableParent
         ?array $filter_data,
         ?array $additional_parameters
     ): \Generator {
+        if ($this->smallView($additional_parameters) || $this->without_paging) {
+            // prevent \ILIAS\UI\Implementation\Component\Table\TableViewControlPagination::$number_of_rows being used
+            $range = $range->withLength(PHP_INT_MAX)->croppedTo(PHP_INT_MAX);
+        }
+
         yield from new DataTableRowBuilder(
             $row_builder,
             $this->getTableItems(null, $filter_data),
@@ -141,7 +149,8 @@ class DataTable extends Table implements DataTableParent
             $range,
             $order,
             $this->actions,
-            $additional_parameters
+            $additional_parameters,
+            $this->keep_order
         );
     }
 
@@ -213,7 +222,9 @@ class DataTable extends Table implements DataTableParent
     # DATA TABLE PARENT fassade
     public function getTotalRowCount(?array $filter_data, ?array $additional_parameters): ?int
     {
-        if ($this->smallView($additional_parameters)) {
+        // a negative count hides the pagination and shows all rows within the default range of the ILIAS data table
+        if ($this->smallView($additional_parameters) || $this->without_paging) {
+            // This is needed!
             return -1;
         }
         return $this->dt_parent->getTotalRowCount($filter_data, $additional_parameters);
@@ -262,6 +273,23 @@ class DataTable extends Table implements DataTableParent
     private function getDefaultRange(): ?Range
     {
         return $this->default_range;
+    }
+
+    /**
+     * Show all rows without paging controls
+     * Note: this cuts off all rows after 800
+     */
+    public function setWithoutPaging(bool $without_paging): void
+    {
+        $this->without_paging = $without_paging;
+    }
+
+    /**
+     * Keep the oder delivered by getTableItems()
+     */
+    public function setKeepOrder(bool $keep): void
+    {
+        $this->keep_order = $keep;
     }
 
 }

@@ -76,6 +76,7 @@ class Export extends Action
                     array_keys($columns),
                     empty($selected_rows) || $all_rows_selected ? new Range(0, PHP_INT_MAX) : $table->getRange(),
                     $table->getOrder(),
+                    [],
                     $table->getFilter(),
                     $table->getAdditionalParameters()
                 );

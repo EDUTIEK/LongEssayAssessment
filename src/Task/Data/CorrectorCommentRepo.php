@@ -54,6 +54,11 @@ class CorrectorCommentRepo implements \Edutiek\AssessmentService\Task\Data\Corre
         return null != $this->repo->queryIntegers($sql, 'id');
     }
 
+    public function hasByWriterId(int $writer_id): bool
+    {
+        return $this->repo->hasBy(['writer_id'=> $writer_id]);
+    }
+
     public function save(CorrectorComment $entity): void
     {
         $this->repo->replace($entity);

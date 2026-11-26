@@ -221,12 +221,23 @@ class DocumentationSettingsGUI extends BaseGUI
             ->withDisabled($this->fixation_gui->isDisabled('docu_settings'));
 
         $fields['feedback_mode'] = $factory->radio(
-            $this->plugin->txt('pdf_feedback_mode'),
-            $this->plugin->txt('pdf_feedback_mode_info'),
-        )->withOption(PdfFeedbackMode::SIDE_BY_SIDE->value, $this->plugin->txt('pdf_feedback_mode_sidebyside'))
-            ->withOption(PdfFeedbackMode::SEQUENCE->value, $this->plugin->txt('pdf_feedback_mode_sequence'))
+            $this->plugin->txt('pdf_feedback_mode')
+        )->withOption(
+            PdfFeedbackMode::SIDE_LANDSCAPE->value,
+            $this->plugin->txt('pdf_feedback_mode_side_landscape'),
+            $this->plugin->txt('pdf_feedback_mode_side_landscape_info')
+        )
+            ->withOption(
+                PdfFeedbackMode::SIDE_PORTRAIT->value,
+                $this->plugin->txt('pdf_feedback_mode_side_portrait'),
+                $this->plugin->txt('pdf_feedback_mode_side_portrait_info')
+            )
+            ->withOption(
+                PdfFeedbackMode::SEQUENCE->value,
+                $this->plugin->txt('pdf_feedback_mode_sequence'),
+                $this->plugin->txt('pdf_feedback_mode_sequence_info')
+            )
             ->withValue($pdf_settings->getFeedbackMode()->value)
-            ->withDisabled($correction_settings->getPdfMarking() == PdfMarking::TEXT)
             ->withDisabled($this->fixation_gui->isDisabled('docu_settings'));
 
         return $this->ui_factory->input()->container()->form()->standard(
@@ -244,7 +255,7 @@ class DocumentationSettingsGUI extends BaseGUI
             $export_settings->setResultExportFormat(ResultExportFormat::tryFrom($data['result_format']));
             $pdf_settings->setFormat(PdfFormat::tryFrom($data['pdf_format']) ?? PdfFormat::EDUTIEK);
             $pdf_settings->setFeedbackMode(
-                PdfFeedbackMode::tryFrom($data['feedback_mode']) ?? PdfFeedbackMode::SIDE_BY_SIDE
+                PdfFeedbackMode::tryFrom($data['feedback_mode']) ?? PdfFeedbackMode::SIDE_LANDSCAPE
             );
 
             $this->entity_service->secure($export_settings, ExportSettings::class);

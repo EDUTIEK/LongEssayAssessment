@@ -125,7 +125,7 @@ class Renderer extends AbstractComponentRenderer
                 }
             }, {$interval})
         });";
-        return $this->getUIFactory()->legacy()->content("")->withOnLoadCode(fn ($id) => $js_code);
+        return $this->getUIFactory()->legacy()->content("")->withOnLoadCode(fn($id) => $js_code);
     }
 
 

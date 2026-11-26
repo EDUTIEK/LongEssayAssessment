@@ -526,7 +526,7 @@ abstract class Table implements TableParent, FilterParent, Component\Component
 
         if ($table instanceof UIDataTable) {
             $columns = array_filter($table->getColumns(), fn($x) => !$x instanceof Column\Image);
-            $rows_all_selected = count($selected_rows ?? []) >= $table->getDataRetrieval()->getTotalRowCount($table->getFilter(), $table->getAdditionalParameters());
+            $rows_all_selected = count($selected_rows ?? []) >= $table->getDataRetrieval()->getTotalRowCount([], $table->getFilter(), $table->getAdditionalParameters());
             $modal = $this->ui_factory->modal()->roundtrip(
                 $action->label(),
                 [],

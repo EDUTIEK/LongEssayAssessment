@@ -142,6 +142,7 @@ class WriterAdminGUI extends WriterTableGUI
              "image",
              "name",
              "login",
+             "matriculation",
              "pseudonym",
              "location",
              "status",

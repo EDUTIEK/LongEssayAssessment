@@ -67,12 +67,14 @@ A correct **time zone** must be configured in ILIAS for the processing of time i
 ImageMagick may run into resource limits when uploading larger PDF files of participant submissions. A direct processing by **ghostscript** is better. You can set the path to the ghostscript executable in the plugin configuration. If ghostscript can't be used directly, the PDF file processing will use ImageMagick.
 
 
-## Installation and Update
+## Installation and update
 
 1. Copy the plugin to `Customizing/global/plugins/Services/Repository/RepositoryObject`
 2. Execute `composer install --no-dev` in the plugin folder.
 3. Execute `composer install --no-dev` in the ILIAS main directory.
-4. Install or update the plugin in the ILIAS plugin administration.
+4. Execute `php cli/setup.php update --legacy-plugin=LongEssayAssessment --yes` in the ILIAS main directory.
+
+**Note:** Please use these steps in the CLI instead of the ILIAS plugin administration, even for minor updates.
 
 **Optional Overview**
 

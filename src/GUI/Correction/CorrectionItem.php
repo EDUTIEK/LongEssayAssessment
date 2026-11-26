@@ -54,6 +54,11 @@ class CorrectionItem extends \ILIAS\Plugin\LongEssayAssessment\UI\Table\Item
         return $this->writer_data?->getLogin();
     }
 
+    public function getWriterMatriculation(): ?string
+    {
+        return $this->writer_data?->getMatriculation();
+    }
+
     public function getWriter(): Writer
     {
         return $this->writer;

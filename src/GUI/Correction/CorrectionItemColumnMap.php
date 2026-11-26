@@ -105,6 +105,7 @@ class CorrectionItemColumnMap extends ColumnMappingArray
                 )
                 : $item->getWriterName() ?? $this->unknown(),
             "login" => $item->getWriterLogin() ?? "",
+            "matriculation" => $item->getWriterMatriculation() ?? "",
             "pseudonym" => $item->getWriter()->getPseudonym(),
             "location" => $item->getLocation()?->getTitle() ?? "",
             "assessment" => $item->getAssessmentProperties()->getTitle(),

@@ -3,7 +3,7 @@
 Please look at the [changelog of version 3](https://github.com/EDUTIEK/LongEssayAssessment/blob/release3_ilias9/CHANGELOG.md)
 for changes in that version.
 
-## Version 10.5 (Upcoming)
+## Version 10.5 (2026-11-25)
 
 New functions, Visible changes
 - Optional free positioned marking shapes in text-based PDF correction 
@@ -18,6 +18,7 @@ New functions, Visible changes
 - Don't add pages for existing text content when a PDF or editor text is uploaded
 - Unified checks for existing corrections at changes in writer administration
 - Check for existing correction content at deletion of a corrector assignment
+- Check if an uploaded correction summary PDF can be further processed
 
 Bug fixes
 - Fix not disabled setting for multiple tasks
@@ -25,6 +26,7 @@ Bug fixes
 - Fix page count for correction pdfs with uploaded summary
 - Fix missing notification recipients after copy or creation from template
 - Fix an error on the PDF upload page after deletion of an assigned location
+- Hide text snippets tabs when comments are disabled
 
 ## Version 10.4 (2026-10-11)
 

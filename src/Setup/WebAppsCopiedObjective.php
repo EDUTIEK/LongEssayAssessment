@@ -48,6 +48,11 @@ class WebAppsCopiedObjective implements Setup\Objective
             'writer' => $plugin . '/vendor/edutiek/assessment-service/node_modules/assessment-writer/dist',
         ];
 
+        $welcomes = [
+            'corrector' => $plugin . '/custom/corrector/welcome',
+            'writer' => $plugin . '/custom/writer/welcome',
+        ];
+
         foreach ($sources as $app => $source) {
             $public_path = $config[$app]['publicPath'] ?? null;
             if (!is_string($public_path) || $public_path === '') {
@@ -58,7 +63,14 @@ class WebAppsCopiedObjective implements Setup\Objective
             if (!is_dir($source)) {
                 throw new Setup\UnachievableException("Web app '$app' was not found at '$source'.");
             }
+
             $this->copy($source, $public, $public_path);
+
+            $welcome = $welcomes[$app] ?? '';
+            if (is_dir($welcome)) {
+                $this->delete($public . '/' . $public_path . '/welcome');
+                $this->copy($welcome, $public, $public_path . '/welcome');
+            }
         }
 
         $backend_url = $config['corrector']['backendUrl'] ?? null;
@@ -136,6 +148,30 @@ class WebAppsCopiedObjective implements Setup\Objective
         if (is_file($source)) {
             copy($source, $target);
         }
+    }
+
+    /**
+     * delete a file or directory recursively
+     * @param string $dir    absolute path of the directory
+     */
+    public function delete($dir)
+    {
+        if (!file_exists($dir)) {
+            return true;
+        }
+        if (!is_dir($dir)) {
+            return unlink($dir);
+        }
+        foreach (scandir($dir) as $item) {
+            if ($item == '.' || $item == '..') {
+                continue;
+            }
+
+            if (!$this->delete($dir . DIRECTORY_SEPARATOR . $item)) {
+                return false;
+            }
+        }
+        return rmdir($dir);
     }
 
     public function isApplicable(Environment $environment): bool

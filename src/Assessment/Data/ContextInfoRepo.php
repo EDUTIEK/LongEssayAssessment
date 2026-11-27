@@ -60,7 +60,7 @@ class ContextInfoRepo implements \Edutiek\AssessmentService\Assessment\Data\Cont
         return null;
     }
 
-    public function link(int $ass_id, int $context_id = null): string
+    public function link(int $ass_id, ?int $context_id = null): string
     {
         if ($context_id) {
             $url = (string) $this->uri_builder->build('xlas', new ReferenceId($context_id));
